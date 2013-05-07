@@ -1,0 +1,13 @@
+*.jpg       binary
+*.bat       eol=crlf
+*.cmd       eol=crlf
+*.sh        eol=lf
+*.bmp       -text
+*.doc       -text
+*.gif       -text
+*.png       -text
+*.class     -text
+*.rtf       -text
+*.zip       -text
+*.jar       -text
+*.war       -text
