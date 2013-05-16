@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.ElementListUnion;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,6 +23,9 @@ public class BusinessObjectFieldsConfig {
     private List<FieldConfig> fieldConfigs;
 
     public List<FieldConfig> getFieldConfigs() {
+        if(fieldConfigs == null) {
+            fieldConfigs = new ArrayList<FieldConfig>();
+        }
         return fieldConfigs;
     }
 

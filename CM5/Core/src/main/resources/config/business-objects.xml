@@ -13,6 +13,9 @@
             <long name="Long Field"/> <!-- mapping to LONG_FIELD column -->
             <decimal name="Decimal Field" precision="10" scale="2" />
         </fields>
+        <uniqueKey> <!-- This key means automatic key + index creation-->
+            <field name="Registration Number"/>
+        </uniqueKey>
     </businessObject>
 
     <businessObject name="Person">
@@ -21,21 +24,23 @@
             <string name="Login" length="64" not-null="true" />
             <password name="Password" length="128" />
         </fields>
-       <!-- <uniqueKey> &lt;!&ndash; This key means automatic key + index creation &ndash;&gt;
-            <fields>
-                <field name="E-Mail"/>
-            </fields>
-        </uniqueKey>-->
+       <uniqueKey> <!-- This key means automatic key + index creation-->
+            <field name="E-Mail"/>
+       </uniqueKey>
     </businessObject>
 
     <businessObject name="Employee">
         <fields>
             <reference name="Department" type="Department" not-null="true" />
+            <string name="Name" length="64" not-null="true" />
             <string name="Position" length="64" not-null="true" />
             <string name="Phone" length="32" />
             <string name="Certificate" length="4096" />
             <string name="Fingerprint" length="128" />
         </fields>
+        <uniqueKey> <!-- This key means automatic key + index creation-->
+            <field name="Registration Number"/>
+        </uniqueKey>
     </businessObject>
 
     <businessObject name="Department">

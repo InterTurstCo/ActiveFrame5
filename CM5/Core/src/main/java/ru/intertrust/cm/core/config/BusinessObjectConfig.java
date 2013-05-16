@@ -1,10 +1,13 @@
 package ru.intertrust.cm.core.config;
 
-import org.simpleframework.xml.*;
-import org.simpleframework.xml.core.Persister;
+import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
+import org.simpleframework.xml.ElementList;
+import org.simpleframework.xml.Root;
 
-import java.io.File;
-import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Denis Mitavskiy
@@ -13,12 +16,15 @@ import java.io.StringWriter;
  */
 @Root(name = "businessObject")
 public class BusinessObjectConfig {
-    @Attribute
+    @Attribute(required = true)
     private String name;
 
     // we can't use a list here directly, as elements inside are different, that's why such a "trick"
     @Element(name = "fields")
     private BusinessObjectFieldsConfig businessObjectFieldsConfig;
+
+    @ElementList(entry="uniqueKey", type=UniqueKey.class, inline=true, required = false)
+    private List<UniqueKey> uniqueKeys;
 
     public BusinessObjectConfig() {
     }
@@ -37,5 +43,23 @@ public class BusinessObjectConfig {
 
     public void setBusinessObjectFieldsConfig(BusinessObjectFieldsConfig businessObjectFieldsConfig) {
         this.businessObjectFieldsConfig = businessObjectFieldsConfig;
+    }
+
+    public List<FieldConfig> getFieldConfigs() {
+        if(businessObjectFieldsConfig == null || businessObjectFieldsConfig.getFieldConfigs() == null) {
+            return Collections.emptyList();
+        }
+        return businessObjectFieldsConfig.getFieldConfigs();
+    }
+
+    public List<UniqueKey> getUniqueKeys() {
+        if(uniqueKeys == null) {
+            uniqueKeys = new ArrayList<UniqueKey>();
+        }
+        return uniqueKeys;
+    }
+
+    public void setUniqueKeys(List<UniqueKey> uniqueKeys) {
+        this.uniqueKeys = uniqueKeys;
     }
 }

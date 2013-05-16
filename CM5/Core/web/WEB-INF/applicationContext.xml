@@ -5,7 +5,7 @@
     <bean id="configurationCache" lazy-init="false" singleton="true"
           class="ru.intertrust.cm.core.config.ConfigurationCache" init-method="init">
         <property name="configurationFilePath">
-            <value>c:\projects\CM5_workspace\CM5\Core\src\main\resources\config\business-objects.xml</value>
+            <value>c:\projects\CM5\out\CM5\artifacts\Core.war\WEB-INF\classes\config\business-objects.xml</value>
         </property>
     </bean>
 </beans>

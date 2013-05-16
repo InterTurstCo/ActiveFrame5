@@ -8,7 +8,7 @@ import org.simpleframework.xml.Attribute;
  *         Time: 11:09 AM
  */
 public class PasswordFieldConfig extends FieldConfig {
-    @Attribute
+    @Attribute(required = true)
     private int length;
 
     public PasswordFieldConfig() {
