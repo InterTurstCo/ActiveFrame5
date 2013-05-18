@@ -27,7 +27,7 @@
         <init-param>
             <description>Vaadin UI to display</description>
             <param-name>UI</param-name>
-            <param-value>ru.intertrust.cm.client.Hello</param-value>
+            <param-value>ru.intertrust.cm.core.client.Hello</param-value>
         </init-param>
     </servlet>
     <servlet-mapping>
