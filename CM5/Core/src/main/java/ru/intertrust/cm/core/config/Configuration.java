@@ -27,21 +27,4 @@ public class Configuration {
         this.businessObjectConfigs = businessObjectConfigs;
     }
 
-    public BusinessObjectConfig findBusinessObjectConfigByName(String name) {
-        for(BusinessObjectConfig businessObjectConfig : getBusinessObjectConfigs()) {
-            if(businessObjectConfig.getName().equals(name)) {
-                return businessObjectConfig;
-            }
-        }
-        throw new IllegalStateException("BusinessObjectConfiguration is not found for name '" + name + "'");
-    }
-    
-    public static FieldConfig findFieldConfigForBusisnessObject(BusinessObjectConfig businessObjectConfig, String fieldName) {
-        for(FieldConfig fieldConfig : businessObjectConfig.getFieldConfigs()) {
-            if(fieldName.equals(fieldConfig.getName())) {
-                return fieldConfig;
-            }
-        }
-        throw new IllegalStateException("FieldConfig with name " + fieldName + " is not found in business object '" + businessObjectConfig.getName() + "'");        
-    }
 }

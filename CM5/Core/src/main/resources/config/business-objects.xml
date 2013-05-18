@@ -29,7 +29,7 @@
        </uniqueKey>
     </businessObject>
 
-    <businessObject name="Employee">
+    <businessObject name="Employee" extends="Person">
         <fields>
             <reference name="Department" type="Department" not-null="true" />
             <string name="Name" length="64" not-null="true" />

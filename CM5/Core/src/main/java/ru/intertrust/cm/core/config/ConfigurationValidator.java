@@ -14,6 +14,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import static ru.intertrust.cm.core.config.ConfigurationHelper.findBusinessObjectConfigByName;
+import static ru.intertrust.cm.core.config.ConfigurationHelper.findFieldConfigForBusinessObject;
+
 /**
  * User: atsvetkov Date: 17.05.13 Time: 13:52
  */
@@ -104,20 +107,15 @@ public class ConfigurationValidator {
             return;
         }
 
+        validateParentConfig(businessObjectConfig);
         validateReferenceFields(businessObjectConfig);
-
         validateUniqueKeys(businessObjectConfig);
     }
 
     private void validateUniqueKeys(BusinessObjectConfig businessObjectConfig) {
         for (UniqueKey uniqueKey : businessObjectConfig.getUniqueKeys()) {
             for (Field field : uniqueKey.getFields()) {
-                String fieldName = field.getName();
-                try {
-                    Configuration.findFieldConfigForBusisnessObject(businessObjectConfig, fieldName);
-                } catch (IllegalStateException ex) {
-                    new RuntimeException(ex.getMessage());
-                }
+                findFieldConfigForBusinessObject(businessObjectConfig, field.getName());
             }
         }
     }
@@ -125,12 +123,15 @@ public class ConfigurationValidator {
     private void validateReferenceFields(BusinessObjectConfig businessObjectConfig) {
         for (FieldConfig fieldConfig : businessObjectConfig.getFieldConfigs()) {
             if (ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
-                try {
-                    configuration.findBusinessObjectConfigByName(fieldConfig.getName());
-                } catch (IllegalStateException ex) {
-                    new RuntimeException(ex.getMessage());
-                }
+                findBusinessObjectConfigByName(configuration, ((ReferenceFieldConfig) fieldConfig).getType());
             }
+        }
+    }
+
+    private void validateParentConfig(BusinessObjectConfig businessObjectConfig) {
+        String parentConfig = businessObjectConfig.getParentConfig();
+        if(parentConfig != null) {
+            findBusinessObjectConfigByName(configuration, parentConfig);
         }
     }
 

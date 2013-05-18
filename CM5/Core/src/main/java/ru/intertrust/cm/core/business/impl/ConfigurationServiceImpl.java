@@ -75,7 +75,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             for(FieldConfig fieldConfig : businessObjectConfig.getFieldConfigs()) {
                 if((ReferenceFieldConfig.class.equals(fieldConfig.getClass()))) {
                     ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
-                    loadBusinessObjectConfig(configuration.findBusinessObjectConfigByName(referenceFieldConfig.getType()));
+                    loadBusinessObjectConfig(ConfigurationHelper.findBusinessObjectConfigByName(configuration, referenceFieldConfig.getType()));
                 }
             }
         }

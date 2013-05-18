@@ -19,6 +19,9 @@ public class BusinessObjectConfig {
     @Attribute(required = true)
     private String name;
 
+    @Attribute(name = "extends", required = false)
+    private String parentConfig;
+
     // we can't use a list here directly, as elements inside are different, that's why such a "trick"
     @Element(name = "fields")
     private BusinessObjectFieldsConfig businessObjectFieldsConfig;
@@ -35,6 +38,14 @@ public class BusinessObjectConfig {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getParentConfig() {
+        return parentConfig;
+    }
+
+    public void setParentConfig(String parentConfig) {
+        this.parentConfig = parentConfig;
     }
 
     public BusinessObjectFieldsConfig getBusinessObjectFieldsConfig() {
