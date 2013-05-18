@@ -18,6 +18,8 @@ public class ConfigurationLoader {
 
     private Configuration configuration;
 
+    private ConfigurationValidator configurationValidator;
+
     public ConfigurationLoader() {
     }
 
@@ -36,6 +38,14 @@ public class ConfigurationLoader {
     public void setConfigurationService(ConfigurationService configurationService) {
         this.configurationService = configurationService;
     }
+    
+    public ConfigurationValidator getConfigurationValidator() {
+        return configurationValidator;
+    }
+
+    public void setConfigurationValidator(ConfigurationValidator configurationValidator) {
+        this.configurationValidator = configurationValidator;
+    }
 
     public ConfigurationLoader(String configurationFilePath) {
         this.configurationFilePath = configurationFilePath;
@@ -50,5 +60,16 @@ public class ConfigurationLoader {
         File source = new File(configurationFilePath);
         configuration = serializer.read(Configuration.class, source);
 
-        configurationService.loadConfiguration(configuration);            }
+        validateConfiguration();
+
+        configurationService.loadConfiguration(configuration);
+    }
+    
+    private void validateConfiguration() {
+        ConfigurationValidator configurationValidator = getConfigurationValidator();
+        configurationValidator.setConfigurationPath(configurationFilePath);
+        configurationValidator.setConfiguration(configuration);
+
+        configurationValidator.validate();
+    }
 }
