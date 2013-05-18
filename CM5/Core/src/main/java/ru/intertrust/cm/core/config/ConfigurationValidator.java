@@ -13,6 +13,8 @@ import javax.xml.validation.Validator;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static ru.intertrust.cm.core.config.ConfigurationHelper.findBusinessObjectConfigByName;
 import static ru.intertrust.cm.core.config.ConfigurationHelper.findFieldConfigForBusinessObject;
@@ -22,11 +24,16 @@ import static ru.intertrust.cm.core.config.ConfigurationHelper.findFieldConfigFo
  */
 public class ConfigurationValidator {
 
-	private String configurationPath;
+    private static final String BUSINESS_OBJECT_NAME_AND_FIELD_PATTERN = "[\\p{Alnum}\\s]*";
 
-	private String configurationSchemaPath;
+    private Pattern regExpPattern = Pattern.compile(BUSINESS_OBJECT_NAME_AND_FIELD_PATTERN);
 
-	private Configuration configuration;
+    private String configurationPath;
+
+    private String configurationSchemaPath;
+
+    private Configuration configuration;
+
 
     public ConfigurationValidator() {
     }
@@ -107,9 +114,48 @@ public class ConfigurationValidator {
             return;
         }
 
+        validateNames(businessObjectConfig);
         validateParentConfig(businessObjectConfig);
         validateReferenceFields(businessObjectConfig);
         validateUniqueKeys(businessObjectConfig);
+    }
+
+    /**
+     * Validates business object names and field names against Rex Exp {@see
+     * ConfigurationValidator#BUSINESS_OBJECT_NAME_AND_FIELD_PATTERN}
+     *
+     * @param businessObjectConfig
+     */
+    private void validateNames(BusinessObjectConfig businessObjectConfig) {
+        validateBusinessObjectName(businessObjectConfig);
+
+        validateFieldConfigName(businessObjectConfig);
+    }
+
+    private void validateFieldConfigName(BusinessObjectConfig businessObjectConfig) {
+        for (FieldConfig fieldConfig : businessObjectConfig.getFieldConfigs()) {
+            boolean isValid = isValidName(fieldConfig.getName());
+
+            if (!isValid) {
+                throw new RuntimeException("FieldConfig name: " + fieldConfig.getName() + " in business object: "
+                        + businessObjectConfig.getName()
+                        + " is not valid. It should contain alphanumeric or space characters only.");
+            }
+        }
+    }
+
+    private void validateBusinessObjectName(BusinessObjectConfig businessObjectConfig) {
+        boolean isValid = isValidName(businessObjectConfig.getName());
+
+        if (!isValid) {
+            throw new RuntimeException("BusinessObjectConfig name: " + businessObjectConfig.getName()
+                    + " is not valid. It should contain alphanumeric or space characters only.");
+        }
+    }
+
+    private boolean isValidName(String name) {
+        Matcher matcher = regExpPattern.matcher(name);
+        return matcher.matches();
     }
 
     private void validateUniqueKeys(BusinessObjectConfig businessObjectConfig) {
