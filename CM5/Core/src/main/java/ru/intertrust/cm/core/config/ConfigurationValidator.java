@@ -13,39 +13,46 @@ import javax.xml.validation.Validator;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * User: atsvetkov Date: 17.05.13 Time: 13:52
  */
 public class ConfigurationValidator {
 
-	private String configurationPath;
+    private static final String BUSINESS_OBJECT_NAME_AND_FIELD_PATTERN = "[\\p{Alnum}\\s]*";
 
-	private String configurationSchemaPath;
+    private Pattern regExpPattern = Pattern.compile(BUSINESS_OBJECT_NAME_AND_FIELD_PATTERN);
 
-	private Configuration configuration;
+    private String configurationPath;
+    
+    private String configurationSchemaPath;
+    
+    private Configuration configuration;
 
+     
     public ConfigurationValidator() {
     }
+    
+    
+    public String getConfigurationPath() {
+        return configurationPath;
+    }
 
+    public void setConfigurationPath(String configurationPath) {
+        this.configurationPath = configurationPath;
+    }
 
-	public String getConfigurationPath() {
-		return configurationPath;
-	}
+    public String getConfigurationSchemaPath() {
+        return configurationSchemaPath;
+    }
 
-	public void setConfigurationPath(String configurationPath) {
-		this.configurationPath = configurationPath;
-	}
-
-	public String getConfigurationSchemaPath() {
-		return configurationSchemaPath;
-	}
-
-	public void setConfigurationSchemaPath(String configurationSchemaPath) {
-		this.configurationSchemaPath = configurationSchemaPath;
-	}
-
-	public Configuration getConfiguration() {
+    public void setConfigurationSchemaPath(String configurationSchemaPath) {
+        this.configurationSchemaPath = configurationSchemaPath;
+    }
+        
+    public Configuration getConfiguration() {
         return configuration;
     }
 
@@ -61,16 +68,16 @@ public class ConfigurationValidator {
             throw new RuntimeException(
                     "Please set the configuration object for ConfigurationValidator before validating");
         }
-		validateAgainstXSD();
-		validateLogically();
-	}
-
-	private void validateAgainstXSD() {
+        validateAgainstXSD();
+        validateLogically();
+    }
+    
+    private void validateAgainstXSD() {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 
         File configurationSchemaFile = new File(configurationSchemaPath);
-        try {
-
+        try {            
+            
             Schema schema = factory.newSchema(configurationSchemaFile);
             Validator validator = schema.newValidator();
             Source source = new StreamSource(configurationPath);
@@ -84,9 +91,9 @@ public class ConfigurationValidator {
         } catch (IOException e) {
             throw new RuntimeException(" File " + configurationPath + " not found. " + e.getMessage(), e);
 
-        }
-	}
-
+        } 
+    }
+    
     private void validateLogically() {
         List<BusinessObjectConfig> businessObjectConfigs = configuration.getBusinessObjectConfigs();
         if(businessObjectConfigs.isEmpty())  {
@@ -96,17 +103,57 @@ public class ConfigurationValidator {
             validateBusinessObjectConfig(businessObjectConfig);
         }
         //TODO Log success information using logging API
-        System.out.println("Document has passed logical validation");
+        System.out.println("Document has passed logical validation");        
     }
-
-	private void validateBusinessObjectConfig(BusinessObjectConfig businessObjectConfig) {
+    
+    private void validateBusinessObjectConfig(BusinessObjectConfig businessObjectConfig) {
         if (businessObjectConfig == null) {
             return;
         }
 
+        validateNames(businessObjectConfig);
+
         validateReferenceFields(businessObjectConfig);
 
         validateUniqueKeys(businessObjectConfig);
+    }
+
+    /**
+     * Validates business object names and field names against Rex Exp {@see
+     * ConfigurationValidator#BUSINESS_OBJECT_NAME_AND_FIELD_PATTERN}
+     * 
+     * @param businessObjectConfig
+     */
+    private void validateNames(BusinessObjectConfig businessObjectConfig) {
+        validateBusinessObjectName(businessObjectConfig);
+
+        validateFieldConfigName(businessObjectConfig);
+    }
+
+    private void validateFieldConfigName(BusinessObjectConfig businessObjectConfig) {
+        for (FieldConfig fieldConfig : businessObjectConfig.getFieldConfigs()) {
+            boolean isValid = isValidName(fieldConfig.getName());
+
+            if (!isValid) {
+                throw new RuntimeException("FieldConfig name: " + fieldConfig.getName() + " in business object: "
+                        + businessObjectConfig.getName()
+                        + " is not valid. It should contain alphanumeric or space characters only.");
+            }
+        }
+    }
+
+    private void validateBusinessObjectName(BusinessObjectConfig businessObjectConfig) {
+        boolean isValid = isValidName(businessObjectConfig.getName());
+
+        if (!isValid) {
+            throw new RuntimeException("BusinessObjectConfig name: " + businessObjectConfig.getName()
+                    + " is not valid. It should contain alphanumeric or space characters only.");
+        }
+    }
+
+    private boolean isValidName(String name) {
+        Matcher matcher = regExpPattern.matcher(name);
+        return matcher.matches();
     }
 
     private void validateUniqueKeys(BusinessObjectConfig businessObjectConfig) {
@@ -134,12 +181,12 @@ public class ConfigurationValidator {
         }
     }
 
-
+    
     /**
      * Gives the possibility to handle differently validation errors and warnings.
-     *
+     * 
      * @author atsvetkov
-     *
+     * 
      */
     private static class ValidationErrorHandler implements ErrorHandler {
 
