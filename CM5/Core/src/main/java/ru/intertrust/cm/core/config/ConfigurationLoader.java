@@ -71,5 +71,8 @@ public class ConfigurationLoader {
         configurationValidator.setConfiguration(configuration);
 
         configurationValidator.validate();
+
+        configurationService.loadConfiguration(configuration);
+
     }
 }
