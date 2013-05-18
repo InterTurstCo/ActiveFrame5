@@ -20,15 +20,15 @@ import java.util.List;
 public class ConfigurationValidator {
 
 	private String configurationPath;
-	
+
 	private String configurationSchemaPath;
-	
+
 	private Configuration configuration;
 
     public ConfigurationValidator() {
     }
-    
-    
+
+
 	public String getConfigurationPath() {
 		return configurationPath;
 	}
@@ -44,7 +44,7 @@ public class ConfigurationValidator {
 	public void setConfigurationSchemaPath(String configurationSchemaPath) {
 		this.configurationSchemaPath = configurationSchemaPath;
 	}
-		
+
 	public Configuration getConfiguration() {
         return configuration;
     }
@@ -64,13 +64,13 @@ public class ConfigurationValidator {
 		validateAgainstXSD();
 		validateLogically();
 	}
-	
+
 	private void validateAgainstXSD() {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 
         File configurationSchemaFile = new File(configurationSchemaPath);
-        try {            
-            
+        try {
+
             Schema schema = factory.newSchema(configurationSchemaFile);
             Validator validator = schema.newValidator();
             Source source = new StreamSource(configurationPath);
@@ -84,9 +84,9 @@ public class ConfigurationValidator {
         } catch (IOException e) {
             throw new RuntimeException(" File " + configurationPath + " not found. " + e.getMessage(), e);
 
-        } 
+        }
 	}
-	
+
     private void validateLogically() {
         List<BusinessObjectConfig> businessObjectConfigs = configuration.getBusinessObjectConfigs();
         if(businessObjectConfigs.isEmpty())  {
@@ -96,16 +96,16 @@ public class ConfigurationValidator {
             validateBusinessObjectConfig(businessObjectConfig);
         }
         //TODO Log success information using logging API
-        System.out.println("Document has passed logical validation");        
+        System.out.println("Document has passed logical validation");
     }
-    
+
 	private void validateBusinessObjectConfig(BusinessObjectConfig businessObjectConfig) {
         if (businessObjectConfig == null) {
             return;
         }
-	    
+
         validateReferenceFields(businessObjectConfig);
-	    
+
         validateUniqueKeys(businessObjectConfig);
     }
 
@@ -124,7 +124,7 @@ public class ConfigurationValidator {
 
     private void validateReferenceFields(BusinessObjectConfig businessObjectConfig) {
         for (FieldConfig fieldConfig : businessObjectConfig.getFieldConfigs()) {
-            if (FieldType.REFERENCE.equals(FieldType.getType(fieldConfig))) {
+            if (ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
                 try {
                     configuration.findBusinessObjectConfigByName(fieldConfig.getName());
                 } catch (IllegalStateException ex) {
@@ -134,12 +134,12 @@ public class ConfigurationValidator {
         }
     }
 
-	
+
     /**
      * Gives the possibility to handle differently validation errors and warnings.
-     * 
+     *
      * @author atsvetkov
-     * 
+     *
      */
     private static class ValidationErrorHandler implements ErrorHandler {
 

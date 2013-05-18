@@ -20,7 +20,15 @@ public class DataStructureNamingHelper {
     }
 
     public static String getSqlName(ReferenceFieldConfig referenceFieldConfig) {
+        return convertToSqlFormat(referenceFieldConfig.getName());
+    }
+
+    public static String getReferencedTypeSqlName(ReferenceFieldConfig referenceFieldConfig) {
         return convertToSqlFormat(referenceFieldConfig.getType());
+    }
+
+    public static String getSqlName(String name) {
+        return convertToSqlFormat(name);
     }
 
     private static String convertToSqlFormat(String name) {

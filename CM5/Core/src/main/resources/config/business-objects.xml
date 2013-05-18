@@ -20,12 +20,12 @@
 
     <businessObject name="Person">
         <fields>
-            <string name="E-Mail" length="128" />
+            <string name="EMail" length="128" />
             <string name="Login" length="64" not-null="true" />
             <password name="Password" length="128" />
         </fields>
        <uniqueKey> <!-- This key means automatic key + index creation-->
-            <field name="E-Mail"/>
+            <field name="EMail"/>
        </uniqueKey>
     </businessObject>
 
@@ -39,7 +39,7 @@
             <string name="Fingerprint" length="128" />
         </fields>
         <uniqueKey> <!-- This key means automatic key + index creation-->
-            <field name="Registration Number"/>
+            <field name="Phone"/>
         </uniqueKey>
     </businessObject>
 

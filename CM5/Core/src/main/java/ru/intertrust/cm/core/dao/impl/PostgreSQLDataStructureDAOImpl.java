@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.config.*;
 import javax.sql.DataSource;
 import java.util.List;
 
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferencedTypeSqlName;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 
 /**
@@ -78,7 +79,9 @@ public class PostgreSQLDataStructureDAOImpl extends AbstractDataStructureDAOImpl
     }
 
     private String generateCreateTableQuery(BusinessObjectConfig config) {
-        String query = "create table " + getSqlName(config) + " ( " + "" +
+        String tableName = getSqlName(config);
+
+        String query = "create table " + tableName + " ( " + "" +
                 "ID bigint not null, " +
                 "CREATE_DATE timestamp not null, " +
                 "MODIFY_DATE timestamp not null";
@@ -90,12 +93,15 @@ public class PostgreSQLDataStructureDAOImpl extends AbstractDataStructureDAOImpl
             }
         }
 
-        query += ", constraint PK_ID primary key (ID)";
+        String pkName = "PK_" + tableName + "_ID";
+        query += ", constraint " + pkName + " primary key (ID)";
 
         for(UniqueKey uniqueKey : config.getUniqueKeys()) {
             if(!uniqueKey.getFields().isEmpty()) {
-                query += ", constraint UNQ_" + getFieldsListAsString(uniqueKey.getFields(), "_") + " unique (";
-                query += getFieldsListAsString(uniqueKey.getFields(), ", ") + ")";
+                String constraintName = "UNQ_" + tableName + "_" +
+                        getSqlName(getFieldsListAsString(uniqueKey.getFields(), "_"));
+                String fieldsList = getSqlName(getFieldsListAsString(uniqueKey.getFields(), ", "));
+                query += ", constraint " + constraintName + " unique (" + fieldsList + ")";
             }
         }
 
@@ -107,9 +113,12 @@ public class PostgreSQLDataStructureDAOImpl extends AbstractDataStructureDAOImpl
             ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
             String fieldSqlName = getSqlName(referenceFieldConfig);
 
-            query += ", constraint FK_" + fieldSqlName + " foreign key (" + fieldSqlName + ") references " +
-                    getSqlName(referenceFieldConfig) + "(ID)";
+            String constraintName = "FK_" + tableName + "_" + fieldSqlName;
+            query += ", constraint " + constraintName + " foreign key (" + fieldSqlName + ") references " +
+                    getReferencedTypeSqlName(referenceFieldConfig) + "(ID)";
         }
+
+        query += ")";
 
         return query;
     }
