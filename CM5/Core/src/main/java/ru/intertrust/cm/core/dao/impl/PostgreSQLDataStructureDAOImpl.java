@@ -23,38 +23,7 @@ public class PostgreSQLDataStructureDAOImpl extends AbstractDataStructureDAOImpl
 
     @Override
     public void createTable(BusinessObjectConfig config) {
-        String query = "create table " + getSqlName(config) + " ( " + "" +
-                "ID bigint not null, " +
-                "CREATE_DATE timestamp not null, " +
-                "MODIFY_DATE timestamp not null";
-
-        for(FieldConfig fieldConfig : config.getFieldConfigs()) {
-            query += ", " + getSqlName(fieldConfig) + " " + getSqlType(fieldConfig);
-            if(fieldConfig.isNotNull()) {
-                query += " not null";
-            }
-        }
-
-        query += ", constraint primary key PK_ID(ID)";
-
-        for(UniqueKey uniqueKey : config.getUniqueKeys()) {
-            if(!uniqueKey.getFields().isEmpty()) {
-                query += ", constraint unique UNQ_" + getFieldsListAsString(uniqueKey.getFields(), "_") + "(";
-                query += getFieldsListAsString(uniqueKey.getFields(), ", ") + ")";
-            }
-        }
-
-        for(FieldConfig fieldConfig : config.getFieldConfigs()) {
-            if(!ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
-                continue;
-            }
-
-            ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
-            String fieldSqlName = getSqlName(referenceFieldConfig);
-
-            query += ", constraint foreign key FK_" + fieldSqlName + "(" + fieldSqlName + ") references " +
-                    getSqlName(referenceFieldConfig) + "(ID)";
-        }
+        jdbcTemplate.update(generateCreateTableQuery(config));
 
     }
 
@@ -106,5 +75,42 @@ public class PostgreSQLDataStructureDAOImpl extends AbstractDataStructureDAOImpl
         }
 
         return result;
+    }
+
+    private String generateCreateTableQuery(BusinessObjectConfig config) {
+        String query = "create table " + getSqlName(config) + " ( " + "" +
+                "ID bigint not null, " +
+                "CREATE_DATE timestamp not null, " +
+                "MODIFY_DATE timestamp not null";
+
+        for(FieldConfig fieldConfig : config.getFieldConfigs()) {
+            query += ", " + getSqlName(fieldConfig) + " " + getSqlType(fieldConfig);
+            if(fieldConfig.isNotNull()) {
+                query += " not null";
+            }
+        }
+
+        query += ", constraint PK_ID primary key (ID)";
+
+        for(UniqueKey uniqueKey : config.getUniqueKeys()) {
+            if(!uniqueKey.getFields().isEmpty()) {
+                query += ", constraint UNQ_" + getFieldsListAsString(uniqueKey.getFields(), "_") + " unique (";
+                query += getFieldsListAsString(uniqueKey.getFields(), ", ") + ")";
+            }
+        }
+
+        for(FieldConfig fieldConfig : config.getFieldConfigs()) {
+            if(!ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
+                continue;
+            }
+
+            ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
+            String fieldSqlName = getSqlName(referenceFieldConfig);
+
+            query += ", constraint FK_" + fieldSqlName + " foreign key (" + fieldSqlName + ") references " +
+                    getSqlName(referenceFieldConfig) + "(ID)";
+        }
+
+        return query;
     }
 }

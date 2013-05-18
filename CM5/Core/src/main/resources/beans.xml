@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+        "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+    <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+        <property name="jndiName" value="java:jboss/datasources/CM5" />
+    </bean>
+
+    <bean id="dataStructureDAO" class="ru.intertrust.cm.core.dao.impl.PostgreSQLDataStructureDAOImpl">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <bean id="configurationLoader" lazy-init="false" singleton="true"
+          class="ru.intertrust.cm.core.config.ConfigurationLoader" init-method="load">
+        <property name="configurationService" ref="configurationService"/>
+        <property name="configurationFilePath">
+            <value>c:\projects\CM5\out\CM5\artifacts\Core.war\WEB-INF\classes\config\business-objects.xml</value>
+        </property>
+    </bean>
+
+    <bean id="configurationService" singleton="true" class="ru.intertrust.cm.core.business.impl.ConfigurationServiceImpl">
+        <property name="dataStructureDAO" ref="dataStructureDAO"/>
+    </bean>
+
+</beans>

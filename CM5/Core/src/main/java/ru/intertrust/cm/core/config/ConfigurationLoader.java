@@ -2,21 +2,23 @@ package ru.intertrust.cm.core.config;
 
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
+import ru.intertrust.cm.core.business.api.ConfigurationService;
 
 import java.io.File;
-import java.io.StringWriter;
 
 /**
  * @author vmatsukevich
  *         Date: 5/6/13
  *         Time: 9:36 AM
  */
-public class ConfigurationCache {
+public class ConfigurationLoader {
 
     private String configurationFilePath;
+    private ConfigurationService configurationService;
+
     private Configuration configuration;
 
-    public ConfigurationCache() {
+    public ConfigurationLoader() {
     }
 
     public String getConfigurationFilePath() {
@@ -27,7 +29,15 @@ public class ConfigurationCache {
         this.configurationFilePath = configurationFilePath;
     }
 
-    public ConfigurationCache(String configurationFilePath) {
+    public ConfigurationService getConfigurationService() {
+        return configurationService;
+    }
+
+    public void setConfigurationService(ConfigurationService configurationService) {
+        this.configurationService = configurationService;
+    }
+
+    public ConfigurationLoader(String configurationFilePath) {
         this.configurationFilePath = configurationFilePath;
     }
 
@@ -35,12 +45,10 @@ public class ConfigurationCache {
         return configuration;
     }
 
-    public void init() throws Exception {
+    public void load() throws Exception {
         Serializer serializer = new Persister();
         File source = new File(configurationFilePath);
         configuration = serializer.read(Configuration.class, source);
-/*        StringWriter stringWriter = new StringWriter();
-        serializer.write(example, stringWriter);
-        System.out.println(stringWriter.toString());*/
-    }
+
+        configurationService.loadConfiguration(configuration);            }
 }

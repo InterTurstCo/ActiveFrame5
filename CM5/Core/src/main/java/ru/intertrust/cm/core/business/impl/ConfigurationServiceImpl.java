@@ -1,10 +1,7 @@
 package ru.intertrust.cm.core.business.impl;
 
 import ru.intertrust.cm.core.business.api.ConfigurationService;
-import ru.intertrust.cm.core.config.BusinessObjectConfig;
-import ru.intertrust.cm.core.config.Configuration;
-import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.FieldType;
+import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.api.DataStructureDAO;
 
 import java.util.HashSet;
@@ -76,8 +73,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
         private void loadDependentBusinessObjectConfigs(BusinessObjectConfig businessObjectConfig) {
             for(FieldConfig fieldConfig : businessObjectConfig.getFieldConfigs()) {
-                if(FieldType.REFERENCE.equals(FieldType.getType(fieldConfig))) {
-                    loadBusinessObjectConfig(configuration.findBusinessObjectConfigByName(fieldConfig.getName()));
+                if((ReferenceFieldConfig.class.equals(fieldConfig.getClass()))) {
+                    ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
+                    loadBusinessObjectConfig(configuration.findBusinessObjectConfigByName(referenceFieldConfig.getType()));
                 }
             }
         }

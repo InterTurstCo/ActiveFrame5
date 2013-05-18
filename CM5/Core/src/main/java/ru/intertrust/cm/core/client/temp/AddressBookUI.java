@@ -1,4 +1,4 @@
-package ru.intertrust.cm.client.temp;
+package ru.intertrust.cm.core.client.temp;
 
 import com.vaadin.annotations.Title;
 import com.vaadin.data.Container.Filter;
