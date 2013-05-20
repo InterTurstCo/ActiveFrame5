@@ -1,0 +1,32 @@
+*.bat       eol=crlf
+*.cmd       eol=crlf
+*.sh        eol=lf
+*.class     -text
+*.rtf       -text
+*.zip       -text
+*.jar       -text
+*.war       -text
+*.doc       binary
+*.docx      binary
+*.dot       binary
+*.dotx      binary
+*.pdf       binary
+*.rtf	    binary
+*.xls       binary
+*.xlsx      binary
+*.ppt       binary
+*.pptx      binary
+*.mpp       binary
+
+*.jpg  binary
+*.png  binary
+*.gif  binary
+*.ico  binary
+*.bmp  binary
+*.mdf  binary
+*.ldf  binary
+
+*.txt text
+*.xml text
+*.xsl text
+*.xslt text
