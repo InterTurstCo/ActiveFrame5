@@ -26,8 +26,8 @@ public class BusinessObjectConfig {
     @Element(name = "fields")
     private BusinessObjectFieldsConfig businessObjectFieldsConfig;
 
-    @ElementList(entry="uniqueKey", type=UniqueKey.class, inline=true, required = false)
-    private List<UniqueKey> uniqueKeys;
+    @ElementList(entry="uniqueKey", type=UniqueKeyConfig.class, inline=true, required = false)
+    private List<UniqueKeyConfig> uniqueKeyConfigs;
 
     public BusinessObjectConfig() {
     }
@@ -63,14 +63,14 @@ public class BusinessObjectConfig {
         return businessObjectFieldsConfig.getFieldConfigs();
     }
 
-    public List<UniqueKey> getUniqueKeys() {
-        if(uniqueKeys == null) {
-            uniqueKeys = new ArrayList<UniqueKey>();
+    public List<UniqueKeyConfig> getUniqueKeyConfigs() {
+        if(uniqueKeyConfigs == null) {
+            uniqueKeyConfigs = new ArrayList<UniqueKeyConfig>();
         }
-        return uniqueKeys;
+        return uniqueKeyConfigs;
     }
 
-    public void setUniqueKeys(List<UniqueKey> uniqueKeys) {
-        this.uniqueKeys = uniqueKeys;
+    public void setUniqueKeyConfigs(List<UniqueKeyConfig> uniqueKeyConfigs) {
+        this.uniqueKeyConfigs = uniqueKeyConfigs;
     }
 }

@@ -1,11 +1,9 @@
-package ru.intertrust.cm.core.config;
+package ru.intertrust.cm.core.business.impl;
 
-import static ru.intertrust.cm.core.config.ConfigurationHelper.findBusinessObjectConfigByName;
-import static ru.intertrust.cm.core.config.ConfigurationHelper.findFieldConfigForBusinessObject;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
+import ru.intertrust.cm.core.config.*;
 
 import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
@@ -13,10 +11,12 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
+import static ru.intertrust.cm.core.business.impl.ConfigurationHelper.findBusinessObjectConfigByName;
+import static ru.intertrust.cm.core.business.impl.ConfigurationHelper.findFieldConfigForBusinessObject;
 
 /**
  * User: atsvetkov Date: 17.05.13 Time: 13:52
@@ -115,9 +115,9 @@ public class ConfigurationValidator {
     }
 
     private void validateUniqueKeys(BusinessObjectConfig businessObjectConfig) {
-        for (UniqueKey uniqueKey : businessObjectConfig.getUniqueKeys()) {
-            for (Field field : uniqueKey.getFields()) {
-                findFieldConfigForBusinessObject(businessObjectConfig, field.getName());
+        for (UniqueKeyConfig uniqueKeyConfig : businessObjectConfig.getUniqueKeyConfigs()) {
+            for (UniqueKeyFieldConfig uniqueKeyFieldConfig : uniqueKeyConfig.getUniqueKeyFieldConfigs()) {
+                findFieldConfigForBusinessObject(businessObjectConfig, uniqueKeyFieldConfig.getName());
             }
         }
     }

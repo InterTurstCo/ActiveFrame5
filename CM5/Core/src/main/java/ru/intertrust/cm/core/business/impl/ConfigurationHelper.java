@@ -1,4 +1,8 @@
-package ru.intertrust.cm.core.config;
+package ru.intertrust.cm.core.business.impl;
+
+import ru.intertrust.cm.core.config.BusinessObjectConfig;
+import ru.intertrust.cm.core.config.Configuration;
+import ru.intertrust.cm.core.config.FieldConfig;
 
 /**
  * @author vmatsukevich
