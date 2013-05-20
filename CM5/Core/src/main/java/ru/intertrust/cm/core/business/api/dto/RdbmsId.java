@@ -37,4 +37,30 @@ public class RdbmsId implements Id {
     public long getId() {
         return id;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        RdbmsId rdbmsId = (RdbmsId) o;
+        if (id != rdbmsId.id) {
+            return false;
+        }
+        if (!name.equals(rdbmsId.name)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
+    }
 }
