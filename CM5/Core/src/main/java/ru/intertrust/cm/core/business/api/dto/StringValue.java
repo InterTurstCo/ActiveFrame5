@@ -10,7 +10,7 @@ public class StringValue extends Value {
     private String value;
 
     /**
-     * Создаёт строковое значение
+     * Создаёт пустое строковое значение
      */
     public StringValue() {
     }
@@ -26,11 +26,6 @@ public class StringValue extends Value {
     @Override
     public String get() {
         return value;
-    }
-
-    @Override
-    public void set(Object value) {
-        this.value = (String) value;
     }
 
     @Override

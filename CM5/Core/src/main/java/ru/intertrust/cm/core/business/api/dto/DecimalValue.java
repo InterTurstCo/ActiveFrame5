@@ -13,7 +13,7 @@ public class DecimalValue extends Value {
     private BigDecimal value;
 
     /**
-     * Создаёт десятичное значение
+     * Создаёт пустое десятичное значение
      */
     public DecimalValue() {
     }
@@ -31,8 +31,4 @@ public class DecimalValue extends Value {
         return value;
     }
 
-    @Override
-    public void set(Object value) {
-        this.value = (BigDecimal) value;
-    }
 }

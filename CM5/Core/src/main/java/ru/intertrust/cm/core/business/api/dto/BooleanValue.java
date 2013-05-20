@@ -11,7 +11,7 @@ public class BooleanValue extends Value {
     private Boolean value;
 
     /**
-     * Создает булево значение
+     * Создает пустое булево значение
      */
     public BooleanValue() {
     }
@@ -29,8 +29,4 @@ public class BooleanValue extends Value {
         return value;
     }
 
-    @Override
-    public void set(Object value) {
-        this.value = (Boolean) value;
-    }
 }

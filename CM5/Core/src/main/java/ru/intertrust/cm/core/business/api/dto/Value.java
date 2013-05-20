@@ -22,12 +22,6 @@ public abstract class Value implements Serializable {
     public abstract Object get();
 
     /**
-     * Устанавливает значение поля бизнес-объекта в понятиях Java
-     * @param value значение поля бизнес-объекта в понятиях Java
-     */
-    public abstract void set(Object value);
-
-    /**
      * Проверяет значение на "пустоту"
      * @return true, если объект "пуст" и false - в противном случае
      */

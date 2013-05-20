@@ -12,7 +12,7 @@ public class TimestampValue extends Value {
     private Date value;
 
     /**
-     * Создаёт значение поля бизнес-объекта, определяющее дату и время
+     * Создаёт пустое значение поля бизнес-объекта, определяющее дату и время
      */
     public TimestampValue() {
     }
@@ -30,8 +30,4 @@ public class TimestampValue extends Value {
         return value;
     }
 
-    @Override
-    public void set(Object value) {
-        this.value = (Date) value;
-    }
 }
