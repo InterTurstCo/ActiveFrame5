@@ -7,12 +7,12 @@ import org.simpleframework.xml.Attribute;
  *         Date: 5/16/13
  *         Time: 10:58 AM
  */
-public class Field {
+public class UniqueKeyFieldConfig {
 
     @Attribute(name = "name")
     private String name;
 
-    protected Field() {
+    protected UniqueKeyFieldConfig() {
     }
 
     public String getName() {

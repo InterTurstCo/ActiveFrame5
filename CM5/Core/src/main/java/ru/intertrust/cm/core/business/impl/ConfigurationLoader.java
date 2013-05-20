@@ -1,8 +1,10 @@
-package ru.intertrust.cm.core.config;
+package ru.intertrust.cm.core.business.impl;
 
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
+import ru.intertrust.cm.core.business.impl.ConfigurationValidator;
+import ru.intertrust.cm.core.config.Configuration;
 
 import java.io.File;
 
@@ -38,7 +40,7 @@ public class ConfigurationLoader {
     public void setConfigurationService(ConfigurationService configurationService) {
         this.configurationService = configurationService;
     }
-    
+
     public ConfigurationValidator getConfigurationValidator() {
         return configurationValidator;
     }
@@ -64,7 +66,7 @@ public class ConfigurationLoader {
 
         configurationService.loadConfiguration(configuration);
     }
-    
+
     private void validateConfiguration() {
         ConfigurationValidator configurationValidator = getConfigurationValidator();
         configurationValidator.setConfigurationPath(configurationFilePath);

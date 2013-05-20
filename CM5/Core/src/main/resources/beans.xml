@@ -12,7 +12,7 @@
     </bean>
 
     <bean id="configurationLoader" lazy-init="false" singleton="true"
-          class="ru.intertrust.cm.core.config.ConfigurationLoader" init-method="load">
+          class="ru.intertrust.cm.core.business.impl.ConfigurationLoader" init-method="load">
         <property name="configurationService" ref="configurationService"/>
         <property name="configurationValidator" ref="configurationValidator"/>
         <property name="configurationFilePath">
@@ -21,7 +21,7 @@
     </bean>
 
 	<bean id="configurationValidator" singleton="true"
-          class="ru.intertrust.cm.core.config.ConfigurationValidator">
+          class="ru.intertrust.cm.core.business.impl.ConfigurationValidator">
         <property name="configurationSchemaPath">
             <value>c:\projects\CM5\CM5\Core\src\main\resources\config\business-objects.xsd</value>
         </property>
