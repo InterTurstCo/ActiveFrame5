@@ -28,4 +28,26 @@ public abstract class Value implements Serializable {
     public boolean isEmpty() {
         return get() == null;
     }
+
+    @Override
+    public int hashCode() {
+        Object object = get();
+        return object == null ? -1 : object.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object another) {
+        if (another == null || !(another instanceof Value)) {
+            return false;
+        }
+        Object thisValue = get();
+        Object anotherValue = ((Value) another).get();
+        return thisValue == null && anotherValue == null || thisValue != null && thisValue.equals(anotherValue);
+    }
+
+    @Override
+    public String toString() {
+        Object value = get();
+        return value == null ? "null" : value.toString();
+    }
 }

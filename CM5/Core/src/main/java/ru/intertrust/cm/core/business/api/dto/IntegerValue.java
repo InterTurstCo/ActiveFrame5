@@ -19,6 +19,14 @@ public class IntegerValue extends Value {
      * Создаёт целочичсленное значение
      * @param value целочичсленное значение
      */
+    public IntegerValue(Integer value) {
+        this.value = value == null ? null : (long) value;
+    }
+
+    /**
+     * Создаёт целочичсленное значение
+     * @param value целочичсленное значение
+     */
     public IntegerValue(Long value) {
         this.value = value;
     }
