@@ -3,21 +3,434 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>ru.intertrust</groupId>
+    <groupId>ru.intertrust.cm-sochi</groupId>
     <artifactId>cm-sochi</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-
-    <name>InterTrust</name>
-    <url>http://www.intertrust.ru//</url>
+    <name>CompanyMedia 5</name>
+    <description>CompanyMedia 5. Корневой модуль для сборки проекта.</description>
 
     <modules>
-        <module>
-            Core
-        </module>
-        <module>
-            Workstation
-        </module>
-     
-   </modules>
+        <module>Core</module>
+        <module>Workstation</module>
+    </modules>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+
+        <vaadin.version>7.0.5</vaadin.version>
+        <spring.version>3.2.2.RELEASE</spring.version>
+        <slf4j.version>1.7.2</slf4j.version>
+
+        <sonar.jdbc.url>jdbc:postgresql://169.254.0.55:5432/sonar</sonar.jdbc.url>
+        <sonar.host.url>http://sonar.inttrust.ru</sonar.host.url>
+        <sonar.java.source>${maven.compiler.source}</sonar.java.source>
+    </properties>
+
+    <inceptionYear>2013</inceptionYear>
+    <url>https://sup.inttrust.ru:8446/prjdocs/cm5</url>
+
+    <organization>
+        <name>InterTrust</name>
+        <url>http://www.intertrust.ru</url>
+    </organization>
+
+    <licenses>
+        <license>
+            <name>Proprietary software license</name>
+            <distribution>repo</distribution>
+            <comments>Copyright (c) 2013 InterTrust. All rights reserved.</comments>
+        </license>
+    </licenses>
+
+    <mailingLists>
+        <mailingList>
+            <name>Техническая поддержка</name>
+            <post>techsupport@intertrust.ru</post>
+        </mailingList>
+    </mailingLists>
+
+    <issueManagement>
+        <system>jira</system>
+        <url>http://jira.inttrust.ru/browse/cmfive</url>
+    </issueManagement>
+
+    <scm>
+        <url>https://git.inttrust.ru/git/?p=CM5SRC.git</url>
+        <connection>scm:git:ssh://git.inttrust.ru/srv/repos/git/CM5SRC/</connection>
+        <developerConnection>scm:git:ssh://git.inttrust.ru/srv/repos/git/CM5SRC/</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.simpleframework</groupId>
+                <artifactId>simple-xml</artifactId>
+                <version>2.7</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-server</artifactId>
+                <version>${vaadin.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-client-compiled</artifactId>
+                <version>${vaadin.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-client</artifactId>
+                <version>${vaadin.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-themes</artifactId>
+                <version>${vaadin.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-jdbc</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-web</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-dao</artifactId>
+                <version>2.0.3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.10</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-all</artifactId>
+                <version>1.9.5</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>3.0.1</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>javax</groupId>
+                <artifactId>javaee-api</artifactId>
+                <version>6.0</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.jboss.spec</groupId>
+                <artifactId>jboss-javaee-6.0</artifactId>
+                <version>3.0.2.Final</version>
+                <scope>provided</scope>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ssh</artifactId>
+                <version>1.0</version>
+            </extension>
+        </extensions>
+
+        <pluginManagement>
+
+            <plugins>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>properties-maven-plugin</artifactId>
+                    <version>1.0-alpha-1</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>2.3.2</version>
+                    <configuration>
+                        <archive>
+                            <manifest>
+                                <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                            </manifest>
+                            <manifestEntries>
+                                <Implementation-Title>${project.name}</Implementation-Title>
+                                <Implementation-Version>${project.version}</Implementation-Version>
+                                <Implementation-Vendor-Id>${project.groupId}</Implementation-Vendor-Id>
+                                <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
+                            </manifestEntries>
+                        </archive>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>2.1.2</version>
+                    <executions>
+                        <execution>
+                            <id>attach-sources</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>jar-no-fork</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <version>2.4.1</version>
+                    <configuration>
+                        <excludeDefaultDirectories>true</excludeDefaultDirectories>
+                        <filesets>
+                            <fileset>
+                                <directory>target</directory>
+                                <includes>
+                                    <include>**/*</include>
+                                </includes>
+                            </fileset>
+                        </filesets>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>2.3.2</version>
+                    <configuration>
+                        <releaseProfiles>release</releaseProfiles>
+                        <preparationGoals>clean test</preparationGoals>
+                        <goals>deploy</goals>
+                        <autoVersionSubmodules>true</autoVersionSubmodules>
+                        <!-- <localCheckout>true</localCheckout> -->
+                        <pushChanges>false</pushChanges>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>2.8</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>3.1</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <version>2.2</version>
+                </plugin>
+
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <inherited>false</inherited>
+                <executions>
+                    <execution>
+                        <id>aggregate</id>
+                        <phase>site</phase>
+                        <goals>
+                            <goal>aggregate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <inherited>false</inherited>
+                <configuration>
+                    <locales>ru</locales>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <configuration>
+                    <tagNameFormat>@{project.version}</tagNameFormat>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <localCheckout>true</localCheckout>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
+                    <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.8</version>
+                <inherited>false</inherited>
+                <reportSets>
+                    <reportSet>
+                        <id>non-aggregate</id>
+                        <reports>
+                            <report>javadoc</report>
+                        </reports>
+                    </reportSet>
+                    <reportSet>
+                        <id>aggregate</id>
+                        <reports>
+                            <report>aggregate</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.sonar-plugins</groupId>
+                <artifactId>maven-report</artifactId>
+                <version>0.1</version>
+            </plugin>
+
+            <plugin>
+                <!-- Настройки плагина -->
+
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-changes-plugin</artifactId>
+                <version>2.9</version>
+                <inherited>false</inherited>
+                <configuration>
+                    <!-- For JIRA-report -->
+                    <runOnlyAtExecutionRoot>true</runOnlyAtExecutionRoot>
+                    <generateJiraAnnouncement>true</generateJiraAnnouncement>
+                    <columnNames>Type,Key,Summary,Assignee,Status,Resolution,Fix
+                        Version</columnNames>
+                    <onlyCurrentVersion>true</onlyCurrentVersion>
+                    <resolutionIds>Fixed</resolutionIds>
+                    <statusIds>6,5</statusIds>
+                    <sortColumnNames>Type,Key</sortColumnNames>
+                    <maxEntries>5000</maxEntries>
+                    <statusIds />
+                    <jiraUser>${jira.login}</jiraUser>
+                    <jiraPassword>${jira.password}</jiraPassword>
+                    <webUser>${jira.login}</webUser>
+                    <webPassword>${jira.password}</webPassword>
+                    <publishDateLocale>ru</publishDateLocale>
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>jira-report</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+
+        </plugins>
+    </reporting>
+
+    <repositories>
+
+        <!-- InterTrust's repositories -->
+
+        <repository>
+            <id>intertrust.repo</id>
+            <name>InterTrust maven repository</name>
+            <url>http://sup.inttrust.ru:8081/nexus/content/groups/public</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+
+        <!-- External repositories -->
+
+        <repository>
+            <url>http://repo1.maven.org/maven2</url>
+            <id>central</id>
+            <name>Central Repository</name>
+        </repository>
+
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>intertrust.repo</id>
+            <url>http://sup.inttrust.ru:8081/nexus/content/groups/public</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <distributionManagement>
+        <repository>
+            <id>intertrust.releases</id>
+            <url>http://sup.inttrust.ru:8081/nexus/content/repositories/cm5-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>intertrust.snapshots</id>
+            <url>http://sup.inttrust.ru:8081/nexus/content/repositories/cm5-snapshots/</url>
+            <uniqueVersion>false</uniqueVersion>
+        </snapshotRepository>
+        <site>
+            <id>projects-website</id>
+            <url>scp://site-client@sup.inttrust.ru:22/cygdrive/c/apache-tomcat-sites/webapps/prjdocs/cm5</url>
+        </site>
+    </distributionManagement>
 </project>
