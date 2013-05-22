@@ -104,8 +104,8 @@ public class ConfigurationLoader {
         admin.getConfiguredFields().put("login", ADMIN_LOGIN);
         admin.getConfiguredFields().put("password", ADMIN_PASSWORD);
         admin.getConfiguredFields().put("email", ADMIN_EMAIL);
-        admin.getConfiguredFields().put("create_date", new Date());
-        admin.getConfiguredFields().put("modify_date", new Date());
+        admin.getConfiguredFields().put("created_date", new Date());
+        admin.getConfiguredFields().put("updated_date", new Date());
         personService.insertPerson(admin);
     }
 
