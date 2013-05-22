@@ -10,9 +10,17 @@ public class IntegerValue extends Value {
     private Long value;
 
     /**
-     * Создаёт целочичсленное значение
+     * Создаёт пустое целочичсленное значение
      */
     public IntegerValue() {
+    }
+
+    /**
+     * Создаёт целочичсленное значение
+     * @param value целочичсленное значение
+     */
+    public IntegerValue(Integer value) {
+        this.value = value == null ? null : (long) value;
     }
 
     /**
@@ -28,8 +36,4 @@ public class IntegerValue extends Value {
         return value;
     }
 
-    @Override
-    public void set(Object value) {
-        this.value = (Long) value;
-    }
 }

@@ -15,20 +15,34 @@
           class="ru.intertrust.cm.core.business.impl.ConfigurationLoader" init-method="load">
         <property name="configurationService" ref="configurationService"/>
         <property name="configurationValidator" ref="configurationValidator"/>
+        <property name="personService" ref="personService"/>
+        
         <property name="configurationFilePath">
-            <value>c:\projects\CM5\CM5\Core\src\main\resources\config\business-objects.xml</value>
+            <value>c:\Projects\Intertrust\workspace\CM5\CM5\Core\src\main\resources\config\business-objects.xml</value>
         </property>
     </bean>
 
 	<bean id="configurationValidator" singleton="true"
           class="ru.intertrust.cm.core.business.impl.ConfigurationValidator">
         <property name="configurationSchemaPath">
-            <value>c:\projects\CM5\CM5\Core\src\main\resources\config\business-objects.xsd</value>
+            <value>c:\Projects\Intertrust\workspace\CM5\CM5\Core\src\main\resources\config\business-objects.xsd</value>
         </property>
     </bean>
 
     <bean id="configurationService" singleton="true" class="ru.intertrust.cm.core.business.impl.ConfigurationServiceImpl">
         <property name="dataStructureDAO" ref="dataStructureDAO"/>
     </bean>
+    
+    <bean id="personDAO" class="ru.intertrust.cm.core.dao.impl.PersonDAOImpl">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
 
+    <bean id="personService" singleton="true" class="ru.intertrust.cm.core.business.impl.PersonServiceImpl">
+        <property name="personDAO" ref="personDAO"/>
+        <property name="md5Service" ref="md5Service"/>        
+    </bean>
+
+    <bean id="md5Service" singleton="true"
+        class="ru.intertrust.cm.core.business.impl.MD5ServiceImpl" />    
+        
 </beans>

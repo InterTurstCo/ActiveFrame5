@@ -1,7 +1,9 @@
 package ru.intertrust.cm.core.business.api.dto;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.Map;
+import java.util.LinkedHashMap;
 
 /**
  * Бизнес-объект - основная именованная сущность системы. Включает в себя набор именованных полей со значениями
@@ -12,7 +14,7 @@ import java.util.Map;
  */
 public class BusinessObject {
     private Id id;
-    private Map<String, Value> fieldValues;
+    private LinkedHashMap<String, Value> fieldValues;
     private Date createdDate;
     private Date modifiedDate;
 
@@ -20,6 +22,7 @@ public class BusinessObject {
      * Создаёт бизнес-объект
      */
     public BusinessObject() {
+        fieldValues = new LinkedHashMap<>();
     }
 
     /**
@@ -39,19 +42,29 @@ public class BusinessObject {
     }
 
     /**
-     * Возвращает значения полей
-     * @return значения полей
+     * Устанавливает значение поля.
+     * @param field название поля
+     * @param value значение поля
      */
-    public Map<String, Value> getFieldValues() {
-        return fieldValues;
+    public void setValue(String field, Value value) {
+        fieldValues.put(field, value);
     }
 
     /**
-     * Устанавливает значения полей
-     * @param fieldValues значения полей
+     * Возвращает значение поля по его названию.
+     * @param field название поля
+     * @return значение поля
      */
-    public void setFieldValues(Map<String, Value> fieldValues) {
-        this.fieldValues = fieldValues;
+    public Value getValue(String field) {
+        return fieldValues.get(field);
+    }
+
+    /**
+     * Возвращает поля бизнес-объекта в их натуральном порядке (порядке, в котором они были добавлены)
+     * @return поля бизнес-объекта в их натуральном порядке
+     */
+    public ArrayList<String> getFields() {
+        return new ArrayList<>(fieldValues.keySet());
     }
 
     /**
@@ -84,5 +97,35 @@ public class BusinessObject {
      */
     public void setModifiedDate(Date modifiedDate) {
         this.modifiedDate = modifiedDate;
+    }
+
+    public String toString() {
+        final String TABULATOR = "    ";
+        ArrayList<String> fields = getFields();
+        StringBuilder result = new StringBuilder();
+        result.append('{').append('\n');
+        result.append("Id = ").append(id).append('\n');
+        result.append("Fields: [").append('\n');
+        for (String field : fields) {
+            result.append(TABULATOR).append(field).append(" = ").append(getValue(field)).append('\n');
+        }
+        result.append(']').append('\n');
+        result.append("Created Date = ").append(createdDate).append('\n');
+        result.append("Modified Date = ").append(modifiedDate).append('\n');
+        result.append('}');
+        return result.toString();
+    }
+
+    public static void main(String[] args) {
+        // todo: move to unit tests after
+        BusinessObject bo = new BusinessObject();
+        bo.setValue("A", null);
+        bo.setValue("B", new IntegerValue(2));
+        bo.setValue("C", new DecimalValue(new BigDecimal(Math.PI)));
+        System.out.println(bo);
+        System.out.println(bo.getValue("B"));
+        System.out.println(bo.getValue("C"));
+        //bo.getValue(3);
+        //bo.setValue("O", new IntegerValue(2));
     }
 }

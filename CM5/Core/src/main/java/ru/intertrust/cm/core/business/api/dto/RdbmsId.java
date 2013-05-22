@@ -14,12 +14,6 @@ public class RdbmsId implements Id {
 
     /**
      * Создаёт идентификатор бизнес-объекта
-     */
-    public RdbmsId() {
-    }
-
-    /**
-     * Создаёт идентификатор бизнес-объекта
      * @param name название бизнес объекта
      * @param id целочисленный идентификатор
      */
@@ -37,14 +31,6 @@ public class RdbmsId implements Id {
     }
 
     /**
-     * Устанавливает название бизнес-объекта
-     * @param name название бизнес-объекта
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
      * Возвращает целочисленный идентификатор бизнес-объекта
      * @return целочисленный идентификатор бизнес-объекта
      */
@@ -52,11 +38,29 @@ public class RdbmsId implements Id {
         return id;
     }
 
-    /**
-     * Устанавливает целочисленный идентификатор бизнес-объекта
-     * @param id целочисленный идентификатор бизнес-объекта
-     */
-    public void setId(long id) {
-        this.id = id;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        RdbmsId rdbmsId = (RdbmsId) o;
+        if (id != rdbmsId.id) {
+            return false;
+        }
+        if (!name.equals(rdbmsId.name)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
     }
 }

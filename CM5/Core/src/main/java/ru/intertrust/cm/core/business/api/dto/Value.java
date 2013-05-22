@@ -22,16 +22,32 @@ public abstract class Value implements Serializable {
     public abstract Object get();
 
     /**
-     * Устанавливает значение поля бизнес-объекта в понятиях Java
-     * @param value значение поля бизнес-объекта в понятиях Java
-     */
-    public abstract void set(Object value);
-
-    /**
      * Проверяет значение на "пустоту"
      * @return true, если объект "пуст" и false - в противном случае
      */
     public boolean isEmpty() {
         return get() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        Object object = get();
+        return object == null ? -1 : object.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object another) {
+        if (another == null || !(another instanceof Value)) {
+            return false;
+        }
+        Object thisValue = get();
+        Object anotherValue = ((Value) another).get();
+        return thisValue == null && anotherValue == null || thisValue != null && thisValue.equals(anotherValue);
+    }
+
+    @Override
+    public String toString() {
+        Object value = get();
+        return value == null ? "null" : value.toString();
     }
 }

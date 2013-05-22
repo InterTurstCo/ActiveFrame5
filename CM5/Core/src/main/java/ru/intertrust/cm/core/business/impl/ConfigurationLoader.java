@@ -3,10 +3,13 @@ package ru.intertrust.cm.core.business.impl;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
+import ru.intertrust.cm.core.business.api.PersonService;
+import ru.intertrust.cm.core.business.api.dto.Person;
 import ru.intertrust.cm.core.business.impl.ConfigurationValidator;
 import ru.intertrust.cm.core.config.Configuration;
 
 import java.io.File;
+import java.util.Date;
 
 /**
  * @author vmatsukevich
@@ -15,6 +18,11 @@ import java.io.File;
  */
 public class ConfigurationLoader {
 
+    private static final String ADMIN_LOGIN = "admin";
+    private static final String ADMIN_PASSWORD = "admin";
+    private static final String ADMIN_EMAIL = "admin@intertrust.ru";
+    
+    
     private String configurationFilePath;
     private ConfigurationService configurationService;
 
@@ -22,6 +30,8 @@ public class ConfigurationLoader {
 
     private ConfigurationValidator configurationValidator;
 
+    private PersonService personService;
+    
     public ConfigurationLoader() {
     }
 
@@ -57,6 +67,17 @@ public class ConfigurationLoader {
         return configuration;
     }
 
+    public PersonService getPersonService() {
+        return personService;
+    }
+
+    public void setPersonService(PersonService personService) {
+        this.personService = personService;
+    }
+
+    /**
+     * @throws Exception
+     */
     public void load() throws Exception {
         Serializer serializer = new Persister();
         File source = new File(configurationFilePath);
@@ -65,6 +86,29 @@ public class ConfigurationLoader {
         validateConfiguration();
 
         configurationService.loadConfiguration(configuration);
+        
+        insertAdminPersonIfEmpty();
+    }
+
+    /**
+     * Добавляет запись для Администратора в таблицу пользователей, если такой записи еще не существует.
+     * @param person
+     */
+    private void insertAdminPersonIfEmpty() {
+        if (personService.findPersonByLogin(ADMIN_LOGIN) == null) {
+            insertAdminPerson();
+        }
+    }
+
+    private void insertAdminPerson() {
+        Person admin = new Person();
+        admin.getConfiguredFields().put("id", 1);
+        admin.getConfiguredFields().put("login", ADMIN_LOGIN);
+        admin.getConfiguredFields().put("password", ADMIN_PASSWORD);
+        admin.getConfiguredFields().put("email", ADMIN_EMAIL);
+        admin.getConfiguredFields().put("create_date", new Date());
+        admin.getConfiguredFields().put("modify_date", new Date());
+        personService.insertPerson(admin);
     }
 
     private void validateConfiguration() {

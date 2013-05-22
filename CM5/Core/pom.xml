@@ -4,61 +4,68 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>ru.intertrust.cm</groupId>
+    <groupId>ru.intertrust.cm-sochi</groupId>
     <artifactId>cm.sochi</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
+
+    <parent>
+        <groupId>ru.intertrust</groupId>
+        <artifactId>cm-sochi</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
 
     <name>InterTrust</name>
     <url>http://www.intertrust.ru//</url>
 
     <properties>
         <vaadin.version>7.0.5</vaadin.version>
+        <spring.version>3.2.2.RELEASE</spring.version>        
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
-				</configuration>
-			</plugin>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-war-plugin</artifactId>
-				<configuration>
-					<warName>core</warName>
-					<outputDirectory>${jboss.deployments.dir}</outputDirectory>
-				</configuration>
-			</plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <warName>core</warName>
+                    <outputDirectory>${jboss.deployments.dir}</outputDirectory>
+                </configuration>
+            </plugin>
 
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>properties-maven-plugin</artifactId>
-				<version>1.0-alpha-1</version>
-				<executions>
-					<execution>
-						<phase>initialize</phase>
-						<goals>
-							<goal>read-project-properties</goal>
-						</goals>
-						<configuration>
-							<files>
-								<file>${basedir}/build.properties</file>
-							</files>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-		<finalName>cm.sochi</finalName>
-	</build>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+                <version>1.0-alpha-1</version>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>read-project-properties</goal>
+                        </goals>
+                        <configuration>
+                            <files>
+                                <file>${basedir}/build.properties</file>
+                            </files>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+        <finalName>cm.sochi</finalName>
+    </build>
 
 
     <dependencies>
@@ -93,13 +100,13 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
-            <version>3.1.0.RELEASE</version>
+            <version>${spring.version}</version>
         </dependency>
 
-         <dependency>
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
-            <version>3.1.0.RELEASE</version>
+            <version>${spring.version}</version>
         </dependency>
 
         <dependency>
