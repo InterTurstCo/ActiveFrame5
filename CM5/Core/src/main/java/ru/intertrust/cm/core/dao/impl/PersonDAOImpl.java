@@ -33,18 +33,13 @@ public class PersonDAOImpl implements PersonDAO {
     }
 
     @Override
-    public Person findPersonByLogin(String login) {
+    public boolean existsPerson(String login) {
         // TODO Определиться с форматом DTO для Персоны. Настраивается в конфигурации или отдельный POJO класс.
-        Person person = null;
-        String query = "select * from person p where p.login=:login";
+        String query = "select count(*) from person p where p.login=:login";
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("login", login);
-        Map<String, Object> results = jdbcTemplate.queryForMap(query, paramMap);
-        if (!results.isEmpty()) {
-            person = new Person();
-            person.setConfiguredFields(results);
-        }
-        return person;
+        int total = jdbcTemplate.queryForInt(query, paramMap);
+        return total > 0;
     }
 
     private String createFieldList(Person person) {
@@ -57,7 +52,7 @@ public class PersonDAOImpl implements PersonDAO {
         Iterator<String> fieldsIterator = person.getConfiguredFields().keySet().iterator();
 
         while (fieldsIterator.hasNext()) {
-            String field = (String) fieldsIterator.next();
+            String field = fieldsIterator.next();
             if (isParameters) {
                 fieldNames.append(":");
             }
@@ -68,5 +63,5 @@ public class PersonDAOImpl implements PersonDAO {
         }
         return fieldNames.toString();
     }
-
+    
 }

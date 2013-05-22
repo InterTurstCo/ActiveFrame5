@@ -17,10 +17,10 @@ public interface PersonDAO {
     int insertPerson(Person person);
 
     /**
-     * Поиск пользователя по логину.
+     * Проверяет сужествует ли пользователь с указанным логином.
      * @param login логин пользователя
-     * @return {@link Person}
+     * @return true, если существует пользователь, false иначе
      */
-    Person findPersonByLogin(String login);
+    boolean existsPerson(String login);
 
 }

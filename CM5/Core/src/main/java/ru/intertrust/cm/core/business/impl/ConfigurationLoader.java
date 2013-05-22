@@ -52,6 +52,8 @@ public class ConfigurationLoader {
     }
 
     public ConfigurationValidator getConfigurationValidator() {
+        configurationValidator.setConfigurationPath(configurationFilePath);
+        configurationValidator.setConfiguration(configuration);
         return configurationValidator;
     }
 
@@ -81,13 +83,18 @@ public class ConfigurationLoader {
     public void load() throws Exception {
         Serializer serializer = new Persister();
         File source = new File(configurationFilePath);
+
         configuration = serializer.read(Configuration.class, source);
 
         validateConfiguration();
 
         configurationService.loadConfiguration(configuration);
-        
+
         insertAdminPersonIfEmpty();
+    }
+
+    private void validateConfiguration() {
+        getConfigurationValidator().validate();
     }
 
     /**
@@ -95,7 +102,7 @@ public class ConfigurationLoader {
      * @param person
      */
     private void insertAdminPersonIfEmpty() {
-        if (personService.findPersonByLogin(ADMIN_LOGIN) == null) {
+        if (!personService.existsPerson(ADMIN_LOGIN)) {
             insertAdminPerson();
         }
     }
@@ -109,16 +116,5 @@ public class ConfigurationLoader {
         admin.getConfiguredFields().put("create_date", new Date());
         admin.getConfiguredFields().put("modify_date", new Date());
         personService.insertPerson(admin);
-    }
-
-    private void validateConfiguration() {
-        ConfigurationValidator configurationValidator = getConfigurationValidator();
-        configurationValidator.setConfigurationPath(configurationFilePath);
-        configurationValidator.setConfiguration(configuration);
-
-        configurationValidator.validate();
-
-        configurationService.loadConfiguration(configuration);
-
     }
 }
