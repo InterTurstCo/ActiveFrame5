@@ -1,13 +1,13 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.jdbc.core.JdbcTemplate;
-import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.BusinessObjectConfig;
 
 import javax.sql.DataSource;
-import java.util.List;
 
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferencedTypeSqlName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCountTablesQuery;
+import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCreateIndexesQuery;
+import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCreateTableQuery;
 
 /**
  * @author vmatsukevich
@@ -26,100 +26,14 @@ public class PostgreSQLDataStructureDAOImpl extends AbstractDataStructureDAOImpl
     public void createTable(BusinessObjectConfig config) {
         jdbcTemplate.update(generateCreateTableQuery(config));
 
+        String createIndexesQuery = generateCreateIndexesQuery(config);
+        if(createIndexesQuery != null) {
+            jdbcTemplate.update(createIndexesQuery);
+        }
     }
 
     @Override
     public Integer countTables() {
-        String query = "select count(table_name) FROM information_schema.tables WHERE table_schema = 'public'";
-        return jdbcTemplate.queryForObject(query, Integer.class);
-    }
-
-    private String getSqlType(FieldConfig fieldConfig) {
-        if(DateTimeFieldConfig.class.equals(fieldConfig.getClass())) {
-            return "timestamp";
-        }
-
-        if(DecimalFieldConfig.class.equals(fieldConfig.getClass())) {
-            return "decimal";
-        }
-
-        if(LongFieldConfig.class.equals(fieldConfig.getClass())) {
-            return "bigint";
-        }
-
-        if(ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
-            return "bigint";
-        }
-
-        if(StringFieldConfig.class.equals(fieldConfig.getClass())) {
-            return "varchar(" + ((StringFieldConfig) fieldConfig).getLength() + ")";
-        }
-
-        if(PasswordFieldConfig.class.equals(fieldConfig.getClass())) {
-            return "varchar(" + ((PasswordFieldConfig) fieldConfig).getLength() + ")";
-        }
-
-        throw new IllegalArgumentException("Invalid field type");
-    }
-
-    private String getFieldsListAsString(List<Field> fieldList, String delimiter) {
-        if(fieldList.isEmpty()) {
-            throw new IllegalArgumentException("Field list is empty");
-        }
-
-        String result = "";
-        for(int i = 0; i < fieldList.size(); i++) {
-            if(i > 0) {
-                result += delimiter;
-            }
-            result += fieldList.get(i).getName();
-        }
-
-        return result;
-    }
-
-    private String generateCreateTableQuery(BusinessObjectConfig config) {
-        String tableName = getSqlName(config);
-
-        String query = "create table " + tableName + " ( " + "" +
-                "ID bigint not null, " +
-                "CREATE_DATE timestamp not null, " +
-                "MODIFY_DATE timestamp not null";
-
-        for(FieldConfig fieldConfig : config.getFieldConfigs()) {
-            query += ", " + getSqlName(fieldConfig) + " " + getSqlType(fieldConfig);
-            if(fieldConfig.isNotNull()) {
-                query += " not null";
-            }
-        }
-
-        String pkName = "PK_" + tableName + "_ID";
-        query += ", constraint " + pkName + " primary key (ID)";
-
-        for(UniqueKey uniqueKey : config.getUniqueKeys()) {
-            if(!uniqueKey.getFields().isEmpty()) {
-                String constraintName = "UNQ_" + tableName + "_" +
-                        getSqlName(getFieldsListAsString(uniqueKey.getFields(), "_"));
-                String fieldsList = getSqlName(getFieldsListAsString(uniqueKey.getFields(), ", "));
-                query += ", constraint " + constraintName + " unique (" + fieldsList + ")";
-            }
-        }
-
-        for(FieldConfig fieldConfig : config.getFieldConfigs()) {
-            if(!ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
-                continue;
-            }
-
-            ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
-            String fieldSqlName = getSqlName(referenceFieldConfig);
-
-            String constraintName = "FK_" + tableName + "_" + fieldSqlName;
-            query += ", constraint " + constraintName + " foreign key (" + fieldSqlName + ") references " +
-                    getReferencedTypeSqlName(referenceFieldConfig) + "(ID)";
-        }
-
-        query += ")";
-
-        return query;
+        return jdbcTemplate.queryForObject(generateCountTablesQuery(), Integer.class);
     }
 }
