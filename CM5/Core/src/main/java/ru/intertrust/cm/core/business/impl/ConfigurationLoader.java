@@ -5,7 +5,6 @@ import org.simpleframework.xml.core.Persister;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.PersonService;
 import ru.intertrust.cm.core.business.api.dto.Person;
-import ru.intertrust.cm.core.business.impl.ConfigurationValidator;
 import ru.intertrust.cm.core.config.Configuration;
 
 import java.io.File;
@@ -21,8 +20,8 @@ public class ConfigurationLoader {
     private static final String ADMIN_LOGIN = "admin";
     private static final String ADMIN_PASSWORD = "admin";
     private static final String ADMIN_EMAIL = "admin@intertrust.ru";
-    
-    
+
+
     private String configurationFilePath;
     private ConfigurationService configurationService;
 
@@ -31,7 +30,7 @@ public class ConfigurationLoader {
     private ConfigurationValidator configurationValidator;
 
     private PersonService personService;
-    
+
     public ConfigurationLoader() {
     }
 
@@ -80,19 +79,18 @@ public class ConfigurationLoader {
      */
     public void load() throws Exception {
         Serializer serializer = new Persister();
-        File source = new File(configurationFilePath);
+        File source = new File(FileUtils.getFileAbsolutePath(getClass(), configurationFilePath));
         configuration = serializer.read(Configuration.class, source);
 
         validateConfiguration();
 
         configurationService.loadConfiguration(configuration);
-        
+
         insertAdminPersonIfEmpty();
     }
 
     /**
      * Добавляет запись для Администратора в таблицу пользователей, если такой записи еще не существует.
-     * @param person
      */
     private void insertAdminPersonIfEmpty() {
         if (personService.findPersonByLogin(ADMIN_LOGIN) == null) {
@@ -113,7 +111,7 @@ public class ConfigurationLoader {
 
     private void validateConfiguration() {
         ConfigurationValidator configurationValidator = getConfigurationValidator();
-        configurationValidator.setConfigurationPath(configurationFilePath);
+        configurationValidator.setConfigurationPath(FileUtils.getFileAbsolutePath(getClass(), configurationFilePath));
         configurationValidator.setConfiguration(configuration);
 
         configurationValidator.validate();

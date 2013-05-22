@@ -73,7 +73,8 @@ public class ConfigurationValidator {
 	private void validateAgainstXSD() {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 
-        File configurationSchemaFile = new File(configurationSchemaPath);
+        File configurationSchemaFile = new File(FileUtils.getFileAbsolutePath(getClass(), configurationSchemaPath));
+
         try {
 
             Schema schema = factory.newSchema(configurationSchemaFile);
