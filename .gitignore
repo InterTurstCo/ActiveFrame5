@@ -44,3 +44,4 @@ target/
 *.tag
 release.properties
 pom.xml.next
+build.properties
