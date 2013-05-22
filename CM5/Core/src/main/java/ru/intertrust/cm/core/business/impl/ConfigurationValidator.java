@@ -29,28 +29,26 @@ public class ConfigurationValidator {
 
     private Configuration configuration;
 
-
     public ConfigurationValidator() {
     }
 
+    public String getConfigurationPath() {
+        return configurationPath;
+    }
 
-	public String getConfigurationPath() {
-		return configurationPath;
-	}
+    public void setConfigurationPath(String configurationPath) {
+        this.configurationPath = configurationPath;
+    }
 
-	public void setConfigurationPath(String configurationPath) {
-		this.configurationPath = configurationPath;
-	}
+    public String getConfigurationSchemaPath() {
+        return configurationSchemaPath;
+    }
 
-	public String getConfigurationSchemaPath() {
-		return configurationSchemaPath;
-	}
+    public void setConfigurationSchemaPath(String configurationSchemaPath) {
+        this.configurationSchemaPath = configurationSchemaPath;
+    }
 
-	public void setConfigurationSchemaPath(String configurationSchemaPath) {
-		this.configurationSchemaPath = configurationSchemaPath;
-	}
-
-	public Configuration getConfiguration() {
+    public Configuration getConfiguration() {
         return configuration;
     }
 
@@ -59,20 +57,20 @@ public class ConfigurationValidator {
     }
 
     public void validate() {
+        validateAgainstXSD();
+        validateLogically();
+    }
+
+    public void validateAgainstXSD() {
         if (configurationPath == null) {
             throw new RuntimeException("Please set the configurationPath for ConfigurationValidator before validating");
         }
-        if (configuration == null) {
+        if (configurationSchemaPath == null) {
             throw new RuntimeException(
-                    "Please set the configuration object for ConfigurationValidator before validating");
+                    "Please set the configurationSchemaPath for ConfigurationValidator before validating");
         }
-		validateAgainstXSD();
-		validateLogically();
-	}
 
-	private void validateAgainstXSD() {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-
         File configurationSchemaFile = new File(configurationSchemaPath);
         try {
 
@@ -81,30 +79,35 @@ public class ConfigurationValidator {
             Source source = new StreamSource(configurationPath);
             validator.setErrorHandler(new ValidationErrorHandler());
             validator.validate(source);
-            //TODO Log success information using logging API
+            // TODO Log success information using logging API
             System.out.println("Document is valid against XSD");
 
         } catch (SAXException ex) {
-            throw new RuntimeException("Document " + configurationSchemaFile.getName() + " is not valid: " + ex.getMessage(), ex);
+            throw new RuntimeException("Document " + configurationSchemaFile.getName() + " is not valid: "
+                    + ex.getMessage(), ex);
         } catch (IOException e) {
             throw new RuntimeException(" File " + configurationPath + " not found. " + e.getMessage(), e);
 
         }
-	}
+    }
 
-    private void validateLogically() {
+    public void validateLogically() {
+        if (configuration == null) {
+            throw new RuntimeException(
+                    "Please set the configuration object for ConfigurationValidator before validating");
+        }
         List<BusinessObjectConfig> businessObjectConfigs = configuration.getBusinessObjectConfigs();
-        if(businessObjectConfigs.isEmpty())  {
+        if (businessObjectConfigs.isEmpty()) {
             return;
         }
-        for(BusinessObjectConfig businessObjectConfig : businessObjectConfigs) {
+        for (BusinessObjectConfig businessObjectConfig : businessObjectConfigs) {
             validateBusinessObjectConfig(businessObjectConfig);
         }
-        //TODO Log success information using logging API
+        // TODO Log success information using logging API
         System.out.println("Document has passed logical validation");
     }
 
-	private void validateBusinessObjectConfig(BusinessObjectConfig businessObjectConfig) {
+    private void validateBusinessObjectConfig(BusinessObjectConfig businessObjectConfig) {
         if (businessObjectConfig == null) {
             return;
         }
@@ -132,17 +135,16 @@ public class ConfigurationValidator {
 
     private void validateParentConfig(BusinessObjectConfig businessObjectConfig) {
         String parentConfig = businessObjectConfig.getParentConfig();
-        if(parentConfig != null) {
+        if (parentConfig != null) {
             findBusinessObjectConfigByName(configuration, parentConfig);
         }
     }
 
-
     /**
      * Gives the possibility to handle differently validation errors and warnings.
-     *
+     * 
      * @author atsvetkov
-     *
+     * 
      */
     private static class ValidationErrorHandler implements ErrorHandler {
 
