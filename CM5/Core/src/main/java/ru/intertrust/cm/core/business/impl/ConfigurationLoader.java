@@ -51,6 +51,8 @@ public class ConfigurationLoader {
     }
 
     public ConfigurationValidator getConfigurationValidator() {
+        configurationValidator.setConfigurationPath(configurationFilePath);
+        configurationValidator.setConfiguration(configuration);
         return configurationValidator;
     }
 
@@ -89,11 +91,16 @@ public class ConfigurationLoader {
         insertAdminPersonIfEmpty();
     }
 
+    private void validateConfiguration() {
+        getConfigurationValidator().validate();
+    }
+
     /**
      * Добавляет запись для Администратора в таблицу пользователей, если такой записи еще не существует.
+     * @param person
      */
     private void insertAdminPersonIfEmpty() {
-        if (personService.findPersonByLogin(ADMIN_LOGIN) == null) {
+        if (!personService.existsPerson(ADMIN_LOGIN)) {
             insertAdminPerson();
         }
     }
@@ -108,15 +115,5 @@ public class ConfigurationLoader {
         admin.getConfiguredFields().put("updated_date", new Date());
         personService.insertPerson(admin);
     }
-
-    private void validateConfiguration() {
-        ConfigurationValidator configurationValidator = getConfigurationValidator();
-        configurationValidator.setConfigurationPath(FileUtils.getFileAbsolutePath(getClass(), configurationFilePath));
-        configurationValidator.setConfiguration(configuration);
-
-        configurationValidator.validate();
-
-        configurationService.loadConfiguration(configuration);
-
-    }
+   
 }

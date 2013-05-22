@@ -18,10 +18,10 @@ public interface PersonService {
     void insertPerson(Person person);
 
     /**
-     * Поиск пользователя по логину.
+     * Проверяет сужествует ли пользователь с указанным логином.
      * @param login логин пользователя
-     * @return объект {@link Person}, если пользователь существует, иначе возвращает null.
+     * @return true, если существует пользователь, false иначе
      */
-    Person findPersonByLogin(String login);
+    boolean existsPerson(String login);
 
 }

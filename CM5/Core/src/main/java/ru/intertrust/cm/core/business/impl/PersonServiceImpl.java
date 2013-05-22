@@ -30,13 +30,13 @@ public class PersonServiceImpl implements PersonService {
         personDAO.insertPerson(person);
     }
 
-    /**
-     * Поиск пользователя по логину
+   /**
+     * Проверяет сужествует ли пользователь с указанным логином.
      * @param login логин пользователя
-     * @return {@link Person}
+     * @return true, если существует пользователь, false иначе
      */
-    public Person findPersonByLogin(String login) {
-        return personDAO.findPersonByLogin(login);
+    public boolean existsPerson(String login) {
+        return personDAO.existsPerson(login);
     }
 
     /**
