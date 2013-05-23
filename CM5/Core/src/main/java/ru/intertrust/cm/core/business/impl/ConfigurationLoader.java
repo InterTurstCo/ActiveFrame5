@@ -90,11 +90,15 @@ public class ConfigurationLoader {
 
         validateConfiguration();
 
-        createAuthenticationInfoTable();
+        createSystemTables();
         configurationService.loadConfiguration(configuration);
 
-        insertAdminauthenticationInfoIfEmpty();
-        
+        insertAdminAuthenticationInfoIfEmpty();
+
+    }
+
+    private void createSystemTables() {
+        createAuthenticationInfoTable();
     }
 
     private void createAuthenticationInfoTable() {
@@ -144,7 +148,7 @@ public class ConfigurationLoader {
      * Добавляет запись для Администратора в таблицу пользователей, если такой записи еще не существует.
      * @param person
      */
-    private void insertAdminauthenticationInfoIfEmpty() {
+    private void insertAdminAuthenticationInfoIfEmpty() {
         if (!authenticationService.existsAuthenticationInfo(ADMIN_LOGIN)) {
             insertAdminAuthenticationInfo();
         }
