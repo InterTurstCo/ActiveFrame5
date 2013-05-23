@@ -27,8 +27,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             return;
         }
 
-        ConfigurationLoader configurationLoader = new ConfigurationLoader(configuration);
-        configurationLoader.load();
+        dataStructureDAO.createServiceTables();
+
+        RecursiveLoader recursiveLoader = new RecursiveLoader(configuration);
+        recursiveLoader.load();
     }
 
     private Boolean isConfigurationLoaded() {
@@ -40,11 +42,11 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         return tablesCount > 0;
     }
 
-    private class ConfigurationLoader {
+    private class RecursiveLoader {
         private Configuration configuration;
         private Set<String> loadedBusinessObjectConfigs = new HashSet<String>();
 
-        private ConfigurationLoader(Configuration configuration) {
+        private RecursiveLoader(Configuration configuration) {
             this.configuration = configuration;
         }
 
@@ -53,6 +55,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             if(businessObjectConfigs.isEmpty())  {
                 return;
             }
+
+            dataStructureDAO.createServiceTables();
 
             for(BusinessObjectConfig businessObjectConfig : businessObjectConfigs) {
                 loadBusinessObjectConfig(businessObjectConfig);

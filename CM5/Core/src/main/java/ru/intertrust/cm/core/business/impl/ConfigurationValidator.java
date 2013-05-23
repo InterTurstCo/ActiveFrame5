@@ -11,8 +11,9 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.List;
 
 import static ru.intertrust.cm.core.business.impl.ConfigurationHelper.findBusinessObjectConfigByName;
@@ -73,20 +74,22 @@ public class ConfigurationValidator {
 	private void validateAgainstXSD() {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 
-        File configurationSchemaFile = new File(FileUtils.getFileAbsolutePath(getClass(), configurationSchemaPath));
+        URL configurationSchemaUrl = FileUtils.getFileURL(configurationSchemaPath);
 
         try {
-
-            Schema schema = factory.newSchema(configurationSchemaFile);
+            Schema schema = factory.newSchema(configurationSchemaUrl);
             Validator validator = schema.newValidator();
-            Source source = new StreamSource(configurationPath);
             validator.setErrorHandler(new ValidationErrorHandler());
+
+            InputStream configurationInputStream = FileUtils.getFileInputStream(configurationPath);
+            Source source = new StreamSource(configurationInputStream);
             validator.validate(source);
+
             //TODO Log success information using logging API
             System.out.println("Document is valid against XSD");
-
         } catch (SAXException ex) {
-            throw new RuntimeException("Document " + configurationSchemaFile.getName() + " is not valid: " + ex.getMessage(), ex);
+            throw new RuntimeException("Document " + configurationSchemaUrl.getFile() + " is not valid: " + ex.getMessage(),
+                    ex);
         } catch (IOException e) {
             throw new RuntimeException(" File " + configurationPath + " not found. " + e.getMessage(), e);
 

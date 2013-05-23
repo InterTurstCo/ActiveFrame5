@@ -11,4 +11,5 @@ public interface DataStructureDAO {
 
     void createTable(BusinessObjectConfig config);
     Integer countTables();
+    void createServiceTables();
 }

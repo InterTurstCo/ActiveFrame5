@@ -16,6 +16,9 @@ import java.util.List;
  */
 @Root(name = "businessObject")
 public class BusinessObjectConfig {
+
+    private Long id;
+
     @Attribute(required = true)
     private String name;
 
@@ -30,6 +33,14 @@ public class BusinessObjectConfig {
     private List<UniqueKeyConfig> uniqueKeyConfigs;
 
     public BusinessObjectConfig() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {

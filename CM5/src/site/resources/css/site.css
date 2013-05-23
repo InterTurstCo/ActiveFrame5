@@ -1,0 +1,14 @@
+/* Override style with our settings */
+#banner {  
+  background:url("../images/banner_rep.png") repeat scroll 0 0 transparent;
+  color:white;
+  height:40px;
+  padding-left:10px;
+}
+#leftColumn {
+  width: 300px;
+}
+
+#bodyColumn {
+  margin-left: 327px;
+}
