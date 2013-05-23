@@ -3,9 +3,7 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>ru.intertrust.cm-sochi</groupId>
     <artifactId>core</artifactId>
-    <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
     <name>Core</name>
     <description>Ядро</description>
@@ -44,6 +42,12 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.jboss.as.plugins</groupId>
+                <artifactId>jboss-as-maven-plugin</artifactId>
+                <version>7.3.Final</version>
             </plugin>
 
         </plugins>
@@ -90,6 +94,12 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-dao</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>log4j</artifactId>
+                    <groupId>log4j</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
