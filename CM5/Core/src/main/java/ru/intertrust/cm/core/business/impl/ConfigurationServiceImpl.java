@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.business.impl;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.api.DataStructureDAO;
+import ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper;
 
 import java.util.HashSet;
 import java.util.List;
@@ -33,6 +34,18 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         recursiveLoader.load();
     }
 
+    public void loadSystemObjectConfig(BusinessObjectConfig businessObjectConfig) {
+        if(isSystemObjectLoaded(businessObjectConfig)) {
+            return;
+        }
+        dataStructureDAO.createTable(businessObjectConfig, false);        
+    }
+
+    public boolean isSystemObjectLoaded(BusinessObjectConfig businessObjectConfig) {
+        String tableName = DataStructureNamingHelper.getSqlName(businessObjectConfig);
+        return dataStructureDAO.doesTableExists(tableName);        
+    }
+
     private Boolean isConfigurationLoaded() {
         Integer tablesCount = dataStructureDAO.countTables();
         if(tablesCount == null) {
@@ -56,6 +69,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                 return;
             }
 
+            dataStructureDAO.createServiceTables();
+
             for(BusinessObjectConfig businessObjectConfig : businessObjectConfigs) {
                 loadBusinessObjectConfig(businessObjectConfig);
             }
@@ -69,7 +84,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             // First load referenced business object configurations
             loadDependentBusinessObjectConfigs(businessObjectConfig);
 
-            dataStructureDAO.createTable(businessObjectConfig);
+            dataStructureDAO.createTable(businessObjectConfig, true);
             loadedBusinessObjectConfigs.add(businessObjectConfig.getName()); // add to loaded configs set
         }
 

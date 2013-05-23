@@ -23,12 +23,12 @@ public class PostgreSQLQueryHelper {
                 "constraint PK_BUSINESS_OBJECT_ID primary key (ID), constraint U_BUSINESS_OBJECT_NAME unique (NAME))";
     }
 
-    public static String generateCreateTableQuery(BusinessObjectConfig config) {
+    public static String generateCreateTableQuery(BusinessObjectConfig config, boolean isBusinessObject) {
         String tableName = getSqlName(config);
 
         String query = "create table " + tableName + " ( ";
 
-        query += generateColumnsQueryPart(config);
+        query += generateColumnsQueryPart(config, isBusinessObject);
         query += generatePKConstraintQueryPart(tableName);
         query += generateUniqueConstraintsQueryPart(config, tableName);
         query += generateFKConstraintsQueryPart(config, tableName);
@@ -85,19 +85,25 @@ public class PostgreSQLQueryHelper {
         return ", constraint " + pkName + " primary key (ID)";
     }
 
-    private static String generateColumnsQueryPart(BusinessObjectConfig config) {
-        String queryPart = "ID bigint not null, " +
-                           "CREATED_DATE timestamp not null, " +
-                           "UPDATED_DATE timestamp not null";
+    private static String generateColumnsQueryPart(BusinessObjectConfig config, boolean isBusinessObject) {
+        StringBuilder queryPart = new StringBuilder();
+        queryPart.append("ID bigint not null");
 
-        for(FieldConfig fieldConfig : config.getFieldConfigs()) {
-            queryPart += ", " + getSqlName(fieldConfig) + " " + getSqlType(fieldConfig);
-            if(fieldConfig.isNotNull()) {
-                queryPart += " not null";
+        if (isBusinessObject) {
+            queryPart.append(", ");
+            queryPart.append("CREATED_DATE timestamp not null, ");
+            queryPart.append("UPDATED_DATE timestamp not null");
+
+        }
+
+        for (FieldConfig fieldConfig : config.getFieldConfigs()) {
+            queryPart.append(", ").append(getSqlName(fieldConfig)).append(" ").append(getSqlType(fieldConfig));
+            if (fieldConfig.isNotNull()) {
+                queryPart.append(" not null");
             }
         }
 
-        return queryPart;
+        return queryPart.toString();
     }
 
     private static String generateUniqueConstraintsQueryPart(BusinessObjectConfig config, String tableName) {

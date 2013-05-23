@@ -9,7 +9,8 @@ import ru.intertrust.cm.core.config.BusinessObjectConfig;
  */
 public interface DataStructureDAO {
 
-    void createTable(BusinessObjectConfig config);
+    void createTable(BusinessObjectConfig config, boolean isBusinessObject);
     Integer countTables();
     void createServiceTables();
+    boolean doesTableExists(String tableName);
 }
