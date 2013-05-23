@@ -11,21 +11,21 @@
         <property name="dataSource" ref="dataSource"/>
     </bean>
 
-    <bean id="configurationLoader" lazy-init="false" singleton="true"
+    <bean id="recursiveLoader" lazy-init="false" singleton="true"
           class="ru.intertrust.cm.core.business.impl.ConfigurationLoader" init-method="load">
         <property name="configurationService" ref="configurationService"/>
         <property name="configurationValidator" ref="configurationValidator"/>
         <property name="personService" ref="personService"/>
 
         <property name="configurationFilePath">
-            <value>../../../../../../config/business-objects.xml</value>
+            <value>/config/business-objects.xml</value>
         </property>
     </bean>
 
 	<bean id="configurationValidator" singleton="true"
           class="ru.intertrust.cm.core.business.impl.ConfigurationValidator">
         <property name="configurationSchemaPath">
-            <value>../../../../../../config/business-objects.xsd</value>
+            <value>/config/business-objects.xsd</value>
         </property>
     </bean>
 

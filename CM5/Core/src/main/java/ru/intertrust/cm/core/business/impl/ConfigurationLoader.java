@@ -7,7 +7,7 @@ import ru.intertrust.cm.core.business.api.PersonService;
 import ru.intertrust.cm.core.business.api.dto.Person;
 import ru.intertrust.cm.core.config.Configuration;
 
-import java.io.File;
+import java.io.InputStream;
 import java.util.Date;
 
 /**
@@ -79,7 +79,7 @@ public class ConfigurationLoader {
      */
     public void load() throws Exception {
         Serializer serializer = new Persister();
-        File source = new File(FileUtils.getFileAbsolutePath(getClass(), configurationFilePath));
+        InputStream source = FileUtils.getFileInputStream(configurationFilePath);
         configuration = serializer.read(Configuration.class, source);
 
         validateConfiguration();
@@ -111,7 +111,7 @@ public class ConfigurationLoader {
 
     private void validateConfiguration() {
         ConfigurationValidator configurationValidator = getConfigurationValidator();
-        configurationValidator.setConfigurationPath(FileUtils.getFileAbsolutePath(getClass(), configurationFilePath));
+        configurationValidator.setConfigurationPath(configurationFilePath);
         configurationValidator.setConfiguration(configuration);
 
         configurationValidator.validate();

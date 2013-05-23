@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.business.impl;
 
+import java.io.InputStream;
 import java.net.URL;
 
 /**
@@ -9,12 +10,11 @@ import java.net.URL;
  */
 public class FileUtils {
 
-    public static String getFileAbsolutePath(Class loader, String relativePath) {
-        URL resource = loader.getResource(relativePath);
-        if(resource == null) {
-            throw new RuntimeException("File '" + relativePath + "' not found by " + loader);
-        }
+    public static InputStream getFileInputStream(String relativePath) {
+        return FileUtils.class.getClassLoader().getResourceAsStream(relativePath);
+    }
 
-        return resource.getPath();
+    public static URL getFileURL(String relativePath) {
+        return FileUtils.class.getClassLoader().getResource(relativePath);
     }
 }
