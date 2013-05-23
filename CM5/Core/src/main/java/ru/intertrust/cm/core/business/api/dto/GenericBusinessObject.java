@@ -1,9 +1,9 @@
 package ru.intertrust.cm.core.business.api.dto;
 
+import ru.intertrust.cm.core.business.util.BusinessUtil;
+
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashMap;
 
 /**
  * Обобщённая реализация бизнес-объектов
@@ -12,9 +12,7 @@ import java.util.LinkedHashMap;
  * Date: 19.05.13
  * Time: 15:57
  */
-public class GenericBusinessObject implements BusinessObject {
-    private Id id;
-    private LinkedHashMap<String, Value> fieldValues;
+public class GenericBusinessObject extends GenericIdentifiableObject implements BusinessObject {
     private Date createdDate;
     private Date modifiedDate;
 
@@ -22,32 +20,7 @@ public class GenericBusinessObject implements BusinessObject {
      * Создаёт бизнес-объект
      */
     public GenericBusinessObject() {
-        fieldValues = new LinkedHashMap<>();
-    }
-
-    @Override
-    public Id getId() {
-        return id;
-    }
-
-    @Override
-    public void setId(Id id) {
-        this.id = id;
-    }
-
-    @Override
-    public void setValue(String field, Value value) {
-        fieldValues.put(field, value);
-    }
-
-    @Override
-    public Value getValue(String field) {
-        return fieldValues.get(field);
-    }
-
-    @Override
-    public ArrayList<String> getFields() {
-        return new ArrayList<>(fieldValues.keySet());
+        super();
     }
 
     @Override
@@ -71,16 +44,9 @@ public class GenericBusinessObject implements BusinessObject {
     }
 
     public String toString() {
-        final String TABULATOR = "    ";
-        ArrayList<String> fields = getFields();
         StringBuilder result = new StringBuilder();
         result.append('{').append('\n');
-        result.append("Id = ").append(id).append('\n');
-        result.append("Fields: [").append('\n');
-        for (String field : fields) {
-            result.append(TABULATOR).append(field).append(" = ").append(getValue(field)).append('\n');
-        }
-        result.append(']').append('\n');
+        result.append(BusinessUtil.getDetailedDescription(this));
         result.append("Created Date = ").append(createdDate).append('\n');
         result.append("Modified Date = ").append(modifiedDate).append('\n');
         result.append('}');
