@@ -64,7 +64,7 @@
                 </executions>
             </plugin>
         </plugins>
-        <finalName>cm.sochi.war</finalName>
+        <finalName>cm.sochi</finalName>
     </build>
 
 
