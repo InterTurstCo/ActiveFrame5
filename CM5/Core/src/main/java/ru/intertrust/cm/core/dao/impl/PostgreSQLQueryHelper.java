@@ -18,6 +18,11 @@ public class PostgreSQLQueryHelper {
         return "select count(table_name) FROM information_schema.tables WHERE table_schema = 'public'";
     }
 
+    public static String generateCreateBusinessObjectTableQuery() {
+        return "create table BUSINESS_OBJECT(ID bigserial not null, NAME varchar(256) not null, " +
+                "constraint PK_BUSINESS_OBJECT_ID primary key (ID), constraint unique U_BUSINESS_OBJECT_NAME(NAME))";
+    }
+
     public static String generateCreateTableQuery(BusinessObjectConfig config) {
         String tableName = getSqlName(config);
 
@@ -100,7 +105,7 @@ public class PostgreSQLQueryHelper {
 
         for(UniqueKeyConfig uniqueKeyConfig : config.getUniqueKeyConfigs()) {
             if(!uniqueKeyConfig.getUniqueKeyFieldConfigs().isEmpty()) {
-                String constraintName = "UNQ_" + tableName + "_" +
+                String constraintName = "U_" + tableName + "_" +
                         getSqlName(getFieldsListAsString(uniqueKeyConfig.getUniqueKeyFieldConfigs(), "_"));
                 String fieldsList = getSqlName(getFieldsListAsString(uniqueKeyConfig.getUniqueKeyFieldConfigs(), ", "));
                 queryPart += ", constraint " + constraintName + " unique (" + fieldsList + ")";

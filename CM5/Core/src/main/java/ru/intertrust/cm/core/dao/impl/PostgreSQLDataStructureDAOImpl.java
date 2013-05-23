@@ -5,9 +5,7 @@ import ru.intertrust.cm.core.config.BusinessObjectConfig;
 
 import javax.sql.DataSource;
 
-import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCountTablesQuery;
-import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCreateIndexesQuery;
-import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCreateTableQuery;
+import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.*;
 
 /**
  * @author vmatsukevich
@@ -30,10 +28,19 @@ public class PostgreSQLDataStructureDAOImpl extends AbstractDataStructureDAOImpl
         if(createIndexesQuery != null) {
             jdbcTemplate.update(createIndexesQuery);
         }
+
+        jdbcTemplate.update("insert into BUSINESS_OBJECT(NAME) values (?)", config.getName());
+        Long id = jdbcTemplate.queryForObject("select ID from BUSINESS_OBJECT where NAME = ?", Long.class, config.getName());
+        config.setId(id);
     }
 
     @Override
     public Integer countTables() {
         return jdbcTemplate.queryForObject(generateCountTablesQuery(), Integer.class);
+    }
+
+    @Override
+    public void createServiceTables() {
+        jdbcTemplate.update(generateCreateBusinessObjectTableQuery());
     }
 }
