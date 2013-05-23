@@ -1,33 +1,33 @@
 package ru.intertrust.cm.core.business.impl;
 
 import ru.intertrust.cm.core.business.api.MD5Service;
-import ru.intertrust.cm.core.business.api.PersonService;
-import ru.intertrust.cm.core.business.api.dto.Person;
-import ru.intertrust.cm.core.dao.api.PersonDAO;
+import ru.intertrust.cm.core.business.api.AuthenticationService;
+import ru.intertrust.cm.core.business.api.dto.AuthenticationInfo;
+import ru.intertrust.cm.core.dao.api.AuthenticationDAO;
 
 /**
  * Реализация сервиса для работы с бизнес-объектом Person
  * @author atsvetkov
  * 
  */
-public class PersonServiceImpl implements PersonService {
+public class AuthenticationServiceImpl implements AuthenticationService {
 
     private MD5Service md5Service;
 
-    private PersonDAO personDAO;
+    private AuthenticationDAO authenticationDAO;
 
     /**
      * Добавляет пользователя в базу. Кодирует пароль, использую MD5 алгоритм. В базу сохраняется MD5 хеш значение
      * пароля.
-     * @param person {@link Person}
+     * @param authenticationInfo {@link AuthenticationInfo}
      */
     @Override
-    public void insertPerson(Person person) {
-        String enteredPassword = (String) person.getConfiguredFields().get("password");
+    public void insertAuthenticationInfo(AuthenticationInfo authenticationInfo) {
+        String enteredPassword = authenticationInfo.getPassword();
         String passwordHash = md5Service.getMD5(enteredPassword);
-        person.getConfiguredFields().put("password", passwordHash);
+        authenticationInfo.setPassword(passwordHash);
 
-        personDAO.insertPerson(person);
+        authenticationDAO.insertAuthenticationInfo(authenticationInfo);
     }
 
    /**
@@ -35,8 +35,8 @@ public class PersonServiceImpl implements PersonService {
      * @param login логин пользователя
      * @return true, если существует пользователь, false иначе
      */
-    public boolean existsPerson(String login) {
-        return personDAO.existsPerson(login);
+    public boolean existsAuthenticationInfo(String login) {
+        return authenticationDAO.existsAuthenticationInfo(login);
     }
 
     /**
@@ -49,10 +49,11 @@ public class PersonServiceImpl implements PersonService {
     }
 
     /**
-     * Устанавливает {@see #personDAO}.
+     * Устанавливает {@see #authenticationDAO}.
      * @param personDAO
      */
-    public void setPersonDAO(PersonDAO personDAO) {
-        this.personDAO = personDAO;
+    public void setAuthenticationDAO(AuthenticationDAO authenticationDAO) {
+        this.authenticationDAO = authenticationDAO;
     }
+   
 }

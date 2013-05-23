@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.business.api;
 
-import ru.intertrust.cm.core.business.api.dto.Person;
+import ru.intertrust.cm.core.business.api.dto.AuthenticationInfo;
 
 /**
  * Сервис для работы с бизнес-объектом Person.
@@ -8,20 +8,20 @@ import ru.intertrust.cm.core.business.api.dto.Person;
  * @author atsvetkov
  * 
  */
-public interface PersonService {
+public interface AuthenticationService {
 
     /**
      * Добавление пользователя.
-     * @param person {@link Person} пользователь для сохранения
+     * @param authenticationInfo {@link AuthenticationInfo} пользователь для сохранения
      * @return
      */
-    void insertPerson(Person person);
+    void insertAuthenticationInfo(AuthenticationInfo authenticationInfo);
 
     /**
      * Проверяет сужествует ли пользователь с указанным логином.
      * @param login логин пользователя
      * @return true, если существует пользователь, false иначе
      */
-    boolean existsPerson(String login);
+    boolean existsAuthenticationInfo(String login);
 
 }
