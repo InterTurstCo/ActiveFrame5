@@ -20,7 +20,7 @@ public class PostgreSQLQueryHelper {
 
     public static String generateCreateBusinessObjectTableQuery() {
         return "create table BUSINESS_OBJECT(ID bigserial not null, NAME varchar(256) not null, " +
-                "constraint PK_BUSINESS_OBJECT_ID primary key (ID), constraint unique U_BUSINESS_OBJECT_NAME(NAME))";
+                "constraint PK_BUSINESS_OBJECT_ID primary key (ID), constraint U_BUSINESS_OBJECT_NAME unique (NAME))";
     }
 
     public static String generateCreateTableQuery(BusinessObjectConfig config) {
