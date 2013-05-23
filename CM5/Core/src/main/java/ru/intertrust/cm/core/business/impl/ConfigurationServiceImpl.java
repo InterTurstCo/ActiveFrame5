@@ -56,8 +56,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                 return;
             }
 
-            dataStructureDAO.createServiceTables();
-
             for(BusinessObjectConfig businessObjectConfig : businessObjectConfigs) {
                 loadBusinessObjectConfig(businessObjectConfig);
             }
