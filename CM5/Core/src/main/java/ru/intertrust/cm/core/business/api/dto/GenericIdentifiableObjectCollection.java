@@ -1,6 +1,5 @@
-package ru.intertrust.cm.core.business.impl.dto;
+package ru.intertrust.cm.core.business.api.dto;
 
-import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.util.BusinessUtil;
 
 import java.math.BigDecimal;
@@ -13,7 +12,7 @@ import java.util.*;
  * Date: 23.05.13
  * Time: 10:54
  */
-public class IdentifiableObjectCollectionImpl implements IdentifiableObjectCollection {
+public class GenericIdentifiableObjectCollection implements IdentifiableObjectCollection {
     private ArrayList<IdentifiableObject> list = new ArrayList<>();
     private HashMap<String, Integer> fieldIndexes = new HashMap<>();
     private ArrayList<String> fields;
@@ -155,7 +154,7 @@ public class IdentifiableObjectCollectionImpl implements IdentifiableObjectColle
 
         @Override
         public ArrayList<String> getFields() {
-            return IdentifiableObjectCollectionImpl.this.getFields();
+            return GenericIdentifiableObjectCollection.this.getFields();
         }
 
         @Override
@@ -166,7 +165,7 @@ public class IdentifiableObjectCollectionImpl implements IdentifiableObjectColle
 
     public static void main(String[] args) {
         //todo move to unit tests
-        IdentifiableObjectCollection collection = new IdentifiableObjectCollectionImpl();
+        IdentifiableObjectCollection collection = new GenericIdentifiableObjectCollection();
         ArrayList<String> fields = new ArrayList<>();
         fields.add("A");
         fields.add("B");
