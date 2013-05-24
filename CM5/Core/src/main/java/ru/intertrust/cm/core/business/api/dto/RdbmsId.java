@@ -1,6 +1,4 @@
-package ru.intertrust.cm.core.business.impl.dto;
-
-import ru.intertrust.cm.core.business.api.dto.Id;
+package ru.intertrust.cm.core.business.api.dto;
 
 /**
  * Уникальный идентификатор бизнес-объекта, состоящий из целочисленного ключа и названия бизнес-объекта.<br/>
