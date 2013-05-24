@@ -56,6 +56,16 @@ public class ConfigurationLoader {
     }
 
     /**
+     * Инициализирует и возвращает {@link #configurationValidator}
+     * @return
+     */
+    public ConfigurationValidator getConfigurationValidator() {
+        configurationValidator.setConfigurationPath(configurationFilePath);
+        configurationValidator.setConfiguration(configuration);
+        return configurationValidator;
+    }
+
+    /**
      * Устанавливает {@link #configurationValidator}
      * @param configurationValidator валидатор конфигурации бизнас-объектов
      */
@@ -63,18 +73,10 @@ public class ConfigurationLoader {
         this.configurationValidator = configurationValidator;
     }
 
-    public ConfigurationLoader(String configurationFilePath) {
-        this.configurationFilePath = configurationFilePath;
-    }
-
-    public Configuration getConfiguration() {
-        return configuration;
-    }
-
-    public AuthenticationService getAuthenticationService() {
-        return authenticationService;
-    }
-
+    /**
+     * Устанавливает сервис аутенфикации
+     * @param authenticationService AuthenticationService
+     */
     public void setAuthenticationService(AuthenticationService authenticationService) {
         this.authenticationService = authenticationService;
     }
