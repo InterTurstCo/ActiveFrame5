@@ -2,13 +2,19 @@ package ru.intertrust.cm.core.business.impl;
 
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
+
+import ru.intertrust.cm.core.business.api.AuthenticationService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
-import ru.intertrust.cm.core.business.api.PersonService;
-import ru.intertrust.cm.core.business.api.dto.Person;
+import ru.intertrust.cm.core.business.api.dto.AuthenticationInfo;
+import ru.intertrust.cm.core.config.BusinessObjectConfig;
+import ru.intertrust.cm.core.config.BusinessObjectFieldsConfig;
 import ru.intertrust.cm.core.config.Configuration;
+import ru.intertrust.cm.core.config.PasswordFieldConfig;
+import ru.intertrust.cm.core.config.StringFieldConfig;
+import ru.intertrust.cm.core.config.UniqueKeyConfig;
+import ru.intertrust.cm.core.config.UniqueKeyFieldConfig;
 
 import java.io.InputStream;
-import java.util.Date;
 
 /**
  * Класс, предназначенный для загрузки конфигурации бизнес-оъектов
@@ -20,8 +26,6 @@ public class ConfigurationLoader {
 
     private static final String ADMIN_LOGIN = "admin";
     private static final String ADMIN_PASSWORD = "admin";
-    private static final String ADMIN_EMAIL = "admin@intertrust.ru";
-
 
     private String configurationFilePath;
     private ConfigurationService configurationService;
@@ -30,7 +34,7 @@ public class ConfigurationLoader {
 
     private ConfigurationValidator configurationValidator;
 
-    private PersonService personService;
+    private AuthenticationService authenticationService;
 
     public ConfigurationLoader() {
     }
@@ -59,16 +63,23 @@ public class ConfigurationLoader {
         this.configurationValidator = configurationValidator;
     }
 
-    /**
-     * Устанавливает {@link #personService}
-     * @param personService сервис для работы с персонами
-     */
-    public void setPersonService(PersonService personService) {
-        this.personService = personService;
+    public ConfigurationLoader(String configurationFilePath) {
+        this.configurationFilePath = configurationFilePath;
+    }
+
+    public Configuration getConfiguration() {
+        return configuration;
+    }
+
+    public AuthenticationService getAuthenticationService() {
+        return authenticationService;
+    }
+
+    public void setAuthenticationService(AuthenticationService authenticationService) {
+        this.authenticationService = authenticationService;
     }
 
     /**
-     * Загружает конфигурацию бизнес-объектов
      * @throws Exception
      */
     public void load() throws Exception {
@@ -78,15 +89,54 @@ public class ConfigurationLoader {
 
         validateConfiguration();
 
+        createSystemTables();
         configurationService.loadConfiguration(configuration);
 
-        insertAdminPersonIfEmpty();
+        insertAdminAuthenticationInfoIfEmpty();
+
     }
 
-    private ConfigurationValidator getConfigurationValidator() {
-        configurationValidator.setConfigurationPath(configurationFilePath);
-        configurationValidator.setConfiguration(configuration);
-        return configurationValidator;
+    private void createSystemTables() {
+        createAuthenticationInfoTable();
+    }
+
+    private void createAuthenticationInfoTable() {
+        BusinessObjectConfig authenticationInfoConfig = new BusinessObjectConfig();
+        authenticationInfoConfig.setName("Authentication Info");
+        UniqueKeyConfig uniqueKeyConfig = createAuthenticationInfoUniqueKeys();
+        authenticationInfoConfig.getUniqueKeyConfigs().add(uniqueKeyConfig);
+
+        BusinessObjectFieldsConfig businessObjectFieldsConfig = createAuthenticationInfoFields();
+
+        authenticationInfoConfig.setBusinessObjectFieldsConfig(businessObjectFieldsConfig);
+
+        configurationService.loadSystemObjectConfig(authenticationInfoConfig);
+
+    }
+
+    private UniqueKeyConfig createAuthenticationInfoUniqueKeys() {
+        UniqueKeyConfig uniqueKeyConfig = new UniqueKeyConfig();
+        UniqueKeyFieldConfig uniqueKeyFieldConfig = new UniqueKeyFieldConfig();
+        uniqueKeyFieldConfig.setName("user_uid");
+        uniqueKeyConfig.getUniqueKeyFieldConfigs().add(uniqueKeyFieldConfig);
+        return uniqueKeyConfig;
+    }
+
+    private BusinessObjectFieldsConfig createAuthenticationInfoFields() {
+        StringFieldConfig userUidField = new StringFieldConfig();
+        userUidField.setName("user uid");
+        userUidField.setLength(64);
+        userUidField.setNotNull(true);
+
+        PasswordFieldConfig passwordField = new PasswordFieldConfig();
+        passwordField.setName("password");
+        passwordField.setLength(128);
+        passwordField.setNotNull(true);
+
+        BusinessObjectFieldsConfig businessObjectFieldsConfig = new BusinessObjectFieldsConfig();
+        businessObjectFieldsConfig.getFieldConfigs().add(userUidField);
+        businessObjectFieldsConfig.getFieldConfigs().add(passwordField);
+        return businessObjectFieldsConfig;
     }
 
     private void validateConfiguration() {
@@ -96,21 +146,17 @@ public class ConfigurationLoader {
     /**
      * Добавляет запись для Администратора в таблицу пользователей, если такой записи еще не существует.
      */
-    private void insertAdminPersonIfEmpty() {
-        if (!personService.existsPerson(ADMIN_LOGIN)) {
-            insertAdminPerson();
+    private void insertAdminAuthenticationInfoIfEmpty() {
+        if (!authenticationService.existsAuthenticationInfo(ADMIN_LOGIN)) {
+            insertAdminAuthenticationInfo();
         }
     }
 
-    private void insertAdminPerson() {
-        Person admin = new Person();
-        admin.getConfiguredFields().put("id", 1);
-        admin.getConfiguredFields().put("login", ADMIN_LOGIN);
-        admin.getConfiguredFields().put("password", ADMIN_PASSWORD);
-        admin.getConfiguredFields().put("email", ADMIN_EMAIL);
-        admin.getConfiguredFields().put("created_date", new Date());
-        admin.getConfiguredFields().put("updated_date", new Date());
-        personService.insertPerson(admin);
+    private void insertAdminAuthenticationInfo() {
+        AuthenticationInfo admin = new AuthenticationInfo();
+        admin.setId(1);
+        admin.setUserUid(ADMIN_LOGIN);
+        admin.setPassword(ADMIN_PASSWORD);
+        authenticationService.insertAuthenticationInfo(admin);
     }
-
 }

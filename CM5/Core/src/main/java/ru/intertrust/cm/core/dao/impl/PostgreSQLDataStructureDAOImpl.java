@@ -16,6 +16,8 @@ import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.*;
  */
 public class PostgreSQLDataStructureDAOImpl implements DataStructureDAO {
 
+    private static final String DOES_TABLE_EXISTS_QUERY = "select count(*) FROM information_schema.tables WHERE table_schema = 'public' and table_name=?";    
+
     private JdbcTemplate jdbcTemplate;
 
     /**
@@ -30,8 +32,8 @@ public class PostgreSQLDataStructureDAOImpl implements DataStructureDAO {
      * Смотри {@link DataStructureDAO#createTable(ru.intertrust.cm.core.config.BusinessObjectConfig)}
      */
     @Override
-    public void createTable(BusinessObjectConfig config) {
-        jdbcTemplate.update(generateCreateTableQuery(config));
+    public void createTable(BusinessObjectConfig config, boolean isBusinessObject) {
+        jdbcTemplate.update(generateCreateTableQuery(config, isBusinessObject));
 
         String createIndexesQuery = generateCreateIndexesQueryPart(config);
         if(createIndexesQuery != null) {
@@ -57,5 +59,12 @@ public class PostgreSQLDataStructureDAOImpl implements DataStructureDAO {
     @Override
     public void createServiceTables() {
         jdbcTemplate.update(generateCreateBusinessObjectTableQuery());
+    }
+    
+    @Override
+    public boolean doesTableExists(String tableName) {
+        tableName = tableName.toLowerCase();
+        int total = jdbcTemplate.queryForObject(DOES_TABLE_EXISTS_QUERY, Integer.class, tableName);
+        return total > 0;
     }
 }

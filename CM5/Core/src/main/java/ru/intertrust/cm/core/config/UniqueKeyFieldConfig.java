@@ -12,7 +12,7 @@ public class UniqueKeyFieldConfig {
     @Attribute(name = "name")
     private String name;
 
-    protected UniqueKeyFieldConfig() {
+    public UniqueKeyFieldConfig() {
     }
 
     public String getName() {
