@@ -1,6 +1,9 @@
-package ru.intertrust.cm.core.business.api.dto;
+package ru.intertrust.cm.core.business.impl.dto;
 
-import ru.intertrust.cm.core.business.util.BusinessUtil;
+import ru.intertrust.cm.core.business.api.dto.BusinessObject;
+import ru.intertrust.cm.core.business.api.dto.DecimalValue;
+import ru.intertrust.cm.core.business.api.dto.IntegerValue;
+import ru.intertrust.cm.core.business.api.util.BusinessUtil;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -12,14 +15,14 @@ import java.util.Date;
  * Date: 19.05.13
  * Time: 15:57
  */
-public class GenericBusinessObject extends GenericIdentifiableObject implements BusinessObject {
+public class BusinessObjectImpl extends IdentifiableObjectImpl implements BusinessObject {
     private Date createdDate;
     private Date modifiedDate;
 
     /**
      * Создаёт бизнес-объект
      */
-    public GenericBusinessObject() {
+    public BusinessObjectImpl() {
         super();
     }
 
@@ -55,7 +58,7 @@ public class GenericBusinessObject extends GenericIdentifiableObject implements 
 
     public static void main(String[] args) {
         // todo: move to unit tests after
-        BusinessObject bo = new GenericBusinessObject();
+        BusinessObject bo = new BusinessObjectImpl();
         bo.setValue("A", null);
         bo.setValue("B", new IntegerValue(2));
         bo.setValue("C", new DecimalValue(new BigDecimal(Math.PI)));

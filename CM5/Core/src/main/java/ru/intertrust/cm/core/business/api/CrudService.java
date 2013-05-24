@@ -1,10 +1,8 @@
 package ru.intertrust.cm.core.business.api;
 
-import ru.intertrust.cm.core.business.api.dto.BusinessObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.business.api.dto.*;
 
+import javax.ejb.Local;
 import java.util.Collection;
 import java.util.List;
 
@@ -23,7 +21,29 @@ import java.util.List;
  * Date: 22.05.13
  * Time: 22:01
  */
+@Local
 public interface CrudService {
+    /**
+     * Создаёт идентифицируемый объект. Заполняет необходимые атрибуты значениями, сгенерированными согласно правилам.
+     * Идентификатор объекта при этом не определяется.
+     * См. некое описание
+     *
+     * @return новый идентифицируемый объект
+     */
+    IdentifiableObject createIdentifiableObject();
+
+    /**
+     * Создаёт бизнес-объект определённого типа, не сохраняя в СУБД. Заполняет необходимые атрибуты значениями,
+     * сгенерированными согласно правилам, определённым для данного объекта. Идентификатор объекта при этом
+     * не генерируется.
+     *
+     * @param name название бизнес-объекта, который нужно создать
+     * @return сохранённый бизнес-объект
+     * @throws IllegalArgumentException, если бизнес-объекта данного типа не существует
+     * @throws NullPointerException, если type есть null.
+     */
+    BusinessObject createBusinessObject(String name);
+
     /**
      * Сохраняет бизнес-объект. Если объект не существует в системе, создаёт его и заполняет отсутствующие атрибуты
      * значениями, сгенерированными согласно правилам, определённым для данного объекта (например, будет сгенерирован и
@@ -81,14 +101,16 @@ public interface CrudService {
     List<BusinessObject> find(List<Id> ids);
 
     /**
-     * Возвращает коллекцию, упорядоченную согласно заданному порядку
+     * Возвращает коллекцию, отфильтрованную и упорядоченную согласно критериям
      *
      * @param collectionName название коллекции
+     * @param filters фильтры
+     * @param sortOrder порядок сортировки коллекции
      * @param limit максимальное количесвто возвращаемых бизнес-объектов
      * @return коллекцию
      * todo: фильтры, возвращаемый результат
      */
-    IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder, int offset, int limit);
+    IdentifiableObjectCollection findCollection(String collectionName, List<Filter> filters, SortOrder sortOrder, int offset, int limit);
 
     /**
      * Возвращает коллекцию, упорядоченную согласно заданному порядку

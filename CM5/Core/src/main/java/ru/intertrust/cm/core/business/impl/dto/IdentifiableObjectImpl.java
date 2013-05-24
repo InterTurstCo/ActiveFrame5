@@ -1,6 +1,9 @@
-package ru.intertrust.cm.core.business.api.dto;
+package ru.intertrust.cm.core.business.impl.dto;
 
-import ru.intertrust.cm.core.business.util.BusinessUtil;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.util.BusinessUtil;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -10,14 +13,14 @@ import java.util.LinkedHashMap;
  * Date: 23.05.13
  * Time: 17:13
  */
-public class GenericIdentifiableObject implements IdentifiableObject {
+public class IdentifiableObjectImpl implements IdentifiableObject {
     private Id id;
     private LinkedHashMap<String, Value> fieldValues;
 
     /**
      * Создаёт объект
      */
-    public GenericIdentifiableObject() {
+    public IdentifiableObjectImpl() {
         fieldValues = new LinkedHashMap<>();
     }
 
