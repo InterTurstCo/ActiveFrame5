@@ -23,6 +23,10 @@ import java.util.List;
  */
 @Local
 public interface CrudService {
+    @javax.ejb.Remote
+    public static interface Remote extends CrudService {
+    }
+
     /**
      * Создаёт идентифицируемый объект. Заполняет необходимые атрибуты значениями, сгенерированными согласно правилам.
      * Идентификатор объекта при этом не определяется.
