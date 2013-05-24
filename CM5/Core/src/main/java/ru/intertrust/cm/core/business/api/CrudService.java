@@ -112,7 +112,6 @@ public interface CrudService {
      * @param sortOrder порядок сортировки коллекции
      * @param limit максимальное количесвто возвращаемых бизнес-объектов
      * @return коллекцию
-     * todo: фильтры, возвращаемый результат
      */
     IdentifiableObjectCollection findCollection(String collectionName, List<Filter> filters, SortOrder sortOrder, int offset, int limit);
 
@@ -120,11 +119,11 @@ public interface CrudService {
      * Возвращает коллекцию, упорядоченную согласно заданному порядку
      *
      * @param collectionName название коллекции
-     * @param limit максимальное количесвто возвращаемых бизнес-объектов
+     * @param filters фильтры
+     * @param sortOrder порядок сортировки коллекции
      * @return коллекцию
-     * todo: фильтры, возвращаемый результат
      */
-    int findCollectionCount(String collectionName, SortOrder sortOrder, int offset, int limit);
+    int findCollectionCount(String collectionName, List<Filter> filters, SortOrder sortOrder);
 
     /**
      * Удаляет бизнес-объект по его уникальному идентификатору. Не осуществляет никаких действий, если объект
