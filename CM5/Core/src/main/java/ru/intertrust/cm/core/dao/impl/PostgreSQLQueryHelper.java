@@ -1,11 +1,20 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import ru.intertrust.cm.core.config.*;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferencedTypeSqlName;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 
 import java.util.List;
 
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferencedTypeSqlName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+import ru.intertrust.cm.core.config.BusinessObjectConfig;
+import ru.intertrust.cm.core.config.DateTimeFieldConfig;
+import ru.intertrust.cm.core.config.DecimalFieldConfig;
+import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.LongFieldConfig;
+import ru.intertrust.cm.core.config.PasswordFieldConfig;
+import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.StringFieldConfig;
+import ru.intertrust.cm.core.config.UniqueKeyConfig;
+import ru.intertrust.cm.core.config.UniqueKeyFieldConfig;
 
 /**
  * Класс для генерации sql запросов для {@link PostgreSQLDataStructureDAOImpl}
@@ -14,6 +23,8 @@ import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlNam
  *         Time: 2:12 PM
  */
 public class PostgreSQLQueryHelper {
+
+    public static final String AUTHENTICATION_INFO_TABLE = "AUTHENTICATION_INFO";
 
     /**
      * Генерирует запрос, возвращающий кол-во таблиц в базе данных
@@ -33,16 +44,27 @@ public class PostgreSQLQueryHelper {
     }
 
     /**
+     * Генерирует запрос, создающий таблицу AUTHENTICATION_INFO
+     * @return запрос, создающий таблицу AUTHENTICATION_INFO
+     * @return
+     */
+    public static String generateCreateAuthenticationInfoTableQuery() {
+        return "CREATE TABLE " + AUTHENTICATION_INFO_TABLE + " (ID bigint not null, user_uid character varying(64) NOT NULL, password"
+                + " character varying(128), constraint PK_" + AUTHENTICATION_INFO_TABLE + "_ID primary key (ID), constraint U_" + AUTHENTICATION_INFO_TABLE
+                + "_USER_UID unique(user_uid))";
+    }
+
+    /**
      * Генерирует запрос, создающий талицу по конфигурации бизнес-объекта
      * @param config конфигурация бизнес-объекта
      * @return запрос, создающий талицу по конфигурации бизнес-объекта
      */
-    public static String generateCreateTableQuery(BusinessObjectConfig config, boolean isBusinessObject) {
+    public static String generateCreateTableQuery(BusinessObjectConfig config) {
         String tableName = getSqlName(config);
 
         String query = "create table " + tableName + " ( ";
 
-        query += generateColumnsQueryPart(config, isBusinessObject);
+        query += generateColumnsQueryPart(config);
         query += generatePKConstraintQueryPart(tableName);
         query += generateUniqueConstraintsQueryPart(config, tableName);
         query += generateFKConstraintsQueryPart(config, tableName);
@@ -104,16 +126,12 @@ public class PostgreSQLQueryHelper {
         return ", constraint " + pkName + " primary key (ID)";
     }
 
-    private static String generateColumnsQueryPart(BusinessObjectConfig config, boolean isBusinessObject) {
+    private static String generateColumnsQueryPart(BusinessObjectConfig config) {
         StringBuilder queryPart = new StringBuilder();
-        queryPart.append("ID bigint not null");
+        queryPart.append("ID bigint not null, ");
 
-        if (isBusinessObject) {
-            queryPart.append(", ");
-            queryPart.append("CREATED_DATE timestamp not null, ");
-            queryPart.append("UPDATED_DATE timestamp not null");
-
-        }
+        queryPart.append("CREATED_DATE timestamp not null, ");
+        queryPart.append("UPDATED_DATE timestamp not null");
 
         for (FieldConfig fieldConfig : config.getFieldConfigs()) {
             queryPart.append(", ").append(getSqlName(fieldConfig)).append(" ").append(getSqlType(fieldConfig));

@@ -8,13 +8,7 @@ import org.simpleframework.xml.core.Persister;
 import ru.intertrust.cm.core.business.api.AuthenticationService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.AuthenticationInfo;
-import ru.intertrust.cm.core.config.BusinessObjectConfig;
-import ru.intertrust.cm.core.config.BusinessObjectFieldsConfig;
 import ru.intertrust.cm.core.config.Configuration;
-import ru.intertrust.cm.core.config.PasswordFieldConfig;
-import ru.intertrust.cm.core.config.StringFieldConfig;
-import ru.intertrust.cm.core.config.UniqueKeyConfig;
-import ru.intertrust.cm.core.config.UniqueKeyFieldConfig;
 
 /**
  * Класс, предназначенный для загрузки конфигурации бизнес-оъектов
@@ -82,7 +76,7 @@ public class ConfigurationLoader {
     }
 
     /**
-     * Загружает конфигурацию бизнес-объектов, валидирует и создает соответствующии сущности в базе.
+     * Загружает конфигурацию бизнес-объектов, валидирует и создает соответствующие сущности в базе.
      * Добавляет запись администратора (admin/admin) в таблицу authentication_info.
      * @throws Exception
      */
@@ -93,56 +87,12 @@ public class ConfigurationLoader {
 
         validateConfiguration();
 
-        createSystemTables();
         configurationService.loadConfiguration(configuration);
 
         insertAdminAuthenticationInfoIfEmpty();
 
     }
-
-    private void createSystemTables() {
-        createAuthenticationInfoTable();
-    }
-
-    private void createAuthenticationInfoTable() {
-        BusinessObjectConfig authenticationInfoConfig = new BusinessObjectConfig();
-        authenticationInfoConfig.setName("Authentication Info");
-        UniqueKeyConfig uniqueKeyConfig = createAuthenticationInfoUniqueKeys();
-        authenticationInfoConfig.getUniqueKeyConfigs().add(uniqueKeyConfig);
-
-        BusinessObjectFieldsConfig businessObjectFieldsConfig = createAuthenticationInfoFields();
-
-        authenticationInfoConfig.setBusinessObjectFieldsConfig(businessObjectFieldsConfig);
-
-        configurationService.loadSystemObjectConfig(authenticationInfoConfig);
-
-    }
-
-    private UniqueKeyConfig createAuthenticationInfoUniqueKeys() {
-        UniqueKeyConfig uniqueKeyConfig = new UniqueKeyConfig();
-        UniqueKeyFieldConfig uniqueKeyFieldConfig = new UniqueKeyFieldConfig();
-        uniqueKeyFieldConfig.setName("user_uid");
-        uniqueKeyConfig.getUniqueKeyFieldConfigs().add(uniqueKeyFieldConfig);
-        return uniqueKeyConfig;
-    }
-
-    private BusinessObjectFieldsConfig createAuthenticationInfoFields() {
-        StringFieldConfig userUidField = new StringFieldConfig();
-        userUidField.setName("user uid");
-        userUidField.setLength(64);
-        userUidField.setNotNull(true);
-
-        PasswordFieldConfig passwordField = new PasswordFieldConfig();
-        passwordField.setName("password");
-        passwordField.setLength(128);
-        passwordField.setNotNull(true);
-
-        BusinessObjectFieldsConfig businessObjectFieldsConfig = new BusinessObjectFieldsConfig();
-        businessObjectFieldsConfig.getFieldConfigs().add(userUidField);
-        businessObjectFieldsConfig.getFieldConfigs().add(passwordField);
-        return businessObjectFieldsConfig;
-    }
-
+    
     private void validateConfiguration() {
         getConfigurationValidator().validate();
     }

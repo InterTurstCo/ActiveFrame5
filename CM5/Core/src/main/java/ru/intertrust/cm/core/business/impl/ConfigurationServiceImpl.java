@@ -1,13 +1,15 @@
 package ru.intertrust.cm.core.business.impl;
 
-import ru.intertrust.cm.core.business.api.ConfigurationService;
-import ru.intertrust.cm.core.config.*;
-import ru.intertrust.cm.core.dao.api.DataStructureDAO;
-import ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import ru.intertrust.cm.core.business.api.ConfigurationService;
+import ru.intertrust.cm.core.config.BusinessObjectConfig;
+import ru.intertrust.cm.core.config.Configuration;
+import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.dao.api.DataStructureDAO;
 
 /**
  * Смотри {@link ru.intertrust.cm.core.business.api.ConfigurationService}
@@ -37,22 +39,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             return;
         }
 
-        dataStructureDAO.createServiceTables();
-
         RecursiveLoader recursiveLoader = new RecursiveLoader(configuration);
         recursiveLoader.load();
-    }
-
-    public void loadSystemObjectConfig(BusinessObjectConfig businessObjectConfig) {
-        if(isSystemObjectLoaded(businessObjectConfig)) {
-            return;
-        }
-        dataStructureDAO.createTable(businessObjectConfig, false);        
-    }
-
-    public boolean isSystemObjectLoaded(BusinessObjectConfig businessObjectConfig) {
-        String tableName = DataStructureNamingHelper.getSqlName(businessObjectConfig);
-        return dataStructureDAO.doesTableExists(tableName);        
     }
 
     private Boolean isConfigurationLoaded() {
@@ -93,7 +81,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             // First load referenced business object configurations
             loadDependentBusinessObjectConfigs(businessObjectConfig);
 
-            dataStructureDAO.createTable(businessObjectConfig, true);
+            dataStructureDAO.createTable(businessObjectConfig);
             loadedBusinessObjectConfigs.add(businessObjectConfig.getName()); // add to loaded configs set
         }
 

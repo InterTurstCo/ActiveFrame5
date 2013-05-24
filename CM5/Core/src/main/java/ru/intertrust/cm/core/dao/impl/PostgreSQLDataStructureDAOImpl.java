@@ -1,12 +1,17 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import org.springframework.jdbc.core.JdbcTemplate;
-import ru.intertrust.cm.core.config.BusinessObjectConfig;
-import ru.intertrust.cm.core.dao.api.DataStructureDAO;
+import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCountTablesQuery;
+import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCreateAuthenticationInfoTableQuery;
+import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCreateBusinessObjectTableQuery;
+import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCreateIndexesQueryPart;
+import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCreateTableQuery;
 
 import javax.sql.DataSource;
 
-import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.*;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import ru.intertrust.cm.core.config.BusinessObjectConfig;
+import ru.intertrust.cm.core.dao.api.DataStructureDAO;
 
 /**
  * Реализация {@link DataStructureDAO} для PostgreSQL
@@ -32,8 +37,8 @@ public class PostgreSQLDataStructureDAOImpl implements DataStructureDAO {
      * Смотри {@link DataStructureDAO#createTable(ru.intertrust.cm.core.config.BusinessObjectConfig)}
      */
     @Override
-    public void createTable(BusinessObjectConfig config, boolean isBusinessObject) {
-        jdbcTemplate.update(generateCreateTableQuery(config, isBusinessObject));
+    public void createTable(BusinessObjectConfig config) {
+        jdbcTemplate.update(generateCreateTableQuery(config));
 
         String createIndexesQuery = generateCreateIndexesQueryPart(config);
         if(createIndexesQuery != null) {
@@ -59,8 +64,12 @@ public class PostgreSQLDataStructureDAOImpl implements DataStructureDAO {
     @Override
     public void createServiceTables() {
         jdbcTemplate.update(generateCreateBusinessObjectTableQuery());
+        jdbcTemplate.update(generateCreateAuthenticationInfoTableQuery());
     }
     
+    /** 
+     * Смотри @see ru.intertrust.cm.core.dao.api.DataStructureDAO#doesTableExists(java.lang.String)
+     */
     @Override
     public boolean doesTableExists(String tableName) {
         tableName = tableName.toLowerCase();

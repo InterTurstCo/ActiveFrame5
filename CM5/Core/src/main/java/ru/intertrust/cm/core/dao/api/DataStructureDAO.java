@@ -14,7 +14,7 @@ public interface DataStructureDAO {
      * Создает таблицу по конфигурации бизнес-объекта
      * @param config конфигурация бизнес-объекта
      */
-    void createTable(BusinessObjectConfig config, boolean isBusinessObject);
+    void createTable(BusinessObjectConfig config);
 
     /**
      * Возвращает кол-во таблиц в базе данных
@@ -27,5 +27,10 @@ public interface DataStructureDAO {
      */
     void createServiceTables();
 
+    /**
+     * Проверяет, существует ли таблица с указанным именем
+     * @param tableName имя таблицы
+     * @return true если существует, иначе false
+     */
     boolean doesTableExists(String tableName);
 }

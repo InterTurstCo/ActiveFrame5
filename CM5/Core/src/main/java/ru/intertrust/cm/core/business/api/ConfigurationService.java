@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.business.api;
 
-import ru.intertrust.cm.core.config.BusinessObjectConfig;
 import ru.intertrust.cm.core.config.Configuration;
 
 /**
@@ -15,9 +14,5 @@ public interface ConfigurationService {
      * Загрузка конфигурации
      * @param configuration конфигурация бизнес-объектов
      */
-    void loadConfiguration(Configuration configuration);
-    
-    void loadSystemObjectConfig(BusinessObjectConfig businessObjectConfig);
-    
-    boolean isSystemObjectLoaded(BusinessObjectConfig businessObjectConfig);
+    void loadConfiguration(Configuration configuration);    
 }
