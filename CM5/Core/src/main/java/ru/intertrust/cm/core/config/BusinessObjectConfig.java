@@ -6,7 +6,6 @@ import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -68,15 +67,15 @@ public class BusinessObjectConfig {
     }
 
     public List<FieldConfig> getFieldConfigs() {
-        if(businessObjectFieldsConfig == null || businessObjectFieldsConfig.getFieldConfigs() == null) {
-            return Collections.emptyList();
+        if(businessObjectFieldsConfig == null) {
+            businessObjectFieldsConfig = new BusinessObjectFieldsConfig();
         }
         return businessObjectFieldsConfig.getFieldConfigs();
     }
 
     public List<UniqueKeyConfig> getUniqueKeyConfigs() {
         if(uniqueKeyConfigs == null) {
-            uniqueKeyConfigs = new ArrayList<UniqueKeyConfig>();
+            uniqueKeyConfigs = new ArrayList<>();
         }
         return uniqueKeyConfigs;
     }

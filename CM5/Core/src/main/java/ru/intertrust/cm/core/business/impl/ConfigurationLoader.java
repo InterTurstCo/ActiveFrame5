@@ -74,7 +74,7 @@ public class ConfigurationLoader {
     }
 
     /**
-     * Устанавливает сервис аутенфикации
+     * Устанавливает сервис аутентификации
      * @param authenticationService AuthenticationService
      */
     public void setAuthenticationService(AuthenticationService authenticationService) {
