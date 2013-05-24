@@ -16,8 +16,15 @@ import ru.intertrust.cm.core.business.api.MD5Service;
 
 public class MD5ServiceImpl implements MD5Service {
 
+    /**
+     * Смотри {@link ru.intertrust.cm.core.business.api.MD5Service#getMD5(java.lang.String)}
+     */
     @Override
     public String getMD5(String message) {
+        if (message == null || message.length() < 1) {
+            return null;
+        }
+        
         String digest = null;
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");

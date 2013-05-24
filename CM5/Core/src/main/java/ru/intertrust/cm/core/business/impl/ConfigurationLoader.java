@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.business.impl;
 
+import java.io.InputStream;
+
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 
@@ -13,8 +15,6 @@ import ru.intertrust.cm.core.config.PasswordFieldConfig;
 import ru.intertrust.cm.core.config.StringFieldConfig;
 import ru.intertrust.cm.core.config.UniqueKeyConfig;
 import ru.intertrust.cm.core.config.UniqueKeyFieldConfig;
-
-import java.io.InputStream;
 
 /**
  * Класс, предназначенный для загрузки конфигурации бизнес-оъектов
@@ -82,6 +82,8 @@ public class ConfigurationLoader {
     }
 
     /**
+     * Загружает конфигурацию бизнес-объектов, валидирует и создает соответствующии сущности в базе.
+     * Добавляет запись администратора (admin/admin) в таблицу authentication_info.
      * @throws Exception
      */
     public void load() throws Exception {

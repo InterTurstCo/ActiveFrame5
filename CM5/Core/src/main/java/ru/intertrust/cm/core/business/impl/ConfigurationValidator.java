@@ -1,9 +1,12 @@
 package ru.intertrust.cm.core.business.impl;
 
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
-import ru.intertrust.cm.core.config.*;
+import static ru.intertrust.cm.core.business.impl.ConfigurationHelper.findBusinessObjectConfigByName;
+import static ru.intertrust.cm.core.business.impl.ConfigurationHelper.findFieldConfigForBusinessObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.List;
 
 import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
@@ -11,15 +14,20 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.List;
 
-import static ru.intertrust.cm.core.business.impl.ConfigurationHelper.findBusinessObjectConfigByName;
-import static ru.intertrust.cm.core.business.impl.ConfigurationHelper.findFieldConfigForBusinessObject;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
+
+import ru.intertrust.cm.core.config.BusinessObjectConfig;
+import ru.intertrust.cm.core.config.Configuration;
+import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.UniqueKeyConfig;
+import ru.intertrust.cm.core.config.UniqueKeyFieldConfig;
 
 /**
+ * Валидирует конфигурацию бизнес-объектов на предмет соответствия XSD схеме и логически. 
  * User: atsvetkov Date: 17.05.13 Time: 13:52
  */
 public class ConfigurationValidator {
@@ -30,48 +38,75 @@ public class ConfigurationValidator {
 
     private Configuration configuration;
 
-
+    /**
+     * Конструктор по умолчанию. Нужен для инициализации этого класса через Spring
+     */
     public ConfigurationValidator() {
     }
 
+    /**
+     * Возвращает путь к конфигурационному файлу с бизнес-объектами.
+     * @return
+     */
+    public String getConfigurationPath() {
+        return configurationPath;
+    }
 
-	public String getConfigurationPath() {
-		return configurationPath;
-	}
+    /**
+     * Устанавливает путь к конфигурационному файлу с бизнес-объектами. Нужен для валидации по XSD схеме.
+     * @param configurationPath
+     */
+    public void setConfigurationPath(String configurationPath) {
+        this.configurationPath = configurationPath;
+    }
 
-	public void setConfigurationPath(String configurationPath) {
-		this.configurationPath = configurationPath;
-	}
+    /**
+     * Возвращает путь к файлу с XSD схемой.
+     * @return
+     */
+    public String getConfigurationSchemaPath() {
+        return configurationSchemaPath;
+    }
 
-	public String getConfigurationSchemaPath() {
-		return configurationSchemaPath;
-	}
+    /**
+     * Устанавливает путь к файлу с XSD схемой.
+     * @param configurationSchemaPath
+     */
+    public void setConfigurationSchemaPath(String configurationSchemaPath) {
+        this.configurationSchemaPath = configurationSchemaPath;
+    }
 
-	public void setConfigurationSchemaPath(String configurationSchemaPath) {
-		this.configurationSchemaPath = configurationSchemaPath;
-	}
-
-	public Configuration getConfiguration() {
+    /**
+     * Возвращает сериализованную конфигурацию.
+     * @return
+     */
+    public Configuration getConfiguration() {
         return configuration;
     }
 
+    /**
+     * Устанавливает сериализованную конфигурацию. Необходима для логической валидациии конфигурации.
+     * @param configuration
+     */
     public void setConfiguration(Configuration configuration) {
         this.configuration = configuration;
     }
 
+    /**
+     * Выполняет валидацию конфигурации на предмет соответствия XSD схеме и логическую валидацию.
+     */
     public void validate() {
         if (configurationPath == null) {
             throw new RuntimeException("Please set the configurationPath for ConfigurationValidator before validating");
         }
         if (configuration == null) {
-            throw new RuntimeException(
-                    "Please set the configuration object for ConfigurationValidator before validating");
+            throw new RuntimeException("Please set the configuration object for ConfigurationValidator before validating");
         }
-		validateAgainstXSD();
-		validateLogically();
-	}
+        validateAgainstXSD();
+        validateLogically();
+    }
 
-	private void validateAgainstXSD() {
+    private void validateAgainstXSD() {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 
         URL configurationSchemaUrl = FileUtils.getFileURL(configurationSchemaPath);
@@ -85,30 +120,29 @@ public class ConfigurationValidator {
             Source source = new StreamSource(configurationInputStream);
             validator.validate(source);
 
-            //TODO Log success information using logging API
+            // TODO Log success information using logging API
             System.out.println("Document is valid against XSD");
         } catch (SAXException ex) {
-            throw new RuntimeException("Document " + configurationSchemaUrl.getFile() + " is not valid: " + ex.getMessage(),
-                    ex);
+            throw new RuntimeException("Document " + configurationSchemaUrl.getFile() + " is not valid: " + ex.getMessage(), ex);
         } catch (IOException e) {
             throw new RuntimeException(" File " + configurationPath + " not found. " + e.getMessage(), e);
 
         }
-	}
+    }
 
     private void validateLogically() {
         List<BusinessObjectConfig> businessObjectConfigs = configuration.getBusinessObjectConfigs();
-        if(businessObjectConfigs.isEmpty())  {
+        if (businessObjectConfigs.isEmpty()) {
             return;
         }
-        for(BusinessObjectConfig businessObjectConfig : businessObjectConfigs) {
+        for (BusinessObjectConfig businessObjectConfig : businessObjectConfigs) {
             validateBusinessObjectConfig(businessObjectConfig);
         }
-        //TODO Log success information using logging API
+        // TODO Log success information using logging API
         System.out.println("Document has passed logical validation");
     }
 
-	private void validateBusinessObjectConfig(BusinessObjectConfig businessObjectConfig) {
+    private void validateBusinessObjectConfig(BusinessObjectConfig businessObjectConfig) {
         if (businessObjectConfig == null) {
             return;
         }
@@ -136,17 +170,16 @@ public class ConfigurationValidator {
 
     private void validateParentConfig(BusinessObjectConfig businessObjectConfig) {
         String parentConfig = businessObjectConfig.getParentConfig();
-        if(parentConfig != null) {
+        if (parentConfig != null) {
             findBusinessObjectConfigByName(configuration, parentConfig);
         }
     }
 
-
     /**
-     * Gives the possibility to handle differently validation errors and warnings.
-     *
+     * Обработчик ошибок валидации на предмет соответствия XSD схеме. Позволяет по различному обрабатывать ошибки разной критичности.
+     * 
      * @author atsvetkov
-     *
+     * 
      */
     private static class ValidationErrorHandler implements ErrorHandler {
 

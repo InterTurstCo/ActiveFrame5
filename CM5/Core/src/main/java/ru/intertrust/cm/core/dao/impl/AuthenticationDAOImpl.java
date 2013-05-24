@@ -19,10 +19,17 @@ public class AuthenticationDAOImpl implements AuthenticationDAO {
 
     private NamedParameterJdbcTemplate jdbcTemplate;
 
+    /**
+     * Устанавливает источник соединений
+     * @param dataSource
+     */
     public void setDataSource(DataSource dataSource) {
         this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
+    /**
+     * Смотри @see ru.intertrust.cm.core.dao.api.AuthenticationDAO#insertAuthenticationInfo(ru.intertrust.cm.core.business.api.dto.AuthenticationInfo)
+     */
     @Override
     public int insertAuthenticationInfo(AuthenticationInfo authenticationInfo) {
         String query = "insert into authentication_info (id, user_uid, password) values (:id, :user_uid, :password)";
@@ -34,11 +41,15 @@ public class AuthenticationDAOImpl implements AuthenticationDAO {
         return jdbcTemplate.update(query, paramMap);
     }
 
+    /**
+     * Смотри @see ru.intertrust.cm.core.dao.api.AuthenticationDAO#existsAuthenticationInfo(java.lang.String)
+     */
     @Override
     public boolean existsAuthenticationInfo(String userUid) {
         String query = "select count(*) from authentication_info ai where ai.user_uid=:user_uid";
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("user_uid", userUid);
+        @SuppressWarnings("deprecation")
         int total = jdbcTemplate.queryForInt(query, paramMap);
         return total > 0;
     }
