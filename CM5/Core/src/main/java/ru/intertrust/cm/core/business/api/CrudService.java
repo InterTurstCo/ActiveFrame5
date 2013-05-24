@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.business.api;
 
 import ru.intertrust.cm.core.business.api.dto.*;
 
-import javax.ejb.Local;
 import java.util.Collection;
 import java.util.List;
 
@@ -21,9 +20,7 @@ import java.util.List;
  * Date: 22.05.13
  * Time: 22:01
  */
-@Local
 public interface CrudService {
-    @javax.ejb.Remote
     public static interface Remote extends CrudService {
     }
 
