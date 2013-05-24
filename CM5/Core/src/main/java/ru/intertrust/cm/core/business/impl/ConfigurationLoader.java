@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.util.Date;
 
 /**
+ * Класс, предназначенный для загрузки конфигурации бизнес-оъектов
  * @author vmatsukevich
  *         Date: 5/6/13
  *         Time: 9:36 AM
@@ -34,49 +35,40 @@ public class ConfigurationLoader {
     public ConfigurationLoader() {
     }
 
-    public String getConfigurationFilePath() {
-        return configurationFilePath;
-    }
-
+    /**
+     * Устанавливает {@link #configurationFilePath}
+     * @param configurationFilePath путь к файлу конфигурации бизнес-объектов
+     */
     public void setConfigurationFilePath(String configurationFilePath) {
         this.configurationFilePath = configurationFilePath;
     }
 
-    public ConfigurationService getConfigurationService() {
-        return configurationService;
-    }
-
+    /**
+     * Устанавливает {@link #configurationService}
+     * @param configurationService сервис для работы с конфигурацией бизнес-объектов
+     */
     public void setConfigurationService(ConfigurationService configurationService) {
         this.configurationService = configurationService;
     }
 
-    public ConfigurationValidator getConfigurationValidator() {
-        configurationValidator.setConfigurationPath(configurationFilePath);
-        configurationValidator.setConfiguration(configuration);
-        return configurationValidator;
-    }
-
+    /**
+     * Устанавливает {@link #configurationValidator}
+     * @param configurationValidator валидатор конфигурации бизнас-объектов
+     */
     public void setConfigurationValidator(ConfigurationValidator configurationValidator) {
         this.configurationValidator = configurationValidator;
     }
 
-    public ConfigurationLoader(String configurationFilePath) {
-        this.configurationFilePath = configurationFilePath;
-    }
-
-    public Configuration getConfiguration() {
-        return configuration;
-    }
-
-    public PersonService getPersonService() {
-        return personService;
-    }
-
+    /**
+     * Устанавливает {@link #personService}
+     * @param personService сервис для работы с персонами
+     */
     public void setPersonService(PersonService personService) {
         this.personService = personService;
     }
 
     /**
+     * Загружает конфигурацию бизнес-объектов
      * @throws Exception
      */
     public void load() throws Exception {
@@ -89,6 +81,12 @@ public class ConfigurationLoader {
         configurationService.loadConfiguration(configuration);
 
         insertAdminPersonIfEmpty();
+    }
+
+    private ConfigurationValidator getConfigurationValidator() {
+        configurationValidator.setConfigurationPath(configurationFilePath);
+        configurationValidator.setConfiguration(configuration);
+        return configurationValidator;
     }
 
     private void validateConfiguration() {

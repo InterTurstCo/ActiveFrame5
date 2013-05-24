@@ -8,21 +8,35 @@ import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getRefere
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 
 /**
+ * Класс для генерации sql запросов для {@link PostgreSQLDataStructureDAOImpl}
  * @author vmatsukevich
  *         Date: 5/20/13
  *         Time: 2:12 PM
  */
 public class PostgreSQLQueryHelper {
 
+    /**
+     * Генерирует запрос, возвращающий кол-во таблиц в базе данных
+     * @return запрос, возвращающий кол-во таблиц в базе данных
+     */
     public static String generateCountTablesQuery() {
         return "select count(table_name) FROM information_schema.tables WHERE table_schema = 'public'";
     }
 
+    /**
+     * Генерирует запрос, создающий таблицу BUSINESS_OBJECT
+     * @return запрос, создающий таблицу BUSINESS_OBJECT
+     */
     public static String generateCreateBusinessObjectTableQuery() {
         return "create table BUSINESS_OBJECT(ID bigserial not null, NAME varchar(256) not null, " +
                 "constraint PK_BUSINESS_OBJECT_ID primary key (ID), constraint U_BUSINESS_OBJECT_NAME unique (NAME))";
     }
 
+    /**
+     * Генерирует запрос, создающий талицу по конфигурации бизнес-объекта
+     * @param config конфигурация бизнес-объекта
+     * @return запрос, создающий талицу по конфигурации бизнес-объекта
+     */
     public static String generateCreateTableQuery(BusinessObjectConfig config) {
         String tableName = getSqlName(config);
 
@@ -38,7 +52,12 @@ public class PostgreSQLQueryHelper {
         return query;
     }
 
-    public static String generateCreateIndexesQuery(BusinessObjectConfig config) {
+    /**
+     * Генерирует запрос, для создания индексов по конфигурации бизнес-объекта
+     * @param config конфигурация бизнес-объекта
+     * @return запрос, для создания индексов по конфигурации бизнес-объекта
+     */
+    public static String generateCreateIndexesQueryPart(BusinessObjectConfig config) {
         String query = "";
         String tableName = getSqlName(config);
 

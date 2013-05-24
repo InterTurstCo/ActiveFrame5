@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * Смотри {@link ru.intertrust.cm.core.business.api.ConfigurationService}
  * @author vmatsukevich
  *         Date: 5/15/13
  *         Time: 4:32 PM
@@ -17,10 +18,18 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     private DataStructureDAO dataStructureDAO;
 
+    /**
+     * Устанавливает  {@link #dataStructureDAO}
+     * @param dataStructureDAO DataStructureDAO
+     */
     public void setDataStructureDAO(DataStructureDAO dataStructureDAO) {
         this.dataStructureDAO = dataStructureDAO;
     }
 
+    /**
+     * Смотри {@link ru.intertrust.cm.core.business.api.ConfigurationService#loadConfiguration(ru.intertrust.cm.core.config.Configuration)}
+     * @param configuration конфигурация бизнес-объектов
+     */
     @Override
     public void loadConfiguration(Configuration configuration) {
         if(isConfigurationLoaded()) {
@@ -44,13 +53,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     private class RecursiveLoader {
         private Configuration configuration;
-        private Set<String> loadedBusinessObjectConfigs = new HashSet<String>();
+        private Set<String> loadedBusinessObjectConfigs = new HashSet<>();
 
         private RecursiveLoader(Configuration configuration) {
             this.configuration = configuration;
         }
 
-        public void load() {
+        private void load() {
             List<BusinessObjectConfig> businessObjectConfigs = configuration.getBusinessObjectConfigs();
             if(businessObjectConfigs.isEmpty())  {
                 return;

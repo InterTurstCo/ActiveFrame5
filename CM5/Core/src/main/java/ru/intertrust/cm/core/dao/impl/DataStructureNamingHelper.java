@@ -5,28 +5,45 @@ import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 
 /**
+ * Helper для отображения имен конфигурации бизнес-объектов на базу данных
  * @author vmatsukevich
  *         Date: 5/16/13
  *         Time: 11:27 AM
  */
 public class DataStructureNamingHelper {
 
+    /**
+     * Возвращает имя бизнес-объекта в sql-виде
+     * @param businessObjectConfig конфигурация бизнес-объекта
+     * @return имя бизнес-объекта в sql-виде
+     */
     public static String getSqlName(BusinessObjectConfig businessObjectConfig) {
         return convertToSqlFormat(businessObjectConfig.getName());
     }
 
+    /**
+     * Возвращает имя поля бизнес-объекта в sql-виде
+     * @param fieldConfig конфигурация поля бизнес-объекта
+     * @return имя поля бизнес-объекта в sql-виде
+     */
     public static String getSqlName(FieldConfig fieldConfig) {
         return convertToSqlFormat(fieldConfig.getName());
     }
 
-    public static String getSqlName(ReferenceFieldConfig referenceFieldConfig) {
-        return convertToSqlFormat(referenceFieldConfig.getName());
-    }
-
+    /**
+     * Возвращает имя бизнес-объекта, на который ссылается поле, в sql-виде
+     * @param referenceFieldConfig конфигурация поля-ссылки бизнес-объекта
+     * @return имя бизнес-объекта, на который ссылается поле, в sql-виде
+     */
     public static String getReferencedTypeSqlName(ReferenceFieldConfig referenceFieldConfig) {
         return convertToSqlFormat(referenceFieldConfig.getType());
     }
 
+    /**
+     * Возвращает имя в sql-виде
+     * @param name имя
+     * @return имя в sql-виде
+     */
     public static String getSqlName(String name) {
         return convertToSqlFormat(name);
     }
