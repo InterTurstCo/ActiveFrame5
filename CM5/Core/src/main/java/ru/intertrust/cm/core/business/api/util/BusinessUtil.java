@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.business.util;
+package ru.intertrust.cm.core.business.api.util;
 
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 
