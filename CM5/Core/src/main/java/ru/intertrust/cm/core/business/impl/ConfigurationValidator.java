@@ -5,7 +5,6 @@ import static ru.intertrust.cm.core.business.impl.ConfigurationHelper.findFieldC
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.List;
 
 import javax.xml.XMLConstants;
@@ -109,25 +108,33 @@ public class ConfigurationValidator {
     private void validateAgainstXSD() {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 
-        URL configurationSchemaUrl = FileUtils.getFileURL(configurationSchemaPath);
-
         try {
-            Schema schema = factory.newSchema(configurationSchemaUrl);
+            Source schemaSource = new StreamSource(getConfigurationShemaInputStream());
+
+            Schema schema = factory.newSchema(schemaSource);
             Validator validator = schema.newValidator();
             validator.setErrorHandler(new ValidationErrorHandler());
 
-            InputStream configurationInputStream = FileUtils.getFileInputStream(configurationPath);
+            InputStream configurationInputStream = getConfigurationInputStream();
             Source source = new StreamSource(configurationInputStream);
             validator.validate(source);
 
             // TODO Log success information using logging API
             System.out.println("Document is valid against XSD");
         } catch (SAXException ex) {
-            throw new RuntimeException("Document " + configurationSchemaUrl.getFile() + " is not valid: " + ex.getMessage(), ex);
+            throw new RuntimeException("Document " + configurationSchemaPath + " is not valid: " + ex.getMessage(), ex);
         } catch (IOException e) {
             throw new RuntimeException(" File " + configurationPath + " not found. " + e.getMessage(), e);
 
         }
+    }
+
+    protected InputStream getConfigurationInputStream() {
+        return FileUtils.getFileInputStream(configurationPath);
+    }
+
+    protected InputStream getConfigurationShemaInputStream() {
+        return FileUtils.getFileInputStream(configurationSchemaPath);
     }
 
     private void validateLogically() {
