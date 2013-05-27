@@ -81,9 +81,7 @@ public class ConfigurationLoader {
      * @throws Exception
      */
     public void load() throws Exception {
-        Serializer serializer = new Persister();
-        InputStream source = FileUtils.getFileInputStream(configurationFilePath);
-        configuration = serializer.read(Configuration.class, source);
+        configuration = serializeConfiguration(configurationFilePath);
 
         validateConfiguration();
 
@@ -91,6 +89,27 @@ public class ConfigurationLoader {
 
         insertAdminAuthenticationInfoIfEmpty();
 
+    }
+
+    /** 
+     * Сериализация конфигурации в Java класс. Нужен для тестовых целей только.
+     * @param configurationFilePath путь к конфигурационному файлу
+     * @return {@link Configuration}
+     * @throws Exception
+     */
+    public Configuration serializeConfiguration(String configurationFilePath) throws Exception {
+        Serializer serializer = new Persister();
+        InputStream source = getResourceAsStream(configurationFilePath);
+        return serializer.read(Configuration.class, source);
+    }
+
+    /**
+     * Метод нужен для тестовых целей. Так как способ загрузки ресусров отличается для тестовых классов и основных (продакшен) классов.
+     * @param resourcePath относительный путь к ресурсу
+     * @return
+     */
+    protected InputStream getResourceAsStream(String resourcePath) {
+        return FileUtils.getFileInputStream(resourcePath);
     }
     
     private void validateConfiguration() {

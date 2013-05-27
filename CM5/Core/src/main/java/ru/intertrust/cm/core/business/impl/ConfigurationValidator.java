@@ -106,36 +106,35 @@ public class ConfigurationValidator {
     }
 
     private void validateAgainstXSD() {
+        if (configurationSchemaPath == null) {
+            throw new RuntimeException("Please set the configurationSchemaPath for ConfigurationValidator before validating");
+        }        
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 
         try {
-            Source schemaSource = new StreamSource(getConfigurationShemaInputStream());
+            Source schemaSource = new StreamSource(getResourceAsStream(configurationSchemaPath));
 
             Schema schema = factory.newSchema(schemaSource);
             Validator validator = schema.newValidator();
             validator.setErrorHandler(new ValidationErrorHandler());
 
-            InputStream configurationInputStream = getConfigurationInputStream();
+            InputStream configurationInputStream = getResourceAsStream(configurationPath);
             Source source = new StreamSource(configurationInputStream);
             validator.validate(source);
 
             // TODO Log success information using logging API
             System.out.println("Document is valid against XSD");
         } catch (SAXException ex) {
-            throw new RuntimeException("Document " + configurationSchemaPath + " is not valid: " + ex.getMessage(), ex);
+            throw new RuntimeException("Document " + configurationSchemaPath + " is not valid agains XSD schema: " + ex.getMessage(), ex);
         } catch (IOException e) {
             throw new RuntimeException(" File " + configurationPath + " not found. " + e.getMessage(), e);
 
         }
     }
 
-    protected InputStream getConfigurationInputStream() {
-        return FileUtils.getFileInputStream(configurationPath);
-    }
-
-    protected InputStream getConfigurationShemaInputStream() {
-        return FileUtils.getFileInputStream(configurationSchemaPath);
-    }
+    protected InputStream getResourceAsStream(String resourcePath) {
+        return FileUtils.getFileInputStream(resourcePath);
+    }   
 
     private void validateLogically() {
         List<BusinessObjectConfig> businessObjectConfigs = configuration.getBusinessObjectConfigs();
