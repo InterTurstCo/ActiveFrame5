@@ -4,7 +4,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import ru.intertrust.cm.core.business.api.AuthenticationService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
+import ru.intertrust.cm.core.business.api.dto.AuthenticationInfo;
 import ru.intertrust.cm.core.config.BusinessObjectConfig;
 import ru.intertrust.cm.core.config.Configuration;
 import ru.intertrust.cm.core.config.FieldConfig;
@@ -19,7 +21,12 @@ import ru.intertrust.cm.core.dao.api.DataStructureDAO;
  */
 public class ConfigurationServiceImpl implements ConfigurationService {
 
+    private static final String ADMIN_LOGIN = "admin";
+    private static final String ADMIN_PASSWORD = "admin";
+
     private DataStructureDAO dataStructureDAO;
+
+    private AuthenticationService authenticationService;
 
     /**
      * Устанавливает  {@link #dataStructureDAO}
@@ -28,6 +35,15 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     public void setDataStructureDAO(DataStructureDAO dataStructureDAO) {
         this.dataStructureDAO = dataStructureDAO;
     }
+
+    /**
+     * Устанавливает сервис аутентификации
+     * @param authenticationService AuthenticationService
+     */
+    public void setAuthenticationService(AuthenticationService authenticationService) {
+        this.authenticationService = authenticationService;
+    }
+
 
     /**
      * Смотри {@link ru.intertrust.cm.core.business.api.ConfigurationService#loadConfiguration(ru.intertrust.cm.core.config.Configuration)}
@@ -41,6 +57,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
         RecursiveLoader recursiveLoader = new RecursiveLoader(configuration);
         recursiveLoader.load();
+        
+        insertAdminAuthenticationInfoIfEmpty();
     }
 
     private Boolean isConfigurationLoaded() {
@@ -94,6 +112,23 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             }
         }
 
+    }
+    
+    /**
+     * Добавляет запись для Администратора в таблицу пользователей, если такой записи еще не существует.
+     */
+    private void insertAdminAuthenticationInfoIfEmpty() {
+        if (!authenticationService.existsAuthenticationInfo(ADMIN_LOGIN)) {
+            insertAdminAuthenticationInfo();
+        }
+    }
+
+    private void insertAdminAuthenticationInfo() {
+        AuthenticationInfo admin = new AuthenticationInfo();
+        admin.setId(1);
+        admin.setUserUid(ADMIN_LOGIN);
+        admin.setPassword(ADMIN_PASSWORD);
+        authenticationService.insertAuthenticationInfo(admin);
     }
 
 }

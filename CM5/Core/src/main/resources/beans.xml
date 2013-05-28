@@ -14,8 +14,7 @@
     <bean id="configurationLoader" lazy-init="false" singleton="true"
           class="ru.intertrust.cm.core.business.impl.ConfigurationLoader" init-method="load">
         <property name="configurationService" ref="configurationService"/>
-        <property name="configurationValidator" ref="configurationValidator"/>
-        <property name="authenticationService" ref="authenticationService"/>
+        <property name="configurationValidator" ref="configurationValidator"/>       
 
         <property name="configurationFilePath">
             <value>/config/business-objects.xml</value>
@@ -30,7 +29,8 @@
     </bean>
 
     <bean id="configurationService" singleton="true" class="ru.intertrust.cm.core.business.impl.ConfigurationServiceImpl">
-        <property name="dataStructureDAO" ref="dataStructureDAO"/>
+        <property name="dataStructureDAO" ref="dataStructureDAO" />
+        <property name="authenticationService" ref="authenticationService" />
     </bean>
 
     <bean id="authenticationDAO" class="ru.intertrust.cm.core.dao.impl.AuthenticationDAOImpl">

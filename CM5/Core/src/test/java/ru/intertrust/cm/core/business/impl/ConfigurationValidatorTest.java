@@ -1,7 +1,5 @@
 package ru.intertrust.cm.core.business.impl;
 
-import java.io.InputStream;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,12 +27,8 @@ public class ConfigurationValidatorTest {
 
     @Before
     public void setUp() throws Exception {
-        configurationValidator = new ConfigurationValidator() {
-            protected InputStream getResourceAsStream(String resourcePath) {
-                return getTestResourceAsStream(resourcePath);
-            }
-        };
-
+        configurationValidator = new ConfigurationValidator();
+        
         configurationLoader = new ConfigurationLoader();
 
     }
@@ -117,9 +111,5 @@ public class ConfigurationValidatorTest {
         expectedExeption.expectMessage("Please set the configurationSchemaPath");
         configurationValidator.validate();
 
-    }
-
-    private InputStream getTestResourceAsStream(String resourcePath) {
-        return this.getClass().getClassLoader().getSystemResourceAsStream(resourcePath);
     }
 }
