@@ -125,7 +125,7 @@ public class ConfigurationValidator {
             // TODO Log success information using logging API
             System.out.println("Document is valid against XSD");
         } catch (SAXException ex) {
-            throw new RuntimeException("Document " + configurationSchemaPath + " is not valid agains XSD schema: " + ex.getMessage(), ex);
+            throw new RuntimeException("Document " + configurationSchemaPath + " is not valid against XSD schema: " + ex.getMessage(), ex);
         } catch (IOException e) {
             throw new RuntimeException(" File " + configurationPath + " not found. " + e.getMessage(), e);
 
