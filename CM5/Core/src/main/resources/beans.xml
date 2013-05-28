@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
-        "http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+     http://www.springframework.org/schema/beans
+     http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
 
     <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
         <property name="jndiName" value="java:jboss/datasources/CM5" />
@@ -11,24 +12,20 @@
         <property name="dataSource" ref="dataSource"/>
     </bean>
 
-    <bean id="configurationLoader" lazy-init="false" singleton="true"
+    <bean id="configurationLoader"
           class="ru.intertrust.cm.core.business.impl.ConfigurationLoader" init-method="load">
         <property name="configurationService" ref="configurationService"/>
-        <property name="configurationValidator" ref="configurationValidator"/>       
+        <property name="configurationValidator" ref="configurationValidator"/>
 
-        <property name="configurationFilePath">
-            <value>config/business-objects.xml</value>
-        </property>
+        <property name="configurationFilePath" value="config/business-objects.xml" />
     </bean>
 
-	<bean id="configurationValidator" singleton="true"
+	<bean id="configurationValidator"
           class="ru.intertrust.cm.core.business.impl.ConfigurationValidator">
-        <property name="configurationSchemaPath">
-            <value>config/business-objects.xsd</value>
-        </property>
+        <property name="configurationSchemaPath" value="config/business-objects.xsd" />
     </bean>
 
-    <bean id="configurationService" singleton="true" class="ru.intertrust.cm.core.business.impl.ConfigurationServiceImpl">
+    <bean id="configurationService" class="ru.intertrust.cm.core.business.impl.ConfigurationServiceImpl">
         <property name="dataStructureDAO" ref="dataStructureDAO" />
         <property name="authenticationService" ref="authenticationService" />
     </bean>
@@ -37,13 +34,11 @@
         <property name="dataSource" ref="dataSource" />
     </bean>
 
-    <bean id="authenticationService" singleton="true"
-        class="ru.intertrust.cm.core.business.impl.AuthenticationServiceImpl">
+    <bean id="authenticationService" class="ru.intertrust.cm.core.business.impl.AuthenticationServiceImpl">
         <property name="authenticationDAO" ref="authenticationDAO" />
         <property name="md5Service" ref="md5Service" />
     </bean>
 
-    <bean id="md5Service" singleton="true"
-        class="ru.intertrust.cm.core.business.impl.MD5ServiceImpl" />
+    <bean id="md5Service" class="ru.intertrust.cm.core.business.impl.MD5ServiceImpl" />
 
 </beans>
