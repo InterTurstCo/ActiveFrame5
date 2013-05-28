@@ -489,6 +489,12 @@
             <name>Central Repository</name>
         </repository>
 
+        <repository>
+            <url>https://maven.alfresco.com/nexus/content/repositories/activiti/</url>
+            <id>alfresco</id>
+            <name>Alfresco Repository</name>
+        </repository>
+
     </repositories>
 
     <pluginRepositories>
