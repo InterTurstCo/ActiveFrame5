@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.business.impl;
 
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
-import ru.intertrust.cm.core.business.api.AuthenticationService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.config.Configuration;
 
@@ -16,17 +15,12 @@ import java.io.InputStream;
  */
 public class ConfigurationLoader {
 
-    private static final String ADMIN_LOGIN = "admin";
-    private static final String ADMIN_PASSWORD = "admin";
-
     private String configurationFilePath;
     private ConfigurationService configurationService;
 
     private Configuration configuration;
 
     private ConfigurationValidator configurationValidator;
-
-    private AuthenticationService authenticationService;
 
     public ConfigurationLoader() {
     }
@@ -48,6 +42,14 @@ public class ConfigurationLoader {
     }
 
     /**
+     * Возвращает загруженную конфигурацию
+     * @return конфигурация
+     */
+    public Configuration getConfiguration() {
+        return configuration;
+    }
+
+    /**
      * Инициализирует и возвращает {@link #configurationValidator}
      * @return
      */
@@ -65,13 +67,6 @@ public class ConfigurationLoader {
         this.configurationValidator = configurationValidator;
     }
 
-    /**
-     * Устанавливает сервис аутентификации
-     * @param authenticationService AuthenticationService
-     */
-    public void setAuthenticationService(AuthenticationService authenticationService) {
-        this.authenticationService = authenticationService;
-    }
 
     /**
      * Загружает конфигурацию бизнес-объектов, валидирует и создает соответствующие сущности в базе.
@@ -84,6 +79,7 @@ public class ConfigurationLoader {
         validateConfiguration();
 
         configurationService.loadConfiguration(configuration);
+
     }
 
     /**
@@ -105,4 +101,5 @@ public class ConfigurationLoader {
     private void validateConfiguration() {
         getConfigurationValidator().validate();
     }
+
 }
