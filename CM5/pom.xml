@@ -467,20 +467,6 @@
 
     <repositories>
 
-        <!-- InterTrust's repositories -->
-
-        <repository>
-            <id>intertrust.repo</id>
-            <name>InterTrust maven repository</name>
-            <url>http://sup.inttrust.ru:8081/nexus/content/groups/public</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-
         <!-- External repositories -->
 
         <repository>
@@ -493,6 +479,20 @@
             <url>https://maven.alfresco.com/nexus/content/repositories/activiti/</url>
             <id>alfresco</id>
             <name>Alfresco Repository</name>
+        </repository>
+
+        <!-- InterTrust's repositories -->
+
+        <repository>
+            <id>intertrust.repo</id>
+            <name>InterTrust maven repository</name>
+            <url>http://sup.inttrust.ru:8081/nexus/content/groups/public</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
 
     </repositories>
