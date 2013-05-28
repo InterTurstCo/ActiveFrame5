@@ -1,43 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
        xsi:schemaLocation="
      http://www.springframework.org/schema/beans
      http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
 
-    <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
-        <property name="jndiName" value="java:jboss/datasources/CM5" />
-    </bean>
+    <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean"
+          p:jndiName="java:jboss/datasources/CM5"/>
 
-    <bean id="dataStructureDAO" class="ru.intertrust.cm.core.dao.impl.PostgreSQLDataStructureDAOImpl">
-        <property name="dataSource" ref="dataSource"/>
-    </bean>
+    <bean id="dataStructureDAO" class="ru.intertrust.cm.core.dao.impl.PostgreSQLDataStructureDAOImpl"
+          p:dataSource-ref="dataSource"/>
 
     <bean id="configurationLoader"
-          class="ru.intertrust.cm.core.business.impl.ConfigurationLoader" init-method="load">
-        <property name="configurationService" ref="configurationService"/>
-        <property name="configurationValidator" ref="configurationValidator"/>
-
-        <property name="configurationFilePath" value="config/business-objects.xml" />
-    </bean>
+          class="ru.intertrust.cm.core.business.impl.ConfigurationLoader" init-method="load"
+          p:configurationService-ref="configurationService" p:configurationValidator-ref="configurationValidator"
+          p:configurationFilePath="config/business-objects.xml"/>
 
 	<bean id="configurationValidator"
-          class="ru.intertrust.cm.core.business.impl.ConfigurationValidator">
-        <property name="configurationSchemaPath" value="config/business-objects.xsd" />
-    </bean>
+          class="ru.intertrust.cm.core.business.impl.ConfigurationValidator"
+          p:configurationSchemaPath="config/business-objects.xsd"/>
 
-    <bean id="configurationService" class="ru.intertrust.cm.core.business.impl.ConfigurationServiceImpl">
-        <property name="dataStructureDAO" ref="dataStructureDAO" />
-        <property name="authenticationService" ref="authenticationService" />
-    </bean>
+    <bean id="configurationService" class="ru.intertrust.cm.core.business.impl.ConfigurationServiceImpl"
+          p:dataStructureDAO-ref="dataStructureDAO" p:authenticationService-ref="authenticationService"/>
 
-    <bean id="authenticationDAO" class="ru.intertrust.cm.core.dao.impl.AuthenticationDAOImpl">
-        <property name="dataSource" ref="dataSource" />
-    </bean>
+    <bean id="authenticationDAO" class="ru.intertrust.cm.core.dao.impl.AuthenticationDAOImpl"
+          p:dataSource-ref="dataSource"/>
 
-    <bean id="authenticationService" class="ru.intertrust.cm.core.business.impl.AuthenticationServiceImpl">
-        <property name="authenticationDAO" ref="authenticationDAO" />
-        <property name="md5Service" ref="md5Service" />
-    </bean>
+    <bean id="authenticationService" class="ru.intertrust.cm.core.business.impl.AuthenticationServiceImpl"
+          p:authenticationDAO-ref="authenticationDAO" p:md5Service-ref="md5Service"/>
 
     <bean id="md5Service" class="ru.intertrust.cm.core.business.impl.MD5ServiceImpl" />
 
