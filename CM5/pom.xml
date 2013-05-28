@@ -1,6 +1,5 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ru.intertrust.cm-sochi</groupId>
@@ -13,7 +12,8 @@
     <modules>
         <module>Core</module>
         <module>Workstation</module>
-    </modules>
+	<module>Ear</module>
+  </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -446,7 +446,7 @@
                     <statusIds>6,5</statusIds>
                     <sortColumnNames>Type,Key</sortColumnNames>
                     <maxEntries>5000</maxEntries>
-                    <statusIds />
+                    <statusIds/>
                     <jiraUser>${jira.login}</jiraUser>
                     <jiraPassword>${jira.password}</jiraPassword>
                     <webUser>${jira.login}</webUser>
@@ -482,6 +482,7 @@
         </repository>
 
         <!-- InterTrust's repositories -->
+
 
         <repository>
             <id>intertrust.repo</id>

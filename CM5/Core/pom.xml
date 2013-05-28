@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>core</artifactId>
-    <packaging>war</packaging>
+    <packaging>pom</packaging>
     <name>Core</name>
     <description>Ядро</description>
 
@@ -15,9 +14,9 @@
     </parent>
 
     <build>
-        <finalName>cm-sochi</finalName>
+<!--        <finalName>cm-sochi</finalName> -->
         <plugins>
-
+<!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
@@ -25,24 +24,25 @@
                     <outputDirectory>${jboss.deployments.dir}</outputDirectory>
                 </configuration>
             </plugin>
+ -->
 
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>properties-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>read-project-properties</goal>
-                        </goals>
-                        <configuration>
-                            <files>
-                                <file>${basedir}/build.properties</file>
-                            </files>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+
+	<plugin>
+		<artifactId>maven-ear-plugin</artifactId>
+		<configuration>
+		<finalName>cm-sochi</finalName>
+		<generatedDescriptorLocation>${basedir}/src/main/application/META-INF</generatedDescriptorLocation>
+	        <modules>
+        	    <webModule>
+                	<groupId>ru.intertrust.cm-sochi</groupId>
+	                <artifactId>web-app</artifactId>
+        	        <uri>web-app.war</uri>
+               		<bundleFileName>web-app</bundleFileName>
+	                <contextRoot>/cm-sochi</contextRoot>
+        	    </webModule>
+	        </modules>
+	    </configuration>
+	</plugin>
 
             <plugin>
                 <groupId>org.jboss.as.plugins</groupId>
@@ -133,11 +133,22 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
         </dependency>
-        
+<!--        
         <dependency>
             <groupId>org.activiti</groupId>
             <artifactId>activiti-engine</artifactId>
         </dependency>
+-->
     </dependencies>
 
+  <modules>
+    <module>model</module>
+    <module>dao-api</module>
+    <module>dao-impl</module>
+    <module>service-api</module>
+    <module>service-impl</module>
+    <module>gui-api</module>
+    <module>gui-impl</module>
+    <module>web-app</module>
+  </modules>
 </project>
