@@ -17,14 +17,14 @@
         <property name="configurationValidator" ref="configurationValidator"/>       
 
         <property name="configurationFilePath">
-            <value>/config/business-objects.xml</value>
+            <value>config/business-objects.xml</value>
         </property>
     </bean>
 
 	<bean id="configurationValidator" singleton="true"
           class="ru.intertrust.cm.core.business.impl.ConfigurationValidator">
         <property name="configurationSchemaPath">
-            <value>/config/business-objects.xsd</value>
+            <value>config/business-objects.xsd</value>
         </property>
     </bean>
 
@@ -42,7 +42,7 @@
         <property name="authenticationDAO" ref="authenticationDAO" />
         <property name="md5Service" ref="md5Service" />
     </bean>
-    
+
     <bean id="md5Service" singleton="true"
         class="ru.intertrust.cm.core.business.impl.MD5ServiceImpl" />
 
