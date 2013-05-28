@@ -2,7 +2,12 @@ package ru.intertrust.cm.core.business.impl;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import ru.intertrust.cm.core.business.api.AuthenticationService;
 import ru.intertrust.cm.core.config.BusinessObjectConfig;
 import ru.intertrust.cm.core.config.Configuration;
 import ru.intertrust.cm.core.dao.api.DataStructureDAO;
@@ -15,18 +20,19 @@ import static org.mockito.Mockito.*;
  *         Date: 5/27/13
  *         Time: 5:25 PM
  */
+@RunWith(MockitoJUnitRunner.class)
 public class ConfigurationServiceImplTest {
-
-    private ConfigurationServiceImpl configurationService;
+    @InjectMocks
+    private ConfigurationServiceImpl configurationService = new ConfigurationServiceImpl();
+    @Mock
     private DataStructureDAO dataStructureDAOMock;
+    @Mock
+    private AuthenticationService authenticationService;
+
     private Configuration config;
 
     @Before
     public void setUp() throws Exception {
-        dataStructureDAOMock = mock(DataStructureDAO.class);
-        configurationService = new ConfigurationServiceImpl();
-        configurationService.setDataStructureDAO(dataStructureDAOMock);
-
         config = new ConfigurationLoader().serializeConfiguration("config/business-objects.xml");
         assertNotNull(config); // проверяем, что конфигурация сериализована из файла
     }

@@ -17,7 +17,9 @@ public class FileUtils {
      * @return файл в виде потока
      */
     public static InputStream getFileInputStream(String relativePath) {
-        return FileUtils.class.getClassLoader().getResourceAsStream(relativePath);
+        InputStream stream = FileUtils.class.getClassLoader().getResourceAsStream(relativePath);
+        validateResult(stream, relativePath);
+        return stream;
     }
 
     /**
@@ -26,6 +28,14 @@ public class FileUtils {
      * @return {@link URL} файла
      */
     public static URL getFileURL(String relativePath) {
-        return FileUtils.class.getClassLoader().getResource(relativePath);
+        URL url = FileUtils.class.getClassLoader().getResource(relativePath);
+        validateResult(url, relativePath);
+        return url;
+    }
+
+    private static void validateResult(Object object, String path) {
+        if(object == null) {
+            throw new RuntimeException("File not found for path '" + path + "'");
+        }
     }
 }

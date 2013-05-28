@@ -1,12 +1,12 @@
 package ru.intertrust.cm.core.business.impl;
 
-import java.io.InputStream;
-
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
-
+import ru.intertrust.cm.core.business.api.AuthenticationService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.config.Configuration;
+
+import java.io.InputStream;
 
 /**
  * Класс, предназначенный для загрузки конфигурации бизнес-оъектов
@@ -16,12 +16,17 @@ import ru.intertrust.cm.core.config.Configuration;
  */
 public class ConfigurationLoader {
 
+    private static final String ADMIN_LOGIN = "admin";
+    private static final String ADMIN_PASSWORD = "admin";
+
     private String configurationFilePath;
     private ConfigurationService configurationService;
 
     private Configuration configuration;
 
     private ConfigurationValidator configurationValidator;
+
+    private AuthenticationService authenticationService;
 
     public ConfigurationLoader() {
     }
@@ -60,7 +65,14 @@ public class ConfigurationLoader {
         this.configurationValidator = configurationValidator;
     }
 
-    
+    /**
+     * Устанавливает сервис аутентификации
+     * @param authenticationService AuthenticationService
+     */
+    public void setAuthenticationService(AuthenticationService authenticationService) {
+        this.authenticationService = authenticationService;
+    }
+
     /**
      * Загружает конфигурацию бизнес-объектов, валидирует и создает соответствующие сущности в базе.
      * Добавляет запись администратора (admin/admin) в таблицу authentication_info.
@@ -72,11 +84,10 @@ public class ConfigurationLoader {
         validateConfiguration();
 
         configurationService.loadConfiguration(configuration);
-
     }
 
-    /** 
-     * Сериализация конфигурации в Java класс. 
+    /**
+     * Сериализация конфигурации в Java класс.
      * @param configurationFilePath путь к конфигурационному файлу
      * @return {@link Configuration}
      * @throws Exception
@@ -90,9 +101,8 @@ public class ConfigurationLoader {
     private InputStream getResourceAsStream(String resourcePath) {
         return FileUtils.getFileInputStream(resourcePath);
     }
-    
+
     private void validateConfiguration() {
         getConfigurationValidator().validate();
     }
-  
 }
