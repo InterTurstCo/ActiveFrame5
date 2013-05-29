@@ -25,39 +25,6 @@
         <module>web-app</module>
     </modules>
 
-    <build>
-        <!--        <finalName>cm-sochi</finalName> -->
-        <plugins>
-            <!--
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-war-plugin</artifactId>
-                            <configuration>
-                                <outputDirectory>${jboss.deployments.dir}</outputDirectory>
-                            </configuration>
-                        </plugin>
-             -->
-
-
-            <plugin>
-                <artifactId>maven-ear-plugin</artifactId>
-                <configuration>
-                    <finalName>cm-sochi</finalName>
-                    <generatedDescriptorLocation>${basedir}/src/main/application/META-INF</generatedDescriptorLocation>
-                    <modules>
-                        <webModule>
-                            <groupId>ru.intertrust.cm-sochi</groupId>
-                            <artifactId>web-app</artifactId>
-                            <uri>web-app.war</uri>
-                            <bundleFileName>web-app</bundleFileName>
-                            <contextRoot>/cm-sochi</contextRoot>
-                        </webModule>
-                    </modules>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
 
     <dependencies>
 
