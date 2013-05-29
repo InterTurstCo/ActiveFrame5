@@ -9,7 +9,7 @@ import java.util.ArrayList;
  * Date: 23.05.13
  * Time: 17:42
  */
-public class ModelUtil {
+public class BusinessUtil {
     public static String getDetailedDescription(IdentifiableObject obj) {
         final String TABULATOR = "    ";
         ArrayList<String> fields = obj.getFields();

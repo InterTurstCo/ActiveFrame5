@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.business.api.dto;
 
-import ru.intertrust.cm.core.business.api.util.ModelUtil;
+import ru.intertrust.cm.core.business.api.util.BusinessUtil;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -87,7 +87,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
 
         }
         for (IdentifiableObject obj : this) {
-            result.append(ModelUtil.getTableRowDescription(obj)).append('\n');
+            result.append(BusinessUtil.getTableRowDescription(obj)).append('\n');
         }
         return result.toString();
     }
@@ -159,7 +159,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
 
         @Override
         public String toString() {
-            return ModelUtil.getDetailedDescription(this);
+            return BusinessUtil.getDetailedDescription(this);
         }
     }
 

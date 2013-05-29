@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.business.api.dto;
 
-import ru.intertrust.cm.core.business.api.util.ModelUtil;
+import ru.intertrust.cm.core.business.api.util.BusinessUtil;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -46,7 +46,7 @@ public class GenericBusinessObject extends GenericIdentifiableObject implements 
     public String toString() {
         StringBuilder result = new StringBuilder();
         result.append('{').append('\n');
-        result.append(ModelUtil.getDetailedDescription(this));
+        result.append(BusinessUtil.getDetailedDescription(this));
         result.append("Created Date = ").append(createdDate).append('\n');
         result.append("Modified Date = ").append(modifiedDate).append('\n');
         result.append('}');

@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.business.api.dto;
 
-import ru.intertrust.cm.core.business.api.util.ModelUtil;
+import ru.intertrust.cm.core.business.api.util.BusinessUtil;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -49,7 +49,7 @@ public class GenericIdentifiableObject implements IdentifiableObject {
     public String toString() {
         StringBuilder result = new StringBuilder();
         result.append('{').append('\n');
-        result.append(ModelUtil.getDetailedDescription(this));
+        result.append(BusinessUtil.getDetailedDescription(this));
         result.append('}');
         return result.toString();
     }
