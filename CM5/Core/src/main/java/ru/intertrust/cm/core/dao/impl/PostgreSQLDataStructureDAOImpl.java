@@ -1,17 +1,12 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCountTablesQuery;
-import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCreateAuthenticationInfoTableQuery;
-import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCreateBusinessObjectTableQuery;
-import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCreateIndexesQueryPart;
-import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCreateTableQuery;
+import org.springframework.jdbc.core.JdbcTemplate;
+import ru.intertrust.cm.core.config.BusinessObjectConfig;
+import ru.intertrust.cm.core.dao.api.DataStructureDAO;
 
 import javax.sql.DataSource;
 
-import org.springframework.jdbc.core.JdbcTemplate;
-
-import ru.intertrust.cm.core.config.BusinessObjectConfig;
-import ru.intertrust.cm.core.dao.api.DataStructureDAO;
+import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.*;
 
 /**
  * Реализация {@link DataStructureDAO} для PostgreSQL
@@ -21,7 +16,7 @@ import ru.intertrust.cm.core.dao.api.DataStructureDAO;
  */
 public class PostgreSQLDataStructureDAOImpl implements DataStructureDAO {
 
-    private static final String DOES_TABLE_EXISTS_QUERY = "select count(*) FROM information_schema.tables WHERE table_schema = 'public' and table_name=?";    
+    private static final String DOES_TABLE_EXISTS_QUERY = "select count(*) FROM information_schema.tables WHERE table_schema = 'public' and table_name=?";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -40,7 +35,7 @@ public class PostgreSQLDataStructureDAOImpl implements DataStructureDAO {
     public void createTable(BusinessObjectConfig config) {
         jdbcTemplate.update(generateCreateTableQuery(config));
 
-        String createIndexesQuery = generateCreateIndexesQueryPart(config);
+        String createIndexesQuery = generateCreateIndexesQuery(config);
         if(createIndexesQuery != null) {
             jdbcTemplate.update(createIndexesQuery);
         }
@@ -66,8 +61,8 @@ public class PostgreSQLDataStructureDAOImpl implements DataStructureDAO {
         jdbcTemplate.update(generateCreateBusinessObjectTableQuery());
         jdbcTemplate.update(generateCreateAuthenticationInfoTableQuery());
     }
-    
-    /** 
+
+    /**
      * Смотри @see ru.intertrust.cm.core.dao.api.DataStructureDAO#doesTableExists(java.lang.String)
      */
     @Override

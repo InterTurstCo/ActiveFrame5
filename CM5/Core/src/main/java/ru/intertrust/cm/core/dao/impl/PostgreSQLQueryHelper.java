@@ -1,20 +1,11 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferencedTypeSqlName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+import ru.intertrust.cm.core.config.*;
 
 import java.util.List;
 
-import ru.intertrust.cm.core.config.BusinessObjectConfig;
-import ru.intertrust.cm.core.config.DateTimeFieldConfig;
-import ru.intertrust.cm.core.config.DecimalFieldConfig;
-import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.LongFieldConfig;
-import ru.intertrust.cm.core.config.PasswordFieldConfig;
-import ru.intertrust.cm.core.config.ReferenceFieldConfig;
-import ru.intertrust.cm.core.config.StringFieldConfig;
-import ru.intertrust.cm.core.config.UniqueKeyConfig;
-import ru.intertrust.cm.core.config.UniqueKeyFieldConfig;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferencedTypeSqlName;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 
 /**
  * Класс для генерации sql запросов для {@link PostgreSQLDataStructureDAOImpl}
@@ -25,6 +16,7 @@ import ru.intertrust.cm.core.config.UniqueKeyFieldConfig;
 public class PostgreSQLQueryHelper {
 
     public static final String AUTHENTICATION_INFO_TABLE = "AUTHENTICATION_INFO";
+    public static final String BUSINESS_OBJECT_TABLE = "BUSINESS_OBJECT";
 
     /**
      * Генерирует запрос, возвращающий кол-во таблиц в базе данных
@@ -39,14 +31,13 @@ public class PostgreSQLQueryHelper {
      * @return запрос, создающий таблицу BUSINESS_OBJECT
      */
     public static String generateCreateBusinessObjectTableQuery() {
-        return "create table BUSINESS_OBJECT(ID bigserial not null, NAME varchar(256) not null, " +
-                "constraint PK_BUSINESS_OBJECT_ID primary key (ID), constraint U_BUSINESS_OBJECT_NAME unique (NAME))";
+        return "create table " + BUSINESS_OBJECT_TABLE + "(ID bigserial not null, NAME varchar(256) not null, " +
+                "constraint PK_" + BUSINESS_OBJECT_TABLE + " primary key (ID), constraint U_" + BUSINESS_OBJECT_TABLE + " unique (NAME))";
     }
 
     /**
      * Генерирует запрос, создающий таблицу AUTHENTICATION_INFO
      * @return запрос, создающий таблицу AUTHENTICATION_INFO
-     * @return
      */
     public static String generateCreateAuthenticationInfoTableQuery() {
         return "CREATE TABLE " + AUTHENTICATION_INFO_TABLE + " (ID bigint not null, user_uid character varying(64) NOT NULL, password"
@@ -79,7 +70,7 @@ public class PostgreSQLQueryHelper {
      * @param config конфигурация бизнес-объекта
      * @return запрос, для создания индексов по конфигурации бизнес-объекта
      */
-    public static String generateCreateIndexesQueryPart(BusinessObjectConfig config) {
+    public static String generateCreateIndexesQuery(BusinessObjectConfig config) {
         String query = "";
         String tableName = getSqlName(config);
 
