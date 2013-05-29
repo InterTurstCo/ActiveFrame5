@@ -6,13 +6,16 @@ import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import ru.intertrust.cm.core.business.api.AuthenticationService;
 import ru.intertrust.cm.core.business.api.MD5Service;
 import ru.intertrust.cm.core.business.api.dto.AuthenticationInfo;
+import ru.intertrust.cm.core.business.impl.AuthenticationServiceImpl;
 import ru.intertrust.cm.core.dao.api.AuthenticationDAO;
 
 /**

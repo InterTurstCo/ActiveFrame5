@@ -9,28 +9,27 @@ import org.simpleframework.xml.Attribute;
  */
 public class DecimalFieldConfig extends FieldConfig {
     @Attribute
-    private int precision; // total number of digits, for instance 12.34567 - precision is 7, scale is 5
+    private Integer precision; // total number of digits, for instance 12.34567 - precision is 7, scale is 5
 
     @Attribute
-    private int scale;
+    private Integer scale;
 
     public DecimalFieldConfig() {
     }
 
-    public int getPrecision() {
-
+    public Integer getPrecision() {
         return precision;
     }
 
-    public void setPrecision(int precision) {
+    public void setPrecision(Integer precision) {
         this.precision = precision;
     }
 
-    public int getScale() {
+    public Integer getScale() {
         return scale;
     }
 
-    public void setScale(int scale) {
+    public void setScale(Integer scale) {
         this.scale = scale;
     }
 }

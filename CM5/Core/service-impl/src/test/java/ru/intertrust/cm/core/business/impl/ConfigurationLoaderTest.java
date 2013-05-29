@@ -7,6 +7,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
+import ru.intertrust.cm.core.business.impl.ConfigurationHelper;
+import ru.intertrust.cm.core.business.impl.ConfigurationLoader;
+import ru.intertrust.cm.core.business.impl.ConfigurationValidator;
 import ru.intertrust.cm.core.config.BusinessObjectConfig;
 import ru.intertrust.cm.core.config.Configuration;
 

@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import ru.intertrust.cm.core.business.api.MD5Service;
+import ru.intertrust.cm.core.business.impl.MD5ServiceImpl;
 
 /**
  * Тест реализации MD5Service.
@@ -39,7 +40,7 @@ public class MD5ServiceTest {
         String message = MESSAGE;
         assertTrue(MD5_CODE.equals(md5Service.getMD5(message)));
     }
-    
+
     @Test
     public void testGetMD5IfMessageNull() {
         String message = null;

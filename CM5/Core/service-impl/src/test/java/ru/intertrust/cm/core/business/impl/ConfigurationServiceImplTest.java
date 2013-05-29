@@ -8,6 +8,8 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import ru.intertrust.cm.core.business.api.AuthenticationService;
+import ru.intertrust.cm.core.business.impl.ConfigurationLoader;
+import ru.intertrust.cm.core.business.impl.ConfigurationServiceImpl;
 import ru.intertrust.cm.core.config.BusinessObjectConfig;
 import ru.intertrust.cm.core.config.Configuration;
 import ru.intertrust.cm.core.dao.api.DataStructureDAO;

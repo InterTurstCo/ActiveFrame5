@@ -4,13 +4,12 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-
 import ru.intertrust.cm.core.config.Configuration;
 
 /**
- * Тестовый класс для {@link ConfigurationValidator}
+ * Тестовый класс для {@link ru.intertrust.cm.core.business.impl.ConfigurationValidator}
  * @author atsvetkov
- * 
+ *
  */
 public class ConfigurationValidatorTest {
 
@@ -28,7 +27,7 @@ public class ConfigurationValidatorTest {
     @Before
     public void setUp() throws Exception {
         configurationValidator = new ConfigurationValidator();
-        
+
         configurationLoader = new ConfigurationLoader();
 
     }
@@ -56,7 +55,7 @@ public class ConfigurationValidatorTest {
 
         expectedExeption.expect(RuntimeException.class);
         expectedExeption.expectMessage("is not valid against XSD schema");
-        
+
         configurationValidator.validate();
     }
 

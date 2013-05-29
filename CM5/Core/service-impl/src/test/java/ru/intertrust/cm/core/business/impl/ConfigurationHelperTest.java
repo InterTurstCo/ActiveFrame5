@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import ru.intertrust.cm.core.business.impl.ConfigurationHelper;
 import ru.intertrust.cm.core.config.BusinessObjectConfig;
 import ru.intertrust.cm.core.config.Configuration;
 import ru.intertrust.cm.core.config.FieldConfig;
