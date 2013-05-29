@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="https://cm5.intertrust.ru/config" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="configuration" type="con:configurationType" xmlns:con="https://cm5.intertrust.ru/config"/>
+  
+  <xs:complexType name="longType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="name"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  
+  <xs:complexType name="businessObjectType">
+    <xs:sequence>
+      <xs:element type="con:fieldsType" name="fields" xmlns:con="https://cm5.intertrust.ru/config">        
+      </xs:element>
+      <xs:element type="con:uniqueKeyType" name="uniqueKey" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+    </xs:sequence>
+	<xs:attribute name="name" use="required" type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config"/>
+	<xs:attribute type="xs:string" name="extends" use="optional" />
+  </xs:complexType>
+  
+ <xs:simpleType name="nameType">
+	<xs:restriction base="xs:string">
+		<xs:pattern value="[a-zA-z0-9\s]*">
+		</xs:pattern>
+	</xs:restriction>
+ </xs:simpleType>     
+
+  <xs:complexType name="fieldsType">
+    <xs:choice maxOccurs="unbounded" minOccurs="0">
+      <xs:element type="con:stringType" name="string" xmlns:con="https://cm5.intertrust.ru/config"/>
+      <xs:element type="con:dateTimeType" name="dateTime" xmlns:con="https://cm5.intertrust.ru/config">
+      </xs:element>
+      <xs:element type="con:referenceType" name="reference" xmlns:con="https://cm5.intertrust.ru/config">
+      </xs:element>
+      <xs:element type="con:longType" name="long" xmlns:con="https://cm5.intertrust.ru/config"/>
+      <xs:element type="con:decimalType" name="decimal" xmlns:con="https://cm5.intertrust.ru/config"/>
+      <xs:element type="con:passwordType" name="password" xmlns:con="https://cm5.intertrust.ru/config"/>
+    </xs:choice>
+  </xs:complexType>
+  
+  <xs:complexType name="fieldType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="name" use="required" type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  
+  <xs:complexType name="referenceType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="name" use="required" type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config"/>
+        <xs:attribute type="xs:string" name="type" use="optional"/>
+        <xs:attribute type="xs:string" name="not-null" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  
+  <xs:complexType name="dateTimeType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="name" use="required" type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config"/>
+        <xs:attribute type="xs:string" name="length" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  
+  <xs:complexType name="configurationType">
+    <xs:sequence>
+      <xs:element type="con:businessObjectType" name="businessObject" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+    </xs:sequence>
+  </xs:complexType>
+  
+  <xs:complexType name="uniqueKeyType">
+    <xs:sequence>
+      <xs:element type="con:fieldType" name="field" xmlns:con="https://cm5.intertrust.ru/config">
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  
+  <xs:complexType name="passwordType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="name" use="required" type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config"/>
+        <xs:attribute type="xs:string" name="length"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  
+  <xs:complexType name="decimalType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="name" use="required" type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config"/>
+        <xs:attribute type="xs:string" name="precision"/>
+        <xs:attribute type="xs:string" name="scale"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  
+  <xs:complexType name="stringType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="name" use="required" type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config"/>
+        <xs:attribute type="xs:string" name="length" use="optional"/>
+        <xs:attribute type="xs:string" name="not-null" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+</xs:schema>

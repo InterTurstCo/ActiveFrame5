@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+    <collection name="Employees" idField="id" businessObjectTypeField="business_object_type">
+        <!--todo поддержка конвертации значений, например, в картинки -->
+        <display>
+            <column field="id" name="id" hidden="true" sortable="false" sequence="0" />
+            <column field="business_object_type" name="type" editable="false"  hidden="true" sortable="false" sequence="1" />
+            <column field="name" name="Имя" editable="false" sortable="true"  sequence="2" />
+            <column field="position" name="Должность" editable="false" sortable="true"  sequence="3" />
+            <column field="created_date" name="Дата создания" editable="false" sortable="true"  sequence="4" />
+            <column field="updated_date" name="Дата модификации" editable="false" sortable="true"  sequence="5" />
+        </display>
+
+        <prototype>
+            <![CDATA[
+                select
+                    e.id, e.business_object_type, e.name, e.position, e.created_date, e.updated_date
+                from
+                    employee e
+                    ::from-clause
+                where
+                    ::where-clause
+            ]]>
+        </prototype>
+
+        <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) вместо названий колонок -->
+        <counting-prototype>
+            select count(*) from employee e WHERE ::where-clause
+        </counting-prototype>
+
+        <filter name="byDepartment">
+            <reference placeholder="from-clause">
+                <![CDATA[
+                    inner join department d
+                ]]>
+            </reference>
+
+            <!-- по умолчанию and, если перед условием нет других (только ключ. слово where), то условие опускаем -->
+            <!-- {0} - это параметр фильтра, у одного фильтра может быть несколько параметров -->
+            <criteria placeholder="where-clause" condition="and">
+                <![CDATA[
+                    d.name = {0}
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byName">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    e.name = {0}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
+    <collection name="Employees_2" idField="id" businessObjectTypeField="business_object_type">
+        <display>
+            <column field="id" name="id" hidden="true" sortable="false" sequence="0" />
+            <column field="business_object_type" name="type" editable="false"  hidden="true" sortable="false" sequence="1" />
+            <column field="name" name="Имя" editable="false" sortable="true"  sequence="2" />
+            <column field="position" name="Должность" editable="false" sortable="true"  sequence="3" />
+            <column field="created_date" name="Дата создания" editable="false" sortable="true"  sequence="4" />
+            <column field="updated_date" name="Дата модификации" editable="false" sortable="true"  sequence="5" />
+        </display>
+        <renderer class="ru.intertrust.cm.core.business.impl.EmployeesCollectionRenderer"/>
+        <filter name="byName"/>
+        <filter name="byDepartment"/>
+    </collection>
+</configuration>
