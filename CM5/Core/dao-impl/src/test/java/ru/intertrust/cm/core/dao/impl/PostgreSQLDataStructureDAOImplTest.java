@@ -2,16 +2,33 @@ package ru.intertrust.cm.core.dao.impl;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.jdbc.core.JdbcTemplate;
 import ru.intertrust.cm.core.config.*;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
+import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCountTablesQuery;
+import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCreateAuthenticationInfoTableQuery;
+import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCreateBusinessObjectTableQuery;
 
 /**
  * @author vmatsukevich
  *         Date: 5/29/13
- *         Time: 12:39 PM
+ *         Time: 5:32 PM
  */
-public class PostgreSQLQueryHelperTest {
+@RunWith(MockitoJUnitRunner.class)
+public class PostgreSQLDataStructureDAOImplTest {
+    @InjectMocks
+    private PostgreSQLDataStructureDAOImpl dataStructureDAO = new PostgreSQLDataStructureDAOImpl();
+    @Mock
+    private JdbcTemplate jdbcTemplate;
 
     private BusinessObjectConfig businessObjectConfig;
 
@@ -64,22 +81,41 @@ public class PostgreSQLQueryHelperTest {
         uniqueKeyConfig.getUniqueKeyFieldConfigs().add(uniqueKeyFieldConfig2);
     }
 
+
     @Test
-    public void testGenerateCreateTableQuery() throws Exception {
-        String query = PostgreSQLQueryHelper.generateCreateTableQuery(businessObjectConfig);
-        String checkQuery = "create table OUTGOING_DOCUMENT ( ID bigint not null, CREATED_DATE timestamp not null, " +
-                "UPDATED_DATE timestamp not null, REGISTRATION_NUMBER varchar(128), REGISTRATION_DATE timestamp, AUTHOR bigint, " +
-                "LONG_FIELD bigint, DECIMAL_FIELD_1 decimal(10, 2), DECIMAL_FIELD_2 decimal(10), " +
-                "constraint PK_OUTGOING_DOCUMENT_ID primary key (ID), " +
-                "constraint U_OUTGOING_DOCUMENT_REGISTRATION_NUMBER_REGISTRATION_DATE unique (REGISTRATION_NUMBER, REGISTRATION_DATE), " +
-                "constraint FK_OUTGOING_DOCUMENT_AUTHOR foreign key (AUTHOR) references EMPLOYEE(ID))";
-        assertEquals(query, checkQuery);
+    public void testCreateTable() throws Exception {
+        when(jdbcTemplate.queryForObject(anyString(), any(Class.class), anyString())).thenReturn(Long.valueOf(7));
+        dataStructureDAO.createTable(businessObjectConfig);
+
+        verify(jdbcTemplate, times(2)).update(anyString());
+        verify(jdbcTemplate).update(anyString(), anyString());
+        verify(jdbcTemplate).queryForObject(anyString(), any(Class.class), anyString());
+        assertEquals(Long.valueOf(7), businessObjectConfig.getId());
     }
 
     @Test
-    public void testGenerateCreateIndexesQuery() throws Exception {
-        String query = PostgreSQLQueryHelper.generateCreateIndexesQuery(businessObjectConfig);
-        String checkQuery = "create index I_OUTGOING_DOCUMENT_AUTHOR on OUTGOING_DOCUMENT (AUTHOR) ;\n";
-        assertEquals(query, checkQuery);
+    public void testCountTables() throws Exception {
+        dataStructureDAO.countTables();
+        verify(jdbcTemplate).queryForObject(generateCountTablesQuery(), Integer.class);
+    }
+
+    @Test
+    public void testCreateServiceTables() throws Exception {
+        dataStructureDAO.createServiceTables();
+        verify(jdbcTemplate).update(generateCreateBusinessObjectTableQuery());
+        verify(jdbcTemplate).update(generateCreateAuthenticationInfoTableQuery());
+    }
+
+    @Test
+    public void testDoesTableExists() throws Exception {
+        when(jdbcTemplate.queryForObject(anyString(), any(Class.class), anyString())).thenReturn(0);
+        boolean tableExists = dataStructureDAO.doesTableExists("DOCUMENT");
+        assertFalse(tableExists);
+
+        when(jdbcTemplate.queryForObject(anyString(), any(Class.class), anyString())).thenReturn(1);
+        tableExists = dataStructureDAO.doesTableExists("DOCUMENT");
+        assertTrue(tableExists);
+
+        verify(jdbcTemplate, times(2)).queryForObject(anyString(), any(Class.class), anyString());
     }
 }

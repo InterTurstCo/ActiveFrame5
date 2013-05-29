@@ -29,6 +29,14 @@ public class PostgreSQLDataStructureDAOImpl implements DataStructureDAO {
     }
 
     /**
+     * Устанавливает {@link #jdbcTemplate}. Необходим для тестов.
+     * @param jdbcTemplate {@link #jdbcTemplate}
+     */
+    public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
+    /**
      * Смотри {@link DataStructureDAO#createTable(ru.intertrust.cm.core.config.BusinessObjectConfig)}
      */
     @Override
