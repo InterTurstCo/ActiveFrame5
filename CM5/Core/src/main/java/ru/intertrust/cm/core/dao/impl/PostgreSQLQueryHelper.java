@@ -140,8 +140,8 @@ public class PostgreSQLQueryHelper {
         for(UniqueKeyConfig uniqueKeyConfig : config.getUniqueKeyConfigs()) {
             if(!uniqueKeyConfig.getUniqueKeyFieldConfigs().isEmpty()) {
                 String constraintName = "U_" + tableName + "_" +
-                        getSqlName(getFieldsListAsString(uniqueKeyConfig.getUniqueKeyFieldConfigs(), "_"));
-                String fieldsList = getSqlName(getFieldsListAsString(uniqueKeyConfig.getUniqueKeyFieldConfigs(), ", "));
+                        getFieldsListAsSqlString(uniqueKeyConfig.getUniqueKeyFieldConfigs(), "_");
+                String fieldsList = getFieldsListAsSqlString(uniqueKeyConfig.getUniqueKeyFieldConfigs(), ", ");
                 queryPart += ", constraint " + constraintName + " unique (" + fieldsList + ")";
             }
         }
@@ -149,7 +149,7 @@ public class PostgreSQLQueryHelper {
         return queryPart;
     }
 
-    private static String getFieldsListAsString(List<UniqueKeyFieldConfig> uniqueKeyFieldConfigList, String delimiter) {
+    private static String getFieldsListAsSqlString(List<UniqueKeyFieldConfig> uniqueKeyFieldConfigList, String delimiter) {
         if(uniqueKeyFieldConfigList.isEmpty()) {
             throw new IllegalArgumentException("UniqueKeyFieldConfig list is empty");
         }
@@ -159,7 +159,7 @@ public class PostgreSQLQueryHelper {
             if(i > 0) {
                 result += delimiter;
             }
-            result += uniqueKeyFieldConfigList.get(i).getName();
+            result += getSqlName(uniqueKeyFieldConfigList.get(i).getName());
         }
 
         return result;
@@ -171,7 +171,16 @@ public class PostgreSQLQueryHelper {
         }
 
         if(DecimalFieldConfig.class.equals(fieldConfig.getClass())) {
-            return "decimal";
+            DecimalFieldConfig decimalFieldConfig = (DecimalFieldConfig) fieldConfig;
+            String sqlType = "decimal";
+
+            if(decimalFieldConfig.getPrecision() != null && decimalFieldConfig.getScale() != null) {
+                sqlType += "(" + decimalFieldConfig.getPrecision() + ", " + decimalFieldConfig.getScale() + ")";
+            } else if(decimalFieldConfig.getPrecision() != null) {
+                sqlType += "(" + decimalFieldConfig.getPrecision() + ")";
+            }
+
+            return sqlType;
         }
 
         if(LongFieldConfig.class.equals(fieldConfig.getClass())) {
