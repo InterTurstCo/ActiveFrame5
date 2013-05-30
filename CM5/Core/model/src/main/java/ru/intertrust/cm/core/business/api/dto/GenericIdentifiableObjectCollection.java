@@ -17,7 +17,8 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
     private HashMap<String, Integer> fieldIndexes = new HashMap<>();
     private ArrayList<String> fields;
 
-    @Override public void setFields(List<String> fields) {
+    @Override
+    public void setFields(List<String> fields) {
         if (this.fields != null) {
             throw new IllegalArgumentException("Collection fields are already set");
         }
@@ -33,45 +34,55 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         }
     }
 
-    @Override public Id getId(int row) {
+    @Override
+    public Id getId(int row) {
         return list.get(row).getId();
     }
 
-    @Override public void setId(int row, Id id) {
+    @Override
+    public void setId(int row, Id id) {
         addRowsIfNeeded(row);
         list.get(row).setId(id);
     }
 
-    @Override public void set(int fieldIndex, int row, Value value) {
+    @Override
+    public void set(int fieldIndex, int row, Value value) {
         addRowsIfNeeded(row);
         ((FastIdentifiableObjectImpl) list.get(row)).setValue(fieldIndex, value);
     }
 
-    @Override public void set(String field, int row, Value value) {
+    @Override
+    public void set(String field, int row, Value value) {
         list.get(row).setValue(field, value);
     }
 
-    @Override public IdentifiableObject get(int row) {
+    @Override
+    public IdentifiableObject get(int row) {
         return list.get(row);
     }
 
-    @Override public Value get(String field, int row) {
+    @Override
+    public Value get(String field, int row) {
         return list.get(row).getValue(field);
     }
 
-    @Override public Value get(int fieldIndex, int row) {
+    @Override
+    public Value get(int fieldIndex, int row) {
         return ((FastIdentifiableObjectImpl) list.get(row)).getValue(fieldIndex);
     }
 
-    @Override public int getFieldIndex(String field) {
+    @Override
+    public int getFieldIndex(String field) {
         return fieldIndexes.get(field);
     }
 
-    @Override public ArrayList<String> getFields() {
+    @Override
+    public ArrayList<String> getFields() {
         return fields == null ? new ArrayList<String>() : new ArrayList<>(fields);
     }
 
-    @Override public int size() {
+    @Override
+    public int size() {
         return list.size();
     }
 
