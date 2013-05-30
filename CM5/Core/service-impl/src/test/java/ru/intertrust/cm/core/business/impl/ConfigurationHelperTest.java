@@ -6,7 +6,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import ru.intertrust.cm.core.business.impl.ConfigurationHelper;
 import ru.intertrust.cm.core.config.BusinessObjectConfig;
 import ru.intertrust.cm.core.config.Configuration;
 import ru.intertrust.cm.core.config.FieldConfig;
@@ -23,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 public class ConfigurationHelperTest {
 
     @Rule
-    public ExpectedException exception = ExpectedException.none();
+    public ExpectedException expectedException = ExpectedException.none();
 
     private Configuration configuration;
 
@@ -47,7 +46,7 @@ public class ConfigurationHelperTest {
         assertEquals(businessObjectConfig2, searchResultConfig);
 
         // проверяем, что, если конфигурация не найдена, бросается RuntimeException
-        exception.expect(RuntimeException.class);
+        expectedException.expect(RuntimeException.class);
         ConfigurationHelper.findBusinessObjectConfigByName(configuration, "business object 4");
     }
 
@@ -58,7 +57,7 @@ public class ConfigurationHelperTest {
         assertEquals(fieldConfig2, searchResultField);
 
         // проверяем, что, если конфигурация не найдена, бросается RuntimeException
-        exception.expect(RuntimeException.class);
+        expectedException.expect(RuntimeException.class);
         ConfigurationHelper.findFieldConfigForBusinessObject(businessObjectConfig1, "field 4");
     }
 

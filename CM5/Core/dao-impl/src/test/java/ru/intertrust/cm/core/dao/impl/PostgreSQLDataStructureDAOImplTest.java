@@ -34,6 +34,53 @@ public class PostgreSQLDataStructureDAOImplTest {
 
     @Before
     public void setUp() throws Exception {
+        initBusinessObjectConfig();
+    }
+
+
+    @Test
+    public void testCreateTable() throws Exception {
+        when(jdbcTemplate.queryForObject(anyString(), any(Class.class), anyString())).thenReturn(Long.valueOf(7)); // ID конфигурации бизнес-объекта
+        dataStructureDAO.createTable(businessObjectConfig);
+
+        verify(jdbcTemplate, times(2)).update(anyString());
+        verify(jdbcTemplate).update(anyString(), anyString());
+        verify(jdbcTemplate).queryForObject(anyString(), any(Class.class), anyString());
+        assertEquals(Long.valueOf(7), businessObjectConfig.getId());
+    }
+
+    @Test
+    public void testCountTables() throws Exception {
+        dataStructureDAO.countTables();
+        verify(jdbcTemplate).queryForObject(generateCountTablesQuery(), Integer.class);
+    }
+
+    @Test
+    public void testCreateServiceTables() throws Exception {
+        dataStructureDAO.createServiceTables();
+        verify(jdbcTemplate).update(generateCreateBusinessObjectTableQuery());
+        verify(jdbcTemplate).update(generateCreateAuthenticationInfoTableQuery());
+    }
+
+    @Test
+    public void testDoesTableExistsWhenFalse() throws Exception {
+        when(jdbcTemplate.queryForObject(anyString(), any(Class.class), anyString())).thenReturn(0);
+        boolean tableExists = dataStructureDAO.doesTableExists("DOCUMENT");
+
+        assertFalse(tableExists);
+        verify(jdbcTemplate).queryForObject(anyString(), any(Class.class), anyString());
+    }
+
+    @Test
+    public void testDoesTableExistsWhenTrue() throws Exception {
+        when(jdbcTemplate.queryForObject(anyString(), any(Class.class), anyString())).thenReturn(1);
+        boolean tableExists = dataStructureDAO.doesTableExists("DOCUMENT");
+
+        assertTrue(tableExists);
+        verify(jdbcTemplate).queryForObject(anyString(), any(Class.class), anyString());
+    }
+
+    private void initBusinessObjectConfig() {
         businessObjectConfig = new BusinessObjectConfig();
         businessObjectConfig.setName("Outgoing Document");
         businessObjectConfig.setParentConfig("Document");
@@ -79,43 +126,5 @@ public class PostgreSQLDataStructureDAOImplTest {
         UniqueKeyFieldConfig uniqueKeyFieldConfig2 = new UniqueKeyFieldConfig();
         uniqueKeyFieldConfig2.setName("Registration Date");
         uniqueKeyConfig.getUniqueKeyFieldConfigs().add(uniqueKeyFieldConfig2);
-    }
-
-
-    @Test
-    public void testCreateTable() throws Exception {
-        when(jdbcTemplate.queryForObject(anyString(), any(Class.class), anyString())).thenReturn(Long.valueOf(7));
-        dataStructureDAO.createTable(businessObjectConfig);
-
-        verify(jdbcTemplate, times(2)).update(anyString());
-        verify(jdbcTemplate).update(anyString(), anyString());
-        verify(jdbcTemplate).queryForObject(anyString(), any(Class.class), anyString());
-        assertEquals(Long.valueOf(7), businessObjectConfig.getId());
-    }
-
-    @Test
-    public void testCountTables() throws Exception {
-        dataStructureDAO.countTables();
-        verify(jdbcTemplate).queryForObject(generateCountTablesQuery(), Integer.class);
-    }
-
-    @Test
-    public void testCreateServiceTables() throws Exception {
-        dataStructureDAO.createServiceTables();
-        verify(jdbcTemplate).update(generateCreateBusinessObjectTableQuery());
-        verify(jdbcTemplate).update(generateCreateAuthenticationInfoTableQuery());
-    }
-
-    @Test
-    public void testDoesTableExists() throws Exception {
-        when(jdbcTemplate.queryForObject(anyString(), any(Class.class), anyString())).thenReturn(0);
-        boolean tableExists = dataStructureDAO.doesTableExists("DOCUMENT");
-        assertFalse(tableExists);
-
-        when(jdbcTemplate.queryForObject(anyString(), any(Class.class), anyString())).thenReturn(1);
-        tableExists = dataStructureDAO.doesTableExists("DOCUMENT");
-        assertTrue(tableExists);
-
-        verify(jdbcTemplate, times(2)).queryForObject(anyString(), any(Class.class), anyString());
     }
 }

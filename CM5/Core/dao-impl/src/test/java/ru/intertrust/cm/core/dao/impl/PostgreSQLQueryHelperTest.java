@@ -17,6 +17,29 @@ public class PostgreSQLQueryHelperTest {
 
     @Before
     public void setUp() throws Exception {
+        initBusinessObjectConfig();
+    }
+
+    @Test
+    public void testGenerateCreateTableQuery() throws Exception {
+        String query = PostgreSQLQueryHelper.generateCreateTableQuery(businessObjectConfig);
+        String checkQuery = "create table OUTGOING_DOCUMENT ( ID bigint not null, CREATED_DATE timestamp not null, " +
+                "UPDATED_DATE timestamp not null, REGISTRATION_NUMBER varchar(128), REGISTRATION_DATE timestamp, AUTHOR bigint, " +
+                "LONG_FIELD bigint, DECIMAL_FIELD_1 decimal(10, 2), DECIMAL_FIELD_2 decimal(10), " +
+                "constraint PK_OUTGOING_DOCUMENT_ID primary key (ID), " +
+                "constraint U_OUTGOING_DOCUMENT_REGISTRATION_NUMBER_REGISTRATION_DATE unique (REGISTRATION_NUMBER, REGISTRATION_DATE), " +
+                "constraint FK_OUTGOING_DOCUMENT_AUTHOR foreign key (AUTHOR) references EMPLOYEE(ID))";
+        assertEquals(query, checkQuery);
+    }
+
+    @Test
+    public void testGenerateCreateIndexesQuery() throws Exception {
+        String query = PostgreSQLQueryHelper.generateCreateIndexesQuery(businessObjectConfig);
+        String checkQuery = "create index I_OUTGOING_DOCUMENT_AUTHOR on OUTGOING_DOCUMENT (AUTHOR) ;\n";
+        assertEquals(query, checkQuery);
+    }
+
+    private void initBusinessObjectConfig() {
         businessObjectConfig = new BusinessObjectConfig();
         businessObjectConfig.setName("Outgoing Document");
         businessObjectConfig.setParentConfig("Document");
@@ -62,24 +85,5 @@ public class PostgreSQLQueryHelperTest {
         UniqueKeyFieldConfig uniqueKeyFieldConfig2 = new UniqueKeyFieldConfig();
         uniqueKeyFieldConfig2.setName("Registration Date");
         uniqueKeyConfig.getUniqueKeyFieldConfigs().add(uniqueKeyFieldConfig2);
-    }
-
-    @Test
-    public void testGenerateCreateTableQuery() throws Exception {
-        String query = PostgreSQLQueryHelper.generateCreateTableQuery(businessObjectConfig);
-        String checkQuery = "create table OUTGOING_DOCUMENT ( ID bigint not null, CREATED_DATE timestamp not null, " +
-                "UPDATED_DATE timestamp not null, REGISTRATION_NUMBER varchar(128), REGISTRATION_DATE timestamp, AUTHOR bigint, " +
-                "LONG_FIELD bigint, DECIMAL_FIELD_1 decimal(10, 2), DECIMAL_FIELD_2 decimal(10), " +
-                "constraint PK_OUTGOING_DOCUMENT_ID primary key (ID), " +
-                "constraint U_OUTGOING_DOCUMENT_REGISTRATION_NUMBER_REGISTRATION_DATE unique (REGISTRATION_NUMBER, REGISTRATION_DATE), " +
-                "constraint FK_OUTGOING_DOCUMENT_AUTHOR foreign key (AUTHOR) references EMPLOYEE(ID))";
-        assertEquals(query, checkQuery);
-    }
-
-    @Test
-    public void testGenerateCreateIndexesQuery() throws Exception {
-        String query = PostgreSQLQueryHelper.generateCreateIndexesQuery(businessObjectConfig);
-        String checkQuery = "create index I_OUTGOING_DOCUMENT_AUTHOR on OUTGOING_DOCUMENT (AUTHOR) ;\n";
-        assertEquals(query, checkQuery);
     }
 }

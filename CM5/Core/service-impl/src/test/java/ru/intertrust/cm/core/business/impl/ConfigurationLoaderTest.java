@@ -7,9 +7,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
-import ru.intertrust.cm.core.business.impl.ConfigurationHelper;
-import ru.intertrust.cm.core.business.impl.ConfigurationLoader;
-import ru.intertrust.cm.core.business.impl.ConfigurationValidator;
 import ru.intertrust.cm.core.config.BusinessObjectConfig;
 import ru.intertrust.cm.core.config.Configuration;
 
@@ -24,6 +21,9 @@ import static org.mockito.Mockito.verify;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigurationLoaderTest {
+
+    private static final String CONFIG_PATH = "test-config/business-objects.xml";
+
     @InjectMocks
     private ConfigurationLoader configurationLoader = new ConfigurationLoader();
     @Mock
@@ -31,11 +31,9 @@ public class ConfigurationLoaderTest {
     @Mock
     private ConfigurationValidator configurationValidator;
 
-    private Configuration configuration;
-
     @Before
     public void setUp() throws Exception {
-        configurationLoader.setConfigurationFilePath("config/business-objects.xml");
+        configurationLoader.setConfigurationFilePath(CONFIG_PATH);
     }
 
     @Test

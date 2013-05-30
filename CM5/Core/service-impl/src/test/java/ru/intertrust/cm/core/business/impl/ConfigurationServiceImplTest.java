@@ -8,8 +8,6 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import ru.intertrust.cm.core.business.api.AuthenticationService;
-import ru.intertrust.cm.core.business.impl.ConfigurationLoader;
-import ru.intertrust.cm.core.business.impl.ConfigurationServiceImpl;
 import ru.intertrust.cm.core.config.BusinessObjectConfig;
 import ru.intertrust.cm.core.config.Configuration;
 import ru.intertrust.cm.core.dao.api.DataStructureDAO;
@@ -24,6 +22,9 @@ import static org.mockito.Mockito.*;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigurationServiceImplTest {
+
+    private static final String CONFIG_PATH = "test-config/business-objects.xml";
+
     @InjectMocks
     private ConfigurationServiceImpl configurationService = new ConfigurationServiceImpl();
     @Mock
@@ -35,7 +36,7 @@ public class ConfigurationServiceImplTest {
 
     @Before
     public void setUp() throws Exception {
-        config = new ConfigurationLoader().serializeConfiguration("config/business-objects.xml");
+        config = new ConfigurationLoader().serializeConfiguration(CONFIG_PATH);
         assertNotNull(config); // проверяем, что конфигурация сериализована из файла
     }
 

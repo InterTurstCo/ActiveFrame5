@@ -13,16 +13,16 @@ import ru.intertrust.cm.core.config.Configuration;
  */
 public class ConfigurationValidatorTest {
 
-    private static final String CONFIGURATION_SCHEMA = "config/business-objects.xsd";
-    private static final String CONFIGURATION_VALID = "config/business-objects.xml";
-    private static final String CONFIGURATION_INVALID = "config/business-objects-invalid.xml";
-    private static final String CONFIGURATION_INVALID_REFERENCE = "config/business-objects-invalid-reference.xml";
+    private static final String CONFIGURATION_SCHEMA = "test-config/business-objects.xsd";
+    private static final String CONFIGURATION_VALID = "test-config/business-objects.xml";
+    private static final String CONFIGURATION_INVALID = "test-config/business-objects-invalid.xml";
+    private static final String CONFIGURATION_INVALID_REFERENCE = "test-config/business-objects-invalid-reference.xml";
 
     private ConfigurationValidator configurationValidator;
     private ConfigurationLoader configurationLoader;
 
     @Rule
-    public ExpectedException expectedExeption = ExpectedException.none();
+    public ExpectedException expectedException = ExpectedException.none();
 
     @Before
     public void setUp() throws Exception {
@@ -53,8 +53,8 @@ public class ConfigurationValidatorTest {
         configurationValidator.setConfigurationSchemaPath(CONFIGURATION_SCHEMA);
         configurationValidator.setConfiguration(configuration);
 
-        expectedExeption.expect(RuntimeException.class);
-        expectedExeption.expectMessage("is not valid against XSD schema");
+        expectedException.expect(RuntimeException.class);
+        expectedException.expectMessage("is not valid against XSD schema");
 
         configurationValidator.validate();
     }
@@ -67,8 +67,8 @@ public class ConfigurationValidatorTest {
         configurationValidator.setConfigurationSchemaPath(CONFIGURATION_SCHEMA);
         configurationValidator.setConfiguration(configuration);
 
-        expectedExeption.expect(RuntimeException.class);
-        expectedExeption.expectMessage("BusinessObjectConfiguration is not found for name");
+        expectedException.expect(RuntimeException.class);
+        expectedException.expectMessage("BusinessObjectConfiguration is not found for name");
         configurationValidator.validate();
     }
 
@@ -79,8 +79,8 @@ public class ConfigurationValidatorTest {
         configurationValidator.setConfigurationPath(null);
         configurationValidator.setConfigurationSchemaPath(CONFIGURATION_SCHEMA);
         configurationValidator.setConfiguration(configuration);
-        expectedExeption.expect(RuntimeException.class);
-        expectedExeption.expectMessage("Please set the configurationPath for ConfigurationValidator before validating");
+        expectedException.expect(RuntimeException.class);
+        expectedException.expectMessage("Please set the configurationPath for ConfigurationValidator before validating");
         configurationValidator.validate();
 
     }
@@ -92,8 +92,8 @@ public class ConfigurationValidatorTest {
         configurationValidator.setConfigurationPath(configurationPath);
         configurationValidator.setConfigurationSchemaPath(CONFIGURATION_SCHEMA);
         configurationValidator.setConfiguration(null);
-        expectedExeption.expect(RuntimeException.class);
-        expectedExeption.expectMessage("Please set the configuration object");
+        expectedException.expect(RuntimeException.class);
+        expectedException.expectMessage("Please set the configuration object");
         configurationValidator.validate();
 
     }
@@ -106,8 +106,8 @@ public class ConfigurationValidatorTest {
         configurationValidator.setConfigurationPath(configurationPath);
         configurationValidator.setConfigurationSchemaPath(null);
         configurationValidator.setConfiguration(configuration);
-        expectedExeption.expect(RuntimeException.class);
-        expectedExeption.expectMessage("Please set the configurationSchemaPath");
+        expectedException.expect(RuntimeException.class);
+        expectedException.expectMessage("Please set the configurationSchemaPath");
         configurationValidator.validate();
 
     }
