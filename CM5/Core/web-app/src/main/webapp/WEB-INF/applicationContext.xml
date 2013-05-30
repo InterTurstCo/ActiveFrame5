@@ -2,9 +2,5 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
         "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-
-    <bean id="businessBeanFactory" class="org.springframework.context.support.ClassPathXmlApplicationContext">
-        <constructor-arg value="beans.xml" />
-    </bean>
-
+    <import resource="classpath:/beans.xml"/>
 </beans>
