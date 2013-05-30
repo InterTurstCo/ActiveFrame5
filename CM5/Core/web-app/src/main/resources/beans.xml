@@ -4,7 +4,9 @@
        xmlns:jee="http://www.springframework.org/schema/jee"
        xsi:schemaLocation="
      http://www.springframework.org/schema/beans
-     http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
+     http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+     http://www.springframework.org/schema/jee
+     http://www.springframework.org/schema/jee/spring-jee-3.2.xsd ">
 
     <!--<bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean" -->
 	         <!--p:jndiName="java:jboss/datasources/CM5"/>-->
