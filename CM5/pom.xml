@@ -355,34 +355,16 @@
         </pluginManagement>
 
         <plugins>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
             </plugin>
-
-
-            <plugin>
-                <artifactId>maven-ear-plugin</artifactId>
-                <configuration>
-                    <finalName>cm-sochi</finalName>
-                    <generatedDescriptorLocation>${basedir}/src/main/application/META-INF</generatedDescriptorLocation>
-		    <defaultLibBundleDir>APP-INF/lib</defaultLibBundleDir>
-                    <modules>
-                        <webModule>
-                            <groupId>ru.intertrust.cm-sochi</groupId>
-                            <artifactId>web-app</artifactId>
-                            <uri>web-app.war</uri>
-                            <bundleFileName>web-app</bundleFileName>
-                            <contextRoot>/cm-sochi</contextRoot>
-                        </webModule>
-                    </modules>
-                </configuration>
-            </plugin>
-
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
