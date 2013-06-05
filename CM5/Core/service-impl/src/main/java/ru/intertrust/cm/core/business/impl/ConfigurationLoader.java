@@ -16,6 +16,9 @@ import java.io.InputStream;
 public class ConfigurationLoader {
 
     private String configurationFilePath;
+
+    private String collectionsConfigurationFilePath;
+    
     private ConfigurationService configurationService;
 
     private Configuration configuration;
@@ -31,6 +34,14 @@ public class ConfigurationLoader {
      */
     public void setConfigurationFilePath(String configurationFilePath) {
         this.configurationFilePath = configurationFilePath;
+    }
+
+    /**
+     * Устанавливает {@link #collectionsConfigurationFilePath}
+     * @param collectionsConfigurationFilePath путь к файлу конфигурации коллекций
+     */
+    public void setCollectionsConfigurationFilePath(String collectionsConfigurationFilePath) {
+        this.collectionsConfigurationFilePath = collectionsConfigurationFilePath;
     }
 
     /**
@@ -55,6 +66,7 @@ public class ConfigurationLoader {
      */
     public ConfigurationValidator getConfigurationValidator() {
         configurationValidator.setConfigurationPath(configurationFilePath);
+        configurationValidator.setCollectionsConfigurationPath(collectionsConfigurationFilePath);        
         configurationValidator.setConfiguration(configuration);
         return configurationValidator;
     }

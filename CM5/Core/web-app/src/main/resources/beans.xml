@@ -12,26 +12,32 @@
 	         <!--p:jndiName="java:jboss/datasources/CM5"/>-->
     <jee:jndi-lookup id="dataSource" jndi-name="java:jboss/datasources/CM5" />
 
-    <bean id="dataStructureDAO" class="ru.intertrust.cm.core.dao.impl.PostgreSQLDataStructureDAOImpl"
-          p:dataSource-ref="dataSource" />
+    <bean id="dataStructureDAO"
+        class="ru.intertrust.cm.core.dao.impl.PostgreSQLDataStructureDAOImpl"
+        p:dataSource-ref="dataSource" />
 
     <bean id="configurationLoader"
-          class="ru.intertrust.cm.core.business.impl.ConfigurationLoader" init-method="load"
-          p:configurationService-ref="configurationService" p:configurationValidator-ref="configurationValidator"
-          p:configurationFilePath="config/business-objects.xml" />
+        class="ru.intertrust.cm.core.business.impl.ConfigurationLoader"
+        init-method="load" p:configurationService-ref="configurationService"
+        p:configurationValidator-ref="configurationValidator"
+        p:configurationFilePath="config/business-objects.xml" 
+        p:collectionsConfigurationFilePath = "config/collections.xml"/>
 
     <bean id="configurationValidator"
-          class="ru.intertrust.cm.core.business.impl.ConfigurationValidator"
-          p:configurationSchemaPath="config/business-objects.xsd" />
+        class="ru.intertrust.cm.core.business.impl.ConfigurationValidator"
+        p:configurationSchemaPath="config/configuration.xsd" />
 
-    <bean id="configurationService" class="ru.intertrust.cm.core.business.impl.ConfigurationServiceImpl"
-          p:dataStructureDAO-ref="dataStructureDAO" p:authenticationService-ref="authenticationService" />
+    <bean id="configurationService"
+        class="ru.intertrust.cm.core.business.impl.ConfigurationServiceImpl"
+        p:dataStructureDAO-ref="dataStructureDAO"
+        p:authenticationService-ref="authenticationService" />
 
     <bean id="authenticationDAO" class="ru.intertrust.cm.core.dao.impl.AuthenticationDAOImpl"
-          p:dataSource-ref="dataSource" />
+        p:dataSource-ref="dataSource" />
 
-    <bean id="authenticationService" class="ru.intertrust.cm.core.business.impl.AuthenticationServiceImpl"
-          p:authenticationDAO-ref="authenticationDAO" p:md5Service-ref="md5Service" />
+    <bean id="authenticationService"
+        class="ru.intertrust.cm.core.business.impl.AuthenticationServiceImpl"
+        p:authenticationDAO-ref="authenticationDAO" p:md5Service-ref="md5Service" />
 
     <bean id="md5Service" class="ru.intertrust.cm.core.business.impl.MD5ServiceImpl" />
 

@@ -13,11 +13,13 @@ import ru.intertrust.cm.core.config.Configuration;
  */
 public class ConfigurationValidatorTest {
 
-    private static final String CONFIGURATION_SCHEMA = "test-config/business-objects.xsd";
+    private static final String CONFIGURATION_SCHEMA = "test-config/configuration.xsd";
     private static final String CONFIGURATION_VALID = "test-config/business-objects.xml";
     private static final String CONFIGURATION_INVALID = "test-config/business-objects-invalid.xml";
     private static final String CONFIGURATION_INVALID_REFERENCE = "test-config/business-objects-invalid-reference.xml";
+    private static final String COLLECTIONS_CONFIGURATION_VALID = "test-config/collections.xml";
 
+    
     private ConfigurationValidator configurationValidator;
     private ConfigurationLoader configurationLoader;
 
@@ -27,6 +29,7 @@ public class ConfigurationValidatorTest {
     @Before
     public void setUp() throws Exception {
         configurationValidator = new ConfigurationValidator();
+        configurationValidator.setCollectionsConfigurationPath(COLLECTIONS_CONFIGURATION_VALID);        
 
         configurationLoader = new ConfigurationLoader();
 

@@ -6,11 +6,9 @@ import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import ru.intertrust.cm.core.business.api.AuthenticationService;
 import ru.intertrust.cm.core.business.api.MD5Service;
@@ -61,7 +59,6 @@ public class AuthenticationServiceTest {
 
     @Test
     public void testExistsAuthenticationInfo() {
-
         authenticationService.existsAuthenticationInfo(ADMIN_LOGIN);
         verify(authenticationDAOMock).existsAuthenticationInfo(ADMIN_LOGIN);
 

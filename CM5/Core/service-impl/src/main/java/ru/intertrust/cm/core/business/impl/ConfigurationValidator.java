@@ -33,8 +33,10 @@ public class ConfigurationValidator {
 
     private String configurationPath;
 
-    private String configurationSchemaPath;
+    private String collectionsConfigurationPath;
 
+    private String configurationSchemaPath;
+        
     private Configuration configuration;
 
     /**
@@ -57,6 +59,14 @@ public class ConfigurationValidator {
      */
     public void setConfigurationPath(String configurationPath) {
         this.configurationPath = configurationPath;
+    }
+
+    /**
+     * Устанавливает путь к конфигурационному файлу коллекций. Нужен для валидации по XSD схеме.
+     * @param collectionsConfigurationPath
+     */
+    public void setCollectionsConfigurationPath(String collectionsConfigurationPath) {
+        this.collectionsConfigurationPath = collectionsConfigurationPath;
     }
 
     /**
@@ -98,6 +108,10 @@ public class ConfigurationValidator {
         if (configurationPath == null) {
             throw new RuntimeException("Please set the configurationPath for ConfigurationValidator before validating");
         }
+        if (collectionsConfigurationPath == null) {
+            throw new RuntimeException("Please set the collectionsConfigurationPath for ConfigurationValidator before validating");
+        }
+
         if (configuration == null) {
             throw new RuntimeException("Please set the configuration object for ConfigurationValidator before validating");
         }
@@ -116,12 +130,9 @@ public class ConfigurationValidator {
 
             Schema schema = factory.newSchema(schemaSource);
             Validator validator = schema.newValidator();
-            validator.setErrorHandler(new ValidationErrorHandler());
-
-            InputStream configurationInputStream = getResourceAsStream(configurationPath);
-            Source source = new StreamSource(configurationInputStream);
-            validator.validate(source);
-
+            
+            validateBusinessObjectConfiguration(validator);
+            validateCollectionsConfiguration(validator);
             // TODO Log success information using logging API
             System.out.println("Document is valid against XSD");
         } catch (SAXException ex) {
@@ -130,6 +141,22 @@ public class ConfigurationValidator {
             throw new RuntimeException(" File " + configurationPath + " not found. " + e.getMessage(), e);
 
         }
+    }
+
+    private void validateBusinessObjectConfiguration(Validator validator) throws SAXException, IOException {
+        validator.setErrorHandler(new ValidationErrorHandler());
+
+        InputStream configurationInputStream = getResourceAsStream(configurationPath);
+        Source source = new StreamSource(configurationInputStream);
+        validator.validate(source);
+    }
+
+    private void validateCollectionsConfiguration(Validator validator) throws SAXException, IOException {
+        validator.setErrorHandler(new ValidationErrorHandler());
+        
+        InputStream configurationInputStream = getResourceAsStream(collectionsConfigurationPath);
+        Source source = new StreamSource(configurationInputStream);
+        validator.validate(source);
     }
 
     protected InputStream getResourceAsStream(String resourcePath) {
