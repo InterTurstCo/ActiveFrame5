@@ -3,12 +3,13 @@ package ru.intertrust.cm.core.business.impl;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
+import ru.intertrust.cm.core.config.CollectionConfiguration;
 import ru.intertrust.cm.core.config.Configuration;
 
 import java.io.InputStream;
 
 /**
- * Класс, предназначенный для загрузки конфигурации бизнес-оъектов
+ * Класс, предназначенный для загрузки конфигурации бизнес-объектов
  * @author vmatsukevich
  *         Date: 5/6/13
  *         Time: 9:36 AM
@@ -23,6 +24,8 @@ public class ConfigurationLoader {
 
     private Configuration configuration;
 
+    private CollectionConfiguration collectionConfiguration;
+    
     private ConfigurationValidator configurationValidator;
 
     public ConfigurationLoader() {
@@ -53,13 +56,22 @@ public class ConfigurationLoader {
     }
 
     /**
-     * Возвращает загруженную конфигурацию
+     * Возвращает загруженную конфигурацию бизнес-объектов
      * @return конфигурация
      */
     public Configuration getConfiguration() {
         return configuration;
     }
 
+    
+    /**
+     * Возвращает загруженную конфигурацию коллекций
+     * @return
+     */
+    public CollectionConfiguration getCollectionConfiguration() {
+        return collectionConfiguration;
+    }
+   
     /**
      * Инициализирует и возвращает {@link #configurationValidator}
      * @return
@@ -86,8 +98,9 @@ public class ConfigurationLoader {
      * @throws Exception
      */
     public void load() throws Exception {
-        configuration = serializeConfiguration(configurationFilePath);
-
+        configuration = serializeConfiguration(configurationFilePath, Configuration.class);
+        collectionConfiguration = serializeConfiguration(collectionsConfigurationFilePath, CollectionConfiguration.class);
+        
         validateConfiguration();
 
         configurationService.loadConfiguration(configuration);
@@ -100,10 +113,10 @@ public class ConfigurationLoader {
      * @return {@link Configuration}
      * @throws Exception
      */
-    protected Configuration serializeConfiguration(String configurationFilePath) throws Exception {
+    protected <T> T serializeConfiguration(String configurationFilePath, Class<T> configurationClass) throws Exception {
         Serializer serializer = new Persister();
         InputStream source = getResourceAsStream(configurationFilePath);
-        return serializer.read(Configuration.class, source);
+        return serializer.read(configurationClass, source);
     }
 
     private InputStream getResourceAsStream(String resourcePath) {

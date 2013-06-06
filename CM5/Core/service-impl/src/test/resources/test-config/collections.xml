@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration xmlns="https://cm5.intertrust.ru/config">
-    <collection name="Employees" idField="id" businessObjectTypeField="business_object_type">
+    <collection name="Employees" idField="id" businessObjectTypeField="Employee">
         <!--todo поддержка конвертации значений, например, в картинки -->
         <display>
             <column field="id" name="id" hidden="true" sortable="false" sequence="0" />
@@ -30,7 +30,7 @@
 
         <filter name="byDepartment">
             <reference placeholder="from-clause">
-                <![CDATA[
+                 <![CDATA[
                     inner join department d
                 ]]>
             </reference>
@@ -53,7 +53,7 @@
         </filter>
     </collection>
 
-    <collection name="Employees_2" idField="id" businessObjectTypeField="business_object_type">
+    <collection name="Employees_2" idField="id" businessObjectTypeField="Employee">
         <display>
             <column field="id" name="id" hidden="true" sortable="false" sequence="0" />
             <column field="business_object_type" name="type" editable="false"  hidden="true" sortable="false" sequence="1" />
@@ -62,7 +62,7 @@
             <column field="created_date" name="Дата создания" editable="false" sortable="true"  sequence="4" />
             <column field="updated_date" name="Дата модификации" editable="false" sortable="true"  sequence="5" />
         </display>
-        <renderer class="ru.intertrust.cm.core.business.impl.EmployeesCollectionRenderer"/>
+        <renderer className="ru.intertrust.cm.core.business.impl.EmployeesCollectionRenderer"/>
         <filter name="byName"/>
         <filter name="byDepartment"/>
     </collection>

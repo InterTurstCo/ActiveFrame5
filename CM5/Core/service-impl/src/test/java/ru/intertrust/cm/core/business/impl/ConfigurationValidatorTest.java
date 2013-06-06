@@ -38,7 +38,7 @@ public class ConfigurationValidatorTest {
     @Test
     public void testValidate() throws Exception {
         String configurationPath = CONFIGURATION_VALID;
-        Configuration configuration = configurationLoader.serializeConfiguration(configurationPath);
+        Configuration configuration = configurationLoader.serializeConfiguration(configurationPath, Configuration.class);
 
         configurationValidator.setConfigurationPath(configurationPath);
         configurationValidator.setConfigurationSchemaPath(CONFIGURATION_SCHEMA);
@@ -51,7 +51,7 @@ public class ConfigurationValidatorTest {
     @Test
     public void testInvalidAgainstXSD() throws Exception {
         String configurationPath = CONFIGURATION_INVALID;
-        Configuration configuration = configurationLoader.serializeConfiguration(configurationPath);
+        Configuration configuration = configurationLoader.serializeConfiguration(configurationPath, Configuration.class);
         configurationValidator.setConfigurationPath(configurationPath);
         configurationValidator.setConfigurationSchemaPath(CONFIGURATION_SCHEMA);
         configurationValidator.setConfiguration(configuration);
@@ -65,7 +65,7 @@ public class ConfigurationValidatorTest {
     @Test
     public void testInvalidReference() throws Exception {
         String configurationPath = CONFIGURATION_INVALID_REFERENCE;
-        Configuration configuration = configurationLoader.serializeConfiguration(configurationPath);
+        Configuration configuration = configurationLoader.serializeConfiguration(configurationPath, Configuration.class);
         configurationValidator.setConfigurationPath(configurationPath);
         configurationValidator.setConfigurationSchemaPath(CONFIGURATION_SCHEMA);
         configurationValidator.setConfiguration(configuration);
@@ -78,7 +78,7 @@ public class ConfigurationValidatorTest {
     @Test
     public void testNullConfigurationPath() throws Exception {
         String configurationPath = CONFIGURATION_VALID;
-        Configuration configuration = configurationLoader.serializeConfiguration(configurationPath);
+        Configuration configuration = configurationLoader.serializeConfiguration(configurationPath, Configuration.class);
         configurationValidator.setConfigurationPath(null);
         configurationValidator.setConfigurationSchemaPath(CONFIGURATION_SCHEMA);
         configurationValidator.setConfiguration(configuration);
@@ -104,7 +104,7 @@ public class ConfigurationValidatorTest {
     @Test
     public void testNullConfigurationSchema() throws Exception {
         String configurationPath = CONFIGURATION_VALID;
-        Configuration configuration = configurationLoader.serializeConfiguration(configurationPath);
+        Configuration configuration = configurationLoader.serializeConfiguration(configurationPath, Configuration.class);
 
         configurationValidator.setConfigurationPath(configurationPath);
         configurationValidator.setConfigurationSchemaPath(null);

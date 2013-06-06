@@ -23,6 +23,7 @@ import static org.mockito.Mockito.verify;
 public class ConfigurationLoaderTest {
 
     private static final String CONFIG_PATH = "test-config/business-objects.xml";
+    private static final String COLLECTIONS_CONFIG_PATH = "test-config/collections.xml";
 
     @InjectMocks
     private ConfigurationLoader configurationLoader = new ConfigurationLoader();
@@ -34,13 +35,14 @@ public class ConfigurationLoaderTest {
     @Before
     public void setUp() throws Exception {
         configurationLoader.setConfigurationFilePath(CONFIG_PATH);
+        configurationLoader.setCollectionsConfigurationFilePath(COLLECTIONS_CONFIG_PATH);
     }
 
     @Test
     public void testLoad() throws Exception {
         configurationLoader.load();
         Configuration configuration = configurationLoader.getConfiguration();
-
+        
         verify(configurationValidator).validate();
         verify(configurationService).loadConfiguration(configuration);
 
