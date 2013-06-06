@@ -98,8 +98,8 @@ public class ConfigurationLoader {
      * @throws Exception
      */
     public void load() throws Exception {
-        configuration = serializeConfiguration(configurationFilePath, Configuration.class);
-        collectionConfiguration = serializeConfiguration(collectionsConfigurationFilePath, CollectionConfiguration.class);
+        configuration = serializeBusinessObjectsConfiguration(configurationFilePath);
+        collectionConfiguration = serializeCollectionConfiguration(collectionsConfigurationFilePath);
         
         validateConfiguration();
 
@@ -113,12 +113,21 @@ public class ConfigurationLoader {
      * @return {@link Configuration}
      * @throws Exception
      */
-    protected <T> T serializeConfiguration(String configurationFilePath, Class<T> configurationClass) throws Exception {
+    private <T> T serializeConfiguration(String configurationFilePath, Class<T> configurationClass) throws Exception {
         Serializer serializer = new Persister();
         InputStream source = getResourceAsStream(configurationFilePath);
         return serializer.read(configurationClass, source);
     }
 
+    protected Configuration serializeBusinessObjectsConfiguration(String configurationFilePath) throws Exception {
+        return serializeConfiguration(configurationFilePath, Configuration.class);
+    }
+
+    protected CollectionConfiguration serializeCollectionConfiguration(String configurationFilePath) throws Exception {
+        return serializeConfiguration(configurationFilePath, CollectionConfiguration.class);
+    }
+    
+    
     private InputStream getResourceAsStream(String resourcePath) {
         return FileUtils.getFileInputStream(resourcePath);
     }

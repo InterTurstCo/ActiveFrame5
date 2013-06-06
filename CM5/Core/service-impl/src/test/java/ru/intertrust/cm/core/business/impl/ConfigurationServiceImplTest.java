@@ -36,7 +36,7 @@ public class ConfigurationServiceImplTest {
 
     @Before
     public void setUp() throws Exception {
-        config = new ConfigurationLoader().serializeConfiguration(CONFIG_PATH, Configuration.class);
+        config = new ConfigurationLoader().serializeBusinessObjectsConfiguration(CONFIG_PATH);
         assertNotNull(config); // проверяем, что конфигурация сериализована из файла
     }
 

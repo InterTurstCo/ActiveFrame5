@@ -115,7 +115,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
     
     /**
-     * Добавляет запись для Администратора в таблицу пользователей, если такой записи еще не существует.
+     * Добавляет запись для Администратора в таблицу пользователей, если эта запись еще не была добавлена.
      */
     private void insertAdminAuthenticationInfoIfEmpty() {
         if (!authenticationService.existsAuthenticationInfo(ADMIN_LOGIN)) {

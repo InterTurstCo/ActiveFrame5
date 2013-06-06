@@ -1,14 +1,11 @@
 package ru.intertrust.cm.core.config;
 
-import java.io.InputStream;
 import java.util.List;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
-import org.simpleframework.xml.Serializer;
-import org.simpleframework.xml.core.Persister;
 
 /**
  * Java модель конфигурации одной коллекции
@@ -106,15 +103,4 @@ public class CollectionConfig {
         this.renderer = renderer;
     }
 
-    public static void main(String [] args) throws Exception{
-        Serializer serializer = new Persister();
-        InputStream source = getResourceAsStream("config/collections.xml");
-        CollectionConfiguration collectionConfig = serializer.read(CollectionConfiguration.class, source);
-        System.out.print("Collection = " + collectionConfig.getCollectionConfigs().get(0).getName());
-        serializer.write(collectionConfig, System.out);
-    }
-    
-    private static InputStream getResourceAsStream(String resourcePath) {
-        return CollectionConfig.class.getClassLoader().getResourceAsStream(resourcePath);
-    }
 }
