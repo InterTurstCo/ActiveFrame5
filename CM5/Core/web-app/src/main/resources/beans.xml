@@ -40,5 +40,10 @@
         p:authenticationDAO-ref="authenticationDAO" p:md5Service-ref="md5Service" />
 
     <bean id="md5Service" class="ru.intertrust.cm.core.business.impl.MD5ServiceImpl" />
+    
+    <bean id="crudService" class="ru.intertrust.cm.core.business.impl.CrudServiceImpl"
+        p:configurationLoader-ref="configurationLoader"/>
+    
+    
 
 </beans>

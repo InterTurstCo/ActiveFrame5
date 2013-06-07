@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.business.impl;
 
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.BusinessObjectConfig;
 import ru.intertrust.cm.core.config.Configuration;
 import ru.intertrust.cm.core.config.FieldConfig;
@@ -26,6 +27,21 @@ public class ConfigurationHelper {
         }
         throw new RuntimeException("BusinessObjectConfiguration is not found for name '" + name + "'");
     }
+    
+    /**
+     * Находит конфигурацию бизнес-объекта по идентификатору
+     * @param configuration конфигурация бизнес-объектов
+     * @param id идентификатор бизнес-объекта, конфигурацию которого надо найти
+     * @return конфигурация бизнес-объекта
+     */
+    public static BusinessObjectConfig findBusinessObjectConfigById(Configuration configuration, Id id) {
+        for(BusinessObjectConfig businessObjectConfig : configuration.getBusinessObjectConfigs()) {
+            if(businessObjectConfig.getId().equals(id)) {
+                return businessObjectConfig;
+            }
+        }
+        throw new RuntimeException("BusinessObjectConfiguration is not found with id '" + id + "'");
+    }    
 
     /**
      * Находит конфигурацию поля бизнес-объекта

@@ -26,5 +26,8 @@ public class Configuration {
     public void setBusinessObjectConfigs(List<BusinessObjectConfig> businessObjectConfigs) {
         this.businessObjectConfigs = businessObjectConfigs;
     }
+    
+    
+    
 
 }
