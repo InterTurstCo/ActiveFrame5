@@ -16,107 +16,127 @@ import ru.intertrust.cm.core.dao.api.CrudServiceDAO;
 
 /**
  * Реализация сервиса для работы c базовыvb CRUD-операциями. Смотри link @CrudService
- * 
+ *
  * @author skashanski
- * 
+ *
  */
 public class CrudServiceImpl implements CrudService {
 
-	private ConfigurationLoader loader;
+    private ConfigurationLoader loader;
 
-	private CrudServiceDAO crudServiceDAO;
+    private CrudServiceDAO crudServiceDAO;
 
-	public void setCrudServiceDAO(CrudServiceDAO crudServiceDAO) {
-		this.crudServiceDAO = crudServiceDAO;
-	}
+    public void setCrudServiceDAO(CrudServiceDAO crudServiceDAO) {
+        this.crudServiceDAO = crudServiceDAO;
+    }
 
-	public void setLoader(ConfigurationLoader loader) {
-		this.loader = loader;
-	}
+    public void setLoader(ConfigurationLoader loader) {
+        this.loader = loader;
+    }
 
-	public IdentifiableObject createIdentifiableObject() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public IdentifiableObject createIdentifiableObject() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public BusinessObject createBusinessObject(String name) {
-		
-		
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public BusinessObject createBusinessObject(String name) {
 
-	protected BusinessObject create(BusinessObject businessObject) {
-		Id id = businessObject.getId();
-		BusinessObjectConfig businessObjectConfig = ConfigurationHelper.findBusinessObjectConfigById(loader.getConfiguration(), businessObject.getId());
-		businessObject.setCreatedDate(new Date());
-		return crudServiceDAO.create(businessObject, businessObjectConfig);
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	}
+    protected BusinessObject create(BusinessObject businessObject) {
+        Id id = businessObject.getId();
+        BusinessObjectConfig businessObjectConfig = ConfigurationHelper.findBusinessObjectConfigById(
+                loader.getConfiguration(), businessObject.getId());
+        businessObject.setCreatedDate(new Date());
+        return crudServiceDAO.create(businessObject, businessObjectConfig);
 
-	protected BusinessObject update(BusinessObject businessObject) {
+    }
 
-		Id id = businessObject.getId();
-		BusinessObjectConfig businessObjectConfig = ConfigurationHelper.findBusinessObjectConfigById(loader.getConfiguration(), id);
-		businessObject.setModifiedDate(new Date());
-		
-		return crudServiceDAO.create(businessObject, businessObjectConfig);
+    protected BusinessObject update(BusinessObject businessObject) {
 
-	}
+        Id id = businessObject.getId();
+        BusinessObjectConfig businessObjectConfig = ConfigurationHelper.findBusinessObjectConfigById(
+                loader.getConfiguration(), id);
+        businessObject.setModifiedDate(new Date());
 
-	public BusinessObject save(BusinessObject businessObject) {
+        return crudServiceDAO.create(businessObject, businessObjectConfig);
 
-		if (businessObject.getCreatedDate() == null) {
-			return create(businessObject);
-		}
+    }
 
-		return update(businessObject);
+    @Override
+    public BusinessObject save(BusinessObject businessObject) {
 
-	}
+        if (businessObject.getCreatedDate() == null) {
+            return create(businessObject);
+        }
 
-	public List<BusinessObject> save(List<BusinessObject> businessObjects) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+        return update(businessObject);
 
-	public boolean exists(Id id) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    }
 
-	public BusinessObject find(Id id) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public List<BusinessObject> save(List<BusinessObject> businessObjects) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public List<BusinessObject> find(List<Id> ids) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public boolean exists(Id id) {
+        BusinessObjectConfig businessObjectConfig = ConfigurationHelper.findBusinessObjectConfigById(
+                loader.getConfiguration(), id);
 
-	public IdentifiableObjectCollection findCollection(String collectionName, List<Filter> filters, SortOrder sortOrder, int offset, int limit) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+        return crudServiceDAO.exists(id, businessObjectConfig);
+    }
 
-	public int findCollectionCount(String collectionName, List<Filter> filters, SortOrder sortOrder) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Override
+    public BusinessObject find(Id id) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public void delete(Id id) {
-		// TODO Auto-generated method stub
+    @Override
+    public List<BusinessObject> find(List<Id> ids) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	}
+    @Override
+    public IdentifiableObjectCollection findCollection(String collectionName, List<Filter> filters,
+            SortOrder sortOrder, int offset, int limit) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	public int delete(Collection<Id> ids) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Override
+    public int findCollectionCount(String collectionName, List<Filter> filters, SortOrder sortOrder) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 
-	public int deleteAll(String businessObjectName) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Override
+    public void delete(Id id) {
+
+        BusinessObjectConfig businessObjectConfig = ConfigurationHelper.findBusinessObjectConfigById(
+                loader.getConfiguration(), id);
+
+        crudServiceDAO.delete(id, businessObjectConfig);
+
+    }
+
+    @Override
+    public int delete(Collection<Id> ids) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public int deleteAll(String businessObjectName) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 
 }
