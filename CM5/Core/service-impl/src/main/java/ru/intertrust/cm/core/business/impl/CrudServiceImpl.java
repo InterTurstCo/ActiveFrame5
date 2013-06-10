@@ -61,9 +61,8 @@ public class CrudServiceImpl implements CrudService {
         Id id = businessObject.getId();
         BusinessObjectConfig businessObjectConfig = ConfigurationHelper.findBusinessObjectConfigById(
                 loader.getConfiguration(), id);
-        businessObject.setModifiedDate(new Date());
 
-        return crudServiceDAO.create(businessObject, businessObjectConfig);
+        return crudServiceDAO.update(businessObject, businessObjectConfig);
 
     }
 

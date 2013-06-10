@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,6 +15,7 @@ import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.BusinessObjectConfig;
 import ru.intertrust.cm.core.dao.api.CrudServiceDAO;
 import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
+import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
 import ru.intertrust.cm.core.dao.impl.utils.StrUtils;
 
 public class CrudServiceDAOImpl implements CrudServiceDAO {
@@ -86,15 +88,16 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
                 businessObject.getFields());
 
         query.append("update ").append(tableName).append(" set ");
-        query.append("updated_date=:updated_date, ");
+        query.append("updated_date=:current_date, ");
         query.append(fieldsWithparams);
         query.append(" where id=:id");
-        query.append(" and updated_date=:modified_date");
+        query.append(" and updated_date=:updated_date");
 
         RdbmsId rdbmsId = (RdbmsId) businessObject.getId();
 
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("id", rdbmsId.getId());
+        parameters.put("current_date", new Date());
         parameters.put("updated_date", businessObject.getModifiedDate());
 
         for (String field : businessObject.getFields()) {
@@ -103,7 +106,10 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
         }
 
-        jdbcTemplate.update(query.toString(), parameters);
+        int count = jdbcTemplate.update(query.toString(), parameters);
+
+        if (count == 0)
+            throw new OptimisticLockException(businessObject);
 
         return null;
 
