@@ -8,7 +8,9 @@ import ru.intertrust.cm.core.config.BusinessObjectConfig;
  *  
  */
 public interface CrudServiceDAO {
+
 	
+	public int generateNextSequence();	
 	
 	public BusinessObject create(BusinessObject businessObject, BusinessObjectConfig businessObjectConfig);
 	
@@ -16,7 +18,6 @@ public interface CrudServiceDAO {
 	
 	public BusinessObject read(BusinessObject businessObjec, BusinessObjectConfig businessObjectConfig);
 	
-	
-	
+
 
 }

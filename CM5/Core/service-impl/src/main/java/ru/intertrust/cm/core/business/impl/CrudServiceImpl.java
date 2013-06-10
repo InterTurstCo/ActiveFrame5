@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.business.impl;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import ru.intertrust.cm.core.business.api.CrudService;
@@ -39,13 +40,16 @@ public class CrudServiceImpl implements CrudService {
 	}
 
 	public BusinessObject createBusinessObject(String name) {
+		
+		
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	protected BusinessObject create(BusinessObject businessObject) {
 		Id id = businessObject.getId();
-		BusinessObjectConfig businessObjectConfig = ConfigurationHelper.findBusinessObjectConfigById(loader.getConfiguration(), id);
+		BusinessObjectConfig businessObjectConfig = ConfigurationHelper.findBusinessObjectConfigById(loader.getConfiguration(), businessObject.getId());
+		businessObject.setCreatedDate(new Date());
 		return crudServiceDAO.create(businessObject, businessObjectConfig);
 
 	}
@@ -54,6 +58,8 @@ public class CrudServiceImpl implements CrudService {
 
 		Id id = businessObject.getId();
 		BusinessObjectConfig businessObjectConfig = ConfigurationHelper.findBusinessObjectConfigById(loader.getConfiguration(), id);
+		businessObject.setModifiedDate(new Date());
+		
 		return crudServiceDAO.create(businessObject, businessObjectConfig);
 
 	}

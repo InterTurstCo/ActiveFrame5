@@ -41,8 +41,12 @@
 
     <bean id="md5Service" class="ru.intertrust.cm.core.business.impl.MD5ServiceImpl" />
     
-    <bean id="crudService" class="ru.intertrust.cm.core.business.impl.CrudServiceImpl"
+    <bean id="crudServiceDAO" class="ru.intertrust.cm.core.business.impl.CrudServiceDAOImpl"
         p:configurationLoader-ref="configurationLoader"/>
+    
+    
+    <bean id="crudService" class="ru.intertrust.cm.core.business.impl.CrudServiceImpl"
+        p:crudServiceDAO-ref="crudServiceDAO" p:configurationLoader-ref="configurationLoader"/>
     
     
 
