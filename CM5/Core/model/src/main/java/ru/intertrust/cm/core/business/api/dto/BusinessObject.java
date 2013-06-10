@@ -12,6 +12,17 @@ import java.util.Date;
  */
 public interface BusinessObject extends IdentifiableObject {
     /**
+     * Устанавливает тип бизнес-объекта
+     */
+    void setTypeName(String typeName);
+
+    /**
+     * Возвращает тип бизнес-объекта
+     * @return тип бизнес-объекта
+     */
+    String getTypeName();
+
+    /**
      * Возвращает дату создания данного бизнес-объекта
      * @return дату создания данного бизнес-объекта
      */

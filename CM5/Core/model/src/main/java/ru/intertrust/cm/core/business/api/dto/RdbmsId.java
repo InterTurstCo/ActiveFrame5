@@ -9,25 +9,66 @@ package ru.intertrust.cm.core.business.api.dto;
  * Time: 16:06
  */
 public class RdbmsId implements Id {
-    private String name;
+    private String typeName;
     private long id;
 
     /**
+     * Конструктор по умолчанию. Обычно не используется. Требуется для сериализации
+     */
+    public RdbmsId() {
+    }
+
+    /**
+     * Создаёт идентификатор бизнес-объекта на основе его строкового представления. Строковое представление
+     * идентификатора генерируется методом {@link ru.intertrust.cm.core.business.api.dto.RdbmsId#toString()}
+     * @param stringRep строковое представление индентификатора
+     * @throws NullPointerException если строковое представление есть null
+     * @throws IllegalArgumentException если строковое представление не может быть декодировано
+     */
+    public RdbmsId(String stringRep) {
+        setFromStringRepresentation(stringRep);
+    }
+
+    /**
+     * Создаёт идентификатор бизнес-объекта на основе его строкового представления. Строковое представление
+     * идентификатора генерируется методом {@link ru.intertrust.cm.core.business.api.dto.RdbmsId#toString()}
+     * @param stringRep строковое представление индентификатора
+     * @throws NullPointerException если строковое представление есть null
+     * @throws IllegalArgumentException если строковое представление не может быть декодировано
+     */
+    public void setFromStringRepresentation(String stringRep) {
+        int index = stringRep.lastIndexOf('|');
+        if (index == -1) {
+            throw new IllegalArgumentException(stringRep + " can't be parsed");
+        }
+        String typeName = stringRep.substring(0, index);
+        if (typeName.trim().isEmpty()) {
+            throw new IllegalArgumentException(stringRep + " can't be parsed");
+        }
+        this.typeName = typeName;
+        try {
+            this.id = Long.parseLong(stringRep.substring(index));
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(stringRep + " can't be parsed");
+        }
+    }
+
+    /**
      * Создаёт идентификатор бизнес-объекта
-     * @param name название бизнес объекта
+     * @param typeName название типа бизнес объекта
      * @param id целочисленный идентификатор
      */
-    public RdbmsId(String name, long id) {
-        this.name = name;
+    public RdbmsId(String typeName, long id) {
+        this.typeName = typeName;
         this.id = id;
     }
 
     /**
-     * Возвращает название бизнес-объекта
+     * Возвращает название типа бизнес-объекта
      * @return название бизнес-объекта
      */
-    public String getName() {
-        return name;
+    public String getTypeName() {
+        return typeName;
     }
 
     /**
@@ -52,7 +93,7 @@ public class RdbmsId implements Id {
         if (id != rdbmsId.id) {
             return false;
         }
-        if (!name.equals(rdbmsId.name)) {
+        if (!typeName.equals(rdbmsId.typeName)) {
             return false;
         }
 
@@ -65,9 +106,14 @@ public class RdbmsId implements Id {
     }
 
     @Override
+    public String toStringRepresentation() {
+        return typeName + "|" + id;
+    }
+
+    @Override
     public String toString() {
         return "RdbmsId{" +
-                "name='" + name + '\'' +
+                "name='" + typeName + '\'' +
                 ", id=" + id +
                 '}';
     }

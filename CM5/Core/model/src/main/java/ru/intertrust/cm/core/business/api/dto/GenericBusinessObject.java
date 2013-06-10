@@ -13,6 +13,7 @@ import java.util.Date;
  * Time: 15:57
  */
 public class GenericBusinessObject extends GenericIdentifiableObject implements BusinessObject {
+    private String typeName;
     private Date createdDate;
     private Date modifiedDate;
 
@@ -21,6 +22,16 @@ public class GenericBusinessObject extends GenericIdentifiableObject implements 
      */
     public GenericBusinessObject() {
         super();
+    }
+
+    @Override
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
+    }
+
+    @Override
+    public String getTypeName() {
+        return this.typeName;
     }
 
     @Override
@@ -46,6 +57,7 @@ public class GenericBusinessObject extends GenericIdentifiableObject implements 
     public String toString() {
         StringBuilder result = new StringBuilder();
         result.append('{').append('\n');
+        result.append("Type = ").append(typeName).append('\n');
         result.append(ModelUtil.getDetailedDescription(this));
         result.append("Created Date = ").append(createdDate).append('\n');
         result.append("Modified Date = ").append(modifiedDate).append('\n');
