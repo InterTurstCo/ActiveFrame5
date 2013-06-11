@@ -1,16 +1,31 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import java.math.BigDecimal;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
+import ru.intertrust.cm.core.business.api.dto.BooleanValue;
 import ru.intertrust.cm.core.business.api.dto.BusinessObject;
+import ru.intertrust.cm.core.business.api.dto.DecimalValue;
+import ru.intertrust.cm.core.business.api.dto.GenericIdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.IntegerValue;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.TimestampValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.BusinessObjectConfig;
 import ru.intertrust.cm.core.dao.api.CrudServiceDAO;
@@ -167,4 +182,194 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
         return null;
     }
 
+    public IdentifiableObjectCollection findCollectionByQuery(String query, String objectType, String idField, int offset, int limit) {
+        if (limit != 0) {
+            query += " limit " + limit + " OFFSET " + offset;
+        }
+        
+        IdentifiableObjectCollection collection = (IdentifiableObjectCollection) jdbcTemplate.query(query, new CollectionRowMapper(objectType, idField));
+
+        return collection;
+    }
+ 
+    
+    @SuppressWarnings("rawtypes")
+    private class CollectionRowMapper implements ResultSetExtractor {
+
+        private String businessObjectType;
+
+        private String idField;
+
+        public CollectionRowMapper(String businessObjectType, String idField) {
+            this.businessObjectType = businessObjectType;
+            this.idField = idField;
+        }
+
+        @Override
+        public IdentifiableObjectCollection extractData(ResultSet rs) throws SQLException, DataAccessException {
+            IdentifiableObjectCollection collection = new GenericIdentifiableObjectCollection();
+
+            ColumnModel columnModel = new ColumnModel();
+            for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
+                String fieldName = rs.getMetaData().getColumnName(i);
+                DataType fieldType = getColumnType(rs.getMetaData().getColumnTypeName(i));
+                if (fieldName.equals(idField)) {
+                    columnModel.setIdField(fieldName);
+                    columnModel.getColumnTypes().add(DataType.ID);
+                } else {
+                    columnModel.getColumnNames().add(fieldName);
+                    columnModel.getColumnTypes().add(fieldType);
+                }
+
+            }
+
+            collection.setFields(columnModel.getColumnNames());
+
+            int row = 0;
+            while (rs.next()) {
+                int index = 0;
+                int collectionIndex = 0;
+
+                Id id = null;
+                for (DataType fieldType : columnModel.getColumnTypes()) {
+                    Value value = null;
+                    if (DataType.ID.equals(fieldType)) {
+
+                        Long longValue = rs.getLong(columnModel.getIdField());
+                        if (!rs.wasNull()) {
+                            id = new RdbmsId(businessObjectType, longValue);
+                        } else {
+                            throw new RuntimeException("Id field can not be null for object " + "business_object");
+                        }
+
+                    } else if (DataType.INTEGER.equals(fieldType)) {
+                        value = new DecimalValue();
+                        Long longValue = rs.getLong(index + 1);
+                        if (!rs.wasNull()) {
+                            value = new IntegerValue(longValue);
+                        } else {
+                            value = new IntegerValue();
+                        }
+
+                    } else if (DataType.DATETIME.equals(fieldType)) {
+                        Timestamp timestamp = rs.getTimestamp(index + 1);
+                        if (!rs.wasNull()) {
+                            Date date = new Date(timestamp.getTime());
+                            value = new TimestampValue(date);
+                        } else {
+                            value = new TimestampValue();
+                        }
+
+                    } else if (DataType.STRING.equals(fieldType)) {
+                        String fieldValue = rs.getString(index + 1);
+                        if (!rs.wasNull()) {
+                            value = new StringValue(fieldValue);
+                        } else {
+                            value = new StringValue();
+                        }
+
+                    } else if (DataType.BOOLEAN.equals(fieldType)) {
+                        Boolean fieldValue = rs.getBoolean(index + 1);
+                        if (!rs.wasNull()) {
+                            value = new BooleanValue(fieldValue);
+                        } else {
+                            value = new BooleanValue();
+                        }
+
+                    } else if (DataType.DECIMAL.equals(fieldType)) {
+                        BigDecimal fieldValue = rs.getBigDecimal(index + 1);
+                        if (!rs.wasNull()) {
+                            value = new DecimalValue(fieldValue);
+                        } else {
+                            value = new DecimalValue();
+                        }
+                    }
+                    collectionIndex = index;
+
+                    if (id != null) {
+                        collection.setId(row, id);
+                        collectionIndex = index == 0 ? 0 : index - 1;
+                    }
+                    if (value != null) {
+                        collection.set(collectionIndex, row, value);
+                    }
+                    index++;
+                }
+
+                row++;
+            }
+            return collection;
+        }
+
+        private DataType getColumnType(String columnTypeName) {
+            DataType result = null;
+            if (columnTypeName.equals("int8")) {
+                result = DataType.INTEGER;
+            } else if (columnTypeName.equals("timestamp")) {
+                result = DataType.DATETIME;
+            } else if (columnTypeName.equals("varchar") || columnTypeName.equals("unknown") || columnTypeName.equals("text")) {
+                result = DataType.STRING;
+            } else if (columnTypeName.equals("bool")) {
+                result = DataType.BOOLEAN;
+            } else if (columnTypeName.equals("numeric")) {
+                result = DataType.DECIMAL;
+            }
+            return result;
+        }
+        
+        /**
+         * Метаданные возвращаемых значений списка. Содержит названия колонок и их типы.
+         * @author atsvetkov
+         * 
+         */
+        private class ColumnModel {
+
+            private String idField;
+
+            private List<String> columnNames;
+
+            private List<DataType> columnTypes;
+
+            public List<String> getColumnNames() {
+                if (columnNames == null) {
+                    columnNames = new ArrayList<String>();
+                }
+                return columnNames;
+            }
+
+            public List<DataType> getColumnTypes() {
+                if (columnTypes == null) {
+                    columnTypes = new ArrayList<DataType>();
+                }
+                return columnTypes;
+            }
+
+            public String getIdField() {
+                return idField;
+            }
+
+            public void setIdField(String idField) {
+                this.idField = idField;
+            }
+        }
+    }
+    
+    /**
+     * Перечисление типов колонок в таблицах бизнес-объектов. Используется для удобства чтения полей бизнес-объектов.
+     * @author atsvetkov
+     * 
+     */
+    private enum DataType {
+        STRING("string"), INTEGER("int"), DECIMAL("decimal"), DATETIME("datetime"), BOOLEAN("boolean"), ID("id");
+
+        private final String value;
+
+        DataType(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
 }

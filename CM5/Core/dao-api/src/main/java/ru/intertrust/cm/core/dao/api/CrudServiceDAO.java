@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.dao.api;
 
 import ru.intertrust.cm.core.business.api.dto.BusinessObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.config.BusinessObjectConfig;
 
 /**
@@ -23,6 +24,7 @@ public interface CrudServiceDAO {
 
 	public boolean exists(Id id, BusinessObjectConfig businessObjectConfig);
 
+	IdentifiableObjectCollection findCollectionByQuery(String query, String objectType, String idField, int offset, int limit);
 
 
 }

@@ -118,7 +118,7 @@
             <xs:element type="con:filterReferenceType" name="reference"
                 minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:criteriaType" name="criteria"
-                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config">
+                minOccurs="1" xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
         </xs:sequence>
         <xs:attribute type="xs:string" name="name" use="optional" />
@@ -183,8 +183,8 @@
             <xs:element type="con:displayType" name="display"
                 xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
-            <xs:element type="xs:string" name="prototype"
-                minOccurs="0" />
+            <xs:element type="xs:string" name="prototype" 
+                minOccurs="1" maxOccurs="1"/>
             <xs:element type="xs:string" name="counting-prototype"
                 minOccurs="0">
             </xs:element>

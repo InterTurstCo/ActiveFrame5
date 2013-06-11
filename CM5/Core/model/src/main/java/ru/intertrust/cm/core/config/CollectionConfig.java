@@ -34,7 +34,7 @@ public class CollectionConfig {
     private String countingPrototype;        
 
     @ElementList(entry = "filter", required = false, inline=true)
-    private List<CollectionFilter> collectionFilter;    
+    private List<CollectionFilterConfig> filters;    
 
     @Element(name = "renderer", required = false)
     private CollectionRenderer renderer;    
@@ -85,16 +85,16 @@ public class CollectionConfig {
 
     public void setCountingPrototype(String countingPrototype) {
         this.countingPrototype = countingPrototype;
+    }     
+
+    public List<CollectionFilterConfig> getFilters() {
+        return filters;
     }
 
-    public List<CollectionFilter> getCollectionFilter() {
-        return collectionFilter;
+    public void setFilters(List<CollectionFilterConfig> filters) {
+        this.filters = filters;
     }
 
-    public void setCollectionFilter(List<CollectionFilter> collectionFilter) {
-        this.collectionFilter = collectionFilter;
-    }
-    
     public CollectionRenderer getRenderer() {
         return renderer;
     }

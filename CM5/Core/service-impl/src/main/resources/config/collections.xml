@@ -14,10 +14,10 @@
         <prototype>
             <![CDATA[
                 select
-                    e.id, e.business_object_type, e.name, e.position, e.created_date, e.updated_date
+                    e.id, e.name, e.position, e.created_date, e.updated_date
                 from
                     employee e
-                    ::from-clause
+                     ::from-clause
                 where
                     ::where-clause
             ]]>
@@ -31,7 +31,7 @@
         <filter name="byDepartment">
             <reference placeholder="from-clause">
                  <![CDATA[
-                    inner join department d
+                    inner join department d on e.department = d.id
                 ]]>
             </reference>
 
@@ -39,15 +39,15 @@
             <!-- {0} - это параметр фильтра, у одного фильтра может быть несколько параметров -->
             <criteria placeholder="where-clause" condition="and">
                 <![CDATA[
-                    d.name = {0}
+                    d.name = ':0'
                 ]]>
             </criteria>
         </filter>
 
         <filter name="byName">
-            <criteria placeholder="where-clause">
+            <criteria placeholder="where-clause" condition="and">
                 <![CDATA[
-                    e.name = {0}
+                    e.name = ':0'
                 ]]>
             </criteria>
         </filter>
