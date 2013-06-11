@@ -1,10 +1,16 @@
 package ru.intertrust.cm.core.dao.api;
 
+import java.util.List;
+
 import ru.intertrust.cm.core.business.api.dto.BusinessObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.config.BusinessObjectConfig;
+import ru.intertrust.cm.core.config.CollectionConfig;
+import ru.intertrust.cm.core.config.CollectionFilterConfig;
 import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
+
 
 /**
  * DAO для работы с бизнесс объектами
@@ -30,7 +36,6 @@ public interface CrudServiceDAO {
 
 	public boolean exists(Id id, BusinessObjectConfig businessObjectConfig);
 
-	IdentifiableObjectCollection findCollectionByQuery(String query, String objectType, String idField, int offset, int limit);
-
+	IdentifiableObjectCollection findCollectionByQuery(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder, int offset, int limit);
 
 }

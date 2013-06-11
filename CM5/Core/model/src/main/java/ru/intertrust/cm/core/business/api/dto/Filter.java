@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Фильтр, используемых в основном для отсеивание результатов коллекций
+ * Фильтр, используемый в основном для отсеивания результатов коллекций
  *
  * Author: Denis Mitavskiy
  * Date: 24.05.13
@@ -33,8 +33,6 @@ public class Filter {
 
     public void setValues(List<String> values) {
         this.values = values;
-    }
-    
-    
+    }    
 
 }

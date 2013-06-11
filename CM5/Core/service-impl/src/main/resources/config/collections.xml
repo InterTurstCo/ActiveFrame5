@@ -25,7 +25,7 @@
 
         <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) вместо названий колонок -->
         <counting-prototype>
-            select count(*) from employee e WHERE ::where-clause
+            select count(*) from employee e ::from-clause WHERE ::where-clause
         </counting-prototype>
 
         <filter name="byDepartment">

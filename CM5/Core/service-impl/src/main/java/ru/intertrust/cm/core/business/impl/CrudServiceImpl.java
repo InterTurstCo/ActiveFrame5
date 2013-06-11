@@ -128,22 +128,18 @@ public class CrudServiceImpl implements CrudService {
 
     @Override
     public IdentifiableObjectCollection findCollection(String collectionName, List<Filter> filterValues, SortOrder sortOrder, int offset, int limit) {
-        
+
         CollectionConfiguration collectionsConfiguration = loader.getCollectionConfiguration();
-        
-        if(collectionsConfiguration == null){
-            new RuntimeException ("Collection configuration is not loaded");
+
+        if (collectionsConfiguration == null) {
+            new RuntimeException("Collection configuration is not loaded");
         }
-        
+
         CollectionConfig collectionConfig = collectionsConfiguration.findCollectionConfigByName(collectionName);
 
         List<CollectionFilterConfig> filledFilterConfigs = findFilledFilterConfigs(filterValues, collectionConfig);
 
-        String prototypeQuery = mergeFilledFilterConfigsInPrototypeQuery(collectionConfig.getPrototype(), filledFilterConfigs);
-        
-        prototypeQuery = applySortOrder(sortOrder, prototypeQuery);        
-        
-        return crudServiceDAO.findCollectionByQuery(prototypeQuery, collectionConfig.getBusinessObjectTypeField(), collectionConfig.getIdField(), 0, 0);              
+        return crudServiceDAO.findCollectionByQuery(collectionConfig, filledFilterConfigs, sortOrder, offset, limit);
     }
 
     private List<CollectionFilterConfig> findFilledFilterConfigs(List<Filter> filterValues, CollectionConfig collectionConfig) {
@@ -162,81 +158,6 @@ public class CrudServiceImpl implements CrudService {
             }
         }
         return filledFilterConfigs;
-    }
-
-    private String mergeFilledFilterConfigsInPrototypeQuery(String prototypeQuery, List<CollectionFilterConfig> filledFilterConfigs) {
-        StringBuilder mergedFilterCriteria = new StringBuilder();
-        StringBuilder mergedFilterReference = new StringBuilder();
-
-        boolean hasEntry = false;
-        for (CollectionFilterConfig collectionFilterConfig : filledFilterConfigs) {
-
-            if (collectionFilterConfig.getFilterReference() != null) {
-                mergedFilterReference.append(collectionFilterConfig.getFilterReference().getValue());
-            }
-            if (hasEntry) {
-                mergedFilterCriteria.append(EMPTY_PLACEHOLDER);
-                if (collectionFilterConfig.getFilterCriteria().getCondition() != null) {
-                    mergedFilterCriteria.append(collectionFilterConfig.getFilterCriteria().getCondition());
-
-                } else {
-                    mergedFilterCriteria.append(DEFAULT_CRITERIA_CONDITION);
-
-                }
-                mergedFilterCriteria.append(EMPTY_PLACEHOLDER);
-            }
-            mergedFilterCriteria.append(collectionFilterConfig.getFilterCriteria().getValue());
-            hasEntry = true;
-        }
-
-        prototypeQuery = applyMergedFilterReference(prototypeQuery, mergedFilterReference.toString());
-
-        prototypeQuery = applyMergedFilterCriteria(prototypeQuery, mergedFilterCriteria.toString());
-        return prototypeQuery;
-    }
-
-    private String applyMergedFilterCriteria(String prototypeQuery, String mergedFilterCriteria) {
-        if (mergedFilterCriteria.length() > 0) {
-            prototypeQuery = prototypeQuery.replaceAll(CRITERIA_PLACEHOLDER, mergedFilterCriteria);
-        } else {
-            prototypeQuery = prototypeQuery.replaceAll(CRITERIA_PLACEHOLDER, EMPTY_PLACEHOLDER);
-        }
-        return prototypeQuery;
-    }
-
-    private String applyMergedFilterReference(String prototypeQuery, String mergedFilterReference) {
-        if (mergedFilterReference.length() > 0) {
-            prototypeQuery = prototypeQuery.replaceAll(REFERENCE_PLACEHOLDER, mergedFilterReference);
-        } else {
-            prototypeQuery = prototypeQuery.replaceAll(REFERENCE_PLACEHOLDER, EMPTY_PLACEHOLDER);
-        }
-        return prototypeQuery;
-    }
-
-    private String applySortOrder(SortOrder sortOrder, String prototypeQuery) {
-        StringBuilder prototypeQueryBuilder = new StringBuilder(prototypeQuery);
-
-        boolean hasSortEntry = false;
-        if (sortOrder != null && sortOrder.size() > 0) {
-            for (SortCriterion criterion : sortOrder) {
-                if (hasSortEntry) {
-                    prototypeQueryBuilder.append(", ");
-                }
-                prototypeQueryBuilder.append(" order by ").append(criterion.getField()).append("  ").append(getSqlSortOrder(criterion.getOrder()));
-                hasSortEntry = true;
-            }
-        }
-        return prototypeQueryBuilder.toString();
-    }
-
-    private String getSqlSortOrder(SortCriterion.Order order) {
-        if (order == Order.ASCENDING) {
-            return SQL_ASCENDING_ORDER;
-        } else if (order == Order.DESCENDING) {
-            return SQL_DESCENDING_ORDER;
-        } else {
-            return SQL_ASCENDING_ORDER;
-        }
     }
 
     private CollectionFilterConfig replaceFilterCriteriaParam(CollectionFilterConfig filterConfig, Filter filterValue) {
@@ -288,7 +209,7 @@ public class CrudServiceImpl implements CrudService {
 
         return clonedFilterConfig;
     }
-    
+
     @Override
     public int findCollectionCount(String collectionName, List<Filter> filters, SortOrder sortOrder) {
         // TODO Auto-generated method stub

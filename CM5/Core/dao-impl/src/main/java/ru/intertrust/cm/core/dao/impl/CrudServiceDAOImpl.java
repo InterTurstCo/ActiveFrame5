@@ -24,10 +24,13 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.IntegerValue;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.TimestampValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.BusinessObjectConfig;
+import ru.intertrust.cm.core.config.CollectionConfig;
+import ru.intertrust.cm.core.config.CollectionFilterConfig;
 import ru.intertrust.cm.core.dao.api.CrudServiceDAO;
 import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
@@ -187,19 +190,20 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
         return null;
     }
 
-    public IdentifiableObjectCollection findCollectionByQuery(String query, String objectType, String idField, int offset, int limit) {
-        if (limit != 0) {
-            query += " limit " + limit + " OFFSET " + offset;
-        }
-        
-        IdentifiableObjectCollection collection = (IdentifiableObjectCollection) jdbcTemplate.query(query, new CollectionRowMapper(objectType, idField));
+    public IdentifiableObjectCollection findCollectionByQuery(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs,
+            SortOrder sortOrder, int offset, int limit) {
+        CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer();
+
+        String collectionQuery = collectionQueryInitializer.initializeQuery(collectionConfig.getPrototype(), filledFilterConfigs, sortOrder, offset, limit);
+
+        IdentifiableObjectCollection collection = jdbcTemplate.query(collectionQuery, new CollectionRowMapper(collectionConfig.getBusinessObjectTypeField(),
+                collectionConfig.getIdField()));
 
         return collection;
-    }
- 
+    } 
     
     @SuppressWarnings("rawtypes")
-    private class CollectionRowMapper implements ResultSetExtractor {
+    private class CollectionRowMapper implements ResultSetExtractor<IdentifiableObjectCollection> {
 
         private String businessObjectType;
 
@@ -323,7 +327,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
         }
         
         /**
-         * Метаданные возвращаемых значений списка. Содержит названия колонок и их типы.
+         * Метаданные возвращаемых значений списка. Содержит названия колонок, их типы и имя колонки - первичного ключа для бизнес-объекта.
          * @author atsvetkov
          * 
          */
