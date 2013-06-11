@@ -16,6 +16,14 @@ public interface DataStructureDAO {
      */
     void createTable(BusinessObjectConfig config);
 
+
+    /**
+     * Создает последовательность для таблицы по конфигурации бизнес-объекта
+     * @param config конфигурация бизнес-объекта
+     */
+    void createSequence(BusinessObjectConfig config);
+
+
     /**
      * Возвращает кол-во таблиц в базе данных
      * @return кол-во таблиц в базе данных

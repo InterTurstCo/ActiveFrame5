@@ -1,16 +1,14 @@
 package ru.intertrust.cm.core.business.api.dto;
 
-import ru.intertrust.cm.core.business.api.util.ModelUtil;
-
 import java.math.BigDecimal;
 import java.util.Date;
+
+import ru.intertrust.cm.core.business.api.util.ModelUtil;
 
 /**
  * Обобщённая реализация бизнес-объектов
  *
- * Author: Denis Mitavskiy
- * Date: 19.05.13
- * Time: 15:57
+ * Author: Denis Mitavskiy Date: 19.05.13 Time: 15:57
  */
 public class GenericBusinessObject extends GenericIdentifiableObject implements BusinessObject {
     private String typeName;
@@ -54,6 +52,12 @@ public class GenericBusinessObject extends GenericIdentifiableObject implements 
         this.modifiedDate = modifiedDate;
     }
 
+    @Override
+    public boolean isNew() {
+        return (getId() == null);
+    }
+
+    @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
         result.append('{').append('\n');
@@ -74,7 +78,7 @@ public class GenericBusinessObject extends GenericIdentifiableObject implements 
         System.out.println(bo);
         System.out.println(bo.getValue("B"));
         System.out.println(bo.getValue("C"));
-        //bo.getValue(3);
-        //bo.setValue("O", new IntegerValue(2));
+        // bo.getValue(3);
+        // bo.setValue("O", new IntegerValue(2));
     }
 }

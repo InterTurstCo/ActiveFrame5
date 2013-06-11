@@ -22,6 +22,17 @@ public class DataStructureNamingHelper {
     }
 
     /**
+     * Возвращает имя последовательности(сиквенса) бизнес-объекта в sql-виде
+     * @param businessObjectConfig конфигурация бизнес-объекта
+     * @return имя последовательности для бизнес-объекта в sql-виде
+     */
+    public static String getSqlSequenceName(BusinessObjectConfig businessObjectConfig) {
+
+        return convertToSqlFormat(businessObjectConfig.getName()) + "_SEQ";
+    }
+
+
+    /**
      * Возвращает имя поля бизнес-объекта в sql-виде
      * @param fieldConfig конфигурация поля бизнес-объекта
      * @return имя поля бизнес-объекта в sql-виде

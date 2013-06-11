@@ -47,12 +47,17 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
     @Override
-    public int generateNextSequence() {
+    public long generateNextSequence(BusinessObjectConfig businessObjectConfig) {
 
-        String query = "select nextval ('business_object_seq')";
-        Integer id = jdbcTemplate.queryForObject(query, new HashMap<String, Object>(), Integer.class);
+        String sequenceName = DataStructureNamingHelper.getSqlSequenceName(businessObjectConfig);
 
-        return id.intValue();
+        StringBuilder query = new StringBuilder();
+        query.append("select nextval ('");
+        query.append(sequenceName);
+        query.append("')");
+        Long id = jdbcTemplate.queryForObject(query.toString(), new HashMap<String, Object>(), Long.class);
+
+        return id.longValue();
 
     }
 
@@ -131,7 +136,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
     @Override
-    public void delete(Id id, BusinessObjectConfig businessObjectConfig) {
+    public void delete(Id id, BusinessObjectConfig businessObjectConfig) throws ObjectNotFoundException {
 
         String tableName = businessObjectConfig.getName().replace(' ', '_').toUpperCase();
 

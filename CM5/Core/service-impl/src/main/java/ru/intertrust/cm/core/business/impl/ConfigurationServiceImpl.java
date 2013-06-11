@@ -57,7 +57,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
         RecursiveLoader recursiveLoader = new RecursiveLoader(configuration);
         recursiveLoader.load();
-        
+
         insertAdminAuthenticationInfoIfEmpty();
     }
 
@@ -71,8 +71,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     private class RecursiveLoader {
-        private Configuration configuration;
-        private Set<String> loadedBusinessObjectConfigs = new HashSet<>();
+        private final Configuration configuration;
+        private final Set<String> loadedBusinessObjectConfigs = new HashSet<>();
 
         private RecursiveLoader(Configuration configuration) {
             this.configuration = configuration;
@@ -100,6 +100,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             loadDependentBusinessObjectConfigs(businessObjectConfig);
 
             dataStructureDAO.createTable(businessObjectConfig);
+            dataStructureDAO.createSequence(businessObjectConfig);
             loadedBusinessObjectConfigs.add(businessObjectConfig.getName()); // add to loaded configs set
         }
 
@@ -113,7 +114,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         }
 
     }
-    
+
     /**
      * Добавляет запись для Администратора в таблицу пользователей, если эта запись еще не была добавлена.
      */

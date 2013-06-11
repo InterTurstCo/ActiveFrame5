@@ -1,11 +1,21 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import ru.intertrust.cm.core.config.*;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferencedTypeSqlName;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlSequenceName;
 
 import java.util.List;
 
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferencedTypeSqlName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+import ru.intertrust.cm.core.config.BusinessObjectConfig;
+import ru.intertrust.cm.core.config.DateTimeFieldConfig;
+import ru.intertrust.cm.core.config.DecimalFieldConfig;
+import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.LongFieldConfig;
+import ru.intertrust.cm.core.config.PasswordFieldConfig;
+import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.StringFieldConfig;
+import ru.intertrust.cm.core.config.UniqueKeyConfig;
+import ru.intertrust.cm.core.config.UniqueKeyFieldConfig;
 
 /**
  * Класс для генерации sql запросов для {@link PostgreSQLDataStructureDAOImpl}
@@ -44,6 +54,23 @@ public class PostgreSQLQueryHelper {
                 + " character varying(128), constraint PK_" + AUTHENTICATION_INFO_TABLE + "_ID primary key (ID), constraint U_" + AUTHENTICATION_INFO_TABLE
                 + "_USER_UID unique(user_uid))";
     }
+
+    /**
+     * Генерирует запрос, создающий последовательность(сиквенс) по конфигурации бизнес-объекта
+     * @param config конфигурация бизнес-объекта
+     * @return запрос, создающий последовательность(сиквенс) по конфигурации бизнес-объекта
+     */
+    public static String generateSequenceQuery(BusinessObjectConfig config) {
+
+        String sequenceName = getSqlSequenceName(config);
+        StringBuilder query = new StringBuilder();
+        query.append("create sequence ");
+        query.append(sequenceName);
+
+        return query.toString();
+
+    }
+
 
     /**
      * Генерирует запрос, создающий талицу по конфигурации бизнес-объекта

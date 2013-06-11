@@ -45,4 +45,11 @@ public interface BusinessObject extends IdentifiableObject {
      * @param modifiedDate дата модификации данного бизнес-объекта
      */
     void setModifiedDate(Date modifiedDate);
+
+
+    /**
+     * Определяет являеться ли объект новым
+     * @return true если объект новый иначе возвращает false
+     */
+    boolean isNew();
 }

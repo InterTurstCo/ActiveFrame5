@@ -70,6 +70,7 @@ public class CrudServiceImpl implements CrudService {
     }
 
     protected BusinessObject create(BusinessObject businessObject) {
+
         Id id = businessObject.getId();
         BusinessObjectConfig businessObjectConfig = ConfigurationHelper.findBusinessObjectConfigById(
                 loader.getConfiguration(), businessObject.getId());
@@ -91,7 +92,7 @@ public class CrudServiceImpl implements CrudService {
     @Override
     public BusinessObject save(BusinessObject businessObject) {
 
-        if (businessObject.getCreatedDate() == null) {
+        if (businessObject.isNew()) {
             return create(businessObject);
         }
 
