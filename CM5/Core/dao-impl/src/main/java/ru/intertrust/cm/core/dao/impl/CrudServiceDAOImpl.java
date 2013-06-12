@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +21,7 @@ import org.springframework.util.StringUtils;
 import ru.intertrust.cm.core.business.api.dto.BooleanValue;
 import ru.intertrust.cm.core.business.api.dto.BusinessObject;
 import ru.intertrust.cm.core.business.api.dto.DecimalValue;
+import ru.intertrust.cm.core.business.api.dto.GenericBusinessObject;
 import ru.intertrust.cm.core.business.api.dto.GenericIdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.GenericIdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -224,6 +226,57 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
         return null;
     }
 
+    public BusinessObject find(Id id) {
+        RdbmsId rdbmsId = (RdbmsId) id;
+        
+        String tableName = DataStructureNamingHelper.getSqlName(((RdbmsId)id).getTypeName());
+        
+        StringBuilder query = new StringBuilder();
+        query.append("select * from ").append(tableName).append(" where ID=:id ");
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("id", rdbmsId.getId());
+        
+        return jdbcTemplate.query(query.toString(), parameters, new SingleObjectRowMapper(rdbmsId.getTypeName()));   
+    }
+    
+    
+    public List<BusinessObject> find(List<Id> ids) {
+        if (ids == null || ids.size() == 0) {
+            return new ArrayList<>();
+        }
+        String tableName = DataStructureNamingHelper.getSqlName(getBusinessObjectType(ids));
+
+        String idsList = convertToCommaSeparatedList(ids);
+        StringBuilder query = new StringBuilder();
+        query.append("select * from ").append(tableName).append(" where ID in ( " + idsList + " ) ");
+
+        return jdbcTemplate.query(query.toString(), new MultipleObjectRowMapper(tableName));
+    }
+
+    private String convertToCommaSeparatedList(List<Id> ids) {
+        StringBuilder builder = new StringBuilder();
+        int index = 0;
+        for (Id id : ids) {
+            RdbmsId rdbmsId = (RdbmsId) id;
+            builder.append(rdbmsId.getId());
+            if (index < ids.size() - 1) {
+                builder.append(", ");
+            }
+            index++;
+        }
+        return builder.toString();
+    }
+
+    private String getBusinessObjectType(List<Id> ids) {
+        String typeName = null;
+        for (Id id : ids) {
+            RdbmsId rdbmsId = (RdbmsId) id;
+            typeName = rdbmsId.getTypeName();
+            break;
+        }
+
+        return typeName;
+    }
     
     /*
      * {@see ru.intertrust.cm.core.dao.api.CrudServiceDAO#findCollectionByQuery(ru.intertrust.cm.core.config.CollectionConfig, java.util.List,
@@ -261,7 +314,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
      *
      */
     @SuppressWarnings("rawtypes")
-    private class CollectionRowMapper implements ResultSetExtractor<IdentifiableObjectCollection> {
+    private class CollectionRowMapper extends BasicRowMapper implements ResultSetExtractor<IdentifiableObjectCollection> {
 
         private final String businessObjectType;
 
@@ -366,71 +419,11 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
                 row++;
             }
             return collection;
-        }
-        
-        /**
-         * Отображает типы полей в базе на {@link DataType}
-         * @param columnTypeName
-         * @return
-         */
-        private DataType getColumnType(String columnTypeName) {
-            DataType result = null;
-            if (columnTypeName.equals("int8")) {
-                result = DataType.INTEGER;
-            } else if (columnTypeName.equals("timestamp")) {
-                result = DataType.DATETIME;
-            } else if (columnTypeName.equals("varchar") || columnTypeName.equals("unknown")
-                    || columnTypeName.equals("text")) {
-                result = DataType.STRING;
-            } else if (columnTypeName.equals("bool")) {
-                result = DataType.BOOLEAN;
-            } else if (columnTypeName.equals("numeric")) {
-                result = DataType.DECIMAL;
-            }
-            return result;
-        }
-
-        /**
-         * Метаданные возвращаемых значений списка. Содержит названия колонок,
-         * их типы и имя колонки - первичного ключа для бизнес-объекта.
-         *
-         * @author atsvetkov
-         *
-         */
-        private class ColumnModel {
-
-            private String idField;
-
-            private List<String> columnNames;
-
-            private List<DataType> columnTypes;
-
-            public List<String> getColumnNames() {
-                if (columnNames == null) {
-                    columnNames = new ArrayList<String>();
-                }
-                return columnNames;
-            }
-
-            public List<DataType> getColumnTypes() {
-                if (columnTypes == null) {
-                    columnTypes = new ArrayList<DataType>();
-                }
-                return columnTypes;
-            }
-
-            public String getIdField() {
-                return idField;
-            }
-
-            public void setIdField(String idField) {
-                this.idField = idField;
-            }
-        }
+        }       
     }
 
     @SuppressWarnings("rawtypes")
-    private class ObjectRowMapper implements ResultSetExtractor<IdentifiableObject> {
+    private class SingleObjectRowMapper extends BasicRowMapper implements ResultSetExtractor<BusinessObject> {
 
         private static final String DEFAULT_ID_FIELD = "id";
 
@@ -438,14 +431,14 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
         private final String idField;
 
-        public ObjectRowMapper(String businessObjectType) {
+        public SingleObjectRowMapper(String businessObjectType) {
             this.businessObjectType = businessObjectType;
             this.idField = DEFAULT_ID_FIELD;
         }
 
         @Override
-        public IdentifiableObject extractData(ResultSet rs) throws SQLException, DataAccessException {
-            GenericIdentifiableObject object = new GenericIdentifiableObject();
+        public BusinessObject extractData(ResultSet rs) throws SQLException, DataAccessException {
+            GenericBusinessObject object = new GenericBusinessObject();
 
             ColumnModel columnModel = new ColumnModel();
             for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
@@ -462,8 +455,147 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
             }
 
             while (rs.next()) {
+                FieldValueModel valueModel = new FieldValueModel();                
                 int index = 0;               
                 Id id = null;
+                int fieldIndex = 0;
+                for (DataType fieldType : columnModel.getColumnTypes()) {
+                    Value value = null;
+                    
+                    if (DataType.ID.equals(fieldType)) {
+
+                        Long longValue = rs.getLong(columnModel.getIdField());
+                        if (!rs.wasNull()) {
+                            id = new RdbmsId(businessObjectType, longValue);
+                        } else {
+                            throw new RuntimeException("Id field can not be null for object " + "business_object");
+                        }
+
+                    } else if (DataType.INTEGER.equals(fieldType)) {
+                        value = new DecimalValue();
+                        Long longValue = rs.getLong(index + 1);
+                        if (!rs.wasNull()) {
+                            value = new IntegerValue(longValue);
+                        } else {
+                            value = new IntegerValue();
+                        }
+
+                    } else if (DataType.DATETIME.equals(fieldType)) {
+                        Timestamp timestamp = rs.getTimestamp(index + 1);
+                        if (!rs.wasNull()) {
+                            Date date = new Date(timestamp.getTime());
+                            value = new TimestampValue(date);
+                        } else {
+                            value = new TimestampValue();
+                        }
+
+                    } else if (DataType.STRING.equals(fieldType)) {
+                        String fieldValue = rs.getString(index + 1);
+                        if (!rs.wasNull()) {
+                            value = new StringValue(fieldValue);
+                        } else {
+                            value = new StringValue();
+                        }
+
+                    } else if (DataType.BOOLEAN.equals(fieldType)) {
+                        Boolean fieldValue = rs.getBoolean(index + 1);
+                        if (!rs.wasNull()) {
+                            value = new BooleanValue(fieldValue);
+                        } else {
+                            value = new BooleanValue();
+                        }
+
+                    } else if (DataType.DECIMAL.equals(fieldType)) {
+                        BigDecimal fieldValue = rs.getBigDecimal(index + 1);
+                        if (!rs.wasNull()) {
+                            value = new DecimalValue(fieldValue);
+                        } else {
+                            value = new DecimalValue();
+                        }
+                    }                    
+
+                    valueModel.setId(id);
+                    valueModel.setValue(value);
+                    
+                    fieldIndex = index;
+                    
+                    if (valueModel.getId() != null) {
+                        object.setId(valueModel.getId());
+                        fieldIndex = index == 0 ? 0 : index - 1;
+                    }
+                    if (valueModel.getValue() != null) {
+                        String columnName = columnModel.getColumnNames().get(fieldIndex);
+                        object.setValue(columnName, valueModel.getValue());
+                        
+                    }
+                    index++;
+                }
+               
+            }
+            return object;
+        }
+
+        private class FieldValueModel {
+            private Id id = null;
+
+            private Value value = null;
+
+            public Id getId() {
+                return id;
+            }
+
+            public void setId(Id id) {
+                this.id = id;
+            }
+
+            public Value getValue() {
+                return value;
+            }
+
+            public void setValue(Value value) {
+                this.value = value;
+            }
+        }
+    }
+    
+    @SuppressWarnings("rawtypes")
+    private class MultipleObjectRowMapper extends BasicRowMapper implements ResultSetExtractor<List<BusinessObject>> {
+
+        private static final String DEFAULT_ID_FIELD = "id";
+
+        private final String businessObjectType;
+
+        private final String idField;
+
+        public MultipleObjectRowMapper(String businessObjectType) {
+            this.businessObjectType = businessObjectType;
+            this.idField = DEFAULT_ID_FIELD;
+        }
+
+        @Override
+        public  List<BusinessObject> extractData(ResultSet rs) throws SQLException, DataAccessException {
+            List<BusinessObject> objects = new ArrayList<>();
+
+            ColumnModel columnModel = new ColumnModel();
+            for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
+                String fieldName = rs.getMetaData().getColumnName(i);
+                DataType fieldType = getColumnType(rs.getMetaData().getColumnTypeName(i));
+                if (fieldName.equalsIgnoreCase(idField)) {
+                    columnModel.setIdField(fieldName);
+                    columnModel.getColumnTypes().add(DataType.ID);
+                } else {
+                    columnModel.getColumnNames().add(fieldName);
+                    columnModel.getColumnTypes().add(fieldType);
+                }
+
+            }
+
+            while (rs.next()) {
+                GenericBusinessObject object = new GenericBusinessObject();
+
+                int index = 0;               
+                Id id = null;
+                int fieldIndex = 0;
                 for (DataType fieldType : columnModel.getColumnTypes()) {
                     Value value = null;
                     if (DataType.ID.equals(fieldType)) {
@@ -518,83 +650,32 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
                         }
                     }                    
 
+                    fieldIndex = index;
+                    
                     if (id != null) {
                         object.setId(id);
+                        fieldIndex = index == 0 ? 0 : index - 1;
                     }
                     if (value != null) {
-                        String columnName = columnModel.getColumnNames().get(index);
+                        String columnName = columnModel.getColumnNames().get(fieldIndex);
                         object.setValue(columnName, value);
                         
                     }
                     index++;
                 }
-               
+               objects.add(object);
             }
-            return object;
-        }
-        
-        /**
-         * Отображает типы полей в базе на {@link DataType}
-         * @param columnTypeName
-         * @return
-         */
-        protected DataType getColumnType(String columnTypeName) {
-            DataType result = null;
-            if (columnTypeName.equals("int8")) {
-                result = DataType.INTEGER;
-            } else if (columnTypeName.equals("timestamp")) {
-                result = DataType.DATETIME;
-            } else if (columnTypeName.equals("varchar") || columnTypeName.equals("unknown")
-                    || columnTypeName.equals("text")) {
-                result = DataType.STRING;
-            } else if (columnTypeName.equals("bool")) {
-                result = DataType.BOOLEAN;
-            } else if (columnTypeName.equals("numeric")) {
-                result = DataType.DECIMAL;
-            }
-            return result;
-        }
-
-        /**
-         * Метаданные возвращаемых значений списка. Содержит названия колонок,
-         * их типы и имя колонки - первичного ключа для бизнес-объекта.
-         *
-         * @author atsvetkov
-         *
-         */
-        protected class ColumnModel {
-
-            private String idField;
-
-            private List<String> columnNames;
-
-            private List<DataType> columnTypes;
-
-            public List<String> getColumnNames() {
-                if (columnNames == null) {
-                    columnNames = new ArrayList<String>();
-                }
-                return columnNames;
-            }
-
-            public List<DataType> getColumnTypes() {
-                if (columnTypes == null) {
-                    columnTypes = new ArrayList<DataType>();
-                }
-                return columnTypes;
-            }
-
-            public String getIdField() {
-                return idField;
-            }
-
-            public void setIdField(String idField) {
-                this.idField = idField;
-            }
+            
+            return objects;
         }
     }
     
-    private class BasicRowMapper{
+    /**
+     * Базовй класс для отображения  {@link ResultSet} на бизнес-объекты
+     * @author atsvetkov
+     *
+     */
+    private class BasicRowMapper {
         /**
          * Отображает типы полей в базе на {@link DataType}
          * @param columnTypeName

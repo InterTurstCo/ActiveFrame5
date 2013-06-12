@@ -97,4 +97,17 @@ public interface CrudServiceDAO {
      */
     int findCollectionCountByQuery(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder);
     
+    /**
+     * Поиск бизнес-объекта по уникальному идентификатору в системе.
+     * @param id идентификатору бизнес-объекта
+     * @return {@link BusinessObject}
+     */
+    BusinessObject find(Id id);
+    
+    /**
+     * Поиск списка бизнес-объектов по уникальным идентификаторам в системе.
+     * @param ids уникальные идентификаторы
+     * @return {@link List<BusinessObject>}
+     */
+    List<BusinessObject> find(List<Id> ids);
 }

@@ -11,9 +11,7 @@ import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
-import ru.intertrust.cm.core.business.api.dto.SortCriterion.Order;
 import ru.intertrust.cm.core.config.BusinessObjectConfig;
 import ru.intertrust.cm.core.config.CollectionConfig;
 import ru.intertrust.cm.core.config.CollectionConfiguration;
@@ -29,16 +27,6 @@ import ru.intertrust.cm.core.dao.api.CrudServiceDAO;
  *
  */
 public class CrudServiceImpl implements CrudService {
-
-    private static final String EMPTY_PLACEHOLDER = " ";
-
-    private static final String CRITERIA_PLACEHOLDER = "::where-clause";
-
-    private static final String REFERENCE_PLACEHOLDER = "::from-clause";
-
-    private static final String SQL_DESCENDING_ORDER = "desc";
-
-    private static final String SQL_ASCENDING_ORDER = "asc";
 
     public static final String QUERY_FILTER_PARAM_DELIMETER = ":";
     
@@ -116,14 +104,12 @@ public class CrudServiceImpl implements CrudService {
 
     @Override
     public BusinessObject find(Id id) {
-        // TODO Auto-generated method stub
-        return null;
+        return crudServiceDAO.find(id);
     }
 
     @Override
     public List<BusinessObject> find(List<Id> ids) {
-        // TODO Auto-generated method stub
-        return null;
+        return crudServiceDAO.find(ids);
     }
 
     @Override
