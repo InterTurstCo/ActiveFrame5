@@ -147,6 +147,10 @@ public class CrudServiceImpl implements CrudService {
 
         List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<CollectionFilterConfig>();
 
+        if (filterConfigs == null || filterValues == null) {
+            return filledFilterConfigs;
+        }
+
         for (CollectionFilterConfig filterConfig : filterConfigs) {
             for (Filter filterValue : filterValues) {
                 if (!filterConfig.getName().equals(filterValue.getFilter())) {
@@ -159,7 +163,7 @@ public class CrudServiceImpl implements CrudService {
         }
         return filledFilterConfigs;
     }
-
+    
     private CollectionFilterConfig replaceFilterCriteriaParam(CollectionFilterConfig filterConfig, Filter filterValue) {
         CollectionFilterConfig clonedFilterConfig = cloneFilterConfig(filterConfig);
         int index = 0;
@@ -211,11 +215,21 @@ public class CrudServiceImpl implements CrudService {
     }
 
     @Override
-    public int findCollectionCount(String collectionName, List<Filter> filters, SortOrder sortOrder) {
-        // TODO Auto-generated method stub
-        return 0;
-    }
+    public int findCollectionCount(String collectionName, List<Filter> filterValues, SortOrder sortOrder) {
 
+        CollectionConfiguration collectionsConfiguration = loader.getCollectionConfiguration();
+
+        if (collectionsConfiguration == null) {
+            new RuntimeException("Collection configuration is not loaded");
+        }
+
+        CollectionConfig collectionConfig = collectionsConfiguration.findCollectionConfigByName(collectionName);
+
+        List<CollectionFilterConfig> filledFilterConfigs = findFilledFilterConfigs(filterValues, collectionConfig);
+
+        return crudServiceDAO.findCollectionCountByQuery(collectionConfig, filledFilterConfigs, sortOrder);        
+    }
+    
     @Override
     public void delete(Id id) {
 

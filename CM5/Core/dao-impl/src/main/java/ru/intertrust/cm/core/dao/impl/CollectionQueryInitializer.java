@@ -14,6 +14,8 @@ import ru.intertrust.cm.core.config.CollectionFilterConfig;
  */
 public class CollectionQueryInitializer {
 
+    private static final String DEFAULT_CRITERIA = " 1=1 ";
+    
     private static final String EMPTY_PLACEHOLDER = " ";
 
     private static final String CRITERIA_PLACEHOLDER = "::where-clause";
@@ -37,6 +39,10 @@ public class CollectionQueryInitializer {
         
     }
 
+    public String initializeCountQuery(String prototypeQuery, List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder) {
+        return initializeQuery(prototypeQuery, filledFilterConfigs, sortOrder, 0, 0);
+    }
+    
     private String applyLimitAndOffset(int offset, int limit, String collectionQuery) {
         if (limit != 0) {
             collectionQuery += " limit " + limit + " OFFSET " + offset;
@@ -79,7 +85,7 @@ public class CollectionQueryInitializer {
         if (mergedFilterCriteria.length() > 0) {
             prototypeQuery = prototypeQuery.replaceAll(CRITERIA_PLACEHOLDER, mergedFilterCriteria);
         } else {
-            prototypeQuery = prototypeQuery.replaceAll(CRITERIA_PLACEHOLDER, EMPTY_PLACEHOLDER);
+            prototypeQuery = prototypeQuery.replaceAll(CRITERIA_PLACEHOLDER, DEFAULT_CRITERIA);
         }
         return prototypeQuery;
     }

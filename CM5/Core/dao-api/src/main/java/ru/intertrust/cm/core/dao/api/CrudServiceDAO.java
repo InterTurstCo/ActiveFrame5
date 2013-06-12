@@ -79,4 +79,6 @@ public interface CrudServiceDAO {
     IdentifiableObjectCollection findCollectionByQuery(CollectionConfig collectionConfig,
             List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder, int offset, int limit);
 
+    int findCollectionCountByQuery(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder);
+    
 }

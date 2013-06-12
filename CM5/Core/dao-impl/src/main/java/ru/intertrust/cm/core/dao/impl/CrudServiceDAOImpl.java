@@ -230,6 +230,16 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
         return collection;
     }
+    
+    @Override
+    public int findCollectionCountByQuery(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder) {
+        CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer();
+
+        String collectionQuery = collectionQueryInitializer.initializeCountQuery(collectionConfig.getCountingPrototype(), filledFilterConfigs, sortOrder);
+
+        return jdbcTemplate.getJdbcOperations().queryForObject(collectionQuery, Integer.class);
+    }
+
 
     @SuppressWarnings("rawtypes")
     private class CollectionRowMapper implements ResultSetExtractor<IdentifiableObjectCollection> {
