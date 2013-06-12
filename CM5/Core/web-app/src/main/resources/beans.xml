@@ -45,12 +45,12 @@
     
     
     
-    <bean id="crudServiceDAO" class="ru.intertrust.cm.core.business.impl.CrudServiceDAOImpl"
-        p:configurationLoader-ref="configurationLoader" p:idGenerator-ref="sequenceIdGenerator"/>
+    <bean id="crudServiceDAO" class="ru.intertrust.cm.core.dao.impl.CrudServiceDAOImpl"
+         p:idGenerator-ref="sequenceIdGenerator"/>
     
     
     <bean id="crudService" class="ru.intertrust.cm.core.business.impl.CrudServiceImpl"
-        p:crudServiceDAO-ref="crudServiceDAO" p:configurationLoader-ref="configurationLoader"/>
+        p:crudServiceDAO-ref="crudServiceDAO" p:loader-ref="configurationLoader"/>
         
     
     
