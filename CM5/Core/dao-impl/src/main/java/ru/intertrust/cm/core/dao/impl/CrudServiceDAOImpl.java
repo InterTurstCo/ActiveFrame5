@@ -15,6 +15,7 @@ import javax.sql.DataSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.util.StringUtils;
 
 import ru.intertrust.cm.core.business.api.dto.BooleanValue;
 import ru.intertrust.cm.core.business.api.dto.BusinessObject;
@@ -32,13 +33,16 @@ import ru.intertrust.cm.core.config.BusinessObjectConfig;
 import ru.intertrust.cm.core.config.CollectionConfig;
 import ru.intertrust.cm.core.config.CollectionFilterConfig;
 import ru.intertrust.cm.core.dao.api.CrudServiceDAO;
+import ru.intertrust.cm.core.dao.api.IdGenerator;
 import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
-import ru.intertrust.cm.core.dao.impl.utils.StrUtils;
+import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
 public class CrudServiceDAOImpl implements CrudServiceDAO {
 
     private NamedParameterJdbcTemplate jdbcTemplate;
+
+    private IdGenerator idGenerator;
 
     /**
      * Устанавливает источник соединений
@@ -49,10 +53,17 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
         this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
-    @Override
-    public long generateNextSequence(BusinessObjectConfig businessObjectConfig) {
+    /**
+     * Устанавливает генератор для создания уникальных идентифиткаторово
+     *
+     * @param idGenerator
+     */
+    public void setIdGenerator(IdGenerator idGenerator) {
+        this.idGenerator = idGenerator;
+    }
 
-        String sequenceName = DataStructureNamingHelper.getSqlSequenceName(businessObjectConfig);
+    @Override
+    public long generateNextSequence(String sequenceName) {
 
         StringBuilder query = new StringBuilder();
         query.append("select nextval ('");
@@ -67,54 +78,71 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     @Override
     public BusinessObject create(BusinessObject businessObject, BusinessObjectConfig businessObjectConfig) {
 
-        StringBuilder query = new StringBuilder();
-        String tableName = businessObjectConfig.getName().replace(' ', '_').toUpperCase();
-        String commaSeparatedFields = StrUtils.generateCommaSeparatedList(businessObject.getFields(), true);
-        String commaSeparatedParameters = StrUtils.generateCommaSeparatedList(businessObject.getFields(), ":", false);
+        Object nextId = idGenerator.generatetId(businessObjectConfig);
 
+        RdbmsId id = new RdbmsId(businessObject.getTypeName(), (Long) nextId);
+
+        // инициализация системных полей....если они переданы с клиеента то их
+        // игнорируем
+        businessObject.setId(id);
+        Date currentDate = new Date();
+        businessObject.setCreatedDate(currentDate);
+        businessObject.setModifiedDate(currentDate);
+
+        String tableName = DataStructureNamingHelper.getSqlName(businessObjectConfig);
+        List<String> columnNames = DataStructureNamingHelper.getSqlName(businessObjectConfig
+                .getBusinessObjectFieldsConfig().getFieldConfigs());
+
+        String commaSeparatedColumns = StringUtils.collectionToCommaDelimitedString(columnNames);
+        String commaSeparatedParameters = DaoUtils.generateCommaSeparatedParameters(columnNames);
+
+        StringBuilder query = new StringBuilder();
         query.append("insert into ").append(tableName).append(" (");
-        query.append("ID , CREATED_DATE, UPDATED_DATE, ").append(commaSeparatedFields);
+        query.append("ID , CREATED_DATE, UPDATED_DATE, ").append(commaSeparatedColumns);
         query.append(") values (");
         query.append(":id , :created_date, :updated_date, ");
         query.append(commaSeparatedParameters);
         query.append(")");
 
-        RdbmsId rdbmsId = (RdbmsId) businessObject.getId();
-
         Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("id", rdbmsId.getId());
+        parameters.put("id", id);
         parameters.put("created_date", businessObject.getCreatedDate());
         parameters.put("updated_date", businessObject.getModifiedDate());
 
         for (String field : businessObject.getFields()) {
             Value value = businessObject.getValue(field);
-            if (value != null)
+            if (value != null) {
                 parameters.put(field, value.get());
-            else
+            }
+            else {
                 parameters.put(field, null);
+            }
 
         }
 
         jdbcTemplate.update(query.toString(), parameters);
 
-        return null;
+        return businessObject;
     }
 
     @Override
-    public BusinessObject update(BusinessObject businessObject, BusinessObjectConfig businessObjectConfig) {
+    public BusinessObject update(BusinessObject businessObject, BusinessObjectConfig businessObjectConfig)
+            throws ObjectNotFoundException, OptimisticLockException {
 
         StringBuilder query = new StringBuilder();
 
-        String tableName = businessObjectConfig.getName().replace(' ', '_').toUpperCase();
+        String tableName = DataStructureNamingHelper.getSqlName(businessObjectConfig);
 
-        String fieldsWithparams = StrUtils.generateCommaSeparatedListWithParams(businessObject.getFields(),
-                businessObject.getFields());
+        List<String> columnNames = DataStructureNamingHelper.getSqlName(businessObjectConfig
+                .getBusinessObjectFieldsConfig().getFieldConfigs());
+
+        String fieldsWithparams = DaoUtils.generateCommaSeparatedListWithParams(columnNames);
 
         query.append("update ").append(tableName).append(" set ");
-        query.append("updated_date=:current_date, ");
+        query.append("UPDATED_DATE=:current_date, ");
         query.append(fieldsWithparams);
-        query.append(" where id=:id");
-        query.append(" and updated_date=:updated_date");
+        query.append(" where ID=:id");
+        query.append(" and UPDATED_DATE=:updated_date");
 
         RdbmsId rdbmsId = (RdbmsId) businessObject.getId();
 
@@ -131,17 +159,20 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
         int count = jdbcTemplate.update(query.toString(), parameters);
 
+        if (count == 0 && (!exists(businessObject.getId(), businessObjectConfig)))
+            throw new ObjectNotFoundException(rdbmsId);
+
         if (count == 0)
             throw new OptimisticLockException(businessObject);
 
-        return null;
+        return businessObject;
 
     }
 
     @Override
     public void delete(Id id, BusinessObjectConfig businessObjectConfig) throws ObjectNotFoundException {
 
-        String tableName = businessObjectConfig.getName().replace(' ', '_').toUpperCase();
+        String tableName = DataStructureNamingHelper.getSqlName(businessObjectConfig);
 
         StringBuilder query = new StringBuilder();
         query.append("delete from ");
@@ -160,15 +191,12 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
     }
 
-
-
-
     @Override
     public boolean exists(Id id, BusinessObjectConfig businessObjectConfig) {
 
-        RdbmsId rdbmsId = (RdbmsId)id;
+        RdbmsId rdbmsId = (RdbmsId) id;
 
-        String tableName = businessObjectConfig.getName().replace(' ', '_').toUpperCase();
+        String tableName = DataStructureNamingHelper.getSqlName(businessObjectConfig);
 
         StringBuilder query = new StringBuilder();
         query.append("select id from ");
@@ -177,7 +205,6 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
         Map<String, Long> parameters = new HashMap<String, Long>();
         parameters.put("id", rdbmsId.getId());
-
 
         long total = jdbcTemplate.queryForObject(query.toString(), parameters, Long.class);
 
@@ -190,24 +217,26 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
         return null;
     }
 
-    public IdentifiableObjectCollection findCollectionByQuery(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs,
-            SortOrder sortOrder, int offset, int limit) {
+    @Override
+    public IdentifiableObjectCollection findCollectionByQuery(CollectionConfig collectionConfig,
+            List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder, int offset, int limit) {
         CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer();
 
-        String collectionQuery = collectionQueryInitializer.initializeQuery(collectionConfig.getPrototype(), filledFilterConfigs, sortOrder, offset, limit);
+        String collectionQuery = collectionQueryInitializer.initializeQuery(collectionConfig.getPrototype(),
+                filledFilterConfigs, sortOrder, offset, limit);
 
-        IdentifiableObjectCollection collection = jdbcTemplate.query(collectionQuery, new CollectionRowMapper(collectionConfig.getBusinessObjectTypeField(),
-                collectionConfig.getIdField()));
+        IdentifiableObjectCollection collection = jdbcTemplate.query(collectionQuery, new CollectionRowMapper(
+                collectionConfig.getBusinessObjectTypeField(), collectionConfig.getIdField()));
 
         return collection;
-    } 
-    
+    }
+
     @SuppressWarnings("rawtypes")
     private class CollectionRowMapper implements ResultSetExtractor<IdentifiableObjectCollection> {
 
-        private String businessObjectType;
+        private final String businessObjectType;
 
-        private String idField;
+        private final String idField;
 
         public CollectionRowMapper(String businessObjectType, String idField) {
             this.businessObjectType = businessObjectType;
@@ -316,7 +345,8 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
                 result = DataType.INTEGER;
             } else if (columnTypeName.equals("timestamp")) {
                 result = DataType.DATETIME;
-            } else if (columnTypeName.equals("varchar") || columnTypeName.equals("unknown") || columnTypeName.equals("text")) {
+            } else if (columnTypeName.equals("varchar") || columnTypeName.equals("unknown")
+                    || columnTypeName.equals("text")) {
                 result = DataType.STRING;
             } else if (columnTypeName.equals("bool")) {
                 result = DataType.BOOLEAN;
@@ -325,11 +355,13 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
             }
             return result;
         }
-        
+
         /**
-         * Метаданные возвращаемых значений списка. Содержит названия колонок, их типы и имя колонки - первичного ключа для бизнес-объекта.
+         * Метаданные возвращаемых значений списка. Содержит названия колонок,
+         * их типы и имя колонки - первичного ключа для бизнес-объекта.
+         *
          * @author atsvetkov
-         * 
+         *
          */
         private class ColumnModel {
 
@@ -362,11 +394,13 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
             }
         }
     }
-    
+
     /**
-     * Перечисление типов колонок в таблицах бизнес-объектов. Используется для удобства чтения полей бизнес-объектов.
+     * Перечисление типов колонок в таблицах бизнес-объектов. Используется для
+     * удобства чтения полей бизнес-объектов.
+     *
      * @author atsvetkov
-     * 
+     *
      */
     private enum DataType {
         STRING("string"), INTEGER("int"), DECIMAL("decimal"), DATETIME("datetime"), BOOLEAN("boolean"), ID("id");

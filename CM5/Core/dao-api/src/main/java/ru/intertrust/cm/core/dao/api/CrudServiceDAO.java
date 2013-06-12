@@ -10,32 +10,73 @@ import ru.intertrust.cm.core.config.BusinessObjectConfig;
 import ru.intertrust.cm.core.config.CollectionConfig;
 import ru.intertrust.cm.core.config.CollectionFilterConfig;
 import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
-
+import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
 
 /**
- * DAO для работы с бизнесс объектами
+ * DAO для работы с бизнесс объектами выполняет операции создания, модификации,
+ * удаления, поиска и т.д.
  *
  */
 public interface CrudServiceDAO {
 
+    /**
+     * Генерирует уникальный идентификатор используя последоватеьность(сиквенс)
+     * @param sequenceName
+     *            имя последовательности в базе данных
+     * @return уникальный идентификатор
+     */
+    public long generateNextSequence(String sequenceName);
 
     /**
-     *
+     * Создает новый бизнес-объект
+     * @param businessObject
+     *            бизнес-объект который будет создан
      * @param businessObjectConfig
-     * @return
+     *            конфигурация бизнесс объекта
+     * @return созданыый бизнесс объект
      */
-	public long generateNextSequence(BusinessObjectConfig businessObjectConfig);
+    public BusinessObject create(BusinessObject businessObject, BusinessObjectConfig businessObjectConfig);
 
-	public BusinessObject create(BusinessObject businessObject, BusinessObjectConfig businessObjectConfig);
+    /**
+     * Модифицирует переданный бизнес-объект
+     * @param businessObject
+     *            бизнес-объект который надо изменить
+     * @param businessObjectConfig
+     *            конфигурация бизнесс объекта
+     * @return возвращет модифицированный бизнесс объект
+     * @throws ObjectNotFoundException
+     *             если не существует объекта с таким идентификатором
+     * @throws OptimisticLockException
+     *             если объект уже был модифицирован другим пользователем
+     */
+    public BusinessObject update(BusinessObject businessObject, BusinessObjectConfig businessObjectConfig)
+            throws ObjectNotFoundException, OptimisticLockException;
 
-	public BusinessObject update(BusinessObject businessObject, BusinessObjectConfig businessObjectConfig);
+    public BusinessObject read(BusinessObject businessObjec, BusinessObjectConfig businessObjectConfig);
 
-	public BusinessObject read(BusinessObject businessObjec, BusinessObjectConfig businessObjectConfig);
+    /**
+     * Удаляет бизнес-объект по уникальному идентифткатору
+     * @param id
+     *            уникальный идентификатор объекта который надо удалить
+     * @param businessObjectConfig
+     *            конфигурация бизнесс-объекта
+     * @throws ObjectNotFoundException
+     *             если не существует объекта с таким идентификатором
+     */
+    public void delete(Id id, BusinessObjectConfig businessObjectConfig) throws ObjectNotFoundException;
 
-	public void delete(Id id, BusinessObjectConfig businessObjectConfig) throws ObjectNotFoundException;
+    /**
+     * Проверяет существует ли бизнес-объект с переданным уникальным
+     * идентификатором
+     * @param id
+     *            идентификатор бизнес-объекта
+     * @param businessObjectConfig
+     *            конфигурация бизнес-объекта
+     * @return true если объект существует иначе возвращает false
+     */
+    public boolean exists(Id id, BusinessObjectConfig businessObjectConfig);
 
-	public boolean exists(Id id, BusinessObjectConfig businessObjectConfig);
-
-	IdentifiableObjectCollection findCollectionByQuery(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder, int offset, int limit);
+    IdentifiableObjectCollection findCollectionByQuery(CollectionConfig collectionConfig,
+            List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder, int offset, int limit);
 
 }

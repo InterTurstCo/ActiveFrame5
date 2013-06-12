@@ -1,5 +1,8 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ru.intertrust.cm.core.config.BusinessObjectConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
@@ -39,6 +42,22 @@ public class DataStructureNamingHelper {
      */
     public static String getSqlName(FieldConfig fieldConfig) {
         return convertToSqlFormat(fieldConfig.getName());
+    }
+
+    /**
+     * Возвращает список имен полей бизнес-объектов в sql-виде
+     * @param fieldConfigs список конфигураций полей бизнес-объектов
+     * @return список имен полей бизнес-объектов в sql-виде
+     */
+    public static List<String> getSqlName(List<FieldConfig> fieldConfigs) {
+
+        List<String> columnNames = new ArrayList<String>();
+        for (FieldConfig fieldConfig : fieldConfigs) {
+            columnNames.add(getSqlName(fieldConfig));
+
+        }
+
+        return columnNames;
     }
 
     /**
