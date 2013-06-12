@@ -38,6 +38,11 @@ import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
+/**
+ * @author atsvetkov
+ *
+ */
+
 public class CrudServiceDAOImpl implements CrudServiceDAO {
 
     private NamedParameterJdbcTemplate jdbcTemplate;
@@ -217,20 +222,28 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
         return null;
     }
 
+    
+    /*
+     * {@see ru.intertrust.cm.core.dao.api.CrudServiceDAO#findCollectionByQuery(ru.intertrust.cm.core.config.CollectionConfig, java.util.List,
+     * ru.intertrust.cm.core.business.api.dto.SortOrder, int, int)}
+     */
     @Override
-    public IdentifiableObjectCollection findCollectionByQuery(CollectionConfig collectionConfig,
-            List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder, int offset, int limit) {
+    public IdentifiableObjectCollection findCollectionByQuery(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs,
+            SortOrder sortOrder, int offset, int limit) {
         CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer();
 
-        String collectionQuery = collectionQueryInitializer.initializeQuery(collectionConfig.getPrototype(),
-                filledFilterConfigs, sortOrder, offset, limit);
+        String collectionQuery = collectionQueryInitializer.initializeQuery(collectionConfig.getPrototype(), filledFilterConfigs, sortOrder, offset, limit);
 
-        IdentifiableObjectCollection collection = jdbcTemplate.query(collectionQuery, new CollectionRowMapper(
-                collectionConfig.getBusinessObjectTypeField(), collectionConfig.getIdField()));
+        IdentifiableObjectCollection collection = jdbcTemplate.query(collectionQuery, new CollectionRowMapper(collectionConfig.getBusinessObjectTypeField(),
+                collectionConfig.getIdField()));
 
         return collection;
     }
-    
+        
+    /*
+     * {@see ru.intertrust.cm.core.dao.api.CrudServiceDAO#findCollectionCountByQuery(ru.intertrust.cm.core.config.CollectionConfig, java.util.List,
+     * ru.intertrust.cm.core.business.api.dto.SortOrder)}
+     */
     @Override
     public int findCollectionCountByQuery(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder) {
         CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer();
@@ -240,7 +253,11 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
         return jdbcTemplate.getJdbcOperations().queryForObject(collectionQuery, Integer.class);
     }
 
-
+    /**
+     * Отображает {@link ResultSet} на {@link IdentifiableObjectCollection}.
+     * @author atsvetkov
+     *
+     */
     @SuppressWarnings("rawtypes")
     private class CollectionRowMapper implements ResultSetExtractor<IdentifiableObjectCollection> {
 
@@ -348,7 +365,12 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
             }
             return collection;
         }
-
+        
+        /**
+         * Отображает типы полей в базе на {@link DataType}
+         * @param columnTypeName
+         * @return
+         */
         private DataType getColumnType(String columnTypeName) {
             DataType result = null;
             if (columnTypeName.equals("int8")) {

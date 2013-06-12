@@ -76,9 +76,25 @@ public interface CrudServiceDAO {
      */
     public boolean exists(Id id, BusinessObjectConfig businessObjectConfig);
 
+    /**
+     * Поиск коллекции бизнес-объектов, используя фильтры и сортировку
+     * @param collectionConfig конфигурация коллекции
+     * @param filledFilterConfigs заполненные фильтры в конфигурации коллекции.
+     * @param sortOrder порядок сортировки
+     * @param offset смещение
+     * @param limit ограничение количества возвращенных бизнес-объектов
+     * @return
+     */
     IdentifiableObjectCollection findCollectionByQuery(CollectionConfig collectionConfig,
             List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder, int offset, int limit);
 
+    /**
+     * Поиск количества записей в коллекции бизнес-объектов используя фильтры
+     * @param collectionConfig конфигурация коллекции
+     * @param filledFilterConfigs заполненные фильтры в конфигурации коллекции
+     * @param sortOrder порядок сортировки
+     * @return
+     */
     int findCollectionCountByQuery(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder);
     
 }

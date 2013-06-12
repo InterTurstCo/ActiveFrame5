@@ -30,7 +30,15 @@ public class CollectionQueryInitializer {
     
     public static final String DEFAULT_CRITERIA_CONDITION = "and";
 
-    
+    /**
+     * Применение фильтров, сортировки и т.д. к прототипу запроса.
+     * @param prototypeQuery прототип запроса
+     * @param filledFilterConfigs заполненные фильтры
+     * @param sortOrder порядок сортировки
+     * @param offset смещение
+     * @param limit ограничение количества
+     * @return
+     */
     public String initializeQuery(String prototypeQuery, List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder, int offset, int limit) {
         String collectionQuery = mergeFilledFilterConfigsInPrototypeQuery(prototypeQuery, filledFilterConfigs);        
         collectionQuery = applySortOrder(sortOrder, collectionQuery);
@@ -39,6 +47,13 @@ public class CollectionQueryInitializer {
         
     }
 
+    /**
+     * Применение фильтров, и т.д. к прототипу запроса на количество бизнес-объектов в коллекции.
+     * @param prototypeQuery прототип запроса
+     * @param filledFilterConfigs заполненные фильтры
+     * @param sortOrder порядок сортировки
+     * @return
+     */
     public String initializeCountQuery(String prototypeQuery, List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder) {
         return initializeQuery(prototypeQuery, filledFilterConfigs, sortOrder, 0, 0);
     }
