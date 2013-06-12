@@ -19,13 +19,6 @@ import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
  */
 public interface CrudServiceDAO {
 
-    /**
-     * Генерирует уникальный идентификатор используя последоватеьность(сиквенс)
-     * @param sequenceName
-     *            имя последовательности в базе данных
-     * @return уникальный идентификатор
-     */
-    public long generateNextSequence(String sequenceName);
 
     /**
      * Создает новый бизнес-объект
@@ -96,14 +89,14 @@ public interface CrudServiceDAO {
      * @return
      */
     int findCollectionCount(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs);
-    
+
     /**
      * Поиск бизнес-объекта по уникальному идентификатору в системе.
      * @param id идентификатору бизнес-объекта
      * @return {@link BusinessObject}
      */
     BusinessObject find(Id id);
-    
+
     /**
      * Поиск списка бизнес-объектов по уникальным идентификаторам в системе.
      * @param ids уникальные идентификаторы
