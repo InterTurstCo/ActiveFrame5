@@ -40,6 +40,11 @@ public class DaoUtils {
 
     }
 
+    public static String generateParameter(String columnName) {
+        return columnName.toLowerCase();
+
+    }
+
     /**
      * Формирует строку состоящую из списка переданных колонок разделенных
      * запятой. В результате получаем строку ввида : column1=:param1,
@@ -51,7 +56,6 @@ public class DaoUtils {
      */
     public static String generateCommaSeparatedListWithParams(Collection<String> columns) {
 
-        StringBuilder result = new StringBuilder();
         if (columns.size() == 0) {
             return "";
         }
@@ -70,7 +74,7 @@ public class DaoUtils {
 
         }
 
-        return result.toString();
+        return buidler.toString();
 
     }
 

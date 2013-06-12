@@ -41,12 +41,13 @@
 
     <bean id="md5Service" class="ru.intertrust.cm.core.business.impl.MD5ServiceImpl" />
     
-    <bean id="sequenceIdGenerator" class="ru.intertrust.cm.core.dao.impl.SequenceIdGenerator" />
+    <bean id="sequenceIdGenerator" class="ru.intertrust.cm.core.dao.impl.SequenceIdGenerator" 
+          p:dataSource-ref="dataSource"/>
     
     
     
     <bean id="crudServiceDAO" class="ru.intertrust.cm.core.dao.impl.CrudServiceDAOImpl"
-         p:idGenerator-ref="sequenceIdGenerator"/>
+         p:idGenerator-ref="sequenceIdGenerator" p:dataSource-ref="dataSource" />
     
     
     <bean id="crudService" class="ru.intertrust.cm.core.business.impl.CrudServiceImpl"

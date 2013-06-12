@@ -1,7 +1,10 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import javax.sql.DataSource;
+
+import org.springframework.jdbc.core.JdbcTemplate;
+
 import ru.intertrust.cm.core.config.BusinessObjectConfig;
-import ru.intertrust.cm.core.dao.api.CrudServiceDAO;
 import ru.intertrust.cm.core.dao.api.IdGenerator;
 
 /**
@@ -12,14 +15,18 @@ import ru.intertrust.cm.core.dao.api.IdGenerator;
 public class SequenceIdGenerator implements IdGenerator {
 
 
-    private CrudServiceDAO crudServiceDAO;
+    private  JdbcTemplate jdbcTemplate;
 
 
-    public void setCrudServiceDAO(CrudServiceDAO crudServiceDAO) {
-        this.crudServiceDAO = crudServiceDAO;
+
+    /**
+     * Устанавливает источник соединений
+     *
+     * @param dataSource
+     */
+    public void setDataSource(DataSource dataSource) {
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
-
-
 
 
     @Override
@@ -27,10 +34,15 @@ public class SequenceIdGenerator implements IdGenerator {
 
         String sequenceName = DataStructureNamingHelper.getSqlSequenceName(businessObjectConfig);
 
-
-        return crudServiceDAO.generateNextSequence(sequenceName);
+        StringBuilder query = new StringBuilder();
+        query.append("select nextval ('");
+        query.append(sequenceName);
+        query.append("')");
+        return jdbcTemplate.queryForObject(query.toString(), Long.class);
 
 
     }
+
+
 
 }
