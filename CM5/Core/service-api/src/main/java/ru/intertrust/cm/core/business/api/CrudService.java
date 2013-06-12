@@ -120,7 +120,7 @@ public interface CrudService {
      * @param sortOrder порядок сортировки коллекции
      * @return коллекцию
      */
-    int findCollectionCount(String collectionName, List<Filter> filters, SortOrder sortOrder);
+    int findCollectionCount(String collectionName, List<Filter> filters);
 
     /**
      * Удаляет бизнес-объект по его уникальному идентификатору. Не осуществляет никаких действий, если объект

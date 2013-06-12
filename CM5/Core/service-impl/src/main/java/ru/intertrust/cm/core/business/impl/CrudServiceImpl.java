@@ -125,10 +125,17 @@ public class CrudServiceImpl implements CrudService {
 
         List<CollectionFilterConfig> filledFilterConfigs = findFilledFilterConfigs(filterValues, collectionConfig);
 
-        return crudServiceDAO.findCollectionByQuery(collectionConfig, filledFilterConfigs, sortOrder, offset, limit);
+        return crudServiceDAO.findCollection(collectionConfig, filledFilterConfigs, sortOrder, offset, limit);
     }
 
-    private List<CollectionFilterConfig> findFilledFilterConfigs(List<Filter> filterValues, CollectionConfig collectionConfig) {
+    /**
+     * Заполняет конфигурации фильтров значениями. Возвращает заполненные конфигурации фильтров (для которых были переданы значения). Сделан публичным для
+     * тестов.
+     * @param filterValues
+     * @param collectionConfig
+     * @return
+     */
+    public List<CollectionFilterConfig> findFilledFilterConfigs(List<Filter> filterValues, CollectionConfig collectionConfig) {
         List<CollectionFilterConfig> filterConfigs = collectionConfig.getFilters();
 
         List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<CollectionFilterConfig>();
@@ -201,7 +208,7 @@ public class CrudServiceImpl implements CrudService {
     }
 
     @Override
-    public int findCollectionCount(String collectionName, List<Filter> filterValues, SortOrder sortOrder) {
+    public int findCollectionCount(String collectionName, List<Filter> filterValues) {
 
         CollectionConfiguration collectionsConfiguration = loader.getCollectionConfiguration();
 
@@ -213,7 +220,7 @@ public class CrudServiceImpl implements CrudService {
 
         List<CollectionFilterConfig> filledFilterConfigs = findFilledFilterConfigs(filterValues, collectionConfig);
 
-        return crudServiceDAO.findCollectionCountByQuery(collectionConfig, filledFilterConfigs, sortOrder);        
+        return crudServiceDAO.findCollectionCount(collectionConfig, filledFilterConfigs);        
     }
     
     @Override

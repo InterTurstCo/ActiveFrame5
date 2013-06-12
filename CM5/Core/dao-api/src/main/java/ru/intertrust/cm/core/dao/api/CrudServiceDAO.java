@@ -85,7 +85,7 @@ public interface CrudServiceDAO {
      * @param limit ограничение количества возвращенных бизнес-объектов
      * @return
      */
-    IdentifiableObjectCollection findCollectionByQuery(CollectionConfig collectionConfig,
+    IdentifiableObjectCollection findCollection(CollectionConfig collectionConfig,
             List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder, int offset, int limit);
 
     /**
@@ -95,7 +95,7 @@ public interface CrudServiceDAO {
      * @param sortOrder порядок сортировки
      * @return
      */
-    int findCollectionCountByQuery(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder);
+    int findCollectionCount(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs);
     
     /**
      * Поиск бизнес-объекта по уникальному идентификатору в системе.

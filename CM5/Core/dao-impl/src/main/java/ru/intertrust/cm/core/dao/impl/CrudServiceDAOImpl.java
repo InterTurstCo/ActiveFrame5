@@ -5,7 +5,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -22,10 +21,8 @@ import ru.intertrust.cm.core.business.api.dto.BooleanValue;
 import ru.intertrust.cm.core.business.api.dto.BusinessObject;
 import ru.intertrust.cm.core.business.api.dto.DecimalValue;
 import ru.intertrust.cm.core.business.api.dto.GenericBusinessObject;
-import ru.intertrust.cm.core.business.api.dto.GenericIdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.GenericIdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.IntegerValue;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
@@ -283,16 +280,22 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
      * ru.intertrust.cm.core.business.api.dto.SortOrder, int, int)}
      */
     @Override
-    public IdentifiableObjectCollection findCollectionByQuery(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs,
+    public IdentifiableObjectCollection findCollection(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs,
             SortOrder sortOrder, int offset, int limit) {
-        CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer();
-
-        String collectionQuery = collectionQueryInitializer.initializeQuery(collectionConfig.getPrototype(), filledFilterConfigs, sortOrder, offset, limit);
+        String collectionQuery = getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, offset, limit);
 
         IdentifiableObjectCollection collection = jdbcTemplate.query(collectionQuery, new CollectionRowMapper(collectionConfig.getBusinessObjectTypeField(),
                 collectionConfig.getIdField()));
 
         return collection;
+    }
+
+    protected String getFindCollectionQuery(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder, int offset,
+            int limit) {
+        CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer();
+
+        String collectionQuery = collectionQueryInitializer.initializeQuery(collectionConfig.getPrototype(), filledFilterConfigs, sortOrder, offset, limit);
+        return collectionQuery;
     }
         
     /*
@@ -300,12 +303,17 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
      * ru.intertrust.cm.core.business.api.dto.SortOrder)}
      */
     @Override
-    public int findCollectionCountByQuery(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder) {
-        CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer();
-
-        String collectionQuery = collectionQueryInitializer.initializeCountQuery(collectionConfig.getCountingPrototype(), filledFilterConfigs, sortOrder);
+    public int findCollectionCount(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs) {
+        String collectionQuery = getFindCollectionCountQuery(collectionConfig, filledFilterConfigs);
 
         return jdbcTemplate.getJdbcOperations().queryForObject(collectionQuery, Integer.class);
+    }
+
+    protected String getFindCollectionCountQuery(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs) {
+        CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer();
+
+        String collectionQuery = collectionQueryInitializer.initializeCountQuery(collectionConfig.getCountingPrototype(), filledFilterConfigs);
+        return collectionQuery;
     }
 
     /**

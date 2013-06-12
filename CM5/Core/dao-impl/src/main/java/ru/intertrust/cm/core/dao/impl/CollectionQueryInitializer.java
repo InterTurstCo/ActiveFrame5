@@ -54,8 +54,8 @@ public class CollectionQueryInitializer {
      * @param sortOrder порядок сортировки
      * @return
      */
-    public String initializeCountQuery(String prototypeQuery, List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder) {
-        return initializeQuery(prototypeQuery, filledFilterConfigs, sortOrder, 0, 0);
+    public String initializeCountQuery(String prototypeQuery, List<CollectionFilterConfig> filledFilterConfigs) {
+        return initializeQuery(prototypeQuery, filledFilterConfigs, null, 0, 0);
     }
     
     private String applyLimitAndOffset(int offset, int limit, String collectionQuery) {
