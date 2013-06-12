@@ -184,7 +184,7 @@
                 xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
             <xs:element type="xs:string" name="prototype" 
-                minOccurs="1" maxOccurs="1"/>
+                minOccurs="0" maxOccurs="1"/>
             <xs:element type="xs:string" name="counting-prototype"
                 minOccurs="0">
             </xs:element>
