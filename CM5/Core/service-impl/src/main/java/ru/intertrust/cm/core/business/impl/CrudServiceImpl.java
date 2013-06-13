@@ -20,6 +20,8 @@ import ru.intertrust.cm.core.config.CollectionFilterConfig;
 import ru.intertrust.cm.core.config.CollectionFilterCriteria;
 import ru.intertrust.cm.core.config.CollectionFilterReference;
 import ru.intertrust.cm.core.dao.api.CrudServiceDAO;
+import ru.intertrust.cm.core.dao.exception.InvalidIdException;
+import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 
 /**
  * Реализация сервиса для работы c базовыvb CRUD-операциями. Смотри link @CrudService
@@ -99,8 +101,21 @@ public class CrudServiceImpl implements CrudService {
 
     @Override
     public List<BusinessObject> save(List<BusinessObject> businessObjects) {
-        // TODO Auto-generated method stub
-        return null;
+        List<BusinessObject> result = new ArrayList();
+
+        for (BusinessObject  businessObject : businessObjects) {
+            BusinessObject newBusinessObject;
+            try {
+                newBusinessObject = save(businessObject);
+                result.add(newBusinessObject);
+            } catch (Exception e) {
+                // TODO: пока ничего не делаем...разобраться как обрабатывать ошибки
+            }
+
+        }
+
+        return result;
+
     }
 
     @Override
@@ -244,13 +259,26 @@ public class CrudServiceImpl implements CrudService {
 
     @Override
     public int delete(Collection<Id> ids) {
-        // TODO Auto-generated method stub
-        return 0;
+        // TODO как обрабатывать ошибки при удалении каждого бизнесс объекта...
+        int count = 0;
+        for(Id id : ids) {
+            try {
+                delete(id);
+
+                count++;
+            } catch (ObjectNotFoundException e) {
+                //ничего не делаем пока
+            } catch (InvalidIdException e) {
+                ////ничего не делаем пока
+            }
+
+        }
+        return count;
     }
 
     @Override
     public int deleteAll(String businessObjectName) {
-        // TODO Auto-generated method stub
+        // TODO как удалять сначала все
         return 0;
     }
 

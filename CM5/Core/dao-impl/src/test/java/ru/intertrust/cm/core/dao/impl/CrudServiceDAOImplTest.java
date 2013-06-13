@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
 
@@ -9,12 +10,14 @@ import org.junit.Test;
 
 import ru.intertrust.cm.core.business.api.dto.BusinessObject;
 import ru.intertrust.cm.core.business.api.dto.GenericBusinessObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.config.BusinessObjectConfig;
 import ru.intertrust.cm.core.config.StringFieldConfig;
 import ru.intertrust.cm.core.config.UniqueKeyConfig;
 import ru.intertrust.cm.core.config.UniqueKeyFieldConfig;
+import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 
 /**
  * Юнит тест для CrudServiceDAOImpl
@@ -53,6 +56,41 @@ public class CrudServiceDAOImplTest {
         assertEquals(checkCreateQuery, query);
 
     }
+
+    @Test
+    public void testUpdateThrowsInvalidIdException() {
+
+        BusinessObject businessObject = new GenericBusinessObject();
+        businessObject.setId(null);
+        businessObject.setTypeName(businessObjectConfig.getName());
+        businessObject.setValue("EMail", new StringValue("testUpdate@test.com"));
+        businessObject.setValue("Login", new StringValue("userUpdate"));
+        businessObject.setValue("Password", new StringValue("passUpdate"));
+
+        //проверяем что идентификатор не нулевой
+        try {
+            crudServiceDAOImpl.update(businessObject, businessObjectConfig);
+        } catch (Exception e) {
+
+            assertTrue(e instanceof InvalidIdException);
+
+        }
+
+        //проверяем что обрабатываеться неккоректный тип идентификатора
+        try {
+            businessObject.setId(new TestId());
+            crudServiceDAOImpl.update(businessObject, businessObjectConfig);
+        } catch (Exception e) {
+
+            assertTrue(e instanceof InvalidIdException);
+
+        }
+
+
+
+    }
+
+
 
     @Test
     public void testGenerateUpdateQuery() throws Exception {
@@ -131,5 +169,27 @@ public class CrudServiceDAOImplTest {
         uniqueKeyConfig.getUniqueKeyFieldConfigs().add(uniqueKeyFieldConfig1);
 
     }
+
+    /**
+     * Тестовый класс для проверки обработки неккоректного типа идентификатора
+     * @author skashanski
+     *
+     */
+    class TestId implements Id {
+
+        @Override
+        public void setFromStringRepresentation(String stringRep) {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public String toStringRepresentation() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+    }
+
 
 }
