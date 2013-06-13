@@ -17,7 +17,7 @@ public interface AuthenticationDAO {
     int insertAuthenticationInfo(AuthenticationInfo authenticationInfo);
 
     /**
-     * Проверяет сужествует ли пользователь с указанным логином.
+     * Проверяет, существует ли пользователь с указанным логином.
      * @param login логин пользователя
      * @return true, если существует пользователь, false иначе
      */

@@ -39,7 +39,7 @@ public interface CrudServiceDAO {
      *            конфигурация бизнесс объекта
      * @return возвращет модифицированный бизнесс объект
      * @throws InvalidIdException
-     *             если идентификатор бизнес-объекта не корректный(не поддерживаеться или нулевой)
+     *             если идентификатор бизнес-объекта не корректный (не поддерживается или нулевой)
      * @throws ObjectNotFoundException
      *             если не существует объекта с таким идентификатором
      * @throws OptimisticLockException
@@ -55,7 +55,7 @@ public interface CrudServiceDAO {
      * @param businessObjectConfig
      *            конфигурация бизнесс-объекта
      * @throws InvalidIdException
-     *             если идентификатор бизнес-объекта не корректный(не поддерживаеться или нулевой)
+     *             если идентификатор бизнес-объекта не корректный (не поддерживается или нулевой)
      * @throws ObjectNotFoundException
      *             если не существует объекта с таким идентификатором
      */
@@ -69,7 +69,7 @@ public interface CrudServiceDAO {
      * @param businessObjectConfig
      *            конфигурация бизнес-объекта
      * @throws InvalidIdException
-     *             если идентификатор бизнес-объекта не корректный(не поддерживаеться или нулевой)
+     *             если идентификатор бизнес-объекта не корректный (не поддерживается или нулевой)
      * @return true если объект существует иначе возвращает false
      */
     public boolean exists(Id id, BusinessObjectConfig businessObjectConfig) throws InvalidIdException;
