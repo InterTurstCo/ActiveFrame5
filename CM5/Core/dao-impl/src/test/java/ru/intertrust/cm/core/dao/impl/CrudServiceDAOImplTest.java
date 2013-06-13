@@ -3,17 +3,34 @@ package ru.intertrust.cm.core.dao.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.jdbc.core.JdbcTemplate;
 
+import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.BusinessObject;
 import ru.intertrust.cm.core.business.api.dto.GenericBusinessObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.SortCriterion;
+import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.impl.ConfigurationLoader;
+import ru.intertrust.cm.core.business.impl.ConfigurationValidator;
 import ru.intertrust.cm.core.config.BusinessObjectConfig;
+import ru.intertrust.cm.core.config.CollectionConfig;
+import ru.intertrust.cm.core.config.CollectionConfiguration;
+import ru.intertrust.cm.core.config.CollectionFilterConfig;
+import ru.intertrust.cm.core.config.CollectionFilterCriteria;
+import ru.intertrust.cm.core.config.CollectionFilterReference;
 import ru.intertrust.cm.core.config.StringFieldConfig;
 import ru.intertrust.cm.core.config.UniqueKeyConfig;
 import ru.intertrust.cm.core.config.UniqueKeyFieldConfig;
@@ -25,15 +42,56 @@ import ru.intertrust.cm.core.dao.exception.InvalidIdException;
  * @author skashanski
  *
  */
+
+@RunWith(MockitoJUnitRunner.class)
 public class CrudServiceDAOImplTest {
 
     private BusinessObjectConfig businessObjectConfig;
 
-    private final CrudServiceDAOImpl crudServiceDAOImpl = new CrudServiceDAOImpl();
+    private static final String COLLECTION_COUNT_WITH_FILTERS = "select count(*) from employee e inner join department d on e.department = d.id WHERE d.name = 'dep1' and e.name = 'employee1'";
+    private static final String COLLECTION_QUERY_WITH_LIMITS = "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e inner join department d on e.department = d.id where d.name = 'dep1' order by e.name asc limit 100 OFFSET 10";
+    private static final String COLLECTION_QUERY_WITHOUT_FILTERS = "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e where 1=1 order by e.name asc";
+    private static final String FIND_COLLECTION_QUERY_WITH_FILTERS = "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e inner join department d on e.department = d.id where d.name = 'dep1' order by e.name asc";
+    private static final String CONFIG_PATH = "test-config/business-objects.xml";
+    private static final String COLLECTIONS_CONFIG_PATH = "test-config/collections.xml";
 
+    @InjectMocks
+    private CrudServiceDAOImpl crudServiceDAOImpl = new CrudServiceDAOImpl();
+    @Mock
+    private JdbcTemplate jdbcTemplate;   
+    
+    @InjectMocks
+    private ConfigurationLoader configurationLoader = new ConfigurationLoader();
+
+    @Mock(name = "configurationService")
+    private ConfigurationService configurationService;
+
+    @Mock
+    private ConfigurationValidator configurationValidator;
+
+    private CollectionFilterConfig byDepartmentFilterConfig;
+    
+    private CollectionFilterConfig byNameFilterConfig;
+    
+    private CollectionConfig collectionConfig;
+    
+    private SortOrder sortOrder;
+
+
+    
     @Before
     public void setUp() throws Exception {
         initBusinessObjectConfig();
+
+        configurationLoader.setConfigurationFilePath(CONFIG_PATH);
+        configurationLoader.setCollectionsConfigurationFilePath(COLLECTIONS_CONFIG_PATH);
+
+        collectionConfig = getCollectionConfig();
+        byDepartmentFilterConfig = createByDepartmentFilterConfig();
+        byNameFilterConfig = createByNameFilterConfig();
+
+        sortOrder = createByNameSortOrder();
+        
     }
 
     @Test
@@ -85,8 +143,6 @@ public class CrudServiceDAOImplTest {
             assertTrue(e instanceof InvalidIdException);
 
         }
-
-
 
     }
 
@@ -182,6 +238,105 @@ public class CrudServiceDAOImplTest {
 
     }
 
+    private SortOrder createByNameSortOrder() {
+        SortOrder sortOrder = new SortOrder();
+        sortOrder.add(new SortCriterion("e.name", SortCriterion.Order.ASCENDING));
+        return sortOrder;
+    }
+
+    private CollectionFilterConfig createByDepartmentFilterConfig() {
+        CollectionFilterConfig byDepartmentFilterConfig = new CollectionFilterConfig();
+        byDepartmentFilterConfig.setName("byDepartment");
+        CollectionFilterReference collectionFilterReference = new CollectionFilterReference();
+
+        collectionFilterReference.setPlaceholder("from-clause");
+        collectionFilterReference.setValue("inner join department d on e.department = d.id");
+
+        CollectionFilterCriteria collectionFilterCriteria = new CollectionFilterCriteria();
+        collectionFilterCriteria.setCondition(" and ");
+        collectionFilterCriteria.setPlaceholder("where-clause");
+        collectionFilterCriteria.setValue(" d.name = 'dep1'");
+
+        byDepartmentFilterConfig.setFilterReference(collectionFilterReference);
+        byDepartmentFilterConfig.setFilterCriteria(collectionFilterCriteria);
+        return byDepartmentFilterConfig;
+    }
+
+    private CollectionFilterConfig createByNameFilterConfig() {
+        CollectionFilterConfig byNameFilterConfig = new CollectionFilterConfig();
+        byNameFilterConfig.setName("byName");
+
+        CollectionFilterCriteria collectionFilterCriteria = new CollectionFilterCriteria();
+        collectionFilterCriteria.setCondition(" and ");
+        collectionFilterCriteria.setPlaceholder("where-clause");
+        collectionFilterCriteria.setValue(" e.name = 'employee1' ");
+
+        byNameFilterConfig.setFilterCriteria(collectionFilterCriteria);
+        return byNameFilterConfig;
+    }
+
+    private CollectionConfig getCollectionConfig() throws Exception {
+        configurationLoader.load();
+        CollectionConfiguration collectionsConfiguration = configurationLoader.getCollectionConfiguration();
+        CollectionConfig collectionConfig = collectionsConfiguration.findCollectionConfigByName("Employees");
+        return collectionConfig;
+    }
+
+    @Test
+    public void testFindCollectionWithFilters() throws Exception {
+        List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<>();
+
+        filledFilterConfigs.add(byDepartmentFilterConfig);
+
+        String actualQuery = crudServiceDAOImpl.getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, 0, 0);
+        String refinedActualQuery = refineQuery(actualQuery);
+        assertEquals(FIND_COLLECTION_QUERY_WITH_FILTERS, refinedActualQuery);
+        System.out.print("!!! " + refineQuery(actualQuery) + "\n");
+
+    }
+
+    @Test
+    public void testFindCollectionWithoutFilters() throws Exception {
+        List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<>();
+        String actualQuery = crudServiceDAOImpl.getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, 0, 0);
+        String refinedActualQuery = refineQuery(actualQuery);
+        assertEquals(COLLECTION_QUERY_WITHOUT_FILTERS, refinedActualQuery);
+        System.out.print(refinedActualQuery);
+
+    }
+
+    @Test
+    public void testFindCollectionWithLimits() throws Exception {
+        List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<>();
+        filledFilterConfigs.add(byDepartmentFilterConfig);
+
+        String actualQuery = crudServiceDAOImpl.getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, 10, 100);
+        String refinedActualQuery = refineQuery(actualQuery);
+
+        assertEquals(COLLECTION_QUERY_WITH_LIMITS, refinedActualQuery);
+
+        System.out.print("\n " + refinedActualQuery);
+
+    }
+
+    @Test
+    public void testFindCollectionCountWithFilters() throws Exception {
+        List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<>();
+        filledFilterConfigs.add(byDepartmentFilterConfig);
+        filledFilterConfigs.add(byNameFilterConfig);
+
+        String actualQuery = crudServiceDAOImpl.getFindCollectionCountQuery(collectionConfig, filledFilterConfigs);
+        String refinedActualQuery = refineQuery(actualQuery);
+        assertEquals(COLLECTION_COUNT_WITH_FILTERS, refinedActualQuery);
+
+        System.out.print("\n " + refinedActualQuery);
+
+    }
+
+    private String refineQuery(String actualQuery) {
+        return actualQuery.trim().replaceAll("\\s+", " ");
+    }
+    
     /**
      * Тестовый класс для проверки обработки неккоректного типа идентификатора
      * @author skashanski
@@ -201,7 +356,6 @@ public class CrudServiceDAOImplTest {
             return null;
         }
 
-    }
-
+    }    
 
 }

@@ -456,6 +456,15 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
         return collection;
     }
 
+    /**
+     * Возвращает запрос, который используется в методе поиска коллекции бизнес-объектов
+     * @param collectionConfig
+     * @param filledFilterConfigs
+     * @param sortOrder
+     * @param offset
+     * @param limit
+     * @return
+     */
     protected String getFindCollectionQuery(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder, int offset,
             int limit) {
         CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer();
@@ -475,6 +484,12 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
         return jdbcTemplate.getJdbcOperations().queryForObject(collectionQuery, Integer.class);
     }
 
+    /**
+     * Возвращает запрос, который используется в методе поиска количества объектов в коллекции
+     * @param collectionConfig
+     * @param filledFilterConfigs
+     * @return
+     */
     protected String getFindCollectionCountQuery(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs) {
         CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer();
 
@@ -613,7 +628,8 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
         @Override
         public BusinessObject extractData(ResultSet rs) throws SQLException, DataAccessException {
             GenericBusinessObject object = new GenericBusinessObject();
-
+            object.setTypeName(businessObjectType);
+            
             ColumnModel columnModel = new ColumnModel();
             for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
                 String fieldName = rs.getMetaData().getColumnName(i);
@@ -766,7 +782,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
             while (rs.next()) {
                 GenericBusinessObject object = new GenericBusinessObject();
-
+                object.setTypeName(businessObjectType);
                 int index = 0;
                 Id id = null;
                 int fieldIndex = 0;
