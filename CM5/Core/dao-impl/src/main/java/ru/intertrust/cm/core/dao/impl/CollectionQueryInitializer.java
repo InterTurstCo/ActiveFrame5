@@ -40,6 +40,9 @@ public class CollectionQueryInitializer {
      * @return
      */
     public String initializeQuery(String prototypeQuery, List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder, int offset, int limit) {
+        if(prototypeQuery == null || prototypeQuery.trim().length() == 0){
+            throw new RuntimeException("Prototype query is null and can not be processed");
+        }
         String collectionQuery = mergeFilledFilterConfigsInPrototypeQuery(prototypeQuery, filledFilterConfigs);        
         collectionQuery = applySortOrder(sortOrder, collectionQuery);
         collectionQuery = applyLimitAndOffset(offset, limit, collectionQuery);
