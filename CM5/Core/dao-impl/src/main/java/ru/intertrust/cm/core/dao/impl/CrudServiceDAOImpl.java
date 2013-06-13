@@ -36,6 +36,7 @@ import ru.intertrust.cm.core.config.CollectionFilterConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.dao.api.CrudServiceDAO;
 import ru.intertrust.cm.core.dao.api.IdGenerator;
+import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
@@ -70,20 +71,13 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
 
-    @Override
-    public BusinessObject create(BusinessObject businessObject, BusinessObjectConfig businessObjectConfig) {
-
-        Object nextId = idGenerator.generatetId(businessObjectConfig);
-
-        RdbmsId id = new RdbmsId(businessObject.getTypeName(), (Long) nextId);
-
-        // инициализация системных полей....если они переданы с клиеента то их
-        // игнорируем
-        businessObject.setId(id);
-        Date currentDate = new Date();
-        businessObject.setCreatedDate(currentDate);
-        businessObject.setModifiedDate(currentDate);
-
+    /**
+     * Создает SQL запрос для создания бизнес-объекта
+     * @param businessObject бизнес-объект
+     * @param businessObjectConfig конфигуоация бизнес-объекта
+     * @return строку запроса для создания бизнес-объекта с параметрами
+     */
+    protected String generateCreateQuery(BusinessObject businessObject, BusinessObjectConfig businessObjectConfig) {
         List<FieldConfig> feldConfigs = businessObjectConfig
                 .getBusinessObjectFieldsConfig().getFieldConfigs();
 
@@ -101,16 +95,51 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
         query.append(commaSeparatedParameters);
         query.append(")");
 
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("id", nextId);
+        return query.toString();
+
+    }
+
+    @Override
+    public BusinessObject create(BusinessObject businessObject, BusinessObjectConfig businessObjectConfig) {
+
+        String query = generateCreateQuery(businessObject, businessObjectConfig);
+
+        Object nextId = idGenerator.generatetId(businessObjectConfig);
+
+        RdbmsId id = new RdbmsId(businessObject.getTypeName(), (Long) nextId);
+
+        businessObject.setId(id);
+
+        Map<String, Object> parameters = initializeCreateParameters(businessObject, businessObjectConfig);
+
+        jdbcTemplate.update(query, parameters);
+
+        return businessObject;
+    }
+
+
+    /**
+     * Инициализирует параметры для для создания бизнес-объекта
+     * @param businessObject бизнес-объект
+     * @param businessObjectConfig конфигуоация бизнес-объекта
+     * @return карту объектов содержащую имя параметра и его значение
+     */
+    protected Map<String, Object> initializeCreateParameters(BusinessObject businessObject,BusinessObjectConfig businessObjectConfig) {
+
+        RdbmsId rdbmsId = (RdbmsId) businessObject.getId();
+
+        Map<String, Object> parameters = initializeDeleteParameters(rdbmsId);
         parameters.put("created_date", businessObject.getCreatedDate());
         parameters.put("updated_date", businessObject.getModifiedDate());
 
+
+        List<FieldConfig> feldConfigs = businessObjectConfig
+                .getBusinessObjectFieldsConfig().getFieldConfigs();
+
+
         initializeBusinessParameters(businessObject, feldConfigs, parameters);
 
-        jdbcTemplate.update(query.toString(), parameters);
-
-        return businessObject;
+        return parameters;
     }
 
     private void initializeBusinessParameters(BusinessObject businessObject, List<FieldConfig> feldConfigs,
@@ -130,10 +159,13 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
 
-
-    @Override
-    public BusinessObject update(BusinessObject businessObject, BusinessObjectConfig businessObjectConfig)
-            throws ObjectNotFoundException, OptimisticLockException {
+    /**
+     * Создает SQL запрос для модификации бизнес-объекта
+     * @param businessObject бизнес-объект
+     * @param businessObjectConfig конфигуоация бизнес-объекта
+     * @return строку запроса для модиификации бизнес-объекта с параметрами
+     */
+    protected String generateUpdateQuery(BusinessObject businessObject, BusinessObjectConfig businessObjectConfig) {
 
         StringBuilder query = new StringBuilder();
 
@@ -152,20 +184,54 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
         query.append(" where ID=:id");
         query.append(" and UPDATED_DATE=:updated_date");
 
-        RdbmsId rdbmsId = (RdbmsId) businessObject.getId();
+        return query.toString();
+
+
+    }
+
+    /**
+     * Инициализирует параметры для для создания бизнес-объекта
+     * @param businessObject бизнес-объект
+     * @param businessObjectConfig конфигуоация бизнес-объекта
+     * @return карту объектов содержащую имя параметра и его значение
+     */
+    protected Map<String, Object> initializeUpdateParameters(BusinessObject businessObject,BusinessObjectConfig businessObjectConfig, Date currentDate) {
 
         Map<String, Object> parameters = new HashMap<String, Object>();
-        Date currentDate = new Date();
+
+        RdbmsId rdbmsId = (RdbmsId) businessObject.getId();
+
         parameters.put("id", rdbmsId.getId());
         parameters.put("current_date", currentDate);
         parameters.put("updated_date", businessObject.getModifiedDate());
 
+        List<FieldConfig> feldConfigs = businessObjectConfig
+                .getBusinessObjectFieldsConfig().getFieldConfigs();
+
         initializeBusinessParameters(businessObject, feldConfigs, parameters);
 
-        int count = jdbcTemplate.update(query.toString(), parameters);
+        return parameters;
 
-        if (count == 0 && (!exists(businessObject.getId(), businessObjectConfig)))
-            throw new ObjectNotFoundException(rdbmsId);
+    }
+
+
+    @Override
+    public BusinessObject update(BusinessObject businessObject, BusinessObjectConfig businessObjectConfig)
+            throws InvalidIdException, ObjectNotFoundException, OptimisticLockException {
+
+        String query = generateUpdateQuery(businessObject, businessObjectConfig);
+
+        validateIdType(businessObject.getId());
+
+        Date currentDate = new Date();
+
+        Map<String, Object> parameters = initializeUpdateParameters(businessObject, businessObjectConfig, currentDate);
+
+        int count = jdbcTemplate.update(query, parameters);
+
+        if (count == 0 && (!exists(businessObject.getId(), businessObjectConfig))) {
+            throw new ObjectNotFoundException(businessObject.getId());
+        }
 
         if (count == 0)
             throw new OptimisticLockException(businessObject);
@@ -176,8 +242,27 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
     }
 
-    @Override
-    public void delete(Id id, BusinessObjectConfig businessObjectConfig) throws ObjectNotFoundException {
+    /**
+     * Проверяет какого типа идентификатор
+     * @param businessObject
+     *
+     */
+    private void validateIdType(Id id) {
+        if (id == null) {
+            throw new InvalidIdException(id);
+        }
+        if (!(id instanceof RdbmsId)) {
+            throw new InvalidIdException(id);
+        }
+    }
+
+
+    /**
+     * Создает SQL запрос для удаления бизнес-объекта
+     * @param businessObjectConfig конфигуоация бизнес-объекта
+     * @return строку запроса для удаления бизнес-объекта с параметрами
+     */
+    protected String generateDeleteQuery(BusinessObjectConfig businessObjectConfig) {
 
         String tableName = DataStructureNamingHelper.getSqlName(businessObjectConfig);
 
@@ -186,22 +271,47 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
         query.append(tableName);
         query.append(" where id=:id");
 
+        return query.toString();
+
+    }
+
+
+    @Override
+    public void delete(Id id, BusinessObjectConfig businessObjectConfig) throws InvalidIdException, ObjectNotFoundException {
+
+        String query = generateDeleteQuery(businessObjectConfig);
+
+        validateIdType(id);
+
         RdbmsId rdbmsId = (RdbmsId) id;
 
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("id", rdbmsId.getId());
+        Map<String, Object> parameters = initializeDeleteParameters(rdbmsId);
 
-        int count = jdbcTemplate.update(query.toString(), parameters);
+        int count = jdbcTemplate.update(query, parameters);
 
         if (count == 0)
             throw new ObjectNotFoundException(rdbmsId);
 
     }
 
-    @Override
-    public boolean exists(Id id, BusinessObjectConfig businessObjectConfig) {
-
+    /**
+     * Инициализирует параметры для удаления бизнес-объекта
+     * @param id идентификатор  бизнес-объектв для удаления
+     * @return карту объектов содержащую имя параметра и его значение
+     */
+    protected Map<String, Object> initializeDeleteParameters(Id id) {
         RdbmsId rdbmsId = (RdbmsId) id;
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("id", rdbmsId.getId());
+        return parameters;
+    }
+
+    /**
+     * Создает SQL запрос для проверки  существует ли бизнес-объекта
+     * @param businessObjectConfig конфигуоация бизнес-объекта
+     * @return строку запроса для удаления бизнес-объекта с параметрами
+     */
+    protected String generateExistsQuery(BusinessObjectConfig businessObjectConfig) {
 
         String tableName = DataStructureNamingHelper.getSqlName(businessObjectConfig);
 
@@ -210,8 +320,34 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
         query.append(tableName);
         query.append(" where id=:id");
 
+        return query.toString();
+
+    }
+
+
+    /**
+     * Инициализирует параметры для удаления бизнес-объекта
+     * @param id идентификатор  бизнес-объектв для удаления
+     * @return карту объектов содержащую имя параметра и его значение
+     */
+    protected Map<String, Long> initializeExistsParameters(Id id) {
+
+        RdbmsId rdbmsId = (RdbmsId) id;
         Map<String, Long> parameters = new HashMap<String, Long>();
         parameters.put("id", rdbmsId.getId());
+
+        return parameters;
+    }
+
+
+    @Override
+    public boolean exists(Id id, BusinessObjectConfig businessObjectConfig) throws InvalidIdException {
+
+        String query = generateExistsQuery(businessObjectConfig);
+
+        validateIdType(id);
+
+        Map<String, Long> parameters = initializeExistsParameters(id);
 
         long total = jdbcTemplate.queryForObject(query.toString(), parameters, Long.class);
 
@@ -232,8 +368,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
         StringBuilder query = new StringBuilder();
         query.append("select * from ").append(tableName).append(" where ID=:id ");
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("id", rdbmsId.getId());
+        Map<String, Object> parameters = initializeDeleteParameters(rdbmsId);
 
         return jdbcTemplate.query(query.toString(), parameters, new SingleObjectRowMapper(rdbmsId.getTypeName()));
     }

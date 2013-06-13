@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.config.BusinessObjectConfig;
 import ru.intertrust.cm.core.config.CollectionConfig;
 import ru.intertrust.cm.core.config.CollectionFilterConfig;
+import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
 
@@ -37,13 +38,15 @@ public interface CrudServiceDAO {
      * @param businessObjectConfig
      *            конфигурация бизнесс объекта
      * @return возвращет модифицированный бизнесс объект
+     * @throws InvalidIdException
+     *             если идентификатор бизнес-объекта не корректный(не поддерживаеться или нулевой)
      * @throws ObjectNotFoundException
      *             если не существует объекта с таким идентификатором
      * @throws OptimisticLockException
      *             если объект уже был модифицирован другим пользователем
      */
     public BusinessObject update(BusinessObject businessObject, BusinessObjectConfig businessObjectConfig)
-            throws ObjectNotFoundException, OptimisticLockException;
+            throws InvalidIdException, ObjectNotFoundException, OptimisticLockException;
 
     public BusinessObject read(BusinessObject businessObjec, BusinessObjectConfig businessObjectConfig);
 
@@ -53,10 +56,12 @@ public interface CrudServiceDAO {
      *            уникальный идентификатор объекта который надо удалить
      * @param businessObjectConfig
      *            конфигурация бизнесс-объекта
+     * @throws InvalidIdException
+     *             если идентификатор бизнес-объекта не корректный(не поддерживаеться или нулевой)
      * @throws ObjectNotFoundException
      *             если не существует объекта с таким идентификатором
      */
-    public void delete(Id id, BusinessObjectConfig businessObjectConfig) throws ObjectNotFoundException;
+    public void delete(Id id, BusinessObjectConfig businessObjectConfig) throws InvalidIdException, ObjectNotFoundException;
 
     /**
      * Проверяет существует ли бизнес-объект с переданным уникальным
@@ -65,9 +70,11 @@ public interface CrudServiceDAO {
      *            идентификатор бизнес-объекта
      * @param businessObjectConfig
      *            конфигурация бизнес-объекта
+     * @throws InvalidIdException
+     *             если идентификатор бизнес-объекта не корректный(не поддерживаеться или нулевой)
      * @return true если объект существует иначе возвращает false
      */
-    public boolean exists(Id id, BusinessObjectConfig businessObjectConfig);
+    public boolean exists(Id id, BusinessObjectConfig businessObjectConfig) throws InvalidIdException;
 
     /**
      * Поиск коллекции бизнес-объектов, используя фильтры и сортировку

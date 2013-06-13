@@ -8,6 +8,7 @@ import java.util.List;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.BusinessObject;
 import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.GenericBusinessObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
@@ -29,7 +30,7 @@ import ru.intertrust.cm.core.dao.api.CrudServiceDAO;
 public class CrudServiceImpl implements CrudService {
 
     public static final String QUERY_FILTER_PARAM_DELIMETER = ":";
-    
+
     public static final String DEFAULT_CRITERIA_CONDITION = "and";
 
     private ConfigurationLoader loader;
@@ -53,25 +54,33 @@ public class CrudServiceImpl implements CrudService {
     @Override
     public BusinessObject createBusinessObject(String name) {
 
-        // TODO Auto-generated method stub
-        return null;
+        BusinessObjectConfig businessObjectConfig = ConfigurationHelper.findBusinessObjectConfigByName(
+                loader.getConfiguration(), name);
+
+        BusinessObject businessObject = new GenericBusinessObject();
+        businessObject.setTypeName(name);
+        Date currentDate = new Date();
+        businessObject.setCreatedDate(currentDate);
+        businessObject.setModifiedDate(currentDate);
+
+        return businessObject;
     }
 
     protected BusinessObject create(BusinessObject businessObject) {
 
-        Id id = businessObject.getId();
-        BusinessObjectConfig businessObjectConfig = ConfigurationHelper.findBusinessObjectConfigById(
-                loader.getConfiguration(), businessObject.getId());
-        businessObject.setCreatedDate(new Date());
+        BusinessObjectConfig businessObjectConfig = ConfigurationHelper.findBusinessObjectConfigByName(
+                loader.getConfiguration(), businessObject.getTypeName());
+        Date currentDate = new Date();
+        businessObject.setCreatedDate(currentDate);
+        businessObject.setModifiedDate(currentDate);
         return crudServiceDAO.create(businessObject, businessObjectConfig);
 
     }
 
     protected BusinessObject update(BusinessObject businessObject) {
 
-        Id id = businessObject.getId();
-        BusinessObjectConfig businessObjectConfig = ConfigurationHelper.findBusinessObjectConfigById(
-                loader.getConfiguration(), id);
+        BusinessObjectConfig businessObjectConfig = ConfigurationHelper.findBusinessObjectConfigByName(
+                loader.getConfiguration(), businessObject.getTypeName());
 
         return crudServiceDAO.update(businessObject, businessObjectConfig);
 
@@ -156,7 +165,7 @@ public class CrudServiceImpl implements CrudService {
         }
         return filledFilterConfigs;
     }
-    
+
     private CollectionFilterConfig replaceFilterCriteriaParam(CollectionFilterConfig filterConfig, Filter filterValue) {
         CollectionFilterConfig clonedFilterConfig = cloneFilterConfig(filterConfig);
         int index = 0;
@@ -220,9 +229,9 @@ public class CrudServiceImpl implements CrudService {
 
         List<CollectionFilterConfig> filledFilterConfigs = findFilledFilterConfigs(filterValues, collectionConfig);
 
-        return crudServiceDAO.findCollectionCount(collectionConfig, filledFilterConfigs);        
+        return crudServiceDAO.findCollectionCount(collectionConfig, filledFilterConfigs);
     }
-    
+
     @Override
     public void delete(Id id) {
 
