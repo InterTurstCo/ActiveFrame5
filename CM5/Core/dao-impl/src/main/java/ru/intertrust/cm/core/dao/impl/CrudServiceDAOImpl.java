@@ -43,7 +43,7 @@ import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
 /**
  * @author atsvetkov
- *
+ * 
  */
 
 public class CrudServiceDAOImpl implements CrudServiceDAO {
@@ -54,7 +54,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
     /**
      * Устанавливает источник соединений
-     *
+     * 
      * @param dataSource
      */
     public void setDataSource(DataSource dataSource) {
@@ -63,13 +63,12 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
     /**
      * Устанавливает генератор для создания уникальных идентифиткаторово
-     *
+     * 
      * @param idGenerator
      */
     public void setIdGenerator(IdGenerator idGenerator) {
         this.idGenerator = idGenerator;
     }
-
 
     /**
      * Создает SQL запрос для создания бизнес-объекта
@@ -78,8 +77,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
      * @return строку запроса для создания бизнес-объекта с параметрами
      */
     protected String generateCreateQuery(BusinessObject businessObject, BusinessObjectConfig businessObjectConfig) {
-        List<FieldConfig> feldConfigs = businessObjectConfig
-                .getBusinessObjectFieldsConfig().getFieldConfigs();
+        List<FieldConfig> feldConfigs = businessObjectConfig.getBusinessObjectFieldsConfig().getFieldConfigs();
 
         String tableName = DataStructureNamingHelper.getSqlName(businessObjectConfig);
         List<String> columnNames = DataStructureNamingHelper.getSqlName(feldConfigs);
@@ -117,25 +115,22 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
         return businessObject;
     }
 
-
     /**
      * Инициализирует параметры для для создания бизнес-объекта
      * @param businessObject бизнес-объект
      * @param businessObjectConfig конфигуоация бизнес-объекта
      * @return карту объектов содержащую имя параметра и его значение
      */
-    protected Map<String, Object> initializeCreateParameters(BusinessObject businessObject,BusinessObjectConfig businessObjectConfig) {
+    protected Map<String, Object> initializeCreateParameters(BusinessObject businessObject,
+            BusinessObjectConfig businessObjectConfig) {
 
         RdbmsId rdbmsId = (RdbmsId) businessObject.getId();
 
-        Map<String, Object> parameters = initializeDeleteParameters(rdbmsId);
+        Map<String, Object> parameters = initializeIdParameter(rdbmsId);
         parameters.put("created_date", businessObject.getCreatedDate());
         parameters.put("updated_date", businessObject.getModifiedDate());
 
-
-        List<FieldConfig> feldConfigs = businessObjectConfig
-                .getBusinessObjectFieldsConfig().getFieldConfigs();
-
+        List<FieldConfig> feldConfigs = businessObjectConfig.getBusinessObjectFieldsConfig().getFieldConfigs();
 
         initializeBusinessParameters(businessObject, feldConfigs, parameters);
 
@@ -150,14 +145,12 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
             String parameterName = DaoUtils.generateParameter(columnName);
             if (value != null) {
                 parameters.put(parameterName, value.get());
-            }
-            else {
+            } else {
                 parameters.put(parameterName, null);
             }
 
         }
     }
-
 
     /**
      * Создает SQL запрос для модификации бизнес-объекта
@@ -171,8 +164,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
         String tableName = DataStructureNamingHelper.getSqlName(businessObjectConfig);
 
-        List<FieldConfig> feldConfigs = businessObjectConfig
-                .getBusinessObjectFieldsConfig().getFieldConfigs();
+        List<FieldConfig> feldConfigs = businessObjectConfig.getBusinessObjectFieldsConfig().getFieldConfigs();
 
         List<String> columnNames = DataStructureNamingHelper.getSqlName(feldConfigs);
 
@@ -186,7 +178,6 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
         return query.toString();
 
-
     }
 
     /**
@@ -195,7 +186,8 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
      * @param businessObjectConfig конфигуоация бизнес-объекта
      * @return карту объектов содержащую имя параметра и его значение
      */
-    protected Map<String, Object> initializeUpdateParameters(BusinessObject businessObject,BusinessObjectConfig businessObjectConfig, Date currentDate) {
+    protected Map<String, Object> initializeUpdateParameters(BusinessObject businessObject,
+            BusinessObjectConfig businessObjectConfig, Date currentDate) {
 
         Map<String, Object> parameters = new HashMap<String, Object>();
 
@@ -205,8 +197,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
         parameters.put("current_date", currentDate);
         parameters.put("updated_date", businessObject.getModifiedDate());
 
-        List<FieldConfig> feldConfigs = businessObjectConfig
-                .getBusinessObjectFieldsConfig().getFieldConfigs();
+        List<FieldConfig> feldConfigs = businessObjectConfig.getBusinessObjectFieldsConfig().getFieldConfigs();
 
         initializeBusinessParameters(businessObject, feldConfigs, parameters);
 
@@ -214,10 +205,10 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
     }
 
-
     @Override
     public BusinessObject update(BusinessObject businessObject, BusinessObjectConfig businessObjectConfig)
-            throws InvalidIdException, ObjectNotFoundException, OptimisticLockException {
+            throws InvalidIdException, ObjectNotFoundException,
+            OptimisticLockException {
 
         String query = generateUpdateQuery(businessObject, businessObjectConfig);
 
@@ -245,7 +236,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     /**
      * Проверяет какого типа идентификатор
      * @param businessObject
-     *
+     * 
      */
     private void validateIdType(Id id) {
         if (id == null) {
@@ -255,7 +246,6 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
             throw new InvalidIdException(id);
         }
     }
-
 
     /**
      * Создает SQL запрос для удаления бизнес-объекта
@@ -275,9 +265,9 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
     }
 
-
     @Override
-    public void delete(Id id, BusinessObjectConfig businessObjectConfig) throws InvalidIdException, ObjectNotFoundException {
+    public void delete(Id id, BusinessObjectConfig businessObjectConfig) throws InvalidIdException,
+            ObjectNotFoundException {
 
         String query = generateDeleteQuery(businessObjectConfig);
 
@@ -285,7 +275,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
         RdbmsId rdbmsId = (RdbmsId) id;
 
-        Map<String, Object> parameters = initializeDeleteParameters(rdbmsId);
+        Map<String, Object> parameters = initializeIdParameter(rdbmsId);
 
         int count = jdbcTemplate.update(query, parameters);
 
@@ -293,7 +283,6 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
             throw new ObjectNotFoundException(rdbmsId);
 
     }
-
 
     /**
      * Создает SQL запрос для удаления всех бизнес-объектов
@@ -312,22 +301,12 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
     }
 
-    @Override
-    public int deleteAll(BusinessObjectConfig businessObjectConfig) {
-
-        String query = generateDeleteAllQuery(businessObjectConfig);
-
-        int count = jdbcTemplate.update(query, new HashMap<String, Object>());
-
-        return count;
-    }
-
     /**
      * Инициализирует параметры для удаления бизнес-объекта
-     * @param id идентификатор  бизнес-объектв для удаления
+     * @param id идентификатор бизнес-объектв для удаления
      * @return карту объектов содержащую имя параметра и его значение
      */
-    protected Map<String, Object> initializeDeleteParameters(Id id) {
+    protected Map<String, Object> initializeIdParameter(Id id) {
         RdbmsId rdbmsId = (RdbmsId) id;
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("id", rdbmsId.getId());
@@ -335,7 +314,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
     /**
-     * Создает SQL запрос для проверки  существует ли бизнес-объекта
+     * Создает SQL запрос для проверки существует ли бизнес-объекта
      * @param businessObjectConfig конфигуоация бизнес-объекта
      * @return строку запроса для удаления бизнес-объекта с параметрами
      */
@@ -352,10 +331,9 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
     }
 
-
     /**
      * Инициализирует параметры для удаления бизнес-объекта
-     * @param id идентификатор  бизнес-объектв для удаления
+     * @param id идентификатор бизнес-объектв для удаления
      * @return карту объектов содержащую имя параметра и его значение
      */
     protected Map<String, Long> initializeExistsParameters(Id id) {
@@ -366,7 +344,6 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
         return parameters;
     }
-
 
     @Override
     public boolean exists(Id id, BusinessObjectConfig businessObjectConfig) throws InvalidIdException {
@@ -384,23 +361,17 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
     @Override
-    public BusinessObject read(BusinessObject businessObject, BusinessObjectConfig businessObjectConfig) {
-        return null;
-    }
-
-    @Override
     public BusinessObject find(Id id) {
         RdbmsId rdbmsId = (RdbmsId) id;
 
-        String tableName = DataStructureNamingHelper.getSqlName(((RdbmsId)id).getTypeName());
+        String tableName = DataStructureNamingHelper.getSqlName(((RdbmsId) id).getTypeName());
 
         StringBuilder query = new StringBuilder();
         query.append("select * from ").append(tableName).append(" where ID=:id ");
-        Map<String, Object> parameters = initializeDeleteParameters(rdbmsId);
+        Map<String, Object> parameters = initializeIdParameter(rdbmsId);
 
         return jdbcTemplate.query(query.toString(), parameters, new SingleObjectRowMapper(rdbmsId.getTypeName()));
     }
-
 
     @Override
     public List<BusinessObject> find(List<Id> ids) {
@@ -409,14 +380,14 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
         }
         String tableName = DataStructureNamingHelper.getSqlName(getBusinessObjectType(ids));
 
-        String idsList = convertToCommaSeparatedList(ids);
+        String idsList = convertIdsToCommaSeparatedString(ids);
         StringBuilder query = new StringBuilder();
         query.append("select * from ").append(tableName).append(" where ID in ( " + idsList + " ) ");
 
         return jdbcTemplate.query(query.toString(), new MultipleObjectRowMapper(tableName));
     }
 
-    private String convertToCommaSeparatedList(List<Id> ids) {
+    private String convertIdsToCommaSeparatedString(List<Id> ids) {
         StringBuilder builder = new StringBuilder();
         int index = 0;
         for (Id id : ids) {
@@ -442,16 +413,21 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
     /*
-     * {@see ru.intertrust.cm.core.dao.api.CrudServiceDAO#findCollectionByQuery(ru.intertrust.cm.core.config.CollectionConfig, java.util.List,
-     * ru.intertrust.cm.core.business.api.dto.SortOrder, int, int)}
+     * {@see
+     * ru.intertrust.cm.core.dao.api.CrudServiceDAO#findCollectionByQuery(ru.intertrust.cm.core.config.CollectionConfig,
+     * java.util.List, ru.intertrust.cm.core.business.api.dto.SortOrder, int, int)}
      */
     @Override
-    public IdentifiableObjectCollection findCollection(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs,
+    public IdentifiableObjectCollection findCollection(CollectionConfig collectionConfig,
+            List<CollectionFilterConfig> filledFilterConfigs,
             SortOrder sortOrder, int offset, int limit) {
-        String collectionQuery = getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, offset, limit);
+        String collectionQuery =
+                getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, offset, limit);
 
-        IdentifiableObjectCollection collection = jdbcTemplate.query(collectionQuery, new CollectionRowMapper(collectionConfig.getBusinessObjectTypeField(),
-                collectionConfig.getIdField()));
+        IdentifiableObjectCollection collection =
+                jdbcTemplate.query(collectionQuery,
+                        new CollectionRowMapper(collectionConfig.getBusinessObjectTypeField(),
+                                collectionConfig.getIdField()));
 
         return collection;
     }
@@ -465,17 +441,21 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
      * @param limit
      * @return
      */
-    protected String getFindCollectionQuery(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder, int offset,
-            int limit) {
+    protected String getFindCollectionQuery(CollectionConfig collectionConfig,
+            List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder,
+            int offset, int limit) {
         CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer();
 
-        String collectionQuery = collectionQueryInitializer.initializeQuery(collectionConfig.getPrototype(), filledFilterConfigs, sortOrder, offset, limit);
+        String collectionQuery =
+                collectionQueryInitializer.initializeQuery(collectionConfig.getPrototype(), filledFilterConfigs,
+                        sortOrder, offset, limit);
         return collectionQuery;
     }
 
     /*
-     * {@see ru.intertrust.cm.core.dao.api.CrudServiceDAO#findCollectionCountByQuery(ru.intertrust.cm.core.config.CollectionConfig, java.util.List,
-     * ru.intertrust.cm.core.business.api.dto.SortOrder)}
+     * {@see
+     * ru.intertrust.cm.core.dao.api.CrudServiceDAO#findCollectionCountByQuery(ru.intertrust.cm.core.config.CollectionConfig
+     * , java.util.List, ru.intertrust.cm.core.business.api.dto.SortOrder)}
      */
     @Override
     public int findCollectionCount(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs) {
@@ -490,20 +470,23 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
      * @param filledFilterConfigs
      * @return
      */
-    protected String getFindCollectionCountQuery(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs) {
+    protected String getFindCollectionCountQuery(CollectionConfig collectionConfig,
+            List<CollectionFilterConfig> filledFilterConfigs) {
         CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer();
 
-        String collectionQuery = collectionQueryInitializer.initializeCountQuery(collectionConfig.getCountingPrototype(), filledFilterConfigs);
+        String collectionQuery =
+                collectionQueryInitializer.initializeCountQuery(collectionConfig.getCountingPrototype(),
+                        filledFilterConfigs);
         return collectionQuery;
     }
 
     /**
      * Отображает {@link ResultSet} на {@link IdentifiableObjectCollection}.
      * @author atsvetkov
-     *
      */
     @SuppressWarnings("rawtypes")
-    private class CollectionRowMapper extends BasicRowMapper implements ResultSetExtractor<IdentifiableObjectCollection> {
+    private class CollectionRowMapper extends BasicRowMapper implements
+            ResultSetExtractor<IdentifiableObjectCollection> {
 
         private final String businessObjectType;
 
@@ -629,7 +612,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
         public BusinessObject extractData(ResultSet rs) throws SQLException, DataAccessException {
             GenericBusinessObject object = new GenericBusinessObject();
             object.setTypeName(businessObjectType);
-            
+
             ColumnModel columnModel = new ColumnModel();
             for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
                 String fieldName = rs.getMetaData().getColumnName(i);
@@ -763,7 +746,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
         }
 
         @Override
-        public  List<BusinessObject> extractData(ResultSet rs) throws SQLException, DataAccessException {
+        public List<BusinessObject> extractData(ResultSet rs) throws SQLException, DataAccessException {
             List<BusinessObject> objects = new ArrayList<>();
 
             ColumnModel columnModel = new ColumnModel();
@@ -853,7 +836,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
                     }
                     index++;
                 }
-               objects.add(object);
+                objects.add(object);
             }
 
             return objects;
@@ -861,9 +844,8 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
     /**
-     * Базовй класс для отображения  {@link ResultSet} на бизнес-объекты
+     * Базовй класс для отображения {@link ResultSet} на бизнес-объекты
      * @author atsvetkov
-     *
      */
     private class BasicRowMapper {
         /**
@@ -889,11 +871,9 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
         }
 
         /**
-         * Метаданные возвращаемых значений списка. Содержит названия колонок,
-         * их типы и имя колонки - первичного ключа для бизнес-объекта.
-         *
+         * Метаданные возвращаемых значений списка. Содержит названия колонок, их типы и имя колонки - первичного ключа
+         * для бизнес-объекта.
          * @author atsvetkov
-         *
          */
         protected class ColumnModel {
 
@@ -929,11 +909,8 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
     /**
-     * Перечисление типов колонок в таблицах бизнес-объектов. Используется для
-     * удобства чтения полей бизнес-объектов.
-     *
+     * Перечисление типов колонок в таблицах бизнес-объектов. Используется для удобства чтения полей бизнес-объектов.
      * @author atsvetkov
-     *
      */
     private enum DataType {
         STRING("string"), INTEGER("int"), DECIMAL("decimal"), DATETIME("datetime"), BOOLEAN("boolean"), ID("id");

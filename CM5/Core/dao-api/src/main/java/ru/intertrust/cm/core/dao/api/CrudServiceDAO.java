@@ -48,8 +48,6 @@ public interface CrudServiceDAO {
     public BusinessObject update(BusinessObject businessObject, BusinessObjectConfig businessObjectConfig)
             throws InvalidIdException, ObjectNotFoundException, OptimisticLockException;
 
-    public BusinessObject read(BusinessObject businessObjec, BusinessObjectConfig businessObjectConfig);
-
     /**
      * Удаляет бизнес-объект по уникальному идентифткатору
      * @param id
@@ -62,15 +60,6 @@ public interface CrudServiceDAO {
      *             если не существует объекта с таким идентификатором
      */
     public void delete(Id id, BusinessObjectConfig businessObjectConfig) throws InvalidIdException, ObjectNotFoundException;
-
-
-    /**
-     * Удаляет все бизнес-объекты для переданного типа бизнес-объекта
-     * @param businessObjectConfig
-     *            конфигурация бизнесс-объекта
-     * @return количество удалленых бизнес-объектов
-     */
-    public int deleteAll(BusinessObjectConfig businessObjectConfig);
 
     /**
      * Проверяет существует ли бизнес-объект с переданным уникальным

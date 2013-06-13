@@ -138,7 +138,8 @@ public class CrudServiceImpl implements CrudService {
     }
 
     @Override
-    public IdentifiableObjectCollection findCollection(String collectionName, List<Filter> filterValues, SortOrder sortOrder, int offset, int limit) {
+    public IdentifiableObjectCollection findCollection(String collectionName, List<Filter> filterValues,
+            SortOrder sortOrder, int offset, int limit) {
 
         CollectionConfiguration collectionsConfiguration = loader.getCollectionConfiguration();
 
@@ -154,13 +155,14 @@ public class CrudServiceImpl implements CrudService {
     }
 
     /**
-     * Заполняет конфигурации фильтров значениями. Возвращает заполненные конфигурации фильтров (для которых были переданы значения). Сделан публичным для
-     * тестов.
+     * Заполняет конфигурации фильтров значениями. Возвращает заполненные конфигурации фильтров (для которых были
+     * переданы значения). Сделан публичным для тестов.
      * @param filterValues
      * @param collectionConfig
      * @return
      */
-    public List<CollectionFilterConfig> findFilledFilterConfigs(List<Filter> filterValues, CollectionConfig collectionConfig) {
+    public List<CollectionFilterConfig> findFilledFilterConfigs(List<Filter> filterValues,
+            CollectionConfig collectionConfig) {
         List<CollectionFilterConfig> filterConfigs = collectionConfig.getFilters();
 
         List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<CollectionFilterConfig>();
@@ -203,7 +205,8 @@ public class CrudServiceImpl implements CrudService {
     }
 
     /**
-     * Клонирует конфигурацию коллекции. При заполнении параметров в фильтрах нужно, чтобы первоначальная конфигурация коллекции оставалась неизменной.
+     * Клонирует конфигурацию коллекции. При заполнении параметров в фильтрах нужно, чтобы первоначальная конфигурация
+     * коллекции оставалась неизменной.
      * @param filterConfig конфигурации коллекции
      * @return копия переданной конфигурации коллекции
      */
@@ -278,15 +281,6 @@ public class CrudServiceImpl implements CrudService {
 
         }
         return count;
-    }
-
-    @Override
-    public int deleteAll(String businessObjectName) {
-
-        BusinessObjectConfig businessObjectConfig = ConfigurationHelper.findBusinessObjectConfigByName(
-                loader.getConfiguration(), businessObjectName);
-
-        return crudServiceDAO.deleteAll(businessObjectConfig);
     }
 
 }

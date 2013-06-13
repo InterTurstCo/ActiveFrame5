@@ -140,12 +140,4 @@ public interface CrudService {
      * @throws NullPointerException, если список или хотя бы один идентификатор в списке есть null
      */
     int delete(Collection<Id> ids);
-
-    /**
-     * Удаляет все бизнес-объекты с заданным названием
-     *
-     * @param businessObjectName название бизнес-объекта
-     * @return количество удалённых бизнес-объектов
-     */
-    int deleteAll(String businessObjectName);
 }
