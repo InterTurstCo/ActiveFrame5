@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.business.api.dto.GenericBusinessObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.config.BusinessObjectConfig;
 import ru.intertrust.cm.core.config.CollectionConfig;
@@ -250,8 +251,11 @@ public class CrudServiceImpl implements CrudService {
     @Override
     public void delete(Id id) {
 
-        BusinessObjectConfig businessObjectConfig = ConfigurationHelper.findBusinessObjectConfigById(
-                loader.getConfiguration(), id);
+
+        RdbmsId rdbmsId = (RdbmsId)id;
+
+        BusinessObjectConfig businessObjectConfig = ConfigurationHelper.findBusinessObjectConfigByName(
+                loader.getConfiguration(), rdbmsId.getTypeName());
 
         crudServiceDAO.delete(id, businessObjectConfig);
 
@@ -278,8 +282,11 @@ public class CrudServiceImpl implements CrudService {
 
     @Override
     public int deleteAll(String businessObjectName) {
-        // TODO как удалять сначала все
-        return 0;
+
+        BusinessObjectConfig businessObjectConfig = ConfigurationHelper.findBusinessObjectConfigByName(
+                loader.getConfiguration(), businessObjectName);
+
+        return crudServiceDAO.deleteAll(businessObjectConfig);
     }
 
 }

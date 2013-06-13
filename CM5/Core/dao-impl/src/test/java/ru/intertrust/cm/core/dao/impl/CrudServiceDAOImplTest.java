@@ -123,6 +123,18 @@ public class CrudServiceDAOImplTest {
 
     }
 
+
+    @Test
+    public void testGenerateDeleteAllQuery() throws Exception {
+
+        String checkDeleteQuery = "delete from PERSON";
+
+        String query = crudServiceDAOImpl.generateDeleteAllQuery(businessObjectConfig);
+        assertEquals(checkDeleteQuery, query);
+
+    }
+
+
     @Test
     public void testGenerateExistsQuery() throws Exception {
 

@@ -294,6 +294,34 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
     }
 
+
+    /**
+     * Создает SQL запрос для удаления всех бизнес-объектов
+     * @param businessObjectConfig конфигуоация бизнес-объекта
+     * @return строку запроса для удаления всех бизнес-объектов
+     */
+    protected String generateDeleteAllQuery(BusinessObjectConfig businessObjectConfig) {
+
+        String tableName = DataStructureNamingHelper.getSqlName(businessObjectConfig);
+
+        StringBuilder query = new StringBuilder();
+        query.append("delete from ");
+        query.append(tableName);
+
+        return query.toString();
+
+    }
+
+    @Override
+    public int deleteAll(BusinessObjectConfig businessObjectConfig) {
+
+        String query = generateDeleteAllQuery(businessObjectConfig);
+
+        int count = jdbcTemplate.update(query, new HashMap<String, Object>());
+
+        return count;
+    }
+
     /**
      * Инициализирует параметры для удаления бизнес-объекта
      * @param id идентификатор  бизнес-объектв для удаления

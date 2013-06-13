@@ -63,6 +63,15 @@ public interface CrudServiceDAO {
      */
     public void delete(Id id, BusinessObjectConfig businessObjectConfig) throws InvalidIdException, ObjectNotFoundException;
 
+
+    /**
+     * Удаляет все бизнес-объекты для переданного типа бизнес-объекта
+     * @param businessObjectConfig
+     *            конфигурация бизнесс-объекта
+     * @return количество удалленых бизнес-объектов
+     */
+    public int deleteAll(BusinessObjectConfig businessObjectConfig);
+
     /**
      * Проверяет существует ли бизнес-объект с переданным уникальным
      * идентификатором
