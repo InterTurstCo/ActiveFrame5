@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration>
+    <navigation>
+        <link-group name="Private Office" display-text="Личный кабинет">
+            <link name="Outgoing" display-text="Входящие">
+
+            </link>
+            <link name="Outgoing By Name" display-text="По имени" parent="Outgoing">
+
+            </link>
+            <link name="Outgoing By Receiver" display-text="По получателю" parent="Outgoing">
+
+            </link>
+        </link-group>
+        <link-group name="Administration" display-text="Администрирование" image="administration.png">
+            <link name="Employees" display-text="Сотрудники" image="employees.png">
+                <activity>
+                    <!-- DomainObjectSurferConfig и CustomActivityConfig должны наследоваться от ActivityConfig -->
+                    <domain-object-surfer collection="Employees" sort-order="name"/>
+                </activity>
+                <decorations>
+                    <collection-counter/>
+                </decorations>
+            </link>
+            <link name="Cities" display-text="Города">
+                <activity>
+                    <custom name="Beautiful City Viewer">
+                        <parameter name="display-pics" value="true"/>
+                        <parameter name="search-provider" value="google"/>
+                    </custom>
+                </activity>
+                <decorations>
+                    <collection-counter collection="Cities"/>
+                </decorations>
+            </link>
+        </link-group>
+    </navigation>
+</configuration>
