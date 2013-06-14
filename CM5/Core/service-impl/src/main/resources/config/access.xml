@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration xmlns="https://cm5.intertrust.ru/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="https://cm5.intertrust.ru/config configuration.xsd ">
+
+    <!-- Статические группы пользователей - мы вынуждены объявлять их здесь, т.к. они используются в матрицах доступа -->
+    <staticGroup name="Администраторы"/>
+    
+    <!-- Динамические группы пользователей -->
+    <dynamicGroup name="Все пользователи">
+        <trackObjects type="Person" state="active">
+            <person>@</person>
+        </trackObjects>
+    </dynamicGroup>
+    
+    <dynamicGroup name="Пользователь">
+        <context>
+            <businessObject name="Person"/>
+        </context>
+        <trackObjects type="Person" status="active">
+            <contextObject>@</contextObject>
+            <person>@</person>
+        </trackObjects>
+    </dynamicGroup>
+    
+    <dynamicGroup name="Пользователь и его заместители">
+        <context>
+            <businessObject name="Person"/>
+        </context>
+        <trackObjects type="Delegation" status="active">
+            <contextObject>person</contextObject>
+            <person>delegate</person>
+        </trackObjects>
+        <includeGroup name="Пользователь"/>
+    </dynamicGroup>
+    
+    <dynamicGroup name="Сотрудники подразделения">
+        <context>
+            <businessObject name="Department"/>
+        </context>
+        <trackObjects type="Employee" status="active">
+            <contextObject>Department</contextObject>
+            <person>@</person>
+        </trackObjects>
+        <tracker javaClass="ru.intertrust.cm.staff.access.DepartmentGroup"/>
+    </dynamicGroup>
+    
+    <dynamicGroup name="Сотдруники подразделения пользователя">
+        <context>
+            <businessObject name="Employee"/>
+        </context>
+        <includeGroup name="Сотрудники подразделения">
+            <contextObject>Department</contextObject>
+        </includeGroup>
+    </dynamicGroup>
+    
+    <!-- Контекстные роли -->
+    <contextRole name="Автор документа">
+        <context>
+            <businessObject name="Outgoing Document"/>
+        </context>
+        <groups>
+            <group name="Пользователь и его заместители">
+                <contextObject>Author</contextObject>
+            </group> 
+        </groups>
+    </contextRole>
+</configuration>
