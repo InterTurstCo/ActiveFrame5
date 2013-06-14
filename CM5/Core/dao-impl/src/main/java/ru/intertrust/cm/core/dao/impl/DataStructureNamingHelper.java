@@ -1,11 +1,11 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import ru.intertrust.cm.core.config.model.BusinessObjectConfig;
+import ru.intertrust.cm.core.config.model.FieldConfig;
+import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import ru.intertrust.cm.core.config.BusinessObjectConfig;
-import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 
 /**
  * Helper для отображения имен конфигурации бизнес-объектов на базу данных

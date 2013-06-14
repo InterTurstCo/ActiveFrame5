@@ -1,39 +1,14 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import java.math.BigDecimal;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.sql.DataSource;
-
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.StringUtils;
-
-import ru.intertrust.cm.core.business.api.dto.BooleanValue;
-import ru.intertrust.cm.core.business.api.dto.BusinessObject;
-import ru.intertrust.cm.core.business.api.dto.DecimalValue;
-import ru.intertrust.cm.core.business.api.dto.GenericBusinessObject;
-import ru.intertrust.cm.core.business.api.dto.GenericIdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.IntegerValue;
-import ru.intertrust.cm.core.business.api.dto.RdbmsId;
-import ru.intertrust.cm.core.business.api.dto.SortOrder;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.business.api.dto.TimestampValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.config.BusinessObjectConfig;
-import ru.intertrust.cm.core.config.CollectionConfig;
-import ru.intertrust.cm.core.config.CollectionFilterConfig;
-import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.model.BusinessObjectConfig;
+import ru.intertrust.cm.core.config.model.CollectionConfig;
+import ru.intertrust.cm.core.config.model.CollectionFilterConfig;
+import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.dao.api.CrudServiceDAO;
 import ru.intertrust.cm.core.dao.api.IdGenerator;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
@@ -41,9 +16,16 @@ import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
+import javax.sql.DataSource;
+import java.math.BigDecimal;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.*;
+
 /**
  * @author atsvetkov
- * 
+ *
  */
 
 public class CrudServiceDAOImpl implements CrudServiceDAO {
@@ -54,7 +36,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
     /**
      * Устанавливает источник соединений
-     * 
+     *
      * @param dataSource
      */
     public void setDataSource(DataSource dataSource) {
@@ -63,7 +45,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
     /**
      * Устанавливает генератор для создания уникальных идентифиткаторово
-     * 
+     *
      * @param idGenerator
      */
     public void setIdGenerator(IdGenerator idGenerator) {
@@ -235,8 +217,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
     /**
      * Проверяет какого типа идентификатор
-     * @param businessObject
-     * 
+     *
      */
     private void validateIdType(Id id) {
         if (id == null) {
@@ -414,7 +395,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
     /*
      * {@see
-     * ru.intertrust.cm.core.dao.api.CrudServiceDAO#findCollectionByQuery(ru.intertrust.cm.core.config.CollectionConfig,
+     * ru.intertrust.cm.core.dao.api.CrudServiceDAO#findCollectionByQuery(ru.intertrust.cm.core.config.model.CollectionConfig,
      * java.util.List, ru.intertrust.cm.core.business.api.dto.SortOrder, int, int)}
      */
     @Override
@@ -454,7 +435,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
     /*
      * {@see
-     * ru.intertrust.cm.core.dao.api.CrudServiceDAO#findCollectionCountByQuery(ru.intertrust.cm.core.config.CollectionConfig
+     * ru.intertrust.cm.core.dao.api.CrudServiceDAO#findCollectionCountByQuery(ru.intertrust.cm.core.config.model.CollectionConfig
      * , java.util.List, ru.intertrust.cm.core.business.api.dto.SortOrder)}
      */
     @Override

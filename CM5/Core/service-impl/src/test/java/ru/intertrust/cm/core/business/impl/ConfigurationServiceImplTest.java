@@ -8,9 +8,11 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import ru.intertrust.cm.core.business.api.AuthenticationService;
-import ru.intertrust.cm.core.config.BusinessObjectConfig;
-import ru.intertrust.cm.core.config.BusinessObjectsConfiguration;
-import ru.intertrust.cm.core.config.CollectionsConfiguration;
+import ru.intertrust.cm.core.config.model.BusinessObjectConfig;
+import ru.intertrust.cm.core.config.model.BusinessObjectsConfiguration;
+import ru.intertrust.cm.core.config.model.CollectionsConfiguration;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.ConfigurationSerializer;
 import ru.intertrust.cm.core.dao.api.DataStructureDAO;
 
 import static junit.framework.Assert.assertNotNull;

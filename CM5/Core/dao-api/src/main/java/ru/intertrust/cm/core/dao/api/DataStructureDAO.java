@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.dao.api;
 
-import ru.intertrust.cm.core.config.BusinessObjectConfig;
+import ru.intertrust.cm.core.config.model.BusinessObjectConfig;
 
 /**
  * DAO для работы со структурой базы данных (создание таблиц, колонок, индексов и т.п.)

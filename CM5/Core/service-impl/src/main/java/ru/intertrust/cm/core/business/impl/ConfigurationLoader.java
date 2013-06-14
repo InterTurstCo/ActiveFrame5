@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.business.impl;
 
 import ru.intertrust.cm.core.business.api.ConfigurationService;
+import ru.intertrust.cm.core.config.BusinessObjectsConfigurationLogicalValidator;
 
 /**
  * Класс, предназначенный для загрузки конфигурации бизнес-объектов

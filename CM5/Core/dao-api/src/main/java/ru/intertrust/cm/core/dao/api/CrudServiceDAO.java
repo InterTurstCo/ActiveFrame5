@@ -1,17 +1,17 @@
 package ru.intertrust.cm.core.dao.api;
 
-import java.util.List;
-
 import ru.intertrust.cm.core.business.api.dto.BusinessObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
-import ru.intertrust.cm.core.config.BusinessObjectConfig;
-import ru.intertrust.cm.core.config.CollectionConfig;
-import ru.intertrust.cm.core.config.CollectionFilterConfig;
+import ru.intertrust.cm.core.config.model.BusinessObjectConfig;
+import ru.intertrust.cm.core.config.model.CollectionConfig;
+import ru.intertrust.cm.core.config.model.CollectionFilterConfig;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
+
+import java.util.List;
 
 /**
  * DAO для работы с бизнесс объектами выполняет операции создания, модификации,
@@ -90,7 +90,6 @@ public interface CrudServiceDAO {
      * Поиск количества записей в коллекции бизнес-объектов используя фильтры
      * @param collectionConfig конфигурация коллекции
      * @param filledFilterConfigs заполненные фильтры в конфигурации коллекции
-     * @param sortOrder порядок сортировки
      * @return
      */
     int findCollectionCount(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs);

@@ -1,11 +1,10 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import javax.sql.DataSource;
-
 import org.springframework.jdbc.core.JdbcTemplate;
-
-import ru.intertrust.cm.core.config.BusinessObjectConfig;
+import ru.intertrust.cm.core.config.model.BusinessObjectConfig;
 import ru.intertrust.cm.core.dao.api.IdGenerator;
+
+import javax.sql.DataSource;
 
 /**
  * Создает(генерирует) уникальный идентификатор используя последовательность(сиквенс)  в базе данных

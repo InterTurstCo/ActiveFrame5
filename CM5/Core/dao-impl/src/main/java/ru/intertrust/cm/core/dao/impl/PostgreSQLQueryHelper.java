@@ -1,21 +1,10 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferencedTypeSqlName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlSequenceName;
+import ru.intertrust.cm.core.config.model.*;
 
 import java.util.List;
 
-import ru.intertrust.cm.core.config.BusinessObjectConfig;
-import ru.intertrust.cm.core.config.DateTimeFieldConfig;
-import ru.intertrust.cm.core.config.DecimalFieldConfig;
-import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.LongFieldConfig;
-import ru.intertrust.cm.core.config.PasswordFieldConfig;
-import ru.intertrust.cm.core.config.ReferenceFieldConfig;
-import ru.intertrust.cm.core.config.StringFieldConfig;
-import ru.intertrust.cm.core.config.UniqueKeyConfig;
-import ru.intertrust.cm.core.config.UniqueKeyFieldConfig;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
 
 /**
  * Класс для генерации sql запросов для {@link PostgreSQLDataStructureDAOImpl}

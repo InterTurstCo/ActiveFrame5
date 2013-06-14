@@ -7,16 +7,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
-import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.model.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
-import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCountTablesQuery;
-import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCreateAuthenticationInfoTableQuery;
-import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCreateBusinessObjectTableQuery;
+import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.*;
 
 /**
  * @author vmatsukevich

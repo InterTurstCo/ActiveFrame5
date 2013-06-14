@@ -16,21 +16,21 @@
         p:dataSource-ref="dataSource" />
 
     <bean id="configurationSerializer"
-          class="ru.intertrust.cm.core.business.impl.ConfigurationSerializer"
+          class="ru.intertrust.cm.core.config.ConfigurationSerializer"
           p:configurationFilePath="config/business-objects.xml"
           p:collectionsConfigurationFilePath = "config/collections.xml"
           p:configurationSchemaFilePath="config/businessObjectsConfiguration.xsd"/>
 
     <bean id="businessObjectConfiguration"
-          class="ru.intertrust.cm.core.config.BusinessObjectsConfiguration"
+          class="ru.intertrust.cm.core.config.model.BusinessObjectsConfiguration"
           factory-bean="configurationSerializer" factory-method="serializeBusinessObjectConfiguration"/>
 
     <bean id="collectionsConfiguration"
-          class="ru.intertrust.cm.core.config.CollectionsConfiguration"
+          class="ru.intertrust.cm.core.config.model.CollectionsConfiguration"
           factory-bean="configurationSerializer" factory-method="serializeCollectionConfiguration"/>
 
     <bean id="configurationExplorer"
-          class="ru.intertrust.cm.core.business.impl.ConfigurationExplorer" init-method="init"
+          class="ru.intertrust.cm.core.config.ConfigurationExplorer" init-method="init"
           p:businessObjectsConfiguration-ref="businessObjectConfiguration"
           p:collectionsConfiguration-ref="collectionsConfiguration"/>
 
@@ -40,7 +40,7 @@
           p:logicalValidator-ref="businessObjectsConfigurationLogicalValidator"/>
 
     <bean id="businessObjectsConfigurationLogicalValidator"
-          class="ru.intertrust.cm.core.business.impl.BusinessObjectsConfigurationLogicalValidator"
+          class="ru.intertrust.cm.core.config.BusinessObjectsConfigurationLogicalValidator"
           p:configurationExplorer-ref="configurationExplorer"/>
 
     <bean id="configurationService"

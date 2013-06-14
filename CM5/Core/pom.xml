@@ -16,6 +16,7 @@
 
     <modules>
         <module>model</module>
+        <module>configuration</module>
         <module>dao-api</module>
         <module>dao-impl</module>
         <module>service-api</module>

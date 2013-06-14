@@ -6,7 +6,7 @@ import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
-import ru.intertrust.cm.core.config.BusinessObjectsConfiguration;
+import ru.intertrust.cm.core.config.model.BusinessObjectsConfiguration;
 
 import java.io.File;
 import java.io.StringWriter;

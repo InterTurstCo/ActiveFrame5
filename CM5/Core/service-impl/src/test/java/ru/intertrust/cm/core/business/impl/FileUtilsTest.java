@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.business.impl;
 
 import org.junit.Test;
+import ru.intertrust.cm.core.config.FileUtils;
 
 import java.io.InputStream;
 import java.net.URL;

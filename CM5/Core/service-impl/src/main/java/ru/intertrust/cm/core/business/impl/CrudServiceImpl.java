@@ -2,7 +2,8 @@ package ru.intertrust.cm.core.business.impl;
 
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.model.*;
 import ru.intertrust.cm.core.dao.api.CrudServiceDAO;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
@@ -108,8 +109,8 @@ public class CrudServiceImpl implements CrudService {
 
     @Override
     public boolean exists(Id id) {
-        BusinessObjectConfig businessObjectConfig = ConfigurationHelper.findBusinessObjectConfigById(
-                configurationExplorer.getBusinessObjectsConfiguration(), id);
+        BusinessObjectConfig businessObjectConfig =
+                findBusinessObjectConfigById(configurationExplorer.getBusinessObjectsConfiguration(), id);
 
         return crudServiceDAO.exists(id, businessObjectConfig);
     }
@@ -244,6 +245,23 @@ public class CrudServiceImpl implements CrudService {
 
         }
         return count;
+    }
+
+    /**
+     * Находит конфигурацию бизнес-объекта по идентификатору
+     * @param businessObjectsConfiguration конфигурация бизнес-объектов
+     * @param id идентификатор бизнес-объекта, конфигурацию которого надо найти
+     * @return конфигурация бизнес-объекта
+     */
+    @Deprecated
+    private static BusinessObjectConfig findBusinessObjectConfigById(BusinessObjectsConfiguration
+                                                                       businessObjectsConfiguration, Id id) {
+        for(BusinessObjectConfig businessObjectConfig : businessObjectsConfiguration.getBusinessObjectConfigs()) {
+            if(businessObjectConfig.getId().equals(id)) {
+                return businessObjectConfig;
+            }
+        }
+        throw new RuntimeException("BusinessObjectConfiguration is not found with id '" + id + "'");
     }
 
 }

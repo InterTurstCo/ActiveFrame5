@@ -3,9 +3,10 @@ package ru.intertrust.cm.core.business.impl;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import ru.intertrust.cm.core.config.ConfigurationSchemaValidator;
 
 /**
- * Тестовый класс для {@link BusinessObjectsConfigurationLogicalValidator}
+ * Тестовый класс для {@link ru.intertrust.cm.core.config.BusinessObjectsConfigurationLogicalValidator}
  * @author atsvetkov
  *
  */

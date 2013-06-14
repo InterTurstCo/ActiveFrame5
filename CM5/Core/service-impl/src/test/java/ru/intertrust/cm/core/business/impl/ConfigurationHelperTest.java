@@ -6,10 +6,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import ru.intertrust.cm.core.config.BusinessObjectConfig;
-import ru.intertrust.cm.core.config.BusinessObjectsConfiguration;
-import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.StringFieldConfig;
+import ru.intertrust.cm.core.config.model.BusinessObjectConfig;
+import ru.intertrust.cm.core.config.model.BusinessObjectsConfiguration;
+import ru.intertrust.cm.core.config.model.FieldConfig;
+import ru.intertrust.cm.core.config.model.StringFieldConfig;
 
 /**
  * @author vmatsukevich

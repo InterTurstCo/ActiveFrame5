@@ -1,21 +1,21 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import java.util.List;
-
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
-import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion.Order;
-import ru.intertrust.cm.core.config.CollectionFilterConfig;
+import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.config.model.CollectionFilterConfig;
+
+import java.util.List;
 
 /**
  * Инициализирует запрос для извлечения коллекций, заполняет параметры в конфигурации фильтров, устанавливает порядок сортировки
  * @author atsvetkov
- * 
+ *
  */
 public class CollectionQueryInitializer {
 
     private static final String DEFAULT_CRITERIA = " 1=1 ";
-    
+
     private static final String EMPTY_PLACEHOLDER = " ";
 
     private static final String CRITERIA_PLACEHOLDER = "::where-clause";
@@ -27,7 +27,7 @@ public class CollectionQueryInitializer {
     private static final String SQL_ASCENDING_ORDER = "asc";
 
     public static final String QUERY_FILTER_PARAM_DELIMETER = ":";
-    
+
     public static final String DEFAULT_CRITERIA_CONDITION = "and";
 
     /**
@@ -43,24 +43,23 @@ public class CollectionQueryInitializer {
         if(prototypeQuery == null || prototypeQuery.trim().length() == 0){
             throw new RuntimeException("Prototype query is null and can not be processed");
         }
-        String collectionQuery = mergeFilledFilterConfigsInPrototypeQuery(prototypeQuery, filledFilterConfigs);        
+        String collectionQuery = mergeFilledFilterConfigsInPrototypeQuery(prototypeQuery, filledFilterConfigs);
         collectionQuery = applySortOrder(sortOrder, collectionQuery);
         collectionQuery = applyLimitAndOffset(offset, limit, collectionQuery);
         return collectionQuery;
-        
+
     }
 
     /**
      * Применение фильтров, и т.д. к прототипу запроса на количество бизнес-объектов в коллекции.
      * @param prototypeQuery прототип запроса
      * @param filledFilterConfigs заполненные фильтры
-     * @param sortOrder порядок сортировки
      * @return
      */
     public String initializeCountQuery(String prototypeQuery, List<CollectionFilterConfig> filledFilterConfigs) {
         return initializeQuery(prototypeQuery, filledFilterConfigs, null, 0, 0);
     }
-    
+
     private String applyLimitAndOffset(int offset, int limit, String collectionQuery) {
         if (limit != 0) {
             collectionQuery += " limit " + limit + " OFFSET " + offset;

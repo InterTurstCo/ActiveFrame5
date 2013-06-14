@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.dao.impl;
 
 import org.junit.Before;
 import org.junit.Test;
-import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.model.*;
 
 import static org.junit.Assert.assertEquals;
 

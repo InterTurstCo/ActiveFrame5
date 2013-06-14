@@ -7,12 +7,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
-import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.business.impl.BusinessObjectsConfigurationLogicalValidator;
-import ru.intertrust.cm.core.business.impl.ConfigurationExplorer;
-import ru.intertrust.cm.core.business.impl.ConfigurationSerializer;
-import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.BusinessObjectsConfigurationLogicalValidator;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.ConfigurationSerializer;
+import ru.intertrust.cm.core.config.model.*;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 
 import java.util.ArrayList;
@@ -46,9 +45,6 @@ public class CrudServiceDAOImplTest {
     private CrudServiceDAOImpl crudServiceDAOImpl = new CrudServiceDAOImpl();
     @Mock
     private JdbcTemplate jdbcTemplate;
-
-    @Mock(name = "configurationService")
-    private ConfigurationService configurationService;
 
     @Mock
     private BusinessObjectsConfigurationLogicalValidator logicalValidator;
