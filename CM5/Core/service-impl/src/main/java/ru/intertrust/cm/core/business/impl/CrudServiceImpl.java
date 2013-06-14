@@ -1,17 +1,29 @@
 package ru.intertrust.cm.core.business.impl;
 
-import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.model.*;
-import ru.intertrust.cm.core.dao.api.CrudServiceDAO;
-import ru.intertrust.cm.core.dao.exception.InvalidIdException;
-import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+
+import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.dto.BusinessObject;
+import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.GenericBusinessObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.model.BusinessObjectConfig;
+import ru.intertrust.cm.core.config.model.BusinessObjectsConfiguration;
+import ru.intertrust.cm.core.config.model.CollectionConfig;
+import ru.intertrust.cm.core.config.model.CollectionFilterConfig;
+import ru.intertrust.cm.core.config.model.CollectionFilterCriteriaConfig;
+import ru.intertrust.cm.core.config.model.CollectionFilterReferenceConfig;
+import ru.intertrust.cm.core.dao.api.CrudServiceDAO;
+import ru.intertrust.cm.core.dao.exception.InvalidIdException;
+import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 
 /**
  * Реализация сервиса для работы c базовыvb CRUD-операциями. Смотри link @CrudService
@@ -129,10 +141,10 @@ public class CrudServiceImpl implements CrudService {
     public IdentifiableObjectCollection findCollection(String collectionName, List<Filter> filterValues,
             SortOrder sortOrder, int offset, int limit) {
         CollectionConfig collectionConfig = configurationExplorer.getCollectionConfig(collectionName);
-        List<CollectionFilterConfig> filledFilterConfigs = findFilledFilterConfigs(filterValues, collectionConfig);
-        return crudServiceDAO.findCollection(collectionConfig, filledFilterConfigs, sortOrder, offset, limit);
+        List<CollectionFilterConfig> filledFilterConfigs = findFilledFilterConfigs(filterValues, collectionConfig);        
+        return crudServiceDAO.findCollection(collectionConfig, filledFilterConfigs, filterValues, sortOrder, offset, limit);
     }
-
+    
     /**
      * Заполняет конфигурации фильтров значениями. Возвращает заполненные конфигурации фильтров (для которых были
      * переданы значения). Сделан публичным для тестов.
@@ -163,23 +175,20 @@ public class CrudServiceImpl implements CrudService {
         return filledFilterConfigs;
     }
 
+    /**
+     * Заменяет названия параметров в конфигурации фильтра по схеме {0} - > ":filterName" + 0.
+     * @param filterConfig
+     * @param filterValue
+     * @return
+     */
     private CollectionFilterConfig replaceFilterCriteriaParam(CollectionFilterConfig filterConfig, Filter filterValue) {
         CollectionFilterConfig clonedFilterConfig = cloneFilterConfig(filterConfig);
-        int index = 0;
 
-        for (String value : filterValue.getValues()) {
-
-            String criteria = clonedFilterConfig.getFilterCriteria().getValue();
-
-            String paramName = ":" + index;
-
-            String newFilterCriteria = criteria.replaceAll(paramName, value);
-
-            clonedFilterConfig.getFilterCriteria().setValue(newFilterCriteria);
-            index++;
-
-        }
-
+        String criteria = clonedFilterConfig.getFilterCriteria().getValue();
+        String parameterPrefix = ":" + filterValue.getFilter();
+        String newFilterCriteria = criteria.replaceAll("[{]", parameterPrefix);
+        newFilterCriteria = newFilterCriteria.replaceAll("[}]", "");
+        clonedFilterConfig.getFilterCriteria().setValue(newFilterCriteria);
         return clonedFilterConfig;
     }
 

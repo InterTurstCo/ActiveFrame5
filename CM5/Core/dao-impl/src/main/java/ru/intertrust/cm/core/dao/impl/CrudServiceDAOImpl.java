@@ -1,10 +1,36 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import java.math.BigDecimal;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.sql.DataSource;
+
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.StringUtils;
-import ru.intertrust.cm.core.business.api.dto.*;
+
+import ru.intertrust.cm.core.business.api.dto.BooleanValue;
+import ru.intertrust.cm.core.business.api.dto.BusinessObject;
+import ru.intertrust.cm.core.business.api.dto.DecimalValue;
+import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.GenericBusinessObject;
+import ru.intertrust.cm.core.business.api.dto.GenericIdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.IntegerValue;
+import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.TimestampValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.model.BusinessObjectConfig;
 import ru.intertrust.cm.core.config.model.CollectionConfig;
 import ru.intertrust.cm.core.config.model.CollectionFilterConfig;
@@ -15,13 +41,6 @@ import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
-
-import javax.sql.DataSource;
-import java.math.BigDecimal;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.*;
 
 /**
  * @author atsvetkov
@@ -400,19 +419,40 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
      */
     @Override
     public IdentifiableObjectCollection findCollection(CollectionConfig collectionConfig,
-            List<CollectionFilterConfig> filledFilterConfigs,
+            List<CollectionFilterConfig> filledFilterConfigs, List<Filter> filterValues,
             SortOrder sortOrder, int offset, int limit) {
         String collectionQuery =
                 getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, offset, limit);
+        
+        Map<String, Object> parameters = new HashMap<String, Object>();
 
+        fillFilterParameters(filterValues, parameters);        
+                
         IdentifiableObjectCollection collection =
-                jdbcTemplate.query(collectionQuery,
+                jdbcTemplate.query(collectionQuery, parameters,
                         new CollectionRowMapper(collectionConfig.getBusinessObjectTypeField(),
                                 collectionConfig.getIdField()));
 
         return collection;
     }
 
+    /**
+     * Заполняет параметры. Имена параметров в формате имя_фильтра + ключ парметра, указанный в конфигурации.
+     * @param filterValues
+     * @param parameters
+     */
+    private void fillFilterParameters(List<Filter> filterValues, Map<String, Object> parameters) {
+        if (filterValues != null) {
+            for (Filter filter : filterValues) {
+                for (Integer key : filter.getCriterionKeys()) {
+                    String parameterName = filter.getFilter() + key;
+                    Value value = filter.getCriterion(key);
+                    parameters.put(parameterName, value.get());
+                }
+            }
+        }
+    }
+    
     /**
      * Возвращает запрос, который используется в методе поиска коллекции бизнес-объектов
      * @param collectionConfig

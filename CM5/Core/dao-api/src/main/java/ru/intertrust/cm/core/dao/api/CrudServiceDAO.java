@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.dao.api;
 
 import ru.intertrust.cm.core.business.api.dto.BusinessObject;
+import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
@@ -78,13 +79,14 @@ public interface CrudServiceDAO {
      * Поиск коллекции бизнес-объектов, используя фильтры и сортировку
      * @param collectionConfig конфигурация коллекции
      * @param filledFilterConfigs заполненные фильтры в конфигурации коллекции.
+     * @param ilterValues значения пераметров фильтров
      * @param sortOrder порядок сортировки
      * @param offset смещение
      * @param limit ограничение количества возвращенных бизнес-объектов
      * @return
      */
     IdentifiableObjectCollection findCollection(CollectionConfig collectionConfig,
-            List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder, int offset, int limit);
+            List<CollectionFilterConfig> filledFilterConfigs, List<Filter> filterValues, SortOrder sortOrder, int offset, int limit);
 
     /**
      * Поиск количества записей в коллекции бизнес-объектов используя фильтры
