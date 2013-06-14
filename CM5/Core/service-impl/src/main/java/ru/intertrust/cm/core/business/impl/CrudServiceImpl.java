@@ -1,28 +1,16 @@
 package ru.intertrust.cm.core.business.impl;
 
+import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.dao.api.CrudServiceDAO;
+import ru.intertrust.cm.core.dao.exception.InvalidIdException;
+import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-
-import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.dto.BusinessObject;
-import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.GenericBusinessObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.RdbmsId;
-import ru.intertrust.cm.core.business.api.dto.SortOrder;
-import ru.intertrust.cm.core.config.BusinessObjectConfig;
-import ru.intertrust.cm.core.config.CollectionConfig;
-import ru.intertrust.cm.core.config.CollectionConfiguration;
-import ru.intertrust.cm.core.config.CollectionFilterConfig;
-import ru.intertrust.cm.core.config.CollectionFilterCriteria;
-import ru.intertrust.cm.core.config.CollectionFilterReference;
-import ru.intertrust.cm.core.dao.api.CrudServiceDAO;
-import ru.intertrust.cm.core.dao.exception.InvalidIdException;
-import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 
 /**
  * Реализация сервиса для работы c базовыvb CRUD-операциями. Смотри link @CrudService
@@ -36,7 +24,7 @@ public class CrudServiceImpl implements CrudService {
 
     public static final String DEFAULT_CRITERIA_CONDITION = "and";
 
-    private ConfigurationLoader loader;
+    private ConfigurationExplorer configurationExplorer;
 
     private CrudServiceDAO crudServiceDAO;
 
@@ -44,8 +32,8 @@ public class CrudServiceImpl implements CrudService {
         this.crudServiceDAO = crudServiceDAO;
     }
 
-    public void setLoader(ConfigurationLoader loader) {
-        this.loader = loader;
+    public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
+        this.configurationExplorer = configurationExplorer;
     }
 
     @Override
@@ -57,8 +45,7 @@ public class CrudServiceImpl implements CrudService {
     @Override
     public BusinessObject createBusinessObject(String name) {
 
-        BusinessObjectConfig businessObjectConfig = ConfigurationHelper.findBusinessObjectConfigByName(
-                loader.getConfiguration(), name);
+        BusinessObjectConfig businessObjectConfig = configurationExplorer.getBusinessObjectConfig(name);
 
         BusinessObject businessObject = new GenericBusinessObject();
         businessObject.setTypeName(name);
@@ -71,8 +58,8 @@ public class CrudServiceImpl implements CrudService {
 
     protected BusinessObject create(BusinessObject businessObject) {
 
-        BusinessObjectConfig businessObjectConfig = ConfigurationHelper.findBusinessObjectConfigByName(
-                loader.getConfiguration(), businessObject.getTypeName());
+        BusinessObjectConfig businessObjectConfig = configurationExplorer.getBusinessObjectConfig(businessObject
+                .getTypeName());
         Date currentDate = new Date();
         businessObject.setCreatedDate(currentDate);
         businessObject.setModifiedDate(currentDate);
@@ -82,8 +69,8 @@ public class CrudServiceImpl implements CrudService {
 
     protected BusinessObject update(BusinessObject businessObject) {
 
-        BusinessObjectConfig businessObjectConfig = ConfigurationHelper.findBusinessObjectConfigByName(
-                loader.getConfiguration(), businessObject.getTypeName());
+        BusinessObjectConfig businessObjectConfig = configurationExplorer.getBusinessObjectConfig(businessObject
+                .getTypeName());
 
         return crudServiceDAO.update(businessObject, businessObjectConfig);
 
@@ -122,7 +109,7 @@ public class CrudServiceImpl implements CrudService {
     @Override
     public boolean exists(Id id) {
         BusinessObjectConfig businessObjectConfig = ConfigurationHelper.findBusinessObjectConfigById(
-                loader.getConfiguration(), id);
+                configurationExplorer.getBusinessObjectsConfiguration(), id);
 
         return crudServiceDAO.exists(id, businessObjectConfig);
     }
@@ -140,17 +127,8 @@ public class CrudServiceImpl implements CrudService {
     @Override
     public IdentifiableObjectCollection findCollection(String collectionName, List<Filter> filterValues,
             SortOrder sortOrder, int offset, int limit) {
-
-        CollectionConfiguration collectionsConfiguration = loader.getCollectionConfiguration();
-
-        if (collectionsConfiguration == null) {
-            new RuntimeException("Collection configuration is not loaded");
-        }
-
-        CollectionConfig collectionConfig = collectionsConfiguration.findCollectionConfigByName(collectionName);
-
+        CollectionConfig collectionConfig = configurationExplorer.getCollectionConfig(collectionName);
         List<CollectionFilterConfig> filledFilterConfigs = findFilledFilterConfigs(filterValues, collectionConfig);
-
         return crudServiceDAO.findCollection(collectionConfig, filledFilterConfigs, sortOrder, offset, limit);
     }
 
@@ -237,31 +215,16 @@ public class CrudServiceImpl implements CrudService {
 
     @Override
     public int findCollectionCount(String collectionName, List<Filter> filterValues) {
-
-        CollectionConfiguration collectionsConfiguration = loader.getCollectionConfiguration();
-
-        if (collectionsConfiguration == null) {
-            new RuntimeException("Collection configuration is not loaded");
-        }
-
-        CollectionConfig collectionConfig = collectionsConfiguration.findCollectionConfigByName(collectionName);
-
+        CollectionConfig collectionConfig = configurationExplorer.getCollectionConfig(collectionName);
         List<CollectionFilterConfig> filledFilterConfigs = findFilledFilterConfigs(filterValues, collectionConfig);
-
         return crudServiceDAO.findCollectionCount(collectionConfig, filledFilterConfigs);
     }
 
     @Override
     public void delete(Id id) {
-
-
         RdbmsId rdbmsId = (RdbmsId)id;
-
-        BusinessObjectConfig businessObjectConfig = ConfigurationHelper.findBusinessObjectConfigByName(
-                loader.getConfiguration(), rdbmsId.getTypeName());
-
+        BusinessObjectConfig businessObjectConfig = configurationExplorer.getBusinessObjectConfig(rdbmsId.getTypeName());
         crudServiceDAO.delete(id, businessObjectConfig);
-
     }
 
     @Override

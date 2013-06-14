@@ -24,6 +24,7 @@ import static org.mockito.Mockito.*;
 public class ConfigurationServiceImplTest {
 
     private static final String CONFIG_PATH = "test-config/business-objects.xml";
+    private static final String CONFIGURATION_SCHEMA = "test-config/configuration.xsd";
 
     @InjectMocks
     private ConfigurationServiceImpl configurationService = new ConfigurationServiceImpl();
@@ -36,14 +37,23 @@ public class ConfigurationServiceImplTest {
 
     @Before
     public void setUp() throws Exception {
-        config = new ConfigurationLoader().serializeBusinessObjectsConfiguration(CONFIG_PATH);
+        ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
+        configurationSerializer.setConfigurationFilePath(CONFIG_PATH);
+        configurationSerializer.setConfigurationSchemaFilePath(CONFIGURATION_SCHEMA);
+
+        config = configurationSerializer.serializeBusinessObjectConfiguration();
         assertNotNull(config); // проверяем, что конфигурация сериализована из файла
+        ConfigurationExplorer configurationExplorer = new ConfigurationExplorer();
+        configurationExplorer.setBusinessObjectsConfiguration(config);
+        configurationExplorer.init();
+
+        configurationService.setConfigurationExplorer(configurationExplorer);
     }
 
     @Test
     public void testLoadConfigurationWhenLoaded() throws Exception {
         when(dataStructureDAOMock.countTables()).thenReturn(10);
-        configurationService.loadConfiguration(config);
+        configurationService.loadConfiguration();
 
         verify(dataStructureDAOMock).countTables();
         verify(dataStructureDAOMock, never()).createServiceTables();
@@ -53,7 +63,7 @@ public class ConfigurationServiceImplTest {
     @Test
     public void testLoadConfigurationWhenNotLoaded() throws Exception {
         when(dataStructureDAOMock.countTables()).thenReturn(0);
-        configurationService.loadConfiguration(config);
+        configurationService.loadConfiguration();
 
         verify(dataStructureDAOMock).countTables();
         verify(dataStructureDAOMock).createServiceTables();

@@ -1,17 +1,16 @@
 package ru.intertrust.cm.core.business.impl;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import ru.intertrust.cm.core.business.api.AuthenticationService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.AuthenticationInfo;
 import ru.intertrust.cm.core.config.BusinessObjectConfig;
-import ru.intertrust.cm.core.config.Configuration;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.api.DataStructureDAO;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Смотри {@link ru.intertrust.cm.core.business.api.ConfigurationService}
@@ -24,8 +23,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     private static final String ADMIN_LOGIN = "admin";
     private static final String ADMIN_PASSWORD = "admin";
 
-    private DataStructureDAO dataStructureDAO;
+    private ConfigurationExplorer configurationExplorer;
 
+    private DataStructureDAO dataStructureDAO;
     private AuthenticationService authenticationService;
 
     /**
@@ -44,18 +44,20 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         this.authenticationService = authenticationService;
     }
 
+    public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
+        this.configurationExplorer = configurationExplorer;
+    }
 
     /**
      * Смотри {@link ru.intertrust.cm.core.business.api.ConfigurationService#loadConfiguration(ru.intertrust.cm.core.config.Configuration)}
-     * @param configuration конфигурация бизнес-объектов
      */
     @Override
-    public void loadConfiguration(Configuration configuration) {
+    public void loadConfiguration() {
         if(isConfigurationLoaded()) {
             return;
         }
 
-        RecursiveLoader recursiveLoader = new RecursiveLoader(configuration);
+        RecursiveLoader recursiveLoader = new RecursiveLoader();
         recursiveLoader.load();
 
         insertAdminAuthenticationInfoIfEmpty();
@@ -71,15 +73,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     private class RecursiveLoader {
-        private final Configuration configuration;
         private final Set<String> loadedBusinessObjectConfigs = new HashSet<>();
 
-        private RecursiveLoader(Configuration configuration) {
-            this.configuration = configuration;
+        private RecursiveLoader() {
         }
 
         private void load() {
-            List<BusinessObjectConfig> businessObjectConfigs = configuration.getBusinessObjectConfigs();
+            List<BusinessObjectConfig> businessObjectConfigs = configurationExplorer.getBusinessObjectsConfiguration().getBusinessObjectConfigs();
             if(businessObjectConfigs.isEmpty())  {
                 return;
             }
@@ -108,7 +108,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             for(FieldConfig fieldConfig : businessObjectConfig.getFieldConfigs()) {
                 if((ReferenceFieldConfig.class.equals(fieldConfig.getClass()))) {
                     ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
-                    loadBusinessObjectConfig(ConfigurationHelper.findBusinessObjectConfigByName(configuration, referenceFieldConfig.getType()));
+                    loadBusinessObjectConfig(configurationExplorer.getBusinessObjectConfig(referenceFieldConfig.getType()));
                 }
             }
         }
