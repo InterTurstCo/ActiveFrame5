@@ -67,7 +67,7 @@ public class ConfigurationSchemaValidator {
      */
     public void validate() {
         if (configurationPath == null) {
-            throw new RuntimeException("Please set the configurationPath for BusinessObjectsConfigurationLogicalValidator before validating");
+            throw new RuntimeException("Please set the configurationPath for ConfigurationSchemaValidator before validating");
         }
         validateAgainstXSD();
     }

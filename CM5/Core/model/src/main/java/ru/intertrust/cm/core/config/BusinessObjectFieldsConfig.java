@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.ElementListUnion;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +12,7 @@ import java.util.List;
  *         Date: 5/2/13
  *         Time: 12:54 PM
  */
-public class BusinessObjectFieldsConfig {
+public class BusinessObjectFieldsConfig implements Serializable {
     @ElementListUnion({
             @ElementList(entry="long", type=LongFieldConfig.class, inline=true),
             @ElementList(entry="decimal", type=DecimalFieldConfig.class, inline=true),

@@ -57,7 +57,7 @@ public class ConfigurationSchemaValidatorTest {
         ConfigurationSchemaValidator validator = new ConfigurationSchemaValidator(null, CONFIGURATION_SCHEMA);
 
         expectedException.expect(RuntimeException.class);
-        expectedException.expectMessage("Please set the configurationPath for BusinessObjectsConfigurationLogicalValidator before validating");
+        expectedException.expectMessage("Please set the configurationPath for ConfigurationSchemaValidator before validating");
 
         validator.validate();
     }

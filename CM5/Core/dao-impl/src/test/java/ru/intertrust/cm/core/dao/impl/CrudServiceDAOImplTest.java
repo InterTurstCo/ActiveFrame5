@@ -1,12 +1,5 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,27 +7,20 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
-
 import ru.intertrust.cm.core.business.api.ConfigurationService;
-import ru.intertrust.cm.core.business.api.dto.BusinessObject;
-import ru.intertrust.cm.core.business.api.dto.GenericBusinessObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.RdbmsId;
-import ru.intertrust.cm.core.business.api.dto.SortCriterion;
-import ru.intertrust.cm.core.business.api.dto.SortOrder;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.business.impl.ConfigurationLoader;
-import ru.intertrust.cm.core.business.impl.ConfigurationValidator;
-import ru.intertrust.cm.core.config.BusinessObjectConfig;
-import ru.intertrust.cm.core.config.CollectionConfig;
-import ru.intertrust.cm.core.config.CollectionConfiguration;
-import ru.intertrust.cm.core.config.CollectionFilterConfig;
-import ru.intertrust.cm.core.config.CollectionFilterCriteria;
-import ru.intertrust.cm.core.config.CollectionFilterReference;
-import ru.intertrust.cm.core.config.StringFieldConfig;
-import ru.intertrust.cm.core.config.UniqueKeyConfig;
-import ru.intertrust.cm.core.config.UniqueKeyFieldConfig;
+import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.impl.BusinessObjectsConfigurationLogicalValidator;
+import ru.intertrust.cm.core.business.impl.ConfigurationExplorer;
+import ru.intertrust.cm.core.business.impl.ConfigurationSerializer;
+import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Юнит тест для CrudServiceDAOImpl
@@ -52,46 +38,56 @@ public class CrudServiceDAOImplTest {
     private static final String COLLECTION_QUERY_WITH_LIMITS = "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e inner join department d on e.department = d.id where d.name = 'dep1' order by e.name asc limit 100 OFFSET 10";
     private static final String COLLECTION_QUERY_WITHOUT_FILTERS = "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e where 1=1 order by e.name asc";
     private static final String FIND_COLLECTION_QUERY_WITH_FILTERS = "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e inner join department d on e.department = d.id where d.name = 'dep1' order by e.name asc";
-    private static final String CONFIG_PATH = "test-config/business-objects.xml";
+    private static final String BUSINESS_OBJECTS_CONFIG_PATH = "test-config/business-objects.xml";
     private static final String COLLECTIONS_CONFIG_PATH = "test-config/collections.xml";
+    private static final String CONFIGURATION_SCHEMA_PATH = "test-config/configuration.xsd";
 
     @InjectMocks
     private CrudServiceDAOImpl crudServiceDAOImpl = new CrudServiceDAOImpl();
     @Mock
-    private JdbcTemplate jdbcTemplate;   
-    
-    @InjectMocks
-    private ConfigurationLoader configurationLoader = new ConfigurationLoader();
+    private JdbcTemplate jdbcTemplate;
 
     @Mock(name = "configurationService")
     private ConfigurationService configurationService;
 
     @Mock
-    private ConfigurationValidator configurationValidator;
+    private BusinessObjectsConfigurationLogicalValidator logicalValidator;
 
     private CollectionFilterConfig byDepartmentFilterConfig;
-    
+
     private CollectionFilterConfig byNameFilterConfig;
-    
+
     private CollectionConfig collectionConfig;
-    
+
+    private ConfigurationExplorer configurationExplorer;
+
     private SortOrder sortOrder;
 
 
-    
+
     @Before
     public void setUp() throws Exception {
-        initBusinessObjectConfig();
+        ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
+        configurationSerializer.setConfigurationFilePath(BUSINESS_OBJECTS_CONFIG_PATH);
+        configurationSerializer.setCollectionsConfigurationFilePath(COLLECTIONS_CONFIG_PATH);
+        configurationSerializer.setConfigurationSchemaFilePath(CONFIGURATION_SCHEMA_PATH);
 
-        configurationLoader.setConfigurationFilePath(CONFIG_PATH);
-        configurationLoader.setCollectionsConfigurationFilePath(COLLECTIONS_CONFIG_PATH);
+        BusinessObjectsConfiguration businessObjectsConfiguration = configurationSerializer
+                .serializeBusinessObjectConfiguration();
+        CollectionsConfiguration collectionsConfiguration = configurationSerializer.serializeCollectionConfiguration();
 
-        collectionConfig = getCollectionConfig();
+        configurationExplorer = new ConfigurationExplorer();
+        configurationExplorer.setBusinessObjectsConfiguration(businessObjectsConfiguration);
+        configurationExplorer.setCollectionsConfiguration(collectionsConfiguration);
+        configurationExplorer.init();
+
+        businessObjectConfig = configurationExplorer.getBusinessObjectConfig("Person");
+        collectionConfig = configurationExplorer.getCollectionConfig("Employees");
         byDepartmentFilterConfig = createByDepartmentFilterConfig();
         byNameFilterConfig = createByNameFilterConfig();
 
         sortOrder = createByNameSortOrder();
-        
+
     }
 
     @Test
@@ -247,18 +243,18 @@ public class CrudServiceDAOImplTest {
     private CollectionFilterConfig createByDepartmentFilterConfig() {
         CollectionFilterConfig byDepartmentFilterConfig = new CollectionFilterConfig();
         byDepartmentFilterConfig.setName("byDepartment");
-        CollectionFilterReference collectionFilterReference = new CollectionFilterReference();
+        CollectionFilterReferenceConfig collectionFilterReference = new CollectionFilterReferenceConfig();
 
         collectionFilterReference.setPlaceholder("from-clause");
         collectionFilterReference.setValue("inner join department d on e.department = d.id");
 
-        CollectionFilterCriteria collectionFilterCriteria = new CollectionFilterCriteria();
-        collectionFilterCriteria.setCondition(" and ");
-        collectionFilterCriteria.setPlaceholder("where-clause");
-        collectionFilterCriteria.setValue(" d.name = 'dep1'");
+        CollectionFilterCriteriaConfig collectionFilterCriteriaConfig = new CollectionFilterCriteriaConfig();
+        collectionFilterCriteriaConfig.setCondition(" and ");
+        collectionFilterCriteriaConfig.setPlaceholder("where-clause");
+        collectionFilterCriteriaConfig.setValue(" d.name = 'dep1'");
 
         byDepartmentFilterConfig.setFilterReference(collectionFilterReference);
-        byDepartmentFilterConfig.setFilterCriteria(collectionFilterCriteria);
+        byDepartmentFilterConfig.setFilterCriteria(collectionFilterCriteriaConfig);
         return byDepartmentFilterConfig;
     }
 
@@ -266,20 +262,13 @@ public class CrudServiceDAOImplTest {
         CollectionFilterConfig byNameFilterConfig = new CollectionFilterConfig();
         byNameFilterConfig.setName("byName");
 
-        CollectionFilterCriteria collectionFilterCriteria = new CollectionFilterCriteria();
-        collectionFilterCriteria.setCondition(" and ");
-        collectionFilterCriteria.setPlaceholder("where-clause");
-        collectionFilterCriteria.setValue(" e.name = 'employee1' ");
+        CollectionFilterCriteriaConfig collectionFilterCriteriaConfig = new CollectionFilterCriteriaConfig();
+        collectionFilterCriteriaConfig.setCondition(" and ");
+        collectionFilterCriteriaConfig.setPlaceholder("where-clause");
+        collectionFilterCriteriaConfig.setValue(" e.name = 'employee1' ");
 
-        byNameFilterConfig.setFilterCriteria(collectionFilterCriteria);
+        byNameFilterConfig.setFilterCriteria(collectionFilterCriteriaConfig);
         return byNameFilterConfig;
-    }
-
-    private CollectionConfig getCollectionConfig() throws Exception {
-        configurationLoader.load();
-        CollectionConfiguration collectionsConfiguration = configurationLoader.getCollectionConfiguration();
-        CollectionConfig collectionConfig = collectionsConfiguration.findCollectionConfigByName("Employees");
-        return collectionConfig;
     }
 
     @Test
@@ -336,7 +325,7 @@ public class CrudServiceDAOImplTest {
     private String refineQuery(String actualQuery) {
         return actualQuery.trim().replaceAll("\\s+", " ");
     }
-    
+
     /**
      * Тестовый класс для проверки обработки неккоректного типа идентификатора
      * @author skashanski
@@ -356,6 +345,6 @@ public class CrudServiceDAOImplTest {
             return null;
         }
 
-    }    
+    }
 
 }

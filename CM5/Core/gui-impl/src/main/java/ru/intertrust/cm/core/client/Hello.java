@@ -6,7 +6,7 @@ import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
-import ru.intertrust.cm.core.config.Configuration;
+import ru.intertrust.cm.core.config.BusinessObjectsConfiguration;
 
 import java.io.File;
 import java.io.StringWriter;
@@ -43,7 +43,7 @@ public class Hello extends UI {
         File source = new File("c:\\projects\\CM5_workspace\\CM5\\Core\\src\\main\\resources\\config\\business-objects.xml");
 
         try {
-            Configuration example = serializer.read(Configuration.class, source);
+            BusinessObjectsConfiguration example = serializer.read(BusinessObjectsConfiguration.class, source);
             StringWriter stringWriter = new StringWriter();
             serializer.write(example, stringWriter);
             return stringWriter.toString();

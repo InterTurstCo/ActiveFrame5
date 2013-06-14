@@ -191,17 +191,17 @@ public class CrudServiceImpl implements CrudService {
     private CollectionFilterConfig cloneFilterConfig(CollectionFilterConfig filterConfig) {
         CollectionFilterConfig clonedFilterConfig = new CollectionFilterConfig();
 
-        CollectionFilterReference srcFilterReference = filterConfig.getFilterReference();
+        CollectionFilterReferenceConfig srcFilterReference = filterConfig.getFilterReference();
         if (srcFilterReference != null) {
-            CollectionFilterReference clonedFilterReference = new CollectionFilterReference();
+            CollectionFilterReferenceConfig clonedFilterReference = new CollectionFilterReferenceConfig();
             clonedFilterReference.setPlaceholder(srcFilterReference.getPlaceholder());
             clonedFilterReference.setValue(srcFilterReference.getValue());
             clonedFilterConfig.setFilterReference(clonedFilterReference);
         }
 
-        CollectionFilterCriteria srcFilterCriteria = filterConfig.getFilterCriteria();
+        CollectionFilterCriteriaConfig srcFilterCriteria = filterConfig.getFilterCriteria();
         if (srcFilterCriteria != null) {
-            CollectionFilterCriteria clonedFilterCriteria = new CollectionFilterCriteria();
+            CollectionFilterCriteriaConfig clonedFilterCriteria = new CollectionFilterCriteriaConfig();
             clonedFilterCriteria.setPlaceholder(srcFilterCriteria.getPlaceholder());
             clonedFilterCriteria.setCondition(srcFilterCriteria.getCondition());
             clonedFilterCriteria.setValue(srcFilterCriteria.getValue());

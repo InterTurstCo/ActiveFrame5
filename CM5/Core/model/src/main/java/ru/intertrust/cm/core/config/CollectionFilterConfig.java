@@ -3,21 +3,23 @@ package ru.intertrust.cm.core.config;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 
+import java.io.Serializable;
+
 /**
- * 
+ *
  * @author atsvetkov
  *
  */
-public class CollectionFilterConfig {
+public class CollectionFilterConfig implements Serializable {
 
     @Attribute(required = true)
     private String name;
 
     @Element(name = "reference", required = false)
-    private CollectionFilterReference filterReference;
-    
+    private CollectionFilterReferenceConfig filterReference;
+
     @Element(name = "criteria", required = false)
-    private CollectionFilterCriteria filterCriteria;
+    private CollectionFilterCriteriaConfig filterCriteria;
 
     public String getName() {
         return name;
@@ -27,20 +29,20 @@ public class CollectionFilterConfig {
         this.name = name;
     }
 
-    public CollectionFilterReference getFilterReference() {
+    public CollectionFilterReferenceConfig getFilterReference() {
         return filterReference;
     }
 
-    public void setFilterReference(CollectionFilterReference filterReference) {
+    public void setFilterReference(CollectionFilterReferenceConfig filterReference) {
         this.filterReference = filterReference;
     }
 
-    public CollectionFilterCriteria getFilterCriteria() {
+    public CollectionFilterCriteriaConfig getFilterCriteria() {
         return filterCriteria;
     }
 
-    public void setFilterCriteria(CollectionFilterCriteria filterCriteria) {
+    public void setFilterCriteria(CollectionFilterCriteriaConfig filterCriteria) {
         this.filterCriteria = filterCriteria;
-    }        
-        
+    }
+
 }

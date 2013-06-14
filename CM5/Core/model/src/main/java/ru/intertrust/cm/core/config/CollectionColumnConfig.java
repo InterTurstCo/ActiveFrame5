@@ -2,12 +2,14 @@ package ru.intertrust.cm.core.config;
 
 import org.simpleframework.xml.Attribute;
 
+import java.io.Serializable;
+
 /**
- * 
+ *
  * @author atsvetkov
  *
  */
-public class CollectionColumnConfig {
+public class CollectionColumnConfig implements Serializable {
 
     @Attribute(required = true)
     private String field;

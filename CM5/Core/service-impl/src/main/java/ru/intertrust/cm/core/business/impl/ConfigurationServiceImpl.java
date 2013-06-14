@@ -49,7 +49,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     /**
-     * Смотри {@link ru.intertrust.cm.core.business.api.ConfigurationService#loadConfiguration(ru.intertrust.cm.core.config.Configuration)}
+     * Смотри {@link ru.intertrust.cm.core.business.api.ConfigurationService#loadConfiguration(ru.intertrust.cm.core.config.BusinessObjectsConfiguration)}
      */
     @Override
     public void loadConfiguration() {

@@ -2,12 +2,14 @@ package ru.intertrust.cm.core.config;
 
 import org.simpleframework.xml.Attribute;
 
+import java.io.Serializable;
+
 /**
  * @author Denis Mitavskiy
  *         Date: 5/2/13
  *         Time: 10:55 AM
  */
-public abstract class FieldConfig {
+public abstract class FieldConfig implements Serializable {
     @Attribute(name = "name")
     private String name;
 

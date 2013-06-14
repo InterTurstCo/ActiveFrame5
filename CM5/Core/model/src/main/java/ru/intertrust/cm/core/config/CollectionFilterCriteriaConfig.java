@@ -3,15 +3,20 @@ package ru.intertrust.cm.core.config;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Text;
 
+import java.io.Serializable;
+
 /**
- * 
+ *
  * @author atsvetkov
  *
  */
-public class CollectionFilterReference {
-    
+public class CollectionFilterCriteriaConfig implements Serializable {
+
     @Attribute(required = true)
     private String placeholder;
+
+    @Attribute(required = false)
+    private String condition;
 
     @Text(data = true)
     private String value;
@@ -24,6 +29,14 @@ public class CollectionFilterReference {
         this.placeholder = placeholder;
     }
 
+    public String getCondition() {
+        return condition;
+    }
+
+    public void setCondition(String condition) {
+        this.condition = condition;
+    }
+
     public String getValue() {
         return value;
     }
@@ -31,5 +44,5 @@ public class CollectionFilterReference {
     public void setValue(String value) {
         this.value = value;
     }
-        
+
 }

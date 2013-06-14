@@ -5,6 +5,7 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +15,7 @@ import java.util.List;
  *         Time: 8:50 PM
  */
 @Root(name = "businessObject")
-public class BusinessObjectConfig {
+public class BusinessObjectConfig implements Serializable {
 
     private Long id;
 

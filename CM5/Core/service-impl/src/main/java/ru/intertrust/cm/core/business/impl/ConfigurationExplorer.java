@@ -1,9 +1,9 @@
 package ru.intertrust.cm.core.business.impl;
 
 import ru.intertrust.cm.core.config.BusinessObjectConfig;
+import ru.intertrust.cm.core.config.BusinessObjectsConfiguration;
 import ru.intertrust.cm.core.config.CollectionConfig;
-import ru.intertrust.cm.core.config.CollectionConfiguration;
-import ru.intertrust.cm.core.config.Configuration;
+import ru.intertrust.cm.core.config.CollectionsConfiguration;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,8 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ConfigurationExplorer {
 
-    private Configuration businessObjectsConfiguration;
-    private CollectionConfiguration collectionsConfiguration;
+    private BusinessObjectsConfiguration businessObjectsConfiguration;
+    private CollectionsConfiguration collectionsConfiguration;
 
     private Map<String, BusinessObjectConfig> businessObjectConfigMap;
     private Map<String, CollectionConfig> collectionsConfigMap;
@@ -24,19 +24,19 @@ public class ConfigurationExplorer {
     public ConfigurationExplorer() {
     }
 
-    public Configuration getBusinessObjectsConfiguration() {
+    public BusinessObjectsConfiguration getBusinessObjectsConfiguration() {
         return businessObjectsConfiguration;
     }
 
-    public void setBusinessObjectsConfiguration(Configuration businessObjectsConfiguration) {
+    public void setBusinessObjectsConfiguration(BusinessObjectsConfiguration businessObjectsConfiguration) {
         this.businessObjectsConfiguration = businessObjectsConfiguration;
     }
 
-    public CollectionConfiguration getCollectionsConfiguration() {
+    public CollectionsConfiguration getCollectionsConfiguration() {
         return collectionsConfiguration;
     }
 
-    public void setCollectionsConfiguration(CollectionConfiguration collectionsConfiguration) {
+    public void setCollectionsConfiguration(CollectionsConfiguration collectionsConfiguration) {
         this.collectionsConfiguration = collectionsConfiguration;
     }
 

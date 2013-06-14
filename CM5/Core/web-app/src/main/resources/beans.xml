@@ -22,11 +22,11 @@
           p:configurationSchemaFilePath="config/businessObjectsConfiguration.xsd"/>
 
     <bean id="businessObjectConfiguration"
-          class="ru.intertrust.cm.core.config.Configuration"
+          class="ru.intertrust.cm.core.config.BusinessObjectsConfiguration"
           factory-bean="configurationSerializer" factory-method="serializeBusinessObjectConfiguration"/>
 
     <bean id="collectionsConfiguration"
-          class="ru.intertrust.cm.core.config.CollectionConfiguration"
+          class="ru.intertrust.cm.core.config.CollectionsConfiguration"
           factory-bean="configurationSerializer" factory-method="serializeCollectionConfiguration"/>
 
     <bean id="configurationExplorer"

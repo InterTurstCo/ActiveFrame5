@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.config;
 
 import org.simpleframework.xml.ElementList;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +11,7 @@ import java.util.List;
  *         Date: 5/16/13
  *         Time: 10:52 AM
  */
-public class UniqueKeyConfig {
+public class UniqueKeyConfig implements Serializable {
 
     @ElementList(entry="field", inline=true)
     private List<UniqueKeyFieldConfig> uniqueKeyFieldConfigs;

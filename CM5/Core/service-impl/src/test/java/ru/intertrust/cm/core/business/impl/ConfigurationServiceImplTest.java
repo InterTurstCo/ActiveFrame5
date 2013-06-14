@@ -9,7 +9,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import ru.intertrust.cm.core.business.api.AuthenticationService;
 import ru.intertrust.cm.core.config.BusinessObjectConfig;
-import ru.intertrust.cm.core.config.Configuration;
+import ru.intertrust.cm.core.config.BusinessObjectsConfiguration;
+import ru.intertrust.cm.core.config.CollectionsConfiguration;
 import ru.intertrust.cm.core.dao.api.DataStructureDAO;
 
 import static junit.framework.Assert.assertNotNull;
@@ -23,7 +24,8 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigurationServiceImplTest {
 
-    private static final String CONFIG_PATH = "test-config/business-objects.xml";
+    private static final String BUSINESS_OBJECTS_CONFIG_PATH = "test-config/business-objects.xml";
+    private static final String COLLECTIONS_CONFIG_PATH = "test-config/collections.xml";
     private static final String CONFIGURATION_SCHEMA = "test-config/configuration.xsd";
 
     @InjectMocks
@@ -33,18 +35,25 @@ public class ConfigurationServiceImplTest {
     @Mock
     private AuthenticationService authenticationService;
 
-    private Configuration config;
+    private BusinessObjectsConfiguration businessObjectsConfiguration;
+    private CollectionsConfiguration collectionsConfiguration;
 
     @Before
     public void setUp() throws Exception {
         ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
-        configurationSerializer.setConfigurationFilePath(CONFIG_PATH);
+        configurationSerializer.setConfigurationFilePath(BUSINESS_OBJECTS_CONFIG_PATH);
+        configurationSerializer.setCollectionsConfigurationFilePath(COLLECTIONS_CONFIG_PATH);
         configurationSerializer.setConfigurationSchemaFilePath(CONFIGURATION_SCHEMA);
 
-        config = configurationSerializer.serializeBusinessObjectConfiguration();
-        assertNotNull(config); // проверяем, что конфигурация сериализована из файла
+        businessObjectsConfiguration = configurationSerializer.serializeBusinessObjectConfiguration();
+        assertNotNull(businessObjectsConfiguration); // проверяем, что конфигурация сериализована из файла
+
+        collectionsConfiguration = configurationSerializer.serializeCollectionConfiguration();
+        assertNotNull(collectionsConfiguration); // проверяем, что конфигурация сериализована из файла
+
         ConfigurationExplorer configurationExplorer = new ConfigurationExplorer();
-        configurationExplorer.setBusinessObjectsConfiguration(config);
+        configurationExplorer.setBusinessObjectsConfiguration(businessObjectsConfiguration);
+        configurationExplorer.setCollectionsConfiguration(collectionsConfiguration);
         configurationExplorer.init();
 
         configurationService.setConfigurationExplorer(configurationExplorer);
@@ -67,6 +76,6 @@ public class ConfigurationServiceImplTest {
 
         verify(dataStructureDAOMock).countTables();
         verify(dataStructureDAOMock).createServiceTables();
-        verify(dataStructureDAOMock, times(config.getBusinessObjectConfigs().size())).createTable(Matchers.<BusinessObjectConfig>anyObject());
+        verify(dataStructureDAOMock, times(businessObjectsConfiguration.getBusinessObjectConfigs().size())).createTable(Matchers.<BusinessObjectConfig>anyObject());
     }
 }

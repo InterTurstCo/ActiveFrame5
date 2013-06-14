@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -12,7 +13,7 @@ import java.util.List;
  */
 
 @Root
-public class CollectionConfiguration {
+public class CollectionsConfiguration implements Serializable {
 
     @ElementList(inline = true)
     private List<CollectionConfig> collectionConfigs;

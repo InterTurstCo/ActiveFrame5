@@ -2,7 +2,9 @@ package ru.intertrust.cm.core.config;
 
 import org.simpleframework.xml.Attribute;
 
-public class CollectionRenderer {
+import java.io.Serializable;
+
+public class CollectionRendererConfig implements Serializable {
 
     @Attribute(name = "className", required = true)
     private String className;
@@ -13,6 +15,6 @@ public class CollectionRenderer {
 
     public void setClassName(String className) {
         this.className = className;
-    }   
-    
+    }
+
 }

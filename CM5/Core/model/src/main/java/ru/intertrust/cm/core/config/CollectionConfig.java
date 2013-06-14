@@ -1,11 +1,12 @@
 package ru.intertrust.cm.core.config;
 
-import java.util.List;
-
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
+
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * Java модель конфигурации одной коллекции
@@ -13,7 +14,7 @@ import org.simpleframework.xml.Root;
  *
  */
 @Root(name = "collection")
-public class CollectionConfig {
+public class CollectionConfig implements Serializable {
 
     @Attribute(required = true)
     private String name;
@@ -28,17 +29,17 @@ public class CollectionConfig {
     private CollectionDisplayConfig displayConfig;
 
     @Element(name = "prototype", required = false, data=true)
-    private String prototype;    
+    private String prototype;
 
     @Element(name = "counting-prototype", required = false, data=true)
-    private String countingPrototype;        
+    private String countingPrototype;
 
     @ElementList(entry = "filter", required = false, inline=true)
-    private List<CollectionFilterConfig> filters;    
+    private List<CollectionFilterConfig> filters;
 
     @Element(name = "renderer", required = false)
-    private CollectionRenderer renderer;    
-    
+    private CollectionRendererConfig renderer;
+
     public String getName() {
         return name;
     }
@@ -70,7 +71,7 @@ public class CollectionConfig {
     public void setDisplayConfig(CollectionDisplayConfig displayConfig) {
         this.displayConfig = displayConfig;
     }
-    
+
     public String getPrototype() {
         return prototype;
     }
@@ -85,7 +86,7 @@ public class CollectionConfig {
 
     public void setCountingPrototype(String countingPrototype) {
         this.countingPrototype = countingPrototype;
-    }     
+    }
 
     public List<CollectionFilterConfig> getFilters() {
         return filters;
@@ -95,11 +96,11 @@ public class CollectionConfig {
         this.filters = filters;
     }
 
-    public CollectionRenderer getRenderer() {
+    public CollectionRendererConfig getRenderer() {
         return renderer;
     }
 
-    public void setRenderer(CollectionRenderer renderer) {
+    public void setRenderer(CollectionRendererConfig renderer) {
         this.renderer = renderer;
     }
 

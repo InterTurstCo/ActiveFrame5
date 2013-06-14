@@ -2,8 +2,8 @@ package ru.intertrust.cm.core.business.impl;
 
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
-import ru.intertrust.cm.core.config.CollectionConfiguration;
-import ru.intertrust.cm.core.config.Configuration;
+import ru.intertrust.cm.core.config.BusinessObjectsConfiguration;
+import ru.intertrust.cm.core.config.CollectionsConfiguration;
 
 import java.io.InputStream;
 
@@ -41,18 +41,18 @@ public class ConfigurationSerializer {
         this.configurationSchemaFilePath = configurationSchemaFilePath;
     }
 
-    public Configuration serializeBusinessObjectConfiguration() throws Exception {
-        return serializeConfiguration(configurationFilePath, Configuration.class);
+    public BusinessObjectsConfiguration serializeBusinessObjectConfiguration() throws Exception {
+        return serializeConfiguration(configurationFilePath, BusinessObjectsConfiguration.class);
     }
 
-    public CollectionConfiguration serializeCollectionConfiguration() throws Exception {
-        return serializeConfiguration(collectionsConfigurationFilePath, CollectionConfiguration.class);
+    public CollectionsConfiguration serializeCollectionConfiguration() throws Exception {
+        return serializeConfiguration(collectionsConfigurationFilePath, CollectionsConfiguration.class);
     }
 
     /**
      * Сериализация конфигурации в Java класс.
      * @param configurationFilePath путь к конфигурационному файлу
-     * @return {@link Configuration}
+     * @return {@link ru.intertrust.cm.core.config.BusinessObjectsConfiguration}
      * @throws Exception
      */
     private <T> T serializeConfiguration(String configurationFilePath, Class<T> configurationClass) throws Exception {

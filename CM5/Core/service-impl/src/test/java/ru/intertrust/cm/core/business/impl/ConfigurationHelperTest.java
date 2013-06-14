@@ -7,7 +7,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import ru.intertrust.cm.core.config.BusinessObjectConfig;
-import ru.intertrust.cm.core.config.Configuration;
+import ru.intertrust.cm.core.config.BusinessObjectsConfiguration;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.StringFieldConfig;
 
@@ -22,7 +22,7 @@ public class ConfigurationHelperTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    private Configuration configuration;
+    private BusinessObjectsConfiguration businessObjectsConfiguration;
 
     private BusinessObjectConfig businessObjectConfig1;
     private BusinessObjectConfig businessObjectConfig2;
@@ -60,18 +60,18 @@ public class ConfigurationHelperTest {
     }
 
     private void initializeTestConfiguration() {
-        configuration = new Configuration();
+        businessObjectsConfiguration = new BusinessObjectsConfiguration();
 
         initializeBusinessObjectConfig1();
-        configuration.getBusinessObjectConfigs().add(businessObjectConfig1);
+        businessObjectsConfiguration.getBusinessObjectConfigs().add(businessObjectConfig1);
 
         businessObjectConfig2 = new BusinessObjectConfig();
         businessObjectConfig2.setName("business object 2");
-        configuration.getBusinessObjectConfigs().add(businessObjectConfig2);
+        businessObjectsConfiguration.getBusinessObjectConfigs().add(businessObjectConfig2);
 
         businessObjectConfig3 = new BusinessObjectConfig();
         businessObjectConfig3.setName("business object 3");
-        configuration.getBusinessObjectConfigs().add(businessObjectConfig3);
+        businessObjectsConfiguration.getBusinessObjectConfigs().add(businessObjectConfig3);
     }
 
     private void initializeBusinessObjectConfig1() {
