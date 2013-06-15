@@ -40,7 +40,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         authenticationDAO.insertAuthenticationInfo(authenticationInfo);
         BusinessObject role= new GenericBusinessObject();
-        role.setId(Long.);
+
 
 
         authenticationDAO.insertRole(role);

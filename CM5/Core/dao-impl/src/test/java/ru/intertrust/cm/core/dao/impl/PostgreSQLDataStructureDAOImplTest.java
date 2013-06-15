@@ -1,5 +1,16 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCountTablesQuery;
+import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCreateBusinessObjectTableQuery;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -7,12 +18,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
-import ru.intertrust.cm.core.config.model.*;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
-import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.*;
+import ru.intertrust.cm.core.config.model.BusinessObjectConfig;
+import ru.intertrust.cm.core.config.model.DateTimeFieldConfig;
+import ru.intertrust.cm.core.config.model.DecimalFieldConfig;
+import ru.intertrust.cm.core.config.model.LongFieldConfig;
+import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.model.StringFieldConfig;
+import ru.intertrust.cm.core.config.model.UniqueKeyConfig;
+import ru.intertrust.cm.core.config.model.UniqueKeyFieldConfig;
 
 /**
  * @author vmatsukevich
@@ -22,7 +36,7 @@ import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.*;
 @RunWith(MockitoJUnitRunner.class)
 public class PostgreSQLDataStructureDAOImplTest {
     @InjectMocks
-    private PostgreSQLDataStructureDAOImpl dataStructureDAO = new PostgreSQLDataStructureDAOImpl();
+    private final PostgreSQLDataStructureDAOImpl dataStructureDAO = new PostgreSQLDataStructureDAOImpl();
     @Mock
     private JdbcTemplate jdbcTemplate;
 
@@ -55,7 +69,6 @@ public class PostgreSQLDataStructureDAOImplTest {
     public void testCreateServiceTables() throws Exception {
         dataStructureDAO.createServiceTables();
         verify(jdbcTemplate).update(generateCreateBusinessObjectTableQuery());
-        verify(jdbcTemplate).update(generateCreateAuthenticationInfoTableQuery());
     }
 
     @Test
