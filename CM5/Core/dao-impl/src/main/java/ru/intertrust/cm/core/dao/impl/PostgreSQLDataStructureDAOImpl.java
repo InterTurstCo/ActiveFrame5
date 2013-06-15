@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCountTablesQuery;
-import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCreateAuthenticationInfoTableQuery;
 import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCreateBusinessObjectTableQuery;
 import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCreateIndexesQuery;
 import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCreateTableQuery;
@@ -85,7 +84,7 @@ public class PostgreSQLDataStructureDAOImpl implements DataStructureDAO {
     @Override
     public void createServiceTables() {
         jdbcTemplate.update(generateCreateBusinessObjectTableQuery());
-        jdbcTemplate.update(generateCreateAuthenticationInfoTableQuery());
+//        jdbcTemplate.update(generateCreateAuthenticationInfoTableQuery());
     }
 
     /**

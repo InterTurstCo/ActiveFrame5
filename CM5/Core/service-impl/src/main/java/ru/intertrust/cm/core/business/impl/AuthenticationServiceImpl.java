@@ -1,20 +1,31 @@
 package ru.intertrust.cm.core.business.impl;
 
-import ru.intertrust.cm.core.business.api.MD5Service;
 import ru.intertrust.cm.core.business.api.AuthenticationService;
+import ru.intertrust.cm.core.business.api.LocalCrudService;
+import ru.intertrust.cm.core.business.api.MD5Service;
 import ru.intertrust.cm.core.business.api.dto.AuthenticationInfo;
+import ru.intertrust.cm.core.business.api.dto.BusinessObject;
+import ru.intertrust.cm.core.business.api.dto.GenericBusinessObject;
 import ru.intertrust.cm.core.dao.api.AuthenticationDAO;
 
 /**
  * Реализация сервиса для работы с бизнес-объектом Person
  * @author atsvetkov
- * 
+ *
  */
 public class AuthenticationServiceImpl implements AuthenticationService {
 
     private MD5Service md5Service;
 
     private AuthenticationDAO authenticationDAO;
+
+    private  LocalCrudService crudService;
+
+
+
+    public void setCrudService(LocalCrudService crudService) {
+        this.crudService = crudService;
+    }
 
     /**
      * Добавляет пользователя в базу. Кодирует пароль, использую MD5 алгоритм. В базу сохраняется MD5 хеш значение
@@ -28,6 +39,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         authenticationInfo.setPassword(passwordHash);
 
         authenticationDAO.insertAuthenticationInfo(authenticationInfo);
+        BusinessObject role= new GenericBusinessObject();
+        role.setId(Long.);
+
+
+        authenticationDAO.insertRole(role);
     }
 
    /**
@@ -35,13 +51,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
      * @param login логин пользователя
      * @return true, если существует пользователь, false иначе
      */
+    @Override
     public boolean existsAuthenticationInfo(String login) {
         return authenticationDAO.existsAuthenticationInfo(login);
     }
 
     /**
      * Устанавливает {@see #md5Service}. Используется для кодирования паролей пользователей.
-     * 
+     *
      * @param md5Service
      */
     public void setMd5Service(MD5Service md5Service) {
@@ -55,5 +72,5 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public void setAuthenticationDAO(AuthenticationDAO authenticationDAO) {
         this.authenticationDAO = authenticationDAO;
     }
-   
+
 }
