@@ -474,9 +474,8 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
     /*
-     * {@see
-     * ru.intertrust.cm.core.dao.api.CrudServiceDAO#findCollectionCountByQuery(ru.intertrust.cm.core.config.model.CollectionConfig
-     * , java.util.List, ru.intertrust.cm.core.business.api.dto.SortOrder)}
+     * {@see ru.intertrust.cm.core.dao.api.CrudServiceDAO#findCollectionCountByQuery(ru.intertrust.cm.core.config.model.
+     * CollectionConfig , java.util.List, ru.intertrust.cm.core.business.api.dto.SortOrder)}
      */
     @Override
     public int findCollectionCount(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs,
@@ -696,7 +695,6 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
         protected final String businessObjectType;
 
         protected final String idField;
-
         
         public BasicRowMapper(String businessObjectType, String idField) {
             this.businessObjectType = businessObjectType;
@@ -725,7 +723,8 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
             return result;
         }
 
-        protected void fillValueModel(FieldValueModel valueModel, ResultSet rs, ColumnModel columnModel, int index, DataType fieldType) throws SQLException {
+        protected void fillValueModel(FieldValueModel valueModel, ResultSet rs, ColumnModel columnModel, int index,
+                DataType fieldType) throws SQLException {
             Value value = null;
             Id id = null;
             if (DataType.ID.equals(fieldType)) {
@@ -848,7 +847,6 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
                 this.idField = idField;
             }
         }
-
     }
 
     /**
