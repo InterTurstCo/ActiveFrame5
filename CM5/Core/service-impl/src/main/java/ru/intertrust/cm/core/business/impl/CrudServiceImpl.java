@@ -5,7 +5,10 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import ru.intertrust.cm.core.business.api.CrudService;
+import javax.ejb.Stateless;
+
+import ru.intertrust.cm.core.business.api.LocalCrudService;
+import ru.intertrust.cm.core.business.api.RemoteCrudService;
 import ru.intertrust.cm.core.business.api.dto.BusinessObject;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.GenericBusinessObject;
@@ -31,7 +34,8 @@ import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
  * @author skashanski
  *
  */
-public class CrudServiceImpl implements CrudService {
+@Stateless
+public class CrudServiceImpl implements RemoteCrudService, LocalCrudService {
 
     public static final String QUERY_FILTER_PARAM_DELIMETER = ":";
 
