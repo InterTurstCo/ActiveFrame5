@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.dao.api;
 
-import ru.intertrust.cm.core.business.api.dto.AuthenticationInfo;
-import ru.intertrust.cm.core.business.api.dto.BusinessObject;
+import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
 
 /**
  * DAO для работы с  системным объектом AuthenticationInfo.
@@ -12,18 +11,12 @@ public interface AuthenticationDAO {
 
     /**
      * Добавление пользователя в базу данных
-     * @param authenticationInfo {@link AuthenticationInfo}
+     * @param authenticationInfo {@link AuthenticationInfoAndRole}
      * @return
      */
-    int insertAuthenticationInfo(AuthenticationInfo authenticationInfo);
+    int insertAuthenticationInfo(AuthenticationInfoAndRole authenticationInfo);
 
 
-    /**
-     * Добавление роли в базу данных
-     * @param authenticationInfo {@link AuthenticationInfo}
-     * @return
-     */
-    int insertRole(BusinessObject role);
 
     /**
      * Проверяет, существует ли пользователь с указанным логином.

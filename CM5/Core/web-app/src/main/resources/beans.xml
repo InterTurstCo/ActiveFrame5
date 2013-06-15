@@ -19,7 +19,7 @@
           class="ru.intertrust.cm.core.config.ConfigurationSerializer"
           p:configurationFilePath="config/business-objects.xml"
           p:collectionsConfigurationFilePath = "config/collections.xml"
-          p:configurationSchemaFilePath="config/businessObjectsConfiguration.xsd"/>
+          p:configurationSchemaFilePath="config/configuration.xsd"/>
 
     <bean id="businessObjectConfiguration"
           class="ru.intertrust.cm.core.config.model.BusinessObjectsConfiguration"
@@ -54,7 +54,8 @@
 
     <bean id="authenticationService"
         class="ru.intertrust.cm.core.business.impl.AuthenticationServiceImpl"
-        p:authenticationDAO-ref="authenticationDAO" p:md5Service-ref="md5Service" />
+        p:authenticationDAO-ref="authenticationDAO" p:md5Service-ref="md5Service"
+        p:crudServiceDAO-ref="crudServiceDAO" p:configurationExplorer-ref="configurationExplorer"/>
 
     <bean id="md5Service" class="ru.intertrust.cm.core.business.impl.MD5ServiceImpl" />
 

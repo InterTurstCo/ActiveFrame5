@@ -1,21 +1,21 @@
 package ru.intertrust.cm.core.business.api;
 
-import ru.intertrust.cm.core.business.api.dto.AuthenticationInfo;
+import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
 
 /**
  * Сервис для работы с бизнес-объектом Person.
- * 
+ *
  * @author atsvetkov
- * 
+ *
  */
 public interface AuthenticationService {
 
     /**
      * Добавление пользователя.
-     * @param authenticationInfo {@link AuthenticationInfo} пользователь для сохранения
+     * @param authenticationInfo {@link AuthenticationInfoAndRole} пользователь для сохранения
      * @return
      */
-    void insertAuthenticationInfo(AuthenticationInfo authenticationInfo);
+    void insertAuthenticationInfoAndRole(AuthenticationInfoAndRole authenticationInfo);
 
     /**
      * Проверяет сужествует ли пользователь с указанным логином.

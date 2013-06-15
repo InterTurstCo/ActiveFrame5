@@ -8,8 +8,7 @@ import javax.sql.DataSource;
 
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import ru.intertrust.cm.core.business.api.dto.AuthenticationInfo;
-import ru.intertrust.cm.core.business.api.dto.BusinessObject;
+import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
 import ru.intertrust.cm.core.dao.api.AuthenticationDAO;
 
 /**
@@ -33,7 +32,7 @@ public class AuthenticationDAOImpl implements AuthenticationDAO {
      * Смотри @see ru.intertrust.cm.core.dao.api.AuthenticationDAO#insertAuthenticationInfo(ru.intertrust.cm.core.business.api.dto.AuthenticationInfo)
      */
     @Override
-    public int insertAuthenticationInfo(AuthenticationInfo authenticationInfo) {
+    public int insertAuthenticationInfo(AuthenticationInfoAndRole authenticationInfo) {
         String query = "insert into authentication_info (id, user_uid, created_date, updated_date, password) values (:id, :user_uid, :created_date, :updated_date, :password)";
 
         Date currentDate = new Date();
@@ -49,27 +48,6 @@ public class AuthenticationDAOImpl implements AuthenticationDAO {
     }
 
 
-
-
-
-    @Override
-    public int insertRole(BusinessObject role) {
-
-        String query = "insert into employee_role (id, role, created_date, updated_date, employee_id) values (:id, :role, :created_date, :updated_date, :employee_id)";
-
-        Date currentDate = new Date();
-
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("id", role.getId());
-        paramMap.put("created_date", currentDate);
-        paramMap.put("updated_date", currentDate);
-        paramMap.put("role", role.getValue("Role"));
-        paramMap.put("employee_id", role.getValue("Employee Id"));
-
-
-        return jdbcTemplate.update(query, paramMap);
-
-    }
 
     /**
      * Смотри @see ru.intertrust.cm.core.dao.api.AuthenticationDAO#existsAuthenticationInfo(java.lang.String)

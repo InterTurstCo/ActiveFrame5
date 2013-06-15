@@ -1,17 +1,17 @@
 package ru.intertrust.cm.core.business.impl;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import ru.intertrust.cm.core.business.api.AuthenticationService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
-import ru.intertrust.cm.core.business.api.dto.AuthenticationInfo;
+import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.BusinessObjectConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.api.DataStructureDAO;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Смотри {@link ru.intertrust.cm.core.business.api.ConfigurationService}
@@ -126,11 +126,11 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     private void insertAdminAuthenticationInfo() {
-        AuthenticationInfo admin = new AuthenticationInfo();
-        admin.setId(1);
+        AuthenticationInfoAndRole admin = new AuthenticationInfoAndRole();
         admin.setUserUid(ADMIN_LOGIN);
         admin.setPassword(ADMIN_PASSWORD);
-        authenticationService.insertAuthenticationInfo(admin);
+        admin.setRole("admin");
+        authenticationService.insertAuthenticationInfoAndRole(admin);
     }
 
 }
