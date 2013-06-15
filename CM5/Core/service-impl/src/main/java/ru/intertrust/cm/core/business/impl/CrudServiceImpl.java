@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import ru.intertrust.cm.core.business.api.CrudService;
 import javax.ejb.Stateless;
 
 import ru.intertrust.cm.core.business.api.LocalCrudService;
@@ -17,13 +18,16 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.ConfigurationSerializer;
 import ru.intertrust.cm.core.config.model.BusinessObjectConfig;
 import ru.intertrust.cm.core.config.model.BusinessObjectsConfiguration;
 import ru.intertrust.cm.core.config.model.CollectionConfig;
 import ru.intertrust.cm.core.config.model.CollectionFilterConfig;
 import ru.intertrust.cm.core.config.model.CollectionFilterCriteriaConfig;
 import ru.intertrust.cm.core.config.model.CollectionFilterReferenceConfig;
+import ru.intertrust.cm.core.config.model.CollectionsConfiguration;
 import ru.intertrust.cm.core.dao.api.CrudServiceDAO;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
@@ -144,9 +148,11 @@ public class CrudServiceImpl implements RemoteCrudService, LocalCrudService {
     @Override
     public IdentifiableObjectCollection findCollection(String collectionName, List<Filter> filterValues,
             SortOrder sortOrder, int offset, int limit) {
+
         CollectionConfig collectionConfig = configurationExplorer.getCollectionConfig(collectionName);
-        List<CollectionFilterConfig> filledFilterConfigs = findFilledFilterConfigs(filterValues, collectionConfig);        
-        return crudServiceDAO.findCollection(collectionConfig, filledFilterConfigs, filterValues, sortOrder, offset, limit);
+        List<CollectionFilterConfig> filledFilterConfigs = findFilledFilterConfigs(filterValues, collectionConfig);
+        return crudServiceDAO.findCollection(collectionConfig, filledFilterConfigs, filterValues, sortOrder, offset,
+                limit);
     }
     
     /**
@@ -231,7 +237,7 @@ public class CrudServiceImpl implements RemoteCrudService, LocalCrudService {
     public int findCollectionCount(String collectionName, List<Filter> filterValues) {
         CollectionConfig collectionConfig = configurationExplorer.getCollectionConfig(collectionName);
         List<CollectionFilterConfig> filledFilterConfigs = findFilledFilterConfigs(filterValues, collectionConfig);
-        return crudServiceDAO.findCollectionCount(collectionConfig, filledFilterConfigs);
+        return crudServiceDAO.findCollectionCount(collectionConfig, filledFilterConfigs, filterValues);
     }
 
     @Override
@@ -268,13 +274,12 @@ public class CrudServiceImpl implements RemoteCrudService, LocalCrudService {
      */
     @Deprecated
     private static BusinessObjectConfig findBusinessObjectConfigById(BusinessObjectsConfiguration
-                                                                       businessObjectsConfiguration, Id id) {
-        for(BusinessObjectConfig businessObjectConfig : businessObjectsConfiguration.getBusinessObjectConfigs()) {
-            if(businessObjectConfig.getId().equals(id)) {
+            businessObjectsConfiguration, Id id) {
+        for (BusinessObjectConfig businessObjectConfig : businessObjectsConfiguration.getBusinessObjectConfigs()) {
+            if (businessObjectConfig.getId().equals(id)) {
                 return businessObjectConfig;
             }
         }
         throw new RuntimeException("BusinessObjectConfiguration is not found with id '" + id + "'");
     }
-
 }

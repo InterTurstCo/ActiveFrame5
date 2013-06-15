@@ -479,10 +479,15 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
      * , java.util.List, ru.intertrust.cm.core.business.api.dto.SortOrder)}
      */
     @Override
-    public int findCollectionCount(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs) {
+    public int findCollectionCount(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs,
+            List<Filter> filterValues) {
         String collectionQuery = getFindCollectionCountQuery(collectionConfig, filledFilterConfigs);
 
-        return jdbcTemplate.getJdbcOperations().queryForObject(collectionQuery, Integer.class);
+        Map<String, Object> parameters = new HashMap<String, Object>();
+
+        fillFilterParameters(filterValues, parameters);
+
+        return jdbcTemplate.queryForObject(collectionQuery, parameters, Integer.class);
     }
 
     /**
@@ -509,13 +514,8 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     private class CollectionRowMapper extends BasicRowMapper implements
             ResultSetExtractor<IdentifiableObjectCollection> {
 
-        private final String businessObjectType;
-
-        private final String idField;
-
         public CollectionRowMapper(String businessObjectType, String idField) {
-            this.businessObjectType = businessObjectType;
-            this.idField = idField;
+            super(businessObjectType, idField);
         }
 
         @Override
@@ -540,71 +540,22 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
             int row = 0;
             while (rs.next()) {
+                FieldValueModel valueModel = new FieldValueModel();
+
                 int index = 0;
                 int collectionIndex = 0;
 
-                Id id = null;
-                for (DataType fieldType : columnModel.getColumnTypes()) {
-                    Value value = null;
-                    if (DataType.ID.equals(fieldType)) {
-
-                        Long longValue = rs.getLong(columnModel.getIdField());
-                        if (!rs.wasNull()) {
-                            id = new RdbmsId(businessObjectType, longValue);
-                        } else {
-                            throw new RuntimeException("Id field can not be null for object " + "business_object");
-                        }
-
-                    } else if (DataType.INTEGER.equals(fieldType)) {
-                        value = new DecimalValue();
-                        Long longValue = rs.getLong(index + 1);
-                        if (!rs.wasNull()) {
-                            value = new IntegerValue(longValue);
-                        } else {
-                            value = new IntegerValue();
-                        }
-
-                    } else if (DataType.DATETIME.equals(fieldType)) {
-                        Timestamp timestamp = rs.getTimestamp(index + 1);
-                        if (!rs.wasNull()) {
-                            Date date = new Date(timestamp.getTime());
-                            value = new TimestampValue(date);
-                        } else {
-                            value = new TimestampValue();
-                        }
-
-                    } else if (DataType.STRING.equals(fieldType)) {
-                        String fieldValue = rs.getString(index + 1);
-                        if (!rs.wasNull()) {
-                            value = new StringValue(fieldValue);
-                        } else {
-                            value = new StringValue();
-                        }
-
-                    } else if (DataType.BOOLEAN.equals(fieldType)) {
-                        Boolean fieldValue = rs.getBoolean(index + 1);
-                        if (!rs.wasNull()) {
-                            value = new BooleanValue(fieldValue);
-                        } else {
-                            value = new BooleanValue();
-                        }
-
-                    } else if (DataType.DECIMAL.equals(fieldType)) {
-                        BigDecimal fieldValue = rs.getBigDecimal(index + 1);
-                        if (!rs.wasNull()) {
-                            value = new DecimalValue(fieldValue);
-                        } else {
-                            value = new DecimalValue();
-                        }
-                    }
+                for (DataType fieldType : columnModel.getColumnTypes()) {                                        
+                    fillValueModel(valueModel, rs, columnModel, index, fieldType);
+                    
                     collectionIndex = index;
 
-                    if (id != null) {
-                        collection.setId(row, id);
+                    if (valueModel.getId() != null) {
+                        collection.setId(row, valueModel.getId() );
                         collectionIndex = index == 0 ? 0 : index - 1;
                     }
-                    if (value != null) {
-                        collection.set(collectionIndex, row, value);
+                    if (valueModel.getValue() != null) {
+                        collection.set(collectionIndex, row, valueModel.getValue());
                     }
                     index++;
                 }
@@ -615,18 +566,17 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
         }
     }
 
-    @SuppressWarnings("rawtypes")
+    /**
+     * Отображает {@link ResultSet} на бизнес-объект {@link BusinessObject}.
+     * @author atsvetkov
+     */
+   @SuppressWarnings("rawtypes")
     private class SingleObjectRowMapper extends BasicRowMapper implements ResultSetExtractor<BusinessObject> {
 
         private static final String DEFAULT_ID_FIELD = "id";
 
-        private final String businessObjectType;
-
-        private final String idField;
-
         public SingleObjectRowMapper(String businessObjectType) {
-            this.businessObjectType = businessObjectType;
-            this.idField = DEFAULT_ID_FIELD;
+            super(businessObjectType, DEFAULT_ID_FIELD);
         }
 
         @Override
@@ -651,65 +601,10 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
             while (rs.next()) {
                 FieldValueModel valueModel = new FieldValueModel();
                 int index = 0;
-                Id id = null;
                 int fieldIndex = 0;
                 for (DataType fieldType : columnModel.getColumnTypes()) {
-                    Value value = null;
-
-                    if (DataType.ID.equals(fieldType)) {
-
-                        Long longValue = rs.getLong(columnModel.getIdField());
-                        if (!rs.wasNull()) {
-                            id = new RdbmsId(businessObjectType, longValue);
-                        } else {
-                            throw new RuntimeException("Id field can not be null for object " + "business_object");
-                        }
-
-                    } else if (DataType.INTEGER.equals(fieldType)) {
-                        value = new DecimalValue();
-                        Long longValue = rs.getLong(index + 1);
-                        if (!rs.wasNull()) {
-                            value = new IntegerValue(longValue);
-                        } else {
-                            value = new IntegerValue();
-                        }
-
-                    } else if (DataType.DATETIME.equals(fieldType)) {
-                        Timestamp timestamp = rs.getTimestamp(index + 1);
-                        if (!rs.wasNull()) {
-                            Date date = new Date(timestamp.getTime());
-                            value = new TimestampValue(date);
-                        } else {
-                            value = new TimestampValue();
-                        }
-
-                    } else if (DataType.STRING.equals(fieldType)) {
-                        String fieldValue = rs.getString(index + 1);
-                        if (!rs.wasNull()) {
-                            value = new StringValue(fieldValue);
-                        } else {
-                            value = new StringValue();
-                        }
-
-                    } else if (DataType.BOOLEAN.equals(fieldType)) {
-                        Boolean fieldValue = rs.getBoolean(index + 1);
-                        if (!rs.wasNull()) {
-                            value = new BooleanValue(fieldValue);
-                        } else {
-                            value = new BooleanValue();
-                        }
-
-                    } else if (DataType.DECIMAL.equals(fieldType)) {
-                        BigDecimal fieldValue = rs.getBigDecimal(index + 1);
-                        if (!rs.wasNull()) {
-                            value = new DecimalValue(fieldValue);
-                        } else {
-                            value = new DecimalValue();
-                        }
-                    }
-
-                    valueModel.setId(id);
-                    valueModel.setValue(value);
+                    
+                    fillValueModel(valueModel, rs, columnModel, index, fieldType);
 
                     fieldIndex = index;
 
@@ -727,43 +622,21 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
             }
             return object;
-        }
-
-        private class FieldValueModel {
-            private Id id = null;
-
-            private Value value = null;
-
-            public Id getId() {
-                return id;
-            }
-
-            public void setId(Id id) {
-                this.id = id;
-            }
-
-            public Value getValue() {
-                return value;
-            }
-
-            public void setValue(Value value) {
-                this.value = value;
-            }
-        }
+        }        
+       
     }
 
+    /**
+     * Отображает {@link ResultSet} на список бизнес-объектов {@link List<BusinessObject>}.
+     * @author atsvetkov
+     */
     @SuppressWarnings("rawtypes")
     private class MultipleObjectRowMapper extends BasicRowMapper implements ResultSetExtractor<List<BusinessObject>> {
 
         private static final String DEFAULT_ID_FIELD = "id";
 
-        private final String businessObjectType;
-
-        private final String idField;
-
         public MultipleObjectRowMapper(String businessObjectType) {
-            this.businessObjectType = businessObjectType;
-            this.idField = DEFAULT_ID_FIELD;
+            super(businessObjectType, DEFAULT_ID_FIELD);
         }
 
         @Override
@@ -786,73 +659,23 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
             while (rs.next()) {
                 GenericBusinessObject object = new GenericBusinessObject();
+                FieldValueModel valueModel = new FieldValueModel();
+                
                 object.setTypeName(businessObjectType);
                 int index = 0;
-                Id id = null;
                 int fieldIndex = 0;
-                for (DataType fieldType : columnModel.getColumnTypes()) {
-                    Value value = null;
-                    if (DataType.ID.equals(fieldType)) {
-
-                        Long longValue = rs.getLong(columnModel.getIdField());
-                        if (!rs.wasNull()) {
-                            id = new RdbmsId(businessObjectType, longValue);
-                        } else {
-                            throw new RuntimeException("Id field can not be null for object " + "business_object");
-                        }
-
-                    } else if (DataType.INTEGER.equals(fieldType)) {
-                        value = new DecimalValue();
-                        Long longValue = rs.getLong(index + 1);
-                        if (!rs.wasNull()) {
-                            value = new IntegerValue(longValue);
-                        } else {
-                            value = new IntegerValue();
-                        }
-
-                    } else if (DataType.DATETIME.equals(fieldType)) {
-                        Timestamp timestamp = rs.getTimestamp(index + 1);
-                        if (!rs.wasNull()) {
-                            Date date = new Date(timestamp.getTime());
-                            value = new TimestampValue(date);
-                        } else {
-                            value = new TimestampValue();
-                        }
-
-                    } else if (DataType.STRING.equals(fieldType)) {
-                        String fieldValue = rs.getString(index + 1);
-                        if (!rs.wasNull()) {
-                            value = new StringValue(fieldValue);
-                        } else {
-                            value = new StringValue();
-                        }
-
-                    } else if (DataType.BOOLEAN.equals(fieldType)) {
-                        Boolean fieldValue = rs.getBoolean(index + 1);
-                        if (!rs.wasNull()) {
-                            value = new BooleanValue(fieldValue);
-                        } else {
-                            value = new BooleanValue();
-                        }
-
-                    } else if (DataType.DECIMAL.equals(fieldType)) {
-                        BigDecimal fieldValue = rs.getBigDecimal(index + 1);
-                        if (!rs.wasNull()) {
-                            value = new DecimalValue(fieldValue);
-                        } else {
-                            value = new DecimalValue();
-                        }
-                    }
-
+                for (DataType fieldType : columnModel.getColumnTypes()) {                    
+                    fillValueModel(valueModel, rs, columnModel, index, fieldType);
+                    
                     fieldIndex = index;
 
-                    if (id != null) {
-                        object.setId(id);
+                    if (valueModel.getId() != null) {
+                        object.setId(valueModel.getId());
                         fieldIndex = index == 0 ? 0 : index - 1;
                     }
-                    if (value != null) {
+                    if (valueModel.getValue() != null) {
                         String columnName = columnModel.getColumnNames().get(fieldIndex);
-                        object.setValue(columnName, value);
+                        object.setValue(columnName, valueModel.getValue());
 
                     }
                     index++;
@@ -865,10 +688,21 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
     /**
-     * Базовй класс для отображения {@link ResultSet} на бизнес-объекты
+     * Базовй класс для отображения {@link ResultSet} на бизнес-объекты и коллекции.
      * @author atsvetkov
      */
     private class BasicRowMapper {
+
+        protected final String businessObjectType;
+
+        protected final String idField;
+
+        
+        public BasicRowMapper(String businessObjectType, String idField) {
+            this.businessObjectType = businessObjectType;
+            this.idField = idField;
+        }
+
         /**
          * Отображает типы полей в базе на {@link DataType}
          * @param columnTypeName
@@ -891,8 +725,96 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
             return result;
         }
 
+        protected void fillValueModel(FieldValueModel valueModel, ResultSet rs, ColumnModel columnModel, int index, DataType fieldType) throws SQLException {
+            Value value = null;
+            Id id = null;
+            if (DataType.ID.equals(fieldType)) {
+
+                Long longValue = rs.getLong(columnModel.getIdField());
+                if (!rs.wasNull()) {
+                    id = new RdbmsId(businessObjectType, longValue);
+                } else {
+                    throw new RuntimeException("Id field can not be null for object " + "business_object");
+                }
+
+            } else if (DataType.INTEGER.equals(fieldType)) {
+                value = new DecimalValue();
+                Long longValue = rs.getLong(index + 1);
+                if (!rs.wasNull()) {
+                    value = new IntegerValue(longValue);
+                } else {
+                    value = new IntegerValue();
+                }
+
+            } else if (DataType.DATETIME.equals(fieldType)) {
+                Timestamp timestamp = rs.getTimestamp(index + 1);
+                if (!rs.wasNull()) {
+                    Date date = new Date(timestamp.getTime());
+                    value = new TimestampValue(date);
+                } else {
+                    value = new TimestampValue();
+                }
+
+            } else if (DataType.STRING.equals(fieldType)) {
+                String fieldValue = rs.getString(index + 1);
+                if (!rs.wasNull()) {
+                    value = new StringValue(fieldValue);
+                } else {
+                    value = new StringValue();
+                }
+
+            } else if (DataType.BOOLEAN.equals(fieldType)) {
+                Boolean fieldValue = rs.getBoolean(index + 1);
+                if (!rs.wasNull()) {
+                    value = new BooleanValue(fieldValue);
+                } else {
+                    value = new BooleanValue();
+                }
+
+            } else if (DataType.DECIMAL.equals(fieldType)) {
+                BigDecimal fieldValue = rs.getBigDecimal(index + 1);
+                if (!rs.wasNull()) {
+                    value = new DecimalValue(fieldValue);
+                } else {
+                    value = new DecimalValue();
+                }
+            }
+
+            if (id != null) {
+                valueModel.setId(id);
+            }
+            valueModel.setValue(value);
+        }
+        
         /**
-         * Метаданные возвращаемых значений списка. Содержит названия колонок, их типы и имя колонки - первичного ключа
+         * Обертывает заполненное поле или поле id в бизнес-объекте.
+         * @author atsvetkov
+         *
+         */
+        protected class FieldValueModel {
+            private Id id = null;
+
+            private Value value = null;
+
+            public Id getId() {
+                return id;
+            }
+
+            public void setId(Id id) {
+                this.id = id;
+            }
+
+            public Value getValue() {
+                return value;
+            }
+
+            public void setValue(Value value) {
+                this.value = value;
+            }
+        }
+
+        /**
+         * Метаданные возвращаемых значений списка. Содержит названия колонок, их типы и имя колонки-первичного ключа
          * для бизнес-объекта.
          * @author atsvetkov
          */

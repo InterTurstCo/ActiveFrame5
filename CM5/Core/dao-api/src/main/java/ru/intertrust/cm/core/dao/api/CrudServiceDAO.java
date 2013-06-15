@@ -94,7 +94,7 @@ public interface CrudServiceDAO {
      * @param filledFilterConfigs заполненные фильтры в конфигурации коллекции
      * @return
      */
-    int findCollectionCount(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs);
+    int findCollectionCount(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs, List<Filter> filterValues);
 
     /**
      * Поиск бизнес-объекта по уникальному идентификатору в системе.
