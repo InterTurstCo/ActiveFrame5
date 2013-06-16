@@ -26,7 +26,7 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigurationServiceImplTest {
 
-    private static final String BUSINESS_OBJECTS_CONFIG_PATH = "test-config/business-objects.xml";
+    private static final String DOMAIN_OBJECTS_CONFIG_PATH = "test-config/business-objects.xml";
     private static final String COLLECTIONS_CONFIG_PATH = "test-config/collections.xml";
     private static final String CONFIGURATION_SCHEMA = "test-config/configuration.xsd";
 
@@ -43,11 +43,11 @@ public class ConfigurationServiceImplTest {
     @Before
     public void setUp() throws Exception {
         ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
-        configurationSerializer.setConfigurationFilePath(BUSINESS_OBJECTS_CONFIG_PATH);
+        configurationSerializer.setConfigurationFilePath(DOMAIN_OBJECTS_CONFIG_PATH);
         configurationSerializer.setCollectionsConfigurationFilePath(COLLECTIONS_CONFIG_PATH);
         configurationSerializer.setConfigurationSchemaFilePath(CONFIGURATION_SCHEMA);
 
-        domainObjectsConfiguration = configurationSerializer.serializeBusinessObjectConfiguration();
+        domainObjectsConfiguration = configurationSerializer.serializeDomainObjectConfiguration();
         assertNotNull(domainObjectsConfiguration); // проверяем, что конфигурация сериализована из файла
 
         collectionsConfiguration = configurationSerializer.serializeCollectionConfiguration();

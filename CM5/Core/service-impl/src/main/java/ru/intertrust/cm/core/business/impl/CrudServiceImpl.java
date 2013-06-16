@@ -49,7 +49,7 @@ public class CrudServiceImpl implements RemoteCrudService, LocalCrudService {
     @Override
     public DomainObject createBusinessObject(String name) {
 
-        DomainObjectConfig domainObjectConfig = configurationExplorer.getBusinessObjectConfig(name);
+        DomainObjectConfig domainObjectConfig = configurationExplorer.getDomainObjectConfig(name);
 
         DomainObject domainObject = new GenericDomainObject();
         domainObject.setTypeName(name);
@@ -62,7 +62,7 @@ public class CrudServiceImpl implements RemoteCrudService, LocalCrudService {
 
     protected DomainObject create(DomainObject domainObject) {
 
-        DomainObjectConfig domainObjectConfig = configurationExplorer.getBusinessObjectConfig(domainObject
+        DomainObjectConfig domainObjectConfig = configurationExplorer.getDomainObjectConfig(domainObject
                 .getTypeName());
         Date currentDate = new Date();
         domainObject.setCreatedDate(currentDate);
@@ -73,7 +73,7 @@ public class CrudServiceImpl implements RemoteCrudService, LocalCrudService {
 
     protected DomainObject update(DomainObject domainObject) {
 
-        DomainObjectConfig domainObjectConfig = configurationExplorer.getBusinessObjectConfig(domainObject
+        DomainObjectConfig domainObjectConfig = configurationExplorer.getDomainObjectConfig(domainObject
                 .getTypeName());
 
         return crudServiceDAO.update(domainObject, domainObjectConfig);
@@ -226,7 +226,7 @@ public class CrudServiceImpl implements RemoteCrudService, LocalCrudService {
     @Override
     public void delete(Id id) {
         RdbmsId rdbmsId = (RdbmsId)id;
-        DomainObjectConfig domainObjectConfig = configurationExplorer.getBusinessObjectConfig(rdbmsId.getTypeName());
+        DomainObjectConfig domainObjectConfig = configurationExplorer.getDomainObjectConfig(rdbmsId.getTypeName());
         crudServiceDAO.delete(id, domainObjectConfig);
     }
 

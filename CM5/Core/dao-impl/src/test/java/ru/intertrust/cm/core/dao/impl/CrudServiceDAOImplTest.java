@@ -37,7 +37,7 @@ public class CrudServiceDAOImplTest {
     private static final String COLLECTION_QUERY_WITH_LIMITS = "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e inner join department d on e.department = d.id where d.name = 'dep1' order by e.name asc limit 100 OFFSET 10";
     private static final String COLLECTION_QUERY_WITHOUT_FILTERS = "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e where 1=1 order by e.name asc";
     private static final String FIND_COLLECTION_QUERY_WITH_FILTERS = "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e inner join department d on e.department = d.id where d.name = 'dep1' order by e.name asc";
-    private static final String BUSINESS_OBJECTS_CONFIG_PATH = "test-config/business-objects.xml";
+    private static final String DOMAIN_OBJECTS_CONFIG_PATH = "test-config/business-objects.xml";
     private static final String COLLECTIONS_CONFIG_PATH = "test-config/collections.xml";
     private static final String CONFIGURATION_SCHEMA_PATH = "test-config/configuration.xsd";
 
@@ -64,12 +64,12 @@ public class CrudServiceDAOImplTest {
     @Before
     public void setUp() throws Exception {
         ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
-        configurationSerializer.setConfigurationFilePath(BUSINESS_OBJECTS_CONFIG_PATH);
+        configurationSerializer.setConfigurationFilePath(DOMAIN_OBJECTS_CONFIG_PATH);
         configurationSerializer.setCollectionsConfigurationFilePath(COLLECTIONS_CONFIG_PATH);
         configurationSerializer.setConfigurationSchemaFilePath(CONFIGURATION_SCHEMA_PATH);
 
         DomainObjectsConfiguration domainObjectsConfiguration = configurationSerializer
-                .serializeBusinessObjectConfiguration();
+                .serializeDomainObjectConfiguration();
         CollectionsConfiguration collectionsConfiguration = configurationSerializer.serializeCollectionConfiguration();
 
         configurationExplorer = new ConfigurationExplorer();
@@ -77,7 +77,7 @@ public class CrudServiceDAOImplTest {
         configurationExplorer.setCollectionsConfiguration(collectionsConfiguration);
         configurationExplorer.init();
 
-        domainObjectConfig = configurationExplorer.getBusinessObjectConfig("Person");
+        domainObjectConfig = configurationExplorer.getDomainObjectConfig("Person");
         collectionConfig = configurationExplorer.getCollectionConfig("Employees");
         byDepartmentFilterConfig = createByDepartmentFilterConfig();
         byNameFilterConfig = createByNameFilterConfig();
@@ -193,14 +193,14 @@ public class CrudServiceDAOImplTest {
 
     }
 
-    private void initBusinessObjectConfig() {
+    private void initDomainObjectConfig() {
 
         /*
-         * Создаем конфигурацию следующего ввида <businessObject name="Person">
+         * Создаем конфигурацию следующего ввида <domain-object name="Person">
          * <fields> <string name="EMail" length="128" /> <string name="Login"
          * length="64" not-null="true" /> <password name="Password" length="128"
          * /> </fields> <uniqueKey> <!-- This key means automatic key + index
-         * creation--> <field name="EMail"/> </uniqueKey> </businessObject>
+         * creation--> <field name="EMail"/> </uniqueKey> </domain-object>
          */
 
         domainObjectConfig = new DomainObjectConfig();

@@ -60,8 +60,8 @@ public class PostgreSQLDataStructureDAOImpl implements DataStructureDAO {
             jdbcTemplate.update(createIndexesQuery);
         }
 
-        jdbcTemplate.update("insert into BUSINESS_OBJECT(NAME) values (?)", config.getName());
-        Long id = jdbcTemplate.queryForObject("select ID from BUSINESS_OBJECT where NAME = ?", Long.class, config.getName());
+        jdbcTemplate.update("insert into DOMAIN_OBJECT(NAME) values (?)", config.getName());
+        Long id = jdbcTemplate.queryForObject("select ID from DOMAIN_OBJECT where NAME = ?", Long.class, config.getName());
         config.setId(id);
     }
 
@@ -78,7 +78,7 @@ public class PostgreSQLDataStructureDAOImpl implements DataStructureDAO {
      */
     @Override
     public void createServiceTables() {
-        jdbcTemplate.update(generateCreateBusinessObjectTableQuery());
+        jdbcTemplate.update(generateCreateDomainObjectTableQuery());
 //        jdbcTemplate.update(generateCreateAuthenticationInfoTableQuery());
     }
 

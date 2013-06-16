@@ -20,9 +20,9 @@
           p:collectionsConfigurationFilePath = "config/collections.xml"
           p:configurationSchemaFilePath="config/configuration.xsd"/>
 
-    <bean id="businessObjectConfiguration"
+    <bean id="domainObjectConfiguration"
           class="ru.intertrust.cm.core.config.model.DomainObjectsConfiguration"
-          factory-bean="configurationSerializer" factory-method="serializeBusinessObjectConfiguration"/>
+          factory-bean="configurationSerializer" factory-method="serializeDomainObjectConfiguration"/>
 
     <bean id="collectionsConfiguration"
           class="ru.intertrust.cm.core.config.model.CollectionsConfiguration"
@@ -30,15 +30,15 @@
 
     <bean id="configurationExplorer"
           class="ru.intertrust.cm.core.config.ConfigurationExplorer" init-method="init"
-          p:domainObjectsConfiguration-ref="businessObjectConfiguration"
+          p:domainObjectsConfiguration-ref="domainObjectConfiguration"
           p:collectionsConfiguration-ref="collectionsConfiguration"/>
 
     <bean id="configurationLoader"
           class="ru.intertrust.cm.core.business.impl.ConfigurationLoader" init-method="load"
           p:configurationService-ref="configurationService"
-          p:logicalValidator-ref="businessObjectsConfigurationLogicalValidator"/>
+          p:logicalValidator-ref="domainObjectsConfigurationLogicalValidator"/>
 
-    <bean id="businessObjectsConfigurationLogicalValidator"
+    <bean id="domainObjectsConfigurationLogicalValidator"
           class="ru.intertrust.cm.core.config.DomainObjectsConfigurationLogicalValidator"
           p:configurationExplorer-ref="configurationExplorer"/>
 

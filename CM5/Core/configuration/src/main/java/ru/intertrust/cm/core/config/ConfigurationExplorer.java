@@ -18,7 +18,7 @@ public class ConfigurationExplorer {
     private DomainObjectsConfiguration domainObjectsConfiguration;
     private CollectionsConfiguration collectionsConfiguration;
 
-    private Map<String, DomainObjectConfig> businessObjectConfigMap;
+    private Map<String, DomainObjectConfig> domainObjectConfigMap;
     private Map<String, CollectionConfig> collectionsConfigMap;
 
     public ConfigurationExplorer() {
@@ -41,7 +41,7 @@ public class ConfigurationExplorer {
     }
 
     public void init() {
-        initBusinessObjectsConfigurationMap();
+        initDomainObjectsConfigurationMap();
         initCollectionsConfigurationMap();
     }
 
@@ -50,11 +50,11 @@ public class ConfigurationExplorer {
      * @param name имя бизнес-объекта, конфигурацию которого надо найти
      * @return конфигурация бизнес-объекта
      */
-    public DomainObjectConfig getBusinessObjectConfig(String name) {
-        DomainObjectConfig result = businessObjectConfigMap.get(name);
+    public DomainObjectConfig getDomainObjectConfig(String name) {
+        DomainObjectConfig result = domainObjectConfigMap.get(name);
 
         if(result == null) {
-            throw new RuntimeException("BusinessObject Configuration is not found for name '" + name + "'");
+            throw new RuntimeException("DomainObject Configuration is not found for name '" + name + "'");
         }
 
         return result;
@@ -70,17 +70,17 @@ public class ConfigurationExplorer {
         return result;
     }
 
-    private void initBusinessObjectsConfigurationMap() {
+    private void initDomainObjectsConfigurationMap() {
         if(domainObjectsConfiguration == null) {
-            throw new RuntimeException("Failed to initialize ConfigurationExplorer because businessObjects " +
+            throw new RuntimeException("Failed to initialize ConfigurationExplorer because Domain Objects " +
                     "Configuration is null");
         }
 
         int size = domainObjectsConfiguration.getDomainObjectConfigs().size();
-        businessObjectConfigMap = new ConcurrentHashMap<>(size);
+        domainObjectConfigMap = new ConcurrentHashMap<>(size);
 
         for (DomainObjectConfig domainObjectConfig : domainObjectsConfiguration.getDomainObjectConfigs()) {
-            businessObjectConfigMap.put(domainObjectConfig.getName(), domainObjectConfig);
+            domainObjectConfigMap.put(domainObjectConfig.getName(), domainObjectConfig);
         }
     }
 

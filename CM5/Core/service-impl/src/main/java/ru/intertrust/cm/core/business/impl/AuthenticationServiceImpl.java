@@ -56,7 +56,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         authInfo.setValue("Password", password);
         authInfo.setValue("User Uid", new StringValue(authenticationInfo.getUserUid()));
 
-        DomainObjectConfig domainObjectConfig = configurationExplorer.getBusinessObjectConfig(authInfo
+        DomainObjectConfig domainObjectConfig = configurationExplorer.getDomainObjectConfig(authInfo
                 .getTypeName());
         DomainObject createdAuthInfo = crudServiceDAO.create(authInfo, domainObjectConfig);
 
@@ -70,7 +70,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         role.setValue("Role", roleName);
         role.setValue("Authentication Info", new IntegerValue(id.getId()));
 
-        domainObjectConfig = configurationExplorer.getBusinessObjectConfig(role
+        domainObjectConfig = configurationExplorer.getDomainObjectConfig(role
                 .getTypeName());
 
         crudServiceDAO.create(role, domainObjectConfig);

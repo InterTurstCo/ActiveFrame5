@@ -28,13 +28,13 @@ public class DomainObjectsConfigurationLogicalValidator {
             return;
         }
         for (DomainObjectConfig domainObjectConfig : domainObjectConfigs) {
-            validateBusinessObjectConfig(domainObjectConfig);
+            validateDomainObjectConfig(domainObjectConfig);
         }
         // TODO Log success information using logging API
         System.out.println("Document has passed logical validation");
     }
 
-    private void validateBusinessObjectConfig(DomainObjectConfig domainObjectConfig) {
+    private void validateDomainObjectConfig(DomainObjectConfig domainObjectConfig) {
         if (domainObjectConfig == null) {
             return;
         }
@@ -47,25 +47,25 @@ public class DomainObjectsConfigurationLogicalValidator {
     private void validateUniqueKeys(DomainObjectConfig domainObjectConfig) {
         for (UniqueKeyConfig uniqueKeyConfig : domainObjectConfig.getUniqueKeyConfigs()) {
             for (UniqueKeyFieldConfig uniqueKeyFieldConfig : uniqueKeyConfig.getUniqueKeyFieldConfigs()) {
-                validateBusinessObjectConfigContainsField(domainObjectConfig, uniqueKeyFieldConfig.getName());
+                validateDomainObjectConfigContainsField(domainObjectConfig, uniqueKeyFieldConfig.getName());
             }
         }
     }
 
-    private void validateBusinessObjectConfigContainsField(DomainObjectConfig domainObjectConfig,
-                                                          String fieldName) {
+    private void validateDomainObjectConfigContainsField(DomainObjectConfig domainObjectConfig,
+                                                         String fieldName) {
         for(FieldConfig fieldConfig : domainObjectConfig.getFieldConfigs()) {
             if(fieldName.equals(fieldConfig.getName())) {
                 return;
             }
         }
-        throw new RuntimeException("FieldConfig with name " + fieldName + " is not found in business object '" + domainObjectConfig.getName() + "'");
+        throw new RuntimeException("FieldConfig with name " + fieldName + " is not found in domain object '" + domainObjectConfig.getName() + "'");
     }
 
     private void validateReferenceFields(DomainObjectConfig domainObjectConfig) {
         for (FieldConfig fieldConfig : domainObjectConfig.getFieldConfigs()) {
             if (ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
-                configurationExplorer.getBusinessObjectConfig(((ReferenceFieldConfig) fieldConfig).getType());
+                configurationExplorer.getDomainObjectConfig(((ReferenceFieldConfig) fieldConfig).getType());
             }
         }
     }
@@ -73,7 +73,7 @@ public class DomainObjectsConfigurationLogicalValidator {
     private void validateParentConfig(DomainObjectConfig domainObjectConfig) {
         String parentConfig = domainObjectConfig.getParentConfig();
         if (parentConfig != null) {
-            configurationExplorer.getBusinessObjectConfig(parentConfig);
+            configurationExplorer.getDomainObjectConfig(parentConfig);
         }
     }
 

@@ -114,14 +114,14 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
         List<FieldConfig> feldConfigs = domainObjectConfig.getDomainObjectFieldsConfig().getFieldConfigs();
 
-        initializeBusinessParameters(domainObject, feldConfigs, parameters);
+        initializeDomainParameters(domainObject, feldConfigs, parameters);
 
         return parameters;
     }
 
-    private void initializeBusinessParameters(DomainObject domainObject, List<FieldConfig> feldConfigs,
-            Map<String, Object> parameters) {
-        for (FieldConfig fieldConfig : feldConfigs) {
+    private void initializeDomainParameters(DomainObject domainObject, List<FieldConfig> fieldConfigs,
+                                            Map<String, Object> parameters) {
+        for (FieldConfig fieldConfig : fieldConfigs) {
             Value value = domainObject.getValue(fieldConfig.getName());
             String columnName = DataStructureNamingHelper.getSqlName(fieldConfig.getName());
             String parameterName = DaoUtils.generateParameter(columnName);
@@ -181,7 +181,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
         List<FieldConfig> feldConfigs = domainObjectConfig.getDomainObjectFieldsConfig().getFieldConfigs();
 
-        initializeBusinessParameters(domainObject, feldConfigs, parameters);
+        initializeDomainParameters(domainObject, feldConfigs, parameters);
 
         return parameters;
 
@@ -359,7 +359,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
         if (ids == null || ids.size() == 0) {
             return new ArrayList<>();
         }
-        String tableName = DataStructureNamingHelper.getSqlName(getBusinessObjectType(ids));
+        String tableName = DataStructureNamingHelper.getSqlName(getDomainObjectType(ids));
 
         String idsList = convertIdsToCommaSeparatedString(ids);
         StringBuilder query = new StringBuilder();
@@ -382,7 +382,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
         return builder.toString();
     }
 
-    private String getBusinessObjectType(List<Id> ids) {
+    private String getDomainObjectType(List<Id> ids) {
         String typeName = null;
         for (Id id : ids) {
             RdbmsId rdbmsId = (RdbmsId) id;
@@ -494,8 +494,8 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     private class CollectionRowMapper extends BasicRowMapper implements
             ResultSetExtractor<IdentifiableObjectCollection> {
 
-        public CollectionRowMapper(String businessObjectType, String idField) {
-            super(businessObjectType, idField);
+        public CollectionRowMapper(String domainObjectType, String idField) {
+            super(domainObjectType, idField);
         }
 
         @Override
@@ -555,14 +555,14 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
         private static final String DEFAULT_ID_FIELD = "id";
 
-        public SingleObjectRowMapper(String businessObjectType) {
-            super(businessObjectType, DEFAULT_ID_FIELD);
+        public SingleObjectRowMapper(String domainObjectType) {
+            super(domainObjectType, DEFAULT_ID_FIELD);
         }
 
         @Override
         public DomainObject extractData(ResultSet rs) throws SQLException, DataAccessException {
             GenericDomainObject object = new GenericDomainObject();
-            object.setTypeName(businessObjectType);
+            object.setTypeName(domainObjectType);
 
             ColumnModel columnModel = new ColumnModel();
             for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
@@ -615,8 +615,8 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
         private static final String DEFAULT_ID_FIELD = "id";
 
-        public MultipleObjectRowMapper(String businessObjectType) {
-            super(businessObjectType, DEFAULT_ID_FIELD);
+        public MultipleObjectRowMapper(String domainObjectType) {
+            super(domainObjectType, DEFAULT_ID_FIELD);
         }
 
         @Override
@@ -641,7 +641,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
                 GenericDomainObject object = new GenericDomainObject();
                 FieldValueModel valueModel = new FieldValueModel();
                 
-                object.setTypeName(businessObjectType);
+                object.setTypeName(domainObjectType);
                 int index = 0;
                 int fieldIndex = 0;
                 for (DataType fieldType : columnModel.getColumnTypes()) {                    
@@ -673,12 +673,12 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
      */
     private class BasicRowMapper {
 
-        protected final String businessObjectType;
+        protected final String domainObjectType;
 
         protected final String idField;
         
-        public BasicRowMapper(String businessObjectType, String idField) {
-            this.businessObjectType = businessObjectType;
+        public BasicRowMapper(String domainObjectType, String idField) {
+            this.domainObjectType = domainObjectType;
             this.idField = idField;
         }
 
@@ -712,9 +712,9 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
                 Long longValue = rs.getLong(columnModel.getIdField());
                 if (!rs.wasNull()) {
-                    id = new RdbmsId(businessObjectType, longValue);
+                    id = new RdbmsId(domainObjectType, longValue);
                 } else {
-                    throw new RuntimeException("Id field can not be null for object " + "business_object");
+                    throw new RuntimeException("Id field can not be null for object " + "domain_object");
                 }
 
             } else if (DataType.INTEGER.equals(fieldType)) {

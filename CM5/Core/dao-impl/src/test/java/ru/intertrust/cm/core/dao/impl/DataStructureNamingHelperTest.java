@@ -15,7 +15,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class DataStructureNamingHelperTest {
     @Test
-    public void testGetSqlNameForBusinessObjectConfig() throws Exception {
+    public void testGetSqlNameForDomainObjectConfig() throws Exception {
         DomainObjectConfig domainObjectConfig = new DomainObjectConfig();
         domainObjectConfig.setName("Outgoing Document");
 

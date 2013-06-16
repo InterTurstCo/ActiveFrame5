@@ -41,7 +41,7 @@ public class ConfigurationSerializer {
         this.configurationSchemaFilePath = configurationSchemaFilePath;
     }
 
-    public DomainObjectsConfiguration serializeBusinessObjectConfiguration() throws Exception {
+    public DomainObjectsConfiguration serializeDomainObjectConfiguration() throws Exception {
         return serializeConfiguration(configurationFilePath, DomainObjectsConfiguration.class);
     }
 
@@ -52,7 +52,7 @@ public class ConfigurationSerializer {
     /**
      * Сериализация конфигурации в Java класс.
      * @param configurationFilePath путь к конфигурационному файлу
-     * @return {@link ru.intertrust.cm.core.config.BusinessObjectsConfiguration}
+     * @return {@link ru.intertrust.cm.core.config.model.DomainObjectsConfiguration}
      * @throws Exception
      */
     private <T> T serializeConfiguration(String configurationFilePath, Class<T> configurationClass) throws Exception {

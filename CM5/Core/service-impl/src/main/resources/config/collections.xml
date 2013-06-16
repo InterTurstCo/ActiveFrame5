@@ -4,7 +4,7 @@
         <!--todo поддержка конвертации значений, например, в картинки -->
         <display>
             <column field="id" name="id" hidden="true" sortable="false" sequence="0" />
-            <column field="business_object_type" name="type" editable="false"  hidden="true" sortable="false" sequence="1" />
+            <column field="business_object_type" name="type" editable="false"  hidden="true" sortable="false" sequence="1" /> <!--todo - rethink?-->
             <column field="name" name="Имя" editable="false" sortable="true"  sequence="2" />
             <column field="position" name="Должность" editable="false" sortable="true"  sequence="3" />
             <column field="created_date" name="Дата создания" editable="false" sortable="true"  sequence="4" />
@@ -56,7 +56,7 @@
     <collection name="Employees_2" idField="id" domain-object-type="Employee">
         <display>
             <column field="id" name="id" hidden="true" sortable="false" sequence="0" />
-            <column field="business_object_type" name="type" editable="false"  hidden="true" sortable="false" sequence="1" />
+            <column field="business_object_type" name="type" editable="false"  hidden="true" sortable="false" sequence="1" /> <!--todo - rethink?-->
             <column field="name" name="Имя" editable="false" sortable="true"  sequence="2" />
             <column field="position" name="Должность" editable="false" sortable="true"  sequence="3" />
             <column field="created_date" name="Дата создания" editable="false" sortable="true"  sequence="4" />

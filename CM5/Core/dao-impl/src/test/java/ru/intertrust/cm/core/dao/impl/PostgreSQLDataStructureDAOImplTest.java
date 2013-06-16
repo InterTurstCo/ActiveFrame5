@@ -14,7 +14,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCountTablesQuery;
-import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCreateBusinessObjectTableQuery;
+import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCreateDomainObjectTableQuery;
 
 /**
  * @author vmatsukevich
@@ -56,7 +56,7 @@ public class PostgreSQLDataStructureDAOImplTest {
     @Test
     public void testCreateServiceTables() throws Exception {
         dataStructureDAO.createServiceTables();
-        verify(jdbcTemplate).update(generateCreateBusinessObjectTableQuery());
+        verify(jdbcTemplate).update(generateCreateDomainObjectTableQuery());
     }
 
     @Test

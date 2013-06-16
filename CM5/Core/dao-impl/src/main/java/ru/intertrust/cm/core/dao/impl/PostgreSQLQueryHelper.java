@@ -15,7 +15,7 @@ import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
 public class PostgreSQLQueryHelper {
 
     public static final String AUTHENTICATION_INFO_TABLE = "AUTHENTICATION_INFO";
-    public static final String BUSINESS_OBJECT_TABLE = "BUSINESS_OBJECT";
+    public static final String DOMAIN_OBJECT_TABLE = "DOMAIN_OBJECT";
 
     /**
      * Генерирует запрос, возвращающий кол-во таблиц в базе данных
@@ -29,9 +29,9 @@ public class PostgreSQLQueryHelper {
      * Генерирует запрос, создающий таблицу BUSINESS_OBJECT
      * @return запрос, создающий таблицу BUSINESS_OBJECT
      */
-    public static String generateCreateBusinessObjectTableQuery() {
-        return "create table " + BUSINESS_OBJECT_TABLE + "(ID bigserial not null, NAME varchar(256) not null, " +
-                "constraint PK_" + BUSINESS_OBJECT_TABLE + " primary key (ID), constraint U_" + BUSINESS_OBJECT_TABLE + " unique (NAME))";
+    public static String generateCreateDomainObjectTableQuery() {
+        return "create table " + DOMAIN_OBJECT_TABLE + "(ID bigserial not null, NAME varchar(256) not null, " +
+                "constraint PK_" + DOMAIN_OBJECT_TABLE + " primary key (ID), constraint U_" + DOMAIN_OBJECT_TABLE + " unique (NAME))";
     }
 
     /**
