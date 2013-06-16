@@ -12,7 +12,7 @@ import java.util.List;
  *         Date: 5/2/13
  *         Time: 12:54 PM
  */
-public class BusinessObjectFieldsConfig implements Serializable {
+public class DomainObjectFieldsConfig implements Serializable {
     @ElementListUnion({
             @ElementList(entry="long", type=LongFieldConfig.class, inline=true),
             @ElementList(entry="decimal", type=DecimalFieldConfig.class, inline=true),

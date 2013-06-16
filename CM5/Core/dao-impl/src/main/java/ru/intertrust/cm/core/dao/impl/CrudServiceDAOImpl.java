@@ -1,39 +1,13 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import java.math.BigDecimal;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.sql.DataSource;
-
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.StringUtils;
-
-import ru.intertrust.cm.core.business.api.dto.BooleanValue;
-import ru.intertrust.cm.core.business.api.dto.BusinessObject;
-import ru.intertrust.cm.core.business.api.dto.DecimalValue;
-import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.GenericBusinessObject;
-import ru.intertrust.cm.core.business.api.dto.GenericIdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.IntegerValue;
-import ru.intertrust.cm.core.business.api.dto.RdbmsId;
-import ru.intertrust.cm.core.business.api.dto.SortOrder;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.business.api.dto.TimestampValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.config.model.BusinessObjectConfig;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.model.CollectionConfig;
 import ru.intertrust.cm.core.config.model.CollectionFilterConfig;
+import ru.intertrust.cm.core.config.model.DomainObjectConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.dao.api.CrudServiceDAO;
 import ru.intertrust.cm.core.dao.api.IdGenerator;
@@ -41,6 +15,13 @@ import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
+
+import javax.sql.DataSource;
+import java.math.BigDecimal;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.*;
 
 /**
  * @author atsvetkov
@@ -73,14 +54,14 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
     /**
      * Создает SQL запрос для создания бизнес-объекта
-     * @param businessObject бизнес-объект
-     * @param businessObjectConfig конфигуоация бизнес-объекта
+     * @param domainObject бизнес-объект
+     * @param domainObjectConfig конфигуоация бизнес-объекта
      * @return строку запроса для создания бизнес-объекта с параметрами
      */
-    protected String generateCreateQuery(BusinessObject businessObject, BusinessObjectConfig businessObjectConfig) {
-        List<FieldConfig> feldConfigs = businessObjectConfig.getBusinessObjectFieldsConfig().getFieldConfigs();
+    protected String generateCreateQuery(DomainObject domainObject, DomainObjectConfig domainObjectConfig) {
+        List<FieldConfig> feldConfigs = domainObjectConfig.getDomainObjectFieldsConfig().getFieldConfigs();
 
-        String tableName = DataStructureNamingHelper.getSqlName(businessObjectConfig);
+        String tableName = DataStructureNamingHelper.getSqlName(domainObjectConfig);
         List<String> columnNames = DataStructureNamingHelper.getSqlName(feldConfigs);
 
         String commaSeparatedColumns = StringUtils.collectionToCommaDelimitedString(columnNames);
@@ -99,49 +80,49 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
     @Override
-    public BusinessObject create(BusinessObject businessObject, BusinessObjectConfig businessObjectConfig) {
+    public DomainObject create(DomainObject domainObject, DomainObjectConfig domainObjectConfig) {
 
-        String query = generateCreateQuery(businessObject, businessObjectConfig);
+        String query = generateCreateQuery(domainObject, domainObjectConfig);
 
-        Object nextId = idGenerator.generatetId(businessObjectConfig);
+        Object nextId = idGenerator.generatetId(domainObjectConfig);
 
-        RdbmsId id = new RdbmsId(businessObject.getTypeName(), (Long) nextId);
+        RdbmsId id = new RdbmsId(domainObject.getTypeName(), (Long) nextId);
 
-        businessObject.setId(id);
+        domainObject.setId(id);
 
-        Map<String, Object> parameters = initializeCreateParameters(businessObject, businessObjectConfig);
+        Map<String, Object> parameters = initializeCreateParameters(domainObject, domainObjectConfig);
 
         jdbcTemplate.update(query, parameters);
 
-        return businessObject;
+        return domainObject;
     }
 
     /**
      * Инициализирует параметры для для создания бизнес-объекта
-     * @param businessObject бизнес-объект
-     * @param businessObjectConfig конфигуоация бизнес-объекта
+     * @param domainObject бизнес-объект
+     * @param domainObjectConfig конфигуоация бизнес-объекта
      * @return карту объектов содержащую имя параметра и его значение
      */
-    protected Map<String, Object> initializeCreateParameters(BusinessObject businessObject,
-            BusinessObjectConfig businessObjectConfig) {
+    protected Map<String, Object> initializeCreateParameters(DomainObject domainObject,
+            DomainObjectConfig domainObjectConfig) {
 
-        RdbmsId rdbmsId = (RdbmsId) businessObject.getId();
+        RdbmsId rdbmsId = (RdbmsId) domainObject.getId();
 
         Map<String, Object> parameters = initializeIdParameter(rdbmsId);
-        parameters.put("created_date", businessObject.getCreatedDate());
-        parameters.put("updated_date", businessObject.getModifiedDate());
+        parameters.put("created_date", domainObject.getCreatedDate());
+        parameters.put("updated_date", domainObject.getModifiedDate());
 
-        List<FieldConfig> feldConfigs = businessObjectConfig.getBusinessObjectFieldsConfig().getFieldConfigs();
+        List<FieldConfig> feldConfigs = domainObjectConfig.getDomainObjectFieldsConfig().getFieldConfigs();
 
-        initializeBusinessParameters(businessObject, feldConfigs, parameters);
+        initializeBusinessParameters(domainObject, feldConfigs, parameters);
 
         return parameters;
     }
 
-    private void initializeBusinessParameters(BusinessObject businessObject, List<FieldConfig> feldConfigs,
+    private void initializeBusinessParameters(DomainObject domainObject, List<FieldConfig> feldConfigs,
             Map<String, Object> parameters) {
         for (FieldConfig fieldConfig : feldConfigs) {
-            Value value = businessObject.getValue(fieldConfig.getName());
+            Value value = domainObject.getValue(fieldConfig.getName());
             String columnName = DataStructureNamingHelper.getSqlName(fieldConfig.getName());
             String parameterName = DaoUtils.generateParameter(columnName);
             if (value != null) {
@@ -155,17 +136,17 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
     /**
      * Создает SQL запрос для модификации бизнес-объекта
-     * @param businessObject бизнес-объект
-     * @param businessObjectConfig конфигуоация бизнес-объекта
+     * @param domainObject бизнес-объект
+     * @param domainObjectConfig конфигуоация бизнес-объекта
      * @return строку запроса для модиификации бизнес-объекта с параметрами
      */
-    protected String generateUpdateQuery(BusinessObject businessObject, BusinessObjectConfig businessObjectConfig) {
+    protected String generateUpdateQuery(DomainObject domainObject, DomainObjectConfig domainObjectConfig) {
 
         StringBuilder query = new StringBuilder();
 
-        String tableName = DataStructureNamingHelper.getSqlName(businessObjectConfig);
+        String tableName = DataStructureNamingHelper.getSqlName(domainObjectConfig);
 
-        List<FieldConfig> feldConfigs = businessObjectConfig.getBusinessObjectFieldsConfig().getFieldConfigs();
+        List<FieldConfig> feldConfigs = domainObjectConfig.getDomainObjectFieldsConfig().getFieldConfigs();
 
         List<String> columnNames = DataStructureNamingHelper.getSqlName(feldConfigs);
 
@@ -183,54 +164,54 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
     /**
      * Инициализирует параметры для для создания бизнес-объекта
-     * @param businessObject бизнес-объект
-     * @param businessObjectConfig конфигуоация бизнес-объекта
+     * @param domainObject бизнес-объект
+     * @param domainObjectConfig конфигуоация бизнес-объекта
      * @return карту объектов содержащую имя параметра и его значение
      */
-    protected Map<String, Object> initializeUpdateParameters(BusinessObject businessObject,
-            BusinessObjectConfig businessObjectConfig, Date currentDate) {
+    protected Map<String, Object> initializeUpdateParameters(DomainObject domainObject,
+            DomainObjectConfig domainObjectConfig, Date currentDate) {
 
         Map<String, Object> parameters = new HashMap<String, Object>();
 
-        RdbmsId rdbmsId = (RdbmsId) businessObject.getId();
+        RdbmsId rdbmsId = (RdbmsId) domainObject.getId();
 
         parameters.put("id", rdbmsId.getId());
         parameters.put("current_date", currentDate);
-        parameters.put("updated_date", businessObject.getModifiedDate());
+        parameters.put("updated_date", domainObject.getModifiedDate());
 
-        List<FieldConfig> feldConfigs = businessObjectConfig.getBusinessObjectFieldsConfig().getFieldConfigs();
+        List<FieldConfig> feldConfigs = domainObjectConfig.getDomainObjectFieldsConfig().getFieldConfigs();
 
-        initializeBusinessParameters(businessObject, feldConfigs, parameters);
+        initializeBusinessParameters(domainObject, feldConfigs, parameters);
 
         return parameters;
 
     }
 
     @Override
-    public BusinessObject update(BusinessObject businessObject, BusinessObjectConfig businessObjectConfig)
+    public DomainObject update(DomainObject domainObject, DomainObjectConfig domainObjectConfig)
             throws InvalidIdException, ObjectNotFoundException,
             OptimisticLockException {
 
-        String query = generateUpdateQuery(businessObject, businessObjectConfig);
+        String query = generateUpdateQuery(domainObject, domainObjectConfig);
 
-        validateIdType(businessObject.getId());
+        validateIdType(domainObject.getId());
 
         Date currentDate = new Date();
 
-        Map<String, Object> parameters = initializeUpdateParameters(businessObject, businessObjectConfig, currentDate);
+        Map<String, Object> parameters = initializeUpdateParameters(domainObject, domainObjectConfig, currentDate);
 
         int count = jdbcTemplate.update(query, parameters);
 
-        if (count == 0 && (!exists(businessObject.getId(), businessObjectConfig))) {
-            throw new ObjectNotFoundException(businessObject.getId());
+        if (count == 0 && (!exists(domainObject.getId(), domainObjectConfig))) {
+            throw new ObjectNotFoundException(domainObject.getId());
         }
 
         if (count == 0)
-            throw new OptimisticLockException(businessObject);
+            throw new OptimisticLockException(domainObject);
 
-        businessObject.setModifiedDate(currentDate);
+        domainObject.setModifiedDate(currentDate);
 
-        return businessObject;
+        return domainObject;
 
     }
 
@@ -249,12 +230,12 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
     /**
      * Создает SQL запрос для удаления бизнес-объекта
-     * @param businessObjectConfig конфигуоация бизнес-объекта
+     * @param domainObjectConfig конфигуоация бизнес-объекта
      * @return строку запроса для удаления бизнес-объекта с параметрами
      */
-    protected String generateDeleteQuery(BusinessObjectConfig businessObjectConfig) {
+    protected String generateDeleteQuery(DomainObjectConfig domainObjectConfig) {
 
-        String tableName = DataStructureNamingHelper.getSqlName(businessObjectConfig);
+        String tableName = DataStructureNamingHelper.getSqlName(domainObjectConfig);
 
         StringBuilder query = new StringBuilder();
         query.append("delete from ");
@@ -266,10 +247,10 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
     @Override
-    public void delete(Id id, BusinessObjectConfig businessObjectConfig) throws InvalidIdException,
+    public void delete(Id id, DomainObjectConfig domainObjectConfig) throws InvalidIdException,
             ObjectNotFoundException {
 
-        String query = generateDeleteQuery(businessObjectConfig);
+        String query = generateDeleteQuery(domainObjectConfig);
 
         validateIdType(id);
 
@@ -286,12 +267,12 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
     /**
      * Создает SQL запрос для удаления всех бизнес-объектов
-     * @param businessObjectConfig конфигуоация бизнес-объекта
+     * @param domainObjectConfig конфигуоация бизнес-объекта
      * @return строку запроса для удаления всех бизнес-объектов
      */
-    protected String generateDeleteAllQuery(BusinessObjectConfig businessObjectConfig) {
+    protected String generateDeleteAllQuery(DomainObjectConfig domainObjectConfig) {
 
-        String tableName = DataStructureNamingHelper.getSqlName(businessObjectConfig);
+        String tableName = DataStructureNamingHelper.getSqlName(domainObjectConfig);
 
         StringBuilder query = new StringBuilder();
         query.append("delete from ");
@@ -315,12 +296,12 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
     /**
      * Создает SQL запрос для проверки существует ли бизнес-объекта
-     * @param businessObjectConfig конфигуоация бизнес-объекта
+     * @param domainObjectConfig конфигуоация бизнес-объекта
      * @return строку запроса для удаления бизнес-объекта с параметрами
      */
-    protected String generateExistsQuery(BusinessObjectConfig businessObjectConfig) {
+    protected String generateExistsQuery(DomainObjectConfig domainObjectConfig) {
 
-        String tableName = DataStructureNamingHelper.getSqlName(businessObjectConfig);
+        String tableName = DataStructureNamingHelper.getSqlName(domainObjectConfig);
 
         StringBuilder query = new StringBuilder();
         query.append("select id from ");
@@ -346,9 +327,9 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
     @Override
-    public boolean exists(Id id, BusinessObjectConfig businessObjectConfig) throws InvalidIdException {
+    public boolean exists(Id id, DomainObjectConfig domainObjectConfig) throws InvalidIdException {
 
-        String query = generateExistsQuery(businessObjectConfig);
+        String query = generateExistsQuery(domainObjectConfig);
 
         validateIdType(id);
 
@@ -361,7 +342,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
     @Override
-    public BusinessObject find(Id id) {
+    public DomainObject find(Id id) {
         RdbmsId rdbmsId = (RdbmsId) id;
 
         String tableName = DataStructureNamingHelper.getSqlName(((RdbmsId) id).getTypeName());
@@ -374,7 +355,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
     @Override
-    public List<BusinessObject> find(List<Id> ids) {
+    public List<DomainObject> find(List<Id> ids) {
         if (ids == null || ids.size() == 0) {
             return new ArrayList<>();
         }
@@ -430,7 +411,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
                 
         IdentifiableObjectCollection collection =
                 jdbcTemplate.query(collectionQuery, parameters,
-                        new CollectionRowMapper(collectionConfig.getBusinessObjectTypeField(),
+                        new CollectionRowMapper(collectionConfig.getDomainObjectType(),
                                 collectionConfig.getIdField()));
 
         return collection;
@@ -566,11 +547,11 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
     /**
-     * Отображает {@link ResultSet} на бизнес-объект {@link BusinessObject}.
+     * Отображает {@link ResultSet} на бизнес-объект {@link ru.intertrust.cm.core.business.api.dto.DomainObject}.
      * @author atsvetkov
      */
    @SuppressWarnings("rawtypes")
-    private class SingleObjectRowMapper extends BasicRowMapper implements ResultSetExtractor<BusinessObject> {
+    private class SingleObjectRowMapper extends BasicRowMapper implements ResultSetExtractor<DomainObject> {
 
         private static final String DEFAULT_ID_FIELD = "id";
 
@@ -579,8 +560,8 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
         }
 
         @Override
-        public BusinessObject extractData(ResultSet rs) throws SQLException, DataAccessException {
-            GenericBusinessObject object = new GenericBusinessObject();
+        public DomainObject extractData(ResultSet rs) throws SQLException, DataAccessException {
+            GenericDomainObject object = new GenericDomainObject();
             object.setTypeName(businessObjectType);
 
             ColumnModel columnModel = new ColumnModel();
@@ -626,11 +607,11 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
     /**
-     * Отображает {@link ResultSet} на список бизнес-объектов {@link List<BusinessObject>}.
+     * Отображает {@link ResultSet} на список бизнес-объектов {@link List< ru.intertrust.cm.core.business.api.dto.DomainObject >}.
      * @author atsvetkov
      */
     @SuppressWarnings("rawtypes")
-    private class MultipleObjectRowMapper extends BasicRowMapper implements ResultSetExtractor<List<BusinessObject>> {
+    private class MultipleObjectRowMapper extends BasicRowMapper implements ResultSetExtractor<List<DomainObject>> {
 
         private static final String DEFAULT_ID_FIELD = "id";
 
@@ -639,8 +620,8 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
         }
 
         @Override
-        public List<BusinessObject> extractData(ResultSet rs) throws SQLException, DataAccessException {
-            List<BusinessObject> objects = new ArrayList<>();
+        public List<DomainObject> extractData(ResultSet rs) throws SQLException, DataAccessException {
+            List<DomainObject> objects = new ArrayList<>();
 
             ColumnModel columnModel = new ColumnModel();
             for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
@@ -657,7 +638,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
             }
 
             while (rs.next()) {
-                GenericBusinessObject object = new GenericBusinessObject();
+                GenericDomainObject object = new GenericDomainObject();
                 FieldValueModel valueModel = new FieldValueModel();
                 
                 object.setTypeName(businessObjectType);

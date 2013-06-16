@@ -1,17 +1,17 @@
 package ru.intertrust.cm.core.business.impl;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import ru.intertrust.cm.core.business.api.AuthenticationService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.model.BusinessObjectConfig;
+import ru.intertrust.cm.core.config.model.DomainObjectConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.api.DataStructureDAO;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Смотри {@link ru.intertrust.cm.core.business.api.ConfigurationService}
@@ -80,33 +80,33 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         }
 
         private void load() {
-            List<BusinessObjectConfig> businessObjectConfigs = configurationExplorer.getBusinessObjectsConfiguration().getBusinessObjectConfigs();
-            if(businessObjectConfigs.isEmpty())  {
+            List<DomainObjectConfig> domainObjectConfigs = configurationExplorer.getDomainObjectsConfiguration().getDomainObjectConfigs();
+            if(domainObjectConfigs.isEmpty())  {
                 return;
             }
 
             dataStructureDAO.createServiceTables();
 
-            for(BusinessObjectConfig businessObjectConfig : businessObjectConfigs) {
-                loadBusinessObjectConfig(businessObjectConfig);
+            for(DomainObjectConfig domainObjectConfig : domainObjectConfigs) {
+                loadBusinessObjectConfig(domainObjectConfig);
             }
         }
 
-        private void loadBusinessObjectConfig(BusinessObjectConfig businessObjectConfig) {
-            if(loadedBusinessObjectConfigs.contains(businessObjectConfig.getName())) { // skip if already loaded
+        private void loadBusinessObjectConfig(DomainObjectConfig domainObjectConfig) {
+            if(loadedBusinessObjectConfigs.contains(domainObjectConfig.getName())) { // skip if already loaded
                 return;
             }
 
             // First load referenced business object configurations
-            loadDependentBusinessObjectConfigs(businessObjectConfig);
+            loadDependentBusinessObjectConfigs(domainObjectConfig);
 
-            dataStructureDAO.createTable(businessObjectConfig);
-            dataStructureDAO.createSequence(businessObjectConfig);
-            loadedBusinessObjectConfigs.add(businessObjectConfig.getName()); // add to loaded configs set
+            dataStructureDAO.createTable(domainObjectConfig);
+            dataStructureDAO.createSequence(domainObjectConfig);
+            loadedBusinessObjectConfigs.add(domainObjectConfig.getName()); // add to loaded configs set
         }
 
-        private void loadDependentBusinessObjectConfigs(BusinessObjectConfig businessObjectConfig) {
-            for(FieldConfig fieldConfig : businessObjectConfig.getFieldConfigs()) {
+        private void loadDependentBusinessObjectConfigs(DomainObjectConfig domainObjectConfig) {
+            for(FieldConfig fieldConfig : domainObjectConfig.getFieldConfigs()) {
                 if((ReferenceFieldConfig.class.equals(fieldConfig.getClass()))) {
                     ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
                     loadBusinessObjectConfig(configurationExplorer.getBusinessObjectConfig(referenceFieldConfig.getType()));

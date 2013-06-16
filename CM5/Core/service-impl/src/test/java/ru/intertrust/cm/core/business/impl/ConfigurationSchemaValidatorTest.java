@@ -6,7 +6,7 @@ import org.junit.rules.ExpectedException;
 import ru.intertrust.cm.core.config.ConfigurationSchemaValidator;
 
 /**
- * Тестовый класс для {@link ru.intertrust.cm.core.config.BusinessObjectsConfigurationLogicalValidator}
+ * Тестовый класс для {@link ru.intertrust.cm.core.config.DomainObjectsConfigurationLogicalValidator}
  * @author atsvetkov
  *
  */

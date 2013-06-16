@@ -1,9 +1,9 @@
 package ru.intertrust.cm.core.config;
 
-import ru.intertrust.cm.core.config.model.BusinessObjectConfig;
-import ru.intertrust.cm.core.config.model.BusinessObjectsConfiguration;
 import ru.intertrust.cm.core.config.model.CollectionConfig;
 import ru.intertrust.cm.core.config.model.CollectionsConfiguration;
+import ru.intertrust.cm.core.config.model.DomainObjectConfig;
+import ru.intertrust.cm.core.config.model.DomainObjectsConfiguration;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,21 +15,21 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ConfigurationExplorer {
 
-    private BusinessObjectsConfiguration businessObjectsConfiguration;
+    private DomainObjectsConfiguration domainObjectsConfiguration;
     private CollectionsConfiguration collectionsConfiguration;
 
-    private Map<String, BusinessObjectConfig> businessObjectConfigMap;
+    private Map<String, DomainObjectConfig> businessObjectConfigMap;
     private Map<String, CollectionConfig> collectionsConfigMap;
 
     public ConfigurationExplorer() {
     }
 
-    public BusinessObjectsConfiguration getBusinessObjectsConfiguration() {
-        return businessObjectsConfiguration;
+    public DomainObjectsConfiguration getDomainObjectsConfiguration() {
+        return domainObjectsConfiguration;
     }
 
-    public void setBusinessObjectsConfiguration(BusinessObjectsConfiguration businessObjectsConfiguration) {
-        this.businessObjectsConfiguration = businessObjectsConfiguration;
+    public void setDomainObjectsConfiguration(DomainObjectsConfiguration domainObjectsConfiguration) {
+        this.domainObjectsConfiguration = domainObjectsConfiguration;
     }
 
     public CollectionsConfiguration getCollectionsConfiguration() {
@@ -50,8 +50,8 @@ public class ConfigurationExplorer {
      * @param name имя бизнес-объекта, конфигурацию которого надо найти
      * @return конфигурация бизнес-объекта
      */
-    public BusinessObjectConfig getBusinessObjectConfig(String name) {
-        BusinessObjectConfig result = businessObjectConfigMap.get(name);
+    public DomainObjectConfig getBusinessObjectConfig(String name) {
+        DomainObjectConfig result = businessObjectConfigMap.get(name);
 
         if(result == null) {
             throw new RuntimeException("BusinessObject Configuration is not found for name '" + name + "'");
@@ -71,16 +71,16 @@ public class ConfigurationExplorer {
     }
 
     private void initBusinessObjectsConfigurationMap() {
-        if(businessObjectsConfiguration == null) {
+        if(domainObjectsConfiguration == null) {
             throw new RuntimeException("Failed to initialize ConfigurationExplorer because businessObjects " +
                     "Configuration is null");
         }
 
-        int size = businessObjectsConfiguration.getBusinessObjectConfigs().size();
+        int size = domainObjectsConfiguration.getDomainObjectConfigs().size();
         businessObjectConfigMap = new ConcurrentHashMap<>(size);
 
-        for (BusinessObjectConfig businessObjectConfig : businessObjectsConfiguration.getBusinessObjectConfigs()) {
-            businessObjectConfigMap.put(businessObjectConfig.getName(), businessObjectConfig);
+        for (DomainObjectConfig domainObjectConfig : domainObjectsConfiguration.getDomainObjectConfigs()) {
+            businessObjectConfigMap.put(domainObjectConfig.getName(), domainObjectConfig);
         }
     }
 

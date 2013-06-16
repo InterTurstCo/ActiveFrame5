@@ -49,7 +49,7 @@ public class PostgreSQLQueryHelper {
      * @param config конфигурация бизнес-объекта
      * @return запрос, создающий последовательность(сиквенс) по конфигурации бизнес-объекта
      */
-    public static String generateSequenceQuery(BusinessObjectConfig config) {
+    public static String generateSequenceQuery(DomainObjectConfig config) {
 
         String sequenceName = getSqlSequenceName(config);
         StringBuilder query = new StringBuilder();
@@ -66,7 +66,7 @@ public class PostgreSQLQueryHelper {
      * @param config конфигурация бизнес-объекта
      * @return запрос, создающий талицу по конфигурации бизнес-объекта
      */
-    public static String generateCreateTableQuery(BusinessObjectConfig config) {
+    public static String generateCreateTableQuery(DomainObjectConfig config) {
         String tableName = getSqlName(config);
 
         String query = "create table " + tableName + " ( ";
@@ -86,7 +86,7 @@ public class PostgreSQLQueryHelper {
      * @param config конфигурация бизнес-объекта
      * @return запрос, для создания индексов по конфигурации бизнес-объекта
      */
-    public static String generateCreateIndexesQuery(BusinessObjectConfig config) {
+    public static String generateCreateIndexesQuery(DomainObjectConfig config) {
         String query = "";
         String tableName = getSqlName(config);
 
@@ -109,7 +109,7 @@ public class PostgreSQLQueryHelper {
         return query;
     }
 
-    private static String generateFKConstraintsQueryPart(BusinessObjectConfig config, String tableName) {
+    private static String generateFKConstraintsQueryPart(DomainObjectConfig config, String tableName) {
         String queryPart = "";
 
         for(FieldConfig fieldConfig : config.getFieldConfigs()) {
@@ -133,7 +133,7 @@ public class PostgreSQLQueryHelper {
         return ", constraint " + pkName + " primary key (ID)";
     }
 
-    private static String generateColumnsQueryPart(BusinessObjectConfig config) {
+    private static String generateColumnsQueryPart(DomainObjectConfig config) {
         StringBuilder queryPart = new StringBuilder();
         queryPart.append("ID bigint not null, ");
 
@@ -150,7 +150,7 @@ public class PostgreSQLQueryHelper {
         return queryPart.toString();
     }
 
-    private static String generateUniqueConstraintsQueryPart(BusinessObjectConfig config, String tableName) {
+    private static String generateUniqueConstraintsQueryPart(DomainObjectConfig config, String tableName) {
         String queryPart = "";
 
         for(UniqueKeyConfig uniqueKeyConfig : config.getUniqueKeyConfigs()) {

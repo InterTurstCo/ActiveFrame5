@@ -1,36 +1,19 @@
 package ru.intertrust.cm.core.business.impl;
 
+import ru.intertrust.cm.core.business.api.LocalCrudService;
+import ru.intertrust.cm.core.business.api.RemoteCrudService;
+import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.model.*;
+import ru.intertrust.cm.core.dao.api.CrudServiceDAO;
+import ru.intertrust.cm.core.dao.exception.InvalidIdException;
+import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
+
+import javax.ejb.Stateless;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-
-import ru.intertrust.cm.core.business.api.CrudService;
-import javax.ejb.Stateless;
-
-import ru.intertrust.cm.core.business.api.LocalCrudService;
-import ru.intertrust.cm.core.business.api.RemoteCrudService;
-import ru.intertrust.cm.core.business.api.dto.BusinessObject;
-import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.GenericBusinessObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.RdbmsId;
-import ru.intertrust.cm.core.business.api.dto.SortOrder;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.ConfigurationSerializer;
-import ru.intertrust.cm.core.config.model.BusinessObjectConfig;
-import ru.intertrust.cm.core.config.model.BusinessObjectsConfiguration;
-import ru.intertrust.cm.core.config.model.CollectionConfig;
-import ru.intertrust.cm.core.config.model.CollectionFilterConfig;
-import ru.intertrust.cm.core.config.model.CollectionFilterCriteriaConfig;
-import ru.intertrust.cm.core.config.model.CollectionFilterReferenceConfig;
-import ru.intertrust.cm.core.config.model.CollectionsConfiguration;
-import ru.intertrust.cm.core.dao.api.CrudServiceDAO;
-import ru.intertrust.cm.core.dao.exception.InvalidIdException;
-import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 
 /**
  * Реализация сервиса для работы c базовыvb CRUD-операциями. Смотри link @CrudService
@@ -64,59 +47,59 @@ public class CrudServiceImpl implements RemoteCrudService, LocalCrudService {
     }
 
     @Override
-    public BusinessObject createBusinessObject(String name) {
+    public DomainObject createBusinessObject(String name) {
 
-        BusinessObjectConfig businessObjectConfig = configurationExplorer.getBusinessObjectConfig(name);
+        DomainObjectConfig domainObjectConfig = configurationExplorer.getBusinessObjectConfig(name);
 
-        BusinessObject businessObject = new GenericBusinessObject();
-        businessObject.setTypeName(name);
+        DomainObject domainObject = new GenericDomainObject();
+        domainObject.setTypeName(name);
         Date currentDate = new Date();
-        businessObject.setCreatedDate(currentDate);
-        businessObject.setModifiedDate(currentDate);
+        domainObject.setCreatedDate(currentDate);
+        domainObject.setModifiedDate(currentDate);
 
-        return businessObject;
+        return domainObject;
     }
 
-    protected BusinessObject create(BusinessObject businessObject) {
+    protected DomainObject create(DomainObject domainObject) {
 
-        BusinessObjectConfig businessObjectConfig = configurationExplorer.getBusinessObjectConfig(businessObject
+        DomainObjectConfig domainObjectConfig = configurationExplorer.getBusinessObjectConfig(domainObject
                 .getTypeName());
         Date currentDate = new Date();
-        businessObject.setCreatedDate(currentDate);
-        businessObject.setModifiedDate(currentDate);
-        return crudServiceDAO.create(businessObject, businessObjectConfig);
+        domainObject.setCreatedDate(currentDate);
+        domainObject.setModifiedDate(currentDate);
+        return crudServiceDAO.create(domainObject, domainObjectConfig);
 
     }
 
-    protected BusinessObject update(BusinessObject businessObject) {
+    protected DomainObject update(DomainObject domainObject) {
 
-        BusinessObjectConfig businessObjectConfig = configurationExplorer.getBusinessObjectConfig(businessObject
+        DomainObjectConfig domainObjectConfig = configurationExplorer.getBusinessObjectConfig(domainObject
                 .getTypeName());
 
-        return crudServiceDAO.update(businessObject, businessObjectConfig);
+        return crudServiceDAO.update(domainObject, domainObjectConfig);
 
     }
 
     @Override
-    public BusinessObject save(BusinessObject businessObject) {
+    public DomainObject save(DomainObject domainObject) {
 
-        if (businessObject.isNew()) {
-            return create(businessObject);
+        if (domainObject.isNew()) {
+            return create(domainObject);
         }
 
-        return update(businessObject);
+        return update(domainObject);
 
     }
 
     @Override
-    public List<BusinessObject> save(List<BusinessObject> businessObjects) {
-        List<BusinessObject> result = new ArrayList();
+    public List<DomainObject> save(List<DomainObject> domainObjects) {
+        List<DomainObject> result = new ArrayList();
 
-        for (BusinessObject  businessObject : businessObjects) {
-            BusinessObject newBusinessObject;
+        for (DomainObject domainObject : domainObjects) {
+            DomainObject newDomainObject;
             try {
-                newBusinessObject = save(businessObject);
-                result.add(newBusinessObject);
+                newDomainObject = save(domainObject);
+                result.add(newDomainObject);
             } catch (Exception e) {
                 // TODO: пока ничего не делаем...разобраться как обрабатывать ошибки
             }
@@ -129,19 +112,19 @@ public class CrudServiceImpl implements RemoteCrudService, LocalCrudService {
 
     @Override
     public boolean exists(Id id) {
-        BusinessObjectConfig businessObjectConfig =
-                findBusinessObjectConfigById(configurationExplorer.getBusinessObjectsConfiguration(), id);
+        DomainObjectConfig domainObjectConfig =
+                findBusinessObjectConfigById(configurationExplorer.getDomainObjectsConfiguration(), id);
 
-        return crudServiceDAO.exists(id, businessObjectConfig);
+        return crudServiceDAO.exists(id, domainObjectConfig);
     }
 
     @Override
-    public BusinessObject find(Id id) {
+    public DomainObject find(Id id) {
         return crudServiceDAO.find(id);
     }
 
     @Override
-    public List<BusinessObject> find(List<Id> ids) {
+    public List<DomainObject> find(List<Id> ids) {
         return crudServiceDAO.find(ids);
     }
 
@@ -243,8 +226,8 @@ public class CrudServiceImpl implements RemoteCrudService, LocalCrudService {
     @Override
     public void delete(Id id) {
         RdbmsId rdbmsId = (RdbmsId)id;
-        BusinessObjectConfig businessObjectConfig = configurationExplorer.getBusinessObjectConfig(rdbmsId.getTypeName());
-        crudServiceDAO.delete(id, businessObjectConfig);
+        DomainObjectConfig domainObjectConfig = configurationExplorer.getBusinessObjectConfig(rdbmsId.getTypeName());
+        crudServiceDAO.delete(id, domainObjectConfig);
     }
 
     @Override
@@ -268,16 +251,16 @@ public class CrudServiceImpl implements RemoteCrudService, LocalCrudService {
 
     /**
      * Находит конфигурацию бизнес-объекта по идентификатору
-     * @param businessObjectsConfiguration конфигурация бизнес-объектов
+     * @param domainObjectsConfiguration конфигурация бизнес-объектов
      * @param id идентификатор бизнес-объекта, конфигурацию которого надо найти
      * @return конфигурация бизнес-объекта
      */
     @Deprecated
-    private static BusinessObjectConfig findBusinessObjectConfigById(BusinessObjectsConfiguration
-            businessObjectsConfiguration, Id id) {
-        for (BusinessObjectConfig businessObjectConfig : businessObjectsConfiguration.getBusinessObjectConfigs()) {
-            if (businessObjectConfig.getId().equals(id)) {
-                return businessObjectConfig;
+    private static DomainObjectConfig findBusinessObjectConfigById(DomainObjectsConfiguration
+                                                                               domainObjectsConfiguration, Id id) {
+        for (DomainObjectConfig domainObjectConfig : domainObjectsConfiguration.getDomainObjectConfigs()) {
+            if (domainObjectConfig.getId().equals(id)) {
+                return domainObjectConfig;
             }
         }
         throw new RuntimeException("BusinessObjectConfiguration is not found with id '" + id + "'");

@@ -2,7 +2,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:p="http://www.springframework.org/schema/p"
        xmlns:jee="http://www.springframework.org/schema/jee"
-       xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="
      http://www.springframework.org/schema/beans
      http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
@@ -22,7 +21,7 @@
           p:configurationSchemaFilePath="config/configuration.xsd"/>
 
     <bean id="businessObjectConfiguration"
-          class="ru.intertrust.cm.core.config.model.BusinessObjectsConfiguration"
+          class="ru.intertrust.cm.core.config.model.DomainObjectsConfiguration"
           factory-bean="configurationSerializer" factory-method="serializeBusinessObjectConfiguration"/>
 
     <bean id="collectionsConfiguration"
@@ -31,7 +30,7 @@
 
     <bean id="configurationExplorer"
           class="ru.intertrust.cm.core.config.ConfigurationExplorer" init-method="init"
-          p:businessObjectsConfiguration-ref="businessObjectConfiguration"
+          p:domainObjectsConfiguration-ref="businessObjectConfiguration"
           p:collectionsConfiguration-ref="collectionsConfiguration"/>
 
     <bean id="configurationLoader"
@@ -40,7 +39,7 @@
           p:logicalValidator-ref="businessObjectsConfigurationLogicalValidator"/>
 
     <bean id="businessObjectsConfigurationLogicalValidator"
-          class="ru.intertrust.cm.core.config.BusinessObjectsConfigurationLogicalValidator"
+          class="ru.intertrust.cm.core.config.DomainObjectsConfigurationLogicalValidator"
           p:configurationExplorer-ref="configurationExplorer"/>
 
     <bean id="configurationService"

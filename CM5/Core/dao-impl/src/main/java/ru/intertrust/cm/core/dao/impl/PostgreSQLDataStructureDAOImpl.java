@@ -1,17 +1,12 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCountTablesQuery;
-import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCreateBusinessObjectTableQuery;
-import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCreateIndexesQuery;
-import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateCreateTableQuery;
-import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.generateSequenceQuery;
+import org.springframework.jdbc.core.JdbcTemplate;
+import ru.intertrust.cm.core.config.model.DomainObjectConfig;
+import ru.intertrust.cm.core.dao.api.DataStructureDAO;
 
 import javax.sql.DataSource;
 
-import org.springframework.jdbc.core.JdbcTemplate;
-
-import ru.intertrust.cm.core.config.model.BusinessObjectConfig;
-import ru.intertrust.cm.core.dao.api.DataStructureDAO;
+import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.*;
 
 /**
  * Реализация {@link DataStructureDAO} для PostgreSQL
@@ -46,7 +41,7 @@ public class PostgreSQLDataStructureDAOImpl implements DataStructureDAO {
      * Смотри {@link DataStructureDAO#createSequence(ru.intertrust.cm.core.config.BusinessObjectConfig)}
      */
     @Override
-    public void createSequence(BusinessObjectConfig config) {
+    public void createSequence(DomainObjectConfig config) {
         String createSequenceQuery = generateSequenceQuery(config);
 
         jdbcTemplate.update(createSequenceQuery);
@@ -57,7 +52,7 @@ public class PostgreSQLDataStructureDAOImpl implements DataStructureDAO {
      * Смотри {@link DataStructureDAO#createTable(ru.intertrust.cm.core.config.BusinessObjectConfig)}
      */
     @Override
-    public void createTable(BusinessObjectConfig config) {
+    public void createTable(DomainObjectConfig config) {
         jdbcTemplate.update(generateCreateTableQuery(config));
 
         String createIndexesQuery = generateCreateIndexesQuery(config);

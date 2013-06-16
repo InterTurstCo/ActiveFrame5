@@ -8,9 +8,9 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
 import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.config.BusinessObjectsConfigurationLogicalValidator;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ConfigurationSerializer;
+import ru.intertrust.cm.core.config.DomainObjectsConfigurationLogicalValidator;
 import ru.intertrust.cm.core.config.model.*;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 
@@ -31,7 +31,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(MockitoJUnitRunner.class)
 public class CrudServiceDAOImplTest {
 
-    private BusinessObjectConfig businessObjectConfig;
+    private DomainObjectConfig domainObjectConfig;
 
     private static final String COLLECTION_COUNT_WITH_FILTERS = "select count(*) from employee e inner join department d on e.department = d.id WHERE d.name = 'dep1' and e.name = 'employee1'";
     private static final String COLLECTION_QUERY_WITH_LIMITS = "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e inner join department d on e.department = d.id where d.name = 'dep1' order by e.name asc limit 100 OFFSET 10";
@@ -47,7 +47,7 @@ public class CrudServiceDAOImplTest {
     private JdbcTemplate jdbcTemplate;
 
     @Mock
-    private BusinessObjectsConfigurationLogicalValidator logicalValidator;
+    private DomainObjectsConfigurationLogicalValidator logicalValidator;
 
     private CollectionFilterConfig byDepartmentFilterConfig;
 
@@ -68,16 +68,16 @@ public class CrudServiceDAOImplTest {
         configurationSerializer.setCollectionsConfigurationFilePath(COLLECTIONS_CONFIG_PATH);
         configurationSerializer.setConfigurationSchemaFilePath(CONFIGURATION_SCHEMA_PATH);
 
-        BusinessObjectsConfiguration businessObjectsConfiguration = configurationSerializer
+        DomainObjectsConfiguration domainObjectsConfiguration = configurationSerializer
                 .serializeBusinessObjectConfiguration();
         CollectionsConfiguration collectionsConfiguration = configurationSerializer.serializeCollectionConfiguration();
 
         configurationExplorer = new ConfigurationExplorer();
-        configurationExplorer.setBusinessObjectsConfiguration(businessObjectsConfiguration);
+        configurationExplorer.setDomainObjectsConfiguration(domainObjectsConfiguration);
         configurationExplorer.setCollectionsConfiguration(collectionsConfiguration);
         configurationExplorer.init();
 
-        businessObjectConfig = configurationExplorer.getBusinessObjectConfig("Person");
+        domainObjectConfig = configurationExplorer.getBusinessObjectConfig("Person");
         collectionConfig = configurationExplorer.getCollectionConfig("Employees");
         byDepartmentFilterConfig = createByDepartmentFilterConfig();
         byNameFilterConfig = createByNameFilterConfig();
@@ -89,20 +89,20 @@ public class CrudServiceDAOImplTest {
     @Test
     public void testGenerateCreateQuery() throws Exception {
 
-        BusinessObject businessObject = new GenericBusinessObject();
-        businessObject.setTypeName(businessObjectConfig.getName());
-        businessObject.setValue("EMail", new StringValue("testCreate@test.com"));
-        businessObject.setValue("Login", new StringValue("userCreate"));
-        businessObject.setValue("Password", new StringValue("passCreate"));
+        DomainObject domainObject = new GenericDomainObject();
+        domainObject.setTypeName(domainObjectConfig.getName());
+        domainObject.setValue("EMail", new StringValue("testCreate@test.com"));
+        domainObject.setValue("Login", new StringValue("userCreate"));
+        domainObject.setValue("Password", new StringValue("passCreate"));
 
         Date currentDate = new Date();
-        businessObject.setCreatedDate(currentDate);
-        businessObject.setModifiedDate(currentDate);
+        domainObject.setCreatedDate(currentDate);
+        domainObject.setModifiedDate(currentDate);
 
         String checkCreateQuery =
                 "insert into PERSON (ID , CREATED_DATE, UPDATED_DATE, EMAIL,LOGIN,PASSWORD) values (:id , :created_date, :updated_date, :email,:login,:password)";
 
-        String query = crudServiceDAOImpl.generateCreateQuery(businessObject, businessObjectConfig);
+        String query = crudServiceDAOImpl.generateCreateQuery(domainObject, domainObjectConfig);
         assertEquals(checkCreateQuery, query);
 
     }
@@ -110,16 +110,16 @@ public class CrudServiceDAOImplTest {
     @Test
     public void testUpdateThrowsInvalidIdException() {
 
-        BusinessObject businessObject = new GenericBusinessObject();
-        businessObject.setId(null);
-        businessObject.setTypeName(businessObjectConfig.getName());
-        businessObject.setValue("EMail", new StringValue("testUpdate@test.com"));
-        businessObject.setValue("Login", new StringValue("userUpdate"));
-        businessObject.setValue("Password", new StringValue("passUpdate"));
+        DomainObject domainObject = new GenericDomainObject();
+        domainObject.setId(null);
+        domainObject.setTypeName(domainObjectConfig.getName());
+        domainObject.setValue("EMail", new StringValue("testUpdate@test.com"));
+        domainObject.setValue("Login", new StringValue("userUpdate"));
+        domainObject.setValue("Password", new StringValue("passUpdate"));
 
         //проверяем что идентификатор не нулевой
         try {
-            crudServiceDAOImpl.update(businessObject, businessObjectConfig);
+            crudServiceDAOImpl.update(domainObject, domainObjectConfig);
         } catch (Exception e) {
 
             assertTrue(e instanceof InvalidIdException);
@@ -128,8 +128,8 @@ public class CrudServiceDAOImplTest {
 
         //проверяем что обрабатываеться неккоректный тип идентификатора
         try {
-            businessObject.setId(new TestId());
-            crudServiceDAOImpl.update(businessObject, businessObjectConfig);
+            domainObject.setId(new TestId());
+            crudServiceDAOImpl.update(domainObject, domainObjectConfig);
         } catch (Exception e) {
 
             assertTrue(e instanceof InvalidIdException);
@@ -143,20 +143,20 @@ public class CrudServiceDAOImplTest {
     @Test
     public void testGenerateUpdateQuery() throws Exception {
 
-        BusinessObject businessObject = new GenericBusinessObject();
-        businessObject.setTypeName(businessObjectConfig.getName());
-        businessObject.setValue("EMail", new StringValue("testUpdate@test.com"));
-        businessObject.setValue("Login", new StringValue("userUpdate"));
-        businessObject.setValue("Password", new StringValue("passUpdate"));
+        DomainObject domainObject = new GenericDomainObject();
+        domainObject.setTypeName(domainObjectConfig.getName());
+        domainObject.setValue("EMail", new StringValue("testUpdate@test.com"));
+        domainObject.setValue("Login", new StringValue("userUpdate"));
+        domainObject.setValue("Password", new StringValue("passUpdate"));
 
         Date currentDate = new Date();
-        businessObject.setId(new RdbmsId("person", 1));
-        businessObject.setCreatedDate(currentDate);
-        businessObject.setModifiedDate(currentDate);
+        domainObject.setId(new RdbmsId("person", 1));
+        domainObject.setCreatedDate(currentDate);
+        domainObject.setModifiedDate(currentDate);
 
         String checkUpdateQuery = "update PERSON set UPDATED_DATE=:current_date, EMAIL=:email,LOGIN=:login,PASSWORD=:password where ID=:id and UPDATED_DATE=:updated_date";
 
-        String query = crudServiceDAOImpl.generateUpdateQuery(businessObject, businessObjectConfig);
+        String query = crudServiceDAOImpl.generateUpdateQuery(domainObject, domainObjectConfig);
         assertEquals(checkUpdateQuery, query);
 
     }
@@ -166,7 +166,7 @@ public class CrudServiceDAOImplTest {
 
         String checkDeleteQuery = "delete from PERSON where id=:id";
 
-        String query = crudServiceDAOImpl.generateDeleteQuery(businessObjectConfig);
+        String query = crudServiceDAOImpl.generateDeleteQuery(domainObjectConfig);
         assertEquals(checkDeleteQuery, query);
 
     }
@@ -177,7 +177,7 @@ public class CrudServiceDAOImplTest {
 
         String checkDeleteQuery = "delete from PERSON";
 
-        String query = crudServiceDAOImpl.generateDeleteAllQuery(businessObjectConfig);
+        String query = crudServiceDAOImpl.generateDeleteAllQuery(domainObjectConfig);
         assertEquals(checkDeleteQuery, query);
 
     }
@@ -188,7 +188,7 @@ public class CrudServiceDAOImplTest {
 
         String checkExistsQuery = "select id from PERSON where id=:id";
 
-        String query = crudServiceDAOImpl.generateExistsQuery(businessObjectConfig);
+        String query = crudServiceDAOImpl.generateExistsQuery(domainObjectConfig);
         assertEquals(checkExistsQuery, query);
 
     }
@@ -203,26 +203,26 @@ public class CrudServiceDAOImplTest {
          * creation--> <field name="EMail"/> </uniqueKey> </businessObject>
          */
 
-        businessObjectConfig = new BusinessObjectConfig();
-        businessObjectConfig.setName("person");
+        domainObjectConfig = new DomainObjectConfig();
+        domainObjectConfig.setName("person");
         StringFieldConfig email = new StringFieldConfig();
         email.setName("EMail");
         email.setLength(128);
-        businessObjectConfig.getFieldConfigs().add(email);
+        domainObjectConfig.getFieldConfigs().add(email);
 
         StringFieldConfig Login = new StringFieldConfig();
         Login.setName("Login");
         Login.setLength(64);
         Login.setNotNull(true);
-        businessObjectConfig.getFieldConfigs().add(Login);
+        domainObjectConfig.getFieldConfigs().add(Login);
 
         StringFieldConfig Password = new StringFieldConfig();
         Password.setName("Password");
         Password.setLength(128);
-        businessObjectConfig.getFieldConfigs().add(Password);
+        domainObjectConfig.getFieldConfigs().add(Password);
 
         UniqueKeyConfig uniqueKeyConfig = new UniqueKeyConfig();
-        businessObjectConfig.getUniqueKeyConfigs().add(uniqueKeyConfig);
+        domainObjectConfig.getUniqueKeyConfigs().add(uniqueKeyConfig);
 
         UniqueKeyFieldConfig uniqueKeyFieldConfig1 = new UniqueKeyFieldConfig();
         uniqueKeyFieldConfig1.setName("EMail");

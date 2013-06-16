@@ -1,14 +1,9 @@
 package ru.intertrust.cm.core.business.api;
 
+import ru.intertrust.cm.core.business.api.dto.*;
+
 import java.util.Collection;
 import java.util.List;
-
-import ru.intertrust.cm.core.business.api.dto.BusinessObject;
-import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.SortOrder;
 
 /**
  * Сервис, обеспечивающий базовые CRUD-операции (C-Create-Создание R-Read-Чтение U-Update-Модификация D-Delete-Удаление
@@ -46,7 +41,7 @@ public interface CrudService {
      * @throws IllegalArgumentException, если бизнес-объекта данного типа не существует
      * @throws NullPointerException, если type есть null.
      */
-    BusinessObject createBusinessObject(String name);
+    DomainObject createBusinessObject(String name);
 
     /**
      * Сохраняет бизнес-объект. Если объект не существует в системе, создаёт его и заполняет отсутствующие атрибуты
@@ -54,13 +49,13 @@ public interface CrudService {
      * заполнен идентификатор объекта). Оригинальный Java-объект измененям не подвергается, изменения отражены в
      * возвращённом объекте.
      *
-     * @param businessObject бизнес-объект, который нужно сохранить
+     * @param domainObject бизнес-объект, который нужно сохранить
      * @return сохранённый бизнес-объект
      * @throws IllegalArgumentException, если состояние объекта не позволяет его сохранить (например, если атрибут
      * содержит данные неверного типа, или обязательный атрибут не определён)
      * @throws NullPointerException, если бизнес-объект есть null.
      */
-    BusinessObject save(BusinessObject businessObject);
+    DomainObject save(DomainObject domainObject);
 
     /**
      * Сохраняет список бизнес-объектов. Если какой-то объект не существует в системе, создаёт его и заполняет
@@ -68,13 +63,13 @@ public interface CrudService {
      * (например, будет сгенерирован и заполнен идентификатор объекта). Оригинальные Java-объекты измененям
      * не подвергаются, изменения отражены в возвращённых объектах.
      *
-     * @param businessObjects список бизнес-объектов, которые нужно сохранить
+     * @param domainObjects список бизнес-объектов, которые нужно сохранить
      * @return список сохранённых бизнес-объектов, упорядоченный аналогично оригинальному
      * @throws IllegalArgumentException, если состояние хотя бы одного объекта не позволяет его сохранить (например,
      * если атрибут содержит данные неверного типа, или обязательный атрибут не определён)
      * @throws NullPointerException, если список или хотя бы один бизнес-объект в списке есть null
      */
-    List<BusinessObject> save(List<BusinessObject> businessObjects);
+    List<DomainObject> save(List<DomainObject> domainObjects);
 
     /**
      * Возвращает true, если бизнес-объект существует и false в противном случае.
@@ -92,7 +87,7 @@ public interface CrudService {
      * @return бизнес-объект с данным идентификатором или null, если объект не существует
      * @throws NullPointerException, если id есть null
      */
-    BusinessObject find(Id id);
+    DomainObject find(Id id);
 
     /**
      * Возвращает бизнес-объекты по их уникальным идентификаторам в системе.
@@ -102,7 +97,7 @@ public interface CrudService {
      * в результирующем списке представлены null.
      * @throws NullPointerException, если список или хотя бы один идентификатор в списке есть null
      */
-    List<BusinessObject> find(List<Id> ids);
+    List<DomainObject> find(List<Id> ids);
 
     /**
      * Возвращает коллекцию, отфильтрованную и упорядоченную согласно критериям

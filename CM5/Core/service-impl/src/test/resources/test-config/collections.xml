@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration xmlns="https://cm5.intertrust.ru/config">
-    <collection name="Employees" idField="id" businessObjectTypeField="Employee">
+    <collection name="Employees" idField="id" domain-object-type="Employee">
         <!--todo поддержка конвертации значений, например, в картинки -->
         <display>
             <column field="id" name="id" hidden="true" sortable="false" sequence="0" />
@@ -53,7 +53,7 @@
         </filter>
     </collection>
 
-    <collection name="Employees_2" idField="id" businessObjectTypeField="Employee">
+    <collection name="Employees_2" idField="id" domain-object-type="Employee">
         <display>
             <column field="id" name="id" hidden="true" sortable="false" sequence="0" />
             <column field="business_object_type" name="type" editable="false"  hidden="true" sortable="false" sequence="1" />

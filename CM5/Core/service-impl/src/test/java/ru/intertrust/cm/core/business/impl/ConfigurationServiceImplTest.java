@@ -8,11 +8,11 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import ru.intertrust.cm.core.business.api.AuthenticationService;
-import ru.intertrust.cm.core.config.model.BusinessObjectConfig;
-import ru.intertrust.cm.core.config.model.BusinessObjectsConfiguration;
-import ru.intertrust.cm.core.config.model.CollectionsConfiguration;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ConfigurationSerializer;
+import ru.intertrust.cm.core.config.model.CollectionsConfiguration;
+import ru.intertrust.cm.core.config.model.DomainObjectConfig;
+import ru.intertrust.cm.core.config.model.DomainObjectsConfiguration;
 import ru.intertrust.cm.core.dao.api.DataStructureDAO;
 
 import static junit.framework.Assert.assertNotNull;
@@ -37,7 +37,7 @@ public class ConfigurationServiceImplTest {
     @Mock
     private AuthenticationService authenticationService;
 
-    private BusinessObjectsConfiguration businessObjectsConfiguration;
+    private DomainObjectsConfiguration domainObjectsConfiguration;
     private CollectionsConfiguration collectionsConfiguration;
 
     @Before
@@ -47,14 +47,14 @@ public class ConfigurationServiceImplTest {
         configurationSerializer.setCollectionsConfigurationFilePath(COLLECTIONS_CONFIG_PATH);
         configurationSerializer.setConfigurationSchemaFilePath(CONFIGURATION_SCHEMA);
 
-        businessObjectsConfiguration = configurationSerializer.serializeBusinessObjectConfiguration();
-        assertNotNull(businessObjectsConfiguration); // проверяем, что конфигурация сериализована из файла
+        domainObjectsConfiguration = configurationSerializer.serializeBusinessObjectConfiguration();
+        assertNotNull(domainObjectsConfiguration); // проверяем, что конфигурация сериализована из файла
 
         collectionsConfiguration = configurationSerializer.serializeCollectionConfiguration();
         assertNotNull(collectionsConfiguration); // проверяем, что конфигурация сериализована из файла
 
         ConfigurationExplorer configurationExplorer = new ConfigurationExplorer();
-        configurationExplorer.setBusinessObjectsConfiguration(businessObjectsConfiguration);
+        configurationExplorer.setDomainObjectsConfiguration(domainObjectsConfiguration);
         configurationExplorer.setCollectionsConfiguration(collectionsConfiguration);
         configurationExplorer.init();
 
@@ -68,7 +68,7 @@ public class ConfigurationServiceImplTest {
 
         verify(dataStructureDAOMock).countTables();
         verify(dataStructureDAOMock, never()).createServiceTables();
-        verify(dataStructureDAOMock, never()).createTable(Matchers.<BusinessObjectConfig>anyObject());
+        verify(dataStructureDAOMock, never()).createTable(Matchers.<DomainObjectConfig>anyObject());
     }
 
     @Test
@@ -78,6 +78,6 @@ public class ConfigurationServiceImplTest {
 
         verify(dataStructureDAOMock).countTables();
         verify(dataStructureDAOMock).createServiceTables();
-        verify(dataStructureDAOMock, times(businessObjectsConfiguration.getBusinessObjectConfigs().size())).createTable(Matchers.<BusinessObjectConfig>anyObject());
+        verify(dataStructureDAOMock, times(domainObjectsConfiguration.getDomainObjectConfigs().size())).createTable(Matchers.<DomainObjectConfig>anyObject());
     }
 }

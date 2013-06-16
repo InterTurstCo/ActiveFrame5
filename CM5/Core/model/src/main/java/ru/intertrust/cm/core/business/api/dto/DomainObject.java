@@ -3,14 +3,14 @@ package ru.intertrust.cm.core.business.api.dto;
 import java.util.Date;
 
 /**
- * Бизнес-объект - основная именованная сущность системы. Включает в себя набор именованных полей со значениями
+ * Доменный объект - основная именованная сущность системы. Включает в себя набор именованных полей со значениями
  * аналогично тому, как класс Java включает в себя именованные поля.
  *
  * Author: Denis Mitavskiy
  * Date: 22.05.13
  * Time: 17:20
  */
-public interface BusinessObject extends IdentifiableObject {
+public interface DomainObject extends IdentifiableObject {
     /**
      * Устанавливает тип бизнес-объекта
      */

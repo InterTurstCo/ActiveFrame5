@@ -10,7 +10,7 @@
     </xs:simpleContent>
   </xs:complexType>
   
-  <xs:complexType name="businessObjectType">
+  <xs:complexType name="domainObjectType">
     <xs:sequence>
       <xs:element type="con:fieldsType" name="fields" xmlns:con="https://cm5.intertrust.ru/config">        
       </xs:element>
@@ -69,7 +69,7 @@
   
   <xs:complexType name="configurationType">
     <xs:sequence>
-      <xs:element type="con:businessObjectType" name="businessObject" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+      <xs:element type="con:domainObjectType" name="domain-object" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
       <xs:element type="con:collectionType" name="collection" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config" />
     </xs:sequence>
   </xs:complexType>
@@ -196,7 +196,7 @@
         </xs:sequence>
         <xs:attribute type="xs:string" name="name" use="optional" />
         <xs:attribute type="xs:string" name="idField" use="optional" />
-        <xs:attribute type="xs:string" name="businessObjectTypeField"
+        <xs:attribute type="xs:string" name="domain-object-type"
             use="optional" />
     </xs:complexType>
 </xs:schema>

@@ -14,8 +14,8 @@ import java.util.List;
  *         Date: 5/1/13
  *         Time: 8:50 PM
  */
-@Root(name = "businessObject")
-public class BusinessObjectConfig implements Serializable {
+@Root(name = "domain-object")
+public class DomainObjectConfig implements Serializable {
 
     private Long id;
 
@@ -27,12 +27,12 @@ public class BusinessObjectConfig implements Serializable {
 
     // we can't use a list here directly, as elements inside are different, that's why such a "trick"
     @Element(name = "fields")
-    private BusinessObjectFieldsConfig businessObjectFieldsConfig;
+    private DomainObjectFieldsConfig domainObjectFieldsConfig;
 
     @ElementList(entry="uniqueKey", type=UniqueKeyConfig.class, inline=true, required = false)
     private List<UniqueKeyConfig> uniqueKeyConfigs;
 
-    public BusinessObjectConfig() {
+    public DomainObjectConfig() {
     }
 
     public Long getId() {
@@ -59,19 +59,19 @@ public class BusinessObjectConfig implements Serializable {
         this.parentConfig = parentConfig;
     }
 
-    public BusinessObjectFieldsConfig getBusinessObjectFieldsConfig() {
-        return businessObjectFieldsConfig;
+    public DomainObjectFieldsConfig getDomainObjectFieldsConfig() {
+        return domainObjectFieldsConfig;
     }
 
-    public void setBusinessObjectFieldsConfig(BusinessObjectFieldsConfig businessObjectFieldsConfig) {
-        this.businessObjectFieldsConfig = businessObjectFieldsConfig;
+    public void setDomainObjectFieldsConfig(DomainObjectFieldsConfig domainObjectFieldsConfig) {
+        this.domainObjectFieldsConfig = domainObjectFieldsConfig;
     }
 
     public List<FieldConfig> getFieldConfigs() {
-        if(businessObjectFieldsConfig == null) {
-            businessObjectFieldsConfig = new BusinessObjectFieldsConfig();
+        if(domainObjectFieldsConfig == null) {
+            domainObjectFieldsConfig = new DomainObjectFieldsConfig();
         }
-        return businessObjectFieldsConfig.getFieldConfigs();
+        return domainObjectFieldsConfig.getFieldConfigs();
     }
 
     public List<UniqueKeyConfig> getUniqueKeyConfigs() {

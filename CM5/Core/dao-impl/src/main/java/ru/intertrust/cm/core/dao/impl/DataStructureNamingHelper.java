@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import ru.intertrust.cm.core.config.model.BusinessObjectConfig;
+import ru.intertrust.cm.core.config.model.DomainObjectConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
 
@@ -17,21 +17,21 @@ public class DataStructureNamingHelper {
 
     /**
      * Возвращает имя бизнес-объекта в sql-виде
-     * @param businessObjectConfig конфигурация бизнес-объекта
+     * @param domainObjectConfig конфигурация бизнес-объекта
      * @return имя бизнес-объекта в sql-виде
      */
-    public static String getSqlName(BusinessObjectConfig businessObjectConfig) {
-        return convertToSqlFormat(businessObjectConfig.getName());
+    public static String getSqlName(DomainObjectConfig domainObjectConfig) {
+        return convertToSqlFormat(domainObjectConfig.getName());
     }
 
     /**
      * Возвращает имя последовательности(сиквенса) бизнес-объекта в sql-виде
-     * @param businessObjectConfig конфигурация бизнес-объекта
+     * @param domainObjectConfig конфигурация бизнес-объекта
      * @return имя последовательности для бизнес-объекта в sql-виде
      */
-    public static String getSqlSequenceName(BusinessObjectConfig businessObjectConfig) {
+    public static String getSqlSequenceName(DomainObjectConfig domainObjectConfig) {
 
-        return convertToSqlFormat(businessObjectConfig.getName()) + "_SEQ";
+        return convertToSqlFormat(domainObjectConfig.getName()) + "_SEQ";
     }
 
 

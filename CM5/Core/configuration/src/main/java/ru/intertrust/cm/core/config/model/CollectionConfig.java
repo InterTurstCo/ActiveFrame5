@@ -22,8 +22,8 @@ public class CollectionConfig implements Serializable {
     @Attribute(required = true)
     private String idField;
 
-    @Attribute(name = "businessObjectTypeField", required = true)
-    private String businessObjectTypeField;
+    @Attribute(name = "domain-object-type", required = true)
+    private String domainObjectType;
 
     @Element(name = "display")
     private CollectionDisplayConfig displayConfig;
@@ -56,12 +56,12 @@ public class CollectionConfig implements Serializable {
         this.idField = idField;
     }
 
-    public String getBusinessObjectTypeField() {
-        return businessObjectTypeField;
+    public String getDomainObjectType() {
+        return domainObjectType;
     }
 
-    public void setBusinessObjectTypeField(String businessObjectTypeField) {
-        this.businessObjectTypeField = businessObjectTypeField;
+    public void setDomainObjectType(String domainObjectType) {
+        this.domainObjectType = domainObjectType;
     }
 
     public CollectionDisplayConfig getDisplayConfig() {

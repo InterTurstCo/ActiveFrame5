@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.dao.api;
 
-import ru.intertrust.cm.core.config.model.BusinessObjectConfig;
+import ru.intertrust.cm.core.config.model.DomainObjectConfig;
 
 /**
  * DAO для работы со структурой базы данных (создание таблиц, колонок, индексов и т.п.)
@@ -14,14 +14,14 @@ public interface DataStructureDAO {
      * Создает таблицу по конфигурации бизнес-объекта
      * @param config конфигурация бизнес-объекта
      */
-    void createTable(BusinessObjectConfig config);
+    void createTable(DomainObjectConfig config);
 
 
     /**
      * Создает последовательность для таблицы по конфигурации бизнес-объекта
      * @param config конфигурация бизнес-объекта
      */
-    void createSequence(BusinessObjectConfig config);
+    void createSequence(DomainObjectConfig config);
 
 
     /**

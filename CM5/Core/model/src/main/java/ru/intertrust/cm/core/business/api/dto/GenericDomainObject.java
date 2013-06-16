@@ -1,16 +1,16 @@
 package ru.intertrust.cm.core.business.api.dto;
 
+import ru.intertrust.cm.core.business.api.util.ModelUtil;
+
 import java.math.BigDecimal;
 import java.util.Date;
-
-import ru.intertrust.cm.core.business.api.util.ModelUtil;
 
 /**
  * Обобщённая реализация бизнес-объектов
  *
  * Author: Denis Mitavskiy Date: 19.05.13 Time: 15:57
  */
-public class GenericBusinessObject extends GenericIdentifiableObject implements BusinessObject {
+public class GenericDomainObject extends GenericIdentifiableObject implements DomainObject {
     private String typeName;
     private Date createdDate;
     private Date modifiedDate;
@@ -18,7 +18,7 @@ public class GenericBusinessObject extends GenericIdentifiableObject implements 
     /**
      * Создаёт бизнес-объект
      */
-    public GenericBusinessObject() {
+    public GenericDomainObject() {
         super();
     }
 
@@ -71,7 +71,7 @@ public class GenericBusinessObject extends GenericIdentifiableObject implements 
 
     public static void main(String[] args) {
         // todo: move to unit tests after
-        BusinessObject bo = new GenericBusinessObject();
+        DomainObject bo = new GenericDomainObject();
         bo.setValue("A", null);
         bo.setValue("B", new IntegerValue(2));
         bo.setValue("C", new DecimalValue(new BigDecimal(Math.PI)));

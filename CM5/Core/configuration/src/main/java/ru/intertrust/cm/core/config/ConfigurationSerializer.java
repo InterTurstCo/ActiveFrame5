@@ -2,8 +2,8 @@ package ru.intertrust.cm.core.config;
 
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
-import ru.intertrust.cm.core.config.model.BusinessObjectsConfiguration;
 import ru.intertrust.cm.core.config.model.CollectionsConfiguration;
+import ru.intertrust.cm.core.config.model.DomainObjectsConfiguration;
 
 import java.io.InputStream;
 
@@ -41,8 +41,8 @@ public class ConfigurationSerializer {
         this.configurationSchemaFilePath = configurationSchemaFilePath;
     }
 
-    public BusinessObjectsConfiguration serializeBusinessObjectConfiguration() throws Exception {
-        return serializeConfiguration(configurationFilePath, BusinessObjectsConfiguration.class);
+    public DomainObjectsConfiguration serializeBusinessObjectConfiguration() throws Exception {
+        return serializeConfiguration(configurationFilePath, DomainObjectsConfiguration.class);
     }
 
     public CollectionsConfiguration serializeCollectionConfiguration() throws Exception {

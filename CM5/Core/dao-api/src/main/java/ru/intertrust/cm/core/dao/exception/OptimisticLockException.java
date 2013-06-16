@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.dao.exception;
 
-import ru.intertrust.cm.core.business.api.dto.BusinessObject;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 
 /**
  * Представляет случай когда объект был модифицирован после чтения другим
@@ -12,14 +12,14 @@ import ru.intertrust.cm.core.business.api.dto.BusinessObject;
  */
 public class OptimisticLockException extends DataAccessException {
 
-    private final BusinessObject object;
+    private final DomainObject object;
 
-    public OptimisticLockException(BusinessObject object) {
+    public OptimisticLockException(DomainObject object) {
         super();
         this.object = object;
     }
 
-    public BusinessObject getObject() {
+    public DomainObject getObject() {
         return object;
     }
 

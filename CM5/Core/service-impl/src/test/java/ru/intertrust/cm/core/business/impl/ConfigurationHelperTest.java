@@ -6,8 +6,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import ru.intertrust.cm.core.config.model.BusinessObjectConfig;
-import ru.intertrust.cm.core.config.model.BusinessObjectsConfiguration;
+import ru.intertrust.cm.core.config.model.DomainObjectConfig;
+import ru.intertrust.cm.core.config.model.DomainObjectsConfiguration;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.config.model.StringFieldConfig;
 
@@ -22,11 +22,11 @@ public class ConfigurationHelperTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    private BusinessObjectsConfiguration businessObjectsConfiguration;
+    private DomainObjectsConfiguration domainObjectsConfiguration;
 
-    private BusinessObjectConfig businessObjectConfig1;
-    private BusinessObjectConfig businessObjectConfig2;
-    private BusinessObjectConfig businessObjectConfig3;
+    private DomainObjectConfig domainObjectConfig1;
+    private DomainObjectConfig domainObjectConfig2;
+    private DomainObjectConfig domainObjectConfig3;
 
     private FieldConfig fieldConfig1;
     private FieldConfig fieldConfig2;
@@ -60,34 +60,34 @@ public class ConfigurationHelperTest {
     }
 
     private void initializeTestConfiguration() {
-        businessObjectsConfiguration = new BusinessObjectsConfiguration();
+        domainObjectsConfiguration = new DomainObjectsConfiguration();
 
         initializeBusinessObjectConfig1();
-        businessObjectsConfiguration.getBusinessObjectConfigs().add(businessObjectConfig1);
+        domainObjectsConfiguration.getDomainObjectConfigs().add(domainObjectConfig1);
 
-        businessObjectConfig2 = new BusinessObjectConfig();
-        businessObjectConfig2.setName("business object 2");
-        businessObjectsConfiguration.getBusinessObjectConfigs().add(businessObjectConfig2);
+        domainObjectConfig2 = new DomainObjectConfig();
+        domainObjectConfig2.setName("business object 2");
+        domainObjectsConfiguration.getDomainObjectConfigs().add(domainObjectConfig2);
 
-        businessObjectConfig3 = new BusinessObjectConfig();
-        businessObjectConfig3.setName("business object 3");
-        businessObjectsConfiguration.getBusinessObjectConfigs().add(businessObjectConfig3);
+        domainObjectConfig3 = new DomainObjectConfig();
+        domainObjectConfig3.setName("business object 3");
+        domainObjectsConfiguration.getDomainObjectConfigs().add(domainObjectConfig3);
     }
 
     private void initializeBusinessObjectConfig1() {
-        businessObjectConfig1 = new BusinessObjectConfig();
-        businessObjectConfig1.setName("business object 1");
+        domainObjectConfig1 = new DomainObjectConfig();
+        domainObjectConfig1.setName("business object 1");
 
         fieldConfig1 = new StringFieldConfig();
         fieldConfig1.setName("field 1");
-        businessObjectConfig1.getFieldConfigs().add(fieldConfig1);
+        domainObjectConfig1.getFieldConfigs().add(fieldConfig1);
 
         fieldConfig2 = new StringFieldConfig();
         fieldConfig2.setName("field 2");
-        businessObjectConfig1.getFieldConfigs().add(fieldConfig2);
+        domainObjectConfig1.getFieldConfigs().add(fieldConfig2);
 
         fieldConfig3 = new StringFieldConfig();
         fieldConfig3.setName("field 3");
-        businessObjectConfig1.getFieldConfigs().add(fieldConfig3);
+        domainObjectConfig1.getFieldConfigs().add(fieldConfig3);
     }
 }

@@ -1,13 +1,9 @@
 package ru.intertrust.cm.core.dao.api;
 
-import ru.intertrust.cm.core.business.api.dto.BusinessObject;
-import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.SortOrder;
-import ru.intertrust.cm.core.config.model.BusinessObjectConfig;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.model.CollectionConfig;
 import ru.intertrust.cm.core.config.model.CollectionFilterConfig;
+import ru.intertrust.cm.core.config.model.DomainObjectConfig;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
@@ -24,19 +20,19 @@ public interface CrudServiceDAO {
 
     /**
      * Создает новый бизнес-объект
-     * @param businessObject
+     * @param domainObject
      *            бизнес-объект который будет создан
-     * @param businessObjectConfig
+     * @param domainObjectConfig
      *            конфигурация бизнесс объекта
      * @return созданыый бизнесс объект
      */
-    public BusinessObject create(BusinessObject businessObject, BusinessObjectConfig businessObjectConfig);
+    public DomainObject create(DomainObject domainObject, DomainObjectConfig domainObjectConfig);
 
     /**
      * Модифицирует переданный бизнес-объект
-     * @param businessObject
+     * @param domainObject
      *            бизнес-объект который надо изменить
-     * @param businessObjectConfig
+     * @param domainObjectConfig
      *            конфигурация бизнесс объекта
      * @return возвращет модифицированный бизнесс объект
      * @throws InvalidIdException
@@ -46,34 +42,34 @@ public interface CrudServiceDAO {
      * @throws OptimisticLockException
      *             если объект уже был модифицирован другим пользователем
      */
-    public BusinessObject update(BusinessObject businessObject, BusinessObjectConfig businessObjectConfig)
+    public DomainObject update(DomainObject domainObject, DomainObjectConfig domainObjectConfig)
             throws InvalidIdException, ObjectNotFoundException, OptimisticLockException;
 
     /**
      * Удаляет бизнес-объект по уникальному идентифткатору
      * @param id
      *            уникальный идентификатор объекта который надо удалить
-     * @param businessObjectConfig
+     * @param domainObjectConfig
      *            конфигурация бизнесс-объекта
      * @throws InvalidIdException
      *             если идентификатор бизнес-объекта не корректный (не поддерживается или нулевой)
      * @throws ObjectNotFoundException
      *             если не существует объекта с таким идентификатором
      */
-    public void delete(Id id, BusinessObjectConfig businessObjectConfig) throws InvalidIdException, ObjectNotFoundException;
+    public void delete(Id id, DomainObjectConfig domainObjectConfig) throws InvalidIdException, ObjectNotFoundException;
 
     /**
      * Проверяет существует ли бизнес-объект с переданным уникальным
      * идентификатором
      * @param id
      *            идентификатор бизнес-объекта
-     * @param businessObjectConfig
+     * @param domainObjectConfig
      *            конфигурация бизнес-объекта
      * @throws InvalidIdException
      *             если идентификатор бизнес-объекта не корректный (не поддерживается или нулевой)
      * @return true если объект существует иначе возвращает false
      */
-    public boolean exists(Id id, BusinessObjectConfig businessObjectConfig) throws InvalidIdException;
+    public boolean exists(Id id, DomainObjectConfig domainObjectConfig) throws InvalidIdException;
 
     /**
      * Поиск коллекции бизнес-объектов, используя фильтры и сортировку
@@ -99,14 +95,14 @@ public interface CrudServiceDAO {
     /**
      * Поиск бизнес-объекта по уникальному идентификатору в системе.
      * @param id идентификатору бизнес-объекта
-     * @return {@link BusinessObject}
+     * @return {@link ru.intertrust.cm.core.business.api.dto.DomainObject}
      */
-    BusinessObject find(Id id);
+    DomainObject find(Id id);
 
     /**
      * Поиск списка бизнес-объектов по уникальным идентификаторам в системе.
      * @param ids уникальные идентификаторы
-     * @return {@link List<BusinessObject>}
+     * @return {@link List< ru.intertrust.cm.core.business.api.dto.DomainObject >}
      */
-    List<BusinessObject> find(List<Id> ids);
+    List<DomainObject> find(List<Id> ids);
 }
