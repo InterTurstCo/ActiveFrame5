@@ -46,9 +46,9 @@ public class ConfigurationExplorer {
     }
 
     /**
-     * Находит конфигурацию бизнес-объекта по имени
-     * @param name имя бизнес-объекта, конфигурацию которого надо найти
-     * @return конфигурация бизнес-объекта
+     * Находит конфигурацию доменного объекта по имени
+     * @param name имя доменного объекта, конфигурацию которого надо найти
+     * @return конфигурация доменного объекта
      */
     public DomainObjectConfig getDomainObjectConfig(String name) {
         DomainObjectConfig result = domainObjectConfigMap.get(name);

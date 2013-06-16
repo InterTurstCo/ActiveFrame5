@@ -11,7 +11,7 @@ import ru.intertrust.cm.core.dao.api.CrudServiceDAO;
 import java.util.Date;
 
 /**
- * Реализация сервиса для работы с бизнес-объектом Person
+ * Реализация сервиса для работы с доменным объектом объектом Authentication Info
  * @author atsvetkov
  *
  */

@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.business.api.dto;
 
 /**
- * Целочисленное значение поля бизнес-объекта. Граничные значения определяются Java-типом {@link java.lang.Long}
+ * Целочисленное значение поля доменного объекта. Граничные значения определяются Java-типом {@link java.lang.Long}
  * Author: Denis Mitavskiy
  * Date: 19.05.13
  * Time: 16:21

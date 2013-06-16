@@ -20,7 +20,7 @@ public interface IdentifiableObject {
 
     /**
      * Устанавливает идентификатор объекта
-     * @param id идентификатор бизнес-объекта
+     * @param id идентификатор доменного объекта
      */
     void setId(Id id);
 

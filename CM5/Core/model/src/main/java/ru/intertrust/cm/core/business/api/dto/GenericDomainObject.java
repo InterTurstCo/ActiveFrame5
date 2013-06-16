@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * Обобщённая реализация бизнес-объектов
+ * Обобщённая реализация доменных объектов
  *
  * Author: Denis Mitavskiy Date: 19.05.13 Time: 15:57
  */
@@ -16,7 +16,7 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
     private Date modifiedDate;
 
     /**
-     * Создаёт бизнес-объект
+     * Создаёт доменный объект
      */
     public GenericDomainObject() {
         super();

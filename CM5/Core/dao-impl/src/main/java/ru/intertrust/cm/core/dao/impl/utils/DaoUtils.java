@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.dao.impl.utils;
 import java.util.Collection;
 
 /**
- * Представляет набор функций для работы со колонками бизнес-объекта
+ * Представляет набор функций для работы со колонками доменного объекта
  *
  * @author skashanski
  *

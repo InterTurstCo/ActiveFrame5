@@ -38,7 +38,7 @@ public class PostgreSQLDataStructureDAOImplTest {
 
     @Test
     public void testCreateTable() throws Exception {
-        when(jdbcTemplate.queryForObject(anyString(), any(Class.class), anyString())).thenReturn(Long.valueOf(7)); // ID конфигурации бизнес-объекта
+        when(jdbcTemplate.queryForObject(anyString(), any(Class.class), anyString())).thenReturn(Long.valueOf(7)); // ID конфигурации доменного объекта
         dataStructureDAO.createTable(domainObjectConfig);
 
         verify(jdbcTemplate, times(2)).update(anyString());

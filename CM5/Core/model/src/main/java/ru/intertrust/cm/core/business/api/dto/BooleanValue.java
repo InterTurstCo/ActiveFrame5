@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.business.api.dto;
 
 /**
- * Булево значение поля бизнес-объекта
+ * Булево значение поля доменного объекта
  *
  * Author: Denis Mitavskiy
  * Date: 19.05.13

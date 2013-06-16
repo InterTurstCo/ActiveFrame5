@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
- * Десятичное значение (произвольной точности) поля бизнес-объекта
+ * Десятичное значение (произвольной точности) поля доменного объекта
  *
  * Author: Denis Mitavskiy
  * Date: 19.05.13

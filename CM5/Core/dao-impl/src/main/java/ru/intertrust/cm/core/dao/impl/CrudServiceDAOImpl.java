@@ -53,10 +53,10 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
     /**
-     * Создает SQL запрос для создания бизнес-объекта
-     * @param domainObject бизнес-объект
-     * @param domainObjectConfig конфигуоация бизнес-объекта
-     * @return строку запроса для создания бизнес-объекта с параметрами
+     * Создает SQL запрос для создания доменного объекта
+     * @param domainObject доменный объект
+     * @param domainObjectConfig конфигурация доменного объекта
+     * @return строку запроса для создания доменного объекта с параметрами
      */
     protected String generateCreateQuery(DomainObject domainObject, DomainObjectConfig domainObjectConfig) {
         List<FieldConfig> feldConfigs = domainObjectConfig.getDomainObjectFieldsConfig().getFieldConfigs();
@@ -98,9 +98,9 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
     /**
-     * Инициализирует параметры для для создания бизнес-объекта
-     * @param domainObject бизнес-объект
-     * @param domainObjectConfig конфигуоация бизнес-объекта
+     * Инициализирует параметры для для создания доменного объекта
+     * @param domainObject доменный объект
+     * @param domainObjectConfig конфигурация доменного объекта
      * @return карту объектов содержащую имя параметра и его значение
      */
     protected Map<String, Object> initializeCreateParameters(DomainObject domainObject,
@@ -135,10 +135,10 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
     /**
-     * Создает SQL запрос для модификации бизнес-объекта
-     * @param domainObject бизнес-объект
-     * @param domainObjectConfig конфигуоация бизнес-объекта
-     * @return строку запроса для модиификации бизнес-объекта с параметрами
+     * Создает SQL запрос для модификации доменного объекта
+     * @param domainObject доменный объект
+     * @param domainObjectConfig конфигурация доменного объекта
+     * @return строку запроса для модиификации доменного объекта с параметрами
      */
     protected String generateUpdateQuery(DomainObject domainObject, DomainObjectConfig domainObjectConfig) {
 
@@ -163,9 +163,9 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
     /**
-     * Инициализирует параметры для для создания бизнес-объекта
-     * @param domainObject бизнес-объект
-     * @param domainObjectConfig конфигуоация бизнес-объекта
+     * Инициализирует параметры для для создания доменного объекта
+     * @param domainObject доменный объект
+     * @param domainObjectConfig конфигурация доменного объекта
      * @return карту объектов содержащую имя параметра и его значение
      */
     protected Map<String, Object> initializeUpdateParameters(DomainObject domainObject,
@@ -229,9 +229,9 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
     /**
-     * Создает SQL запрос для удаления бизнес-объекта
-     * @param domainObjectConfig конфигуоация бизнес-объекта
-     * @return строку запроса для удаления бизнес-объекта с параметрами
+     * Создает SQL запрос для удаления доменного объекта
+     * @param domainObjectConfig конфигурация доменного объекта
+     * @return строку запроса для удаления доменного объекта с параметрами
      */
     protected String generateDeleteQuery(DomainObjectConfig domainObjectConfig) {
 
@@ -266,9 +266,9 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
     /**
-     * Создает SQL запрос для удаления всех бизнес-объектов
-     * @param domainObjectConfig конфигуоация бизнес-объекта
-     * @return строку запроса для удаления всех бизнес-объектов
+     * Создает SQL запрос для удаления всех доменных объектов
+     * @param domainObjectConfig конфигурация доменного объекта
+     * @return строку запроса для удаления всех доменных объектов
      */
     protected String generateDeleteAllQuery(DomainObjectConfig domainObjectConfig) {
 
@@ -283,8 +283,8 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
     /**
-     * Инициализирует параметры для удаления бизнес-объекта
-     * @param id идентификатор бизнес-объектв для удаления
+     * Инициализирует параметры для удаления доменного объекта
+     * @param id идентификатор доменного объекта для удаления
      * @return карту объектов содержащую имя параметра и его значение
      */
     protected Map<String, Object> initializeIdParameter(Id id) {
@@ -295,9 +295,9 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
     /**
-     * Создает SQL запрос для проверки существует ли бизнес-объекта
-     * @param domainObjectConfig конфигуоация бизнес-объекта
-     * @return строку запроса для удаления бизнес-объекта с параметрами
+     * Создает SQL запрос для проверки существует ли доменный объект
+     * @param domainObjectConfig конфигурация доменного объекта
+     * @return строку запроса для удаления доменного объекта с параметрами
      */
     protected String generateExistsQuery(DomainObjectConfig domainObjectConfig) {
 
@@ -313,8 +313,8 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
     /**
-     * Инициализирует параметры для удаления бизнес-объекта
-     * @param id идентификатор бизнес-объектв для удаления
+     * Инициализирует параметры для удаления доменного объекта
+     * @param id идентификатор доменных объектов для удаления
      * @return карту объектов содержащую имя параметра и его значение
      */
     protected Map<String, Long> initializeExistsParameters(Id id) {
@@ -435,7 +435,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
     
     /**
-     * Возвращает запрос, который используется в методе поиска коллекции бизнес-объектов
+     * Возвращает запрос, который используется в методе поиска коллекции доменных объектов
      * @param collectionConfig
      * @param filledFilterConfigs
      * @param sortOrder
@@ -547,7 +547,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
     /**
-     * Отображает {@link ResultSet} на бизнес-объект {@link ru.intertrust.cm.core.business.api.dto.DomainObject}.
+     * Отображает {@link ResultSet} на доменный объект {@link ru.intertrust.cm.core.business.api.dto.DomainObject}.
      * @author atsvetkov
      */
    @SuppressWarnings("rawtypes")
@@ -607,7 +607,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
     /**
-     * Отображает {@link ResultSet} на список бизнес-объектов {@link List< ru.intertrust.cm.core.business.api.dto.DomainObject >}.
+     * Отображает {@link ResultSet} на список доменных объектов {@link List< ru.intertrust.cm.core.business.api.dto.DomainObject >}.
      * @author atsvetkov
      */
     @SuppressWarnings("rawtypes")
@@ -668,7 +668,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
     /**
-     * Базовй класс для отображения {@link ResultSet} на бизнес-объекты и коллекции.
+     * Базовй класс для отображения {@link ResultSet} на доменные объекты и коллекции.
      * @author atsvetkov
      */
     private class BasicRowMapper {
@@ -767,7 +767,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
         }
         
         /**
-         * Обертывает заполненное поле или поле id в бизнес-объекте.
+         * Обертывает заполненное поле или поле id в доменном объекте.
          * @author atsvetkov
          *
          */
@@ -795,7 +795,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
         /**
          * Метаданные возвращаемых значений списка. Содержит названия колонок, их типы и имя колонки-первичного ключа
-         * для бизнес-объекта.
+         * для доменного объекта.
          * @author atsvetkov
          */
         protected class ColumnModel {
@@ -831,7 +831,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
     /**
-     * Перечисление типов колонок в таблицах бизнес-объектов. Используется для удобства чтения полей бизнес-объектов.
+     * Перечисление типов колонок в таблицах доменных объектов. Используется для удобства чтения полей доменных объектов.
      * @author atsvetkov
      */
     private enum DataType {

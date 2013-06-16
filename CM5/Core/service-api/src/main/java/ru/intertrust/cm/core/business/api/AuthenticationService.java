@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.business.api;
 import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
 
 /**
- * Сервис для работы с бизнес-объектом Person.
+ * Сервис для работы с доменным объектом Authentication Info.
  *
  * @author atsvetkov
  *

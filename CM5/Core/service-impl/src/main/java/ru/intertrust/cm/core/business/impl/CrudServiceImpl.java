@@ -232,7 +232,7 @@ public class CrudServiceImpl implements RemoteCrudService, LocalCrudService {
 
     @Override
     public int delete(Collection<Id> ids) {
-        // TODO как обрабатывать ошибки при удалении каждого бизнесс объекта...
+        // TODO как обрабатывать ошибки при удалении каждого доменного объекта...
         int count = 0;
         for(Id id : ids) {
             try {
@@ -250,10 +250,10 @@ public class CrudServiceImpl implements RemoteCrudService, LocalCrudService {
     }
 
     /**
-     * Находит конфигурацию бизнес-объекта по идентификатору
-     * @param domainObjectsConfiguration конфигурация бизнес-объектов
-     * @param id идентификатор бизнес-объекта, конфигурацию которого надо найти
-     * @return конфигурация бизнес-объекта
+     * Находит конфигурацию доменного объекта по идентификатору
+     * @param domainObjectsConfiguration конфигурация доменных объектов
+     * @param id идентификатор доменного объекта, конфигурацию которого надо найти
+     * @return конфигурация доменного объекта
      */
     @Deprecated
     private static DomainObjectConfig findDomainObjectConfigById(DomainObjectsConfiguration

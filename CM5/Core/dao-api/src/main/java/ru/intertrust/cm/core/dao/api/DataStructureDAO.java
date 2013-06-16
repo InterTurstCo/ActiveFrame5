@@ -11,15 +11,15 @@ import ru.intertrust.cm.core.config.model.DomainObjectConfig;
 public interface DataStructureDAO {
 
     /**
-     * Создает таблицу по конфигурации бизнес-объекта
-     * @param config конфигурация бизнес-объекта
+     * Создает таблицу по конфигурации доменного объекта
+     * @param config конфигурация доменного объекта
      */
     void createTable(DomainObjectConfig config);
 
 
     /**
-     * Создает последовательность для таблицы по конфигурации бизнес-объекта
-     * @param config конфигурация бизнес-объекта
+     * Создает последовательность для таблицы по конфигурации доменного объекта
+     * @param config конфигурация доменного объекта
      */
     void createSequence(DomainObjectConfig config);
 
@@ -31,7 +31,7 @@ public interface DataStructureDAO {
     Integer countTables();
 
     /**
-     * Создает сервисные таблицы, которые не задаются конфигурацией бизнес-объектов
+     * Создает сервисные таблицы, которые не задаются конфигурацией доменных объектов
      */
     void createServiceTables();
 

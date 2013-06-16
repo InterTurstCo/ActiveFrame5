@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.business.api.dto;
 
 /**
- * Строковое значение поля бизнес-объекта
+ * Строковое значение поля доменного объекта
  * Author: Denis Mitavskiy
  * Date: 19.05.13
  * Time: 16:20

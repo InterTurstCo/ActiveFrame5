@@ -23,7 +23,7 @@ public class ConfigurationSerializer {
 
     /**
      * Устанавливает {@link #configurationFilePath}
-     * @param configurationFilePath путь к файлу конфигурации бизнес-объектов
+     * @param configurationFilePath путь к файлу конфигурации доменных объектов
      */
     public void setConfigurationFilePath(String configurationFilePath) {
         this.configurationFilePath = configurationFilePath;

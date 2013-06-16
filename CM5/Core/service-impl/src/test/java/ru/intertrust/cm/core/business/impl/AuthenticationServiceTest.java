@@ -1,19 +1,18 @@
 package ru.intertrust.cm.core.business.impl;
 
-import static org.mockito.Mockito.verify;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
 import ru.intertrust.cm.core.business.api.AuthenticationService;
 import ru.intertrust.cm.core.business.api.MD5Service;
 import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.api.AuthenticationDAO;
 import ru.intertrust.cm.core.dao.api.CrudServiceDAO;
+
+import static org.mockito.Mockito.verify;
 
 
 /**
@@ -56,7 +55,7 @@ public class AuthenticationServiceTest {
     @Test
     public void testInsertAuthenticationInfo() {
         //authenticationService.insertAuthenticationInfoAndRole(testAuthenticationInfo);
-//        when(crudServiceDAO.create(anyObject(), anyObject())).thenReturn(Long.valueOf(7)); // ID конфигурации бизнес-объекта
+//        when(crudServiceDAO.create(anyObject(), anyObject())).thenReturn(Long.valueOf(7)); // ID конфигурации доменного объекта
 //        when(md5ServiceMock.getMD5(ADMIN_PASSWORD)).thenReturn(ADMIN_PASSWORD);
 
 //        verify(md5ServiceMock).getMD5(ADMIN_PASSWORD);

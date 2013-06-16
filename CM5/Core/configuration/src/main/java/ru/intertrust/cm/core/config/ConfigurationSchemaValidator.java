@@ -31,7 +31,7 @@ public class ConfigurationSchemaValidator {
     }
 
     /**
-     * Возвращает путь к конфигурационному файлу с бизнес-объектами.
+     * Возвращает путь к конфигурационному файлу с доменными объектами.
      * @return
      */
     public String getConfigurationPath() {
@@ -39,7 +39,7 @@ public class ConfigurationSchemaValidator {
     }
 
     /**
-     * Устанавливает путь к конфигурационному файлу с бизнес-объектами. Нужен для валидации по XSD схеме.
+     * Устанавливает путь к конфигурационному файлу с доменными объектами. Нужен для валидации по XSD схеме.
      * @param configurationPath
      */
     public void setConfigurationPath(String configurationPath) {
