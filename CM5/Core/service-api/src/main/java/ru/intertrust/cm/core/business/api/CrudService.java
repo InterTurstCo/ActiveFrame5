@@ -41,7 +41,7 @@ public interface CrudService {
      * @throws IllegalArgumentException, если бизнес-объекта данного типа не существует
      * @throws NullPointerException, если type есть null.
      */
-    DomainObject createBusinessObject(String name);
+    DomainObject createDomainObject(String name);
 
     /**
      * Сохраняет бизнес-объект. Если объект не существует в системе, создаёт его и заполняет отсутствующие атрибуты

@@ -47,7 +47,7 @@ public class CrudServiceImpl implements RemoteCrudService, LocalCrudService {
     }
 
     @Override
-    public DomainObject createBusinessObject(String name) {
+    public DomainObject createDomainObject(String name) {
 
         DomainObjectConfig domainObjectConfig = configurationExplorer.getDomainObjectConfig(name);
 
@@ -113,7 +113,7 @@ public class CrudServiceImpl implements RemoteCrudService, LocalCrudService {
     @Override
     public boolean exists(Id id) {
         DomainObjectConfig domainObjectConfig =
-                findBusinessObjectConfigById(configurationExplorer.getDomainObjectsConfiguration(), id);
+                findDomainObjectConfigById(configurationExplorer.getDomainObjectsConfiguration(), id);
 
         return crudServiceDAO.exists(id, domainObjectConfig);
     }
@@ -256,13 +256,13 @@ public class CrudServiceImpl implements RemoteCrudService, LocalCrudService {
      * @return конфигурация бизнес-объекта
      */
     @Deprecated
-    private static DomainObjectConfig findBusinessObjectConfigById(DomainObjectsConfiguration
-                                                                               domainObjectsConfiguration, Id id) {
+    private static DomainObjectConfig findDomainObjectConfigById(DomainObjectsConfiguration
+                                                                             domainObjectsConfiguration, Id id) {
         for (DomainObjectConfig domainObjectConfig : domainObjectsConfiguration.getDomainObjectConfigs()) {
             if (domainObjectConfig.getId().equals(id)) {
                 return domainObjectConfig;
             }
         }
-        throw new RuntimeException("BusinessObjectConfiguration is not found with id '" + id + "'");
+        throw new RuntimeException("Domain Object Configuration is not found with id '" + id + "'");
     }
 }

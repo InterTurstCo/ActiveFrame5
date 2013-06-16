@@ -26,7 +26,7 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigurationServiceImplTest {
 
-    private static final String DOMAIN_OBJECTS_CONFIG_PATH = "test-config/business-objects.xml";
+    private static final String DOMAIN_OBJECTS_CONFIG_PATH = "test-config/domain-objects.xml";
     private static final String COLLECTIONS_CONFIG_PATH = "test-config/collections.xml";
     private static final String CONFIGURATION_SCHEMA = "test-config/configuration.xsd";
 

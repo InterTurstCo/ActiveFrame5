@@ -13,9 +13,9 @@ import ru.intertrust.cm.core.config.ConfigurationSchemaValidator;
 public class ConfigurationSchemaValidatorTest {
 
     private static final String CONFIGURATION_SCHEMA = "test-config/configuration.xsd";
-    private static final String CONFIGURATION_VALID = "test-config/business-objects.xml";
-    private static final String CONFIGURATION_INVALID = "test-config/business-objects-invalid.xml";
-    private static final String CONFIGURATION_INVALID_REFERENCE = "test-config/business-objects-invalid-reference.xml";
+    private static final String CONFIGURATION_VALID = "test-config/domain-objects.xml";
+    private static final String CONFIGURATION_INVALID = "test-config/domain-objects-invalid.xml";
+    private static final String CONFIGURATION_INVALID_REFERENCE = "test-config/domain-objects-invalid-reference.xml";
     private static final String COLLECTIONS_CONFIGURATION_VALID = "test-config/collections.xml";
 
     @Rule

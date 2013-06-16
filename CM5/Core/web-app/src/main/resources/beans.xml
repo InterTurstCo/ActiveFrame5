@@ -16,7 +16,7 @@
 
     <bean id="configurationSerializer"
           class="ru.intertrust.cm.core.config.ConfigurationSerializer"
-          p:configurationFilePath="config/business-objects.xml"
+          p:configurationFilePath="config/domain-objects.xml"
           p:collectionsConfigurationFilePath = "config/collections.xml"
           p:configurationSchemaFilePath="config/configuration.xsd"/>
 

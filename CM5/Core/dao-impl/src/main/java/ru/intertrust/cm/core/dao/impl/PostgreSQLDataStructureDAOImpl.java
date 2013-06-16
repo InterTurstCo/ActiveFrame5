@@ -38,7 +38,7 @@ public class PostgreSQLDataStructureDAOImpl implements DataStructureDAO {
 
 
     /**
-     * Смотри {@link DataStructureDAO#createSequence(ru.intertrust.cm.core.config.BusinessObjectConfig)}
+     * Смотри {@link DataStructureDAO#createSequence(ru.intertrust.cm.core.config.model.DomainObjectConfig)}
      */
     @Override
     public void createSequence(DomainObjectConfig config) {
@@ -49,7 +49,7 @@ public class PostgreSQLDataStructureDAOImpl implements DataStructureDAO {
     }
 
     /**
-     * Смотри {@link DataStructureDAO#createTable(ru.intertrust.cm.core.config.BusinessObjectConfig)}
+     * Смотри {@link DataStructureDAO#createTable(ru.intertrust.cm.core.config.model.DomainObjectConfig)}
      */
     @Override
     public void createTable(DomainObjectConfig config) {

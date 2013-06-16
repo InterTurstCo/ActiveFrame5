@@ -17,7 +17,7 @@ public class PostgreSQLQueryHelperTest {
 
     @Before
     public void setUp() throws Exception {
-        initBusinessObjectConfig();
+        initDomainObjectConfig();
     }
 
     @Test
@@ -39,7 +39,7 @@ public class PostgreSQLQueryHelperTest {
         assertEquals(query, checkQuery);
     }
 
-    private void initBusinessObjectConfig() {
+    private void initDomainObjectConfig() {
         domainObjectConfig = new DomainObjectConfig();
         domainObjectConfig.setName("Outgoing Document");
         domainObjectConfig.setParentConfig("Document");

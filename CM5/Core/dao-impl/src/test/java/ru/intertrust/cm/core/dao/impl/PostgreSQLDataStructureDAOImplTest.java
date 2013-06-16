@@ -32,7 +32,7 @@ public class PostgreSQLDataStructureDAOImplTest {
 
     @Before
     public void setUp() throws Exception {
-        initBusinessObjectConfig();
+        initDomainObjectConfig();
     }
 
 
@@ -77,7 +77,7 @@ public class PostgreSQLDataStructureDAOImplTest {
         verify(jdbcTemplate).queryForObject(anyString(), any(Class.class), anyString());
     }
 
-    private void initBusinessObjectConfig() {
+    private void initDomainObjectConfig() {
         domainObjectConfig = new DomainObjectConfig();
         domainObjectConfig.setName("Outgoing Document");
         domainObjectConfig.setParentConfig("Document");

@@ -16,7 +16,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class FileUtilsTest {
 
-    public static final String CONFIG_PATH = "test-config/business-objects.xml";
+    public static final String CONFIG_PATH = "test-config/domain-objects.xml";
 
     @Test
     public void testGetFileInputStream() throws Exception {
@@ -28,6 +28,6 @@ public class FileUtilsTest {
     public void testGetFileURL() throws Exception {
         URL url = FileUtils.getFileURL(CONFIG_PATH);
         assertNotNull(url);
-        assertTrue(url.getPath().contains("business-objects.xml"));
+        assertTrue(url.getPath().contains("domain-objects.xml"));
     }
 }

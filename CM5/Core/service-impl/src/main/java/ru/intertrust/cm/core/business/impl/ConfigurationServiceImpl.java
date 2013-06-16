@@ -50,7 +50,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     /**
-     * Смотри {@link ru.intertrust.cm.core.business.api.ConfigurationService#loadConfiguration(ru.intertrust.cm.core.config.BusinessObjectsConfiguration)}
+     * Смотри {@link ru.intertrust.cm.core.business.api.ConfigurationService#loadConfiguration(ru.intertrust.cm.core.config.model.DomainObjectsConfiguration)}
      */
     @Override
     public void loadConfiguration() {
@@ -74,7 +74,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     private class RecursiveLoader {
-        private final Set<String> loadedBusinessObjectConfigs = new HashSet<>();
+        private final Set<String> loadedDomainObjectConfigs = new HashSet<>();
 
         private RecursiveLoader() {
         }
@@ -88,28 +88,28 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             dataStructureDAO.createServiceTables();
 
             for(DomainObjectConfig domainObjectConfig : domainObjectConfigs) {
-                loadBusinessObjectConfig(domainObjectConfig);
+                loadDomainObjectConfig(domainObjectConfig);
             }
         }
 
-        private void loadBusinessObjectConfig(DomainObjectConfig domainObjectConfig) {
-            if(loadedBusinessObjectConfigs.contains(domainObjectConfig.getName())) { // skip if already loaded
+        private void loadDomainObjectConfig(DomainObjectConfig domainObjectConfig) {
+            if(loadedDomainObjectConfigs.contains(domainObjectConfig.getName())) { // skip if already loaded
                 return;
             }
 
-            // First load referenced business object configurations
-            loadDependentBusinessObjectConfigs(domainObjectConfig);
+            // First load referenced domain object configurations
+            loadDependentDomainObjectConfigs(domainObjectConfig);
 
             dataStructureDAO.createTable(domainObjectConfig);
             dataStructureDAO.createSequence(domainObjectConfig);
-            loadedBusinessObjectConfigs.add(domainObjectConfig.getName()); // add to loaded configs set
+            loadedDomainObjectConfigs.add(domainObjectConfig.getName()); // add to loaded configs set
         }
 
-        private void loadDependentBusinessObjectConfigs(DomainObjectConfig domainObjectConfig) {
+        private void loadDependentDomainObjectConfigs(DomainObjectConfig domainObjectConfig) {
             for(FieldConfig fieldConfig : domainObjectConfig.getFieldConfigs()) {
                 if((ReferenceFieldConfig.class.equals(fieldConfig.getClass()))) {
                     ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
-                    loadBusinessObjectConfig(configurationExplorer.getDomainObjectConfig(referenceFieldConfig.getType()));
+                    loadDomainObjectConfig(configurationExplorer.getDomainObjectConfig(referenceFieldConfig.getType()));
                 }
             }
         }

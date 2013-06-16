@@ -38,45 +38,45 @@ public class ConfigurationHelperTest {
     }
 
     @Test
-    public void testFindBusinessObjectConfigByName() throws Exception {
+    public void testFindDomainObjectConfigByName() throws Exception {
         /*// проверяем, что конфигурация находится по имени
-        BusinessObjectConfig searchResultConfig = ConfigurationHelper.findBusinessObjectConfigByName(configuration, "business object 2");
-        assertEquals(businessObjectConfig2, searchResultConfig);
+        DomainObjectConfig searchResultConfig = ConfigurationHelper.findDomainObjectConfigByName(configuration, "domain object 2");
+        assertEquals(domainObjectConfig2, searchResultConfig);
 
         // проверяем, что, если конфигурация не найдена, бросается RuntimeException
         expectedException.expect(RuntimeException.class);
-        ConfigurationHelper.findBusinessObjectConfigByName(configuration, "business object 4");*/
+        ConfigurationHelper.findDomainObjectConfigByName(configuration, "domain object 4");*/
     }
 
     @Test
-    public void testFindFieldConfigForBusinessObject() throws Exception {
+    public void testFindFieldConfigForDomainObject() throws Exception {
         /*// проверяем, что конфигурация находится по имени
-        FieldConfig searchResultField = ConfigurationHelper.findFieldConfigForBusinessObject(businessObjectConfig1, "field 2");
+        FieldConfig searchResultField = ConfigurationHelper.findFieldConfigForDomainObject(domainObjectConfig1, "field 2");
         assertEquals(fieldConfig2, searchResultField);
 
         // проверяем, что, если конфигурация не найдена, бросается RuntimeException
         expectedException.expect(RuntimeException.class);
-        ConfigurationHelper.findFieldConfigForBusinessObject(businessObjectConfig1, "field 4");*/
+        ConfigurationHelper.findFieldConfigForDomainObject(domainObjectConfig1, "field 4");*/
     }
 
     private void initializeTestConfiguration() {
         domainObjectsConfiguration = new DomainObjectsConfiguration();
 
-        initializeBusinessObjectConfig1();
+        initializeDomainObjectConfig1();
         domainObjectsConfiguration.getDomainObjectConfigs().add(domainObjectConfig1);
 
         domainObjectConfig2 = new DomainObjectConfig();
-        domainObjectConfig2.setName("business object 2");
+        domainObjectConfig2.setName("domain object 2");
         domainObjectsConfiguration.getDomainObjectConfigs().add(domainObjectConfig2);
 
         domainObjectConfig3 = new DomainObjectConfig();
-        domainObjectConfig3.setName("business object 3");
+        domainObjectConfig3.setName("domain object 3");
         domainObjectsConfiguration.getDomainObjectConfigs().add(domainObjectConfig3);
     }
 
-    private void initializeBusinessObjectConfig1() {
+    private void initializeDomainObjectConfig1() {
         domainObjectConfig1 = new DomainObjectConfig();
-        domainObjectConfig1.setName("business object 1");
+        domainObjectConfig1.setName("domain object 1");
 
         fieldConfig1 = new StringFieldConfig();
         fieldConfig1.setName("field 1");
