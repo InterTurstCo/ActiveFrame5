@@ -14,7 +14,7 @@
     
     <dynamicGroup name="Пользователь">
         <context>
-            <businessObject name="Person"/>
+            <domainObject name="Person"/>
         </context>
         <trackObjects type="Person" status="active">
             <contextObject>@</contextObject>
@@ -24,7 +24,7 @@
     
     <dynamicGroup name="Пользователь и его заместители">
         <context>
-            <businessObject name="Person"/>
+            <domainObject name="Person"/>
         </context>
         <trackObjects type="Delegation" status="active">
             <contextObject>person</contextObject>
@@ -35,7 +35,7 @@
     
     <dynamicGroup name="Сотрудники подразделения">
         <context>
-            <businessObject name="Department"/>
+            <domainObject name="Department"/>
         </context>
         <trackObjects type="Employee" status="active">
             <contextObject>Department</contextObject>
@@ -46,7 +46,7 @@
     
     <dynamicGroup name="Сотдруники подразделения пользователя">
         <context>
-            <businessObject name="Employee"/>
+            <domainObject name="Employee"/>
         </context>
         <includeGroup name="Сотрудники подразделения">
             <contextObject>Department</contextObject>
@@ -56,7 +56,7 @@
     <!-- Контекстные роли -->
     <contextRole name="Автор документа">
         <context>
-            <businessObject name="Outgoing Document"/>
+            <domainObject name="Outgoing Document"/>
         </context>
         <groups>
             <group name="Пользователь и его заместители">

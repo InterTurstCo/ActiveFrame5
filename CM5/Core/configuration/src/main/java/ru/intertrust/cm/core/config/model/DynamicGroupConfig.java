@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.config;
+package ru.intertrust.cm.core.config.model;
 
 import java.io.Serializable;
 import java.util.List;
@@ -16,9 +16,9 @@ public class DynamicGroupConfig implements Serializable {
     private ContextConfig context;
     
     @ElementListUnion({
-        @ElementList(entry = "trackObjects", type = BusinessObjectTrackerConfig.class, inline = true)
+        @ElementList(entry = "trackObjects", type = DomainObjectTrackerConfig.class, inline = true)
     })
-    private List<BusinessObjectTrackerConfig> trackers;
+    private List<DomainObjectTrackerConfig> trackers;
     
     @ElementList(entry = "includeGroup", inline = true)
     private List<NestedGroupConfig> nestedGroups;

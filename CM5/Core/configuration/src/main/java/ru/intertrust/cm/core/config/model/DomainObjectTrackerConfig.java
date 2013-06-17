@@ -1,11 +1,11 @@
-package ru.intertrust.cm.core.config;
+package ru.intertrust.cm.core.config.model;
 
 import java.io.Serializable;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 
-public class BusinessObjectTrackerConfig implements Serializable {
+public class DomainObjectTrackerConfig implements Serializable {
     @Attribute
     private String type;
     
