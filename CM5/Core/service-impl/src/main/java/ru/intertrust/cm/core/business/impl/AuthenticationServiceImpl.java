@@ -1,14 +1,19 @@
 package ru.intertrust.cm.core.business.impl;
 
+import java.util.Date;
+
 import ru.intertrust.cm.core.business.api.AuthenticationService;
 import ru.intertrust.cm.core.business.api.MD5Service;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.IntegerValue;
+import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.DomainObjectConfig;
 import ru.intertrust.cm.core.dao.api.AuthenticationDAO;
 import ru.intertrust.cm.core.dao.api.CrudServiceDAO;
-
-import java.util.Date;
 
 /**
  * Реализация сервиса для работы с доменным объектом объектом Authentication Info
@@ -41,38 +46,31 @@ public class AuthenticationServiceImpl implements AuthenticationService {
      */
     @Override
     public void insertAuthenticationInfoAndRole(AuthenticationInfoAndRole authenticationInfo) {
-        String enteredPassword = authenticationInfo.getPassword();
-        String passwordHash = md5Service.getMD5(enteredPassword);
-        authenticationInfo.setPassword(passwordHash);
+        String passwordHash = md5Service.getMD5(authenticationInfo.getPassword());
 
-        authenticationDAO.insertAuthenticationInfo(authenticationInfo);
 
         DomainObject authInfo = new GenericDomainObject();
         authInfo.setTypeName("Authentication Info");
         Date currentDate = new Date();
         authInfo.setCreatedDate(currentDate);
-        authInfo.setCreatedDate(currentDate);
-        StringValue password = new StringValue(authenticationInfo.getPassword());
+        authInfo.setModifiedDate(currentDate);
+        StringValue password = new StringValue(passwordHash);
         authInfo.setValue("Password", password);
         authInfo.setValue("User Uid", new StringValue(authenticationInfo.getUserUid()));
-
         DomainObjectConfig domainObjectConfig = configurationExplorer.getDomainObjectConfig(authInfo
                 .getTypeName());
         DomainObject createdAuthInfo = crudServiceDAO.create(authInfo, domainObjectConfig);
 
         RdbmsId id  = (RdbmsId)createdAuthInfo.getId();
-
         DomainObject role = new GenericDomainObject();
         role.setTypeName("Employee Role");
         role.setCreatedDate(currentDate);
-        role.setCreatedDate(currentDate);
+        role.setModifiedDate(currentDate);
         StringValue roleName = new StringValue(authenticationInfo.getRole());
         role.setValue("Role", roleName);
         role.setValue("Authentication Info", new IntegerValue(id.getId()));
-
         domainObjectConfig = configurationExplorer.getDomainObjectConfig(role
                 .getTypeName());
-
         crudServiceDAO.create(role, domainObjectConfig);
     }
 
