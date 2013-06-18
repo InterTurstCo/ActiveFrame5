@@ -2,11 +2,16 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:p="http://www.springframework.org/schema/p"
        xmlns:jee="http://www.springframework.org/schema/jee"
+       xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="
      http://www.springframework.org/schema/beans
      http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
      http://www.springframework.org/schema/jee
-     http://www.springframework.org/schema/jee/spring-jee-3.2.xsd">
+     http://www.springframework.org/schema/jee/spring-jee-3.2.xsd
+     http://www.springframework.org/schema/context
+     http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+
+    <context:annotation-config/>
 
     <jee:jndi-lookup id="dataSource" jndi-name="java:jboss/datasources/CM5" />
 
@@ -14,39 +19,14 @@
         class="ru.intertrust.cm.core.dao.impl.PostgreSQLDataStructureDAOImpl"
         p:dataSource-ref="dataSource" />
 
-    <bean id="configurationSerializer"
-          class="ru.intertrust.cm.core.config.ConfigurationSerializer"
-          p:configurationSchemaFilePath="config/configuration.xsd">
-        <property name="configurationFilePaths">
-            <set>
-                <value>config/domain-objects.xml</value>
-                <value>config/collections.xml</value>
-            </set>
-        </property>
-    </bean>
-
-    <bean id="сonfiguration"
-          class="ru.intertrust.cm.core.config.model.Configuration"
-          factory-bean="configurationSerializer" factory-method="serializeConfiguration"/>
-
-    <bean id="configurationExplorer"
-          class="ru.intertrust.cm.core.config.ConfigurationExplorer" init-method="init"
-          p:configuration-ref="сonfiguration"/>
-
     <bean id="configurationLoader"
           class="ru.intertrust.cm.core.business.impl.ConfigurationLoader" init-method="load"
-          p:configurationService-ref="configurationService"
-          p:logicalValidator-ref="domainObjectsConfigurationLogicalValidator"/>
-
-    <bean id="domainObjectsConfigurationLogicalValidator"
-          class="ru.intertrust.cm.core.config.ConfigurationLogicalValidator"
-          p:configurationExplorer-ref="configurationExplorer"/>
+          p:configurationService-ref="configurationService"/>
 
     <bean id="configurationService"
         class="ru.intertrust.cm.core.business.impl.ConfigurationServiceImpl"
         p:dataStructureDAO-ref="dataStructureDAO"
-        p:authenticationService-ref="authenticationService"
-        p:configurationExplorer-ref="configurationExplorer"/>
+        p:authenticationService-ref="authenticationService"/>
 
     <bean id="authenticationDAO" class="ru.intertrust.cm.core.dao.impl.AuthenticationDAOImpl"
         p:dataSource-ref="dataSource" />
@@ -54,24 +34,17 @@
     <bean id="authenticationService"
         class="ru.intertrust.cm.core.business.impl.AuthenticationServiceImpl"
         p:authenticationDAO-ref="authenticationDAO" p:md5Service-ref="md5Service"
-        p:crudServiceDAO-ref="crudServiceDAO" p:configurationExplorer-ref="configurationExplorer"/>
+        p:crudServiceDAO-ref="crudServiceDAO"/>
 
     <bean id="md5Service" class="ru.intertrust.cm.core.business.impl.MD5ServiceImpl" />
 
     <bean id="sequenceIdGenerator" class="ru.intertrust.cm.core.dao.impl.SequenceIdGenerator"
           p:dataSource-ref="dataSource"/>
 
-
-
     <bean id="crudServiceDAO" class="ru.intertrust.cm.core.dao.impl.CrudServiceDAOImpl"
          p:idGenerator-ref="sequenceIdGenerator" p:dataSource-ref="dataSource" />
 
-
     <bean id="crudService" class="ru.intertrust.cm.core.business.impl.CrudServiceImpl"
-        p:crudServiceDAO-ref="crudServiceDAO"
-        p:configurationExplorer-ref="configurationExplorer"/>
-
-
-
+        p:crudServiceDAO-ref="crudServiceDAO"/>
 
 </beans>

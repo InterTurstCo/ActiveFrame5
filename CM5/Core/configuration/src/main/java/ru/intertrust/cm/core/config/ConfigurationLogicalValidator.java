@@ -12,10 +12,7 @@ public class ConfigurationLogicalValidator {
 
     private ConfigurationExplorer configurationExplorer;
 
-    public ConfigurationLogicalValidator() {
-    }
-
-    public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
+    public ConfigurationLogicalValidator(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
     }
 

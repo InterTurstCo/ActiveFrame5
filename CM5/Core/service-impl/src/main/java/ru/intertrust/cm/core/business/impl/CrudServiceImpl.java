@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.business.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
@@ -31,6 +32,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     public static final String DEFAULT_CRITERIA_CONDITION = "and";
 
+    @Autowired
     private ConfigurationExplorer configurationExplorer;
 
     private CrudServiceDAO crudServiceDAO;

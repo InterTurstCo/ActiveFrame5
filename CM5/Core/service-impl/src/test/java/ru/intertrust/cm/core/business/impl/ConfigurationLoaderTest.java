@@ -28,8 +28,6 @@ public class ConfigurationLoaderTest {
     @Test
     public void testLoad() throws Exception {
         configurationLoader.load();
-
-        verify(logicalValidator).validate();
         verify(configurationService).loadConfiguration();
     }
 }

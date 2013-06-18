@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.business.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.AuthenticationService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
@@ -24,6 +25,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     private static final String ADMIN_LOGIN = "admin";
     private static final String ADMIN_PASSWORD = "admin";
 
+    @Autowired
     private ConfigurationExplorer configurationExplorer;
 
     private DataStructureDAO dataStructureDAO;

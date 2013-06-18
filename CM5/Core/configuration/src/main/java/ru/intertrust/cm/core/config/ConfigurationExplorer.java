@@ -33,6 +33,9 @@ public class ConfigurationExplorer {
 
     public void init() {
         initConfigurationMaps();
+
+        ConfigurationLogicalValidator logicalValidator = new ConfigurationLogicalValidator(this);
+        logicalValidator.validate();
     }
 
     public Collection<DomainObjectConfig> getDomainObjectConfigs() {

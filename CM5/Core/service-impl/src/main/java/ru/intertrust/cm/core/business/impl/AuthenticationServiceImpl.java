@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.business.impl;
 
 import java.util.Date;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.AuthenticationService;
 import ru.intertrust.cm.core.business.api.MD5Service;
 import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
@@ -28,6 +29,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private CrudServiceDAO crudServiceDAO;
 
+    @Autowired
     private ConfigurationExplorer configurationExplorer;
 
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
