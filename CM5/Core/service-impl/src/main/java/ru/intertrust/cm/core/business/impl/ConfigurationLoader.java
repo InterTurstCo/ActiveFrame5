@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.business.impl;
 
 import ru.intertrust.cm.core.business.api.ConfigurationService;
-import ru.intertrust.cm.core.config.DomainObjectsConfigurationLogicalValidator;
+import ru.intertrust.cm.core.config.ConfigurationLogicalValidator;
 
 /**
  * Класс, предназначенный для загрузки конфигурации доменных объектов
@@ -11,13 +11,13 @@ import ru.intertrust.cm.core.config.DomainObjectsConfigurationLogicalValidator;
  */
 public class ConfigurationLoader {
 
-    private DomainObjectsConfigurationLogicalValidator logicalValidator;
+    private ConfigurationLogicalValidator logicalValidator;
     private ConfigurationService configurationService;
 
     public ConfigurationLoader() {
     }
 
-    public void setLogicalValidator(DomainObjectsConfigurationLogicalValidator logicalValidator) {
+    public void setLogicalValidator(ConfigurationLogicalValidator logicalValidator) {
         this.logicalValidator = logicalValidator;
     }
 

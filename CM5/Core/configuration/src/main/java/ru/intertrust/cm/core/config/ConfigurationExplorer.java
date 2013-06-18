@@ -1,12 +1,12 @@
 package ru.intertrust.cm.core.config;
 
 import ru.intertrust.cm.core.config.model.CollectionConfig;
-import ru.intertrust.cm.core.config.model.CollectionsConfiguration;
+import ru.intertrust.cm.core.config.model.Configuration;
 import ru.intertrust.cm.core.config.model.DomainObjectConfig;
-import ru.intertrust.cm.core.config.model.DomainObjectsConfiguration;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author vmatsukevich
@@ -15,34 +15,32 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ConfigurationExplorer {
 
-    private DomainObjectsConfiguration domainObjectsConfiguration;
-    private CollectionsConfiguration collectionsConfiguration;
+    private Configuration configuration;
 
-    private Map<String, DomainObjectConfig> domainObjectConfigMap;
-    private Map<String, CollectionConfig> collectionsConfigMap;
+    private Map<String, DomainObjectConfig> domainObjectConfigMap = new HashMap<>();
+    private Map<String, CollectionConfig> collectionConfigMap = new HashMap<>();
 
     public ConfigurationExplorer() {
     }
 
-    public DomainObjectsConfiguration getDomainObjectsConfiguration() {
-        return domainObjectsConfiguration;
+    public Configuration getConfiguration() {
+        return configuration;
     }
 
-    public void setDomainObjectsConfiguration(DomainObjectsConfiguration domainObjectsConfiguration) {
-        this.domainObjectsConfiguration = domainObjectsConfiguration;
-    }
-
-    public CollectionsConfiguration getCollectionsConfiguration() {
-        return collectionsConfiguration;
-    }
-
-    public void setCollectionsConfiguration(CollectionsConfiguration collectionsConfiguration) {
-        this.collectionsConfiguration = collectionsConfiguration;
+    public void setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
     }
 
     public void init() {
-        initDomainObjectsConfigurationMap();
-        initCollectionsConfigurationMap();
+        initConfigurationMaps();
+    }
+
+    public Collection<DomainObjectConfig> getDomainObjectConfigs() {
+        return domainObjectConfigMap.values();
+    }
+
+    public Collection<CollectionConfig> getCollectionConfigs() {
+        return collectionConfigMap.values();
     }
 
     /**
@@ -51,50 +49,41 @@ public class ConfigurationExplorer {
      * @return конфигурация доменного объекта
      */
     public DomainObjectConfig getDomainObjectConfig(String name) {
-        DomainObjectConfig result = domainObjectConfigMap.get(name);
+        DomainObjectConfig config = domainObjectConfigMap.get(name);
 
-        if(result == null) {
+        if(config == null) {
             throw new RuntimeException("DomainObject Configuration is not found for name '" + name + "'");
         }
 
-        return result;
+        return config;
     }
 
     public CollectionConfig getCollectionConfig(String name) {
-        CollectionConfig result = collectionsConfigMap.get(name);
+        CollectionConfig config = collectionConfigMap.get(name);
 
-        if(result == null) {
-            throw new RuntimeException("Collection Configuration is not found for name '" + name + "'");
+        if(config == null) {
+            throw new RuntimeException("DomainObject Configuration is not found for name '" + name + "'");
         }
 
-        return result;
+        return config;
     }
 
-    private void initDomainObjectsConfigurationMap() {
-        if(domainObjectsConfiguration == null) {
-            throw new RuntimeException("Failed to initialize ConfigurationExplorer because Domain Objects " +
+    private void initConfigurationMaps() {
+        if(configuration == null) {
+            throw new RuntimeException("Failed to initialize ConfigurationExplorer because " +
                     "Configuration is null");
         }
 
-        int size = domainObjectsConfiguration.getDomainObjectConfigs().size();
-        domainObjectConfigMap = new ConcurrentHashMap<>(size);
-
-        for (DomainObjectConfig domainObjectConfig : domainObjectsConfiguration.getDomainObjectConfigs()) {
-            domainObjectConfigMap.put(domainObjectConfig.getName(), domainObjectConfig);
-        }
-    }
-
-    private void initCollectionsConfigurationMap() {
-        if(collectionsConfiguration == null) {
-            throw new RuntimeException("Failed to initialize ConfigurationExplorer because collections Configuration " +
-                    "is null");
-        }
-
-        int size = collectionsConfiguration.getCollectionConfigs().size();
-        collectionsConfigMap = new ConcurrentHashMap<>(size);
-
-        for (CollectionConfig collectionConfig : collectionsConfiguration.getCollectionConfigs()) {
-            collectionsConfigMap.put(collectionConfig.getName(), collectionConfig);
+        for (Object config : configuration.getConfigurationList()) {
+            if(DomainObjectConfig.class.equals(config.getClass())) {
+                DomainObjectConfig domainObjectConfig = (DomainObjectConfig) config;
+                domainObjectConfigMap.put(domainObjectConfig.getName(), domainObjectConfig);
+            } else if(CollectionConfig.class.equals(config.getClass())) {
+                CollectionConfig collectionConfig = (CollectionConfig) config;
+                collectionConfigMap.put(collectionConfig.getName(), collectionConfig);
+            } else {
+                throw new RuntimeException("Unknown configuration type '" + config.getClass() + "'");
+            }
         }
     }
 }

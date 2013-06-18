@@ -6,7 +6,7 @@ import org.junit.rules.ExpectedException;
 import ru.intertrust.cm.core.config.ConfigurationSchemaValidator;
 
 /**
- * Тестовый класс для {@link ru.intertrust.cm.core.config.DomainObjectsConfigurationLogicalValidator}
+ * Тестовый класс для {@link ru.intertrust.cm.core.config.ConfigurationLogicalValidator}
  * @author atsvetkov
  *
  */
@@ -23,19 +23,22 @@ public class ConfigurationSchemaValidatorTest {
 
     @Test
     public void testValidate() throws Exception {
-        ConfigurationSchemaValidator validator = new ConfigurationSchemaValidator(CONFIGURATION_VALID, CONFIGURATION_SCHEMA);
+        ConfigurationSchemaValidator validator = new ConfigurationSchemaValidator(CONFIGURATION_VALID,
+                CONFIGURATION_SCHEMA);
         validator.validate();
     }
 
     @Test
     public void testValidateCollectionsConfiguration() throws Exception {
-        ConfigurationSchemaValidator validator = new ConfigurationSchemaValidator(COLLECTIONS_CONFIGURATION_VALID, CONFIGURATION_SCHEMA);
+        ConfigurationSchemaValidator validator = new ConfigurationSchemaValidator(COLLECTIONS_CONFIGURATION_VALID,
+                CONFIGURATION_SCHEMA);
         validator.validate();
     }
 
     @Test
     public void testInvalidAgainstXSD() throws Exception {
-        ConfigurationSchemaValidator validator = new ConfigurationSchemaValidator(CONFIGURATION_INVALID, CONFIGURATION_SCHEMA);
+        ConfigurationSchemaValidator validator = new ConfigurationSchemaValidator(CONFIGURATION_INVALID,
+                CONFIGURATION_SCHEMA);
 
         expectedException.expect(RuntimeException.class);
         expectedException.expectMessage("is not valid against XSD schema");
@@ -45,7 +48,8 @@ public class ConfigurationSchemaValidatorTest {
 
     @Test
     public void testInvalidReference() throws Exception {
-        ConfigurationSchemaValidator validator = new ConfigurationSchemaValidator(CONFIGURATION_INVALID_REFERENCE, CONFIGURATION_SCHEMA);
+        ConfigurationSchemaValidator validator = new ConfigurationSchemaValidator(CONFIGURATION_INVALID_REFERENCE,
+                CONFIGURATION_SCHEMA);
 
         expectedException.expect(RuntimeException.class);
         expectedException.expectMessage("File not found for path '" + CONFIGURATION_INVALID_REFERENCE + "'");

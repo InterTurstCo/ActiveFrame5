@@ -6,7 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
-import ru.intertrust.cm.core.config.DomainObjectsConfigurationLogicalValidator;
+import ru.intertrust.cm.core.config.ConfigurationLogicalValidator;
 
 import static org.mockito.Mockito.verify;
 
@@ -23,7 +23,7 @@ public class ConfigurationLoaderTest {
     @Mock
     private ConfigurationService configurationService;
     @Mock
-    DomainObjectsConfigurationLogicalValidator logicalValidator;
+    ConfigurationLogicalValidator logicalValidator;
 
     @Test
     public void testLoad() throws Exception {

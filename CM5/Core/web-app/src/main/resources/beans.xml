@@ -16,22 +16,22 @@
 
     <bean id="configurationSerializer"
           class="ru.intertrust.cm.core.config.ConfigurationSerializer"
-          p:configurationFilePath="config/domain-objects.xml"
-          p:collectionsConfigurationFilePath = "config/collections.xml"
-          p:configurationSchemaFilePath="config/configuration.xsd"/>
+          p:configurationSchemaFilePath="config/configuration.xsd">
+        <property name="configurationFilePaths">
+            <set>
+                <value>config/domain-objects.xml</value>
+                <value>config/collections.xml</value>
+            </set>
+        </property>
+    </bean>
 
-    <bean id="domainObjectConfiguration"
-          class="ru.intertrust.cm.core.config.model.DomainObjectsConfiguration"
-          factory-bean="configurationSerializer" factory-method="serializeDomainObjectConfiguration"/>
-
-    <bean id="collectionsConfiguration"
-          class="ru.intertrust.cm.core.config.model.CollectionsConfiguration"
-          factory-bean="configurationSerializer" factory-method="serializeCollectionConfiguration"/>
+    <bean id="сonfiguration"
+          class="ru.intertrust.cm.core.config.model.Configuration"
+          factory-bean="configurationSerializer" factory-method="serializeConfiguration"/>
 
     <bean id="configurationExplorer"
           class="ru.intertrust.cm.core.config.ConfigurationExplorer" init-method="init"
-          p:domainObjectsConfiguration-ref="domainObjectConfiguration"
-          p:collectionsConfiguration-ref="collectionsConfiguration"/>
+          p:configuration-ref="сonfiguration"/>
 
     <bean id="configurationLoader"
           class="ru.intertrust.cm.core.business.impl.ConfigurationLoader" init-method="load"
@@ -39,7 +39,7 @@
           p:logicalValidator-ref="domainObjectsConfigurationLogicalValidator"/>
 
     <bean id="domainObjectsConfigurationLogicalValidator"
-          class="ru.intertrust.cm.core.config.DomainObjectsConfigurationLogicalValidator"
+          class="ru.intertrust.cm.core.config.ConfigurationLogicalValidator"
           p:configurationExplorer-ref="configurationExplorer"/>
 
     <bean id="configurationService"

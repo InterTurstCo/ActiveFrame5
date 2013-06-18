@@ -79,7 +79,7 @@ public class PostgreSQLDataStructureDAOImpl implements DataStructureDAO {
     @Override
     public void createServiceTables() {
         jdbcTemplate.update(generateCreateDomainObjectTableQuery());
-//        jdbcTemplate.update(generateCreateAuthenticationInfoTableQuery());
+        jdbcTemplate.update(generateCreateConfigurationTableQuery());
     }
 
     /**

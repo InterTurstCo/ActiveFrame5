@@ -63,13 +63,11 @@ public interface CrudServiceDAO {
      * идентификатором
      * @param id
      *            идентификатор доменного объекта
-     * @param domainObjectConfig
-     *            конфигурация доменного объекта
      * @throws InvalidIdException
      *             если идентификатор доменного объекта не корректный (не поддерживается или нулевой)
      * @return true если объект существует иначе возвращает false
      */
-    public boolean exists(Id id, DomainObjectConfig domainObjectConfig) throws InvalidIdException;
+    public boolean exists(Id id) throws InvalidIdException;
 
     /**
      * Поиск коллекции доменных объектов, используя фильтры и сортировку

@@ -2,17 +2,17 @@ package ru.intertrust.cm.core.config;
 
 import ru.intertrust.cm.core.config.model.*;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
- * Логически Валидирует конфигурацию доменнных объектов
+ * Логически Валидирует конфигурацию
  * User: atsvetkov Date: 17.05.13 Time: 13:52
  */
-public class DomainObjectsConfigurationLogicalValidator {
+public class ConfigurationLogicalValidator {
 
     private ConfigurationExplorer configurationExplorer;
 
-    public DomainObjectsConfigurationLogicalValidator() {
+    public ConfigurationLogicalValidator() {
     }
 
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
@@ -20,15 +20,15 @@ public class DomainObjectsConfigurationLogicalValidator {
     }
 
     /**
-     * Выполняет валидацию конфигурации на предмет соответствия XSD схеме и логическую валидацию.
+     * Выполняет логическую валидацию конфигурации
      */
     public void validate() {
-        List<DomainObjectConfig> domainObjectConfigs = configurationExplorer.getDomainObjectsConfiguration().getDomainObjectConfigs();
-        if (domainObjectConfigs.isEmpty()) {
+        Collection<DomainObjectConfig> configList = configurationExplorer.getDomainObjectConfigs();
+        if (configList.isEmpty()) {
             return;
         }
-        for (DomainObjectConfig domainObjectConfig : domainObjectConfigs) {
-            validateDomainObjectConfig(domainObjectConfig);
+        for (DomainObjectConfig config : configList) {
+            validateDomainObjectConfig(config);
         }
         // TODO Log success information using logging API
         System.out.println("Document has passed logical validation");

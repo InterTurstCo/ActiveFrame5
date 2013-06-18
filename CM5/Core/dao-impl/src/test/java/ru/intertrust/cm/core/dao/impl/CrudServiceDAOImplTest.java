@@ -9,14 +9,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.ConfigurationLogicalValidator;
 import ru.intertrust.cm.core.config.ConfigurationSerializer;
-import ru.intertrust.cm.core.config.DomainObjectsConfigurationLogicalValidator;
 import ru.intertrust.cm.core.config.model.*;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -40,6 +38,8 @@ public class CrudServiceDAOImplTest {
     private static final String DOMAIN_OBJECTS_CONFIG_PATH = "test-config/domain-objects.xml";
     private static final String COLLECTIONS_CONFIG_PATH = "test-config/collections.xml";
     private static final String CONFIGURATION_SCHEMA_PATH = "test-config/configuration.xsd";
+    private static final Set<String> CONFIG_PATHS = new HashSet<>(Arrays.asList(
+            new String[]{DOMAIN_OBJECTS_CONFIG_PATH, COLLECTIONS_CONFIG_PATH}));
 
     @InjectMocks
     private CrudServiceDAOImpl crudServiceDAOImpl = new CrudServiceDAOImpl();
@@ -47,7 +47,7 @@ public class CrudServiceDAOImplTest {
     private JdbcTemplate jdbcTemplate;
 
     @Mock
-    private DomainObjectsConfigurationLogicalValidator logicalValidator;
+    private ConfigurationLogicalValidator logicalValidator;
 
     private CollectionFilterConfig byDepartmentFilterConfig;
 
@@ -64,17 +64,12 @@ public class CrudServiceDAOImplTest {
     @Before
     public void setUp() throws Exception {
         ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
-        configurationSerializer.setConfigurationFilePath(DOMAIN_OBJECTS_CONFIG_PATH);
-        configurationSerializer.setCollectionsConfigurationFilePath(COLLECTIONS_CONFIG_PATH);
+        configurationSerializer.setConfigurationFilePaths(CONFIG_PATHS);
         configurationSerializer.setConfigurationSchemaFilePath(CONFIGURATION_SCHEMA_PATH);
 
-        DomainObjectsConfiguration domainObjectsConfiguration = configurationSerializer
-                .serializeDomainObjectConfiguration();
-        CollectionsConfiguration collectionsConfiguration = configurationSerializer.serializeCollectionConfiguration();
-
         configurationExplorer = new ConfigurationExplorer();
-        configurationExplorer.setDomainObjectsConfiguration(domainObjectsConfiguration);
-        configurationExplorer.setCollectionsConfiguration(collectionsConfiguration);
+        Configuration configuration = configurationSerializer.serializeConfiguration();
+        configurationExplorer.setConfiguration(configuration);
         configurationExplorer.init();
 
         domainObjectConfig = configurationExplorer.getDomainObjectConfig("Person");
@@ -188,7 +183,7 @@ public class CrudServiceDAOImplTest {
 
         String checkExistsQuery = "select id from PERSON where id=:id";
 
-        String query = crudServiceDAOImpl.generateExistsQuery(domainObjectConfig);
+        String query = crudServiceDAOImpl.generateExistsQuery(domainObjectConfig.getName());
         assertEquals(checkExistsQuery, query);
 
     }

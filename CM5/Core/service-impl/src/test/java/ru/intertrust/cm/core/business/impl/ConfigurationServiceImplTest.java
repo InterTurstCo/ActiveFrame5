@@ -10,10 +10,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 import ru.intertrust.cm.core.business.api.AuthenticationService;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ConfigurationSerializer;
-import ru.intertrust.cm.core.config.model.CollectionsConfiguration;
+import ru.intertrust.cm.core.config.model.Configuration;
 import ru.intertrust.cm.core.config.model.DomainObjectConfig;
-import ru.intertrust.cm.core.config.model.DomainObjectsConfiguration;
 import ru.intertrust.cm.core.dao.api.DataStructureDAO;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import static junit.framework.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
@@ -29,6 +32,8 @@ public class ConfigurationServiceImplTest {
     private static final String DOMAIN_OBJECTS_CONFIG_PATH = "test-config/domain-objects.xml";
     private static final String COLLECTIONS_CONFIG_PATH = "test-config/collections.xml";
     private static final String CONFIGURATION_SCHEMA = "test-config/configuration.xsd";
+    private static final Set<String> CONFIG_PATHS = new HashSet<>(Arrays.asList(
+            new String[]{DOMAIN_OBJECTS_CONFIG_PATH, COLLECTIONS_CONFIG_PATH}));
 
     @InjectMocks
     private ConfigurationServiceImpl configurationService = new ConfigurationServiceImpl();
@@ -37,25 +42,19 @@ public class ConfigurationServiceImplTest {
     @Mock
     private AuthenticationService authenticationService;
 
-    private DomainObjectsConfiguration domainObjectsConfiguration;
-    private CollectionsConfiguration collectionsConfiguration;
+    private Configuration configuration;
 
     @Before
     public void setUp() throws Exception {
         ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
-        configurationSerializer.setConfigurationFilePath(DOMAIN_OBJECTS_CONFIG_PATH);
-        configurationSerializer.setCollectionsConfigurationFilePath(COLLECTIONS_CONFIG_PATH);
+        configurationSerializer.setConfigurationFilePaths(CONFIG_PATHS);
         configurationSerializer.setConfigurationSchemaFilePath(CONFIGURATION_SCHEMA);
 
-        domainObjectsConfiguration = configurationSerializer.serializeDomainObjectConfiguration();
-        assertNotNull(domainObjectsConfiguration); // проверяем, что конфигурация сериализована из файла
-
-        collectionsConfiguration = configurationSerializer.serializeCollectionConfiguration();
-        assertNotNull(collectionsConfiguration); // проверяем, что конфигурация сериализована из файла
+        configuration = configurationSerializer.serializeConfiguration();
+        assertNotNull(configuration); // проверяем, что конфигурация сериализована из файла
 
         ConfigurationExplorer configurationExplorer = new ConfigurationExplorer();
-        configurationExplorer.setDomainObjectsConfiguration(domainObjectsConfiguration);
-        configurationExplorer.setCollectionsConfiguration(collectionsConfiguration);
+        configurationExplorer.setConfiguration(configuration);
         configurationExplorer.init();
 
         configurationService.setConfigurationExplorer(configurationExplorer);
@@ -78,6 +77,6 @@ public class ConfigurationServiceImplTest {
 
         verify(dataStructureDAOMock).countTables();
         verify(dataStructureDAOMock).createServiceTables();
-        verify(dataStructureDAOMock, times(domainObjectsConfiguration.getDomainObjectConfigs().size())).createTable(Matchers.<DomainObjectConfig>anyObject());
+        verify(dataStructureDAOMock, times(4)).createTable(Matchers.<DomainObjectConfig>anyObject());
     }
 }

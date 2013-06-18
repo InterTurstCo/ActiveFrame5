@@ -74,7 +74,7 @@ public class ConfigurationSchemaValidator {
 
     private void validateAgainstXSD() {
         if (configurationSchemaPath == null) {
-            throw new RuntimeException("Please set the configurationSchemaPath for DomainObjectsConfigurationLogicalValidator before validating");
+            throw new RuntimeException("Please set the configurationSchemaPath for ConfigurationLogicalValidator before validating");
         }
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 
@@ -98,7 +98,7 @@ public class ConfigurationSchemaValidator {
     private void validateDomainObjectConfiguration(Validator validator) throws SAXException, IOException {
         validator.setErrorHandler(new ValidationErrorHandler());
 
-        InputStream configurationInputStream = getFileInputStream(configurationPath);
+        InputStream configurationInputStream = FileUtils.getFileInputStream(configurationPath);
         Source source = new StreamSource(configurationInputStream);
         validator.validate(source);
     }

@@ -16,6 +16,7 @@ public class PostgreSQLQueryHelper {
 
     public static final String AUTHENTICATION_INFO_TABLE = "AUTHENTICATION_INFO";
     public static final String DOMAIN_OBJECT_TABLE = "DOMAIN_OBJECT";
+    public static final String CONFIGURATION_TABLE = "CONFIGURATION";
 
     /**
      * Генерирует запрос, возвращающий кол-во таблиц в базе данных
@@ -32,6 +33,11 @@ public class PostgreSQLQueryHelper {
     public static String generateCreateDomainObjectTableQuery() {
         return "create table " + DOMAIN_OBJECT_TABLE + "(ID bigserial not null, NAME varchar(256) not null, " +
                 "constraint PK_" + DOMAIN_OBJECT_TABLE + " primary key (ID), constraint U_" + DOMAIN_OBJECT_TABLE + " unique (NAME))";
+    }
+
+    public static String generateCreateConfigurationTableQuery() {
+        return "create table " + CONFIGURATION_TABLE + "(ID bigserial not null, CONTENT text not null, " +
+                "LOADED_DATE timestamp not null, constraint PK_" + CONFIGURATION_TABLE + " primary key (ID))";
     }
 
     /**

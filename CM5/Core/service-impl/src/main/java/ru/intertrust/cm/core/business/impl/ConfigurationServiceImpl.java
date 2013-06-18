@@ -9,8 +9,8 @@ import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.api.DataStructureDAO;
 
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -50,7 +50,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     /**
-     * Смотри {@link ru.intertrust.cm.core.business.api.ConfigurationService#loadConfiguration(ru.intertrust.cm.core.config.model.DomainObjectsConfiguration)}
+     * Смотри {@link ru.intertrust.cm.core.business.api.ConfigurationService#loadConfiguration()}
      */
     @Override
     public void loadConfiguration() {
@@ -80,15 +80,15 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         }
 
         private void load() {
-            List<DomainObjectConfig> domainObjectConfigs = configurationExplorer.getDomainObjectsConfiguration().getDomainObjectConfigs();
-            if(domainObjectConfigs.isEmpty())  {
+            Collection<DomainObjectConfig> configList = configurationExplorer.getDomainObjectConfigs();
+            if(configList.isEmpty())  {
                 return;
             }
 
             dataStructureDAO.createServiceTables();
 
-            for(DomainObjectConfig domainObjectConfig : domainObjectConfigs) {
-                loadDomainObjectConfig(domainObjectConfig);
+            for(DomainObjectConfig config : configList) {
+                loadDomainObjectConfig(config);
             }
         }
 

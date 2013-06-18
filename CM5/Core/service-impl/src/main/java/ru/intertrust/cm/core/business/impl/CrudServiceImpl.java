@@ -115,10 +115,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     @Override
     public boolean exists(Id id) {
-        DomainObjectConfig domainObjectConfig =
-                findDomainObjectConfigById(configurationExplorer.getDomainObjectsConfiguration(), id);
-
-        return crudServiceDAO.exists(id, domainObjectConfig);
+        return crudServiceDAO.exists(id);
     }
 
     @Override
@@ -140,7 +137,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         return crudServiceDAO.findCollection(collectionConfig, filledFilterConfigs, filterValues, sortOrder, offset,
                 limit);
     }
-    
+
     /**
      * Заполняет конфигурации фильтров значениями. Возвращает заполненные конфигурации фильтров (для которых были
      * переданы значения). Сделан публичным для тестов.
@@ -250,22 +247,5 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
         }
         return count;
-    }
-
-    /**
-     * Находит конфигурацию доменного объекта по идентификатору
-     * @param domainObjectsConfiguration конфигурация доменных объектов
-     * @param id идентификатор доменного объекта, конфигурацию которого надо найти
-     * @return конфигурация доменного объекта
-     */
-    @Deprecated
-    private static DomainObjectConfig findDomainObjectConfigById(DomainObjectsConfiguration
-                                                                             domainObjectsConfiguration, Id id) {
-        for (DomainObjectConfig domainObjectConfig : domainObjectsConfiguration.getDomainObjectConfigs()) {
-            if (domainObjectConfig.getId().equals(id)) {
-                return domainObjectConfig;
-            }
-        }
-        throw new RuntimeException("Domain Object Configuration is not found with id '" + id + "'");
     }
 }

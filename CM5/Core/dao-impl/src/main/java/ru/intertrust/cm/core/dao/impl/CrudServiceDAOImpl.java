@@ -202,7 +202,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
         int count = jdbcTemplate.update(query, parameters);
 
-        if (count == 0 && (!exists(domainObject.getId(), domainObjectConfig))) {
+        if (count == 0 && (!exists(domainObject.getId()))) {
             throw new ObjectNotFoundException(domainObject.getId());
         }
 
@@ -296,12 +296,12 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
     /**
      * Создает SQL запрос для проверки существует ли доменный объект
-     * @param domainObjectConfig конфигурация доменного объекта
+     * @param domainObjectName название доменного объекта
      * @return строку запроса для удаления доменного объекта с параметрами
      */
-    protected String generateExistsQuery(DomainObjectConfig domainObjectConfig) {
+    protected String generateExistsQuery(String domainObjectName) {
 
-        String tableName = DataStructureNamingHelper.getSqlName(domainObjectConfig);
+        String tableName = DataStructureNamingHelper.getSqlName(domainObjectName);
 
         StringBuilder query = new StringBuilder();
         query.append("select id from ");
@@ -327,9 +327,10 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
     @Override
-    public boolean exists(Id id, DomainObjectConfig domainObjectConfig) throws InvalidIdException {
+    public boolean exists(Id id) throws InvalidIdException {
+        RdbmsId rdbmsId = (RdbmsId) id;
 
-        String query = generateExistsQuery(domainObjectConfig);
+        String query = generateExistsQuery(rdbmsId.getTypeName());
 
         validateIdType(id);
 
@@ -345,7 +346,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     public DomainObject find(Id id) {
         RdbmsId rdbmsId = (RdbmsId) id;
 
-        String tableName = DataStructureNamingHelper.getSqlName(((RdbmsId) id).getTypeName());
+        String tableName = DataStructureNamingHelper.getSqlName(rdbmsId.getTypeName());
 
         StringBuilder query = new StringBuilder();
         query.append("select * from ").append(tableName).append(" where ID=:id ");
@@ -404,11 +405,11 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
             SortOrder sortOrder, int offset, int limit) {
         String collectionQuery =
                 getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, offset, limit);
-        
+
         Map<String, Object> parameters = new HashMap<String, Object>();
 
-        fillFilterParameters(filterValues, parameters);        
-                
+        fillFilterParameters(filterValues, parameters);
+
         IdentifiableObjectCollection collection =
                 jdbcTemplate.query(collectionQuery, parameters,
                         new CollectionRowMapper(collectionConfig.getDomainObjectType(),
@@ -433,7 +434,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
             }
         }
     }
-    
+
     /**
      * Возвращает запрос, который используется в методе поиска коллекции доменных объектов
      * @param collectionConfig
@@ -525,9 +526,9 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
                 int index = 0;
                 int collectionIndex = 0;
 
-                for (DataType fieldType : columnModel.getColumnTypes()) {                                        
+                for (DataType fieldType : columnModel.getColumnTypes()) {
                     fillValueModel(valueModel, rs, columnModel, index, fieldType);
-                    
+
                     collectionIndex = index;
 
                     if (valueModel.getId() != null) {
@@ -583,7 +584,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
                 int index = 0;
                 int fieldIndex = 0;
                 for (DataType fieldType : columnModel.getColumnTypes()) {
-                    
+
                     fillValueModel(valueModel, rs, columnModel, index, fieldType);
 
                     fieldIndex = index;
@@ -602,8 +603,8 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
             }
             return object;
-        }        
-       
+        }
+
     }
 
     /**
@@ -640,13 +641,13 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
             while (rs.next()) {
                 GenericDomainObject object = new GenericDomainObject();
                 FieldValueModel valueModel = new FieldValueModel();
-                
+
                 object.setTypeName(domainObjectType);
                 int index = 0;
                 int fieldIndex = 0;
-                for (DataType fieldType : columnModel.getColumnTypes()) {                    
+                for (DataType fieldType : columnModel.getColumnTypes()) {
                     fillValueModel(valueModel, rs, columnModel, index, fieldType);
-                    
+
                     fieldIndex = index;
 
                     if (valueModel.getId() != null) {
@@ -676,7 +677,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
         protected final String domainObjectType;
 
         protected final String idField;
-        
+
         public BasicRowMapper(String domainObjectType, String idField) {
             this.domainObjectType = domainObjectType;
             this.idField = idField;
@@ -765,7 +766,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
             }
             valueModel.setValue(value);
         }
-        
+
         /**
          * Обертывает заполненное поле или поле id в доменном объекте.
          * @author atsvetkov
