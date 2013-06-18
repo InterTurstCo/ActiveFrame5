@@ -21,6 +21,8 @@ import java.util.List;
  * Time: 22:01
  */
 public interface CrudService {
+    public interface Remote extends CrudService {
+    }
 
     /**
      * Создаёт идентифицируемый объект. Заполняет необходимые атрибуты значениями, сгенерированными согласно правилам.
@@ -115,7 +117,6 @@ public interface CrudService {
      *
      * @param collectionName название коллекции
      * @param filters фильтры
-     * @param sortOrder порядок сортировки коллекции
      * @return коллекцию
      */
     int findCollectionCount(String collectionName, List<Filter> filters);

@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.business.impl;
 
-import ru.intertrust.cm.core.business.api.LocalCrudService;
-import ru.intertrust.cm.core.business.api.RemoteCrudService;
+import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.*;
@@ -9,6 +8,8 @@ import ru.intertrust.cm.core.dao.api.CrudServiceDAO;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 
+import javax.ejb.Local;
+import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,7 +23,9 @@ import java.util.List;
  *
  */
 @Stateless
-public class CrudServiceImpl implements RemoteCrudService, LocalCrudService {
+@Local(CrudService.class)
+@Remote(CrudService.Remote.class)
+public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     public static final String QUERY_FILTER_PARAM_DELIMETER = ":";
 
