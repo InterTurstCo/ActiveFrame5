@@ -17,4 +17,20 @@ public class CollectionRendererConfig implements Serializable {
         this.className = className;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CollectionRendererConfig that = (CollectionRendererConfig) o;
+
+        if (className != null ? !className.equals(that.className) : that.className != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return className != null ? className.hashCode() : 0;
+    }
 }

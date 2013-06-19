@@ -84,4 +84,32 @@ public class DomainObjectConfig implements Serializable {
     public void setUniqueKeyConfigs(List<UniqueKeyConfig> uniqueKeyConfigs) {
         this.uniqueKeyConfigs = uniqueKeyConfigs;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        DomainObjectConfig that = (DomainObjectConfig) o;
+
+        if (domainObjectFieldsConfig != null ? !domainObjectFieldsConfig.equals(that.domainObjectFieldsConfig) : that.domainObjectFieldsConfig != null)
+            return false;
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (parentConfig != null ? !parentConfig.equals(that.parentConfig) : that.parentConfig != null) return false;
+        if (uniqueKeyConfigs != null ? !uniqueKeyConfigs.equals(that.uniqueKeyConfigs) : that.uniqueKeyConfigs != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (parentConfig != null ? parentConfig.hashCode() : 0);
+        result = 31 * result + (domainObjectFieldsConfig != null ? domainObjectFieldsConfig.hashCode() : 0);
+        result = 31 * result + (uniqueKeyConfigs != null ? uniqueKeyConfigs.hashCode() : 0);
+        return result;
+    }
 }

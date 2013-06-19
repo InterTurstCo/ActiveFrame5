@@ -29,4 +29,22 @@ public class UniqueKeyConfig implements Serializable {
     public void setUniqueKeyFieldConfigs(List<UniqueKeyFieldConfig> uniqueKeyFieldConfigs) {
         this.uniqueKeyFieldConfigs = uniqueKeyFieldConfigs;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        UniqueKeyConfig that = (UniqueKeyConfig) o;
+
+        if (uniqueKeyFieldConfigs != null ? !uniqueKeyFieldConfigs.equals(that.uniqueKeyFieldConfigs) : that.uniqueKeyFieldConfigs != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return uniqueKeyFieldConfigs != null ? uniqueKeyFieldConfigs.hashCode() : 0;
+    }
 }

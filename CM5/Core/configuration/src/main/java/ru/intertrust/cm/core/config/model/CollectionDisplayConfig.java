@@ -23,4 +23,20 @@ public class CollectionDisplayConfig implements Serializable {
         this.columnConfig = columnConfig;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CollectionDisplayConfig that = (CollectionDisplayConfig) o;
+
+        if (columnConfig != null ? !columnConfig.equals(that.columnConfig) : that.columnConfig != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return columnConfig != null ? columnConfig.hashCode() : 0;
+    }
 }

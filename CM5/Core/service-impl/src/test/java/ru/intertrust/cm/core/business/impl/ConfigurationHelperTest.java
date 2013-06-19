@@ -6,8 +6,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import ru.intertrust.cm.core.config.model.Configuration;
 import ru.intertrust.cm.core.config.model.DomainObjectConfig;
-import ru.intertrust.cm.core.config.model.DomainObjectsConfiguration;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.config.model.StringFieldConfig;
 
@@ -22,7 +22,7 @@ public class ConfigurationHelperTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    private DomainObjectsConfiguration domainObjectsConfiguration;
+    private Configuration configuration;
 
     private DomainObjectConfig domainObjectConfig1;
     private DomainObjectConfig domainObjectConfig2;
@@ -60,18 +60,18 @@ public class ConfigurationHelperTest {
     }
 
     private void initializeTestConfiguration() {
-        domainObjectsConfiguration = new DomainObjectsConfiguration();
+        configuration = new Configuration();
 
         initializeDomainObjectConfig1();
-        domainObjectsConfiguration.getDomainObjectConfigs().add(domainObjectConfig1);
+        configuration.getConfigurationList().add(domainObjectConfig1);
 
         domainObjectConfig2 = new DomainObjectConfig();
         domainObjectConfig2.setName("domain object 2");
-        domainObjectsConfiguration.getDomainObjectConfigs().add(domainObjectConfig2);
+        configuration.getConfigurationList().add(domainObjectConfig2);
 
         domainObjectConfig3 = new DomainObjectConfig();
         domainObjectConfig3.setName("domain object 3");
-        domainObjectsConfiguration.getDomainObjectConfigs().add(domainObjectConfig3);
+        configuration.getConfigurationList().add(domainObjectConfig3);
     }
 
     private void initializeDomainObjectConfig1() {

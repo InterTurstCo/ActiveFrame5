@@ -33,4 +33,21 @@ public class DomainObjectFieldsConfig implements Serializable {
     public void setFieldConfigs(List<FieldConfig> fieldConfigs) {
         this.fieldConfigs = fieldConfigs;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        DomainObjectFieldsConfig that = (DomainObjectFieldsConfig) o;
+
+        if (fieldConfigs != null ? !fieldConfigs.equals(that.fieldConfigs) : that.fieldConfigs != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return fieldConfigs != null ? fieldConfigs.hashCode() : 0;
+    }
 }
