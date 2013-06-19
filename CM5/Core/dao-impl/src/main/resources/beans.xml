@@ -19,32 +19,13 @@
         class="ru.intertrust.cm.core.dao.impl.PostgreSQLDataStructureDAOImpl"
         p:dataSource-ref="dataSource" />
 
-    <bean id="configurationLoader"
-          class="ru.intertrust.cm.core.business.impl.ConfigurationLoader" init-method="load"
-          p:configurationService-ref="configurationService"/>
-
-    <bean id="configurationService"
-        class="ru.intertrust.cm.core.business.impl.ConfigurationServiceImpl"
-        p:dataStructureDAO-ref="dataStructureDAO"
-        p:authenticationService-ref="authenticationService"/>
-
     <bean id="authenticationDAO" class="ru.intertrust.cm.core.dao.impl.AuthenticationDAOImpl"
         p:dataSource-ref="dataSource" />
-
-    <bean id="authenticationService"
-        class="ru.intertrust.cm.core.business.impl.AuthenticationServiceImpl"
-        p:authenticationDAO-ref="authenticationDAO" p:md5Service-ref="md5Service"
-        p:crudServiceDAO-ref="crudServiceDAO"/>
-
-    <bean id="md5Service" class="ru.intertrust.cm.core.business.impl.MD5ServiceImpl" />
 
     <bean id="sequenceIdGenerator" class="ru.intertrust.cm.core.dao.impl.SequenceIdGenerator"
           p:dataSource-ref="dataSource"/>
 
     <bean id="crudServiceDAO" class="ru.intertrust.cm.core.dao.impl.CrudServiceDAOImpl"
          p:idGenerator-ref="sequenceIdGenerator" p:dataSource-ref="dataSource" />
-
-    <bean id="crudService" class="ru.intertrust.cm.core.business.impl.CrudServiceImpl"
-        p:crudServiceDAO-ref="crudServiceDAO"/>
 
 </beans>
