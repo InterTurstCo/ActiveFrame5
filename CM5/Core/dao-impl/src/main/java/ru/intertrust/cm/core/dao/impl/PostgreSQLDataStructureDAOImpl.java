@@ -2,9 +2,12 @@ package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import ru.intertrust.cm.core.config.model.DomainObjectConfig;
+import ru.intertrust.cm.core.config.model.FieldConfig;
+import ru.intertrust.cm.core.config.model.UniqueKeyConfig;
 import ru.intertrust.cm.core.dao.api.DataStructureDAO;
 
 import javax.sql.DataSource;
+import java.util.List;
 
 import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.*;
 
@@ -16,7 +19,8 @@ import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.*;
  */
 public class PostgreSQLDataStructureDAOImpl implements DataStructureDAO {
 
-    private static final String DOES_TABLE_EXISTS_QUERY = "select count(*) FROM information_schema.tables WHERE table_schema = 'public' and table_name=?";
+    private static final String DOES_TABLE_EXISTS_QUERY =
+            "select count(*) FROM information_schema.tables WHERE table_schema = 'public' and table_name = ?";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -55,14 +59,32 @@ public class PostgreSQLDataStructureDAOImpl implements DataStructureDAO {
     public void createTable(DomainObjectConfig config) {
         jdbcTemplate.update(generateCreateTableQuery(config));
 
-        String createIndexesQuery = generateCreateIndexesQuery(config);
+        String createIndexesQuery = generateCreateIndexesQuery(config.getName(), config.getFieldConfigs());
         if(createIndexesQuery != null) {
             jdbcTemplate.update(createIndexesQuery);
         }
 
-        jdbcTemplate.update("insert into DOMAIN_OBJECT(NAME) values (?)", config.getName());
-        Long id = jdbcTemplate.queryForObject("select ID from DOMAIN_OBJECT where NAME = ?", Long.class, config.getName());
+        jdbcTemplate.update("insert into " + DOMAIN_OBJECT_TABLE  +"(NAME) values (?)", config.getName());
+        Long id = jdbcTemplate.queryForObject("select ID from " +DOMAIN_OBJECT_TABLE + " where NAME = ?",
+                Long.class, config.getName());
         config.setId(id);
+    }
+
+    @Override
+    public void updateTableStructure(String domainObjectConfigName, List<FieldConfig> fieldConfigList,
+                                     List<UniqueKeyConfig> uniqueKeyConfigList) {
+        if(domainObjectConfigName == null || ((fieldConfigList == null || fieldConfigList.isEmpty()) &&
+                (uniqueKeyConfigList == null || uniqueKeyConfigList.isEmpty()))) {
+            throw new IllegalArgumentException("Invalid (null or empty) arguments");
+        }
+
+        String query = generateUpdateTableQuery(domainObjectConfigName, fieldConfigList, uniqueKeyConfigList);
+        jdbcTemplate.update(query);
+
+        String createIndexesQuery = generateCreateIndexesQuery(domainObjectConfigName, fieldConfigList);
+        if(createIndexesQuery != null) {
+            jdbcTemplate.update(createIndexesQuery);
+        }
     }
 
     /**

@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.config.model.*;
 
 import java.util.List;
 
+import static ru.intertrust.cm.core.dao.api.DataStructureDAO.DOMAIN_OBJECT_TABLE;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
 
 /**
@@ -15,7 +16,6 @@ import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
 public class PostgreSQLQueryHelper {
 
     public static final String AUTHENTICATION_INFO_TABLE = "AUTHENTICATION_INFO";
-    public static final String DOMAIN_OBJECT_TABLE = "DOMAIN_OBJECT";
     public static final String CONFIGURATION_TABLE = "CONFIGURATION";
 
     /**
@@ -56,14 +56,12 @@ public class PostgreSQLQueryHelper {
      * @return запрос, создающий последовательность(сиквенс) по конфигурации доменного объекта
      */
     public static String generateSequenceQuery(DomainObjectConfig config) {
-
         String sequenceName = getSqlSequenceName(config);
         StringBuilder query = new StringBuilder();
         query.append("create sequence ");
         query.append(sequenceName);
 
         return query.toString();
-
     }
 
 
@@ -74,29 +72,45 @@ public class PostgreSQLQueryHelper {
      */
     public static String generateCreateTableQuery(DomainObjectConfig config) {
         String tableName = getSqlName(config);
+        StringBuilder query = new StringBuilder("create table ").append(tableName).append(" ( ");
 
-        String query = "create table " + tableName + " ( ";
+        appendSystemColumnsQueryPart(query);
+        if (config.getFieldConfigs().size() > 0) {
+            query.append(", ");
+            appendColumnsQueryPart(query, config.getFieldConfigs(), false);
+        }
 
-        query += generateColumnsQueryPart(config);
-        query += generatePKConstraintQueryPart(tableName);
-        query += generateUniqueConstraintsQueryPart(config, tableName);
-        query += generateFKConstraintsQueryPart(config, tableName);
+        appendPKConstraintQueryPart(query, tableName);
+        appendUniqueConstraintsQueryPart(query, tableName, config.getUniqueKeyConfigs(), false);
+        appendFKConstraintsQueryPart(query, tableName, config.getFieldConfigs(), false);
 
-        query += ")";
+        query.append(")");
 
-        return query;
+        return query.toString();
+    }
+
+    public static String generateUpdateTableQuery(String domainObjectConfigName, List<FieldConfig> fieldConfigList,
+                                                  List<UniqueKeyConfig> uniqueKeyConfigList) {
+        String tableName = getSqlName(domainObjectConfigName);
+        StringBuilder query = new StringBuilder("alter table ").append(tableName).append(" ");
+
+        appendColumnsQueryPart(query, fieldConfigList, true);
+        appendFKConstraintsQueryPart(query, tableName, fieldConfigList, true);
+        appendUniqueConstraintsQueryPart(query, tableName, uniqueKeyConfigList, true);
+
+        return query.toString();
     }
 
     /**
      * Генерирует запрос, для создания индексов по конфигурации доменного объекта
-     * @param config конфигурация доменного объекта
+     * @param configName название конфигурации доменного объекта
      * @return запрос, для создания индексов по конфигурации доменного объекта
      */
-    public static String generateCreateIndexesQuery(DomainObjectConfig config) {
-        String query = "";
-        String tableName = getSqlName(config);
+    public static String generateCreateIndexesQuery(String configName, List<FieldConfig> fieldConfigList) {
+        StringBuilder query = new StringBuilder();
+        String tableName = getSqlName(configName);
 
-        for(FieldConfig fieldConfig : config.getFieldConfigs()) {
+        for(FieldConfig fieldConfig : fieldConfigList) {
             if(!ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
                 continue;
             }
@@ -105,70 +119,91 @@ public class PostgreSQLQueryHelper {
             String fieldSqlName = getSqlName(referenceFieldConfig);
 
             String indexName = "I_" + tableName + "_" + fieldSqlName;
-            query += "create index " + indexName + " on " + tableName + " (" + fieldSqlName + ") ;\n";
+            query.append("create index ").append(indexName).append(" on ").append(tableName).append(" (").
+                    append(fieldSqlName).append(");\n");
         }
 
-        if(query.isEmpty()) {
+        if(query.length() == 0) {
             return null;
         }
 
-        return query;
+        return query.toString();
     }
 
-    private static String generateFKConstraintsQueryPart(DomainObjectConfig config, String tableName) {
-        String queryPart = "";
-
-        for(FieldConfig fieldConfig : config.getFieldConfigs()) {
+    private static void appendFKConstraintsQueryPart(StringBuilder query, String tableName, List<FieldConfig> fieldConfigList,
+                                                     boolean isAlterQuery) {
+        for(FieldConfig fieldConfig : fieldConfigList) {
             if(!ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
                 continue;
             }
 
             ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
             String fieldSqlName = getSqlName(referenceFieldConfig);
-
             String constraintName = "FK_" + tableName + "_" + fieldSqlName;
-            queryPart += ", constraint " + constraintName + " foreign key (" + fieldSqlName + ") references " +
-                    getReferencedTypeSqlName(referenceFieldConfig) + "(ID)";
-        }
 
-        return queryPart;
+            query.append(", ");
+            if (isAlterQuery) {
+                query.append("add ");
+            }
+
+            query.append("constraint ").append(constraintName).append(" foreign key (").append(fieldSqlName).
+                    append(")").append(" ").append("references").append(" ").
+                    append(getReferencedTypeSqlName(referenceFieldConfig)).append("(ID)");
+        }
     }
 
-    private static String generatePKConstraintQueryPart(String tableName) {
+    private static void appendPKConstraintQueryPart(StringBuilder query, String tableName) {
         String pkName = "PK_" + tableName + "_ID";
-        return ", constraint " + pkName + " primary key (ID)";
+        query.append(", constraint ").append(pkName).append(" primary key (ID)");
     }
 
-    private static String generateColumnsQueryPart(DomainObjectConfig config) {
-        StringBuilder queryPart = new StringBuilder();
-        queryPart.append("ID bigint not null, ");
+    private static void appendSystemColumnsQueryPart(StringBuilder query) {
+        query.append("ID bigint not null, ");
+        query.append("CREATED_DATE timestamp not null, ");
+        query.append("UPDATED_DATE timestamp not null");
+    }
 
-        queryPart.append("CREATED_DATE timestamp not null, ");
-        queryPart.append("UPDATED_DATE timestamp not null");
+    private static void appendColumnsQueryPart(StringBuilder query, List<FieldConfig> fieldConfigList,
+                                               boolean isAlterQuery) {
+        int size = fieldConfigList.size();
+        for (int i = 0; i < size; i ++) {
+            FieldConfig fieldConfig = fieldConfigList.get(i);
 
-        for (FieldConfig fieldConfig : config.getFieldConfigs()) {
-            queryPart.append(", ").append(getSqlName(fieldConfig)).append(" ").append(getSqlType(fieldConfig));
+            if (i > 0) {
+                query.append(", ");
+            }
+
+            if(isAlterQuery) {
+                query.append("add column ");
+            }
+
+            query.append(getSqlName(fieldConfig)).append(" ").append(getSqlType(fieldConfig));
             if (fieldConfig.isNotNull()) {
-                queryPart.append(" not null");
+                query.append(" not null");
             }
         }
-
-        return queryPart.toString();
     }
 
-    private static String generateUniqueConstraintsQueryPart(DomainObjectConfig config, String tableName) {
-        String queryPart = "";
-
-        for(UniqueKeyConfig uniqueKeyConfig : config.getUniqueKeyConfigs()) {
-            if(!uniqueKeyConfig.getUniqueKeyFieldConfigs().isEmpty()) {
-                String constraintName = "U_" + tableName + "_" +
-                        getFieldsListAsSql(uniqueKeyConfig.getUniqueKeyFieldConfigs(), "_");
-                String fieldsList = getFieldsListAsSql(uniqueKeyConfig.getUniqueKeyFieldConfigs(), ", ");
-                queryPart += ", constraint " + constraintName + " unique (" + fieldsList + ")";
+    private static void appendUniqueConstraintsQueryPart(StringBuilder query, String tableName,
+                                                         List<UniqueKeyConfig> uniqueKeyConfigList,
+                                                         boolean isAlterQuery) {
+        for(UniqueKeyConfig uniqueKeyConfig : uniqueKeyConfigList) {
+            if(uniqueKeyConfig.getUniqueKeyFieldConfigs().isEmpty()) {
+                continue;
             }
-        }
 
-        return queryPart;
+            String constraintName = "U_" + tableName + "_" +
+                    getFieldsListAsSql(uniqueKeyConfig.getUniqueKeyFieldConfigs(), "_");
+            String fieldsList = getFieldsListAsSql(uniqueKeyConfig.getUniqueKeyFieldConfigs(), ", ");
+
+            query.append(", ");
+            if (isAlterQuery) {
+                query.append("add ");
+            }
+
+            query.append("constraint ").append(constraintName).append(" unique (").
+                    append(fieldsList).append(")");
+        }
     }
 
     private static String getFieldsListAsSql(List<UniqueKeyFieldConfig> uniqueKeyFieldConfigList, String delimiter) {
@@ -193,16 +228,17 @@ public class PostgreSQLQueryHelper {
         }
 
         if(DecimalFieldConfig.class.equals(fieldConfig.getClass())) {
-            String sqlType = "decimal";
+            StringBuilder sqlType = new StringBuilder("decimal");
             DecimalFieldConfig decimalFieldConfig = (DecimalFieldConfig) fieldConfig;
 
             if(decimalFieldConfig.getPrecision() != null && decimalFieldConfig.getScale() != null) {
-                sqlType += "(" + decimalFieldConfig.getPrecision() + ", " + decimalFieldConfig.getScale() + ")";
+                sqlType.append("(").append(decimalFieldConfig.getPrecision()).append(", ").
+                        append(decimalFieldConfig.getScale()).append(")");
             } else if(decimalFieldConfig.getPrecision() != null) {
-                sqlType += "(" + decimalFieldConfig.getPrecision() + ")";
+                sqlType.append("(").append(decimalFieldConfig.getPrecision()).append(")");
             }
 
-            return sqlType;
+            return sqlType.toString();
         }
 
         if(LongFieldConfig.class.equals(fieldConfig.getClass())) {

@@ -53,9 +53,6 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     @Override
     public DomainObject createDomainObject(String name) {
-
-        DomainObjectConfig domainObjectConfig = configurationExplorer.getDomainObjectConfig(name);
-
         DomainObject domainObject = new GenericDomainObject();
         domainObject.setTypeName(name);
         Date currentDate = new Date();
@@ -67,8 +64,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     protected DomainObject create(DomainObject domainObject) {
 
-        DomainObjectConfig domainObjectConfig = configurationExplorer.getDomainObjectConfig(domainObject
-                .getTypeName());
+        DomainObjectConfig domainObjectConfig = configurationExplorer.getDomainObjectConfig(domainObject.getTypeName());
         Date currentDate = new Date();
         domainObject.setCreatedDate(currentDate);
         domainObject.setModifiedDate(currentDate);
@@ -77,12 +73,8 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
     }
 
     protected DomainObject update(DomainObject domainObject) {
-
-        DomainObjectConfig domainObjectConfig = configurationExplorer.getDomainObjectConfig(domainObject
-                .getTypeName());
-
+        DomainObjectConfig domainObjectConfig = configurationExplorer.getDomainObjectConfig(domainObject.getTypeName());
         return crudServiceDAO.update(domainObject, domainObjectConfig);
-
     }
 
     @Override

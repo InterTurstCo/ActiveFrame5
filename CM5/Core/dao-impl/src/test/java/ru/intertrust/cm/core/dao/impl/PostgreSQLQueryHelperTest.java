@@ -34,8 +34,9 @@ public class PostgreSQLQueryHelperTest {
 
     @Test
     public void testGenerateCreateIndexesQuery() throws Exception {
-        String query = PostgreSQLQueryHelper.generateCreateIndexesQuery(domainObjectConfig);
-        String checkQuery = "create index I_OUTGOING_DOCUMENT_AUTHOR on OUTGOING_DOCUMENT (AUTHOR) ;\n";
+        String query = PostgreSQLQueryHelper.generateCreateIndexesQuery(domainObjectConfig.getName(),
+                domainObjectConfig.getFieldConfigs());
+        String checkQuery = "create index I_OUTGOING_DOCUMENT_AUTHOR on OUTGOING_DOCUMENT (AUTHOR);\n";
         assertEquals(query, checkQuery);
     }
 

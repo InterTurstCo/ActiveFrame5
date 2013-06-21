@@ -4,6 +4,7 @@ import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 import ru.intertrust.cm.core.config.model.Configuration;
 
+import java.io.StringWriter;
 import java.util.Set;
 
 /**
@@ -17,6 +18,29 @@ public class ConfigurationSerializer {
     private Set<String> configurationFilePaths;
 
     public ConfigurationSerializer() {
+    }
+
+    public static String deserializeConfiguration(Configuration configuration) {
+        Serializer serializer = new Persister();
+        StringWriter stringWriter = new StringWriter();
+
+        try {
+            serializer.write(configuration, stringWriter);
+        } catch (Exception e) {
+            throw new ConfigurationException("Failed to deserialize configuration");
+        }
+
+        return stringWriter.toString();
+    }
+
+    public static Configuration serializeTrustedConfiguration(String configurationString) throws
+            ConfigurationException {
+        try {
+            Serializer serializer = new Persister();
+            return serializer.read(Configuration.class, configurationString);
+        } catch (Exception e) {
+            throw new ConfigurationException("Failed to serialize configuration from String", e);
+        }
     }
 
     public void setConfigurationSchemaFilePath(String configurationSchemaFilePath) {
@@ -57,7 +81,7 @@ public class ConfigurationSerializer {
     /**
      * Сериализация конфигурации в Java класс.
      * @param configurationFilePath путь к файлу конфигурации
-     * @return {@link ru.intertrust.cm.core.config.model.DomainObjectsConfiguration}
+     * @return {@link ru.intertrust.cm.core.config.model.Configuration}
      * @throws Exception
      */
     private Configuration serializeConfiguration(String configurationFilePath) throws Exception {

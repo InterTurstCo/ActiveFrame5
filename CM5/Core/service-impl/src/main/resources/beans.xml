@@ -16,10 +16,7 @@
           p:configurationService-ref="configurationService"/>
 
     <bean id="configurationService"
-          class="ru.intertrust.cm.core.business.impl.ConfigurationServiceImpl"
-          p:dataStructureDAO-ref="dataStructureDAO"
-          p:authenticationService-ref="authenticationService"/>
-
+          class="ru.intertrust.cm.core.business.impl.ConfigurationServiceImpl"/>
 
     <bean id="authenticationService"
           class="ru.intertrust.cm.core.business.impl.AuthenticationServiceImpl"

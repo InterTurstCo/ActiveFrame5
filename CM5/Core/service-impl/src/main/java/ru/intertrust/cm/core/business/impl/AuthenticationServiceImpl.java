@@ -71,8 +71,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         StringValue roleName = new StringValue(authenticationInfo.getRole());
         role.setValue("Role", roleName);
         role.setValue("Authentication Info", new IntegerValue(id.getId()));
-        domainObjectConfig = configurationExplorer.getDomainObjectConfig(role
-                .getTypeName());
+        domainObjectConfig = configurationExplorer.getDomainObjectConfig(role.getTypeName());
         crudServiceDAO.create(role, domainObjectConfig);
     }
 

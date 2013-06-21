@@ -1,6 +1,10 @@
 package ru.intertrust.cm.core.dao.api;
 
 import ru.intertrust.cm.core.config.model.DomainObjectConfig;
+import ru.intertrust.cm.core.config.model.FieldConfig;
+import ru.intertrust.cm.core.config.model.UniqueKeyConfig;
+
+import java.util.List;
 
 /**
  * DAO для работы со структурой базы данных (создание таблиц, колонок, индексов и т.п.)
@@ -10,19 +14,22 @@ import ru.intertrust.cm.core.config.model.DomainObjectConfig;
  */
 public interface DataStructureDAO {
 
+    String DOMAIN_OBJECT_TABLE = "DOMAIN_OBJECT";
+
     /**
      * Создает таблицу по конфигурации доменного объекта
      * @param config конфигурация доменного объекта
      */
     void createTable(DomainObjectConfig config);
 
+    void updateTableStructure(String domainObjectConfigName, List<FieldConfig> fieldConfigList,
+                              List<UniqueKeyConfig> uniqueKeyConfigList);
 
     /**
      * Создает последовательность для таблицы по конфигурации доменного объекта
      * @param config конфигурация доменного объекта
      */
     void createSequence(DomainObjectConfig config);
-
 
     /**
      * Возвращает кол-во таблиц в базе данных

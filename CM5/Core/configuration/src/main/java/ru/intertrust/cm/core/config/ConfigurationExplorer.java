@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config;
 import ru.intertrust.cm.core.config.model.CollectionConfig;
 import ru.intertrust.cm.core.config.model.Configuration;
 import ru.intertrust.cm.core.config.model.DomainObjectConfig;
+import ru.intertrust.cm.core.config.model.FieldConfig;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -19,8 +20,13 @@ public class ConfigurationExplorer {
 
     private Map<String, DomainObjectConfig> domainObjectConfigMap = new HashMap<>();
     private Map<String, CollectionConfig> collectionConfigMap = new HashMap<>();
+    private Map<FieldConfigKey, FieldConfig> fieldConfigMap = new HashMap<>();
 
     public ConfigurationExplorer() {
+    }
+
+    public ConfigurationExplorer(Configuration configuration) {
+        this.configuration = configuration;
     }
 
     public Configuration getConfiguration() {
@@ -52,23 +58,16 @@ public class ConfigurationExplorer {
      * @return конфигурация доменного объекта
      */
     public DomainObjectConfig getDomainObjectConfig(String name) {
-        DomainObjectConfig config = domainObjectConfigMap.get(name);
-
-        if(config == null) {
-            throw new RuntimeException("DomainObject Configuration is not found for name '" + name + "'");
-        }
-
-        return config;
+        return domainObjectConfigMap.get(name);
     }
 
     public CollectionConfig getCollectionConfig(String name) {
-        CollectionConfig config = collectionConfigMap.get(name);
+        return collectionConfigMap.get(name);
+    }
 
-        if(config == null) {
-            throw new RuntimeException("DomainObject Configuration is not found for name '" + name + "'");
-        }
-
-        return config;
+    public FieldConfig getFieldConfig(String domainObjectConfigName, String fieldConfigName) {
+        FieldConfigKey fieldConfigKey = new FieldConfigKey(domainObjectConfigName, fieldConfigName);
+        return fieldConfigMap.get(fieldConfigKey);
     }
 
     private void initConfigurationMaps() {
@@ -78,9 +77,14 @@ public class ConfigurationExplorer {
         }
 
         for (Object config : configuration.getConfigurationList()) {
-            if(DomainObjectConfig.class.equals(config.getClass())) {
+            if (DomainObjectConfig.class.equals(config.getClass())) {
                 DomainObjectConfig domainObjectConfig = (DomainObjectConfig) config;
                 domainObjectConfigMap.put(domainObjectConfig.getName(), domainObjectConfig);
+
+                for (FieldConfig fieldConfig : domainObjectConfig.getFieldConfigs()) {
+                    FieldConfigKey fieldConfigKey = new FieldConfigKey(domainObjectConfig.getName(), fieldConfig.getName());
+                    fieldConfigMap.put(fieldConfigKey, fieldConfig);
+                }
             } else if(CollectionConfig.class.equals(config.getClass())) {
                 CollectionConfig collectionConfig = (CollectionConfig) config;
                 collectionConfigMap.put(collectionConfig.getName(), collectionConfig);
@@ -88,5 +92,39 @@ public class ConfigurationExplorer {
                 throw new RuntimeException("Unknown configuration type '" + config.getClass() + "'");
             }
         }
+    }
+
+    private class FieldConfigKey {
+
+        private String domainObjectName;
+        private String fieldConfigName;
+
+        private FieldConfigKey(String domainObjectName, String fieldConfigName) {
+            this.domainObjectName = domainObjectName;
+            this.fieldConfigName = fieldConfigName;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            FieldConfigKey that = (FieldConfigKey) o;
+
+            if (domainObjectName != null ? !domainObjectName.equals(that.domainObjectName) : that.domainObjectName != null)
+                return false;
+            if (fieldConfigName != null ? !fieldConfigName.equals(that.fieldConfigName) : that.fieldConfigName != null)
+                return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = domainObjectName != null ? domainObjectName.hashCode() : 0;
+            result = 31 * result + (fieldConfigName != null ? fieldConfigName.hashCode() : 0);
+            return result;
+        }
+
     }
 }

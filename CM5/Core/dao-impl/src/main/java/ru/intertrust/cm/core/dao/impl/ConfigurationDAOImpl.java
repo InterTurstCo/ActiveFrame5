@@ -1,9 +1,11 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import ru.intertrust.cm.core.dao.api.ConfigurationDAO;
 
 import javax.sql.DataSource;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,8 +30,19 @@ public class ConfigurationDAOImpl implements ConfigurationDAO {
 
         Map<String, Object> parametersMap = new HashMap();
         parametersMap.put("content", configuration);
-        parametersMap.put("loadedData", new Date());
+        parametersMap.put("loadedDate", new Date());
 
         jdbcTemplate.update(query, parametersMap);
+    }
+
+    @Override
+    public String readLastLoadedConfiguration() {
+        String query = "select CONTENT from " + PostgreSQLQueryHelper.CONFIGURATION_TABLE + " where id = " +
+                "(select max(id) from " + PostgreSQLQueryHelper.CONFIGURATION_TABLE + ")";
+        try {
+            return jdbcTemplate.queryForObject(query, Collections.<String, Object>emptyMap(), String.class);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 }

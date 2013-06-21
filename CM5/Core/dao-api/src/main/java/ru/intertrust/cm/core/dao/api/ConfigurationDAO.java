@@ -8,4 +8,6 @@ package ru.intertrust.cm.core.dao.api;
 public interface ConfigurationDAO {
 
     void save(String configuration);
+
+    String readLastLoadedConfiguration();
 }

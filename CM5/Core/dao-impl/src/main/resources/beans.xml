@@ -19,6 +19,9 @@
         class="ru.intertrust.cm.core.dao.impl.PostgreSQLDataStructureDAOImpl"
         p:dataSource-ref="dataSource" />
 
+    <bean id="configurationDAO" class="ru.intertrust.cm.core.dao.impl.ConfigurationDAOImpl"
+          p:dataSource-ref="dataSource" />
+
     <bean id="authenticationDAO" class="ru.intertrust.cm.core.dao.impl.AuthenticationDAOImpl"
         p:dataSource-ref="dataSource" />
 
