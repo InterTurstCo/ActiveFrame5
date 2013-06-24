@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
 import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.config.ConfigurationLogicalValidator;
 import ru.intertrust.cm.core.config.ConfigurationSerializer;
 import ru.intertrust.cm.core.config.model.*;
@@ -55,7 +55,7 @@ public class CrudServiceDAOImplTest {
 
     private CollectionConfig collectionConfig;
 
-    private ConfigurationExplorer configurationExplorer;
+    private ConfigurationExplorerImpl configurationExplorer;
 
     private SortOrder sortOrder;
 
@@ -67,7 +67,7 @@ public class CrudServiceDAOImplTest {
         configurationSerializer.setConfigurationFilePaths(CONFIG_PATHS);
         configurationSerializer.setConfigurationSchemaFilePath(CONFIGURATION_SCHEMA_PATH);
 
-        configurationExplorer = new ConfigurationExplorer();
+        configurationExplorer = new ConfigurationExplorerImpl();
         Configuration configuration = configurationSerializer.serializeConfiguration();
         configurationExplorer.setConfiguration(configuration);
         configurationExplorer.init();

@@ -22,6 +22,12 @@ public interface DataStructureDAO {
      */
     void createTable(DomainObjectConfig config);
 
+    /**
+     * Обновляет структуру таблицы (добавляет колонки и уникальные ключи)
+     * @param domainObjectConfigName название доменного объекта, таблицу которого необходимо обновить
+     * @param fieldConfigList список колонок для добавления
+     * @param uniqueKeyConfigList список уникальных ключей для добавления
+     */
     void updateTableStructure(String domainObjectConfigName, List<FieldConfig> fieldConfigList,
                               List<UniqueKeyConfig> uniqueKeyConfigList);
 

@@ -8,6 +8,7 @@ import java.io.StringWriter;
 import java.util.Set;
 
 /**
+ * Предоставляет функциональность для сериализации/десериализации конфигурации
  * @author vmatsukevich
  *         Date: 6/12/13
  *         Time: 5:36 PM
@@ -20,6 +21,11 @@ public class ConfigurationSerializer {
     public ConfigurationSerializer() {
     }
 
+    /**
+     * Десериализует конфигурацию в строку
+     * @param configuration конфигурация
+     * @return сериализованная в строку конфигурация
+     */
     public static String deserializeConfiguration(Configuration configuration) {
         Serializer serializer = new Persister();
         StringWriter stringWriter = new StringWriter();
@@ -33,6 +39,13 @@ public class ConfigurationSerializer {
         return stringWriter.toString();
     }
 
+    /**
+     * Сериализует строку в конфигурацию без выполнения валидации на соответствие схеме конфигурации.
+     * Данный метод предназначен для сериализации строк, представляющих собой ранее десериализованную конфигурацию
+     * @param configurationString строка, содержащая конфигурацию
+     * @return конфигурация
+     * @throws ConfigurationException в случае ошибки сериализации
+     */
     public static Configuration serializeTrustedConfiguration(String configurationString) throws
             ConfigurationException {
         try {
@@ -43,14 +56,28 @@ public class ConfigurationSerializer {
         }
     }
 
+    /**
+     * Устанавливает путь к схеме конфигурации
+     * @param configurationSchemaFilePath
+     */
     public void setConfigurationSchemaFilePath(String configurationSchemaFilePath) {
         this.configurationSchemaFilePath = configurationSchemaFilePath;
     }
 
+    /**
+     * Устаннавливает пити к конфигурационным файлам
+     * @param configurationFilePaths пути к конфигурационным файлам
+     */
     public void setConfigurationFilePaths(Set<String> configurationFilePaths) {
         this.configurationFilePaths = configurationFilePaths;
     }
 
+    /**
+     * Сериализует конфигурационные файлы в общий объект конфигруации, предварительно валидируя конфигурационные
+     * файлы на соответствие схеме конфигурации
+     * @return конфигурация, содержащая информацию всех конфигурационных файлов
+     * @throws Exception
+     */
     public Configuration serializeConfiguration() throws Exception {
         if(configurationFilePaths == null || configurationFilePaths.isEmpty()) {
             throw new RuntimeException("Configuration paths aren't specified");

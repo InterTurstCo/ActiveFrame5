@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.config;
 
 /**
+ * Ошибка конфигурации
  * @author vmatsukevich
  *         Date: 6/19/13
  *         Time: 3:54 PM

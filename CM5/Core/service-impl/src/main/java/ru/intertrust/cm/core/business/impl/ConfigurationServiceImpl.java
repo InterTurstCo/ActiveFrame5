@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
 import ru.intertrust.cm.core.config.ConfigurationException;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.config.ConfigurationSerializer;
 import ru.intertrust.cm.core.config.model.*;
 import ru.intertrust.cm.core.dao.api.ConfigurationDAO;
@@ -181,7 +182,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         private final Set<String> mergedDomainObjectConfigs = new HashSet<>();
 
         private RecursiveMerger(Configuration oldConfiguration) {
-            oldConfigurationExplorer = new ConfigurationExplorer(oldConfiguration);
+            oldConfigurationExplorer = new ConfigurationExplorerImpl(oldConfiguration);
             oldConfigurationExplorer.init();
         }
 

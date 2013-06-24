@@ -7,7 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import ru.intertrust.cm.core.business.api.AuthenticationService;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.config.ConfigurationSerializer;
 import ru.intertrust.cm.core.config.model.Configuration;
 import ru.intertrust.cm.core.dao.api.DataStructureDAO;
@@ -50,7 +50,7 @@ public class ConfigurationServiceImplTest {
         configuration = configurationSerializer.serializeConfiguration();
         assertNotNull(configuration); // проверяем, что конфигурация сериализована из файла
 
-        ConfigurationExplorer configurationExplorer = new ConfigurationExplorer();
+        ConfigurationExplorerImpl configurationExplorer = new ConfigurationExplorerImpl();
         configurationExplorer.setConfiguration(configuration);
         configurationExplorer.init();
 

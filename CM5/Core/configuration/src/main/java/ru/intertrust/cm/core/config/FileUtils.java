@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.config;
 
-import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 
@@ -32,11 +31,6 @@ public class FileUtils {
         URL url = FileUtils.class.getClassLoader().getResource(relativePath);
         validateResult(url, relativePath);
         return url;
-    }
-
-    public static File getFile(String relativePath) {
-        URL url = getFileURL(relativePath);
-        return new File(url.getFile());
     }
 
     private static void validateResult(Object object, String path) {

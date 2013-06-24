@@ -35,6 +35,10 @@ public class PostgreSQLQueryHelper {
                 "constraint PK_" + DOMAIN_OBJECT_TABLE + " primary key (ID), constraint U_" + DOMAIN_OBJECT_TABLE + " unique (NAME))";
     }
 
+    /**
+     * Генерирует запрос, создающий таблицу для хранения версий конфигурации
+     * @return запрос, создающий таблицу для хранения версий конфигурации
+     */
     public static String generateCreateConfigurationTableQuery() {
         return "create table " + CONFIGURATION_TABLE + "(ID bigserial not null, CONTENT text not null, " +
                 "LOADED_DATE timestamp not null, constraint PK_" + CONFIGURATION_TABLE + " primary key (ID))";
@@ -89,6 +93,13 @@ public class PostgreSQLQueryHelper {
         return query.toString();
     }
 
+    /**
+     * Генерирует запрос для обновления структуры таблицы (добавления колонок и уникальных ключей)
+     * @param domainObjectConfigName название доменного объекта, таблицу которого необходимо обновить
+     * @param fieldConfigList список колонок для добавления
+     * @param uniqueKeyConfigList список уникальных ключей
+     * @return запрос для обновления структуры таблицы (добавления колонок и уникальных ключей)
+     */
     public static String generateUpdateTableQuery(String domainObjectConfigName, List<FieldConfig> fieldConfigList,
                                                   List<UniqueKeyConfig> uniqueKeyConfigList) {
         String tableName = getSqlName(domainObjectConfigName);

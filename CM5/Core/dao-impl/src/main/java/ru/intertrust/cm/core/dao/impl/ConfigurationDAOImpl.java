@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Реализация {@link ConfigurationDAO}
  * @author vmatsukevich
  *         Date: 6/17/13
  *         Time: 3:45 PM
@@ -19,10 +20,18 @@ public class ConfigurationDAOImpl implements ConfigurationDAO {
 
     private NamedParameterJdbcTemplate jdbcTemplate;
 
+    /**
+     * Создает {@link #jdbcTemplate}
+     * @param dataSource
+     */
     public void setDataSource(DataSource dataSource) {
         this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
+    /**
+     * Смотри {@link ConfigurationDAO#save(String)}
+     * @param configuration конфигурация
+     */
     @Override
     public void save(String configuration) {
         String query = "insert into " + PostgreSQLQueryHelper.CONFIGURATION_TABLE +
@@ -35,6 +44,10 @@ public class ConfigurationDAOImpl implements ConfigurationDAO {
         jdbcTemplate.update(query, parametersMap);
     }
 
+    /**
+     * Смотри {@link ru.intertrust.cm.core.dao.api.ConfigurationDAO#readLastLoadedConfiguration()}
+     * @return
+     */
     @Override
     public String readLastLoadedConfiguration() {
         String query = "select CONTENT from " + PostgreSQLQueryHelper.CONFIGURATION_TABLE + " where id = " +

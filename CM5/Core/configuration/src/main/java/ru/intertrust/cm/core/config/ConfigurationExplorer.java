@@ -6,125 +6,57 @@ import ru.intertrust.cm.core.config.model.DomainObjectConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
+ * Предоставляет быстрый доступ к элементам конфигурации.
  * @author vmatsukevich
- *         Date: 6/12/13
- *         Time: 5:21 PM
+ *         Date: 6/24/13
+ *         Time: 1:28 PM
  */
-public class ConfigurationExplorer {
+public interface ConfigurationExplorer {
 
-    private Configuration configuration;
+    /**
+     * Инициализирует экземпляр {@link ConfigurationExplorer}
+     */
+    void init();
 
-    private Map<String, DomainObjectConfig> domainObjectConfigMap = new HashMap<>();
-    private Map<String, CollectionConfig> collectionConfigMap = new HashMap<>();
-    private Map<FieldConfigKey, FieldConfig> fieldConfigMap = new HashMap<>();
+    /**
+     * Возвращает конфигурацию
+     * @return конфигурация
+     */
+    Configuration getConfiguration();
 
-    public ConfigurationExplorer() {
-    }
+    /**
+     * Возвращает конфигурации доменных объектов, содержащихся в конфигурации
+     * @return коллекция конфигураций доменных объектов
+     */
+    Collection<DomainObjectConfig> getDomainObjectConfigs();
 
-    public ConfigurationExplorer(Configuration configuration) {
-        this.configuration = configuration;
-    }
-
-    public Configuration getConfiguration() {
-        return configuration;
-    }
-
-    public void setConfiguration(Configuration configuration) {
-        this.configuration = configuration;
-    }
-
-    public void init() {
-        initConfigurationMaps();
-
-        ConfigurationLogicalValidator logicalValidator = new ConfigurationLogicalValidator(this);
-        logicalValidator.validate();
-    }
-
-    public Collection<DomainObjectConfig> getDomainObjectConfigs() {
-        return domainObjectConfigMap.values();
-    }
-
-    public Collection<CollectionConfig> getCollectionConfigs() {
-        return collectionConfigMap.values();
-    }
+    /**
+     * Возвращает конфигурации коллекций, содержащихся в конфигурации
+     * @return конфигурации коллекций
+     */
+    Collection<CollectionConfig> getCollectionConfigs();
 
     /**
      * Находит конфигурацию доменного объекта по имени
      * @param name имя доменного объекта, конфигурацию которого надо найти
      * @return конфигурация доменного объекта
      */
-    public DomainObjectConfig getDomainObjectConfig(String name) {
-        return domainObjectConfigMap.get(name);
-    }
+    DomainObjectConfig getDomainObjectConfig(String name);
 
-    public CollectionConfig getCollectionConfig(String name) {
-        return collectionConfigMap.get(name);
-    }
+    /**
+     * Находит конфигурацию коллекции
+     * @param name имя коллекции, которую надо найти
+     * @return конфигурация коллекции
+     */
+    CollectionConfig getCollectionConfig(String name);
 
-    public FieldConfig getFieldConfig(String domainObjectConfigName, String fieldConfigName) {
-        FieldConfigKey fieldConfigKey = new FieldConfigKey(domainObjectConfigName, fieldConfigName);
-        return fieldConfigMap.get(fieldConfigKey);
-    }
-
-    private void initConfigurationMaps() {
-        if(configuration == null) {
-            throw new RuntimeException("Failed to initialize ConfigurationExplorer because " +
-                    "Configuration is null");
-        }
-
-        for (Object config : configuration.getConfigurationList()) {
-            if (DomainObjectConfig.class.equals(config.getClass())) {
-                DomainObjectConfig domainObjectConfig = (DomainObjectConfig) config;
-                domainObjectConfigMap.put(domainObjectConfig.getName(), domainObjectConfig);
-
-                for (FieldConfig fieldConfig : domainObjectConfig.getFieldConfigs()) {
-                    FieldConfigKey fieldConfigKey = new FieldConfigKey(domainObjectConfig.getName(), fieldConfig.getName());
-                    fieldConfigMap.put(fieldConfigKey, fieldConfig);
-                }
-            } else if(CollectionConfig.class.equals(config.getClass())) {
-                CollectionConfig collectionConfig = (CollectionConfig) config;
-                collectionConfigMap.put(collectionConfig.getName(), collectionConfig);
-            } else {
-                throw new RuntimeException("Unknown configuration type '" + config.getClass() + "'");
-            }
-        }
-    }
-
-    private class FieldConfigKey {
-
-        private String domainObjectName;
-        private String fieldConfigName;
-
-        private FieldConfigKey(String domainObjectName, String fieldConfigName) {
-            this.domainObjectName = domainObjectName;
-            this.fieldConfigName = fieldConfigName;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            FieldConfigKey that = (FieldConfigKey) o;
-
-            if (domainObjectName != null ? !domainObjectName.equals(that.domainObjectName) : that.domainObjectName != null)
-                return false;
-            if (fieldConfigName != null ? !fieldConfigName.equals(that.fieldConfigName) : that.fieldConfigName != null)
-                return false;
-
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = domainObjectName != null ? domainObjectName.hashCode() : 0;
-            result = 31 * result + (fieldConfigName != null ? fieldConfigName.hashCode() : 0);
-            return result;
-        }
-
-    }
+    /**
+     * Находит конфигурацию поля доменного объекта по имени доменного объекта и имени поля
+     * @param domainObjectConfigName имя доменного объекта
+     * @param fieldConfigName имя поля доменного объекта
+     * @return конфигурация поля доменного объекта
+     */
+    FieldConfig getFieldConfig(String domainObjectConfigName, String fieldConfigName);
 }

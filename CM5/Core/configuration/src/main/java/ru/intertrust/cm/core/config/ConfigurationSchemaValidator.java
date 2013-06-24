@@ -16,6 +16,7 @@ import java.io.InputStream;
 import static ru.intertrust.cm.core.config.FileUtils.getFileInputStream;
 
 /**
+ * Валидирует файл конфигурации на соответствие схеме конфигурации
  * @author vmatsukevich
  *         Date: 6/12/13
  *         Time: 6:13 PM

@@ -50,8 +50,7 @@ public class DaoUtils {
      * запятой. В результате получаем строку ввида : column1=:param1,
      * column2=:param2
      *
-     * @param columnNames
-     *            список колонок
+     * @param columns список колонок
      * @return возвращает строку состоящую из списка значений
      */
     public static String generateCommaSeparatedListWithParams(Collection<String> columns) {
@@ -60,21 +59,21 @@ public class DaoUtils {
             return "";
         }
 
-        StringBuilder buidler = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
 
         String firstColumn = columns.iterator().next();
         for (String column : columns) {
             if (!firstColumn.equals(column)) {
-                buidler.append(",");
+                builder.append(",");
             }
-            buidler.append(column);
-            buidler.append("=");
-            buidler.append(":");
-            buidler.append(column.toLowerCase());
+            builder.append(column);
+            builder.append("=");
+            builder.append(":");
+            builder.append(column.toLowerCase());
 
         }
 
-        return buidler.toString();
+        return builder.toString();
 
     }
 

@@ -8,7 +8,7 @@ import org.mockito.MockitoAnnotations;
 import ru.intertrust.cm.core.business.api.AuthenticationService;
 import ru.intertrust.cm.core.business.api.MD5Service;
 import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.dao.api.AuthenticationDAO;
 import ru.intertrust.cm.core.dao.api.CrudServiceDAO;
 
@@ -33,7 +33,7 @@ public class AuthenticationServiceTest {
     private MD5Service md5ServiceMock;
 
     @Mock
-    private ConfigurationExplorer configurationExplorer;
+    private ConfigurationExplorerImpl configurationExplorer;
 
     @Mock
     private CrudServiceDAO crudServiceDAO;
