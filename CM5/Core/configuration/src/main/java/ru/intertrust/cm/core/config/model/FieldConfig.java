@@ -37,21 +37,27 @@ public abstract class FieldConfig implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         FieldConfig that = (FieldConfig) o;
 
-        if (notNull != that.notNull) return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (notNull != that.notNull) {
+            return false;
+        }
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (notNull ? 1 : 0);
-        return result;
+        return name != null ? name.hashCode() : 0;
     }
 }

@@ -32,13 +32,18 @@ public class UniqueKeyConfig implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         UniqueKeyConfig that = (UniqueKeyConfig) o;
 
-        if (uniqueKeyFieldConfigs != null ? !uniqueKeyFieldConfigs.equals(that.uniqueKeyFieldConfigs) : that.uniqueKeyFieldConfigs != null)
+        if (uniqueKeyFieldConfigs != null ? !uniqueKeyFieldConfigs.equals(that.uniqueKeyFieldConfigs) : that.uniqueKeyFieldConfigs != null) {
             return false;
+        }
 
         return true;
     }

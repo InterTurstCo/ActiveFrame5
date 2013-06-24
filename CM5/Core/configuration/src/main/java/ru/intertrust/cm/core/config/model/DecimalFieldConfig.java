@@ -35,20 +35,32 @@ public class DecimalFieldConfig extends FieldConfig {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
 
         DecimalFieldConfig that = (DecimalFieldConfig) o;
 
-        if (precision != null ? !precision.equals(that.precision) : that.precision != null) return false;
-        if (scale != null ? !scale.equals(that.scale) : that.scale != null) return false;
+        if (precision != null ? !precision.equals(that.precision) : that.precision != null) {
+            return false;
+        }
+        if (scale != null ? !scale.equals(that.scale) : that.scale != null) {
+            return false;
+        }
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = precision != null ? precision.hashCode() : 0;
+        int result = super.hashCode();
+        result = 31 * result + (precision != null ? precision.hashCode() : 0);
         result = 31 * result + (scale != null ? scale.hashCode() : 0);
         return result;
     }

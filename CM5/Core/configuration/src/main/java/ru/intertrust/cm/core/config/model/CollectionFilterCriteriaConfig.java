@@ -47,14 +47,24 @@ public class CollectionFilterCriteriaConfig implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         CollectionFilterCriteriaConfig that = (CollectionFilterCriteriaConfig) o;
 
-        if (condition != null ? !condition.equals(that.condition) : that.condition != null) return false;
-        if (placeholder != null ? !placeholder.equals(that.placeholder) : that.placeholder != null) return false;
-        if (value != null ? !value.equals(that.value) : that.value != null) return false;
+        if (condition != null ? !condition.equals(that.condition) : that.condition != null) {
+            return false;
+        }
+        if (placeholder != null ? !placeholder.equals(that.placeholder) : that.placeholder != null) {
+            return false;
+        }
+        if (value != null ? !value.equals(that.value) : that.value != null) {
+            return false;
+        }
 
         return true;
     }

@@ -36,12 +36,18 @@ public class DomainObjectFieldsConfig implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         DomainObjectFieldsConfig that = (DomainObjectFieldsConfig) o;
 
-        if (fieldConfigs != null ? !fieldConfigs.equals(that.fieldConfigs) : that.fieldConfigs != null) return false;
+        if (fieldConfigs != null ? !fieldConfigs.equals(that.fieldConfigs) : that.fieldConfigs != null) {
+            return false;
+        }
 
         return true;
     }

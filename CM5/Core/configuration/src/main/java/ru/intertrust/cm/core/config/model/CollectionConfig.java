@@ -106,22 +106,39 @@ public class CollectionConfig implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         CollectionConfig that = (CollectionConfig) o;
 
-        if (countingPrototype != null ? !countingPrototype.equals(that.countingPrototype) : that.countingPrototype != null)
+        if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
-        if (displayConfig != null ? !displayConfig.equals(that.displayConfig) : that.displayConfig != null)
+        }
+        if (domainObjectType != null ? !domainObjectType.equals(that.domainObjectType) : that.domainObjectType != null) {
             return false;
-        if (domainObjectType != null ? !domainObjectType.equals(that.domainObjectType) : that.domainObjectType != null)
+        }
+        if (idField != null ? !idField.equals(that.idField) : that.idField != null) {
             return false;
-        if (filters != null ? !filters.equals(that.filters) : that.filters != null) return false;
-        if (idField != null ? !idField.equals(that.idField) : that.idField != null) return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (prototype != null ? !prototype.equals(that.prototype) : that.prototype != null) return false;
-        if (renderer != null ? !renderer.equals(that.renderer) : that.renderer != null) return false;
+        }
+        if (countingPrototype != null ? !countingPrototype.equals(that.countingPrototype) : that.countingPrototype != null) {
+            return false;
+        }
+        if (displayConfig != null ? !displayConfig.equals(that.displayConfig) : that.displayConfig != null) {
+            return false;
+        }
+        if (filters != null ? !filters.equals(that.filters) : that.filters != null) {
+            return false;
+        }
+        if (prototype != null ? !prototype.equals(that.prototype) : that.prototype != null) {
+            return false;
+        }
+        if (renderer != null ? !renderer.equals(that.renderer) : that.renderer != null) {
+            return false;
+        }
 
         return true;
     }
@@ -129,13 +146,7 @@ public class CollectionConfig implements Serializable {
     @Override
     public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (idField != null ? idField.hashCode() : 0);
         result = 31 * result + (domainObjectType != null ? domainObjectType.hashCode() : 0);
-        result = 31 * result + (displayConfig != null ? displayConfig.hashCode() : 0);
-        result = 31 * result + (prototype != null ? prototype.hashCode() : 0);
-        result = 31 * result + (countingPrototype != null ? countingPrototype.hashCode() : 0);
-        result = 31 * result + (filters != null ? filters.hashCode() : 0);
-        result = 31 * result + (renderer != null ? renderer.hashCode() : 0);
         return result;
     }
 }
