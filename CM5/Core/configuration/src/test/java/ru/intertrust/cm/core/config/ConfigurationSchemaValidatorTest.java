@@ -1,9 +1,8 @@
-package ru.intertrust.cm.core.business.impl;
+package ru.intertrust.cm.core.config;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import ru.intertrust.cm.core.config.ConfigurationSchemaValidator;
 
 /**
  * Тестовый класс для {@link ru.intertrust.cm.core.config.ConfigurationLogicalValidator}

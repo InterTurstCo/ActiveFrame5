@@ -6,6 +6,7 @@ import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,7 +36,7 @@ public class CollectionConfig implements Serializable {
     private String countingPrototype;
 
     @ElementList(entry = "filter", required = false, inline=true)
-    private List<CollectionFilterConfig> filters;
+    private List<CollectionFilterConfig> filters = new ArrayList<>();
 
     @Element(name = "renderer", required = false)
     private CollectionRendererConfig renderer;
@@ -93,7 +94,11 @@ public class CollectionConfig implements Serializable {
     }
 
     public void setFilters(List<CollectionFilterConfig> filters) {
-        this.filters = filters;
+        if(filters != null) {
+            this.filters = filters;
+        } else {
+            this.filters.clear();
+        }
     }
 
     public CollectionRendererConfig getRenderer() {

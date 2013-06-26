@@ -4,7 +4,13 @@ import org.junit.Before;
 import org.junit.Test;
 import ru.intertrust.cm.core.config.model.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
+import static ru.intertrust.cm.core.dao.api.DataStructureDAO.*;
+import static ru.intertrust.cm.core.dao.api.ConfigurationDAO.CONFIGURATION_TABLE;
 
 /**
  * @author vmatsukevich
@@ -21,6 +27,46 @@ public class PostgreSQLQueryHelperTest {
     }
 
     @Test
+    public void testGenerateCountTablesQuery() {
+        String query = "select count(table_name) FROM information_schema.tables WHERE table_schema = 'public'";
+        String testQuery = PostgreSQLQueryHelper.generateCountTablesQuery();
+        assertEquals(testQuery, query);
+    }
+
+    @Test
+    public void testGenerateCreateDomainObjectTableQuery() {
+        String query = "create table " + DOMAIN_OBJECT_TABLE + "(ID bigserial not null, NAME varchar(256) not null, " +
+                "constraint PK_" + DOMAIN_OBJECT_TABLE + " primary key (ID), constraint U_" + DOMAIN_OBJECT_TABLE + " unique (NAME))";
+        String testQuery = PostgreSQLQueryHelper.generateCreateDomainObjectTableQuery();
+        assertEquals(testQuery, query);
+    }
+
+    @Test
+    public void testGenerateCreateConfigurationTableQuery() {
+        String query = "create table " + CONFIGURATION_TABLE + "(ID bigserial not null, CONTENT text not null, " +
+                "LOADED_DATE timestamp not null, constraint PK_" + CONFIGURATION_TABLE + " primary key (ID))";
+        String testQuery = PostgreSQLQueryHelper.generateCreateConfigurationTableQuery();
+        assertEquals(testQuery, query);
+    }
+
+    @Test
+    public void testGenerateCreateAuthenticationInfoTableQuery() {
+        String query = "CREATE TABLE " + AUTHENTICATION_INFO_TABLE + " (ID bigint not null, " +
+                "user_uid character varying(64) NOT NULL, password character varying(128), constraint PK_" +
+                AUTHENTICATION_INFO_TABLE + "_ID primary key (ID), constraint U_" + AUTHENTICATION_INFO_TABLE +
+                "_USER_UID unique(user_uid))";
+        String testQuery = PostgreSQLQueryHelper.generateCreateAuthenticationInfoTableQuery();
+        assertEquals(testQuery, query);
+    }
+
+    @Test
+    public void testGenerateSequenceQuery() {
+        String query = "create sequence OUTGOING_DOCUMENT_SEQ";
+        String testQuery = PostgreSQLQueryHelper.generateSequenceQuery(domainObjectConfig);
+        assertEquals(testQuery, query);
+    }
+
+    @Test
     public void testGenerateCreateTableQuery() throws Exception {
         String query = PostgreSQLQueryHelper.generateCreateTableQuery(domainObjectConfig);
         String checkQuery = "create table OUTGOING_DOCUMENT ( ID bigint not null, CREATED_DATE timestamp not null, " +
@@ -33,12 +79,49 @@ public class PostgreSQLQueryHelperTest {
     }
 
     @Test
+    public void testGenerateUpdateTableQuery() {
+        String query = "alter table OUTGOING_DOCUMENT " +
+                "add column DESCRIPTION varchar(256), " +
+                "add column EXECUTOR bigint not null, " +
+                "add constraint FK_OUTGOING_DOCUMENT_EXECUTOR foreign key (EXECUTOR) references EMPLOYEE(ID), " +
+                "add constraint U_OUTGOING_DOCUMENT_REGISTRATION_NUMBER unique (REGISTRATION_NUMBER)";
+
+        List<FieldConfig> newColumns = new ArrayList<>();
+
+        StringFieldConfig descriptionFieldConfig = new StringFieldConfig();
+        descriptionFieldConfig.setName("Description");
+        descriptionFieldConfig.setLength(256);
+        descriptionFieldConfig.setNotNull(false);
+        newColumns.add(descriptionFieldConfig);
+
+        ReferenceFieldConfig executorFieldConfig = new ReferenceFieldConfig();
+        executorFieldConfig.setName("Executor");
+        executorFieldConfig.setType("Employee");
+        executorFieldConfig.setNotNull(true);
+        newColumns.add(executorFieldConfig);
+
+        UniqueKeyConfig uniqueKeyConfig = new UniqueKeyConfig();
+        UniqueKeyFieldConfig uniqueKeyFieldConfig = new UniqueKeyFieldConfig();
+        uniqueKeyFieldConfig.setName("Registration Number");
+        uniqueKeyConfig.getUniqueKeyFieldConfigs().add(uniqueKeyFieldConfig);
+        List<UniqueKeyConfig> newUniqueConfigs = Collections.singletonList(uniqueKeyConfig);
+
+
+        String testQuery = PostgreSQLQueryHelper.generateUpdateTableQuery(domainObjectConfig.getName(), newColumns,
+                newUniqueConfigs);
+
+        assertEquals(testQuery, query);
+    }
+
+    @Test
     public void testGenerateCreateIndexesQuery() throws Exception {
         String query = PostgreSQLQueryHelper.generateCreateIndexesQuery(domainObjectConfig.getName(),
                 domainObjectConfig.getFieldConfigs());
         String checkQuery = "create index I_OUTGOING_DOCUMENT_AUTHOR on OUTGOING_DOCUMENT (AUTHOR);\n";
         assertEquals(query, checkQuery);
     }
+
+
 
     private void initDomainObjectConfig() {
         domainObjectConfig = new DomainObjectConfig();

@@ -18,6 +18,13 @@ import java.util.Map;
  */
 public class ConfigurationDAOImpl implements ConfigurationDAO {
 
+    protected static final String SAVE_QUERY =
+            "insert into " + CONFIGURATION_TABLE + "(CONTENT, LOADED_DATE) values (:content, :loadedDate)";
+
+    protected static final String READ_LAST_SAVED_CONFIGURATION_QUERY =
+            "select CONTENT from " + CONFIGURATION_TABLE +
+            " where id = (select max(id) from " + CONFIGURATION_TABLE + ")";
+
     private NamedParameterJdbcTemplate jdbcTemplate;
 
     /**
@@ -34,28 +41,40 @@ public class ConfigurationDAOImpl implements ConfigurationDAO {
      */
     @Override
     public void save(String configuration) {
-        String query = "insert into " + PostgreSQLQueryHelper.CONFIGURATION_TABLE +
-                "(CONTENT, LOADED_DATE) values (:content, :loadedDate)";
-
         Map<String, Object> parametersMap = new HashMap();
         parametersMap.put("content", configuration);
         parametersMap.put("loadedDate", new Date());
 
-        jdbcTemplate.update(query, parametersMap);
+        jdbcTemplate.update(generateSaveQuery(), parametersMap);
     }
 
     /**
-     * Смотри {@link ru.intertrust.cm.core.dao.api.ConfigurationDAO#readLastLoadedConfiguration()}
+     * Смотри {@link ru.intertrust.cm.core.dao.api.ConfigurationDAO#readLastSavedConfiguration()}
      * @return
      */
     @Override
-    public String readLastLoadedConfiguration() {
-        String query = "select CONTENT from " + PostgreSQLQueryHelper.CONFIGURATION_TABLE + " where id = " +
-                "(select max(id) from " + PostgreSQLQueryHelper.CONFIGURATION_TABLE + ")";
+    public String readLastSavedConfiguration() {
         try {
-            return jdbcTemplate.queryForObject(query, Collections.<String, Object>emptyMap(), String.class);
+            return jdbcTemplate.queryForObject(generateReadLastLoadedConfiguration(),
+                    Collections.<String, Object>emptyMap(), String.class);
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
+    }
+
+    /**
+     * Создает запрос на сохранение конфигурации в таблице CONFIGURATION
+     * @return запрос на сохранение конфигурации в таблице CONFIGURATION
+     */
+    protected  String generateSaveQuery() {
+        return SAVE_QUERY;
+    }
+
+    /**
+     * Создает запрос на получение последней сохраненной конфигурации
+     * @return
+     */
+    protected String generateReadLastLoadedConfiguration() {
+        return READ_LAST_SAVED_CONFIGURATION_QUERY;
     }
 }

@@ -5,6 +5,8 @@ import ru.intertrust.cm.core.config.model.*;
 import java.util.List;
 
 import static ru.intertrust.cm.core.dao.api.DataStructureDAO.DOMAIN_OBJECT_TABLE;
+import static ru.intertrust.cm.core.dao.api.DataStructureDAO.AUTHENTICATION_INFO_TABLE;
+import static ru.intertrust.cm.core.dao.api.ConfigurationDAO.CONFIGURATION_TABLE;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
 
 /**
@@ -14,9 +16,6 @@ import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
  *         Time: 2:12 PM
  */
 public class PostgreSQLQueryHelper {
-
-    public static final String AUTHENTICATION_INFO_TABLE = "AUTHENTICATION_INFO";
-    public static final String CONFIGURATION_TABLE = "CONFIGURATION";
 
     /**
      * Генерирует запрос, возвращающий кол-во таблиц в базе данных

@@ -11,7 +11,7 @@ import java.util.Map;
 
 /**
  * Предоставляет быстрый доступ к элементам конфигурации.
- * После создания объекта данного класса требуется выполнить инициализацию через вызов метода {@link #init()}.
+ * После создания объекта данного класса требуется выполнить инициализацию через вызов метода {@link #build()}.
  * @author vmatsukevich
  *         Date: 6/12/13
  *         Time: 5:21 PM
@@ -53,7 +53,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      * обеспечивающую быстрый доступ к элементам конфигурации и выполняет логическую валидацию конфигурации
      */
     @Override
-    public void init() {
+    public void build() {
         initConfigurationMaps();
 
         ConfigurationLogicalValidator logicalValidator = new ConfigurationLogicalValidator(this);
@@ -106,6 +106,10 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
             throw new RuntimeException("Failed to initialize ConfigurationExplorerImpl because " +
                     "Configuration is null");
         }
+
+        domainObjectConfigMap.clear();
+        collectionConfigMap.clear();
+        fieldConfigMap.clear();
 
         for (Object config : configuration.getConfigurationList()) {
             if (DomainObjectConfig.class.equals(config.getClass())) {

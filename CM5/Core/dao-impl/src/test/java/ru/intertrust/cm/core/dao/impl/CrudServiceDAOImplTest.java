@@ -70,7 +70,7 @@ public class CrudServiceDAOImplTest {
         configurationExplorer = new ConfigurationExplorerImpl();
         Configuration configuration = configurationSerializer.serializeConfiguration();
         configurationExplorer.setConfiguration(configuration);
-        configurationExplorer.init();
+        configurationExplorer.build();
 
         domainObjectConfig = configurationExplorer.getDomainObjectConfig("Person");
         collectionConfig = configurationExplorer.getCollectionConfig("Employees");

@@ -19,17 +19,18 @@ public class Configuration implements Serializable {
             @ElementList(entry="domain-object", type=DomainObjectConfig.class, inline=true),
             @ElementList(entry="collection", type=CollectionConfig.class, inline=true)
     })
-    private List configurationList;
+    private List<Object> configurationList = new ArrayList<>();
 
     public List getConfigurationList() {
-        if(configurationList == null) {
-            configurationList = new ArrayList();
-        }
         return configurationList;
     }
 
     public void setConfigurationList(List configurationList) {
-        this.configurationList = configurationList;
+        if(configurationList != null) {
+            this.configurationList = configurationList;
+        } else {
+            this.configurationList.clear();
+        }
     }
 
     @Override

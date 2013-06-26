@@ -19,8 +19,14 @@ import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.*;
  */
 public class PostgreSQLDataStructureDAOImpl implements DataStructureDAO {
 
-    private static final String DOES_TABLE_EXISTS_QUERY =
+    protected static final String DOES_TABLE_EXISTS_QUERY =
             "select count(*) FROM information_schema.tables WHERE table_schema = 'public' and table_name = ?";
+
+    protected static final String INSERT_INTO_DOMAIN_OBJECT_TABLE_QUERY =
+            "insert into " + DOMAIN_OBJECT_TABLE + "(NAME) values (?)";
+
+    protected static final String SELECT_DOMAIN_OBJECT_CONFIG_ID_BY_NAME_QUERY =
+            "select ID from " + DOMAIN_OBJECT_TABLE + " where NAME = ?";
 
     private JdbcTemplate jdbcTemplate;
 
@@ -64,8 +70,8 @@ public class PostgreSQLDataStructureDAOImpl implements DataStructureDAO {
             jdbcTemplate.update(createIndexesQuery);
         }
 
-        jdbcTemplate.update("insert into " + DOMAIN_OBJECT_TABLE  +"(NAME) values (?)", config.getName());
-        Long id = jdbcTemplate.queryForObject("select ID from " +DOMAIN_OBJECT_TABLE + " where NAME = ?",
+        jdbcTemplate.update(INSERT_INTO_DOMAIN_OBJECT_TABLE_QUERY, config.getName());
+        Long id = jdbcTemplate.queryForObject(SELECT_DOMAIN_OBJECT_CONFIG_ID_BY_NAME_QUERY,
                 Long.class, config.getName());
         config.setId(id);
     }
@@ -109,7 +115,6 @@ public class PostgreSQLDataStructureDAOImpl implements DataStructureDAO {
      */
     @Override
     public boolean doesTableExists(String tableName) {
-        tableName = tableName.toLowerCase();
         int total = jdbcTemplate.queryForObject(DOES_TABLE_EXISTS_QUERY, Integer.class, tableName);
         return total > 0;
     }

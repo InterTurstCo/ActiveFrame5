@@ -14,20 +14,21 @@ import java.util.List;
 public class UniqueKeyConfig implements Serializable {
 
     @ElementList(entry="field", inline=true)
-    private List<UniqueKeyFieldConfig> uniqueKeyFieldConfigs;
+    private List<UniqueKeyFieldConfig> uniqueKeyFieldConfigs = new ArrayList<>();
 
     public UniqueKeyConfig() {
     }
 
     public List<UniqueKeyFieldConfig> getUniqueKeyFieldConfigs() {
-        if(uniqueKeyFieldConfigs == null) {
-            uniqueKeyFieldConfigs = new ArrayList<UniqueKeyFieldConfig>();
-        }
         return uniqueKeyFieldConfigs;
     }
 
     public void setUniqueKeyFieldConfigs(List<UniqueKeyFieldConfig> uniqueKeyFieldConfigs) {
-        this.uniqueKeyFieldConfigs = uniqueKeyFieldConfigs;
+        if(uniqueKeyFieldConfigs != null) {
+            this.uniqueKeyFieldConfigs = uniqueKeyFieldConfigs;
+        } else {
+            this.uniqueKeyFieldConfigs.clear();
+        }
     }
 
     @Override

@@ -18,7 +18,7 @@ public interface ConfigurationExplorer {
     /**
      * Инициализирует экземпляр {@link ConfigurationExplorer}
      */
-    void init();
+    void build();
 
     /**
      * Возвращает конфигурацию

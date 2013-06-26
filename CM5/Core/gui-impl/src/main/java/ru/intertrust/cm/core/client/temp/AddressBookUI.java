@@ -40,7 +40,7 @@ public class AddressBookUI extends UI {
     IndexedContainer contactContainer = createDummyDatasource();
 
     /*
-     * After UI class is created, init() is executed. You should build and wire
+     * After UI class is created, build() is executed. You should build and wire
      * up your user interface here.
      */
     protected void init(VaadinRequest request) {

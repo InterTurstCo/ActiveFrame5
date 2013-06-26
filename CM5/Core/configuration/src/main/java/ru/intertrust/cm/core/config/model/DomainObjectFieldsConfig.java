@@ -21,17 +21,18 @@ public class DomainObjectFieldsConfig implements Serializable {
             @ElementList(entry="password", type=StringFieldConfig.class, inline=true),
             @ElementList(entry="reference", type=ReferenceFieldConfig.class, inline=true)
     })
-    private List<FieldConfig> fieldConfigs;
+    private List<FieldConfig> fieldConfigs = new ArrayList<>();
 
     public List<FieldConfig> getFieldConfigs() {
-        if(fieldConfigs == null) {
-            fieldConfigs = new ArrayList<FieldConfig>();
-        }
         return fieldConfigs;
     }
 
     public void setFieldConfigs(List<FieldConfig> fieldConfigs) {
-        this.fieldConfigs = fieldConfigs;
+        if(fieldConfigs != null) {
+            this.fieldConfigs = fieldConfigs;
+        } else {
+            this.fieldConfigs.clear();
+        }
     }
 
     @Override

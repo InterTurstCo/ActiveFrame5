@@ -30,7 +30,7 @@ public class DomainObjectConfig implements Serializable {
     private DomainObjectFieldsConfig domainObjectFieldsConfig;
 
     @ElementList(entry="uniqueKey", type=UniqueKeyConfig.class, inline=true, required = false)
-    private List<UniqueKeyConfig> uniqueKeyConfigs;
+    private List<UniqueKeyConfig> uniqueKeyConfigs = new ArrayList<>();
 
     public DomainObjectConfig() {
     }
@@ -75,14 +75,15 @@ public class DomainObjectConfig implements Serializable {
     }
 
     public List<UniqueKeyConfig> getUniqueKeyConfigs() {
-        if(uniqueKeyConfigs == null) {
-            uniqueKeyConfigs = new ArrayList<>();
-        }
         return uniqueKeyConfigs;
     }
 
     public void setUniqueKeyConfigs(List<UniqueKeyConfig> uniqueKeyConfigs) {
-        this.uniqueKeyConfigs = uniqueKeyConfigs;
+        if(uniqueKeyConfigs != null) {
+            this.uniqueKeyConfigs = uniqueKeyConfigs;
+        } else {
+            this.uniqueKeyConfigs.clear();
+        }
     }
 
     @Override

@@ -8,6 +8,8 @@ package ru.intertrust.cm.core.dao.api;
  */
 public interface ConfigurationDAO {
 
+    String CONFIGURATION_TABLE = "CONFIGURATION";
+
     /**
      * Сохраняет конфигурацию
      * @param configuration конфигурация
@@ -18,5 +20,5 @@ public interface ConfigurationDAO {
      * Возвращает последнюю сохраненную в базе конфигурацию
      * @return
      */
-    String readLastLoadedConfiguration();
+    String readLastSavedConfiguration();
 }

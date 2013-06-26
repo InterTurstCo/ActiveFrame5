@@ -15,6 +15,7 @@ import java.util.List;
 public interface DataStructureDAO {
 
     String DOMAIN_OBJECT_TABLE = "DOMAIN_OBJECT";
+    String AUTHENTICATION_INFO_TABLE = "AUTHENTICATION_INFO";
 
     /**
      * Создает таблицу по конфигурации доменного объекта

@@ -58,7 +58,7 @@ public class ConfigurationSerializer {
 
     /**
      * Устанавливает путь к схеме конфигурации
-     * @param configurationSchemaFilePath
+     * @param configurationSchemaFilePath путь к схеме конфигурации
      */
     public void setConfigurationSchemaFilePath(String configurationSchemaFilePath) {
         this.configurationSchemaFilePath = configurationSchemaFilePath;

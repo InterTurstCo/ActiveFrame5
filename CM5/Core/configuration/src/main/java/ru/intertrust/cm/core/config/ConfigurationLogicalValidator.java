@@ -56,17 +56,19 @@ public class ConfigurationLogicalValidator {
                 return;
             }
         }
-        throw new RuntimeException("FieldConfig with name " + fieldName + " is not found in domain object '" + domainObjectConfig.getName() + "'");
+        throw new ConfigurationException("FieldConfig with name '" + fieldName + "' is not found in domain object '" +
+                domainObjectConfig.getName() + "'");
     }
 
     private void validateReferenceFields(DomainObjectConfig domainObjectConfig) {
         for (FieldConfig fieldConfig : domainObjectConfig.getFieldConfigs()) {
             if (ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
+                String referencedDomainObjectConfigName = ((ReferenceFieldConfig) fieldConfig).getType();
                 DomainObjectConfig referencedConfig =
-                        configurationExplorer.getDomainObjectConfig(((ReferenceFieldConfig) fieldConfig).getType());
+                        configurationExplorer.getDomainObjectConfig(referencedDomainObjectConfigName);
                 if(referencedConfig == null) {
-                    throw new RuntimeException("Referenced DomainObject Configuration is not found for name '" +
-                            referencedConfig + "'");
+                    throw new ConfigurationException("Referenced DomainObject Configuration is not found for name '" +
+                            referencedDomainObjectConfigName + "'");
                 }
             }
         }
@@ -77,7 +79,7 @@ public class ConfigurationLogicalValidator {
         if (parentConfigName != null) {
             DomainObjectConfig parentConfig = configurationExplorer.getDomainObjectConfig(parentConfigName);
             if(parentConfig == null) {
-                throw new RuntimeException("Parent DomainObject Configuration is not found for name '" + parentConfigName + "'");
+                throw new ConfigurationException("Parent DomainObject Configuration is not found for name '" + parentConfigName + "'");
             }
         }
     }
