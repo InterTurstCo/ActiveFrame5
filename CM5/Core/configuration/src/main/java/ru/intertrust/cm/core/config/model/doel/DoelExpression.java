@@ -42,14 +42,14 @@ public class DoelExpression {
     public static DoelExpression parse(String expression) {
         DoelExpression doel = new DoelExpression();
         String[] parts = expression.trim().split("\\.");
-        doel.elements = new Link[parts.length];
+        doel.elements = new Field[parts.length];
         for (int i = 0; i < parts.length; i++) {
             String part = parts[i];
             if (part.matches(".+\\^.*")) {
                 String[] names = part.split("\\^");
                 doel.elements[i] = new Children(names[0], names[1]);
             } else {
-                doel.elements[i] = new Link(part);
+                doel.elements[i] = new Field(part);
             }
         }
         return doel;
@@ -57,27 +57,43 @@ public class DoelExpression {
 
     private DoelExpression() { }
 
+    public enum ElementType {
+        FIELD,
+        CHILDREN
+    }
+
     /**
      * Базовый класс для хранения частей DOEL-выражения.
      */
-    public abstract static class Element { }
+    public abstract static class Element {
+        public abstract ElementType getElementType();
+    }
 
     /**
      * Класс, хранящий часть DOEL-выражения - простое имя поля.
      */
-    public static class Link extends Element {
+    public static class Field extends Element {
         String name;
         
-        Link(String name) {
+        Field(String name) {
             this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public ElementType getElementType() {
+            return ElementType.FIELD;
         }
 
         @Override
         public boolean equals(Object obj) {
-            if (obj == null || !Link.class.equals(obj.getClass())) {
+            if (obj == null || !Field.class.equals(obj.getClass())) {
                 return false;
             }
-            return name.equals(((Link) obj).name);
+            return name.equals(((Field) obj).name);
         }
 
         @Override
@@ -101,6 +117,19 @@ public class DoelExpression {
         Children(String childType, String parentLink) {
             this.childType = childType;
             this.parentLink = parentLink;
+        }
+
+        public String getChildType() {
+            return childType;
+        }
+
+        public String getParentLink() {
+            return parentLink;
+        }
+
+        @Override
+        public ElementType getElementType() {
+            return ElementType.CHILDREN;
         }
 
         @Override
