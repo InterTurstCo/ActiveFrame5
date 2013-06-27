@@ -10,7 +10,7 @@ import ru.intertrust.cm.core.business.api.MD5Service;
 import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.dao.api.AuthenticationDAO;
-import ru.intertrust.cm.core.dao.api.CrudServiceDAO;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 
 import static org.mockito.Mockito.verify;
 
@@ -36,7 +36,7 @@ public class AuthenticationServiceTest {
     private ConfigurationExplorerImpl configurationExplorer;
 
     @Mock
-    private CrudServiceDAO crudServiceDAO;
+    private DomainObjectDao domainObjectDao;
 
     @Mock
     private AuthenticationDAO authenticationDAOMock;
@@ -55,7 +55,7 @@ public class AuthenticationServiceTest {
     @Test
     public void testInsertAuthenticationInfo() {
         //authenticationService.insertAuthenticationInfoAndRole(testAuthenticationInfo);
-//        when(crudServiceDAO.create(anyObject(), anyObject())).thenReturn(Long.valueOf(7)); // ID конфигурации доменного объекта
+//        when(domainObjectDao.create(anyObject(), anyObject())).thenReturn(Long.valueOf(7)); // ID конфигурации доменного объекта
 //        when(md5ServiceMock.getMD5(ADMIN_PASSWORD)).thenReturn(ADMIN_PASSWORD);
 
 //        verify(md5ServiceMock).getMD5(ADMIN_PASSWORD);

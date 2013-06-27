@@ -15,7 +15,7 @@ import java.util.List;
  * удаления, поиска и т.д.
  *
  */
-public interface CrudServiceDAO {
+public interface DomainObjectDao {
 
 
     /**

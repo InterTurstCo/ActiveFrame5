@@ -5,7 +5,7 @@ import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.*;
-import ru.intertrust.cm.core.dao.api.CrudServiceDAO;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 
@@ -35,10 +35,10 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
     @Autowired
     private ConfigurationExplorer configurationExplorer;
 
-    private CrudServiceDAO crudServiceDAO;
+    private DomainObjectDao domainObjectDao;
 
-    public void setCrudServiceDAO(CrudServiceDAO crudServiceDAO) {
-        this.crudServiceDAO = crudServiceDAO;
+    public void setDomainObjectDao(DomainObjectDao domainObjectDao) {
+        this.domainObjectDao = domainObjectDao;
     }
 
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
@@ -68,13 +68,13 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         Date currentDate = new Date();
         domainObject.setCreatedDate(currentDate);
         domainObject.setModifiedDate(currentDate);
-        return crudServiceDAO.create(domainObject, domainObjectConfig);
+        return domainObjectDao.create(domainObject, domainObjectConfig);
 
     }
 
     protected DomainObject update(DomainObject domainObject) {
         DomainObjectConfig domainObjectConfig = configurationExplorer.getDomainObjectConfig(domainObject.getTypeName());
-        return crudServiceDAO.update(domainObject, domainObjectConfig);
+        return domainObjectDao.update(domainObject, domainObjectConfig);
     }
 
     @Override
@@ -109,17 +109,17 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     @Override
     public boolean exists(Id id) {
-        return crudServiceDAO.exists(id);
+        return domainObjectDao.exists(id);
     }
 
     @Override
     public DomainObject find(Id id) {
-        return crudServiceDAO.find(id);
+        return domainObjectDao.find(id);
     }
 
     @Override
     public List<DomainObject> find(List<Id> ids) {
-        return crudServiceDAO.find(ids);
+        return domainObjectDao.find(ids);
     }
 
     @Override
@@ -128,7 +128,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
         CollectionConfig collectionConfig = configurationExplorer.getCollectionConfig(collectionName);
         List<CollectionFilterConfig> filledFilterConfigs = findFilledFilterConfigs(filterValues, collectionConfig);
-        return crudServiceDAO.findCollection(collectionConfig, filledFilterConfigs, filterValues, sortOrder, offset,
+        return domainObjectDao.findCollection(collectionConfig, filledFilterConfigs, filterValues, sortOrder, offset,
                 limit);
     }
 
@@ -214,14 +214,14 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
     public int findCollectionCount(String collectionName, List<Filter> filterValues) {
         CollectionConfig collectionConfig = configurationExplorer.getCollectionConfig(collectionName);
         List<CollectionFilterConfig> filledFilterConfigs = findFilledFilterConfigs(filterValues, collectionConfig);
-        return crudServiceDAO.findCollectionCount(collectionConfig, filledFilterConfigs, filterValues);
+        return domainObjectDao.findCollectionCount(collectionConfig, filledFilterConfigs, filterValues);
     }
 
     @Override
     public void delete(Id id) {
         RdbmsId rdbmsId = (RdbmsId)id;
         DomainObjectConfig domainObjectConfig = configurationExplorer.getDomainObjectConfig(rdbmsId.getTypeName());
-        crudServiceDAO.delete(id, domainObjectConfig);
+        domainObjectDao.delete(id, domainObjectConfig);
     }
 
     @Override

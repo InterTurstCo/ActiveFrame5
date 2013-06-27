@@ -9,7 +9,7 @@ import ru.intertrust.cm.core.config.model.CollectionConfig;
 import ru.intertrust.cm.core.config.model.CollectionFilterConfig;
 import ru.intertrust.cm.core.config.model.DomainObjectConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
-import ru.intertrust.cm.core.dao.api.CrudServiceDAO;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.IdGenerator;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
@@ -28,7 +28,7 @@ import java.util.*;
  *
  */
 
-public class CrudServiceDAOImpl implements CrudServiceDAO {
+public class DomainObjectDaoImpl implements DomainObjectDao {
 
     private NamedParameterJdbcTemplate jdbcTemplate;
 
@@ -396,7 +396,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
 
     /*
      * {@see
-     * ru.intertrust.cm.core.dao.api.CrudServiceDAO#findCollectionByQuery(ru.intertrust.cm.core.config.model.CollectionConfig,
+     * ru.intertrust.cm.core.dao.api.DomainObjectDao#findCollectionByQuery(ru.intertrust.cm.core.config.model.CollectionConfig,
      * java.util.List, ru.intertrust.cm.core.business.api.dto.SortOrder, int, int)}
      */
     @Override
@@ -456,7 +456,7 @@ public class CrudServiceDAOImpl implements CrudServiceDAO {
     }
 
     /*
-     * {@see ru.intertrust.cm.core.dao.api.CrudServiceDAO#findCollectionCountByQuery(ru.intertrust.cm.core.config.model.
+     * {@see ru.intertrust.cm.core.dao.api.DomainObjectDao#findCollectionCountByQuery(ru.intertrust.cm.core.config.model.
      * CollectionConfig , java.util.List, ru.intertrust.cm.core.business.api.dto.SortOrder)}
      */
     @Override

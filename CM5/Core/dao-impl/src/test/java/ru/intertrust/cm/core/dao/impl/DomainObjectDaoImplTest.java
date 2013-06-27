@@ -20,14 +20,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Юнит тест для CrudServiceDAOImpl
+ * Юнит тест для DomainObjectDaoImpl
  *
  * @author skashanski
  *
  */
 
 @RunWith(MockitoJUnitRunner.class)
-public class CrudServiceDAOImplTest {
+public class DomainObjectDaoImplTest {
 
     private DomainObjectConfig domainObjectConfig;
 
@@ -42,7 +42,7 @@ public class CrudServiceDAOImplTest {
             new String[]{DOMAIN_OBJECTS_CONFIG_PATH, COLLECTIONS_CONFIG_PATH}));
 
     @InjectMocks
-    private CrudServiceDAOImpl crudServiceDAOImpl = new CrudServiceDAOImpl();
+    private DomainObjectDaoImpl domainObjectDaoImpl = new DomainObjectDaoImpl();
     @Mock
     private JdbcTemplate jdbcTemplate;
 
@@ -97,7 +97,7 @@ public class CrudServiceDAOImplTest {
         String checkCreateQuery =
                 "insert into PERSON (ID , CREATED_DATE, UPDATED_DATE, EMAIL,LOGIN,PASSWORD) values (:id , :created_date, :updated_date, :email,:login,:password)";
 
-        String query = crudServiceDAOImpl.generateCreateQuery(domainObject, domainObjectConfig);
+        String query = domainObjectDaoImpl.generateCreateQuery(domainObject, domainObjectConfig);
         assertEquals(checkCreateQuery, query);
 
     }
@@ -114,7 +114,7 @@ public class CrudServiceDAOImplTest {
 
         //проверяем что идентификатор не нулевой
         try {
-            crudServiceDAOImpl.update(domainObject, domainObjectConfig);
+            domainObjectDaoImpl.update(domainObject, domainObjectConfig);
         } catch (Exception e) {
 
             assertTrue(e instanceof InvalidIdException);
@@ -124,7 +124,7 @@ public class CrudServiceDAOImplTest {
         //проверяем что обрабатываеться неккоректный тип идентификатора
         try {
             domainObject.setId(new TestId());
-            crudServiceDAOImpl.update(domainObject, domainObjectConfig);
+            domainObjectDaoImpl.update(domainObject, domainObjectConfig);
         } catch (Exception e) {
 
             assertTrue(e instanceof InvalidIdException);
@@ -151,7 +151,7 @@ public class CrudServiceDAOImplTest {
 
         String checkUpdateQuery = "update PERSON set UPDATED_DATE=:current_date, EMAIL=:email,LOGIN=:login,PASSWORD=:password where ID=:id and UPDATED_DATE=:updated_date";
 
-        String query = crudServiceDAOImpl.generateUpdateQuery(domainObject, domainObjectConfig);
+        String query = domainObjectDaoImpl.generateUpdateQuery(domainObject, domainObjectConfig);
         assertEquals(checkUpdateQuery, query);
 
     }
@@ -161,7 +161,7 @@ public class CrudServiceDAOImplTest {
 
         String checkDeleteQuery = "delete from PERSON where id=:id";
 
-        String query = crudServiceDAOImpl.generateDeleteQuery(domainObjectConfig);
+        String query = domainObjectDaoImpl.generateDeleteQuery(domainObjectConfig);
         assertEquals(checkDeleteQuery, query);
 
     }
@@ -172,7 +172,7 @@ public class CrudServiceDAOImplTest {
 
         String checkDeleteQuery = "delete from PERSON";
 
-        String query = crudServiceDAOImpl.generateDeleteAllQuery(domainObjectConfig);
+        String query = domainObjectDaoImpl.generateDeleteAllQuery(domainObjectConfig);
         assertEquals(checkDeleteQuery, query);
 
     }
@@ -183,7 +183,7 @@ public class CrudServiceDAOImplTest {
 
         String checkExistsQuery = "select id from PERSON where id=:id";
 
-        String query = crudServiceDAOImpl.generateExistsQuery(domainObjectConfig.getName());
+        String query = domainObjectDaoImpl.generateExistsQuery(domainObjectConfig.getName());
         assertEquals(checkExistsQuery, query);
 
     }
@@ -268,7 +268,7 @@ public class CrudServiceDAOImplTest {
 
         filledFilterConfigs.add(byDepartmentFilterConfig);
 
-        String actualQuery = crudServiceDAOImpl.getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, 0, 0);
+        String actualQuery = domainObjectDaoImpl.getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, 0, 0);
         String refinedActualQuery = refineQuery(actualQuery);
         assertEquals(FIND_COLLECTION_QUERY_WITH_FILTERS, refinedActualQuery);
         System.out.print("!!! " + refineQuery(actualQuery) + "\n");
@@ -278,7 +278,7 @@ public class CrudServiceDAOImplTest {
     @Test
     public void testFindCollectionWithoutFilters() throws Exception {
         List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<>();
-        String actualQuery = crudServiceDAOImpl.getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, 0, 0);
+        String actualQuery = domainObjectDaoImpl.getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, 0, 0);
         String refinedActualQuery = refineQuery(actualQuery);
         assertEquals(COLLECTION_QUERY_WITHOUT_FILTERS, refinedActualQuery);
         System.out.print(refinedActualQuery);
@@ -290,7 +290,7 @@ public class CrudServiceDAOImplTest {
         List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<>();
         filledFilterConfigs.add(byDepartmentFilterConfig);
 
-        String actualQuery = crudServiceDAOImpl.getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, 10, 100);
+        String actualQuery = domainObjectDaoImpl.getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, 10, 100);
         String refinedActualQuery = refineQuery(actualQuery);
 
         assertEquals(COLLECTION_QUERY_WITH_LIMITS, refinedActualQuery);
@@ -305,7 +305,7 @@ public class CrudServiceDAOImplTest {
         filledFilterConfigs.add(byDepartmentFilterConfig);
         filledFilterConfigs.add(byNameFilterConfig);
 
-        String actualQuery = crudServiceDAOImpl.getFindCollectionCountQuery(collectionConfig, filledFilterConfigs);
+        String actualQuery = domainObjectDaoImpl.getFindCollectionCountQuery(collectionConfig, filledFilterConfigs);
         String refinedActualQuery = refineQuery(actualQuery);
         assertEquals(COLLECTION_COUNT_WITH_FILTERS, refinedActualQuery);
 

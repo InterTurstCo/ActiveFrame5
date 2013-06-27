@@ -7,7 +7,7 @@ import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.DomainObjectConfig;
 import ru.intertrust.cm.core.dao.api.AuthenticationDAO;
-import ru.intertrust.cm.core.dao.api.CrudServiceDAO;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 
 import java.util.Date;
 
@@ -22,7 +22,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private AuthenticationDAO authenticationDAO;
 
-    private CrudServiceDAO crudServiceDAO;
+    private DomainObjectDao domainObjectDao;
 
     @Autowired
     private ConfigurationExplorer configurationExplorer;
@@ -31,8 +31,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         this.configurationExplorer = configurationExplorer;
     }
 
-    public void setCrudServiceDAO(CrudServiceDAO crudServiceDAO) {
-        this.crudServiceDAO = crudServiceDAO;
+    public void setDomainObjectDao(DomainObjectDao domainObjectDao) {
+        this.domainObjectDao = domainObjectDao;
     }
 
     /**
@@ -56,7 +56,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         authInfo.setValue("User Uid", new StringValue(authenticationInfo.getUserUid()));
         DomainObjectConfig domainObjectConfig = configurationExplorer.getDomainObjectConfig(authInfo
                 .getTypeName());
-        DomainObject createdAuthInfo = crudServiceDAO.create(authInfo, domainObjectConfig);
+        DomainObject createdAuthInfo = domainObjectDao.create(authInfo, domainObjectConfig);
 
         RdbmsId id  = (RdbmsId)createdAuthInfo.getId();
         DomainObject role = new GenericDomainObject();
@@ -67,7 +67,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         role.setValue("Role", roleName);
         role.setValue("Authentication Info", new IntegerValue(id.getId()));
         domainObjectConfig = configurationExplorer.getDomainObjectConfig(role.getTypeName());
-        crudServiceDAO.create(role, domainObjectConfig);
+        domainObjectDao.create(role, domainObjectConfig);
     }
 
     /**
