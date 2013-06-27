@@ -1,22 +1,20 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
+import ru.intertrust.cm.core.dao.api.AuthenticationDao;
+
+import javax.sql.DataSource;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.sql.DataSource;
-
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-
-import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
-import ru.intertrust.cm.core.dao.api.AuthenticationDAO;
 
 /**
  * Реализация DAO для работы с системным объектом AuthenticationInfo.
  * @author atsvetkov
  *
  */
-public class AuthenticationDAOImpl implements AuthenticationDAO {
+public class AuthenticationDaoImpl implements AuthenticationDao {
 
     private NamedParameterJdbcTemplate jdbcTemplate;
 
@@ -29,7 +27,7 @@ public class AuthenticationDAOImpl implements AuthenticationDAO {
     }
 
     /**
-     * Смотри @see ru.intertrust.cm.core.dao.api.AuthenticationDAO#insertAuthenticationInfo(ru.intertrust.cm.core.business.api.dto.AuthenticationInfo)
+     * Смотри @see ru.intertrust.cm.core.dao.api.AuthenticationDao#insertAuthenticationInfo(ru.intertrust.cm.core.business.api.dto.AuthenticationInfo)
      */
     @Override
     public int insertAuthenticationInfo(AuthenticationInfoAndRole authenticationInfo) {
@@ -50,7 +48,7 @@ public class AuthenticationDAOImpl implements AuthenticationDAO {
 
 
     /**
-     * Смотри @see ru.intertrust.cm.core.dao.api.AuthenticationDAO#existsAuthenticationInfo(java.lang.String)
+     * Смотри @see ru.intertrust.cm.core.dao.api.AuthenticationDao#existsAuthenticationInfo(java.lang.String)
      */
     @Override
     public boolean existsAuthenticationInfo(String userUid) {

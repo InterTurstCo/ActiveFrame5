@@ -9,7 +9,7 @@ import ru.intertrust.cm.core.business.api.AuthenticationService;
 import ru.intertrust.cm.core.business.api.MD5Service;
 import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
-import ru.intertrust.cm.core.dao.api.AuthenticationDAO;
+import ru.intertrust.cm.core.dao.api.AuthenticationDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 
 import static org.mockito.Mockito.verify;
@@ -39,7 +39,7 @@ public class AuthenticationServiceTest {
     private DomainObjectDao domainObjectDao;
 
     @Mock
-    private AuthenticationDAO authenticationDAOMock;
+    private AuthenticationDao authenticationDaoMock;
 
     private AuthenticationInfoAndRole testAuthenticationInfo;
 
@@ -65,7 +65,7 @@ public class AuthenticationServiceTest {
     @Test
     public void testExistsAuthenticationInfo() {
         authenticationService.existsAuthenticationInfo(ADMIN_LOGIN);
-        verify(authenticationDAOMock).existsAuthenticationInfo(ADMIN_LOGIN);
+        verify(authenticationDaoMock).existsAuthenticationInfo(ADMIN_LOGIN);
 
     }
 }

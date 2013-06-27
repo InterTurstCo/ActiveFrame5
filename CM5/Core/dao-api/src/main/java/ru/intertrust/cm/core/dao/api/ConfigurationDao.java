@@ -6,7 +6,7 @@ package ru.intertrust.cm.core.dao.api;
  *         Date: 6/17/13
  *         Time: 3:42 PM
  */
-public interface ConfigurationDAO {
+public interface ConfigurationDao {
 
     String CONFIGURATION_TABLE = "CONFIGURATION";
 

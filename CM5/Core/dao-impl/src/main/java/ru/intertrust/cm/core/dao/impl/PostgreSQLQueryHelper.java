@@ -4,18 +4,18 @@ import ru.intertrust.cm.core.config.model.*;
 
 import java.util.List;
 
-import static ru.intertrust.cm.core.dao.api.DataStructureDAO.DOMAIN_OBJECT_TABLE;
-import static ru.intertrust.cm.core.dao.api.DataStructureDAO.AUTHENTICATION_INFO_TABLE;
-import static ru.intertrust.cm.core.dao.api.ConfigurationDAO.CONFIGURATION_TABLE;
+import static ru.intertrust.cm.core.dao.api.DataStructureDao.DOMAIN_OBJECT_TABLE;
+import static ru.intertrust.cm.core.dao.api.DataStructureDao.AUTHENTICATION_INFO_TABLE;
+import static ru.intertrust.cm.core.dao.api.ConfigurationDao.CONFIGURATION_TABLE;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
 
 /**
- * Класс для генерации sql запросов для {@link PostgreSQLDataStructureDAOImpl}
+ * Класс для генерации sql запросов для {@link PostgreSqlDataStructureDaoImpl}
  * @author vmatsukevich
  *         Date: 5/20/13
  *         Time: 2:12 PM
  */
-public class PostgreSQLQueryHelper {
+public class PostgreSqlQueryHelper {
 
     /**
      * Генерирует запрос, возвращающий кол-во таблиц в базе данных

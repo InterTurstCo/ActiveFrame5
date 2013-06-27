@@ -6,7 +6,7 @@ import ru.intertrust.cm.core.business.api.MD5Service;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.DomainObjectConfig;
-import ru.intertrust.cm.core.dao.api.AuthenticationDAO;
+import ru.intertrust.cm.core.dao.api.AuthenticationDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 
 import java.util.Date;
@@ -20,7 +20,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private MD5Service md5Service;
 
-    private AuthenticationDAO authenticationDAO;
+    private AuthenticationDao authenticationDao;
 
     private DomainObjectDao domainObjectDao;
 
@@ -78,7 +78,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
      */
     @Override
     public boolean existsAuthenticationInfo(String login) {
-        return authenticationDAO.existsAuthenticationInfo(login);
+        return authenticationDao.existsAuthenticationInfo(login);
     }
 
     /**
@@ -92,11 +92,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     /**
-     * Устанавливает {@see #authenticationDAO}.
-     * @param authenticationDAO
+     * Устанавливает {@see #authenticationDao}.
+     * @param authenticationDao
      */
-    public void setAuthenticationDAO(AuthenticationDAO authenticationDAO) {
-        this.authenticationDAO = authenticationDAO;
+    public void setAuthenticationDao(AuthenticationDao authenticationDao) {
+        this.authenticationDao = authenticationDao;
     }
 
 }

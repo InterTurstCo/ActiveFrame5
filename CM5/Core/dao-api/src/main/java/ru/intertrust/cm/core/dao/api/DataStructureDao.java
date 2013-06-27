@@ -12,7 +12,7 @@ import java.util.List;
  *         Date: 5/15/13
  *         Time: 4:27 PM
  */
-public interface DataStructureDAO {
+public interface DataStructureDao {
 
     String DOMAIN_OBJECT_TABLE = "DOMAIN_OBJECT";
     String AUTHENTICATION_INFO_TABLE = "AUTHENTICATION_INFO";

@@ -13,8 +13,8 @@ import ru.intertrust.cm.core.config.ConfigurationException;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.config.ConfigurationSerializer;
 import ru.intertrust.cm.core.config.model.*;
-import ru.intertrust.cm.core.dao.api.ConfigurationDAO;
-import ru.intertrust.cm.core.dao.api.DataStructureDAO;
+import ru.intertrust.cm.core.dao.api.ConfigurationDao;
+import ru.intertrust.cm.core.dao.api.DataStructureDao;
 
 import java.util.*;
 
@@ -39,9 +39,9 @@ public class ConfigurationServiceImplTest {
     @InjectMocks
     private ConfigurationServiceImpl configurationService = new ConfigurationServiceImpl();
     @Mock
-    private DataStructureDAO dataStructureDao;
+    private DataStructureDao dataStructureDao;
     @Mock
-    private ConfigurationDAO configurationDao;
+    private ConfigurationDao configurationDao;
     @Mock
     private AuthenticationService authenticationService;
 

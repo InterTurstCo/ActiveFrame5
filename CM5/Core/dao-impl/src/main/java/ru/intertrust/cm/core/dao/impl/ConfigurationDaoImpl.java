@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import ru.intertrust.cm.core.dao.api.ConfigurationDAO;
+import ru.intertrust.cm.core.dao.api.ConfigurationDao;
 
 import javax.sql.DataSource;
 import java.util.Collections;
@@ -11,12 +11,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Реализация {@link ConfigurationDAO}
+ * Реализация {@link ru.intertrust.cm.core.dao.api.ConfigurationDao}
  * @author vmatsukevich
  *         Date: 6/17/13
  *         Time: 3:45 PM
  */
-public class ConfigurationDAOImpl implements ConfigurationDAO {
+public class ConfigurationDaoImpl implements ConfigurationDao {
 
     protected static final String SAVE_QUERY =
             "insert into " + CONFIGURATION_TABLE + "(CONTENT, LOADED_DATE) values (:content, :loadedDate)";
@@ -36,7 +36,7 @@ public class ConfigurationDAOImpl implements ConfigurationDAO {
     }
 
     /**
-     * Смотри {@link ConfigurationDAO#save(String)}
+     * Смотри {@link ru.intertrust.cm.core.dao.api.ConfigurationDao#save(String)}
      * @param configuration конфигурация
      */
     @Override
@@ -49,7 +49,7 @@ public class ConfigurationDAOImpl implements ConfigurationDAO {
     }
 
     /**
-     * Смотри {@link ru.intertrust.cm.core.dao.api.ConfigurationDAO#readLastSavedConfiguration()}
+     * Смотри {@link ru.intertrust.cm.core.dao.api.ConfigurationDao#readLastSavedConfiguration()}
      * @return
      */
     @Override

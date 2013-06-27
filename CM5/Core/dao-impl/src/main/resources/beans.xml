@@ -15,14 +15,14 @@
 
     <jee:jndi-lookup id="dataSource" jndi-name="java:jboss/datasources/CM5" />
 
-    <bean id="dataStructureDAO"
-        class="ru.intertrust.cm.core.dao.impl.PostgreSQLDataStructureDAOImpl"
+    <bean id="dataStructureDao"
+        class="ru.intertrust.cm.core.dao.impl.PostgreSqlDataStructureDaoImpl"
         p:dataSource-ref="dataSource" />
 
-    <bean id="configurationDAO" class="ru.intertrust.cm.core.dao.impl.ConfigurationDAOImpl"
+    <bean id="configurationDao" class="ru.intertrust.cm.core.dao.impl.ConfigurationDaoImpl"
           p:dataSource-ref="dataSource" />
 
-    <bean id="authenticationDAO" class="ru.intertrust.cm.core.dao.impl.AuthenticationDAOImpl"
+    <bean id="authenticationDao" class="ru.intertrust.cm.core.dao.impl.AuthenticationDaoImpl"
         p:dataSource-ref="dataSource" />
 
     <bean id="sequenceIdGenerator" class="ru.intertrust.cm.core.dao.impl.SequenceIdGenerator"

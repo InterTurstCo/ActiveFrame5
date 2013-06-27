@@ -7,7 +7,7 @@ import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
  * @author atsvetkov
  *
  */
-public interface AuthenticationDAO {
+public interface AuthenticationDao {
 
     /**
      * Добавление пользователя в базу данных

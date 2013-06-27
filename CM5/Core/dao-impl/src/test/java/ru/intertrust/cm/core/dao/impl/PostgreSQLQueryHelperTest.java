@@ -9,15 +9,15 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static ru.intertrust.cm.core.dao.api.DataStructureDAO.*;
-import static ru.intertrust.cm.core.dao.api.ConfigurationDAO.CONFIGURATION_TABLE;
+import static ru.intertrust.cm.core.dao.api.DataStructureDao.*;
+import static ru.intertrust.cm.core.dao.api.ConfigurationDao.CONFIGURATION_TABLE;
 
 /**
  * @author vmatsukevich
  *         Date: 5/29/13
  *         Time: 12:39 PM
  */
-public class PostgreSQLQueryHelperTest {
+public class PostgreSqlQueryHelperTest {
 
     private DomainObjectConfig domainObjectConfig;
 
@@ -29,7 +29,7 @@ public class PostgreSQLQueryHelperTest {
     @Test
     public void testGenerateCountTablesQuery() {
         String query = "select count(table_name) FROM information_schema.tables WHERE table_schema = 'public'";
-        String testQuery = PostgreSQLQueryHelper.generateCountTablesQuery();
+        String testQuery = PostgreSqlQueryHelper.generateCountTablesQuery();
         assertEquals(testQuery, query);
     }
 
@@ -37,7 +37,7 @@ public class PostgreSQLQueryHelperTest {
     public void testGenerateCreateDomainObjectTableQuery() {
         String query = "create table " + DOMAIN_OBJECT_TABLE + "(ID bigserial not null, NAME varchar(256) not null, " +
                 "constraint PK_" + DOMAIN_OBJECT_TABLE + " primary key (ID), constraint U_" + DOMAIN_OBJECT_TABLE + " unique (NAME))";
-        String testQuery = PostgreSQLQueryHelper.generateCreateDomainObjectTableQuery();
+        String testQuery = PostgreSqlQueryHelper.generateCreateDomainObjectTableQuery();
         assertEquals(testQuery, query);
     }
 
@@ -45,7 +45,7 @@ public class PostgreSQLQueryHelperTest {
     public void testGenerateCreateConfigurationTableQuery() {
         String query = "create table " + CONFIGURATION_TABLE + "(ID bigserial not null, CONTENT text not null, " +
                 "LOADED_DATE timestamp not null, constraint PK_" + CONFIGURATION_TABLE + " primary key (ID))";
-        String testQuery = PostgreSQLQueryHelper.generateCreateConfigurationTableQuery();
+        String testQuery = PostgreSqlQueryHelper.generateCreateConfigurationTableQuery();
         assertEquals(testQuery, query);
     }
 
@@ -55,20 +55,20 @@ public class PostgreSQLQueryHelperTest {
                 "user_uid character varying(64) NOT NULL, password character varying(128), constraint PK_" +
                 AUTHENTICATION_INFO_TABLE + "_ID primary key (ID), constraint U_" + AUTHENTICATION_INFO_TABLE +
                 "_USER_UID unique(user_uid))";
-        String testQuery = PostgreSQLQueryHelper.generateCreateAuthenticationInfoTableQuery();
+        String testQuery = PostgreSqlQueryHelper.generateCreateAuthenticationInfoTableQuery();
         assertEquals(testQuery, query);
     }
 
     @Test
     public void testGenerateSequenceQuery() {
         String query = "create sequence OUTGOING_DOCUMENT_SEQ";
-        String testQuery = PostgreSQLQueryHelper.generateSequenceQuery(domainObjectConfig);
+        String testQuery = PostgreSqlQueryHelper.generateSequenceQuery(domainObjectConfig);
         assertEquals(testQuery, query);
     }
 
     @Test
     public void testGenerateCreateTableQuery() throws Exception {
-        String query = PostgreSQLQueryHelper.generateCreateTableQuery(domainObjectConfig);
+        String query = PostgreSqlQueryHelper.generateCreateTableQuery(domainObjectConfig);
         String checkQuery = "create table OUTGOING_DOCUMENT ( ID bigint not null, CREATED_DATE timestamp not null, " +
                 "UPDATED_DATE timestamp not null, REGISTRATION_NUMBER varchar(128), REGISTRATION_DATE timestamp, AUTHOR bigint, " +
                 "LONG_FIELD bigint, DECIMAL_FIELD_1 decimal(10, 2), DECIMAL_FIELD_2 decimal(10), " +
@@ -107,7 +107,7 @@ public class PostgreSQLQueryHelperTest {
         List<UniqueKeyConfig> newUniqueConfigs = Collections.singletonList(uniqueKeyConfig);
 
 
-        String testQuery = PostgreSQLQueryHelper.generateUpdateTableQuery(domainObjectConfig.getName(), newColumns,
+        String testQuery = PostgreSqlQueryHelper.generateUpdateTableQuery(domainObjectConfig.getName(), newColumns,
                 newUniqueConfigs);
 
         assertEquals(testQuery, query);
@@ -115,7 +115,7 @@ public class PostgreSQLQueryHelperTest {
 
     @Test
     public void testGenerateCreateIndexesQuery() throws Exception {
-        String query = PostgreSQLQueryHelper.generateCreateIndexesQuery(domainObjectConfig.getName(),
+        String query = PostgreSqlQueryHelper.generateCreateIndexesQuery(domainObjectConfig.getName(),
                 domainObjectConfig.getFieldConfigs());
         String checkQuery = "create index I_OUTGOING_DOCUMENT_AUTHOR on OUTGOING_DOCUMENT (AUTHOR);\n";
         assertEquals(query, checkQuery);

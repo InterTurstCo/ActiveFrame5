@@ -9,8 +9,8 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.config.ConfigurationSerializer;
 import ru.intertrust.cm.core.config.model.*;
-import ru.intertrust.cm.core.dao.api.ConfigurationDAO;
-import ru.intertrust.cm.core.dao.api.DataStructureDAO;
+import ru.intertrust.cm.core.dao.api.ConfigurationDao;
+import ru.intertrust.cm.core.dao.api.DataStructureDao;
 
 import java.util.*;
 
@@ -30,22 +30,22 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     @Autowired
     private ConfigurationExplorer configurationExplorer;
     @Autowired
-    private DataStructureDAO dataStructureDAO;
+    private DataStructureDao dataStructureDao;
     @Autowired
-    private ConfigurationDAO configurationDAO;
+    private ConfigurationDao configurationDao;
     @Autowired
     private AuthenticationService authenticationService;
 
     /**
-     * Устанавливает  {@link #dataStructureDAO}
-     * @param dataStructureDAO DataStructureDAO
+     * Устанавливает  {@link #dataStructureDao}
+     * @param dataStructureDao DataStructureDao
      */
-    public void setDataStructureDAO(DataStructureDAO dataStructureDAO) {
-        this.dataStructureDAO = dataStructureDAO;
+    public void setDataStructureDao(DataStructureDao dataStructureDao) {
+        this.dataStructureDao = dataStructureDao;
     }
 
-    public void setConfigurationDAO(ConfigurationDAO configurationDAO) {
-        this.configurationDAO = configurationDAO;
+    public void setConfigurationDao(ConfigurationDao configurationDao) {
+        this.configurationDao = configurationDao;
     }
 
     /**
@@ -74,7 +74,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             return;
         }
 
-        String oldConfigurationString = configurationDAO.readLastSavedConfiguration();
+        String oldConfigurationString = configurationDao.readLastSavedConfiguration();
         if (oldConfigurationString == null) {
             throw new ConfigurationException("Configuration loading aborted: configuration was previously " +
                     "loaded but wasn't saved");
@@ -103,7 +103,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     private void saveConfiguration() {
         String configurationString =
                 ConfigurationSerializer.deserializeConfiguration(configurationExplorer.getConfiguration());
-        configurationDAO.save(configurationString);
+        configurationDao.save(configurationString);
     }
 
     private class RecursiveLoader {
@@ -118,7 +118,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                 return;
             }
 
-            dataStructureDAO.createServiceTables();
+            dataStructureDao.createServiceTables();
 
             for(DomainObjectConfig config : configList) {
                 loadDomainObjectConfig(config);
@@ -133,8 +133,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             // First load referenced domain object configurations
             loadDependentDomainObjectConfigs(domainObjectConfig);
 
-            dataStructureDAO.createTable(domainObjectConfig);
-            dataStructureDAO.createSequence(domainObjectConfig);
+            dataStructureDao.createTable(domainObjectConfig);
+            dataStructureDao.createSequence(domainObjectConfig);
 
             loadedDomainObjectConfigs.add(domainObjectConfig.getName()); // add to loaded configs set
         }
@@ -168,9 +168,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     private Boolean isConfigurationLoaded() {
-        Integer tablesCount = dataStructureDAO.countTables();
+        Integer tablesCount = dataStructureDao.countTables();
         if(tablesCount == null) {
-            throw new RuntimeException("Error occurred when calling DataStructureDAO for tables count");
+            throw new RuntimeException("Error occurred when calling DataStructureDao for tables count");
         }
 
         return tablesCount > 0;
@@ -227,8 +227,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             // First merge referenced domain object configurations
             mergeDependentDomainObjectConfigs(domainObjectConfig);
 
-            dataStructureDAO.createTable(domainObjectConfig);
-            dataStructureDAO.createSequence(domainObjectConfig);
+            dataStructureDao.createTable(domainObjectConfig);
+            dataStructureDao.createSequence(domainObjectConfig);
         }
 
         private void mergeDependentDomainObjectConfigs(DomainObjectConfig domainObjectConfig) {
@@ -267,7 +267,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             }
 
             if (!newFieldConfigs.isEmpty() || ! newUniqueKeyConfigs.isEmpty()) {
-                dataStructureDAO.updateTableStructure(domainObjectConfig.getName(), newFieldConfigs, newUniqueKeyConfigs);
+                dataStructureDao.updateTableStructure(domainObjectConfig.getName(), newFieldConfigs, newUniqueKeyConfigs);
             }
         }
 

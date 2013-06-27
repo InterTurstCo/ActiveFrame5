@@ -4,20 +4,20 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import ru.intertrust.cm.core.config.model.DomainObjectConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.config.model.UniqueKeyConfig;
-import ru.intertrust.cm.core.dao.api.DataStructureDAO;
+import ru.intertrust.cm.core.dao.api.DataStructureDao;
 
 import javax.sql.DataSource;
 import java.util.List;
 
-import static ru.intertrust.cm.core.dao.impl.PostgreSQLQueryHelper.*;
+import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.*;
 
 /**
- * Реализация {@link DataStructureDAO} для PostgreSQL
+ * Реализация {@link ru.intertrust.cm.core.dao.api.DataStructureDao} для PostgreSQL
  * @author vmatsukevich
  *         Date: 5/15/13
  *         Time: 4:27 PM
  */
-public class PostgreSQLDataStructureDAOImpl implements DataStructureDAO {
+public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
 
     protected static final String DOES_TABLE_EXISTS_QUERY =
             "select count(*) FROM information_schema.tables WHERE table_schema = 'public' and table_name = ?";
@@ -48,7 +48,7 @@ public class PostgreSQLDataStructureDAOImpl implements DataStructureDAO {
 
 
     /**
-     * Смотри {@link DataStructureDAO#createSequence(ru.intertrust.cm.core.config.model.DomainObjectConfig)}
+     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#createSequence(ru.intertrust.cm.core.config.model.DomainObjectConfig)}
      */
     @Override
     public void createSequence(DomainObjectConfig config) {
@@ -59,7 +59,7 @@ public class PostgreSQLDataStructureDAOImpl implements DataStructureDAO {
     }
 
     /**
-     * Смотри {@link DataStructureDAO#createTable(ru.intertrust.cm.core.config.model.DomainObjectConfig)}
+     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#createTable(ru.intertrust.cm.core.config.model.DomainObjectConfig)}
      */
     @Override
     public void createTable(DomainObjectConfig config) {
@@ -94,7 +94,7 @@ public class PostgreSQLDataStructureDAOImpl implements DataStructureDAO {
     }
 
     /**
-     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDAO#countTables()}
+     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#countTables()}
      */
     @Override
     public Integer countTables() {
@@ -102,7 +102,7 @@ public class PostgreSQLDataStructureDAOImpl implements DataStructureDAO {
     }
 
     /**
-     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDAO#createServiceTables()}
+     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#createServiceTables()}
      */
     @Override
     public void createServiceTables() {
@@ -111,7 +111,7 @@ public class PostgreSQLDataStructureDAOImpl implements DataStructureDAO {
     }
 
     /**
-     * Смотри @see ru.intertrust.cm.core.dao.api.DataStructureDAO#doesTableExists(java.lang.String)
+     * Смотри @see ru.intertrust.cm.core.dao.api.DataStructureDao#doesTableExists(java.lang.String)
      */
     @Override
     public boolean doesTableExists(String tableName) {

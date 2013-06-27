@@ -17,26 +17,26 @@ import static org.mockito.Mockito.verify;
  *         Time: 2:39 PM
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ConfigurationDAOImplTest {
+public class ConfigurationDaoImplTest {
     @InjectMocks
-    private final ConfigurationDAOImpl configurationDAO = new ConfigurationDAOImpl();
+    private final ConfigurationDaoImpl configurationDao = new ConfigurationDaoImpl();
     @Mock
     private NamedParameterJdbcTemplate jdbcTemplate;
 
     @Test
     public void testSave() throws Exception {
-        assertEquals(configurationDAO.generateSaveQuery(), ConfigurationDAOImpl.SAVE_QUERY);
+        assertEquals(configurationDao.generateSaveQuery(), ConfigurationDaoImpl.SAVE_QUERY);
 
-        configurationDAO.save("test configuration string");
+        configurationDao.save("test configuration string");
         verify(jdbcTemplate).update(anyString(), anyMap());
     }
 
     @Test
     public void testReadLastSavedConfiguration() throws Exception {
-        assertEquals(configurationDAO.generateReadLastLoadedConfiguration(),
-                ConfigurationDAOImpl.READ_LAST_SAVED_CONFIGURATION_QUERY);
+        assertEquals(configurationDao.generateReadLastLoadedConfiguration(),
+                ConfigurationDaoImpl.READ_LAST_SAVED_CONFIGURATION_QUERY);
 
-        configurationDAO.readLastSavedConfiguration();
+        configurationDao.readLastSavedConfiguration();
         verify(jdbcTemplate).queryForObject(anyString(), anyMap(), any(Class.class));
     }
 }
