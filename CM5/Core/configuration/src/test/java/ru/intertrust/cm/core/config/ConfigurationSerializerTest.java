@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import ru.intertrust.cm.core.config.model.CollectionConfig;
 import ru.intertrust.cm.core.config.model.Configuration;
-import ru.intertrust.cm.core.config.model.DomainObjectConfig;
+import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -92,8 +92,8 @@ public class ConfigurationSerializerTest {
                 "Employee", "Department"));
 
         for (Object configurationItem : configurationList) {
-            String name = DomainObjectConfig.class.equals(configurationItem.getClass()) ?
-                    ((DomainObjectConfig) configurationItem).getName() :
+            String name = DomainObjectTypeConfig.class.equals(configurationItem.getClass()) ?
+                    ((DomainObjectTypeConfig) configurationItem).getName() :
                     ((CollectionConfig) configurationItem).getName();
             assertTrue(configurationNames.contains(name));
             configurationNames.remove(name);

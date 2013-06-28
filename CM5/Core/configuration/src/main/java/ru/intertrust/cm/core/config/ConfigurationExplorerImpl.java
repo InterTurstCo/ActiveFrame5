@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.config;
 
 import ru.intertrust.cm.core.config.model.CollectionConfig;
 import ru.intertrust.cm.core.config.model.Configuration;
-import ru.intertrust.cm.core.config.model.DomainObjectConfig;
+import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.model.FatalException;
 
@@ -21,7 +21,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
 
     private Configuration configuration;
 
-    private Map<String, DomainObjectConfig> domainObjectConfigMap = new HashMap<>();
+    private Map<String, DomainObjectTypeConfig> domainObjectConfigMap = new HashMap<>();
     private Map<String, CollectionConfig> collectionConfigMap = new HashMap<>();
     private Map<FieldConfigKey, FieldConfig> fieldConfigMap = new HashMap<>();
 
@@ -65,7 +65,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      * Смотри {@link ru.intertrust.cm.core.config.ConfigurationExplorer#getDomainObjectConfigs()}
      */
     @Override
-    public Collection<DomainObjectConfig> getDomainObjectConfigs() {
+    public Collection<DomainObjectTypeConfig> getDomainObjectConfigs() {
         return domainObjectConfigMap.values();
     }
 
@@ -81,7 +81,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      * Смотри {@link ConfigurationExplorer#getDomainObjectConfig(String)}
      */
     @Override
-    public DomainObjectConfig getDomainObjectConfig(String name) {
+    public DomainObjectTypeConfig getDomainObjectConfig(String name) {
         return domainObjectConfigMap.get(name);
     }
 
@@ -113,12 +113,12 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         fieldConfigMap.clear();
 
         for (Object config : configuration.getConfigurationList()) {
-            if (DomainObjectConfig.class.equals(config.getClass())) {
-                DomainObjectConfig domainObjectConfig = (DomainObjectConfig) config;
-                domainObjectConfigMap.put(domainObjectConfig.getName(), domainObjectConfig);
+            if (DomainObjectTypeConfig.class.equals(config.getClass())) {
+                DomainObjectTypeConfig domainObjectTypeConfig = (DomainObjectTypeConfig) config;
+                domainObjectConfigMap.put(domainObjectTypeConfig.getName(), domainObjectTypeConfig);
 
-                for (FieldConfig fieldConfig : domainObjectConfig.getFieldConfigs()) {
-                    FieldConfigKey fieldConfigKey = new FieldConfigKey(domainObjectConfig.getName(), fieldConfig.getName());
+                for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
+                    FieldConfigKey fieldConfigKey = new FieldConfigKey(domainObjectTypeConfig.getName(), fieldConfig.getName());
                     fieldConfigMap.put(fieldConfigKey, fieldConfig);
                 }
             } else if(CollectionConfig.class.equals(config.getClass())) {

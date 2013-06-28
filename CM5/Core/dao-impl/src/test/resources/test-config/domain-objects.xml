@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration xmlns="https://cm5.intertrust.ru/config">
 
-    <domain-object name="Outgoing Document"> <!-- OUTGOING_DOCUMENT table -->
+    <domain-object-type name="Outgoing Document"> <!-- OUTGOING_DOCUMENT table -->
         <fields>
             <string name="Registration Number" length="128" /> <!-- REGISTRATION_NUMBER column -->
             <dateTime name="Registration Date"/>
@@ -16,9 +16,9 @@
         <uniqueKey> <!-- This key means automatic key + index creation-->
             <field name="Registration Number"/>
         </uniqueKey>
-    </domain-object>
+    </domain-object-type>
 
-    <domain-object name="Person">
+    <domain-object-type name="Person">
         <fields>
             <string name="EMail" length="128" />
             <string name="Login" length="64" not-null="true" />
@@ -27,9 +27,9 @@
        <uniqueKey> <!-- This key means automatic key + index creation-->
             <field name="EMail"/>
        </uniqueKey>
-    </domain-object>
+    </domain-object-type>
 
-	<domain-object name="Employee" extends="Person">
+	<domain-object-type name="Employee" extends="Person">
 		<fields>
 			<reference name="Department" type="Department" not-null="true" />
 			<string name="Name" length="64" not-null="true" />
@@ -41,12 +41,12 @@
 		<uniqueKey> <!-- This key means automatic key + index creation -->
 			<field name="Phone" />
 		</uniqueKey>
-	</domain-object>
+	</domain-object-type>
 
-    <domain-object name="Department">
+    <domain-object-type name="Department">
         <fields>
             <string name="Name" length="128" not-null="true" />
         </fields>
-    </domain-object>
+    </domain-object-type>
 
 </configuration>

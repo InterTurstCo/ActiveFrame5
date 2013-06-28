@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.jdbc.core.JdbcTemplate;
-import ru.intertrust.cm.core.config.model.DomainObjectConfig;
+import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.api.IdGenerator;
 
 import javax.sql.DataSource;
@@ -29,9 +29,9 @@ public class SequenceIdGenerator implements IdGenerator {
 
 
     @Override
-    public Object generatetId(DomainObjectConfig domainObjectConfig) {
+    public Object generatetId(DomainObjectTypeConfig domainObjectTypeConfig) {
 
-        String sequenceName = DataStructureNamingHelper.getSqlSequenceName(domainObjectConfig);
+        String sequenceName = DataStructureNamingHelper.getSqlSequenceName(domainObjectTypeConfig);
 
         StringBuilder query = new StringBuilder();
         query.append("select nextval ('");

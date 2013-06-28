@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import org.junit.Test;
-import ru.intertrust.cm.core.config.model.DomainObjectConfig;
+import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.model.StringFieldConfig;
@@ -16,10 +16,10 @@ import static org.junit.Assert.assertEquals;
 public class DataStructureNamingHelperTest {
     @Test
     public void testGetSqlNameForDomainObjectConfig() throws Exception {
-        DomainObjectConfig domainObjectConfig = new DomainObjectConfig();
-        domainObjectConfig.setName("Outgoing Document");
+        DomainObjectTypeConfig domainObjectTypeConfig = new DomainObjectTypeConfig();
+        domainObjectTypeConfig.setName("Outgoing Document");
 
-        String sqlName = DataStructureNamingHelper.getSqlName(domainObjectConfig);
+        String sqlName = DataStructureNamingHelper.getSqlName(domainObjectTypeConfig);
         assertEquals("OUTGOING_DOCUMENT", sqlName);
     }
 

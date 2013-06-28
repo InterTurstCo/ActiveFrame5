@@ -19,7 +19,7 @@ import static ru.intertrust.cm.core.dao.api.ConfigurationDao.CONFIGURATION_TABLE
  */
 public class PostgreSqlQueryHelperTest {
 
-    private DomainObjectConfig domainObjectConfig;
+    private DomainObjectTypeConfig domainObjectTypeConfig;
 
     @Before
     public void setUp() throws Exception {
@@ -62,13 +62,13 @@ public class PostgreSqlQueryHelperTest {
     @Test
     public void testGenerateSequenceQuery() {
         String query = "create sequence OUTGOING_DOCUMENT_SEQ";
-        String testQuery = PostgreSqlQueryHelper.generateSequenceQuery(domainObjectConfig);
+        String testQuery = PostgreSqlQueryHelper.generateSequenceQuery(domainObjectTypeConfig);
         assertEquals(testQuery, query);
     }
 
     @Test
     public void testGenerateCreateTableQuery() throws Exception {
-        String query = PostgreSqlQueryHelper.generateCreateTableQuery(domainObjectConfig);
+        String query = PostgreSqlQueryHelper.generateCreateTableQuery(domainObjectTypeConfig);
         String checkQuery = "create table OUTGOING_DOCUMENT ( ID bigint not null, CREATED_DATE timestamp not null, " +
                 "UPDATED_DATE timestamp not null, REGISTRATION_NUMBER varchar(128), REGISTRATION_DATE timestamp, AUTHOR bigint, " +
                 "LONG_FIELD bigint, DECIMAL_FIELD_1 decimal(10, 2), DECIMAL_FIELD_2 decimal(10), " +
@@ -107,7 +107,7 @@ public class PostgreSqlQueryHelperTest {
         List<UniqueKeyConfig> newUniqueConfigs = Collections.singletonList(uniqueKeyConfig);
 
 
-        String testQuery = PostgreSqlQueryHelper.generateUpdateTableQuery(domainObjectConfig.getName(), newColumns,
+        String testQuery = PostgreSqlQueryHelper.generateUpdateTableQuery(domainObjectTypeConfig.getName(), newColumns,
                 newUniqueConfigs);
 
         assertEquals(testQuery, query);
@@ -115,8 +115,8 @@ public class PostgreSqlQueryHelperTest {
 
     @Test
     public void testGenerateCreateIndexesQuery() throws Exception {
-        String query = PostgreSqlQueryHelper.generateCreateIndexesQuery(domainObjectConfig.getName(),
-                domainObjectConfig.getFieldConfigs());
+        String query = PostgreSqlQueryHelper.generateCreateIndexesQuery(domainObjectTypeConfig.getName(),
+                domainObjectTypeConfig.getFieldConfigs());
         String checkQuery = "create index I_OUTGOING_DOCUMENT_AUTHOR on OUTGOING_DOCUMENT (AUTHOR);\n";
         assertEquals(query, checkQuery);
     }
@@ -124,43 +124,43 @@ public class PostgreSqlQueryHelperTest {
 
 
     private void initDomainObjectConfig() {
-        domainObjectConfig = new DomainObjectConfig();
-        domainObjectConfig.setName("Outgoing Document");
-        domainObjectConfig.setParentConfig("Document");
+        domainObjectTypeConfig = new DomainObjectTypeConfig();
+        domainObjectTypeConfig.setName("Outgoing Document");
+        domainObjectTypeConfig.setParentConfig("Document");
 
         StringFieldConfig registrationNumber = new StringFieldConfig();
         registrationNumber.setName("Registration Number");
         registrationNumber.setLength(128);
-        domainObjectConfig.getFieldConfigs().add(registrationNumber);
+        domainObjectTypeConfig.getFieldConfigs().add(registrationNumber);
 
         DateTimeFieldConfig registrationDate = new DateTimeFieldConfig();
         registrationDate.setName("Registration Date");
-        domainObjectConfig.getFieldConfigs().add(registrationDate);
+        domainObjectTypeConfig.getFieldConfigs().add(registrationDate);
 
         ReferenceFieldConfig referenceFieldConfig = new ReferenceFieldConfig();
         referenceFieldConfig.setName("Author");
         referenceFieldConfig.setType("Employee");
-        domainObjectConfig.getFieldConfigs().add(referenceFieldConfig);
+        domainObjectTypeConfig.getFieldConfigs().add(referenceFieldConfig);
 
         LongFieldConfig longFieldConfig = new LongFieldConfig();
         longFieldConfig.setName("Long Field");
-        domainObjectConfig.getFieldConfigs().add(longFieldConfig);
+        domainObjectTypeConfig.getFieldConfigs().add(longFieldConfig);
 
         DecimalFieldConfig decimalFieldConfig1 = new DecimalFieldConfig();
         decimalFieldConfig1.setName("Decimal Field 1");
         decimalFieldConfig1.setNotNull(false);
         decimalFieldConfig1.setPrecision(10);
         decimalFieldConfig1.setScale(2);
-        domainObjectConfig.getFieldConfigs().add(decimalFieldConfig1);
+        domainObjectTypeConfig.getFieldConfigs().add(decimalFieldConfig1);
 
         DecimalFieldConfig decimalFieldConfig2 = new DecimalFieldConfig();
         decimalFieldConfig2.setName("Decimal Field 2");
         decimalFieldConfig2.setNotNull(false);
         decimalFieldConfig2.setPrecision(10);
-        domainObjectConfig.getFieldConfigs().add(decimalFieldConfig2);
+        domainObjectTypeConfig.getFieldConfigs().add(decimalFieldConfig2);
 
         UniqueKeyConfig uniqueKeyConfig = new UniqueKeyConfig();
-        domainObjectConfig.getUniqueKeyConfigs().add(uniqueKeyConfig);
+        domainObjectTypeConfig.getUniqueKeyConfigs().add(uniqueKeyConfig);
 
         UniqueKeyFieldConfig uniqueKeyFieldConfig1 = new UniqueKeyFieldConfig();
         uniqueKeyFieldConfig1.setName("Registration Number");

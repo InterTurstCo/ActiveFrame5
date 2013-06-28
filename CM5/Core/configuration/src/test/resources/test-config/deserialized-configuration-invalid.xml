@@ -55,7 +55,7 @@
       <filter name="byDepartment"/>
       <renderer className="ru.intertrust.cm.core.business.impl.EmployeesCollectionRenderer"/>
    </collection>
-   <domain-object name="Outgoing Document">
+   <domain-object-type name="Outgoing Document">
       <fields>
          <string name="Registration Number" not-null="false" length="128"/>
          <dateTime name="Registration Date" not-null="false"/>
@@ -70,8 +70,8 @@
       <uniqueKey>
          <field name="Registration Number"/>
       </uniqueKey>
-   </domain-object>
-   <domain-object name="Person">
+   </domain-object-type>
+   <domain-object-type name="Person">
       <fields>
          <string name="EMail" not-null="false" length="128"/>
          <string name="Login" not-null="true" length="64"/>
@@ -80,8 +80,8 @@
       <uniqueKey>
          <field name="EMail"/>
       </uniqueKey>
-   </domain-object>
-   <domain-object name="Employee" extends="Person">
+   </domain-object-type>
+   <domain-object-type name="Employee" extends="Person">
       <fields>
          <reference name="Department" not-null="true" type="Department"/>
          <string name="Name" not-null="true" length="64"/>
@@ -93,10 +93,10 @@
       <uniqueKey>
          <field name="Phone"/>
       </uniqueKey>
-   </domain-object>
-   <domain-object name="Department">
+   </domain-object-type>
+   <domain-object-type name="Department">
       <fields>
          <string name="Name" not-null="true" length="128"/>
       </fields>
-   </domain-object>
+   </domain-object-type>
 </configuration>

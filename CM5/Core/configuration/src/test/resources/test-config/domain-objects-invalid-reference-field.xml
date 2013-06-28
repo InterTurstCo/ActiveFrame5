@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration xmlns="https://cm5.intertrust.ru/config">
 
-    <domain-object name="Outgoing Document"> <!-- OUTGOING_DOCUMENT table -->
+    <domain-object-type name="Outgoing Document"> <!-- OUTGOING_DOCUMENT table -->
         <fields>
             <string name="Registration Number" length="128" /> <!-- REGISTRATION_NUMBER column -->
             <dateTime name="Registration Date"/>
@@ -14,6 +14,6 @@
         <uniqueKey> <!-- This key means automatic key + index creation-->
             <field name="Registration Number"/>
         </uniqueKey>
-    </domain-object>
+    </domain-object-type>
 
 </configuration>

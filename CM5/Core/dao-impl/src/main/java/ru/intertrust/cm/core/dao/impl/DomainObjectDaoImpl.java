@@ -7,7 +7,7 @@ import org.springframework.util.StringUtils;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.model.CollectionConfig;
 import ru.intertrust.cm.core.config.model.CollectionFilterConfig;
-import ru.intertrust.cm.core.config.model.DomainObjectConfig;
+import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.IdGenerator;
@@ -56,13 +56,13 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     /**
      * Создает SQL запрос для создания доменного объекта
      * @param domainObject доменный объект
-     * @param domainObjectConfig конфигурация доменного объекта
+     * @param domainObjectTypeConfig конфигурация доменного объекта
      * @return строку запроса для создания доменного объекта с параметрами
      */
-    protected String generateCreateQuery(DomainObject domainObject, DomainObjectConfig domainObjectConfig) {
-        List<FieldConfig> feldConfigs = domainObjectConfig.getDomainObjectFieldsConfig().getFieldConfigs();
+    protected String generateCreateQuery(DomainObject domainObject, DomainObjectTypeConfig domainObjectTypeConfig) {
+        List<FieldConfig> feldConfigs = domainObjectTypeConfig.getDomainObjectFieldsConfig().getFieldConfigs();
 
-        String tableName = DataStructureNamingHelper.getSqlName(domainObjectConfig);
+        String tableName = DataStructureNamingHelper.getSqlName(domainObjectTypeConfig);
         List<String> columnNames = DataStructureNamingHelper.getSqlName(feldConfigs);
 
         String commaSeparatedColumns = StringUtils.collectionToCommaDelimitedString(columnNames);
@@ -81,17 +81,17 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     @Override
-    public DomainObject create(DomainObject domainObject, DomainObjectConfig domainObjectConfig) {
+    public DomainObject create(DomainObject domainObject, DomainObjectTypeConfig domainObjectTypeConfig) {
 
-        String query = generateCreateQuery(domainObject, domainObjectConfig);
+        String query = generateCreateQuery(domainObject, domainObjectTypeConfig);
 
-        Object nextId = idGenerator.generatetId(domainObjectConfig);
+        Object nextId = idGenerator.generatetId(domainObjectTypeConfig);
 
         RdbmsId id = new RdbmsId(domainObject.getTypeName(), (Long) nextId);
 
         domainObject.setId(id);
 
-        Map<String, Object> parameters = initializeCreateParameters(domainObject, domainObjectConfig);
+        Map<String, Object> parameters = initializeCreateParameters(domainObject, domainObjectTypeConfig);
 
         jdbcTemplate.update(query, parameters);
 
@@ -101,11 +101,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     /**
      * Инициализирует параметры для для создания доменного объекта
      * @param domainObject доменный объект
-     * @param domainObjectConfig конфигурация доменного объекта
+     * @param domainObjectTypeConfig конфигурация доменного объекта
      * @return карту объектов содержащую имя параметра и его значение
      */
     protected Map<String, Object> initializeCreateParameters(DomainObject domainObject,
-            DomainObjectConfig domainObjectConfig) {
+            DomainObjectTypeConfig domainObjectTypeConfig) {
 
         RdbmsId rdbmsId = (RdbmsId) domainObject.getId();
 
@@ -113,7 +113,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         parameters.put("created_date", domainObject.getCreatedDate());
         parameters.put("updated_date", domainObject.getModifiedDate());
 
-        List<FieldConfig> feldConfigs = domainObjectConfig.getDomainObjectFieldsConfig().getFieldConfigs();
+        List<FieldConfig> feldConfigs = domainObjectTypeConfig.getDomainObjectFieldsConfig().getFieldConfigs();
 
         initializeDomainParameters(domainObject, feldConfigs, parameters);
 
@@ -138,16 +138,16 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     /**
      * Создает SQL запрос для модификации доменного объекта
      * @param domainObject доменный объект
-     * @param domainObjectConfig конфигурация доменного объекта
+     * @param domainObjectTypeConfig конфигурация доменного объекта
      * @return строку запроса для модиификации доменного объекта с параметрами
      */
-    protected String generateUpdateQuery(DomainObject domainObject, DomainObjectConfig domainObjectConfig) {
+    protected String generateUpdateQuery(DomainObject domainObject, DomainObjectTypeConfig domainObjectTypeConfig) {
 
         StringBuilder query = new StringBuilder();
 
-        String tableName = DataStructureNamingHelper.getSqlName(domainObjectConfig);
+        String tableName = DataStructureNamingHelper.getSqlName(domainObjectTypeConfig);
 
-        List<FieldConfig> feldConfigs = domainObjectConfig.getDomainObjectFieldsConfig().getFieldConfigs();
+        List<FieldConfig> feldConfigs = domainObjectTypeConfig.getDomainObjectFieldsConfig().getFieldConfigs();
 
         List<String> columnNames = DataStructureNamingHelper.getSqlName(feldConfigs);
 
@@ -166,11 +166,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     /**
      * Инициализирует параметры для для создания доменного объекта
      * @param domainObject доменный объект
-     * @param domainObjectConfig конфигурация доменного объекта
+     * @param domainObjectTypeConfig конфигурация доменного объекта
      * @return карту объектов содержащую имя параметра и его значение
      */
     protected Map<String, Object> initializeUpdateParameters(DomainObject domainObject,
-            DomainObjectConfig domainObjectConfig, Date currentDate) {
+            DomainObjectTypeConfig domainObjectTypeConfig, Date currentDate) {
 
         Map<String, Object> parameters = new HashMap<String, Object>();
 
@@ -180,7 +180,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         parameters.put("current_date", currentDate);
         parameters.put("updated_date", domainObject.getModifiedDate());
 
-        List<FieldConfig> feldConfigs = domainObjectConfig.getDomainObjectFieldsConfig().getFieldConfigs();
+        List<FieldConfig> feldConfigs = domainObjectTypeConfig.getDomainObjectFieldsConfig().getFieldConfigs();
 
         initializeDomainParameters(domainObject, feldConfigs, parameters);
 
@@ -189,17 +189,17 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     @Override
-    public DomainObject update(DomainObject domainObject, DomainObjectConfig domainObjectConfig)
+    public DomainObject update(DomainObject domainObject, DomainObjectTypeConfig domainObjectTypeConfig)
             throws InvalidIdException, ObjectNotFoundException,
             OptimisticLockException {
 
-        String query = generateUpdateQuery(domainObject, domainObjectConfig);
+        String query = generateUpdateQuery(domainObject, domainObjectTypeConfig);
 
         validateIdType(domainObject.getId());
 
         Date currentDate = new Date();
 
-        Map<String, Object> parameters = initializeUpdateParameters(domainObject, domainObjectConfig, currentDate);
+        Map<String, Object> parameters = initializeUpdateParameters(domainObject, domainObjectTypeConfig, currentDate);
 
         int count = jdbcTemplate.update(query, parameters);
 
@@ -231,12 +231,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     /**
      * Создает SQL запрос для удаления доменного объекта
-     * @param domainObjectConfig конфигурация доменного объекта
+     * @param domainObjectTypeConfig конфигурация доменного объекта
      * @return строку запроса для удаления доменного объекта с параметрами
      */
-    protected String generateDeleteQuery(DomainObjectConfig domainObjectConfig) {
+    protected String generateDeleteQuery(DomainObjectTypeConfig domainObjectTypeConfig) {
 
-        String tableName = DataStructureNamingHelper.getSqlName(domainObjectConfig);
+        String tableName = DataStructureNamingHelper.getSqlName(domainObjectTypeConfig);
 
         StringBuilder query = new StringBuilder();
         query.append("delete from ");
@@ -248,10 +248,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     @Override
-    public void delete(Id id, DomainObjectConfig domainObjectConfig) throws InvalidIdException,
+    public void delete(Id id, DomainObjectTypeConfig domainObjectTypeConfig) throws InvalidIdException,
             ObjectNotFoundException {
 
-        String query = generateDeleteQuery(domainObjectConfig);
+        String query = generateDeleteQuery(domainObjectTypeConfig);
 
         validateIdType(id);
 
@@ -268,12 +268,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     /**
      * Создает SQL запрос для удаления всех доменных объектов
-     * @param domainObjectConfig конфигурация доменного объекта
+     * @param domainObjectTypeConfig конфигурация доменного объекта
      * @return строку запроса для удаления всех доменных объектов
      */
-    protected String generateDeleteAllQuery(DomainObjectConfig domainObjectConfig) {
+    protected String generateDeleteAllQuery(DomainObjectTypeConfig domainObjectTypeConfig) {
 
-        String tableName = DataStructureNamingHelper.getSqlName(domainObjectConfig);
+        String tableName = DataStructureNamingHelper.getSqlName(domainObjectTypeConfig);
 
         StringBuilder query = new StringBuilder();
         query.append("delete from ");

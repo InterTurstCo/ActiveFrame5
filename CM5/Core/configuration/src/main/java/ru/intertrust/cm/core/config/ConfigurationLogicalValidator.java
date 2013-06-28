@@ -24,51 +24,51 @@ public class ConfigurationLogicalValidator {
      * Выполняет логическую валидацию конфигурации
      */
     public void validate() {
-        Collection<DomainObjectConfig> configList = configurationExplorer.getDomainObjectConfigs();
+        Collection<DomainObjectTypeConfig> configList = configurationExplorer.getDomainObjectConfigs();
         if (configList.isEmpty()) {
             return;
         }
-        for (DomainObjectConfig config : configList) {
+        for (DomainObjectTypeConfig config : configList) {
             validateDomainObjectConfig(config);
         }
 
         logger.info("Document has passed logical validation");
     }
 
-    private void validateDomainObjectConfig(DomainObjectConfig domainObjectConfig) {
-        if (domainObjectConfig == null) {
+    private void validateDomainObjectConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
+        if (domainObjectTypeConfig == null) {
             return;
         }
 
-        validateParentConfig(domainObjectConfig);
-        validateReferenceFields(domainObjectConfig);
-        validateUniqueKeys(domainObjectConfig);
+        validateParentConfig(domainObjectTypeConfig);
+        validateReferenceFields(domainObjectTypeConfig);
+        validateUniqueKeys(domainObjectTypeConfig);
     }
 
-    private void validateUniqueKeys(DomainObjectConfig domainObjectConfig) {
-        for (UniqueKeyConfig uniqueKeyConfig : domainObjectConfig.getUniqueKeyConfigs()) {
+    private void validateUniqueKeys(DomainObjectTypeConfig domainObjectTypeConfig) {
+        for (UniqueKeyConfig uniqueKeyConfig : domainObjectTypeConfig.getUniqueKeyConfigs()) {
             for (UniqueKeyFieldConfig uniqueKeyFieldConfig : uniqueKeyConfig.getUniqueKeyFieldConfigs()) {
-                validateDomainObjectConfigContainsField(domainObjectConfig, uniqueKeyFieldConfig.getName());
+                validateDomainObjectConfigContainsField(domainObjectTypeConfig, uniqueKeyFieldConfig.getName());
             }
         }
     }
 
-    private void validateDomainObjectConfigContainsField(DomainObjectConfig domainObjectConfig,
+    private void validateDomainObjectConfigContainsField(DomainObjectTypeConfig domainObjectTypeConfig,
                                                          String fieldName) {
-        for(FieldConfig fieldConfig : domainObjectConfig.getFieldConfigs()) {
+        for(FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
             if(fieldName.equals(fieldConfig.getName())) {
                 return;
             }
         }
         throw new ConfigurationException("FieldConfig with name '" + fieldName + "' is not found in domain object '" +
-                domainObjectConfig.getName() + "'");
+                domainObjectTypeConfig.getName() + "'");
     }
 
-    private void validateReferenceFields(DomainObjectConfig domainObjectConfig) {
-        for (FieldConfig fieldConfig : domainObjectConfig.getFieldConfigs()) {
+    private void validateReferenceFields(DomainObjectTypeConfig domainObjectTypeConfig) {
+        for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
             if (ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
                 String referencedDomainObjectConfigName = ((ReferenceFieldConfig) fieldConfig).getType();
-                DomainObjectConfig referencedConfig =
+                DomainObjectTypeConfig referencedConfig =
                         configurationExplorer.getDomainObjectConfig(referencedDomainObjectConfigName);
                 if(referencedConfig == null) {
                     throw new ConfigurationException("Referenced DomainObject Configuration is not found for name '" +
@@ -78,10 +78,10 @@ public class ConfigurationLogicalValidator {
         }
     }
 
-    private void validateParentConfig(DomainObjectConfig domainObjectConfig) {
-        String parentConfigName = domainObjectConfig.getParentConfig();
+    private void validateParentConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
+        String parentConfigName = domainObjectTypeConfig.getParentConfig();
         if (parentConfigName != null) {
-            DomainObjectConfig parentConfig = configurationExplorer.getDomainObjectConfig(parentConfigName);
+            DomainObjectTypeConfig parentConfig = configurationExplorer.getDomainObjectConfig(parentConfigName);
             if(parentConfig == null) {
                 throw new ConfigurationException("Parent DomainObject Configuration is not found for name '" + parentConfigName + "'");
             }

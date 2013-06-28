@@ -58,7 +58,7 @@ public class PostgreSqlQueryHelper {
      * @param config конфигурация доменного объекта
      * @return запрос, создающий последовательность(сиквенс) по конфигурации доменного объекта
      */
-    public static String generateSequenceQuery(DomainObjectConfig config) {
+    public static String generateSequenceQuery(DomainObjectTypeConfig config) {
         String sequenceName = getSqlSequenceName(config);
         StringBuilder query = new StringBuilder();
         query.append("create sequence ");
@@ -73,7 +73,7 @@ public class PostgreSqlQueryHelper {
      * @param config конфигурация доменного объекта
      * @return запрос, создающий талицу по конфигурации доменного объекта
      */
-    public static String generateCreateTableQuery(DomainObjectConfig config) {
+    public static String generateCreateTableQuery(DomainObjectTypeConfig config) {
         String tableName = getSqlName(config);
         StringBuilder query = new StringBuilder("create table ").append(tableName).append(" ( ");
 

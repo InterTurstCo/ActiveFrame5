@@ -87,25 +87,25 @@ public class ConfigurationServiceImplTest {
         when(configurationDao.readLastSavedConfiguration()).thenReturn(configurationString);
 
         // Вносим изменения в конфигурацию
-        DomainObjectConfig domainObjectConfig = configurationExplorer.getDomainObjectConfig("Outgoing Document");
+        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer.getDomainObjectConfig("Outgoing Document");
 
         StringFieldConfig descriptionFieldConfig = new StringFieldConfig();
         descriptionFieldConfig.setName("Long Description");
         descriptionFieldConfig.setLength(256);
         descriptionFieldConfig.setNotNull(false);
-        domainObjectConfig.getFieldConfigs().add(descriptionFieldConfig);
+        domainObjectTypeConfig.getFieldConfigs().add(descriptionFieldConfig);
 
         ReferenceFieldConfig executorFieldConfig = new ReferenceFieldConfig();
         executorFieldConfig.setName("Executor");
         executorFieldConfig.setType("Employee");
         executorFieldConfig.setNotNull(true);
-        domainObjectConfig.getFieldConfigs().add(executorFieldConfig);
+        domainObjectTypeConfig.getFieldConfigs().add(executorFieldConfig);
 
         UniqueKeyConfig uniqueKeyConfig = new UniqueKeyConfig();
         UniqueKeyFieldConfig uniqueKeyFieldConfig = new UniqueKeyFieldConfig();
         uniqueKeyFieldConfig.setName("Registration Number");
         uniqueKeyConfig.getUniqueKeyFieldConfigs().add(uniqueKeyFieldConfig);
-        domainObjectConfig.getUniqueKeyConfigs().add(uniqueKeyConfig);
+        domainObjectTypeConfig.getUniqueKeyConfigs().add(uniqueKeyConfig);
 
         // Пересобираем configurationExplorer
         configurationExplorer.build();
@@ -129,8 +129,8 @@ public class ConfigurationServiceImplTest {
 
         verify(dataStructureDao).countTables();
         verify(dataStructureDao, never()).createServiceTables();
-        verify(dataStructureDao, never()).createTable(any(DomainObjectConfig.class));
-        verify(dataStructureDao, never()).createSequence(any(DomainObjectConfig.class));
+        verify(dataStructureDao, never()).createTable(any(DomainObjectTypeConfig.class));
+        verify(dataStructureDao, never()).createSequence(any(DomainObjectTypeConfig.class));
         verify(configurationDao, never()).save(anyString());
     }
 
@@ -141,8 +141,8 @@ public class ConfigurationServiceImplTest {
 
         verify(dataStructureDao).countTables();
         verify(dataStructureDao).createServiceTables();
-        verify(dataStructureDao, times(4)).createTable(any(DomainObjectConfig.class));
-        verify(dataStructureDao, times(4)).createSequence(any(DomainObjectConfig.class));
+        verify(dataStructureDao, times(4)).createTable(any(DomainObjectTypeConfig.class));
+        verify(dataStructureDao, times(4)).createSequence(any(DomainObjectTypeConfig.class));
         verify(configurationDao).save(ConfigurationSerializer.deserializeConfiguration(configuration));
     }
 }

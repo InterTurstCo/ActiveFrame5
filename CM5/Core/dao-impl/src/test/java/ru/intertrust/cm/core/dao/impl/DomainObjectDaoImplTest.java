@@ -29,7 +29,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(MockitoJUnitRunner.class)
 public class DomainObjectDaoImplTest {
 
-    private DomainObjectConfig domainObjectConfig;
+    private DomainObjectTypeConfig domainObjectTypeConfig;
 
     private static final String COLLECTION_COUNT_WITH_FILTERS = "select count(*) from employee e inner join department d on e.department = d.id WHERE d.name = 'dep1' and e.name = 'employee1'";
     private static final String COLLECTION_QUERY_WITH_LIMITS = "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e inner join department d on e.department = d.id where d.name = 'dep1' order by e.name asc limit 100 OFFSET 10";
@@ -72,7 +72,7 @@ public class DomainObjectDaoImplTest {
         configurationExplorer.setConfiguration(configuration);
         configurationExplorer.build();
 
-        domainObjectConfig = configurationExplorer.getDomainObjectConfig("Person");
+        domainObjectTypeConfig = configurationExplorer.getDomainObjectConfig("Person");
         collectionConfig = configurationExplorer.getCollectionConfig("Employees");
         byDepartmentFilterConfig = createByDepartmentFilterConfig();
         byNameFilterConfig = createByNameFilterConfig();
@@ -85,7 +85,7 @@ public class DomainObjectDaoImplTest {
     public void testGenerateCreateQuery() throws Exception {
 
         DomainObject domainObject = new GenericDomainObject();
-        domainObject.setTypeName(domainObjectConfig.getName());
+        domainObject.setTypeName(domainObjectTypeConfig.getName());
         domainObject.setValue("EMail", new StringValue("testCreate@test.com"));
         domainObject.setValue("Login", new StringValue("userCreate"));
         domainObject.setValue("Password", new StringValue("passCreate"));
@@ -97,7 +97,7 @@ public class DomainObjectDaoImplTest {
         String checkCreateQuery =
                 "insert into PERSON (ID , CREATED_DATE, UPDATED_DATE, EMAIL,LOGIN,PASSWORD) values (:id , :created_date, :updated_date, :email,:login,:password)";
 
-        String query = domainObjectDaoImpl.generateCreateQuery(domainObject, domainObjectConfig);
+        String query = domainObjectDaoImpl.generateCreateQuery(domainObject, domainObjectTypeConfig);
         assertEquals(checkCreateQuery, query);
 
     }
@@ -107,14 +107,14 @@ public class DomainObjectDaoImplTest {
 
         DomainObject domainObject = new GenericDomainObject();
         domainObject.setId(null);
-        domainObject.setTypeName(domainObjectConfig.getName());
+        domainObject.setTypeName(domainObjectTypeConfig.getName());
         domainObject.setValue("EMail", new StringValue("testUpdate@test.com"));
         domainObject.setValue("Login", new StringValue("userUpdate"));
         domainObject.setValue("Password", new StringValue("passUpdate"));
 
         //проверяем что идентификатор не нулевой
         try {
-            domainObjectDaoImpl.update(domainObject, domainObjectConfig);
+            domainObjectDaoImpl.update(domainObject, domainObjectTypeConfig);
         } catch (Exception e) {
 
             assertTrue(e instanceof InvalidIdException);
@@ -124,7 +124,7 @@ public class DomainObjectDaoImplTest {
         //проверяем что обрабатываеться неккоректный тип идентификатора
         try {
             domainObject.setId(new TestId());
-            domainObjectDaoImpl.update(domainObject, domainObjectConfig);
+            domainObjectDaoImpl.update(domainObject, domainObjectTypeConfig);
         } catch (Exception e) {
 
             assertTrue(e instanceof InvalidIdException);
@@ -139,7 +139,7 @@ public class DomainObjectDaoImplTest {
     public void testGenerateUpdateQuery() throws Exception {
 
         DomainObject domainObject = new GenericDomainObject();
-        domainObject.setTypeName(domainObjectConfig.getName());
+        domainObject.setTypeName(domainObjectTypeConfig.getName());
         domainObject.setValue("EMail", new StringValue("testUpdate@test.com"));
         domainObject.setValue("Login", new StringValue("userUpdate"));
         domainObject.setValue("Password", new StringValue("passUpdate"));
@@ -151,7 +151,7 @@ public class DomainObjectDaoImplTest {
 
         String checkUpdateQuery = "update PERSON set UPDATED_DATE=:current_date, EMAIL=:email,LOGIN=:login,PASSWORD=:password where ID=:id and UPDATED_DATE=:updated_date";
 
-        String query = domainObjectDaoImpl.generateUpdateQuery(domainObject, domainObjectConfig);
+        String query = domainObjectDaoImpl.generateUpdateQuery(domainObject, domainObjectTypeConfig);
         assertEquals(checkUpdateQuery, query);
 
     }
@@ -161,7 +161,7 @@ public class DomainObjectDaoImplTest {
 
         String checkDeleteQuery = "delete from PERSON where id=:id";
 
-        String query = domainObjectDaoImpl.generateDeleteQuery(domainObjectConfig);
+        String query = domainObjectDaoImpl.generateDeleteQuery(domainObjectTypeConfig);
         assertEquals(checkDeleteQuery, query);
 
     }
@@ -172,7 +172,7 @@ public class DomainObjectDaoImplTest {
 
         String checkDeleteQuery = "delete from PERSON";
 
-        String query = domainObjectDaoImpl.generateDeleteAllQuery(domainObjectConfig);
+        String query = domainObjectDaoImpl.generateDeleteAllQuery(domainObjectTypeConfig);
         assertEquals(checkDeleteQuery, query);
 
     }
@@ -183,7 +183,7 @@ public class DomainObjectDaoImplTest {
 
         String checkExistsQuery = "select id from PERSON where id=:id";
 
-        String query = domainObjectDaoImpl.generateExistsQuery(domainObjectConfig.getName());
+        String query = domainObjectDaoImpl.generateExistsQuery(domainObjectTypeConfig.getName());
         assertEquals(checkExistsQuery, query);
 
     }
@@ -198,26 +198,26 @@ public class DomainObjectDaoImplTest {
          * creation--> <field name="EMail"/> </uniqueKey> </domain-object>
          */
 
-        domainObjectConfig = new DomainObjectConfig();
-        domainObjectConfig.setName("person");
+        domainObjectTypeConfig = new DomainObjectTypeConfig();
+        domainObjectTypeConfig.setName("person");
         StringFieldConfig email = new StringFieldConfig();
         email.setName("EMail");
         email.setLength(128);
-        domainObjectConfig.getFieldConfigs().add(email);
+        domainObjectTypeConfig.getFieldConfigs().add(email);
 
         StringFieldConfig Login = new StringFieldConfig();
         Login.setName("Login");
         Login.setLength(64);
         Login.setNotNull(true);
-        domainObjectConfig.getFieldConfigs().add(Login);
+        domainObjectTypeConfig.getFieldConfigs().add(Login);
 
         StringFieldConfig Password = new StringFieldConfig();
         Password.setName("Password");
         Password.setLength(128);
-        domainObjectConfig.getFieldConfigs().add(Password);
+        domainObjectTypeConfig.getFieldConfigs().add(Password);
 
         UniqueKeyConfig uniqueKeyConfig = new UniqueKeyConfig();
-        domainObjectConfig.getUniqueKeyConfigs().add(uniqueKeyConfig);
+        domainObjectTypeConfig.getUniqueKeyConfigs().add(uniqueKeyConfig);
 
         UniqueKeyFieldConfig uniqueKeyFieldConfig1 = new UniqueKeyFieldConfig();
         uniqueKeyFieldConfig1.setName("EMail");

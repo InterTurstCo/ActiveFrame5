@@ -4,7 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import ru.intertrust.cm.core.config.model.CollectionConfig;
 import ru.intertrust.cm.core.config.model.Configuration;
-import ru.intertrust.cm.core.config.model.DomainObjectConfig;
+import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 
 import java.util.*;
@@ -58,8 +58,8 @@ public class ConfigurationExplorerImplTest {
 
     @Test
     public void testInit() throws Exception {
-        DomainObjectConfig domainObjectConfig = configurationExplorer.getDomainObjectConfig(PERSON_CONFIG_NAME);
-        assertNotNull(domainObjectConfig);
+        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer.getDomainObjectConfig(PERSON_CONFIG_NAME);
+        assertNotNull(domainObjectTypeConfig);
 
         FieldConfig fieldConfig = configurationExplorer.getFieldConfig(PERSON_CONFIG_NAME, E_MAIL_CONFIG_NAME);
         assertNotNull(fieldConfig);
@@ -70,16 +70,16 @@ public class ConfigurationExplorerImplTest {
 
     @Test
     public void testGetDomainObjectConfigs() throws Exception {
-        Collection<DomainObjectConfig> domainObjectConfigs = configurationExplorer.getDomainObjectConfigs();
+        Collection<DomainObjectTypeConfig> domainObjectTypeConfigs = configurationExplorer.getDomainObjectConfigs();
 
-        assertNotNull(domainObjectConfigs);
-        assertEquals(domainObjectConfigs.size(), 4);
+        assertNotNull(domainObjectTypeConfigs);
+        assertEquals(domainObjectTypeConfigs.size(), 4);
 
         List<String> domainObjectNames = new ArrayList<>();
         domainObjectNames.addAll(Arrays.asList("Outgoing Document", PERSON_CONFIG_NAME, "Employee", "Department"));
 
-        for(DomainObjectConfig domainObjectConfig : domainObjectConfigs) {
-            String name = domainObjectConfig.getName();
+        for(DomainObjectTypeConfig domainObjectTypeConfig : domainObjectTypeConfigs) {
+            String name = domainObjectTypeConfig.getName();
             assertTrue(domainObjectNames.contains(name));
             domainObjectNames.remove(name);
         }
@@ -104,9 +104,9 @@ public class ConfigurationExplorerImplTest {
 
     @Test
     public void testGetDomainObjectConfig() throws Exception {
-        DomainObjectConfig domainObjectConfig = configurationExplorer.getDomainObjectConfig(PERSON_CONFIG_NAME);
-        assertNotNull(domainObjectConfig);
-        assertEquals(domainObjectConfig.getName(), PERSON_CONFIG_NAME);
+        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer.getDomainObjectConfig(PERSON_CONFIG_NAME);
+        assertNotNull(domainObjectTypeConfig);
+        assertEquals(domainObjectTypeConfig.getName(), PERSON_CONFIG_NAME);
     }
 
     @Test

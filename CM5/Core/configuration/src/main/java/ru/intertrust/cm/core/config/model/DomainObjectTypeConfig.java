@@ -14,8 +14,8 @@ import java.util.List;
  *         Date: 5/1/13
  *         Time: 8:50 PM
  */
-@Root(name = "domain-object")
-public class DomainObjectConfig implements Serializable {
+@Root(name = "domain-object-type")
+public class DomainObjectTypeConfig implements Serializable {
 
     private Long id;
 
@@ -32,7 +32,7 @@ public class DomainObjectConfig implements Serializable {
     @ElementList(entry="uniqueKey", type=UniqueKeyConfig.class, inline=true, required = false)
     private List<UniqueKeyConfig> uniqueKeyConfigs = new ArrayList<>();
 
-    public DomainObjectConfig() {
+    public DomainObjectTypeConfig() {
     }
 
     public Long getId() {
@@ -95,7 +95,7 @@ public class DomainObjectConfig implements Serializable {
             return false;
         }
 
-        DomainObjectConfig that = (DomainObjectConfig) o;
+        DomainObjectTypeConfig that = (DomainObjectTypeConfig) o;
 
         if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;

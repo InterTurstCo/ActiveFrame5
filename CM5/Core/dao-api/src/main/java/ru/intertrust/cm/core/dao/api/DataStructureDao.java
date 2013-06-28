@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.dao.api;
 
-import ru.intertrust.cm.core.config.model.DomainObjectConfig;
+import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.config.model.UniqueKeyConfig;
 
@@ -21,7 +21,7 @@ public interface DataStructureDao {
      * Создает таблицу по конфигурации доменного объекта
      * @param config конфигурация доменного объекта
      */
-    void createTable(DomainObjectConfig config);
+    void createTable(DomainObjectTypeConfig config);
 
     /**
      * Обновляет структуру таблицы (добавляет колонки и уникальные ключи)
@@ -36,7 +36,7 @@ public interface DataStructureDao {
      * Создает последовательность для таблицы по конфигурации доменного объекта
      * @param config конфигурация доменного объекта
      */
-    void createSequence(DomainObjectConfig config);
+    void createSequence(DomainObjectTypeConfig config);
 
     /**
      * Возвращает кол-во таблиц в базе данных

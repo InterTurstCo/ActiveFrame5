@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.config;
 
 import ru.intertrust.cm.core.config.model.CollectionConfig;
 import ru.intertrust.cm.core.config.model.Configuration;
-import ru.intertrust.cm.core.config.model.DomainObjectConfig;
+import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 
 import java.util.Collection;
@@ -30,7 +30,7 @@ public interface ConfigurationExplorer {
      * Возвращает конфигурации доменных объектов, содержащихся в конфигурации
      * @return коллекция конфигураций доменных объектов
      */
-    Collection<DomainObjectConfig> getDomainObjectConfigs();
+    Collection<DomainObjectTypeConfig> getDomainObjectConfigs();
 
     /**
      * Возвращает конфигурации коллекций, содержащихся в конфигурации
@@ -43,7 +43,7 @@ public interface ConfigurationExplorer {
      * @param name имя доменного объекта, конфигурацию которого надо найти
      * @return конфигурация доменного объекта
      */
-    DomainObjectConfig getDomainObjectConfig(String name);
+    DomainObjectTypeConfig getDomainObjectConfig(String name);
 
     /**
      * Находит конфигурацию коллекции

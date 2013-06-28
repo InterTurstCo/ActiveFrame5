@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.jdbc.core.JdbcTemplate;
-import ru.intertrust.cm.core.config.model.DomainObjectConfig;
+import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.config.model.UniqueKeyConfig;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
@@ -48,10 +48,10 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
 
 
     /**
-     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#createSequence(ru.intertrust.cm.core.config.model.DomainObjectConfig)}
+     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#createSequence(ru.intertrust.cm.core.config.model.DomainObjectTypeConfig)}
      */
     @Override
-    public void createSequence(DomainObjectConfig config) {
+    public void createSequence(DomainObjectTypeConfig config) {
         String createSequenceQuery = generateSequenceQuery(config);
 
         jdbcTemplate.update(createSequenceQuery);
@@ -59,10 +59,10 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
     }
 
     /**
-     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#createTable(ru.intertrust.cm.core.config.model.DomainObjectConfig)}
+     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#createTable(ru.intertrust.cm.core.config.model.DomainObjectTypeConfig)}
      */
     @Override
-    public void createTable(DomainObjectConfig config) {
+    public void createTable(DomainObjectTypeConfig config) {
         jdbcTemplate.update(generateCreateTableQuery(config));
 
         String createIndexesQuery = generateCreateIndexesQuery(config.getName(), config.getFieldConfigs());

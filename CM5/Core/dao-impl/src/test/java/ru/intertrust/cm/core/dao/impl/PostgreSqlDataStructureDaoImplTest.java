@@ -35,7 +35,7 @@ public class PostgreSqlDataStructureDaoImplTest {
     @Mock
     private JdbcTemplate jdbcTemplate;
 
-    private DomainObjectConfig domainObjectConfig;
+    private DomainObjectTypeConfig domainObjectTypeConfig;
 
     @Before
     public void setUp() throws Exception {
@@ -46,18 +46,18 @@ public class PostgreSqlDataStructureDaoImplTest {
     @Test
     public void testCreateTable() throws Exception {
         when(jdbcTemplate.queryForObject(anyString(), any(Class.class), anyString())).thenReturn(Long.valueOf(7)); // ID конфигурации доменного объекта
-        dataStructureDao.createTable(domainObjectConfig);
+        dataStructureDao.createTable(domainObjectTypeConfig);
 
-        verify(jdbcTemplate).update(generateCreateTableQuery(domainObjectConfig));
-        verify(jdbcTemplate).update(generateCreateIndexesQuery(domainObjectConfig.getName(),
-                domainObjectConfig.getFieldConfigs()));
+        verify(jdbcTemplate).update(generateCreateTableQuery(domainObjectTypeConfig));
+        verify(jdbcTemplate).update(generateCreateIndexesQuery(domainObjectTypeConfig.getName(),
+                domainObjectTypeConfig.getFieldConfigs()));
         verify(jdbcTemplate).update(INSERT_INTO_DOMAIN_OBJECT_TABLE_QUERY,
-                domainObjectConfig.getName());
+                domainObjectTypeConfig.getName());
 
         verify(jdbcTemplate).queryForObject(SELECT_DOMAIN_OBJECT_CONFIG_ID_BY_NAME_QUERY,
-                Long.class, domainObjectConfig.getName());
+                Long.class, domainObjectTypeConfig.getName());
 
-        assertEquals(Long.valueOf(7), domainObjectConfig.getId());
+        assertEquals(Long.valueOf(7), domainObjectTypeConfig.getId());
     }
 
     @Test
@@ -82,11 +82,11 @@ public class PostgreSqlDataStructureDaoImplTest {
         uniqueKeyConfig.getUniqueKeyFieldConfigs().add(uniqueKeyFieldConfig);
         List<UniqueKeyConfig> newUniqueConfigs = Collections.singletonList(uniqueKeyConfig);
 
-        dataStructureDao.updateTableStructure(domainObjectConfig.getName(), newColumns, newUniqueConfigs);
+        dataStructureDao.updateTableStructure(domainObjectTypeConfig.getName(), newColumns, newUniqueConfigs);
 
-        verify(jdbcTemplate).update(generateUpdateTableQuery(domainObjectConfig.getName(),
+        verify(jdbcTemplate).update(generateUpdateTableQuery(domainObjectTypeConfig.getName(),
                 newColumns, newUniqueConfigs));
-        verify(jdbcTemplate).update(generateCreateIndexesQuery(domainObjectConfig.getName(), newColumns));
+        verify(jdbcTemplate).update(generateCreateIndexesQuery(domainObjectTypeConfig.getName(), newColumns));
     }
 
     @Test
@@ -125,43 +125,43 @@ public class PostgreSqlDataStructureDaoImplTest {
     }
 
     private void initDomainObjectConfig() {
-        domainObjectConfig = new DomainObjectConfig();
-        domainObjectConfig.setName("Outgoing Document");
-        domainObjectConfig.setParentConfig("Document");
+        domainObjectTypeConfig = new DomainObjectTypeConfig();
+        domainObjectTypeConfig.setName("Outgoing Document");
+        domainObjectTypeConfig.setParentConfig("Document");
 
         StringFieldConfig registrationNumber = new StringFieldConfig();
         registrationNumber.setName("Registration Number");
         registrationNumber.setLength(128);
-        domainObjectConfig.getFieldConfigs().add(registrationNumber);
+        domainObjectTypeConfig.getFieldConfigs().add(registrationNumber);
 
         DateTimeFieldConfig registrationDate = new DateTimeFieldConfig();
         registrationDate.setName("Registration Date");
-        domainObjectConfig.getFieldConfigs().add(registrationDate);
+        domainObjectTypeConfig.getFieldConfigs().add(registrationDate);
 
         ReferenceFieldConfig referenceFieldConfig = new ReferenceFieldConfig();
         referenceFieldConfig.setName("Author");
         referenceFieldConfig.setType("Employee");
-        domainObjectConfig.getFieldConfigs().add(referenceFieldConfig);
+        domainObjectTypeConfig.getFieldConfigs().add(referenceFieldConfig);
 
         LongFieldConfig longFieldConfig = new LongFieldConfig();
         longFieldConfig.setName("Long Field");
-        domainObjectConfig.getFieldConfigs().add(longFieldConfig);
+        domainObjectTypeConfig.getFieldConfigs().add(longFieldConfig);
 
         DecimalFieldConfig decimalFieldConfig1 = new DecimalFieldConfig();
         decimalFieldConfig1.setName("Decimal Field 1");
         decimalFieldConfig1.setNotNull(false);
         decimalFieldConfig1.setPrecision(10);
         decimalFieldConfig1.setScale(2);
-        domainObjectConfig.getFieldConfigs().add(decimalFieldConfig1);
+        domainObjectTypeConfig.getFieldConfigs().add(decimalFieldConfig1);
 
         DecimalFieldConfig decimalFieldConfig2 = new DecimalFieldConfig();
         decimalFieldConfig2.setName("Decimal Field 2");
         decimalFieldConfig2.setNotNull(false);
         decimalFieldConfig2.setPrecision(10);
-        domainObjectConfig.getFieldConfigs().add(decimalFieldConfig2);
+        domainObjectTypeConfig.getFieldConfigs().add(decimalFieldConfig2);
 
         UniqueKeyConfig uniqueKeyConfig = new UniqueKeyConfig();
-        domainObjectConfig.getUniqueKeyConfigs().add(uniqueKeyConfig);
+        domainObjectTypeConfig.getUniqueKeyConfigs().add(uniqueKeyConfig);
 
         UniqueKeyFieldConfig uniqueKeyFieldConfig1 = new UniqueKeyFieldConfig();
         uniqueKeyFieldConfig1.setName("Registration Number");

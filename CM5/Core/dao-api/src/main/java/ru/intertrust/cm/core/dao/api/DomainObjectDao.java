@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.dao.api;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.model.CollectionConfig;
 import ru.intertrust.cm.core.config.model.CollectionFilterConfig;
-import ru.intertrust.cm.core.config.model.DomainObjectConfig;
+import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
@@ -22,17 +22,17 @@ public interface DomainObjectDao {
      * Создает новый доменный объект
      * @param domainObject
      *            доменный объект который будет создан
-     * @param domainObjectConfig
+     * @param domainObjectTypeConfig
      *            конфигурация доменного объекта
      * @return созданыый доменный объект
      */
-    public DomainObject create(DomainObject domainObject, DomainObjectConfig domainObjectConfig);
+    public DomainObject create(DomainObject domainObject, DomainObjectTypeConfig domainObjectTypeConfig);
 
     /**
      * Модифицирует переданный доменный объект
      * @param domainObject
      *            доменный объект который надо изменить
-     * @param domainObjectConfig
+     * @param domainObjectTypeConfig
      *            конфигурация доменного объекта
      * @return возвращет модифицированный доменный объект
      * @throws InvalidIdException
@@ -42,21 +42,21 @@ public interface DomainObjectDao {
      * @throws OptimisticLockException
      *             если объект уже был модифицирован другим пользователем
      */
-    public DomainObject update(DomainObject domainObject, DomainObjectConfig domainObjectConfig)
+    public DomainObject update(DomainObject domainObject, DomainObjectTypeConfig domainObjectTypeConfig)
             throws InvalidIdException, ObjectNotFoundException, OptimisticLockException;
 
     /**
      * Удаляет доменный объект по уникальному идентифткатору
      * @param id
      *            уникальный идентификатор объекта который надо удалить
-     * @param domainObjectConfig
+     * @param domainObjectTypeConfig
      *            конфигурация доменного объекта
      * @throws InvalidIdException
      *             если идентификатор доменного объекта не корректный (не поддерживается или нулевой)
      * @throws ObjectNotFoundException
      *             если не существует объекта с таким идентификатором
      */
-    public void delete(Id id, DomainObjectConfig domainObjectConfig) throws InvalidIdException, ObjectNotFoundException;
+    public void delete(Id id, DomainObjectTypeConfig domainObjectTypeConfig) throws InvalidIdException, ObjectNotFoundException;
 
     /**
      * Проверяет существует ли доменный объект с переданным уникальным

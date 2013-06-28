@@ -64,17 +64,17 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     protected DomainObject create(DomainObject domainObject) {
 
-        DomainObjectConfig domainObjectConfig = configurationExplorer.getDomainObjectConfig(domainObject.getTypeName());
+        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer.getDomainObjectConfig(domainObject.getTypeName());
         Date currentDate = new Date();
         domainObject.setCreatedDate(currentDate);
         domainObject.setModifiedDate(currentDate);
-        return domainObjectDao.create(domainObject, domainObjectConfig);
+        return domainObjectDao.create(domainObject, domainObjectTypeConfig);
 
     }
 
     protected DomainObject update(DomainObject domainObject) {
-        DomainObjectConfig domainObjectConfig = configurationExplorer.getDomainObjectConfig(domainObject.getTypeName());
-        return domainObjectDao.update(domainObject, domainObjectConfig);
+        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer.getDomainObjectConfig(domainObject.getTypeName());
+        return domainObjectDao.update(domainObject, domainObjectTypeConfig);
     }
 
     @Override
@@ -220,8 +220,8 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
     @Override
     public void delete(Id id) {
         RdbmsId rdbmsId = (RdbmsId)id;
-        DomainObjectConfig domainObjectConfig = configurationExplorer.getDomainObjectConfig(rdbmsId.getTypeName());
-        domainObjectDao.delete(id, domainObjectConfig);
+        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer.getDomainObjectConfig(rdbmsId.getTypeName());
+        domainObjectDao.delete(id, domainObjectTypeConfig);
     }
 
     @Override

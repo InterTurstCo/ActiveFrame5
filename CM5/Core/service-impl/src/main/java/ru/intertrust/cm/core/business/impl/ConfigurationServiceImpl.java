@@ -114,34 +114,34 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         }
 
         public void load() {
-            Collection<DomainObjectConfig> configList = configurationExplorer.getDomainObjectConfigs();
+            Collection<DomainObjectTypeConfig> configList = configurationExplorer.getDomainObjectConfigs();
             if(configList.isEmpty())  {
                 return;
             }
 
             dataStructureDao.createServiceTables();
 
-            for(DomainObjectConfig config : configList) {
+            for(DomainObjectTypeConfig config : configList) {
                 loadDomainObjectConfig(config);
             }
         }
 
-        private void loadDomainObjectConfig(DomainObjectConfig domainObjectConfig) {
-            if(loadedDomainObjectConfigs.contains(domainObjectConfig.getName())) { // skip if already loaded
+        private void loadDomainObjectConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
+            if(loadedDomainObjectConfigs.contains(domainObjectTypeConfig.getName())) { // skip if already loaded
                 return;
             }
 
             // First load referenced domain object configurations
-            loadDependentDomainObjectConfigs(domainObjectConfig);
+            loadDependentDomainObjectConfigs(domainObjectTypeConfig);
 
-            dataStructureDao.createTable(domainObjectConfig);
-            dataStructureDao.createSequence(domainObjectConfig);
+            dataStructureDao.createTable(domainObjectTypeConfig);
+            dataStructureDao.createSequence(domainObjectTypeConfig);
 
-            loadedDomainObjectConfigs.add(domainObjectConfig.getName()); // add to loaded configs set
+            loadedDomainObjectConfigs.add(domainObjectTypeConfig.getName()); // add to loaded configs set
         }
 
-        private void loadDependentDomainObjectConfigs(DomainObjectConfig domainObjectConfig) {
-            for(FieldConfig fieldConfig : domainObjectConfig.getFieldConfigs()) {
+        private void loadDependentDomainObjectConfigs(DomainObjectTypeConfig domainObjectTypeConfig) {
+            for(FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
                 if((ReferenceFieldConfig.class.equals(fieldConfig.getClass()))) {
                     ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
                     loadDomainObjectConfig(configurationExplorer.getDomainObjectConfig(referenceFieldConfig.getType()));
@@ -188,52 +188,52 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         }
 
         public void merge() {
-            Collection<DomainObjectConfig> configList = configurationExplorer.getDomainObjectConfigs();
+            Collection<DomainObjectTypeConfig> configList = configurationExplorer.getDomainObjectConfigs();
             if(configList.isEmpty())  {
                 return;
             }
 
             validateForDeletedConfigurations();
 
-            for (DomainObjectConfig config : configList) {
+            for (DomainObjectTypeConfig config : configList) {
                 merge(config);
             }
         }
 
-        private void merge(DomainObjectConfig domainObjectConfig) {
-            if(mergedDomainObjectConfigs.contains(domainObjectConfig.getName())) { // skip if already merged
+        private void merge(DomainObjectTypeConfig domainObjectTypeConfig) {
+            if(mergedDomainObjectConfigs.contains(domainObjectTypeConfig.getName())) { // skip if already merged
                 return;
             }
 
-            DomainObjectConfig oldDomainObjectConfig =
-                    oldConfigurationExplorer.getDomainObjectConfig(domainObjectConfig.getName());
+            DomainObjectTypeConfig oldDomainObjectTypeConfig =
+                    oldConfigurationExplorer.getDomainObjectConfig(domainObjectTypeConfig.getName());
 
-            if (oldDomainObjectConfig == null) {
-                loadDomainObjectConfig(domainObjectConfig);
-            } else if (!domainObjectConfig.equals(oldDomainObjectConfig)) {
-                String parentConfigName = domainObjectConfig.getParentConfig();
-                String oldParentConfigName = oldDomainObjectConfig.getParentConfig();
+            if (oldDomainObjectTypeConfig == null) {
+                loadDomainObjectConfig(domainObjectTypeConfig);
+            } else if (!domainObjectTypeConfig.equals(oldDomainObjectTypeConfig)) {
+                String parentConfigName = domainObjectTypeConfig.getParentConfig();
+                String oldParentConfigName = oldDomainObjectTypeConfig.getParentConfig();
                 if ((parentConfigName == null && oldParentConfigName != null) ||
                         (parentConfigName != null && !parentConfigName.equals(oldParentConfigName))) {
                     throw new ConfigurationException("Configuration loading aborted: parent was changed for " +
-                            " '" + domainObjectConfig.getName() + ". " + COMMON_ERROR_MESSAGE);
+                            " '" + domainObjectTypeConfig.getName() + ". " + COMMON_ERROR_MESSAGE);
                 }
-                updateDomainObjectConfig(domainObjectConfig, oldDomainObjectConfig);
+                updateDomainObjectConfig(domainObjectTypeConfig, oldDomainObjectTypeConfig);
             }
 
-            mergedDomainObjectConfigs.add(domainObjectConfig.getName()); // add to merged configs set
+            mergedDomainObjectConfigs.add(domainObjectTypeConfig.getName()); // add to merged configs set
         }
 
-        private void loadDomainObjectConfig(DomainObjectConfig domainObjectConfig) {
+        private void loadDomainObjectConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
             // First merge referenced domain object configurations
-            mergeDependentDomainObjectConfigs(domainObjectConfig);
+            mergeDependentDomainObjectConfigs(domainObjectTypeConfig);
 
-            dataStructureDao.createTable(domainObjectConfig);
-            dataStructureDao.createSequence(domainObjectConfig);
+            dataStructureDao.createTable(domainObjectTypeConfig);
+            dataStructureDao.createSequence(domainObjectTypeConfig);
         }
 
-        private void mergeDependentDomainObjectConfigs(DomainObjectConfig domainObjectConfig) {
-            for(FieldConfig fieldConfig : domainObjectConfig.getFieldConfigs()) {
+        private void mergeDependentDomainObjectConfigs(DomainObjectTypeConfig domainObjectTypeConfig) {
+            for(FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
                 if((ReferenceFieldConfig.class.equals(fieldConfig.getClass()))) {
                     ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
                     merge(configurationExplorer.getDomainObjectConfig(referenceFieldConfig.getType()));
@@ -241,59 +241,59 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             }
         }
 
-        private void updateDomainObjectConfig(DomainObjectConfig domainObjectConfig,
-                                              DomainObjectConfig oldDomainObjectConfig) {
-            mergeDependentDomainObjectConfigs(domainObjectConfig);
+        private void updateDomainObjectConfig(DomainObjectTypeConfig domainObjectTypeConfig,
+                                              DomainObjectTypeConfig oldDomainObjectTypeConfig) {
+            mergeDependentDomainObjectConfigs(domainObjectTypeConfig);
 
             List<FieldConfig> newFieldConfigs = new ArrayList<>();
             List<UniqueKeyConfig> newUniqueKeyConfigs = new ArrayList<>();
 
-            for (FieldConfig fieldConfig : domainObjectConfig.getFieldConfigs()) {
+            for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
                 FieldConfig oldFieldConfig =
-                        oldConfigurationExplorer.getFieldConfig(domainObjectConfig.getName(), fieldConfig.getName());
+                        oldConfigurationExplorer.getFieldConfig(domainObjectTypeConfig.getName(), fieldConfig.getName());
 
                 if (oldFieldConfig == null) {
                     newFieldConfigs.add(fieldConfig);
                 } else if (!fieldConfig.equals(oldFieldConfig)) {
                     throw new ConfigurationException("Configuration loading aborted: FieldConfig '" +
-                            domainObjectConfig.getName() + "." + fieldConfig.getName() + " was changed. " +
+                            domainObjectTypeConfig.getName() + "." + fieldConfig.getName() + " was changed. " +
                             COMMON_ERROR_MESSAGE);
                 }
             }
 
-            for (UniqueKeyConfig uniqueKeyConfig : domainObjectConfig.getUniqueKeyConfigs()) {
-                if (!oldDomainObjectConfig.getUniqueKeyConfigs().contains(uniqueKeyConfig)) {
+            for (UniqueKeyConfig uniqueKeyConfig : domainObjectTypeConfig.getUniqueKeyConfigs()) {
+                if (!oldDomainObjectTypeConfig.getUniqueKeyConfigs().contains(uniqueKeyConfig)) {
                     newUniqueKeyConfigs.add(uniqueKeyConfig);
                 }
             }
 
             if (!newFieldConfigs.isEmpty() || ! newUniqueKeyConfigs.isEmpty()) {
-                dataStructureDao.updateTableStructure(domainObjectConfig.getName(), newFieldConfigs, newUniqueKeyConfigs);
+                dataStructureDao.updateTableStructure(domainObjectTypeConfig.getName(), newFieldConfigs, newUniqueKeyConfigs);
             }
         }
 
         private void validateForDeletedConfigurations() {
-            for (DomainObjectConfig oldDomainObjectConfig : oldConfigurationExplorer.getDomainObjectConfigs()) {
-                DomainObjectConfig domainObjectConfig =
-                        configurationExplorer.getDomainObjectConfig(oldDomainObjectConfig.getName());
-                if (domainObjectConfig == null) {
+            for (DomainObjectTypeConfig oldDomainObjectTypeConfig : oldConfigurationExplorer.getDomainObjectConfigs()) {
+                DomainObjectTypeConfig domainObjectTypeConfig =
+                        configurationExplorer.getDomainObjectConfig(oldDomainObjectTypeConfig.getName());
+                if (domainObjectTypeConfig == null) {
                     throw new ConfigurationException("Configuration loading aborted: DomainObject configuration '" +
-                            oldDomainObjectConfig.getName() + "' was deleted. " + COMMON_ERROR_MESSAGE);
+                            oldDomainObjectTypeConfig.getName() + "' was deleted. " + COMMON_ERROR_MESSAGE);
                 }
 
-                for (FieldConfig oldFieldConfig : oldDomainObjectConfig.getFieldConfigs()) {
-                    FieldConfig fieldConfig = configurationExplorer.getFieldConfig(oldDomainObjectConfig.getName(),
+                for (FieldConfig oldFieldConfig : oldDomainObjectTypeConfig.getFieldConfigs()) {
+                    FieldConfig fieldConfig = configurationExplorer.getFieldConfig(oldDomainObjectTypeConfig.getName(),
                             oldFieldConfig.getName());
                     if (fieldConfig == null) {
                         throw new ConfigurationException("Configuration loading aborted: Field " +
-                                "Configuration DomainObject '" + oldDomainObjectConfig.getName() + "." +
+                                "Configuration DomainObject '" + oldDomainObjectTypeConfig.getName() + "." +
                                 oldFieldConfig.getName() + "' was deleted. " + COMMON_ERROR_MESSAGE);
                     }
                 }
 
-                if(!domainObjectConfig.getUniqueKeyConfigs().containsAll(oldDomainObjectConfig.getUniqueKeyConfigs())) {
+                if(!domainObjectTypeConfig.getUniqueKeyConfigs().containsAll(oldDomainObjectTypeConfig.getUniqueKeyConfigs())) {
                     throw new ConfigurationException("Configuration loading aborted: some unique key " +
-                            "Configuration of DomainObject '" + oldDomainObjectConfig.getName() + "' was deleted. " +
+                            "Configuration of DomainObject '" + oldDomainObjectTypeConfig.getName() + "' was deleted. " +
                             COMMON_ERROR_MESSAGE);
                 }
             }

@@ -16,7 +16,7 @@ import java.util.List;
 @Root
 public class Configuration implements Serializable {
     @ElementListUnion({
-            @ElementList(entry="domain-object", type=DomainObjectConfig.class, inline=true),
+            @ElementList(entry="domain-object-type", type=DomainObjectTypeConfig.class, inline=true),
             @ElementList(entry="collection", type=CollectionConfig.class, inline=true)
     })
     private List<Object> configurationList = new ArrayList<>();
