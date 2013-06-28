@@ -8,7 +8,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
  * @author skashanski
  *
  */
-public class InvalidIdException extends DataAccessException {
+public class InvalidIdException extends DaoException {
 
     private final Id id;
 
@@ -16,7 +16,5 @@ public class InvalidIdException extends DataAccessException {
         super();
         this.id = id;
     }
-
-
 
 }

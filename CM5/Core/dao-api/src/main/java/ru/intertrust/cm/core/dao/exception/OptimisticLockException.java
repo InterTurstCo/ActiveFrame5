@@ -10,7 +10,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
  * @author skashanski
  *
  */
-public class OptimisticLockException extends DataAccessException {
+public class OptimisticLockException extends DaoException {
 
     private final DomainObject object;
 

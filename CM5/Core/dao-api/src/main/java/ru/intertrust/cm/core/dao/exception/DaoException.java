@@ -1,35 +1,34 @@
 package ru.intertrust.cm.core.dao.exception;
 
+import ru.intertrust.cm.core.model.SystemException;
+
 /**
  * Базовый класс для всех исключительных ситуаций DAO слоя
  * @author skashanski
  *
  */
-public class DataAccessException extends RuntimeException {
+public class DaoException extends SystemException {
 
     private static final long serialVersionUID = -3516700063113406396L;
 
-    public DataAccessException() {
+    public DaoException() {
         super();
     }
 
-    public DataAccessException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public DaoException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 
-    public DataAccessException(String message, Throwable cause) {
+    public DaoException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public DataAccessException(String message) {
+    public DaoException(String message) {
         super(message);
     }
 
-    public DataAccessException(Throwable cause) {
+    public DaoException(Throwable cause) {
         super(cause);
     }
-
-
-
 
 }

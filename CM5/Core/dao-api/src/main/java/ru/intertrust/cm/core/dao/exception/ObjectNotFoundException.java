@@ -7,7 +7,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
  * @author skashanski
  *
  */
-public class ObjectNotFoundException extends DataAccessException {
+public class ObjectNotFoundException extends DaoException {
 
     private final Id id;
 
@@ -15,12 +15,5 @@ public class ObjectNotFoundException extends DataAccessException {
         super();
         this.id = id;
     }
-
-
-
-
-
-
-
 
 }
