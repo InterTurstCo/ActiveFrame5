@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.business.api.dto;
 
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 
-import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -67,18 +66,5 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
         result.append("Modified Date = ").append(modifiedDate).append('\n');
         result.append('}');
         return result.toString();
-    }
-
-    public static void main(String[] args) {
-        // todo: move to unit tests after
-        DomainObject bo = new GenericDomainObject();
-        bo.setValue("A", null);
-        bo.setValue("B", new IntegerValue(2));
-        bo.setValue("C", new DecimalValue(new BigDecimal(Math.PI)));
-        System.out.println(bo);
-        System.out.println(bo.getValue("B"));
-        System.out.println(bo.getValue("C"));
-        // bo.getValue(3);
-        // bo.setValue("O", new IntegerValue(2));
     }
 }

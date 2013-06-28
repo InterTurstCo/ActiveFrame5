@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -23,6 +25,8 @@ import static ru.intertrust.cm.core.config.FileUtils.getFileInputStream;
  *         Time: 6:13 PM
  */
 public class ConfigurationSchemaValidator {
+
+    final static Logger logger = LoggerFactory.getLogger(ConfigurationSchemaValidator.class);
 
     private String configurationPath;
     private String configurationSchemaPath;
@@ -88,8 +92,8 @@ public class ConfigurationSchemaValidator {
             Validator validator = schema.newValidator();
 
             validateDomainObjectConfiguration(validator);
-            // TODO Log success information using logging API
-            System.out.println("Document is valid against XSD");
+
+            logger.info("Document is valid against XSD");
         } catch (SAXException ex) {
             throw new FatalException("Document " + configurationSchemaPath + " is not valid against XSD schema: " + ex
                     .getMessage(), ex);
@@ -116,8 +120,7 @@ public class ConfigurationSchemaValidator {
     private static class ValidationErrorHandler implements ErrorHandler {
 
         public void warning(SAXParseException ex) {
-            // TODO Log warnings using logging API
-            System.err.println(ex.getMessage());
+            logger.warn("Configuration Schema Validation Error", ex);
         }
 
         public void error(SAXParseException ex) throws SAXException {

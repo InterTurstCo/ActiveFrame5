@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.intertrust.cm.core.config.model.*;
 
 import java.util.Collection;
@@ -9,6 +11,8 @@ import java.util.Collection;
  * User: atsvetkov Date: 17.05.13 Time: 13:52
  */
 public class ConfigurationLogicalValidator {
+
+    final static Logger logger = LoggerFactory.getLogger(ConfigurationLogicalValidator.class);
 
     private ConfigurationExplorer configurationExplorer;
 
@@ -27,8 +31,8 @@ public class ConfigurationLogicalValidator {
         for (DomainObjectConfig config : configList) {
             validateDomainObjectConfig(config);
         }
-        // TODO Log success information using logging API
-        System.out.println("Document has passed logical validation");
+
+        logger.info("Document has passed logical validation");
     }
 
     private void validateDomainObjectConfig(DomainObjectConfig domainObjectConfig) {

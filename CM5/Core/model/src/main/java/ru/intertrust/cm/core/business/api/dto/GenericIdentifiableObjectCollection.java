@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.business.api.dto;
 
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 
-import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -172,23 +171,5 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         public String toString() {
             return ModelUtil.getDetailedDescription(this);
         }
-    }
-
-    public static void main(String[] args) {
-        //todo move to unit tests
-        IdentifiableObjectCollection collection = new GenericIdentifiableObjectCollection();
-        ArrayList<String> fields = new ArrayList<>();
-        fields.add("A");
-        fields.add("B");
-        fields.add("C");
-        collection.setFields(fields);
-
-        collection.setId(0, new RdbmsId("bo", 1923));
-        collection.set(0, 5, new IntegerValue(5));
-        collection.set(2, 7, new DecimalValue(new BigDecimal(3.14)));
-
-        System.out.println(collection.get(0));
-        System.out.println(collection.get(0, 5));
-        System.out.println(collection);
     }
 }
