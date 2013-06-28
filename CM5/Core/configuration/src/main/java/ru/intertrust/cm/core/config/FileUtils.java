@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.config;
 
+import ru.intertrust.cm.core.model.FatalException;
+
 import java.io.InputStream;
 import java.net.URL;
 
@@ -35,7 +37,7 @@ public class FileUtils {
 
     private static void validateResult(Object object, String path) {
         if(object == null) {
-            throw new RuntimeException("File not found for path '" + path + "'");
+            throw new FatalException("File not found for path '" + path + "'");
         }
     }
 }

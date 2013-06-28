@@ -15,6 +15,7 @@ import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
+import ru.intertrust.cm.core.model.FatalException;
 
 import javax.sql.DataSource;
 import java.math.BigDecimal;
@@ -715,7 +716,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 if (!rs.wasNull()) {
                     id = new RdbmsId(domainObjectType, longValue);
                 } else {
-                    throw new RuntimeException("Id field can not be null for object " + "domain_object");
+                    throw new FatalException("Id field can not be null for object " + "domain_object");
                 }
 
             } else if (DataType.INTEGER.equals(fieldType)) {

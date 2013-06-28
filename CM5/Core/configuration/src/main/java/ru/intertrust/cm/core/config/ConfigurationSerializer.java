@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 import ru.intertrust.cm.core.config.model.Configuration;
+import ru.intertrust.cm.core.model.FatalException;
 
 import java.io.StringWriter;
 import java.util.Set;
@@ -80,7 +81,7 @@ public class ConfigurationSerializer {
      */
     public Configuration serializeConfiguration() throws Exception {
         if(configurationFilePaths == null || configurationFilePaths.isEmpty()) {
-            throw new RuntimeException("Configuration paths aren't specified");
+            throw new FatalException("Configuration paths aren't specified");
         }
 
         Configuration combinedConfiguration = new Configuration();

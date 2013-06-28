@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
+import ru.intertrust.cm.core.model.FatalException;
 
 import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
@@ -68,14 +69,15 @@ public class ConfigurationSchemaValidator {
      */
     public void validate() {
         if (configurationPath == null) {
-            throw new RuntimeException("Please set the configurationPath for ConfigurationSchemaValidator before validating");
+            throw new FatalException("Please set the configurationPath for ConfigurationSchemaValidator before validating");
         }
         validateAgainstXSD();
     }
 
     private void validateAgainstXSD() {
         if (configurationSchemaPath == null) {
-            throw new RuntimeException("Please set the configurationSchemaPath for ConfigurationLogicalValidator before validating");
+            throw new FatalException("Please set the configurationSchemaPath for ConfigurationLogicalValidator before " +
+                    "validating");
         }
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 
@@ -89,9 +91,10 @@ public class ConfigurationSchemaValidator {
             // TODO Log success information using logging API
             System.out.println("Document is valid against XSD");
         } catch (SAXException ex) {
-            throw new RuntimeException("Document " + configurationSchemaPath + " is not valid against XSD schema: " + ex.getMessage(), ex);
+            throw new FatalException("Document " + configurationSchemaPath + " is not valid against XSD schema: " + ex
+                    .getMessage(), ex);
         } catch (IOException e) {
-            throw new RuntimeException(" File " + configurationPath + " not found. " + e.getMessage(), e);
+            throw new FatalException(" File " + configurationPath + " not found. " + e.getMessage(), e);
 
         }
     }

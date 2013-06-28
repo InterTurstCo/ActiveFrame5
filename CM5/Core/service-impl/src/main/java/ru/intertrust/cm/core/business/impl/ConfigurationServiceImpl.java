@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.config.ConfigurationSerializer;
 import ru.intertrust.cm.core.config.model.*;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
+import ru.intertrust.cm.core.model.FatalException;
 
 import java.util.*;
 
@@ -170,7 +171,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     private Boolean isConfigurationLoaded() {
         Integer tablesCount = dataStructureDao.countTables();
         if(tablesCount == null) {
-            throw new RuntimeException("Error occurred when calling DataStructureDao for tables count");
+            throw new FatalException("Error occurred when calling DataStructureDao for tables count");
         }
 
         return tablesCount > 0;

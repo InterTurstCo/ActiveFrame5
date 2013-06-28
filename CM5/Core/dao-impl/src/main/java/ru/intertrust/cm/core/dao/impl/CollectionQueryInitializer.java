@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion.Order;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.config.model.CollectionFilterConfig;
+import ru.intertrust.cm.core.model.FatalException;
 
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class CollectionQueryInitializer {
      */
     public String initializeQuery(String prototypeQuery, List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder, int offset, int limit) {
         if(prototypeQuery == null || prototypeQuery.trim().length() == 0){
-            throw new RuntimeException("Prototype query is null and can not be processed");
+            throw new FatalException("Prototype query is null and can not be processed");
         }
         String collectionQuery = mergeFilledFilterConfigsInPrototypeQuery(prototypeQuery, filledFilterConfigs);
         collectionQuery = applySortOrder(sortOrder, collectionQuery);

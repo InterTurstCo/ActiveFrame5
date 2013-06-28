@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.config.model.CollectionConfig;
 import ru.intertrust.cm.core.config.model.Configuration;
 import ru.intertrust.cm.core.config.model.DomainObjectConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
+import ru.intertrust.cm.core.model.FatalException;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -103,7 +104,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
 
     private void initConfigurationMaps() {
         if(configuration == null) {
-            throw new RuntimeException("Failed to initialize ConfigurationExplorerImpl because " +
+            throw new FatalException("Failed to initialize ConfigurationExplorerImpl because " +
                     "Configuration is null");
         }
 
@@ -124,7 +125,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
                 CollectionConfig collectionConfig = (CollectionConfig) config;
                 collectionConfigMap.put(collectionConfig.getName(), collectionConfig);
             } else {
-                throw new RuntimeException("Unknown configuration type '" + config.getClass() + "'");
+                throw new ConfigurationException("Unknown configuration type '" + config.getClass() + "'");
             }
         }
     }
