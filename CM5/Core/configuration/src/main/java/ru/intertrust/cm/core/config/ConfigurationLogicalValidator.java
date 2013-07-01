@@ -69,7 +69,7 @@ public class ConfigurationLogicalValidator {
             if (ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
                 String referencedDomainObjectConfigName = ((ReferenceFieldConfig) fieldConfig).getType();
                 DomainObjectTypeConfig referencedConfig =
-                        configurationExplorer.getDomainObjectConfig(referencedDomainObjectConfigName);
+                        configurationExplorer.getDomainObjectTypeConfig(referencedDomainObjectConfigName);
                 if(referencedConfig == null) {
                     throw new ConfigurationException("Referenced DomainObject Configuration is not found for name '" +
                             referencedDomainObjectConfigName + "'");
@@ -81,7 +81,7 @@ public class ConfigurationLogicalValidator {
     private void validateParentConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
         String parentConfigName = domainObjectTypeConfig.getParentConfig();
         if (parentConfigName != null) {
-            DomainObjectTypeConfig parentConfig = configurationExplorer.getDomainObjectConfig(parentConfigName);
+            DomainObjectTypeConfig parentConfig = configurationExplorer.getDomainObjectTypeConfig(parentConfigName);
             if(parentConfig == null) {
                 throw new ConfigurationException("Parent DomainObject Configuration is not found for name '" + parentConfigName + "'");
             }

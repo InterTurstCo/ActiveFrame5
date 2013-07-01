@@ -87,7 +87,7 @@ public class ConfigurationServiceImplTest {
         when(configurationDao.readLastSavedConfiguration()).thenReturn(configurationString);
 
         // Вносим изменения в конфигурацию
-        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer.getDomainObjectConfig("Outgoing Document");
+        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer.getDomainObjectTypeConfig("Outgoing Document");
 
         StringFieldConfig descriptionFieldConfig = new StringFieldConfig();
         descriptionFieldConfig.setName("Long Description");

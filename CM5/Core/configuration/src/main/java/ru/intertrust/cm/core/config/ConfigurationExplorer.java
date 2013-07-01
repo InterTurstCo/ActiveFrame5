@@ -43,7 +43,7 @@ public interface ConfigurationExplorer {
      * @param name имя доменного объекта, конфигурацию которого надо найти
      * @return конфигурация доменного объекта
      */
-    DomainObjectTypeConfig getDomainObjectConfig(String name);
+    DomainObjectTypeConfig getDomainObjectTypeConfig(String name);
 
     /**
      * Находит конфигурацию коллекции

@@ -78,10 +78,10 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     }
 
     /**
-     * Смотри {@link ConfigurationExplorer#getDomainObjectConfig(String)}
+     * Смотри {@link ConfigurationExplorer#getDomainObjectTypeConfig(String)}
      */
     @Override
-    public DomainObjectTypeConfig getDomainObjectConfig(String name) {
+    public DomainObjectTypeConfig getDomainObjectTypeConfig(String name) {
         return domainObjectConfigMap.get(name);
     }
 

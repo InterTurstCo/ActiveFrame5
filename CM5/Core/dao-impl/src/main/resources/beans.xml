@@ -28,7 +28,7 @@
     <bean id="sequenceIdGenerator" class="ru.intertrust.cm.core.dao.impl.SequenceIdGenerator"
           p:dataSource-ref="dataSource"/>
 
-    <bean id="domainObjectDao" class="ru.intertrust.cm.core.dao.impl.DomainObjectDaoImpl"
-         p:idGenerator-ref="sequenceIdGenerator" p:dataSource-ref="dataSource" />
+    <bean id="domainObjectDao"
+          class="ru.intertrust.cm.core.dao.impl.DomainObjectDaoImpl" p:dataSource-ref="dataSource" />
 
 </beans>

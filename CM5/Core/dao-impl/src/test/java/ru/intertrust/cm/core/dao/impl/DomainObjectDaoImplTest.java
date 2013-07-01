@@ -72,7 +72,9 @@ public class DomainObjectDaoImplTest {
         configurationExplorer.setConfiguration(configuration);
         configurationExplorer.build();
 
-        domainObjectTypeConfig = configurationExplorer.getDomainObjectConfig("Person");
+        domainObjectDaoImpl.setConfigurationExplorer(configurationExplorer);
+
+        domainObjectTypeConfig = configurationExplorer.getDomainObjectTypeConfig("Person");
         collectionConfig = configurationExplorer.getCollectionConfig("Employees");
         byDepartmentFilterConfig = createByDepartmentFilterConfig();
         byNameFilterConfig = createByNameFilterConfig();
@@ -114,7 +116,7 @@ public class DomainObjectDaoImplTest {
 
         //проверяем что идентификатор не нулевой
         try {
-            domainObjectDaoImpl.update(domainObject, domainObjectTypeConfig);
+            domainObjectDaoImpl.update(domainObject);
         } catch (Exception e) {
 
             assertTrue(e instanceof InvalidIdException);
@@ -124,7 +126,7 @@ public class DomainObjectDaoImplTest {
         //проверяем что обрабатываеться неккоректный тип идентификатора
         try {
             domainObject.setId(new TestId());
-            domainObjectDaoImpl.update(domainObject, domainObjectTypeConfig);
+            domainObjectDaoImpl.update(domainObject);
         } catch (Exception e) {
 
             assertTrue(e instanceof InvalidIdException);

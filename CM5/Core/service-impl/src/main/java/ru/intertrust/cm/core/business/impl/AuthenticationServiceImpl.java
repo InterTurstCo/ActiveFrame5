@@ -5,7 +5,6 @@ import ru.intertrust.cm.core.business.api.AuthenticationService;
 import ru.intertrust.cm.core.business.api.MD5Service;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.api.AuthenticationDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 
@@ -54,9 +53,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         StringValue password = new StringValue(passwordHash);
         authInfo.setValue("Password", password);
         authInfo.setValue("User Uid", new StringValue(authenticationInfo.getUserUid()));
-        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer.getDomainObjectConfig(authInfo
-                .getTypeName());
-        DomainObject createdAuthInfo = domainObjectDao.create(authInfo, domainObjectTypeConfig);
+
+        DomainObject createdAuthInfo = domainObjectDao.create(authInfo);
 
         RdbmsId id  = (RdbmsId)createdAuthInfo.getId();
         DomainObject role = new GenericDomainObject();
@@ -66,8 +64,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         StringValue roleName = new StringValue(authenticationInfo.getRole());
         role.setValue("Role", roleName);
         role.setValue("Authentication Info", new IntegerValue(id.getId()));
-        domainObjectTypeConfig = configurationExplorer.getDomainObjectConfig(role.getTypeName());
-        domainObjectDao.create(role, domainObjectTypeConfig);
+        domainObjectDao.create(role);
     }
 
     /**

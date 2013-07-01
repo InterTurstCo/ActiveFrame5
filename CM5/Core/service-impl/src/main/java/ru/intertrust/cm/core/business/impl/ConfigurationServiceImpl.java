@@ -144,7 +144,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             for(FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
                 if((ReferenceFieldConfig.class.equals(fieldConfig.getClass()))) {
                     ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
-                    loadDomainObjectConfig(configurationExplorer.getDomainObjectConfig(referenceFieldConfig.getType()));
+                    loadDomainObjectConfig(configurationExplorer.getDomainObjectTypeConfig(referenceFieldConfig.getType()));
                 }
             }
         }
@@ -206,7 +206,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             }
 
             DomainObjectTypeConfig oldDomainObjectTypeConfig =
-                    oldConfigurationExplorer.getDomainObjectConfig(domainObjectTypeConfig.getName());
+                    oldConfigurationExplorer.getDomainObjectTypeConfig(domainObjectTypeConfig.getName());
 
             if (oldDomainObjectTypeConfig == null) {
                 loadDomainObjectConfig(domainObjectTypeConfig);
@@ -236,7 +236,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             for(FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
                 if((ReferenceFieldConfig.class.equals(fieldConfig.getClass()))) {
                     ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
-                    merge(configurationExplorer.getDomainObjectConfig(referenceFieldConfig.getType()));
+                    merge(configurationExplorer.getDomainObjectTypeConfig(referenceFieldConfig.getType()));
                 }
             }
         }
@@ -275,7 +275,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         private void validateForDeletedConfigurations() {
             for (DomainObjectTypeConfig oldDomainObjectTypeConfig : oldConfigurationExplorer.getDomainObjectConfigs()) {
                 DomainObjectTypeConfig domainObjectTypeConfig =
-                        configurationExplorer.getDomainObjectConfig(oldDomainObjectTypeConfig.getName());
+                        configurationExplorer.getDomainObjectTypeConfig(oldDomainObjectTypeConfig.getName());
                 if (domainObjectTypeConfig == null) {
                     throw new ConfigurationException("Configuration loading aborted: DomainObject configuration '" +
                             oldDomainObjectTypeConfig.getName() + "' was deleted. " + COMMON_ERROR_MESSAGE);

@@ -58,7 +58,7 @@ public class ConfigurationExplorerImplTest {
 
     @Test
     public void testInit() throws Exception {
-        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer.getDomainObjectConfig(PERSON_CONFIG_NAME);
+        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer.getDomainObjectTypeConfig(PERSON_CONFIG_NAME);
         assertNotNull(domainObjectTypeConfig);
 
         FieldConfig fieldConfig = configurationExplorer.getFieldConfig(PERSON_CONFIG_NAME, E_MAIL_CONFIG_NAME);
@@ -104,7 +104,7 @@ public class ConfigurationExplorerImplTest {
 
     @Test
     public void testGetDomainObjectConfig() throws Exception {
-        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer.getDomainObjectConfig(PERSON_CONFIG_NAME);
+        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer.getDomainObjectTypeConfig(PERSON_CONFIG_NAME);
         assertNotNull(domainObjectTypeConfig);
         assertEquals(domainObjectTypeConfig.getName(), PERSON_CONFIG_NAME);
     }

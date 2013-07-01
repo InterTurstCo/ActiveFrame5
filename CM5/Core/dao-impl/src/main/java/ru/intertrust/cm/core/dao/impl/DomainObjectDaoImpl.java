@@ -1,10 +1,12 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.StringUtils;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.CollectionConfig;
 import ru.intertrust.cm.core.config.model.CollectionFilterConfig;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
@@ -33,6 +35,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     private NamedParameterJdbcTemplate jdbcTemplate;
 
+    @Autowired
+    private ConfigurationExplorer configurationExplorer;
+
+    @Autowired
     private IdGenerator idGenerator;
 
     /**
@@ -51,6 +57,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
      */
     public void setIdGenerator(IdGenerator idGenerator) {
         this.idGenerator = idGenerator;
+    }
+
+    /**
+     * Устанавливает {@link #configurationExplorer}
+     * @param configurationExplorer {@link #configurationExplorer}
+     */
+    public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
+        this.configurationExplorer = configurationExplorer;
     }
 
     /**
@@ -81,7 +95,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     @Override
-    public DomainObject create(DomainObject domainObject, DomainObjectTypeConfig domainObjectTypeConfig) {
+    public DomainObject create(DomainObject domainObject) {
+        DomainObjectTypeConfig domainObjectTypeConfig =
+                configurationExplorer.getDomainObjectTypeConfig(domainObject.getTypeName());
 
         String query = generateCreateQuery(domainObject, domainObjectTypeConfig);
 
@@ -189,9 +205,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     @Override
-    public DomainObject update(DomainObject domainObject, DomainObjectTypeConfig domainObjectTypeConfig)
-            throws InvalidIdException, ObjectNotFoundException,
+    public DomainObject update(DomainObject domainObject) throws InvalidIdException, ObjectNotFoundException,
             OptimisticLockException {
+        DomainObjectTypeConfig domainObjectTypeConfig =
+                configurationExplorer.getDomainObjectTypeConfig(domainObject.getTypeName());
 
         String query = generateUpdateQuery(domainObject, domainObjectTypeConfig);
 
@@ -248,14 +265,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     @Override
-    public void delete(Id id, DomainObjectTypeConfig domainObjectTypeConfig) throws InvalidIdException,
-            ObjectNotFoundException {
-
-        String query = generateDeleteQuery(domainObjectTypeConfig);
-
+    public void delete(Id id) throws InvalidIdException,ObjectNotFoundException {
         validateIdType(id);
 
         RdbmsId rdbmsId = (RdbmsId) id;
+
+        DomainObjectTypeConfig domainObjectTypeConfig =
+                configurationExplorer.getDomainObjectTypeConfig(rdbmsId.getTypeName());
+        String query = generateDeleteQuery(domainObjectTypeConfig);
 
         Map<String, Object> parameters = initializeIdParameter(rdbmsId);
 
