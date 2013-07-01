@@ -96,6 +96,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     @Override
     public DomainObject create(DomainObject domainObject) {
+        Date currentDate = new Date();
+        domainObject.setCreatedDate(currentDate);
+        domainObject.setModifiedDate(currentDate);
+
         DomainObjectTypeConfig domainObjectTypeConfig =
                 configurationExplorer.getDomainObjectTypeConfig(domainObject.getTypeName());
 
@@ -112,6 +116,34 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         jdbcTemplate.update(query, parameters);
 
         return domainObject;
+    }
+
+    @Override
+    public DomainObject save(DomainObject domainObject) {
+        if (domainObject.isNew()) {
+            return create(domainObject);
+        }
+
+        return update(domainObject);
+    }
+
+    @Override
+    public List<DomainObject> save(List<DomainObject> domainObjects) {
+        List<DomainObject> result = new ArrayList();
+
+        for (DomainObject domainObject : domainObjects) {
+            DomainObject newDomainObject;
+            try {
+                newDomainObject = save(domainObject);
+                result.add(newDomainObject);
+            } catch (Exception e) {
+                // TODO: пока ничего не делаем...разобраться как обрабатывать ошибки
+            }
+
+        }
+
+        return result;
+
     }
 
     /**
@@ -281,6 +313,25 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         if (count == 0)
             throw new ObjectNotFoundException(rdbmsId);
 
+    }
+
+    @Override
+    public int delete(Collection<Id> ids) {
+        // TODO как обрабатывать ошибки при удалении каждого доменного объекта...
+        int count = 0;
+        for(Id id : ids) {
+            try {
+                delete(id);
+
+                count++;
+            } catch (ObjectNotFoundException e) {
+                //ничего не делаем пока
+            } catch (InvalidIdException e) {
+                ////ничего не делаем пока
+            }
+
+        }
+        return count;
     }
 
     /**

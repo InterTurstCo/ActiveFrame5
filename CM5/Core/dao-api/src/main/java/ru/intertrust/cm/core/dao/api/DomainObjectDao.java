@@ -7,6 +7,7 @@ import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -41,6 +42,26 @@ public interface DomainObjectDao {
             throws InvalidIdException, ObjectNotFoundException, OptimisticLockException;
 
     /**
+     * Сохраняет доменный объект. Если объект не существует в системе, создаёт его и заполняет отсутствующие атрибуты
+     * значениями, сгенерированными согласно правилам, определённым для данного объекта (например, будет сгенерирован и
+     * заполнен идентификатор объекта). Оригинальный Java-объект измененям не подвергается, изменения отражены в
+     * возвращённом объекте.
+     * @param domainObject
+     * @return сохраненный доменный объект
+     */
+    DomainObject save(DomainObject domainObject);
+
+    /**
+     * Сохраняет список доменных объектов. Если какой-то объект не существует в системе, создаёт его и заполняет
+     * отсутствующие атрибуты значениями, сгенерированными согласно правилам, определённым для данного объекта
+     * (например, будет сгенерирован и заполнен идентификатор объекта). Оригинальные Java-объекты измененям
+     * не подвергаются, изменения отражены в возвращённых объектах.
+     * @param domainObjects доменные объекты для сохранения
+     * @return список сохраненных доменныъ лбъектов
+     */
+    List<DomainObject> save(List<DomainObject> domainObjects);
+
+    /**
      * Удаляет доменный объект по уникальному идентифткатору
      * @param id
      *            уникальный идентификатор объекта который надо удалить
@@ -50,6 +71,14 @@ public interface DomainObjectDao {
      *             если не существует объекта с таким идентификатором
      */
     public void delete(Id id) throws InvalidIdException, ObjectNotFoundException;
+
+    /**
+     * Удаляет доменные объекты по их уникальным идентификаторам. Не осуществляет никаких действий, если какой-либо объект
+     * не существует
+     * @param ids идентификаторы доменных объектов для удаления
+     * @return количество удаленных объектов
+     */
+    int delete(Collection<Id> ids);
 
     /**
      * Проверяет существует ли доменный объект с переданным уникальным

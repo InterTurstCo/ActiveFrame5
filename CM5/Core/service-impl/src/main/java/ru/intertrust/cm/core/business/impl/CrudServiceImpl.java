@@ -4,10 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.model.*;
+import ru.intertrust.cm.core.config.model.CollectionConfig;
+import ru.intertrust.cm.core.config.model.CollectionFilterConfig;
+import ru.intertrust.cm.core.config.model.CollectionFilterCriteriaConfig;
+import ru.intertrust.cm.core.config.model.CollectionFilterReferenceConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
-import ru.intertrust.cm.core.dao.exception.InvalidIdException;
-import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -18,7 +19,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Реализация сервиса для работы c базовыvb CRUD-операциями. Смотри link @CrudService
+ * Реализация сервиса для работы c базовы CRUD-операциями. Смотри link @CrudService
  *
  * @author skashanski
  *
@@ -62,45 +63,14 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         return domainObject;
     }
 
-    protected DomainObject create(DomainObject domainObject) {
-        Date currentDate = new Date();
-        domainObject.setCreatedDate(currentDate);
-        domainObject.setModifiedDate(currentDate);
-        return domainObjectDao.create(domainObject);
-    }
-
-    protected DomainObject update(DomainObject domainObject) {
-        return domainObjectDao.update(domainObject);
-    }
-
     @Override
     public DomainObject save(DomainObject domainObject) {
-
-        if (domainObject.isNew()) {
-            return create(domainObject);
-        }
-
-        return update(domainObject);
-
+        return domainObjectDao.save(domainObject);
     }
 
     @Override
     public List<DomainObject> save(List<DomainObject> domainObjects) {
-        List<DomainObject> result = new ArrayList();
-
-        for (DomainObject domainObject : domainObjects) {
-            DomainObject newDomainObject;
-            try {
-                newDomainObject = save(domainObject);
-                result.add(newDomainObject);
-            } catch (Exception e) {
-                // TODO: пока ничего не делаем...разобраться как обрабатывать ошибки
-            }
-
-        }
-
-        return result;
-
+        return domainObjectDao.save(domainObjects);
     }
 
     @Override
@@ -220,20 +190,6 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     @Override
     public int delete(Collection<Id> ids) {
-        // TODO как обрабатывать ошибки при удалении каждого доменного объекта...
-        int count = 0;
-        for(Id id : ids) {
-            try {
-                delete(id);
-
-                count++;
-            } catch (ObjectNotFoundException e) {
-                //ничего не делаем пока
-            } catch (InvalidIdException e) {
-                ////ничего не делаем пока
-            }
-
-        }
-        return count;
+        return domainObjectDao.delete(ids);
     }
 }
