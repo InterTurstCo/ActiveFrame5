@@ -30,9 +30,9 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigurationServiceImplTest {
 
-    private static final String DOMAIN_OBJECTS_CONFIG_PATH = "test-config/domain-objects.xml";
-    private static final String COLLECTIONS_CONFIG_PATH = "test-config/collections.xml";
-    private static final String CONFIGURATION_SCHEMA = "test-config/configuration.xsd";
+    private static final String DOMAIN_OBJECTS_CONFIG_PATH = "test-config/domain-objects-test.xml";
+    private static final String COLLECTIONS_CONFIG_PATH = "test-config/collections-test.xml";
+    private static final String CONFIGURATION_SCHEMA = "test-config/configuration-test.xsd";
     private static final Set<String> CONFIG_PATHS = new HashSet<>(Arrays.asList(
             new String[]{DOMAIN_OBJECTS_CONFIG_PATH, COLLECTIONS_CONFIG_PATH}));
 

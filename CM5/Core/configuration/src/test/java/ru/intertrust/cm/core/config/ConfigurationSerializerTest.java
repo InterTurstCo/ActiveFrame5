@@ -24,13 +24,13 @@ import static org.junit.Assert.*;
  */
 public class ConfigurationSerializerTest {
 
-    private static final String CONFIGURATION_SCHEMA_PATH = "test-config/configuration.xsd";
-    private static final String DOMAIN_OBJECTS_CONFIG_PATH = "test-config/domain-objects.xml";
-    private static final String COLLECTIONS_CONFIG_PATH = "test-config/collections.xml";
+    private static final String CONFIGURATION_SCHEMA_PATH = "test-config/configuration-test.xsd";
+    private static final String DOMAIN_OBJECTS_CONFIG_PATH = "test-config/domain-objects-test.xml";
+    private static final String COLLECTIONS_CONFIG_PATH = "test-config/collections-test.xml";
 
-    private static final String DESERIALIZED_CONFIGURATION_PATH = "test-config/deserialized-configuration.xml";
+    private static final String DESERIALIZED_CONFIGURATION_PATH = "test-config/deserialized-configuration-test.xml";
     private static final String INVALID_DESERIALIZED_CONFIGURATION_PATH =
-            "test-config/deserialized-configuration-invalid.xml";
+            "test-config/deserialized-configuration-invalid-test.xml";
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();

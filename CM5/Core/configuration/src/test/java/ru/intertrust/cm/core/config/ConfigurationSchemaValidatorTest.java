@@ -11,11 +11,11 @@ import org.junit.rules.ExpectedException;
  */
 public class ConfigurationSchemaValidatorTest {
 
-    private static final String CONFIGURATION_SCHEMA = "test-config/configuration.xsd";
-    private static final String CONFIGURATION_VALID = "test-config/domain-objects.xml";
-    private static final String CONFIGURATION_INVALID = "test-config/domain-objects-invalid.xml";
+    private static final String CONFIGURATION_SCHEMA = "test-config/configuration-test.xsd";
+    private static final String CONFIGURATION_VALID = "test-config/domain-objects-test.xml";
+    private static final String CONFIGURATION_INVALID = "test-config/domain-objects-invalid-test.xml";
     private static final String CONFIGURATION_INVALID_REFERENCE = "test-config/domain-objects-invalid-reference.xml";
-    private static final String COLLECTIONS_CONFIGURATION_VALID = "test-config/collections.xml";
+    private static final String COLLECTIONS_CONFIGURATION_VALID = "test-config/collections-test.xml";
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();

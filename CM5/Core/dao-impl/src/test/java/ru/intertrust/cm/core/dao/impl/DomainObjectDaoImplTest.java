@@ -35,9 +35,9 @@ public class DomainObjectDaoImplTest {
     private static final String COLLECTION_QUERY_WITH_LIMITS = "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e inner join department d on e.department = d.id where d.name = 'dep1' order by e.name asc limit 100 OFFSET 10";
     private static final String COLLECTION_QUERY_WITHOUT_FILTERS = "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e where 1=1 order by e.name asc";
     private static final String FIND_COLLECTION_QUERY_WITH_FILTERS = "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e inner join department d on e.department = d.id where d.name = 'dep1' order by e.name asc";
-    private static final String DOMAIN_OBJECTS_CONFIG_PATH = "test-config/domain-objects.xml";
-    private static final String COLLECTIONS_CONFIG_PATH = "test-config/collections.xml";
-    private static final String CONFIGURATION_SCHEMA_PATH = "test-config/configuration.xsd";
+    private static final String DOMAIN_OBJECTS_CONFIG_PATH = "test-config/domain-objects-test.xml";
+    private static final String COLLECTIONS_CONFIG_PATH = "test-config/collections-test.xml";
+    private static final String CONFIGURATION_SCHEMA_PATH = "test-config/configuration-test.xsd";
     private static final Set<String> CONFIG_PATHS = new HashSet<>(Arrays.asList(
             new String[]{DOMAIN_OBJECTS_CONFIG_PATH, COLLECTIONS_CONFIG_PATH}));
 

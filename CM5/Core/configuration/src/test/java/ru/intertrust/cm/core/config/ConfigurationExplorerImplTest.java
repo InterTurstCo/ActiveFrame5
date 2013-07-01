@@ -22,9 +22,9 @@ public class ConfigurationExplorerImplTest {
     private static final String EMPLOYEES_CONFIG_NAME = "Employees";
     private static final String E_MAIL_CONFIG_NAME = "EMail";
 
-    private static final String CONFIGURATION_SCHEMA_PATH = "test-config/configuration.xsd";
-    private static final String DOMAIN_OBJECTS_CONFIG_PATH = "test-config/domain-objects.xml";
-    private static final String COLLECTIONS_CONFIG_PATH = "test-config/collections.xml";
+    private static final String CONFIGURATION_SCHEMA_PATH = "test-config/configuration-test.xsd";
+    private static final String DOMAIN_OBJECTS_CONFIG_PATH = "test-config/domain-objects-test.xml";
+    private static final String COLLECTIONS_CONFIG_PATH = "test-config/collections-test.xml";
 
     private static final Set<String> CONFIG_PATHS =
             new HashSet<>(Arrays.asList(DOMAIN_OBJECTS_CONFIG_PATH, COLLECTIONS_CONFIG_PATH));

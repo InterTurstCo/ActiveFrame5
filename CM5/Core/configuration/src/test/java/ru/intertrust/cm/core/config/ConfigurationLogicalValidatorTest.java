@@ -16,15 +16,15 @@ import java.util.Set;
  */
 public class ConfigurationLogicalValidatorTest {
 
-    private static final String CONFIGURATION_SCHEMA_PATH = "test-config/configuration.xsd";
-    private static final String DOMAIN_OBJECTS_CONFIG_PATH = "test-config/domain-objects.xml";
+    private static final String CONFIGURATION_SCHEMA_PATH = "test-config/configuration-test.xsd";
+    private static final String DOMAIN_OBJECTS_CONFIG_PATH = "test-config/domain-objects-test.xml";
     private static final String DOMAIN_OBJECTS_INVALID_PARENT_CONFIG_PATH =
-            "test-config/domain-objects-invalid-parent.xml";
+            "test-config/domain-objects-invalid-parent-test.xml";
     private static final String DOMAIN_OBJECTS_INVALID_REFERENCE_CONFIG_PATH =
-            "test-config/domain-objects-invalid-reference-field.xml";
+            "test-config/domain-objects-invalid-reference-field-test.xml";
     private static final String DOMAIN_OBJECTS_INVALID_UNIQUE_KEY_CONFIG_PATH =
-            "test-config/domain-objects-invalid-unique-key.xml";
-    private static final String COLLECTIONS_CONFIG_PATH = "test-config/collections.xml";
+            "test-config/domain-objects-invalid-unique-key-test.xml";
+    private static final String COLLECTIONS_CONFIG_PATH = "test-config/collections-test.xml";
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
