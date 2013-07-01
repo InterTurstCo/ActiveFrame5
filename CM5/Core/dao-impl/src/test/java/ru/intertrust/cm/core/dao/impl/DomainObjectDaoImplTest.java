@@ -99,7 +99,7 @@ public class DomainObjectDaoImplTest {
         String checkCreateQuery =
                 "insert into PERSON (ID , CREATED_DATE, UPDATED_DATE, EMAIL,LOGIN,PASSWORD) values (:id , :created_date, :updated_date, :email,:login,:password)";
 
-        String query = domainObjectDaoImpl.generateCreateQuery(domainObject, domainObjectTypeConfig);
+        String query = domainObjectDaoImpl.generateCreateQuery(domainObjectTypeConfig);
         assertEquals(checkCreateQuery, query);
 
     }
@@ -153,7 +153,7 @@ public class DomainObjectDaoImplTest {
 
         String checkUpdateQuery = "update PERSON set UPDATED_DATE=:current_date, EMAIL=:email,LOGIN=:login,PASSWORD=:password where ID=:id and UPDATED_DATE=:updated_date";
 
-        String query = domainObjectDaoImpl.generateUpdateQuery(domainObject, domainObjectTypeConfig);
+        String query = domainObjectDaoImpl.generateUpdateQuery(domainObjectTypeConfig);
         assertEquals(checkUpdateQuery, query);
 
     }
