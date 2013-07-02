@@ -1,8 +1,7 @@
 package ru.intertrust.cm.core.dao.api;
 
-import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.config.model.CollectionConfig;
-import ru.intertrust.cm.core.config.model.CollectionFilterConfig;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
@@ -91,28 +90,7 @@ public interface DomainObjectDao {
      */
     public boolean exists(Id id) throws InvalidIdException;
 
-    /**
-     * Поиск коллекции доменных объектов, используя фильтры и сортировку
-     * @param collectionConfig конфигурация коллекции
-     * @param filledFilterConfigs заполненные фильтры в конфигурации коллекции.
-     * @param filterValues значения пераметров фильтров
-     * @param sortOrder порядок сортировки
-     * @param offset смещение
-     * @param limit ограничение количества возвращенных доменных объектов
-     * @return
-     */
-    IdentifiableObjectCollection findCollection(CollectionConfig collectionConfig,
-            List<CollectionFilterConfig> filledFilterConfigs, List<Filter> filterValues, SortOrder sortOrder, int offset, int limit);
-
-    /**
-     * Поиск количества записей в коллекции доменных объектов используя фильтры
-     * @param collectionConfig конфигурация коллекции
-     * @param filledFilterConfigs заполненные фильтры в конфигурации коллекции
-     * @return
-     */
-    int findCollectionCount(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs, List<Filter> filterValues);
-
-    /**
+   /**
      * Поиск доменного объекта по уникальному идентификатору в системе.
      * @param id идентификатору доменного объекта
      * @return {@link ru.intertrust.cm.core.business.api.dto.DomainObject}

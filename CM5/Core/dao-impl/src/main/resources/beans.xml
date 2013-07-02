@@ -31,4 +31,7 @@
     <bean id="domainObjectDao"
           class="ru.intertrust.cm.core.dao.impl.DomainObjectDaoImpl" p:dataSource-ref="dataSource" />
 
+    <bean id="collectionsDao"
+          class="ru.intertrust.cm.core.dao.impl.CollectionsDaoImpl" p:dataSource-ref="dataSource" />
+
 </beans>

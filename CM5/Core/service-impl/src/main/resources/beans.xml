@@ -25,7 +25,8 @@
 
     <bean id="md5Service" class="ru.intertrust.cm.core.business.impl.MD5ServiceImpl" />
 
-    <bean id="crudService" class="ru.intertrust.cm.core.business.impl.CrudServiceImpl"
-          p:domainObjectDao-ref="domainObjectDao"/>
+    <bean id="crudService" class="ru.intertrust.cm.core.business.impl.CrudServiceImpl"/>
+
+    <bean id="collectionsService" class="ru.intertrust.cm.core.business.impl.CollectionsServiceImpl"/>
 
 </beans>

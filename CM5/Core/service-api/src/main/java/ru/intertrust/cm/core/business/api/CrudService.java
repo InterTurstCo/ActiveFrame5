@@ -102,26 +102,6 @@ public interface CrudService {
     List<DomainObject> find(List<Id> ids);
 
     /**
-     * Возвращает коллекцию, отфильтрованную и упорядоченную согласно критериям
-     *
-     * @param collectionName название коллекции
-     * @param filters фильтры
-     * @param sortOrder порядок сортировки коллекции
-     * @param limit максимальное количесвто возвращаемых доменных объектов
-     * @return коллекцию
-     */
-    IdentifiableObjectCollection findCollection(String collectionName, List<Filter> filters, SortOrder sortOrder, int offset, int limit);
-
-    /**
-     * Возвращает коллекцию, упорядоченную согласно заданному порядку
-     *
-     * @param collectionName название коллекции
-     * @param filters фильтры
-     * @return коллекцию
-     */
-    int findCollectionCount(String collectionName, List<Filter> filters);
-
-    /**
      * Удаляет доменный объект по его уникальному идентификатору. Не осуществляет никаких действий, если объект
      * не существует
      *
