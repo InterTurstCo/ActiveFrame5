@@ -23,12 +23,90 @@
             <type>war</type>
         </dependency>
 
+        <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.0-801.jdbc3</version>
+            <scope>provided</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
         <finalName>cm-sochi-${project.version}</finalName>
         <plugins>
-
+            <plugin>
+                <groupId>org.jboss.as.plugins</groupId>
+                <artifactId>jboss-as-maven-plugin</artifactId>
+                <version>7.4.Final</version>
+                <configuration>
+                    <hostname>localhost</hostname>
+                    <port>9999</port>
+                    <filename>cm-sochi-${project.version}.ear</filename>
+                    <packaging>ear</packaging>
+                    <skip>false</skip>
+                </configuration>
+            
+                <executions>
+                    <!-- deploy the application on install -->
+                    <execution>
+                        <id>deploy</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>deploy</goal>
+                        </goals>
+                    </execution>
+                    <!-- Undeploy the application on clean -->
+                    <execution>
+                        <id>undeploy</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>undeploy</goal>
+                        </goals>
+                        <configuration>
+                            <ignoreMissingDeployment>true</ignoreMissingDeployment>
+                        </configuration>
+                    </execution>
+            
+                    <execution>
+                        <id>deploy-driver</id>
+                        <phase>install</phase>
+                        <configuration>
+                            <groupId>postgresql</groupId>
+                            <artifactId>postgresql</artifactId>
+                            <version>9.0-801.jdbc3</version>
+                            <name>postgresql-jdbc3.jar</name>
+                        </configuration>
+                        <goals>
+                            <goal>deploy-artifact</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>add-datasource</id>
+                        <phase>install</phase>
+                        <configuration>
+                            <address>subsystem=datasources,data-source=CM5</address>
+                            <resource>
+                                <enableResource>true</enableResource>
+                                <properties>
+                                    <connection-url>jdbc:postgresql://localhost:5432/br4j22</connection-url>
+                                    <jndi-name>java:jboss/datasources/CM5</jndi-name>
+                                    <enabled>true</enabled>
+                                    <enable>true</enable>
+                                    <pool-name>CM5</pool-name>
+                                    <user-name>br4j</user-name>
+                                    <password>welcome</password>
+                                    <driver-name>postgresql-jdbc3.jar</driver-name>
+                                    <use-ccm>false</use-ccm>
+                                </properties>
+                            </resource>
+                        </configuration>
+                        <goals>
+                            <goal>add-resource</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <artifactId>maven-ear-plugin</artifactId>
                 <configuration>
@@ -43,7 +121,7 @@
                     </modules>
                 </configuration>
             </plugin>
-
+    
         </plugins>
     </build>
 </project>
