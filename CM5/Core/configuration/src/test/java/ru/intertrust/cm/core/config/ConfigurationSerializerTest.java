@@ -88,7 +88,7 @@ public class ConfigurationSerializerTest {
         assertEquals(configurationList.size(), 6);
 
         List<String> configurationNames = new ArrayList<>();
-        configurationNames.addAll(Arrays.asList("Employees", "Employees_2", "Outgoing Document", "Person",
+        configurationNames.addAll(Arrays.asList("Employees", "Employees_2", "Outgoing_Document", "Person",
                 "Employee", "Department"));
 
         for (Object configurationItem : configurationList) {

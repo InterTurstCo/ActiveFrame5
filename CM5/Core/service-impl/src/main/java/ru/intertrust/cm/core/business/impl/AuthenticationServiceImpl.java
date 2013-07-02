@@ -46,24 +46,24 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 
         DomainObject authInfo = new GenericDomainObject();
-        authInfo.setTypeName("Authentication Info");
+        authInfo.setTypeName("Authentication_Info");
         Date currentDate = new Date();
         authInfo.setCreatedDate(currentDate);
         authInfo.setModifiedDate(currentDate);
         StringValue password = new StringValue(passwordHash);
         authInfo.setValue("Password", password);
-        authInfo.setValue("User Uid", new StringValue(authenticationInfo.getUserUid()));
+        authInfo.setValue("User_Uid", new StringValue(authenticationInfo.getUserUid()));
 
         DomainObject createdAuthInfo = domainObjectDao.create(authInfo);
 
         RdbmsId id  = (RdbmsId)createdAuthInfo.getId();
         DomainObject role = new GenericDomainObject();
-        role.setTypeName("Employee Role");
+        role.setTypeName("Employee_Role");
         role.setCreatedDate(currentDate);
         role.setModifiedDate(currentDate);
         StringValue roleName = new StringValue(authenticationInfo.getRole());
         role.setValue("Role", roleName);
-        role.setValue("Authentication Info", new IntegerValue(id.getId()));
+        role.setValue("Authentication_Info", new IntegerValue(id.getId()));
         domainObjectDao.create(role);
     }
 

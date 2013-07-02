@@ -76,7 +76,7 @@ public class ConfigurationExplorerImplTest {
         assertEquals(domainObjectTypeConfigs.size(), 4);
 
         List<String> domainObjectNames = new ArrayList<>();
-        domainObjectNames.addAll(Arrays.asList("Outgoing Document", PERSON_CONFIG_NAME, "Employee", "Department"));
+        domainObjectNames.addAll(Arrays.asList("Outgoing_Document", PERSON_CONFIG_NAME, "Employee", "Department"));
 
         for(DomainObjectTypeConfig domainObjectTypeConfig : domainObjectTypeConfigs) {
             String name = domainObjectTypeConfig.getName();

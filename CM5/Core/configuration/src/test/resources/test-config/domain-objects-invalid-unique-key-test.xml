@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration xmlns="https://cm5.intertrust.ru/config">
 
-    <domain-object-type name="Outgoing Document"> <!-- OUTGOING_DOCUMENT table -->
+    <domain-object-type name="Outgoing_Document"> <!-- OUTGOING_DOCUMENT table -->
         <fields>
-            <string name="Registration Number" length="128" /> <!-- REGISTRATION_NUMBER column -->
-            <dateTime name="Registration Date"/>
+            <string name="Registration_Number" length="128" /> <!-- REGISTRATION_NUMBER column -->
+            <dateTime name="Registration_Date"/>
             <string name="Name" length="128" />
             <string name="Description" length="128" />
-            <long name="Long Field"/> <!-- mapping to LONG_FIELD column -->
-            <decimal name="Decimal Field" precision="10" scale="2" />
+            <long name="Long_Field"/> <!-- mapping to LONG_FIELD column -->
+            <decimal name="Decimal_Field" precision="10" scale="2" />
         </fields>
         <uniqueKey> <!-- This key means automatic key + index creation-->
-            <field name="Invalid field"/>
+            <field name="Invalid_field"/>
         </uniqueKey>
     </domain-object-type>
 

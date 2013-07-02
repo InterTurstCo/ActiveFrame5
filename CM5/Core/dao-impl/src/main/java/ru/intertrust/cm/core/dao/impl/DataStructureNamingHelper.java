@@ -89,6 +89,6 @@ public class DataStructureNamingHelper {
             throw new IllegalArgumentException("Name is empty");
         }
 
-        return name.replace(' ', '_').toUpperCase();
+        return name.toUpperCase();
     }
 }

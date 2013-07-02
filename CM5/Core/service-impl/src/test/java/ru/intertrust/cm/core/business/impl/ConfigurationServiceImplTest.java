@@ -87,10 +87,11 @@ public class ConfigurationServiceImplTest {
         when(configurationDao.readLastSavedConfiguration()).thenReturn(configurationString);
 
         // Вносим изменения в конфигурацию
-        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer.getDomainObjectTypeConfig("Outgoing Document");
+        DomainObjectTypeConfig domainObjectTypeConfig =
+                configurationExplorer.getDomainObjectTypeConfig("Outgoing_Document");
 
         StringFieldConfig descriptionFieldConfig = new StringFieldConfig();
-        descriptionFieldConfig.setName("Long Description");
+        descriptionFieldConfig.setName("Long_Description");
         descriptionFieldConfig.setLength(256);
         descriptionFieldConfig.setNotNull(false);
         domainObjectTypeConfig.getFieldConfigs().add(descriptionFieldConfig);
@@ -103,7 +104,7 @@ public class ConfigurationServiceImplTest {
 
         UniqueKeyConfig uniqueKeyConfig = new UniqueKeyConfig();
         UniqueKeyFieldConfig uniqueKeyFieldConfig = new UniqueKeyFieldConfig();
-        uniqueKeyFieldConfig.setName("Registration Number");
+        uniqueKeyFieldConfig.setName("Registration_Number");
         uniqueKeyConfig.getUniqueKeyFieldConfigs().add(uniqueKeyFieldConfig);
         domainObjectTypeConfig.getUniqueKeyConfigs().add(uniqueKeyConfig);
 

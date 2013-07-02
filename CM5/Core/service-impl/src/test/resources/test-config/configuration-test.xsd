@@ -4,9 +4,9 @@
 
   <xs:complexType name="longType">
     <xs:simpleContent>
-      <xs:extension base="xs:string">
-        <xs:attribute type="xs:string" name="name"/>
-      </xs:extension>
+        <xs:extension base="xs:string">
+            <xs:attribute name="name" type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
 
@@ -52,7 +52,7 @@
     <xs:simpleContent>
       <xs:extension base="xs:string">
         <xs:attribute name="name" use="required" type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config"/>
-        <xs:attribute type="xs:string" name="type" use="optional"/>
+        <xs:attribute name="type" type="con:nameType" use="required" xmlns:con="https://cm5.intertrust.ru/config"/>
         <xs:attribute type="xs:string" name="not-null" use="optional"/>
       </xs:extension>
     </xs:simpleContent>

@@ -144,18 +144,18 @@ public class PostgreSqlDataStructureDaoImplTest {
         domainObjectTypeConfig.getFieldConfigs().add(referenceFieldConfig);
 
         LongFieldConfig longFieldConfig = new LongFieldConfig();
-        longFieldConfig.setName("Long Field");
+        longFieldConfig.setName("Long_Field");
         domainObjectTypeConfig.getFieldConfigs().add(longFieldConfig);
 
         DecimalFieldConfig decimalFieldConfig1 = new DecimalFieldConfig();
-        decimalFieldConfig1.setName("Decimal Field 1");
+        decimalFieldConfig1.setName("Decimal_Field_1");
         decimalFieldConfig1.setNotNull(false);
         decimalFieldConfig1.setPrecision(10);
         decimalFieldConfig1.setScale(2);
         domainObjectTypeConfig.getFieldConfigs().add(decimalFieldConfig1);
 
         DecimalFieldConfig decimalFieldConfig2 = new DecimalFieldConfig();
-        decimalFieldConfig2.setName("Decimal Field 2");
+        decimalFieldConfig2.setName("Decimal_Field_2");
         decimalFieldConfig2.setNotNull(false);
         decimalFieldConfig2.setPrecision(10);
         domainObjectTypeConfig.getFieldConfigs().add(decimalFieldConfig2);

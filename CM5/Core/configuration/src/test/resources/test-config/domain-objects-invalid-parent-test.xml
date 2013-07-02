@@ -5,7 +5,7 @@
 		<fields>
 			<reference name="Department" type="Department" not-null="true" />
 			<string name="Name" length="64" not-null="true" />
-            <reference name="Login" type="Authentication Info" not-null="true" />
+            <reference name="Login" type="Authentication_Info" not-null="true" />
 			<string name="Position" length="64" not-null="true" />
 			<string name="Phone" length="32" />
 			<string name="Certificate" length="4096" />

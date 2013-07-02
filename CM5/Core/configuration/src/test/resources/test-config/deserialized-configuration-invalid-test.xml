@@ -9,7 +9,7 @@
          <column field="updated_date" name="Дата модификации" hidden="false" sortable="true" editable="false" sequence="5"/>
       </display>
       <prototype><![CDATA[
-            
+
                 select
                     e.id, e.name, e.position, e.created_date, e.updated_date
                 from
@@ -17,28 +17,28 @@
                      ::from-clause
                 where
                     ::where-clause
-            
+
         ]]></prototype>
       <counting-prototype><![CDATA[
             select count(*) from employee e ::from-clause WHERE ::where-clause
         ]]></counting-prototype>
       <filter name="byDepartment">
          <reference placeholder="from-clause"><![CDATA[
-                 
+
                     inner join department d on e.department = d.id
-                
+
             ]]></reference>
          <criteria placeholder="where-clause" condition="and"><![CDATA[
-                
+
                     d.name = {0}
-                
+
             ]]></criteria>
       </filter>
       <filter name="byName">
          <criteria placeholder="where-clause" condition="and"><![CDATA[
-                
+
                     e.name = {0}
-                
+
             ]]></criteria>
       </filter>
    </invalid>
@@ -64,7 +64,7 @@
          <reference name="Author" not-null="false" type="Employee"/>
          <reference name="Negotiator" not-null="false" type="Employee"/>
          <reference name="Signer" not-null="false" type="Employee"/>
-         <long name="Long Field" not-null="false"/>
+         <long name="Long_Field" not-null="false"/>
          <decimal name="Decimal Field" not-null="false" precision="10" scale="2"/>
       </fields>
       <uniqueKey>

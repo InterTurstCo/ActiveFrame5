@@ -27,7 +27,7 @@ public class DomainObjectTypeConfig implements Serializable {
 
     // we can't use a list here directly, as elements inside are different, that's why such a "trick"
     @Element(name = "fields")
-    private DomainObjectFieldsConfig domainObjectFieldsConfig;
+    private DomainObjectFieldsConfig domainObjectFieldsConfig = new DomainObjectFieldsConfig();
 
     @ElementList(entry="uniqueKey", type=UniqueKeyConfig.class, inline=true, required = false)
     private List<UniqueKeyConfig> uniqueKeyConfigs = new ArrayList<>();
@@ -68,9 +68,6 @@ public class DomainObjectTypeConfig implements Serializable {
     }
 
     public List<FieldConfig> getFieldConfigs() {
-        if(domainObjectFieldsConfig == null) {
-            domainObjectFieldsConfig = new DomainObjectFieldsConfig();
-        }
         return domainObjectFieldsConfig.getFieldConfigs();
     }
 

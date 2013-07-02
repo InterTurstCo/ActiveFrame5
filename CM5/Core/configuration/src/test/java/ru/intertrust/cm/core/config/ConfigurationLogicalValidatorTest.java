@@ -65,7 +65,8 @@ public class ConfigurationLogicalValidatorTest {
                 createConfigurationExplorer(DOMAIN_OBJECTS_INVALID_UNIQUE_KEY_CONFIG_PATH);
 
         expectedException.expect(ConfigurationException.class);
-        expectedException.expectMessage("FieldConfig with name 'Invalid field' is not found in domain object 'Outgoing Document'");
+        expectedException.expectMessage("FieldConfig with name 'Invalid_field' is not found in domain object " +
+                "'Outgoing_Document'");
 
         configurationExplorer.build();
 

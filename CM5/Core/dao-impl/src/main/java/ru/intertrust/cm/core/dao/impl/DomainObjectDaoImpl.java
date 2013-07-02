@@ -307,10 +307,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
      * @return строку запроса для создания доменного объекта с параметрами
      */
     protected String generateCreateQuery(DomainObjectTypeConfig domainObjectTypeConfig) {
-        List<FieldConfig> feldConfigs = domainObjectTypeConfig.getDomainObjectFieldsConfig().getFieldConfigs();
+        List<FieldConfig> fieldConfigs = domainObjectTypeConfig.getFieldConfigs();
 
         String tableName = DataStructureNamingHelper.getSqlName(domainObjectTypeConfig);
-        List<String> columnNames = DataStructureNamingHelper.getSqlName(feldConfigs);
+        List<String> columnNames = DataStructureNamingHelper.getSqlName(fieldConfigs);
 
         String commaSeparatedColumns = StringUtils.collectionToCommaDelimitedString(columnNames);
         String commaSeparatedParameters = DaoUtils.generateCommaSeparatedParameters(columnNames);
