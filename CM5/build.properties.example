@@ -1,4 +1,5 @@
 datasource.jndi.name=java:jboss/datasources/CM5
+datasource.pool.name=CM5
 db.connection.url=jdbc:postgresql://localhost:5432/CM5
 db.user=cm5
 db.password=welcome 

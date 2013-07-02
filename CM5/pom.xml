@@ -132,7 +132,7 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
-                <scope>provided</scope>
+                <!-- <scope>provided</scope> -->
             </dependency>
 
             <dependency>
@@ -229,20 +229,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>properties-maven-plugin</artifactId>
-                    <version>1.0-alpha-1</version>
-                    <executions>
-                        <execution>
-                            <phase>initialize</phase>
-                            <goals>
-                                <goal>read-project-properties</goal>
-                            </goals>
-                            <configuration>
-                                <files>
-                                    <file>${basedir}/build.properties</file>
-                                </files>
-                            </configuration>
-                        </execution>
-                    </executions>            
+                    <version>1.0-alpha-1</version>                                
                 </plugin>
 
                 <plugin>
