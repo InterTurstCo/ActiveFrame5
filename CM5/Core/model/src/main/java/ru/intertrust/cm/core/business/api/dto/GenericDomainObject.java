@@ -11,6 +11,7 @@ import java.util.Date;
  */
 public class GenericDomainObject extends GenericIdentifiableObject implements DomainObject {
     private String typeName;
+    private Id parent;
     private Date createdDate;
     private Date modifiedDate;
 
@@ -29,6 +30,16 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
     @Override
     public String getTypeName() {
         return this.typeName;
+    }
+
+    @Override
+    public Id getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(Id parent) {
+        this.parent = parent;
     }
 
     @Override

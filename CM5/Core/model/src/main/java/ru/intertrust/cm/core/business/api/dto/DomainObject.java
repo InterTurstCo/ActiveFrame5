@@ -46,6 +46,17 @@ public interface DomainObject extends IdentifiableObject {
      */
     void setModifiedDate(Date modifiedDate);
 
+    /**
+     * Возвращает идентификатор родительского доменного объекта
+     * @return идентификатор родительского доменного объекта
+     */
+    public Id getParent();
+
+    /**
+     * Устанавливает идентификатор родительского доменного объекта
+     * @param parent идентификатор родительского доменного объекта
+     */
+    public void setParent(Id parent);
 
     /**
      * Определяет являеться ли объект новым

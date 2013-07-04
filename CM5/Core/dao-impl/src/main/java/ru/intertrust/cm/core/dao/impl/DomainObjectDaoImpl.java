@@ -236,6 +236,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         RdbmsId rdbmsId = (RdbmsId) domainObject.getId();
 
         Map<String, Object> parameters = initializeIdParameter(rdbmsId);
+
+        parameters.put("parent", getParentId(domainObject));
         parameters.put("created_date", domainObject.getCreatedDate());
         parameters.put("updated_date", domainObject.getModifiedDate());
 
@@ -265,7 +267,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         String fieldsWithparams = DaoUtils.generateCommaSeparatedListWithParams(columnNames);
 
         query.append("update ").append(tableName).append(" set ");
-        query.append("UPDATED_DATE=:current_date, ");
+        query.append("UPDATED_DATE=:current_date, PARENT=:parent, ");
         query.append(fieldsWithparams);
         query.append(" where ID=:id");
         query.append(" and UPDATED_DATE=:updated_date");
@@ -291,6 +293,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         parameters.put("id", rdbmsId.getId());
         parameters.put("current_date", currentDate);
         parameters.put("updated_date", domainObject.getModifiedDate());
+        parameters.put("parent", getParentId(domainObject));
 
         List<FieldConfig> feldConfigs = domainObjectTypeConfig.getDomainObjectFieldsConfig().getFieldConfigs();
 
@@ -317,9 +320,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         StringBuilder query = new StringBuilder();
         query.append("insert into ").append(tableName).append(" (");
-        query.append("ID , CREATED_DATE, UPDATED_DATE, ").append(commaSeparatedColumns);
+        query.append("ID, PARENT, CREATED_DATE, UPDATED_DATE, ").append(commaSeparatedColumns);
         query.append(") values (");
-        query.append(":id , :created_date, :updated_date, ");
+        query.append(":id , :parent, :created_date, :updated_date, ");
         query.append(commaSeparatedParameters);
         query.append(")");
 
@@ -461,6 +464,15 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             }
 
         }
+    }
+
+    private Long getParentId(DomainObject domainObject) {
+        if(domainObject.getParent() == null) {
+            return null;
+        }
+
+        RdbmsId rdbmsParentId = (RdbmsId) domainObject.getParent();
+        return rdbmsParentId.getId();
     }
 
 }

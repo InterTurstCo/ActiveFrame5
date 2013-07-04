@@ -4,9 +4,9 @@ import ru.intertrust.cm.core.config.model.*;
 
 import java.util.List;
 
-import static ru.intertrust.cm.core.dao.api.DataStructureDao.DOMAIN_OBJECT_TABLE;
-import static ru.intertrust.cm.core.dao.api.DataStructureDao.AUTHENTICATION_INFO_TABLE;
 import static ru.intertrust.cm.core.dao.api.ConfigurationDao.CONFIGURATION_TABLE;
+import static ru.intertrust.cm.core.dao.api.DataStructureDao.AUTHENTICATION_INFO_TABLE;
+import static ru.intertrust.cm.core.dao.api.DataStructureDao.DOMAIN_OBJECT_TABLE;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
 
 /**
@@ -169,6 +169,7 @@ public class PostgreSqlQueryHelper {
 
     private static void appendSystemColumnsQueryPart(StringBuilder query) {
         query.append("ID bigint not null, ");
+        query.append("PARENT bigint, ");
         query.append("CREATED_DATE timestamp not null, ");
         query.append("UPDATED_DATE timestamp not null");
     }
