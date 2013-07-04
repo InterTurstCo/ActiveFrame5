@@ -79,7 +79,7 @@ public class ConfigurationLogicalValidator {
     }
 
     private void validateParentConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
-        String parentConfigName = domainObjectTypeConfig.getParentConfig();
+        String parentConfigName = domainObjectTypeConfig.getExtendsAttribute();
         if (parentConfigName != null) {
             DomainObjectTypeConfig parentConfig = configurationExplorer.getDomainObjectTypeConfig(parentConfigName);
             if(parentConfig == null) {

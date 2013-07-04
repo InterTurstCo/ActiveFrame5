@@ -127,7 +127,7 @@ public class PostgreSqlDataStructureDaoImplTest {
     private void initDomainObjectConfig() {
         domainObjectTypeConfig = new DomainObjectTypeConfig();
         domainObjectTypeConfig.setName("Outgoing Document");
-        domainObjectTypeConfig.setParentConfig("Document");
+        domainObjectTypeConfig.setExtendsAttribute("Document");
 
         StringFieldConfig registrationNumber = new StringFieldConfig();
         registrationNumber.setName("Registration Number");

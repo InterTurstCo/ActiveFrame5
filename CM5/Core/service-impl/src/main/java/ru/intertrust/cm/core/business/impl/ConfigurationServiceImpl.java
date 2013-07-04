@@ -211,8 +211,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             if (oldDomainObjectTypeConfig == null) {
                 loadDomainObjectConfig(domainObjectTypeConfig);
             } else if (!domainObjectTypeConfig.equals(oldDomainObjectTypeConfig)) {
-                String parentConfigName = domainObjectTypeConfig.getParentConfig();
-                String oldParentConfigName = oldDomainObjectTypeConfig.getParentConfig();
+                String parentConfigName = domainObjectTypeConfig.getExtendsAttribute();
+                String oldParentConfigName = oldDomainObjectTypeConfig.getExtendsAttribute();
                 if ((parentConfigName == null && oldParentConfigName != null) ||
                         (parentConfigName != null && !parentConfigName.equals(oldParentConfigName))) {
                     throw new ConfigurationException("Configuration loading aborted: parent was changed for " +

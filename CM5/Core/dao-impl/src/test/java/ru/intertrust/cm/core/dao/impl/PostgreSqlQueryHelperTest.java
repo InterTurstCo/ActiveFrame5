@@ -126,7 +126,7 @@ public class PostgreSqlQueryHelperTest {
     private void initDomainObjectConfig() {
         domainObjectTypeConfig = new DomainObjectTypeConfig();
         domainObjectTypeConfig.setName("Outgoing_Document");
-        domainObjectTypeConfig.setParentConfig("Document");
+        domainObjectTypeConfig.setExtendsAttribute("Document");
 
         StringFieldConfig registrationNumber = new StringFieldConfig();
         registrationNumber.setName("Registration_Number");

@@ -23,7 +23,10 @@ public class DomainObjectTypeConfig implements Serializable {
     private String name;
 
     @Attribute(name = "extends", required = false)
-    private String parentConfig;
+    private String extendsAttribute;
+
+    @Element(name = "parent", required = false)
+    private DomainObjectParentConfig parentConfig;
 
     // we can't use a list here directly, as elements inside are different, that's why such a "trick"
     @Element(name = "fields")
@@ -51,12 +54,12 @@ public class DomainObjectTypeConfig implements Serializable {
         this.name = name;
     }
 
-    public String getParentConfig() {
-        return parentConfig;
+    public String getExtendsAttribute() {
+        return extendsAttribute;
     }
 
-    public void setParentConfig(String parentConfig) {
-        this.parentConfig = parentConfig;
+    public void setExtendsAttribute(String extendsAttribute) {
+        this.extendsAttribute = extendsAttribute;
     }
 
     public DomainObjectFieldsConfig getDomainObjectFieldsConfig() {
@@ -83,6 +86,14 @@ public class DomainObjectTypeConfig implements Serializable {
         }
     }
 
+    public DomainObjectParentConfig getParentConfig() {
+        return parentConfig;
+    }
+
+    public void setParentConfig(DomainObjectParentConfig parentConfig) {
+        this.parentConfig = parentConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -94,16 +105,19 @@ public class DomainObjectTypeConfig implements Serializable {
 
         DomainObjectTypeConfig that = (DomainObjectTypeConfig) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null) {
+        if (domainObjectFieldsConfig != null ? !domainObjectFieldsConfig.equals(that.domainObjectFieldsConfig) : that.domainObjectFieldsConfig != null) {
+            return false;
+        }
+        if (extendsAttribute != null ? !extendsAttribute.equals(that.extendsAttribute) : that.extendsAttribute != null) {
             return false;
         }
         if (id != null ? !id.equals(that.id) : that.id != null) {
             return false;
         }
-        if (parentConfig != null ? !parentConfig.equals(that.parentConfig) : that.parentConfig != null) {
+        if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
         }
-        if (domainObjectFieldsConfig != null ? !domainObjectFieldsConfig.equals(that.domainObjectFieldsConfig) : that.domainObjectFieldsConfig != null) {
+        if (parentConfig != null ? !parentConfig.equals(that.parentConfig) : that.parentConfig != null) {
             return false;
         }
         if (uniqueKeyConfigs != null ? !uniqueKeyConfigs.equals(that.uniqueKeyConfigs) : that.uniqueKeyConfigs != null) {
