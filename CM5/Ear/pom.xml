@@ -67,7 +67,7 @@
                             <ignoreMissingDeployment>true</ignoreMissingDeployment>
                         </configuration>
                     </execution>
-            
+
                     <execution>
                         <id>deploy-driver</id>
                         <phase>install</phase>
@@ -85,17 +85,19 @@
                         <id>add-datasource</id>
                         <phase>install</phase>
                         <configuration>
-                            <address>subsystem=datasources,data-source=CM5</address>
-                            <resource>
+                        
+                            <address>subsystem=datasources,data-source=${datasource.name}</address>
+                            <resource>                            
                                 <enableResource>true</enableResource>
                                 <properties>
+                                    <datasource-class>org.postgresql.xa.PGXADataSource</datasource-class>
                                     <connection-url>${db.connection.url}</connection-url>
-                                    <jndi-name>java:jboss/datasources/CM5</jndi-name>
+                                    <jndi-name>${datasource.jndi.name}</jndi-name>
                                     <enabled>true</enabled>
                                     <enable>true</enable>
-                                    <pool-name>CM5</pool-name>
-                                    <user-name>br4j</user-name>
-                                    <password>welcome</password>
+                                    <pool-name>${datasource.pool.name}</pool-name>
+                                    <user-name>${db.user}</user-name>
+                                    <password>${db.password}</password>
                                     <driver-name>postgresql-jdbc3.jar</driver-name>
                                     <use-ccm>false</use-ccm>
                                 </properties>
@@ -104,7 +106,8 @@
                         <goals>
                             <goal>add-resource</goal>
                         </goals>
-                    </execution>
+                    </execution>                                        
+                    
                 </executions>
             </plugin>
             <plugin>
