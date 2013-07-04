@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.config.ConfigurationLogicalValidator;
 import ru.intertrust.cm.core.config.ConfigurationSerializer;
 import ru.intertrust.cm.core.config.model.*;
+import ru.intertrust.cm.core.dao.exception.CollectionConfigurationException;
 
 import java.util.*;
 
@@ -37,6 +38,12 @@ public class CollectionsDaoImplTest {
             "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e " +
                     "inner join department d on e.department = d.id where d.name = 'dep1' order by e.name asc";
 
+    private static final String FIND_COMPLEX_COLLECTION_QUERY_WITH_FILTERS =
+            "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e inner join department d" +
+            " on e.department = d.id inner join authentication_info a on e.login = a.id where d.name = 'dep1' " +
+            "and e.name = 'employee1'" +
+            " and a.id = 1 order by e.name asc";
+    
     private static final String DOMAIN_OBJECTS_CONFIG_PATH = "test-config/domain-objects-test.xml";
     private static final String COLLECTIONS_CONFIG_PATH = "test-config/collections-test.xml";
     private static final String CONFIGURATION_SCHEMA_PATH = "test-config/configuration-test.xsd";
@@ -53,10 +60,18 @@ public class CollectionsDaoImplTest {
     private ConfigurationLogicalValidator logicalValidator;
 
     private CollectionFilterConfig byDepartmentFilterConfig;
-
+    
+    private CollectionFilterConfig byDepartmentComplexFilterConfig;
+    
     private CollectionFilterConfig byNameFilterConfig;
+    
+    private CollectionFilterConfig byNameComplexFilterConfig;
+
+    private CollectionFilterConfig byAuthenticationInfoFilterConfig;
 
     private CollectionConfig collectionConfig;
+    
+    private CollectionConfig complexCollectionConfig;    
 
     private ConfigurationExplorerImpl configurationExplorer;
 
@@ -76,9 +91,15 @@ public class CollectionsDaoImplTest {
         collectionsDaoImpl.setConfigurationExplorer(configurationExplorer);
 
         collectionConfig = configurationExplorer.getCollectionConfig("Employees");
+        complexCollectionConfig = configurationExplorer.getCollectionConfig("EmployeesComplex");
+        
         byDepartmentFilterConfig = createByDepartmentFilterConfig();
+        byDepartmentComplexFilterConfig = createByDepartmentComplexFilterConfig();
+        
         byNameFilterConfig = createByNameFilterConfig();
-
+        byNameComplexFilterConfig = createByNameComplexFilterConfig();
+        byAuthenticationInfoFilterConfig = createbyAuthenticationInfoFilterConfig();
+        
         sortOrder = createByNameSortOrder();
 
     }
@@ -96,12 +117,23 @@ public class CollectionsDaoImplTest {
     }
 
     @Test
+    public void testFindCopmplexCollectionWithFilters() throws Exception {
+        List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<>();
+
+        filledFilterConfigs.add(byDepartmentComplexFilterConfig);
+        filledFilterConfigs.add(byNameComplexFilterConfig);
+        filledFilterConfigs.add(byAuthenticationInfoFilterConfig);
+
+        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(complexCollectionConfig, filledFilterConfigs, sortOrder, 0, 0);
+        String refinedActualQuery = refineQuery(actualQuery);
+        assertEquals(FIND_COMPLEX_COLLECTION_QUERY_WITH_FILTERS, refinedActualQuery);
+
+    }
+    
+    @Test(expected=CollectionConfigurationException.class)
     public void testFindCollectionWithoutFilters() throws Exception {
         List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<>();
         String actualQuery = collectionsDaoImpl.getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, 0, 0);
-        String refinedActualQuery = refineQuery(actualQuery);
-        assertEquals(COLLECTION_QUERY_WITHOUT_FILTERS, refinedActualQuery);
-
     }
 
     @Test
@@ -111,7 +143,7 @@ public class CollectionsDaoImplTest {
 
         String actualQuery = collectionsDaoImpl.getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, 10, 100);
         String refinedActualQuery = refineQuery(actualQuery);
-
+        
         assertEquals(COLLECTION_QUERY_WITH_LIMITS, refinedActualQuery);
     }
 
@@ -148,6 +180,42 @@ public class CollectionsDaoImplTest {
         return byDepartmentFilterConfig;
     }
 
+    private CollectionFilterConfig createByDepartmentComplexFilterConfig() {
+        CollectionFilterConfig byDepartmentFilterConfig = new CollectionFilterConfig();
+        byDepartmentFilterConfig.setName("byDepartment");
+        CollectionFilterReferenceConfig collectionFilterReference = new CollectionFilterReferenceConfig();
+
+        collectionFilterReference.setPlaceholder("from-clause1");
+        collectionFilterReference.setValue("inner join department d on e.department = d.id");
+
+        CollectionFilterCriteriaConfig collectionFilterCriteriaConfig = new CollectionFilterCriteriaConfig();
+        collectionFilterCriteriaConfig.setCondition(" and ");
+        collectionFilterCriteriaConfig.setPlaceholder("where-clause1");
+        collectionFilterCriteriaConfig.setValue(" d.name = 'dep1'");
+
+        byDepartmentFilterConfig.setFilterReference(collectionFilterReference);
+        byDepartmentFilterConfig.setFilterCriteria(collectionFilterCriteriaConfig);
+        return byDepartmentFilterConfig;
+    }
+
+    private CollectionFilterConfig createbyAuthenticationInfoFilterConfig() {
+        CollectionFilterConfig byDepartmentFilterConfig = new CollectionFilterConfig();
+        byDepartmentFilterConfig.setName("byAuthenticationInfo");
+        CollectionFilterReferenceConfig collectionFilterReference = new CollectionFilterReferenceConfig();
+
+        collectionFilterReference.setPlaceholder("from-clause2");
+        collectionFilterReference.setValue("inner join authentication_info a on e.login = a.id");
+
+        CollectionFilterCriteriaConfig collectionFilterCriteriaConfig = new CollectionFilterCriteriaConfig();
+        collectionFilterCriteriaConfig.setCondition(" and ");
+        collectionFilterCriteriaConfig.setPlaceholder("where-clause2");
+        collectionFilterCriteriaConfig.setValue(" a.id = 1 ");
+
+        byDepartmentFilterConfig.setFilterReference(collectionFilterReference);
+        byDepartmentFilterConfig.setFilterCriteria(collectionFilterCriteriaConfig);
+        return byDepartmentFilterConfig;
+    }
+
     private CollectionFilterConfig createByNameFilterConfig() {
         CollectionFilterConfig byNameFilterConfig = new CollectionFilterConfig();
         byNameFilterConfig.setName("byName");
@@ -161,6 +229,19 @@ public class CollectionsDaoImplTest {
         return byNameFilterConfig;
     }
 
+    private CollectionFilterConfig createByNameComplexFilterConfig() {
+        CollectionFilterConfig byNameFilterConfig = new CollectionFilterConfig();
+        byNameFilterConfig.setName("byName");
+
+        CollectionFilterCriteriaConfig collectionFilterCriteriaConfig = new CollectionFilterCriteriaConfig();
+        collectionFilterCriteriaConfig.setCondition(" and ");
+        collectionFilterCriteriaConfig.setPlaceholder("where-clause1");
+        collectionFilterCriteriaConfig.setValue(" e.name = 'employee1' ");
+
+        byNameFilterConfig.setFilterCriteria(collectionFilterCriteriaConfig);
+        return byNameFilterConfig;
+    }
+    
     private SortOrder createByNameSortOrder() {
         SortOrder sortOrder = new SortOrder();
         sortOrder.add(new SortCriterion("e.name", SortCriterion.Order.ASCENDING));

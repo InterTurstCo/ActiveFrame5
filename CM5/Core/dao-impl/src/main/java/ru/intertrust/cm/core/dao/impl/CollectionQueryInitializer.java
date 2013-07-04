@@ -1,12 +1,16 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion.Order;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.config.model.CollectionFilterConfig;
+import ru.intertrust.cm.core.dao.exception.CollectionConfigurationException;
 import ru.intertrust.cm.core.model.FatalException;
-
-import java.util.List;
 
 /**
  * Инициализирует запрос для извлечения коллекций, заполняет параметры в конфигурации фильтров, устанавливает порядок сортировки
@@ -15,13 +19,11 @@ import java.util.List;
  */
 public class CollectionQueryInitializer {
 
+    private static final String PLACEHOLDER_PREFIX = "::";
+
     private static final String DEFAULT_CRITERIA = " 1=1 ";
 
-    private static final String EMPTY_PLACEHOLDER = " ";
-
-    private static final String CRITERIA_PLACEHOLDER = "::where-clause";
-
-    private static final String REFERENCE_PLACEHOLDER = "::from-clause";
+    private static final String EMPTY_STRING = " ";
 
     private static final String SQL_DESCENDING_ORDER = "desc";
 
@@ -69,54 +71,48 @@ public class CollectionQueryInitializer {
     }
 
     private String mergeFilledFilterConfigsInPrototypeQuery(String prototypeQuery, List<CollectionFilterConfig> filledFilterConfigs) {
-        StringBuilder mergedFilterCriteria = new StringBuilder();
-        StringBuilder mergedFilterReference = new StringBuilder();
-
-        boolean hasEntry = false;
+        
+        ReferencePlaceHolderCollector referencePlaceHolderCollector = new ReferencePlaceHolderCollector();
+        CriteriaPlaceHolderCollector criteriaPlaceHolderCollector = new CriteriaPlaceHolderCollector();
+        
         for (CollectionFilterConfig collectionFilterConfig : filledFilterConfigs) {
-
-            if (collectionFilterConfig.getFilterReference() != null) {
-                mergedFilterReference.append(collectionFilterConfig.getFilterReference().getValue());
+            if (collectionFilterConfig.getFilterReference() != null
+                    && collectionFilterConfig.getFilterReference().getPlaceholder() != null) {
+                String placeholder = collectionFilterConfig.getFilterReference().getPlaceholder();
+                String value = collectionFilterConfig.getFilterReference().getValue();
+                referencePlaceHolderCollector.addPlaceholderValue(placeholder, value);
             }
-            if (hasEntry) {
-                mergedFilterCriteria.append(EMPTY_PLACEHOLDER);
-                if (collectionFilterConfig.getFilterCriteria().getCondition() != null) {
-                    mergedFilterCriteria.append(collectionFilterConfig.getFilterCriteria().getCondition());
 
-                } else {
-                    mergedFilterCriteria.append(DEFAULT_CRITERIA_CONDITION);
-
-                }
-                mergedFilterCriteria.append(EMPTY_PLACEHOLDER);
+            if (collectionFilterConfig.getFilterCriteria() != null
+                    && collectionFilterConfig.getFilterCriteria().getPlaceholder() != null) {
+                String placeholder = collectionFilterConfig.getFilterCriteria().getPlaceholder();
+                String condition = collectionFilterConfig.getFilterCriteria().getCondition();
+                String value = collectionFilterConfig.getFilterCriteria().getValue();
+                criteriaPlaceHolderCollector.addPlaceholderValue(placeholder, condition, value);
             }
-            mergedFilterCriteria.append(collectionFilterConfig.getFilterCriteria().getValue());
-            hasEntry = true;
+        }
+        
+        for (String placeholder : referencePlaceHolderCollector.getPlaceholders()) {
+            String placeholderValue = referencePlaceHolderCollector.getPlaceholderValue(placeholder);
+            prototypeQuery = prototypeQuery.replace(PLACEHOLDER_PREFIX + placeholder, placeholderValue);
         }
 
-        prototypeQuery = applyMergedFilterReference(prototypeQuery, mergedFilterReference.toString());
+        for (String placeholder : criteriaPlaceHolderCollector.getPlaceholders()) {
+            String placeholderValue = criteriaPlaceHolderCollector.getPlaceholderValue(placeholder);
+            if (placeholderValue == null) {
+                placeholderValue = EMPTY_STRING;
+            }
 
-        prototypeQuery = applyMergedFilterCriteria(prototypeQuery, mergedFilterCriteria.toString());
-        return prototypeQuery;
-    }
-
-    private String applyMergedFilterCriteria(String prototypeQuery, String mergedFilterCriteria) {
-        if (mergedFilterCriteria.length() > 0) {
-            prototypeQuery = prototypeQuery.replaceAll(CRITERIA_PLACEHOLDER, mergedFilterCriteria);
-        } else {
-            prototypeQuery = prototypeQuery.replaceAll(CRITERIA_PLACEHOLDER, DEFAULT_CRITERIA);
+            prototypeQuery = prototypeQuery.replace(PLACEHOLDER_PREFIX + placeholder, placeholderValue);
         }
-        return prototypeQuery;
-    }
 
-    private String applyMergedFilterReference(String prototypeQuery, String mergedFilterReference) {
-        if (mergedFilterReference.length() > 0) {
-            prototypeQuery = prototypeQuery.replaceAll(REFERENCE_PLACEHOLDER, mergedFilterReference);
-        } else {
-            prototypeQuery = prototypeQuery.replaceAll(REFERENCE_PLACEHOLDER, EMPTY_PLACEHOLDER);
+        if (prototypeQuery.indexOf(PLACEHOLDER_PREFIX) > 0) {
+            throw new CollectionConfigurationException("Prototype query was not filled correctly: " + prototypeQuery
+                    + " Please verify all required parameters are passed.");
         }
         return prototypeQuery;
     }
-
+    
     private String applySortOrder(SortOrder sortOrder, String prototypeQuery) {
         StringBuilder prototypeQueryBuilder = new StringBuilder(prototypeQuery);
 
@@ -142,4 +138,67 @@ public class CollectionQueryInitializer {
             return SQL_ASCENDING_ORDER;
         }
     }
+    
+    /**
+     * Группирует фильтры после кл. слова from по названию placeholder.
+     * @author atsvetkov
+     */
+    private class ReferencePlaceHolderCollector {
+
+        private Map<String, String> placeholdersMap = new HashMap<>();
+
+        public void addPlaceholderValue(String placeholder, String value) {
+            String placeholderValue = placeholdersMap.get(placeholder);
+
+            if (placeholderValue != null) {
+                placeholderValue += value;
+            } else {
+                placeholderValue = value;
+            }
+            placeholdersMap.put(placeholder, placeholderValue);
+
+        }
+
+        public String getPlaceholderValue(String placeholder) {
+            return placeholdersMap.get(placeholder);
+        }
+
+        public Set<String> getPlaceholders() {
+            return placeholdersMap.keySet();
+        }
+    }
+ 
+    /**
+     * Группирует все фильтры после слова where по названию placeholder. Т.е. для каждого placeholder составляет запрос
+     * из заполненных фильтров.
+     * @author atsvetkov
+     */
+    private class CriteriaPlaceHolderCollector {
+
+        private Map<String, String> placeholdersMap = new HashMap<>();
+
+        public void addPlaceholderValue(String placeholder, String condition, String value) {
+            String placeholderValue = placeholdersMap.get(placeholder);
+
+            if (condition == null) {
+                condition = DEFAULT_CRITERIA_CONDITION;
+            }
+            if (placeholderValue != null) {
+                placeholderValue += EMPTY_STRING + condition + EMPTY_STRING + value;
+            } else {
+                placeholderValue = EMPTY_STRING + value;
+            }
+            placeholdersMap.put(placeholder, placeholderValue);
+
+        }
+
+        public String getPlaceholderValue(String placeholder) {
+            return placeholdersMap.get(placeholder);
+        }
+
+        public Set<String> getPlaceholders() {
+            return placeholdersMap.keySet();
+        }
+    }
+    
 }

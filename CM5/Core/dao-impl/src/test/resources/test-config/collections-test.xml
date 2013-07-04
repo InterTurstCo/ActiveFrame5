@@ -52,6 +52,75 @@
             </criteria>
         </filter>
     </collection>
+    
+    <collection name="EmployeesComplex" idField="id" domain-object-type="Employee">
+        <!--todo поддержка конвертации значений, например, в картинки -->
+        <display>
+            <column field="id" name="id" hidden="true" sortable="false" sequence="0" />
+            <column field="business_object_type" name="type" editable="false"  hidden="true" sortable="false" sequence="1" /> <!--todo - rethink?-->
+            <column field="name" name="Имя" editable="false" sortable="true"  sequence="2" />
+            <column field="position" name="Должность" editable="false" sortable="true"  sequence="3" />
+            <column field="created_date" name="Дата создания" editable="false" sortable="true"  sequence="4" />
+            <column field="updated_date" name="Дата модификации" editable="false" sortable="true"  sequence="5" />
+        </display>
+
+        <prototype>
+            <![CDATA[
+                select
+                    e.id, e.name, e.position, e.created_date, e.updated_date
+                from
+                    employee e
+                     ::from-clause1 ::from-clause2
+                where
+                    ::where-clause1 and ::where-clause2
+            ]]>
+        </prototype>
+
+        <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) вместо названий колонок -->
+        <counting-prototype>
+            select count(*) from employee e ::from-clause WHERE ::where-clause
+        </counting-prototype>
+
+        <filter name="byDepartment">
+            <reference placeholder="from-clause1">
+                 <![CDATA[
+                    inner join department d on e.department = d.id
+                ]]>
+            </reference>
+
+            <!-- по умолчанию and, если перед условием нет других (только ключ. слово where), то условие опускаем -->
+            <!-- {0} - это параметр фильтра, у одного фильтра может быть несколько параметров -->
+            <criteria placeholder="where-clause1" condition="and">
+                <![CDATA[
+                    d.name = ':0'
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byAuthenticationInfo">
+            <reference placeholder="from-clause2">
+                 <![CDATA[
+                    inner join authentication_info a on e.login = a.id
+                ]]>
+            </reference>
+
+            <!-- по умолчанию and, если перед условием нет других (только ключ. слово where), то условие опускаем -->
+            <!-- {0} - это параметр фильтра, у одного фильтра может быть несколько параметров -->
+            <criteria placeholder="where-clause2" condition="and">
+                <![CDATA[
+                    a.id = ':1'
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byName">
+            <criteria placeholder="where-clause1" condition="and">
+                <![CDATA[
+                    e.name = ':0'
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
 
     <collection name="Employees_2" idField="id" domain-object-type="Employee">
         <display>
