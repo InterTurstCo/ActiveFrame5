@@ -21,8 +21,6 @@ public class CollectionQueryInitializer {
 
     private static final String PLACEHOLDER_PREFIX = "::";
 
-    private static final String DEFAULT_CRITERIA = " 1=1 ";
-
     private static final String EMPTY_STRING = " ";
 
     private static final String SQL_DESCENDING_ORDER = "desc";
