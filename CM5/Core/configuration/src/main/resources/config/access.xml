@@ -3,65 +3,103 @@
                xsi:schemaLocation="https://cm5.intertrust.ru/config configuration.xsd ">
 
     <!-- Статические группы пользователей - мы вынуждены объявлять их здесь, т.к. они используются в матрицах доступа -->
-    <staticGroup name="Администраторы"/>
+    <static-group name="Администраторы"/>
     
-    <!-- Динамические группы пользователей -->
-    <dynamicGroup name="Все пользователи">
-        <trackObjects type="Person" state="active">
-            <person>@</person>
-        </trackObjects>
-    </dynamicGroup>
+    <!-- Динамические группы пользователей - вычисляются системой -->
+    <dynamic-group name="Все пользователи">
+        <!-- Бесконтекстная - существует в единственном экземпляре -->
+        <members>
+            <!-- Отслеживаем сохранение/удаление объектов типа "Person" в статусе "active" и включаем их в группу -->
+	        <track-domain-objects type="Person" status="active"/>
+        </members>
+    </dynamic-group>
     
-    <dynamicGroup name="Пользователь">
+    <dynamic-group name="Пользователь">
+        <!-- По одной группе на каждый объект "Person" (пользователь) в системе -->
         <context>
-            <domainObject name="Person"/>
+            <domain-object type="Person"/>
         </context>
-        <trackObjects type="Person" status="active">
-            <contextObject>@</contextObject>
-            <person>@</person>
-        </trackObjects>
-    </dynamicGroup>
+        <members>
+            <!-- Отслеживаем сохранение/удаление объектов типа "Person" в статусе "active" и включаем их 
+                 в соответствующую группу, т.е. где контекст = объекту -->
+	        <track-domain-objects type="Person" status="active"/>
+        </members>
+    </dynamic-group>
     
-    <dynamicGroup name="Пользователь и его заместители">
+    <dynamic-group name="Пользователь и его заместители">
+        <!-- По одной группе на каждый объект "Person" (пользователь) в системе -->
         <context>
-            <domainObject name="Person"/>
+            <domain-object type="Person"/>
         </context>
-        <trackObjects type="Delegation" status="active">
-            <contextObject>person</contextObject>
-            <person>delegate</person>
-        </trackObjects>
-        <includeGroup name="Пользователь"/>
-    </dynamicGroup>
+        <members>
+            <!-- Отслеживаем сохранение/удаление объектов типа "Delegation" в статусе "active" -->
+	        <track-domain-objects type="Delegation" status="active">
+	            <!-- Указываем, какую именно группу (с каким контекстом) менять - берём пользователя из поля "person" -->
+	            <bind-context>
+                    <doel>person</doel>
+                </bind-context>
+	            <!-- Указываем, как получить пользователя, который войдёт в группу - берём его из поля "delegate" -->
+	            <get-person>
+                    <doel>delegate</doel>
+                </get-person>
+	        </track-domain-objects>
+        </members>
+        <!-- Также включаем всех членов группы "Пользователь" с тем же контекстом -->
+        <include-group name="Пользователь"/>
+        <!-- Вероятно, по соображениям эффективности выгоднее будет не включать здесь группу "Пользователь",
+             а повторить тег trackObjects из неё -->
+    </dynamic-group>
     
-    <dynamicGroup name="Сотрудники подразделения">
+    <dynamic-group name="Сотрудники подразделения">
+        <!-- По одной группе на каждый объект "Department" (подразделение) в системе -->
         <context>
-            <domainObject name="Department"/>
+            <domain-object type="Department"/>
         </context>
-        <trackObjects type="Employee" status="active">
-            <contextObject>Department</contextObject>
-            <person>@</person>
-        </trackObjects>
-        <tracker javaClass="ru.intertrust.cm.staff.access.DepartmentGroup"/>
-    </dynamicGroup>
+        <members>
+            <!-- Отслеживаем сохранение/удаление объектов типа "Person" в статусе "active" -->
+	        <track-domain-objects type="Employee" status="active">
+	            <!-- Контекст для включения в группу берём из поля "Department" -->
+	            <bind-context>
+                    <doel>Department</doel>
+                </bind-context>
+	        </track-domain-objects>
+        </members>
+    </dynamic-group>
     
-    <dynamicGroup name="Сотдруники подразделения пользователя">
+    <dynamic-group name="Сотдруники подразделения пользователя">
+        <!-- По одной группе на каждый объект "Employee" (сотрудник) в системе -->
         <context>
-            <domainObject name="Employee"/>
+            <domain-object type="Employee"/>
         </context>
-        <includeGroup name="Сотрудники подразделения">
-            <contextObject>Department</contextObject>
-        </includeGroup>
-    </dynamicGroup>
+        <!-- Включаем всех членов группы "Сотрудники подразделения" для подразделения, которое... -->
+        <include-group name="Сотрудники подразделения">
+            <!-- ...берём из поля "Department" -->
+            <bind-context>
+                <doel>Department</doel>
+            </bind-context>
+        </include-group>
+    </dynamic-group>
     
     <!-- Контекстные роли -->
-    <contextRole name="Автор документа">
+    <context-role name="Автор документа">
         <context>
-            <domainObject name="Outgoing Document"/>
+            <domain-object type="Outgoing Document"/>
         </context>
         <groups>
             <group name="Пользователь и его заместители">
-                <contextObject>Author</contextObject>
+                <bind-context>
+                    <doel>Author</doel>
+                </bind-context>
             </group> 
         </groups>
-    </contextRole>
+    </context-role>
+    
+    <!-- Матрицы доступа -->
+    <access-matrix type="Outgoing document">
+        <status name="Draft">
+            <read>
+                
+            </read>
+        </status>
+    </access-matrix>
 </configuration>
