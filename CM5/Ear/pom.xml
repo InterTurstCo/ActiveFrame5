@@ -89,7 +89,7 @@
                             <resource>
                                 <enableResource>true</enableResource>
                                 <properties>
-                                    <!-- <datasource-class>org.postgresql.xa.PGXADataSource</datasource-class> -->
+                                    <datasource-class>org.postgresql.xa.PGXADataSource</datasource-class>
                                     <connection-url>${db.connection.url}</connection-url>
                                     <jndi-name>${datasource.jndi.name}</jndi-name>
                                     <enabled>true</enabled>
