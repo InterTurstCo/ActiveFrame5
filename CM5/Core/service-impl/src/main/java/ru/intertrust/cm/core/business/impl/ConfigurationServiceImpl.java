@@ -211,13 +211,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             if (oldDomainObjectTypeConfig == null) {
                 loadDomainObjectConfig(domainObjectTypeConfig);
             } else if (!domainObjectTypeConfig.equals(oldDomainObjectTypeConfig)) {
-                String parentConfigName = domainObjectTypeConfig.getExtendsAttribute();
-                String oldParentConfigName = oldDomainObjectTypeConfig.getExtendsAttribute();
-                if ((parentConfigName == null && oldParentConfigName != null) ||
-                        (parentConfigName != null && !parentConfigName.equals(oldParentConfigName))) {
-                    throw new ConfigurationException("Configuration loading aborted: parent was changed for " +
-                            " '" + domainObjectTypeConfig.getName() + ". " + COMMON_ERROR_MESSAGE);
-                }
+                validateExtendsAttribute(domainObjectTypeConfig, oldDomainObjectTypeConfig);
+                validateParentConfig(domainObjectTypeConfig, oldDomainObjectTypeConfig);
                 updateDomainObjectConfig(domainObjectTypeConfig, oldDomainObjectTypeConfig);
             }
 
@@ -267,8 +262,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                 }
             }
 
-            if (!newFieldConfigs.isEmpty() || ! newUniqueKeyConfigs.isEmpty()) {
-                dataStructureDao.updateTableStructure(domainObjectTypeConfig.getName(), newFieldConfigs, newUniqueKeyConfigs);
+            DomainObjectParentConfig parentConfig = domainObjectTypeConfig.getParentConfig() != null &&
+                    !domainObjectTypeConfig.getParentConfig().equals(oldDomainObjectTypeConfig.getParentConfig()) ?
+                    domainObjectTypeConfig.getParentConfig() : null;
+
+            if (!newFieldConfigs.isEmpty() || !newUniqueKeyConfigs.isEmpty()|| parentConfig != null) {
+                dataStructureDao.updateTableStructure(domainObjectTypeConfig.getName(), newFieldConfigs,
+                        newUniqueKeyConfigs, parentConfig);
             }
         }
 
@@ -291,14 +291,37 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                     }
                 }
 
-                if(!domainObjectTypeConfig.getUniqueKeyConfigs().containsAll(oldDomainObjectTypeConfig.getUniqueKeyConfigs())) {
+                if (!domainObjectTypeConfig.getUniqueKeyConfigs().containsAll(oldDomainObjectTypeConfig
+                        .getUniqueKeyConfigs())) {
                     throw new ConfigurationException("Configuration loading aborted: some unique key " +
                             "Configuration of DomainObject '" + oldDomainObjectTypeConfig.getName() + "' was deleted. " +
                             COMMON_ERROR_MESSAGE);
                 }
             }
         }
-
     }
 
+    private void validateExtendsAttribute(DomainObjectTypeConfig domainObjectTypeConfig,
+                                          DomainObjectTypeConfig oldDomainObjectTypeConfig) {
+        String extendsAttributeValue = domainObjectTypeConfig.getExtendsAttribute();
+        String oldExtendsAttributeValue = oldDomainObjectTypeConfig.getExtendsAttribute();
+
+        if ((extendsAttributeValue == null && oldExtendsAttributeValue != null) ||
+                (extendsAttributeValue != null && !extendsAttributeValue.equals(oldExtendsAttributeValue))) {
+            throw new ConfigurationException("Configuration loading aborted: 'extends' attribute was changed " +
+                    "for '" + domainObjectTypeConfig.getName() + ". " + COMMON_ERROR_MESSAGE);
+        }
+    }
+
+    private void validateParentConfig(DomainObjectTypeConfig domainObjectTypeConfig,
+                                          DomainObjectTypeConfig oldDomainObjectTypeConfig) {
+        DomainObjectParentConfig parentConfig = domainObjectTypeConfig.getParentConfig();
+        DomainObjectParentConfig oldParentConfig = oldDomainObjectTypeConfig.getParentConfig();
+
+        if ((parentConfig == null && oldParentConfig != null) ||
+                (parentConfig != null && !parentConfig.equals(oldParentConfig))) {
+            throw new ConfigurationException("Configuration loading aborted: parent config was changed " +
+                    "for '" + domainObjectTypeConfig.getName() + ". " + COMMON_ERROR_MESSAGE);
+        }
+    }
 }

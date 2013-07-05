@@ -7,6 +7,7 @@ import java.util.List;
 import static ru.intertrust.cm.core.dao.api.ConfigurationDao.CONFIGURATION_TABLE;
 import static ru.intertrust.cm.core.dao.api.DataStructureDao.AUTHENTICATION_INFO_TABLE;
 import static ru.intertrust.cm.core.dao.api.DataStructureDao.DOMAIN_OBJECT_TABLE;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.PARENT_COLUMN;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
 
 /**
@@ -78,14 +79,15 @@ public class PostgreSqlQueryHelper {
         StringBuilder query = new StringBuilder("create table ").append(tableName).append(" ( ");
 
         appendSystemColumnsQueryPart(query);
-        if (config.getFieldConfigs().size() > 0) {
+
+        if (config.getFieldConfigs().size() > 0 || config.getParentConfig() != null) {
             query.append(", ");
-            appendColumnsQueryPart(query, config.getFieldConfigs(), false);
+            appendColumnsQueryPart(query, config.getFieldConfigs(), config.getParentConfig(), false);
         }
 
         appendPKConstraintQueryPart(query, tableName);
         appendUniqueConstraintsQueryPart(query, tableName, config.getUniqueKeyConfigs(), false);
-        appendFKConstraintsQueryPart(query, tableName, config.getFieldConfigs(), false);
+        appendFKConstraintsQueryPart(query, tableName, config);
 
         query.append(")");
 
@@ -100,15 +102,20 @@ public class PostgreSqlQueryHelper {
      * @return запрос для обновления структуры таблицы (добавления колонок и уникальных ключей)
      */
     public static String generateUpdateTableQuery(String domainObjectConfigName, List<FieldConfig> fieldConfigList,
-                                                  List<UniqueKeyConfig> uniqueKeyConfigList) {
+                                                  List<UniqueKeyConfig> uniqueKeyConfigList,
+                                                  DomainObjectParentConfig parentConfig) {
         String tableName = getSqlName(domainObjectConfigName);
         StringBuilder query = new StringBuilder("alter table ").append(tableName).append(" ");
 
-        appendColumnsQueryPart(query, fieldConfigList, true);
-        appendFKConstraintsQueryPart(query, tableName, fieldConfigList, true);
+        appendColumnsQueryPart(query, fieldConfigList, parentConfig, true);
+        appendFKConstraintsQueryPart(query, tableName, fieldConfigList, parentConfig, true);
         appendUniqueConstraintsQueryPart(query, tableName, uniqueKeyConfigList, true);
 
         return query.toString();
+    }
+
+    public static String generateCreateIndexesQuery(DomainObjectTypeConfig config) {
+        return generateCreateIndexesQuery(config.getName(), config.getFieldConfigs(), config.getParentConfig());
     }
 
     /**
@@ -116,9 +123,16 @@ public class PostgreSqlQueryHelper {
      * @param configName название конфигурации доменного объекта
      * @return запрос, для создания индексов по конфигурации доменного объекта
      */
-    public static String generateCreateIndexesQuery(String configName, List<FieldConfig> fieldConfigList) {
+    public static String generateCreateIndexesQuery(String configName, List<FieldConfig> fieldConfigList,
+                                                    DomainObjectParentConfig parentConfig) {
         StringBuilder query = new StringBuilder();
         String tableName = getSqlName(configName);
+
+        if(parentConfig != null) {
+            String indexName = "I_" + tableName + "_" + PARENT_COLUMN;
+            query.append("create index ").append(indexName).append(" on ").append(tableName).append(" (").
+                    append(PARENT_COLUMN).append(");\n");
+        }
 
         for(FieldConfig fieldConfig : fieldConfigList) {
             if(!ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
@@ -140,8 +154,28 @@ public class PostgreSqlQueryHelper {
         return query.toString();
     }
 
-    private static void appendFKConstraintsQueryPart(StringBuilder query, String tableName, List<FieldConfig> fieldConfigList,
+    private static void appendFKConstraintsQueryPart(StringBuilder query, String tableName,
+                                                     DomainObjectTypeConfig config) {
+        appendFKConstraintsQueryPart(query, tableName, config.getFieldConfigs(), config.getParentConfig(), false);
+    }
+
+    private static void appendFKConstraintsQueryPart(StringBuilder query, String tableName,
+                                                     List<FieldConfig> fieldConfigList,
+                                                     DomainObjectParentConfig parentConfig,
                                                      boolean isAlterQuery) {
+        if(parentConfig != null) {
+            String constraintName = "FK_" + tableName + "_" + PARENT_COLUMN;
+
+            query.append(", ");
+            if (isAlterQuery) {
+                query.append("add ");
+            }
+
+            query.append("constraint ").append(constraintName).append(" foreign key (").append(PARENT_COLUMN).
+                    append(")").append(" ").append("references").append(" ").
+                    append(getSqlName(parentConfig.getName())).append("(ID)");
+        }
+
         for(FieldConfig fieldConfig : fieldConfigList) {
             if(!ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
                 continue;
@@ -169,13 +203,19 @@ public class PostgreSqlQueryHelper {
 
     private static void appendSystemColumnsQueryPart(StringBuilder query) {
         query.append("ID bigint not null, ");
-        query.append("PARENT bigint, ");
         query.append("CREATED_DATE timestamp not null, ");
         query.append("UPDATED_DATE timestamp not null");
     }
 
     private static void appendColumnsQueryPart(StringBuilder query, List<FieldConfig> fieldConfigList,
-                                               boolean isAlterQuery) {
+                                               DomainObjectParentConfig parentConfig, boolean isAlterQuery) {
+        if (parentConfig != null) {
+            if(isAlterQuery) {
+                query.append("add column ");
+            }
+            query.append(PARENT_COLUMN).append(" bigint, ");
+        }
+
         int size = fieldConfigList.size();
         for (int i = 0; i < size; i ++) {
             FieldConfig fieldConfig = fieldConfigList.get(i);

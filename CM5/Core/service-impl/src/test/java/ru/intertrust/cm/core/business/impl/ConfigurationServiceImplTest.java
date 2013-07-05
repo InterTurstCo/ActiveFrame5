@@ -115,7 +115,7 @@ public class ConfigurationServiceImplTest {
 
         verify(dataStructureDao).countTables();
         verify(dataStructureDao).updateTableStructure(anyString(), anyListOf(FieldConfig.class),
-                anyListOf(UniqueKeyConfig.class));
+                anyListOf(UniqueKeyConfig.class), any(DomainObjectParentConfig.class));
         verify(configurationDao).save(ConfigurationSerializer.deserializeConfiguration(configuration));
     }
 

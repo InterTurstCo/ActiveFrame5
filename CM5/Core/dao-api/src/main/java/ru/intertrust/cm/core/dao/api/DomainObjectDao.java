@@ -16,6 +16,8 @@ import java.util.List;
  */
 public interface DomainObjectDao {
 
+    String PARENT_COLUMN = "PARENT";
+
 
     /**
      * Создает новый доменный объект

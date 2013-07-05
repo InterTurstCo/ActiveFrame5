@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import ru.intertrust.cm.core.config.model.DomainObjectParentConfig;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.config.model.UniqueKeyConfig;
@@ -65,7 +66,7 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
     public void createTable(DomainObjectTypeConfig config) {
         jdbcTemplate.update(generateCreateTableQuery(config));
 
-        String createIndexesQuery = generateCreateIndexesQuery(config.getName(), config.getFieldConfigs());
+        String createIndexesQuery = generateCreateIndexesQuery(config);
         if(createIndexesQuery != null) {
             jdbcTemplate.update(createIndexesQuery);
         }
@@ -78,16 +79,17 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
 
     @Override
     public void updateTableStructure(String domainObjectConfigName, List<FieldConfig> fieldConfigList,
-                                     List<UniqueKeyConfig> uniqueKeyConfigList) {
+                                     List<UniqueKeyConfig> uniqueKeyConfigList, DomainObjectParentConfig parentConfig) {
         if(domainObjectConfigName == null || ((fieldConfigList == null || fieldConfigList.isEmpty()) &&
                 (uniqueKeyConfigList == null || uniqueKeyConfigList.isEmpty()))) {
             throw new IllegalArgumentException("Invalid (null or empty) arguments");
         }
 
-        String query = generateUpdateTableQuery(domainObjectConfigName, fieldConfigList, uniqueKeyConfigList);
+        String query =
+                generateUpdateTableQuery(domainObjectConfigName, fieldConfigList, uniqueKeyConfigList, parentConfig);
         jdbcTemplate.update(query);
 
-        String createIndexesQuery = generateCreateIndexesQuery(domainObjectConfigName, fieldConfigList);
+        String createIndexesQuery = generateCreateIndexesQuery(domainObjectConfigName, fieldConfigList, parentConfig);
         if(createIndexesQuery != null) {
             jdbcTemplate.update(createIndexesQuery);
         }

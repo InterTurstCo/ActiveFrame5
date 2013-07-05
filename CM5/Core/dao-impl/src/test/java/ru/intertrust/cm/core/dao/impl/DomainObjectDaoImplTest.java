@@ -14,10 +14,14 @@ import ru.intertrust.cm.core.config.ConfigurationSerializer;
 import ru.intertrust.cm.core.config.model.*;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.PARENT_COLUMN;
 
 /**
  * Юнит тест для DomainObjectDaoImpl
@@ -78,7 +82,9 @@ public class DomainObjectDaoImplTest {
         domainObject.setModifiedDate(currentDate);
 
         String checkCreateQuery =
-                "insert into PERSON (ID, PARENT, CREATED_DATE, UPDATED_DATE, EMAIL,LOGIN,PASSWORD) values (:id , " +
+                "insert into PERSON (ID, " + PARENT_COLUMN + ", CREATED_DATE, UPDATED_DATE, EMAIL," +
+                        "LOGIN," +
+                "PASSWORD) values (:id , " +
                         ":parent, :created_date, :updated_date, :email,:login,:password)";
 
         String query = domainObjectDaoImpl.generateCreateQuery(domainObjectTypeConfig);
@@ -133,8 +139,8 @@ public class DomainObjectDaoImplTest {
         domainObject.setCreatedDate(currentDate);
         domainObject.setModifiedDate(currentDate);
 
-        String checkUpdateQuery = "update PERSON set UPDATED_DATE=:current_date, PARENT=:parent, EMAIL=:email," +
-                "LOGIN=:login,PASSWORD=:password where ID=:id and UPDATED_DATE=:updated_date";
+        String checkUpdateQuery = "update PERSON set UPDATED_DATE=:current_date, " + PARENT_COLUMN + "=:parent," +
+                " EMAIL=:email, LOGIN=:login, PASSWORD=:password where ID=:id and UPDATED_DATE=:updated_date";
 
         String query = domainObjectDaoImpl.generateUpdateQuery(domainObjectTypeConfig);
         assertEquals(checkUpdateQuery, query);

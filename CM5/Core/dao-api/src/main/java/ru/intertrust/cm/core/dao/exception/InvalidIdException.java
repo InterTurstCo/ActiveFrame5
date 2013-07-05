@@ -17,4 +17,9 @@ public class InvalidIdException extends DaoException {
         this.id = id;
     }
 
+    public InvalidIdException(String message, Id id) {
+        super(message);
+        this.id = id;
+    }
+
 }

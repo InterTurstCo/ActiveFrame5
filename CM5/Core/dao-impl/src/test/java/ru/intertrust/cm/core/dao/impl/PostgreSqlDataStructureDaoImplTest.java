@@ -50,7 +50,7 @@ public class PostgreSqlDataStructureDaoImplTest {
 
         verify(jdbcTemplate).update(generateCreateTableQuery(domainObjectTypeConfig));
         verify(jdbcTemplate).update(generateCreateIndexesQuery(domainObjectTypeConfig.getName(),
-                domainObjectTypeConfig.getFieldConfigs()));
+                domainObjectTypeConfig.getFieldConfigs(), domainObjectTypeConfig.getParentConfig()));
         verify(jdbcTemplate).update(INSERT_INTO_DOMAIN_OBJECT_TABLE_QUERY,
                 domainObjectTypeConfig.getName());
 
@@ -82,11 +82,13 @@ public class PostgreSqlDataStructureDaoImplTest {
         uniqueKeyConfig.getUniqueKeyFieldConfigs().add(uniqueKeyFieldConfig);
         List<UniqueKeyConfig> newUniqueConfigs = Collections.singletonList(uniqueKeyConfig);
 
-        dataStructureDao.updateTableStructure(domainObjectTypeConfig.getName(), newColumns, newUniqueConfigs);
+        dataStructureDao.updateTableStructure(domainObjectTypeConfig.getName(), newColumns, newUniqueConfigs,
+                domainObjectTypeConfig.getParentConfig());
 
         verify(jdbcTemplate).update(generateUpdateTableQuery(domainObjectTypeConfig.getName(),
-                newColumns, newUniqueConfigs));
-        verify(jdbcTemplate).update(generateCreateIndexesQuery(domainObjectTypeConfig.getName(), newColumns));
+                newColumns, newUniqueConfigs, domainObjectTypeConfig.getParentConfig()));
+        verify(jdbcTemplate).update(generateCreateIndexesQuery(domainObjectTypeConfig.getName(), newColumns,
+                domainObjectTypeConfig.getParentConfig()));
     }
 
     @Test
@@ -170,5 +172,9 @@ public class PostgreSqlDataStructureDaoImplTest {
         UniqueKeyFieldConfig uniqueKeyFieldConfig2 = new UniqueKeyFieldConfig();
         uniqueKeyFieldConfig2.setName("Registration Date");
         uniqueKeyConfig.getUniqueKeyFieldConfigs().add(uniqueKeyFieldConfig2);
+
+        DomainObjectParentConfig parentConfig = new DomainObjectParentConfig();
+        parentConfig.setName("Parent_Document");
+        domainObjectTypeConfig.setParentConfig(parentConfig);
     }
 }

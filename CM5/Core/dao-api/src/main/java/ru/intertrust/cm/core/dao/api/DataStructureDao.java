@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.dao.api;
 
+import ru.intertrust.cm.core.config.model.DomainObjectParentConfig;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.config.model.UniqueKeyConfig;
@@ -28,9 +29,10 @@ public interface DataStructureDao {
      * @param domainObjectConfigName название доменного объекта, таблицу которого необходимо обновить
      * @param fieldConfigList список колонок для добавления
      * @param uniqueKeyConfigList список уникальных ключей для добавления
+     * @param parentConfig конфигурация родительского доменного объекта
      */
     void updateTableStructure(String domainObjectConfigName, List<FieldConfig> fieldConfigList,
-                              List<UniqueKeyConfig> uniqueKeyConfigList);
+                              List<UniqueKeyConfig> uniqueKeyConfigList, DomainObjectParentConfig parentConfig);
 
     /**
      * Создает последовательность для таблицы по конфигурации доменного объекта

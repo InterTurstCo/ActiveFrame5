@@ -9,8 +9,10 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static ru.intertrust.cm.core.dao.api.DataStructureDao.*;
 import static ru.intertrust.cm.core.dao.api.ConfigurationDao.CONFIGURATION_TABLE;
+import static ru.intertrust.cm.core.dao.api.DataStructureDao.AUTHENTICATION_INFO_TABLE;
+import static ru.intertrust.cm.core.dao.api.DataStructureDao.DOMAIN_OBJECT_TABLE;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.PARENT_COLUMN;
 
 /**
  * @author vmatsukevich
@@ -70,20 +72,25 @@ public class PostgreSqlQueryHelperTest {
     public void testGenerateCreateTableQuery() throws Exception {
         String query = PostgreSqlQueryHelper.generateCreateTableQuery(domainObjectTypeConfig);
         String checkQuery = "create table OUTGOING_DOCUMENT ( ID bigint not null, " +
-                "PARENT bigint, CREATED_DATE timestamp not null, " +
-                "UPDATED_DATE timestamp not null, REGISTRATION_NUMBER varchar(128), REGISTRATION_DATE timestamp, AUTHOR bigint, " +
+                "CREATED_DATE timestamp not null, " + "UPDATED_DATE timestamp not null, " +
+                PARENT_COLUMN  + " bigint, REGISTRATION_NUMBER varchar(128), " +
+                "REGISTRATION_DATE timestamp, AUTHOR bigint, " +
                 "LONG_FIELD bigint, DECIMAL_FIELD_1 decimal(10, 2), DECIMAL_FIELD_2 decimal(10), " +
                 "constraint PK_OUTGOING_DOCUMENT_ID primary key (ID), " +
                 "constraint U_OUTGOING_DOCUMENT_REGISTRATION_NUMBER_REGISTRATION_DATE unique (REGISTRATION_NUMBER, REGISTRATION_DATE), " +
+                "constraint FK_OUTGOING_DOCUMENT_PARENT foreign key (PARENT) references PARENT_DOCUMENT(ID), " +
                 "constraint FK_OUTGOING_DOCUMENT_AUTHOR foreign key (AUTHOR) references EMPLOYEE(ID))";
-        assertEquals(query, checkQuery);
+        assertEquals(checkQuery, query);
     }
 
     @Test
     public void testGenerateUpdateTableQuery() {
-        String query = "alter table OUTGOING_DOCUMENT " +
+        String expectedQuery = "alter table OUTGOING_DOCUMENT " +
+                "add column " + PARENT_COLUMN + " bigint, " +
                 "add column DESCRIPTION varchar(256), " +
                 "add column EXECUTOR bigint not null, " +
+                "add constraint FK_OUTGOING_DOCUMENT_" + PARENT_COLUMN + " foreign key (" + PARENT_COLUMN + ") " +
+                "references PARENT_DOCUMENT(ID), " +
                 "add constraint FK_OUTGOING_DOCUMENT_EXECUTOR foreign key (EXECUTOR) references EMPLOYEE(ID), " +
                 "add constraint U_OUTGOING_DOCUMENT_REGISTRATION_NUMBER unique (REGISTRATION_NUMBER)";
 
@@ -107,18 +114,23 @@ public class PostgreSqlQueryHelperTest {
         uniqueKeyConfig.getUniqueKeyFieldConfigs().add(uniqueKeyFieldConfig);
         List<UniqueKeyConfig> newUniqueConfigs = Collections.singletonList(uniqueKeyConfig);
 
+        DomainObjectParentConfig parentconfig = new DomainObjectParentConfig();
+        parentconfig.setName("PARENT_DOCUMENT");
+
 
         String testQuery = PostgreSqlQueryHelper.generateUpdateTableQuery(domainObjectTypeConfig.getName(), newColumns,
-                newUniqueConfigs);
+                newUniqueConfigs, parentconfig);
 
-        assertEquals(testQuery, query);
+        assertEquals(expectedQuery, testQuery);
     }
 
     @Test
     public void testGenerateCreateIndexesQuery() throws Exception {
         String query = PostgreSqlQueryHelper.generateCreateIndexesQuery(domainObjectTypeConfig.getName(),
-                domainObjectTypeConfig.getFieldConfigs());
-        String checkQuery = "create index I_OUTGOING_DOCUMENT_AUTHOR on OUTGOING_DOCUMENT (AUTHOR);\n";
+                domainObjectTypeConfig.getFieldConfigs(), domainObjectTypeConfig.getParentConfig());
+        String checkQuery = "create index I_OUTGOING_DOCUMENT_" + PARENT_COLUMN + " on OUTGOING_DOCUMENT (" +
+                PARENT_COLUMN + ");\n" +
+                "create index I_OUTGOING_DOCUMENT_AUTHOR on OUTGOING_DOCUMENT (AUTHOR);\n";
         assertEquals(query, checkQuery);
     }
 
@@ -170,5 +182,9 @@ public class PostgreSqlQueryHelperTest {
         UniqueKeyFieldConfig uniqueKeyFieldConfig2 = new UniqueKeyFieldConfig();
         uniqueKeyFieldConfig2.setName("Registration_Date");
         uniqueKeyConfig.getUniqueKeyFieldConfigs().add(uniqueKeyFieldConfig2);
+
+        DomainObjectParentConfig parentConfig = new DomainObjectParentConfig();
+        parentConfig.setName("Parent_Document");
+        domainObjectTypeConfig.setParentConfig(parentConfig);
     }
 }

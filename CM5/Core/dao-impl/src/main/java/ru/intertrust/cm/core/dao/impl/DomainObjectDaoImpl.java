@@ -67,6 +67,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         DomainObjectTypeConfig domainObjectTypeConfig =
                 configurationExplorer.getDomainObjectTypeConfig(domainObject.getTypeName());
 
+        validateParentIdType(domainObject, domainObjectTypeConfig);
+
         String query = generateCreateQuery(domainObjectTypeConfig);
 
         Object nextId = idGenerator.generatetId(domainObjectTypeConfig);
@@ -117,9 +119,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         DomainObjectTypeConfig domainObjectTypeConfig =
                 configurationExplorer.getDomainObjectTypeConfig(domainObject.getTypeName());
 
-        String query = generateUpdateQuery(domainObjectTypeConfig);
-
         validateIdType(domainObject.getId());
+        validateParentIdType(domainObject, domainObjectTypeConfig);
+
+        String query = generateUpdateQuery(domainObjectTypeConfig);
 
         Date currentDate = new Date();
 
@@ -267,7 +270,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         String fieldsWithparams = DaoUtils.generateCommaSeparatedListWithParams(columnNames);
 
         query.append("update ").append(tableName).append(" set ");
-        query.append("UPDATED_DATE=:current_date, PARENT=:parent, ");
+        query.append("UPDATED_DATE=:current_date, ").append(PARENT_COLUMN).append("=:parent, ");
         query.append(fieldsWithparams);
         query.append(" where ID=:id");
         query.append(" and UPDATED_DATE=:updated_date");
@@ -320,7 +323,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         StringBuilder query = new StringBuilder();
         query.append("insert into ").append(tableName).append(" (");
-        query.append("ID, PARENT, CREATED_DATE, UPDATED_DATE, ").append(commaSeparatedColumns);
+        query.append("ID, ").append(PARENT_COLUMN).append(", CREATED_DATE, UPDATED_DATE, " +
+                "").append(commaSeparatedColumns);
         query.append(") values (");
         query.append(":id , :parent, :created_date, :updated_date, ");
         query.append(commaSeparatedParameters);
@@ -448,6 +452,21 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
         if (!(id instanceof RdbmsId)) {
             throw new InvalidIdException(id);
+        }
+    }
+
+    private void validateParentIdType(DomainObject domainObject, DomainObjectTypeConfig config) {
+        if(domainObject.getParent() == null) {
+            return;
+        }
+
+        RdbmsId id = (RdbmsId) domainObject.getParent();
+        String idType = id.getTypeName();
+        String parentName = config.getParentConfig() != null ? config.getParentConfig().getName() : null;
+
+        if(!idType.equals(parentName)) {
+            String errorMessage = "Invalid parent id type: expected '" + parentName + "' but was '" + idType + "'";
+            throw new InvalidIdException(errorMessage, id);
         }
     }
 
