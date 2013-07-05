@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.client;
 
+import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Title;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinService;
@@ -13,6 +14,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.StringWriter;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Denis Mitavskiy
@@ -20,6 +22,7 @@ import java.io.StringWriter;
  *         Time: 6:43 PM
  */
 @Title("hello")
+@PreserveOnRefresh
 public class Hello extends UI {
     protected boolean isLoggedIn(VaadinRequest request) {
         return request.getWrappedSession().getAttribute("USER_LOGIN") != null;
@@ -27,10 +30,16 @@ public class Hello extends UI {
 
     @Override
     protected void init(VaadinRequest request) {
+
         request.getWrappedSession();
         final HttpServletRequest currentRequest = (HttpServletRequest) VaadinService.getCurrentRequest();
         try {
             currentRequest.login("admin", "admin");
+        } catch (ServletException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        try {
+            currentRequest.logout();
         } catch (ServletException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
@@ -68,11 +77,19 @@ public class Hello extends UI {
             public void buttonClick(Button.ClickEvent event) {
                 String login = loginField.getValue();
                 String password = passwordField.getValue();
+                HttpServletRequest req = (HttpServletRequest) VaadinService.getCurrentRequest();
                 try {
-                    currentRequest.login(login, password);
+                    req.login(login, password);
                     message.setValue("Success!");
                 } catch (ServletException e) {
+                    e.printStackTrace();
                     message.setValue(e.getMessage());
+                } finally {
+                    try {
+                        req.logout();
+                    } catch (ServletException e) {
+                        e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                    }
                 }
             }
         });
@@ -92,7 +109,36 @@ public class Hello extends UI {
         } catch (ServletException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
+        /*setPollInterval((int) TimeUnit.SECONDS.toMillis(1));
+
+        class Loader implements Runnable {
+
+            @Override
+            public void run() {
+                while (true ) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                    }
+
+                    // Wrap UI updates in access to properly deal with locking
+                    System.out.println("Come on!");
+                    access(new Runnable() {
+                        @Override
+                        public void run() {
+                            Window subWindow = new Window("Hallo!");
+                            subWindow.setClosable(true);
+                            addWindow(subWindow);
+                            setPollInterval((int) TimeUnit.SECONDS.toMillis(1));
+                            //subWindow.close();
+                        }
+                    });
+                }
+            }
+        }
+        new Thread(new Loader()).start();*/
     }
+
 
     public static String getConfigXml() {
         Serializer serializer = new Persister();

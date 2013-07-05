@@ -3,7 +3,12 @@
          xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
          id="WebApp_ID" version="3.0">
-    <display-name>Vaadin Web Application</display-name>
+    <display-name>Domain Universe</display-name>
+
+    <session-config>
+        <session-timeout>30</session-timeout>
+        <!-- minutes -->
+    </session-config>
 
     <context-param>
         <description>Vaadin production mode</description>
@@ -16,30 +21,49 @@
         <param-value>/WEB-INF/applicationContext.xml</param-value>
     </context-param>
 
+    <context-param>
+        <param-name>heartbeatInterval</param-name>
+        <param-value>60</param-value>
+        <!-- seconds -->
+    </context-param>
+
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
 
     <servlet>
         <servlet-name>Vaadin</servlet-name>
-        <servlet-class>com.vaadin.server.VaadinServlet</servlet-class>
+        <servlet-class>ru.intertrust.cm.core.client.DomainUniverseServlet</servlet-class>
+
+        <init-param>
+            <param-name>closeIdleSessions</param-name>
+            <param-value>true</param-value>
+        </init-param>
+
         <init-param>
             <description>Vaadin UI to display</description>
             <param-name>UI</param-name>
             <param-value>ru.intertrust.cm.core.client.Hello</param-value>
         </init-param>
     </servlet>
+
     <servlet-mapping>
         <servlet-name>Vaadin</servlet-name>
-        <url-pattern>/*</url-pattern>
+        <url-pattern>/VAADIN/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>Vaadin</servlet-name>
+        <url-pattern>/domain-universe/*</url-pattern>
     </servlet-mapping>
 
     <security-constraint>
         <display-name>Constraint</display-name>
         <web-resource-collection>
             <web-resource-name>The whole web</web-resource-name>
-            <description>Protect everything in the web</description>
-            <url-pattern>/*</url-pattern>
+            <description>Protect everything in the Vaadin</description>
+            <url-pattern>/VAADIN/*</url-pattern>
+            <url-pattern>/domain-universe/*</url-pattern>
         </web-resource-collection>
     </security-constraint>
 
