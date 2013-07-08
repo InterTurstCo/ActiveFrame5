@@ -26,7 +26,7 @@
         <dependency>
             <groupId>postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>9.1-901.jdbc4</version>
+            <version>9.2-1002.jdbc4</version>
             <scope>provided</scope>
         </dependency>
 
@@ -72,9 +72,8 @@
                         <phase>install</phase>
                         <configuration>
                             <groupId>postgresql</groupId>
-                            <artifactId>postgresql</artifactId>
-                            <version>9.0-801.jdbc3</version>
-                            <name>postgresql-jdbc3.jar</name>
+                            <artifactId>postgresql</artifactId>                            
+                            <name>postgresql-jdbc4.jar</name>
                         </configuration>
                         <goals>
                             <goal>deploy-artifact</goal>
@@ -96,7 +95,7 @@
                                     <pool-name>${datasource.pool.name}</pool-name>
                                     <user-name>${db.user}</user-name>
                                     <password>${db.password}</password>
-                                    <driver-name>postgresql-jdbc3.jar</driver-name>
+                                    <driver-name>postgresql-jdbc4.jar</driver-name>
                                     <use-ccm>false</use-ccm>
                                 </properties>
                             </resource>

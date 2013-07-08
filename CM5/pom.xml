@@ -152,7 +152,7 @@
             <dependency>
                 <groupId>postgresql</groupId>
                 <artifactId>postgresql</artifactId>
-                <version>9.1-901.jdbc4</version>
+                <version>9.2-1002.jdbc4</version>
                 <scope>provided</scope>
             </dependency>
 
@@ -460,6 +460,11 @@
             <url>http://repo1.maven.org/maven2</url>
             <id>central</id>
             <name>Central Repository</name>
+        </repository>
+
+        <repository>
+            <url>https://repository.sonatype.org/content/groups/forge/</url>
+            <id>sonatype-forge</id>
         </repository>
 
         <repository>
