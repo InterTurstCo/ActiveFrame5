@@ -33,6 +33,7 @@
 
     <xs:simpleType name="nameType">
         <xs:restriction base="xs:string">
+            <xs:maxLength value="25"/>
             <xs:pattern value="[a-zA-Z0-9_]*">
             </xs:pattern>
         </xs:restriction>
@@ -290,7 +291,8 @@
             <xs:element name="collector" type="con:algorithmType"
                 xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element name="track-domain-objects" type="con:trackObjectsType"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                xmlns:con="https://cm5.intertrust.ru/config" />
+
     	</xs:choice>
     </xs:complexType>
 
@@ -408,7 +410,7 @@
         </xs:sequence>
         <xs:attribute name="name" type="xs:string" use="required"/>
     </xs:complexType>
-    
+
 
     <xs:complexType name="permissionsType">
         <xs:sequence>

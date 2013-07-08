@@ -14,6 +14,8 @@ public class ConfigurationSchemaValidatorTest {
     private static final String CONFIGURATION_SCHEMA = "test-config/configuration-test.xsd";
     private static final String CONFIGURATION_VALID = "test-config/domain-objects-test.xml";
     private static final String CONFIGURATION_INVALID = "test-config/domain-objects-invalid-test.xml";
+    private static final String CONFIGURATION_INVALID_LONG_NAME =
+            "test-config/domain-objects-invalid-long-name-test.xml";
     private static final String CONFIGURATION_INVALID_REFERENCE = "test-config/domain-objects-invalid-reference.xml";
     private static final String COLLECTIONS_CONFIGURATION_VALID = "test-config/collections-test.xml";
 
@@ -37,6 +39,17 @@ public class ConfigurationSchemaValidatorTest {
     @Test
     public void testInvalidAgainstXSD() throws Exception {
         ConfigurationSchemaValidator validator = new ConfigurationSchemaValidator(CONFIGURATION_INVALID,
+                CONFIGURATION_SCHEMA);
+
+        expectedException.expect(RuntimeException.class);
+        expectedException.expectMessage("is not valid against XSD schema");
+
+        validator.validate();
+    }
+
+    @Test
+    public void testInvalidTooLongName() throws Exception {
+        ConfigurationSchemaValidator validator = new ConfigurationSchemaValidator(CONFIGURATION_INVALID_LONG_NAME,
                 CONFIGURATION_SCHEMA);
 
         expectedException.expect(RuntimeException.class);

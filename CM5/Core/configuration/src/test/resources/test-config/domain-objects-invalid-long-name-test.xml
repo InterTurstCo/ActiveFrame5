@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+    <domain-object-type name="Name_With_Length_That_exceeds_25_Characters"> <!-- OUTGOING_DOCUMENT table -->
+        <fields>
+            <string name="Registration_Number" length="128" /> <!-- REGISTRATION_NUMBER column -->
+            <dateTime name="Registration_Date"/>
+            <string name="Name" length="128" />
+            <string name="Description" length="128" />
+            <reference name="Author" type="Employee" /> <!-- ID of employee in fact -->
+            <reference name="Negotiator" type="Employee" /> <!-- This means Foreign Key to Employee and index are created automatically -->
+            <reference name="Signer" type="Employee" />
+            <long name="Long_Field"/> <!-- mapping to LONG_FIELD column -->
+            <decimal name="Decimal_Field" precision="10" scale="2" />
+        </fields>
+        <uniqueKey> <!-- This key means automatic key + index creation-->
+            <field name="Registration_Number"/>
+        </uniqueKey>
+    </domain-object-type>
+
+    <domain-object-type name="Person">
+        <fields>
+            <string name="EMail" length="128" />
+            <string name="Login" length="64" not-null="true" />
+            <password name="Password" length="128" />
+        </fields>
+       <uniqueKey> <!-- This key means automatic key + index creation-->
+            <field name="EMail"/>
+       </uniqueKey>
+    </domain-object-type>
+
+	<domain-object-type name="Employee" extends="Person">
+		<fields>
+			<reference name="Department" type="Department" not-null="true" />
+			<string name="Name" length="64" not-null="true" />
+			<string name="Position" length="64" not-null="true" />
+			<string name="Phone" length="32" />
+			<string name="Certificate" length="4096" />
+			<string name="Fingerprint" length="128" />
+		</fields>
+		<uniqueKey> <!-- This key means automatic key + index creation -->
+			<field name="Phone" />
+		</uniqueKey>
+	</domain-object-type>
+
+    <domain-object-type name="Department">
+        <fields>
+            <string name="Name" length="128" not-null="true" />
+        </fields>
+    </domain-object-type>
+
+</configuration>
