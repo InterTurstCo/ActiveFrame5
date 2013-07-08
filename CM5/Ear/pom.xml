@@ -26,7 +26,7 @@
         <dependency>
             <groupId>postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>9.0-801.jdbc3</version>
+            <version>9.1-901.jdbc4</version>
             <scope>provided</scope>
         </dependency>
 
@@ -49,15 +49,15 @@
 
                 <executions>
                     <!-- deploy the application on install -->
-                    <execution>
-                        <id>deploy</id>
+                    <!--<execution>
+                         <id>deploy</id>
                         <phase>install</phase>
                         <goals>
                             <goal>deploy</goal>
                         </goals>
-                    </execution>
+                    </execution> -->
                     <!-- Undeploy the application on clean -->
-                    <execution>
+                    <!-- <execution>
                         <id>undeploy</id>
                         <phase>clean</phase>
                         <goals>
@@ -66,8 +66,7 @@
                         <configuration>
                             <ignoreMissingDeployment>true</ignoreMissingDeployment>
                         </configuration>
-                    </execution>
-
+                    </execution> -->
                     <execution>
                         <id>deploy-driver</id>
                         <phase>install</phase>
