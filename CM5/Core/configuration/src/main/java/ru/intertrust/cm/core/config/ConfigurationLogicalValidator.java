@@ -40,6 +40,7 @@ public class ConfigurationLogicalValidator {
             return;
         }
 
+        validateExtendsAttribute(domainObjectTypeConfig);
         validateParentConfig(domainObjectTypeConfig);
         validateReferenceFields(domainObjectTypeConfig);
         validateUniqueKeys(domainObjectTypeConfig);
@@ -70,7 +71,7 @@ public class ConfigurationLogicalValidator {
                 String referencedDomainObjectConfigName = ((ReferenceFieldConfig) fieldConfig).getType();
                 DomainObjectTypeConfig referencedConfig =
                         configurationExplorer.getDomainObjectTypeConfig(referencedDomainObjectConfigName);
-                if(referencedConfig == null) {
+                if (referencedConfig == null) {
                     throw new ConfigurationException("Referenced DomainObject Configuration is not found for name '" +
                             referencedDomainObjectConfigName + "'");
                 }
@@ -78,13 +79,28 @@ public class ConfigurationLogicalValidator {
         }
     }
 
-    private void validateParentConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
-        String parentConfigName = domainObjectTypeConfig.getExtendsAttribute();
-        if (parentConfigName != null) {
-            DomainObjectTypeConfig parentConfig = configurationExplorer.getDomainObjectTypeConfig(parentConfigName);
-            if(parentConfig == null) {
-                throw new ConfigurationException("Parent DomainObject Configuration is not found for name '" + parentConfigName + "'");
+    private void validateExtendsAttribute(DomainObjectTypeConfig domainObjectTypeConfig) {
+        String extendsAttributeValue = domainObjectTypeConfig.getExtendsAttribute();
+        if (extendsAttributeValue != null) {
+            DomainObjectTypeConfig extendedConfig = configurationExplorer.getDomainObjectTypeConfig(extendsAttributeValue);
+            if (extendedConfig == null) {
+                throw new ConfigurationException("Extended DomainObject Configuration is not found for name '" +
+                        extendsAttributeValue + "'");
             }
+        }
+    }
+
+    private void validateParentConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
+        DomainObjectParentConfig parentConfig = domainObjectTypeConfig.getParentConfig();
+        if (parentConfig == null) {
+            return;
+        }
+
+        String parentConfigName = parentConfig.getName();
+        DomainObjectTypeConfig parentDomainObjectTypeConfig =
+                configurationExplorer.getDomainObjectTypeConfig(parentConfigName);
+        if (parentDomainObjectTypeConfig == null) {
+            throw new ConfigurationException("Parent DomainObject Configuration is not found for name '" + parentConfigName + "'");
         }
     }
 

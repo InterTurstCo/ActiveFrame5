@@ -18,6 +18,8 @@ public class ConfigurationLogicalValidatorTest {
 
     private static final String CONFIGURATION_SCHEMA_PATH = "test-config/configuration-test.xsd";
     private static final String DOMAIN_OBJECTS_CONFIG_PATH = "test-config/domain-objects-test.xml";
+    private static final String DOMAIN_OBJECTS_INVALID_EXTENDS_ATTRIBUTE_CONFIG_PATH =
+            "test-config/domain-objects-invalid-extends-attribute-test.xml";
     private static final String DOMAIN_OBJECTS_INVALID_PARENT_CONFIG_PATH =
             "test-config/domain-objects-invalid-parent-test.xml";
     private static final String DOMAIN_OBJECTS_INVALID_REFERENCE_CONFIG_PATH =
@@ -36,7 +38,19 @@ public class ConfigurationLogicalValidatorTest {
     }
 
     @Test
-    public void testValidateInvalidParent() throws Exception {
+    public void testValidateInvalidExtendsAttribute() throws Exception {
+        ConfigurationExplorer configurationExplorer =
+                createConfigurationExplorer(DOMAIN_OBJECTS_INVALID_EXTENDS_ATTRIBUTE_CONFIG_PATH);
+
+        expectedException.expect(ConfigurationException.class);
+        expectedException.expectMessage("Extended DomainObject Configuration is not found for name 'Person'");
+
+        configurationExplorer.build();
+
+    }
+
+    @Test
+    public void testValidateInvalidParentAttribute() throws Exception {
         ConfigurationExplorer configurationExplorer =
                 createConfigurationExplorer(DOMAIN_OBJECTS_INVALID_PARENT_CONFIG_PATH);
 

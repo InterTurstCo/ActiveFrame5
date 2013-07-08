@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration xmlns="https://cm5.intertrust.ru/config">
 
-	<domain-object-type name="Employee">
-        <parent name="Person"/>
+	<domain-object-type name="Employee" extends="Person">
 		<fields>
 			<reference name="Department" type="Department" not-null="true" />
 			<string name="Name" length="64" not-null="true" />
