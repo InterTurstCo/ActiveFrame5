@@ -141,8 +141,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         }
 
         private void loadDependentDomainObjectConfigs(DomainObjectTypeConfig domainObjectTypeConfig) {
-            for(FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
-                if((ReferenceFieldConfig.class.equals(fieldConfig.getClass()))) {
+            DomainObjectParentConfig parentConfig = domainObjectTypeConfig.getParentConfig();
+            if (parentConfig != null) {
+                loadDomainObjectConfig(configurationExplorer.getDomainObjectTypeConfig(parentConfig.getName()));
+            }
+
+            for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
+                if ((ReferenceFieldConfig.class.equals(fieldConfig.getClass()))) {
                     ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
                     loadDomainObjectConfig(configurationExplorer.getDomainObjectTypeConfig(referenceFieldConfig.getType()));
                 }
@@ -228,6 +233,11 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         }
 
         private void mergeDependentDomainObjectConfigs(DomainObjectTypeConfig domainObjectTypeConfig) {
+            DomainObjectParentConfig parentConfig = domainObjectTypeConfig.getParentConfig();
+            if (parentConfig != null) {
+                loadDomainObjectConfig(configurationExplorer.getDomainObjectTypeConfig(parentConfig.getName()));
+            }
+
             for(FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
                 if((ReferenceFieldConfig.class.equals(fieldConfig.getClass()))) {
                     ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
