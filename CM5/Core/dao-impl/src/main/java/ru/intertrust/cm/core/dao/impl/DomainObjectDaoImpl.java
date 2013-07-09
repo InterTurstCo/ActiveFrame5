@@ -270,7 +270,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         String fieldsWithparams = DaoUtils.generateCommaSeparatedListWithParams(columnNames);
 
         query.append("update ").append(tableName).append(" set ");
-        query.append("UPDATED_DATE=:current_date, ").append(PARENT_COLUMN).append("=:parent, ");
+        query.append("UPDATED_DATE=:current_date, ");
+
+        if(domainObjectTypeConfig.getParentConfig() != null) {
+            query.append(PARENT_COLUMN).append("=:parent, ");
+        }
+
         query.append(fieldsWithparams);
         query.append(" where ID=:id");
         query.append(" and UPDATED_DATE=:updated_date");
@@ -323,10 +328,20 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         StringBuilder query = new StringBuilder();
         query.append("insert into ").append(tableName).append(" (");
-        query.append("ID, ").append(PARENT_COLUMN).append(", CREATED_DATE, UPDATED_DATE, " +
-                "").append(commaSeparatedColumns);
+        query.append("ID, CREATED_DATE, UPDATED_DATE, ");
+
+        if (domainObjectTypeConfig.getParentConfig() != null) {
+            query.append(PARENT_COLUMN).append(", ");
+        }
+
+        query.append(commaSeparatedColumns);
         query.append(") values (");
-        query.append(":id , :parent, :created_date, :updated_date, ");
+        query.append(":id , :created_date, :updated_date, ");
+
+        if (domainObjectTypeConfig.getParentConfig() != null) {
+            query.append(":parent, ");
+        }
+
         query.append(commaSeparatedParameters);
         query.append(")");
 
