@@ -17,7 +17,11 @@ import java.util.List;
 public class Configuration implements Serializable {
     @ElementListUnion({
             @ElementList(entry="domain-object-type", type=DomainObjectTypeConfig.class, inline=true),
-            @ElementList(entry="collection", type=CollectionConfig.class, inline=true)
+            @ElementList(entry="collection", type=CollectionConfig.class, inline=true),
+            @ElementList(entry = "static-group", type = StaticGroupConfig.class, inline = true),
+            @ElementList(entry = "dynamic-group", type = DynamicGroupConfig.class, inline = true),
+            @ElementList(entry = "context-role", type = ContextRoleConfig.class, inline = true),
+            @ElementList(entry = "access-matrix", type = AccessMatrixConfig.class, inline = true)
     })
     private List<Object> configurationList = new ArrayList<>();
 

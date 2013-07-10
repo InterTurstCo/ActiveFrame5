@@ -1,9 +1,13 @@
 package ru.intertrust.cm.core.config;
 
+import ru.intertrust.cm.core.config.model.AccessMatrixConfig;
 import ru.intertrust.cm.core.config.model.CollectionConfig;
 import ru.intertrust.cm.core.config.model.Configuration;
+import ru.intertrust.cm.core.config.model.ContextRoleConfig;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.model.DynamicGroupConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
+import ru.intertrust.cm.core.config.model.StaticGroupConfig;
 
 import java.util.Collection;
 
@@ -59,4 +63,34 @@ public interface ConfigurationExplorer {
      * @return конфигурация поля доменного объекта
      */
     FieldConfig getFieldConfig(String domainObjectConfigName, String fieldConfigName);
+    
+    /**
+     * Находит конфигурацию статической группы
+     * @param name имя статической группы, которую надо найти
+     * @return конфигурация статической группы
+     */
+    StaticGroupConfig getStaticGroupConfig(String name);    
+
+    /**
+     * Находит конфигурацию динамической группы
+     * @param name имя динамической группы, которую надо найти
+     * @return конфигурация динамической группы
+     */
+    DynamicGroupConfig getDynamicGroupConfig(String name);    
+
+    /**
+     * Находит конфигурацию контекстной роли
+     * @param name имя контекстной роли, которую надо найти
+     * @return конфигурация динамической группы
+     */
+    ContextRoleConfig getContextRoleConfig(String name);    
+
+    /**
+     * Находит конфигурацию матрицы доступа для переданного типа доменного объекта
+     * @param name имя матрицы доступа, которую надо найти
+     * @return конфигурация матрицы доступа 
+     */
+
+    AccessMatrixConfig getAccessMatrixConfig(String domainObjectType);    
+
 }

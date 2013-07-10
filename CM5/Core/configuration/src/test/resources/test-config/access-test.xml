@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration xmlns="https://cm5.intertrust.ru/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-               xsi:schemaLocation="https://cm5.intertrust.ru/config configuration.xsd ">
-               
+<configuration xmlns="https://cm5.intertrust.ru/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <!-- Статические группы пользователей - мы вынуждены объявлять их здесь, 
         т.к. они используются в матрицах доступа -->
     <static-group name="Администраторы" />
@@ -110,9 +108,6 @@
     <!-- Матрицы доступа -->
     <access-matrix type="Outgoing document">
         <status name="Draft">
-            <read>
-
-            </read>
         </status>
     </access-matrix>
 </configuration>
