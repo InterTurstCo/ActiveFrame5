@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.gui.impl;
+package ru.intertrust.cm.core.gui.impl.server.impl;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

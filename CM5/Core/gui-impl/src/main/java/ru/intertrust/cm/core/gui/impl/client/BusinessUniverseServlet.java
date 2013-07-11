@@ -1,17 +1,19 @@
-package ru.intertrust.cm.core.client;
+package ru.intertrust.cm.core.gui.impl.client;
 
 import com.vaadin.server.*;
 
 import javax.servlet.ServletException;
 
 /**
+ * Сервлет, обрабатывающий запросы приложения "Бизнес-вселенная"
  * @author Denis Mitavskiy
  *         Date: 05.07.13
  *         Time: 17:31
  */
-public class DomainUniverseServlet extends VaadinServlet {
+public class BusinessUniverseServlet extends VaadinServlet {
     @Override
     protected void servletInitialized() throws ServletException {
+        super.servletInitialized();
         getService().setSystemMessagesProvider(
                 new SystemMessagesProvider() {
                     @Override
@@ -31,4 +33,14 @@ public class DomainUniverseServlet extends VaadinServlet {
                 }
         );
     }
+
+    @Override
+    protected VaadinServletService createServletService(DeploymentConfiguration deploymentConfiguration)
+            throws ServiceException {
+        VaadinServletService service = new BusinessUniverseVaadinServletService(this, deploymentConfiguration);
+        service.init();
+        return service;
+    }
+
+
 }
