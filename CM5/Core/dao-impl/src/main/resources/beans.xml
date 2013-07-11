@@ -34,4 +34,12 @@
     <bean id="collectionsDao"
           class="ru.intertrust.cm.core.dao.impl.CollectionsDaoImpl" p:dataSource-ref="dataSource" />
 
+    <bean id="databaseAccessAgent"
+          class="ru.intertrust.cm.core.dao.impl.access.PostgresDatabaseAccessAgent"
+          p:dataSource-ref="dataSource"/>
+
+    <bean id="accessControlService"
+          class="ru.intertrust.cm.core.dao.impl.access.AccessControlServiceImpl"
+          p:databaseAgent-ref="databaseAccessAgent"/>
+
 </beans>
