@@ -14,18 +14,39 @@ import ru.intertrust.cm.core.dao.access.SystemSubject;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.exception.AccessException;
 
+/**
+ * Реализация службы контроля доступа.
+ * <p>Объект типа AccessControlServiceImpl создаётся через Spring-контекст приложения (beans.xml).
+ * Этим же способом с ним обычно связываются другие службы, входящие в систему.
+ * <p>Для функционирования службы необходимо связать её с агентом БД по запросам прав доступа
+ * (см. {{@link #setDatabaseAgent(DatabaseAccessAgent)}. Обычно это делается также через Spring-контекст приложения.
+ * 
+ * @author apirozhkov
+ */
 public class AccessControlServiceImpl implements AccessControlService {
 
     private DatabaseAccessAgent databaseAgent;
 
+    /**
+     * Устанавливает программный агент, которому делегируются функции физической проверки прав доступа
+     * через запросы в БД. 
+     * 
+     * @param databaseAgent Агент БД по запросам прав доступа в БД
+     */
     public void setDatabaseAgent(DatabaseAccessAgent databaseAgent) {
         this.databaseAgent = databaseAgent;
     }
 
     @Override
-    public AccessToken createAccessToken(String processId) {
+    public AccessToken createSystemAccessToken(String processId) {
         AccessToken token = new UniversalAccessToken(new SystemSubject(processId));
         return token;
+    }
+
+    @Override
+    public AccessToken createAdminAccessToken(int userId) throws AccessException {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     @Override
@@ -46,17 +67,19 @@ public class AccessControlServiceImpl implements AccessControlService {
     @Override
     public AccessToken createAccessToken(int userId, Id[] objectIds, AccessType type, boolean requireAll)
             throws AccessException {
-        if (!databaseAgent.checkMultiDomainObjectAccess(userId, objectIds, type)) {
+        Id[] ids = databaseAgent.checkMultiDomainObjectAccess(userId, objectIds, type);
+        if (requireAll ? ids.length < objectIds.length : ids.length == 0) {
             throw new AccessException();
         }
-        AccessToken token = new MultiObjectAccessToken(new UserSubject(userId), objectIds, type);
+        AccessToken token = new MultiObjectAccessToken(new UserSubject(userId), ids, type);
         return token;
     }
 
     @Override
     public AccessToken createAccessToken(int userId, Id objectId, AccessType[] types, boolean requireAll)
             throws AccessException {
-        if (!databaseAgent.checkDomainObjectMultiAccess(userId, objectId, types)) {
+        AccessType[] granted = databaseAgent.checkDomainObjectMultiAccess(userId, objectId, types);
+        if (requireAll ? granted.length < types.length : granted.length == 0) {
             throw new AccessException();
         }
         AccessToken token = new MultiTypeAccessToken(new UserSubject(userId), objectId, types);
@@ -111,7 +134,7 @@ public class AccessControlServiceImpl implements AccessControlService {
     }
 
     /**
-     * Маркер доступа для простых операций с доменными объектами - чтения, изменения и удаления.
+     * Маркер доступа для простых операций с доменными объектами &mdash; чтения, изменения и удаления.
      * Поддерживают опцию отложенности.
      */
     private final class SimpleAccessToken extends AccessTokenBase {
@@ -210,6 +233,10 @@ public class AccessControlServiceImpl implements AccessControlService {
         }
     }
 
+    /**
+     * Универсальный маркер доступа. Разрешает любой доступ к любому объекту.
+     * Предоставляется только системным субъектам &mdash; процессам, работающим от имени системы.
+     */
     private final class UniversalAccessToken extends AccessTokenBase {
 
         private final SystemSubject subject;
