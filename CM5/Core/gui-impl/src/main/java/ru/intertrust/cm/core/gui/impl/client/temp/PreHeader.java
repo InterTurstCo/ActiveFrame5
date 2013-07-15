@@ -5,30 +5,28 @@ import java.io.File;
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.FileResource;
 import com.vaadin.server.VaadinService;
+import com.vaadin.ui.AbstractComponent;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Image;
-import com.vaadin.ui.VerticalLayout;
+
 @Theme("mytheme")
 public class PreHeader {
-	
-	public static void render(HorizontalLayout layout) {
 
-		// Find the application directory
-		String basepath = VaadinService.getCurrent()
-		                  .getBaseDirectory().getAbsolutePath();
-
-		// Image as a file resource
-		FileResource resource = new FileResource(new File(basepath +
-		                        "/WEB-INF/images/CompanyMedia-small.gif"));
-
-		// Show the image in the application
+	public Component render() {
+		String basepath = VaadinService.getCurrent().getBaseDirectory()
+				.getAbsolutePath();
+		FileResource resource = new FileResource(new File(basepath
+				+ "/WEB-INF/images/CompanyMedia-small.gif"));
 		Image image = new Image("", resource);
-		        
-		// Let the user view the file in browser or download it
-		//Link link = new Link("Link to the image file", resource);
-		
-		//height = (int)image.getHeight();
-		layout.addComponent(image);
+			return image;
 	}
-	
+
+	public AbstractComponent getPreHeader() {
+		HorizontalLayout horizont = new HorizontalLayout();
+		horizont.addComponent(render());
+		horizont.setSizeFull();
+		return horizont;
+	}
+
 }
