@@ -42,7 +42,7 @@ public class DoelExpression {
     public static DoelExpression parse(String expression) {
         DoelExpression doel = new DoelExpression();
         String[] parts = expression.trim().split("\\.");
-        doel.elements = new Field[parts.length];
+        doel.elements = new Element[parts.length];
         for (int i = 0; i < parts.length; i++) {
             String part = parts[i];
             if (part.matches(".+\\^.*")) {
@@ -143,7 +143,7 @@ public class DoelExpression {
 
         @Override
         public String toString() {
-            return new StringBuilder().append(childType).append("(").append(parentLink).append(")").toString();
+            return new StringBuilder().append(childType).append("^").append(parentLink).toString();
         }
 
         @Override
