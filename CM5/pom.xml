@@ -65,11 +65,10 @@
         <tag>HEAD</tag>
     </scm>
 
-<!--  TODO: Актуализировать после настройки jenkins или bamboo -->
-<!--     <ciManagement> -->
-<!--         <system>jenkins</system> -->
-<!--         <url>http://webgui.inttrust.ru/jenkins/view/CM5.0</url> -->
-<!--     </ciManagement> -->
+    <ciManagement>
+        <system>jenkins</system>
+        <url>https://webgui2.inttrust.ru:8181/jenkins/job/CM-Sochi</url>
+    </ciManagement>
 
     <dependencyManagement>
         <dependencies>
