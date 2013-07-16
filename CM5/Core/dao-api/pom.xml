@@ -13,6 +13,10 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
+    <properties>
+        <root.basedir>${project.parent.parent.basedir}</root.basedir>
+    </properties>
+
     <dependencies>
 
         <dependency>

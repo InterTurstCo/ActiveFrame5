@@ -26,6 +26,10 @@
         <module>web-app</module>
     </modules>
 
+    <properties>
+        <root.basedir>${project.parent.basedir}</root.basedir>
+    </properties>
+
 
     <dependencies>
 
