@@ -53,7 +53,6 @@
                     </modules>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
     <profiles>
@@ -74,13 +73,13 @@
 
                         <executions>
                             <!-- deploy the application on install -->
-                            <!--<execution>
+                            <execution>
                                  <id>deploy</id>
                                 <phase>install</phase>
                                 <goals>
                                     <goal>deploy</goal>
                                 </goals>
-                            </execution> -->
+                            </execution>
                             <!-- Undeploy the application on clean -->
                             <!-- <execution>
                                 <id>undeploy</id>
