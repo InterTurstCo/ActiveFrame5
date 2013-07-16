@@ -36,97 +36,6 @@
         <finalName>cm-sochi-${project.version}</finalName>
         <plugins>
             <plugin>
-                <groupId>org.jboss.as.plugins</groupId>
-                <artifactId>jboss-as-maven-plugin</artifactId>
-                <version>7.4.Final</version>
-                <configuration>
-                    <hostname>localhost</hostname>
-                    <port>9999</port>
-                    <filename>cm-sochi-${project.version}.ear</filename>
-                    <packaging>ear</packaging>
-                    <skip>false</skip>
-                </configuration>
-
-                <executions>
-                    <!-- deploy the application on install -->
-                    <!--<execution>
-                         <id>deploy</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>deploy</goal>
-                        </goals>
-                    </execution> -->
-                    <!-- Undeploy the application on clean -->
-                    <!-- <execution>
-                        <id>undeploy</id>
-                        <phase>clean</phase>
-                        <goals>
-                            <goal>undeploy</goal>
-                        </goals>
-                        <configuration>
-                            <ignoreMissingDeployment>true</ignoreMissingDeployment>
-                        </configuration>
-                    </execution> -->
-                    <execution>
-                        <id>deploy-driver</id>
-                        <phase>install</phase>
-                        <configuration>
-                            <groupId>postgresql</groupId>
-                            <artifactId>postgresql</artifactId>                            
-                            <name>postgresql-jdbc4.jar</name>
-                        </configuration>
-                        <goals>
-                            <goal>deploy-artifact</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>add-datasource</id>
-                        <phase>install</phase>
-                        <configuration>
-                            <address>subsystem=datasources,data-source=${datasource.name}</address>
-                            <resource>
-                                <enableResource>true</enableResource>
-                                <properties>
-                                    <datasource-class>org.postgresql.xa.PGXADataSource</datasource-class>
-                                    <connection-url>${db.connection.url}</connection-url>
-                                    <jndi-name>${datasource.jndi.name}</jndi-name>
-                                    <enabled>true</enabled>
-                                    <enable>true</enable>
-                                    <pool-name>${datasource.pool.name}</pool-name>
-                                    <user-name>${db.user}</user-name>
-                                    <password>${db.password}</password>
-                                    <driver-name>postgresql-jdbc4.jar</driver-name>
-                                    <use-ccm>false</use-ccm>
-                                </properties>
-                            </resource>
-                        </configuration>
-                        <goals>
-                            <goal>add-resource</goal>
-                        </goals>
-                    </execution>
-
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>properties-maven-plugin</artifactId>
-                <version>1.0-alpha-1</version>
-                <executions>
-                    <execution>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>read-project-properties</goal>
-                        </goals>
-                        <configuration>
-                            <files>
-                                <file>${basedir}/../build.properties</file>
-                            </files>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
                 <artifactId>maven-ear-plugin</artifactId>
                 <configuration>
                     <modules>
@@ -143,4 +52,102 @@
 
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>deploy-jboss</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jboss.as.plugins</groupId>
+                        <artifactId>jboss-as-maven-plugin</artifactId>
+                        <version>7.4.Final</version>
+                        <configuration>
+                            <hostname>localhost</hostname>
+                            <port>9999</port>
+                            <filename>cm-sochi-${project.version}.ear</filename>
+                            <skip>false</skip>
+                        </configuration>
+
+                        <executions>
+                            <!-- deploy the application on install -->
+                            <!--<execution>
+                                 <id>deploy</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>deploy</goal>
+                                </goals>
+                            </execution> -->
+                            <!-- Undeploy the application on clean -->
+                            <!-- <execution>
+                                <id>undeploy</id>
+                                <phase>clean</phase>
+                                <goals>
+                                    <goal>undeploy</goal>
+                                </goals>
+                                <configuration>
+                                    <ignoreMissingDeployment>true</ignoreMissingDeployment>
+                                </configuration>
+                            </execution> -->
+                            <execution>
+                                <id>deploy-driver</id>
+                                <phase>install</phase>
+                                <configuration>
+                                    <groupId>postgresql</groupId>
+                                    <artifactId>postgresql</artifactId>
+                                    <name>postgresql-jdbc4.jar</name>
+                                </configuration>
+                                <goals>
+                                    <goal>deploy-artifact</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>add-datasource</id>
+                                <phase>install</phase>
+                                <configuration>
+                                    <address>subsystem=datasources,data-source=${datasource.name}</address>
+                                    <resource>
+                                        <enableResource>true</enableResource>
+                                        <properties>
+                                            <datasource-class>org.postgresql.xa.PGXADataSource</datasource-class>
+                                            <connection-url>${db.connection.url}</connection-url>
+                                            <jndi-name>${datasource.jndi.name}</jndi-name>
+                                            <enabled>true</enabled>
+                                            <enable>true</enable>
+                                            <pool-name>${datasource.pool.name}</pool-name>
+                                            <user-name>${db.user}</user-name>
+                                            <password>${db.password}</password>
+                                            <driver-name>postgresql-jdbc4.jar</driver-name>
+                                            <use-ccm>false</use-ccm>
+                                        </properties>
+                                    </resource>
+                                </configuration>
+                                <goals>
+                                    <goal>add-resource</goal>
+                                </goals>
+                            </execution>
+
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>properties-maven-plugin</artifactId>
+                        <version>1.0-alpha-1</version>
+                        <executions>
+                            <execution>
+                                <phase>initialize</phase>
+                                <goals>
+                                    <goal>read-project-properties</goal>
+                                </goals>
+                                <configuration>
+                                    <files>
+                                        <file>${basedir}/../build.properties</file>
+                                    </files>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
