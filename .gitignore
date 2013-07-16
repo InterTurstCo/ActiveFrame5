@@ -44,4 +44,7 @@ target/
 *.tag
 release.properties
 pom.xml.next
+
+#
 build.properties
+!CM5/Stends/**/build.properties
