@@ -6,8 +6,8 @@
     <artifactId>cm-sochi</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>CompanyMedia 5</name>
-    <description>CompanyMedia 5. Корневой модуль для сборки проекта.</description>
+    <name>CompanyMedia 4/5</name>
+    <description>CompanyMedia 4/5. Корневой модуль для сборки проекта.</description>
 
     <modules>
         <module>Core</module>
@@ -28,6 +28,8 @@
         <sonar.jdbc.url>jdbc:postgresql://169.254.0.55:5432/sonar</sonar.jdbc.url>
         <sonar.host.url>http://sonar.inttrust.ru</sonar.host.url>
         <sonar.java.source>${maven.compiler.source}</sonar.java.source>
+        <sonar.skippedModules>ear</sonar.skippedModules>
+
         <root.basedir>${basedir}</root.basedir>
     </properties>
 
