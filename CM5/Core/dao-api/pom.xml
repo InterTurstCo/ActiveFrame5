@@ -29,12 +29,7 @@
             <groupId>ru.intertrust.cm-sochi</groupId>
             <artifactId>configuration</artifactId>
             <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.healthmarketscience.rmiio</groupId>
-            <artifactId>rmiio</artifactId>
-        </dependency>
+        </dependency>        
 
     </dependencies>
 

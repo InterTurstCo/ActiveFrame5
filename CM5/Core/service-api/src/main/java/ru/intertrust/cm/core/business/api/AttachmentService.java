@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.dao.api;
+package ru.intertrust.cm.core.business.api;
 
 import java.util.List;
 
@@ -11,14 +11,14 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
  * @author atsvetkov
  *
  */
-public interface AttachmentContentService {
+public interface AttachmentService {
    
     /**
      * Удаленный интерфейс для EJB
      * @author atsvetkov
      *
      */
-    public interface Remote extends AttachmentContentService {
+    public interface Remote extends AttachmentService {
     }
 
     /**
