@@ -225,11 +225,6 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>com.healthmarketscience.rmiio</groupId>
-            <artifactId>rmiio</artifactId>
-        </dependency>           
         
     </dependencies>
 
