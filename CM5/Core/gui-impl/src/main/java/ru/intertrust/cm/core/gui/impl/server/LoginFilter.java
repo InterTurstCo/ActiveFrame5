@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.gui.impl.server;
 
 import ru.intertrust.cm.core.business.api.dto.UserCredentials;
 import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
-import ru.intertrust.cm.core.gui.impl.client.LoginDialog;
+import ru.intertrust.cm.core.gui.impl.client.temp.vaadin.LoginDialog;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;

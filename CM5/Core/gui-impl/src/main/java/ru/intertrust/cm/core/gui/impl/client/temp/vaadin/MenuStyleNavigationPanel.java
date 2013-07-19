@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.gui.impl.client;
+package ru.intertrust.cm.core.gui.impl.client.temp.vaadin;
 
 import com.vaadin.ui.MenuBar;
 

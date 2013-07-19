@@ -31,7 +31,7 @@
 
     <servlet>
         <servlet-name>BusinessUniverseServlet</servlet-name>
-        <servlet-class>ru.intertrust.cm.core.gui.impl.client.BusinessUniverseServlet</servlet-class>
+        <servlet-class>ru.intertrust.cm.core.gui.impl.client.temp.vaadin.BusinessUniverseServlet</servlet-class>
 
         <init-param>
             <param-name>closeIdleSessions</param-name>
@@ -41,13 +41,13 @@
         <init-param>
             <description>Business Universe UI</description>
             <param-name>UI</param-name>
-            <param-value>ru.intertrust.cm.core.gui.impl.client.BusinessUniverse</param-value>
+            <param-value>ru.intertrust.cm.core.gui.impl.client.temp.vaadin.BusinessUniverse</param-value>
         </init-param>
     </servlet>
 
     <servlet>
         <servlet-name>LoginServlet</servlet-name>
-        <servlet-class>ru.intertrust.cm.core.gui.impl.client.LoginDialogServlet</servlet-class>
+        <servlet-class>ru.intertrust.cm.core.gui.impl.client.temp.vaadin.LoginDialogServlet</servlet-class>
 
         <init-param>
             <param-name>closeIdleSessions</param-name>
@@ -57,7 +57,7 @@
         <init-param>
             <description>Login Dialog</description>
             <param-name>UI</param-name>
-            <param-value>ru.intertrust.cm.core.gui.impl.client.LoginDialog</param-value>
+            <param-value>ru.intertrust.cm.core.gui.impl.client.temp.vaadin.LoginDialog</param-value>
         </init-param>
     </servlet>
 
