@@ -3,78 +3,15 @@
          xmlns="http://java.sun.com/xml/ns/javaee"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
          id="WebApp_ID" version="3.0">
-    <display-name>Domain Universe</display-name>
+    <display-name>Business Universe</display-name>
 
     <session-config>
         <session-timeout>30</session-timeout> <!-- minutes -->
     </session-config>
 
-    <context-param>
-        <description>Vaadin production mode</description>
-        <param-name>productionMode</param-name>
-        <param-value>true</param-value>
-    </context-param>
-
-    <context-param>
-        <param-name>contextConfigLocation</param-name>
-        <param-value>/WEB-INF/applicationContext.xml</param-value>
-    </context-param>
-
-    <context-param>
-        <param-name>heartbeatInterval</param-name>
-        <param-value>300</param-value> <!-- seconds -->
-    </context-param>
-
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
-
-    <servlet>
-        <servlet-name>BusinessUniverseServlet</servlet-name>
-        <servlet-class>ru.intertrust.cm.core.gui.impl.client.temp.vaadin.BusinessUniverseServlet</servlet-class>
-
-        <init-param>
-            <param-name>closeIdleSessions</param-name>
-            <param-value>true</param-value>
-        </init-param>
-
-        <init-param>
-            <description>Business Universe UI</description>
-            <param-name>UI</param-name>
-            <param-value>ru.intertrust.cm.core.gui.impl.client.temp.vaadin.BusinessUniverse</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
-        <servlet-name>LoginServlet</servlet-name>
-        <servlet-class>ru.intertrust.cm.core.gui.impl.client.temp.vaadin.LoginDialogServlet</servlet-class>
-
-        <init-param>
-            <param-name>closeIdleSessions</param-name>
-            <param-value>true</param-value>
-        </init-param>
-
-        <init-param>
-            <description>Login Dialog</description>
-            <param-name>UI</param-name>
-            <param-value>ru.intertrust.cm.core.gui.impl.client.temp.vaadin.LoginDialog</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>BusinessUniverseServlet</servlet-name>
-        <url-pattern>/VAADIN/*</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>BusinessUniverseServlet</servlet-name>
-        <url-pattern>/business-universe/*</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>LoginServlet</servlet-name>
-        <url-pattern>/welcome/*</url-pattern>
-    </servlet-mapping>
 
     <security-constraint>
         <display-name>Constraint</display-name>

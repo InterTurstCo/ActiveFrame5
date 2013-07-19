@@ -41,13 +41,13 @@ public class LoginFilter implements Filter {
 
         UserUidWithPassword userUidWithPassword = (UserUidWithPassword) credentials;
         try {
-            request.login(userUidWithPassword.getUserUid(), userUidWithPassword.getPassword());
+            //request.login(userUidWithPassword.getUserUid(), userUidWithPassword.getPassword());
             System.out.println("Filter");
             filterChain.doFilter(servletRequest, servletResponse);
         } catch (ServletException e) {
             forwardToLogin(servletRequest, servletResponse);
         } finally {
-            request.logout();
+            //request.logout();
         }
     }
 
