@@ -50,6 +50,11 @@ public class LoginDialog extends UI implements Button.ClickListener {
 
         setContent(new VerticalLayout()); // без этого контента окно диалога закроется по клику кнопки само
         addWindow(window);
+
+        loginField.setValue("admin");
+        passwordField.setValue("admin");
+
+        buttonClick(null);
     }
 
     @Override
