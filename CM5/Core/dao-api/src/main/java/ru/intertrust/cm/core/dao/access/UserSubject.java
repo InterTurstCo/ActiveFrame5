@@ -12,7 +12,7 @@ public class UserSubject implements Subject {
     /**
      * Создаёт экземпляр объекта
      * 
-     * @param user объект пользователя
+     * @param userId объект пользователя
      */
     public UserSubject(int userId) {
         this.userId = userId;

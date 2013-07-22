@@ -213,7 +213,7 @@ public class DoelExpression {
     /**
      * Формирует DOEL-выражение, являющееся общей частью двух выражений.
      * 
-     * @see {@link #excludeCommonBeginning(DoelExpression)}
+     * @see #excludeCommonBeginning(DoelExpression)
      * 
      * @param other второе DOEL-выражение
      * @return null, если выражения не имеют общей части
