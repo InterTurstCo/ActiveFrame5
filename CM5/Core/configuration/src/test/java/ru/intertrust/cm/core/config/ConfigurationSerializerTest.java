@@ -32,52 +32,52 @@ public class ConfigurationSerializerTest {
     public ExpectedException expectedException = ExpectedException.none();
 
     @Test
-    public void testDeserializeConfiguration() throws Exception {
+    public void testSerializeConfiguration() throws Exception {
         ConfigurationSerializer configurationSerializer = createConfigurationSerializer(DOMAIN_OBJECTS_CONFIG_PATH);
-        Configuration configuration = configurationSerializer.serializeConfiguration();
-        String serializedConfiguration = ConfigurationSerializer.deserializeConfiguration(configuration);
+        Configuration configuration = configurationSerializer.deserializeConfiguration();
+        String serializedConfiguration = ConfigurationSerializer.serializeConfiguration(configuration);
 
         String expectedSerializedConfiguration = readTextFile(SERIALIZED_CONFIGURATION_PATH).replaceAll("\r\n", "\n");
         assertEquals(expectedSerializedConfiguration, serializedConfiguration);
     }
 
     @Test
-    public void testDeserializeNullConfiguration() throws Exception {
+    public void testSerializeNullConfiguration() throws Exception {
         expectedException.expect(ConfigurationException.class);
         expectedException.expectMessage("Failed to deserialize configuration");
 
-        ConfigurationSerializer.deserializeConfiguration(null);
+        ConfigurationSerializer.serializeConfiguration(null);
     }
 
     @Test
-    public void testSerializeTrustedConfiguration() throws Exception {
+    public void testDeserializeTrustedConfiguration() throws Exception {
         ConfigurationSerializer configurationSerializer = createConfigurationSerializer(DOMAIN_OBJECTS_CONFIG_PATH);
 
         String deserializedConfiguration = readTextFile(SERIALIZED_CONFIGURATION_PATH);
         Configuration testConfiguration =
-                configurationSerializer.serializeTrustedConfiguration(deserializedConfiguration);
+                configurationSerializer.deserializeTrustedConfiguration(deserializedConfiguration);
         assertNotNull(testConfiguration);
 
-        Configuration configuration = configurationSerializer.serializeConfiguration();
+        Configuration configuration = configurationSerializer.deserializeConfiguration();
 
         assertEquals(testConfiguration, configuration);
     }
 
     @Test
-    public void testSerializeTrustedConfigurationInvalid() throws Exception {
-        String deserializedConfiguration = readTextFile(INVALID_SERIALIZED_CONFIGURATION_PATH);
+    public void testDeserializeTrustedConfigurationInvalid() throws Exception {
+        String serializedConfiguration = readTextFile(INVALID_SERIALIZED_CONFIGURATION_PATH);
 
         expectedException.expect(ConfigurationException.class);
         expectedException.expectMessage("Failed to serialize configuration from String");
 
         ConfigurationSerializer configurationSerializer = createConfigurationSerializer(DOMAIN_OBJECTS_CONFIG_PATH);
-        configurationSerializer.serializeTrustedConfiguration(deserializedConfiguration);
+        configurationSerializer.deserializeTrustedConfiguration(serializedConfiguration);
     }
 
     @Test
-     public void testSerializeConfiguration() throws Exception {
+     public void testDeserializeConfiguration() throws Exception {
         ConfigurationSerializer configurationSerializer = createConfigurationSerializer(DOMAIN_OBJECTS_CONFIG_PATH);
-        Configuration configuration = configurationSerializer.serializeConfiguration();
+        Configuration configuration = configurationSerializer.deserializeConfiguration();
 
         assertNotNull(configuration);
 
@@ -100,10 +100,10 @@ public class ConfigurationSerializerTest {
 
 
     @Test
-    public void testSerializeAccessConfiguration() throws Exception {
+    public void testDeserializeAccessConfiguration() throws Exception {
         ConfigurationSerializer configurationSerializer = createConfigurationSerializer(ACCESS_CONFIG_PATH);
 
-        Configuration configuration = configurationSerializer.serializeConfiguration();
+        Configuration configuration = configurationSerializer.deserializeConfiguration();
         assertNotNull(configuration);
         List configurationList = configuration.getConfigurationList();
 

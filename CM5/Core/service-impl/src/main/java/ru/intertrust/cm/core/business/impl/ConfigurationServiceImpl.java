@@ -89,7 +89,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
         Configuration oldConfiguration;
         try {
-            oldConfiguration = configurationSerializer.serializeTrustedConfiguration(oldConfigurationString);
+            oldConfiguration = configurationSerializer.deserializeTrustedConfiguration(oldConfigurationString);
             if (oldConfiguration == null) {
                 throw new ConfigurationException();
             }
@@ -109,7 +109,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     private void saveConfiguration() {
         String configurationString =
-                ConfigurationSerializer.deserializeConfiguration(configurationExplorer.getConfiguration());
+                ConfigurationSerializer.serializeConfiguration(configurationExplorer.getConfiguration());
         configurationDao.save(configurationString);
     }
 

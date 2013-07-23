@@ -97,7 +97,7 @@ public class ConfigurationLogicalValidatorTest {
         configurationSerializer.setModulesConfigurationPath(MODULES_CONFIG_PATH);
         configurationSerializer.setModulesConfigurationSchemaPath(MODULES_CONFIG_SCHEMA_PATH);
 
-        Configuration configuration = configurationSerializer.serializeConfiguration();
+        Configuration configuration = configurationSerializer.deserializeConfiguration();
         return new ConfigurationExplorerImpl(configuration);
     }
 }
