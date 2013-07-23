@@ -1,24 +1,19 @@
 package ru.intertrust.cm.core.config.model;
 
-import java.io.Serializable;
-
 import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.Root;
 
 /**
- * Конфигурация матрицы доступа.
+ * Конфигурация разрешений на создание дочерних объектов заданного типа.
  * @author atsvetkov
  *
  */
-@Root(name = "accessMatrix")
-public class AccessMatrixConfig implements Serializable {
+public class CreateChildConfig extends BaseOperationPermitConfig {
 
+    /**
+     * Тип дочернего объекта, разрешения на создание которого выдаются.
+     */
     @Attribute(required = true)
     private String type;
-
-    @Element(name = "status")
-    private AccessMatrixStatusConfig status;
 
     public String getType() {
         return type;
@@ -26,14 +21,6 @@ public class AccessMatrixConfig implements Serializable {
 
     public void setType(String type) {
         this.type = type;
-    }
-
-    public AccessMatrixStatusConfig getStatus() {
-        return status;
-    }
-
-    public void setStatus(AccessMatrixStatusConfig status) {
-        this.status = status;
     }
 
     @Override
@@ -45,23 +32,24 @@ public class AccessMatrixConfig implements Serializable {
             return false;
         }
 
-        AccessMatrixConfig that = (AccessMatrixConfig) o;
+        CreateChildConfig that = (CreateChildConfig) o;
 
         if (type != null ? !type.equals(that.type) : that.type != null) {
             return false;
         }
 
-        if (status != null ? !status.equals(that.status) : that.status != null) {
+        if (getPermit() != null ? !getPermit().equals(that.getPermit()) : that.getPermit() != null) {
             return false;
         }
-
+        
         return true;
     }
 
     @Override
     public int hashCode() {
         int result = type != null ? type.hashCode() : 0;
-        result = 31 * result + (status != null ? status.hashCode() : 0);
+        result = 31 * result + super.hashCode();
         return result;
     }
+    
 }

@@ -28,6 +28,9 @@ public class DomainObjectTypeConfig implements Serializable {
     @Element(name = "parent", required = false)
     private DomainObjectParentConfig parentConfig;
 
+    @Element(name = "template", required = false)
+    private String template;
+
     // we can't use a list here directly, as elements inside are different, that's why such a "trick"
     @Element(name = "fields")
     private DomainObjectFieldsConfig domainObjectFieldsConfig = new DomainObjectFieldsConfig();

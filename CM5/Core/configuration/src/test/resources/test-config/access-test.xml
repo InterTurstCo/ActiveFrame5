@@ -108,6 +108,21 @@
     <!-- Матрицы доступа -->
     <access-matrix type="Outgoing document">
         <status name="Draft">
+            <read>
+                <permit role="Автор документа"></permit>
+            </read>
+            <write>
+                <permit role="Автор документа"></permit>
+            </write>
+            <delete>
+                <permit role="Автор документа"></permit>
+            </delete>            
+            <create-child type="Employee">
+                <permit role="Автор документа"></permit>
+            </create-child>
+            <execute-action name="action1">
+                <permit role="Автор документа"></permit>
+            </execute-action>            
         </status>
     </access-matrix>
 </configuration>

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration xmlns="https://cm5.intertrust.ru/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-               xsi:schemaLocation="https://cm5.intertrust.ru/config configuration.xsd ">
+<configuration xmlns="https://cm5.intertrust.ru/config">
                
     <!-- Статические группы пользователей - мы вынуждены объявлять их здесь, 
         т.к. они используются в матрицах доступа -->
@@ -111,8 +110,20 @@
     <access-matrix type="Outgoing document">
         <status name="Draft">
             <read>
-
+                <permit role="Автор документа"></permit>
             </read>
+            <write>
+                <permit role="Автор документа"></permit>
+            </write>
+            <delete>
+                <permit role="Автор документа"></permit>
+            </delete>
+            <create-child type="Employee">
+                <permit role="Автор документа"></permit>
+            </create-child>
+            <execute-action name="action1">
+                <permit role="Автор документа"></permit>
+            </execute-action>
         </status>
     </access-matrix>
 </configuration>

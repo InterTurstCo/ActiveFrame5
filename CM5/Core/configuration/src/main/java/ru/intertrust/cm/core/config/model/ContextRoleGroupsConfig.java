@@ -26,4 +26,29 @@ public class ContextRoleGroupsConfig {
     public void setGroups(List<Object> groups) {
         this.groups = groups;
     }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ContextRoleGroupsConfig that = (ContextRoleGroupsConfig) o;
+
+        if (groups != null ? !groups.equals(that.groups) : that.groups != null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = groups != null ? groups.hashCode() : 0;
+        return result;
+    }       
+    
 }

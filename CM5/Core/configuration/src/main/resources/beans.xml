@@ -14,6 +14,7 @@
             <set>
                 <value>config/domain-objects.xml</value>
                 <value>config/collections.xml</value>
+                <value>config/access.xml</value>                
             </set>
         </property>
     </bean>
