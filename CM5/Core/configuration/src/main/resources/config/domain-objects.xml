@@ -37,7 +37,7 @@
        </uniqueKey>
     </domain-object-type>
 
-
+    <!-- Системный объект, должен определяться в системной конфигурации -->
     <domain-object-type name="Authentication_Info">
         <fields>
             <string name="User_Uid" length="64" not-null="true" />
@@ -79,4 +79,26 @@
         </fields>
     </domain-object-type>
 
+    <!-- Системные объекты, пока просто как предложение -->
+    <domain-object-type name="Group">
+        <fields>
+            <string name="ConfigName" length="64" not-null="true"/>
+            <long name="ContextId"/>
+            <long name="IsStatic"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="GroupMember">
+        <parent name="Group"/>
+        <fields>
+            <reference name="User" type="Authenfication_Info" not-null="true"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="GroupAdmin">
+        <parent name="Group"/>
+        <fields>
+            <string name="RoleName" length="64" not-null="true"/>
+        </fields>
+    </domain-object-type>
 </configuration>
