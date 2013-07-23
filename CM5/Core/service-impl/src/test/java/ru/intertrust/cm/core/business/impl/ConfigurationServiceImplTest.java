@@ -76,9 +76,9 @@ public class ConfigurationServiceImplTest {
     public void testLoadConfigurationUpdated() throws Exception {
         when(dataStructureDao.countTables()).thenReturn(10);
 
-        String configurationString = ConfigurationSerializer.deserializeConfiguration(configuration);
+        String configurationString = ConfigurationSerializer.serializeConfiguration(configuration);
         when(configurationDao.readLastSavedConfiguration()).thenReturn(configurationString);
-        when(configurationSerializer.serializeTrustedConfiguration(configurationString)).thenReturn(configuration);
+        when(configurationSerializer.deserializeTrustedConfiguration(configurationString)).thenReturn(configuration);
 
         Configuration updatedConfiguration = createConfiguration();
         configExplorer.setConfiguration(updatedConfiguration);
@@ -114,16 +114,16 @@ public class ConfigurationServiceImplTest {
         verify(dataStructureDao).countTables();
         verify(dataStructureDao).updateTableStructure(anyString(), anyListOf(FieldConfig.class),
                 anyListOf(UniqueKeyConfig.class), any(DomainObjectParentConfig.class));
-        verify(configurationDao).save(ConfigurationSerializer.deserializeConfiguration(updatedConfiguration));
+        verify(configurationDao).save(ConfigurationSerializer.serializeConfiguration(updatedConfiguration));
     }
 
     @Test
     public void testLoadConfigurationNoUpdate() throws Exception {
         when(dataStructureDao.countTables()).thenReturn(10);
 
-        String configurationString = ConfigurationSerializer.deserializeConfiguration(configuration);
+        String configurationString = ConfigurationSerializer.serializeConfiguration(configuration);
         when(configurationDao.readLastSavedConfiguration()).thenReturn(configurationString);
-        when(configurationSerializer.serializeTrustedConfiguration(configurationString)).thenReturn(configuration);
+        when(configurationSerializer.deserializeTrustedConfiguration(configurationString)).thenReturn(configuration);
 
         configurationService.loadConfiguration();
 
@@ -143,7 +143,7 @@ public class ConfigurationServiceImplTest {
         verify(dataStructureDao).createServiceTables();
         verify(dataStructureDao, times(2)).createTable(any(DomainObjectTypeConfig.class));
         verify(dataStructureDao, times(2)).createSequence(any(DomainObjectTypeConfig.class));
-        verify(configurationDao).save(ConfigurationSerializer.deserializeConfiguration(configuration));
+        verify(configurationDao).save(ConfigurationSerializer.serializeConfiguration(configuration));
     }
 
     private DomainObjectTypeConfig createOutgoingDocument() {

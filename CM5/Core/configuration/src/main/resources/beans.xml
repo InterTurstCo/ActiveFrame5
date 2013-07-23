@@ -17,7 +17,7 @@
             <set>
                 <value>config/domain-objects.xml</value>
                 <value>config/collections.xml</value>
-                <value>config/access.xml</value>                
+                <value>config/access.xml</value>
             </set>
         </property>
     </bean>
@@ -26,7 +26,7 @@
           class="ru.intertrust.cm.core.config.ConfigurationExplorerImpl" init-method="build">
         <property name="configuration">
             <bean class="ru.intertrust.cm.core.config.model.Configuration"
-                  factory-bean="configurationSerializer" factory-method="serializeConfiguration"/>
+                  factory-bean="configurationSerializer" factory-method="deserializeConfiguration"/>
         </property>
     </bean>
 

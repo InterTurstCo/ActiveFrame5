@@ -34,7 +34,7 @@ public class ConfigurationExplorerImplTest {
         ConfigurationSerializer configurationSerializer =
                 ConfigurationSerializerTest.createConfigurationSerializer(DOMAIN_OBJECTS_CONFIG_PATH);
 
-        config = configurationSerializer.serializeConfiguration();
+        config = configurationSerializer.deserializeConfiguration();
         configExplorer = new ConfigurationExplorerImpl(config);
         configExplorer.build();
     }

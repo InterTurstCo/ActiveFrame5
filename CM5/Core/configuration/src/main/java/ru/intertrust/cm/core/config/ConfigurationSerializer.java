@@ -35,7 +35,7 @@ public class ConfigurationSerializer {
      * @param configuration конфигурация
      * @return сериализованная в строку конфигурация
      */
-    public static String deserializeConfiguration(Configuration configuration) {
+    public static String serializeConfiguration(Configuration configuration) {
         StringWriter stringWriter = new StringWriter();
 
         try {
@@ -45,22 +45,6 @@ public class ConfigurationSerializer {
         }
 
         return stringWriter.toString();
-    }
-
-    /**
-     * Сериализует строку в конфигурацию без выполнения валидации на соответствие схеме конфигурации.
-     * Данный метод предназначен для сериализации строк, представляющих собой ранее десериализованную конфигурацию
-     * @param configurationString строка, содержащая конфигурацию
-     * @return конфигурация
-     * @throws ConfigurationException в случае ошибки сериализации
-     */
-    public Configuration serializeTrustedConfiguration(String configurationString) throws
-            ConfigurationException {
-        try {
-            return createSerializerInstance().read(Configuration.class, configurationString);
-        } catch (Exception e) {
-            throw new ConfigurationException("Failed to serialize configuration from String", e);
-        }
     }
 
     /**
@@ -96,12 +80,28 @@ public class ConfigurationSerializer {
     }
 
     /**
+     * Сериализует строку в конфигурацию без выполнения валидации на соответствие схеме конфигурации.
+     * Данный метод предназначен для сериализации строк, представляющих собой ранее десериализованную конфигурацию
+     * @param configurationString строка, содержащая конфигурацию
+     * @return конфигурация
+     * @throws ConfigurationException в случае ошибки сериализации
+     */
+    public Configuration deserializeTrustedConfiguration(String configurationString) throws
+            ConfigurationException {
+        try {
+            return createSerializerInstance().read(Configuration.class, configurationString);
+        } catch (Exception e) {
+            throw new ConfigurationException("Failed to serialize configuration from String", e);
+        }
+    }
+
+    /**
      * Сериализует конфигурационные файлы в общий объект конфигруации, предварительно валидируя конфигурационные
      * файлы на соответствие схеме конфигурации
      * @return конфигурация, содержащая информацию всех конфигурационных файлов
      * @throws Exception
      */
-    public Configuration serializeConfiguration() throws Exception {
+    public Configuration deserializeConfiguration() throws Exception {
         if (coreConfigurationFilePaths == null || coreConfigurationFilePaths.isEmpty()) {
             throw new FatalException("Core configuration paths aren't specified");
         }
@@ -117,7 +117,7 @@ public class ConfigurationSerializer {
         Configuration combinedConfiguration = new Configuration();
 
         for(String configurationFilePath : coreConfigurationFilePaths) {
-            Configuration partialConfiguration = serializeConfiguration(configurationFilePath);
+            Configuration partialConfiguration = deserializeConfiguration(configurationFilePath);
             combineConfigurations(partialConfiguration, combinedConfiguration);
         }
 
@@ -171,7 +171,7 @@ public class ConfigurationSerializer {
      * @return {@link ru.intertrust.cm.core.config.model.Configuration}
      * @throws Exception
      */
-    private Configuration serializeConfiguration(String configurationFilePath) throws Exception {
+    private Configuration deserializeConfiguration(String configurationFilePath) throws Exception {
         ConfigurationSchemaValidator schemaValidator = new ConfigurationSchemaValidator(configurationFilePath,
                 coreConfigurationSchemaFilePath);
         schemaValidator.validate();
