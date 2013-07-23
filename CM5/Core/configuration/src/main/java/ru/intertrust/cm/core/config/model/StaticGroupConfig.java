@@ -1,7 +1,5 @@
 package ru.intertrust.cm.core.config.model;
 
-import java.io.Serializable;
-
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
 
@@ -12,19 +10,21 @@ import org.simpleframework.xml.Root;
  */
 
 @Root(name = "static-group")
-public class StaticGroupConfig implements Serializable {
+public class StaticGroupConfig implements TopLevelConfig {
 
     @Attribute(required = true)
     private String name;
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public void setName(String name) {
         this.name = name;
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

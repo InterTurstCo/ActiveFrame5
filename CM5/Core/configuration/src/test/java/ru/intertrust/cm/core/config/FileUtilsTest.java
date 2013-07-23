@@ -15,7 +15,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class FileUtilsTest {
 
-    public static final String CONFIG_PATH = "test-config/domain-objects-test.xml";
+    public static final String CONFIG_PATH = "config/domain-objects-test.xml";
 
     @Test
     public void testGetFileInputStream() throws Exception {

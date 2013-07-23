@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="https://cm5.intertrust.ru/config" xmlns:xs="http://www.w3.org/2001/XMLSchema">
     <xs:element name="configuration" type="con:configurationType" xmlns:con="https://cm5.intertrust.ru/config"/>
-    
-    <xs:element name="customConfiguration" type="con:configurationType"
-        xmlns:con="https://cm5.intertrust.ru/config" />
-        
+
     <xs:complexType name="longType">
         <xs:simpleContent>
             <xs:extension base="xs:string">
@@ -75,26 +72,26 @@
     </xs:complexType>
 
     <xs:complexType name="configurationType">
-        <xs:sequence>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
             <xs:element type="con:domainObjectType" name="domain-object-type"
-                maxOccurs="unbounded" minOccurs="0"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:collectionType" name="collection"
-                maxOccurs="unbounded" minOccurs="0"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element name="static-group" type="con:staticGroupType"
-                maxOccurs="unbounded" minOccurs="0"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element name="dynamic-group" type="con:dynamicGroupType"
-                maxOccurs="unbounded" minOccurs="0"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element name="context-role" type="con:contextRoleType"
-                maxOccurs="unbounded" minOccurs="0"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element name="access-matrix" type="con:accessMatrixType"
-                maxOccurs="unbounded" minOccurs="0"
-                xmlns:con="https://cm5.intertrust.ru/config" />
-        </xs:sequence>
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
+        </xs:choice>
     </xs:complexType>
 
     <xs:complexType name="uniqueKeyType">
@@ -230,8 +227,8 @@
         <xs:attribute type="xs:string" name="domain-object-type"
                       use="optional" />
     </xs:complexType>
-    
-    <!-- Access configuration schema -->    
+
+    <!-- Access configuration schema -->
     <xs:complexType name="contextType">
         <xs:sequence>
             <xs:element name="domain-object" maxOccurs="1" minOccurs="1">
@@ -250,14 +247,14 @@
     <xs:complexType name="dynamicGroupType">
         <xs:sequence>
             <xs:element name="context" type="con:contextType"
-                maxOccurs="1" minOccurs="0"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        maxOccurs="1" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element name="members" type="con:membersType"
-                maxOccurs="1" minOccurs="0"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        maxOccurs="1" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element name="include-group" type="con:includeGroupType"
-                maxOccurs="unbounded" minOccurs="0"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:sequence>
         <xs:attribute name="name" type="xs:string" use="required"></xs:attribute>
     </xs:complexType>
@@ -265,9 +262,9 @@
     <xs:complexType name="membersType">
         <xs:choice minOccurs="1" maxOccurs="unbounded">
             <xs:element name="collector" type="con:algorithmType"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element name="track-domain-objects" type="con:trackObjectsType"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        xmlns:con="https://cm5.intertrust.ru/config" />
 
         </xs:choice>
     </xs:complexType>
@@ -277,9 +274,9 @@
     <xs:complexType name="trackObjectsType">
         <xs:sequence>
             <xs:element name="bind-context" type="con:domainObjectAlgorithmType" maxOccurs="1" minOccurs="0"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element name="get-person" type="con:domainObjectAlgorithmType" maxOccurs="1" minOccurs="0"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:sequence>
         <xs:attribute name="type" type="xs:string" use="required"></xs:attribute>
         <xs:attribute name="status" type="xs:string" use="optional"></xs:attribute>
@@ -288,7 +285,7 @@
     <xs:complexType name="includeGroupType">
         <xs:sequence>
             <xs:element name="bind-context" type="con:domainObjectAlgorithmType" maxOccurs="1" minOccurs="0"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:sequence>
         <xs:attribute name="name" type="xs:string" use="required"></xs:attribute>
     </xs:complexType>
@@ -296,9 +293,9 @@
     <xs:complexType name="algorithmType">
         <xs:choice minOccurs="1" maxOccurs="1">
             <xs:element name="java-class" type="con:javaClassType"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element name="spring-bean" type="con:springBeanType"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:choice>
     </xs:complexType>
 
@@ -308,7 +305,7 @@
         <xs:restriction base="xs:string">
             <xs:whiteSpace value="collapse"></xs:whiteSpace>
             <xs:pattern
-                value="([A-Za-z0-9\s]+(\^[A-Za-z0-9\s]*)?\.)*[A-Za-z0-9\s]+">
+                    value="([A-Za-z0-9\s]+(\^[A-Za-z0-9\s]*)?\.)*[A-Za-z0-9\s]+">
             </xs:pattern>
         </xs:restriction>
     </xs:simpleType>
@@ -324,22 +321,22 @@
     <xs:complexType name="domainObjectAlgorithmType">
         <xs:choice>
             <xs:element name="java-class" type="con:javaClassType"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element name="spring-bean" type="con:springBeanType"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element name="doel" type="con:doelType"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:choice>
     </xs:complexType>
 
     <xs:complexType name="contextRoleType">
         <xs:sequence>
             <xs:element name="context" type="con:contextType"
-                maxOccurs="1" minOccurs="1"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        maxOccurs="1" minOccurs="1"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element name="groups" type="con:groupsType"
-                maxOccurs="1" minOccurs="1"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        maxOccurs="1" minOccurs="1"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:sequence>
         <xs:attribute name="name" type="xs:string" use="required"></xs:attribute>
     </xs:complexType>
@@ -347,19 +344,19 @@
     <xs:complexType name="groupsType">
         <xs:choice>
             <xs:element name="group" type="con:groupType"
-                maxOccurs="unbounded" minOccurs="0"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element name="collector" type="con:algorithmType"
-                maxOccurs="1" minOccurs="0"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        maxOccurs="1" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:choice>
     </xs:complexType>
 
     <xs:complexType name="accessMatrixType">
         <xs:sequence>
             <xs:element name="status" type="con:accessMatrixSectionType"
-                maxOccurs="unbounded" minOccurs="1"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        maxOccurs="unbounded" minOccurs="1"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:sequence>
         <xs:attribute name="type" type="xs:string" use="required"></xs:attribute>
     </xs:complexType>
@@ -367,22 +364,22 @@
     <xs:complexType name="accessMatrixSectionType">
         <xs:sequence>
             <xs:element name="read" type="con:permissionsType"
-                maxOccurs="1" minOccurs="0"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        maxOccurs="1" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element name="write" type="con:permissionsType"
-                maxOccurs="1" minOccurs="0"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        maxOccurs="1" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element name="delete" type="con:permissionsType"
-                maxOccurs="1" minOccurs="0"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        maxOccurs="1" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element name="create-child"
-                type="con:createChildPermissionsType"
-                maxOccurs="unbounded" minOccurs="0"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        type="con:createChildPermissionsType"
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element name="execute-action"
-                type="con:executeActionPermissionsType"
-                maxOccurs="unbounded" minOccurs="0"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        type="con:executeActionPermissionsType"
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:sequence>
         <xs:attribute name="name" type="xs:string" use="required"/>
     </xs:complexType>
@@ -391,8 +388,8 @@
     <xs:complexType name="permissionsType">
         <xs:sequence>
             <xs:element name="permit" type="con:permissionType"
-                maxOccurs="unbounded" minOccurs="0"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:sequence>
     </xs:complexType>
 
@@ -419,8 +416,8 @@
     <xs:complexType name="groupType">
         <xs:sequence>
             <xs:element name="bind-context" type="con:domainObjectAlgorithmType"
-                maxOccurs="1" minOccurs="0"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        maxOccurs="1" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:sequence>
         <xs:attribute name="name" type="xs:string" use="required"/>
     </xs:complexType>

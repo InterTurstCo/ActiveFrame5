@@ -36,6 +36,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     private ConfigurationDao configurationDao;
     @Autowired
     private AuthenticationService authenticationService;
+    @Autowired
+    private ConfigurationSerializer configurationSerializer;
 
     /**
      * Устанавливает  {@link #dataStructureDao}
@@ -61,6 +63,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         this.configurationExplorer = configurationExplorer;
     }
 
+    public void setConfigurationSerializer(ConfigurationSerializer configurationSerializer) {
+        this.configurationSerializer = configurationSerializer;
+    }
+
     /**
      * Смотри {@link ru.intertrust.cm.core.business.api.ConfigurationService#loadConfiguration()}
      */
@@ -83,7 +89,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
         Configuration oldConfiguration;
         try {
-            oldConfiguration = ConfigurationSerializer.serializeTrustedConfiguration(oldConfigurationString);
+            oldConfiguration = configurationSerializer.serializeTrustedConfiguration(oldConfigurationString);
             if (oldConfiguration == null) {
                 throw new ConfigurationException();
             }

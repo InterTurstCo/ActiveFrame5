@@ -8,12 +8,14 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
-import ru.intertrust.cm.core.config.ConfigurationLogicalValidator;
-import ru.intertrust.cm.core.config.ConfigurationSerializer;
-import ru.intertrust.cm.core.config.model.*;
+import ru.intertrust.cm.core.config.model.CollectionConfig;
+import ru.intertrust.cm.core.config.model.CollectionFilterConfig;
+import ru.intertrust.cm.core.config.model.CollectionFilterCriteriaConfig;
+import ru.intertrust.cm.core.config.model.CollectionFilterReferenceConfig;
 import ru.intertrust.cm.core.dao.exception.CollectionConfigurationException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -27,13 +29,12 @@ public class CollectionsDaoImplTest {
     private static final String COLLECTION_COUNT_WITH_FILTERS =
             "select count(*) from employee e inner join department d on e.department = d.id " +
                     "WHERE d.name = 'dep1' and e.name = 'employee1'";
+
     private static final String COLLECTION_QUERY_WITH_LIMITS =
             "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e " +
                     "inner join department d on e.department = d.id " +
                     "where d.name = 'dep1' order by e.name asc limit 100 OFFSET 10";
-    private static final String COLLECTION_QUERY_WITHOUT_FILTERS =
-            "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e " +
-                    "where 1=1 order by e.name asc";
+
     private static final String FIND_COLLECTION_QUERY_WITH_FILTERS =
             "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e " +
                     "inner join department d on e.department = d.id where d.name = 'dep1' order by e.name asc";
@@ -43,65 +44,59 @@ public class CollectionsDaoImplTest {
             " on e.department = d.id inner join authentication_info a on e.login = a.id where d.name = 'dep1' " +
             "and e.name = 'employee1'" +
             " and a.id = 1 order by e.name asc";
-    
-    private static final String DOMAIN_OBJECTS_CONFIG_PATH = "test-config/domain-objects-test.xml";
-    private static final String COLLECTIONS_CONFIG_PATH = "test-config/collections-test.xml";
-    private static final String CONFIGURATION_SCHEMA_PATH = "test-config/configuration-test.xsd";
 
-    private static final Set<String> CONFIG_PATHS =
-            new HashSet<>(Arrays.asList(new String[]{DOMAIN_OBJECTS_CONFIG_PATH, COLLECTIONS_CONFIG_PATH}));
+    private static final String EMLOYEES_PROROTYPE = "select\n" +
+            "                    e.id, e.name, e.position, e.created_date, e.updated_date\n" +
+            "                from\n" +
+            "                    employee e\n" +
+            "                     ::from-clause\n" +
+            "                where\n" +
+            "                    ::where-clause";
+
+    private static final String EMPLOYEES_COUNTING_PROTOTYPE = "select count(*) from employee e ::from-clause WHERE " +
+            "::where-clause";
+
+    private static final String EMPLOYEES_COMPLEX_PROTOTYPE = "select\n" +
+            "                    e.id, e.name, e.position, e.created_date, e.updated_date\n" +
+            "                from\n" +
+            "                    employee e\n" +
+            "                     ::from-clause1 ::from-clause2\n" +
+            "                where\n" +
+            "                    ::where-clause1 and ::where-clause2";
 
     @InjectMocks
     private CollectionsDaoImpl collectionsDaoImpl = new CollectionsDaoImpl();
+
     @Mock
     private JdbcTemplate jdbcTemplate;
 
     @Mock
-    private ConfigurationLogicalValidator logicalValidator;
+    private ConfigurationExplorerImpl configurationExplorer;
 
     private CollectionFilterConfig byDepartmentFilterConfig;
-    
     private CollectionFilterConfig byDepartmentComplexFilterConfig;
-    
     private CollectionFilterConfig byNameFilterConfig;
-    
     private CollectionFilterConfig byNameComplexFilterConfig;
-
     private CollectionFilterConfig byAuthenticationInfoFilterConfig;
 
     private CollectionConfig collectionConfig;
-    
-    private CollectionConfig complexCollectionConfig;    
-
-    private ConfigurationExplorerImpl configurationExplorer;
+    private CollectionConfig complexCollectionConfig;
 
     private SortOrder sortOrder;
 
     @Before
     public void setUp() throws Exception {
-        ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
-        configurationSerializer.setConfigurationFilePaths(CONFIG_PATHS);
-        configurationSerializer.setConfigurationSchemaFilePath(CONFIGURATION_SCHEMA_PATH);
-
-        configurationExplorer = new ConfigurationExplorerImpl();
-        Configuration configuration = configurationSerializer.serializeConfiguration();
-        configurationExplorer.setConfiguration(configuration);
-        configurationExplorer.build();
-
-        collectionsDaoImpl.setConfigurationExplorer(configurationExplorer);
-
-        collectionConfig = configurationExplorer.getCollectionConfig("Employees");
-        complexCollectionConfig = configurationExplorer.getCollectionConfig("EmployeesComplex");
-        
         byDepartmentFilterConfig = createByDepartmentFilterConfig();
         byDepartmentComplexFilterConfig = createByDepartmentComplexFilterConfig();
-        
+
         byNameFilterConfig = createByNameFilterConfig();
         byNameComplexFilterConfig = createByNameComplexFilterConfig();
         byAuthenticationInfoFilterConfig = createbyAuthenticationInfoFilterConfig();
-        
+
         sortOrder = createByNameSortOrder();
 
+        collectionConfig = createEmployeesCollectionConfig();
+        complexCollectionConfig = createEmployeesComplexCollectionConfig();
     }
 
     @Test
@@ -113,7 +108,6 @@ public class CollectionsDaoImplTest {
         String actualQuery = collectionsDaoImpl.getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, 0, 0);
         String refinedActualQuery = refineQuery(actualQuery);
         assertEquals(FIND_COLLECTION_QUERY_WITH_FILTERS, refinedActualQuery);
-
     }
 
     @Test
@@ -127,9 +121,8 @@ public class CollectionsDaoImplTest {
         String actualQuery = collectionsDaoImpl.getFindCollectionQuery(complexCollectionConfig, filledFilterConfigs, sortOrder, 0, 0);
         String refinedActualQuery = refineQuery(actualQuery);
         assertEquals(FIND_COMPLEX_COLLECTION_QUERY_WITH_FILTERS, refinedActualQuery);
-
     }
-    
+
     @Test(expected=CollectionConfigurationException.class)
     public void testFindCollectionWithoutFilters() throws Exception {
         List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<>();
@@ -143,7 +136,7 @@ public class CollectionsDaoImplTest {
 
         String actualQuery = collectionsDaoImpl.getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, 10, 100);
         String refinedActualQuery = refineQuery(actualQuery);
-        
+
         assertEquals(COLLECTION_QUERY_WITH_LIMITS, refinedActualQuery);
     }
 
@@ -241,10 +234,30 @@ public class CollectionsDaoImplTest {
         byNameFilterConfig.setFilterCriteria(collectionFilterCriteriaConfig);
         return byNameFilterConfig;
     }
-    
+
     private SortOrder createByNameSortOrder() {
         SortOrder sortOrder = new SortOrder();
         sortOrder.add(new SortCriterion("e.name", SortCriterion.Order.ASCENDING));
         return sortOrder;
+    }
+
+    private CollectionConfig createEmployeesCollectionConfig() {
+        CollectionConfig result = new CollectionConfig();
+        result.setName("Employees");
+        result.setPrototype(EMLOYEES_PROROTYPE);
+        result.setCountingPrototype(EMPLOYEES_COUNTING_PROTOTYPE);
+        result.getFilters().add(byDepartmentFilterConfig);
+
+        return result;
+    }
+
+    private CollectionConfig createEmployeesComplexCollectionConfig() {
+        CollectionConfig result = new CollectionConfig();
+        result.setName("EmployeesComplex");
+        result.setPrototype(EMPLOYEES_COMPLEX_PROTOTYPE);
+        result.setCountingPrototype(EMPLOYEES_COUNTING_PROTOTYPE);
+        result.getFilters().add(byDepartmentFilterConfig);
+
+        return result;
     }
 }

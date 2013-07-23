@@ -1,74 +1,18 @@
 <configuration>
-   <invalid name="Employees" idField="id" domain-object-type="Employee">
-      <display>
-         <column field="id" name="id" hidden="true" sortable="false" editable="false" sequence="0"/>
-         <column field="business_object_type" name="type" hidden="true" sortable="false" editable="false" sequence="1"/>
-         <column field="name" name="Имя" hidden="false" sortable="true" editable="false" sequence="2"/>
-         <column field="position" name="Должность" hidden="false" sortable="true" editable="false" sequence="3"/>
-         <column field="created_date" name="Дата создания" hidden="false" sortable="true" editable="false" sequence="4"/>
-         <column field="updated_date" name="Дата модификации" hidden="false" sortable="true" editable="false" sequence="5"/>
-      </display>
-      <prototype><![CDATA[
-
-                select
-                    e.id, e.name, e.position, e.created_date, e.updated_date
-                from
-                    employee e
-                     ::from-clause
-                where
-                    ::where-clause
-
-        ]]></prototype>
-      <counting-prototype><![CDATA[
-            select count(*) from employee e ::from-clause WHERE ::where-clause
-        ]]></counting-prototype>
-      <filter name="byDepartment">
-         <reference placeholder="from-clause"><![CDATA[
-
-                    inner join department d on e.department = d.id
-
-            ]]></reference>
-         <criteria placeholder="where-clause" condition="and"><![CDATA[
-
-                    d.name = {0}
-
-            ]]></criteria>
-      </filter>
-      <filter name="byName">
-         <criteria placeholder="where-clause" condition="and"><![CDATA[
-
-                    e.name = {0}
-
-            ]]></criteria>
-      </filter>
-   </invalid>
-   <collection name="Employees_2" idField="id" domain-object-type="Employee">
-      <display>
-         <column field="id" name="id" hidden="true" sortable="false" editable="false" sequence="0"/>
-         <column field="business_object_type" name="type" hidden="true" sortable="false" editable="false" sequence="1"/>
-         <column field="name" name="Имя" hidden="false" sortable="true" editable="false" sequence="2"/>
-         <column field="position" name="Должность" hidden="false" sortable="true" editable="false" sequence="3"/>
-         <column field="created_date" name="Дата создания" hidden="false" sortable="true" editable="false" sequence="4"/>
-         <column field="updated_date" name="Дата модификации" hidden="false" sortable="true" editable="false" sequence="5"/>
-      </display>
-      <filter name="byName"/>
-      <filter name="byDepartment"/>
-      <renderer className="ru.intertrust.cm.core.business.impl.EmployeesCollectionRenderer"/>
-   </collection>
-   <domain-object-type name="Outgoing Document">
+   <domain-object-type name="Outgoing_Document">
       <fields>
-         <string name="Registration Number" not-null="false" length="128"/>
-         <dateTime name="Registration Date" not-null="false"/>
+         <string name="Registration_Number" not-null="false" length="128"/>
+         <dateTime name="Registration_Date" not-null="false"/>
          <string name="Name" not-null="false" length="128"/>
          <string name="Description" not-null="false" length="128"/>
          <reference name="Author" not-null="false" type="Employee"/>
          <reference name="Negotiator" not-null="false" type="Employee"/>
          <reference name="Signer" not-null="false" type="Employee"/>
          <long name="Long_Field" not-null="false"/>
-         <decimal name="Decimal Field" not-null="false" precision="10" scale="2"/>
+         <decimal name="Decimal_Field" not-null="false" precision="10" scale="2"/>
       </fields>
       <uniqueKey>
-         <field name="Registration Number"/>
+         <field name="Registration_Number"/>
       </uniqueKey>
    </domain-object-type>
    <domain-object-type name="Person">
@@ -98,5 +42,93 @@
       <fields>
          <string name="Name" not-null="true" length="128"/>
       </fields>
+   </domain-object-type>
+   <collection name="Employees" idField="id" domain-object-type="Employee">
+      <display>
+         <column field="id" name="id" hidden="true" sortable="false" editable="false" sequence="0"/>
+         <column field="business_object_type" name="type" hidden="true" sortable="false" editable="false" sequence="1"/>
+         <column field="name" name="Имя" hidden="false" sortable="true" editable="false" sequence="2"/>
+         <column field="position" name="Должность" hidden="false" sortable="true" editable="false" sequence="3"/>
+         <column field="created_date" name="Дата создания" hidden="false" sortable="true" editable="false" sequence="4"/>
+         <column field="updated_date" name="Дата модификации" hidden="false" sortable="true" editable="false" sequence="5"/>
+      </display>
+      <prototype><![CDATA[
+            
+                select
+                    e.id, e.name, e.position, e.created_date, e.updated_date
+                from
+                    employee e
+                     ::from-clause
+                where
+                    ::where-clause
+            
+        ]]></prototype>
+      <counting-prototype><![CDATA[
+            select count(*) from employee e ::from-clause WHERE ::where-clause
+        ]]></counting-prototype>
+      <filter name="byDepartment">
+         <reference placeholder="from-clause"><![CDATA[
+                 
+                    inner join department d on e.department = d.id
+                
+            ]]></reference>
+         <criteria placeholder="where-clause" condition="and"><![CDATA[
+                
+                    d.name = {0}
+                
+            ]]></criteria>
+      </filter>
+      <filter name="byName">
+         <criteria placeholder="where-clause" condition="and"><![CDATA[
+                
+                    e.name = {0}
+                
+            ]]></criteria>
+      </filter>
+   </collection>
+   <collection name="Employees_2" idField="id" domain-object-type="Employee">
+      <display>
+         <column field="id" name="id" hidden="true" sortable="false" editable="false" sequence="0"/>
+         <column field="business_object_type" name="type" hidden="true" sortable="false" editable="false" sequence="1"/>
+         <column field="name" name="Имя" hidden="false" sortable="true" editable="false" sequence="2"/>
+         <column field="position" name="Должность" hidden="false" sortable="true" editable="false" sequence="3"/>
+         <column field="created_date" name="Дата создания" hidden="false" sortable="true" editable="false" sequence="4"/>
+         <column field="updated_date" name="Дата модификации" hidden="false" sortable="true" editable="false" sequence="5"/>
+      </display>
+      <filter name="byName"/>
+      <filter name="byDepartment"/>
+      <renderer className="ru.intertrust.cm.core.business.impl.EmployeesCollectionRenderer"/>
+   </collection>
+   <domain-object-type name="Incoming_Document">
+      <fields>
+         <string name="Registration_Number" not-null="false" length="128"/>
+         <dateTime name="Registration_Date" not-null="false"/>
+         <string name="Name" not-null="false" length="128"/>
+         <string name="Description" not-null="false" length="128"/>
+         <reference name="Author" not-null="false" type="Employee"/>
+         <reference name="Negotiator" not-null="false" type="Employee"/>
+         <reference name="Signer" not-null="false" type="Employee"/>
+         <long name="Long_Field" not-null="false"/>
+         <decimal name="Decimal_Field" not-null="false" precision="10" scale="2"/>
+      </fields>
+      <uniqueKey>
+         <field name="Registration_Number"/>
+      </uniqueKey>
+   </domain-object-type>
+   <domain-object-type name="Incoming_Document2">
+      <fields>
+         <string name="Registration_Number" not-null="false" length="128"/>
+         <dateTime name="Registration_Date" not-null="false"/>
+         <string name="Name" not-null="false" length="128"/>
+         <string name="Description" not-null="false" length="128"/>
+         <reference name="Author" not-null="false" type="Employee"/>
+         <reference name="Negotiator" not-null="false" type="Employee"/>
+         <reference name="Signer" not-null="false" type="Employee"/>
+         <long name="Long_Field" not-null="false"/>
+         <decimal name="Decimal_Field" not-null="false" precision="10" scale="2"/>
+      </fields>
+      <uniqueKey>
+         <field name="Registration_Number"/>
+      </uniqueKey>
    </domain-object-type>
 </configuration>

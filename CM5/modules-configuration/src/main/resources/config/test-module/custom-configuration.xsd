@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified"
+           targetNamespace="https://cm5.intertrust.ru/custom-config"
+           xmlns:custom="https://cm5.intertrust.ru/custom-config"
+           xmlns:core="https://cm5.intertrust.ru/config"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:import namespace="https://cm5.intertrust.ru/config" schemaLocation="configuration.xsd"/>
+
+    <xs:element name="configuration" type="custom:configurationType"/>
+
+    <xs:complexType name="configurationType">
+        <xs:complexContent>
+            <xs:extension base="core:configurationType">
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                    <xs:element name="test-type" type="custom:test-typeType" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:choice>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="test-uniqueKeyType">
+        <xs:sequence>
+            <xs:element type="custom:fieldType" name="field"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="fieldType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="name"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="test-fieldType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="name" use="optional"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="test-typeType">
+        <xs:sequence>
+            <xs:element type="custom:test-fieldsType" name="test-fields"/>
+            <xs:element type="custom:test-uniqueKeyType" name="test-uniqueKey"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="name"/>
+    </xs:complexType>
+
+    <xs:complexType name="test-fieldsType">
+        <xs:sequence>
+            <xs:element type="custom:test-fieldType" name="test-field" maxOccurs="unbounded" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>

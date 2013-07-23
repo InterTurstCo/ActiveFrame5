@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="https://cm5.intertrust.ru/modules-configuration" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="modules-configuration" type="mod:modules-configurationType" xmlns:mod="https://cm5.intertrust.ru/modules-configuration"/>
+  <xs:complexType name="modules-configurationType">
+    <xs:sequence>
+      <xs:element type="mod:module-configurationType" name="module-configuration" maxOccurs="unbounded" minOccurs="0" xmlns:mod="https://cm5.intertrust.ru/modules-configuration"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="module-configurationType">
+    <xs:sequence>
+      <xs:element name="path">
+        <xs:simpleType>
+          <xs:restriction base="xs:string"/>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="schema-path">
+        <xs:simpleType>
+          <xs:restriction base="xs:string"/>
+        </xs:simpleType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

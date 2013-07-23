@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import static ru.intertrust.cm.core.config.Constants.*;
+
 /**
  * @author vmatsukevich
  *         Date: 6/24/13
@@ -16,17 +18,17 @@ import java.util.Set;
  */
 public class ConfigurationLogicalValidatorTest {
 
-    private static final String CONFIGURATION_SCHEMA_PATH = "test-config/configuration-test.xsd";
-    private static final String DOMAIN_OBJECTS_CONFIG_PATH = "test-config/domain-objects-test.xml";
     private static final String DOMAIN_OBJECTS_INVALID_EXTENDS_ATTRIBUTE_CONFIG_PATH =
-            "test-config/domain-objects-invalid-extends-attribute-test.xml";
+            "config/domain-objects-invalid-extends-attribute-test.xml";
+
     private static final String DOMAIN_OBJECTS_INVALID_PARENT_CONFIG_PATH =
-            "test-config/domain-objects-invalid-parent-test.xml";
+            "config/domain-objects-invalid-parent-test.xml";
+
     private static final String DOMAIN_OBJECTS_INVALID_REFERENCE_CONFIG_PATH =
-            "test-config/domain-objects-invalid-reference-field-test.xml";
+            "config/domain-objects-invalid-reference-field-test.xml";
+
     private static final String DOMAIN_OBJECTS_INVALID_UNIQUE_KEY_CONFIG_PATH =
-            "test-config/domain-objects-invalid-unique-key-test.xml";
-    private static final String COLLECTIONS_CONFIG_PATH = "test-config/collections-test.xml";
+            "config/domain-objects-invalid-unique-key-test.xml";
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -46,7 +48,6 @@ public class ConfigurationLogicalValidatorTest {
         expectedException.expectMessage("Extended DomainObject Configuration is not found for name 'Person'");
 
         configurationExplorer.build();
-
     }
 
     @Test
@@ -58,7 +59,6 @@ public class ConfigurationLogicalValidatorTest {
         expectedException.expectMessage("Parent DomainObject Configuration is not found for name 'Person'");
 
         configurationExplorer.build();
-
     }
 
     @Test
@@ -70,7 +70,6 @@ public class ConfigurationLogicalValidatorTest {
         expectedException.expectMessage("Referenced DomainObject Configuration is not found for name 'Employee'");
 
         configurationExplorer.build();
-
     }
 
     @Test
@@ -83,15 +82,20 @@ public class ConfigurationLogicalValidatorTest {
                 "'Outgoing_Document'");
 
         configurationExplorer.build();
-
     }
 
     private ConfigurationExplorer createConfigurationExplorer(String configPath) throws Exception {
+        TopLevelConfigurationCache.getInstance().build(); // Инициализируем кэш конфигурации тэг-класс
+
         ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
-        Set<String> configPaths =
-                new HashSet<String>(Arrays.asList(configPath, COLLECTIONS_CONFIG_PATH));
-        configurationSerializer.setConfigurationFilePaths(configPaths);
-        configurationSerializer.setConfigurationSchemaFilePath(CONFIGURATION_SCHEMA_PATH);
+        Set<String> configPaths = new HashSet<>(Arrays.asList(configPath, COLLECTIONS_CONFIG_PATH));
+
+        configurationSerializer.setCoreConfigurationFilePaths(configPaths);
+        configurationSerializer.setCoreConfigurationSchemaFilePath(CONFIGURATION_SCHEMA_PATH);
+
+        configurationSerializer.setModulesConfigurationFolder(MODULES_CONFIG_FOLDER);
+        configurationSerializer.setModulesConfigurationPath(MODULES_CONFIG_PATH);
+        configurationSerializer.setModulesConfigurationSchemaPath(MODULES_CONFIG_SCHEMA_PATH);
 
         Configuration configuration = configurationSerializer.serializeConfiguration();
         return new ConfigurationExplorerImpl(configuration);

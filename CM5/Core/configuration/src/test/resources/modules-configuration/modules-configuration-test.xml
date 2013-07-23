@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<modules-configuration xmlns="https://cm5.intertrust.ru/modules-configuration">
+
+    <module-configuration>
+        <path>/test-module/custom-config-test.xml</path>
+        <schema-path>/test-module/custom-configuration-test.xsd</schema-path>
+    </module-configuration>
+
+    <module-configuration>
+        <path>/test-module/domain-objects-test.xml</path>
+        <schema-path>/test-module/custom-configuration-test.xsd</schema-path>
+    </module-configuration>
+
+</modules-configuration>

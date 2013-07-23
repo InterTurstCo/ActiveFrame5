@@ -176,7 +176,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
                 AccessMatrixConfig accessMatrixConfig = (AccessMatrixConfig) config;
                 accessConfig.getAccessMatrixConfigMap().put(accessMatrixConfig.getType(), accessMatrixConfig);
             } else {
-                throw new ConfigurationException("Unknown configuration type '" + config.getClass() + "'");
+                //throw new ConfigurationException("Unknown configuration type '" + config.getClass() + "'");
             }
         }
     }

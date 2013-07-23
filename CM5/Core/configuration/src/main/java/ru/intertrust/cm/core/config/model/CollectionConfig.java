@@ -5,7 +5,6 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +14,7 @@ import java.util.List;
  *
  */
 @Root(name = "collection")
-public class CollectionConfig implements Serializable {
+public class CollectionConfig implements TopLevelConfig {
 
     @Attribute(required = true)
     private String name;
@@ -41,10 +40,12 @@ public class CollectionConfig implements Serializable {
     @Element(name = "renderer", required = false)
     private CollectionRendererConfig renderer;
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public void setName(String name) {
         this.name = name;
     }

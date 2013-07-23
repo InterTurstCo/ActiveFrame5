@@ -12,8 +12,10 @@
     <modules>
         <module>Core</module>
         <module>Workstation</module>
-	<module>Ear</module>
-  </modules>
+	    <module>Ear</module>
+        <module>test-module</module>
+        <module>modules-configuration</module>
+    </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -244,7 +246,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>properties-maven-plugin</artifactId>
-                    <version>1.0-alpha-1</version>                                
+                    <version>1.0-alpha-1</version>
                 </plugin>
 
                 <plugin>
@@ -327,7 +329,7 @@
                         <chmod>false</chmod>
                     </configuration>
                 </plugin>
-	
+
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -347,7 +349,7 @@
                     <version>7.4.Final</version>
                     <configuration>
                         <skip>true</skip>
-                    </configuration>                       
+                    </configuration>
                 </plugin>
 
             </plugins>
@@ -492,7 +494,7 @@
         <!-- InterTrust's repositories -->
 
 
-        <repository>
+        <!--repository>
             <id>intertrust.repo</id>
             <name>InterTrust maven repository</name>
             <url>http://sup.inttrust.ru:8081/nexus/content/groups/public</url>
@@ -502,7 +504,7 @@
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
-        </repository>
+        </repository-->
 
     </repositories>
 
@@ -513,7 +515,7 @@
             <name>Central Repository</name>
         </pluginRepository>
 
-        <pluginRepository>
+        <!--pluginRepository>
             <id>intertrust.repo</id>
             <url>http://sup.inttrust.ru:8081/nexus/content/groups/public</url>
             <releases>
@@ -522,7 +524,7 @@
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
-        </pluginRepository>
+        </pluginRepository-->
     </pluginRepositories>
 
     <distributionManagement>

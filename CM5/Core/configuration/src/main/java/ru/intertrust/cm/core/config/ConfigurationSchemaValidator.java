@@ -31,9 +31,23 @@ public class ConfigurationSchemaValidator {
     private String configurationPath;
     private String configurationSchemaPath;
 
+    private InputStream configurationInputStream;
+    private InputStream[] configurationSchemaInputStreams;
+
     public ConfigurationSchemaValidator(String configurationPath, String configurationSchemaPath) {
         this.configurationPath = configurationPath;
         this.configurationSchemaPath = configurationSchemaPath;
+    }
+
+    public ConfigurationSchemaValidator(InputStream configurationInputStream, String configurationSchemaPath) {
+        this.configurationInputStream = configurationInputStream;
+        this.configurationSchemaPath = configurationSchemaPath;
+    }
+
+    public ConfigurationSchemaValidator(InputStream configurationInputStream,
+                                        InputStream... configurationSchemaInputStreams) {
+        this.configurationInputStream = configurationInputStream;
+        this.configurationSchemaInputStreams = configurationSchemaInputStreams;
     }
 
     /**
@@ -68,34 +82,58 @@ public class ConfigurationSchemaValidator {
         this.configurationSchemaPath = configurationSchemaPath;
     }
 
+    public InputStream getConfigurationInputStream() {
+        return configurationInputStream;
+    }
+
+    public void setConfigurationInputStream(InputStream configurationInputStream) {
+        this.configurationInputStream = configurationInputStream;
+    }
+
+    public InputStream[] getConfigurationSchemaInputStreams() {
+        return configurationSchemaInputStreams;
+    }
+
+    public void setConfigurationSchemaInputStreams(InputStream[] configurationSchemaInputStream) {
+        this.configurationSchemaInputStreams = configurationSchemaInputStream;
+    }
+
     /**
      * Выполняет валидацию конфигурации на предмет соответствия XSD схеме и логическую валидацию.
      */
     public void validate() {
-        if (configurationPath == null) {
+        if (configurationPath == null && configurationInputStream == null) {
             throw new FatalException("Please set the configurationPath for ConfigurationSchemaValidator before validating");
         }
+
+        if (configurationSchemaPath == null && configurationSchemaInputStreams == null) {
+            throw new FatalException("Please set the configurationSchemaPath for ConfigurationLogicalValidator before " +
+                    "validating");
+        }
+
         validateAgainstXSD();
     }
 
     private void validateAgainstXSD() {
-        if (configurationSchemaPath == null) {
-            throw new FatalException("Please set the configurationSchemaPath for ConfigurationLogicalValidator before " +
-                    "validating");
-        }
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 
         try {
-            Source schemaSource = new StreamSource(getFileInputStream(configurationSchemaPath));
+            if (configurationSchemaInputStreams == null) {
+                configurationSchemaInputStreams = new InputStream[] {getFileInputStream(configurationSchemaPath)};
+            }
 
-            Schema schema = factory.newSchema(schemaSource);
+            Source[] schemaSources = new StreamSource[configurationSchemaInputStreams.length];
+            for (int i = 0; i < configurationSchemaInputStreams.length; i ++) {
+                schemaSources[i] = new StreamSource(configurationSchemaInputStreams[i]);
+            }
+
+            Schema schema = factory.newSchema(schemaSources);
             Validator validator = schema.newValidator();
 
             validateDomainObjectConfiguration(validator);
-
             logger.info("Document is valid against XSD");
         } catch (SAXException ex) {
-            throw new FatalException("Document " + configurationSchemaPath + " is not valid against XSD schema: " + ex
+            throw new FatalException("Document " + configurationPath + " is not valid against XSD schema: " + ex
                     .getMessage(), ex);
         } catch (IOException e) {
             throw new FatalException(" File " + configurationPath + " not found. " + e.getMessage(), e);
@@ -106,7 +144,10 @@ public class ConfigurationSchemaValidator {
     private void validateDomainObjectConfiguration(Validator validator) throws SAXException, IOException {
         validator.setErrorHandler(new ValidationErrorHandler());
 
-        InputStream configurationInputStream = FileUtils.getFileInputStream(configurationPath);
+        if (configurationInputStream == null) {
+            configurationInputStream = FileUtils.getFileInputStream(configurationPath);
+        }
+
         Source source = new StreamSource(configurationInputStream);
         validator.validate(source);
     }

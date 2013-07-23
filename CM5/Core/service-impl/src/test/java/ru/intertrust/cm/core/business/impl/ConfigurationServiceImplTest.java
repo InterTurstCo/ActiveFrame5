@@ -12,14 +12,14 @@ import ru.intertrust.cm.core.business.api.AuthenticationService;
 import ru.intertrust.cm.core.config.ConfigurationException;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.config.ConfigurationSerializer;
+import ru.intertrust.cm.core.config.TopLevelConfigurationCache;
 import ru.intertrust.cm.core.config.model.*;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 
-import java.util.*;
-
-import static junit.framework.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 /**
@@ -30,12 +30,6 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigurationServiceImplTest {
 
-    private static final String DOMAIN_OBJECTS_CONFIG_PATH = "test-config/domain-objects-test.xml";
-    private static final String COLLECTIONS_CONFIG_PATH = "test-config/collections-test.xml";
-    private static final String CONFIGURATION_SCHEMA = "test-config/configuration-test.xsd";
-    private static final Set<String> CONFIG_PATHS = new HashSet<>(Arrays.asList(
-            new String[]{DOMAIN_OBJECTS_CONFIG_PATH, COLLECTIONS_CONFIG_PATH}));
-
     @InjectMocks
     private ConfigurationServiceImpl configurationService = new ConfigurationServiceImpl();
     @Mock
@@ -44,6 +38,8 @@ public class ConfigurationServiceImplTest {
     private ConfigurationDao configurationDao;
     @Mock
     private AuthenticationService authenticationService;
+    @Mock
+    private ConfigurationSerializer configurationSerializer;
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -53,12 +49,9 @@ public class ConfigurationServiceImplTest {
 
     @Before
     public void setUp() throws Exception {
-        ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
-        configurationSerializer.setConfigurationFilePaths(CONFIG_PATHS);
-        configurationSerializer.setConfigurationSchemaFilePath(CONFIGURATION_SCHEMA);
+        TopLevelConfigurationCache.getInstance().build();
 
-        configuration = configurationSerializer.serializeConfiguration();
-        assertNotNull(configuration); // проверяем, что конфигурация сериализована из файла
+        configuration = createConfiguration();
 
         configurationExplorer = new ConfigurationExplorerImpl();
         configurationExplorer.setConfiguration(configuration);
@@ -85,6 +78,11 @@ public class ConfigurationServiceImplTest {
 
         String configurationString = ConfigurationSerializer.deserializeConfiguration(configuration);
         when(configurationDao.readLastSavedConfiguration()).thenReturn(configurationString);
+        when(configurationSerializer.serializeTrustedConfiguration(configurationString)).thenReturn(configuration);
+
+        Configuration updatedConfiguration = createConfiguration();
+        configurationExplorer.setConfiguration(updatedConfiguration);
+        configurationExplorer.build();
 
         // Вносим изменения в конфигурацию
         DomainObjectTypeConfig domainObjectTypeConfig =
@@ -116,7 +114,7 @@ public class ConfigurationServiceImplTest {
         verify(dataStructureDao).countTables();
         verify(dataStructureDao).updateTableStructure(anyString(), anyListOf(FieldConfig.class),
                 anyListOf(UniqueKeyConfig.class), any(DomainObjectParentConfig.class));
-        verify(configurationDao).save(ConfigurationSerializer.deserializeConfiguration(configuration));
+        verify(configurationDao).save(ConfigurationSerializer.deserializeConfiguration(updatedConfiguration));
     }
 
     @Test
@@ -125,6 +123,7 @@ public class ConfigurationServiceImplTest {
 
         String configurationString = ConfigurationSerializer.deserializeConfiguration(configuration);
         when(configurationDao.readLastSavedConfiguration()).thenReturn(configurationString);
+        when(configurationSerializer.serializeTrustedConfiguration(configurationString)).thenReturn(configuration);
 
         configurationService.loadConfiguration();
 
@@ -142,8 +141,41 @@ public class ConfigurationServiceImplTest {
 
         verify(dataStructureDao).countTables();
         verify(dataStructureDao).createServiceTables();
-        verify(dataStructureDao, times(4)).createTable(any(DomainObjectTypeConfig.class));
-        verify(dataStructureDao, times(4)).createSequence(any(DomainObjectTypeConfig.class));
+        verify(dataStructureDao, times(2)).createTable(any(DomainObjectTypeConfig.class));
+        verify(dataStructureDao, times(2)).createSequence(any(DomainObjectTypeConfig.class));
         verify(configurationDao).save(ConfigurationSerializer.deserializeConfiguration(configuration));
+    }
+
+    private DomainObjectTypeConfig createOutgoingDocument() {
+        DomainObjectTypeConfig result = new DomainObjectTypeConfig();
+        result.setName("Outgoing_Document");
+
+        StringFieldConfig registrationNumber = new StringFieldConfig();
+        registrationNumber.setName("Registration_Number");
+        registrationNumber.setLength(256);
+        registrationNumber.setNotNull(true);
+        result.getFieldConfigs().add(registrationNumber);
+
+        DateTimeFieldConfig registrationDate = new DateTimeFieldConfig();
+        registrationDate.setName("Registration_Date");
+        registrationDate.setNotNull(true);
+        result.getFieldConfigs().add(registrationDate);
+
+        return result;
+    }
+
+    private DomainObjectTypeConfig createEmployee() {
+        DomainObjectTypeConfig result = new DomainObjectTypeConfig();
+        result.setName("Employee");
+
+        return result;
+    }
+
+    private Configuration createConfiguration() {
+        Configuration configuration = new Configuration();
+        configuration.getConfigurationList().add(createOutgoingDocument());
+        configuration.getConfigurationList().add(createEmployee());
+
+        return configuration;
     }
 }
