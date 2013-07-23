@@ -415,14 +415,29 @@
 
     <xs:complexType name="permissionsType">
         <xs:sequence>
-            <xs:element name="permit" type="con:permissionType"
+            <xs:element name="permit-role" type="con:permissionRoleType"
                 maxOccurs="unbounded" minOccurs="0"
                 xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element name="permit-group" type="con:permissionGroupType"
+                maxOccurs="unbounded" minOccurs="0"
+                xmlns:con="https://cm5.intertrust.ru/config" />                
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="permissionType">
-        <xs:attribute name="role" type="xs:string" use="required"></xs:attribute>
+    <xs:complexType name="permissionRoleType">
+        <xs:complexContent>
+            <xs:extension base="con:permissionBaseType" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:complexContent>    
+    </xs:complexType>
+    
+    <xs:complexType name="permissionGroupType">
+        <xs:complexContent>
+            <xs:extension base="con:permissionBaseType" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:complexContent>    
+    </xs:complexType>
+
+    <xs:complexType name="permissionBaseType">
+        <xs:attribute name="name" type="xs:string" use="required"></xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="createChildPermissionsType">

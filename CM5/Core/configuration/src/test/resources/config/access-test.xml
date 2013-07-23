@@ -109,19 +109,20 @@
     <access-matrix type="Outgoing document">
         <status name="Draft">
             <read>
-                <permit role="Автор документа"></permit>
+                <permit-role name="Автор документа"></permit-role>
+                <permit-group name="Пользователь и его заместители"></permit-group>
             </read>
             <write>
-                <permit role="Автор документа"></permit>
+                <permit-role name="Автор документа"></permit-role>
             </write>
             <delete>
-                <permit role="Автор документа"></permit>
+                <permit-role name="Автор документа"></permit-role>
             </delete>            
             <create-child type="Employee">
-                <permit role="Автор документа"></permit>
+                <permit-role name="Автор документа"></permit-role>
             </create-child>
             <execute-action name="action1">
-                <permit role="Автор документа"></permit>
+                <permit-role name="Автор документа"></permit-role>
             </execute-action>            
         </status>
     </access-matrix>
