@@ -34,7 +34,13 @@
 
         <dependency>
             <groupId>ru.intertrust.cm-sochi</groupId>
-            <artifactId>gui-impl</artifactId>
+            <artifactId>gui-client-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ru.intertrust.cm-sochi</groupId>
+            <artifactId>gui-server-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -70,7 +76,8 @@
                 </executions>
                 <configuration>
                     <compileSourcesArtifacts>
-                        <artifact>ru.intertrust.cm-sochi:gui-impl</artifact>
+                        <artifact>ru.intertrust.cm-sochi:gui-client-api</artifact>
+                        <artifact>ru.intertrust.cm-sochi:gui-client-impl</artifact>
                         <artifact>ru.intertrust.cm-sochi:model</artifact>
                     </compileSourcesArtifacts>
                 </configuration>
