@@ -9,7 +9,11 @@ import ru.intertrust.cm.core.config.model.FieldConfig;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static junit.framework.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import static ru.intertrust.cm.core.config.Constants.*;
 
 /**
  * @author vmatsukevich
@@ -22,21 +26,13 @@ public class ConfigurationExplorerImplTest {
     private static final String EMPLOYEES_CONFIG_NAME = "Employees";
     private static final String E_MAIL_CONFIG_NAME = "EMail";
 
-    private static final String CONFIGURATION_SCHEMA_PATH = "test-config/configuration-test.xsd";
-    private static final String DOMAIN_OBJECTS_CONFIG_PATH = "test-config/domain-objects-test.xml";
-    private static final String COLLECTIONS_CONFIG_PATH = "test-config/collections-test.xml";
-
-    private static final Set<String> CONFIG_PATHS =
-            new HashSet<>(Arrays.asList(DOMAIN_OBJECTS_CONFIG_PATH, COLLECTIONS_CONFIG_PATH));
-
     private Configuration configuration;
     private ConfigurationExplorerImpl configurationExplorer;
 
     @Before
     public void setUp() throws Exception {
-        ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
-        configurationSerializer.setConfigurationFilePaths(CONFIG_PATHS);
-        configurationSerializer.setConfigurationSchemaFilePath(CONFIGURATION_SCHEMA_PATH);
+        ConfigurationSerializer configurationSerializer =
+                ConfigurationSerializerTest.createConfigurationSerializer(DOMAIN_OBJECTS_CONFIG_PATH);
 
         configuration = configurationSerializer.serializeConfiguration();
         configurationExplorer = new ConfigurationExplorerImpl(configuration);
@@ -73,10 +69,11 @@ public class ConfigurationExplorerImplTest {
         Collection<DomainObjectTypeConfig> domainObjectTypeConfigs = configurationExplorer.getDomainObjectConfigs();
 
         assertNotNull(domainObjectTypeConfigs);
-        assertEquals(domainObjectTypeConfigs.size(), 4);
+        assertEquals(6, domainObjectTypeConfigs.size());
 
         List<String> domainObjectNames = new ArrayList<>();
-        domainObjectNames.addAll(Arrays.asList("Outgoing_Document", PERSON_CONFIG_NAME, "Employee", "Department"));
+        domainObjectNames.addAll(Arrays.asList("Outgoing_Document", PERSON_CONFIG_NAME, "Employee", "Department",
+                "Incoming_Document", "Incoming_Document2"));
 
         for(DomainObjectTypeConfig domainObjectTypeConfig : domainObjectTypeConfigs) {
             String name = domainObjectTypeConfig.getName();

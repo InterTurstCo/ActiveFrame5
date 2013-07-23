@@ -7,10 +7,13 @@
 
     <bean class="ru.intertrust.cm.core.util.SpringApplicationContext"/>
 
-    <bean id="configurationSerializer"
+    <bean id="configurationSerializer" depends-on="topLevelConfigurationCacheInitializer"
           class="ru.intertrust.cm.core.config.ConfigurationSerializer"
-          p:configurationSchemaFilePath="config/configuration.xsd">
-        <property name="configurationFilePaths">
+          p:coreConfigurationSchemaFilePath="config/configuration.xsd"
+          p:modulesConfigurationSchemaPath="config/modules-configuration.xsd"
+          p:modulesConfigurationFolder="modules-configuration"
+          p:modulesConfigurationPath="/modules-configuration.xml">
+        <property name="coreConfigurationFilePaths">
             <set>
                 <value>config/domain-objects.xml</value>
                 <value>config/collections.xml</value>
@@ -25,5 +28,8 @@
                   factory-bean="configurationSerializer" factory-method="serializeConfiguration"/>
         </property>
     </bean>
+
+    <bean id="topLevelConfigurationCacheInitializer"
+          class="ru.intertrust.cm.core.config.TopLevelConfigurationCacheInitializer" init-method="init"/>
 
 </beans>

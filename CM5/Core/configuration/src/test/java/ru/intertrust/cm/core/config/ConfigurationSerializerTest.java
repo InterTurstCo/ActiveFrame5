@@ -3,14 +3,7 @@ package ru.intertrust.cm.core.config;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-
-import ru.intertrust.cm.core.config.model.AccessMatrixConfig;
-import ru.intertrust.cm.core.config.model.CollectionConfig;
-import ru.intertrust.cm.core.config.model.Configuration;
-import ru.intertrust.cm.core.config.model.ContextRoleConfig;
-import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.model.DynamicGroupConfig;
-import ru.intertrust.cm.core.config.model.StaticGroupConfig;
+import ru.intertrust.cm.core.config.model.*;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -21,6 +14,7 @@ import java.nio.charset.Charset;
 import java.util.*;
 
 import static org.junit.Assert.*;
+import static ru.intertrust.cm.core.config.Constants.*;
 
 /**
  * @author vmatsukevich
@@ -29,14 +23,10 @@ import static org.junit.Assert.*;
  */
 public class ConfigurationSerializerTest {
 
-    private static final String CONFIGURATION_SCHEMA_PATH = "test-config/configuration-test.xsd";
-    private static final String DOMAIN_OBJECTS_CONFIG_PATH = "test-config/domain-objects-test.xml";
-    private static final String COLLECTIONS_CONFIG_PATH = "test-config/collections-test.xml";
-    private static final String ACCESS_CONFIG_PATH = "test-config/access-test.xml";    
-
-    private static final String DESERIALIZED_CONFIGURATION_PATH = "test-config/deserialized-configuration-test.xml";
-    private static final String INVALID_DESERIALIZED_CONFIGURATION_PATH =
-            "test-config/deserialized-configuration-invalid-test.xml";
+    private static final String ACCESS_CONFIG_PATH = "config/access-test.xml";
+    private static final String SERIALIZED_CONFIGURATION_PATH = "config/serialized-configuration-test.xml";
+    private static final String INVALID_SERIALIZED_CONFIGURATION_PATH =
+            "config/serialized-configuration-invalid-test.xml";
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -45,10 +35,10 @@ public class ConfigurationSerializerTest {
     public void testDeserializeConfiguration() throws Exception {
         ConfigurationSerializer configurationSerializer = createConfigurationSerializer(DOMAIN_OBJECTS_CONFIG_PATH);
         Configuration configuration = configurationSerializer.serializeConfiguration();
-        String testDeserializedConfiguration = ConfigurationSerializer.deserializeConfiguration(configuration);
+        String serializedConfiguration = ConfigurationSerializer.deserializeConfiguration(configuration);
 
-        String deserializedConfiguration = readTextFile(DESERIALIZED_CONFIGURATION_PATH).replaceAll("\r\n", "\n");
-        assertEquals(testDeserializedConfiguration, deserializedConfiguration);
+        String expectedSerializedConfiguration = readTextFile(SERIALIZED_CONFIGURATION_PATH).replaceAll("\r\n", "\n");
+        assertEquals(expectedSerializedConfiguration, serializedConfiguration);
     }
 
     @Test
@@ -61,12 +51,13 @@ public class ConfigurationSerializerTest {
 
     @Test
     public void testSerializeTrustedConfiguration() throws Exception {
-        String deserializedConfiguration = readTextFile(DESERIALIZED_CONFIGURATION_PATH);
+        ConfigurationSerializer configurationSerializer = createConfigurationSerializer(DOMAIN_OBJECTS_CONFIG_PATH);
+
+        String deserializedConfiguration = readTextFile(SERIALIZED_CONFIGURATION_PATH);
         Configuration testConfiguration =
-                ConfigurationSerializer.serializeTrustedConfiguration(deserializedConfiguration);
+                configurationSerializer.serializeTrustedConfiguration(deserializedConfiguration);
         assertNotNull(testConfiguration);
 
-        ConfigurationSerializer configurationSerializer = createConfigurationSerializer(DOMAIN_OBJECTS_CONFIG_PATH);
         Configuration configuration = configurationSerializer.serializeConfiguration();
 
         assertEquals(testConfiguration, configuration);
@@ -74,16 +65,17 @@ public class ConfigurationSerializerTest {
 
     @Test
     public void testSerializeTrustedConfigurationInvalid() throws Exception {
-        String deserializedConfiguration = readTextFile(INVALID_DESERIALIZED_CONFIGURATION_PATH);
+        String deserializedConfiguration = readTextFile(INVALID_SERIALIZED_CONFIGURATION_PATH);
 
         expectedException.expect(ConfigurationException.class);
         expectedException.expectMessage("Failed to serialize configuration from String");
 
-        ConfigurationSerializer.serializeTrustedConfiguration(deserializedConfiguration);
+        ConfigurationSerializer configurationSerializer = createConfigurationSerializer(DOMAIN_OBJECTS_CONFIG_PATH);
+        configurationSerializer.serializeTrustedConfiguration(deserializedConfiguration);
     }
 
     @Test
-    public void testSerializeConfiguration() throws Exception {
+     public void testSerializeConfiguration() throws Exception {
         ConfigurationSerializer configurationSerializer = createConfigurationSerializer(DOMAIN_OBJECTS_CONFIG_PATH);
         Configuration configuration = configurationSerializer.serializeConfiguration();
 
@@ -91,11 +83,11 @@ public class ConfigurationSerializerTest {
 
         List configurationList = configuration.getConfigurationList();
         assertNotNull(configurationList);
-        assertEquals(configurationList.size(), 6);
+        assertEquals(8, configurationList.size());
 
         List<String> configurationNames = new ArrayList<>();
         configurationNames.addAll(Arrays.asList("Employees", "Employees_2", "Outgoing_Document", "Person",
-                "Employee", "Department"));
+                "Employee", "Department", "Incoming_Document", "Incoming_Document2"));
 
         for (Object configurationItem : configurationList) {
             String name = DomainObjectTypeConfig.class.equals(configurationItem.getClass()) ?
@@ -109,16 +101,12 @@ public class ConfigurationSerializerTest {
 
     @Test
     public void testSerializeAccessConfiguration() throws Exception {
-        ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
-        Set<String> configPaths = new HashSet<>(Arrays.asList(ACCESS_CONFIG_PATH));
-        configurationSerializer.setConfigurationFilePaths(configPaths);
-        configurationSerializer.setConfigurationSchemaFilePath(CONFIGURATION_SCHEMA_PATH);
+        ConfigurationSerializer configurationSerializer = createConfigurationSerializer(ACCESS_CONFIG_PATH);
 
         Configuration configuration = configurationSerializer.serializeConfiguration();
-
         assertNotNull(configuration);
         List configurationList = configuration.getConfigurationList();
-        
+
         for (Object configurationItem : configurationList) {
             if (StaticGroupConfig.class.equals(configurationItem.getClass())) {
                 assertNotNull(((StaticGroupConfig) configurationItem).getName());
@@ -134,11 +122,19 @@ public class ConfigurationSerializerTest {
         }
     }
 
-    private ConfigurationSerializer createConfigurationSerializer(String configPath) throws Exception {
+    static ConfigurationSerializer createConfigurationSerializer(String configPath) throws Exception {
+        TopLevelConfigurationCache.getInstance().build(); // Инициализируем кэш конфигурации тэг-класс
+
         ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
-        Set<String> configPaths = new HashSet<>(Arrays.asList(configPath, COLLECTIONS_CONFIG_PATH));
-        configurationSerializer.setConfigurationFilePaths(configPaths);
-        configurationSerializer.setConfigurationSchemaFilePath(CONFIGURATION_SCHEMA_PATH);
+        Set<String> configPaths =
+                new HashSet<>(Arrays.asList(configPath, COLLECTIONS_CONFIG_PATH));
+
+        configurationSerializer.setCoreConfigurationFilePaths(configPaths);
+        configurationSerializer.setCoreConfigurationSchemaFilePath(CONFIGURATION_SCHEMA_PATH);
+
+        configurationSerializer.setModulesConfigurationFolder(MODULES_CONFIG_FOLDER);
+        configurationSerializer.setModulesConfigurationPath(MODULES_CONFIG_PATH);
+        configurationSerializer.setModulesConfigurationSchemaPath(MODULES_CONFIG_SCHEMA_PATH);
 
         return configurationSerializer;
     }

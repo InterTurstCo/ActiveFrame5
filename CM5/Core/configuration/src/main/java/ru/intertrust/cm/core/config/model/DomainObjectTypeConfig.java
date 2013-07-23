@@ -5,7 +5,6 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +14,7 @@ import java.util.List;
  *         Time: 8:50 PM
  */
 @Root(name = "domain-object-type")
-public class DomainObjectTypeConfig implements Serializable {
+public class DomainObjectTypeConfig implements TopLevelConfig {
 
     private Long id;
 
@@ -46,10 +45,12 @@ public class DomainObjectTypeConfig implements Serializable {
         this.id = id;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public void setName(String name) {
         this.name = name;
     }

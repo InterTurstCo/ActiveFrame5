@@ -11,13 +11,13 @@ import org.junit.rules.ExpectedException;
  */
 public class ConfigurationSchemaValidatorTest {
 
-    private static final String CONFIGURATION_SCHEMA = "test-config/configuration-test.xsd";
-    private static final String CONFIGURATION_VALID = "test-config/domain-objects-test.xml";
-    private static final String CONFIGURATION_INVALID = "test-config/domain-objects-invalid-test.xml";
+    private static final String CONFIGURATION_SCHEMA = "config/configuration-test.xsd";
+    private static final String CONFIGURATION_VALID = "config/domain-objects-test.xml";
+    private static final String CONFIGURATION_INVALID = "config/domain-objects-invalid-test.xml";
     private static final String CONFIGURATION_INVALID_LONG_NAME =
-            "test-config/domain-objects-invalid-long-name-test.xml";
-    private static final String CONFIGURATION_INVALID_REFERENCE = "test-config/domain-objects-invalid-reference.xml";
-    private static final String COLLECTIONS_CONFIGURATION_VALID = "test-config/collections-test.xml";
+            "config/domain-objects-invalid-long-name-test.xml";
+    private static final String CONFIGURATION_INVALID_REFERENCE = "config/domain-objects-invalid-reference.xml";
+    private static final String COLLECTIONS_CONFIGURATION_VALID = "config/collections-test.xml";
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -71,7 +71,7 @@ public class ConfigurationSchemaValidatorTest {
 
     @Test
     public void testNullConfigurationPath() throws Exception {
-        ConfigurationSchemaValidator validator = new ConfigurationSchemaValidator(null, CONFIGURATION_SCHEMA);
+        ConfigurationSchemaValidator validator = new ConfigurationSchemaValidator((String) null, CONFIGURATION_SCHEMA);
 
         expectedException.expect(RuntimeException.class);
         expectedException.expectMessage("Please set the configurationPath for ConfigurationSchemaValidator before validating");

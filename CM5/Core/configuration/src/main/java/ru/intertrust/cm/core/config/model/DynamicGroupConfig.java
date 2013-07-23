@@ -1,7 +1,5 @@
 package ru.intertrust.cm.core.config.model;
 
-import java.io.Serializable;
-
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
@@ -13,24 +11,26 @@ import org.simpleframework.xml.Root;
  * @author atsvetkov
  */
 @Root(name = "dynamic-group")
-public class DynamicGroupConfig implements Serializable {
+public class DynamicGroupConfig implements TopLevelConfig {
 
     @Attribute(required = true)
     private String name;
-    
+
     @Element(name = "context", required = false)
     private ContextConfig context;
-    
+
     @Element(name = "members", required = false)
     private MembersConfig members;
 
     @Element(name = "include-group", required = false)
     private IncludeGroupConfig includeGroup;
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public void setName(String name) {
         this.name = name;
     }
@@ -58,7 +58,7 @@ public class DynamicGroupConfig implements Serializable {
     public void setIncludeGroup(IncludeGroupConfig includeGroup) {
         this.includeGroup = includeGroup;
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -91,5 +91,5 @@ public class DynamicGroupConfig implements Serializable {
         int result = name != null ? name.hashCode() : 0;
         return result;
     }
-    
+
 }

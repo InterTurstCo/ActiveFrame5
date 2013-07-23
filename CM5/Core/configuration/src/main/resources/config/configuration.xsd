@@ -92,7 +92,7 @@
     </xs:complexType>
 
     <xs:complexType name="configurationType">
-        <xs:sequence>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
             <xs:element type="con:domainObjectType"
                 name="domain-object-type" maxOccurs="unbounded"
                 minOccurs="0"
@@ -112,7 +112,7 @@
             <xs:element name="access-matrix" type="con:accessMatrixType"
                 maxOccurs="unbounded" minOccurs="0"
                 xmlns:con="https://cm5.intertrust.ru/config" />
-        </xs:sequence>
+        </xs:choice>
     </xs:complexType>
 
     <xs:complexType name="uniqueKeyType">
