@@ -45,7 +45,6 @@ public class CollectionConfig implements TopLevelConfig {
         return name;
     }
 
-    @Override
     public void setName(String name) {
         this.name = name;
     }

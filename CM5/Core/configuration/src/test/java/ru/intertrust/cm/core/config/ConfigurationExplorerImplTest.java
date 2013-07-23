@@ -26,47 +26,50 @@ public class ConfigurationExplorerImplTest {
     private static final String EMPLOYEES_CONFIG_NAME = "Employees";
     private static final String E_MAIL_CONFIG_NAME = "EMail";
 
-    private Configuration configuration;
-    private ConfigurationExplorerImpl configurationExplorer;
+    private Configuration config;
+    private ConfigurationExplorerImpl configExplorer;
 
     @Before
     public void setUp() throws Exception {
         ConfigurationSerializer configurationSerializer =
                 ConfigurationSerializerTest.createConfigurationSerializer(DOMAIN_OBJECTS_CONFIG_PATH);
 
-        configuration = configurationSerializer.serializeConfiguration();
-        configurationExplorer = new ConfigurationExplorerImpl(configuration);
-        configurationExplorer.build();
+        config = configurationSerializer.serializeConfiguration();
+        configExplorer = new ConfigurationExplorerImpl(config);
+        configExplorer.build();
     }
 
     @Test
     public void testGetConfiguration() throws Exception {
-        Configuration testConfiguration = configurationExplorer.getConfiguration();
-        assertTrue(configuration == testConfiguration);
+        Configuration testConfiguration = configExplorer.getConfiguration();
+        assertTrue(config == testConfiguration);
     }
 
     @Test
     public void testSetConfiguration() throws Exception {
-        configurationExplorer.setConfiguration(configuration);
-        Configuration testConfiguration = configurationExplorer.getConfiguration();
-        assertTrue(configuration == testConfiguration);
+        configExplorer.setConfiguration(config);
+        Configuration testConfiguration = configExplorer.getConfiguration();
+        assertTrue(config == testConfiguration);
     }
 
     @Test
     public void testInit() throws Exception {
-        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer.getDomainObjectTypeConfig(PERSON_CONFIG_NAME);
+        DomainObjectTypeConfig domainObjectTypeConfig =
+                configExplorer.getConfig(DomainObjectTypeConfig.class, PERSON_CONFIG_NAME);
         assertNotNull(domainObjectTypeConfig);
 
-        FieldConfig fieldConfig = configurationExplorer.getFieldConfig(PERSON_CONFIG_NAME, E_MAIL_CONFIG_NAME);
+        FieldConfig fieldConfig = configExplorer.getFieldConfig(PERSON_CONFIG_NAME, E_MAIL_CONFIG_NAME);
         assertNotNull(fieldConfig);
 
-        CollectionConfig collectionConfig = configurationExplorer.getCollectionConfig(EMPLOYEES_CONFIG_NAME);
+        CollectionConfig collectionConfig =
+                configExplorer.getConfig(CollectionConfig.class, EMPLOYEES_CONFIG_NAME);
         assertNotNull(collectionConfig);
     }
 
     @Test
     public void testGetDomainObjectConfigs() throws Exception {
-        Collection<DomainObjectTypeConfig> domainObjectTypeConfigs = configurationExplorer.getDomainObjectConfigs();
+        Collection<DomainObjectTypeConfig> domainObjectTypeConfigs =
+                configExplorer.getConfigs(DomainObjectTypeConfig.class);
 
         assertNotNull(domainObjectTypeConfigs);
         assertEquals(6, domainObjectTypeConfigs.size());
@@ -84,7 +87,7 @@ public class ConfigurationExplorerImplTest {
 
     @Test
     public void testGetCollectionConfigs() throws Exception {
-        Collection<CollectionConfig> collectionConfigs = configurationExplorer.getCollectionConfigs();
+        Collection<CollectionConfig> collectionConfigs = configExplorer.getConfigs(CollectionConfig.class);
 
         assertNotNull(collectionConfigs);
         assertEquals(collectionConfigs.size(), 2);
@@ -101,21 +104,23 @@ public class ConfigurationExplorerImplTest {
 
     @Test
     public void testGetDomainObjectConfig() throws Exception {
-        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer.getDomainObjectTypeConfig(PERSON_CONFIG_NAME);
+        DomainObjectTypeConfig domainObjectTypeConfig =
+                configExplorer.getConfig(DomainObjectTypeConfig.class, PERSON_CONFIG_NAME);
         assertNotNull(domainObjectTypeConfig);
         assertEquals(domainObjectTypeConfig.getName(), PERSON_CONFIG_NAME);
     }
 
     @Test
     public void testGetCollectionConfig() throws Exception {
-        CollectionConfig collectionConfig = configurationExplorer.getCollectionConfig(EMPLOYEES_CONFIG_NAME);
+        CollectionConfig collectionConfig =
+                configExplorer.getConfig(CollectionConfig.class, EMPLOYEES_CONFIG_NAME);
         assertNotNull(collectionConfig);
         assertEquals(collectionConfig.getName(), EMPLOYEES_CONFIG_NAME);
     }
 
     @Test
     public void testGetFieldConfig() throws Exception {
-        FieldConfig fieldConfig = configurationExplorer.getFieldConfig(PERSON_CONFIG_NAME, E_MAIL_CONFIG_NAME);
+        FieldConfig fieldConfig = configExplorer.getFieldConfig(PERSON_CONFIG_NAME, E_MAIL_CONFIG_NAME);
         assertNotNull(fieldConfig);
         assertEquals(fieldConfig.getName(), E_MAIL_CONFIG_NAME);
     }

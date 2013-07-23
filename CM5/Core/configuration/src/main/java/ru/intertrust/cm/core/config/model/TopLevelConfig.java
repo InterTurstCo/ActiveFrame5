@@ -9,5 +9,4 @@ import java.io.Serializable;
  */
 public interface TopLevelConfig extends Serializable {
     String getName();
-    void setName(String name);
 }

@@ -44,7 +44,7 @@ public class ConfigurationServiceImplTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    private ConfigurationExplorerImpl configurationExplorer;
+    private ConfigurationExplorerImpl configExplorer;
     private Configuration configuration;
 
     @Before
@@ -53,11 +53,11 @@ public class ConfigurationServiceImplTest {
 
         configuration = createConfiguration();
 
-        configurationExplorer = new ConfigurationExplorerImpl();
-        configurationExplorer.setConfiguration(configuration);
-        configurationExplorer.build();
+        configExplorer = new ConfigurationExplorerImpl();
+        configExplorer.setConfiguration(configuration);
+        configExplorer.build();
 
-        configurationService.setConfigurationExplorer(configurationExplorer);
+        configurationService.setConfigurationExplorer(configExplorer);
     }
 
     @Test
@@ -81,12 +81,12 @@ public class ConfigurationServiceImplTest {
         when(configurationSerializer.serializeTrustedConfiguration(configurationString)).thenReturn(configuration);
 
         Configuration updatedConfiguration = createConfiguration();
-        configurationExplorer.setConfiguration(updatedConfiguration);
-        configurationExplorer.build();
+        configExplorer.setConfiguration(updatedConfiguration);
+        configExplorer.build();
 
         // Вносим изменения в конфигурацию
         DomainObjectTypeConfig domainObjectTypeConfig =
-                configurationExplorer.getDomainObjectTypeConfig("Outgoing_Document");
+                configExplorer.getConfig(DomainObjectTypeConfig.class, "Outgoing_Document");
 
         StringFieldConfig descriptionFieldConfig = new StringFieldConfig();
         descriptionFieldConfig.setName("Long_Description");
@@ -106,8 +106,8 @@ public class ConfigurationServiceImplTest {
         uniqueKeyConfig.getUniqueKeyFieldConfigs().add(uniqueKeyFieldConfig);
         domainObjectTypeConfig.getUniqueKeyConfigs().add(uniqueKeyConfig);
 
-        // Пересобираем configurationExplorer
-        configurationExplorer.build();
+        // Пересобираем configExplorer
+        configExplorer.build();
 
         configurationService.loadConfiguration();
 

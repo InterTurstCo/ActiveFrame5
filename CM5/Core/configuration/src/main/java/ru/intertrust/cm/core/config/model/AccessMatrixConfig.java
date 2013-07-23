@@ -1,7 +1,5 @@
 package ru.intertrust.cm.core.config.model;
 
-import java.io.Serializable;
-
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
@@ -12,7 +10,7 @@ import org.simpleframework.xml.Root;
  *
  */
 @Root(name = "accessMatrix")
-public class AccessMatrixConfig implements Serializable {
+public class AccessMatrixConfig implements TopLevelConfig {
 
     @Attribute(required = true)
     private String type;
@@ -63,5 +61,9 @@ public class AccessMatrixConfig implements Serializable {
         int result = type != null ? type.hashCode() : 0;
         result = 31 * result + (status != null ? status.hashCode() : 0);
         return result;
+    }
+    @Override
+    public String getName() {
+        return type;
     }
 }

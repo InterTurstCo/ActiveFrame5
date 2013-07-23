@@ -65,7 +65,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         domainObject.setModifiedDate(currentDate);
 
         DomainObjectTypeConfig domainObjectTypeConfig =
-                configurationExplorer.getDomainObjectTypeConfig(domainObject.getTypeName());
+                configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObject.getTypeName());
 
         validateParentIdType(domainObject, domainObjectTypeConfig);
 
@@ -117,7 +117,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     public DomainObject update(DomainObject domainObject) throws InvalidIdException, ObjectNotFoundException,
             OptimisticLockException {
         DomainObjectTypeConfig domainObjectTypeConfig =
-                configurationExplorer.getDomainObjectTypeConfig(domainObject.getTypeName());
+                configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObject.getTypeName());
 
         validateIdType(domainObject.getId());
         validateParentIdType(domainObject, domainObjectTypeConfig);
@@ -151,7 +151,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         RdbmsId rdbmsId = (RdbmsId) id;
 
         DomainObjectTypeConfig domainObjectTypeConfig =
-                configurationExplorer.getDomainObjectTypeConfig(rdbmsId.getTypeName());
+                configurationExplorer.getConfig(DomainObjectTypeConfig.class, rdbmsId.getTypeName());
         String query = generateDeleteQuery(domainObjectTypeConfig);
 
         Map<String, Object> parameters = initializeIdParameter(rdbmsId);

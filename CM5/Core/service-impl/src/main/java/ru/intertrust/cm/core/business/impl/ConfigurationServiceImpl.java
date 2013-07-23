@@ -120,7 +120,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         }
 
         public void load() {
-            Collection<DomainObjectTypeConfig> configList = configurationExplorer.getDomainObjectConfigs();
+            Collection<DomainObjectTypeConfig> configList =
+                    configurationExplorer.getConfigs(DomainObjectTypeConfig.class);
             if(configList.isEmpty())  {
                 return;
             }
@@ -149,13 +150,15 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         private void loadDependentDomainObjectConfigs(DomainObjectTypeConfig domainObjectTypeConfig) {
             DomainObjectParentConfig parentConfig = domainObjectTypeConfig.getParentConfig();
             if (parentConfig != null) {
-                loadDomainObjectConfig(configurationExplorer.getDomainObjectTypeConfig(parentConfig.getName()));
+                loadDomainObjectConfig(configurationExplorer.getConfig(DomainObjectTypeConfig.class,
+                        parentConfig.getName()));
             }
 
             for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
                 if ((ReferenceFieldConfig.class.equals(fieldConfig.getClass()))) {
                     ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
-                    loadDomainObjectConfig(configurationExplorer.getDomainObjectTypeConfig(referenceFieldConfig.getType()));
+                    loadDomainObjectConfig(configurationExplorer.getConfig(DomainObjectTypeConfig.class,
+                            referenceFieldConfig.getType()));
                 }
             }
         }
@@ -190,16 +193,17 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     private class RecursiveMerger {
 
-        private final ConfigurationExplorer oldConfigurationExplorer;
+        private final ConfigurationExplorer oldConfigExplorer;
         private final Set<String> mergedDomainObjectConfigs = new HashSet<>();
 
         private RecursiveMerger(Configuration oldConfiguration) {
-            oldConfigurationExplorer = new ConfigurationExplorerImpl(oldConfiguration);
-            oldConfigurationExplorer.build();
+            oldConfigExplorer = new ConfigurationExplorerImpl(oldConfiguration);
+            oldConfigExplorer.build();
         }
 
         public void merge() {
-            Collection<DomainObjectTypeConfig> configList = configurationExplorer.getDomainObjectConfigs();
+            Collection<DomainObjectTypeConfig> configList =
+                    configurationExplorer.getConfigs(DomainObjectTypeConfig.class);
             if(configList.isEmpty())  {
                 return;
             }
@@ -217,7 +221,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             }
 
             DomainObjectTypeConfig oldDomainObjectTypeConfig =
-                    oldConfigurationExplorer.getDomainObjectTypeConfig(domainObjectTypeConfig.getName());
+                    oldConfigExplorer.getConfig(DomainObjectTypeConfig.class, domainObjectTypeConfig.getName());
 
             if (oldDomainObjectTypeConfig == null) {
                 loadDomainObjectConfig(domainObjectTypeConfig);
@@ -241,13 +245,15 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         private void mergeDependentDomainObjectConfigs(DomainObjectTypeConfig domainObjectTypeConfig) {
             DomainObjectParentConfig parentConfig = domainObjectTypeConfig.getParentConfig();
             if (parentConfig != null) {
-                loadDomainObjectConfig(configurationExplorer.getDomainObjectTypeConfig(parentConfig.getName()));
+                loadDomainObjectConfig(configurationExplorer.getConfig(DomainObjectTypeConfig.class,
+                        parentConfig.getName()));
             }
 
             for(FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
                 if((ReferenceFieldConfig.class.equals(fieldConfig.getClass()))) {
                     ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
-                    merge(configurationExplorer.getDomainObjectTypeConfig(referenceFieldConfig.getType()));
+                    merge(configurationExplorer.getConfig(DomainObjectTypeConfig.class,
+                            referenceFieldConfig.getType()));
                 }
             }
         }
@@ -261,7 +267,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
             for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
                 FieldConfig oldFieldConfig =
-                        oldConfigurationExplorer.getFieldConfig(domainObjectTypeConfig.getName(), fieldConfig.getName());
+                        oldConfigExplorer.getFieldConfig(domainObjectTypeConfig.getName(), fieldConfig.getName());
 
                 if (oldFieldConfig == null) {
                     newFieldConfigs.add(fieldConfig);
@@ -289,28 +295,28 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         }
 
         private void validateForDeletedConfigurations() {
-            for (DomainObjectTypeConfig oldDomainObjectTypeConfig : oldConfigurationExplorer.getDomainObjectConfigs()) {
+            for (DomainObjectTypeConfig oldDOTypeConfig : oldConfigExplorer.getConfigs(DomainObjectTypeConfig.class)) {
                 DomainObjectTypeConfig domainObjectTypeConfig =
-                        configurationExplorer.getDomainObjectTypeConfig(oldDomainObjectTypeConfig.getName());
+                        configurationExplorer.getConfig(DomainObjectTypeConfig.class, oldDOTypeConfig.getName());
                 if (domainObjectTypeConfig == null) {
                     throw new ConfigurationException("Configuration loading aborted: DomainObject configuration '" +
-                            oldDomainObjectTypeConfig.getName() + "' was deleted. " + COMMON_ERROR_MESSAGE);
+                            oldDOTypeConfig.getName() + "' was deleted. " + COMMON_ERROR_MESSAGE);
                 }
 
-                for (FieldConfig oldFieldConfig : oldDomainObjectTypeConfig.getFieldConfigs()) {
-                    FieldConfig fieldConfig = configurationExplorer.getFieldConfig(oldDomainObjectTypeConfig.getName(),
+                for (FieldConfig oldFieldConfig : oldDOTypeConfig.getFieldConfigs()) {
+                    FieldConfig fieldConfig = configurationExplorer.getFieldConfig(oldDOTypeConfig.getName(),
                             oldFieldConfig.getName());
                     if (fieldConfig == null) {
                         throw new ConfigurationException("Configuration loading aborted: Field " +
-                                "Configuration DomainObject '" + oldDomainObjectTypeConfig.getName() + "." +
+                                "Configuration DomainObject '" + oldDOTypeConfig.getName() + "." +
                                 oldFieldConfig.getName() + "' was deleted. " + COMMON_ERROR_MESSAGE);
                     }
                 }
 
-                if (!domainObjectTypeConfig.getUniqueKeyConfigs().containsAll(oldDomainObjectTypeConfig
+                if (!domainObjectTypeConfig.getUniqueKeyConfigs().containsAll(oldDOTypeConfig
                         .getUniqueKeyConfigs())) {
                     throw new ConfigurationException("Configuration loading aborted: some unique key " +
-                            "Configuration of DomainObject '" + oldDomainObjectTypeConfig.getName() + "' was deleted. " +
+                            "Configuration of DomainObject '" + oldDOTypeConfig.getName() + "' was deleted. " +
                             COMMON_ERROR_MESSAGE);
                 }
             }

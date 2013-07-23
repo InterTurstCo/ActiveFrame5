@@ -59,7 +59,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
     public IdentifiableObjectCollection findCollection(String collectionName,
                                                        List<Filter> filterValues,
                                                        SortOrder sortOrder, int offset, int limit) {
-        CollectionConfig collectionConfig = configurationExplorer.getCollectionConfig(collectionName);
+        CollectionConfig collectionConfig = configurationExplorer.getConfig(CollectionConfig.class, collectionName);
         List<CollectionFilterConfig> filledFilterConfigs = findFilledFilterConfigs(filterValues, collectionConfig);
         String collectionQuery =
                 getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, offset, limit);
@@ -80,7 +80,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
     @Override
     public int findCollectionCount(String collectionName,
                                    List<Filter> filterValues) {
-        CollectionConfig collectionConfig = configurationExplorer.getCollectionConfig(collectionName);
+        CollectionConfig collectionConfig = configurationExplorer.getConfig(CollectionConfig.class, collectionName);
         List<CollectionFilterConfig> filledFilterConfigs = findFilledFilterConfigs(filterValues, collectionConfig);
         String collectionQuery = getFindCollectionCountQuery(collectionConfig, filledFilterConfigs);
 
