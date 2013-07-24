@@ -23,4 +23,27 @@ public class TestFieldsConfig {
     public void setTestFieldConfigs(List<TestFieldConfig> testFieldConfigs) {
         this.testFieldConfigs = testFieldConfigs;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        TestFieldsConfig that = (TestFieldsConfig) o;
+
+        if (testFieldConfigs != null ? !testFieldConfigs.equals(that.testFieldConfigs) : that.testFieldConfigs != null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return testFieldConfigs != null ? testFieldConfigs.hashCode() : 0;
+    }
 }

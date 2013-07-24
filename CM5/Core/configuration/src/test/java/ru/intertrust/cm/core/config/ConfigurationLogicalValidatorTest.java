@@ -67,7 +67,7 @@ public class ConfigurationLogicalValidatorTest {
                 createConfigurationExplorer(DOMAIN_OBJECTS_INVALID_REFERENCE_CONFIG_PATH);
 
         expectedException.expect(ConfigurationException.class);
-        expectedException.expectMessage("Referenced DomainObject Configuration is not found for name 'Employee'");
+        expectedException.expectMessage("Definition is not found for 'Employee' referenced from 'Incoming_Document2'");
 
         configurationExplorer.build();
     }

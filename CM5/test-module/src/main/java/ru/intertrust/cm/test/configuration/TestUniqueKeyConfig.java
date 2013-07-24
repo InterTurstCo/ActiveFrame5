@@ -23,4 +23,27 @@ public class TestUniqueKeyConfig {
     public void setTestUniqueKeyFieldConfigs(List<TestUniqueKeyFieldConfig> testUniqueKeyFieldConfigs) {
         this.testUniqueKeyFieldConfigs = testUniqueKeyFieldConfigs;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        TestUniqueKeyConfig that = (TestUniqueKeyConfig) o;
+
+        if (testUniqueKeyFieldConfigs != null ? !testUniqueKeyFieldConfigs.equals(that.testUniqueKeyFieldConfigs) : that.testUniqueKeyFieldConfigs != null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return testUniqueKeyFieldConfigs != null ? testUniqueKeyFieldConfigs.hashCode() : 0;
+    }
 }

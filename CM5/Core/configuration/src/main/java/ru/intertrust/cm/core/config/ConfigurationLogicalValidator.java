@@ -74,8 +74,8 @@ public class ConfigurationLogicalValidator {
                         configurationExplorer.getConfig(DomainObjectTypeConfig.class,
                                 referencedDomainObjectConfigName);
                 if (referencedConfig == null) {
-                    throw new ConfigurationException("Referenced DomainObject Configuration is not found for name '" +
-                            referencedDomainObjectConfigName + "'");
+                    throw new ConfigurationException("Definition is not found for '" + referencedDomainObjectConfigName +
+                            "' referenced from '" + domainObjectTypeConfig.getName() + "'");
                 }
             }
         }
