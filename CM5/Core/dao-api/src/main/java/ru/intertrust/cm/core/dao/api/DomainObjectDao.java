@@ -105,4 +105,13 @@ public interface DomainObjectDao {
      * @return {@link List< ru.intertrust.cm.core.business.api.dto.DomainObject >}
      */
     List<DomainObject> find(List<Id> ids);
+
+    /**
+     * Поиск списка вложенных доменных объектов по уникальному идентификатору владельца в системе и типу дочернего
+     * (запрашиваемого) доменного объекта.
+     * @param domainObjectId - id идентификатор доменного объекта владельца вложений
+     * @param childType - тип вложенного (дочернего) доменного объекта
+     * @return
+     */
+    List<DomainObject> findChildren(Id domainObjectId, String childType);
 }

@@ -119,4 +119,13 @@ public interface CrudService {
      * @throws NullPointerException, если список или хотя бы один идентификатор в списке есть null
      */
     int delete(Collection<Id> ids);
+
+    /**
+     * Получает список доменных объектов Вложений для переданного доменного объекта
+     *
+     * @param domainObjectId уникальный идентификатор доменного объекта в системе
+     * @param childType тип доменного объекта в системе
+     * @return список доменных объектов Вложений для переданного доменного объекта
+     */
+    List<DomainObject> findChildren(Id domainObjectId, String childType);
 }

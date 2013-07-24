@@ -3,10 +3,8 @@ package ru.intertrust.cm.core.config;
 import ru.intertrust.cm.core.config.model.*;
 import ru.intertrust.cm.core.model.FatalException;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
 /**
  * Предоставляет быстрый доступ к элементам конфигурации.
@@ -94,22 +92,53 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         topLevelConfigMap.clear();
         fieldConfigMap.clear();
 
+        List<DomainObjectTypeConfig> ownerAttachmentDOTs = new ArrayList<>();
         for (TopLevelConfig config : configuration.getConfigurationList()) {
-            Map<String, TopLevelConfig> typeMap = topLevelConfigMap.get(config.getClass());
-            if(typeMap == null) {
-                typeMap = new HashMap<>();
-                topLevelConfigMap.put(config.getClass(), typeMap);
-            }
-            typeMap.put(config.getName(), config);
+            fillTopLevelConfigMap(config);
 
             if (DomainObjectTypeConfig.class.equals(config.getClass())) {
                 DomainObjectTypeConfig domainObjectTypeConfig = (DomainObjectTypeConfig) config;
-                for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
-                    FieldConfigKey fieldConfigKey =
-                            new FieldConfigKey(domainObjectTypeConfig.getName(), fieldConfig.getName());
-                    fieldConfigMap.put(fieldConfigKey, fieldConfig);
+                fillFieldsInFieldsConfigMap(domainObjectTypeConfig);
+                if (domainObjectTypeConfig.getAttachmentTypesConfig() != null) {
+                    ownerAttachmentDOTs.add(domainObjectTypeConfig);
                 }
             }
+        }
+
+        initConfigurationMapsOfAttachmentDomainObjectTypes(ownerAttachmentDOTs);
+    }
+
+    private void fillTopLevelConfigMap(TopLevelConfig config) {
+        Map<String, TopLevelConfig> typeMap = topLevelConfigMap.get(config.getClass());
+        if(typeMap == null) {
+            typeMap = new HashMap<>();
+            topLevelConfigMap.put(config.getClass(), typeMap);
+        }
+        typeMap.put(config.getName(), config);
+    }
+
+    private void fillFieldsInFieldsConfigMap(DomainObjectTypeConfig domainObjectTypeConfig) {
+        for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
+            FieldConfigKey fieldConfigKey =
+                    new FieldConfigKey(domainObjectTypeConfig.getName(), fieldConfig.getName());
+            fieldConfigMap.put(fieldConfigKey, fieldConfig);
+        }
+    }
+
+    private void initConfigurationMapsOfAttachmentDomainObjectTypes(List<DomainObjectTypeConfig> ownerAttachmentDOTs) {
+        try {
+            PrototypeHelper factory = new PrototypeHelper("Attachment");
+            for (DomainObjectTypeConfig domainObjectTypeConfig : ownerAttachmentDOTs) {
+                for (AttachmentTypeConfig attachmentTypeConfig : domainObjectTypeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs()) {
+                    DomainObjectTypeConfig attachmentDomainObjectTypeConfig = factory.makeDomainObjectTypeConfig(attachmentTypeConfig.getName(), domainObjectTypeConfig.getName());
+                    fillTopLevelConfigMap(attachmentDomainObjectTypeConfig);
+                    fillFieldsInFieldsConfigMap(attachmentDomainObjectTypeConfig);
+                }
+            }
+        } catch (IOException e) {
+            throw new ConfigurationException(e);
+        } catch (ClassNotFoundException e) {
+            throw new ConfigurationException(e);
         }
     }
 
@@ -149,6 +178,33 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
             int result = domainObjectName != null ? domainObjectName.hashCode() : 0;
             result = 31 * result + (fieldConfigName != null ? fieldConfigName.hashCode() : 0);
             return result;
+        }
+    }
+
+    private class PrototypeHelper {
+        private ByteArrayInputStream bis;
+
+        private PrototypeHelper(String templateName) throws IOException {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(bos);
+            topLevelConfigMap.get(DomainObjectTypeConfig.class).get(templateName);
+            TopLevelConfig templateDomainObjectTypeConfig = topLevelConfigMap.get(DomainObjectTypeConfig.class).get(templateName);
+            oos.writeObject(templateDomainObjectTypeConfig);
+            oos.close();
+            bis = new ByteArrayInputStream(bos.toByteArray());
+        }
+
+        public DomainObjectTypeConfig makeDomainObjectTypeConfig(String name, String parentName)
+                throws IOException, ClassNotFoundException {
+            bis.reset();
+            DomainObjectTypeConfig cloneDomainObjectTypeConfig = (DomainObjectTypeConfig) new ObjectInputStream(bis).readObject();
+            cloneDomainObjectTypeConfig.setTemplate(false);
+            DomainObjectTypeConfig parentDomainObjectTypeConfig = (DomainObjectTypeConfig) topLevelConfigMap.get(DomainObjectTypeConfig.class).get(parentName);
+            DomainObjectParentConfig parentConfig = new DomainObjectParentConfig();
+            parentConfig.setName(parentDomainObjectTypeConfig.getName());
+            cloneDomainObjectTypeConfig.setParentConfig(parentConfig);
+            cloneDomainObjectTypeConfig.setName(name);
+            return cloneDomainObjectTypeConfig;
         }
     }
 

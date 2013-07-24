@@ -47,7 +47,7 @@ public class RdbmsId implements Id {
         }
         this.typeName = typeName;
         try {
-            this.id = Long.parseLong(stringRep.substring(index));
+            this.id = Long.parseLong(stringRep.substring(index + 1));
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException(stringRep + " can't be parsed");
         }

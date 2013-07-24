@@ -391,7 +391,18 @@
                     <localCheckout>true</localCheckout>
                 </configuration>
             </plugin>
-
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.15</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <test.cnf.testOutDir>${project.build.testOutputDirectory}</test.cnf.testOutDir>
+                        <test.cnf.pathXml>${project.build.testOutputDirectory}/../../../configuration/target/test-classes</test.cnf.pathXml>
+                        <test.cnf.portRmi>55555</test.cnf.portRmi>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

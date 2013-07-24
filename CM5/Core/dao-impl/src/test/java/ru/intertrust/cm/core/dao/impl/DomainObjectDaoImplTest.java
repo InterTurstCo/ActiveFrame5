@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -7,18 +8,23 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.test.util.ReflectionTestUtils;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
-import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.model.StringFieldConfig;
-import ru.intertrust.cm.core.config.model.UniqueKeyConfig;
-import ru.intertrust.cm.core.config.model.UniqueKeyFieldConfig;
+import ru.intertrust.cm.core.config.ConfigurationSerializer;
+import ru.intertrust.cm.core.config.model.*;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
+import ru.intertrust.cm.core.dao.impl.utils.MultipleObjectRowMapper;
 
-import java.util.Date;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Юнит тест для DomainObjectDaoImpl
@@ -177,6 +183,68 @@ public class DomainObjectDaoImplTest {
         uniqueKeyFieldConfig1.setName("EMail");
         uniqueKeyConfig.getUniqueKeyFieldConfigs().add(uniqueKeyFieldConfig1);
 
+    }
+
+    @Test
+    public void testGetAttachmentDomainObjectsFor() throws Exception {
+        ru.intertrust.cm.core.config.model.Configuration configuration = new ru.intertrust.cm.core.config.model.Configuration();
+        DomainObjectTypeConfig dot = new DomainObjectTypeConfig();
+        dot.setName("Person");
+        AttachmentTypesConfig attachmentTypesConfig = new AttachmentTypesConfig();
+        List<AttachmentTypeConfig> attachmentTypeConfigs = new ArrayList<>();
+        AttachmentTypeConfig typeConfig = new AttachmentTypeConfig();
+        typeConfig.setName("Person1_Attachment");
+        attachmentTypeConfigs.add(typeConfig);
+        typeConfig = new AttachmentTypeConfig();
+        typeConfig.setName("Person2_Attachment");
+        attachmentTypeConfigs.add(typeConfig);
+        attachmentTypesConfig.setAttachmentTypeConfigs(attachmentTypeConfigs);
+        dot.setAttachmentTypesConfig(attachmentTypesConfig);
+        configuration.getConfigurationList().add(dot);
+        dot = new DomainObjectTypeConfig();
+        dot.setName("Attachment");
+        dot.setTemplate(true);
+        configuration.getConfigurationList().add(dot);
+
+        ConfigurationExplorer configurationExplorer = new ConfigurationExplorerImpl(configuration);
+        configurationExplorer.build();
+
+        dot = configurationExplorer.getConfig(DomainObjectTypeConfig.class, "Person");
+        Assert.assertNotNull(dot);
+        Assert.assertFalse(dot.isTemplate());
+        dot = configurationExplorer.getConfig(DomainObjectTypeConfig.class, "Attachment");
+        Assert.assertNotNull(dot);
+        Assert.assertTrue(dot.isTemplate());
+        dot = configurationExplorer.getConfig(DomainObjectTypeConfig.class, "Person1_Attachment");
+        Assert.assertNotNull(dot);
+        Assert.assertFalse(dot.isTemplate());
+        dot = configurationExplorer.getConfig(DomainObjectTypeConfig.class, "Person2_Attachment");
+        Assert.assertNotNull(dot);
+        Assert.assertFalse(dot.isTemplate());
+
+        NamedParameterJdbcTemplate jdbcTemplate = mock(NamedParameterJdbcTemplate.class);
+        ArrayList<DomainObject> result = mock(ArrayList.class);
+        when(result.size()).thenReturn(2);
+
+        GenericDomainObject domainObject = new GenericDomainObject();
+        domainObject.setTypeName("Person1_Attachment");
+        domainObject.setId(new RdbmsId("Person1_Attachment|1"));
+        when(result.get(0)).thenReturn(domainObject);
+
+        domainObject = new GenericDomainObject();
+        domainObject.setTypeName("Person1_Attachment");
+        domainObject.setId(new RdbmsId("Person1_Attachment|2"));
+        when(result.get(1)).thenReturn(domainObject);
+
+        any(MultipleObjectRowMapper.class);
+        when(jdbcTemplate.query("select * from PERSON t1 join PERSON1_ATTACHMENT t2 on (t1.ID = t2.PERSON1_ATTACHMENT) where t1.ID = t2.PERSON1_ATTACHMENT",
+                any(MultipleObjectRowMapper.class))).thenReturn(result);
+
+        DomainObjectDaoImpl domainObjectDao = new DomainObjectDaoImpl();
+        ReflectionTestUtils.setField(domainObjectDao, "jdbcTemplate", jdbcTemplate);
+        List<DomainObject> l = domainObjectDao.findChildren(new RdbmsId("PERSON|1"), "Person1_Attachment");
+        Assert.assertEquals(1, ((RdbmsId)l.get(0).getId()).getId());
+        Assert.assertEquals(2, ((RdbmsId)l.get(1).getId()).getId());
     }
 
     /**

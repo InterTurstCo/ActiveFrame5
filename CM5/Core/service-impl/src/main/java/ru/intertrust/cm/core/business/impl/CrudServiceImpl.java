@@ -84,4 +84,9 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
     public int delete(Collection<Id> ids) {
         return domainObjectDao.delete(ids);
     }
+
+    @Override
+    public List<DomainObject> findChildren(Id domainObjectId, String childType) {
+        return domainObjectDao.findChildren(domainObjectId, childType);
+    }
 }

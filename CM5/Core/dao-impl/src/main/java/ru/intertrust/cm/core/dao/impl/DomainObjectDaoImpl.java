@@ -226,6 +226,27 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         return jdbcTemplate.query(query.toString(), new MultipleObjectRowMapper(tableName));
     }
 
+    @Override
+    public List<DomainObject> findChildren(Id domainObjectId, String childType) {
+        RdbmsId rdbmsId = (RdbmsId) domainObjectId;
+
+        String tableNameOfParent = DataStructureNamingHelper.getSqlName(rdbmsId.getTypeName());
+        String tableNameOfChild = DataStructureNamingHelper.getSqlName(childType);
+
+        StringBuilder query = new StringBuilder();
+        query.append("select t2.* from ")
+                .append(tableNameOfParent)
+                .append(" t1 join ")
+                .append(tableNameOfChild)
+                .append(" t2 on (t1.ID = t2.")
+                .append(tableNameOfParent)
+                .append(") ")
+                .append(" where t1.ID=t2. ")
+                .append(tableNameOfParent);
+
+        return jdbcTemplate.query(query.toString(), new MultipleObjectRowMapper(tableNameOfChild));
+    }
+
     /**
      * Инициализирует параметры для для создания доменного объекта
      *

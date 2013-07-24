@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+    <domain-object-type name="Attachment" template="true">
+        <fields>
+            <string name="Name" length="128" />
+            <string name="Path" length="128" />
+            <string name="MimeType" length="128" />
+        </fields>
+    </domain-object-type>
+
+</configuration>

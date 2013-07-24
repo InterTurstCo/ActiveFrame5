@@ -27,8 +27,23 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
     @Element(name = "parent", required = false)
     private DomainObjectParentConfig parentConfig;
 
-    @Element(name = "template", required = false)
-    private String template;
+    /**
+     * флаг конструирования, определяет является ли объект шаблоном
+     * true - создать таблицу в базе данных
+     * false - не создавать таблицу в базе данных
+     * по умолчанию false
+     */
+    @Attribute(name = "template", required = false)
+    private Boolean isTemplate;
+
+    /**
+     * маркер привязки вложенных документов
+     */
+    @Element(name = "attachment-types", required = false)
+    private AttachmentTypesConfig attachmentTypesConfig;
+
+//    @Element(name = "template", required = false)
+//    private String template;
 
     // we can't use a list here directly, as elements inside are different, that's why such a "trick"
     @Element(name = "fields")
@@ -97,6 +112,22 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
         this.parentConfig = parentConfig;
     }
 
+    public Boolean isTemplate() {
+        return isTemplate == null ? false : isTemplate;
+    }
+
+    public void setTemplate(Boolean template) {
+        isTemplate = template;
+    }
+
+    public AttachmentTypesConfig getAttachmentTypesConfig() {
+        return attachmentTypesConfig;
+    }
+
+    public void setAttachmentTypesConfig(AttachmentTypesConfig attachmentTypesConfig) {
+        this.attachmentTypesConfig = attachmentTypesConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -124,6 +155,9 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
             return false;
         }
         if (uniqueKeyConfigs != null ? !uniqueKeyConfigs.equals(that.uniqueKeyConfigs) : that.uniqueKeyConfigs != null) {
+            return false;
+        }
+        if (attachmentTypesConfig != null ? !attachmentTypesConfig.equals(that.attachmentTypesConfig) : that.attachmentTypesConfig != null) {
             return false;
         }
 

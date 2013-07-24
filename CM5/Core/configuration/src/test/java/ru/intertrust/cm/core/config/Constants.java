@@ -13,6 +13,7 @@ public interface Constants {
 
     String CONFIGURATION_SCHEMA_PATH = "config/configuration-test.xsd";
     String DOMAIN_OBJECTS_CONFIG_PATH = "config/domain-objects-test.xml";
+    String SYSTEM_DOMAIN_OBJECTS_CONFIG_PATH = "test-config/system-domain-objects-test.xml";
     String COLLECTIONS_CONFIG_PATH = "config/collections-test.xml";
 
     String MODULES_CONFIG_FOLDER = "modules-configuration";
@@ -20,6 +21,6 @@ public interface Constants {
     String MODULES_CONFIG_SCHEMA_PATH = "config/modules-configuration-test.xsd";
 
     Set<String> CONFIG_PATHS =
-            new HashSet<>(Arrays.asList(DOMAIN_OBJECTS_CONFIG_PATH, COLLECTIONS_CONFIG_PATH));
+            new HashSet<>(Arrays.asList(SYSTEM_DOMAIN_OBJECTS_CONFIG_PATH, DOMAIN_OBJECTS_CONFIG_PATH, COLLECTIONS_CONFIG_PATH));
 
 }

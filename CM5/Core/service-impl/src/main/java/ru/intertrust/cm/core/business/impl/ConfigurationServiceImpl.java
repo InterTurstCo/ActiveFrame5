@@ -141,8 +141,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             // First load referenced domain object configurations
             loadDependentDomainObjectConfigs(domainObjectTypeConfig);
 
-            dataStructureDao.createTable(domainObjectTypeConfig);
-            dataStructureDao.createSequence(domainObjectTypeConfig);
+            if (!domainObjectTypeConfig.isTemplate()) {
+                dataStructureDao.createTable(domainObjectTypeConfig);
+                dataStructureDao.createSequence(domainObjectTypeConfig);
+            }
 
             loadedDomainObjectConfigs.add(domainObjectTypeConfig.getName()); // add to loaded configs set
         }
@@ -238,8 +240,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             // First merge referenced domain object configurations
             mergeDependentDomainObjectConfigs(domainObjectTypeConfig);
 
-            dataStructureDao.createTable(domainObjectTypeConfig);
-            dataStructureDao.createSequence(domainObjectTypeConfig);
+            if (!domainObjectTypeConfig.isTemplate()) {
+                dataStructureDao.createTable(domainObjectTypeConfig);
+                dataStructureDao.createSequence(domainObjectTypeConfig);
+            }
         }
 
         private void mergeDependentDomainObjectConfigs(DomainObjectTypeConfig domainObjectTypeConfig) {

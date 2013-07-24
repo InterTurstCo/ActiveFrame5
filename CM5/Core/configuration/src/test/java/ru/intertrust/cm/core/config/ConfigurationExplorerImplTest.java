@@ -76,7 +76,7 @@ public class ConfigurationExplorerImplTest {
 
         List<String> domainObjectNames = new ArrayList<>();
         domainObjectNames.addAll(Arrays.asList("Outgoing_Document", PERSON_CONFIG_NAME, "Employee", "Department",
-                "Incoming_Document", "Incoming_Document2"));
+                "Incoming_Document", "Incoming_Document2", "Attachment", "Person_Attachment"));
 
         for(DomainObjectTypeConfig domainObjectTypeConfig : domainObjectTypeConfigs) {
             String name = domainObjectTypeConfig.getName();
