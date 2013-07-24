@@ -122,7 +122,7 @@
                 <permit-role name="Автор документа"/>
             </create-child>
             <execute-action name="action1">
-                <permit-role name="Автор документа">
+                <permit-role name="Автор документа"/>
             </execute-action>
         </status>
     </access-matrix>
