@@ -75,6 +75,7 @@ public class AttachmentServiceImpl implements AttachmentService {
             domainObjectDao.save(attachmentDomainObject);
         } catch (IOException ex) {
             if (!Strings.isNullOrEmpty(newFilePath)) {
+                attachmentDomainObject.setValue("path", new StringValue(newFilePath));
                 attachmentContentDao.deleteContent(attachmentDomainObject);
             }
             throw new DaoException(ex.getMessage());
