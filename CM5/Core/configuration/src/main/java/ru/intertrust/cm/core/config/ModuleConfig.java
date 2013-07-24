@@ -6,6 +6,7 @@ import org.simpleframework.xml.Root;
 import java.io.Serializable;
 
 /**
+ * Представляет конфигурацию конфигурации модуля
  * @author vmatsukevich
  *         Date: 7/9/13
  *         Time: 5:45 PM

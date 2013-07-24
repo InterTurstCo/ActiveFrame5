@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * Кэш для хранения соответствий тэгов конфигурации верхнего уровня классам, их представляющим
  * @author vmatsukevich
  *         Date: 7/12/13
  *         Time: 7:37 PM
@@ -26,6 +27,10 @@ public class TopLevelConfigurationCache {
     private static TopLevelConfigurationCache instance = new TopLevelConfigurationCache();
     private Map<String, Class> tagToClassMap = new ConcurrentHashMap<>();
 
+    /**
+     * Возврящает экземпляр {@link TopLevelConfigurationCache}
+     * @return
+     */
     public static TopLevelConfigurationCache getInstance() {
         return instance;
     }
@@ -34,6 +39,11 @@ public class TopLevelConfigurationCache {
 
     }
 
+    /**
+     * Конструирует кэш, просматрия все классы на classpath с помощью {@link ResourcePatternResolver} и выбирая те,
+     * что реализуют {@link TopLevelConfig} и имеют аннотацию {@link Root} c атрибутом
+     * {@link org.simpleframework.xml.Root#name()}
+     */
     public void  build() {
         ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
         MetadataReaderFactory metadataReaderFactory = new CachingMetadataReaderFactory(resourcePatternResolver);
@@ -48,6 +58,11 @@ public class TopLevelConfigurationCache {
         }
     }
 
+    /**
+     * Возвращает класс, представляющий конфигурацию с именем tagName
+     * @param tagName имя конфигурации
+     * @return класс, представляющий конфигурацию с именем tagName
+     */
     public Class getClassByTagName(String tagName) {
         return tagToClassMap.get(tagName);
     }

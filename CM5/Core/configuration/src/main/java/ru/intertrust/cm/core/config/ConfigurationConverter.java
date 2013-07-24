@@ -4,20 +4,20 @@ import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 import org.simpleframework.xml.stream.InputNode;
 import org.simpleframework.xml.stream.OutputNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import ru.intertrust.cm.core.config.model.Configuration;
 import ru.intertrust.cm.core.config.model.TopLevelConfig;
 
 /**
+ * Конвертер для сериализации конфигурации
  * @author vmatsukevich
  *         Date: 7/11/13
  *         Time: 8:26 PM
  */
 public class ConfigurationConverter implements org.simpleframework.xml.convert.Converter<Configuration> {
 
-    final static Logger logger = LoggerFactory.getLogger(ConfigurationConverter.class);
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Configuration read(InputNode inputNode) throws Exception {
         Configuration configuration = new Configuration();
@@ -38,6 +38,9 @@ public class ConfigurationConverter implements org.simpleframework.xml.convert.C
         return configuration;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void write(OutputNode outputNode, Configuration configuration) throws Exception {
         if (configuration == null) {

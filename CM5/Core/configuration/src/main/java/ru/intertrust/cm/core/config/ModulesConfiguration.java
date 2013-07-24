@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Представляет конфигурацию конфигураций модулей
  * @author vmatsukevich
  *         Date: 7/9/13
  *         Time: 5:45 PM
