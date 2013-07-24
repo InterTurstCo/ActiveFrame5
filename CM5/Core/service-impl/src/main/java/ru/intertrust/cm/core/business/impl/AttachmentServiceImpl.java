@@ -57,9 +57,10 @@ public class AttachmentServiceImpl implements AttachmentService {
     @Override
     public void saveAttachment(RemoteInputStream inputStream, DomainObject attachmentDomainObject) {
         InputStream contentStream = null;
+        String newFilePath = null;
         try {
             contentStream = RemoteInputStreamClient.wrap(inputStream);
-            String newFilePath = attachmentContentDao.saveContent(contentStream);
+            newFilePath = attachmentContentDao.saveContent(contentStream);
             //если newFilePath is null или empty не обрабатываем
             if (Strings.isNullOrEmpty(newFilePath)) {
                 throw new DaoException("File isn't created");
@@ -73,6 +74,9 @@ public class AttachmentServiceImpl implements AttachmentService {
             attachmentDomainObject.setValue("path", new StringValue(newFilePath));
             domainObjectDao.save(attachmentDomainObject);
         } catch (IOException ex) {
+            if (!Strings.isNullOrEmpty(newFilePath)) {
+                attachmentContentDao.deleteContent(attachmentDomainObject);
+            }
             throw new DaoException(ex.getMessage());
         } finally {
             if (contentStream != null) {
