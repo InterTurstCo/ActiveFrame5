@@ -46,4 +46,32 @@ public class ContextRoleConfig implements TopLevelConfig {
         this.groups = groups;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ContextRoleConfig that = (ContextRoleConfig) o;
+
+        if (context != null ? !context.equals(that.context) : that.context != null) {
+            return false;
+        }
+        if (groups != null ? !groups.equals(that.groups) : that.groups != null) {
+            return false;
+        }
+        if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return name != null ? name.hashCode() : 0;
+    }
 }

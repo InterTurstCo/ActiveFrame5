@@ -192,9 +192,9 @@ public class ConfigurationSerializer {
         ConfigurationSchemaValidator schemaValidator =
                 new ConfigurationSchemaValidator(configInputStream, schemaInputStreams);
 
-        //TODO: починить валидацию для конфигураций модулей
-        //schemaValidator.validate();
+        schemaValidator.validate();
 
+        configInputStream = FileUtils.getFileInputStream(moduleConfigurationFullPath);
         return createSerializerInstance().read(Configuration.class, configInputStream);
     }
 
