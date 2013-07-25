@@ -1,49 +1,72 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
 
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.verify;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 /**
  * @author Vlad
  */
 @RunWith(MockitoJUnitRunner.class)
 public class FileSystemAttachmentContentDaoImplTest {
-    @InjectMocks
-    private final ConfigurationDaoImpl configurationDao = new ConfigurationDaoImpl();
-    @Mock
-    private NamedParameterJdbcTemplate jdbcTemplate;
+
+    static private final String TEST_OUT_DIR = System.getProperty("test.cnf.testOutDir");
 
     @Test
-    public void testSave() throws Exception {
-        Registry reg = LocateRegistry.createRegistry(1099);
-
-        assertEquals(configurationDao.generateSaveQuery(), ConfigurationDaoImpl.SAVE_QUERY);
-
-        configurationDao.save("test configuration string");
-        verify(jdbcTemplate).update(anyString(), anyMap());
+    public void saveContent() throws IOException {
+        FileSystemAttachmentContentDaoImpl contentDao = new FileSystemAttachmentContentDaoImpl();
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        byte[] expBytes = new byte[]{0, 1, 2, 3, 4, 5};
+        ByteArrayInputStream bis = new ByteArrayInputStream(expBytes);
+        String path = contentDao.saveContent(bis);
+        Files.copy(Paths.get(path), bos);
+        Assert.assertArrayEquals(expBytes, bos.toByteArray());
     }
 
     @Test
-    public void testReadLastSavedConfiguration() throws Exception {
+    public void loadContent() throws IOException {
         FileSystemAttachmentContentDaoImpl contentDao = new FileSystemAttachmentContentDaoImpl();
-        String s = FileSystemAttachmentContentDaoImpl.class.getClassLoader().getResource("").getFile();
+        byte[] expBytes = new byte[]{0, 1, 2, 3, 4, 5};
+        String path = createAndCopyToFile(new ByteArrayInputStream(expBytes));
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        Files.copy(Paths.get(path), bos);
+        DomainObject domainObject = new GenericDomainObject();
+        domainObject.setValue("path", new StringValue(path));
+        InputStream inputStream = contentDao.loadContent(domainObject);
+        bos.reset();
+        int count;
+        byte[] bs = new byte[10];
+        while ((count = inputStream.read(bs)) != -1) {
+            bos.write(bs, 0, count);
+        }
+        Assert.assertArrayEquals(expBytes, bos.toByteArray());
+    }
 
+    @Test
+    public void deleteContent() throws IOException {
+        FileSystemAttachmentContentDaoImpl contentDao = new FileSystemAttachmentContentDaoImpl();
+        byte[] expBytes = new byte[]{0, 1, 2, 3, 4, 5};
+        String path = createAndCopyToFile(new ByteArrayInputStream(expBytes));
+        Assert.assertTrue(new File(path).exists());
+        DomainObject domainObject = new GenericDomainObject();
+        domainObject.setValue("path", new StringValue(path));
+        contentDao.deleteContent(domainObject);
+        Assert.assertFalse(new File(path).exists());
+    }
 
-        assertEquals(configurationDao.generateReadLastLoadedConfiguration(),
-                ConfigurationDaoImpl.READ_LAST_SAVED_CONFIGURATION_QUERY);
-
-        configurationDao.readLastSavedConfiguration();
-        verify(jdbcTemplate).queryForObject(anyString(), anyMap(), any(Class.class));
+    private String createAndCopyToFile(InputStream inputStream) throws IOException {
+        Path path = Paths.get(TEST_OUT_DIR, "FileSystemAttachmentContentDaoImplTest");
+        Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
+        return path.toAbsolutePath().toString();
     }
 }
