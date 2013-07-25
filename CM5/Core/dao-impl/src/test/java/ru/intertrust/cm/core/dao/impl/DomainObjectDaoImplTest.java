@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.test.util.ReflectionTestUtils;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
@@ -237,7 +238,8 @@ public class DomainObjectDaoImplTest {
         when(result.get(1)).thenReturn(domainObject);
 
         any(MultipleObjectRowMapper.class);
-        when(jdbcTemplate.query("select * from PERSON t1 join PERSON1_ATTACHMENT t2 on (t1.ID = t2.PERSON1_ATTACHMENT) where t1.ID = t2.PERSON1_ATTACHMENT",
+        when(jdbcTemplate.query("select * from PERSON1_ATTACHMENT where parent = :parent_id",
+                any(SqlParameterSource.class),
                 any(MultipleObjectRowMapper.class))).thenReturn(result);
 
         DomainObjectDaoImpl domainObjectDao = new DomainObjectDaoImpl();
