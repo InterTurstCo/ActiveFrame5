@@ -5,6 +5,7 @@ import com.healthmarketscience.rmiio.RemoteInputStreamClient;
 import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -28,13 +29,12 @@ import ru.intertrust.cm.core.config.model.AttachmentTypesConfig;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
-import ru.intertrust.cm.core.dao.exception.DaoException;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -56,6 +56,8 @@ public class AttachmentServiceImplTest {
     static private final String TEST_OUT_DIR = System.getProperty("test.cnf.testOutDir");
     static private final int PORT_RMI = Integer.parseInt(System.getProperty("test.cnf.portRmi"));
     private static final int BUF_SIZE = 0x1000;
+    private static String absDirPath;
+    private static Long suffix;
 
     static private AttachmentServiceRmi stubAttachmentService;
 
@@ -125,18 +127,21 @@ public class AttachmentServiceImplTest {
                 public Object answer(InvocationOnMock invocation) {
                     InputStream inputStream = (InputStream) invocation.getArguments()[0];
                     return saveContent(inputStream);
-                }}).when(attachmentContentDao).saveContent(any(InputStream.class));
+                }
+            }).when(attachmentContentDao).saveContent(any(InputStream.class));
             doAnswer(new Answer() {
                 public Object answer(InvocationOnMock invocation) {
                     DomainObject domainObject = (DomainObject) invocation.getArguments()[0];
                     deleteContent(domainObject);
                     return null;
-                }}).when(attachmentContentDao).deleteContent(any(DomainObject.class));
+                }
+            }).when(attachmentContentDao).deleteContent(any(DomainObject.class));
             doAnswer(new Answer() {
                 public Object answer(InvocationOnMock invocation) {
                     DomainObject domainObject = (DomainObject) invocation.getArguments()[0];
                     return loadContent(domainObject);
-                }}).when(attachmentContentDao).loadContent(any(DomainObject.class));
+                }
+            }).when(attachmentContentDao).loadContent(any(DomainObject.class));
             return attachmentContentDao;
         }
 
@@ -148,6 +153,16 @@ public class AttachmentServiceImplTest {
         @Bean
         public CrudService crudService() {
             return new CrudServiceImpl();
+        }
+    }
+
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception {
+        suffix = 0l;
+        absDirPath = Paths.get(TEST_OUT_DIR, "/AttachmentServiceImplTest").toAbsolutePath().toString();
+        File dir = new File(absDirPath);
+        if (!dir.exists()) {
+            dir.mkdirs();
         }
     }
 
@@ -358,7 +373,7 @@ public class AttachmentServiceImplTest {
         domainObject2.setTypeName("Person_Attachment");
         domainObject2.setId(new RdbmsId("Person_Attachment|2"));
         when(domainObjectDao.findChildren(any(Id.class), "Person_Attachment")).
-            thenReturn(Arrays.asList(new DomainObject[]{domainObject1, domainObject2}));
+                thenReturn(Arrays.asList(new DomainObject[]{domainObject1, domainObject2}));
         return domainObjectDao;
     }
 
@@ -374,57 +389,29 @@ public class AttachmentServiceImplTest {
     }
 
     private static InputStream loadContent(DomainObject domainObject) {
-        FileInputStream fstream = null;
         try {
             String fileName = ((StringValue) domainObject.getValue("path")).get();
-            fstream = new FileInputStream(fileName);
-            return fstream;
-        } catch (FileNotFoundException ex) {
-            if (fstream != null) {
-                try {
-                    fstream.close();
-                } catch (IOException e) {
-                }
-            }
-            throw new DaoException(ex);
+            return new FileInputStream(fileName);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
         }
     }
 
     private static String saveContent(InputStream inputStream) {
-        String absDirPath = Paths.get(TEST_OUT_DIR, "/AttachmentServiceImplTest").toAbsolutePath().toString();
-        File dir = new File(absDirPath);
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
-        String absFilePath = getAbsoluteFilePath(absDirPath);
+        Path path = Paths.get(absDirPath, (suffix++).toString());
         try {
-            Files.copy(inputStream, Paths.get(absFilePath));
-        } catch (FileNotFoundException ex) {
-            throw new DaoException(ex);
-        } catch (IOException ex) {
-            throw new DaoException(ex);
+            Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
+            return path.toAbsolutePath().toString();
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
         }
-        return absFilePath;
     }
 
     private static void deleteContent(DomainObject domainObject) {
         String fileName = ((StringValue) domainObject.getValue("path")).get();
-        File f = new File(fileName);
-        if (f.exists()) {
-            try {
-                f.delete();
-            } catch (RuntimeException ex) {
-            }
+        try {
+            new File(fileName).delete();
+        } catch (RuntimeException ex) {
         }
-    }
-
-
-
-    private static String getAbsoluteFilePath(String absDirPath) {
-        Path fs;
-        do {
-            fs = Paths.get(absDirPath, java.util.UUID.randomUUID().toString());
-        } while (Files.exists(fs, LinkOption.NOFOLLOW_LINKS));
-        return fs.toAbsolutePath().toString();
     }
 }
