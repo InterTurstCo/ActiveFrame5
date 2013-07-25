@@ -84,6 +84,31 @@ public class PostgreSqlQueryHelperTest {
     }
 
     @Test
+    public void testGenerateCreateAclTableQuery() throws Exception {
+        String query = PostgreSqlQueryHelper.generateCreateAclTableQuery(domainObjectTypeConfig);
+
+        String checkQuery = "create table OUTGOING_DOCUMENT_ACL (object_id bigint not null, " +
+                "group_id bigint not null, operation varchar(256) not null, " +
+                "constraint PK_OUTGOING_DOCUMENT_ACL primary key (object_id, group_id, operation), " +
+                "CONSTRAINT FK_OUTGOING_DOCUMENT_ACL_OUTGOING_DOCUMENT FOREIGN KEY (object_id) " +
+                "REFERENCES OUTGOING_DOCUMENT (id), " +
+                "CONSTRAINT FK_OUTGOING_DOCUMENT_USER_GROUP FOREIGN KEY (group_id) REFERENCES User_Group (id))";
+        assertEquals(checkQuery, query);
+    }
+
+    @Test
+    public void testGenerateCreateAclReadTableQuery() throws Exception {
+        String query = PostgreSqlQueryHelper.generateCreateAclReadTableQuery(domainObjectTypeConfig);
+
+        String checkQuery = "create table OUTGOING_DOCUMENT_READ (object_id bigint not null, " +
+                "group_id bigint not null, constraint PK_OUTGOING_DOCUMENT_READ primary key (object_id, group_id), " +
+                "CONSTRAINT FK_OUTGOING_DOCUMENT_READ_OUTGOING_DOCUMENT FOREIGN KEY (object_id) " +
+                "REFERENCES OUTGOING_DOCUMENT (id), " +
+                "CONSTRAINT FK_OUTGOING_DOCUMENT_USER_GROUP FOREIGN KEY (group_id) REFERENCES User_Group (id))";
+        assertEquals(checkQuery, query);
+    }
+
+    @Test
     public void testGenerateUpdateTableQuery() {
         String expectedQuery = "alter table OUTGOING_DOCUMENT " +
                 "add column " + PARENT_COLUMN + " bigint, " +

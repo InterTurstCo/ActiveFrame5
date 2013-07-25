@@ -61,6 +61,14 @@ public class PostgreSqlDataStructureDaoImplTest {
     }
 
     @Test
+    public void testCreateAclTables() {
+        dataStructureDao.createAclTables(domainObjectTypeConfig);
+        verify(jdbcTemplate).update(generateCreateAclTableQuery(domainObjectTypeConfig));
+        verify(jdbcTemplate).update(generateCreateAclReadTableQuery(domainObjectTypeConfig));
+        
+    }
+
+    @Test
     public void testUpdateTableStructure() {
         List<FieldConfig> newColumns = new ArrayList<>();
 

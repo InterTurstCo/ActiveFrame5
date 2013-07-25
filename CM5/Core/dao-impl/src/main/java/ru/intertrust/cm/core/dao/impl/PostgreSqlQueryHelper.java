@@ -18,6 +18,12 @@ import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
  */
 public class PostgreSqlQueryHelper {
 
+    private static final String ACL_TABLE_SUFFIX = "_ACL";
+
+    private static final String READ_TABLE_SUFFIX = "_READ";
+
+    private static final String GROUP_TABLE= "User_Group";    
+
     /**
      * Генерирует запрос, возвращающий кол-во таблиц в базе данных
      * @return запрос, возвращающий кол-во таблиц в базе данных
@@ -49,9 +55,39 @@ public class PostgreSqlQueryHelper {
      * @return запрос, создающий таблицу AUTHENTICATION_INFO
      */
     public static String generateCreateAuthenticationInfoTableQuery() {
-        return "CREATE TABLE " + AUTHENTICATION_INFO_TABLE + " (ID bigint not null, user_uid character varying(64) NOT NULL, password"
-                + " character varying(128), constraint PK_" + AUTHENTICATION_INFO_TABLE + "_ID primary key (ID), constraint U_" + AUTHENTICATION_INFO_TABLE
+        return "CREATE TABLE " + AUTHENTICATION_INFO_TABLE
+                + " (ID bigint not null, user_uid character varying(64) NOT NULL, password"
+                + " character varying(128), constraint PK_" + AUTHENTICATION_INFO_TABLE
+                + "_ID primary key (ID), constraint U_" + AUTHENTICATION_INFO_TABLE
                 + "_USER_UID unique(user_uid))";
+    }
+    
+    private static String createAclTableQueryFor(String domainObjectType) {
+        return "create table " + domainObjectType + "_ACL (object_id bigint not null, group_id bigint not null, " +
+                "operation varchar(256) not null, constraint PK_" + toUpperCase(domainObjectType)
+                + "_ACL primary key (object_id, group_id, operation)";
+
+    }
+
+    private static String createAclReadTableQueryFor(String domainObjectType) {
+        return "create table " + domainObjectType + "_READ (object_id bigint not null, group_id bigint not null, " +
+                "constraint PK_" + domainObjectType + "_READ primary key (object_id, group_id)";
+    }
+         
+    private static void appendFKConstraintForDO(String sourceDomainObjectType, String targetDomainObjectType, StringBuilder query) {
+        query.append(", ").append("CONSTRAINT FK_").append(sourceDomainObjectType).append("_")
+                .append(targetDomainObjectType).append(" FOREIGN KEY (object_id) REFERENCES ")
+                .append(targetDomainObjectType).append(" (id)");
+    }
+
+    private static void appendFKConstraintForGroup(String domainObjectType, StringBuilder query) {
+        query.append(", ").append("CONSTRAINT FK_").append(domainObjectType).append("_")
+                .append(toUpperCase(GROUP_TABLE)).append(" FOREIGN KEY (group_id) REFERENCES ").append(GROUP_TABLE)
+                .append(" (id)");
+    }
+
+    private static String toUpperCase(String sourceDomainObjectType) {
+        return new String(sourceDomainObjectType).toUpperCase();
     }
 
     /**
@@ -91,6 +127,41 @@ public class PostgreSqlQueryHelper {
 
         query.append(")");
 
+        return query.toString();
+    }
+
+    /**
+     * Генерирует запрос, создающий _ACL таблицу (таблица прав доступа, кроме чтения для ДО) для соответствующего доменного объекта.
+     * @param config конфигурация доменного объекта
+     * @return запрос, создающий _ACL талицу для соответствующего доменного объекта
+     */
+    public static String generateCreateAclTableQuery(DomainObjectTypeConfig config) {
+        String domainObjectType = getSqlName(config);
+        String aclTableName = domainObjectType + ACL_TABLE_SUFFIX;
+        
+        StringBuilder query = new StringBuilder(createAclTableQueryFor(domainObjectType));
+        
+        appendFKConstraintForDO(aclTableName, domainObjectType, query);
+        appendFKConstraintForGroup(domainObjectType, query);
+        query.append(")");
+
+        return query.toString();
+    }
+
+    /**
+     * Генерирует запрос, создающий _READ таблицу (таблица разрений на чтение для ДО) для соответствующего доменного объекта.
+     * @param config конфигурация доменного объекта
+     * @return запрос, создающий _READ талицу для соответствующего доменного объекта
+     */
+    public static String generateCreateAclReadTableQuery(DomainObjectTypeConfig config) {
+        String domainObjectType = getSqlName(config);
+        String aclReadTableName = domainObjectType + READ_TABLE_SUFFIX;
+
+        StringBuilder query = new StringBuilder(createAclReadTableQueryFor(domainObjectType));
+        
+        appendFKConstraintForDO(aclReadTableName, domainObjectType, query);
+        appendFKConstraintForGroup(domainObjectType, query);
+        query.append(")");
         return query.toString();
     }
 

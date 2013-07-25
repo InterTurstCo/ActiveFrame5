@@ -75,6 +75,15 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
         Long id = jdbcTemplate.queryForObject(SELECT_DOMAIN_OBJECT_CONFIG_ID_BY_NAME_QUERY,
                 Long.class, config.getName());
         config.setId(id);
+        
+    }
+
+    /**
+     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#createAclTables(DomainObjectTypeConfig)}
+     */
+    public void createAclTables(DomainObjectTypeConfig config) {
+        jdbcTemplate.update(generateCreateAclTableQuery(config));
+        jdbcTemplate.update(generateCreateAclReadTableQuery(config));
     }
 
     @Override
