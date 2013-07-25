@@ -131,7 +131,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             for(DomainObjectTypeConfig config : configList) {
                 loadDomainObjectConfig(config);
             }
-            
+
             createAclTables(configList);
         }
 
