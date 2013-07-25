@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import com.google.common.io.ByteStreams;
 import org.slf4j.LoggerFactory;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
@@ -15,8 +14,9 @@ import java.util.Calendar;
  */
 public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao {
 
-    final static org.slf4j.Logger logger = LoggerFactory.getLogger(FileSystemAttachmentContentDaoImpl.class);
-    final private static boolean IS_WIN_OS = System.getProperty("os.name").toLowerCase().indexOf("win") > 0;
+    final private static org.slf4j.Logger logger = LoggerFactory.getLogger(FileSystemAttachmentContentDaoImpl.class);
+    private static final int BUF_SIZE = 0x1000;
+    private static String fileSeparator = File.separator;
 
     private String attachmentSaveLocation;
 
@@ -39,7 +39,7 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
                 contentFile.createNewFile();
             }
             fos = new FileOutputStream(contentFile);
-            ByteStreams.copy(inputStream, fos);
+            copyStreamToFile(inputStream, fos);
         } catch (FileNotFoundException ex) {
             throw new DaoException(ex);
         } catch (IOException ex) {
@@ -95,12 +95,12 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
         int day = calendar.get(Calendar.DATE);
         StringBuilder sb = new StringBuilder();
         sb.append(attachmentSaveLocation);
-        if (!attachmentSaveLocation.endsWith(getBackslash()))
-            sb.append(getBackslash());
+        if (!attachmentSaveLocation.endsWith(fileSeparator))
+            sb.append(fileSeparator);
         sb.append(year);
-        sb.append(getBackslash());
+        sb.append(fileSeparator);
         sb.append(month);
-        sb.append(getBackslash());
+        sb.append(fileSeparator);
         sb.append(day);
         return sb.toString();
     }
@@ -108,13 +108,24 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
     private String getAbsoluteFilePath(String absDirPath, String fileName) {
         StringBuilder sb = new StringBuilder();
         sb.append(absDirPath);
-        if (!absDirPath.endsWith(getBackslash()))
-            sb.append(getBackslash());
+        if (!absDirPath.endsWith(fileSeparator))
+            sb.append(fileSeparator);
         sb.append(fileName);
         return sb.toString();
     }
 
-    static private String getBackslash() {
-       return IS_WIN_OS ? "\\" : "/";
+    private static long copyStreamToFile(InputStream from, OutputStream to)
+            throws IOException {
+        byte[] buf = new byte[BUF_SIZE];
+        long total = 0;
+        while (true) {
+            int r = from.read(buf);
+            if (r == -1) {
+                break;
+            }
+            to.write(buf, 0, r);
+            total += r;
+        }
+        return total;
     }
 }

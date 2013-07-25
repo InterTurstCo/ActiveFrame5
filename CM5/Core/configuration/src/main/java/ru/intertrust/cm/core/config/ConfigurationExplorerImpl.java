@@ -104,20 +104,20 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         topLevelConfigMap.clear();
         fieldConfigMap.clear();
 
-        List<DomainObjectTypeConfig> ownerAttachmentDOTs = new ArrayList<>();
+        List<DomainObjectTypeConfig> attachmentOwnerDots = new ArrayList<>();
         for (TopLevelConfig config : configuration.getConfigurationList()) {
             fillTopLevelConfigMap(config);
 
             if (DomainObjectTypeConfig.class.equals(config.getClass())) {
                 DomainObjectTypeConfig domainObjectTypeConfig = (DomainObjectTypeConfig) config;
-                fillFieldsInFieldsConfigMap(domainObjectTypeConfig);
+                fillFieldsConfigMap(domainObjectTypeConfig);
                 if (domainObjectTypeConfig.getAttachmentTypesConfig() != null) {
-                    ownerAttachmentDOTs.add(domainObjectTypeConfig);
+                    attachmentOwnerDots.add(domainObjectTypeConfig);
                 }
             }
         }
 
-        initConfigurationMapsOfAttachmentDomainObjectTypes(ownerAttachmentDOTs);
+        initConfigurationMapsOfAttachmentDomainObjectTypes(attachmentOwnerDots);
     }
 
     private void fillTopLevelConfigMap(TopLevelConfig config) {
@@ -129,7 +129,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         typeMap.put(config.getName(), config);
     }
 
-    private void fillFieldsInFieldsConfigMap(DomainObjectTypeConfig domainObjectTypeConfig) {
+    private void fillFieldsConfigMap(DomainObjectTypeConfig domainObjectTypeConfig) {
         for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
             FieldConfigKey fieldConfigKey =
                     new FieldConfigKey(domainObjectTypeConfig.getName(), fieldConfig.getName());
@@ -141,10 +141,13 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         try {
             PrototypeHelper factory = new PrototypeHelper("Attachment");
             for (DomainObjectTypeConfig domainObjectTypeConfig : ownerAttachmentDOTs) {
-                for (AttachmentTypeConfig attachmentTypeConfig : domainObjectTypeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs()) {
-                    DomainObjectTypeConfig attachmentDomainObjectTypeConfig = factory.makeDomainObjectTypeConfig(attachmentTypeConfig.getName(), domainObjectTypeConfig.getName());
+                for (AttachmentTypeConfig attachmentTypeConfig : domainObjectTypeConfig.getAttachmentTypesConfig()
+                        .getAttachmentTypeConfigs()) {
+                    DomainObjectTypeConfig attachmentDomainObjectTypeConfig =
+                            factory.makeDomainObjectTypeConfig(attachmentTypeConfig.getName(),
+                                    domainObjectTypeConfig.getName());
                     fillTopLevelConfigMap(attachmentDomainObjectTypeConfig);
-                    fillFieldsInFieldsConfigMap(attachmentDomainObjectTypeConfig);
+                    fillFieldsConfigMap(attachmentDomainObjectTypeConfig);
                 }
             }
         } catch (IOException e) {
@@ -200,7 +203,8 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(bos);
             topLevelConfigMap.get(DomainObjectTypeConfig.class).get(templateName);
-            TopLevelConfig templateDomainObjectTypeConfig = topLevelConfigMap.get(DomainObjectTypeConfig.class).get(templateName);
+            TopLevelConfig templateDomainObjectTypeConfig =
+                    topLevelConfigMap.get(DomainObjectTypeConfig.class).get(templateName);
             oos.writeObject(templateDomainObjectTypeConfig);
             oos.close();
             bis = new ByteArrayInputStream(bos.toByteArray());
@@ -209,9 +213,11 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         public DomainObjectTypeConfig makeDomainObjectTypeConfig(String name, String parentName)
                 throws IOException, ClassNotFoundException {
             bis.reset();
-            DomainObjectTypeConfig cloneDomainObjectTypeConfig = (DomainObjectTypeConfig) new ObjectInputStream(bis).readObject();
+            DomainObjectTypeConfig cloneDomainObjectTypeConfig =
+                    (DomainObjectTypeConfig) new ObjectInputStream(bis).readObject();
             cloneDomainObjectTypeConfig.setTemplate(false);
-            DomainObjectTypeConfig parentDomainObjectTypeConfig = (DomainObjectTypeConfig) topLevelConfigMap.get(DomainObjectTypeConfig.class).get(parentName);
+            DomainObjectTypeConfig parentDomainObjectTypeConfig =
+                    (DomainObjectTypeConfig) topLevelConfigMap.get(DomainObjectTypeConfig.class).get(parentName);
             DomainObjectParentConfig parentConfig = new DomainObjectParentConfig();
             parentConfig.setName(parentDomainObjectTypeConfig.getName());
             cloneDomainObjectTypeConfig.setParentConfig(parentConfig);

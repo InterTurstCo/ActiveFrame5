@@ -35,7 +35,8 @@ public class AttachmentTypesConfig {
 
         AttachmentTypesConfig that = (AttachmentTypesConfig) o;
 
-        if (attachmentTypeConfigs != null ? !attachmentTypeConfigs.equals(that.attachmentTypeConfigs) : that.attachmentTypeConfigs != null) {
+        if (attachmentTypeConfigs != null
+                ? !attachmentTypeConfigs.equals(that.attachmentTypeConfigs) : that.attachmentTypeConfigs != null) {
             return false;
         }
 

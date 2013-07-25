@@ -122,14 +122,18 @@ public class AttachmentServiceImpl implements AttachmentService {
 
     @Override
     public List<DomainObject> getAttachmentDomainObjectsFor(DomainObject domainObject) {
-        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObject.getTypeName());
+        DomainObjectTypeConfig domainObjectTypeConfig =
+                configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObject.getTypeName());
         if (domainObjectTypeConfig.getAttachmentTypesConfig() == null) {
             return Collections.emptyList();
         }
         List<DomainObject> attachmentDomainObjects = new ArrayList<>();
-        for (AttachmentTypeConfig attachmentTypeConfig : domainObjectTypeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs()) {
-            DomainObjectTypeConfig attachDomainObjectTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, attachmentTypeConfig.getName());
-            attachmentDomainObjects.addAll(domainObjectDao.findChildren(domainObject.getId(), attachDomainObjectTypeConfig.getName()));
+        for (AttachmentTypeConfig attachmentTypeConfig :
+                domainObjectTypeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs()) {
+            DomainObjectTypeConfig attachDomainObjectTypeConfig =
+                    configurationExplorer.getConfig(DomainObjectTypeConfig.class, attachmentTypeConfig.getName());
+            attachmentDomainObjects.addAll(
+                    domainObjectDao.findChildren(domainObject.getId(), attachDomainObjectTypeConfig.getName()));
         }
         return attachmentDomainObjects;
     }

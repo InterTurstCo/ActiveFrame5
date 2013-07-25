@@ -48,28 +48,10 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class)
 public class AttachmentServiceImplTest {
 
-    static private  final boolean IS_WIN_OS = System.getProperty("os.name").toLowerCase().indexOf("win") > 0;
     static private final String TEST_OUT_DIR = System.getProperty("test.cnf.testOutDir");
     static private final int PORT_RMI = Integer.parseInt(System.getProperty("test.cnf.portRmi"));
-    static private final String PATH_XML = System.getProperty("test.cnf.pathXml");
-
-    private static final String CONFIGURATION_SCHEMA_PATH = convertPathByOS(PATH_XML, "/config/configuration-test.xsd");
-    private static final String SYSTEM_DOMAIN_OBJECTS_CONFIG_PATH = convertPathByOS(PATH_XML, "/config/system-domain-objects-test.xml");
-    private static final String DOMAIN_OBJECTS_CONFIG_PATH = convertPathByOS(PATH_XML, "/config/domain-objects-test.xml");
-    private static final String COLLECTIONS_CONFIG_PATH = convertPathByOS(PATH_XML, "/config/collections-test.xml");
-
-    private static final Set<String> CONFIG_PATHS =
-        new HashSet<>(Arrays.asList(SYSTEM_DOMAIN_OBJECTS_CONFIG_PATH, DOMAIN_OBJECTS_CONFIG_PATH, COLLECTIONS_CONFIG_PATH));
 
     static private AttachmentServiceRmi stubAttachmentService;
-
-    static private String convertPathByOS(String ... paths) {
-        String absPath = "";
-        for (String path : paths) {
-            absPath += path;
-        }
-        return IS_WIN_OS ? absPath.replace("/", "\\") : absPath.replace("\\", "/");
-    }
 
     static class GenericDomainObjectWrapper extends GenericDomainObject implements Serializable {
         Map<String, Value> values = new HashMap<>();
@@ -325,7 +307,8 @@ public class AttachmentServiceImplTest {
     }
 
     static private ConfigurationExplorer getConfigurationExplorer() throws Exception {
-        ru.intertrust.cm.core.config.model.Configuration configuration = new ru.intertrust.cm.core.config.model.Configuration();
+        ru.intertrust.cm.core.config.model.Configuration configuration =
+                new ru.intertrust.cm.core.config.model.Configuration();
         DomainObjectTypeConfig dot = new DomainObjectTypeConfig();
         dot.setName("Person");
         AttachmentTypesConfig attachmentTypesConfig = new AttachmentTypesConfig();

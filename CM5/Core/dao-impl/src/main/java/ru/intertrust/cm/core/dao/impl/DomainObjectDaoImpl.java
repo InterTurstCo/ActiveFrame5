@@ -1,7 +1,9 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.util.StringUtils;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
@@ -228,23 +230,15 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     @Override
     public List<DomainObject> findChildren(Id domainObjectId, String childType) {
-        RdbmsId rdbmsId = (RdbmsId) domainObjectId;
-
-        String tableNameOfParent = DataStructureNamingHelper.getSqlName(rdbmsId.getTypeName());
         String tableNameOfChild = DataStructureNamingHelper.getSqlName(childType);
 
         StringBuilder query = new StringBuilder();
-        query.append("select t2.* from ")
-                .append(tableNameOfParent)
-                .append(" t1 join ")
+        query.append("select * from ")
                 .append(tableNameOfChild)
-                .append(" t2 on (t1.ID = t2.")
-                .append(tableNameOfParent)
-                .append(") ")
-                .append(" where t1.ID=t2. ")
-                .append(tableNameOfParent);
+                .append(" where parent = :parent_id");
+        SqlParameterSource namedParameters = new MapSqlParameterSource("parent_id", ((RdbmsId) domainObjectId).getId());
 
-        return jdbcTemplate.query(query.toString(), new MultipleObjectRowMapper(tableNameOfChild));
+        return jdbcTemplate.query(query.toString(), namedParameters, new MultipleObjectRowMapper(tableNameOfChild));
     }
 
     /**
