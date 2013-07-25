@@ -27,11 +27,14 @@ public class ConfigurationSerializer {
 
     private ModulesConfiguration modulesConfiguration;
 
+    /**
+     * Создает {@link ConfigurationSerializer}
+     */
     public ConfigurationSerializer() {
     }
 
     /**
-     * Десериализует конфигурацию в строку
+     * Сериализует конфигурацию в строку
      * @param configuration конфигурация
      * @return сериализованная в строку конфигурация
      */
@@ -48,7 +51,7 @@ public class ConfigurationSerializer {
     }
 
     /**
-     * Устанавливает путь к схеме конфигурации
+     * Устанавливает путь к схеме конфигурации ядра
      * @param coreConfigurationSchemaFilePath путь к схеме конфигурации
      */
     public void setCoreConfigurationSchemaFilePath(String coreConfigurationSchemaFilePath) {
@@ -56,35 +59,43 @@ public class ConfigurationSerializer {
     }
 
     /**
-     * Устаннавливает пити к конфигурационным файлам
+     * Устаннавливает пути к конфигурационным файлам ядра
      * @param coreConfigurationFilePaths пути к конфигурационным файлам
      */
     public void setCoreConfigurationFilePaths(Set<String> coreConfigurationFilePaths) {
         this.coreConfigurationFilePaths = coreConfigurationFilePaths;
     }
 
+    /**
+     * Устанавливает путь к конфигурации конфигураций модулей
+     * @param modulesConfigurationPath путь к конфигурации конфигураций модулей
+     */
     public void setModulesConfigurationPath(String modulesConfigurationPath) {
         this.modulesConfigurationPath = modulesConfigurationPath;
     }
 
+    /**
+     * Устанавливает путь к схеме конфигруции конфигураций модулей
+     * @param modulesConfigurationSchemaPath уть к схеме конфигруции конфигураций модулей
+     */
     public void setModulesConfigurationSchemaPath(String modulesConfigurationSchemaPath) {
         this.modulesConfigurationSchemaPath = modulesConfigurationSchemaPath;
     }
 
-    public String getModulesConfigurationFolder() {
-        return modulesConfigurationFolder;
-    }
-
+    /**
+     * Устанавливает путь к папке конфигураций модулей
+     * @param modulesConfigurationFolder
+     */
     public void setModulesConfigurationFolder(String modulesConfigurationFolder) {
         this.modulesConfigurationFolder = modulesConfigurationFolder;
     }
 
     /**
-     * Сериализует строку в конфигурацию без выполнения валидации на соответствие схеме конфигурации.
-     * Данный метод предназначен для сериализации строк, представляющих собой ранее десериализованную конфигурацию
+     * Десериализует строку в конфигурацию без выполнения валидации на соответствие схеме конфигурации.
+     * Данный метод предназначен для десериализации строк, представляющих собой ранее сериализованную конфигурацию
      * @param configurationString строка, содержащая конфигурацию
      * @return конфигурация
-     * @throws ConfigurationException в случае ошибки сериализации
+     * @throws ConfigurationException в случае ошибки десериализации
      */
     public Configuration deserializeTrustedConfiguration(String configurationString) throws
             ConfigurationException {
@@ -96,7 +107,7 @@ public class ConfigurationSerializer {
     }
 
     /**
-     * Сериализует конфигурационные файлы в общий объект конфигруации, предварительно валидируя конфигурационные
+     * Десериализует конфигурационные файлы в общий объект конфигруации, предварительно валидируя конфигурационные
      * файлы на соответствие схеме конфигурации
      * @return конфигурация, содержащая информацию всех конфигурационных файлов
      * @throws Exception
@@ -166,7 +177,7 @@ public class ConfigurationSerializer {
     }
 
     /**
-     * Сериализация конфигурации в Java класс.
+     * Десериализация конфигурации в Java класс.
      * @param configurationFilePath путь к файлу конфигурации
      * @return {@link ru.intertrust.cm.core.config.model.Configuration}
      * @throws Exception

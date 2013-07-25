@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * Константы для тестов
  * @author vmatsukevich
  *         Date: 7/22/13
  *         Time: 10:53 PM

@@ -20,16 +20,21 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     private Map<Class, Map<String, TopLevelConfig>> topLevelConfigMap = new HashMap<>();
     private Map<FieldConfigKey, FieldConfig> fieldConfigMap = new HashMap<>();
 
+    /**
+     * Создает {@link ConfigurationExplorerImpl}
+     */
     public ConfigurationExplorerImpl() {
     }
 
+    /**
+     * Создает {@link ConfigurationExplorerImpl}
+     */
     public ConfigurationExplorerImpl(Configuration configuration) {
         this.configuration = configuration;
     }
 
     /**
-     * Возвращает конфигурацию
-     * @return конфигурация
+     * {@inheritDoc}
      */
     @Override
     public Configuration getConfiguration() {
@@ -45,8 +50,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     }
 
     /**
-     * Выполняет инициализацию объекта данного класса: создает внутреннюю структуру,
-     * обеспечивающую быстрый доступ к элементам конфигурации и выполняет логическую валидацию конфигурации
+     * {@inheritDoc}
      */
     @Override
     public void build() {
@@ -56,7 +60,11 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         logicalValidator.validate();
     }
 
-    public <T> T getConfig(Class<T> type, String name) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T> T getConfig(Class type, String name) {
         Map<String, TopLevelConfig> typeMap = topLevelConfigMap.get(type);
         if(typeMap == null) {
             return null;
@@ -65,7 +73,11 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         return (T) typeMap.get(name);
     }
 
-    public <T> Collection<T> getConfigs(Class<T> type) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <T> Collection<T> getConfigs(Class type) {
         Map<String, TopLevelConfig> typeMap = topLevelConfigMap.get(type);
         if(typeMap == null) {
             return Collections.EMPTY_LIST;
@@ -75,7 +87,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     }
 
     /**
-     * Смотри {@link ConfigurationExplorer#getFieldConfig(String, String)}
+     * {@inheritDoc}
      */
     @Override
     public FieldConfig getFieldConfig(String domainObjectConfigName, String fieldConfigName) {

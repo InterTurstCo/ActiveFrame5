@@ -24,9 +24,20 @@ public interface ConfigurationExplorer {
      */
     Configuration getConfiguration();
 
-    <T> T getConfig(Class<T> type, String name);
+    /**
+     * Возвращает конфигурацию верхнего уровня
+     * @param type класс конфигурации верхнего уровня
+     * @param name имя конфигурации верхнего уровня
+     * @return конфигурация верхнего уровня
+     */
+    <T> T getConfig(Class type, String name);
 
-    <T> Collection<T> getConfigs(Class<T> type);
+    /**
+     * Возвращает все конфигурации верхнего уровня данного типа type
+     * @param type класс конфигурации верхнего уровня
+     * @return все конфигурации верхнего уровня данного типа type
+     */
+    <T> Collection<T> getConfigs(Class type);
 
     /**
      * Находит конфигурацию поля доменного объекта по имени доменного объекта и имени поля

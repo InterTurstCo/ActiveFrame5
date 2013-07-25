@@ -7,6 +7,7 @@ import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.config.model.TopLevelConfig;
 
 /**
+ * Тестовая конфигурация верхнего уровня внешнего модуля
  * @author vmatsukevich
  *         Date: 7/17/13
  *         Time: 5:34 PM
