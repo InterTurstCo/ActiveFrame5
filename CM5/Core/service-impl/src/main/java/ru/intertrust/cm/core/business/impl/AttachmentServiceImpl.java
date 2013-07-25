@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.business.impl;
 
-import com.google.common.base.Strings;
 import com.healthmarketscience.rmiio.RemoteInputStream;
 import com.healthmarketscience.rmiio.RemoteInputStreamClient;
 import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
@@ -62,7 +61,7 @@ public class AttachmentServiceImpl implements AttachmentService {
             contentStream = RemoteInputStreamClient.wrap(inputStream);
             String newFilePath = attachmentContentDao.saveContent(contentStream);
             //если newFilePath is null или empty не обрабатываем
-            if (Strings.isNullOrEmpty(newFilePath)) {
+            if (newFilePath == null || newFilePath.isEmpty()) {
                 throw new DaoException("File isn't created");
             }
             newFilePathValue = new StringValue(newFilePath);
