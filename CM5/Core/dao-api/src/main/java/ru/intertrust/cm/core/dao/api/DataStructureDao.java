@@ -25,6 +25,12 @@ public interface DataStructureDao {
     void createTable(DomainObjectTypeConfig config);
 
     /**
+     * Создает таблицы прав доступа для доменного объекта (таблицы _ACL и _READ)
+     * @param config конфигурация доменного объекта
+     */
+    void createAclTables(DomainObjectTypeConfig config);
+
+    /**
      * Обновляет структуру таблицы (добавляет колонки и уникальные ключи)
      * @param domainObjectConfigName название доменного объекта, таблицу которого необходимо обновить
      * @param fieldConfigList список колонок для добавления

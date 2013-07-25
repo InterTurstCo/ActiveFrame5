@@ -131,6 +131,20 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             for(DomainObjectTypeConfig config : configList) {
                 loadDomainObjectConfig(config);
             }
+            
+            createAclTables(configList);
+        }
+
+        private void createAclTables(Collection<DomainObjectTypeConfig> configList) {
+            for (DomainObjectTypeConfig config : configList) {
+                createAclTablesFor(config);
+            }
+        }
+
+
+        private void createAclTablesFor(DomainObjectTypeConfig domainObjectTypeConfig) {
+            dataStructureDao.createAclTables(domainObjectTypeConfig);
+
         }
 
         private void loadDomainObjectConfig(DomainObjectTypeConfig domainObjectTypeConfig) {

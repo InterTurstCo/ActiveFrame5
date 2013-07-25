@@ -78,4 +78,28 @@
             <string name="Name" length="128" not-null="true" />
         </fields>
     </domain-object-type>
+
+    <!-- Системные объекты, пока просто как предложение -->
+    <domain-object-type name="User_Group">
+        <fields>
+            <string name="group_name" length="64" not-null="true" />
+            <long name="object_id" />
+            <long name="is_static" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="Group_Member">
+        <parent name="User_Group" />
+        <fields>
+            <reference name="person_id" type="Authentication_Info"
+                not-null="true" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="Group_Admin">
+        <parent name="User_Group" />
+        <fields>
+            <string name="role_name" length="64" not-null="true" />
+        </fields>
+    </domain-object-type>
 </configuration>
