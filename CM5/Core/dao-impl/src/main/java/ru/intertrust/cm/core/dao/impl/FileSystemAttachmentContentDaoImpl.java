@@ -31,7 +31,7 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
         if (!dir.exists()) {
             dir.mkdirs();
         }
-        String absFilePath = getAbsoluteFilePath(absDirPath, java.util.UUID.randomUUID().toString());
+        String absFilePath = getAbsoluteFilePath(absDirPath);
         FileOutputStream fos = null;
         try {
             File contentFile = new File(absFilePath);
@@ -105,15 +105,6 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
         return sb.toString();
     }
 
-    private String getAbsoluteFilePath(String absDirPath, String fileName) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(absDirPath);
-        if (!absDirPath.endsWith(fileSeparator))
-            sb.append(fileSeparator);
-        sb.append(fileName);
-        return sb.toString();
-    }
-
     private static long copyStreamToFile(InputStream from, OutputStream to)
             throws IOException {
         byte[] buf = new byte[BUF_SIZE];
@@ -127,5 +118,13 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
             total += r;
         }
         return total;
+    }
+
+    private String getAbsoluteFilePath(String absDirPath) {
+        File f;
+        do {
+            f = new File(absDirPath, java.util.UUID.randomUUID().toString());
+        } while (f.exists());
+        return f.getAbsolutePath();
     }
 }

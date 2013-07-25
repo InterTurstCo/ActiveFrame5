@@ -57,25 +57,28 @@ public class AttachmentServiceImpl implements AttachmentService {
     @Override
     public void saveAttachment(RemoteInputStream inputStream, DomainObject attachmentDomainObject) {
         InputStream contentStream = null;
-        String newFilePath = null;
+        StringValue newFilePathValue = null;
         try {
             contentStream = RemoteInputStreamClient.wrap(inputStream);
-            newFilePath = attachmentContentDao.saveContent(contentStream);
+            String newFilePath = attachmentContentDao.saveContent(contentStream);
             //если newFilePath is null или empty не обрабатываем
             if (Strings.isNullOrEmpty(newFilePath)) {
                 throw new DaoException("File isn't created");
             }
-            //предыдущий файл удаляем
-            StringValue oldFilePath = (StringValue) attachmentDomainObject.getValue("path");
-            if (oldFilePath != null && !oldFilePath.isEmpty()) {
-                //файл может быть и не удален
-                attachmentContentDao.deleteContent(attachmentDomainObject);
-            }
+            newFilePathValue = new StringValue(newFilePath);
+            StringValue oldFilePathValue = (StringValue) attachmentDomainObject.getValue("path");
             attachmentDomainObject.setValue("path", new StringValue(newFilePath));
             domainObjectDao.save(attachmentDomainObject);
+            //предыдущий файл удаляем
+            if (oldFilePathValue != null && !oldFilePathValue.isEmpty()) {
+                //файл может быть и не удален, в случае если заблокирован
+                attachmentDomainObject.setValue("path", oldFilePathValue);
+                attachmentContentDao.deleteContent(attachmentDomainObject);
+            }
+            attachmentDomainObject.setValue("path", newFilePathValue);
         } catch (IOException ex) {
-            if (!Strings.isNullOrEmpty(newFilePath)) {
-                attachmentDomainObject.setValue("path", new StringValue(newFilePath));
+            if (newFilePathValue != null && !newFilePathValue.isEmpty()) {
+                attachmentDomainObject.setValue("path", newFilePathValue);
                 attachmentContentDao.deleteContent(attachmentDomainObject);
             }
             throw new DaoException(ex.getMessage());
