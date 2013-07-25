@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.dao.impl;
 import org.slf4j.LoggerFactory;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.FileUtils;
 import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
 import ru.intertrust.cm.core.dao.exception.DaoException;
@@ -67,8 +68,12 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
 
     @Override
     public void deleteContent(DomainObject domainObject) {
-        String fileName = ((StringValue) domainObject.getValue("path")).get();
-        File f = new File(fileName);
+        Value value = domainObject.getValue("path");
+        if (value == null || value.isEmpty() || !(value instanceof StringValue)) {
+            return;
+        }
+        String pathName = ((StringValue) value).get();
+        File f = new File(pathName);
         if (f.exists()) {
             try {
                 f.delete();
