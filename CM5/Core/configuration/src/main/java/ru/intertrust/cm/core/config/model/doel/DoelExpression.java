@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.config.model.doel;
 
+import java.util.Arrays;
+
 /**
  * Класс, обеспечивающий разбор и хранение выражений на языке DOEL (Domain Object Expression Language),
  * который используется в различных местах конфигурации. Объекты класса являются неизменяемыми (immutable).
@@ -161,6 +163,27 @@ public class DoelExpression {
         return elements;
     }
 
+    /**
+     * Возвращает DOEL-выражение, содержащее копию первых count элементов данного.
+     * Если запрошенное количество элементов совпадает или превышает число элементов в данном выражении,
+     * возвращается оно само.
+     * 
+     * @param count Число копируемых элементов
+     * @return Другое или то же DOEL-выражение
+     * @throws IllegalArgumentException если count не положительно
+     */
+    public DoelExpression cutByCount(int count) {
+        if (count <= 0) {
+            throw new IllegalArgumentException("Count must be positive number");
+        }
+        if (count >= elements.length) {
+            return this;
+        }
+        DoelExpression result = new DoelExpression();
+        result.elements = Arrays.copyOf(elements, count);
+        return result;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null || !DoelExpression.class.equals(obj.getClass())) {
@@ -223,14 +246,8 @@ public class DoelExpression {
         if (matches == 0) {
             return null;
         }
-        if (matches == elements.length) {
-            return this;
-        }
         DoelExpression result = new DoelExpression();
-        result.elements = new Element[matches];
-        for (int i = 0; i < matches; i++) {
-            result.elements[i] = elements[i];
-        }
+        result.elements = Arrays.copyOf(elements, matches);
         return result;
     }
 
@@ -271,10 +288,7 @@ public class DoelExpression {
             return null;
         }
         DoelExpression result = new DoelExpression();
-        result.elements = new Element[elements.length - matches];
-        for (int i = matches; i < elements.length; i++) {
-            result.elements[i - matches] = elements[i];
-        }
+        result.elements = Arrays.copyOfRange(elements, matches, elements.length);
         return result;
     }
 }

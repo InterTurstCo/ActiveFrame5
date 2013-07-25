@@ -98,4 +98,37 @@ public class DoelResolver {
         params.put("id", id.getId());
         return jdbcTemplate.queryForList(query, params);
     }
+
+    public DoelExpression createReverseExpression(DoelExpression expr, String sourceType) {
+        StringBuilder reverseExpr = new StringBuilder();
+        String currentType = sourceType;
+        for (DoelExpression.Element doelElem : expr.getElements()) {
+            if (reverseExpr.length() > 0) {
+                reverseExpr.insert(0, ".");
+            }
+            if (DoelExpression.ElementType.FIELD == doelElem.getElementType()) {
+                DoelExpression.Field field = (DoelExpression.Field) doelElem;
+                FieldConfig fieldConfig = configurationExplorer.getFieldConfig(currentType, field.getName());
+                // Вставляем в обратном порядке, чтобы не вычислять позицию
+                reverseExpr.insert(0, field.getName())
+                           .insert(0, "^")
+                           .insert(0, currentType);
+                if (fieldConfig instanceof ReferenceFieldConfig) {
+                    ReferenceFieldConfig refConfig = (ReferenceFieldConfig) fieldConfig;
+                    currentType = refConfig.getType();
+                }
+            } else if (DoelExpression.ElementType.CHILDREN == doelElem.getElementType()) {
+                DoelExpression.Children children = (DoelExpression.Children) doelElem;
+                reverseExpr.insert(0, children.getParentLink());
+                currentType = children.getChildType();
+            } else {
+                throw new RuntimeException("Unknown element type: " + doelElem.getClass().getName());
+            }
+        }
+        return DoelExpression.parse(reverseExpr.toString());
+    }
+
+    public DoelExpression createReverseExpression(DoelExpression expr, int count, String sourceType) {
+        return createReverseExpression(expr.cutByCount(count), sourceType);
+    }
 }

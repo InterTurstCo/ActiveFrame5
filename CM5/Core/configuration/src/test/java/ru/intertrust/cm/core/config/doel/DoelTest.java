@@ -24,15 +24,24 @@ public class DoelTest {
 
     @Test
     public void makeExpressionBack() throws Exception {
-        String expression = "Document.Commission^Document.Assignee";
+        final String expression = "Document.Commission^Document.Assignee";
         DoelExpression expr = DoelExpression.parse(expression);
         String result = expr.toString();
         assertEquals(expression, result);
     }
 
     @Test
+    public void cutExpression() throws Exception {
+        final String expressionCut = "Document.Commission^Document";
+        final String expressionFull = expressionCut + ".Assignee";
+        DoelExpression exprCut = DoelExpression.parse(expressionCut);
+        DoelExpression exprTest = DoelExpression.parse(expressionFull).cutByCount(2);
+        assertEquals(exprTest, exprCut);
+    }
+
+    @Test
     public void findCommonBeginning() throws Exception {
-        String common = "Document.Commission^Document";
+        final String common = "Document.Commission^Document";
         DoelExpression expr1 = DoelExpression.parse(common + ".Assignee");
         DoelExpression expr2 = DoelExpression.parse(common + ".Job^Commission.Assignee");
         DoelExpression result = expr1.findCommonBeginning(expr2);
@@ -41,7 +50,7 @@ public class DoelTest {
 
     @Test
     public void excludeCommonBeginning() throws Exception {
-        String common = "Document.Commission^Document";
+        final String common = "Document.Commission^Document";
         String diff = "Assignee";
         DoelExpression expr1 = DoelExpression.parse(common + "." + diff);
         DoelExpression expr2 = DoelExpression.parse(common + ".Job^Commission.Assignee");
