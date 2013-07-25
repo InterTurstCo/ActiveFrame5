@@ -7,7 +7,10 @@ import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * User: vlad
@@ -18,6 +21,7 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
     private static final int BUF_SIZE = 0x1000;
     private static String fileSeparator = File.separator;
 
+    private static SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
     private String attachmentSaveLocation;
 
     public void setAttachmentSaveLocation(String attachmentSaveLocation) {
@@ -89,19 +93,11 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
     }
 
     private String getAbsoluteDirPath() {
-        Calendar calendar = Calendar.getInstance();
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH);
-        int day = calendar.get(Calendar.DATE);
         StringBuilder sb = new StringBuilder();
         sb.append(attachmentSaveLocation);
         if (!attachmentSaveLocation.endsWith(fileSeparator))
             sb.append(fileSeparator);
-        sb.append(year);
-        sb.append(fileSeparator);
-        sb.append(month);
-        sb.append(fileSeparator);
-        sb.append(day);
+        sb.append(formatter.format(new Date()));
         return sb.toString();
     }
 
