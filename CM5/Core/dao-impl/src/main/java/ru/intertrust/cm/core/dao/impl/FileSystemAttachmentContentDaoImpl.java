@@ -101,19 +101,16 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
         return sb.toString();
     }
 
-    private static long copyStreamToFile(InputStream from, OutputStream to)
+    private void copyStreamToFile(InputStream from, OutputStream to)
             throws IOException {
         byte[] buf = new byte[BUF_SIZE];
-        long total = 0;
         while (true) {
             int r = from.read(buf);
             if (r == -1) {
                 break;
             }
             to.write(buf, 0, r);
-            total += r;
         }
-        return total;
     }
 
     private String getAbsoluteFilePath(String absDirPath) {
