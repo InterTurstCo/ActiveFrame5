@@ -59,7 +59,7 @@ public class AttachmentServiceImplTest {
 
     static private AttachmentServiceRmi stubAttachmentService;
 
-    static class GenericDomainObjectWrapper extends GenericDomainObject implements Serializable {
+    static class GenericDomainObjectWrapper extends GenericDomainObject {
         Map<String, Value> values = new HashMap<>();
         String typeName;
         Id id;
