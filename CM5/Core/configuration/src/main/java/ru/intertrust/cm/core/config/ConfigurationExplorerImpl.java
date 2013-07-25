@@ -64,7 +64,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      * {@inheritDoc}
      */
     @Override
-    public <T> T getConfig(Class type, String name) {
+    public <T> T getConfig(Class<T> type, String name) {
         Map<String, TopLevelConfig> typeMap = topLevelConfigMap.get(type);
         if(typeMap == null) {
             return null;
@@ -77,7 +77,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      * {@inheritDoc}
      */
     @Override
-    public <T> Collection<T> getConfigs(Class type) {
+    public <T> Collection<T> getConfigs(Class<T> type) {
         Map<String, TopLevelConfig> typeMap = topLevelConfigMap.get(type);
         if(typeMap == null) {
             return Collections.EMPTY_LIST;
