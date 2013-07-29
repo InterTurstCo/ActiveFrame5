@@ -6,6 +6,7 @@
             <string name="Name" length="128" />
             <string name="Path" length="128" />
             <string name="MimeType" length="128" />
+            <string name="Description" length="128" />
         </fields>
     </domain-object-type>
 

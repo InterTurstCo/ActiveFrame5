@@ -15,6 +15,7 @@
           p:modulesConfigurationPath="/modules-configuration.xml">
         <property name="coreConfigurationFilePaths">
             <set>
+                <value>config/system-domain-objects.xml</value>
                 <value>config/domain-objects.xml</value>
                 <value>config/collections.xml</value>
                 <value>config/access.xml</value>
