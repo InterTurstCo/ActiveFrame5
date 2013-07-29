@@ -18,9 +18,9 @@ import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
  */
 public class PostgreSqlQueryHelper {
 
-    private static final String ACL_TABLE_SUFFIX = "_ACL";
+    public static final String ACL_TABLE_SUFFIX = "_ACL";
 
-    private static final String READ_TABLE_SUFFIX = "_READ";
+    public static final String READ_TABLE_SUFFIX = "_READ";
 
     private static final String GROUP_TABLE= "User_Group";    
 

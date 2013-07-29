@@ -38,6 +38,17 @@ public class DomainObjectAccessType implements AccessType {
     }
 
     @Override
+    public String toString() {
+        switch(type){
+            case 1:  return "READ";
+            case 2:  return "WRITE";
+            case 3:  return "DELETE";
+            default: throw new IllegalArgumentException("Access tyepe is not defined");
+        
+        }
+    }
+    
+    @Override
     public boolean equals(Object obj) {
         if (obj == null || !DomainObjectAccessType.class.equals(obj.getClass())) {
             return false;
