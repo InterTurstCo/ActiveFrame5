@@ -137,7 +137,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
         private void createAclTables(Collection<DomainObjectTypeConfig> configList) {
             for (DomainObjectTypeConfig config : configList) {
-                createAclTablesFor(config);
+                if (!config.isTemplate()) {
+                    createAclTablesFor(config);
+                }
             }
         }
 

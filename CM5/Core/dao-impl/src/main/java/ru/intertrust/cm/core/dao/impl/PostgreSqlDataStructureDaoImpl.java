@@ -61,9 +61,13 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
 
     /**
      * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#createTable(ru.intertrust.cm.core.config.model.DomainObjectTypeConfig)}
+     * Dot шаблон (с isTemplate = true) не отображается в базе данных
      */
     @Override
     public void createTable(DomainObjectTypeConfig config) {
+        if (config.isTemplate()) {
+            return;
+        }
         jdbcTemplate.update(generateCreateTableQuery(config));
 
         String createIndexesQuery = generateCreateIndexesQuery(config);
@@ -80,10 +84,13 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
 
     /**
      * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#createAclTables(DomainObjectTypeConfig)}
+     * Dot шаблон (с isTemplate = true) не отображается в базе данных
      */
     public void createAclTables(DomainObjectTypeConfig config) {
-        jdbcTemplate.update(generateCreateAclTableQuery(config));
-        jdbcTemplate.update(generateCreateAclReadTableQuery(config));
+        if (!config.isTemplate()) {
+            jdbcTemplate.update(generateCreateAclTableQuery(config));
+            jdbcTemplate.update(generateCreateAclReadTableQuery(config));
+        }
     }
 
     @Override
