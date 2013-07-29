@@ -2,7 +2,10 @@ package ru.intertrust.cm.core.config;
 
 import ru.intertrust.cm.core.model.FatalException;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 
 /**

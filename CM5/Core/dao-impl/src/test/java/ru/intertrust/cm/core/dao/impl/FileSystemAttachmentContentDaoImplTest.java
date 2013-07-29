@@ -25,23 +25,25 @@ public class FileSystemAttachmentContentDaoImplTest {
     @Test
     public void saveContent() throws IOException {
         FileSystemAttachmentContentDaoImpl contentDao = new FileSystemAttachmentContentDaoImpl();
+        contentDao.setAttachmentSaveLocation(TEST_OUT_DIR);
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         byte[] expBytes = new byte[]{0, 1, 2, 3, 4, 5};
         ByteArrayInputStream bis = new ByteArrayInputStream(expBytes);
         String path = contentDao.saveContent(bis);
-        Files.copy(Paths.get(path), bos);
+        Files.copy(Paths.get(TEST_OUT_DIR, path), bos);
         Assert.assertArrayEquals(expBytes, bos.toByteArray());
     }
 
     @Test
     public void loadContent() throws IOException {
         FileSystemAttachmentContentDaoImpl contentDao = new FileSystemAttachmentContentDaoImpl();
+        contentDao.setAttachmentSaveLocation(TEST_OUT_DIR);
         byte[] expBytes = new byte[]{0, 1, 2, 3, 4, 5};
         String path = createAndCopyToFile(new ByteArrayInputStream(expBytes));
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         Files.copy(Paths.get(path), bos);
         DomainObject domainObject = new GenericDomainObject();
-        domainObject.setValue("path", new StringValue(path));
+        domainObject.setValue("path", new StringValue(path.replace(TEST_OUT_DIR + "/", "")));
         InputStream inputStream = contentDao.loadContent(domainObject);
         bos.reset();
         int count;
@@ -55,11 +57,12 @@ public class FileSystemAttachmentContentDaoImplTest {
     @Test
     public void deleteContent() throws IOException {
         FileSystemAttachmentContentDaoImpl contentDao = new FileSystemAttachmentContentDaoImpl();
+        contentDao.setAttachmentSaveLocation(TEST_OUT_DIR);
         byte[] expBytes = new byte[]{0, 1, 2, 3, 4, 5};
         String path = createAndCopyToFile(new ByteArrayInputStream(expBytes));
         Assert.assertTrue(new File(path).exists());
         DomainObject domainObject = new GenericDomainObject();
-        domainObject.setValue("path", new StringValue(path));
+        domainObject.setValue("path", new StringValue(path.replace(TEST_OUT_DIR + "/", "")));
         contentDao.deleteContent(domainObject);
         Assert.assertFalse(new File(path).exists());
     }

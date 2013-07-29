@@ -17,6 +17,9 @@ import java.util.Locale;
 
 /**
  * User: vlad
+ * свойство path в DomainObject - относительный путь к файлам.
+ * свойство attachmentSaveLocation - должно отображать корневой путь к папкам,
+ * где сохраняются вложенные файлы.
  */
 public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao {
 
@@ -35,45 +38,37 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
         if (!dir.exists()) {
             dir.mkdirs();
         }
-        String absFilePath = getAbsoluteFilePath(absDirPath);
+        String absFilePath = newAbsoluteFilePath(absDirPath);
         try {
             //не заменяет файл
             Files.copy(inputStream, Paths.get(absFilePath));
-        } catch (FileNotFoundException ex) {
-            throw new DaoException(ex);
         } catch (IOException ex) {
             throw new DaoException(ex);
         }
-        return absFilePath;
+        return toRelativeFromAbsPathFile(absFilePath);
     }
 
     @Override
     public InputStream loadContent(DomainObject domainObject) {
-        FileInputStream fstream = null;
         try {
-            String fileName = ((StringValue) domainObject.getValue("path")).get();
-            fstream = new FileInputStream(fileName);
-            return fstream;
-        } catch (FileNotFoundException ex) {
-            if (fstream != null) {
-                try {
-                    fstream.close();
-                } catch (IOException e) {
-                    logger.error(e.getMessage(), e);
-                }
+            if (isPathEmptyInDo(domainObject)) {
+                throw new DaoException("The path is empty");
             }
-            throw new DaoException(ex);
+            String relFilePath = ((StringValue) domainObject.getValue("path")).get();
+            return new FileInputStream(toAbsFromRelativePathFile(relFilePath));
+        } catch (FileNotFoundException e) {
+            throw new DaoException(e);
         }
     }
 
     @Override
     public void deleteContent(DomainObject domainObject) {
-        Value value = domainObject.getValue("path");
-        if (value == null || value.isEmpty() || !(value instanceof StringValue)) {
+        if (isPathEmptyInDo(domainObject)) {
             return;
         }
-        String pathName = ((StringValue) value).get();
-        File f = new File(pathName);
+        Value value = domainObject.getValue("path");
+        String relFilePath = ((StringValue) value).get();
+        File f = new File(toAbsFromRelativePathFile(relFilePath));
         if (f.exists()) {
             try {
                 f.delete();
@@ -83,15 +78,32 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
         }
     }
 
+    private boolean isPathEmptyInDo(DomainObject domainObject) {
+        Value value = domainObject.getValue("path");
+        return value == null || value.isEmpty() || !(value instanceof StringValue);
+    }
+
     private String getAbsoluteDirPath() {
         return Paths.get(attachmentSaveLocation, formatter.format(new Date())).toAbsolutePath().toString();
     }
 
-    private String getAbsoluteFilePath(String absDirPath) {
+    private String newAbsoluteFilePath(String absDirPath) {
         Path fs;
         do {
             fs = Paths.get(absDirPath, java.util.UUID.randomUUID().toString());
         } while (Files.exists(fs, LinkOption.NOFOLLOW_LINKS));
         return fs.toAbsolutePath().toString();
+    }
+
+    private String toRelativeFromAbsPathFile(String absFilePath) {
+        if (absFilePath.startsWith(attachmentSaveLocation)) {
+            return absFilePath.substring(attachmentSaveLocation.length() + 1);
+        } else {
+            return absFilePath;
+        }
+    }
+
+    private String toAbsFromRelativePathFile(String relFilePath) {
+        return Paths.get(attachmentSaveLocation, relFilePath).toAbsolutePath().toString();
     }
 }
