@@ -72,7 +72,7 @@
 
     <ciManagement>
         <system>jenkins</system>
-        <url>https://webgui2.inttrust.ru:8181/jenkins/job/CM-Sochi</url>
+        <url>https://jenkins.inttrust.ru:8181/jenkins/job/CM-Sochi</url>
     </ciManagement>
 
     <dependencyManagement>
@@ -501,22 +501,6 @@
             <id>alfresco</id>
             <name>Alfresco Repository</name>
         </repository>
-
-        <!-- InterTrust's repositories -->
-
-
-        <!--repository>
-            <id>intertrust.repo</id>
-            <name>InterTrust maven repository</name>
-            <url>http://sup.inttrust.ru:8081/nexus/content/groups/public</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository-->
-
     </repositories>
 
     <pluginRepositories>
@@ -525,26 +509,15 @@
             <id>central</id>
             <name>Central Repository</name>
         </pluginRepository>
-
-        <!--pluginRepository>
-            <id>intertrust.repo</id>
-            <url>http://sup.inttrust.ru:8081/nexus/content/groups/public</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </pluginRepository-->
     </pluginRepositories>
 
     <distributionManagement>
         <repository>
-            <id>intertrust.releases</id>
+            <id>intertrust.releases.cm-sochi</id>
             <url>http://sup.inttrust.ru:8081/nexus/content/repositories/cm5-releases/</url>
         </repository>
         <snapshotRepository>
-            <id>intertrust.snapshots</id>
+            <id>intertrust.snapshots.cm-sochi</id>
             <url>http://sup.inttrust.ru:8081/nexus/content/repositories/cm5-snapshots/</url>
             <uniqueVersion>false</uniqueVersion>
         </snapshotRepository>
