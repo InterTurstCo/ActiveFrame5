@@ -56,19 +56,14 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         return result > 0;
     }
 
-    /**
-     * Имеет модификатор доступа protected для тестовых целей только.
-     * @param id
-     * @return
-     */
-    protected String getQueryForCheckDomainObjectAccess(RdbmsId id) {
-        String domainObjectAclTable = getAclTableName(id);        
-        String query = "select count(*) from " + domainObjectAclTable + " a inner join group_member gm on " +
-                "a.group_id = gm.parent where gm.person_id = :user_id and a.object_id = :object_id " +
-                "and a.operation = :operation";
+    private String getQueryForCheckDomainObjectAccess(RdbmsId id) {
+        String domainObjectAclTable = getAclTableName(id);
+        String query = "select count(*) from " + domainObjectAclTable + " a " +
+                "inner join group_member gm on a.group_id = gm.parent " +
+                "where gm.person_id = :user_id and a.object_id = :object_id and a.operation = :operation";
         return query;
     }
-    
+
     @Override
     public Id[] checkMultiDomainObjectAccess(int userId, Id[] objectIds, AccessType type) {
         RdbmsId[] ids = (RdbmsId[]) objectIds;
@@ -120,18 +115,12 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         return checkedIds;
     }
 
-    /**
-     * Имеет модификатор доступа protected для тестовых целей только.
-     * @param domainObjectType
-     * @return
-     */
-    protected String getQueryForCheckMultiDomainObjectAccess(String domainObjectType) {
+    private String getQueryForCheckMultiDomainObjectAccess(String domainObjectType) {
         String domainObjectAclTable = getAclTableNameFor(domainObjectType);
 
-        String query =
-                "select a.object_id object_id from " + domainObjectAclTable + " a inner join group_member gm on " +
-                        "a.group_id = gm.parent where gm.person_id = :user_id and a.object_id in (:object_ids) " +
-                        "and a.operation = :operation";
+        String query = "select a.object_id object_id from " + domainObjectAclTable + " a " +
+                "inner join group_member gm on a.group_id = gm.parent " +
+                "where gm.person_id = :user_id and a.object_id in (:object_ids) and a.operation = :operation";
         return query;
     }
     
@@ -166,17 +155,11 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         }).toArray(new AccessType[0]);
     }
 
-    /**
-     * Имеет модификатор доступа protected для тестовых целей только.
-     * @param id
-     * @return
-     */
-    protected String getQueryForCheckDomainObjectMultiAccess(RdbmsId id) {
-        String domainObjectAclTable = getAclTableName(id);        
-        String query =
-                "select a.operation operation from " + domainObjectAclTable + " a inner join group_member gm on " +
-                        "a.group_id = gm.parent where gm.person_id = :user_id and a.object_id = :object_id " +
-                        "and a.operation in (:operations)";
+    private String getQueryForCheckDomainObjectMultiAccess(RdbmsId id) {
+        String domainObjectAclTable = getAclTableName(id);
+        String query = "select a.operation operation from " + domainObjectAclTable + " a " +
+                "inner join group_member gm on a.group_id = gm.parent " +
+                "where gm.person_id = :user_id and a.object_id = :object_id and a.operation in (:operations)";
         return query;
     }
 
@@ -241,8 +224,9 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         return result > 0;
     }
 
-    protected String getQueryForCheckUserGroup() {
-        String query = "select count(*) from user_group ug inner join group_member gm on ug.id = gm.parent " +
+    private String getQueryForCheckUserGroup() {
+        String query = "select count(*) from user_group ug " +
+                "inner join group_member gm on ug.id = gm.parent " +
                 "where gm.person_id = :user_id and ug.group_name = :group_name";
         return query;
     }

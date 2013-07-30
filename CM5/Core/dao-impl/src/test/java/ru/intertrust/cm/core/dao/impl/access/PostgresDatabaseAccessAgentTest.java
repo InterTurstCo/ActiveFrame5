@@ -1,62 +1,125 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.dao.access.AccessType;
+import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 
+import static org.mockito.Mockito.*;
 /**
  * 
  * @author atsvetkov
  *
  */
+@RunWith(MockitoJUnitRunner.class)
 public class PostgresDatabaseAccessAgentTest {
-
-    private static final String EMPLOYEE_DOMAIN_OBJECT_TYPE = "Employee";
     
     private static final String CHECK_DOMAIN_OBJECT_ACCESS_QUERY = "select count(*) from Employee_ACL a inner join " +
     		"group_member gm on a.group_id = gm.parent where gm.person_id = :user_id and a.object_id = :object_id " +
     		"and a.operation = :operation";
 
-    private static final String CHECK_MULTI_DOMAIN_OBJECT_ACCESS_QUERY =
+    private static final String CHECK_MULTI_DOMAIN_OBJECT_ACCESS_FOR_EMPLOYEE_QUERY =
             "select a.object_id object_id from Employee_ACL " +
                     "a inner join group_member gm on a.group_id = gm.parent where gm.person_id = :user_id " +
                     "and a.object_id in (:object_ids) and a.operation = :operation";
     
+    private static final String CHECK_MULTI_DOMAIN_OBJECT_ACCESS_FOR_DEPARTMENT_QUERY =
+            "select a.object_id object_id from Department_ACL a inner join group_member gm on a.group_id = gm.parent " +
+                    "where gm.person_id = :user_id and a.object_id in (:object_ids) and a.operation = :operation";
+
     private static final String CHECK_DOMAIN_OBJECT_MULTI_ACCESS_QUERY =
             "select a.operation operation from Employee_ACL a " +
                     "inner join group_member gm on a.group_id = gm.parent where gm.person_id = :user_id " +
                     "and a.object_id = :object_id and a.operation in (:operations)";
 
+    @InjectMocks
     private PostgresDatabaseAccessAgent accessAgent = new PostgresDatabaseAccessAgent();
-    
-    private RdbmsId id;
+
+    @Mock
+    private NamedParameterJdbcTemplate jdbcTemplate;
+
+    private RdbmsId employeeId;
+    private RdbmsId departmentId;
     
     @Before
     public void setUp() throws Exception {
-        id = new RdbmsId("Employee", 1);    
+        employeeId = new RdbmsId("Employee", 1);
+        departmentId = new RdbmsId("Department", 1);
+
     }
     
     @Test
     public void testCheckDomainObjectAccess() {
-        RdbmsId id = new RdbmsId("Employee", 1);
-        String queryForCheckDomainObjectAccess = accessAgent.getQueryForCheckDomainObjectAccess(id);
-        assertEquals(CHECK_DOMAIN_OBJECT_ACCESS_QUERY, queryForCheckDomainObjectAccess);
+        when(jdbcTemplate.queryForObject(eq(CHECK_DOMAIN_OBJECT_ACCESS_QUERY), anyMapOf(String.class, Object.class), eq(Integer.class))).thenReturn(1);
+        boolean result = accessAgent.checkDomainObjectAccess(1, employeeId, DomainObjectAccessType.WRITE);        
+        verify(jdbcTemplate, times(1)).queryForObject(eq(CHECK_DOMAIN_OBJECT_ACCESS_QUERY), anyMapOf(String.class, Object.class), eq(Integer.class));
+        assertEquals(result, true);        
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testCheckMultiDomainObjectAccess() {
-        String queryForCheckMultiDomainObjectAccess =
-                accessAgent.getQueryForCheckMultiDomainObjectAccess(EMPLOYEE_DOMAIN_OBJECT_TYPE);
-        assertEquals(CHECK_MULTI_DOMAIN_OBJECT_ACCESS_QUERY, queryForCheckMultiDomainObjectAccess);
+        List<Id> employeeIds = new ArrayList<Id>();
+        employeeIds.add(employeeId);
+        List<Id> departmentIds = new ArrayList<Id>();
+        employeeIds.add(departmentId);
+
+        when(jdbcTemplate.query(eq(CHECK_MULTI_DOMAIN_OBJECT_ACCESS_FOR_EMPLOYEE_QUERY),
+                anyMapOf(String.class, Object.class), any(RowMapper.class))).thenReturn(employeeIds);
+        when(jdbcTemplate.query(eq(CHECK_MULTI_DOMAIN_OBJECT_ACCESS_FOR_DEPARTMENT_QUERY),
+                anyMapOf(String.class, Object.class), any(RowMapper.class))).thenReturn(departmentIds);
+
+        RdbmsId[] inputIds = new RdbmsId[2];
+        inputIds[0] = employeeId;
+        inputIds[1] = departmentId;
+        Id[] idsWithAllowedAccess = accessAgent.checkMultiDomainObjectAccess(1, inputIds, DomainObjectAccessType.WRITE);
+        verify(jdbcTemplate, times(1)).query(eq(CHECK_MULTI_DOMAIN_OBJECT_ACCESS_FOR_EMPLOYEE_QUERY),
+                anyMapOf(String.class, Object.class), any(RowMapper.class));
+        verify(jdbcTemplate, times(1)).query(eq(CHECK_MULTI_DOMAIN_OBJECT_ACCESS_FOR_DEPARTMENT_QUERY),
+                anyMapOf(String.class, Object.class), any(RowMapper.class));
+
+        assertTrue(Arrays.asList(idsWithAllowedAccess).contains(employeeId));
+        assertTrue(Arrays.asList(idsWithAllowedAccess).contains(departmentId));
+
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testCheckDomainObjectMultiAccess() {
-        String queryForCheckDomainObjectMultiAccess = accessAgent.getQueryForCheckDomainObjectMultiAccess(id);
-        assertEquals(CHECK_DOMAIN_OBJECT_MULTI_ACCESS_QUERY, queryForCheckDomainObjectMultiAccess);
+        List<AccessType> accessTypesToReturn = new ArrayList<AccessType>();
+        accessTypesToReturn.add(DomainObjectAccessType.WRITE);
+        accessTypesToReturn.add(DomainObjectAccessType.DELETE);
 
+        when(jdbcTemplate.query(eq(CHECK_DOMAIN_OBJECT_MULTI_ACCESS_QUERY), anyMapOf(String.class, Object.class),
+                any(RowMapper.class))).thenReturn(accessTypesToReturn);
+        AccessType[] types = new AccessType[2];
+        types[0] = DomainObjectAccessType.WRITE;
+        types[1] = DomainObjectAccessType.DELETE;
+        AccessType[] allowedAccessTypes = accessAgent.checkDomainObjectMultiAccess(1, employeeId, types);
+
+        verify(jdbcTemplate, times(1)).query(eq(CHECK_DOMAIN_OBJECT_MULTI_ACCESS_QUERY),
+                anyMapOf(String.class, Object.class), any(RowMapper.class));
+
+        assertTrue(Arrays.asList(allowedAccessTypes).contains(DomainObjectAccessType.WRITE));
+        assertTrue(Arrays.asList(allowedAccessTypes).contains(DomainObjectAccessType.DELETE));
     }
 }
