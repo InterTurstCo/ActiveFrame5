@@ -228,7 +228,7 @@ public class AttachmentServiceImplTest {
             String path = stubAttachmentService.saveAttachment(stream.export(), domainObject);
             Assert.assertTrue(path != null);
             ByteArrayOutputStream actBytes = new ByteArrayOutputStream();
-            Files.copy(Paths.get(path), actBytes);
+            Files.copy(Paths.get(absDirPath, path), actBytes);
             Assert.assertArrayEquals(expBytes, actBytes.toByteArray());
         } finally {
             //registry.unbind("AttachmentServiceRmi");
@@ -248,7 +248,7 @@ public class AttachmentServiceImplTest {
             DomainObject domainObject = new GenericDomainObjectWrapper();
             String path1 = stubAttachmentService.saveAttachment(stream.export(), domainObject);
             ByteArrayOutputStream actBytes = new ByteArrayOutputStream();
-            Files.copy(Paths.get(path1), actBytes);
+            Files.copy(Paths.get(absDirPath, path1), actBytes);
             Assert.assertArrayEquals(expBytes, actBytes.toByteArray());
 
             expBytes = new byte[]{9, 8, 7, 6, 5, 4, 3, 2, 1};
@@ -257,7 +257,7 @@ public class AttachmentServiceImplTest {
             domainObject.setValue("path", new StringValue(path1));
             String path2 = stubAttachmentService.saveAttachment(stream.export(), domainObject);
             actBytes = new ByteArrayOutputStream();
-            Files.copy(Paths.get(path2), actBytes);
+            Files.copy(Paths.get(absDirPath, path2), actBytes);
             Assert.assertArrayEquals(expBytes, actBytes.toByteArray());
             Assert.assertTrue(!path1.equalsIgnoreCase(path2));
             Assert.assertFalse(new File(path1).exists());
@@ -288,9 +288,9 @@ public class AttachmentServiceImplTest {
             String path = stubAttachmentService.saveAttachment(stream.export(), domainObject);
             GenericDomainObjectWrapper delDO = new GenericDomainObjectWrapper();
             delDO.setValue("path", new StringValue(path));
-            Assert.assertTrue(new File(path).exists());
+            Assert.assertTrue(Paths.get(absDirPath, path).toFile().exists());
             stubAttachmentService.deleteAttachment(delDO);
-            Assert.assertFalse(new File(path).exists());
+            Assert.assertFalse(Paths.get(absDirPath, path).toFile().exists());
         } finally {
             //registry.unbind("AttachmentServiceRmi");
         }
@@ -305,10 +305,10 @@ public class AttachmentServiceImplTest {
             SimpleRemoteInputStream stream = new SimpleRemoteInputStream(bis);
             DomainObject domainObject = new GenericDomainObjectWrapper();
             String path = stubAttachmentService.saveAttachment(stream.export(), domainObject);
-            Assert.assertTrue(new File(path).exists());
+            Assert.assertTrue(Paths.get(absDirPath, path).toFile().exists());
             GenericDomainObjectWrapper loadDO = new GenericDomainObjectWrapper();
             loadDO.setValue("path", new StringValue(path));
-            Assert.assertTrue(new File(path).exists());
+            Assert.assertTrue(Paths.get(absDirPath, path).toFile().exists());
             RemoteInputStream inputStream = stubAttachmentService.loadAttachment(loadDO);
             contentStream = RemoteInputStreamClient.wrap(inputStream);
             ByteArrayOutputStream actBytes = new ByteArrayOutputStream();
@@ -391,7 +391,7 @@ public class AttachmentServiceImplTest {
     private static InputStream loadContent(DomainObject domainObject) {
         try {
             String fileName = ((StringValue) domainObject.getValue("path")).get();
-            return new FileInputStream(fileName);
+            return new FileInputStream(Paths.get(absDirPath, fileName).toFile());
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
@@ -401,7 +401,7 @@ public class AttachmentServiceImplTest {
         Path path = Paths.get(absDirPath, (suffix++).toString());
         try {
             Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
-            return path.toAbsolutePath().toString();
+            return path.subpath(Paths.get(absDirPath).getNameCount(), path.getNameCount()).toString();
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
@@ -410,7 +410,7 @@ public class AttachmentServiceImplTest {
     private static void deleteContent(DomainObject domainObject) {
         String fileName = ((StringValue) domainObject.getValue("path")).get();
         try {
-            new File(fileName).delete();
+            Paths.get(absDirPath, fileName).toFile().delete();
         } catch (RuntimeException ex) {
         }
     }
