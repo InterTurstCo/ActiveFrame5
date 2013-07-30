@@ -43,7 +43,8 @@ public class FileSystemAttachmentContentDaoImplTest {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         Files.copy(Paths.get(path), bos);
         DomainObject domainObject = new GenericDomainObject();
-        domainObject.setValue("path", new StringValue(path.replace(TEST_OUT_DIR + "/", "")));
+        String relPath =  Paths.get(path).subpath(Paths.get(TEST_OUT_DIR).getNameCount(), Paths.get(path).getNameCount()).toString();
+        domainObject.setValue("path", new StringValue(relPath));
         InputStream inputStream = contentDao.loadContent(domainObject);
         bos.reset();
         int count;
@@ -62,7 +63,8 @@ public class FileSystemAttachmentContentDaoImplTest {
         String path = createAndCopyToFile(new ByteArrayInputStream(expBytes));
         Assert.assertTrue(new File(path).exists());
         DomainObject domainObject = new GenericDomainObject();
-        domainObject.setValue("path", new StringValue(path.replace(TEST_OUT_DIR + "/", "")));
+        String relPath =  Paths.get(path).subpath(Paths.get(TEST_OUT_DIR).getNameCount(), Paths.get(path).getNameCount()).toString();
+        domainObject.setValue("path", new StringValue(relPath));
         contentDao.deleteContent(domainObject);
         Assert.assertFalse(new File(path).exists());
     }
