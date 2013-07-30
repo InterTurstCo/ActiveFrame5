@@ -8,7 +8,7 @@ import javax.sql.DataSource;
 
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.FieldConfig;
@@ -90,11 +90,11 @@ public class DoelResolver {
         return query.toString();
     }
 
-    public List<?> evaluate(DoelExpression expression, DomainObject sourceObject) {
+    public List<?> evaluate(DoelExpression expression, Id sourceObjectId) {
         //TODO Change return type
-        String query = generateEvaluationQuery(expression, sourceObject.getTypeName());
+        RdbmsId id = (RdbmsId) sourceObjectId;
+        String query = generateEvaluationQuery(expression, id.getTypeName());
         Map<String, Object> params = new HashMap<>();
-        RdbmsId id = (RdbmsId) sourceObject.getId();
         params.put("id", id.getId());
         return jdbcTemplate.queryForList(query, params);
     }
