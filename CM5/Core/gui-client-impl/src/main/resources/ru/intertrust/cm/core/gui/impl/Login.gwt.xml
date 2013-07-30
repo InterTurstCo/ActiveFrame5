@@ -5,10 +5,7 @@
     <inherits name='com.google.gwt.user.User'/>
     <inherits name="ru.intertrust.cm.core.gui.api.Api"/>
     <inherits name="ru.intertrust.cm.core.business.Model"/>
-    <inherits name="ru.intertrust.cm.core.gui.impl.Login"/>
 
-    <entry-point class='ru.intertrust.cm.core.gui.impl.client.BusinessUniverse'/>
-
-    <source path="client"/>
+    <source path="authentication"/>
 
 </module>
