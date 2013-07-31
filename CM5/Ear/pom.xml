@@ -72,14 +72,6 @@
                         </configuration>
 
                         <executions>
-                            <!-- deploy the application on install -->
-                            <execution>
-                                 <id>deploy</id>
-                                <phase>install</phase>
-                                <goals>
-                                    <goal>deploy</goal>
-                                </goals>
-                            </execution>
                             <!-- Undeploy the application on clean -->
                             <!-- <execution>
                                 <id>undeploy</id>
@@ -94,18 +86,21 @@
                             <execution>
                                 <id>deploy-driver</id>
                                 <phase>install</phase>
+                                <goals>
+                                    <goal>deploy-artifact</goal>
+                                </goals>
                                 <configuration>
                                     <groupId>postgresql</groupId>
                                     <artifactId>postgresql</artifactId>
                                     <name>postgresql-jdbc4.jar</name>
                                 </configuration>
-                                <goals>
-                                    <goal>deploy-artifact</goal>
-                                </goals>
                             </execution>
                             <execution>
                                 <id>add-datasource</id>
                                 <phase>install</phase>
+                                <goals>
+                                    <goal>add-resource</goal>
+                                </goals>
                                 <configuration>
                                     <address>subsystem=datasources,data-source=${datasource.name}</address>
                                     <resource>
@@ -124,8 +119,13 @@
                                         </properties>
                                     </resource>
                                 </configuration>
+                            </execution>
+                            <!-- Deploy the application on install. Must be after resource deployment -->
+                            <execution>
+                                <id>deploy</id>
+                                <phase>install</phase>
                                 <goals>
-                                    <goal>add-resource</goal>
+                                    <goal>deploy</goal>
                                 </goals>
                             </execution>
 
