@@ -43,14 +43,21 @@ public class FileSystemAttachmentContentDaoImplTest {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         Files.copy(Paths.get(path), bos);
         DomainObject domainObject = new GenericDomainObject();
-        String relPath =  Paths.get(path).subpath(Paths.get(TEST_OUT_DIR).getNameCount(), Paths.get(path).getNameCount()).toString();
+        String relPath = Paths.get(path).subpath(Paths.get(TEST_OUT_DIR).getNameCount(), Paths.get(path).getNameCount()).toString();
         domainObject.setValue("path", new StringValue(relPath));
-        InputStream inputStream = contentDao.loadContent(domainObject);
-        bos.reset();
-        int count;
-        byte[] bs = new byte[10];
-        while ((count = inputStream.read(bs)) != -1) {
-            bos.write(bs, 0, count);
+        InputStream inputStream = null;
+        try {
+            inputStream = contentDao.loadContent(domainObject);
+            bos.reset();
+            int count;
+            byte[] bs = new byte[10];
+            while ((count = inputStream.read(bs)) != -1) {
+                bos.write(bs, 0, count);
+            }
+        } finally {
+            if (inputStream != null) {
+                inputStream.close();
+            }
         }
         Assert.assertArrayEquals(expBytes, bos.toByteArray());
     }
@@ -63,7 +70,7 @@ public class FileSystemAttachmentContentDaoImplTest {
         String path = createAndCopyToFile(new ByteArrayInputStream(expBytes));
         Assert.assertTrue(new File(path).exists());
         DomainObject domainObject = new GenericDomainObject();
-        String relPath =  Paths.get(path).subpath(Paths.get(TEST_OUT_DIR).getNameCount(), Paths.get(path).getNameCount()).toString();
+        String relPath = Paths.get(path).subpath(Paths.get(TEST_OUT_DIR).getNameCount(), Paths.get(path).getNameCount()).toString();
         domainObject.setValue("path", new StringValue(relPath));
         contentDao.deleteContent(domainObject);
         Assert.assertFalse(new File(path).exists());
