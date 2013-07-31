@@ -3,10 +3,7 @@
 <module>
 
     <inherits name='com.google.gwt.user.User'/>
-    <inherits name="ru.intertrust.cm.core.gui.api.Api"/>
     <inherits name="ru.intertrust.cm.core.business.Model"/>
-    <inherits name="ru.intertrust.cm.core.gui.rpc.Rpc"/>
 
-    <source path="authentication"/>
-
+    <source path="api"/>
 </module>

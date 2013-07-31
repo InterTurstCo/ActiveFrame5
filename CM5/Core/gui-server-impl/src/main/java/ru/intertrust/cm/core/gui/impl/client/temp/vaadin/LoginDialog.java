@@ -6,8 +6,8 @@ import com.vaadin.server.VaadinService;
 import com.vaadin.ui.*;
 import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
-import ru.intertrust.cm.core.gui.api.server.exception.AuthenticationException;
 import ru.intertrust.cm.core.gui.impl.server.GuiServiceImpl;
+import ru.intertrust.cm.core.model.AuthenticationException;
 
 /**
  * Страница, производящяя аутентификацию пользователей в диалоговом окне

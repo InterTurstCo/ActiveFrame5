@@ -1,6 +1,4 @@
-package ru.intertrust.cm.core.gui.api.server.exception;
-
-import ru.intertrust.cm.core.model.SystemException;
+package ru.intertrust.cm.core.model;
 
 /**
  * Исключение, возникающее при неудачной аутентификации пользователя системы

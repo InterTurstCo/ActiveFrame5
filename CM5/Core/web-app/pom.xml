@@ -99,6 +99,7 @@
                     <compileSourcesArtifacts>
                         <artifact>ru.intertrust.cm-sochi:gui-client-api</artifact>
                         <artifact>ru.intertrust.cm-sochi:gui-client-impl</artifact>
+                        <artifact>ru.intertrust.cm-sochi:gui-rpc</artifact>
                         <artifact>ru.intertrust.cm-sochi:model</artifact>
                     </compileSourcesArtifacts>
                 </configuration>

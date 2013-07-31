@@ -4,8 +4,8 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>gui-client-impl</artifactId>
-    <name>gui-client-impl</name>
+    <artifactId>gui-rpc</artifactId>
+    <name>gui-rpc</name>
 
     <parent>
         <groupId>ru.intertrust.cm-sochi</groupId>
@@ -21,7 +21,20 @@
 
         <dependency>
             <groupId>ru.intertrust.cm-sochi</groupId>
-            <artifactId>gui-rpc</artifactId>
+            <artifactId>model</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ru.intertrust.cm-sochi</groupId>
+            <artifactId>gui-client-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!--todo convert to api-->
+        <dependency>
+            <groupId>ru.intertrust.cm-sochi</groupId>
+            <artifactId>gui-server-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -29,8 +42,15 @@
             <groupId>com.google.gwt</groupId>
             <artifactId>gwt-user</artifactId>
             <version>2.5.1</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.gwt</groupId>
+            <artifactId>gwt-dev</artifactId>
+            <version>2.5.1</version>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>
-
 </project>

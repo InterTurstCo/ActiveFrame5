@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.gui.api.server;
 
 import ru.intertrust.cm.core.business.api.dto.UserCredentials;
 import ru.intertrust.cm.core.config.model.NavigationConfig;
-import ru.intertrust.cm.core.gui.api.server.exception.AuthenticationException;
+import ru.intertrust.cm.core.model.AuthenticationException;
 
 /**
  * Данный класс-служба содержит операции, относящиеся к клиентскому приложению. Клиентское приложение может быть

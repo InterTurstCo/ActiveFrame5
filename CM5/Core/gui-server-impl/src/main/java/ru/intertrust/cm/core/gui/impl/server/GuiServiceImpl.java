@@ -5,7 +5,7 @@ import ru.intertrust.cm.core.business.api.dto.UserCredentials;
 import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
 import ru.intertrust.cm.core.config.model.NavigationConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
-import ru.intertrust.cm.core.gui.api.server.exception.AuthenticationException;
+import ru.intertrust.cm.core.model.AuthenticationException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;

@@ -2,9 +2,11 @@ package ru.intertrust.cm.core.gui.impl.authentication;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
+import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
 import ru.intertrust.cm.core.gui.api.client.ComponentName;
+import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 /**
  * @author Denis Mitavskiy
@@ -47,7 +49,20 @@ public class LoginWindow extends DialogBox {
     }
 
     private void login() {
-        //todo: context-path should be passed from server
-        Window.Location.assign("/cm-sochi/BusinessUniverse.html");
+        AsyncCallback<Void> callback = new AsyncCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                message.setText("Welcome!");
+                //todo: context-path should be passed from server
+                //Window.Location.assign("/cm-sochi/BusinessUniverse.html");
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                message.setText("No way. " + caught.getMessage() );
+            }
+        };
+        UserUidWithPassword credentials = new UserUidWithPassword(loginField.getText(), passwordField.getText());
+        BusinessUniverseServiceAsync.Impl.getInstance().login(credentials, callback);
     }
 }

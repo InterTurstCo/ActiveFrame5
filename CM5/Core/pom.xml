@@ -23,6 +23,7 @@
         <module>service-impl</module>
         <module>gui-client-api</module>
         <module>gui-client-impl</module>
+        <module>gui-rpc</module>
         <module>gui-server-api</module>
         <module>gui-server-impl</module>
         <module>web-app</module>
