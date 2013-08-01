@@ -1,0 +1,217 @@
+%!Adobe-FontList 1.14
+%Locale:0x419
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:ALSArtemius-Bold
+FamilyName:ALS Artemius
+StyleName:Bold
+FullName:ALS Artemius Bold
+MenuName:ALS Artemius
+StyleBits:0
+FamilyNameNative:
+StyleNameNative:Bold
+FullNameNative:
+WritingScript:Cyrillic
+OutlineFileName:\\saturn\Exchange\david\Intertrust-Guides_D\Document fonts\ALS Artemius Bold.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+FileLength:70712
+FileModTime:1350916750
+WeightClass:700
+WidthClass:5
+AngleClass:0
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:ALSArtemius-Italic
+FamilyName:ALS Artemius
+StyleName:Italic
+FullName:ALS Artemius Italic
+MenuName:ALS Artemius
+StyleBits:1
+FamilyNameNative:
+StyleNameNative:Italic
+FullNameNative:
+WritingScript:Cyrillic
+OutlineFileName:\\saturn\Exchange\david\Intertrust-Guides_D\Document fonts\ALS Artemius Italic.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+FileLength:80168
+FileModTime:1350916746
+WeightClass:400
+WidthClass:5
+AngleClass:1
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:ALSArtemius-Light
+FamilyName:ALS Artemius
+StyleName:Light
+FullName:ALS Artemius Light
+MenuName:ALS Artemius
+StyleBits:0
+WritingScript:Roman
+OutlineFileName:\\saturn\Exchange\david\Intertrust-Guides_D\Document fonts\ALS Artemius Light.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+FileLength:80124
+FileModTime:1351257200
+WeightClass:300
+WidthClass:5
+AngleClass:0
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:ALSArtemius-Regular
+FamilyName:ALS Artemius
+StyleName:Regular
+FullName:ALS Artemius Regular
+MenuName:ALS Artemius
+StyleBits:0
+FamilyNameNative:
+StyleNameNative:Regular
+FullNameNative:
+WritingScript:Cyrillic
+OutlineFileName:\\saturn\Exchange\david\Intertrust-Guides_D\Document fonts\ALS Artemius Regular.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+FileLength:148380
+FileModTime:1350916742
+WeightClass:400
+WidthClass:5
+AngleClass:0
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:ALSArtemiusSans-Bold
+FamilyName:ALS Artemius Sans
+StyleName:Bold
+FullName:ALS Artemius Sans Bold
+MenuName:ALS Artemius Sans
+StyleBits:0
+WritingScript:Roman
+OutlineFileName:\\saturn\Exchange\david\Intertrust-Guides_D\Document fonts\ALS Artemius Sans Bold.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+FileLength:64348
+FileModTime:1351255566
+WeightClass:700
+WidthClass:5
+AngleClass:0
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:Type1
+FontName:ALSArtemiusSans-Regular
+FamilyName:ALS Artemius Sans
+StyleName:Regular
+FullName:ALS Artemius Sans Regular
+MenuName:ALS Artemius Sans
+StyleBits:0
+FamilyNameNative:
+StyleNameNative:Regular
+FullNameNative:
+WritingScript:Cyrillic
+OutlineFileName:\\saturn\Exchange\david\Intertrust-Guides_D\Document fonts\ALS Artemius Sans Regular.otf
+DataFormat:sfntData
+UsesStandardEncoding:yes
+isCFF:yes
+FileLength:53572
+FileModTime:1351255600
+WeightClass:400
+WidthClass:5
+AngleClass:0
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:ArialMT
+FamilyName:Arial
+StyleName:Regular
+FullName:Arial
+MenuName:Arial
+StyleBits:0
+WritingScript:Roman
+OutlineFileName:\\saturn\Exchange\david\Intertrust-Guides_D\Document fonts\arial.ttf
+DataFormat:sfntData
+FileLength:778552
+FileModTime:1305066846
+WeightClass:400
+WidthClass:5
+AngleClass:0
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:Arial-BoldMT
+FamilyName:Arial
+StyleName:Bold
+FullName:Arial Bold
+MenuName:Arial
+StyleBits:2
+WritingScript:Roman
+OutlineFileName:\\saturn\Exchange\david\Intertrust-Guides_D\Document fonts\arialbd.ttf
+DataFormat:sfntData
+FileLength:749004
+FileModTime:1295220726
+WeightClass:700
+WidthClass:5
+AngleClass:0
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:Arial-BoldItalicMT
+FamilyName:Arial
+StyleName:Bold Italic
+FullName:Arial Bold Italic
+MenuName:Arial
+StyleBits:3
+WritingScript:Roman
+OutlineFileName:\\saturn\Exchange\david\Intertrust-Guides_D\Document fonts\arialbi.ttf
+DataFormat:sfntData
+FileLength:561924
+FileModTime:1295220724
+WeightClass:700
+WidthClass:5
+AngleClass:1
+%EndFont
+
+%BeginFont
+Handler:DirectoryHandler
+FontType:TrueType
+FontName:Arial-ItalicMT
+FamilyName:Arial
+StyleName:Italic
+FullName:Arial Italic
+MenuName:Arial
+StyleBits:1
+WritingScript:Roman
+OutlineFileName:\\saturn\Exchange\david\Intertrust-Guides_D\Document fonts\ariali.ttf
+DataFormat:sfntData
+FileLength:555884
+FileModTime:1295220726
+WeightClass:400
+WidthClass:5
+AngleClass:1
+%EndFont
+
