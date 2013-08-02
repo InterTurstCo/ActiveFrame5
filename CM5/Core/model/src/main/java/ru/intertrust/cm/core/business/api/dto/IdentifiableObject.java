@@ -20,6 +20,7 @@ public interface IdentifiableObject extends Serializable {
     Id getId();
 
     /**
+     * @deprecated TODO move to implementation
      * Устанавливает идентификатор объекта
      * @param id идентификатор доменного объекта
      */

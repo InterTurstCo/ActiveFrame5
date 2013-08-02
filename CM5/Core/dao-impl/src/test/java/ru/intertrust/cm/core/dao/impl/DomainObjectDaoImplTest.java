@@ -55,7 +55,7 @@ public class DomainObjectDaoImplTest {
 
     @Test
     public void testGenerateCreateQuery() throws Exception {
-        DomainObject domainObject = new GenericDomainObject();
+        GenericDomainObject domainObject = new GenericDomainObject();
         domainObject.setTypeName(domainObjectTypeConfig.getName());
         domainObject.setValue("EMail", new StringValue("testCreate@test.com"));
         domainObject.setValue("Login", new StringValue("userCreate"));
@@ -76,7 +76,7 @@ public class DomainObjectDaoImplTest {
 
     @Test
     public void testUpdateThrowsInvalidIdException() {
-        DomainObject domainObject = new GenericDomainObject();
+        GenericDomainObject domainObject = new GenericDomainObject();
         domainObject.setId(null);
         domainObject.setTypeName(domainObjectTypeConfig.getName());
         domainObject.setValue("EMail", new StringValue("testUpdate@test.com"));
@@ -105,7 +105,7 @@ public class DomainObjectDaoImplTest {
 
     @Test
     public void testGenerateUpdateQuery() throws Exception {
-        DomainObject domainObject = new GenericDomainObject();
+        GenericDomainObject domainObject = new GenericDomainObject();
         domainObject.setTypeName(domainObjectTypeConfig.getName());
         domainObject.setValue("EMail", new StringValue("testUpdate@test.com"));
         domainObject.setValue("Login", new StringValue("userUpdate"));

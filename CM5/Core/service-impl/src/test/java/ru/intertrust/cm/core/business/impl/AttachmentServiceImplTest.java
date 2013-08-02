@@ -271,7 +271,7 @@ public class AttachmentServiceImplTest {
 
     @Test
     public void testGetAttachmentDomainObjectsFor() throws Exception {
-        DomainObject domainObject = new GenericDomainObjectWrapper();
+        GenericDomainObject domainObject = new GenericDomainObjectWrapper();
         domainObject.setTypeName("Person");
         List<DomainObject> l = stubAttachmentService.getAttachmentDomainObjectsFor(domainObject);
         Assert.assertEquals(1, ((RdbmsId) l.get(0).getId()).getId());

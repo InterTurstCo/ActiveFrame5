@@ -22,7 +22,20 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
         super();
     }
 
-    @Override
+    /**
+     * Создаёт копию доменного объекта
+     * 
+     * @param source исходный доменный объект
+     */
+    public GenericDomainObject(DomainObject source) {
+        super(source);
+        typeName = source.getTypeName();
+        parent = source.getParent();
+        createdDate = source.getCreatedDate();
+        modifiedDate = source.getModifiedDate();
+    }
+
+    //@Override
     public void setTypeName(String typeName) {
         this.typeName = typeName;
     }
@@ -37,7 +50,7 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
         return parent;
     }
 
-    @Override
+    //@Override
     public void setParent(Id parent) {
         this.parent = parent;
     }
@@ -47,7 +60,7 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
         return createdDate;
     }
 
-    @Override
+    //@Override
     public void setCreatedDate(Date createdDate) {
         this.createdDate = createdDate;
     }
@@ -57,7 +70,7 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
         return modifiedDate;
     }
 
-    @Override
+    //@Override
     public void setModifiedDate(Date modifiedDate) {
         this.modifiedDate = modifiedDate;
     }

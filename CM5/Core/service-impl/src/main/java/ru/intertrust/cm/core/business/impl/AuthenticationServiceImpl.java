@@ -45,7 +45,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String passwordHash = md5Service.getMD5(authenticationInfo.getPassword());
 
 
-        DomainObject authInfo = new GenericDomainObject();
+        GenericDomainObject authInfo = new GenericDomainObject();
         authInfo.setTypeName("Authentication_Info");
         Date currentDate = new Date();
         authInfo.setCreatedDate(currentDate);
@@ -57,7 +57,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         DomainObject createdAuthInfo = domainObjectDao.create(authInfo);
 
         RdbmsId id  = (RdbmsId)createdAuthInfo.getId();
-        DomainObject role = new GenericDomainObject();
+        GenericDomainObject role = new GenericDomainObject();
         role.setTypeName("Employee_Role");
         role.setCreatedDate(currentDate);
         role.setModifiedDate(currentDate);

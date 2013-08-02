@@ -14,7 +14,7 @@ public interface DomainObject extends IdentifiableObject {
     /**
      * Устанавливает тип доменного объекта
      */
-    void setTypeName(String typeName);
+    //void setTypeName(String typeName);
 
     /**
      * Возвращает тип доменного объекта
@@ -32,7 +32,7 @@ public interface DomainObject extends IdentifiableObject {
      * Устанавливает дату создания данного доменного объекта
      * @param createdDate дата создания данного доменного объекта
      */
-    void setCreatedDate(Date createdDate);
+    //void setCreatedDate(Date createdDate);
 
     /**
      * Возвращает дату модификации данного доменного объекта
@@ -44,19 +44,19 @@ public interface DomainObject extends IdentifiableObject {
      * Устанавливает дату модификации данного доменного объекта
      * @param modifiedDate дата модификации данного доменного объекта
      */
-    void setModifiedDate(Date modifiedDate);
+    //void setModifiedDate(Date modifiedDate);
 
     /**
      * Возвращает идентификатор родительского доменного объекта
      * @return идентификатор родительского доменного объекта
      */
-    public Id getParent();
+    Id getParent();
 
     /**
      * Устанавливает идентификатор родительского доменного объекта
      * @param parent идентификатор родительского доменного объекта
      */
-    public void setParent(Id parent);
+    //void setParent(Id parent);
 
     /**
      * Определяет являеться ли объект новым

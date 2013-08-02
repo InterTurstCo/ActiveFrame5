@@ -62,28 +62,30 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     @Override
     public DomainObject create(DomainObject domainObject) {
+        GenericDomainObject updatedObject = new GenericDomainObject(domainObject);
+
         Date currentDate = new Date();
-        domainObject.setCreatedDate(currentDate);
-        domainObject.setModifiedDate(currentDate);
+        updatedObject.setCreatedDate(currentDate);
+        updatedObject.setModifiedDate(currentDate);
 
         DomainObjectTypeConfig domainObjectTypeConfig =
-                configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObject.getTypeName());
+                configurationExplorer.getConfig(DomainObjectTypeConfig.class, updatedObject.getTypeName());
 
-        validateParentIdType(domainObject, domainObjectTypeConfig);
+        validateParentIdType(updatedObject, domainObjectTypeConfig);
 
         String query = generateCreateQuery(domainObjectTypeConfig);
 
         Object nextId = idGenerator.generatetId(domainObjectTypeConfig);
 
-        RdbmsId id = new RdbmsId(domainObject.getTypeName(), (Long) nextId);
+        RdbmsId id = new RdbmsId(updatedObject.getTypeName(), (Long) nextId);
 
-        domainObject.setId(id);
+        updatedObject.setId(id);
 
-        Map<String, Object> parameters = initializeCreateParameters(domainObject, domainObjectTypeConfig);
+        Map<String, Object> parameters = initializeCreateParameters(updatedObject, domainObjectTypeConfig);
 
         jdbcTemplate.update(query, parameters);
 
-        return domainObject;
+        return updatedObject;
     }
 
     @Override
@@ -118,31 +120,33 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     @Override
     public DomainObject update(DomainObject domainObject) throws InvalidIdException, ObjectNotFoundException,
             OptimisticLockException {
-        DomainObjectTypeConfig domainObjectTypeConfig =
-                configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObject.getTypeName());
+        GenericDomainObject updatedObject = new GenericDomainObject(domainObject);
 
-        validateIdType(domainObject.getId());
-        validateParentIdType(domainObject, domainObjectTypeConfig);
+        DomainObjectTypeConfig domainObjectTypeConfig =
+                configurationExplorer.getConfig(DomainObjectTypeConfig.class, updatedObject.getTypeName());
+
+        validateIdType(updatedObject.getId());
+        validateParentIdType(updatedObject, domainObjectTypeConfig);
 
         String query = generateUpdateQuery(domainObjectTypeConfig);
 
         Date currentDate = new Date();
 
-        Map<String, Object> parameters = initializeUpdateParameters(domainObject, domainObjectTypeConfig, currentDate);
+        Map<String, Object> parameters = initializeUpdateParameters(updatedObject, domainObjectTypeConfig, currentDate);
 
         int count = jdbcTemplate.update(query, parameters);
 
-        if (count == 0 && (!exists(domainObject.getId()))) {
-            throw new ObjectNotFoundException(domainObject.getId());
+        if (count == 0 && (!exists(updatedObject.getId()))) {
+            throw new ObjectNotFoundException(updatedObject.getId());
         }
 
         if (count == 0) {
-            throw new OptimisticLockException(domainObject);
+            throw new OptimisticLockException(updatedObject);
         }
 
-        domainObject.setModifiedDate(currentDate);
+        updatedObject.setModifiedDate(currentDate);
 
-        return domainObject;
+        return updatedObject;
 
     }
 

@@ -21,12 +21,26 @@ public class GenericIdentifiableObject implements IdentifiableObject {
         fieldValues = new LinkedHashMap<String, Value>(); // параметры специфицированы явно, для поддержки GWT
     }
 
+    /**
+     * Создаёт копию идентифицируемого объекта
+     * 
+     * @param source исходный объект
+     */
+    public GenericIdentifiableObject(IdentifiableObject source) {
+        id = source.getId();
+        ArrayList<String> sourceFields = source.getFields();
+        fieldValues = new LinkedHashMap<String, Value>(sourceFields.size());
+        for (String field : sourceFields) {
+            fieldValues.put(field, source.getValue(field));
+        }
+    }
+
     @Override
     public Id getId() {
         return id;
     }
 
-    @Override
+    //@Override
     public void setId(Id id) {
         this.id = id;
     }

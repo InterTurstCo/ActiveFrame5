@@ -41,7 +41,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     @Override
     public DomainObject createDomainObject(String name) {
-        DomainObject domainObject = new GenericDomainObject();
+        GenericDomainObject domainObject = new GenericDomainObject();
         domainObject.setTypeName(name);
         Date currentDate = new Date();
         domainObject.setCreatedDate(currentDate);
