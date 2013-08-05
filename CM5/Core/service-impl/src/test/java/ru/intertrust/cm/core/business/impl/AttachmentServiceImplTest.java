@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
@@ -27,6 +28,7 @@ import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.config.model.AttachmentTypeConfig;
 import ru.intertrust.cm.core.config.model.AttachmentTypesConfig;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
+//import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
@@ -45,6 +47,8 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
@@ -110,10 +114,15 @@ public class AttachmentServiceImplTest {
         private AttachmentContentDao attachmentContentDao;
 
         @Mock
-        AccessControlService accessControlService;
-        
+        private AccessControlService accessControlService;
+
         @Mock
         AccessToken accessToken;
+
+        @Bean
+        public AccessControlService accessControlService() {
+            return accessControlService;
+        }
         
         @Bean
         public ConfigurationExplorer configurationExplorer() {
@@ -374,7 +383,7 @@ public class AttachmentServiceImplTest {
 
     static private DomainObjectDao fillDomainObjectDao(DomainObjectDao domainObjectDao, AccessToken accessToken) {
         new RdbmsId("PERSON|1");
-        any(Id.class);
+
         GenericDomainObject domainObject1 = new GenericDomainObjectWrapper();
         domainObject1.setTypeName("Person_Attachment");
         domainObject1.setId(new RdbmsId("Person_Attachment|1"));
@@ -382,7 +391,7 @@ public class AttachmentServiceImplTest {
         domainObject2.setTypeName("Person_Attachment");
         domainObject2.setId(new RdbmsId("Person_Attachment|2"));
         
-        when(domainObjectDao.findChildren(any(Id.class), "Person_Attachment", accessToken)).
+        when(domainObjectDao.findChildren(any(Id.class), eq("Person_Attachment"), any(AccessToken.class))).
                 thenReturn(Arrays.asList(new DomainObject[]{domainObject1, domainObject2}));
         return domainObjectDao;
     }
