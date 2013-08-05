@@ -5,7 +5,7 @@
            xmlns:core="https://cm5.intertrust.ru/config"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-    <xs:import namespace="https://cm5.intertrust.ru/config" schemaLocation="configuration.xsd"/>
+    <xs:import namespace="https://cm5.intertrust.ru/config" schemaLocation="../../config/configuration-test.xsd"/>
 
     <xs:element name="configuration" type="custom:configurationType"/>
 
