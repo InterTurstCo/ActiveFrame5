@@ -238,8 +238,9 @@ public class DomainObjectDaoImplTest {
         when(result.get(1)).thenReturn(domainObject);
 
         any(MultipleObjectRowMapper.class);
-        when(jdbcTemplate.query("select * from PERSON1_ATTACHMENT where parent = :parent_id",
-                any(SqlParameterSource.class),
+
+        when(jdbcTemplate.query("select t.* from PERSON1_ATTACHMENT t where parent = :parent_id",
+                any(HashMap.class),
                 any(MultipleObjectRowMapper.class))).thenReturn(result);
 
         DomainObjectDaoImpl domainObjectDao = new DomainObjectDaoImpl();
