@@ -12,6 +12,9 @@ import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.AttachmentTypeConfig;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.dao.access.AccessControlService;
+import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.exception.DaoException;
@@ -48,9 +51,16 @@ public class AttachmentServiceImpl implements AttachmentService {
     @Autowired
     private ConfigurationExplorer configurationExplorer;
 
+    @Autowired
+    private AccessControlService accessControlService;
+
     @Override
     public DomainObject createAttachmentDomainObjectFor(String domainObjectType) {
         return crudService.createDomainObject(domainObjectType);
+    }
+    
+    public void setAccessControlService(AccessControlService accessControlService) {
+        this.accessControlService = accessControlService;
     }
 
     @Override
@@ -134,8 +144,11 @@ public class AttachmentServiceImpl implements AttachmentService {
                 domainObjectTypeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs()) {
             DomainObjectTypeConfig attachDomainObjectTypeConfig =
                     configurationExplorer.getConfig(DomainObjectTypeConfig.class, attachmentTypeConfig.getName());
+            //TODO get userId from EJB Context  
+            int userId = 1;
+            AccessToken accessToken = accessControlService.createAccessToken(userId, domainObject.getId(), DomainObjectAccessType.READ);
             attachmentDomainObjects.addAll(
-                    domainObjectDao.findChildren(domainObject.getId(), attachDomainObjectTypeConfig.getName()));
+                    domainObjectDao.findChildren(domainObject.getId(), attachDomainObjectTypeConfig.getName(), accessToken));
         }
         return attachmentDomainObjects;
     }

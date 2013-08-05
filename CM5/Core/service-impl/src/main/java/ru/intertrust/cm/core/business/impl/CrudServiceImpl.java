@@ -6,11 +6,15 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.dao.access.AccessControlService;
+import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
+
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -29,8 +33,15 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
     @Autowired
     private DomainObjectDao domainObjectDao;
 
+    @Autowired
+    private AccessControlService accessControlService;
+      
     public void setDomainObjectDao(DomainObjectDao domainObjectDao) {
         this.domainObjectDao = domainObjectDao;
+    }
+    
+    public void setAccessControlService(AccessControlService accessControlService) {
+        this.accessControlService = accessControlService;
     }
 
     @Override
@@ -52,6 +63,10 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     @Override
     public DomainObject save(DomainObject domainObject) {
+        //TODO get userId from EJB Context        
+        int userId = 1;        
+        Id objectId = ((GenericDomainObject)domainObject).getId();        
+        accessControlService.createAccessToken(userId, objectId, DomainObjectAccessType.WRITE);        
         return domainObjectDao.save(domainObject);
     }
 
@@ -67,16 +82,31 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     @Override
     public DomainObject find(Id id) {
-        return domainObjectDao.find(id);
+        // TODO get userId from EJB Context
+        int userId = 1;
+        AccessToken accessToken = accessControlService.createAccessToken(userId, id, DomainObjectAccessType.READ);
+        return domainObjectDao.find(id, accessToken);
     }
 
     @Override
     public List<DomainObject> find(List<Id> ids) {
-        return domainObjectDao.find(ids);
+        if (ids == null || ids.size() == 0) {
+            throw new IllegalArgumentException("Ids list can not be empty");
+        }
+        Id[] idsArray = ids.toArray(new Id[ids.size()]);
+        // TODO get user from EJB Context
+        int userId = 1;
+        AccessToken accessToken =
+                accessControlService.createAccessToken(userId, idsArray, DomainObjectAccessType.READ, false);
+
+        return domainObjectDao.find(ids, accessToken);
     }
 
     @Override
     public void delete(Id id) {
+        //TODO get userId from EJB Context        
+        int userId = 1;        
+        accessControlService.createAccessToken(userId, id, DomainObjectAccessType.DELETE);        
         domainObjectDao.delete(id);
     }
 
@@ -87,6 +117,11 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     @Override
     public List<DomainObject> findChildren(Id domainObjectId, String childType) {
-        return domainObjectDao.findChildren(domainObjectId, childType);
+        // TODO get userId from EJB Context
+        int userId = 1;
+        AccessToken accessToken =
+                accessControlService.createAccessToken(userId, domainObjectId, DomainObjectAccessType.READ);
+
+        return domainObjectDao.findChildren(domainObjectId, childType, accessToken);
     }
 }

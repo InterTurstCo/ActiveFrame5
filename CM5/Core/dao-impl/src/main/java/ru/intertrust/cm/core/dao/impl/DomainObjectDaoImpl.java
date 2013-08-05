@@ -304,7 +304,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("parent_id", ((RdbmsId) domainObjectId).getId());
-        if (accessToken.isDeferred()) {
+        if (accessToken != null && accessToken.isDeferred()) {
             parameters.putAll(aclParameters);
         }
 

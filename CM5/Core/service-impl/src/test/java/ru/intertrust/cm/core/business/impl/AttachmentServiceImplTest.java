@@ -27,6 +27,8 @@ import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.config.model.AttachmentTypeConfig;
 import ru.intertrust.cm.core.config.model.AttachmentTypesConfig;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.dao.access.AccessControlService;
+import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 
@@ -107,6 +109,12 @@ public class AttachmentServiceImplTest {
         @Mock
         private AttachmentContentDao attachmentContentDao;
 
+        @Mock
+        AccessControlService accessControlService;
+        
+        @Mock
+        AccessToken accessToken;
+        
         @Bean
         public ConfigurationExplorer configurationExplorer() {
             try {
@@ -147,7 +155,8 @@ public class AttachmentServiceImplTest {
 
         @Bean
         public DomainObjectDao domainObjectDao() {
-            return fillDomainObjectDao(domainObjectDao);
+            when(accessToken.isDeferred()).thenReturn(true);
+            return fillDomainObjectDao(domainObjectDao, accessToken);
         }
 
         @Bean
@@ -363,7 +372,7 @@ public class AttachmentServiceImplTest {
         return configurationExplorer;
     }
 
-    static private DomainObjectDao fillDomainObjectDao(DomainObjectDao domainObjectDao) {
+    static private DomainObjectDao fillDomainObjectDao(DomainObjectDao domainObjectDao, AccessToken accessToken) {
         new RdbmsId("PERSON|1");
         any(Id.class);
         GenericDomainObject domainObject1 = new GenericDomainObjectWrapper();
@@ -372,7 +381,8 @@ public class AttachmentServiceImplTest {
         GenericDomainObject domainObject2 = new GenericDomainObjectWrapper();
         domainObject2.setTypeName("Person_Attachment");
         domainObject2.setId(new RdbmsId("Person_Attachment|2"));
-        when(domainObjectDao.findChildren(any(Id.class), "Person_Attachment")).
+        
+        when(domainObjectDao.findChildren(any(Id.class), "Person_Attachment", accessToken)).
                 thenReturn(Arrays.asList(new DomainObject[]{domainObject1, domainObject2}));
         return domainObjectDao;
     }
