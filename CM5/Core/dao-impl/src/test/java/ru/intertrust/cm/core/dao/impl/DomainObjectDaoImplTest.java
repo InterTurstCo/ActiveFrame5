@@ -244,7 +244,7 @@ public class DomainObjectDaoImplTest {
 
         DomainObjectDaoImpl domainObjectDao = new DomainObjectDaoImpl();
         ReflectionTestUtils.setField(domainObjectDao, "jdbcTemplate", jdbcTemplate);
-        List<DomainObject> l = domainObjectDao.findChildren(new RdbmsId("PERSON|1"), "Person1_Attachment");
+        List<DomainObject> l = domainObjectDao.findChildren(new RdbmsId("PERSON|1"), "Person1_Attachment", null);
         Assert.assertEquals(1, ((RdbmsId)l.get(0).getId()).getId());
         Assert.assertEquals(2, ((RdbmsId)l.get(1).getId()).getId());
     }

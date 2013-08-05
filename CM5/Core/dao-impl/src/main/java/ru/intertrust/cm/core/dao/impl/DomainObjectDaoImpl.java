@@ -1,19 +1,21 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+
 import org.springframework.util.StringUtils;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
+import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.IdGenerator;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
+import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
 import ru.intertrust.cm.core.dao.impl.utils.*;
 
 import javax.sql.DataSource;
@@ -138,6 +140,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         if (count == 0 && (!exists(updatedObject.getId()))) {
             throw new ObjectNotFoundException(updatedObject.getId());
+        
         }
 
         if (count == 0) {
@@ -192,57 +195,120 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     @Override
     public boolean exists(Id id) throws InvalidIdException {
         RdbmsId rdbmsId = (RdbmsId) id;
-
-        String query = generateExistsQuery(rdbmsId.getTypeName());
-
         validateIdType(id);
 
-        Map<String, Long> parameters = initializeExistsParameters(id);
+        StringBuilder query = new StringBuilder();
+        query.append(generateExistsQuery(rdbmsId.getTypeName()));
 
+        Map<String, Object> parameters = initializeExistsParameters(id);        
         long total = jdbcTemplate.queryForObject(query.toString(), parameters, Long.class);
 
         return total > 0;
-
     }
 
     @Override
-    public DomainObject find(Id id) {
+    public DomainObject find(Id id, AccessToken accessToken) {
         RdbmsId rdbmsId = (RdbmsId) id;
 
         String tableName = DataStructureNamingHelper.getSqlName(rdbmsId.getTypeName());
 
         StringBuilder query = new StringBuilder();
         query.append("select * from ").append(tableName).append(" where ID=:id ");
+        
+        Map<String, Object> aclParameters = new HashMap<String, Object>();
+        if (accessToken.isDeferred()) {
+            String aclReadTable = AccessControlUtility.getAclReadTableName(rdbmsId);
+            query.append(" and exists (select a.object_id from " + aclReadTable + " a inner join group_member gm " +
+                    "on a.group_id = gm.parent where gm.person_id = :user_id and a.object_id = :id)");
+            aclParameters = getAclParameters(accessToken);
+        }
+
         Map<String, Object> parameters = initializeIdParameter(rdbmsId);
+        if (accessToken.isDeferred()) {
+            parameters.putAll(aclParameters);
+        }        
 
         return jdbcTemplate.query(query.toString(), parameters, new SingleObjectRowMapper(rdbmsId.getTypeName()));
     }
 
     @Override
-    public List<DomainObject> find(List<Id> ids) {
+    public List<DomainObject> find(List<Id> ids, AccessToken accessToken) {
         if (ids == null || ids.size() == 0) {
             return new ArrayList<>();
         }
-        String tableName = DataStructureNamingHelper.getSqlName(getDomainObjectType(ids));
+        List<DomainObject> allDomainObjects = new ArrayList<DomainObject>();
+        
+        IdSorterByType idSorterByType = new IdSorterByType(ids.toArray(new RdbmsId[ids.size()]));
 
-        String idsList = convertIdsToCommaSeparatedString(ids);
+        for (final String domainObjectType : idSorterByType.getDomainObjectTypes()) {
+            List<RdbmsId> idsOfSingleType = idSorterByType.getIdsOfType(domainObjectType);
+            allDomainObjects.addAll(findSingleTypeDomainObjects(idsOfSingleType, accessToken, domainObjectType));
+        }
+        
+        return allDomainObjects;
+    }
+    
+    /**
+     * Поиск доменных объектов одного типа.
+     * @param ids идентификаторы доменных объектов
+     * @param accessToken маркер доступа
+     * @param domainObjectType тип доменного объекта
+     * @return список доменных объектов
+     */
+    private List<DomainObject> findSingleTypeDomainObjects(List<RdbmsId> ids, AccessToken accessToken,
+            String domainObjectType) {
         StringBuilder query = new StringBuilder();
-        query.append("select * from ").append(tableName).append(" where ID in ( " + idsList + " ) ");
 
-        return jdbcTemplate.query(query.toString(), new MultipleObjectRowMapper(tableName));
+        Map<String, Object> aclParameters = new HashMap<String, Object>();
+
+        if (accessToken.isDeferred()) {
+            String aclReadTable = AccessControlUtility.getAclReadTableNameFor(domainObjectType);
+            query.append("select distinct t.* from " + domainObjectType + " t inner join " + aclReadTable + " r " +
+                    "on t.id = r.object_id inner join group_member gm on r.group_id = gm.parent " +
+                    "where gm.person_id = :user_id and t.id in (:object_ids) ");
+
+            aclParameters = getAclParameters(accessToken);
+
+        } else {
+            query.append("select * from ").append(domainObjectType).append(" where ID in (:object_ids) ");
+        }
+
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        List<Long> listIds = AccessControlUtility.convertRdbmsIdsToLongIds(ids);
+        parameters.put("object_ids", listIds);
+
+        if (accessToken.isDeferred()) {
+            parameters.putAll(aclParameters);
+        }
+
+        return jdbcTemplate.query(query.toString(), parameters, new MultipleObjectRowMapper(domainObjectType));
     }
 
     @Override
-    public List<DomainObject> findChildren(Id domainObjectId, String childType) {
+    public List<DomainObject> findChildren(Id domainObjectId, String childType, AccessToken accessToken) {
         String tableNameOfChild = DataStructureNamingHelper.getSqlName(childType);
 
         StringBuilder query = new StringBuilder();
-        query.append("select * from ")
+        query.append("select t.* from ")
                 .append(tableNameOfChild)
-                .append(" where parent = :parent_id");
-        SqlParameterSource namedParameters = new MapSqlParameterSource("parent_id", ((RdbmsId) domainObjectId).getId());
+                .append(" t where parent = :parent_id");
 
-        return jdbcTemplate.query(query.toString(), namedParameters, new MultipleObjectRowMapper(tableNameOfChild));
+        Map<String, Object> aclParameters = new HashMap<String, Object>();
+        if (accessToken != null && accessToken.isDeferred()) {
+            String childAclReadTable = AccessControlUtility.getAclReadTableNameFor(tableNameOfChild);
+            query.append(" and exists (select r.object_id from ").append(childAclReadTable).append(" r ");
+            query.append("inner join group_member gm on r.group_id = gm.parent where gm.person_id = :user_id and r.object_id = t.id)");
+            
+            aclParameters = getAclParameters(accessToken);
+        }
+
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("parent_id", ((RdbmsId) domainObjectId).getId());
+        if (accessToken.isDeferred()) {
+            parameters.putAll(aclParameters);
+        }
+
+        return jdbcTemplate.query(query.toString(), parameters, new MultipleObjectRowMapper(tableNameOfChild));
     }
 
     /**
@@ -406,9 +472,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     /**
-     * Инициализирует параметры для удаления доменного объекта
-     *
-     * @param id идентификатор доменного объекта для удаления
+     * Инициализирует параметр c id доменного объекта
+     * @param id идентификатор доменного объекта
      * @return карту объектов содержащую имя параметра и его значение
      */
     protected Map<String, Object> initializeIdParameter(Id id) {
@@ -443,38 +508,25 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
      * @param id идентификатор доменных объектов для удаления
      * @return карту объектов содержащую имя параметра и его значение
      */
-    protected Map<String, Long> initializeExistsParameters(Id id) {
+    protected Map<String, Object> initializeExistsParameters(Id id) {
 
         RdbmsId rdbmsId = (RdbmsId) id;
-        Map<String, Long> parameters = new HashMap<String, Long>();
+        Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("id", rdbmsId.getId());
 
         return parameters;
     }
 
-    private String convertIdsToCommaSeparatedString(List<Id> ids) {
-        StringBuilder builder = new StringBuilder();
-        int index = 0;
-        for (Id id : ids) {
-            RdbmsId rdbmsId = (RdbmsId) id;
-            builder.append(rdbmsId.getId());
-            if (index < ids.size() - 1) {
-                builder.append(", ");
-            }
-            index++;
-        }
-        return builder.toString();
-    }
-
-    private String getDomainObjectType(List<Id> ids) {
-        String typeName = null;
-        for (Id id : ids) {
-            RdbmsId rdbmsId = (RdbmsId) id;
-            typeName = rdbmsId.getTypeName();
-            break;
-        }
-
-        return typeName;
+    /**
+     * Инициализация параметров для отложенной провеки доступа. 
+     * @param accessToken
+     * @return
+     */
+    protected Map<String, Object> getAclParameters(AccessToken accessToken) {
+        long userId = ((UserSubject)accessToken.getSubject()).getUserId();        
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("user_id", userId);
+        return parameters;
     }
 
     /**
@@ -527,5 +579,4 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         RdbmsId rdbmsParentId = (RdbmsId) domainObject.getParent();
         return rdbmsParentId.getId();
     }
-
 }

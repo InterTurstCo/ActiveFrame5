@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.dao.api;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
@@ -97,14 +98,14 @@ public interface DomainObjectDao {
      * @param id идентификатору доменного объекта
      * @return {@link ru.intertrust.cm.core.business.api.dto.DomainObject}
      */
-    DomainObject find(Id id);
+    DomainObject find(Id id, AccessToken accessToken);
 
     /**
-     * Поиск списка доменных объектов по уникальным идентификаторам в системе.
+     * Поиск списка доменных объектов по уникальным идентификаторам в системе. Причем идентификаторы могут быть разных типов доменных объектов.
      * @param ids уникальные идентификаторы
      * @return {@link List< ru.intertrust.cm.core.business.api.dto.DomainObject >}
      */
-    List<DomainObject> find(List<Id> ids);
+    List<DomainObject> find(List<Id> ids, AccessToken accessToken);
 
     /**
      * Поиск списка вложенных доменных объектов по уникальному идентификатору владельца в системе и типу дочернего
@@ -113,5 +114,5 @@ public interface DomainObjectDao {
      * @param childType - тип вложенного (дочернего) доменного объекта
      * @return
      */
-    List<DomainObject> findChildren(Id domainObjectId, String childType);
+    List<DomainObject> findChildren(Id domainObjectId, String childType, AccessToken accessToken);
 }

@@ -5,10 +5,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -21,6 +19,7 @@ import ru.intertrust.cm.core.dao.access.AccessType;
 import ru.intertrust.cm.core.dao.access.CreateChildAccessType;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper;
+import ru.intertrust.cm.core.dao.impl.utils.IdSorterByType;
 
 /**
  * Реализация агента БД по запросам прав доступа для PostgreSQL.
@@ -95,7 +94,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
             final String domainObjectType) {
         String query = getQueryForCheckMultiDomainObjectAccess(domainObjectType);
 
-        List<Long> listIds = convertRdbmsIdsToLongIds(sorterByType.getIdsOfType(domainObjectType));
+        List<Long> listIds = AccessControlUtility.convertRdbmsIdsToLongIds(sorterByType.getIdsOfType(domainObjectType));
 
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("user_id", userId);
@@ -124,16 +123,6 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         return query;
     }
     
-    private List<Long> convertRdbmsIdsToLongIds(List<RdbmsId> objectIds) {
-        List<Long> idList = new ArrayList<Long>();
-        for (RdbmsId id : objectIds) {
-            if (id != null && id.getClass().equals(RdbmsId.class)) {
-                idList.add(id.getId());
-            }
-        }
-        return idList;
-    }
-
     @Override
     public AccessType[] checkDomainObjectMultiAccess(int userId, Id objectId, AccessType[] types) {
         RdbmsId id = (RdbmsId) objectId;
@@ -173,7 +162,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         return domainObjectAclTable;
     }
 
-    private static String makeAccessTypeCode(AccessType type) {
+    public static String makeAccessTypeCode(AccessType type) {
         // Разрешения на чтение хранятся в отдельной таблице, поэтому код "R" не используется
         /*if (DomainObjectAccessType.READ.equals(type)) {
             return "R";
@@ -229,65 +218,6 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
                 "inner join group_member gm on ug.id = gm.parent " +
                 "where gm.person_id = :user_id and ug.group_name = :group_name";
         return query;
-    }
-    
-    /**
-     * Группирует идентификаторы доменных объектов по типу. Это нужно для оптимизации проверки прав доступа к списку ДО.
-     * @author atsvetkov
-     */
-    private class IdSorterByType {
-
-        private Set<String> domainObjectTypes = new HashSet<String>();
-
-        private Map<String, List<RdbmsId>> groupedByTypeObjectIds = new HashMap<String, List<RdbmsId>>();
-
-        public IdSorterByType(RdbmsId[] ids) {
-            collectDomainObjectTypes(ids);
-
-            groupIdsByType(ids);
-        }
-
-        private void groupIdsByType(RdbmsId[] objectIds) {
-            for (String domainObjectType : domainObjectTypes) {
-                List<RdbmsId> singleTypeIds = null;
-                for (RdbmsId id : objectIds) {
-                    if (domainObjectType.equals(id.getTypeName())) {
-                        if (groupedByTypeObjectIds.get(domainObjectType) != null) {
-                            singleTypeIds = groupedByTypeObjectIds.get(domainObjectType);
-                        } else {
-                            singleTypeIds = new ArrayList<RdbmsId>();
-                            groupedByTypeObjectIds.put(domainObjectType, singleTypeIds);
-
-                        }
-                        singleTypeIds.add(id);
-                    }
-                }
-            }
-        }
-
-        private void collectDomainObjectTypes(RdbmsId[] objectIds) {
-            for (RdbmsId id : objectIds) {
-                String typeName = id.getTypeName();
-                domainObjectTypes.add(typeName);
-            }
-        }
-
-        /**
-         * Возвращает идентификаторы ДО заданного типа
-         * @param domainObjectType тип ДО
-         * @return список идентификаторов заданного типа
-         */
-        public List<RdbmsId> getIdsOfType(String domainObjectType) {
-            return groupedByTypeObjectIds.get(domainObjectType);
-        }
-
-        /**
-         * Возвращает список типов доменных объектов.
-         * @return список типов ДО
-         */
-        public Set<String> getDomainObjectTypes() {
-            return domainObjectTypes;
-        }
     }
 
 }
