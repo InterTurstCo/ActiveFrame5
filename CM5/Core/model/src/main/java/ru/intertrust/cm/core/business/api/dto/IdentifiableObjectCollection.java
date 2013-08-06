@@ -8,7 +8,7 @@ import java.util.List;
  * Date: 24.05.13
  * Time: 13:44
  */
-public interface IdentifiableObjectCollection extends Iterable<IdentifiableObject> {
+public interface IdentifiableObjectCollection extends Iterable<IdentifiableObject>, Dto {
     void setFields(List<String> fields);
 
     Id getId(int row);

@@ -9,5 +9,5 @@ import java.util.ArrayList;
  * Date: 22.05.13
  * Time: 23:40
  */
-public class SortOrder extends ArrayList<SortCriterion> {
+public class SortOrder extends ArrayList<SortCriterion> implements Dto {
 }

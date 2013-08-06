@@ -6,7 +6,7 @@ package ru.intertrust.cm.core.business.api.dto;
  * @author atsvetkov
  *
  */
-public class AuthenticationInfoAndRole {
+public class AuthenticationInfoAndRole implements Dto {
 
     private int id;
 

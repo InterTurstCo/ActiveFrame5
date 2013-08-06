@@ -1,14 +1,12 @@
 package ru.intertrust.cm.core.business.api.dto;
 
-import java.io.Serializable;
-
 /**
  * Значение поля доменного объекта. По сути является отображением типов, определённых в системе на типы Java.
  * Author: Denis Mitavskiy
  * Date: 19.05.13
  * Time: 16:10
  */
-public abstract class Value implements Serializable {
+public abstract class Value implements Dto {
     /**
      * Создаёт значение поля доменного объекта
      */

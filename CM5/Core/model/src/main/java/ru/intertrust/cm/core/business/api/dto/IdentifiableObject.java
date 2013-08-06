@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.business.api.dto;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -12,7 +11,7 @@ import java.util.ArrayList;
  * Date: 23.05.13
  * Time: 1:39
  */
-public interface IdentifiableObject extends Serializable {
+public interface IdentifiableObject extends Dto {
     /**
      * Возвращает идентификатор объекта
      * @return идентификатор объекта

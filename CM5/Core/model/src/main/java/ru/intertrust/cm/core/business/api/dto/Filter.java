@@ -12,7 +12,7 @@ import java.util.TreeMap;
  * Date: 24.05.13
  * Time: 13:53
  */
-public class Filter {
+public class Filter implements Dto {
     
     /**
      * содержит имя фильтра

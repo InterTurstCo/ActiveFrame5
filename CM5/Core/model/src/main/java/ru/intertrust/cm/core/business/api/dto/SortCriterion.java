@@ -1,7 +1,5 @@
 package ru.intertrust.cm.core.business.api.dto;
 
-import java.io.Serializable;
-
 /**
  * Критерий сортировки
  *
@@ -9,11 +7,11 @@ import java.io.Serializable;
  * Date: 22.05.13
  * Time: 23:32
  */
-public class SortCriterion implements Serializable {
+public class SortCriterion implements Dto {
     /**
      * Порядок сортировки
      */
-    public static enum Order implements Serializable {
+    public static enum Order implements Dto {
         /**
          * По возрастанию
          */

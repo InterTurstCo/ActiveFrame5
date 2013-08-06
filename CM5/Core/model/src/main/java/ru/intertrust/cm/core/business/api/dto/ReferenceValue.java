@@ -1,13 +1,11 @@
 package ru.intertrust.cm.core.business.api.dto;
 
-import java.io.Serializable;
-
 /**
  * Хранение ссылки на другой объект.
  * 
  * @author apirozhkov
  */
-public class ReferenceValue extends Value implements Serializable {
+public class ReferenceValue extends Value {
 
     private Id reference;
 

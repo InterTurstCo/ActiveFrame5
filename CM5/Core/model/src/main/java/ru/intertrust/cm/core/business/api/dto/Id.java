@@ -1,14 +1,12 @@
 package ru.intertrust.cm.core.business.api.dto;
 
-import java.io.Serializable;
-
 /**
  * Уникальный идентификатор доменного объекта
  * Author: Denis Mitavskiy
  * Date: 19.05.13
  * Time: 16:43
  */
-public interface Id extends Serializable {
+public interface Id extends Dto {
     /**
      * Создаёт идентификатор доменного объекта на основе его строкового представления. Строковое представление
      * идентификатора генерируется методом {@link ru.intertrust.cm.core.business.api.dto.RdbmsId#toString()}
