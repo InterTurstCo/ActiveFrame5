@@ -4,7 +4,7 @@
 
     <inherits name='com.google.gwt.user.User'/>
     <inherits name="ru.intertrust.cm.core.gui.api.Api"/>
-    <inherits name="ru.intertrust.cm.core.business.Model"/>
+    <inherits name="ru.intertrust.cm.core.gui.GuiModel"/>
 
     <entry-point class='ru.intertrust.cm.core.gui.impl.markup.MainView'/>
 

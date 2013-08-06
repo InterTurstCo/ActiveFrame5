@@ -15,20 +15,20 @@ import java.io.IOException;
  *         Date: 09.07.13
  *         Time: 18:30
  */
-public class LoginFilter implements Filter {
-    public static final String LOGIN_DIALOG_SERVICE_MESSAGES_URL = "ru.intertrust.cm.core.gui.impl.Login/BusinessUniverseService";
+public class AuthenticationFilter implements Filter {
+    public static final String AUTHENTICATION_SERVICE_ENDPOINT = "BusinessUniverseAuthenticationService";
+
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
     }
 
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
         throws IOException, ServletException {
-        // todo to handle every request of UIDL ApplicationConnection.handleUIDLMessage should be overwritten
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpSession session = request.getSession();
 
         String requestURI = request.getRequestURI();
-        if (requestURI.contains(LOGIN_DIALOG_SERVICE_MESSAGES_URL)) { // происходит авторизация. разрешить этот запрос
+        if (isLoginPageRequest(requestURI)) { // происходит авторизация. разрешить этот запрос
             filterChain.doFilter(servletRequest, servletResponse);
             return;
         }
@@ -41,12 +41,17 @@ public class LoginFilter implements Filter {
         UserUidWithPassword userUidWithPassword = (UserUidWithPassword) credentials;
         try {
             request.login(userUidWithPassword.getUserUid(), userUidWithPassword.getPassword());
+            System.out.println("logged in: " + userUidWithPassword.getUserUid());
             filterChain.doFilter(servletRequest, servletResponse);
         } catch (ServletException e) {
             forwardToLogin(servletRequest, servletResponse);
         } finally {
             request.logout();
         }
+    }
+
+    private boolean isLoginPageRequest(String requestUri) {
+        return requestUri.contains(AUTHENTICATION_SERVICE_ENDPOINT);
     }
 
     private void forwardToLogin(ServletRequest servletRequest, ServletResponse servletResponse) throws ServletException, IOException {

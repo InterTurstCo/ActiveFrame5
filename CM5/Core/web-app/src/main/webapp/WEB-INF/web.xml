@@ -18,8 +18,8 @@
         <web-resource-collection>
             <web-resource-name>The whole web</web-resource-name>
             <description>Protect everything in our applications</description>
-            <url-pattern>/VAADIN/*</url-pattern>
-            <url-pattern>/business-universe/*</url-pattern>
+            <url-pattern>/*/BusinessUniverseService</url-pattern>
+            <url-pattern>/cm-sochi/*</url-pattern>
             <url-pattern>/welcome/*</url-pattern>
         </web-resource-collection>
     </security-constraint>
@@ -27,11 +27,11 @@
     <filter>
         <display-name>LoginFilter</display-name>
         <filter-name>LoginFilter</filter-name>
-        <filter-class>ru.intertrust.cm.core.gui.impl.server.LoginFilter</filter-class>
+        <filter-class>ru.intertrust.cm.core.gui.impl.server.AuthenticationFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>LoginFilter</filter-name>
-        <url-pattern>/business-universe/*</url-pattern>
+        <url-pattern>/remote/*</url-pattern>
     </filter-mapping>
 
 </web-app>

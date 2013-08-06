@@ -6,7 +6,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
 import ru.intertrust.cm.core.gui.api.client.ComponentName;
-import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
+import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationServiceAsync;
 
 /**
  * @author Denis Mitavskiy
@@ -31,7 +31,6 @@ public class LoginWindow extends DialogBox {
             }
         });
 
-        // Set the dialog box's caption.
         setText("Аутентификация");
         setAnimationEnabled(true);
         setGlassEnabled(true);
@@ -63,6 +62,6 @@ public class LoginWindow extends DialogBox {
             }
         };
         UserUidWithPassword credentials = new UserUidWithPassword(loginField.getText(), passwordField.getText());
-        BusinessUniverseServiceAsync.Impl.getInstance().login(credentials, callback);
+        BusinessUniverseAuthenticationServiceAsync.Impl.getInstance().login(credentials, callback);
     }
 }

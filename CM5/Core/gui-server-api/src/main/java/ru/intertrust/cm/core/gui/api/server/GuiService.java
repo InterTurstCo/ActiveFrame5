@@ -12,6 +12,9 @@ import ru.intertrust.cm.core.config.model.NavigationConfig;
  * Time: 16:12
  */
 public interface GuiService {
+    public interface Remote extends GuiService {
+    }
+
     /**
      * Возвращает конфигурацию панели навигации.
      * @return конфигурацию панели навигации

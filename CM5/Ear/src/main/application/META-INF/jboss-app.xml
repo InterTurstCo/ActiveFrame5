@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<p:jboss-app xmlns:p="http://www.jboss.com/xml/ns/javaee"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.jboss.com/xml/ns/javaee ../../xsd/jboss-app_7_0.xsd ">
+    <security-domain>CM5</security-domain>
+</p:jboss-app>

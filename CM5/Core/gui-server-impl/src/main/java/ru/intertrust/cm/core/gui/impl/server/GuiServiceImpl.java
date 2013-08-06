@@ -4,6 +4,11 @@ import ru.intertrust.cm.core.config.model.NavigationConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 
 import javax.annotation.Resource;
+import javax.annotation.security.DeclareRoles;
+import javax.annotation.security.RolesAllowed;
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
 
 /**
  * Базовая реализация сервиса GUI
@@ -11,7 +16,12 @@ import javax.annotation.Resource;
  * Date: 14.06.13
  * Time: 16:14
  */
-public class GuiServiceImpl implements GuiService {
+@Stateless
+@DeclareRoles("cm_user")
+@RolesAllowed("cm_user")
+@Local(GuiService.class)
+@Remote(GuiService.Remote.class)
+public class GuiServiceImpl implements GuiService, GuiService.Remote {
     @Resource
     private javax.ejb.SessionContext sessionContext;
     /**
@@ -21,6 +31,6 @@ public class GuiServiceImpl implements GuiService {
 
     @Override
     public NavigationConfig getNavigationConfiguration() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 }
