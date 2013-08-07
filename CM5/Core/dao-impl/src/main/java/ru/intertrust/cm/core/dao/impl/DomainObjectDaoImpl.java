@@ -2,28 +2,19 @@ package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import org.springframework.util.StringUtils;
 import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.business.api.dto.SortCriterion.Order;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
-import ru.intertrust.cm.core.config.ConfigurationSerializer;
-import ru.intertrust.cm.core.config.TopLevelConfigurationCache;
-import ru.intertrust.cm.core.config.model.Configuration;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.IdGenerator;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
-import ru.intertrust.cm.core.dao.impl.access.AccessControlServiceImpl;
-import ru.intertrust.cm.core.dao.impl.access.AccessControlServiceImpl.SimpleAccessToken;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
 import ru.intertrust.cm.core.dao.impl.utils.*;
 
