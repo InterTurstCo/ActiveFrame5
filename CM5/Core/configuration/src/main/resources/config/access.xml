@@ -95,7 +95,7 @@
     <!-- Контекстные роли -->
     <context-role name="Автор документа">
         <context>
-            <domain-object type="Outgoing Document" />
+            <domain-object type="Outgoing Document"  />
         </context>
         <groups>
             <group name="Пользователь и его заместители">

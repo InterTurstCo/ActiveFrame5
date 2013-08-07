@@ -29,6 +29,9 @@ public class CollectionColumnConfig implements Serializable {
     @Attribute(required = true)
     private int sequence;
 
+    @Attribute(required = true)
+    private String type;
+
     public String getField() {
         return field;
     }
@@ -75,6 +78,14 @@ public class CollectionColumnConfig implements Serializable {
 
     public void setSequence(int sequence) {
         this.sequence = sequence;
+    }
+    
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     @Override

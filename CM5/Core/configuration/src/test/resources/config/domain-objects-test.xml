@@ -18,6 +18,14 @@
         </uniqueKey>
     </domain-object-type>
 
+    <domain-object-type name="Assignment"> <!-- ASSIGNMENT table -->
+        <parent name="Outgoing_Document"/>
+        <fields>
+            <string name="Name" length="128" />
+            <string name="Description" length="128" />
+        </fields>
+    </domain-object-type>
+
     <domain-object-type name="Person">
         <fields>
             <string name="EMail" length="128" />

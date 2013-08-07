@@ -83,11 +83,11 @@ public class ConfigurationSerializerTest {
 
         List configurationList = configuration.getConfigurationList();
         assertNotNull(configurationList);
-        assertEquals(8, configurationList.size());
+        assertEquals(9, configurationList.size());
 
         List<String> configurationNames = new ArrayList<>();
         configurationNames.addAll(Arrays.asList("Employees", "Employees_2", "Outgoing_Document", "Person",
-                "Employee", "Department", "Incoming_Document", "Incoming_Document2"));
+                "Assignment", "Employee", "Department", "Incoming_Document", "Incoming_Document2"));
 
         for (Object configurationItem : configurationList) {
             String name = DomainObjectTypeConfig.class.equals(configurationItem.getClass()) ?
@@ -121,7 +121,7 @@ public class ConfigurationSerializerTest {
 
         }
     }
-
+    
     static ConfigurationSerializer createConfigurationSerializer(String configPath) throws Exception {
         TopLevelConfigurationCache.getInstance().build(); // Инициализируем кэш конфигурации тэг-класс
 

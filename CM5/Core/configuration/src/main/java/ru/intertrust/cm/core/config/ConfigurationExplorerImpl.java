@@ -19,6 +19,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
 
     private Map<Class, Map<String, TopLevelConfig>> topLevelConfigMap = new HashMap<>();
     private Map<FieldConfigKey, FieldConfig> fieldConfigMap = new HashMap<>();
+    private Map<FieldConfigKey, CollectionColumnConfig> collectionColumnConfigMap = new HashMap<>();
 
     /**
      * Создает {@link ConfigurationExplorerImpl}
@@ -95,6 +96,16 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         return fieldConfigMap.get(fieldConfigKey);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public CollectionColumnConfig getCollectionColumnConfig(String collectionConfigName, String columnConfigName) {
+        FieldConfigKey collectionColumnConfigKey = new FieldConfigKey(collectionConfigName, columnConfigName);
+        return collectionColumnConfigMap.get(collectionColumnConfigKey);
+    }
+    
+    
     private void initConfigurationMaps() {
         if(configuration == null) {
             throw new FatalException("Failed to initialize ConfigurationExplorerImpl because " +
@@ -114,6 +125,9 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
                 if (domainObjectTypeConfig.getAttachmentTypesConfig() != null) {
                     attachmentOwnerDots.add(domainObjectTypeConfig);
                 }
+            } else if (CollectionConfig.class.equals(config.getClass())) {
+                CollectionConfig domainObjectTypeConfig = (CollectionConfig) config;
+                fillCollectionColumnConfigMap(domainObjectTypeConfig);
             }
         }
 
@@ -137,6 +151,17 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         }
     }
 
+    private void fillCollectionColumnConfigMap(CollectionConfig collectionConfig) {
+        if (collectionConfig.getDisplayConfig() != null) {
+            for (CollectionColumnConfig columnConfig : collectionConfig.getDisplayConfig().getColumnConfig()) {
+                FieldConfigKey fieldConfigKey =
+                        new FieldConfigKey(collectionConfig.getName(), columnConfig.getField());
+                collectionColumnConfigMap.put(fieldConfigKey, columnConfig);
+
+            }
+        }
+    }
+    
     private void initConfigurationMapsOfAttachmentDomainObjectTypes(List<DomainObjectTypeConfig> ownerAttachmentDOTs) {
         try {
             PrototypeHelper factory = new PrototypeHelper("Attachment");

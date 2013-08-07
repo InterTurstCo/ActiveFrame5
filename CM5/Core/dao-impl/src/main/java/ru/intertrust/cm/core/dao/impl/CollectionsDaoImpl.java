@@ -68,7 +68,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
         fillFilterParameters(filterValues, parameters);
 
         IdentifiableObjectCollection collection = jdbcTemplate.query(collectionQuery, parameters,
-                new CollectionRowMapper(collectionConfig.getDomainObjectType(), collectionConfig.getIdField()));
+                new CollectionRowMapper(collectionName, collectionConfig.getDomainObjectType(), collectionConfig.getIdField(), configurationExplorer));
 
         return collection;
     }

@@ -114,10 +114,7 @@ public class AttachmentServiceImplTest {
         private AttachmentContentDao attachmentContentDao;
 
         @Mock
-        private AccessControlService accessControlService;
-
-        @Mock
-        AccessToken accessToken;
+        private AccessControlService accessControlService;        
 
         @Bean
         public AccessControlService accessControlService() {
@@ -163,9 +160,8 @@ public class AttachmentServiceImplTest {
         }
 
         @Bean
-        public DomainObjectDao domainObjectDao() {
-            when(accessToken.isDeferred()).thenReturn(true);
-            return fillDomainObjectDao(domainObjectDao, accessToken);
+        public DomainObjectDao domainObjectDao() {            
+            return fillDomainObjectDao(domainObjectDao);
         }
 
         @Bean
@@ -381,7 +377,7 @@ public class AttachmentServiceImplTest {
         return configurationExplorer;
     }
 
-    static private DomainObjectDao fillDomainObjectDao(DomainObjectDao domainObjectDao, AccessToken accessToken) {
+    static private DomainObjectDao fillDomainObjectDao(DomainObjectDao domainObjectDao) {
         new RdbmsId("PERSON|1");
 
         GenericDomainObject domainObject1 = new GenericDomainObjectWrapper();

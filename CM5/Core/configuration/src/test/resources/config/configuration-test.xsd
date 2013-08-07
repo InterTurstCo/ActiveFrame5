@@ -198,6 +198,8 @@
                               use="optional" />
                 <xs:attribute type="xs:string" name="editable"
                               use="optional" />
+                <xs:attribute type="xs:string" name="type" 
+                              use="optional" />                              
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>

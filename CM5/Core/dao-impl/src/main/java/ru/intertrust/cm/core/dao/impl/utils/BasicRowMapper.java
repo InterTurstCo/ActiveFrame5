@@ -1,6 +1,14 @@
 package ru.intertrust.cm.core.dao.impl.utils;
 
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.model.DateTimeFieldConfig;
+import ru.intertrust.cm.core.config.model.DecimalFieldConfig;
+import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.model.FieldConfig;
+import ru.intertrust.cm.core.config.model.LongFieldConfig;
+import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.model.StringFieldConfig;
 import ru.intertrust.cm.core.dao.impl.DataType;
 import ru.intertrust.cm.core.model.FatalException;
 
@@ -19,12 +27,19 @@ import java.util.List;
  */
 public class BasicRowMapper {
 
+    private static final String DEFAULT_PARENT_FIELD = "parent";    
+
     protected final String domainObjectType;
     protected final String idField;
+    protected final String parentField;
 
-    public BasicRowMapper(String domainObjectType, String idField) {
+    protected ConfigurationExplorer configurationExplorer;
+    
+    public BasicRowMapper(String domainObjectType, String idField, ConfigurationExplorer configurationExplorer) {
         this.domainObjectType = domainObjectType;
         this.idField = idField;
+        this.configurationExplorer = configurationExplorer;
+        this.parentField = DEFAULT_PARENT_FIELD;
     }
 
     /**
@@ -50,75 +65,143 @@ public class BasicRowMapper {
         return result;
     }
 
-    protected void fillValueModel(FieldValueModel valueModel, ResultSet rs, ColumnModel columnModel, int index,
-                                  DataType fieldType) throws SQLException {
+    /**
+     * Отображает типы колонок в конфигурации коллекции на {@link ru.intertrust.cm.core.dao.impl.DataType}.
+     * @param columnType типы колонок в конфигурации
+     * @return объект {@link ru.intertrust.cm.core.dao.impl.DataType}
+     */
+    protected DataType getColumnDataType(String columnType) {
+        DataType result = null;
+        if (columnType.equals("integer")) {
+            result = DataType.INTEGER;
+        } else if (columnType.equals("datetime")) {
+            result = DataType.DATETIME;
+        } else if (columnType.equals("string")) {
+            result = DataType.STRING;
+        } else if (columnType.equals("boolean")) {
+            result = DataType.BOOLEAN;
+        } else if (columnType.equals("decimal")) {
+            result = DataType.DECIMAL;
+        }
+        return result;
+    }
+
+    /**
+     * Заполняет модель {@see FieldValueModel} из объекта {@see ResultSet}.
+     * @param rs {@see ResultSet}
+     * @param valueModel модель {@see FieldValueModel}
+     * @param columnName имя колонки, которая извлекается из {@see ResultSet}
+     * @throws SQLException
+     */
+    protected void fillValueModel(ResultSet rs, FieldValueModel valueModel, String columnName) throws SQLException {
+
+        FieldConfig fieldConfig = configurationExplorer.getFieldConfig(domainObjectType, columnName);
+
         Value value = null;
         Id id = null;
-        if (DataType.ID.equals(fieldType)) {
+        Id parentId = null;
 
-            Long longValue = rs.getLong(columnModel.getIdField());
+        DomainObjectTypeConfig objectTypeConfig =
+                configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObjectType);
+        String parentDomainObjectType = null;
+        if (objectTypeConfig != null && objectTypeConfig.getParentConfig() != null) {
+            parentDomainObjectType = objectTypeConfig.getParentConfig().getName();
+        }
+
+        if (idField.equalsIgnoreCase(columnName)) {
+            Long longValue = rs.getLong(columnName);
             if (!rs.wasNull()) {
                 id = new RdbmsId(domainObjectType, longValue);
             } else {
-                throw new FatalException("Id field can not be null for object " + "domain_object");
+                throw new FatalException("Id field can not be null for object " + domainObjectType);
+            }
+        } else if (parentField.equalsIgnoreCase(columnName)) {
+            if (parentDomainObjectType == null) {
+                throw new FatalException("Parent is not configured for domain object but exists in DB: "
+                        + domainObjectType);
+            }
+            Long longValue = rs.getLong(columnName);
+            if (!rs.wasNull()) {
+                parentId = new RdbmsId(parentDomainObjectType, longValue);
+            } else {
+                parentId = null;
             }
 
-        } else if (DataType.INTEGER.equals(fieldType)) {
-            value = new DecimalValue();
-            Long longValue = rs.getLong(index + 1);
+        } else if (fieldConfig != null && StringFieldConfig.class.equals(fieldConfig.getClass())) {
+            String fieldValue = rs.getString(columnName);
+            if (!rs.wasNull()) {
+                value = new StringValue(fieldValue);
+            } else {
+                value = new StringValue();
+            }
+        } else if (fieldConfig != null && LongFieldConfig.class.equals(fieldConfig.getClass())) {
+            Long longValue = rs.getLong(columnName);
             if (!rs.wasNull()) {
                 value = new IntegerValue(longValue);
             } else {
                 value = new IntegerValue();
             }
-
-        } else if (DataType.DATETIME.equals(fieldType)) {
-            Timestamp timestamp = rs.getTimestamp(index + 1);
+        } else if (fieldConfig != null && DecimalFieldConfig.class.equals(fieldConfig.getClass())) {
+            BigDecimal fieldValue = rs.getBigDecimal(columnName);
+            if (!rs.wasNull()) {
+                value = new DecimalValue(fieldValue);
+            } else {
+                value = new DecimalValue();
+            }
+        } else if (fieldConfig != null && ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
+            String referenceType = ((ReferenceFieldConfig) fieldConfig).getType();
+            Long longValue = rs.getLong(columnName);
+            if (!rs.wasNull()) {
+                Id referenceId = new RdbmsId(referenceType, longValue);
+                value = new ReferenceValue(referenceId);
+            } else {
+                value = new ReferenceValue();
+            }
+        } else if (fieldConfig != null && DateTimeFieldConfig.class.equals(fieldConfig.getClass())) {
+            Timestamp timestamp = rs.getTimestamp(columnName);
             if (!rs.wasNull()) {
                 Date date = new Date(timestamp.getTime());
                 value = new TimestampValue(date);
             } else {
                 value = new TimestampValue();
             }
-
-        } else if (DataType.STRING.equals(fieldType)) {
-            String fieldValue = rs.getString(index + 1);
-            if (!rs.wasNull()) {
-                value = new StringValue(fieldValue);
-            } else {
-                value = new StringValue();
-            }
-
-        } else if (DataType.BOOLEAN.equals(fieldType)) {
-            Boolean fieldValue = rs.getBoolean(index + 1);
-            if (!rs.wasNull()) {
-                value = new BooleanValue(fieldValue);
-            } else {
-                value = new BooleanValue();
-            }
-
-        } else if (DataType.DECIMAL.equals(fieldType)) {
-            BigDecimal fieldValue = rs.getBigDecimal(index + 1);
-            if (!rs.wasNull()) {
-                value = new DecimalValue(fieldValue);
-            } else {
-                value = new DecimalValue();
-            }
         }
 
         if (id != null) {
             valueModel.setId(id);
         }
+        if (parentId != null) {
+            valueModel.setParentId(parentId);
+        }
         valueModel.setValue(value);
     }
+    
+    /**
+     * Заполняет поля доменного объекта (id, parent или атрибут) из модели {@see FieldValueModel}.
+     * @param object исходный доменного объекта
+     * @param valueModel модель {@see FieldValueModel}
+     * @param columnName имя поля, нужно если заполняется обычное поле 
+     */
+    protected void fillObjectValue(GenericDomainObject object, FieldValueModel valueModel, String columnName) {
+        if (valueModel.getId() != null) {
+            object.setId(valueModel.getId());
+        }
+        if (valueModel.getParentId() != null) {
+            object.setParent(valueModel.getParentId());
+        }
+        if (valueModel.getValue() != null) {
+            object.setValue(columnName, valueModel.getValue());
+        }
+    }
+    
 
     /**
-     * Обертывает заполненное поле или поле id в доменном объекте.
-     *
+     * Обертывает заполненное поле (атрибут), поле parent или поле id в доменном объекте.
      * @author atsvetkov
      */
     protected class FieldValueModel {
         private Id id = null;
+        private Id parentId = null;
         private Value value = null;
 
         public Id getId() {
@@ -136,34 +219,32 @@ public class BasicRowMapper {
         public void setValue(Value value) {
             this.value = value;
         }
+
+        public Id getParentId() {
+            return parentId;
+        }
+
+        public void setParentId(Id parentId) {
+            this.parentId = parentId;
+        }        
     }
 
     /**
-     * Метаданные возвращаемых значений списка. Содержит названия колонок, их типы и имя колонки-первичного ключа
-     * для доменного объекта.
-     *
+     * Модель для хранкения названия колонолк и названия колонки-первичного ключа для доменного объекта.
      * @author atsvetkov
      */
     protected class ColumnModel {
 
         private String idField;
         private List<String> columnNames;
-        private List<DataType> columnTypes;
-
+        
         public List<String> getColumnNames() {
             if (columnNames == null) {
                 columnNames = new ArrayList<String>();
             }
             return columnNames;
         }
-
-        public List<DataType> getColumnTypes() {
-            if (columnTypes == null) {
-                columnTypes = new ArrayList<DataType>();
-            }
-            return columnTypes;
-        }
-
+ 
         public String getIdField() {
             return idField;
         }

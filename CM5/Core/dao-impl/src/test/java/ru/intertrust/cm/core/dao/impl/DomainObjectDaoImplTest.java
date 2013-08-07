@@ -16,6 +16,9 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.config.ConfigurationSerializer;
 import ru.intertrust.cm.core.config.model.*;
+import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.Subject;
+import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.impl.utils.MultipleObjectRowMapper;
 
@@ -242,12 +245,25 @@ public class DomainObjectDaoImplTest {
         when(jdbcTemplate.query("select t.* from PERSON1_ATTACHMENT t where parent = :parent_id",
                 any(HashMap.class),
                 any(MultipleObjectRowMapper.class))).thenReturn(result);
-
+        
         DomainObjectDaoImpl domainObjectDao = new DomainObjectDaoImpl();
         ReflectionTestUtils.setField(domainObjectDao, "jdbcTemplate", jdbcTemplate);
-        List<DomainObject> l = domainObjectDao.findChildren(new RdbmsId("PERSON|1"), "Person1_Attachment", null);
+        
+        AccessToken accessToken = createMockAccessToken();
+        
+        List<DomainObject> l = domainObjectDao.findChildren(new RdbmsId("PERSON|1"), "Person1_Attachment", accessToken);
         Assert.assertEquals(1, ((RdbmsId)l.get(0).getId()).getId());
         Assert.assertEquals(2, ((RdbmsId)l.get(1).getId()).getId());
+    }
+
+    private AccessToken createMockAccessToken() {
+        AccessToken accessToken = mock(AccessToken.class);
+        when(accessToken.isDeferred()).thenReturn(true);
+        
+        UserSubject subject = mock(UserSubject.class);
+        when(subject.getUserId()).thenReturn(1);        
+        when(accessToken.getSubject()).thenReturn(subject);
+        return accessToken;
     }
 
     /**

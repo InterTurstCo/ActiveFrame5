@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.config;
 
+import ru.intertrust.cm.core.config.model.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.model.Configuration;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 
@@ -46,5 +47,13 @@ public interface ConfigurationExplorer {
      * @return конфигурация поля доменного объекта
      */
     FieldConfig getFieldConfig(String domainObjectConfigName, String fieldConfigName);
+    
+    /**
+     * Находит конфигурацию отображаемого поля коллекции по имени коллекции и имени поля
+     * @param collectionConfigName имя коллекции
+     * @param columnConfigName имя поля
+     * @return конфигурацию отображаемого поля коллекции
+     */
+    CollectionColumnConfig getCollectionColumnConfig(String collectionConfigName, String columnConfigName);
 
 }

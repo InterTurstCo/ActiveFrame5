@@ -2,19 +2,28 @@ package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import org.springframework.util.StringUtils;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.SortCriterion.Order;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
+import ru.intertrust.cm.core.config.ConfigurationSerializer;
+import ru.intertrust.cm.core.config.TopLevelConfigurationCache;
+import ru.intertrust.cm.core.config.model.Configuration;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.IdGenerator;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
+import ru.intertrust.cm.core.dao.impl.access.AccessControlServiceImpl;
+import ru.intertrust.cm.core.dao.impl.access.AccessControlServiceImpl.SimpleAccessToken;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
 import ru.intertrust.cm.core.dao.impl.utils.*;
 
@@ -228,7 +237,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             parameters.putAll(aclParameters);
         }        
 
-        return jdbcTemplate.query(query.toString(), parameters, new SingleObjectRowMapper(rdbmsId.getTypeName()));
+        return jdbcTemplate.query(query.toString(), parameters, new SingleObjectRowMapper(rdbmsId.getTypeName(), configurationExplorer));
     }
 
     @Override
@@ -281,21 +290,20 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             parameters.putAll(aclParameters);
         }
 
-        return jdbcTemplate.query(query.toString(), parameters, new MultipleObjectRowMapper(domainObjectType));
+        return jdbcTemplate.query(query.toString(), parameters, new MultipleObjectRowMapper(domainObjectType, configurationExplorer));
     }
 
     @Override
     public List<DomainObject> findChildren(Id domainObjectId, String childType, AccessToken accessToken) {
-        String tableNameOfChild = DataStructureNamingHelper.getSqlName(childType);
 
         StringBuilder query = new StringBuilder();
         query.append("select t.* from ")
-                .append(tableNameOfChild)
+                .append(childType)
                 .append(" t where parent = :parent_id");
 
         Map<String, Object> aclParameters = new HashMap<String, Object>();
-        if (accessToken != null && accessToken.isDeferred()) {
-            String childAclReadTable = AccessControlUtility.getAclReadTableNameFor(tableNameOfChild);
+        if (accessToken.isDeferred()) {
+            String childAclReadTable = AccessControlUtility.getAclReadTableNameFor(childType);
             query.append(" and exists (select r.object_id from ").append(childAclReadTable).append(" r ");
             query.append("inner join group_member gm on r.group_id = gm.parent where gm.person_id = :user_id and r.object_id = t.id)");
             
@@ -304,11 +312,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("parent_id", ((RdbmsId) domainObjectId).getId());
-        if (accessToken != null && accessToken.isDeferred()) {
+        if (accessToken.isDeferred()) {
             parameters.putAll(aclParameters);
         }
 
-        return jdbcTemplate.query(query.toString(), parameters, new MultipleObjectRowMapper(tableNameOfChild));
+        return jdbcTemplate.query(query.toString(), parameters, new MultipleObjectRowMapper(childType, configurationExplorer));
     }
 
     /**

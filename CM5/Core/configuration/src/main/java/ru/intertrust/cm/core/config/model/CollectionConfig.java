@@ -25,7 +25,7 @@ public class CollectionConfig implements TopLevelConfig {
     @Attribute(name = "domain-object-type", required = true)
     private String domainObjectType;
 
-    @Element(name = "display")
+    @Element(name = "display", required = true)
     private CollectionDisplayConfig displayConfig;
 
     @Element(name = "prototype", required = false, data=true)

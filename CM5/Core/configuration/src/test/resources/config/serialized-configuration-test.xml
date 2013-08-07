@@ -15,6 +15,13 @@
          <field name="Registration_Number"/>
       </uniqueKey>
    </domain-object-type>
+   <domain-object-type name="Assignment">
+      <parent name="Outgoing_Document"/>
+      <fields>
+         <string name="Name" not-null="false" length="128"/>
+         <string name="Description" not-null="false" length="128"/>
+      </fields>
+   </domain-object-type>
    <domain-object-type name="Person">
       <fields>
          <string name="EMail" not-null="false" length="128"/>
@@ -45,12 +52,12 @@
    </domain-object-type>
    <collection name="Employees" idField="id" domain-object-type="Employee">
       <display>
-         <column field="id" name="id" hidden="true" sortable="false" editable="false" sequence="0"/>
-         <column field="business_object_type" name="type" hidden="true" sortable="false" editable="false" sequence="1"/>
-         <column field="name" name="Имя" hidden="false" sortable="true" editable="false" sequence="2"/>
-         <column field="position" name="Должность" hidden="false" sortable="true" editable="false" sequence="3"/>
-         <column field="created_date" name="Дата создания" hidden="false" sortable="true" editable="false" sequence="4"/>
-         <column field="updated_date" name="Дата модификации" hidden="false" sortable="true" editable="false" sequence="5"/>
+         <column field="id" name="id" hidden="true" sortable="false" editable="false" sequence="0" type="integer"/>
+         <column field="business_object_type" name="type" hidden="true" sortable="false" editable="false" sequence="1" type="string"/>
+         <column field="name" name="Имя" hidden="false" sortable="true" editable="false" sequence="2" type="string"/>
+         <column field="position" name="Должность" hidden="false" sortable="true" editable="false" sequence="3" type="string"/>
+         <column field="created_date" name="Дата создания" hidden="false" sortable="true" editable="false" sequence="4" type="datetime"/>
+         <column field="updated_date" name="Дата модификации" hidden="false" sortable="true" editable="false" sequence="5" type="datetime"/>
       </display>
       <prototype><![CDATA[
             
@@ -88,12 +95,12 @@
    </collection>
    <collection name="Employees_2" idField="id" domain-object-type="Employee">
       <display>
-         <column field="id" name="id" hidden="true" sortable="false" editable="false" sequence="0"/>
-         <column field="business_object_type" name="type" hidden="true" sortable="false" editable="false" sequence="1"/>
-         <column field="name" name="Имя" hidden="false" sortable="true" editable="false" sequence="2"/>
-         <column field="position" name="Должность" hidden="false" sortable="true" editable="false" sequence="3"/>
-         <column field="created_date" name="Дата создания" hidden="false" sortable="true" editable="false" sequence="4"/>
-         <column field="updated_date" name="Дата модификации" hidden="false" sortable="true" editable="false" sequence="5"/>
+         <column field="id" name="id" hidden="true" sortable="false" editable="false" sequence="0" type="long"/>
+         <column field="business_object_type" name="type" hidden="true" sortable="false" editable="false" sequence="1" type="string"/>
+         <column field="name" name="Имя" hidden="false" sortable="true" editable="false" sequence="2" type="string"/>
+         <column field="position" name="Должность" hidden="false" sortable="true" editable="false" sequence="3" type="string"/>
+         <column field="created_date" name="Дата создания" hidden="false" sortable="true" editable="false" sequence="4" type="string"/>
+         <column field="updated_date" name="Дата модификации" hidden="false" sortable="true" editable="false" sequence="5" type="string"/>
       </display>
       <filter name="byName"/>
       <filter name="byDepartment"/>
