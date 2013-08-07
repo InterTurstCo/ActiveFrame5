@@ -9,7 +9,6 @@ import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion.Order;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.config.model.CollectionFilterConfig;
-import ru.intertrust.cm.core.dao.exception.CollectionConfigurationException;
 import ru.intertrust.cm.core.model.FatalException;
 
 /**
@@ -104,9 +103,27 @@ public class CollectionQueryInitializer {
             prototypeQuery = prototypeQuery.replace(PLACEHOLDER_PREFIX + placeholder, placeholderValue);
         }
 
-        if (prototypeQuery.indexOf(PLACEHOLDER_PREFIX) > 0) {
-            throw new CollectionConfigurationException("Prototype query was not filled correctly: " + prototypeQuery
-                    + " Please verify all required parameters are passed.");
+        prototypeQuery = removeUnFilledPlaceholders(prototypeQuery);
+
+        return prototypeQuery;
+    }
+
+    /**
+     * Удаляет не заполненные placeholders в прототипе запроса.
+     * @param prototypeQuery исходный запрос
+     * @return измененный запрос
+     */
+    private String removeUnFilledPlaceholders(String prototypeQuery) {
+        while(prototypeQuery.indexOf(PLACEHOLDER_PREFIX) > 0){
+            int startPlaceHolderIndex = prototypeQuery.indexOf(PLACEHOLDER_PREFIX);
+            int endPlaceHolderIndex = prototypeQuery.indexOf(EMPTY_STRING, startPlaceHolderIndex);
+            if (endPlaceHolderIndex < 0) {
+                endPlaceHolderIndex = prototypeQuery.length();
+            }
+            String placeHolder = prototypeQuery.substring(startPlaceHolderIndex, endPlaceHolderIndex);
+            
+            prototypeQuery = prototypeQuery.replaceAll(placeHolder, "");
+            
         }
         return prototypeQuery;
     }
@@ -184,7 +201,7 @@ public class CollectionQueryInitializer {
             if (placeholderValue != null) {
                 placeholderValue += EMPTY_STRING + condition + EMPTY_STRING + value;
             } else {
-                placeholderValue = EMPTY_STRING + value;
+                placeholderValue = EMPTY_STRING + condition + EMPTY_STRING + value;
             }
             placeholdersMap.put(placeholder, placeholderValue);
 

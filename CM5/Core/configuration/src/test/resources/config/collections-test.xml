@@ -19,13 +19,13 @@
                     employee e
                      ::from-clause
                 where
-                    ::where-clause
+                    1=1 ::where-clause
             ]]>
         </prototype>
 
         <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) вместо названий колонок -->
         <counting-prototype>
-            select count(*) from employee e ::from-clause WHERE ::where-clause
+            select count(*) from employee e ::from-clause WHERE 1=1 ::where-clause
         </counting-prototype>
 
         <filter name="byDepartment">

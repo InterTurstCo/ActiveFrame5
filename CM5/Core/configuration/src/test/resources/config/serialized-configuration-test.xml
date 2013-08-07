@@ -67,11 +67,11 @@
                     employee e
                      ::from-clause
                 where
-                    ::where-clause
+                    1=1 ::where-clause
             
         ]]></prototype>
       <counting-prototype><![CDATA[
-            select count(*) from employee e ::from-clause WHERE ::where-clause
+            select count(*) from employee e ::from-clause WHERE 1=1 ::where-clause
         ]]></counting-prototype>
       <filter name="byDepartment">
          <reference placeholder="from-clause"><![CDATA[

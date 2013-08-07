@@ -28,33 +28,36 @@ public class CollectionsDaoImplTest {
 
     private static final String COLLECTION_COUNT_WITH_FILTERS =
             "select count(*) from employee e inner join department d on e.department = d.id " +
-                    "WHERE d.name = 'dep1' and e.name = 'employee1'";
+                    "WHERE 1=1 and d.name = 'dep1' and e.name = 'employee1'";
 
     private static final String COLLECTION_QUERY_WITH_LIMITS =
             "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e " +
                     "inner join department d on e.department = d.id " +
-                    "where d.name = 'dep1' order by e.name asc limit 100 OFFSET 10";
+                    "where 1=1 and d.name = 'dep1' order by e.name asc limit 100 OFFSET 10";
 
     private static final String FIND_COLLECTION_QUERY_WITH_FILTERS =
             "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e " +
-                    "inner join department d on e.department = d.id where d.name = 'dep1' order by e.name asc";
+                    "inner join department d on e.department = d.id where 1=1 and d.name = 'dep1' order by e.name asc";
 
     private static final String FIND_COMPLEX_COLLECTION_QUERY_WITH_FILTERS =
             "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e inner join department d" +
-            " on e.department = d.id inner join authentication_info a on e.login = a.id where d.name = 'dep1' " +
+            " on e.department = d.id inner join authentication_info a on e.login = a.id where 1=1 and d.name = 'dep1' " +
             "and e.name = 'employee1'" +
             " and a.id = 1 order by e.name asc";
 
+    private static final String COLLECTION_QUERY_WITHOUT_FILTERS =
+             "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e where 1=1 order by e.name asc";
+    
     private static final String EMLOYEES_PROROTYPE = "select\n" +
             "                    e.id, e.name, e.position, e.created_date, e.updated_date\n" +
             "                from\n" +
             "                    employee e\n" +
             "                     ::from-clause\n" +
             "                where\n" +
-            "                    ::where-clause";
+            "                    1=1 ::where-clause";
 
     private static final String EMPLOYEES_COUNTING_PROTOTYPE = "select count(*) from employee e ::from-clause WHERE " +
-            "::where-clause";
+            "1=1 ::where-clause";
 
     private static final String EMPLOYEES_COMPLEX_PROTOTYPE = "select\n" +
             "                    e.id, e.name, e.position, e.created_date, e.updated_date\n" +
@@ -62,7 +65,7 @@ public class CollectionsDaoImplTest {
             "                    employee e\n" +
             "                     ::from-clause1 ::from-clause2\n" +
             "                where\n" +
-            "                    ::where-clause1 and ::where-clause2";
+            "                    1=1 ::where-clause1 ::where-clause2";
 
     @InjectMocks
     private CollectionsDaoImpl collectionsDaoImpl = new CollectionsDaoImpl();
@@ -123,10 +126,12 @@ public class CollectionsDaoImplTest {
         assertEquals(FIND_COMPLEX_COLLECTION_QUERY_WITH_FILTERS, refinedActualQuery);
     }
 
-    @Test(expected=CollectionConfigurationException.class)
+    @Test
     public void testFindCollectionWithoutFilters() throws Exception {
         List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<>();
         String actualQuery = collectionsDaoImpl.getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, 0, 0);
+        String refinedActualQuery = refineQuery(actualQuery);
+        assertEquals(COLLECTION_QUERY_WITHOUT_FILTERS, refinedActualQuery);
     }
 
     @Test
