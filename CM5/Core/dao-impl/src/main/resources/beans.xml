@@ -20,6 +20,8 @@
 
     <bean id="transactionManager" class="org.springframework.transaction.jta.JtaTransactionManager"/>
 
+    <context:property-placeholder location="classpath:deploy.properties"/>
+
     <bean id="dataStructureDao"
         class="ru.intertrust.cm.core.dao.impl.PostgreSqlDataStructureDaoImpl"
         p:dataSource-ref="dataSource" />
@@ -46,5 +48,10 @@
     <bean id="accessControlService"
           class="ru.intertrust.cm.core.dao.impl.access.AccessControlServiceImpl"
           p:databaseAgent-ref="databaseAccessAgent"/>
+
+    <bean id="attachmentContentDao" class="ru.intertrust.cm.core.dao.impl.FileSystemAttachmentContentDaoImpl"
+            p:attachmentSaveLocation="${attachment.save.location}"/>
+
+    <bean id="userTransactionService" class="ru.intertrust.cm.core.dao.impl.UserTransactionServiceImpl"/>
 
 </beans>

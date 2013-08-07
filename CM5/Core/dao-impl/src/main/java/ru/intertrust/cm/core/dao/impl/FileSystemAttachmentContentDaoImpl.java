@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
@@ -27,6 +28,9 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
     private static SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
     private String attachmentSaveLocation;
 
+    @Autowired
+    private UserTransactionServiceImpl userTransactionService;
+
     public void setAttachmentSaveLocation(String attachmentSaveLocation) {
         this.attachmentSaveLocation = attachmentSaveLocation;
     }
@@ -39,6 +43,7 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
             dir.mkdirs();
         }
         String absFilePath = newAbsoluteFilePath(absDirPath);
+        userTransactionService.addListenerForSaveFile(absFilePath);
         try {
             //не заменяет файл
             Files.copy(inputStream, Paths.get(absFilePath));
