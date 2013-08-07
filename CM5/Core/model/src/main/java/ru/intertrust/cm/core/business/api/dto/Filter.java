@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.business.api.dto;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -19,7 +18,7 @@ public class Filter implements Dto {
      */
     private String filter;
 
-    Map<Integer, Object> parameterMap = new TreeMap<>();
+    private TreeMap<Integer, Object> parameterMap = new TreeMap<>();
 
     public void addCriterion(int index, Value value) {
         parameterMap.put(index, value);
