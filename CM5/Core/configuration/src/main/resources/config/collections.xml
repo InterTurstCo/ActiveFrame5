@@ -3,7 +3,7 @@
     <collection name="Employees" idField="id" domain-object-type="Employee">
         <!--todo поддержка конвертации значений, например, в картинки -->
         <display>
-            <column field="id" name="id"type="integer" hidden="true" sortable="false" sequence="0" />
+            <column field="id" name="id" type="integer" hidden="true" sortable="false" sequence="0" />
             <column field="business_object_type" name="type" type="string" editable="false"  hidden="true" sortable="false" sequence="1" /> <!--todo - rethink?-->
             <column field="name" name="Имя" editable="false" type="string" sortable="true"  sequence="2" />
             <column field="position" name="Должность" type="string" editable="false" sortable="true"  sequence="3" />
