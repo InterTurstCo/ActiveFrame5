@@ -126,16 +126,12 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             }
 
             dataStructureDao.createServiceTables();
-
-            for(DomainObjectTypeConfig config : configList) {
-                loadDomainObjectConfig(config);
-            }
-
+            processConfigs(configList);
             createAclTables(configList);
         }
 
         @Override
-        protected void processConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
+        protected void doProcessConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
             loadDomainObjectConfig(domainObjectTypeConfig);
         }
 
@@ -151,17 +147,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         private void createAclTablesFor(DomainObjectTypeConfig domainObjectTypeConfig) {
             dataStructureDao.createAclTables(domainObjectTypeConfig);
 
-        }
-
-        private void loadDomainObjectConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
-            if(isProcessed(domainObjectTypeConfig)) { // skip if already loaded
-                return;
-            }
-
-            // First load referenced domain object configurations
-            processDependentConfigs(domainObjectTypeConfig);
-            createDbStructures(domainObjectTypeConfig);
-            setAsProcessed(domainObjectTypeConfig);
         }
     }
 
@@ -201,7 +186,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         }
 
         @Override
-        protected void processConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
+        protected void doProcessConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
             merge(domainObjectTypeConfig);
         }
 
@@ -213,17 +198,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             }
 
             validateForDeletedConfigurations();
-
-            for (DomainObjectTypeConfig config : configList) {
-                merge(config);
-            }
+            processConfigs(configList);
         }
 
         private void merge(DomainObjectTypeConfig domainObjectTypeConfig) {
-            if (isProcessed(domainObjectTypeConfig)) { // skip if already merged
-                return;
-            }
-
             DomainObjectTypeConfig oldDomainObjectTypeConfig =
                     oldConfigExplorer.getConfig(DomainObjectTypeConfig.class, domainObjectTypeConfig.getName());
 
@@ -234,14 +212,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                 validateParentConfig(domainObjectTypeConfig, oldDomainObjectTypeConfig);
                 updateDomainObjectConfig(domainObjectTypeConfig, oldDomainObjectTypeConfig);
             }
-
-            setAsProcessed(domainObjectTypeConfig);
-        }
-
-        private void loadDomainObjectConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
-            // First merge referenced domain object configurations
-            processDependentConfigs(domainObjectTypeConfig);
-            createDbStructures(domainObjectTypeConfig);
         }
 
         private void updateDomainObjectConfig(DomainObjectTypeConfig domainObjectTypeConfig,
@@ -335,24 +305,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     private abstract class AbstractRecursiveLoader {
 
-        private final Set<String> processedDoTypeConfigs = new HashSet<>();
+        private final Set<String> processedConfigs = new HashSet<>();
+        private final Set<String> inProcessConfigs = new HashSet<>();
 
-        protected void createDbStructures(DomainObjectTypeConfig domainObjectTypeConfig) {
-            if (!domainObjectTypeConfig.isTemplate()) {
-                dataStructureDao.createTable(domainObjectTypeConfig);
-                dataStructureDao.createSequence(domainObjectTypeConfig);
-            }
-        }
-
-        protected boolean isProcessed(DomainObjectTypeConfig domainObjectTypeConfig) {
-            return processedDoTypeConfigs.contains(domainObjectTypeConfig.getName());
-        }
-
-        protected void setAsProcessed(DomainObjectTypeConfig domainObjectTypeConfig) {
-            processedDoTypeConfigs.add(domainObjectTypeConfig.getName());
-        }
-
-        protected void processDependentConfigs(DomainObjectTypeConfig domainObjectTypeConfig) {
+        protected final void processDependentConfigs(DomainObjectTypeConfig domainObjectTypeConfig) {
             DomainObjectParentConfig parentConfig = domainObjectTypeConfig.getParentConfig();
             if (parentConfig != null) {
                 processConfig(configurationExplorer.getConfig(DomainObjectTypeConfig.class, parentConfig.getName()));
@@ -367,6 +323,53 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             }
         }
 
-        protected abstract void processConfig(DomainObjectTypeConfig domainObjectTypeConfig);
+        protected final void loadDomainObjectConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
+            processDependentConfigs(domainObjectTypeConfig);
+            createDbStructures(domainObjectTypeConfig);
+        }
+
+        protected final void processConfigs(Collection<DomainObjectTypeConfig> configList) {
+            for(DomainObjectTypeConfig config : configList) {
+                processConfig(config);
+            }
+        }
+
+        protected abstract void doProcessConfig(DomainObjectTypeConfig domainObjectTypeConfig);
+
+        private void processConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
+            // пропускаем, если конфиг уже загружен или если он как раз загружается в этот момент
+            if (isProcessed(domainObjectTypeConfig) || isInProcess(domainObjectTypeConfig)) {
+                return;
+            }
+
+            setAsInProcess(domainObjectTypeConfig);
+            doProcessConfig(domainObjectTypeConfig);
+
+            setAsProcessed(domainObjectTypeConfig);
+        }
+
+        private void createDbStructures(DomainObjectTypeConfig domainObjectTypeConfig) {
+            if (!domainObjectTypeConfig.isTemplate()) {
+                dataStructureDao.createTable(domainObjectTypeConfig);
+                dataStructureDao.createSequence(domainObjectTypeConfig);
+            }
+        }
+
+        private boolean isProcessed(DomainObjectTypeConfig domainObjectTypeConfig) {
+            return processedConfigs.contains(domainObjectTypeConfig.getName());
+        }
+
+        private void setAsProcessed(DomainObjectTypeConfig domainObjectTypeConfig) {
+            inProcessConfigs.remove(domainObjectTypeConfig.getName());
+            processedConfigs.add(domainObjectTypeConfig.getName());
+        }
+
+        private boolean isInProcess(DomainObjectTypeConfig domainObjectTypeConfig) {
+            return inProcessConfigs.contains(domainObjectTypeConfig.getName());
+        }
+
+        private void setAsInProcess(DomainObjectTypeConfig domainObjectTypeConfig) {
+            inProcessConfigs.add(domainObjectTypeConfig.getName());
+        }
     }
 }
