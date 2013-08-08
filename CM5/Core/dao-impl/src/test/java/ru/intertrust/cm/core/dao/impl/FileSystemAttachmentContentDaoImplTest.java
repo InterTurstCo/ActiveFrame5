@@ -3,7 +3,9 @@ package ru.intertrust.cm.core.dao.impl;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.context.support.GenericXmlApplicationContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
@@ -17,14 +19,19 @@ import java.nio.file.StandardCopyOption;
 /**
  * @author Vlad
  */
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {"classpath:test_beans.xml"})
 public class FileSystemAttachmentContentDaoImplTest {
 
     static private final String TEST_OUT_DIR = System.getProperty("test.cnf.testOutDir");
+    final static private String PATH_NAME = "Path";
 
     @Test
     public void saveContent() throws IOException {
-        FileSystemAttachmentContentDaoImpl contentDao = new FileSystemAttachmentContentDaoImpl();
+        GenericXmlApplicationContext ctx = new GenericXmlApplicationContext();
+        ctx.load("classpath:test_beans.xml");
+        ctx.refresh();
+        FileSystemAttachmentContentDaoImpl contentDao = (FileSystemAttachmentContentDaoImpl) ctx.getBean("attachmentContentDao");
         contentDao.setAttachmentSaveLocation(TEST_OUT_DIR);
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         byte[] expBytes = new byte[]{0, 1, 2, 3, 4, 5};
@@ -44,7 +51,7 @@ public class FileSystemAttachmentContentDaoImplTest {
         Files.copy(Paths.get(path), bos);
         DomainObject domainObject = new GenericDomainObject();
         String relPath = Paths.get(path).subpath(Paths.get(TEST_OUT_DIR).getNameCount(), Paths.get(path).getNameCount()).toString();
-        domainObject.setValue("path", new StringValue(relPath));
+        domainObject.setValue(PATH_NAME, new StringValue(relPath));
         InputStream inputStream = null;
         try {
             inputStream = contentDao.loadContent(domainObject);
@@ -71,7 +78,7 @@ public class FileSystemAttachmentContentDaoImplTest {
         Assert.assertTrue(new File(path).exists());
         DomainObject domainObject = new GenericDomainObject();
         String relPath = Paths.get(path).subpath(Paths.get(TEST_OUT_DIR).getNameCount(), Paths.get(path).getNameCount()).toString();
-        domainObject.setValue("path", new StringValue(relPath));
+        domainObject.setValue(PATH_NAME, new StringValue(relPath));
         contentDao.deleteContent(domainObject);
         Assert.assertFalse(new File(path).exists());
     }
