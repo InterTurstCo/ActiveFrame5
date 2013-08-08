@@ -1,24 +1,18 @@
 package ru.intertrust.cm.core.gui.impl.markup;
 
-import ua.com.it.main.window.client.Mainform;
-
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 
 /**
- * @author Denis Mitavskiy
- *         Date: 24.07.13
- *         Time: 13:52
+ * @author Denis Mitavskiy Date: 24.07.13 Time: 13:52
  */
 public class MainView implements EntryPoint {
     @Override
     public void onModuleLoad() {
-        //Window.alert("Hello");
-        
+        // Window.alert("Hello");
 
         final Mainform mf = new Mainform();
 
