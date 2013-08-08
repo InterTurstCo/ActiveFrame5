@@ -5,16 +5,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.config.FileUtils;
 import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 
 import java.io.*;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 
 /**
  * User: vlad
@@ -26,6 +26,7 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
 
     final private static org.slf4j.Logger logger = LoggerFactory.getLogger(FileSystemAttachmentContentDaoImpl.class);
     private static SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
+    final static private String PATH_NAME = "Path";
     private String attachmentSaveLocation;
 
     @Autowired
@@ -59,7 +60,7 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
             if (isPathEmptyInDo(domainObject)) {
                 throw new DaoException("The path is empty");
             }
-            String relFilePath = ((StringValue) domainObject.getValue("path")).get();
+            String relFilePath = ((StringValue) domainObject.getValue(PATH_NAME)).get();
             return new FileInputStream(toAbsFromRelativePathFile(relFilePath));
         } catch (FileNotFoundException e) {
             throw new DaoException(e);
@@ -71,7 +72,7 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
         if (isPathEmptyInDo(domainObject)) {
             return;
         }
-        Value value = domainObject.getValue("path");
+        Value value = domainObject.getValue(PATH_NAME);
         String relFilePath = ((StringValue) value).get();
         File f = new File(toAbsFromRelativePathFile(relFilePath));
         if (f.exists()) {
@@ -84,7 +85,7 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
     }
 
     private boolean isPathEmptyInDo(DomainObject domainObject) {
-        Value value = domainObject.getValue("path");
+        Value value = domainObject.getValue(PATH_NAME);
         return value == null || value.isEmpty() || !(value instanceof StringValue);
     }
 

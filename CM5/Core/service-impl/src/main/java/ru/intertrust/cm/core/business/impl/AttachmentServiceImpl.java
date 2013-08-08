@@ -39,6 +39,8 @@ public class AttachmentServiceImpl implements AttachmentService {
 
     final static org.slf4j.Logger logger = LoggerFactory.getLogger(AttachmentServiceImpl.class);
 
+    final static private String PATH_NAME = "Path";
+
     @Autowired
     private AttachmentContentDao attachmentContentDao;
 
@@ -58,7 +60,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     public DomainObject createAttachmentDomainObjectFor(String domainObjectType) {
         return crudService.createDomainObject(domainObjectType);
     }
-    
+
     public void setAccessControlService(AccessControlService accessControlService) {
         this.accessControlService = accessControlService;
     }
@@ -76,18 +78,18 @@ public class AttachmentServiceImpl implements AttachmentService {
             }
             newFilePathValue = new StringValue(newFilePath);
             StringValue oldFilePathValue = (StringValue) attachmentDomainObject.getValue("path");
-            attachmentDomainObject.setValue("path", new StringValue(newFilePath));
+            attachmentDomainObject.setValue(PATH_NAME, new StringValue(newFilePath));
             domainObjectDao.save(attachmentDomainObject);
             //предыдущий файл удаляем
             if (oldFilePathValue != null && !oldFilePathValue.isEmpty()) {
                 //файл может быть и не удален, в случае если заблокирован
-                attachmentDomainObject.setValue("path", oldFilePathValue);
+                attachmentDomainObject.setValue(PATH_NAME, oldFilePathValue);
                 attachmentContentDao.deleteContent(attachmentDomainObject);
             }
             attachmentDomainObject.setValue("path", newFilePathValue);
         } catch (IOException ex) {
             if (newFilePathValue != null && !newFilePathValue.isEmpty()) {
-                attachmentDomainObject.setValue("path", newFilePathValue);
+                attachmentDomainObject.setValue(PATH_NAME, newFilePathValue);
                 attachmentContentDao.deleteContent(attachmentDomainObject);
             }
             throw new DaoException(ex.getMessage());
