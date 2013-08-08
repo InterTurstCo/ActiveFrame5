@@ -1,12 +1,12 @@
 <configuration>
    <collection name="Employees" idField="id" domain-object-type="Employee">
       <invalidTag>
-         <column field="id" name="id" hidden="true" sortable="false" editable="false" sequence="0"/>
-         <column field="business_object_type" name="type" hidden="true" sortable="false" editable="false" sequence="1"/>
-         <column field="name" name="Имя" hidden="false" sortable="true" editable="false" sequence="2"/>
-         <column field="position" name="Должность" hidden="false" sortable="true" editable="false" sequence="3"/>
-         <column field="created_date" name="Дата создания" hidden="false" sortable="true" editable="false" sequence="4"/>
-         <column field="updated_date" name="Дата модификации" hidden="false" sortable="true" editable="false" sequence="5"/>
+            <column field="id" name="id" type="integer" hidden="true" sortable="false" />
+            <column field="business_object_type" name="type" type="string" editable="false"  hidden="true" sortable="false" /> <!--todo - rethink?-->
+            <column field="name" name="Имя" editable="false" type="string" sortable="true" />
+            <column field="position" name="Должность" type="string" editable="false" sortable="true" />
+            <column field="created_date" name="Дата создания" type="datetime" editable="false" sortable="true" />
+            <column field="updated_date" name="Дата модификации" type="datetime" editable="false" sortable="true" />
       </invalidTag>
       <prototype><![CDATA[
 

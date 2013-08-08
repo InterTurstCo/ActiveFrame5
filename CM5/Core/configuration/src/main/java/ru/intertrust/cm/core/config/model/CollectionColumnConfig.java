@@ -27,9 +27,6 @@ public class CollectionColumnConfig implements Serializable {
     private boolean editable;
 
     @Attribute(required = true)
-    private int sequence;
-
-    @Attribute(required = true)
     private String type;
 
     public String getField() {
@@ -71,14 +68,6 @@ public class CollectionColumnConfig implements Serializable {
     public void setEditable(boolean editable) {
         this.editable = editable;
     }
-
-    public int getSequence() {
-        return sequence;
-    }
-
-    public void setSequence(int sequence) {
-        this.sequence = sequence;
-    }
     
     public String getType() {
         return type;
@@ -103,9 +92,6 @@ public class CollectionColumnConfig implements Serializable {
             return false;
         }
         if (field != null ? !field.equals(that.field) : that.field != null) {
-            return false;
-        }
-        if (sequence != that.sequence) {
             return false;
         }
         if (editable != that.editable) {
