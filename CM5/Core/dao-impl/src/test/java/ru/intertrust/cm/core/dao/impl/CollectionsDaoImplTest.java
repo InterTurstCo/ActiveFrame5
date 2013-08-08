@@ -12,7 +12,6 @@ import ru.intertrust.cm.core.config.model.CollectionConfig;
 import ru.intertrust.cm.core.config.model.CollectionFilterConfig;
 import ru.intertrust.cm.core.config.model.CollectionFilterCriteriaConfig;
 import ru.intertrust.cm.core.config.model.CollectionFilterReferenceConfig;
-import ru.intertrust.cm.core.dao.exception.CollectionConfigurationException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +46,10 @@ public class CollectionsDaoImplTest {
 
     private static final String COLLECTION_QUERY_WITHOUT_FILTERS =
              "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e where 1=1 order by e.name asc";
-    
+
+    private static final String COLLECTION_QUERY_WITHOUT_SORT_ORDER =
+            "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e where 1=1";
+
     private static final String EMLOYEES_PROROTYPE = "select\n" +
             "                    e.id, e.name, e.position, e.created_date, e.updated_date\n" +
             "                from\n" +
@@ -134,6 +136,14 @@ public class CollectionsDaoImplTest {
         assertEquals(COLLECTION_QUERY_WITHOUT_FILTERS, refinedActualQuery);
     }
 
+    @Test
+    public void testFindCollectionWithoutSortOrder() throws Exception {
+        List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<>();
+        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(collectionConfig, filledFilterConfigs, null, 0, 0);
+        String refinedActualQuery = refineQuery(actualQuery);
+        assertEquals(COLLECTION_QUERY_WITHOUT_SORT_ORDER, refinedActualQuery);
+    }
+    
     @Test
     public void testFindCollectionWithLimits() throws Exception {
         List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<>();
