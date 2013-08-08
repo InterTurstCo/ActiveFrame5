@@ -192,21 +192,30 @@ public class ConfigurationSerializer {
 
     private Configuration deserializeModuleConfiguration(ModuleConfig moduleConfig) throws Exception {
         String moduleConfigurationFullPath = modulesConfigurationFolder + moduleConfig.getPath();
-        String schemaFullPath = modulesConfigurationFolder + moduleConfig.getSchemaPath();
-
         InputStream configInputStream = FileUtils.getFileInputStream(moduleConfigurationFullPath);
-        InputStream schemaInputStream = FileUtils.getFileInputStream(schemaFullPath);
-        InputStream coreSchemaInputStream = FileUtils.getFileInputStream(coreConfigurationSchemaFilePath);
-
-        InputStream[] schemaInputStreams = new InputStream[] {coreSchemaInputStream, schemaInputStream};
 
         ConfigurationSchemaValidator schemaValidator =
-                new ConfigurationSchemaValidator(configInputStream, schemaInputStreams);
+                new ConfigurationSchemaValidator(configInputStream, getModuleSchemaInputStreams(moduleConfig));
 
         schemaValidator.validate();
 
         configInputStream = FileUtils.getFileInputStream(moduleConfigurationFullPath);
         return createSerializerInstance().read(Configuration.class, configInputStream);
+    }
+
+    private InputStream[] getModuleSchemaInputStreams(ModuleConfig moduleConfig) {
+        InputStream coreSchemaInputStream = FileUtils.getFileInputStream(coreConfigurationSchemaFilePath);
+
+        InputStream[] schemaInputStreams;
+        if (moduleConfig.getSchemaPath() != null) {
+            String schemaFullPath = modulesConfigurationFolder + moduleConfig.getSchemaPath();
+            InputStream schemaInputStream = FileUtils.getFileInputStream(schemaFullPath);
+            schemaInputStreams = new InputStream[] {coreSchemaInputStream, schemaInputStream};
+        } else {
+            schemaInputStreams = new InputStream[] {coreSchemaInputStream};
+        }
+
+        return schemaInputStreams;
     }
 
     private static Serializer createSerializerInstance() {

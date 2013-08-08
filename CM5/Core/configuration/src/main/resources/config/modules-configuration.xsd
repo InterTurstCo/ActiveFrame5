@@ -13,7 +13,7 @@
           <xs:restriction base="xs:string"/>
         </xs:simpleType>
       </xs:element>
-      <xs:element name="schema-path">
+      <xs:element name="schema-path" minOccurs="0">
         <xs:simpleType>
           <xs:restriction base="xs:string"/>
         </xs:simpleType>

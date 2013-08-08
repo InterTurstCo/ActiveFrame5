@@ -17,7 +17,7 @@ public class ModuleConfig implements Serializable  {
     @Element(name = "path", required = true)
     private String path;
 
-    @Element(name="schema-path", required = true)
+    @Element(name="schema-path", required = false)
     private String schemaPath;
 
     public String getPath() {
