@@ -5,9 +5,9 @@ import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -18,23 +18,32 @@ import java.util.List;
 public class CollectionsServiceImpl implements CollectionsService {
 
     @Autowired
-    private ConfigurationExplorer configurationExplorer;
-
-    @Autowired
     private CollectionsDao collectionsDao;
 
-    public void setCollectionsDao(CollectionsDao collectionsDao) {
-        this.collectionsDao = collectionsDao;
+    @Override
+    public IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder, List<Filter> filterValues,
+                                                       int offset, int limit) {
+        return collectionsDao.findCollection(collectionName, filterValues, sortOrder, offset, limit);
     }
 
     @Override
-    public IdentifiableObjectCollection findCollection(String collectionName, List<Filter> filterValues,
-                                                       SortOrder sortOrder, int offset, int limit) {
-        return collectionsDao.findCollection(collectionName, filterValues, sortOrder, offset, limit);
+    public IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder, List<Filter> filters) {
+        return findCollection(collectionName, sortOrder, filters, 0, 0);
+    }
+
+    @Override
+    public IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder) {
+        return findCollection(collectionName, sortOrder, Collections.EMPTY_LIST, 0, 0);
+    }
+
+    @Override
+    public IdentifiableObjectCollection findCollection(String collectionName) {
+        return findCollection(collectionName, null, Collections.EMPTY_LIST, 0, 0);
     }
 
     @Override
     public int findCollectionCount(String collectionName, List<Filter> filterValues) {
         return collectionsDao.findCollectionCount(collectionName, filterValues);
     }
+
 }

@@ -14,22 +14,49 @@ import java.util.List;
 public interface CollectionsService {
 
     /**
-     * Возвращает коллекцию, отфильтрованную и упорядоченную согласно критериям
+     * Возвращает заданную коллекцию, отфильтрованную и упорядоченную согласно порядку сортировки
      *
      * @param collectionName название коллекции
-     * @param filters фильтры
-     * @param sortOrder порядок сортировки коллекции
-     * @param limit максимальное количесвто возвращаемых доменных объектов
-     * @return коллекцию
+     * @param sortOrder      порядок сортировки коллекции {@link ru.intertrust.cm.core.business.api.dto.SortOrder}
+     * @param filters        список фильтров {@link ru.intertrust.cm.core.business.api.dto.Filter}
+     * @param limit          максимальное количество возвращаемых доменных объектов
+     * @return коллекцию объектов {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObject}
      */
-    IdentifiableObjectCollection findCollection(String collectionName, List<Filter> filters, SortOrder sortOrder, int offset, int limit);
+    IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder, List<Filter> filters, int offset, int limit);
 
     /**
-     * Возвращает коллекцию, упорядоченную согласно заданному порядку
+     * Возвращает заданную коллекцию, отфильтрованную и упорядоченную согласно порядку сортировки
      *
      * @param collectionName название коллекции
-     * @param filters фильтры
-     * @return коллекцию
+     * @param sortOrder      порядок сортировки коллекции {@link ru.intertrust.cm.core.business.api.dto.SortOrder}
+     * @param filters        список фильтров {@link ru.intertrust.cm.core.business.api.dto.Filter}
+     * @return коллекцию объектов {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObject}
+     */
+    IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder, List<Filter> filters);
+
+    /**
+     * Возвращает заданную коллекцию, упорядоченную согласно порядку сортировки
+     *
+     * @param collectionName название коллекции
+     * @param sortOrder      порядок сортировки коллекции {@link ru.intertrust.cm.core.business.api.dto.SortOrder}
+     * @return коллекцию объектов {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObject}
+     */
+    IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder);
+
+    /**
+     * Возвращает заданную коллекцию
+     *
+     * @param collectionName название коллекции
+     * @return коллекцию объектов {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObject}
+     */
+    IdentifiableObjectCollection findCollection(String collectionName);
+
+    /**
+     * Возвращает количество элементов заданной коллекции, отфильтрованной согласно списку фильтров
+     *
+     * @param collectionName название коллекции
+     * @param filters        список фильтров {@link ru.intertrust.cm.core.business.api.dto.Filter}
+     * @return число элементов заданной коллекции
      */
     int findCollectionCount(String collectionName, List<Filter> filters);
 
