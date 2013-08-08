@@ -1,7 +1,13 @@
 package ru.intertrust.cm.core.gui.impl.markup;
 
+import ua.com.it.main.window.client.Mainform;
+
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.RootLayoutPanel;
 
 /**
  * @author Denis Mitavskiy
@@ -11,6 +17,45 @@ import com.google.gwt.user.client.Window;
 public class MainView implements EntryPoint {
     @Override
     public void onModuleLoad() {
-        Window.alert("Hello");
+        //Window.alert("Hello");
+        
+
+        final Mainform mf = new Mainform();
+
+        final Button drugBtn = new Button("dragpanel");
+        drugBtn.addClickHandler(new ClickHandler() {
+
+            @Override
+            public void onClick(ClickEvent event) {
+                mf.showDrag();
+            }
+        });
+
+        Button stickerBtn = new Button("sticker");
+        stickerBtn.addClickHandler(new ClickHandler() {
+
+            @Override
+            public void onClick(ClickEvent event) {
+                mf.showSticker();
+            }
+        });
+
+        Button treeBtn = new Button("Tree");
+        treeBtn.addClickHandler(new ClickHandler() {
+
+            @Override
+            public void onClick(ClickEvent event) {
+                mf.showTree();
+            }
+        });
+
+        mf.addElementInHeader(new Button("Header"));
+
+        mf.addElementInDragPanel(drugBtn);
+        mf.addElementInNavigation(new Button("navigation"));
+        mf.addElementInTree(treeBtn);
+        mf.addElementInSticker(stickerBtn);
+        RootLayoutPanel rp = RootLayoutPanel.get();
+        rp.add(mf);
     }
 }
