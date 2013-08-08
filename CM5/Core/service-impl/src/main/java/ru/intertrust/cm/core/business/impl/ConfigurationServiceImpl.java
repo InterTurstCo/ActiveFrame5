@@ -113,8 +113,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         configurationDao.save(configurationString);
     }
 
-    private class RecursiveLoader {
-        private final Set<String> loadedDomainObjectConfigs = new HashSet<>();
+    private class RecursiveLoader extends AbstractRecursiveLoader {
 
         private RecursiveLoader() {
         }
@@ -135,6 +134,11 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             createAclTables(configList);
         }
 
+        @Override
+        protected void processConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
+            loadDomainObjectConfig(domainObjectTypeConfig);
+        }
+
         private void createAclTables(Collection<DomainObjectTypeConfig> configList) {
             for (DomainObjectTypeConfig config : configList) {
                 if (!config.isTemplate()) {
@@ -150,37 +154,15 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         }
 
         private void loadDomainObjectConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
-            if(loadedDomainObjectConfigs.contains(domainObjectTypeConfig.getName())) { // skip if already loaded
+            if(isProcessed(domainObjectTypeConfig)) { // skip if already loaded
                 return;
             }
 
             // First load referenced domain object configurations
-            loadDependentDomainObjectConfigs(domainObjectTypeConfig);
-
-            if (!domainObjectTypeConfig.isTemplate()) {
-                dataStructureDao.createTable(domainObjectTypeConfig);
-                dataStructureDao.createSequence(domainObjectTypeConfig);
-            }
-
-            loadedDomainObjectConfigs.add(domainObjectTypeConfig.getName()); // add to loaded configs set
+            processDependentConfigs(domainObjectTypeConfig);
+            createDbStructures(domainObjectTypeConfig);
+            setAsProcessed(domainObjectTypeConfig);
         }
-
-        private void loadDependentDomainObjectConfigs(DomainObjectTypeConfig domainObjectTypeConfig) {
-            DomainObjectParentConfig parentConfig = domainObjectTypeConfig.getParentConfig();
-            if (parentConfig != null) {
-                loadDomainObjectConfig(configurationExplorer.getConfig(DomainObjectTypeConfig.class,
-                        parentConfig.getName()));
-            }
-
-            for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
-                if ((ReferenceFieldConfig.class.equals(fieldConfig.getClass()))) {
-                    ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
-                    loadDomainObjectConfig(configurationExplorer.getConfig(DomainObjectTypeConfig.class,
-                            referenceFieldConfig.getType()));
-                }
-            }
-        }
-
     }
 
     /**
@@ -209,17 +191,21 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         return tablesCount > 0;
     }
 
-    private class RecursiveMerger {
+    private class RecursiveMerger extends AbstractRecursiveLoader {
 
         private final ConfigurationExplorer oldConfigExplorer;
-        private final Set<String> mergedDomainObjectConfigs = new HashSet<>();
 
         private RecursiveMerger(Configuration oldConfiguration) {
             oldConfigExplorer = new ConfigurationExplorerImpl(oldConfiguration);
             oldConfigExplorer.build();
         }
 
-        public void merge() {
+        @Override
+        protected void processConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
+            merge(domainObjectTypeConfig);
+        }
+
+        private void merge() {
             Collection<DomainObjectTypeConfig> configList =
                     configurationExplorer.getConfigs(DomainObjectTypeConfig.class);
             if(configList.isEmpty())  {
@@ -234,7 +220,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         }
 
         private void merge(DomainObjectTypeConfig domainObjectTypeConfig) {
-            if(mergedDomainObjectConfigs.contains(domainObjectTypeConfig.getName())) { // skip if already merged
+            if (isProcessed(domainObjectTypeConfig)) { // skip if already merged
                 return;
             }
 
@@ -249,38 +235,18 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                 updateDomainObjectConfig(domainObjectTypeConfig, oldDomainObjectTypeConfig);
             }
 
-            mergedDomainObjectConfigs.add(domainObjectTypeConfig.getName()); // add to merged configs set
+            setAsProcessed(domainObjectTypeConfig);
         }
 
         private void loadDomainObjectConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
             // First merge referenced domain object configurations
-            mergeDependentDomainObjectConfigs(domainObjectTypeConfig);
-
-            if (!domainObjectTypeConfig.isTemplate()) {
-                dataStructureDao.createTable(domainObjectTypeConfig);
-                dataStructureDao.createSequence(domainObjectTypeConfig);
-            }
-        }
-
-        private void mergeDependentDomainObjectConfigs(DomainObjectTypeConfig domainObjectTypeConfig) {
-            DomainObjectParentConfig parentConfig = domainObjectTypeConfig.getParentConfig();
-            if (parentConfig != null) {
-                loadDomainObjectConfig(configurationExplorer.getConfig(DomainObjectTypeConfig.class,
-                        parentConfig.getName()));
-            }
-
-            for(FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
-                if((ReferenceFieldConfig.class.equals(fieldConfig.getClass()))) {
-                    ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
-                    merge(configurationExplorer.getConfig(DomainObjectTypeConfig.class,
-                            referenceFieldConfig.getType()));
-                }
-            }
+            processDependentConfigs(domainObjectTypeConfig);
+            createDbStructures(domainObjectTypeConfig);
         }
 
         private void updateDomainObjectConfig(DomainObjectTypeConfig domainObjectTypeConfig,
                                               DomainObjectTypeConfig oldDomainObjectTypeConfig) {
-            mergeDependentDomainObjectConfigs(domainObjectTypeConfig);
+            processDependentConfigs(domainObjectTypeConfig);
 
             List<FieldConfig> newFieldConfigs = new ArrayList<>();
             List<UniqueKeyConfig> newUniqueKeyConfigs = new ArrayList<>();
@@ -365,5 +331,42 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             throw new ConfigurationException("Configuration loading aborted: parent config was changed " +
                     "for '" + domainObjectTypeConfig.getName() + ". " + COMMON_ERROR_MESSAGE);
         }
+    }
+
+    private abstract class AbstractRecursiveLoader {
+
+        private final Set<String> processedDoTypeConfigs = new HashSet<>();
+
+        protected void createDbStructures(DomainObjectTypeConfig domainObjectTypeConfig) {
+            if (!domainObjectTypeConfig.isTemplate()) {
+                dataStructureDao.createTable(domainObjectTypeConfig);
+                dataStructureDao.createSequence(domainObjectTypeConfig);
+            }
+        }
+
+        protected boolean isProcessed(DomainObjectTypeConfig domainObjectTypeConfig) {
+            return processedDoTypeConfigs.contains(domainObjectTypeConfig.getName());
+        }
+
+        protected void setAsProcessed(DomainObjectTypeConfig domainObjectTypeConfig) {
+            processedDoTypeConfigs.add(domainObjectTypeConfig.getName());
+        }
+
+        protected void processDependentConfigs(DomainObjectTypeConfig domainObjectTypeConfig) {
+            DomainObjectParentConfig parentConfig = domainObjectTypeConfig.getParentConfig();
+            if (parentConfig != null) {
+                processConfig(configurationExplorer.getConfig(DomainObjectTypeConfig.class, parentConfig.getName()));
+            }
+
+            for(FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
+                if((ReferenceFieldConfig.class.equals(fieldConfig.getClass()))) {
+                    ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
+                    processConfig(configurationExplorer.getConfig(DomainObjectTypeConfig.class,
+                            referenceFieldConfig.getType()));
+                }
+            }
+        }
+
+        protected abstract void processConfig(DomainObjectTypeConfig domainObjectTypeConfig);
     }
 }
