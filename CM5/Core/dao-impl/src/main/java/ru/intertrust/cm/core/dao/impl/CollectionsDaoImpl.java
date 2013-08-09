@@ -11,6 +11,8 @@ import ru.intertrust.cm.core.config.model.CollectionConfig;
 import ru.intertrust.cm.core.config.model.CollectionFilterConfig;
 import ru.intertrust.cm.core.config.model.CollectionFilterCriteriaConfig;
 import ru.intertrust.cm.core.config.model.CollectionFilterReferenceConfig;
+import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.impl.utils.CollectionRowMapper;
 
@@ -58,19 +60,26 @@ public class CollectionsDaoImpl implements CollectionsDao {
     @Override
     public IdentifiableObjectCollection findCollection(String collectionName,
                                                        List<Filter> filterValues,
-                                                       SortOrder sortOrder, int offset, int limit) {
+                                                       SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
         CollectionConfig collectionConfig = configurationExplorer.getConfig(CollectionConfig.class, collectionName);
         List<CollectionFilterConfig> filledFilterConfigs = findFilledFilterConfigs(filterValues, collectionConfig);
         String collectionQuery =
-                getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, offset, limit);
+                getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, offset, limit, accessToken);
 
         Map<String, Object> parameters = new HashMap<>();
         fillFilterParameters(filterValues, parameters);
 
+        if (accessToken.isDeferred()) {
+            fillAclParameters(accessToken, parameters);
+        }
         IdentifiableObjectCollection collection = jdbcTemplate.query(collectionQuery, parameters,
                 new CollectionRowMapper(collectionName, collectionConfig.getDomainObjectType(), collectionConfig.getIdField(), configurationExplorer));
 
         return collection;
+    }
+
+    private void fillAclParameters(AccessToken accessToken, Map<String, Object> parameters) {
+        parameters.put("user_id", ((UserSubject)accessToken.getSubject()).getUserId());
     }
 
     /*
@@ -79,10 +88,10 @@ public class CollectionsDaoImpl implements CollectionsDao {
      */
     @Override
     public int findCollectionCount(String collectionName,
-                                   List<Filter> filterValues) {
+            List<Filter> filterValues, AccessToken accessToken) {
         CollectionConfig collectionConfig = configurationExplorer.getConfig(CollectionConfig.class, collectionName);
         List<CollectionFilterConfig> filledFilterConfigs = findFilledFilterConfigs(filterValues, collectionConfig);
-        String collectionQuery = getFindCollectionCountQuery(collectionConfig, filledFilterConfigs);
+        String collectionQuery = getFindCollectionCountQuery(collectionConfig, filledFilterConfigs, accessToken);
 
         Map<String, Object> parameters = new HashMap<String, Object>();
         fillFilterParameters(filterValues, parameters);
@@ -102,12 +111,11 @@ public class CollectionsDaoImpl implements CollectionsDao {
      */
     protected String getFindCollectionQuery(CollectionConfig collectionConfig,
                                             List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder,
-                                            int offset, int limit) {
+                                            int offset, int limit, AccessToken accessToken) {
         CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer();
-
-        String collectionQuery =
-                collectionQueryInitializer.initializeQuery(collectionConfig.getPrototype(), filledFilterConfigs,
-                        sortOrder, offset, limit);
+        
+        String collectionQuery = collectionQueryInitializer.initializeQuery(collectionConfig, filledFilterConfigs,
+                        sortOrder, offset, limit, accessToken);
         return collectionQuery;
     }
 
@@ -119,12 +127,11 @@ public class CollectionsDaoImpl implements CollectionsDao {
      * @return
      */
     protected String getFindCollectionCountQuery(CollectionConfig collectionConfig,
-                                                 List<CollectionFilterConfig> filledFilterConfigs) {
+            List<CollectionFilterConfig> filledFilterConfigs, AccessToken accessToken) {
         CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer();
 
         String collectionQuery =
-                collectionQueryInitializer.initializeCountQuery(collectionConfig.getCountingPrototype(),
-                        filledFilterConfigs);
+                collectionQueryInitializer.initializeCountQuery(collectionConfig, filledFilterConfigs, accessToken);
         return collectionQuery;
     }
 

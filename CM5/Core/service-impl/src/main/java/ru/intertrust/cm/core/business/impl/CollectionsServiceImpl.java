@@ -1,14 +1,18 @@
 package ru.intertrust.cm.core.business.impl;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.dao.access.AccessControlService;
+import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author vmatsukevich
@@ -20,10 +24,21 @@ public class CollectionsServiceImpl implements CollectionsService {
     @Autowired
     private CollectionsDao collectionsDao;
 
+    @Autowired
+    private AccessControlService accessControlService;
+        
+    public void setAccessControlService(AccessControlService accessControlService) {
+        this.accessControlService = accessControlService;
+    }
+
     @Override
     public IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder, List<Filter> filterValues,
                                                        int offset, int limit) {
-        return collectionsDao.findCollection(collectionName, filterValues, sortOrder, offset, limit);
+        // TODO get userId from EJB Context
+        int userId = 1;
+        AccessToken accessToken = accessControlService.createAccessToken(userId, null, DomainObjectAccessType.READ);
+
+        return collectionsDao.findCollection(collectionName, filterValues, sortOrder, offset, limit, accessToken);
     }
 
     @Override
@@ -43,7 +58,10 @@ public class CollectionsServiceImpl implements CollectionsService {
 
     @Override
     public int findCollectionCount(String collectionName, List<Filter> filterValues) {
-        return collectionsDao.findCollectionCount(collectionName, filterValues);
+        // TODO get userId from EJB Context
+        int userId = 1;
+        AccessToken accessToken = accessControlService.createAccessToken(userId, null, DomainObjectAccessType.READ);
+        return collectionsDao.findCollectionCount(collectionName, filterValues, accessToken);
     }
 
 }

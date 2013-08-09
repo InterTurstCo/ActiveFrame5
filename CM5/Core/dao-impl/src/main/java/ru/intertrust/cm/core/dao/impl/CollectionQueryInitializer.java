@@ -8,7 +8,10 @@ import java.util.Set;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion.Order;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.config.model.CollectionConfig;
 import ru.intertrust.cm.core.config.model.CollectionFilterConfig;
+import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
 import ru.intertrust.cm.core.model.FatalException;
 
 /**
@@ -39,15 +42,43 @@ public class CollectionQueryInitializer {
      * @param limit ограничение количества
      * @return
      */
-    public String initializeQuery(String prototypeQuery, List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder, int offset, int limit) {
-        if(prototypeQuery == null || prototypeQuery.trim().length() == 0){
+    public String initializeQuery(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs,
+            SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
+        String prototypeQuery = collectionConfig.getPrototype();
+        
+        return fillPrototypeQuery(collectionConfig, filledFilterConfigs, sortOrder, offset, limit, accessToken,
+                prototypeQuery);
+
+    }
+
+    private String fillPrototypeQuery(CollectionConfig collectionConfig,
+            List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder, int offset, int limit,
+            AccessToken accessToken, String prototypeQuery) {
+        if (prototypeQuery == null || prototypeQuery.trim().length() == 0) {
             throw new FatalException("Prototype query is null and can not be processed");
         }
-        String collectionQuery = mergeFilledFilterConfigsInPrototypeQuery(prototypeQuery, filledFilterConfigs);
-        collectionQuery = applySortOrder(sortOrder, collectionQuery);
-        collectionQuery = applyLimitAndOffset(offset, limit, collectionQuery);
-        return collectionQuery;
+        StringBuilder collectionQuery = new StringBuilder();
+        collectionQuery.append(mergeFilledFilterConfigsInPrototypeQuery(prototypeQuery, filledFilterConfigs));
 
+        if (accessToken.isDeferred()) {
+            StringBuilder aclQuery = createAclQueryFilter(collectionConfig, accessToken);
+
+            collectionQuery.append(aclQuery);
+        }
+        applySortOrder(sortOrder, collectionQuery);       
+        applyLimitAndOffset(offset, limit, collectionQuery);
+        return collectionQuery.toString();
+    }
+
+    private StringBuilder createAclQueryFilter(CollectionConfig collectionConfig, AccessToken accessToken) {
+        StringBuilder aclQuery = new StringBuilder();
+        if (accessToken.isDeferred()) {            
+            String domainObjectAclReadTable = AccessControlUtility.getAclReadTableNameFor(collectionConfig.getDomainObjectType());
+            aclQuery.append(" and exists (select r.object_id from ").append(domainObjectAclReadTable).append(" r ");
+            aclQuery.append("inner join group_member gm on r.group_id = gm.parent where gm.person_id = :user_id and r.object_id = ");
+            aclQuery.append(collectionConfig.getIdField()).append(")");
+        }
+        return aclQuery;
     }
 
     /**
@@ -56,15 +87,17 @@ public class CollectionQueryInitializer {
      * @param filledFilterConfigs заполненные фильтры
      * @return
      */
-    public String initializeCountQuery(String prototypeQuery, List<CollectionFilterConfig> filledFilterConfigs) {
-        return initializeQuery(prototypeQuery, filledFilterConfigs, null, 0, 0);
+    public String initializeCountQuery(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs, AccessToken accessToken) {        
+        String prototypeQuery = collectionConfig.getCountingPrototype();
+        return fillPrototypeQuery(collectionConfig, filledFilterConfigs, null, 0, 0, accessToken,
+                prototypeQuery);
+
     }
 
-    private String applyLimitAndOffset(int offset, int limit, String collectionQuery) {
+    private void applyLimitAndOffset(int offset, int limit, StringBuilder collectionQuery) {
         if (limit != 0) {
-            collectionQuery += " limit " + limit + " OFFSET " + offset;
+            collectionQuery.append(" limit ").append(limit).append(" OFFSET ").append(offset);
         }
-        return collectionQuery;
     }
 
     private String mergeFilledFilterConfigsInPrototypeQuery(String prototypeQuery, List<CollectionFilterConfig> filledFilterConfigs) {
@@ -128,20 +161,18 @@ public class CollectionQueryInitializer {
         return prototypeQuery;
     }
     
-    private String applySortOrder(SortOrder sortOrder, String prototypeQuery) {
-        StringBuilder prototypeQueryBuilder = new StringBuilder(prototypeQuery);
-
+    private String applySortOrder(SortOrder sortOrder, StringBuilder prototypeQuery) {
         boolean hasSortEntry = false;
         if (sortOrder != null && sortOrder.size() > 0) {
             for (SortCriterion criterion : sortOrder) {
                 if (hasSortEntry) {
-                    prototypeQueryBuilder.append(", ");
+                    prototypeQuery.append(", ");
                 }
-                prototypeQueryBuilder.append(" order by ").append(criterion.getField()).append("  ").append(getSqlSortOrder(criterion.getOrder()));
+                prototypeQuery.append(" order by ").append(criterion.getField()).append("  ").append(getSqlSortOrder(criterion.getOrder()));
                 hasSortEntry = true;
             }
         }
-        return prototypeQueryBuilder.toString();
+        return prototypeQuery.toString();
     }
 
     private String getSqlSortOrder(SortCriterion.Order order) {

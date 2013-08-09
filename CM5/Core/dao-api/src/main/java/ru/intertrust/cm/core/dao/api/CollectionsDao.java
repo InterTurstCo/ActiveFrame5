@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.config.model.CollectionFilterConfig;
+import ru.intertrust.cm.core.dao.access.AccessToken;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ public interface CollectionsDao {
      * @return
      */
     IdentifiableObjectCollection findCollection(String collectionName,
-                                                List<Filter> filterValues, SortOrder sortOrder, int offset, int limit);
+                                                List<Filter> filterValues, SortOrder sortOrder, int offset, int limit, AccessToken accessToken);
 
     /**
      * Поиск количества записей в коллекции доменных объектов используя фильтры
@@ -35,6 +36,6 @@ public interface CollectionsDao {
      * @param collectionName конфигурация коллекции
      * @return
      */
-    int findCollectionCount(String collectionName, List<Filter> filterValues);
+    int findCollectionCount(String collectionName, List<Filter> filterValues, AccessToken accessToken);
 
 }

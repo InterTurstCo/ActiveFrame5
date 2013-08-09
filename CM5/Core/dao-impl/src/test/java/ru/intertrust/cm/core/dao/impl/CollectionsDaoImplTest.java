@@ -12,11 +12,15 @@ import ru.intertrust.cm.core.config.model.CollectionConfig;
 import ru.intertrust.cm.core.config.model.CollectionFilterConfig;
 import ru.intertrust.cm.core.config.model.CollectionFilterCriteriaConfig;
 import ru.intertrust.cm.core.config.model.CollectionFilterReferenceConfig;
+import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.UserSubject;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author vmatsukevich
@@ -25,30 +29,33 @@ import static org.junit.Assert.assertEquals;
  */
 public class CollectionsDaoImplTest {
 
+    private static final String COLLECTION_ACL_QUERY = "and exists (select r.object_id from null_READ r inner join group_member gm on r.group_id = gm.parent where gm.person_id = :user_id and r.object_id = id)";
+
     private static final String COLLECTION_COUNT_WITH_FILTERS =
             "select count(*) from employee e inner join department d on e.department = d.id " +
-                    "WHERE 1=1 and d.name = 'dep1' and e.name = 'employee1'";
+                    "WHERE 1=1 and d.name = 'dep1' and e.name = 'employee1' " + COLLECTION_ACL_QUERY + "";
 
     private static final String COLLECTION_QUERY_WITH_LIMITS =
             "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e " +
                     "inner join department d on e.department = d.id " +
-                    "where 1=1 and d.name = 'dep1' order by e.name asc limit 100 OFFSET 10";
+                    "where 1=1 and d.name = 'dep1' " + COLLECTION_ACL_QUERY + " order by e.name asc limit 100 OFFSET 10";
 
     private static final String FIND_COLLECTION_QUERY_WITH_FILTERS =
             "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e " +
-                    "inner join department d on e.department = d.id where 1=1 and d.name = 'dep1' order by e.name asc";
+                    "inner join department d on e.department = d.id where 1=1 and d.name = 'dep1' " + COLLECTION_ACL_QUERY + " order by e.name asc";
 
     private static final String FIND_COMPLEX_COLLECTION_QUERY_WITH_FILTERS =
             "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e inner join department d" +
             " on e.department = d.id inner join authentication_info a on e.login = a.id where 1=1 and d.name = 'dep1' " +
             "and e.name = 'employee1'" +
-            " and a.id = 1 order by e.name asc";
+            " and a.id = 1 " + COLLECTION_ACL_QUERY + " order by e.name asc";
 
+    
     private static final String COLLECTION_QUERY_WITHOUT_FILTERS =
-             "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e where 1=1 order by e.name asc";
+             "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e where 1=1 " + COLLECTION_ACL_QUERY + " order by e.name asc";
 
     private static final String COLLECTION_QUERY_WITHOUT_SORT_ORDER =
-            "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e where 1=1";
+            "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e where 1=1 " + COLLECTION_ACL_QUERY;
 
     private static final String EMLOYEES_PROROTYPE = "select\n" +
             "                    e.id, e.name, e.position, e.created_date, e.updated_date\n" +
@@ -104,13 +111,24 @@ public class CollectionsDaoImplTest {
         complexCollectionConfig = createEmployeesComplexCollectionConfig();
     }
 
+    private AccessToken createMockAccessToken() {
+        AccessToken accessToken = mock(AccessToken.class);
+        when(accessToken.isDeferred()).thenReturn(true);
+        
+        UserSubject subject = mock(UserSubject.class);
+        when(subject.getUserId()).thenReturn(1);        
+        when(accessToken.getSubject()).thenReturn(subject);
+        return accessToken;
+    }
+    
     @Test
     public void testFindCollectionWithFilters() throws Exception {
         List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<>();
 
         filledFilterConfigs.add(byDepartmentFilterConfig);
 
-        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, 0, 0);
+        AccessToken accessToken = createMockAccessToken();        
+        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, 0, 0, accessToken);
         String refinedActualQuery = refineQuery(actualQuery);
         assertEquals(FIND_COLLECTION_QUERY_WITH_FILTERS, refinedActualQuery);
     }
@@ -123,7 +141,8 @@ public class CollectionsDaoImplTest {
         filledFilterConfigs.add(byNameComplexFilterConfig);
         filledFilterConfigs.add(byAuthenticationInfoFilterConfig);
 
-        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(complexCollectionConfig, filledFilterConfigs, sortOrder, 0, 0);
+        AccessToken accessToken = createMockAccessToken();
+        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(complexCollectionConfig, filledFilterConfigs, sortOrder, 0, 0, accessToken);
         String refinedActualQuery = refineQuery(actualQuery);
         assertEquals(FIND_COMPLEX_COLLECTION_QUERY_WITH_FILTERS, refinedActualQuery);
     }
@@ -131,7 +150,9 @@ public class CollectionsDaoImplTest {
     @Test
     public void testFindCollectionWithoutFilters() throws Exception {
         List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<>();
-        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, 0, 0);
+        AccessToken accessToken = createMockAccessToken();
+
+        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, 0, 0, accessToken);
         String refinedActualQuery = refineQuery(actualQuery);
         assertEquals(COLLECTION_QUERY_WITHOUT_FILTERS, refinedActualQuery);
     }
@@ -139,7 +160,9 @@ public class CollectionsDaoImplTest {
     @Test
     public void testFindCollectionWithoutSortOrder() throws Exception {
         List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<>();
-        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(collectionConfig, filledFilterConfigs, null, 0, 0);
+        AccessToken accessToken = createMockAccessToken();
+
+        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(collectionConfig, filledFilterConfigs, null, 0, 0, accessToken);
         String refinedActualQuery = refineQuery(actualQuery);
         assertEquals(COLLECTION_QUERY_WITHOUT_SORT_ORDER, refinedActualQuery);
     }
@@ -148,8 +171,9 @@ public class CollectionsDaoImplTest {
     public void testFindCollectionWithLimits() throws Exception {
         List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<>();
         filledFilterConfigs.add(byDepartmentFilterConfig);
+        AccessToken accessToken = createMockAccessToken();
 
-        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, 10, 100);
+        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, 10, 100, accessToken);
         String refinedActualQuery = refineQuery(actualQuery);
 
         assertEquals(COLLECTION_QUERY_WITH_LIMITS, refinedActualQuery);
@@ -160,8 +184,9 @@ public class CollectionsDaoImplTest {
         List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<>();
         filledFilterConfigs.add(byDepartmentFilterConfig);
         filledFilterConfigs.add(byNameFilterConfig);
-
-        String actualQuery = collectionsDaoImpl.getFindCollectionCountQuery(collectionConfig, filledFilterConfigs);
+        
+        AccessToken accessToken = createMockAccessToken();
+        String actualQuery = collectionsDaoImpl.getFindCollectionCountQuery(collectionConfig, filledFilterConfigs, accessToken);
         String refinedActualQuery = refineQuery(actualQuery);
         assertEquals(COLLECTION_COUNT_WITH_FILTERS, refinedActualQuery);
     }
@@ -261,6 +286,7 @@ public class CollectionsDaoImplTest {
         result.setName("Employees");
         result.setPrototype(EMLOYEES_PROROTYPE);
         result.setCountingPrototype(EMPLOYEES_COUNTING_PROTOTYPE);
+        result.setIdField("id");
         result.getFilters().add(byDepartmentFilterConfig);
 
         return result;
@@ -272,7 +298,7 @@ public class CollectionsDaoImplTest {
         result.setPrototype(EMPLOYEES_COMPLEX_PROTOTYPE);
         result.setCountingPrototype(EMPLOYEES_COUNTING_PROTOTYPE);
         result.getFilters().add(byDepartmentFilterConfig);
-
+        result.setIdField("id");
         return result;
     }
 }
