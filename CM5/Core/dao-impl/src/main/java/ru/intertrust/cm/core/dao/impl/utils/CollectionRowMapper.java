@@ -9,16 +9,8 @@ import java.util.Date;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
-import ru.intertrust.cm.core.business.api.dto.BooleanValue;
-import ru.intertrust.cm.core.business.api.dto.DecimalValue;
-import ru.intertrust.cm.core.business.api.dto.GenericIdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.IntegerValue;
-import ru.intertrust.cm.core.business.api.dto.RdbmsId;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.business.api.dto.TimestampValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.LongValue;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.CollectionColumnConfig;
 import ru.intertrust.cm.core.dao.impl.DataType;
@@ -99,9 +91,9 @@ public class CollectionRowMapper extends BasicRowMapper implements
             value = new DecimalValue();
             Long longValue = rs.getLong(columnName);
             if (!rs.wasNull()) {
-                value = new IntegerValue(longValue);
+                value = new LongValue(longValue);
             } else {
-                value = new IntegerValue();
+                value = new LongValue();
             }
 
         } else if (DataType.DATETIME.equals(fieldType)) {

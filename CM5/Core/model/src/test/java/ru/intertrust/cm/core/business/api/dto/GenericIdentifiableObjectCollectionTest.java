@@ -7,11 +7,6 @@ import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
 
-import ru.intertrust.cm.core.business.api.dto.GenericIdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.IntegerValue;
-import ru.intertrust.cm.core.business.api.dto.RdbmsId;
-
 /**
  * Тестовый клас для {@link GenericIdentifiableObjectCollection}
  * @author atsvetkov
@@ -48,10 +43,10 @@ public class GenericIdentifiableObjectCollectionTest {
     public void testGetField(){
         int fieldIndex = TEST_INDEX;
         int rowNum = TEST_ROW;
-        IntegerValue integerValue = new IntegerValue(5);
-        collection.set(fieldIndex, rowNum, integerValue);
+        LongValue longValue = new LongValue(5);
+        collection.set(fieldIndex, rowNum, longValue);
 
-        assertEquals(integerValue, collection.get(fieldIndex, rowNum));
+        assertEquals(longValue, collection.get(fieldIndex, rowNum));
 
     }
     

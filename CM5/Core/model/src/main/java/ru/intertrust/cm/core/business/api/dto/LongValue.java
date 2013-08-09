@@ -6,20 +6,20 @@ package ru.intertrust.cm.core.business.api.dto;
  * Date: 19.05.13
  * Time: 16:21
  */
-public class IntegerValue extends Value {
+public class LongValue extends Value {
     private Long value;
 
     /**
      * Создаёт пустое целочичсленное значение
      */
-    public IntegerValue() {
+    public LongValue() {
     }
 
     /**
      * Создаёт целочичсленное значение
      * @param value целочичсленное значение
      */
-    public IntegerValue(Integer value) {
+    public LongValue(Integer value) {
         this.value = value == null ? null : (long) value;
     }
 
@@ -27,7 +27,7 @@ public class IntegerValue extends Value {
      * Создаёт целочичсленное значение
      * @param value целочичсленное значение
      */
-    public IntegerValue(Long value) {
+    public LongValue(Long value) {
         this.value = value;
     }
 

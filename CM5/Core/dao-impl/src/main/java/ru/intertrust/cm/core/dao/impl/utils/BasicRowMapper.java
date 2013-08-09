@@ -137,9 +137,9 @@ public class BasicRowMapper {
         } else if (fieldConfig != null && LongFieldConfig.class.equals(fieldConfig.getClass())) {
             Long longValue = rs.getLong(columnName);
             if (!rs.wasNull()) {
-                value = new IntegerValue(longValue);
+                value = new LongValue(longValue);
             } else {
-                value = new IntegerValue();
+                value = new LongValue();
             }
         } else if (fieldConfig != null && DecimalFieldConfig.class.equals(fieldConfig.getClass())) {
             BigDecimal fieldValue = rs.getBigDecimal(columnName);
