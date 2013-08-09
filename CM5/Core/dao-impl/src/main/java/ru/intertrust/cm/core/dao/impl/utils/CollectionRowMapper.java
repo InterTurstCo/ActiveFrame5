@@ -54,20 +54,22 @@ public class CollectionRowMapper extends BasicRowMapper implements
 
         int row = 0;
         while (rs.next()) {
+            
+            int index = 0;
+            int columnIndex = 0;
             FieldValueModel valueModel = new FieldValueModel();
             
-            int columnIndex = 0;            
-            for (String columnName : columnModel.getColumnNames()) {
-
+            for (String columnName : columnModel.getColumnNames()) {                               
                 fillValueModel(rs, valueModel, columnName);
-
+                
                 if (valueModel.getId() != null) {
                     collection.setId(row, valueModel.getId());
+                    columnIndex = index == 0 ? 0 : index -1;
                 }
                 if (valueModel.getValue() != null) {
                     collection.set(columnIndex, row, valueModel.getValue());
                 }
-                columnIndex++;
+                index++;
             }
             row++;
         }
