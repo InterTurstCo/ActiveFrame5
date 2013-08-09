@@ -11,7 +11,6 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 
 /**
@@ -36,8 +35,7 @@ public class CollectionsServiceImpl implements CollectionsService {
                                                        int offset, int limit) {
         // TODO get userId from EJB Context
         int userId = 1;
-        AccessToken accessToken = accessControlService.createAccessToken(userId, null, DomainObjectAccessType.READ);
-
+        AccessToken accessToken = accessControlService.createCollectionAccessToken(userId);
         return collectionsDao.findCollection(collectionName, filterValues, sortOrder, offset, limit, accessToken);
     }
 
@@ -60,7 +58,7 @@ public class CollectionsServiceImpl implements CollectionsService {
     public int findCollectionCount(String collectionName, List<Filter> filterValues) {
         // TODO get userId from EJB Context
         int userId = 1;
-        AccessToken accessToken = accessControlService.createAccessToken(userId, null, DomainObjectAccessType.READ);
+        AccessToken accessToken = accessControlService.createCollectionAccessToken(userId);
         return collectionsDao.findCollectionCount(collectionName, filterValues, accessToken);
     }
 

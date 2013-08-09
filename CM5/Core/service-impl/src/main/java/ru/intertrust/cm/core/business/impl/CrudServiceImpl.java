@@ -66,7 +66,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         //TODO get userId from EJB Context        
         int userId = 1;        
         Id objectId = ((GenericDomainObject)domainObject).getId();        
-        accessControlService.createAccessToken(userId, objectId, DomainObjectAccessType.WRITE);        
+        AccessToken accessToken = accessControlService.createAccessToken(userId, objectId, DomainObjectAccessType.WRITE);        
         return domainObjectDao.save(domainObject);
     }
 
@@ -112,6 +112,14 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     @Override
     public int delete(Collection<Id> ids) {
+        if (ids == null || ids.size() == 0) {
+            throw new IllegalArgumentException("Ids list can not be empty");
+        }
+        Id[] idsArray = ids.toArray(new Id[ids.size()]);
+        // TODO get userId from EJB Context
+        int userId = 1;
+        accessControlService.createAccessToken(userId, idsArray, DomainObjectAccessType.DELETE, false);
+
         return domainObjectDao.delete(ids);
     }
 
@@ -119,8 +127,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
     public List<DomainObject> findChildren(Id domainObjectId, String childType) {
         // TODO get userId from EJB Context
         int userId = 1;
-        AccessToken accessToken =
-                accessControlService.createAccessToken(userId, domainObjectId, DomainObjectAccessType.READ);
+        AccessToken accessToken = accessControlService.createCollectionAccessToken(userId);
 
         return domainObjectDao.findChildren(domainObjectId, childType, accessToken);
     }
