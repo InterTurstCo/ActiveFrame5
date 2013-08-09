@@ -64,6 +64,14 @@ public class AccessControlServiceImpl implements AccessControlService {
         return token;
     }
 
+
+    @Override
+    public AccessToken createCollectionAccessToken(int userId) throws AccessException {
+        boolean deferred = true;
+        AccessToken token = new SimpleAccessToken(new UserSubject(userId), null, DomainObjectAccessType.READ, deferred);
+        return token;
+    }
+
     @Override
     public AccessToken createAccessToken(int userId, Id[] objectIds, AccessType type, boolean requireAll)
             throws AccessException {
@@ -137,14 +145,14 @@ public class AccessControlServiceImpl implements AccessControlService {
      * Маркер доступа для простых операций с доменными объектами &mdash; чтения, изменения и удаления.
      * Поддерживают опцию отложенности.
      */
-    private final class SimpleAccessToken extends AccessTokenBase {
+    public final class SimpleAccessToken extends AccessTokenBase {
 
         private final UserSubject subject;
         private final Id objectId;
         private final AccessType type;
         private final boolean deferred;
 
-        SimpleAccessToken(UserSubject subject, Id objectId, AccessType type, boolean deferred) {
+        public SimpleAccessToken(UserSubject subject, Id objectId, AccessType type, boolean deferred) {
             this.subject = subject;
             this.objectId = objectId;
             this.type = type;
