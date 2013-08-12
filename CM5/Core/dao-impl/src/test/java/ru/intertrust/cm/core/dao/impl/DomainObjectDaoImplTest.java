@@ -9,15 +9,12 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.test.util.ReflectionTestUtils;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
-import ru.intertrust.cm.core.config.ConfigurationSerializer;
 import ru.intertrust.cm.core.config.model.*;
 import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.dao.access.Subject;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.impl.utils.MultipleObjectRowMapper;
@@ -39,6 +36,8 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DomainObjectDaoImplTest {
+
+    private final IdService idService = new IdService();
 
     @InjectMocks
     private DomainObjectDaoImpl domainObjectDaoImpl = new DomainObjectDaoImpl();
@@ -232,12 +231,12 @@ public class DomainObjectDaoImplTest {
 
         GenericDomainObject domainObject = new GenericDomainObject();
         domainObject.setTypeName("Person1_Attachment");
-        domainObject.setId(new RdbmsId("Person1_Attachment|1"));
+        domainObject.setId(idService.createId("Person1_Attachment|1"));
         when(result.get(0)).thenReturn(domainObject);
 
         domainObject = new GenericDomainObject();
         domainObject.setTypeName("Person1_Attachment");
-        domainObject.setId(new RdbmsId("Person1_Attachment|2"));
+        domainObject.setId(idService.createId("Person1_Attachment|2"));
         when(result.get(1)).thenReturn(domainObject);
 
         any(MultipleObjectRowMapper.class);
@@ -251,7 +250,7 @@ public class DomainObjectDaoImplTest {
         
         AccessToken accessToken = createMockAccessToken();
         
-        List<DomainObject> l = domainObjectDao.findChildren(new RdbmsId("PERSON|1"), "Person1_Attachment", accessToken);
+        List<DomainObject> l = domainObjectDao.findChildren(idService.createId("PERSON|1"), "Person1_Attachment", accessToken);
         Assert.assertEquals(1, ((RdbmsId)l.get(0).getId()).getId());
         Assert.assertEquals(2, ((RdbmsId)l.get(1).getId()).getId());
     }
