@@ -103,7 +103,7 @@ public class CollectionsDaoImplTest {
 
         byNameFilterConfig = createByNameFilterConfig();
         byNameComplexFilterConfig = createByNameComplexFilterConfig();
-        byAuthenticationInfoFilterConfig = createbyAuthenticationInfoFilterConfig();
+        byAuthenticationInfoFilterConfig = createByAuthenticationInfoFilterConfig();
 
         sortOrder = createByNameSortOrder();
 
@@ -204,7 +204,6 @@ public class CollectionsDaoImplTest {
         collectionFilterReference.setValue("inner join department d on e.department = d.id");
 
         CollectionFilterCriteriaConfig collectionFilterCriteriaConfig = new CollectionFilterCriteriaConfig();
-        collectionFilterCriteriaConfig.setCondition(" and ");
         collectionFilterCriteriaConfig.setPlaceholder("where-clause");
         collectionFilterCriteriaConfig.setValue(" d.name = 'dep1'");
 
@@ -222,8 +221,7 @@ public class CollectionsDaoImplTest {
         collectionFilterReference.setValue("inner join department d on e.department = d.id");
 
         CollectionFilterCriteriaConfig collectionFilterCriteriaConfig = new CollectionFilterCriteriaConfig();
-        collectionFilterCriteriaConfig.setCondition(" and ");
-        collectionFilterCriteriaConfig.setPlaceholder("where-clause1");
+         collectionFilterCriteriaConfig.setPlaceholder("where-clause1");
         collectionFilterCriteriaConfig.setValue(" d.name = 'dep1'");
 
         byDepartmentFilterConfig.setFilterReference(collectionFilterReference);
@@ -231,7 +229,7 @@ public class CollectionsDaoImplTest {
         return byDepartmentFilterConfig;
     }
 
-    private CollectionFilterConfig createbyAuthenticationInfoFilterConfig() {
+    private CollectionFilterConfig createByAuthenticationInfoFilterConfig() {
         CollectionFilterConfig byDepartmentFilterConfig = new CollectionFilterConfig();
         byDepartmentFilterConfig.setName("byAuthenticationInfo");
         CollectionFilterReferenceConfig collectionFilterReference = new CollectionFilterReferenceConfig();
@@ -240,7 +238,6 @@ public class CollectionsDaoImplTest {
         collectionFilterReference.setValue("inner join authentication_info a on e.login = a.id");
 
         CollectionFilterCriteriaConfig collectionFilterCriteriaConfig = new CollectionFilterCriteriaConfig();
-        collectionFilterCriteriaConfig.setCondition(" and ");
         collectionFilterCriteriaConfig.setPlaceholder("where-clause2");
         collectionFilterCriteriaConfig.setValue(" a.id = 1 ");
 
@@ -254,7 +251,6 @@ public class CollectionsDaoImplTest {
         byNameFilterConfig.setName("byName");
 
         CollectionFilterCriteriaConfig collectionFilterCriteriaConfig = new CollectionFilterCriteriaConfig();
-        collectionFilterCriteriaConfig.setCondition(" and ");
         collectionFilterCriteriaConfig.setPlaceholder("where-clause");
         collectionFilterCriteriaConfig.setValue(" e.name = 'employee1' ");
 
@@ -267,7 +263,6 @@ public class CollectionsDaoImplTest {
         byNameFilterConfig.setName("byName");
 
         CollectionFilterCriteriaConfig collectionFilterCriteriaConfig = new CollectionFilterCriteriaConfig();
-        collectionFilterCriteriaConfig.setCondition(" and ");
         collectionFilterCriteriaConfig.setPlaceholder("where-clause1");
         collectionFilterCriteriaConfig.setValue(" e.name = 'employee1' ");
 

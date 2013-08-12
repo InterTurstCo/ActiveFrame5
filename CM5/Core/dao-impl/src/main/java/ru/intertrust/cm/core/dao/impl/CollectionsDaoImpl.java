@@ -221,7 +221,6 @@ public class CollectionsDaoImpl implements CollectionsDao {
         if (srcFilterCriteria != null) {
             CollectionFilterCriteriaConfig clonedFilterCriteria = new CollectionFilterCriteriaConfig();
             clonedFilterCriteria.setPlaceholder(srcFilterCriteria.getPlaceholder());
-            clonedFilterCriteria.setCondition(srcFilterCriteria.getCondition());
             clonedFilterCriteria.setValue(srcFilterCriteria.getValue());
             clonedFilterConfig.setFilterCriteria(clonedFilterCriteria);
         }

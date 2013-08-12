@@ -79,14 +79,14 @@
                     inner join department d on e.department = d.id
                 
             ]]></reference>
-         <criteria placeholder="where-clause" condition="and"><![CDATA[
+         <criteria placeholder="where-clause"><![CDATA[
                 
                     d.name = {0}
                 
             ]]></criteria>
       </filter>
       <filter name="byName">
-         <criteria placeholder="where-clause" condition="and"><![CDATA[
+         <criteria placeholder="where-clause"><![CDATA[
                 
                     e.name = {0}
                 

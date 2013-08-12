@@ -116,9 +116,8 @@ public class CollectionQueryInitializer {
             if (collectionFilterConfig.getFilterCriteria() != null
                     && collectionFilterConfig.getFilterCriteria().getPlaceholder() != null) {
                 String placeholder = collectionFilterConfig.getFilterCriteria().getPlaceholder();
-                String condition = collectionFilterConfig.getFilterCriteria().getCondition();
                 String value = collectionFilterConfig.getFilterCriteria().getValue();
-                criteriaPlaceHolderCollector.addPlaceholderValue(placeholder, condition, value);
+                criteriaPlaceHolderCollector.addPlaceholderValue(placeholder, value);
             }
         }
         
@@ -216,26 +215,30 @@ public class CollectionQueryInitializer {
  
     /**
      * Группирует все фильтры после слова where по названию placeholder. Т.е. для каждого placeholder составляет запрос
-     * из заполненных фильтров.
+     * из заполненных фильтров. По умолчанию все фильтры соединяются через условие AND ({@link CollectionQueryInitializer#DEFAULT_CRITERIA_CONDITION})
      * @author atsvetkov
      */
     private class CriteriaPlaceHolderCollector {
 
         private Map<String, String> placeholdersMap = new HashMap<>();
 
-        public void addPlaceholderValue(String placeholder, String condition, String value) {
+        public void addPlaceholderValue(String placeholder, String value) {
             String placeholderValue = placeholdersMap.get(placeholder);
-
-            if (condition == null) {
-                condition = DEFAULT_CRITERIA_CONDITION;
-            }
+            
             if (placeholderValue != null) {
-                placeholderValue += EMPTY_STRING + condition + EMPTY_STRING + value;
+                placeholderValue += createCriteriaValue(value);
             } else {
-                placeholderValue = EMPTY_STRING + condition + EMPTY_STRING + value;
+                placeholderValue = createCriteriaValue(value);
             }
             placeholdersMap.put(placeholder, placeholderValue);
 
+        }
+
+        private String createCriteriaValue(String value) {
+            String condition = DEFAULT_CRITERIA_CONDITION;
+            StringBuilder criteriaValue = new StringBuilder();
+            criteriaValue.append(EMPTY_STRING).append(condition).append(EMPTY_STRING).append(value);            
+            return criteriaValue.toString();
         }
 
         public String getPlaceholderValue(String placeholder) {

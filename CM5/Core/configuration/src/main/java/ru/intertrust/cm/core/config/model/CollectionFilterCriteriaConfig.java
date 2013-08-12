@@ -15,9 +15,6 @@ public class CollectionFilterCriteriaConfig implements Serializable {
     @Attribute(required = true)
     private String placeholder;
 
-    @Attribute(required = false)
-    private String condition;
-
     @Text(data = true)
     private String value;
 
@@ -27,14 +24,6 @@ public class CollectionFilterCriteriaConfig implements Serializable {
 
     public void setPlaceholder(String placeholder) {
         this.placeholder = placeholder;
-    }
-
-    public String getCondition() {
-        return condition;
-    }
-
-    public void setCondition(String condition) {
-        this.condition = condition;
     }
 
     public String getValue() {
@@ -56,9 +45,6 @@ public class CollectionFilterCriteriaConfig implements Serializable {
 
         CollectionFilterCriteriaConfig that = (CollectionFilterCriteriaConfig) o;
 
-        if (condition != null ? !condition.equals(that.condition) : that.condition != null) {
-            return false;
-        }
         if (placeholder != null ? !placeholder.equals(that.placeholder) : that.placeholder != null) {
             return false;
         }
@@ -72,7 +58,6 @@ public class CollectionFilterCriteriaConfig implements Serializable {
     @Override
     public int hashCode() {
         int result = placeholder != null ? placeholder.hashCode() : 0;
-        result = 31 * result + (condition != null ? condition.hashCode() : 0);
         result = 31 * result + (value != null ? value.hashCode() : 0);
         return result;
     }
