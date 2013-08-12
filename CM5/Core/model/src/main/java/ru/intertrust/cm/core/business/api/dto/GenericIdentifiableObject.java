@@ -2,7 +2,9 @@ package ru.intertrust.cm.core.business.api.dto;
 
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 
 /**
@@ -11,25 +13,26 @@ import java.util.LinkedHashMap;
  * Time: 17:13
  */
 public class GenericIdentifiableObject implements IdentifiableObject {
+
     private Id id;
-    private LinkedHashMap<String, Value> fieldValues;
+    protected LinkedHashMap<String, Value> fieldValues;
 
     /**
      * Создаёт объект
      */
     public GenericIdentifiableObject() {
-        fieldValues = new LinkedHashMap<String, Value>(); // параметры специфицированы явно, для поддержки GWT
+        fieldValues = new LinkedHashMap<>(); // параметры специфицированы явно, для поддержки GWT
     }
 
     /**
      * Создаёт копию идентифицируемого объекта
-     * 
+     *
      * @param source исходный объект
      */
     public GenericIdentifiableObject(IdentifiableObject source) {
         id = source.getId();
         ArrayList<String> sourceFields = source.getFields();
-        fieldValues = new LinkedHashMap<String, Value>(sourceFields.size());
+        fieldValues = new LinkedHashMap<>(sourceFields.size());
         for (String field : sourceFields) {
             fieldValues.put(field, source.getValue(field));
         }
@@ -51,13 +54,63 @@ public class GenericIdentifiableObject implements IdentifiableObject {
     }
 
     @Override
-    public Value getValue(String field) {
-        return fieldValues.get(field);
+    public <T extends Value> T getValue(String field) {
+        return (T) fieldValues.get(field);
     }
 
     @Override
     public ArrayList<String> getFields() {
-        return new ArrayList<String>(fieldValues.keySet());
+        return new ArrayList<>(fieldValues.keySet());
+    }
+
+    @Override
+    public void setString(String field, String value) {
+        fieldValues.put(field, new StringValue(value));
+    }
+
+    @Override
+    public String getString(String field) {
+        return this.<StringValue>getValue(field).get();
+    }
+
+    @Override
+    public void setLong(String field, Long value) {
+        fieldValues.put(field, new LongValue(value));
+    }
+
+    @Override
+    public Long getLong(String field) {
+        return this.<LongValue>getValue(field).get();
+    }
+
+    @Override
+    public void setBoolean(String field, Boolean value) {
+        fieldValues.put(field, new BooleanValue(value));
+    }
+
+    @Override
+    public Boolean getBoolean(String field) {
+        return this.<BooleanValue>getValue(field).get();
+    }
+
+    @Override
+    public void setDecimal(String field, BigDecimal value) {
+        fieldValues.put(field, new DecimalValue(value));
+    }
+
+    @Override
+    public BigDecimal getDecimal(String field) {
+        return this.<DecimalValue>getValue(field).get();
+    }
+
+    @Override
+    public void setTimestamp(String field, Date value) {
+        fieldValues.put(field, new TimestampValue(value));
+    }
+
+    @Override
+    public Date getTimestamp(String field) {
+        return this.<TimestampValue>getValue(field).get();
     }
 
     public String toString() {

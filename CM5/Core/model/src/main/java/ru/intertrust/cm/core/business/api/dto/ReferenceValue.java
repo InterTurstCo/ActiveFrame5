@@ -25,7 +25,7 @@ public class ReferenceValue extends Value {
     }
 
     @Override
-    public Object get() {
+    public Id get() {
         return reference;
     }
 

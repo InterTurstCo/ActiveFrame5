@@ -1,12 +1,14 @@
 package ru.intertrust.cm.core.business.api.dto;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Идентифицируемый (наделённый идентификатором) объект - основная именованная сущность системы.
  * Включает в себя набор именованных полей со значениями аналогично тому, как класс Java включает в себя именованные
  * поля.
- *
+ * <p/>
  * Author: Denis Mitavskiy
  * Date: 23.05.13
  * Time: 1:39
@@ -14,19 +16,21 @@ import java.util.ArrayList;
 public interface IdentifiableObject extends Dto {
     /**
      * Возвращает идентификатор объекта
+     *
      * @return идентификатор объекта
      */
     Id getId();
 
     /**
-     * @deprecated TODO move to implementation
-     * Устанавливает идентификатор объекта
      * @param id идентификатор доменного объекта
+     * @deprecated TODO move to implementation
+     *             Устанавливает идентификатор объекта
      */
     void setId(Id id);
 
     /**
      * Устанавливает значение поля.
+     *
      * @param field название поля
      * @param value значение поля
      */
@@ -34,14 +38,98 @@ public interface IdentifiableObject extends Dto {
 
     /**
      * Возвращает значение поля по его названию.
+     *
      * @param field название поля
      * @return значение поля
      */
-    Value getValue(String field);
+    <T extends Value> T getValue(String field);
 
     /**
      * Возвращает поля объекта в их натуральном порядке (порядке, в котором они были добавлены)
+     *
      * @return поля объекта в их натуральном порядке
      */
     ArrayList<String> getFields();
+
+    /**
+     * Устанавливает значения поля c типом {@link java.lang.String}
+     *
+     * @param field название поля
+     * @param value значение поля
+     */
+    void setString(String field, String value);
+
+    /**
+     * Возвращает значение поля c типом {@link java.lang.String}
+     *
+     * @param field название поля
+     * @return значение поля
+     */
+    String getString(String field);
+
+    /**
+     * Устанавливает значения поля с типом {@link java.lang.Long}
+     *
+     * @param field название поля
+     * @param value значение поля
+     */
+    void setLong(String field, Long value);
+
+    /**
+     * Возвращает значение поля c типом {@link java.lang.Long}
+     *
+     * @param field название поля
+     * @return значение поля
+     */
+    Long getLong(String field);
+
+    /**
+     * Устанавливает значения поля с типом {@link java.lang.Boolean}
+     *
+     * @param field название поля
+     * @param value значение поля
+     */
+    void setBoolean(String field, Boolean value);
+
+    /**
+     * Возвращает значение поля c типом {@link java.lang.Boolean}
+     *
+     * @param field название поля
+     * @return значение поля
+     */
+    Boolean getBoolean(String field);
+
+    /**
+     * Устанавливает значения поля с типом {@link java.math.BigDecimal}
+     *
+     * @param field название поля
+     * @param value значение поля
+     */
+    void setDecimal(String field, BigDecimal value);
+
+    /**
+     * Возвращает значение поля c типом {@link java.math.BigDecimal}
+     *
+     * @param field название поля
+     * @return значение поля
+     */
+    BigDecimal getDecimal(String field);
+
+    /**
+     * Устанавливает значения поля с типом {@link java.util.Date}
+     *
+     * @param field название поля
+     * @param value значение поля
+     */
+    void setTimestamp(String field, Date value);
+
+    /**
+     * Возвращает значение поля c типом {@link java.util.Date}
+     *
+     * @param field название поля
+     * @return значение поля
+     */
+    Date getTimestamp(String field);
+
+
 }

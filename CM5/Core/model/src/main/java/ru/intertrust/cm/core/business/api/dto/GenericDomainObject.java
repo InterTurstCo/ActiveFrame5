@@ -3,32 +3,38 @@ package ru.intertrust.cm.core.business.api.dto;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Обобщённая реализация доменных объектов
- *
+ * <p/>
  * Author: Denis Mitavskiy Date: 19.05.13 Time: 15:57
  */
 public class GenericDomainObject extends GenericIdentifiableObject implements DomainObject {
+
     private String typeName;
     private Id parent;
     private Date createdDate;
     private Date modifiedDate;
+
 
     /**
      * Создаёт доменный объект
      */
     public GenericDomainObject() {
         super();
+
     }
 
     /**
      * Создаёт копию доменного объекта
-     * 
+     *
      * @param source исходный доменный объект
      */
     public GenericDomainObject(DomainObject source) {
         super(source);
+
         typeName = source.getTypeName();
         parent = source.getParent();
         createdDate = source.getCreatedDate();
@@ -78,6 +84,21 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
     @Override
     public boolean isNew() {
         return (getId() == null);
+    }
+
+    @Override
+    public void setReference(String field, DomainObject domainObject) {
+        fieldValues.put(field, new ReferenceValue(domainObject.getId()));
+    }
+
+    @Override
+    public void setReference(String field, Id id) {
+        fieldValues.put(field, new ReferenceValue(id));
+    }
+
+    @Override
+    public Id getId(String field) {
+        return this.<ReferenceValue>getValue(field).get();
     }
 
     @Override

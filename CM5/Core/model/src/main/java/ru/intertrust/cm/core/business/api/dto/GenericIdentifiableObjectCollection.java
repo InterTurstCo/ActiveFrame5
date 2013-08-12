@@ -2,16 +2,18 @@ package ru.intertrust.cm.core.business.api.dto;
 
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
  * Коллекция объектов, наделённых идентификатором
- *
+ * <p/>
  * Author: Denis Mitavskiy
  * Date: 23.05.13
  * Time: 10:54
  */
 public class GenericIdentifiableObjectCollection implements IdentifiableObjectCollection {
+
     private ArrayList<IdentifiableObject> list = new ArrayList<>();
     private HashMap<String, Integer> fieldIndexes = new HashMap<>();
     private ArrayList<String> fields;
@@ -127,9 +129,6 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         private Id id;
         private ArrayList<Value> fieldValues;
 
-        private FastIdentifiableObjectImpl() {
-        }
-
         private FastIdentifiableObjectImpl(int fieldsSize) {
             fieldValues = new ArrayList<>(fieldsSize);
             for (int i = 0; i < fieldsSize; ++i) {
@@ -153,16 +152,107 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         }
 
         @Override
-        public Value getValue(String field) {
-            return fieldValues.get(getFieldIndex(field));
+        public <T extends Value> T getValue(String field) {
+            return (T) fieldValues.get(getFieldIndex(field));
         }
 
         public void setValue(int index, Value value) {
             fieldValues.set(index, value);
         }
 
-        public Value getValue(int index) {
-            return fieldValues.get(index);
+        public <T extends Value> T getValue(int index) {
+            return (T) fieldValues.get(index);
+        }
+
+        @Override
+        public void setString(String field, String value) {
+            fieldValues.set(getFieldIndex(field), new StringValue(value));
+        }
+
+        public void setString(int index, String value) {
+            fieldValues.set(index, new StringValue(value));
+        }
+
+        @Override
+        public String getString(String field) {
+            return this.<StringValue>getValue(field).get();
+        }
+
+        public String getString(int index) {
+            return this.<StringValue>getValue(index).get();
+        }
+
+
+        @Override
+        public void setLong(String field, Long value) {
+            fieldValues.set(getFieldIndex(field), new LongValue(value));
+        }
+
+        public void setLong(int index, Long value) {
+            fieldValues.set(index, new LongValue(value));
+        }
+
+        @Override
+        public Long getLong(String field) {
+            return this.<LongValue>getValue(field).get();
+        }
+
+        public Long getLong(int index) {
+            return this.<LongValue>getValue(index).get();
+        }
+
+        @Override
+        public void setBoolean(String field, Boolean value) {
+            fieldValues.set(getFieldIndex(field), new BooleanValue(value));
+        }
+
+        public void setBoolean(int index, Boolean value) {
+            fieldValues.set(index, new BooleanValue(value));
+        }
+
+        @Override
+        public Boolean getBoolean(String field) {
+            return this.<BooleanValue>getValue(field).get();
+        }
+
+        public Boolean getBoolean(int index) {
+            return this.<BooleanValue>getValue(index).get();
+        }
+
+        @Override
+        public void setDecimal(String field, BigDecimal value) {
+            fieldValues.set(getFieldIndex(field), new DecimalValue(value));
+        }
+
+        public void setDecimal(int index, BigDecimal value) {
+            fieldValues.set(index, new DecimalValue(value));
+        }
+
+        @Override
+        public BigDecimal getDecimal(String field) {
+            return this.<DecimalValue>getValue(field).get();
+        }
+
+        public BigDecimal getDecimal(int index) {
+            return this.<DecimalValue>getValue(index).get();
+        }
+
+        @Override
+        public void setTimestamp(String field, Date value) {
+            fieldValues.set(getFieldIndex(field), new TimestampValue(value));
+        }
+
+        public void setTimestamp(int index, Date value) {
+            fieldValues.set(index, new TimestampValue(value));
+        }
+
+        @Override
+        public Date getTimestamp(String field) {
+            return this.<TimestampValue>getValue(field).get();
+        }
+
+        public Date getTimestamp(int index) {
+            return this.<TimestampValue>getValue(index).get();
         }
 
         @Override
