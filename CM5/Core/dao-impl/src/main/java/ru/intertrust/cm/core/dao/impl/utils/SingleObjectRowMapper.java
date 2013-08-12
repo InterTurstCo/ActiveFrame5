@@ -27,8 +27,7 @@ public class SingleObjectRowMapper extends BasicRowMapper implements ResultSetEx
 
     @Override
     public DomainObject extractData(ResultSet rs) throws SQLException, DataAccessException {
-        GenericDomainObject object = new GenericDomainObject();
-        object.setTypeName(domainObjectType);
+        GenericDomainObject object = null;
 
         ColumnModel columnModel = new ColumnModel();
         for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
@@ -37,6 +36,9 @@ public class SingleObjectRowMapper extends BasicRowMapper implements ResultSetEx
         }
 
         while (rs.next()) {
+            object = new GenericDomainObject();
+            object.setTypeName(domainObjectType);
+
             for (String columnName : columnModel.getColumnNames()) {
                 FieldValueModel valueModel = new FieldValueModel();
                 fillValueModel(rs, valueModel, columnName);
