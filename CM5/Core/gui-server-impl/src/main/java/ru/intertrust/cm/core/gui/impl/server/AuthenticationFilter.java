@@ -33,7 +33,8 @@ public class AuthenticationFilter implements Filter {
             return;
         }
 
-        UserCredentials credentials = (UserCredentials) session.getAttribute(GuiServiceImpl.USER_CREDENTIALS_SESSION_ATTRIBUTE);
+        UserCredentials credentials = (UserCredentials) session.getAttribute(
+                LoginServiceImpl.USER_CREDENTIALS_SESSION_ATTRIBUTE);
         if (credentials == null) {
             forwardToLogin(servletRequest, servletResponse);
             return;
@@ -41,7 +42,6 @@ public class AuthenticationFilter implements Filter {
         UserUidWithPassword userUidWithPassword = (UserUidWithPassword) credentials;
         try {
             request.login(userUidWithPassword.getUserUid(), userUidWithPassword.getPassword());
-            System.out.println("logged in: " + userUidWithPassword.getUserUid());
             filterChain.doFilter(servletRequest, servletResponse);
         } catch (ServletException e) {
             forwardToLogin(servletRequest, servletResponse);

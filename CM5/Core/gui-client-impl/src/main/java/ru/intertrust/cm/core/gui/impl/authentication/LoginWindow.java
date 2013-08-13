@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.authentication;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
@@ -51,9 +52,8 @@ public class LoginWindow extends DialogBox {
         AsyncCallback<Void> callback = new AsyncCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
-                message.setText("Welcome!");
-                //todo: context-path should be passed from server
-                //Window.Location.assign("/cm-sochi/BusinessUniverse.html");
+                //todo: переадресация должна уметь задаваться на стадии открытия LoginPage. пока хардкод
+                Window.Location.assign("/cm-sochi/BusinessUniverse.html");
             }
 
             @Override

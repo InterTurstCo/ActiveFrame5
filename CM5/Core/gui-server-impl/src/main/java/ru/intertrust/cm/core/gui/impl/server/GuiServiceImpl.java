@@ -24,10 +24,6 @@ import javax.ejb.Stateless;
 public class GuiServiceImpl implements GuiService, GuiService.Remote {
     @Resource
     private javax.ejb.SessionContext sessionContext;
-    /**
-     * Атрибут, в котором хранятся данные авторизованного пользователя
-     */
-    public static final String USER_CREDENTIALS_SESSION_ATTRIBUTE = "_USER_CREDENTIALS";
 
     @Override
     public NavigationConfig getNavigationConfiguration() {
