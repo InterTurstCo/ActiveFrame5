@@ -42,11 +42,6 @@
             <version>3.1.1.RELEASE</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>net.sf.jsqlparser</groupId>
-            <artifactId>jsqlparser</artifactId>
-            <version>0.8.0</version>
-        </dependency>
 
     </dependencies>
 </project>
