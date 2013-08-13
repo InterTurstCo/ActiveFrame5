@@ -1,0 +1,13 @@
+<!DOCTYPE module PUBLIC "-//Google Inc.//DTD Google Web Toolkit 2.0//EN"
+        "http://google-web-toolkit.googlecode.com/svn/releases/2.0/distro-source/core/src/gwt-module.dtd">
+<module>
+
+    <inherits name='com.google.gwt.user.User'/>
+    <inherits name="ru.intertrust.cm.core.gui.api.Api"/>
+    <inherits name="ru.intertrust.cm.core.gui.GuiModel"/>
+
+    <entry-point class='ru.intertrust.cm.core.gui.impl.markup.cmj41.navigation.NavigationPanelEntryPoint'/>
+
+    <source path="markup"/>
+
+</module>
