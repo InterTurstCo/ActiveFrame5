@@ -145,14 +145,14 @@ public class AccessControlServiceImpl implements AccessControlService {
      * Маркер доступа для простых операций с доменными объектами &mdash; чтения, изменения и удаления.
      * Поддерживают опцию отложенности.
      */
-    public final class SimpleAccessToken extends AccessTokenBase {
+    final class SimpleAccessToken extends AccessTokenBase {
 
         private final UserSubject subject;
         private final Id objectId;
         private final AccessType type;
         private final boolean deferred;
 
-        public SimpleAccessToken(UserSubject subject, Id objectId, AccessType type, boolean deferred) {
+        SimpleAccessToken(UserSubject subject, Id objectId, AccessType type, boolean deferred) {
             this.subject = subject;
             this.objectId = objectId;
             this.type = type;

@@ -50,7 +50,7 @@
           p:databaseAgent-ref="databaseAccessAgent"/>
 
     <bean id="attachmentContentDao" class="ru.intertrust.cm.core.dao.impl.FileSystemAttachmentContentDaoImpl"
-            p:attachmentSaveLocation="${attachment.save.location}"/>
+            p:attachmentSaveLocation="c:/attachemnts"/>
 
     <bean id="userTransactionService" class="ru.intertrust.cm.core.dao.impl.UserTransactionServiceImpl"/>
 

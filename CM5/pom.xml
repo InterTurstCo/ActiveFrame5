@@ -172,6 +172,11 @@
                 <version>2.0.3</version>
             </dependency>           
 
+	<dependency>
+		<groupId>net.sf.jsqlparser</groupId>
+		<artifactId>jsqlparser</artifactId>
+		<version>0.8.0</version>
+	</dependency>
         </dependencies>
     </dependencyManagement>
 

@@ -63,10 +63,13 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     @Override
     public DomainObject save(DomainObject domainObject) {
-        //TODO get userId from EJB Context        
-        int userId = 1;        
-        Id objectId = ((GenericDomainObject)domainObject).getId();        
-        AccessToken accessToken = accessControlService.createAccessToken(userId, objectId, DomainObjectAccessType.WRITE);        
+        AccessToken accessToken = null;
+        if (!domainObject.isNew()) {
+            // TODO get userId from EJB Context
+            int userId = 1;
+            Id objectId = ((GenericDomainObject) domainObject).getId();
+            accessToken = accessControlService.createAccessToken(userId, objectId, DomainObjectAccessType.WRITE);
+        }
         return domainObjectDao.save(domainObject);
     }
 
