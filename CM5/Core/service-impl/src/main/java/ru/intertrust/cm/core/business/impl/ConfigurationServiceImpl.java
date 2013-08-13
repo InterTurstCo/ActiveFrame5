@@ -81,7 +81,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             return;
         }
 
-        /*String oldConfigurationString = configurationDao.readLastSavedConfiguration();
+        String oldConfigurationString = configurationDao.readLastSavedConfiguration();
         if (oldConfigurationString == null) {
             throw new ConfigurationException("Configuration loading aborted: configuration was previously " +
                     "loaded but wasn't saved");
@@ -103,7 +103,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         }
 
         RecursiveMerger recursiveMerger = new RecursiveMerger(oldConfiguration);
-        recursiveMerger.merge();*/
+        recursiveMerger.merge();
         saveConfiguration();
     }
 
