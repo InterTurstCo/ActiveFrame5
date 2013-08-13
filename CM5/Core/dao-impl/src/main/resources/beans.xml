@@ -29,6 +29,9 @@
     <bean id="configurationDao" class="ru.intertrust.cm.core.dao.impl.ConfigurationDaoImpl"
           p:dataSource-ref="dataSource" />
 
+    <bean id="domainObjectTypeIdDao" class="ru.intertrust.cm.core.dao.impl.DomainObjectTypeIdDaoImpl"
+          p:dataSource-ref="dataSource" />
+
     <bean id="authenticationDao" class="ru.intertrust.cm.core.dao.impl.AuthenticationDaoImpl"
         p:dataSource-ref="dataSource" />
 

@@ -6,7 +6,7 @@ import java.util.List;
 
 import static ru.intertrust.cm.core.dao.api.ConfigurationDao.CONFIGURATION_TABLE;
 import static ru.intertrust.cm.core.dao.api.DataStructureDao.AUTHENTICATION_INFO_TABLE;
-import static ru.intertrust.cm.core.dao.api.DataStructureDao.DOMAIN_OBJECT_TABLE;
+import static ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao.DOMAIN_OBJECT_TYPE_ID_TABLE;
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.PARENT_COLUMN;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
 
@@ -22,7 +22,7 @@ public class PostgreSqlQueryHelper {
 
     public static final String READ_TABLE_SUFFIX = "_READ";
 
-    private static final String GROUP_TABLE= "User_Group";    
+    private static final String GROUP_TABLE= "User_Group";
 
     /**
      * Генерирует запрос, возвращающий кол-во таблиц в базе данных
@@ -37,8 +37,8 @@ public class PostgreSqlQueryHelper {
      * @return запрос, создающий таблицу BUSINESS_OBJECT
      */
     public static String generateCreateDomainObjectTableQuery() {
-        return "create table " + DOMAIN_OBJECT_TABLE + "(ID bigserial not null, NAME varchar(256) not null, " +
-                "constraint PK_" + DOMAIN_OBJECT_TABLE + " primary key (ID), constraint U_" + DOMAIN_OBJECT_TABLE + " unique (NAME))";
+        return "create table " + DOMAIN_OBJECT_TYPE_ID_TABLE + "(ID bigserial not null, NAME varchar(256) not null, " +
+                "constraint PK_" + DOMAIN_OBJECT_TYPE_ID_TABLE + " primary key (ID), constraint U_" + DOMAIN_OBJECT_TYPE_ID_TABLE + " unique (NAME))";
     }
 
     /**
@@ -61,7 +61,7 @@ public class PostgreSqlQueryHelper {
                 + "_ID primary key (ID), constraint U_" + AUTHENTICATION_INFO_TABLE
                 + "_USER_UID unique(user_uid))";
     }
-    
+
     private static String createAclTableQueryFor(String domainObjectType) {
         return "create table " + domainObjectType + "_ACL (object_id bigint not null, group_id bigint not null, " +
                 "operation varchar(256) not null, constraint PK_" + toUpperCase(domainObjectType)
@@ -73,7 +73,7 @@ public class PostgreSqlQueryHelper {
         return "create table " + domainObjectType + "_READ (object_id bigint not null, group_id bigint not null, " +
                 "constraint PK_" + domainObjectType + "_READ primary key (object_id, group_id)";
     }
-         
+
     private static void appendFKConstraintForDO(String sourceDomainObjectType, String targetDomainObjectType, StringBuilder query) {
         query.append(", ").append("CONSTRAINT FK_").append(sourceDomainObjectType).append("_")
                 .append(targetDomainObjectType).append(" FOREIGN KEY (object_id) REFERENCES ")
@@ -138,9 +138,9 @@ public class PostgreSqlQueryHelper {
     public static String generateCreateAclTableQuery(DomainObjectTypeConfig config) {
         String domainObjectType = getSqlName(config);
         String aclTableName = domainObjectType + ACL_TABLE_SUFFIX;
-        
+
         StringBuilder query = new StringBuilder(createAclTableQueryFor(domainObjectType));
-        
+
         appendFKConstraintForDO(aclTableName, domainObjectType, query);
         appendFKConstraintForGroup(domainObjectType, query);
         query.append(")");
@@ -158,7 +158,7 @@ public class PostgreSqlQueryHelper {
         String aclReadTableName = domainObjectType + READ_TABLE_SUFFIX;
 
         StringBuilder query = new StringBuilder(createAclReadTableQueryFor(domainObjectType));
-        
+
         appendFKConstraintForDO(aclReadTableName, domainObjectType, query);
         appendFKConstraintForGroup(domainObjectType, query);
         query.append(")");

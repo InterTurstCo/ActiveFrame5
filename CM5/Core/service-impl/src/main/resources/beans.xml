@@ -23,10 +23,10 @@
 
     <bean id="configurationService"
           class="ru.intertrust.cm.core.business.impl.ConfigurationServiceImpl">
-    
+
     </bean>
 
-      
+
     <bean id="authenticationService"
           class="ru.intertrust.cm.core.business.impl.AuthenticationServiceImpl"
           p:authenticationDao-ref="authenticationDao" p:md5Service-ref="md5Service"
@@ -41,5 +41,8 @@
     <bean id="attachmentCleaner" class="ru.intertrust.cm.core.business.impl.AttachmentCleaner"/>
 
     <bean id="accessControlService" class="ru.intertrust.cm.core.dao.impl.access.AccessControlServiceImpl"/>
+
+    <bean id="domainObjectTypeIdCacheInitializer"
+          class="ru.intertrust.cm.core.business.impl.DomainObjectTypeIdCacheInitializer" init-method="init"/>
 
 </beans>

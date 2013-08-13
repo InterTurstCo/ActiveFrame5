@@ -15,7 +15,6 @@ import java.util.List;
  */
 public interface DataStructureDao {
 
-    String DOMAIN_OBJECT_TABLE = "DOMAIN_OBJECT";
     String AUTHENTICATION_INFO_TABLE = "AUTHENTICATION_INFO";
 
     /**

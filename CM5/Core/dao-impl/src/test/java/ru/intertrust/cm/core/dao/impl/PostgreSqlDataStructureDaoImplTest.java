@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
 import ru.intertrust.cm.core.config.model.*;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,8 +20,6 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static ru.intertrust.cm.core.dao.impl.PostgreSqlDataStructureDaoImpl.DOES_TABLE_EXISTS_QUERY;
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlDataStructureDaoImpl.INSERT_INTO_DOMAIN_OBJECT_TABLE_QUERY;
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlDataStructureDaoImpl.SELECT_DOMAIN_OBJECT_CONFIG_ID_BY_NAME_QUERY;
 import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.*;
 
 /**
@@ -32,6 +31,9 @@ import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.*;
 public class PostgreSqlDataStructureDaoImplTest {
     @InjectMocks
     private final PostgreSqlDataStructureDaoImpl dataStructureDao = new PostgreSqlDataStructureDaoImpl();
+
+    @Mock
+    private DomainObjectTypeIdDao domainObjectTypeIdDao;
     @Mock
     private JdbcTemplate jdbcTemplate;
 
@@ -45,17 +47,15 @@ public class PostgreSqlDataStructureDaoImplTest {
 
     @Test
     public void testCreateTable() throws Exception {
-        when(jdbcTemplate.queryForObject(anyString(), any(Class.class), anyString())).thenReturn(Long.valueOf(7)); // ID конфигурации доменного объекта
+        when(domainObjectTypeIdDao.insert(domainObjectTypeConfig.getName())).thenReturn(Long.valueOf(7)); // ID
+        // конфигурации доменного объекта
         dataStructureDao.createTable(domainObjectTypeConfig);
 
         verify(jdbcTemplate).update(generateCreateTableQuery(domainObjectTypeConfig));
         verify(jdbcTemplate).update(generateCreateIndexesQuery(domainObjectTypeConfig.getName(),
                 domainObjectTypeConfig.getFieldConfigs(), domainObjectTypeConfig.getParentConfig()));
-        verify(jdbcTemplate).update(INSERT_INTO_DOMAIN_OBJECT_TABLE_QUERY,
-                domainObjectTypeConfig.getName());
 
-        verify(jdbcTemplate).queryForObject(SELECT_DOMAIN_OBJECT_CONFIG_ID_BY_NAME_QUERY,
-                Long.class, domainObjectTypeConfig.getName());
+        verify(domainObjectTypeIdDao).insert(domainObjectTypeConfig.getName());
 
         assertEquals(Long.valueOf(7), domainObjectTypeConfig.getId());
     }
@@ -65,7 +65,7 @@ public class PostgreSqlDataStructureDaoImplTest {
         dataStructureDao.createAclTables(domainObjectTypeConfig);
         verify(jdbcTemplate).update(generateCreateAclTableQuery(domainObjectTypeConfig));
         verify(jdbcTemplate).update(generateCreateAclReadTableQuery(domainObjectTypeConfig));
-        
+
     }
 
     @Test

@@ -1,11 +1,13 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import ru.intertrust.cm.core.config.model.DomainObjectParentConfig;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.config.model.UniqueKeyConfig;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 
 import javax.sql.DataSource;
 import java.util.List;
@@ -23,11 +25,8 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
     protected static final String DOES_TABLE_EXISTS_QUERY =
             "select count(*) FROM information_schema.tables WHERE table_schema = 'public' and table_name = ?";
 
-    protected static final String INSERT_INTO_DOMAIN_OBJECT_TABLE_QUERY =
-            "insert into " + DOMAIN_OBJECT_TABLE + "(NAME) values (?)";
-
-    protected static final String SELECT_DOMAIN_OBJECT_CONFIG_ID_BY_NAME_QUERY =
-            "select ID from " + DOMAIN_OBJECT_TABLE + " where NAME = ?";
+    @Autowired
+    private DomainObjectTypeIdDao domainObjectTypeIdDao;
 
     private JdbcTemplate jdbcTemplate;
 
@@ -47,6 +46,9 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    public void setDomainObjectTypeIdDao(DomainObjectTypeIdDao domainObjectTypeIdDao) {
+        this.domainObjectTypeIdDao = domainObjectTypeIdDao;
+    }
 
     /**
      * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#createSequence(ru.intertrust.cm.core.config.model.DomainObjectTypeConfig)}
@@ -75,11 +77,8 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
             jdbcTemplate.update(createIndexesQuery);
         }
 
-        jdbcTemplate.update(INSERT_INTO_DOMAIN_OBJECT_TABLE_QUERY, config.getName());
-        Long id = jdbcTemplate.queryForObject(SELECT_DOMAIN_OBJECT_CONFIG_ID_BY_NAME_QUERY,
-                Long.class, config.getName());
+        Long id = domainObjectTypeIdDao.insert(config.getName());
         config.setId(id);
-        
     }
 
     /**

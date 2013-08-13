@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.AuthenticationService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
+import ru.intertrust.cm.core.business.api.dto.DomainObjectTypeId;
 import ru.intertrust.cm.core.config.ConfigurationException;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
@@ -351,6 +352,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         private void createDbStructures(DomainObjectTypeConfig domainObjectTypeConfig) {
             if (!domainObjectTypeConfig.isTemplate()) {
                 dataStructureDao.createTable(domainObjectTypeConfig);
+                DomainObjectTypeIdCache.getInstance().add(
+                        new DomainObjectTypeId(domainObjectTypeConfig.getName(), domainObjectTypeConfig.getId()));
+
                 dataStructureDao.createSequence(domainObjectTypeConfig);
             }
         }
