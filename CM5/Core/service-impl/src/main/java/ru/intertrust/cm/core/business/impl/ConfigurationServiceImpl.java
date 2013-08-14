@@ -14,6 +14,9 @@ import ru.intertrust.cm.core.dao.api.ConfigurationDao;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.model.FatalException;
 
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
 import java.util.*;
 
 /**
@@ -22,6 +25,9 @@ import java.util.*;
  *         Date: 5/15/13
  *         Time: 4:32 PM
  */
+@Stateless
+@Local(ConfigurationService.class)
+@Remote(ConfigurationService.Remote.class)
 public class ConfigurationServiceImpl implements ConfigurationService {
 
     private static final String ADMIN_LOGIN = "admin";
@@ -310,9 +316,16 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         private final Set<String> inProcessConfigs = new HashSet<>();
 
         protected final void processDependentConfigs(DomainObjectTypeConfig domainObjectTypeConfig) {
-            DomainObjectParentConfig parentConfig = domainObjectTypeConfig.getParentConfig();
-            if (parentConfig != null) {
-                processConfig(configurationExplorer.getConfig(DomainObjectTypeConfig.class, parentConfig.getName()));
+            if (domainObjectTypeConfig.getExtendsAttribute() != null) {
+                DomainObjectTypeConfig parentConfig =
+                        configurationExplorer.getConfig(DomainObjectTypeConfig.class,
+                                domainObjectTypeConfig.getExtendsAttribute());
+                processConfig(parentConfig);
+            }
+
+            DomainObjectParentConfig masterConfig = domainObjectTypeConfig.getParentConfig();
+            if (masterConfig != null) {
+                processConfig(configurationExplorer.getConfig(DomainObjectTypeConfig.class, masterConfig.getName()));
             }
 
             for(FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {

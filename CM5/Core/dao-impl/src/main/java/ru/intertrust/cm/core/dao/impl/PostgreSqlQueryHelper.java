@@ -7,7 +7,7 @@ import java.util.List;
 import static ru.intertrust.cm.core.dao.api.ConfigurationDao.CONFIGURATION_TABLE;
 import static ru.intertrust.cm.core.dao.api.DataStructureDao.AUTHENTICATION_INFO_TABLE;
 import static ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao.DOMAIN_OBJECT_TYPE_ID_TABLE;
-import static ru.intertrust.cm.core.dao.impl.utils.DefaultFields.PARENT_COLUMN;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.PARENT_COLUMN;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
 
 /**
@@ -87,7 +87,7 @@ public class PostgreSqlQueryHelper {
     }
 
     private static String toUpperCase(String sourceDomainObjectType) {
-        return new String(sourceDomainObjectType).toUpperCase();
+        return sourceDomainObjectType.toUpperCase();
     }
 
     /**
@@ -114,7 +114,7 @@ public class PostgreSqlQueryHelper {
         String tableName = getSqlName(config);
         StringBuilder query = new StringBuilder("create table ").append(tableName).append(" ( ");
 
-        appendSystemColumnsQueryPart(query);
+        appendSystemColumnsQueryPart(config, query);
 
         if (config.getFieldConfigs().size() > 0 || config.getParentConfig() != null) {
             query.append(", ");
@@ -200,9 +200,9 @@ public class PostgreSqlQueryHelper {
         String tableName = getSqlName(configName);
 
         if(parentConfig != null) {
-            String indexName = "I_" + tableName + "_" + PARENT_COLUMN;
+            String indexName = "I_" + tableName + "_" + MASTER_COLUMN;
             query.append("create index ").append(indexName).append(" on ").append(tableName).append(" (").
-                    append(PARENT_COLUMN).append(");\n");
+                    append(MASTER_COLUMN).append(");\n");
         }
 
         for(FieldConfig fieldConfig : fieldConfigList) {
@@ -228,6 +228,13 @@ public class PostgreSqlQueryHelper {
     private static void appendFKConstraintsQueryPart(StringBuilder query, String tableName,
                                                      DomainObjectTypeConfig config) {
         appendFKConstraintsQueryPart(query, tableName, config.getFieldConfigs(), config.getParentConfig(), false);
+
+        query.append(", ");
+        if (config.getExtendsAttribute() != null) {
+            appendFKConstraint(query, tableName, PARENT_COLUMN, config.getExtendsAttribute());
+        } else {
+            appendFKConstraint(query, tableName, TYPE_COLUMN, DOMAIN_OBJECT_TYPE_ID_TABLE);
+        }
     }
 
     private static void appendFKConstraintsQueryPart(StringBuilder query, String tableName,
@@ -235,16 +242,9 @@ public class PostgreSqlQueryHelper {
                                                      DomainObjectParentConfig parentConfig,
                                                      boolean isAlterQuery) {
         if(parentConfig != null) {
-            String constraintName = "FK_" + tableName + "_" + PARENT_COLUMN;
-
             query.append(", ");
-            if (isAlterQuery) {
-                query.append("add ");
-            }
-
-            query.append("constraint ").append(constraintName).append(" foreign key (").append(PARENT_COLUMN).
-                    append(")").append(" ").append("references").append(" ").
-                    append(getSqlName(parentConfig.getName())).append("(ID)");
+            appendAlterModeQueryPart(query, isAlterQuery);
+            appendFKConstraint(query, tableName, MASTER_COLUMN, parentConfig.getName());
         }
 
         for(FieldConfig fieldConfig : fieldConfigList) {
@@ -252,18 +252,27 @@ public class PostgreSqlQueryHelper {
                 continue;
             }
 
-            ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
-            String fieldSqlName = getSqlName(referenceFieldConfig);
-            String constraintName = "FK_" + tableName + "_" + fieldSqlName;
-
             query.append(", ");
-            if (isAlterQuery) {
-                query.append("add ");
-            }
+            appendAlterModeQueryPart(query, isAlterQuery);
 
-            query.append("constraint ").append(constraintName).append(" foreign key (").append(fieldSqlName).
-                    append(")").append(" ").append("references").append(" ").
-                    append(getReferencedTypeSqlName(referenceFieldConfig)).append("(ID)");
+            ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
+            appendFKConstraint(query, tableName, referenceFieldConfig.getName(), referenceFieldConfig.getType());
+        }
+    }
+
+    private static void appendFKConstraint(StringBuilder query, String tableName, String fieldName,
+                                           String referencedFieldName) {
+        String fieldSqlName = getSqlName(fieldName);
+        String constraintName = "FK_" + tableName + "_" + fieldSqlName;
+
+        query.append("constraint ").append(constraintName).append(" foreign key (").append(fieldSqlName).
+                append(")").append(" ").append("references").append(" ").
+                append(getSqlName(referencedFieldName)).append("(ID)");
+    }
+
+    private static void appendAlterModeQueryPart(StringBuilder query, boolean isAlterQuery) {
+        if (isAlterQuery) {
+            query.append("add ");
         }
     }
 
@@ -272,10 +281,16 @@ public class PostgreSqlQueryHelper {
         query.append(", constraint ").append(pkName).append(" primary key (ID)");
     }
 
-    private static void appendSystemColumnsQueryPart(StringBuilder query) {
+    private static void appendSystemColumnsQueryPart(DomainObjectTypeConfig config, StringBuilder query) {
         query.append("ID bigint not null, ");
-        query.append("CREATED_DATE timestamp not null, ");
-        query.append("UPDATED_DATE timestamp not null");
+
+        if (config.getExtendsAttribute() == null) {
+            query.append("CREATED_DATE timestamp not null, ");
+            query.append("UPDATED_DATE timestamp not null, ");
+            query.append(TYPE_COLUMN + " integer");
+        } else {
+            query.append(PARENT_COLUMN + " bigint not null");
+        }
     }
 
     private static void appendColumnsQueryPart(StringBuilder query, List<FieldConfig> fieldConfigList,
@@ -284,7 +299,7 @@ public class PostgreSqlQueryHelper {
             if(isAlterQuery) {
                 query.append("add column ");
             }
-            query.append(PARENT_COLUMN).append(" bigint, ");
+            query.append(MASTER_COLUMN).append(" bigint, ");
         }
 
         int size = fieldConfigList.size();
@@ -319,9 +334,7 @@ public class PostgreSqlQueryHelper {
             String fieldsList = getFieldsListAsSql(uniqueKeyConfig.getUniqueKeyFieldConfigs(), ", ");
 
             query.append(", ");
-            if (isAlterQuery) {
-                query.append("add ");
-            }
+            appendAlterModeQueryPart(query, isAlterQuery);
 
             query.append("constraint ").append(constraintName).append(" unique (").
                     append(fieldsList).append(")");

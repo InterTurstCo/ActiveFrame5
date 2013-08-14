@@ -13,14 +13,18 @@ import java.util.List;
 /**
  * DAO для работы с доменными объектами выполняет операции создания, модификации,
  * удаления, поиска и т.д.
+ *
  */
 public interface DomainObjectDao {
 
+    String MASTER_COLUMN = "MASTER";
+    String PARENT_COLUMN = "PARENT";
+    String TYPE_COLUMN = "TYPE";
 
     /**
      * Создает новый доменный объект
-     *
-     * @param domainObject доменный объект который будет создан
+     * @param domainObject
+     *            доменный объект который будет создан
      * @return созданыый доменный объект
      */
     public DomainObject create(DomainObject domainObject);

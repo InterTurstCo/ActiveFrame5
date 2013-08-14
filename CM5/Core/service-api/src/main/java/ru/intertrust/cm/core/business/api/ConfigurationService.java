@@ -8,6 +8,8 @@ package ru.intertrust.cm.core.business.api;
  */
 public interface ConfigurationService {
 
+    interface Remote extends ConfigurationService {}
+
     /**
      * Загрузка конфигурации
      */

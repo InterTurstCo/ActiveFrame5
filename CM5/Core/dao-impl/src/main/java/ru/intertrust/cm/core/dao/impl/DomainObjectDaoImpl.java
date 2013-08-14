@@ -151,7 +151,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         if (count == 0 && (!exists(updatedObject.getId()))) {
             throw new ObjectNotFoundException(updatedObject.getId());
-
         }
 
         if (count == 0) {
@@ -250,7 +249,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         if (ids == null || ids.size() == 0) {
             return new ArrayList<>();
         }
-        List<DomainObject> allDomainObjects = new ArrayList<>();
+        List<DomainObject> allDomainObjects = new ArrayList<DomainObject>();
 
         IdSorterByType idSorterByType = new IdSorterByType(ids.toArray(new RdbmsId[ids.size()]));
 
@@ -373,8 +372,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         query.append("update ").append(tableName).append(" set ");
         query.append("UPDATED_DATE=:current_date, ");
 
-        if (domainObjectTypeConfig.getParentConfig() != null) {
-            query.append(DefaultFields.PARENT_COLUMN).append("=:parent, ");
+        if(domainObjectTypeConfig.getParentConfig() != null) {
+            query.append(MASTER_COLUMN).append("=:parent, ");
         }
 
         query.append(fieldsWithparams);
@@ -432,7 +431,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         query.append("ID, CREATED_DATE, UPDATED_DATE, ");
 
         if (domainObjectTypeConfig.getParentConfig() != null) {
-            query.append(DefaultFields.PARENT_COLUMN).append(", ");
+            query.append(MASTER_COLUMN).append(", ");
         }
 
         query.append(commaSeparatedColumns);
