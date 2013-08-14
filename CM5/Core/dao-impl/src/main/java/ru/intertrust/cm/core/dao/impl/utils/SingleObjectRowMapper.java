@@ -19,10 +19,8 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 @SuppressWarnings("rawtypes")
 public class SingleObjectRowMapper extends BasicRowMapper implements ResultSetExtractor<DomainObject> {
 
-    private static final String DEFAULT_ID_FIELD = "id";
-        
     public SingleObjectRowMapper(String domainObjectType, ConfigurationExplorer configurationExplorer) {
-        super(domainObjectType, DEFAULT_ID_FIELD, configurationExplorer);
+        super(domainObjectType, DefaultFields.DEFAULT_ID_FIELD, configurationExplorer);
     }
 
     @Override

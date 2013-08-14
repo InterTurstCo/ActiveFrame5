@@ -23,7 +23,6 @@ import java.util.List;
  * Реализация сервиса для работы c базовы CRUD-операциями. Смотри link @CrudService
  *
  * @author skashanski
- *
  */
 @Stateless
 @Local(CrudService.class)
@@ -35,11 +34,11 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     @Autowired
     private AccessControlService accessControlService;
-      
+
     public void setDomainObjectDao(DomainObjectDao domainObjectDao) {
         this.domainObjectDao = domainObjectDao;
     }
-    
+
     public void setAccessControlService(AccessControlService accessControlService) {
         this.accessControlService = accessControlService;
     }
@@ -108,8 +107,8 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
     @Override
     public void delete(Id id) {
         //TODO get userId from EJB Context        
-        int userId = 1;        
-        accessControlService.createAccessToken(userId, id, DomainObjectAccessType.DELETE);        
+        int userId = 1;
+        accessControlService.createAccessToken(userId, id, DomainObjectAccessType.DELETE);
         domainObjectDao.delete(id);
     }
 
@@ -122,16 +121,33 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         // TODO get userId from EJB Context
         int userId = 1;
         accessControlService.createAccessToken(userId, idsArray, DomainObjectAccessType.DELETE, false);
-
         return domainObjectDao.delete(ids);
     }
 
+    @Override
+    public List<DomainObject> findLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField) {
+        // TODO get userId from EJB Context
+        int userId = 1;
+        AccessToken accessToken = accessControlService.createCollectionAccessToken(userId);
+        return domainObjectDao.findLinkedDomainObjects(domainObjectId, linkedType, linkedField, accessToken);
+    }
+
+    @Override
+    public List<Id> findLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField) {
+        // TODO get userId from EJB Context
+        int userId = 1;
+        AccessToken accessToken = accessControlService.createCollectionAccessToken(userId);
+        return domainObjectDao.findLinkedDomainObjectsIds(domainObjectId, linkedType, linkedField, accessToken);
+    }
+
+    @Deprecated
     @Override
     public List<DomainObject> findChildren(Id domainObjectId, String childType) {
         // TODO get userId from EJB Context
         int userId = 1;
         AccessToken accessToken = accessControlService.createCollectionAccessToken(userId);
-
         return domainObjectDao.findChildren(domainObjectId, childType, accessToken);
     }
+
+
 }

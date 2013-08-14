@@ -19,22 +19,18 @@ import java.util.List;
 @SuppressWarnings("rawtypes")
 public class MultipleObjectRowMapper extends BasicRowMapper implements ResultSetExtractor<List<DomainObject>> {
 
-    private static final String DEFAULT_ID_FIELD = "id";
-
     public MultipleObjectRowMapper(String domainObjectType, ConfigurationExplorer configurationExplorer) {
-        super(domainObjectType, DEFAULT_ID_FIELD, configurationExplorer);
+        super(domainObjectType, DefaultFields.DEFAULT_ID_FIELD, configurationExplorer);
     }
 
     @Override
     public List<DomainObject> extractData(ResultSet rs) throws SQLException, DataAccessException {
         List<DomainObject> objects = new ArrayList<>();
-
         ColumnModel columnModel = new ColumnModel();
         for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
             String fieldName = rs.getMetaData().getColumnName(i);
             columnModel.getColumnNames().add(fieldName);
         }
-
         while (rs.next()) {
             GenericDomainObject object = new GenericDomainObject();
             object.setTypeName(domainObjectType);
@@ -43,10 +39,8 @@ public class MultipleObjectRowMapper extends BasicRowMapper implements ResultSet
                 fillValueModel(rs, valueModel, columnName);
                 fillObjectValue(object, valueModel, columnName);
             }
-
             objects.add(object);
         }
-
         return objects;
     }
 }

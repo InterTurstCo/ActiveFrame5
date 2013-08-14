@@ -19,7 +19,10 @@ import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.impl.utils.MultipleObjectRowMapper;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -31,7 +34,6 @@ import static org.mockito.Mockito.when;
  * Юнит тест для DomainObjectDaoImpl
  *
  * @author skashanski
- *
  */
 
 @RunWith(MockitoJUnitRunner.class)
@@ -133,7 +135,6 @@ public class DomainObjectDaoImplTest {
         assertEquals(checkDeleteQuery, query);
     }
 
-
     @Test
     public void testGenerateDeleteAllQuery() throws Exception {
         String checkDeleteQuery = "delete from PERSON";
@@ -150,6 +151,28 @@ public class DomainObjectDaoImplTest {
         String query = domainObjectDaoImpl.generateExistsQuery(domainObjectTypeConfig.getName());
         assertEquals(checkExistsQuery, query);
     }
+
+
+    @Test
+    public void testGenerateFindChildrenQuery() {
+        AccessToken accessToken = createMockAccessToken();
+        String expectedQuery = "select t.* from assignment t where t.author = :domain_object_id and exists" +
+                " (select r.object_id from assignment_READ r inner join group_member " +
+                "gm on r.group_id = gm.parent where gm.person_id = :user_id and r.object_id = t.id)";
+        Assert.assertEquals(expectedQuery, domainObjectDaoImpl.buildFindChildrenQuery("assignment", "author", accessToken));
+
+    }
+
+    @Test
+    public void testGenerateFindChildrenIdsQuery() {
+        AccessToken accessToken = createMockAccessToken();
+        String expectedQuery = "select t.id from assignment t where t.author = :domain_object_id and exists" +
+                " (select r.object_id from assignment_READ r inner join group_member " +
+                "gm on r.group_id = gm.parent where gm.person_id = :user_id and r.object_id = t.id)";
+        Assert.assertEquals(expectedQuery, domainObjectDaoImpl.buildFindChildrenIdsQuery("assignment", "author", accessToken));
+
+    }
+
 
     private void initDomainObjectConfig() {
 
@@ -244,31 +267,32 @@ public class DomainObjectDaoImplTest {
         when(jdbcTemplate.query("select t.* from PERSON1_ATTACHMENT t where parent = :parent_id",
                 any(HashMap.class),
                 any(MultipleObjectRowMapper.class))).thenReturn(result);
-        
+
         DomainObjectDaoImpl domainObjectDao = new DomainObjectDaoImpl();
         ReflectionTestUtils.setField(domainObjectDao, "jdbcTemplate", jdbcTemplate);
-        
+
         AccessToken accessToken = createMockAccessToken();
-        
+
         List<DomainObject> l = domainObjectDao.findChildren(idService.createId("PERSON|1"), "Person1_Attachment", accessToken);
-        Assert.assertEquals(1, ((RdbmsId)l.get(0).getId()).getId());
-        Assert.assertEquals(2, ((RdbmsId)l.get(1).getId()).getId());
+        Assert.assertEquals(1, ((RdbmsId) l.get(0).getId()).getId());
+        Assert.assertEquals(2, ((RdbmsId) l.get(1).getId()).getId());
     }
+
 
     private AccessToken createMockAccessToken() {
         AccessToken accessToken = mock(AccessToken.class);
         when(accessToken.isDeferred()).thenReturn(true);
-        
+
         UserSubject subject = mock(UserSubject.class);
-        when(subject.getUserId()).thenReturn(1);        
+        when(subject.getUserId()).thenReturn(1);
         when(accessToken.getSubject()).thenReturn(subject);
         return accessToken;
     }
 
     /**
      * Тестовый класс для проверки обработки неккоректного типа идентификатора
-     * @author skashanski
      *
+     * @author skashanski
      */
     class TestId implements Id {
 

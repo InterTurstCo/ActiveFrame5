@@ -15,7 +15,7 @@ import java.util.List;
  * сохраняются объекты {1, 2, 3}, то последовательность, в который они попадут в хранилище может быть {3, 2, 1}. Однако
  * результат сохранения будет возвращён методом в соответствии с оригинальным порядком объектов: {1, 2, 3},
  * если метод явно не специфицирует другое поведение.
- *
+ * <p/>
  * Author: Denis Mitavskiy
  * Date: 22.05.13
  * Time: 22:01
@@ -41,7 +41,7 @@ public interface CrudService {
      * @param name название доменного объекта, который нужно создать
      * @return сохранённый доменного объект
      * @throws IllegalArgumentException, если доменного объекта данного типа не существует
-     * @throws NullPointerException, если type есть null.
+     * @throws NullPointerException,     если type есть null.
      */
     DomainObject createDomainObject(String name);
 
@@ -54,8 +54,8 @@ public interface CrudService {
      * @param domainObject доменный объект, который нужно сохранить
      * @return сохранённый доменный объект
      * @throws IllegalArgumentException, если состояние объекта не позволяет его сохранить (например, если атрибут
-     * содержит данные неверного типа, или обязательный атрибут не определён)
-     * @throws NullPointerException, если доменный объект есть null.
+     *                                   содержит данные неверного типа, или обязательный атрибут не определён)
+     * @throws NullPointerException,     если доменный объект есть null.
      */
     DomainObject save(DomainObject domainObject);
 
@@ -68,8 +68,8 @@ public interface CrudService {
      * @param domainObjects список доменных объектов, которые нужно сохранить
      * @return список сохранённых доменных объектов, упорядоченный аналогично оригинальному
      * @throws IllegalArgumentException, если состояние хотя бы одного объекта не позволяет его сохранить (например,
-     * если атрибут содержит данные неверного типа, или обязательный атрибут не определён)
-     * @throws NullPointerException, если список или хотя бы один доменный объект в списке есть null
+     *                                   если атрибут содержит данные неверного типа, или обязательный атрибут не определён)
+     * @throws NullPointerException,     если список или хотя бы один доменный объект в списке есть null
      */
     List<DomainObject> save(List<DomainObject> domainObjects);
 
@@ -96,7 +96,7 @@ public interface CrudService {
      *
      * @param ids уникальные идентификаторы доменных объектов в системе
      * @return список найденных доменных объектов, упорядоченный аналогично оригинальному. Не найденные доменные объекты
-     * в результирующем списке представлены null.
+     *         в результирующем списке представлены null.
      * @throws NullPointerException, если список или хотя бы один идентификатор в списке есть null
      */
     List<DomainObject> find(List<Id> ids);
@@ -121,11 +121,32 @@ public interface CrudService {
     int delete(Collection<Id> ids);
 
     /**
+     * Получает список связанных доменных объектов по типу объекта и указанному полю
+     *
+     * @param domainObjectId уникальный идентификатор доменного объекта в системе
+     * @param linkedType     тип доменного объекта в системе
+     * @param linkedField    название поля по которому связан объект
+     * @return список связанных доменных объектов
+     */
+    List<DomainObject> findLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField);
+
+    /**
+     * Получает список идентификаторов связанных доменных объектов по типу объекта и указанному полю
+     *
+     * @param domainObjectId уникальный идентификатор доменного объекта в системе
+     * @param linkedType     тип доменного объекта в системе
+     * @param linkedField    название поля по которому связан объект
+     * @return список идентификаторов связанных доменных объектов
+     */
+    List<Id> findLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField);
+
+    /**
      * Получает список доменных объектов Вложений для переданного доменного объекта
      *
      * @param domainObjectId уникальный идентификатор доменного объекта в системе
-     * @param childType тип доменного объекта в системе
+     * @param childType      тип доменного объекта в системе
      * @return список доменных объектов Вложений для переданного доменного объекта
      */
+    @Deprecated
     List<DomainObject> findChildren(Id domainObjectId, String childType);
 }

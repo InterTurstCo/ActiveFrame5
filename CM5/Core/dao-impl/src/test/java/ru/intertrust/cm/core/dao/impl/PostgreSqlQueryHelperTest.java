@@ -12,7 +12,7 @@ import static org.junit.Assert.assertEquals;
 import static ru.intertrust.cm.core.dao.api.ConfigurationDao.CONFIGURATION_TABLE;
 import static ru.intertrust.cm.core.dao.api.DataStructureDao.AUTHENTICATION_INFO_TABLE;
 import static ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao.DOMAIN_OBJECT_TYPE_ID_TABLE;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.PARENT_COLUMN;
+import static ru.intertrust.cm.core.dao.impl.utils.DefaultFields.PARENT_COLUMN;
 
 /**
  * @author vmatsukevich
