@@ -256,6 +256,29 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         }
 
         @Override
+        public void setReference(String field, DomainObject domainObject) {
+            fieldValues.set(getFieldIndex(field), new ReferenceValue(domainObject.getId()));
+        }
+
+        public void setReference(int index, DomainObject domainObject) {
+            fieldValues.set(index, new ReferenceValue(domainObject.getId()));
+        }
+
+        @Override
+        public void setReference(String field, Id id) {
+            fieldValues.set(getFieldIndex(field), new ReferenceValue(id));
+        }
+
+        @Override
+        public Id getReference(String field) {
+            return this.<ReferenceValue>getValue(field).get();
+        }
+
+        public Id getReference(int index) {
+            return this.<ReferenceValue>getValue(index).get();
+        }
+
+        @Override
         public ArrayList<String> getFields() {
             return GenericIdentifiableObjectCollection.this.getFields();
         }

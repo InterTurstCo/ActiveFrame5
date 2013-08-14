@@ -56,5 +56,33 @@ public class GenericIdentifiableObjectTest {
         Assert.assertTrue(object.getValue("field") instanceof TimestampValue);
         Assert.assertEquals(new TimestampValue(calendar.getTime()), object.getValue("field"));
     }
+
+    @Test
+    public void testSetReferenceByDomainObject() throws Exception {
+        GenericDomainObject referenceObject = createGenericDomainObject();
+        object.setReference("field", referenceObject);
+        Assert.assertEquals(referenceObject.getId(), object.getReference("field"));
+        Assert.assertTrue(object.getValue("field") instanceof ReferenceValue);
+        Assert.assertEquals(new ReferenceValue(referenceObject.getId()), object.getValue("field"));
+    }
+
+    @Test
+    public void testSetReferenceById() throws Exception {
+        Id referenceId = createId();
+        object.setReference("field", referenceId);
+        Assert.assertEquals(referenceId, object.getReference("field"));
+        Assert.assertTrue(object.getValue("field") instanceof ReferenceValue);
+        Assert.assertEquals(new ReferenceValue(referenceId), object.getValue("field"));
+    }
+
+    private RdbmsId createId() {
+        return new RdbmsId("object|12345");
+    }
+
+    private GenericDomainObject createGenericDomainObject() {
+        GenericDomainObject domainObject = new GenericDomainObject();
+        domainObject.setId(createId());
+        return domainObject;
+    }
 }
 

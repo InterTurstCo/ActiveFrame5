@@ -72,16 +72,4 @@ public interface DomainObject extends IdentifiableObject {
      */
     boolean isNew();
 
-    /**
-     * добавляет в список полей
-     *
-     * @param field
-     * @param domainObject
-     */
-    void setReference(String field, DomainObject domainObject);
-
-    void setReference(String field, Id id);
-
-    Id getId(String field);
-
 }

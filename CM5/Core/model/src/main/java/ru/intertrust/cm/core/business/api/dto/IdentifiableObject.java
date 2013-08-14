@@ -131,5 +131,27 @@ public interface IdentifiableObject extends Dto {
      */
     Date getTimestamp(String field);
 
+    /**
+     * Устанавливает значения поля с типом {@link ru.intertrust.cm.core.business.api.dto.DomainObject}
+     *
+     * @param field        название поля
+     * @param domainObject значение поля
+     */
+    void setReference(String field, DomainObject domainObject);
 
+    /**
+     * Устанавливает значения поля с типом {@link ru.intertrust.cm.core.business.api.dto.Id}
+     *
+     * @param field название поля
+     * @param id    значение поля
+     */
+    void setReference(String field, Id id);
+
+    /**
+     * Возвращает значение поля c типом {@link ru.intertrust.cm.core.business.api.dto.Id}
+     *
+     * @param field название поля
+     * @return значение поля
+     */
+    Id getReference(String field);
 }

@@ -87,21 +87,6 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
     }
 
     @Override
-    public void setReference(String field, DomainObject domainObject) {
-        fieldValues.put(field, new ReferenceValue(domainObject.getId()));
-    }
-
-    @Override
-    public void setReference(String field, Id id) {
-        fieldValues.put(field, new ReferenceValue(id));
-    }
-
-    @Override
-    public Id getId(String field) {
-        return this.<ReferenceValue>getValue(field).get();
-    }
-
-    @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
         result.append('{').append('\n');

@@ -120,4 +120,19 @@ public class GenericIdentifiableObject implements IdentifiableObject {
         result.append('}');
         return result.toString();
     }
+
+    @Override
+    public void setReference(String field, DomainObject domainObject) {
+        fieldValues.put(field, new ReferenceValue(domainObject.getId()));
+    }
+
+    @Override
+    public void setReference(String field, Id id) {
+        fieldValues.put(field, new ReferenceValue(id));
+    }
+
+    @Override
+    public Id getReference(String field) {
+        return this.<ReferenceValue>getValue(field).get();
+    }
 }
