@@ -24,7 +24,7 @@ public class SqlQueryModifier {
     private static final String USER_ID_PARAM = "USER_ID_PARAM";
     private static final String USER_ID_VALUE = ":user_id";
 
-    private static final String DOMAIN_OBJECT_TYPE_ALIAS = "TYPE_CONSTANT";
+    public static final String DOMAIN_OBJECT_TYPE_ALIAS = "TYPE_CONSTANT";
 
     /**
      * Добавляет поле Тип Объекта идентификатора в SQL запрос получения данных для коллекции. Переданный SQL запрос
