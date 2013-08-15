@@ -47,7 +47,18 @@ public interface ConfigurationExplorer {
      * @return конфигурация поля доменного объекта
      */
     FieldConfig getFieldConfig(String domainObjectConfigName, String fieldConfigName);
-    
+
+    /**
+     * Находит конфигурацию поля доменного объекта по имени доменного объекта и имени поля ()
+     * @param domainObjectConfigName имя доменного объекта
+     * @param fieldConfigName имя поля доменного объекта
+     * @param returnInheritedConfig указывает искать конфигруцию поля доменного объекта в иерархии типов
+     *                                   доменных объектов или нет (искать только среди собственных конфигураций полей
+     *                                   типа доменного объекта)
+     * @return конфигурация поля доменного объекта
+     */
+    FieldConfig getFieldConfig(String domainObjectConfigName, String fieldConfigName, boolean returnInheritedConfig);
+
     /**
      * Находит конфигурацию отображаемого поля коллекции по имени коллекции и имени поля
      * @param collectionConfigName имя коллекции

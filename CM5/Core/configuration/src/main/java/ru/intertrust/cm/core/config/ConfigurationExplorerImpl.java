@@ -92,8 +92,31 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      */
     @Override
     public FieldConfig getFieldConfig(String domainObjectConfigName, String fieldConfigName) {
+        return getFieldConfig(domainObjectConfigName, fieldConfigName, true);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public FieldConfig getFieldConfig(String domainObjectConfigName, String fieldConfigName,
+                                      boolean returnInheritedConfig) {
         FieldConfigKey fieldConfigKey = new FieldConfigKey(domainObjectConfigName, fieldConfigName);
-        return fieldConfigMap.get(fieldConfigKey);
+        FieldConfig result = fieldConfigMap.get(fieldConfigKey);
+
+        if (result != null) {
+            return result;
+        }
+
+        if (returnInheritedConfig) {
+            DomainObjectTypeConfig domainObjectTypeConfig =
+                    getConfig(DomainObjectTypeConfig.class, domainObjectConfigName);
+            if (domainObjectTypeConfig.getExtendsAttribute() != null) {
+                return getFieldConfig(domainObjectTypeConfig.getExtendsAttribute(), fieldConfigName);
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -104,8 +127,8 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         FieldConfigKey collectionColumnConfigKey = new FieldConfigKey(collectionConfigName, columnConfigName);
         return collectionColumnConfigMap.get(collectionColumnConfigKey);
     }
-    
-    
+
+
     private void initConfigurationMaps() {
         if(configuration == null) {
             throw new FatalException("Failed to initialize ConfigurationExplorerImpl because " +
@@ -161,7 +184,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
             }
         }
     }
-    
+
     private void initConfigurationMapsOfAttachmentDomainObjectTypes(List<DomainObjectTypeConfig> ownerAttachmentDOTs) {
         try {
             PrototypeHelper factory = new PrototypeHelper("Attachment");

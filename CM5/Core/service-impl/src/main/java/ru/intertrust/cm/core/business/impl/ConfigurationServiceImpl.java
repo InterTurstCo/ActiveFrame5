@@ -229,8 +229,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             List<UniqueKeyConfig> newUniqueKeyConfigs = new ArrayList<>();
 
             for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
-                FieldConfig oldFieldConfig =
-                        oldConfigExplorer.getFieldConfig(domainObjectTypeConfig.getName(), fieldConfig.getName());
+                FieldConfig oldFieldConfig = oldConfigExplorer.getFieldConfig(domainObjectTypeConfig.getName(),
+                        fieldConfig.getName(), false);
 
                 if (oldFieldConfig == null) {
                     newFieldConfigs.add(fieldConfig);
@@ -268,7 +268,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
                 for (FieldConfig oldFieldConfig : oldDOTypeConfig.getFieldConfigs()) {
                     FieldConfig fieldConfig = configurationExplorer.getFieldConfig(oldDOTypeConfig.getName(),
-                            oldFieldConfig.getName());
+                            oldFieldConfig.getName(), false);
                     if (fieldConfig == null) {
                         throw new ConfigurationException("Configuration loading aborted: Field " +
                                 "Configuration DomainObject '" + oldDOTypeConfig.getName() + "." +
