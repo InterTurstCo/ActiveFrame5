@@ -87,6 +87,7 @@
                             <modules>
                                 <module>ru.intertrust.cm.core.gui.impl.BusinessUniverse</module>
                                 <module>ru.intertrust.cm.core.gui.impl.Markup</module>
+                                <module>ru.intertrust.cm.core.gui.impl.NavigationPanelMarkup</module>
                                 <module>ru.intertrust.cm.core.gui.impl.LoginPage</module>
                             </modules>
                         </configuration>
