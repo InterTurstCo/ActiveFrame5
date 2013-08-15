@@ -30,12 +30,6 @@
             <artifactId>configuration</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>net.sf.jsqlparser</groupId>
-            <artifactId>jsqlparser</artifactId>
-        </dependency>
-
     </dependencies>
 
 </project>

@@ -29,34 +29,44 @@ import static org.mockito.Mockito.when;
  */
 public class CollectionsDaoImplTest {
 
-    private static final String COLLECTION_ACL_QUERY = "and exists (select r.object_id from null_READ r inner join group_member gm on r.group_id = gm.parent where gm.person_id = :user_id and r.object_id = id)";
+    private static final String COLLECTION_ACL_QUERY = "EXISTS (SELECT r.object_id FROM employee_READ AS r INNER JOIN group_member AS gm ON r.group_id = gm.parent WHERE gm.person_id = :user_id AND r.object_id = id) ";
 
     private static final String COLLECTION_COUNT_WITH_FILTERS =
-            "select count(*) from employee e inner join department d on e.department = d.id " +
-                    "WHERE 1=1 and d.name = 'dep1' and e.name = 'employee1' " + COLLECTION_ACL_QUERY + "";
-
+            "SELECT count(*), 'employee' AS TYPE_CONSTANT FROM employee AS e " +
+            "INNER JOIN department AS d ON e.department = d.id WHERE EXISTS " +
+            "(SELECT r.object_id FROM employee_READ AS r INNER JOIN group_member AS gm ON r.group_id = gm.parent WHERE gm.person_id = :user_id " +
+            "AND r.object_id = id) " +
+            "AND 1 = 1 AND d.name = 'dep1' AND e.name = 'employee1'";
+    
     private static final String COLLECTION_QUERY_WITH_LIMITS =
-            "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e " +
-                    "inner join department d on e.department = d.id " +
-                    "where 1=1 and d.name = 'dep1' " + COLLECTION_ACL_QUERY + " order by e.name asc limit 100 OFFSET 10";
+            "SELECT e.id, e.name, e.position, e.created_date, e.updated_date, 'employee' AS TYPE_CONSTANT " +
+            "FROM employee AS e INNER JOIN department AS d ON e.department = d.id WHERE " + COLLECTION_ACL_QUERY + 
+            "AND 1 = 1 AND d.name = 'dep1' ORDER BY e.name LIMIT 100 OFFSET 10";
 
     private static final String FIND_COLLECTION_QUERY_WITH_FILTERS =
-            "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e " +
-                    "inner join department d on e.department = d.id where 1=1 and d.name = 'dep1' " + COLLECTION_ACL_QUERY + " order by e.name asc";
-
+            "SELECT e.id, e.name, e.position, e.created_date, e.updated_date, 'employee' AS TYPE_CONSTANT " +
+            "FROM employee AS e " +
+            "INNER JOIN department AS d ON e.department = d.id WHERE " +
+            COLLECTION_ACL_QUERY +
+            "AND 1 = 1 AND d.name = 'dep1' ORDER BY e.name";
+    
     private static final String FIND_COMPLEX_COLLECTION_QUERY_WITH_FILTERS =
-            "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e inner join department d" +
-            " on e.department = d.id inner join authentication_info a on e.login = a.id where 1=1 and d.name = 'dep1' " +
-            "and e.name = 'employee1'" +
-            " and a.id = 1 " + COLLECTION_ACL_QUERY + " order by e.name asc";
-
+            "SELECT e.id, e.name, e.position, e.created_date, e.updated_date, 'employee' AS TYPE_CONSTANT FROM employee AS e " +
+            "INNER JOIN department AS d ON e.department = d.id " +
+            "INNER JOIN authentication_info AS a ON e.login = a.id WHERE " +
+            COLLECTION_ACL_QUERY + 
+            "AND 1 = 1 AND d.name = 'dep1' AND e.name = 'employee1' AND a.id = 1 ORDER BY e.name";    
     
     private static final String COLLECTION_QUERY_WITHOUT_FILTERS =
-             "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e where 1=1 " + COLLECTION_ACL_QUERY + " order by e.name asc";
+             "SELECT e.id, e.name, e.position, e.created_date, e.updated_date, 'employee' AS TYPE_CONSTANT FROM employee AS e WHERE " + COLLECTION_ACL_QUERY + 
+             "AND 1 = 1 ORDER BY e.name"; 
+   
 
     private static final String COLLECTION_QUERY_WITHOUT_SORT_ORDER =
-            "select e.id, e.name, e.position, e.created_date, e.updated_date from employee e where 1=1 " + COLLECTION_ACL_QUERY;
-
+            "SELECT e.id, e.name, e.position, e.created_date, e.updated_date, 'employee' AS TYPE_CONSTANT FROM employee AS e WHERE "
+                    + COLLECTION_ACL_QUERY +
+                    "AND 1 = 1";
+ 
     private static final String EMLOYEES_PROROTYPE = "select\n" +
             "                    e.id, e.name, e.position, e.created_date, e.updated_date\n" +
             "                from\n" +

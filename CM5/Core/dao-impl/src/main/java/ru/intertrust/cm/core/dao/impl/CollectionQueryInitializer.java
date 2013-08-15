@@ -11,7 +11,6 @@ import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.config.model.CollectionConfig;
 import ru.intertrust.cm.core.config.model.CollectionFilterConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
 import ru.intertrust.cm.core.model.FatalException;
 
 /**
@@ -46,9 +45,30 @@ public class CollectionQueryInitializer {
             SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
         String prototypeQuery = collectionConfig.getPrototype();
         
-        return fillPrototypeQuery(collectionConfig, filledFilterConfigs, sortOrder, offset, limit, accessToken,
+        String filledQuery =  fillPrototypeQuery(collectionConfig, filledFilterConfigs, sortOrder, offset, limit, accessToken,
                 prototypeQuery);
+        
+        filledQuery = postProcessQuery(collectionConfig, accessToken, filledQuery);
 
+        return filledQuery;
+
+    }
+
+    /**
+     * Пост обработка запроса после применения фильтров и правил сортировки. Добавляет поле тип идентификатора доменного объекта и ACL фильтр.
+     * @param collectionConfig конфигурация коллекции
+     * @param accessToken маркер доступа. В случае отложенного маркера добавляет ACL фильтр.
+     * @param query первоначальный запрос
+     * @return измененный запрос
+     */
+    private String postProcessQuery(CollectionConfig collectionConfig, AccessToken accessToken, String query) {
+        SqlQueryModifier sqlQueryModifier = new SqlQueryModifier();
+        query = sqlQueryModifier.addTypeColumn(query);
+
+        if (accessToken.isDeferred()) {
+            query = sqlQueryModifier.addAclQuery(query, collectionConfig.getIdField());
+        }
+        return query;
     }
 
     private String fillPrototypeQuery(CollectionConfig collectionConfig,
@@ -60,25 +80,10 @@ public class CollectionQueryInitializer {
         StringBuilder collectionQuery = new StringBuilder();
         collectionQuery.append(mergeFilledFilterConfigsInPrototypeQuery(prototypeQuery, filledFilterConfigs));
 
-        if (accessToken.isDeferred()) {
-            StringBuilder aclQuery = createAclQueryFilter(collectionConfig, accessToken);
 
-            collectionQuery.append(aclQuery);
-        }
         applySortOrder(sortOrder, collectionQuery);       
         applyLimitAndOffset(offset, limit, collectionQuery);
         return collectionQuery.toString();
-    }
-
-    private StringBuilder createAclQueryFilter(CollectionConfig collectionConfig, AccessToken accessToken) {
-        StringBuilder aclQuery = new StringBuilder();
-        if (accessToken.isDeferred()) {            
-            String domainObjectAclReadTable = AccessControlUtility.getAclReadTableNameFor(collectionConfig.getDomainObjectType());
-            aclQuery.append(" and exists (select r.object_id from ").append(domainObjectAclReadTable).append(" r ");
-            aclQuery.append("inner join group_member gm on r.group_id = gm.parent where gm.person_id = :user_id and r.object_id = ");
-            aclQuery.append(collectionConfig.getIdField()).append(")");
-        }
-        return aclQuery;
     }
 
     /**
@@ -89,8 +94,12 @@ public class CollectionQueryInitializer {
      */
     public String initializeCountQuery(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs, AccessToken accessToken) {        
         String prototypeQuery = collectionConfig.getCountingPrototype();
-        return fillPrototypeQuery(collectionConfig, filledFilterConfigs, null, 0, 0, accessToken,
+        String filledQuery = fillPrototypeQuery(collectionConfig, filledFilterConfigs, null, 0, 0, accessToken,
                 prototypeQuery);
+        
+        filledQuery = postProcessQuery(collectionConfig, accessToken, filledQuery);
+
+        return filledQuery;
 
     }
 

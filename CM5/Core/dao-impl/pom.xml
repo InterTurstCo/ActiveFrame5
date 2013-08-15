@@ -37,6 +37,11 @@
         </dependency>
 
         <dependency>
+            <groupId>net.sf.jsqlparser</groupId>
+            <artifactId>jsqlparser</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
             <version>3.1.1.RELEASE</version>
