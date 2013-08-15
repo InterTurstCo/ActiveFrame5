@@ -14,11 +14,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import org.springframework.util.StringUtils;
 
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.RdbmsId;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
@@ -45,6 +41,13 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     @Autowired
     private IdGenerator idGenerator;
+
+    private DomainObjectCacheServiceImpl domainObjectCacheService;
+
+    @Autowired
+    public void setDomainObjectCacheService(DomainObjectCacheServiceImpl domainObjectCacheService) {
+        this.domainObjectCacheService = domainObjectCacheService;
+    }
 
     /**
      * Устанавливает источник соединений
@@ -97,6 +100,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         Map<String, Object> parameters = initializeCreateParameters(updatedObject, domainObjectTypeConfig);
 
         jdbcTemplate.update(query, parameters);
+
+        domainObjectCacheService.putObjectToCache(updatedObject);
 
         return updatedObject;
     }
@@ -159,6 +164,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         updatedObject.setModifiedDate(currentDate);
 
+        domainObjectCacheService.putObjectToCache(updatedObject);
+
         return updatedObject;
 
     }
@@ -176,6 +183,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         Map<String, Object> parameters = initializeIdParameter(rdbmsId);
 
         int count = jdbcTemplate.update(query, parameters);
+
+        domainObjectCacheService.removeObjectFromCache(id);
 
         if (count == 0) {
             throw new ObjectNotFoundException(rdbmsId);
@@ -204,6 +213,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     @Override
     public boolean exists(Id id) throws InvalidIdException {
+        if (domainObjectCacheService.getObjectToCache(id) != null) {
+            return true;
+        }
+
         RdbmsId rdbmsId = (RdbmsId) id;
         validateIdType(id);
 
@@ -218,9 +231,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     @Override
     public DomainObject find(Id id, AccessToken accessToken) {
-        if(id == null){
-            throw new IllegalArgumentException("Object id can not be null");
+        DomainObject domainObject = domainObjectCacheService.getObjectToCache(id);
+        if (domainObject != null) {
+            return domainObject;
         }
+
         RdbmsId rdbmsId = (RdbmsId) id;
 
         String tableName = DataStructureNamingHelper.getSqlName(rdbmsId.getTypeName());
@@ -271,6 +286,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
      */
     private List<DomainObject> findSingleTypeDomainObjects(List<RdbmsId> ids, AccessToken accessToken,
                                                            String domainObjectType) {
+        List<DomainObject> domainObjects = domainObjectCacheService.getObjectToCache(ids);
+        if (domainObjects != null) {
+            return domainObjects;
+        }
+
         StringBuilder query = new StringBuilder();
 
         Map<String, Object> aclParameters = new HashMap<String, Object>();
@@ -306,6 +326,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     @Override
     public List<DomainObject> findLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField, AccessToken accessToken) {
+        List<DomainObject> domainObjects = domainObjectCacheService.getObjectToCache(domainObjectId,
+                linkedType, linkedField);
+        if (domainObjects != null) {
+            return domainObjects;
+        }
+
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("domain_object_id", ((RdbmsId) domainObjectId).getId());
         String query = buildFindChildrenQuery(linkedType, linkedField, accessToken);
@@ -580,7 +606,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             String columnName = DataStructureNamingHelper.getSqlName(fieldConfig.getName());
             String parameterName = DaoUtils.generateParameter(columnName);
             if (value != null) {
-                parameters.put(parameterName, value.get());
+                if (value instanceof ReferenceValue) {
+                    RdbmsId rdbmsId = (RdbmsId) value.get();
+                    parameters.put(parameterName, rdbmsId.getId());
+                } else {
+                    parameters.put(parameterName, value.get());
+                }
             } else {
                 parameters.put(parameterName, null);
             }

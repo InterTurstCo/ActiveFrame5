@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -49,6 +50,9 @@ public class DomainObjectDaoImplTest {
 
     @Mock
     private ConfigurationExplorerImpl configurationExplorer;
+
+    @Mock
+    private DomainObjectCacheServiceImpl domainObjectCacheService;
 
     private DomainObjectTypeConfig domainObjectTypeConfig;
 
@@ -269,6 +273,10 @@ public class DomainObjectDaoImplTest {
                 any(MultipleObjectRowMapper.class))).thenReturn(result);
 
         DomainObjectDaoImpl domainObjectDao = new DomainObjectDaoImpl();
+
+        when(domainObjectCacheService.getObjectToCache(any(Id.class),
+                any(String.class), any(String.class))).thenReturn(null);
+        domainObjectDao.setDomainObjectCacheService(domainObjectCacheService);
         ReflectionTestUtils.setField(domainObjectDao, "jdbcTemplate", jdbcTemplate);
 
         AccessToken accessToken = createMockAccessToken();

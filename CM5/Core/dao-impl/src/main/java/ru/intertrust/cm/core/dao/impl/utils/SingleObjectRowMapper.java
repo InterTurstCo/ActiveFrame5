@@ -9,6 +9,8 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.dao.impl.DomainObjectCacheServiceImpl;
+import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 
 /**
@@ -18,6 +20,8 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
  */
 @SuppressWarnings("rawtypes")
 public class SingleObjectRowMapper extends BasicRowMapper implements ResultSetExtractor<DomainObject> {
+
+    private DomainObjectCacheServiceImpl domainObjectCacheService;
 
     public SingleObjectRowMapper(String domainObjectType, ConfigurationExplorer configurationExplorer) {
         super(domainObjectType, DefaultFields.DEFAULT_ID_FIELD, configurationExplorer);
@@ -42,8 +46,18 @@ public class SingleObjectRowMapper extends BasicRowMapper implements ResultSetEx
                 fillValueModel(rs, valueModel, columnName);
                 fillObjectValue(object, valueModel, columnName);
             }
+
+            if (object.getId() != null) {
+                getDomainObjectCacheService().putObjectToCache(object);
+            }
         }
         return object;
-    }    
+    }
 
+    private DomainObjectCacheServiceImpl getDomainObjectCacheService() {
+        if (domainObjectCacheService == null) {
+            domainObjectCacheService = SpringApplicationContext.getContext().getBean("domainObjectCacheService", DomainObjectCacheServiceImpl.class);
+        }
+        return domainObjectCacheService;
+    }
 }
