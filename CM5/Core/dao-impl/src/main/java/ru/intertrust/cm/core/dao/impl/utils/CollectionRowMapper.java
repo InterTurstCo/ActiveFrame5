@@ -10,10 +10,10 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
 import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.business.api.dto.LongValue;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.CollectionColumnConfig;
 import ru.intertrust.cm.core.dao.impl.DataType;
+import ru.intertrust.cm.core.dao.impl.SqlQueryModifier;
 import ru.intertrust.cm.core.model.FatalException;
 
 /**
@@ -27,8 +27,8 @@ public class CollectionRowMapper extends BasicRowMapper implements
 
     protected final String collectionName;
     
-    public CollectionRowMapper(String collectionName, String domainObjectType, String idField, ConfigurationExplorer configurationExplorer) {
-        super(domainObjectType, idField, configurationExplorer);
+    public CollectionRowMapper(String collectionName, String idField, ConfigurationExplorer configurationExplorer) {
+        super(null, idField, configurationExplorer);
         this.collectionName = collectionName;
     }
 
@@ -82,8 +82,10 @@ public class CollectionRowMapper extends BasicRowMapper implements
 
         if (idField.equalsIgnoreCase(columnName)) {
             Long longValue = rs.getLong(columnName);
+            String idType = rs.getString(SqlQueryModifier.DOMAIN_OBJECT_TYPE_ALIAS);
+            
             if (!rs.wasNull()) {
-                id = new RdbmsId(domainObjectType, longValue);
+                id = new RdbmsId(idType, longValue);
             } else {
                 throw new FatalException("Id field can not be null for object " + domainObjectType);
             }

@@ -29,6 +29,10 @@ import java.util.Map;
  */
 public class CollectionsDaoImpl implements CollectionsDao {
 
+    private static final String PARAM_NAME_PREFIX = "_PARAM_NAME_";
+
+    private static final String PARAM_NAME_PREFIX_SPRING = ":";
+
     private NamedParameterJdbcTemplate jdbcTemplate;
 
     @Autowired
@@ -71,9 +75,12 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
         if (accessToken.isDeferred()) {
             fillAclParameters(accessToken, parameters);
-        }
+        }        
+        
+        collectionQuery = adjustParameterNamesForSpring(collectionQuery);
+        
         IdentifiableObjectCollection collection = jdbcTemplate.query(collectionQuery, parameters,
-                new CollectionRowMapper(collectionName, collectionConfig.getDomainObjectType(), collectionConfig.getIdField(), configurationExplorer));
+                new CollectionRowMapper(collectionName, collectionConfig.getIdField(), configurationExplorer));
 
         return collection;
     }
@@ -96,7 +103,23 @@ public class CollectionsDaoImpl implements CollectionsDao {
         Map<String, Object> parameters = new HashMap<String, Object>();
         fillFilterParameters(filterValues, parameters);
 
+        if (accessToken.isDeferred()) {
+            fillAclParameters(accessToken, parameters);
+        }
+        collectionQuery = adjustParameterNamesForSpring(collectionQuery);
+        
         return jdbcTemplate.queryForObject(collectionQuery, parameters, Integer.class);
+    }
+
+    /**
+     * Модифицирует имена параметров в названия совместимые с {@see NamedParameterJdbcTemplate}. Заменяет префикс
+     * "_PARAM_NAME_" на ":"
+     * @param collectionQuery SQL запрос
+     * @return
+     */
+    private String adjustParameterNamesForSpring(String collectionQuery) {
+        collectionQuery = collectionQuery.replaceAll(PARAM_NAME_PREFIX, PARAM_NAME_PREFIX_SPRING);
+        return collectionQuery;
     }
 
     /**
@@ -116,6 +139,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
         
         String collectionQuery = collectionQueryInitializer.initializeQuery(collectionConfig, filledFilterConfigs,
                         sortOrder, offset, limit, accessToken);
+                
         return collectionQuery;
     }
 
@@ -131,7 +155,8 @@ public class CollectionsDaoImpl implements CollectionsDao {
         CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer();
 
         String collectionQuery =
-                collectionQueryInitializer.initializeCountQuery(collectionConfig, filledFilterConfigs, accessToken);
+                collectionQueryInitializer.initializeCountQuery(collectionConfig, filledFilterConfigs, accessToken);        
+
         return collectionQuery;
     }
 
@@ -193,7 +218,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
         CollectionFilterConfig clonedFilterConfig = cloneFilterConfig(filterConfig);
 
         String criteria = clonedFilterConfig.getFilterCriteria().getValue();
-        String parameterPrefix = ":" + filterValue.getFilter();
+        String parameterPrefix = PARAM_NAME_PREFIX + filterValue.getFilter();
         String newFilterCriteria = criteria.replaceAll("[{]", parameterPrefix);
         newFilterCriteria = newFilterCriteria.replaceAll("[}]", "");
         clonedFilterConfig.getFilterCriteria().setValue(newFilterCriteria);
