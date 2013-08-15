@@ -1,0 +1,73 @@
+.Im_item { /*width: 100%;/**/
+	position: relative;
+	/*overflow: hidden;*/
+}
+
+.Im_sub :last-child.Im_item {
+	/*width: 16px;
+	min-height: 100%;
+	position: absolute;
+	left: 0;
+	top: 17px;
+	background: #fff;*/
+	background: url('css/i/imp_icon_close.png') no-repeat 8px 0;
+}
+
+.last_item {
+	
+}
+
+.Im_icon {
+	width: 16px;
+	height: 16px;
+	position: relative;
+	background: url('css/i/imp_icons_trans.png') no-repeat 0 0;
+	display: none;
+	cursor: pointer;
+}
+
+.Im_has_sub .Im_icon {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.Im_box_open .Im_icon {
+	background-position: 100% 0;
+}
+
+.Im_box_open:hover .Im_icon {
+	background-position: 100% -16px;
+}
+
+.Im_sub { /*padding: 0 0 0 30px;/**/
+	position: relative;
+	display: none;
+}
+
+.Im_dots {
+	/* background: url('css/i/imp_dots.gif') repeat-y 8px 0; */
+}
+
+.Im_dots_show {
+	/* background: url('css/i/imp_dots.gif') repeat-y 8px 0; */
+}
+
+.Im_sub_open {
+	display: block;
+}
+
+.Im_sub .Im_item {
+	padding-left: 20px;
+	background: url('css/i/imp_dots.gif') repeat-y 8px 0, url('css/i/imp_icon_r.gif') no-repeat 10px 10px;
+}
+
+.Im_last_bg {
+	width: 16px;
+	height: 1000;
+	min-height: 100%;
+	position: absolute;
+	left: 0;
+	top: 17px;
+	background: #fff;
+}
+

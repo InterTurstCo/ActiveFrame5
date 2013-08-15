@@ -9,8 +9,8 @@ import com.google.gwt.user.client.ui.RootLayoutPanel;
 /**
  * @author Denis Mitavskiy Date: 24.07.13 Time: 13:52
  */
-public class MainView implements EntryPoint {
-    @Override
+public class MainView{// implements EntryPoint {
+   // @Override
     public void onModuleLoad() {
         // Window.alert("Hello");
 
