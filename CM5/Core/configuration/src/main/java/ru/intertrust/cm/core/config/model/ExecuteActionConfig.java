@@ -21,7 +21,7 @@ public class ExecuteActionConfig extends BaseOperationPermitConfig {
 
     public void setName(String name) {
         this.name = name;
-    }        
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -38,10 +38,11 @@ public class ExecuteActionConfig extends BaseOperationPermitConfig {
             return false;
         }
 
-        if (getPermit() != null ? !getPermit().equals(that.getPermit()) : that.getPermit() != null) {
+        if (getPermitConfigs() != null ? !getPermitConfigs().equals(that.getPermitConfigs())
+                : that.getPermitConfigs() != null) {
             return false;
         }
-        
+
         return true;
     }
 
@@ -51,5 +52,5 @@ public class ExecuteActionConfig extends BaseOperationPermitConfig {
         result = 31 * result + super.hashCode();
         return result;
     }
-    
+
 }

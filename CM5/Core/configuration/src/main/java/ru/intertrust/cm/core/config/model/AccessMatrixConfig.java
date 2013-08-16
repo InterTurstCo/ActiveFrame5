@@ -9,7 +9,7 @@ import org.simpleframework.xml.Root;
  * @author atsvetkov
  *
  */
-@Root(name = "accessMatrix")
+@Root(name = "access-matrix")
 public class AccessMatrixConfig implements TopLevelConfig {
 
     @Attribute(required = true)

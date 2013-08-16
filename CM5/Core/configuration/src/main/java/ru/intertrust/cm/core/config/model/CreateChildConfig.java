@@ -22,7 +22,9 @@ public class CreateChildConfig extends BaseOperationPermitConfig {
     public void setType(String type) {
         this.type = type;
     }
+    
 
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -38,7 +40,7 @@ public class CreateChildConfig extends BaseOperationPermitConfig {
             return false;
         }
 
-        if (getPermit() != null ? !getPermit().equals(that.getPermit()) : that.getPermit() != null) {
+        if (getPermitConfigs() != null ? !getPermitConfigs().equals(that.getPermitConfigs()) : that.getPermitConfigs() != null) {
             return false;
         }
         
