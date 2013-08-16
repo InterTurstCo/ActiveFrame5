@@ -57,4 +57,6 @@
 
     <bean id="userTransactionService" class="ru.intertrust.cm.core.dao.impl.UserTransactionServiceImpl"/>
 
+    <bean id="domainObjectCacheService" class="ru.intertrust.cm.core.dao.impl.DomainObjectCacheServiceImpl"/>
+
 </beans>

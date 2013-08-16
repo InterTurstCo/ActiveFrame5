@@ -16,27 +16,30 @@ import java.util.*;
 
 /**
  * Транзакционное кеширование DomainObject.
- * Сервис предоставляет кеширование DomainObject транзакционном кеше.
+ * Сервис предоставляет кеширование DomainObject в транзакционном кеше.
  * В транзакционном кеше хранится запись следующего вида
- * id = node
- * node - содержит:
- * 1. список id элементов (дочерних), связаннях с указанным id,
- * например, внешние ключи, parent поле.
- * Список ид связан с ключевой фразой, например
- * таким образом один и тот же Id может принадлежать нескольким веткам именованные ключевыми фразами.
- * Список можно менять динамически, также можно изменять динамически экземпляр DomainObject в кеше
- * Изменение экземпляра, распостраняется на все элементы списка id,
+ * Id = DomainObjectNode, где
+ * Id - идентификатор доменного объекта
+ * DomainObjectNode - контейнер доменного объекта
+ * DomainObjectNode - содержит:
+ * 1. список id дочерних доменных объектов, связанных с родительским id, через внешние поля, parent поле.
+ * Список id дочерних доменных объектов привязан к ключевой фразе,
+ * например, был выполнен поиск дочерних объектов с заданным предикатом,
+ * таким образом один и тот же Id дочернего объекта может принадлежать нескольким веткам именованных ключевыми фразами.
+ * Список может меняться динамически, также можно изменять динамически экземпляр DomainObject в кеше
+ * Модификация дочернего объекта, распостраняется на все родительские объекты,
  * т.е. рассмотрим пример
- * ID1 = родительский ид, включает в себя список дочерних id {ID2, ID3}
- * установим связь между ид и экземпляром
+ * ID1 = родительский Id, включает в себя список дочерних id {ID2, ID3} с фразой QUERY1
+ * установим связь между Id и DomainObjectNode
  * ID1 - DO1
  * ID2 - DO2
  * ID3 - DO3
- * Выполним запрос, получить дочерний объект из родительского списка.
+ * Выполним запрос, получения дочернего объекта из родительского списка по ключевой фразе QUERY1.
  * Рассмотрим пошагово действия сервиса.
- * 1. Получаем список ID2, ID3
- * 2. Запрашиваем кеш на получение объекта с ID2, ID3
+ * 1. Получаем список ID2, ID3 для ключевой фразы QUERY1.
+ * 2. Запрашиваем кеш на получение DocumentObjectNode для ID2, ID3.
  * 3. Получаем список DO1, DO2
+ * 4. из DO1 получаем DomainObject и т.д.
  *
  * Недостаток в том, что при большом списке, выполняется итерация по списку для запроса доменного объекта из кеш по Id и
  * создание списка запрашиваемых объектов.
@@ -49,17 +52,28 @@ public class DomainObjectCacheServiceImpl {
     @Resource
     private TransactionSynchronizationRegistry txReg;
 
+    /**
+     * Контейнер доменного объекта.
+     * Добавляется в транзакционный кеш в соответствии с заданным ключом Id
+     * Содержит список Id дочерних (связанных по reference field или parent) доменных объектов,
+     * клон доменного объекта
+     */
     static private class DomainObjectNode {
-        //key - ключевая фраза, value - упорядоченный список
+        //key - ключевая фраза, value - упорядоченный список Id
         private Map<String, LinkedHashSet<Id>> childDomainObjectIdMap = new HashMap<>();
+        //множество Id родительский объектов
+        private Set<Id> parentDomainObjectIdSet = new HashSet<>();
         //clone доменного объекта
         private DomainObject domainObject;
 
         private DomainObjectNode() {
         }
 
-        //клонированный объект в кеш
-        private void setDomainObject(DomainObject domainObject) throws CloneNotSupportedException {
+        /**
+         * Клонирует и сохраняет DomainObject
+         * @param domainObject объект, который добавляется в транзакционный кеш
+         */
+        private void setDomainObject(DomainObject domainObject) {
             //deep clone
             this.domainObject = domainObject == null
                     ? null
@@ -67,12 +81,13 @@ public class DomainObjectCacheServiceImpl {
         }
 
         /**
-         * добавляем идентификаторы связанных (дочерних) объектов
-         * составной ключ - связывает список id дочерних объектов с метками клиента,
-         * например, DomainObjectTypeName:field
-         * первым элементом ключа (неявным параметром) будет название типа доменного объекта
-         * разделитель ':'
-         * @param ids идентификаторы связанных (дочерних) объектов
+         * Добавляет идентификаторы дочерних (связанных по reference field или parent) объектов
+         * и сохраняет нативный порядок следования Id.
+         * составной ключ - группирует список id дочерних объектов по заданной ключевой фразе,
+         * например, формат DomainObjectTypeName:field -> Employee:Department
+         * первым элементом ключа (неявным параметром) есть название типа доменного объекта
+         * разделитель между ключевыми словами ':'
+         * @param ids идентификаторы дочерних объектов
          * @param key ключевая фраза
          */
         private void addChildDocumentObjectIds(List<Id> ids, String ... key) {
@@ -87,16 +102,17 @@ public class DomainObjectCacheServiceImpl {
 
 
         /**
-         *
-         * @param id дочернего элемента
-         * @param key ключевая фраза, первым элементом ключа (неявным параметром) будет название типа доменного объекта
+         * @see #addChildDocumentObjectIds
+         * @param id идентификатор дочернего объектов
+         * @param key ключевая фраза
          */
         private void addChildDocumentObjectId(Id id, String ... key) {
             addChildDocumentObjectIds(Arrays.asList(id), key);
         }
 
         /**
-         * @param id дочернего элемента, удаляется элемент из списка
+         * Удаляет Id дочернего элемента из списков всех ключевых фраз
+         * @param id удаляемого дочернего элемента
          */
         private void delChildDocumentObjectId(Id id) {
             for (Set<Id> ids : childDomainObjectIdMap.values()) {
@@ -105,20 +121,26 @@ public class DomainObjectCacheServiceImpl {
         }
 
         /**
-         *
-         * @param keys - ключевая фраза, первым элементом ключа (неявным параметром) будет название типа доменного объекта
-         * @return возвращает список id связанных (дочерних, через внешние ключи) доменных объектов,
+         * Возвращает список Id для указанной ключевой фразы
+         * @param key - ключевая фраза
+         * @return возвращает список id дочерних (связанных, через внешние ключи) доменных объектов,
          * null - если не существует списка для указанной ключевой фразы
          */
-        private List<Id> getChildDomainObjectIds(String... keys) {
-            String complexKey = generateKey(keys);
+        private List<Id> getChildDomainObjectIds(String... key) {
+            String complexKey = generateKey(key);
             return childDomainObjectIdMap.containsKey(complexKey)
-                    ? new ArrayList(childDomainObjectIdMap.get(complexKey))
-                    : null;
+                    ? new ArrayList(childDomainObjectIdMap.get(complexKey)) : null;
         }
 
         /**
-         *
+         * Возвращает список Id родительских доменных объектов
+         * @return список Id родительских доменных объектов
+         */
+        private Set<Id> getParentDomainObjectIdSet() {
+            return parentDomainObjectIdSet;
+        }
+
+        /**
          * @return клон доменного объекта
          */
         private DomainObject getDomainObject() {
@@ -127,9 +149,8 @@ public class DomainObjectCacheServiceImpl {
 
         /**
          * Создает составной ключ (ключевая фраза)
-         * первым элементом ключа (неявным параметром) будет название типа доменного объекта
-         * разделитель ':'
-         * @param key ключевая фраза, первым элементом ключа (неявным параметром) будет название типа доменного объекта
+         * разделитель между ключевыми словами ':'
+         * @param key набор ключевых слов
          * @return составной ключ (ключевая фраза)
          */
 
@@ -137,7 +158,11 @@ public class DomainObjectCacheServiceImpl {
             if (key.length == 1) {
                 return key[0];
             }
-            StringBuilder sb = new StringBuilder();
+            int capacity = 0;
+            for (String k : key) {
+                capacity += k.length() + 1;
+            }
+            StringBuilder sb = new StringBuilder(capacity);
             for (String k : key) {
                 if (sb.length() > 0) {
                     sb.append(":");
@@ -148,8 +173,8 @@ public class DomainObjectCacheServiceImpl {
         }
 
         /**
-         * Обнуляет domainObject
-         * Очищает список дочерних элементов
+         * Устанавливает в null - domainObject
+         * Очищает список дочерних элементов и ключевых фраз
          */
         private void clear() {
             domainObject = null;
@@ -158,11 +183,13 @@ public class DomainObjectCacheServiceImpl {
     }
 
     /**
-     *
-     * @param id доменного объекта
+     * Возвращает узел DomainObjectNode, если для заданного Id
+     * не существует DomainObjectNode, тогда создает DomainObjectNode
+     * и добавляет его в транзакционный кеш
+     * @param id запрашиваемого доменного объекта
      * @return контейнер (узел) доменного объекта
      */
-    private DomainObjectNode getDomainObjectNode(Id id) {
+    private DomainObjectNode createDomainObjectNode(Id id) {
         DomainObjectNode don = (DomainObjectNode) getTxReg().getResource(id);
         if (don == null) {
             don = new DomainObjectNode();
@@ -172,18 +199,19 @@ public class DomainObjectCacheServiceImpl {
     }
 
     /**
-     *
-     * @param id доменного объекта
-     * @return true - если существует контейнер суказанным id
+     * Проверяет наличие узла DomainObjectNode для заданного Id
+     * @param id запрашиваемого доменного объекта
+     * @return true - если существует контейнер с указанным id, иначе false
      */
     private boolean isEmptyDomainObjectNode(Id id) {
         return getTxReg().getResource(id) == null;
     }
 
     /**
-     *
+     * Возвращает список Id родительских доменных объектов,
+     * из reference field и parent field.
      * @param dobj доменный объект
-     * @return список родительских Id
+     * @return список Id родительских доменных объектов
      */
     private Map<String, Id> getRefIdAndFieldMap(DomainObject dobj) {
         Map<String, Id> ret = new HashMap();
@@ -200,7 +228,7 @@ public class DomainObjectCacheServiceImpl {
     }
 
     /**
-     * Кеширование DomainObject, в кеш создается клон DomainObject
+     * Кеширование DomainObject, в транзакционный кеш добавляется клон DomainObject
      * @param dobj кешируемый объект
      * @return Id кешируемого объекта
      */
@@ -208,21 +236,32 @@ public class DomainObjectCacheServiceImpl {
         if (getTxReg().getTransactionKey() == null) {
             return null;
         }
-        try {
-            getDomainObjectNode(dobj.getId()).setDomainObject(dobj);
-        } catch (CloneNotSupportedException e) {
-            return null;
+        DomainObjectNode don = createDomainObjectNode(dobj.getId());
+        don.setDomainObject(dobj);
+        Map<String, Id> newIdParentMap = getRefIdAndFieldMap(dobj);
+        Set<Id> prevIdParentSet = don.getParentDomainObjectIdSet();
+        Set<Id> newIdParentSet = new HashSet<>();
+        for (Map.Entry<String, Id> ent : newIdParentMap.entrySet()) {
+            newIdParentSet.add(ent.getValue());
+            if (!prevIdParentSet.contains(ent.getValue())) {
+                DomainObjectNode parentDon = createDomainObjectNode(ent.getValue());
+                parentDon.addChildDocumentObjectId(dobj.getId(), dobj.getTypeName(), ent.getKey());
+            }
         }
-        Map<String, Id> idMap = getRefIdAndFieldMap(dobj);
-        for (Map.Entry<String, Id> ent : idMap.entrySet()) {
-            DomainObjectNode parentDon = getDomainObjectNode(ent.getValue());
-            parentDon.addChildDocumentObjectId(dobj.getId(), dobj.getTypeName(), ent.getKey());
+        for (Id id : prevIdParentSet) {
+            if (!newIdParentSet.contains(id) && !isEmptyDomainObjectNode(id)) {
+                DomainObjectNode parentDon = createDomainObjectNode(id);
+                parentDon.delChildDocumentObjectId(id);
+            }
         }
+        don.getParentDomainObjectIdSet().clear();
+        don.getParentDomainObjectIdSet().addAll(newIdParentSet);
         return dobj.getId();
     }
 
     /**
-     * Кеширование списка DomainObject, в кеш создается клон DomainObject
+     * Кеширование списка DomainObject,
+     * @see #putObjectToCache(DomainObject)
      * @param dobjs список кешируемых объектов
      * @return список Id кешируемых объектов
      */
@@ -232,45 +271,43 @@ public class DomainObjectCacheServiceImpl {
         }
         List<Id> ids = new ArrayList<>();
         for (DomainObject dobj : dobjs) {
-            putObjectToCache(dobj);
             ids.add(putObjectToCache(dobj));
         }
         return ids;
     }
 
     /**
-     * Кеширование списка DomainObject, для указанного родителя с ключевой фразой
+     * Кеширование списка DomainObject, для указанного родителя и ключевой фразы
      * @param parentId - родительский Id
      * @param dobjs список кешируемых объектов
      * @param key ключевая фраза
-     * @return список Id кешируемых объектов
+     * @return список Id доменных объектов добавленных в кеш
      */
     public List<Id> putObjectToCache(Id parentId, List<DomainObject> dobjs, String ... key) {
         if (getTxReg().getTransactionKey() == null) {
             return null;
         }
         List<Id> ids = putObjectToCache(dobjs);
-        getDomainObjectNode(parentId).addChildDocumentObjectIds(ids, key);
+        createDomainObjectNode(parentId).addChildDocumentObjectIds(ids, key);
         return ids;
     }
 
     /**
-     * Возвращает закешированный объект
-     * @param id - Id кешированного объекта
-     * @return закешированный объект
+     * Возвращает клон доменного объекта из кеш
+     * @param id - Id запрашиваемого доменного объекта
+     * @return клон доменного объект
      */
     public DomainObject getObjectToCache(Id id) {
         if (getTxReg().getTransactionKey() == null) {
             return null;
         }
-        return isEmptyDomainObjectNode(id) ? null : getDomainObjectNode(id).getDomainObject();
+        return isEmptyDomainObjectNode(id) ? null : createDomainObjectNode(id).getDomainObject();
     }
 
     /**
-     * Возвращает список закешированных объектов
-     * @param ids - список Id закешированных объектов
-     * @return список закешированных объектов,
-     * null - если список пустой
+     * Возвращает список клонированных доменных объектов из кеш
+     * @param ids - список Id запрашиваемых доменных объектов
+     * @return список доменных объектов, null - если не согласованно с базой данных
      */
     public List<DomainObject> getObjectToCache(List<? extends Id> ids) {
         if (getTxReg().getTransactionKey() == null) {
@@ -287,22 +324,20 @@ public class DomainObjectCacheServiceImpl {
     }
 
     /**
-     * Возвращает список закешированных объектов
+     * Возвращает список клонированных доменных объектов из кеш
      * @param parentId - родительский Id
      * @param key ключевая фраза
-     * @return список закешированных объектов,
-     * null - если список не существует для указанной ключевой фразы
+     * @return список доменных объектов, null - если не согласованно с базой данных
      */
     public List<DomainObject> getObjectToCache(Id parentId, String ... key) {
         if (getTxReg().getTransactionKey() == null) {
             return null;
         }
         final String complexKey = DomainObjectNode.generateKey(key);
-        DomainObjectNode parentDon = isEmptyDomainObjectNode(parentId) ? null : getDomainObjectNode(parentId);
-        if (parentDon == null) {
+        if (isEmptyDomainObjectNode(parentId)) {
             return null;
         }
-
+        DomainObjectNode parentDon = createDomainObjectNode(parentId);
         List<Id> ids = parentDon.getChildDomainObjectIds(complexKey);
         if (ids == null) {
             return null;
@@ -310,32 +345,32 @@ public class DomainObjectCacheServiceImpl {
 
         List<DomainObject> ret = new ArrayList<>();
         for (Id id : ids) {
-            DomainObjectNode don = isEmptyDomainObjectNode(id) ? null : getDomainObjectNode(id);
+            DomainObjectNode don = isEmptyDomainObjectNode(id) ? null : createDomainObjectNode(id);
             if (don != null && don.getDomainObject() != null) {
                 ret.add(don.getDomainObject());
             }
         }
-        return ret;
+        return ret.size() == 0 ? null : ret;
     }
 
     /**
-     * Удаляет закешированный объет из транзакционного кеша
-     * @param id - кешированного объекта
+     * Удаляет доменный объет из транзакционного кеша
+     * @param id - доменного объекта
      */
     public void removeObjectFromCache(Id id) {
         if (!isEmptyDomainObjectNode(id)) {
-            DomainObject dobj = isEmptyDomainObjectNode(id) ? null : getDomainObjectNode(id).getDomainObject();
+            DomainObject dobj = isEmptyDomainObjectNode(id) ? null : createDomainObjectNode(id).getDomainObject();
             if (dobj != null) {
                 Map<String, Id> idMap = getRefIdAndFieldMap(dobj);
                 for (Map.Entry<String, Id> ent : idMap.entrySet()) {
                     DomainObjectNode parentDon = isEmptyDomainObjectNode(ent.getValue())
-                            ? null : getDomainObjectNode(ent.getValue());
+                            ? null : createDomainObjectNode(ent.getValue());
                     if (parentDon != null) {
                         parentDon.delChildDocumentObjectId(id);
                     }
                 }
             }
-            getDomainObjectNode(id).clear();
+            createDomainObjectNode(id).clear();
         }
 
     }
