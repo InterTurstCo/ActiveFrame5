@@ -1,10 +1,18 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.jdbc.core.JdbcTemplate;
+
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
@@ -15,13 +23,6 @@ import ru.intertrust.cm.core.config.model.CollectionFilterReferenceConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 /**
  * @author vmatsukevich
  *         Date: 7/2/13
@@ -29,12 +30,12 @@ import static org.mockito.Mockito.when;
  */
 public class CollectionsDaoImplTest {
 
-    private static final String COLLECTION_ACL_QUERY = "EXISTS (SELECT r.object_id FROM employee_READ AS r INNER JOIN group_member AS gm ON r.group_id = gm.parent WHERE gm.person_id = :user_id AND r.object_id = id) ";
+    private static final String COLLECTION_ACL_QUERY = "EXISTS (SELECT r.object_id FROM employee_READ AS r INNER JOIN group_member AS gm ON r.group_id = gm.master WHERE gm.person_id = :user_id AND r.object_id = id) ";
 
     private static final String COLLECTION_COUNT_WITH_FILTERS =
             "SELECT count(*), 'employee' AS TYPE_CONSTANT FROM employee AS e " +
             "INNER JOIN department AS d ON e.department = d.id WHERE EXISTS " +
-            "(SELECT r.object_id FROM employee_READ AS r INNER JOIN group_member AS gm ON r.group_id = gm.parent WHERE gm.person_id = :user_id " +
+            "(SELECT r.object_id FROM employee_READ AS r INNER JOIN group_member AS gm ON r.group_id = gm.master WHERE gm.person_id = :user_id " +
             "AND r.object_id = id) " +
             "AND 1 = 1 AND d.name = 'dep1' AND e.name = 'employee1'";
     
@@ -87,7 +88,7 @@ public class CollectionsDaoImplTest {
             "                    1=1 ::where-clause1 ::where-clause2";
 
     @InjectMocks
-    private CollectionsDaoImpl collectionsDaoImpl = new CollectionsDaoImpl();
+    private final CollectionsDaoImpl collectionsDaoImpl = new CollectionsDaoImpl();
 
     @Mock
     private JdbcTemplate jdbcTemplate;

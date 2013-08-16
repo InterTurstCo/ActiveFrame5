@@ -1,13 +1,17 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyMapOf;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +19,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
@@ -23,8 +26,6 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.dao.access.AccessType;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
-
-import static org.mockito.Mockito.*;
 /**
  * 
  * @author atsvetkov
@@ -34,25 +35,25 @@ import static org.mockito.Mockito.*;
 public class PostgresDatabaseAccessAgentTest {
     
     private static final String CHECK_DOMAIN_OBJECT_ACCESS_QUERY = "select count(*) from Employee_ACL a inner join " +
-    		"group_member gm on a.group_id = gm.parent where gm.person_id = :user_id and a.object_id = :object_id " +
+    		"group_member gm on a.group_id = gm.master where gm.person_id = :user_id and a.object_id = :object_id " +
     		"and a.operation = :operation";
 
     private static final String CHECK_MULTI_DOMAIN_OBJECT_ACCESS_FOR_EMPLOYEE_QUERY =
             "select a.object_id object_id from Employee_ACL " +
-                    "a inner join group_member gm on a.group_id = gm.parent where gm.person_id = :user_id " +
+                    "a inner join group_member gm on a.group_id = gm.master where gm.person_id = :user_id " +
                     "and a.object_id in (:object_ids) and a.operation = :operation";
     
     private static final String CHECK_MULTI_DOMAIN_OBJECT_ACCESS_FOR_DEPARTMENT_QUERY =
-            "select a.object_id object_id from Department_ACL a inner join group_member gm on a.group_id = gm.parent " +
+            "select a.object_id object_id from Department_ACL a inner join group_member gm on a.group_id = gm.master " +
                     "where gm.person_id = :user_id and a.object_id in (:object_ids) and a.operation = :operation";
 
     private static final String CHECK_DOMAIN_OBJECT_MULTI_ACCESS_QUERY =
             "select a.operation operation from Employee_ACL a " +
-                    "inner join group_member gm on a.group_id = gm.parent where gm.person_id = :user_id " +
+                    "inner join group_member gm on a.group_id = gm.master where gm.person_id = :user_id " +
                     "and a.object_id = :object_id and a.operation in (:operations)";
 
     @InjectMocks
-    private PostgresDatabaseAccessAgent accessAgent = new PostgresDatabaseAccessAgent();
+    private final PostgresDatabaseAccessAgent accessAgent = new PostgresDatabaseAccessAgent();
 
     @Mock
     private NamedParameterJdbcTemplate jdbcTemplate;

@@ -11,10 +11,10 @@ import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-
 import org.springframework.util.StringUtils;
 
 import ru.intertrust.cm.core.business.api.dto.*;
+
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
@@ -247,7 +247,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         if (accessToken.isDeferred()) {
             String aclReadTable = AccessControlUtility.getAclReadTableName(rdbmsId);
             query.append(" and exists (select a.object_id from " + aclReadTable + " a inner join group_member gm " +
-                    "on a.group_id = gm.parent where gm.person_id = :user_id and a.object_id = :id)");
+                    "on a.group_id = gm.master where gm.person_id = :user_id and a.object_id = :id)");
             aclParameters = getAclParameters(accessToken);
         }
 
@@ -298,7 +298,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         if (accessToken.isDeferred()) {
             String aclReadTable = AccessControlUtility.getAclReadTableNameFor(domainObjectType);
             query.append("select distinct t.* from " + domainObjectType + " t inner join " + aclReadTable + " r " +
-                    "on t.id = r.object_id inner join group_member gm on r.group_id = gm.parent " +
+                    "on t.id = r.object_id inner join group_member gm on r.group_id = gm.master " +
                     "where gm.person_id = :user_id and t.id in (:object_ids) ");
 
             aclParameters = getAclParameters(accessToken);
@@ -321,7 +321,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     @Deprecated
     @Override
     public List<DomainObject> findChildren(Id domainObjectId, String childType, AccessToken accessToken) {
-        return findLinkedDomainObjects(domainObjectId, childType, "parent", accessToken);
+        return findLinkedDomainObjects(domainObjectId, childType, "master", accessToken);
     }
 
     @Override
@@ -653,6 +653,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private void appendAccessControlLogicToQuery(StringBuilder query, String linkedType) {
         String childAclReadTable = AccessControlUtility.getAclReadTableNameFor(linkedType);
         query.append(" and exists (select r.object_id from ").append(childAclReadTable).append(" r ");
-        query.append("inner join group_member gm on r.group_id = gm.parent where gm.person_id = :user_id and r.object_id = t.id)");
+        query.append("inner join group_member gm on r.group_id = gm.master where gm.person_id = :user_id and r.object_id = t.id)");
     }
+    
+
 }

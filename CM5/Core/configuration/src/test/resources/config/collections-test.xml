@@ -14,7 +14,7 @@
         <prototype>
             <![CDATA[
                 select
-                    e.id, e.name, e.position, e.created_date, e.updated_date
+                    e.id, e.name, e.position
                 from
                     employee e
                      ::from-clause

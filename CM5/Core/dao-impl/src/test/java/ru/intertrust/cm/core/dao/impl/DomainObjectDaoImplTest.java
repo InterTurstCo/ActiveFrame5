@@ -1,35 +1,44 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.test.util.ReflectionTestUtils;
-import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
-import ru.intertrust.cm.core.config.model.*;
-import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.dao.access.UserSubject;
-import ru.intertrust.cm.core.dao.exception.InvalidIdException;
-import ru.intertrust.cm.core.dao.impl.utils.MultipleObjectRowMapper;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.test.util.ReflectionTestUtils;
+
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
+import ru.intertrust.cm.core.config.model.AttachmentTypeConfig;
+import ru.intertrust.cm.core.config.model.AttachmentTypesConfig;
+import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.model.StringFieldConfig;
+import ru.intertrust.cm.core.config.model.UniqueKeyConfig;
+import ru.intertrust.cm.core.config.model.UniqueKeyFieldConfig;
+import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.UserSubject;
+import ru.intertrust.cm.core.dao.exception.InvalidIdException;
+import ru.intertrust.cm.core.dao.impl.utils.MultipleObjectRowMapper;
 
 /**
  * Юнит тест для DomainObjectDaoImpl
@@ -43,7 +52,7 @@ public class DomainObjectDaoImplTest {
     private final IdService idService = new IdService();
 
     @InjectMocks
-    private DomainObjectDaoImpl domainObjectDaoImpl = new DomainObjectDaoImpl();
+    private final DomainObjectDaoImpl domainObjectDaoImpl = new DomainObjectDaoImpl();
 
     @Mock
     private JdbcTemplate jdbcTemplate;
@@ -162,7 +171,7 @@ public class DomainObjectDaoImplTest {
         AccessToken accessToken = createMockAccessToken();
         String expectedQuery = "select t.* from assignment t where t.author = :domain_object_id and exists" +
                 " (select r.object_id from assignment_READ r inner join group_member " +
-                "gm on r.group_id = gm.parent where gm.person_id = :user_id and r.object_id = t.id)";
+                "gm on r.group_id = gm.master where gm.person_id = :user_id and r.object_id = t.id)";
         Assert.assertEquals(expectedQuery, domainObjectDaoImpl.buildFindChildrenQuery("assignment", "author", accessToken));
 
     }
@@ -172,7 +181,7 @@ public class DomainObjectDaoImplTest {
         AccessToken accessToken = createMockAccessToken();
         String expectedQuery = "select t.id from assignment t where t.author = :domain_object_id and exists" +
                 " (select r.object_id from assignment_READ r inner join group_member " +
-                "gm on r.group_id = gm.parent where gm.person_id = :user_id and r.object_id = t.id)";
+                "gm on r.group_id = gm.master where gm.person_id = :user_id and r.object_id = t.id)";
         Assert.assertEquals(expectedQuery, domainObjectDaoImpl.buildFindChildrenIdsQuery("assignment", "author", accessToken));
 
     }
