@@ -44,7 +44,7 @@ public class DomainObjectTypeIdDaoImpl implements DomainObjectTypeIdDao {
             @Override
             public DomainObjectTypeId mapRow(ResultSet resultSet, int i) throws SQLException {
                 String name = resultSet.getString(NAME_COLUMN);
-                Long id = resultSet.getLong(ID_COLUMN);
+                Integer id = resultSet.getInt(ID_COLUMN);
                 return new DomainObjectTypeId(name, id);
             }
         });
@@ -54,9 +54,9 @@ public class DomainObjectTypeIdDaoImpl implements DomainObjectTypeIdDao {
      * {@inheritDoc}
      */
     @Override
-    public Long insert(String domainObjectTypeName) {
+    public Integer insert(String domainObjectTypeName) {
         jdbcTemplate.update(INSERT_INTO_DOMAIN_OBJECT_TYPE_ID_TABLE_QUERY, domainObjectTypeName);
-        return jdbcTemplate.queryForObject(SELECT_DOMAIN_OBJECT_TYPE_ID_BY_NAME_QUERY, Long.class,
+        return jdbcTemplate.queryForObject(SELECT_DOMAIN_OBJECT_TYPE_ID_BY_NAME_QUERY, Integer.class,
                 domainObjectTypeName);
     }
 }

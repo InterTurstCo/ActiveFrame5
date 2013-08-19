@@ -9,14 +9,14 @@ package ru.intertrust.cm.core.business.api.dto;
 public class DomainObjectTypeId implements Dto {
 
     private String name;
-    private Long id;
+    private Integer id;
 
     /**
      * Создает #DomainObjectTypeId
      * @param name имя типа доменного объекта
      * @param id идентификатор типа доменного объекта
      */
-    public DomainObjectTypeId(String name, Long id) {
+    public DomainObjectTypeId(String name, Integer id) {
         this.name = name;
         this.id = id;
     }
@@ -33,7 +33,7 @@ public class DomainObjectTypeId implements Dto {
      * Возвращает идентификатор типа доменного объекта
      * @return идентификатор типа доменного объекта
      */
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 }

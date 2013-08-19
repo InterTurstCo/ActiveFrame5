@@ -27,5 +27,5 @@ public interface DomainObjectTypeIdDao {
      * @param domainObjectTypeName
      * @return
      */
-    public Long insert(String domainObjectTypeName);
+    public Integer insert(String domainObjectTypeName);
 }

@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.business.impl;
+package ru.intertrust.cm.core.dao.impl;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObjectTypeId;
 
@@ -16,11 +16,11 @@ public class DomainObjectTypeIdCache {
 
     private static DomainObjectTypeIdCache instance = new DomainObjectTypeIdCache();
 
-    private Map<String, Long> nameToIdMap = new ConcurrentHashMap<>();
+    private Map<String, Integer> nameToIdMap = new ConcurrentHashMap<>();
 
     /**
-     * Возврящает экземпляр {@link ru.intertrust.cm.core.business.impl.DomainObjectTypeIdCache}
-     * @return экземпляр {@link ru.intertrust.cm.core.business.impl.DomainObjectTypeIdCache}
+     * Возврящает экземпляр {@link DomainObjectTypeIdCache}
+     * @return экземпляр {@link DomainObjectTypeIdCache}
      */
     public static DomainObjectTypeIdCache getInstance() {
         return instance;
@@ -39,6 +39,7 @@ public class DomainObjectTypeIdCache {
             return;
         }
 
+        nameToIdMap.clear();
         for (DomainObjectTypeId domainObjectTypeId : domainObjectTypeIds) {
             nameToIdMap.put(domainObjectTypeId.getName(), domainObjectTypeId.getId());
         }
@@ -61,7 +62,7 @@ public class DomainObjectTypeIdCache {
      * @param name имя типа доменного объекта
      * @return идентификатор типа доменного объекта
      */
-    public Long getIdByName(String name) {
+    public Integer getIdByName(String name) {
         return nameToIdMap.get(name);
     }
 }

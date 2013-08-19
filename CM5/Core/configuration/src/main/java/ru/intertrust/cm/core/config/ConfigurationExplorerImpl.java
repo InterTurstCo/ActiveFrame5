@@ -212,7 +212,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
 
         private FieldConfigKey(String domainObjectName, String fieldConfigName) {
             this.domainObjectName = domainObjectName;
-            this.fieldConfigName = fieldConfigName;
+            this.fieldConfigName = fieldConfigName.toLowerCase();
         }
 
         @Override
@@ -226,10 +226,12 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
 
             FieldConfigKey that = (FieldConfigKey) o;
 
-            if (domainObjectName != null ? !domainObjectName.equals(that.domainObjectName) : that.domainObjectName != null) {
+            if (domainObjectName != null ? !domainObjectName.equals(that.domainObjectName) :
+                    that.domainObjectName != null) {
                 return false;
             }
-            if (fieldConfigName != null ? !fieldConfigName.equals(that.fieldConfigName) : that.fieldConfigName != null) {
+            if (fieldConfigName != null ? !fieldConfigName.equals(that.fieldConfigName) :
+                    that.fieldConfigName != null) {
                 return false;
             }
 

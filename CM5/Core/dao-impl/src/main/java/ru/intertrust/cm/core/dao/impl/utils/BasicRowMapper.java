@@ -27,19 +27,19 @@ import java.util.List;
  */
 public class BasicRowMapper {
 
-    private static final String DEFAULT_PARENT_FIELD = "parent";    
+    private static final String MASTER_FIELD = "master";
 
     protected final String domainObjectType;
     protected final String idField;
     protected final String parentField;
 
     protected ConfigurationExplorer configurationExplorer;
-    
+
     public BasicRowMapper(String domainObjectType, String idField, ConfigurationExplorer configurationExplorer) {
         this.domainObjectType = domainObjectType;
         this.idField = idField;
         this.configurationExplorer = configurationExplorer;
-        this.parentField = DEFAULT_PARENT_FIELD;
+        this.parentField = MASTER_FIELD;
     }
 
     /**
@@ -175,12 +175,12 @@ public class BasicRowMapper {
         }
         valueModel.setValue(value);
     }
-    
+
     /**
      * Заполняет поля доменного объекта (id, parent или атрибут) из модели {@see FieldValueModel}.
      * @param object исходный доменного объекта
      * @param valueModel модель {@see FieldValueModel}
-     * @param columnName имя поля, нужно если заполняется обычное поле 
+     * @param columnName имя поля, нужно если заполняется обычное поле
      */
     protected void fillObjectValue(GenericDomainObject object, FieldValueModel valueModel, String columnName) {
         if (valueModel.getId() != null) {
@@ -193,7 +193,7 @@ public class BasicRowMapper {
             object.setValue(columnName, valueModel.getValue());
         }
     }
-    
+
 
     /**
      * Обертывает заполненное поле (атрибут), поле parent или поле id в доменном объекте.
@@ -226,7 +226,7 @@ public class BasicRowMapper {
 
         public void setParentId(Id parentId) {
             this.parentId = parentId;
-        }        
+        }
     }
 
     /**
@@ -237,14 +237,14 @@ public class BasicRowMapper {
 
         private String idField;
         private List<String> columnNames;
-        
+
         public List<String> getColumnNames() {
             if (columnNames == null) {
                 columnNames = new ArrayList<String>();
             }
             return columnNames;
         }
- 
+
         public String getIdField() {
             return idField;
         }

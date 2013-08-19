@@ -78,6 +78,20 @@ public class DataStructureNamingHelper {
         return convertToSqlFormat(name);
     }
 
+    public static String getSqlAlias(String name) {
+        if(name == null) {
+            throw new IllegalArgumentException("Name is null");
+        }
+
+        name = name.trim();
+
+        if(name.isEmpty()) {
+            throw new IllegalArgumentException("Name is empty");
+        }
+
+        return name.toLowerCase();
+    }
+
     private static String convertToSqlFormat(String name) {
         if(name == null) {
             throw new IllegalArgumentException("Name is null");

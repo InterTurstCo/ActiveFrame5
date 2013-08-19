@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.AuthenticationService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
-import ru.intertrust.cm.core.business.api.dto.DomainObjectTypeId;
 import ru.intertrust.cm.core.config.ConfigurationException;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
@@ -78,7 +77,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
      * Смотри {@link ru.intertrust.cm.core.business.api.ConfigurationService#loadConfiguration()}
      */
     @Override
-    public void loadConfiguration() throws ConfigurationException{
+    public void loadConfiguration() throws ConfigurationException {
         if (!isConfigurationLoaded()) {
             RecursiveLoader recursiveLoader = new RecursiveLoader();
             recursiveLoader.load();
@@ -149,12 +148,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                 }
             }
         }
-
-
-        private void createAclTablesFor(DomainObjectTypeConfig domainObjectTypeConfig) {
-            dataStructureDao.createAclTables(domainObjectTypeConfig);
-
-        }
     }
 
     /**
@@ -195,6 +188,12 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         @Override
         protected void doProcessConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
             merge(domainObjectTypeConfig);
+        }
+
+        @Override
+        protected void loadDomainObjectConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
+            super.loadDomainObjectConfig(domainObjectTypeConfig);
+            createAclTablesFor(domainObjectTypeConfig);
         }
 
         private void merge() {
@@ -337,7 +336,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             }
         }
 
-        protected final void loadDomainObjectConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
+        protected void loadDomainObjectConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
             processDependentConfigs(domainObjectTypeConfig);
             createDbStructures(domainObjectTypeConfig);
         }
@@ -346,6 +345,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             for(DomainObjectTypeConfig config : configList) {
                 processConfig(config);
             }
+        }
+
+        protected void createAclTablesFor(DomainObjectTypeConfig domainObjectTypeConfig) {
+            dataStructureDao.createAclTables(domainObjectTypeConfig);
         }
 
         protected abstract void doProcessConfig(DomainObjectTypeConfig domainObjectTypeConfig);
@@ -365,9 +368,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         private void createDbStructures(DomainObjectTypeConfig domainObjectTypeConfig) {
             if (!domainObjectTypeConfig.isTemplate()) {
                 dataStructureDao.createTable(domainObjectTypeConfig);
-                DomainObjectTypeIdCache.getInstance().add(
-                        new DomainObjectTypeId(domainObjectTypeConfig.getName(), domainObjectTypeConfig.getId()));
-
                 dataStructureDao.createSequence(domainObjectTypeConfig);
             }
         }

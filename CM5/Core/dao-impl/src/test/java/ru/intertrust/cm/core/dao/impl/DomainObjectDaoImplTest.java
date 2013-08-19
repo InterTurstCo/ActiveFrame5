@@ -83,9 +83,9 @@ public class DomainObjectDaoImplTest {
         domainObject.setModifiedDate(currentDate);
 
         String checkCreateQuery =
-                "insert into PERSON (ID, CREATED_DATE, UPDATED_DATE, EMAIL," +
+                "insert into PERSON (ID, CREATED_DATE, UPDATED_DATE, TYPE, EMAIL," +
                         "LOGIN,PASSWORD) values " +
-                        "(:id , :created_date, :updated_date, :email,:login,:password)";
+                        "(:id , :created_date, :updated_date, :type, :email,:login,:password)";
 
         String query = domainObjectDaoImpl.generateCreateQuery(domainObjectTypeConfig);
         assertEquals(checkCreateQuery, query);
@@ -277,7 +277,7 @@ public class DomainObjectDaoImplTest {
 
         any(MultipleObjectRowMapper.class);
 
-        when(jdbcTemplate.query("select t.* from PERSON1_ATTACHMENT t where parent = :parent_id",
+        when(jdbcTemplate.query("select t.* from PERSON1_ATTACHMENT t where master = :master_id",
                 any(HashMap.class),
                 any(MultipleObjectRowMapper.class))).thenReturn(result);
 

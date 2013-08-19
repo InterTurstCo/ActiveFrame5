@@ -1,20 +1,9 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.sql.DataSource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.StringUtils;
-
 import ru.intertrust.cm.core.business.api.dto.*;
-
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
@@ -27,6 +16,12 @@ import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
 import ru.intertrust.cm.core.dao.impl.utils.*;
+
+import javax.sql.DataSource;
+import java.util.*;
+
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlAlias;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 
 /**
  * @author atsvetkov
@@ -78,32 +73,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     @Override
     public DomainObject create(DomainObject domainObject) {
-        GenericDomainObject updatedObject = new GenericDomainObject(domainObject);
+        DomainObject createdObject = create(domainObject, DomainObjectTypeIdCache.getInstance().getIdByName
+                (domainObject.getTypeName()));
+        domainObjectCacheService.putObjectToCache(createdObject);
 
-        Date currentDate = new Date();
-        updatedObject.setCreatedDate(currentDate);
-        updatedObject.setModifiedDate(currentDate);
-
-        DomainObjectTypeConfig domainObjectTypeConfig =
-                configurationExplorer.getConfig(DomainObjectTypeConfig.class, updatedObject.getTypeName());
-
-        validateParentIdType(updatedObject, domainObjectTypeConfig);
-
-        String query = generateCreateQuery(domainObjectTypeConfig);
-
-        Object nextId = idGenerator.generatetId(domainObjectTypeConfig);
-
-        RdbmsId id = new RdbmsId(updatedObject.getTypeName(), (Long) nextId);
-
-        updatedObject.setId(id);
-
-        Map<String, Object> parameters = initializeCreateParameters(updatedObject, domainObjectTypeConfig);
-
-        jdbcTemplate.update(query, parameters);
-
-        domainObjectCacheService.putObjectToCache(updatedObject);
-
-        return updatedObject;
+        return createdObject;
     }
 
     @Override
@@ -144,7 +118,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 configurationExplorer.getConfig(DomainObjectTypeConfig.class, updatedObject.getTypeName());
 
         validateIdType(updatedObject.getId());
-        validateParentIdType(updatedObject, domainObjectTypeConfig);
+        validateMasterIdType(updatedObject, domainObjectTypeConfig);
+        updateParentDO(domainObjectTypeConfig, domainObject);
 
         String query = generateUpdateQuery(domainObjectTypeConfig);
 
@@ -158,8 +133,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             throw new ObjectNotFoundException(updatedObject.getId());
         }
 
-        if (count == 0) {
-            throw new OptimisticLockException(updatedObject);
+        if (!isDerived(domainObjectTypeConfig)) {
+            if (count == 0) {
+                throw new OptimisticLockException(updatedObject);
+            }
+
+            updatedObject.setModifiedDate(currentDate);
         }
 
         updatedObject.setModifiedDate(currentDate);
@@ -170,6 +149,21 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     }
 
+    private Id findParentId(DomainObjectTypeConfig domainObjectTypeConfig, Id id) {
+        if (!isDerived(domainObjectTypeConfig)) {
+            return null;
+        }
+
+        String tableName = getSqlName(domainObjectTypeConfig);
+        String query = "select " + PARENT_COLUMN + " from " + tableName + " where ID=:id";
+
+        Map<String, Long> parametersMap = new HashMap<>();
+        parametersMap.put("id", ((RdbmsId) id).getId());
+
+        Long parentId = jdbcTemplate.queryForObject(query, parametersMap, Long.class);
+        return new RdbmsId(domainObjectTypeConfig.getExtendsAttribute(), parentId);
+    }
+
     @Override
     public void delete(Id id) throws InvalidIdException, ObjectNotFoundException {
         validateIdType(id);
@@ -178,6 +172,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         DomainObjectTypeConfig domainObjectTypeConfig =
                 configurationExplorer.getConfig(DomainObjectTypeConfig.class, rdbmsId.getTypeName());
+
+        if (isDerived(domainObjectTypeConfig)) {
+            Id parentId = findParentId(domainObjectTypeConfig, id);
+            delete(parentId);
+        }
+
         String query = generateDeleteQuery(domainObjectTypeConfig);
 
         Map<String, Object> parameters = initializeIdParameter(rdbmsId);
@@ -231,6 +231,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     @Override
     public DomainObject find(Id id, AccessToken accessToken) {
+        if(id == null){
+            throw new IllegalArgumentException("Object id can not be null");
+        }
+
         DomainObject domainObject = domainObjectCacheService.getObjectToCache(id);
         if (domainObject != null) {
             return domainObject;
@@ -238,10 +242,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         RdbmsId rdbmsId = (RdbmsId) id;
 
-        String tableName = DataStructureNamingHelper.getSqlName(rdbmsId.getTypeName());
+        String tableAlias = getSqlAlias(rdbmsId.getTypeName());
 
         StringBuilder query = new StringBuilder();
-        query.append("select * from ").append(tableName).append(" where ID=:id ");
+        query.append("select ");
+        appendColumnsQueryPart(query, rdbmsId.getTypeName());
+        query.append(" from ");
+        appendTableNameQueryPart(query, rdbmsId.getTypeName());
+        query.append(" where ").append(tableAlias).append(".ID=:id ");
 
         Map<String, Object> aclParameters = new HashMap<String, Object>();
         if (accessToken.isDeferred()) {
@@ -360,15 +368,22 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
      * @return карту объектов содержащую имя параметра и его значение
      */
     protected Map<String, Object> initializeCreateParameters(DomainObject domainObject,
-                                                             DomainObjectTypeConfig domainObjectTypeConfig) {
+                                                             DomainObjectTypeConfig domainObjectTypeConfig,
+                                                             Long parentId, Integer type) {
 
         RdbmsId rdbmsId = (RdbmsId) domainObject.getId();
 
         Map<String, Object> parameters = initializeIdParameter(rdbmsId);
 
-        parameters.put("parent", getParentId(domainObject));
-        parameters.put("created_date", domainObject.getCreatedDate());
-        parameters.put("updated_date", domainObject.getModifiedDate());
+        parameters.put("master", getMasterId(domainObject));
+
+        if (!isDerived(domainObjectTypeConfig)) {
+            parameters.put("created_date", domainObject.getCreatedDate());
+            parameters.put("updated_date", domainObject.getModifiedDate());
+            parameters.put("type", type);
+        } else {
+            parameters.put("parent", parentId);
+        }
 
         List<FieldConfig> feldConfigs = domainObjectTypeConfig.getDomainObjectFieldsConfig().getFieldConfigs();
 
@@ -387,24 +402,30 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         StringBuilder query = new StringBuilder();
 
-        String tableName = DataStructureNamingHelper.getSqlName(domainObjectTypeConfig);
+        String tableName = getSqlName(domainObjectTypeConfig);
 
         List<FieldConfig> feldConfigs = domainObjectTypeConfig.getDomainObjectFieldsConfig().getFieldConfigs();
 
-        List<String> columnNames = DataStructureNamingHelper.getSqlName(feldConfigs);
+        List<String> columnNames = getSqlName(feldConfigs);
 
         String fieldsWithparams = DaoUtils.generateCommaSeparatedListWithParams(columnNames);
 
         query.append("update ").append(tableName).append(" set ");
-        query.append("UPDATED_DATE=:current_date, ");
+
+        if (!isDerived(domainObjectTypeConfig)) {
+            query.append(UPDATED_DATE_COLUMN).append("=:current_date, ");
+        }
 
         if(domainObjectTypeConfig.getParentConfig() != null) {
-            query.append(MASTER_COLUMN).append("=:parent, ");
+            query.append(MASTER_COLUMN).append("=:master, ");
         }
 
         query.append(fieldsWithparams);
-        query.append(" where ID=:id");
-        query.append(" and UPDATED_DATE=:updated_date");
+        query.append(" where ").append(ID_COLUMN).append("=:id");
+
+        if (!isDerived(domainObjectTypeConfig)) {
+            query.append(" and ").append(UPDATED_DATE_COLUMN).append("=:updated_date");
+        }
 
         return query.toString();
 
@@ -427,11 +448,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         parameters.put("id", rdbmsId.getId());
         parameters.put("current_date", currentDate);
         parameters.put("updated_date", domainObject.getModifiedDate());
-        parameters.put("parent", getParentId(domainObject));
+        parameters.put("master", getMasterId(domainObject));
 
-        List<FieldConfig> feldConfigs = domainObjectTypeConfig.getDomainObjectFieldsConfig().getFieldConfigs();
+        List<FieldConfig> fieldConfigs = domainObjectTypeConfig.getDomainObjectFieldsConfig().getFieldConfigs();
 
-        initializeDomainParameters(domainObject, feldConfigs, parameters);
+        initializeDomainParameters(domainObject, fieldConfigs, parameters);
 
         return parameters;
 
@@ -446,26 +467,37 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     protected String generateCreateQuery(DomainObjectTypeConfig domainObjectTypeConfig) {
         List<FieldConfig> fieldConfigs = domainObjectTypeConfig.getFieldConfigs();
 
-        String tableName = DataStructureNamingHelper.getSqlName(domainObjectTypeConfig);
-        List<String> columnNames = DataStructureNamingHelper.getSqlName(fieldConfigs);
+        String tableName = getSqlName(domainObjectTypeConfig);
+        List<String> columnNames = getSqlName(fieldConfigs);
 
         String commaSeparatedColumns = StringUtils.collectionToCommaDelimitedString(columnNames);
         String commaSeparatedParameters = DaoUtils.generateCommaSeparatedParameters(columnNames);
 
         StringBuilder query = new StringBuilder();
-        query.append("insert into ").append(tableName).append(" (");
-        query.append("ID, CREATED_DATE, UPDATED_DATE, ");
+        query.append("insert into ").append(tableName).append(" (ID, ");
+
+        if (!isDerived(domainObjectTypeConfig)) {
+            query.append(CREATED_DATE_COLUMN).append(", ").append(UPDATED_DATE_COLUMN).append(", ");
+            query.append(TYPE_COLUMN).append(", ");
+        } else {
+            query.append(PARENT_COLUMN).append(", ");
+        }
 
         if (domainObjectTypeConfig.getParentConfig() != null) {
             query.append(MASTER_COLUMN).append(", ");
         }
 
         query.append(commaSeparatedColumns);
-        query.append(") values (");
-        query.append(":id , :created_date, :updated_date, ");
+        query.append(") values (:id , ");
+
+        if (!isDerived(domainObjectTypeConfig)) {
+            query.append(":created_date, :updated_date, :type, ");
+        } else {
+            query.append(":parent, ");
+        }
 
         if (domainObjectTypeConfig.getParentConfig() != null) {
-            query.append(":parent, ");
+            query.append(":master, ");
         }
 
         query.append(commaSeparatedParameters);
@@ -483,7 +515,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
      */
     protected String generateDeleteQuery(DomainObjectTypeConfig domainObjectTypeConfig) {
 
-        String tableName = DataStructureNamingHelper.getSqlName(domainObjectTypeConfig);
+        String tableName = getSqlName(domainObjectTypeConfig);
 
         StringBuilder query = new StringBuilder();
         query.append("delete from ");
@@ -502,7 +534,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
      */
     protected String generateDeleteAllQuery(DomainObjectTypeConfig domainObjectTypeConfig) {
 
-        String tableName = DataStructureNamingHelper.getSqlName(domainObjectTypeConfig);
+        String tableName = getSqlName(domainObjectTypeConfig);
 
         StringBuilder query = new StringBuilder();
         query.append("delete from ");
@@ -533,7 +565,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
      */
     protected String generateExistsQuery(String domainObjectName) {
 
-        String tableName = DataStructureNamingHelper.getSqlName(domainObjectName);
+        String tableName = getSqlName(domainObjectName);
 
         StringBuilder query = new StringBuilder();
         query.append("select id from ");
@@ -584,7 +616,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
     }
 
-    private void validateParentIdType(DomainObject domainObject, DomainObjectTypeConfig config) {
+    private void validateMasterIdType(DomainObject domainObject, DomainObjectTypeConfig config) {
         if (domainObject.getParent() == null) {
             return;
         }
@@ -603,7 +635,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                                             Map<String, Object> parameters) {
         for (FieldConfig fieldConfig : fieldConfigs) {
             Value value = domainObject.getValue(fieldConfig.getName());
-            String columnName = DataStructureNamingHelper.getSqlName(fieldConfig.getName());
+            String columnName = getSqlName(fieldConfig.getName());
             String parameterName = DaoUtils.generateParameter(columnName);
             if (value != null) {
                 if (value instanceof ReferenceValue) {
@@ -619,7 +651,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
     }
 
-    private Long getParentId(DomainObject domainObject) {
+    private Long getMasterId(DomainObject domainObject) {
         if (domainObject.getParent() == null) {
             return null;
         }
@@ -653,8 +685,120 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private void appendAccessControlLogicToQuery(StringBuilder query, String linkedType) {
         String childAclReadTable = AccessControlUtility.getAclReadTableNameFor(linkedType);
         query.append(" and exists (select r.object_id from ").append(childAclReadTable).append(" r ");
-        query.append("inner join group_member gm on r.group_id = gm.master where gm.person_id = :user_id and r.object_id = t.id)");
+        query.append("inner join group_member gm on r.group_id = gm.master where gm.person_id = :user_id and r" +
+                ".object_id = t.id)");
     }
-    
 
+    private DomainObject create(DomainObject domainObject, Integer type) {
+        DomainObjectTypeConfig domainObjectTypeConfig =
+                configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObject.getTypeName());
+        GenericDomainObject updatedObject = new GenericDomainObject(domainObject);
+        validateMasterIdType(updatedObject, domainObjectTypeConfig);
+
+        DomainObject parentDo = createParentDO(domainObject, domainObjectTypeConfig, type);
+
+        Date currentDate = new Date();
+        updatedObject.setCreatedDate(currentDate);
+        updatedObject.setModifiedDate(currentDate);
+
+        String query = generateCreateQuery(domainObjectTypeConfig);
+
+        Object nextId = idGenerator.generatetId(domainObjectTypeConfig);
+
+        RdbmsId id = new RdbmsId(updatedObject.getTypeName(), (Long) nextId);
+
+        updatedObject.setId(id);
+
+        Long parentDoId = parentDo != null ? ((RdbmsId) parentDo.getId()).getId() : null;
+        Map<String, Object> parameters =
+                initializeCreateParameters(updatedObject, domainObjectTypeConfig, parentDoId, type);
+
+        jdbcTemplate.update(query, parameters);
+
+        return updatedObject;
+    }
+
+    private DomainObject createParentDO(DomainObject domainObject, DomainObjectTypeConfig domainObjectTypeConfig,
+                                        Integer type) {
+        if (!isDerived(domainObjectTypeConfig)) {
+            return null;
+        }
+
+        GenericDomainObject parentDO = new GenericDomainObject(domainObject);
+        parentDO.setTypeName(domainObjectTypeConfig.getExtendsAttribute());
+        return create(parentDO, type);
+    }
+
+    private void updateParentDO(DomainObjectTypeConfig domainObjectTypeConfig, DomainObject domainObject) {
+        if (!isDerived(domainObjectTypeConfig)) {
+            return;
+        }
+
+        GenericDomainObject parentObject = new GenericDomainObject(domainObject);
+        parentObject.setId(findParentId(domainObjectTypeConfig, domainObject.getId()));
+        parentObject.setTypeName(domainObjectTypeConfig.getExtendsAttribute());
+        update(parentObject);
+    }
+
+    private void appendTableNameQueryPart(StringBuilder query, String typeName) {
+        String tableName = getSqlName(typeName);
+        query.append(tableName).append(" ").append(getSqlAlias(tableName));
+        appendParentTable(query, typeName);
+    }
+
+    private void appendColumnsQueryPart(StringBuilder query, String typeName) {
+        DomainObjectTypeConfig config = configurationExplorer.getConfig(DomainObjectTypeConfig.class, typeName);
+
+        query.append(getSqlAlias(typeName)).append(".* ");
+
+        if (config.getExtendsAttribute() != null) {
+            appendParentColumns(query, config);;
+        }
+    }
+
+    private void appendParentTable(StringBuilder query, String typeName) {
+        DomainObjectTypeConfig config = configurationExplorer.getConfig(DomainObjectTypeConfig.class, typeName);
+
+        if (config.getExtendsAttribute() == null) {
+            return;
+        }
+
+        String tableAlias = getSqlAlias(typeName);
+
+        String parentTableName = getSqlName(config.getExtendsAttribute());
+        String parentTableAlias = getSqlAlias(config.getExtendsAttribute());
+
+        query.append(" inner join ").append(parentTableName).append(" ").append(parentTableAlias);
+        query.append(" on ").append(tableAlias).append(".").append(PARENT_COLUMN).append("=");
+        query.append(parentTableAlias).append(".ID");
+
+        appendParentTable(query, config.getExtendsAttribute());
+    }
+
+    private void appendParentColumns(StringBuilder query, DomainObjectTypeConfig config) {
+        DomainObjectTypeConfig parentConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class,
+                config.getExtendsAttribute());
+
+        String tableAlias = getSqlAlias(parentConfig.getName());
+
+        for (FieldConfig fieldConfig : parentConfig.getFieldConfigs()) {
+            if ("ID".equals(fieldConfig.getName())) {
+                continue;
+            }
+
+            query.append(", ").append(tableAlias).append(".").append(getSqlName(fieldConfig));
+        }
+
+        if (parentConfig.getExtendsAttribute() != null) {
+            appendParentColumns(query, parentConfig);
+        } else {
+            query.append(", ").append(CREATED_DATE_COLUMN);
+            query.append(", ").append(UPDATED_DATE_COLUMN);
+            query.append(", ").append(TYPE_COLUMN);
+        }
+    }
+
+    private boolean isDerived(DomainObjectTypeConfig domainObjectTypeConfig) {
+        return domainObjectTypeConfig.getExtendsAttribute() != null;
+    }
 }
