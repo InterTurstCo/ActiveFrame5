@@ -67,6 +67,7 @@ public class BasicRowMapper {
 
     /**
      * Отображает типы колонок в конфигурации коллекции на {@link ru.intertrust.cm.core.dao.impl.DataType}.
+     *
      * @param columnType типы колонок в конфигурации
      * @return объект {@link ru.intertrust.cm.core.dao.impl.DataType}
      */
@@ -88,7 +89,8 @@ public class BasicRowMapper {
 
     /**
      * Заполняет модель {@see FieldValueModel} из объекта {@see ResultSet}.
-     * @param rs {@see ResultSet}
+     *
+     * @param rs         {@see ResultSet}
      * @param valueModel модель {@see FieldValueModel}
      * @param columnName имя колонки, которая извлекается из {@see ResultSet}
      * @throws SQLException
@@ -179,7 +181,8 @@ public class BasicRowMapper {
 
     /**
      * Заполняет поля доменного объекта (id, parent или атрибут) из модели {@see FieldValueModel}.
-     * @param object исходный доменного объекта
+     *
+     * @param object     исходный доменного объекта
      * @param valueModel модель {@see FieldValueModel}
      * @param columnName имя поля, нужно если заполняется обычное поле
      */
@@ -195,9 +198,11 @@ public class BasicRowMapper {
         }
     }
 
+    //protected void fillValueModelWithSystemFields(SystemField systemFields,)
 
     /**
      * Обертывает заполненное поле (атрибут), поле parent или поле id в доменном объекте.
+     *
      * @author atsvetkov
      */
     protected class FieldValueModel {
@@ -232,6 +237,7 @@ public class BasicRowMapper {
 
     /**
      * Модель для хранкения названия колонолк и названия колонки-первичного ключа для доменного объекта.
+     *
      * @author atsvetkov
      */
     protected class ColumnModel {
