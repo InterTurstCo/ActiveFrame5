@@ -172,6 +172,15 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
                     new FieldConfigKey(domainObjectTypeConfig.getName(), fieldConfig.getName());
             fieldConfigMap.put(fieldConfigKey, fieldConfig);
         }
+        fillSystemFields(domainObjectTypeConfig);
+    }
+
+    private void fillSystemFields(DomainObjectTypeConfig domainObjectTypeConfig) {
+        for (FieldConfig fieldConfig : domainObjectTypeConfig.getSystemFieldConfigs()) {
+            FieldConfigKey fieldConfigKey =
+                    new FieldConfigKey(domainObjectTypeConfig.getName(), fieldConfig.getName());
+            fieldConfigMap.put(fieldConfigKey, fieldConfig);
+        }
     }
 
     private void fillCollectionColumnConfigMap(CollectionConfig collectionConfig) {

@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.config;
 
+import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import ru.intertrust.cm.core.config.model.CollectionConfig;
@@ -7,13 +8,15 @@ import ru.intertrust.cm.core.config.model.Configuration;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 import static junit.framework.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
-import static ru.intertrust.cm.core.config.Constants.*;
+import static ru.intertrust.cm.core.config.Constants.DOMAIN_OBJECTS_CONFIG_PATH;
 
 /**
  * @author vmatsukevich
@@ -123,5 +126,24 @@ public class ConfigurationExplorerImplTest {
         FieldConfig fieldConfig = configExplorer.getFieldConfig(PERSON_CONFIG_NAME, E_MAIL_CONFIG_NAME);
         assertNotNull(fieldConfig);
         assertEquals(fieldConfig.getName(), E_MAIL_CONFIG_NAME);
+    }
+
+    @Test
+    public void testGetSystemFieldConfig() throws Exception {
+        FieldConfig fieldConfig = configExplorer.getFieldConfig(PERSON_CONFIG_NAME, SystemField.id.name());
+        assertNotNull(fieldConfig);
+        Assert.assertEquals(fieldConfig.getName(), SystemField.id.name());
+
+        fieldConfig = configExplorer.getFieldConfig(PERSON_CONFIG_NAME, SystemField.parent.name());
+        assertNotNull(fieldConfig);
+        Assert.assertEquals(fieldConfig.getName(), SystemField.parent.name());
+
+        fieldConfig = configExplorer.getFieldConfig(PERSON_CONFIG_NAME, SystemField.created_date.name());
+        assertNotNull(fieldConfig);
+        Assert.assertEquals(fieldConfig.getName(), SystemField.created_date.name());
+
+        fieldConfig = configExplorer.getFieldConfig(PERSON_CONFIG_NAME, SystemField.updated_date.name());
+        assertNotNull(fieldConfig);
+        Assert.assertEquals(fieldConfig.getName(), SystemField.updated_date.name());
     }
 }

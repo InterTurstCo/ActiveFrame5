@@ -4,6 +4,8 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.config.SystemField;
+import ru.intertrust.cm.core.model.FatalException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +54,10 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
     @ElementList(entry="uniqueKey", type=UniqueKeyConfig.class, inline=true, required = false)
     private List<UniqueKeyConfig> uniqueKeyConfigs = new ArrayList<>();
 
+    private static final List<FieldConfig> SYSTEM_FIELDS = new ArrayList<>();
+
     public DomainObjectTypeConfig() {
+        initDomainObjectSystemFields();
     }
 
     public Integer getId() {
@@ -92,6 +97,10 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
         return domainObjectFieldsConfig.getFieldConfigs();
     }
 
+    public List<FieldConfig> getSystemFieldConfigs() {
+        return SYSTEM_FIELDS;
+    }
+
     public List<UniqueKeyConfig> getUniqueKeyConfigs() {
         return uniqueKeyConfigs;
     }
@@ -126,6 +135,20 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
 
     public void setAttachmentTypesConfig(AttachmentTypesConfig attachmentTypesConfig) {
         this.attachmentTypesConfig = attachmentTypesConfig;
+    }
+
+    private void initDomainObjectSystemFields() {
+        for (SystemField systemField : SystemField.values()) {
+            Class<? extends FieldConfig> fieldConfigClass = systemField.getFieldConfigClass();
+            FieldConfig systemFieldConfig;
+            try {
+                systemFieldConfig = fieldConfigClass.newInstance();
+            } catch (Exception ex) {
+                throw new FatalException("cannot instantiate system field config class");
+            }
+            systemFieldConfig.setName(systemField.name());
+            SYSTEM_FIELDS.add(systemFieldConfig);
+        }
     }
 
     @Override
