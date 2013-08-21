@@ -10,6 +10,12 @@ package ru.intertrust.cm.core.gui.api.client;
  */
 public interface Component {
     /**
+     * Возвращает имя элемента управления
+     * @return имя элемента управления
+     */
+    String getName();
+
+    /**
      * Фабричный метод, который создаёт новый экземпляр компонента.
      * @return новый экземпляр компонента
      */

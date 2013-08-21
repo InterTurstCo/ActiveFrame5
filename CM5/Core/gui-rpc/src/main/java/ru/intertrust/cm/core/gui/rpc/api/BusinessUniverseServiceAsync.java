@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.gui.rpc.api;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
-import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
  * @author Denis Mitavskiy
@@ -11,7 +11,7 @@ import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
  *         Time: 17:14
  */
 public interface BusinessUniverseServiceAsync {
-    void getBusinessUniverseInitialization(AsyncCallback<BusinessUniverseInitialization> async);
+    void getBusinessUniverseInitialization(AsyncCallback<? extends Dto> async);
 
     public static class Impl {
         private static final BusinessUniverseServiceAsync instance;

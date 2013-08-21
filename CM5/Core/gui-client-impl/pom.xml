@@ -33,4 +33,23 @@
 
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>gwt-maven-plugin</artifactId>
+                <version>2.5.1</version>
+                <configuration>
+                    <compileSourcesArtifacts>
+                        <artifact>ru.intertrust.cm-sochi:gui-client-api</artifact>
+                        <artifact>ru.intertrust.cm-sochi:gui-client-impl</artifact>
+                        <artifact>ru.intertrust.cm-sochi:gui-rpc</artifact>
+                        <artifact>ru.intertrust.cm-sochi:model</artifact>
+                        <artifact>ru.intertrust.cm-sochi:gui-model</artifact>
+                    </compileSourcesArtifacts>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

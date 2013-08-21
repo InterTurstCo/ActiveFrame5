@@ -20,8 +20,13 @@
             <description>Protect everything in our applications</description>
             <url-pattern>/*/BusinessUniverseService</url-pattern>
             <url-pattern>/cm-sochi/*</url-pattern>
-            <url-pattern>/welcome/*</url-pattern>
         </web-resource-collection>
+        <auth-constraint>
+            <description>
+                CM5 protected web resources
+            </description>
+            <role-name>cm_user</role-name>
+        </auth-constraint>
     </security-constraint>
 
     <filter>

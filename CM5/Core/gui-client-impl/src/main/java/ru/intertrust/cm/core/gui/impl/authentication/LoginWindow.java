@@ -53,7 +53,7 @@ public class LoginWindow extends DialogBox {
             @Override
             public void onSuccess(Void result) {
                 //todo: переадресация должна уметь задаваться на стадии открытия LoginPage. пока хардкод
-                Window.Location.assign("/cm-sochi/BusinessUniverse.html");
+                Window.Location.assign("/cm-sochi/BusinessUniverse.html" + Window.Location.getQueryString());
             }
 
             @Override

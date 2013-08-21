@@ -85,10 +85,13 @@ public class ComponentRegistryGenerator extends Generator {
         sourceWriter.outdent();
         sourceWriter.println("}");
 
-        sourceWriter.println("public <T extends Component> T get(String id) {");
+        sourceWriter.println("public <T extends Component> T get(String name) {");
         sourceWriter.indent();
-        sourceWriter.println("Component obj = components.get(id);");
-        sourceWriter.println("return obj == null ? null : (T) obj.createNew();");
+        sourceWriter.println("Component obj = components.get(name);");
+        sourceWriter.println("if (obj == null) {");
+        sourceWriter.println("    return null");
+        sourceWriter.println("}");
+        sourceWriter.println("return obj instanceof BaseComponent ? (T) ((BaseComponent) obj).setName(name).createNew() : (T) obj.createNew();");
         sourceWriter.outdent();
         sourceWriter.println("}");
         sourceWriter.commit(logger);
