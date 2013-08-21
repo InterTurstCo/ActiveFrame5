@@ -56,8 +56,12 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
 
     List<FieldConfig> domainObjectSystemFieldConfigs = new ArrayList<>();
 
+    static {
+        initSystemFields();
+    }
+
     public DomainObjectTypeConfig() {
-        initDomainObjectSystemFields();
+
     }
 
     public Long getId() {
@@ -137,7 +141,7 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
         this.attachmentTypesConfig = attachmentTypesConfig;
     }
 
-    private void initDomainObjectSystemFields() {
+    private static void initSystemFields() {
         for (SystemField systemField : SystemField.values()) {
             Class<? extends FieldConfig> fieldConfigClass = systemField.getFieldConfigClass();
             FieldConfig systemFieldConfig;
