@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.dao.impl;
 import org.junit.Test;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
-import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.model.StringFieldConfig;
 
 import static org.junit.Assert.assertEquals;
@@ -30,16 +29,6 @@ public class DataStructureNamingHelperTest {
 
         String sqlName = DataStructureNamingHelper.getSqlName(fieldConfig);
         assertEquals("REGISTRATION_NUMBER", sqlName);
-    }
-
-    @Test
-    public void testGetReferencedTypeSqlName() throws Exception {
-        ReferenceFieldConfig referenceFieldConfig = new ReferenceFieldConfig();
-        referenceFieldConfig.setName("Author");
-        referenceFieldConfig.setType("Employee");
-
-        String sqlName = DataStructureNamingHelper.getReferencedTypeSqlName(referenceFieldConfig);
-        assertEquals("EMPLOYEE", sqlName);
     }
 
     @Test

@@ -7,7 +7,9 @@
             <dateTime name="Registration_Date"/>
             <string name="Name" length="128" />
             <string name="Description" length="128" />
-            <reference name="Author" type="Employee" /> <!-- ID of employee in fact -->
+            <reference name="Author" > <!-- ID of employee in fact -->
+                <type name="Employee"/>
+            </reference>
             <long name="Long_Field"/> <!-- mapping to LONG_FIELD column -->
             <decimal name="Decimal_Field" precision="10" scale="2" />
         </fields>

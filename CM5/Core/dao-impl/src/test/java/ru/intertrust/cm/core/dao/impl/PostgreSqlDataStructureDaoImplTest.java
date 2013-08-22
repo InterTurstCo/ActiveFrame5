@@ -80,7 +80,7 @@ public class PostgreSqlDataStructureDaoImplTest {
 
         ReferenceFieldConfig executorFieldConfig = new ReferenceFieldConfig();
         executorFieldConfig.setName("Executor");
-        executorFieldConfig.setType("Employee");
+        executorFieldConfig.setTypes(Collections.singletonList(new ReferenceFieldTypeConfig("Employee")));
         executorFieldConfig.setNotNull(true);
         newColumns.add(executorFieldConfig);
 
@@ -150,7 +150,7 @@ public class PostgreSqlDataStructureDaoImplTest {
 
         ReferenceFieldConfig referenceFieldConfig = new ReferenceFieldConfig();
         referenceFieldConfig.setName("Author");
-        referenceFieldConfig.setType("Employee");
+        referenceFieldConfig.setTypes(Collections.singletonList(new ReferenceFieldTypeConfig("Employee")));
         domainObjectTypeConfig.getFieldConfigs().add(referenceFieldConfig);
 
         LongFieldConfig longFieldConfig = new LongFieldConfig();

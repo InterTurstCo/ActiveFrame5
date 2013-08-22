@@ -1,6 +1,9 @@
 package ru.intertrust.cm.core.config.model;
 
-import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.ElementList;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Denis Mitavskiy
@@ -8,15 +11,20 @@ import org.simpleframework.xml.Attribute;
  *         Time: 11:12 AM
  */
 public class ReferenceFieldConfig extends FieldConfig {
-    @Attribute
-    private String type;
 
-    public String getType() {
-        return type;
+    @ElementList(entry="type", inline=true)
+    private List<ReferenceFieldTypeConfig> types = new ArrayList<>();
+
+    public List<ReferenceFieldTypeConfig> getTypes() {
+        return types;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setTypes(List<ReferenceFieldTypeConfig> types) {
+        if(types != null) {
+            this.types = types;
+        } else {
+            this.types.clear();
+        }
     }
 
     @Override
@@ -33,7 +41,7 @@ public class ReferenceFieldConfig extends FieldConfig {
 
         ReferenceFieldConfig that = (ReferenceFieldConfig) o;
 
-        if (type != null ? !type.equals(that.type) : that.type != null) {
+        if (types != null ? !types.equals(that.types) : that.types != null) {
             return false;
         }
 
@@ -43,7 +51,7 @@ public class ReferenceFieldConfig extends FieldConfig {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + (type != null ? type.hashCode() : 0);
+        result = 31 * result + (types != null ? types.hashCode() : 0);
         return result;
     }
 }

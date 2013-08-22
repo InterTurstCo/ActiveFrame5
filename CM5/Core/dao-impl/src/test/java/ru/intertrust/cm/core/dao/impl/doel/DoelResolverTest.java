@@ -11,8 +11,11 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.model.ReferenceFieldTypeConfig;
 import ru.intertrust.cm.core.config.model.doel.DoelExpression;
 import ru.intertrust.cm.core.dao.impl.SqlStatementMatcher;
+
+import java.util.Collections;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -60,12 +63,12 @@ public class DoelResolverTest {
     public void prepareConfiguration() {
         ReferenceFieldConfig jobAssigneeConfig = new ReferenceFieldConfig();
         jobAssigneeConfig.setName("Assignee");
-        jobAssigneeConfig.setType("Person");
+        jobAssigneeConfig.setTypes(Collections.singletonList(new ReferenceFieldTypeConfig("Person")));
         when(configurationExplorer.getFieldConfig("Job", "Assignee")).thenReturn(jobAssigneeConfig);
 
         ReferenceFieldConfig personDepartmentConfig = new ReferenceFieldConfig();
         personDepartmentConfig.setName("Department");
-        personDepartmentConfig.setType("Department");
+        personDepartmentConfig.setTypes(Collections.singletonList(new ReferenceFieldTypeConfig("Department")));
         when(configurationExplorer.getFieldConfig("Person", "Department")).thenReturn(personDepartmentConfig);
     }
 }

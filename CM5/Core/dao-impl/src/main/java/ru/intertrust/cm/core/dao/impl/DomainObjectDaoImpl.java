@@ -7,6 +7,7 @@ import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
+import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
@@ -20,6 +21,7 @@ import ru.intertrust.cm.core.dao.impl.utils.*;
 import javax.sql.DataSource;
 import java.util.*;
 
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getIndexedName;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlAlias;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 
@@ -642,6 +644,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                     RdbmsId rdbmsId = (RdbmsId) value.get();
                     parameters.put(parameterName, rdbmsId.getId());
                 } else {
+
+                    if (fieldConfig instanceof ReferenceFieldConfig) {
+                        //TODO: Обрабатывать множественные типы ссылок
+                        columnName = getSqlName(getIndexedName(fieldConfig.getName(), 1));
+                        parameterName = DaoUtils.generateParameter(columnName);
+                    }
                     parameters.put(parameterName, value.get());
                 }
             } else {

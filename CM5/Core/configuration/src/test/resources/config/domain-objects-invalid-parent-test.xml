@@ -4,9 +4,13 @@
 	<domain-object-type name="Employee">
         <parent name="Person"/>
 		<fields>
-			<reference name="Department" type="Department" not-null="true" />
+			<reference name="Department" not-null="true">
+                <type name="Department"/>
+            </reference>
 			<string name="Name" length="64" not-null="true" />
-            <reference name="Login" type="Authentication_Info" not-null="true" />
+            <reference name="Login" not-null="true">
+                <type name="Authentication_Info"/>
+            </reference>
 			<string name="Position" length="64" not-null="true" />
 			<string name="Phone" length="32" />
 			<string name="Certificate" length="4096" />

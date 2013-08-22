@@ -149,7 +149,8 @@ public class BasicRowMapper {
                 value = new DecimalValue();
             }
         } else if (fieldConfig != null && ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
-            String referenceType = ((ReferenceFieldConfig) fieldConfig).getType();
+            //TODO: Реализовать обработку множественных типов ссылки
+            String referenceType = ((ReferenceFieldConfig) fieldConfig).getTypes().get(0).getName();
             Long longValue = rs.getLong(columnName);
             if (!rs.wasNull()) {
                 Id referenceId = new RdbmsId(referenceType, longValue);

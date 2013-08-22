@@ -1,13 +1,6 @@
 package ru.intertrust.cm.core.dao.impl.doel;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.sql.DataSource;
-
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
@@ -15,6 +8,11 @@ import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.model.doel.DoelExpression;
 import ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper;
+
+import javax.sql.DataSource;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DoelResolver {
 
@@ -69,7 +67,8 @@ public class DoelResolver {
                 FieldConfig fieldConfig = configurationExplorer.getFieldConfig(currentType, field.getName());
                 if (fieldConfig instanceof ReferenceFieldConfig) {
                     ReferenceFieldConfig refConfig = (ReferenceFieldConfig) fieldConfig;
-                    currentType = refConfig.getType();
+                    //TODO: Реализовать обработку множественных типов ссылки
+                    currentType = refConfig.getTypes().get(0).getName();
                 }
                 fieldName = fieldConfig.getName();
                 backLink = false;
@@ -115,7 +114,8 @@ public class DoelResolver {
                            .insert(0, currentType);
                 if (fieldConfig instanceof ReferenceFieldConfig) {
                     ReferenceFieldConfig refConfig = (ReferenceFieldConfig) fieldConfig;
-                    currentType = refConfig.getType();
+                    //TODO: Реализовать обработку множественных типов ссылки
+                    currentType = refConfig.getTypes().get(0).getName();
                 }
             } else if (DoelExpression.ElementType.CHILDREN == doelElem.getElementType()) {
                 DoelExpression.Children children = (DoelExpression.Children) doelElem;

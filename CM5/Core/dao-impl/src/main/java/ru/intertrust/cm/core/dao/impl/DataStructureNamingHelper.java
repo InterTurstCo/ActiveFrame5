@@ -15,6 +15,8 @@ import java.util.List;
  */
 public class DataStructureNamingHelper {
 
+    public static final int MAX_NAME_LENGTH = 25;
+
     /**
      * Возвращает имя доменного объекта в sql-виде
      * @param domainObjectTypeConfig конфигурация доменного объекта
@@ -53,20 +55,16 @@ public class DataStructureNamingHelper {
 
         List<String> columnNames = new ArrayList<String>();
         for (FieldConfig fieldConfig : fieldConfigs) {
-            columnNames.add(getSqlName(fieldConfig));
+            if (fieldConfig instanceof ReferenceFieldConfig) {
+                //TODO: Обрабатывать множественные типы ссылок
+                columnNames.add(getSqlName(getIndexedName(fieldConfig.getName(), 1)));
+            } else {
+                columnNames.add(getSqlName(fieldConfig));
+            }
 
         }
 
         return columnNames;
-    }
-
-    /**
-     * Возвращает имя доменного объекта, на который ссылается поле, в sql-виде
-     * @param referenceFieldConfig конфигурация поля-ссылки доменного объекта
-     * @return имя доменного объекта, на который ссылается поле, в sql-виде
-     */
-    public static String getReferencedTypeSqlName(ReferenceFieldConfig referenceFieldConfig) {
-        return convertToSqlFormat(referenceFieldConfig.getType());
     }
 
     /**
@@ -76,6 +74,20 @@ public class DataStructureNamingHelper {
      */
     public static String getSqlName(String name) {
         return convertToSqlFormat(name);
+    }
+
+    public static String getIndexedName(String name1, Integer index) {
+        if (name1 == null || name1.isEmpty()) {
+            throw new IllegalArgumentException("Name is null or empty");
+        }
+
+        String indexString = index.toString();
+
+        if (name1.length() + indexString.length() > MAX_NAME_LENGTH) {
+            return name1.substring(0, MAX_NAME_LENGTH - indexString.length() - 1) + indexString;
+        } else {
+            return name1 + indexString;
+        }
     }
 
     public static String getSqlAlias(String name) {

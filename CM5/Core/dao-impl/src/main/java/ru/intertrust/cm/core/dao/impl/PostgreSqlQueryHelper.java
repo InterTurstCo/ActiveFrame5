@@ -11,6 +11,7 @@ import static ru.intertrust.cm.core.dao.api.DomainObjectDao.PARENT_COLUMN;
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TYPE_COLUMN;
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.MASTER_COLUMN;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 
 /**
  * Класс для генерации sql запросов для {@link PostgreSqlDataStructureDaoImpl}
@@ -202,22 +203,18 @@ public class PostgreSqlQueryHelper {
         String tableName = getSqlName(configName);
 
         if(parentConfig != null) {
-            String indexName = "I_" + tableName + "_" + MASTER_COLUMN;
-            query.append("create index ").append(indexName).append(" on ").append(tableName).append(" (").
-                    append(MASTER_COLUMN).append(");\n");
+            appendIndexQueryPart(query, tableName, MASTER_COLUMN);
         }
 
         for(FieldConfig fieldConfig : fieldConfigList) {
             if(!ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
                 continue;
             }
-
             ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
-            String fieldSqlName = getSqlName(referenceFieldConfig);
-
-            String indexName = "I_" + tableName + "_" + fieldSqlName;
-            query.append("create index ").append(indexName).append(" on ").append(tableName).append(" (").
-                    append(fieldSqlName).append(");\n");
+            for (int i = 0; i < referenceFieldConfig.getTypes().size(); i ++) {
+                String fieldName = getSqlName(getIndexedName(referenceFieldConfig.getName(), i + 1));
+                appendIndexQueryPart(query, tableName, fieldName);
+            }
         }
 
         if(query.length() == 0) {
@@ -225,6 +222,12 @@ public class PostgreSqlQueryHelper {
         }
 
         return query.toString();
+    }
+
+    private static void appendIndexQueryPart(StringBuilder query, String tableName, String fieldName) {
+        String indexName = "I_" + tableName + "_" + fieldName;
+        query.append("create index ").append(indexName).append(" on ").append(tableName).append(" (").
+                append(fieldName).append(");\n");
     }
 
     private static void appendFKConstraintsQueryPart(StringBuilder query, String tableName,
@@ -254,11 +257,21 @@ public class PostgreSqlQueryHelper {
                 continue;
             }
 
-            query.append(", ");
-            appendAlterModeQueryPart(query, isAlterQuery);
-
             ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
-            appendFKConstraint(query, tableName, referenceFieldConfig.getName(), referenceFieldConfig.getType());
+            for (int i = 0; i < referenceFieldConfig.getTypes().size(); i ++) {
+                query.append(", ");
+                appendAlterModeQueryPart(query, isAlterQuery);
+
+                ReferenceFieldTypeConfig typeConfig = referenceFieldConfig.getTypes().get(i);
+                String fieldName = getIndexedName(referenceFieldConfig.getName(), i + 1);
+                appendFKConstraint(query, tableName, fieldName, typeConfig.getName());
+            }
+
+            if (referenceFieldConfig.getTypes().size() > 1) {
+                query.append(", ");
+                appendAlterModeQueryPart(query, isAlterQuery);
+                appendSingleColumnOfManyHasValueConstraint(query, tableName, referenceFieldConfig);
+            }
         }
     }
 
@@ -270,6 +283,29 @@ public class PostgreSqlQueryHelper {
         query.append("constraint ").append(constraintName).append(" foreign key (").append(fieldSqlName).
                 append(")").append(" ").append("references").append(" ").
                 append(getSqlName(referencedFieldName)).append("(ID)");
+    }
+
+    private static void appendSingleColumnOfManyHasValueConstraint(StringBuilder query, String tableName,
+                                                                   ReferenceFieldConfig referenceFieldConfig) {
+        String fieldSqlName = getSqlName(referenceFieldConfig);
+        String constraintName = "SV_" + tableName + "_" + fieldSqlName;
+
+        query.append("constraint ").append(constraintName).append(" check (");
+
+        for (int i = 1; i <= referenceFieldConfig.getTypes().size(); i ++) {
+            if (i >1) {
+                query.append(" + ");
+            }
+
+            String columnName = getSqlName(getIndexedName(referenceFieldConfig.getName(), i));
+            query.append("(case when ").append(columnName).append(" is null then 0 else 1 end)");
+        }
+
+        if (referenceFieldConfig.isNotNull()) {
+            query.append(" = 1)");
+        } else {
+            query.append(" <= 1)");
+        }
     }
 
     private static void appendAlterModeQueryPart(StringBuilder query, boolean isAlterQuery) {
@@ -312,13 +348,26 @@ public class PostgreSqlQueryHelper {
                 query.append(", ");
             }
 
-            if(isAlterQuery) {
+            if (isAlterQuery) {
                 query.append("add column ");
             }
 
-            query.append(getSqlName(fieldConfig)).append(" ").append(getSqlType(fieldConfig));
-            if (fieldConfig.isNotNull()) {
-                query.append(" not null");
+            if (fieldConfig instanceof ReferenceFieldConfig) {
+                ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
+
+                for (int j = 1; j<= referenceFieldConfig.getTypes().size(); j ++) {
+                    query.append(getSqlName(getIndexedName(fieldConfig.getName(), j))).append(" ");
+                    query.append(getSqlType(fieldConfig));
+                }
+
+                if (referenceFieldConfig.getTypes().size() == 1 && fieldConfig.isNotNull()) {
+                    query.append(" not null");
+                }
+            } else {
+                query.append(getSqlName(fieldConfig)).append(" ").append(getSqlType(fieldConfig));
+                if (fieldConfig.isNotNull()) {
+                    query.append(" not null");
+                }
             }
         }
     }

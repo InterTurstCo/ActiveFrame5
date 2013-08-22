@@ -7,9 +7,15 @@
             <dateTime name="Registration_Date"/>
             <string name="Name" length="128" />
             <string name="Description" length="128" />
-            <reference name="Author" type="Employee" /> <!-- ID of employee in fact -->
-            <reference name="Negotiator" type="Employee" /> <!-- This means Foreign Key to Employee and index are created automatically -->
-            <reference name="Signer" type="Employee" />
+            <reference name="Author"> <!-- ID of employee in fact -->
+                <type name="Employee"/>
+            </reference>
+            <reference name="Negotiator"> <!-- This means Foreign Key to Employee and index are created automatically -->
+                <type name="Employee"/>
+            </reference>
+            <reference name="Signer">
+                <type name="Employee"/>
+            </reference>
             <long name="Long_Field"/> <!-- mapping to LONG_FIELD column -->
             <decimal name="Decimal_Field" precision="10" scale="2" />
         </fields>
@@ -51,7 +57,9 @@
     <domain-object-type name="Employee_Role">
         <fields>
             <string name="Role" length="128" not-null="true" />
-            <reference name="Authentication_Info" type="Authentication_Info" not-null="true" />
+            <reference name="Authentication_Info"  not-null="true">
+                <type name="Authentication_Info"/>
+            </reference>
         </fields>
        <uniqueKey> <!-- This key means automatic key + index creation-->
             <field name="Role"/>
@@ -60,9 +68,13 @@
 
 	<domain-object-type name="Employee" extends="Person">
 		<fields>
-			<reference name="Department" type="Department" not-null="true" />
+			<reference name="Department" not-null="true">
+                <type name="Department"/>
+            </reference>
 			<string name="Name" length="64" not-null="true" />
-            <reference name="Login" type="Authentication_Info" not-null="true" />
+            <reference name="Login" not-null="true">
+                <type name="Authentication_Info"/>
+            </reference>
 			<string name="Position" length="64" not-null="true" />
 			<string name="Phone" length="32" />
 			<string name="Certificate" length="4096" />
@@ -91,8 +103,9 @@
     <domain-object-type name="Group_Member">
         <parent name="User_Group" />
         <fields>
-            <reference name="person_id" type="Authentication_Info"
-                not-null="true" />
+            <reference name="person_id" not-null="true">
+                <type name="Authentication_Info"/>
+            </reference>
         </fields>
     </domain-object-type>
 

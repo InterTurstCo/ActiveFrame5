@@ -68,13 +68,11 @@
     </xs:complexType>
 
     <xs:complexType name="referenceType">
-        <xs:simpleContent>
-            <xs:extension base="xs:string">
-                <xs:attribute name="name" use="required" type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config"/>
-                <xs:attribute name="type" type="con:nameType" use="required" xmlns:con="https://cm5.intertrust.ru/config"/>
-                <xs:attribute type="xs:string" name="not-null" use="optional"/>
-            </xs:extension>
-        </xs:simpleContent>
+        <xs:sequence>
+            <xs:element type="con:fieldType" name="type" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute name="name" use="required" type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config" />
+        <xs:attribute type="xs:string" name="not-null" use="optional" />
     </xs:complexType>
 
     <xs:complexType name="dateTimeType">
@@ -196,8 +194,8 @@
                               use="optional" />
                 <xs:attribute type="xs:string" name="editable"
                               use="optional" />
-                <xs:attribute type="xs:string" name="type" 
-                              use="optional" />                              
+                <xs:attribute type="xs:string" name="type"
+                              use="optional" />
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -405,7 +403,7 @@
                 xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element name="permit-group" type="con:permissionGroupType"
                 maxOccurs="unbounded" minOccurs="0"
-                xmlns:con="https://cm5.intertrust.ru/config" />                
+                xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:sequence>
     </xs:complexType>
 
@@ -413,13 +411,13 @@
     <xs:complexType name="permissionRoleType">
         <xs:complexContent>
             <xs:extension base="con:permissionBaseType" xmlns:con="https://cm5.intertrust.ru/config"/>
-        </xs:complexContent>    
+        </xs:complexContent>
     </xs:complexType>
-    
+
     <xs:complexType name="permissionGroupType">
         <xs:complexContent>
             <xs:extension base="con:permissionBaseType" xmlns:con="https://cm5.intertrust.ru/config"/>
-        </xs:complexContent>    
+        </xs:complexContent>
     </xs:complexType>
 
     <xs:complexType name="permissionBaseType">

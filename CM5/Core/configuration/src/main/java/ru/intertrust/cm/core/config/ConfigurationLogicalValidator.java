@@ -68,8 +68,14 @@ public class ConfigurationLogicalValidator {
 
     private void validateReferenceFields(DomainObjectTypeConfig domainObjectTypeConfig) {
         for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
-            if (ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
-                String referencedDomainObjectConfigName = ((ReferenceFieldConfig) fieldConfig).getType();
+            if (!ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
+                continue;
+            }
+
+            ReferenceFieldConfig referenceFieldConfig  = (ReferenceFieldConfig) fieldConfig;
+
+            for (ReferenceFieldTypeConfig typeConfig : referenceFieldConfig.getTypes()) {
+                String referencedDomainObjectConfigName = typeConfig.getName();
                 DomainObjectTypeConfig referencedConfig =
                         configurationExplorer.getConfig(DomainObjectTypeConfig.class,
                                 referencedDomainObjectConfigName);
