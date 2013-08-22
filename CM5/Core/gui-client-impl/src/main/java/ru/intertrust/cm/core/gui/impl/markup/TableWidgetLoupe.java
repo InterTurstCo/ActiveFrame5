@@ -8,7 +8,7 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 
-public class TableWidgetLupa extends FlowPanel {
+public class TableWidgetLoupe extends FlowPanel {
 
     HorizontalPanel horizont = new HorizontalPanel();
 
@@ -16,7 +16,7 @@ public class TableWidgetLupa extends FlowPanel {
     TextBox text = new TextBox();
     Label label;
 
-    public TableWidgetLupa(String nameLabel) {
+    public TableWidgetLoupe(String nameLabel) {
         this.label = new Label(nameLabel);
         text.setVisible(false);
         img.addClickHandler(new ClickHandler() {

@@ -19,19 +19,19 @@ public class CmjMenuNavigationForSplitPanelTable extends HorizontalPanel {
     }
 
     FlexTable headerForTable() {
-        flexTable.setWidget(0, 0, new TableWidgetLupa("Создано"));
+        flexTable.setWidget(0, 0, new TableWidgetLoupe("Создано"));
         flexTable.setWidget(0, 1, new Image(""));
         flexTable.setWidget(0, 2, new Image(""));
-        flexTable.setWidget(0, 3, new TableWidgetLupa("Срок"));
-        flexTable.setWidget(0, 4, new TableWidgetLupa("Тип задачи"));
-        flexTable.setWidget(0, 5, new TableWidgetLupa("От кого"));
-        flexTable.setWidget(0, 6, new TableWidgetLupa("Кому"));
-        flexTable.setWidget(0, 7, new TableWidgetLupa("Номер"));
-        flexTable.setWidget(0, 8, new TableWidgetLupa("Подписант"));
-        flexTable.setWidget(0, 9, new TableWidgetLupa("Заголовок"));
-        flexTable.setWidget(0, 10, new TableWidgetLupa("Текущий статус"));
-        flexTable.setWidget(0, 11, new TableWidgetLupa("Запланировано"));
-        flexTable.setWidget(0, 12, new TableWidgetLupa("Исполнитель"));
+        flexTable.setWidget(0, 3, new TableWidgetLoupe("Срок"));
+        flexTable.setWidget(0, 4, new TableWidgetLoupe("Тип задачи"));
+        flexTable.setWidget(0, 5, new TableWidgetLoupe("От кого"));
+        flexTable.setWidget(0, 6, new TableWidgetLoupe("Кому"));
+        flexTable.setWidget(0, 7, new TableWidgetLoupe("Номер"));
+        flexTable.setWidget(0, 8, new TableWidgetLoupe("Подписант"));
+        flexTable.setWidget(0, 9, new TableWidgetLoupe("Заголовок"));
+        flexTable.setWidget(0, 10, new TableWidgetLoupe("Текущий статус"));
+        flexTable.setWidget(0, 11, new TableWidgetLoupe("Запланировано"));
+        flexTable.setWidget(0, 12, new TableWidgetLoupe("Исполнитель"));
         return flexTable;
     }
 
