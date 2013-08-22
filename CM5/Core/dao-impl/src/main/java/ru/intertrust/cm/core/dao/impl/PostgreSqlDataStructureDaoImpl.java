@@ -79,7 +79,7 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
         }
 
         Integer id = domainObjectTypeIdDao.insert(config.getName());
-        config.setId(id);
+        config.setId(new Long(id));
         DomainObjectTypeIdCache.getInstance().add(new DomainObjectTypeId(config.getName(), id));
     }
 

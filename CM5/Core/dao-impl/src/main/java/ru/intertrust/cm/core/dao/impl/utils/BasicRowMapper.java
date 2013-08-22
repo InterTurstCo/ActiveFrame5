@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.dao.impl.utils;
 
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.SystemField;
 import ru.intertrust.cm.core.config.model.DateTimeFieldConfig;
 import ru.intertrust.cm.core.config.model.DecimalFieldConfig;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
@@ -27,7 +28,7 @@ import java.util.List;
  */
 public class BasicRowMapper {
 
-    private static final String MASTER_FIELD = "master";
+    private static final String DEFAULT_PARENT_FIELD = "parent";
 
     protected final String domainObjectType;
     protected final String idField;
@@ -39,7 +40,7 @@ public class BasicRowMapper {
         this.domainObjectType = domainObjectType;
         this.idField = idField;
         this.configurationExplorer = configurationExplorer;
-        this.parentField = MASTER_FIELD;
+        this.parentField = DEFAULT_PARENT_FIELD;
     }
 
     /**
@@ -151,7 +152,7 @@ public class BasicRowMapper {
                 value = new DecimalValue();
             }
         } else if (fieldConfig != null && ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
-            //TODO: Реализовать обработку множественных типов ссылки
+            // TODO: Реализовать обработку множественных типов ссылки
             String referenceType = ((ReferenceFieldConfig) fieldConfig).getTypes().get(0).getName();
             Long longValue = rs.getLong(columnName);
             if (!rs.wasNull()) {
@@ -176,6 +177,7 @@ public class BasicRowMapper {
         if (parentId != null) {
             valueModel.setParentId(parentId);
         }
+
         valueModel.setValue(value);
     }
 

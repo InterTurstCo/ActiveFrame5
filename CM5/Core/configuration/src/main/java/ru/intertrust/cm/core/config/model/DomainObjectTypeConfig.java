@@ -18,7 +18,7 @@ import java.util.List;
 @Root(name = "domain-object-type")
 public class DomainObjectTypeConfig implements TopLevelConfig {
 
-    private Integer id;
+    private Long id;
 
     @Attribute(required = true)
     private String name;
@@ -54,21 +54,17 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
     @ElementList(entry="uniqueKey", type=UniqueKeyConfig.class, inline=true, required = false)
     private List<UniqueKeyConfig> uniqueKeyConfigs = new ArrayList<>();
 
-    private static final List<FieldConfig> SYSTEM_FIELDS = new ArrayList<>();
-
-    static {
-        initSystemFields();
-    }
+    List<FieldConfig> domainObjectSystemFieldConfigs = new ArrayList<>();
 
     public DomainObjectTypeConfig() {
-
+        initDomainObjectSystemFields();
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -102,7 +98,7 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
     }
 
     public List<FieldConfig> getSystemFieldConfigs() {
-        return SYSTEM_FIELDS;
+        return domainObjectSystemFieldConfigs;
     }
 
     public List<UniqueKeyConfig> getUniqueKeyConfigs() {
@@ -141,7 +137,7 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
         this.attachmentTypesConfig = attachmentTypesConfig;
     }
 
-    private static void initSystemFields() {
+    private void initDomainObjectSystemFields() {
         for (SystemField systemField : SystemField.values()) {
             Class<? extends FieldConfig> fieldConfigClass = systemField.getFieldConfigClass();
             FieldConfig systemFieldConfig;
@@ -151,7 +147,7 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
                 throw new FatalException("cannot instantiate system field config class");
             }
             systemFieldConfig.setName(systemField.name());
-            SYSTEM_FIELDS.add(systemFieldConfig);
+            domainObjectSystemFieldConfigs.add(systemFieldConfig);
         }
     }
 
