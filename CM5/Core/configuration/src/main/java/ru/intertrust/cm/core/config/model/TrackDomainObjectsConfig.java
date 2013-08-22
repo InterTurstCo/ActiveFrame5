@@ -41,7 +41,23 @@ public class TrackDomainObjectsConfig implements Serializable {
     public void setStatus(String status) {
         this.status = status;
     }
-    
+        
+    public BindContextConfig getBindContext() {
+        return bindContext;
+    }
+
+    public void setBindContext(BindContextConfig bindContext) {
+        this.bindContext = bindContext;
+    }
+
+    public GetPersonConfig getGetPerson() {
+        return getPerson;
+    }
+
+    public void setGetPerson(GetPersonConfig getPerson) {
+        this.getPerson = getPerson;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -57,6 +73,9 @@ public class TrackDomainObjectsConfig implements Serializable {
             return false;
         }
         if (status != null ? !status.equals(that.status) : that.status != null) {
+            return false;
+        }
+        if (getPerson != null ? !getPerson.equals(that.getPerson) : that.getPerson != null) {
             return false;
         }
         if (bindContext != null ? !bindContext.equals(that.bindContext) : that.bindContext != null) {

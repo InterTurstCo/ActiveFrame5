@@ -2,9 +2,11 @@ package ru.intertrust.cm.core.config;
 
 import ru.intertrust.cm.core.config.model.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.model.Configuration;
+import ru.intertrust.cm.core.config.model.DynamicGroupConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Предоставляет быстрый доступ к элементам конфигурации.
@@ -66,5 +68,13 @@ public interface ConfigurationExplorer {
      * @return конфигурацию отображаемого поля коллекции
      */
     CollectionColumnConfig getCollectionColumnConfig(String collectionConfigName, String columnConfigName);
+    
+    /**
+     * Поиск списка динамических групп по типу контекстного доменного объекта.
+     * @param domainObjectType типу контекстного объекта
+     * @return спискок динамических групп
+     */
+    public List<DynamicGroupConfig> getDynamicGroupConfigsByContextType(String domainObjectType);
+
 
 }

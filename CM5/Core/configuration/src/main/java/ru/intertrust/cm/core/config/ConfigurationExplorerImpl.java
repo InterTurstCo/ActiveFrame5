@@ -157,6 +157,29 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         initConfigurationMapsOfAttachmentDomainObjectTypes(attachmentOwnerDots);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<DynamicGroupConfig> getDynamicGroupConfigsByContextType(String domainObjectType) {
+        List<DynamicGroupConfig> dynamicGroups = new ArrayList<DynamicGroupConfig>();
+
+        Map<String, TopLevelConfig> dynamicGroupMap = topLevelConfigMap.get(DynamicGroupConfig.class);
+
+        for (String groupName : dynamicGroupMap.keySet()) {
+            DynamicGroupConfig dynamicGroup = (DynamicGroupConfig) dynamicGroupMap.get(groupName);
+            if (dynamicGroup.getContext() != null && dynamicGroup.getContext().getDomainObject() != null) {
+                String objectType = dynamicGroup.getContext().getDomainObject().getType();
+
+                if (objectType.equals(domainObjectType)) {
+                    dynamicGroups.add(dynamicGroup);
+                }
+            }
+        }
+
+        return dynamicGroups;
+    }
+   
     private void fillTopLevelConfigMap(TopLevelConfig config) {
         Map<String, TopLevelConfig> typeMap = topLevelConfigMap.get(config.getClass());
         if(typeMap == null) {

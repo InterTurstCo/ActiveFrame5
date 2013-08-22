@@ -19,14 +19,14 @@ public abstract class BaseOperationPermitConfig {
             @ElementList(entry = "permit-role", type = PermitRole.class, inline = true),
             @ElementList(entry = "permit-group", type = PermitGroup.class, inline = true),
     })
-    private List<Object> permitConfigs = new ArrayList<>();
+    private List<BasePermit> permitConfigs = new ArrayList<>();
     
 
-    public List<Object> getPermitConfigs() {
+    public List<BasePermit> getPermitConfigs() {
         return permitConfigs;
     }
 
-    public void setPermitConfigs(List<Object> permitConfigs) {
+    public void setPermitConfigs(List<BasePermit> permitConfigs) {
         this.permitConfigs = permitConfigs;
     }
 

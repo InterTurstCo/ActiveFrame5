@@ -37,7 +37,7 @@
         <members>
             <!-- Отслеживаем сохранение/удаление объектов типа "Delegation" 
                 в статусе "active" -->
-            <track-domain-objects type="Delegation"
+            <track-domain-objects type="Delegate"
                 status="active">
                 <!-- Указываем, какую именно группу (с каким контекстом) 
                     менять - берём пользователя из поля "person" -->
@@ -94,10 +94,10 @@
     <!-- Контекстные роли -->
     <context-role name="Автор документа">
         <context>
-            <domain-object type="Outgoing Document" />
+            <domain-object type="Outgoing_Document" />
         </context>
         <groups>
-            <group name="Пользователь и его заместители">
+            <group name="Пользователь">
                 <bind-context>
                     <doel>Author</doel>
                 </bind-context>
@@ -106,7 +106,7 @@
     </context-role>
 
     <!-- Матрицы доступа -->
-    <access-matrix type="Outgoing document">
+    <access-matrix type="Outgoing_Document">
         <status name="Draft">
             <read>
                 <permit-role name="Автор документа"></permit-role>
