@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.event;
 
 import com.google.gwt.event.shared.GwtEvent;
-import ru.intertrust.cm.core.gui.impl.client.BasePlugin;
+import ru.intertrust.cm.core.gui.impl.client.Plugin;
 
 /**
  * @author Denis Mitavskiy
@@ -10,13 +10,13 @@ import ru.intertrust.cm.core.gui.impl.client.BasePlugin;
  */
 public class PluginViewCreatedEvent extends GwtEvent<PluginViewCreatedEventHandler> {
     public static Type<PluginViewCreatedEventHandler> TYPE = new Type<PluginViewCreatedEventHandler>();
-    private final BasePlugin plugin;
+    private final Plugin plugin;
 
-    public PluginViewCreatedEvent(BasePlugin plugin) {
+    public PluginViewCreatedEvent(Plugin plugin) {
         this.plugin = plugin;
     }
 
-    public BasePlugin getPlugin() {
+    public Plugin getPlugin() {
         return plugin;
     }
 

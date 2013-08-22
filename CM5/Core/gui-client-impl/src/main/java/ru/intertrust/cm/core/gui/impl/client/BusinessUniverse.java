@@ -22,9 +22,9 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
             @Override
             public void onSuccess(BusinessUniverseInitialization result) {
                 PluginPanel pluginPanel = new PluginPanel();
-                BasePlugin myPlugin = new SomePlugin();
+                Plugin myPlugin = new SomePlugin();
                 pluginPanel.open(myPlugin);
-                RootLayoutPanel.get().add(pluginPanel.getPanel());
+                RootLayoutPanel.get().add(pluginPanel);
 
             }
 

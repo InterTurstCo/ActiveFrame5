@@ -12,35 +12,37 @@ import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
  *         Date: 14.08.13
  *         Time: 13:01
  */
-public abstract class BasePlugin extends BaseComponent {
+public abstract class Plugin extends BaseComponent {
+    private PluginPanel owner;
+
     private AsyncCallback<Dto> callback;
     private EventBus eventBus;
-    private BasePluginView view;
+    private PluginView view;
 
     void setUp() {
         callback = new AsyncCallback<Dto>() {
             @Override
             public void onSuccess(Dto result) {
-                view = BasePlugin.this.createView(result);
-                PluginViewCreatedEvent viewCreatedEvent = new PluginViewCreatedEvent(BasePlugin.this);
-                eventBus.fireEventFromSource(viewCreatedEvent, BasePlugin.this);
+                view = Plugin.this.createView(result);
+                PluginViewCreatedEvent viewCreatedEvent = new PluginViewCreatedEvent(Plugin.this);
+                eventBus.fireEventFromSource(viewCreatedEvent, Plugin.this);
             }
 
             @Override
             public void onFailure(Throwable caught) {
-                BasePlugin.this.onDataLoadFailure();
+                Plugin.this.onDataLoadFailure();
             }
         };
         init(callback);
     }
 
-    BasePluginView getView() {
+    PluginView getView() {
         return view;
     }
 
     public abstract void init(AsyncCallback<Dto> callback);
 
-    public abstract BasePluginView createView(Dto data);
+    public abstract PluginView createView(Dto data);
 
     public void onDataLoadFailure() {
         Window.alert("Ошибка инициализации плагина");

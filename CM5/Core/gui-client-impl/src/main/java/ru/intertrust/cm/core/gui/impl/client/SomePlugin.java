@@ -12,7 +12,7 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
  *         Time: 18:43
  */
 @ComponentName("some.plugin")
-public class SomePlugin extends BasePlugin {
+public class SomePlugin extends Plugin {
 
     @Override
     public void init(AsyncCallback<Dto> callback) {
@@ -20,8 +20,8 @@ public class SomePlugin extends BasePlugin {
     }
 
     @Override
-    public BasePluginView createView(Dto data) {
-        return new BasePluginView();
+    public PluginView createView(Dto data) {
+        return new PluginView();
     }
 
     @Override

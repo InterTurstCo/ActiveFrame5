@@ -9,7 +9,7 @@ import com.google.gwt.user.client.ui.Widget;
  *         Date: 19.08.13
  *         Time: 13:57
  */
-public class BasePluginView implements IsWidget {
+public class PluginView implements IsWidget {
     @Override
     public Widget asWidget() {
         return new Button("This is a button");

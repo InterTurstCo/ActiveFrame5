@@ -12,7 +12,7 @@ public abstract class BaseComponent implements Component {
     /**
      * Устанавливает имя компонента. Используется системой, разработчики не должны использовать этот метод
      * @param name имя компонента
-     * @return
+     * @return имя компонента
      */
     Component setName(String name) {
         this.name = name;
