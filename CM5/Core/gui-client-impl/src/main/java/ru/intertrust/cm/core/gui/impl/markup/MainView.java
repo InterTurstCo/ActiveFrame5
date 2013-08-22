@@ -9,8 +9,8 @@ import com.google.gwt.user.client.ui.RootLayoutPanel;
 /**
  * @author Denis Mitavskiy Date: 24.07.13 Time: 13:52
  */
-public class MainView{// implements EntryPoint {
-   // @Override
+public class MainView implements EntryPoint {
+    @Override
     public void onModuleLoad() {
         // Window.alert("Hello");
 
@@ -43,11 +43,9 @@ public class MainView{// implements EntryPoint {
             }
         });
 
-        mf.addElementInHeader(new Button("Header"));
-
         mf.addElementInDragPanel(drugBtn);
-        mf.addElementInNavigation(new Button("navigation"));
-        mf.addElementInTree(treeBtn);
+        // mf.addElementInNavigation(new Button("navigation"));
+        // mf.addElementInTree(treeBtn);
         mf.addElementInSticker(stickerBtn);
         RootLayoutPanel rp = RootLayoutPanel.get();
         rp.add(mf);

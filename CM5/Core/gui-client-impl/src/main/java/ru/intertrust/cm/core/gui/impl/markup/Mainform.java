@@ -6,16 +6,16 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 public class Mainform extends DockLayoutPanel {
-    Double showDrag = 12.00;
-    Double showSticker = 15.00;
+    Double showDrag = 2.00;
+    Double showSticker = 5.00;
     Double showTree = 15.00;
     MainContainerWithSplitPanel center = new MainContainerWithSplitPanel();
 
     public Mainform() {
-        super(Unit.EM);
-        this.addNorth(north, 10);
+        super(Unit.EM);//px?
+        this.addNorth(north, 5.6);
         this.addSouth(south, showDrag);
-        this.addWest(west, 15);
+        this.addWest(west, 6);
         this.addWest(tree, showTree);
         this.addEast(east, showSticker);
 
@@ -38,25 +38,14 @@ public class Mainform extends DockLayoutPanel {
         east.getElement().getStyle().setProperty("marginLeft", "5px");
         east.getElement().getStyle().setProperty("marginRight", "5px");
 
-        // center.getElement().getStyle().setProperty("backgroundColor", "#E00");
-
     }
 
-    FlowPanel north = new FlowPanel();
+    CmjHeader north = new CmjHeader();
     FlowPanel south = new FlowPanel();
     FlowPanel east = new FlowPanel();
 
-    FlowPanel west = new FlowPanel();
-    FlowPanel tree = new FlowPanel();
-
-    // StackLayoutPanel center = new StackLayoutPanel(Unit.EM);
-
-    // Panel leftPanel = new HorizontalPanel();
-    // Panel rightPanel = new HorizontalPanel();
-
-    // HTML leftPanel = new HTML();
-    //
-    // HTML rightPanel = new HTML();
+    CmjNavigation west = new CmjNavigation();
+    CmjTree tree = new CmjTree();
 
     void showDrag() {
         if (this.showDrag == 12.00) {
@@ -69,7 +58,6 @@ public class Mainform extends DockLayoutPanel {
 
             this.setWidgetSize(south, showDrag);
         }
-
     }
 
     void showSticker() {
@@ -83,7 +71,6 @@ public class Mainform extends DockLayoutPanel {
 
             this.setWidgetSize(east, showDrag);
         }
-
     }
 
     void showTree() {
