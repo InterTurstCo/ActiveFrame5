@@ -25,7 +25,6 @@ import ru.intertrust.cm.core.config.model.DynamicGroupConfig;
 import ru.intertrust.cm.core.config.model.TrackDomainObjectsConfig;
 import ru.intertrust.cm.core.dao.access.DynamicGroupService;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
-import ru.intertrust.cm.core.dao.impl.doel.DoelResolver;
 
 /**
  * Реализация сервиса по работе с динамическими группами пользователей
@@ -44,8 +43,6 @@ public class DynamicGroupServiceImpl implements DynamicGroupService {
     private DomainObjectDao domainObjectDao;
 
     private NamedParameterJdbcTemplate jdbcTemplate;
-
-    private DoelResolver doelResolver;
     
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
@@ -62,10 +59,6 @@ public class DynamicGroupServiceImpl implements DynamicGroupService {
     public void setDataSource(DataSource dataSource) {
         this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
-    
-    public void setDoelResolver(DoelResolver doelResolver) {
-        this.doelResolver = doelResolver;
-    }
 
     @Override
     public void refreshDynamicGroupsFor(Id objectId) {
@@ -73,90 +66,50 @@ public class DynamicGroupServiceImpl implements DynamicGroupService {
         List<DynamicGroupConfig> dynamicGroups = configurationExplorer.getDynamicGroupConfigsByContextType(id.getTypeName());
 
         for (DynamicGroupConfig dynamicGroupConfig : dynamicGroups) {
-            DomainObject userGroupDO = refreshUserGroup(dynamicGroupConfig.getName(), id);
-            Id dynamicGroupId = userGroupDO.getId();
+            Id dynamicGroupId = refreshUserGroup(dynamicGroupConfig.getName(), id);
             List<Id> personIds = getGroupMembersFor(dynamicGroupConfig, objectId);
-            
-            
             refreshGroupMembers(dynamicGroupId, personIds);
         }
     }
 
     /**
      * Получает список персон динамической группы
-     * @param dynamicGroupConfig
-     * @param dynamicGroupId
-     * @return
+     * @param dynamicGroupConfig конфигурация динамической группы
+     * @param contextObjectId идентификатор контекстного объекта
+     * @return список идентификаторов персон группы
      */
-    private List<Id> getGroupMembersFor(DynamicGroupConfig dynamicGroupConfig, Id objectId) {
-        
-        if (dynamicGroupConfig.getMembers() != null && dynamicGroupConfig.getMembers().getTrackDomainObjects() != null) {
-            
-            final String contextObjectType = dynamicGroupConfig.getContext().getDomainObject().getType();
-            TrackDomainObjectsConfig trackDomainObjectsConfig =  dynamicGroupConfig.getMembers().getTrackDomainObjects();
-            String query = null;
-            final String getPersonField = getGetPersonField(trackDomainObjectsConfig);
-            if(trackDomainObjectsConfig.getBindContext() != null){
-                String trackDomainObjectType = trackDomainObjectsConfig.getType();
-                
-                String bindContectField = trackDomainObjectsConfig.getBindContext().getDoel();
-                query = "Select d." + getPersonField + " from " + contextObjectType + " p inner join " 
-                + trackDomainObjectType + " d on d." + bindContectField + " = p.id where p.id = :contextObjectId";
-            }else{                
-                query = "Select p." + getPersonField + " from " + contextObjectType
-                        + " p where p.id = :contextObjectId";
-                
-            }
-            
-            Map<String, Object> parameters = initializeGetGroupMembersParameters(objectId);
-            List<Id> personIds =
-                    jdbcTemplate.query(query, parameters, new ListIdRowMapper(getPersonField, contextObjectType));
-            
-            System.out.println("Find personds for dynamic group : " + dynamicGroupConfig.getName()
-                    + " and context id: " + objectId + " : " + personIds);
-            // return personIds;
-            return personIds;
-        }
-        
+    private List<Id> getGroupMembersFor(DynamicGroupConfig dynamicGroupConfig, Id contextObjectId) {
 
         List<Id> personIds = new ArrayList<Id>();
-        personIds.add(new RdbmsId("Person", 1l));
-        return personIds;
-    }
+        if (dynamicGroupConfig.getMembers() != null && dynamicGroupConfig.getMembers().getTrackDomainObjects() != null) {
 
-    
-    /**
-     * 
-     * @author atsvetkov
-     *
-     */
-    private class ListIdRowMapper implements ResultSetExtractor<List<Id>> {
+            final String contextObjectType = dynamicGroupConfig.getContext().getDomainObject().getType();
+            TrackDomainObjectsConfig trackDomainObjectsConfig = dynamicGroupConfig.getMembers().getTrackDomainObjects();
+            String query = null;
+            final String getPersonField = getGetPersonField(trackDomainObjectsConfig);
+            if (trackDomainObjectsConfig.getBindContext() != null) {
+                String trackDomainObjectType = trackDomainObjectsConfig.getType();
 
-        private String idField;
-        
-        private String domainObjectType;
-                
-        public ListIdRowMapper(String idField, String domainObjectType) {
-            this.idField = idField;
-            this.domainObjectType = domainObjectType;
+                String bindContectField = trackDomainObjectsConfig.getBindContext().getDoel();
+                query = "Select d." + getPersonField + " from " + contextObjectType + " p inner join "
+                        + trackDomainObjectType + " d on d." + bindContectField + " = p.id where p.id = " +
+                        ":contextObjectId";
+            } else {
+                query = "Select p." + getPersonField + " from " + contextObjectType
+                        + " p where p.id = :contextObjectId";
+
+            }
+
+            Map<String, Object> parameters = initializeGetGroupMembersParameters(contextObjectId);
+            personIds =
+                    jdbcTemplate.query(query, parameters, new ListObjectIdRowMapper(getPersonField, contextObjectType));
+            System.out.println("Find personds for dynamic group : " + dynamicGroupConfig.getName()
+                    + " and context id: " + contextObjectId + " : " + personIds);
         }
 
-        @Override
-        public List<Id> extractData(ResultSet rs) throws SQLException, DataAccessException {
-            List<Id> personIds = new ArrayList<>();
-            
-            while (rs.next()) {
-                Long longValue = rs.getLong(idField);
-                
-                Id id = new RdbmsId(domainObjectType, longValue);
-                personIds.add(id);
-                
-            }
-            return personIds;
-        }                
+        return personIds;
     }
-    
-    
+       
     protected Map<String, Object> initializeGetGroupMembersParameters(Id contextObjectId) {
         RdbmsId rdbmsId = (RdbmsId) contextObjectId;
         Map<String, Object> parameters = new HashMap<String, Object>();
@@ -195,7 +148,7 @@ public class DynamicGroupServiceImpl implements DynamicGroupService {
             GenericDomainObject groupMemeber = new GenericDomainObject();
             groupMemeber.setTypeName(GROUP_MEMBER_DOMAIN_OBJECT);
             groupMemeber.setLong("person_id", ((RdbmsId) personId).getId());
-            groupMemeber.setParent(dynamicGroupId);            
+            groupMemeber.setParent(dynamicGroupId);
             groupMembers.add(groupMemeber);
 
         }
@@ -219,38 +172,129 @@ public class DynamicGroupServiceImpl implements DynamicGroupService {
         return query.toString();
 
     }
-    
+
     protected Map<String, Object> initializeDeleteGroupMembersParameters(Id groupId) {
         RdbmsId rdbmsId = (RdbmsId) groupId;
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("master", rdbmsId.getId());
         return parameters;
-    }
+    }   
     
     /**
-     * Добавляет динамическую группу для переданного контекстного объекта, если группы еще нет в таблице USER_GROUP
+     * Добавляет группу с данным именем и контекстным объектом, если группы нет в базе данных
      * @param dynamicGroupName имя динамической группы
-     * @param objectId контекстный объект динамической группы
+     * @param contextObjectId контекстный объект динамической группы
      * @return обновленную динамическую группу
      */
-    private DomainObject refreshUserGroup(String dynamicGroupName, Id objectId) {
-        GenericDomainObject userGroupDO = new GenericDomainObject();
-        userGroupDO.setTypeName(USER_GROUP_DOMAIN_OBJECT);
-        userGroupDO.setString("group_name", dynamicGroupName);
-        userGroupDO.setLong("object_id", ((RdbmsId) objectId).getId());
-        DomainObject updatedObject = domainObjectDao.save(userGroupDO);
-        return updatedObject;
+    private Id refreshUserGroup(String dynamicGroupName, Id contextObjectId) {
+        Id userGroupId = getUserGroupByGroupNameAndObjectId(dynamicGroupName, contextObjectId);
+        
+        if (userGroupId == null) {
+            GenericDomainObject userGroupDO = new GenericDomainObject();
+            userGroupDO.setTypeName(USER_GROUP_DOMAIN_OBJECT);
+            userGroupDO.setString("group_name", dynamicGroupName);
+            userGroupDO.setLong("object_id", ((RdbmsId) contextObjectId).getId());
+            DomainObject updatedObject = domainObjectDao.save(userGroupDO);
+            userGroupId = updatedObject.getId();
+        }
+        return userGroupId;
     }
     
-    private void refreshUserGroupMembers(Id objectId, List<Id> personIds) {       
-        
-        
+    
+    /**
+     * Возвращает идентификатор группы пользователей по имени группы и идентификатору контекстного объекта 
+     * @param groupName имя динамической группы
+     * @param contextObjectId идентификатор контекстного объекта
+     * @return идентификатор группы пользователей
+     */
+    private Id getUserGroupByGroupNameAndObjectId(String groupName, Id contextObjectId) {
+        String query = generateGetUserGroupQuery();
+
+        Map<String, Object> parameters = initializeGetUserGroupParameters(groupName, contextObjectId);
+        return jdbcTemplate.query(query, parameters, new ObjectIdRowMapper("id", USER_GROUP_DOMAIN_OBJECT));
     }
+    
+    protected Map<String, Object> initializeGetUserGroupParameters(String groupName, Id contextObjectId) {
+        RdbmsId rdbmsId = (RdbmsId) contextObjectId;
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("group_name", groupName);
+        parameters.put("object_id", rdbmsId.getId());        
+        return parameters;
+    }
+
+    protected String generateGetUserGroupQuery() {
+        String tableName = getSqlName(USER_GROUP_DOMAIN_OBJECT);
+        StringBuilder query = new StringBuilder();
+        query.append("select ug.id from ");
+        query.append(tableName).append(" ug");
+        query.append(" where ug.group_name = :group_name and ug.object_id = :object_id");
+
+        return query.toString();
+    }
+
 
     @Override
     public void cleanDynamicGroupsFor(Id id) {
-        // TODO Auto-generated method stub
-        
+        // TODO Auto-generated method stub        
     }
 
+    /**
+     * Отображает {@link java.sql.ResultSet} на список идентификаторов доменных объектов {@link Id}
+     * @author atsvetkov
+     */
+    private class ListObjectIdRowMapper implements ResultSetExtractor<List<Id>> {
+
+        private String idField;
+
+        private String domainObjectType;
+
+        public ListObjectIdRowMapper(String idField, String domainObjectType) {
+            this.idField = idField;
+            this.domainObjectType = domainObjectType;
+        }
+
+        @Override
+        public List<Id> extractData(ResultSet rs) throws SQLException, DataAccessException {
+            List<Id> personIds = new ArrayList<>();
+
+            while (rs.next()) {
+                Long longValue = rs.getLong(idField);
+
+                Id id = new RdbmsId(domainObjectType, longValue);
+                personIds.add(id);
+
+            }
+            return personIds;
+        }
+    }
+
+    /**
+     * Отображает {@link java.sql.ResultSet} на идентификатор доменного объекта {@link Id}
+     * @author atsvetkov
+     *
+     */
+    private class ObjectIdRowMapper implements ResultSetExtractor<Id> {
+
+        private String idField;
+
+        private String domainObjectType;
+
+        public ObjectIdRowMapper(String idField, String domainObjectType) {
+            this.idField = idField;
+            this.domainObjectType = domainObjectType;
+        }
+
+        @Override
+        public Id extractData(ResultSet rs) throws SQLException, DataAccessException {
+            Id id = null;
+            while (rs.next()) {
+                Long longValue = rs.getLong(idField);
+
+                id = new RdbmsId(domainObjectType, longValue);
+                
+            }
+            return id;
+        }
+    }
+ 
 }
