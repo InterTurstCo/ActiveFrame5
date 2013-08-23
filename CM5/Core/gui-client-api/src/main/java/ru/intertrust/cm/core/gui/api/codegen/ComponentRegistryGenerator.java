@@ -8,7 +8,7 @@ import com.google.gwt.core.ext.typeinfo.JClassType;
 import com.google.gwt.core.ext.typeinfo.TypeOracle;
 import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.user.rebind.SourceWriter;
-import ru.intertrust.cm.core.gui.api.client.ComponentName;
+import ru.intertrust.cm.core.gui.model.ComponentName;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -89,9 +89,9 @@ public class ComponentRegistryGenerator extends Generator {
         sourceWriter.indent();
         sourceWriter.println("Component obj = components.get(name);");
         sourceWriter.println("if (obj == null) {");
-        sourceWriter.println("    return null");
+        sourceWriter.println("    return null;");
         sourceWriter.println("}");
-        sourceWriter.println("return obj instanceof BaseComponent ? (T) ((BaseComponent) obj).setName(name).createNew() : (T) obj.createNew();");
+        sourceWriter.println("return obj instanceof BaseComponent ? (T) ((BaseComponent) obj.createNew()).setName(name) : (T) obj.createNew();");
         sourceWriter.outdent();
         sourceWriter.println("}");
         sourceWriter.commit(logger);

@@ -6,19 +6,18 @@ import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 
 /**
  * @author Denis Mitavskiy
- *         Date: 13.08.13
- *         Time: 18:43
+ *         Date: 23.08.13
+ *         Time: 15:28
  */
-@ComponentName("some.plugin")
-public class SomePlugin extends Plugin {
-
+@ComponentName("some.active.plugin")
+public class SomeActivePlugin extends Plugin {
     @Override
     public PluginView createView(PluginData initialData) {
-        return new SomePluginView(this);
+        return new SomeActivePluginView(this);
     }
 
     @Override
     public Component createNew() {
-        return new SomePlugin();
+        return new SomeActivePlugin();
     }
 }

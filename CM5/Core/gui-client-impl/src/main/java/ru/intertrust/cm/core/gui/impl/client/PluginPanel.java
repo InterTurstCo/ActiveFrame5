@@ -4,7 +4,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
@@ -19,14 +18,10 @@ public class PluginPanel implements IsWidget, PluginViewCreatedEventHandler {
     private SimplePanel impl = new SimplePanel();
     private EventBus eventBus = GWT.create(SimpleEventBus.class);
 
-    public Panel getPanel() {
-        impl.setSize("100%", "100%");
-        return impl;
-    }
-
     public void open(Plugin plugin) {
         eventBus.addHandlerToSource(PluginViewCreatedEvent.TYPE, plugin, this);
         plugin.setEventBus(eventBus);
+        plugin.setOwner(this);
         plugin.setUp();
 
     }
@@ -40,5 +35,9 @@ public class PluginPanel implements IsWidget, PluginViewCreatedEventHandler {
     public Widget asWidget() {
         impl.setSize("100%", "100%");
         return impl;
+    }
+
+    public void setSize(String width, String height) {
+        impl.setSize(width, height);
     }
 }

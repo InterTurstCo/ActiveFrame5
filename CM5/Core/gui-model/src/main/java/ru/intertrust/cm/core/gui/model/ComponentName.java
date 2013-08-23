@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.gui.api.client;
+package ru.intertrust.cm.core.gui.model;
 
 /**
  * Аннотация, определяющая имя компонента GUI

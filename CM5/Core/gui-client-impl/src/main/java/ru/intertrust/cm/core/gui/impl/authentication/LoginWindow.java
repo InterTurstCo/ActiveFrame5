@@ -6,7 +6,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
-import ru.intertrust.cm.core.gui.api.client.ComponentName;
+import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationServiceAsync;
 
 /**

@@ -3,6 +3,8 @@ package ru.intertrust.cm.core.gui.rpc.server;
 import ru.intertrust.cm.core.config.model.NavigationConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
+import ru.intertrust.cm.core.gui.model.Command;
+import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseService;
 
 import javax.ejb.EJB;
@@ -23,5 +25,10 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     public BusinessUniverseInitialization getBusinessUniverseInitialization() {
         NavigationConfig navigationConfiguration = guiService.getNavigationConfiguration();
         return new BusinessUniverseInitialization();
+    }
+
+    @Override
+    public PluginData executeCommand(Command command) {
+        return guiService.executeCommand(command);
     }
 }

@@ -1,6 +1,8 @@
 package ru.intertrust.cm.core.gui.api.server;
 
 import ru.intertrust.cm.core.config.model.NavigationConfig;
+import ru.intertrust.cm.core.gui.model.Command;
+import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 
 /**
  * Данный класс-служба содержит операции, относящиеся к клиентскому приложению. Клиентское приложение может быть
@@ -13,11 +15,18 @@ import ru.intertrust.cm.core.config.model.NavigationConfig;
  */
 public interface GuiService {
     public interface Remote extends GuiService {
-    }
 
+    }
     /**
      * Возвращает конфигурацию панели навигации.
      * @return конфигурацию панели навигации
      */
     NavigationConfig getNavigationConfiguration();
+
+    /**
+     * Выполняет команду плагина и возвращает результат
+     * @param command команда плагина
+     * @return результат выполнения команды
+     */
+    PluginData executeCommand(Command command);
 }
