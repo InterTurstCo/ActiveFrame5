@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.AttachmentTypeConfig;
@@ -57,8 +59,10 @@ public class AttachmentServiceImpl implements AttachmentService {
     private AccessControlService accessControlService;
 
     @Override
-    public DomainObject createAttachmentDomainObjectFor(String domainObjectType) {
-        return crudService.createDomainObject(domainObjectType);
+    public DomainObject createAttachmentDomainObjectFor(Id objectId, String attachmentType) {
+        GenericDomainObject attachmentDomainObject = (GenericDomainObject) crudService.createDomainObject(attachmentType);
+        attachmentDomainObject.setParent(objectId);
+        return attachmentDomainObject;
     }
 
     public void setAccessControlService(AccessControlService accessControlService) {

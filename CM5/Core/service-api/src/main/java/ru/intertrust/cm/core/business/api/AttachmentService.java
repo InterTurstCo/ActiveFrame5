@@ -5,6 +5,7 @@ import java.util.List;
 import com.healthmarketscience.rmiio.RemoteInputStream;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
 
 /**
  * Работа с доменными объектами Вложения. Вынесен в отдельный сервис, так как нужны функции работы с контентом Вложений.
@@ -23,10 +24,11 @@ public interface AttachmentService {
 
     /**
      * Создает доменный объект (ДО) Вложение на основе его типа, не сохраняя его в СУБД.
-     * @param domainObjectType тип ДО, для которого создается ДО Вложение.
+     * @param objectId доменный объект, для которого создается ДО Вложение
+     * @param attachmentType тип Вложения
      * @return пустой ДО Вложение
      */
-    DomainObject createAttachmentDomainObjectFor(String domainObjectType);
+    DomainObject createAttachmentDomainObjectFor(Id objectId, String attachmentType);
     
     /**
      * Сохраняет доменный объект Вложение и его контент. Если id ДО Вложение пустое, то создает новый объект. Иначе,
