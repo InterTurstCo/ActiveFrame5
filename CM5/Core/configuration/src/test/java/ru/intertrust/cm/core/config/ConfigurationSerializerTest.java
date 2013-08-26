@@ -83,11 +83,12 @@ public class ConfigurationSerializerTest {
 
         List configurationList = configuration.getConfigurationList();
         assertNotNull(configurationList);
-        assertEquals(9, configurationList.size());
+        assertEquals(13, configurationList.size());
 
         List<String> configurationNames = new ArrayList<>();
         configurationNames.addAll(Arrays.asList("Employees", "Employees_2", "Outgoing_Document", "Person",
-                "Assignment", "Employee", "Department", "Incoming_Document", "Incoming_Document2"));
+                "Assignment", "Employee", "Department", "Incoming_Document", "Incoming_Document2", 
+                "Authentication_Info", "User_Group", "Group_Member", "Group_Admin"));
 
         for (Object configurationItem : configurationList) {
             String name = DomainObjectTypeConfig.class.equals(configurationItem.getClass()) ?

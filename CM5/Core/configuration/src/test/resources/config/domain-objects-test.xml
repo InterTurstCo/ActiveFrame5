@@ -65,4 +65,39 @@
         </fields>
     </domain-object-type>
 
+    <!-- Системный объект, должен определяться в системной конфигурации -->
+    <domain-object-type name="Authentication_Info">
+        <fields>
+            <string name="User_Uid" length="64" not-null="true" />
+            <password name="Password" length="128" />
+        </fields>
+       <uniqueKey> <!-- This key means automatic key + index creation-->
+            <field name="User_Uid"/>
+       </uniqueKey>
+    </domain-object-type>
+
+    <!-- Системные объекты, пока просто как предложение -->
+    <domain-object-type name="User_Group">
+        <fields>
+            <string name="group_name" length="64" not-null="true" />
+            <long name="object_id" />
+            <long name="is_static" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="Group_Member">
+        <parent name="User_Group" />
+        <fields>
+            <reference name="person_id" not-null="true">
+                <type name="Authentication_Info"/>
+            </reference>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="Group_Admin">
+        <parent name="User_Group" />
+        <fields>
+            <string name="role_name" length="64" not-null="true" />
+        </fields>
+    </domain-object-type>
 </configuration>

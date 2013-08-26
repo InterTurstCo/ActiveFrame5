@@ -57,7 +57,7 @@ public class PostgreSqlDataStructureDaoImplTest {
 
         verify(domainObjectTypeIdDao).insert(domainObjectTypeConfig.getName());
 
-        assertEquals(Integer.valueOf(7), domainObjectTypeConfig.getId());
+        assertEquals(Long.valueOf(7), domainObjectTypeConfig.getId());
     }
 
     @Test
