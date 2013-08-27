@@ -32,16 +32,15 @@ import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.access.ExecuteActionAccessType;
 import ru.intertrust.cm.core.dao.access.PermissionService;
 
-
 /**
  * Реализвация сервиса обновления списков доступа.
  * @author atsvetkov
  */
 public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implements PermissionService {
-    
+
     @Autowired
     private ConfigurationExplorer configurationExplorer;
-    
+
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
         doelResolver.setConfigurationExplorer(configurationExplorer);
@@ -50,7 +49,7 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
     @Override
     public void refreshAclFor(Id objectId) {
         deleteAclFor(objectId);
-        
+
         RdbmsId rdbmsId = (RdbmsId) objectId;
         String domainObjectType = rdbmsId.getTypeName();
         String status = getStatusFor(objectId);
@@ -102,7 +101,7 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
             AccessType accessType) {
         RdbmsId rdbmsId = (RdbmsId) objectId;
         String domainObjectType = rdbmsId.getTypeName();
-        
+
         for (BasePermit permit : operationPermitConfig.getPermitConfigs()) {
             if (permit.getClass().equals(PermitRole.class)) {
                 String contextRoleName = permit.getName();
@@ -121,8 +120,8 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
 
                     }
                 }
-            } else if(permit.getClass().equals(PermitGroup.class)){
-                
+            } else if (permit.getClass().equals(PermitGroup.class)) {
+
             }
         }
     }
@@ -138,38 +137,39 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
         String dynamicGroupName = dynamicGroupConfig.getName();
         String doel = dynamicGroupConfig.getBindContext().getDoel();
         List<Long> contextObjectids = getDynamicGroupContextObject(objectId, doel);
-        for(Long contextObjectid : contextObjectids){
+        for (Long contextObjectid : contextObjectids) {
             Id dynamicGroupId =
                     getUserGroupByGroupNameAndObjectId(dynamicGroupName, contextObjectid);
             insertAclRecord(accessType, objectId, dynamicGroupId);
-            
+
         }
     }
-    
+
     /**
      * Добавляет запись в _ACl (_READ) таблицу.
      * @param accessType тип доступа
      * @param objectId идентификатор доменного объекта
      * @param dynamicGroupId идентификатор группы пользователей
-     */    
+     */
     private void insertAclRecord(AccessType accessType, Id objectId, Id dynamicGroupId) {
         RdbmsId rdbmsObjectId = (RdbmsId) objectId;
         RdbmsId rdbmsDynamicGroupId = (RdbmsId) dynamicGroupId;
 
         String query = null;
-        if(accessType == DomainObjectAccessType.READ){
-            query = generateInsertAclReadRecordQuery(rdbmsObjectId);            
-        }else{
-            query = generateInsertAclRecordQuery(rdbmsObjectId);            
-            
+        if (accessType == DomainObjectAccessType.READ) {
+            query = generateInsertAclReadRecordQuery(rdbmsObjectId);
+        } else {
+            query = generateInsertAclRecordQuery(rdbmsObjectId);
+
         }
 
-        Map<String, Object> parameters = initializeInsertAclRecordParameters(accessType, rdbmsObjectId, rdbmsDynamicGroupId);
-        jdbcTemplate.update(query, parameters);      
+        Map<String, Object> parameters =
+                initializeInsertAclRecordParameters(accessType, rdbmsObjectId, rdbmsDynamicGroupId);
+        jdbcTemplate.update(query, parameters);
 
     }
 
-    private String generateInsertAclReadRecordQuery(RdbmsId objectId) {        
+    private String generateInsertAclReadRecordQuery(RdbmsId objectId) {
         String tableName = null;
         tableName = AccessControlUtility.getAclReadTableName(objectId);
 
@@ -181,7 +181,7 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
         return query.toString();
     }
 
-    private String generateInsertAclRecordQuery(RdbmsId objectId) {        
+    private String generateInsertAclRecordQuery(RdbmsId objectId) {
         String tableName = null;
         tableName = AccessControlUtility.getAclTableName(objectId);
 
@@ -193,7 +193,6 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
         return query.toString();
     }
 
-    
     private Map<String, Object> initializeInsertAclRecordParameters(AccessType accessType, RdbmsId rdbmsObjectId,
             RdbmsId rdbmsDynamicGroupId) {
 
@@ -210,7 +209,8 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
     }
 
     /**
-     * Выполняет поиск контекстного объекта динамической группы по отслеживаемому объекту матрицы доступа и doel выражению.
+     * Выполняет поиск контекстного объекта динамической группы по отслеживаемому объекту матрицы доступа и doel
+     * выражению.
      * @param objectId отслеживаемый объект матрицы
      * @param doel выражение внутри тега <bind-context>
      * @return
@@ -221,7 +221,7 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
 
         List<Map<String, Object>> contextObjects = (List<Map<String, Object>>) result;
         List<Long> contextObjectIds = new ArrayList<Long>();
-        
+
         if (contextObjects != null && contextObjects.size() > 0) {
             for (Map<String, Object> contextObject : contextObjects) {
                 if (contextObject.values() != null && contextObject.values().size() > 0) {
@@ -234,11 +234,11 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
 
     private void validateRoleContextType(String domainObjectType, ContextRoleConfig contextRoleConfig) {
         String roleContextType = null;
-        if(contextRoleConfig.getContext() != null && contextRoleConfig.getContext().getDomainObject() != null){
+        if (contextRoleConfig.getContext() != null && contextRoleConfig.getContext().getDomainObject() != null) {
             roleContextType = contextRoleConfig.getContext().getDomainObject().getType();
         }
-        
-        if(!domainObjectType.equals(roleContextType)){
+
+        if (!domainObjectType.equals(roleContextType)) {
             throw new ConfigurationException("Context type for context role : " + contextRoleConfig.getName()
                     + " does not match the domain object type in access matrix configuration for: "
                     + domainObjectType);
@@ -254,11 +254,11 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
         String query = generateGetStatusForQuery(objectId);
 
         Map<String, Object> parameters = initializeGetStatusParameters(objectId);
-        return jdbcTemplate.queryForObject(query, parameters, String.class);      
+        return jdbcTemplate.queryForObject(query, parameters, String.class);
     }
 
     private String generateGetStatusForQuery(Id objectId) {
-        RdbmsId id = (RdbmsId)objectId;        
+        RdbmsId id = (RdbmsId) objectId;
         String tableName = getSqlName(id.getTypeName());
         StringBuilder query = new StringBuilder();
         query.append("select o.status from ");
@@ -271,7 +271,7 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
     private Map<String, Object> initializeGetStatusParameters(Id objectId) {
         RdbmsId rdbmsId = (RdbmsId) objectId;
         Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("object_id", rdbmsId.getId());        
+        parameters.put("object_id", rdbmsId.getId());
         return parameters;
     }
 

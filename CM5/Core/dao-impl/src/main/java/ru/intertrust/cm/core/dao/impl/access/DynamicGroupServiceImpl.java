@@ -2,19 +2,12 @@ package ru.intertrust.cm.core.dao.impl.access;
 
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.sql.DataSource;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
@@ -38,22 +31,23 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
 
     @Autowired
     private ConfigurationExplorer configurationExplorer;
-    
+
     @Autowired
     private DomainObjectDao domainObjectDao;
-    
+
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
     }
-        
+
     public void setDomainObjectDao(DomainObjectDao domainObjectDao) {
         this.domainObjectDao = domainObjectDao;
     }
 
     @Override
     public void refreshDynamicGroupsFor(Id objectId) {
-        RdbmsId id = (RdbmsId)objectId;
-        List<DynamicGroupConfig> dynamicGroups = configurationExplorer.getDynamicGroupConfigsByContextType(id.getTypeName());
+        RdbmsId id = (RdbmsId) objectId;
+        List<DynamicGroupConfig> dynamicGroups =
+                configurationExplorer.getDynamicGroupConfigsByContextType(id.getTypeName());
 
         for (DynamicGroupConfig dynamicGroupConfig : dynamicGroups) {
             Id dynamicGroupId = refreshUserGroup(dynamicGroupConfig.getName(), id);
@@ -99,7 +93,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
 
         return personIds;
     }
-       
+
     private Map<String, Object> initializeGetGroupMembersParameters(Id contextObjectId) {
         RdbmsId rdbmsId = (RdbmsId) contextObjectId;
         Map<String, Object> parameters = new HashMap<String, Object>();
@@ -109,10 +103,10 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
 
     private String getGetPersonField(TrackDomainObjectsConfig trackDomainObjectsConfig) {
         String getPersonField = null;
-        if(trackDomainObjectsConfig.getGetPerson() != null){
+        if (trackDomainObjectsConfig.getGetPerson() != null) {
             getPersonField = trackDomainObjectsConfig.getGetPerson().getDoel();
         } else {
-            //если тег get-person не заполнен, то сам отслеживаемый объект представляет этого пользователя
+            // если тег get-person не заполнен, то сам отслеживаемый объект представляет этого пользователя
             getPersonField = "id";
         }
         return getPersonField;
@@ -130,7 +124,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
         insertGroupMembers(dynamicGroupId, personIds);
     }
 
-    //TODO Optimize performance
+    // TODO Optimize performance
     private void insertGroupMembers(Id dynamicGroupId, List<Id> personIds) {
         List<DomainObject> groupMembers = new ArrayList<DomainObject>();
         for (Id personId : personIds) {
@@ -168,8 +162,8 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("master", rdbmsId.getId());
         return parameters;
-    }   
-    
+    }
+
     /**
      * Добавляет группу с данным именем и контекстным объектом, если группы нет в базе данных
      * @param dynamicGroupName имя динамической группы
@@ -177,8 +171,8 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
      * @return обновленную динамическую группу
      */
     private Id refreshUserGroup(String dynamicGroupName, Id contextObjectId) {
-        Id userGroupId = getUserGroupByGroupNameAndObjectId(dynamicGroupName, ((RdbmsId)contextObjectId).getId());
-        
+        Id userGroupId = getUserGroupByGroupNameAndObjectId(dynamicGroupName, ((RdbmsId) contextObjectId).getId());
+
         if (userGroupId == null) {
             GenericDomainObject userGroupDO = new GenericDomainObject();
             userGroupDO.setTypeName(USER_GROUP_DOMAIN_OBJECT);
@@ -188,12 +182,11 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
             userGroupId = updatedObject.getId();
         }
         return userGroupId;
-    }    
-
+    }
 
     @Override
     public void cleanDynamicGroupsFor(Id id) {
-        // TODO Auto-generated method stub        
+        // TODO Auto-generated method stub
     }
- 
+
 }

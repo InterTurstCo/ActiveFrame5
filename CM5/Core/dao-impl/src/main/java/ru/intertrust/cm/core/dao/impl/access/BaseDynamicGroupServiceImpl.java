@@ -20,9 +20,7 @@ import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.dao.impl.doel.DoelResolver;
 
 /**
- * 
  * @author atsvetkov
- *
  */
 public class BaseDynamicGroupServiceImpl {
 
@@ -33,7 +31,7 @@ public class BaseDynamicGroupServiceImpl {
     protected NamedParameterJdbcTemplate jdbcTemplate;
 
     protected DoelResolver doelResolver = new DoelResolver();
-    
+
     /**
      * Устанавливает источник соединений
      * @param dataSource
@@ -43,9 +41,9 @@ public class BaseDynamicGroupServiceImpl {
         doelResolver.setDataSource(dataSource);
 
     }
-    
+
     /**
-     * Возвращает идентификатор группы пользователей по имени группы и идентификатору контекстного объекта 
+     * Возвращает идентификатор группы пользователей по имени группы и идентификатору контекстного объекта
      * @param groupName имя динамической группы
      * @param contextObjectId идентификатор контекстного объекта
      * @return идентификатор группы пользователей
@@ -56,11 +54,11 @@ public class BaseDynamicGroupServiceImpl {
         Map<String, Object> parameters = initializeGetUserGroupParameters(groupName, contextObjectId);
         return jdbcTemplate.query(query, parameters, new ObjectIdRowMapper("id", USER_GROUP_DOMAIN_OBJECT));
     }
-    
-    private Map<String, Object> initializeGetUserGroupParameters(String groupName, Long contextObjectId) {        
+
+    private Map<String, Object> initializeGetUserGroupParameters(String groupName, Long contextObjectId) {
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("group_name", groupName);
-        parameters.put("object_id", contextObjectId);        
+        parameters.put("object_id", contextObjectId);
         return parameters;
     }
 
@@ -74,7 +72,6 @@ public class BaseDynamicGroupServiceImpl {
         return query.toString();
     }
 
-    
     /**
      * Отображает {@link java.sql.ResultSet} на список идентификаторов доменных объектов {@link Id}
      * @author atsvetkov
@@ -108,7 +105,6 @@ public class BaseDynamicGroupServiceImpl {
     /**
      * Отображает {@link java.sql.ResultSet} на идентификатор доменного объекта {@link Id}
      * @author atsvetkov
-     *
      */
     protected class ObjectIdRowMapper implements ResultSetExtractor<Id> {
 
@@ -133,6 +129,5 @@ public class BaseDynamicGroupServiceImpl {
             return id;
         }
     }
-
 
 }
