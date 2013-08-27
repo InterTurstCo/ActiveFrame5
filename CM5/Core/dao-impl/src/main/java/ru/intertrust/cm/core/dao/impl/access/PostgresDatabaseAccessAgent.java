@@ -18,6 +18,7 @@ import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.dao.access.AccessType;
 import ru.intertrust.cm.core.dao.access.CreateChildAccessType;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
+import ru.intertrust.cm.core.dao.access.ExecuteActionAccessType;
 import ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper;
 import ru.intertrust.cm.core.dao.impl.utils.IdSorterByType;
 
@@ -177,6 +178,11 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
             CreateChildAccessType ccType = (CreateChildAccessType) type;
             return new StringBuilder("C_").append(ccType.getChildType()).toString();
         }
+        if (ExecuteActionAccessType.class.equals(type.getClass())) {
+            ExecuteActionAccessType executeActionType = (ExecuteActionAccessType) type;
+            return new StringBuilder("E_").append(executeActionType.getActionName()).toString();
+        }
+
         throw new IllegalArgumentException("Unknown access type: " + type);
     }
 

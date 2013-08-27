@@ -1,7 +1,9 @@
 package ru.intertrust.cm.core.config;
 
+import ru.intertrust.cm.core.config.model.AccessMatrixConfig;
 import ru.intertrust.cm.core.config.model.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.model.Configuration;
+import ru.intertrust.cm.core.config.model.ContextRoleConfig;
 import ru.intertrust.cm.core.config.model.DynamicGroupConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 
@@ -76,5 +78,18 @@ public interface ConfigurationExplorer {
      */
     public List<DynamicGroupConfig> getDynamicGroupConfigsByContextType(String domainObjectType);
 
+    /**
+     * Поиск конфигурации матрицы доступа для доменного объекта данного типа в данном статусе.
+     * @param domainObjectType тип доменного объекта
+     * @param status статус доменного объекта
+     * @return конфигурация матрицы доступа
+     */
+    AccessMatrixConfig getAccessMatrixByObjectTypeAndStatus(String domainObjectType, String status);
 
+    /**
+     * Возвращает конфигурацию контекстной роли по имени.
+     * @param contextRoleName имя контекстной роли
+     * @return конфигурация контекстной роли
+     */
+    ContextRoleConfig getContextRoleByName(String contextRoleName);
 }

@@ -15,7 +15,7 @@ public class ContextRoleConfig implements TopLevelConfig {
     @Attribute(required = true)
     private String name;
 
-    @Element(name = "context")
+    @Element(name = "context", required = true)
     private ContextConfig context;
 
     @Element(name = "groups")

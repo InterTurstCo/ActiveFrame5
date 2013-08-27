@@ -24,7 +24,7 @@ public class AccessMatrixStatusConfig {
             @ElementList(entry = "create-child", type = CreateChildConfig.class, inline = true),
             @ElementList(entry = "execute-action", type = ExecuteActionConfig.class, inline = true),
     })
-    private List<Object> permissions = new ArrayList<>();
+    private List<BaseOperationPermitConfig> permissions = new ArrayList<>();
     
     public String getName() {
         return name;
@@ -34,11 +34,11 @@ public class AccessMatrixStatusConfig {
         this.name = name;
     }
 
-    public List<Object> getPermissions() {
+    public List<BaseOperationPermitConfig> getPermissions() {
         return permissions;
     }
 
-    public void setPermissions(List<Object> permissions) {
+    public void setPermissions(List<BaseOperationPermitConfig> permissions) {
         this.permissions = permissions;
     }        
     

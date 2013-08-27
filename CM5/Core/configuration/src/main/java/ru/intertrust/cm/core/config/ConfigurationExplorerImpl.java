@@ -179,7 +179,41 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
 
         return dynamicGroups;
     }
-   
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public AccessMatrixConfig getAccessMatrixByObjectTypeAndStatus(String domainObjectType, String status) {       
+        Map<String, TopLevelConfig> accessMatrixMap = topLevelConfigMap.get(AccessMatrixConfig.class);
+
+        for (String accessMatrixObjectType : accessMatrixMap.keySet()) {
+            AccessMatrixConfig accessMatrixConfig = (AccessMatrixConfig) accessMatrixMap.get(accessMatrixObjectType);            
+            String accessMatrixStatus = null;
+            if (accessMatrixConfig.getStatus() != null && accessMatrixConfig.getStatus().getName() != null) {
+                accessMatrixStatus = accessMatrixConfig.getStatus().getName();
+            }
+            
+            if(status!= null && status.equals(accessMatrixStatus) && accessMatrixObjectType.equals(domainObjectType)){
+                return accessMatrixConfig;
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public ContextRoleConfig getContextRoleByName(String contextRoleName) {
+        Map<String, TopLevelConfig> contextRoleMap = topLevelConfigMap.get(ContextRoleConfig.class);
+
+        for (String roleName : contextRoleMap.keySet()) {
+            if(contextRoleName.equals(roleName)){
+                return (ContextRoleConfig)contextRoleMap.get(roleName);
+            }
+        }
+
+        return null;
+    }
     private void fillTopLevelConfigMap(TopLevelConfig config) {
         Map<String, TopLevelConfig> typeMap = topLevelConfigMap.get(config.getClass());
         if(typeMap == null) {

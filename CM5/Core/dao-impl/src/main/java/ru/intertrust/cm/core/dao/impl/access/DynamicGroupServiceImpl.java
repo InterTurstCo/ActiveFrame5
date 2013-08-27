@@ -30,7 +30,7 @@ import ru.intertrust.cm.core.dao.api.DomainObjectDao;
  * Реализация сервиса по работе с динамическими группами пользователей
  * @author atsvetkov
  */
-public class DynamicGroupServiceImpl implements DynamicGroupService {
+public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl implements DynamicGroupService {
 
     private static final String USER_GROUP_DOMAIN_OBJECT = "User_Group";
 
@@ -41,8 +41,6 @@ public class DynamicGroupServiceImpl implements DynamicGroupService {
     
     @Autowired
     private DomainObjectDao domainObjectDao;
-
-    private NamedParameterJdbcTemplate jdbcTemplate;
     
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
@@ -50,14 +48,6 @@ public class DynamicGroupServiceImpl implements DynamicGroupService {
         
     public void setDomainObjectDao(DomainObjectDao domainObjectDao) {
         this.domainObjectDao = domainObjectDao;
-    }
-
-    /**
-     * Устанавливает источник соединений
-     * @param dataSource
-     */
-    public void setDataSource(DataSource dataSource) {
-        this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
     @Override
@@ -110,7 +100,7 @@ public class DynamicGroupServiceImpl implements DynamicGroupService {
         return personIds;
     }
        
-    protected Map<String, Object> initializeGetGroupMembersParameters(Id contextObjectId) {
+    private Map<String, Object> initializeGetGroupMembersParameters(Id contextObjectId) {
         RdbmsId rdbmsId = (RdbmsId) contextObjectId;
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("contextObjectId", rdbmsId.getId());
@@ -162,7 +152,7 @@ public class DynamicGroupServiceImpl implements DynamicGroupService {
         int count = jdbcTemplate.update(query, parameters);
     }
 
-    protected String generateDeleteGroupMembersQuery() {
+    private String generateDeleteGroupMembersQuery() {
         String tableName = getSqlName(GROUP_MEMBER_DOMAIN_OBJECT);
         StringBuilder query = new StringBuilder();
         query.append("delete from ");
@@ -187,7 +177,7 @@ public class DynamicGroupServiceImpl implements DynamicGroupService {
      * @return обновленную динамическую группу
      */
     private Id refreshUserGroup(String dynamicGroupName, Id contextObjectId) {
-        Id userGroupId = getUserGroupByGroupNameAndObjectId(dynamicGroupName, contextObjectId);
+        Id userGroupId = getUserGroupByGroupNameAndObjectId(dynamicGroupName, ((RdbmsId)contextObjectId).getId());
         
         if (userGroupId == null) {
             GenericDomainObject userGroupDO = new GenericDomainObject();
@@ -198,103 +188,12 @@ public class DynamicGroupServiceImpl implements DynamicGroupService {
             userGroupId = updatedObject.getId();
         }
         return userGroupId;
-    }
-    
-    
-    /**
-     * Возвращает идентификатор группы пользователей по имени группы и идентификатору контекстного объекта 
-     * @param groupName имя динамической группы
-     * @param contextObjectId идентификатор контекстного объекта
-     * @return идентификатор группы пользователей
-     */
-    private Id getUserGroupByGroupNameAndObjectId(String groupName, Id contextObjectId) {
-        String query = generateGetUserGroupQuery();
-
-        Map<String, Object> parameters = initializeGetUserGroupParameters(groupName, contextObjectId);
-        return jdbcTemplate.query(query, parameters, new ObjectIdRowMapper("id", USER_GROUP_DOMAIN_OBJECT));
-    }
-    
-    protected Map<String, Object> initializeGetUserGroupParameters(String groupName, Id contextObjectId) {
-        RdbmsId rdbmsId = (RdbmsId) contextObjectId;
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("group_name", groupName);
-        parameters.put("object_id", rdbmsId.getId());        
-        return parameters;
-    }
-
-    protected String generateGetUserGroupQuery() {
-        String tableName = getSqlName(USER_GROUP_DOMAIN_OBJECT);
-        StringBuilder query = new StringBuilder();
-        query.append("select ug.id from ");
-        query.append(tableName).append(" ug");
-        query.append(" where ug.group_name = :group_name and ug.object_id = :object_id");
-
-        return query.toString();
-    }
+    }    
 
 
     @Override
     public void cleanDynamicGroupsFor(Id id) {
         // TODO Auto-generated method stub        
-    }
-
-    /**
-     * Отображает {@link java.sql.ResultSet} на список идентификаторов доменных объектов {@link Id}
-     * @author atsvetkov
-     */
-    private class ListObjectIdRowMapper implements ResultSetExtractor<List<Id>> {
-
-        private String idField;
-
-        private String domainObjectType;
-
-        public ListObjectIdRowMapper(String idField, String domainObjectType) {
-            this.idField = idField;
-            this.domainObjectType = domainObjectType;
-        }
-
-        @Override
-        public List<Id> extractData(ResultSet rs) throws SQLException, DataAccessException {
-            List<Id> personIds = new ArrayList<>();
-
-            while (rs.next()) {
-                Long longValue = rs.getLong(idField);
-
-                Id id = new RdbmsId(domainObjectType, longValue);
-                personIds.add(id);
-
-            }
-            return personIds;
-        }
-    }
-
-    /**
-     * Отображает {@link java.sql.ResultSet} на идентификатор доменного объекта {@link Id}
-     * @author atsvetkov
-     *
-     */
-    private class ObjectIdRowMapper implements ResultSetExtractor<Id> {
-
-        private String idField;
-
-        private String domainObjectType;
-
-        public ObjectIdRowMapper(String idField, String domainObjectType) {
-            this.idField = idField;
-            this.domainObjectType = domainObjectType;
-        }
-
-        @Override
-        public Id extractData(ResultSet rs) throws SQLException, DataAccessException {
-            Id id = null;
-            while (rs.next()) {
-                Long longValue = rs.getLong(idField);
-
-                id = new RdbmsId(domainObjectType, longValue);
-                
-            }
-            return id;
-        }
     }
  
 }
