@@ -20,4 +20,9 @@ public class SomePlugin extends Plugin {
     public Component createNew() {
         return new SomePlugin();
     }
+
+    @Override
+    protected boolean isInitializable() {
+        return true;
+    }
 }

@@ -24,7 +24,16 @@ public abstract class PluginView implements IsWidget {
 
     protected IsWidget buildActionToolBar() {
         // todo: do this only if plugin is Active
-        List<ActionConfig> actionConfigs = ((ActivePluginData) plugin.getInitialData()).getActionConfigs();
+        ActivePluginData initialData = (ActivePluginData) plugin.getInitialData();
+        if (initialData == null) {
+            return new Label("This is a tool bar for now");
+            // todo return null;
+        }
+        List<ActionConfig> actionConfigs = initialData.getActionConfigs();
+        if (actionConfigs == null || actionConfigs.isEmpty()) {
+
+        }
+
         return new Label("This is a tool bar for now");
     }
 

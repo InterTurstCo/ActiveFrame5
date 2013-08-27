@@ -88,8 +88,8 @@ public abstract class Plugin extends BaseComponent {
     }
 
     private void postSetUp() {
-        view = Plugin.this.createView();
-        PluginViewCreatedEvent viewCreatedEvent = new PluginViewCreatedEvent(Plugin.this);
-        eventBus.fireEventFromSource(viewCreatedEvent, Plugin.this);
+        view = createView();
+        PluginViewCreatedEvent viewCreatedEvent = new PluginViewCreatedEvent(this);
+        eventBus.fireEventFromSource(viewCreatedEvent, this);
     }
 }
