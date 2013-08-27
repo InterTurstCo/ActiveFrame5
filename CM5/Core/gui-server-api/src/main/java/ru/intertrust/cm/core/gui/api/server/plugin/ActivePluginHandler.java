@@ -8,12 +8,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Обработчик плагина, способного выполнять действия, внешнее представление которых отображается в "Панели действий".
+ *
  * @author Denis Mitavskiy
  *         Date: 22.08.13
  *         Time: 16:25
  */
 public abstract class ActivePluginHandler extends PluginHandler {
-    @Override
+    /**
+     * Создаёт экземпляр объекта, содержащего данные инициализации плагина
+     * @return экземпляр объекта, содержащего данные инициализации плагина
+     */
     public abstract ActivePluginData createPluginData();
 
     public ActivePluginData initialize(Dto param) {
@@ -22,6 +27,10 @@ public abstract class ActivePluginHandler extends PluginHandler {
         return result;
     }
 
+    /**
+     * Возвращает набор действий, отображаемых в "Панели действий"
+     * @return набор действий, отображаемых в "Панели действий"
+     */
     public List<ActionConfig> getActions() {
         ArrayList<ActionConfig> actions = new ArrayList<>();
         actions.add(new ActionConfig("Сохранить"));

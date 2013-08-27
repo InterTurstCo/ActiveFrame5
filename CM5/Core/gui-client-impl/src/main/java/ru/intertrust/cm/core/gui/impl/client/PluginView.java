@@ -11,6 +11,8 @@ import ru.intertrust.cm.core.gui.model.plugin.IsActive;
 import java.util.List;
 
 /**
+ * Базовый класс представления плагина.
+ *
  * @author Denis Mitavskiy
  *         Date: 19.08.13
  *         Time: 13:57
@@ -18,11 +20,19 @@ import java.util.List;
 public abstract class PluginView implements IsWidget {
     protected Plugin plugin;
 
+    /**
+     * Основной конструктор
+     * @param plugin плагин, являющийся по сути, контроллером (или представителем) в паттерне MVC
+     */
     protected PluginView(Plugin plugin) {
         this.plugin = plugin;
     }
 
-    protected IsWidget buildActionToolBar() {
+    /**
+     * Строит "Панель действий" плагина
+     * @return возвращает виджет, отображающий "Панель действий"
+     */
+    protected IsWidget getActionToolBar() {
         // todo: do this only if plugin is Active
         ActivePluginData initialData = (ActivePluginData) plugin.getInitialData();
         if (initialData == null) {
@@ -37,13 +47,17 @@ public abstract class PluginView implements IsWidget {
         return new Label("This is a tool bar for now");
     }
 
+    /**
+     * Строит и возвращает представление (внешнее отображение) плагина
+     * @return виджет, представляющий плагин
+     */
     protected abstract IsWidget getViewWidget();
 
     @Override
     public Widget asWidget() {
         VerticalPanel panel = new VerticalPanel();
         if (plugin instanceof IsActive) {
-            IsWidget actionToolBar = buildActionToolBar();
+            IsWidget actionToolBar = getActionToolBar();
             if (actionToolBar != null) {
                 panel.add(actionToolBar);
             }

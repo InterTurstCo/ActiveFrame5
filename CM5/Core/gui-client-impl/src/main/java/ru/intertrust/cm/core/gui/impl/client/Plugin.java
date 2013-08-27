@@ -3,7 +3,9 @@ package ru.intertrust.cm.core.gui.impl.client;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
+import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.plugin.PluginData;
@@ -13,7 +15,7 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
  * <p>
  * Базовый класс плагинов системы. Плагин - это элемент управления, который может быть внедрён в соответствующую панель
  * - {@link PluginPanel}. Плагин может быть наделён логикой, выполняемой на сервере. За обработку сообщений и команд
- * плагинов на стороне сервера отвечают наследники класса PluginHandler.
+ * плагинов на стороне сервера отвечают наследники класса {@link PluginHandler}.
  * </p>
  * <p>
  * Плагин является компонентом GUI и должен быть именован {@link ru.intertrust.cm.core.gui.model.ComponentName}.
@@ -30,7 +32,29 @@ public abstract class Plugin extends BaseComponent {
     private PluginData initialData;
     private PluginView view;
 
-    void setUp() {
+    /**
+     * Создаёт представление данного плагина
+     * @return представление данного плагина
+     */
+    public abstract PluginView createView();
+
+    public void onDataLoadFailure() {
+        Window.alert("Ошибка инициализации плагина");
+    }
+
+    /**
+     * Возвращает текущее состояние приложения
+     * @return текущее состояние приложения
+     */
+    public PluginData getCurrentState() {
+        return null;
+    }
+
+    /**
+     * Производит первичную инициализацию плагина, загружая необходимые для него данные. Серверная инициализация
+     * производится соответствующим обработчиком плагина в методе {@link PluginHandler#initialize(Dto)}
+     */
+    protected void setUp() {
         if (!isInitializable()) {
             postSetUp();
             return;
@@ -52,28 +76,42 @@ public abstract class Plugin extends BaseComponent {
         BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, callback);
     }
 
+    /**
+     * Возвращает представление плагина.
+     * @return представление плагина
+     */
     PluginView getView() {
         return view;
     }
 
+    /**
+     * Устанавливает "владельца" (панель плагинов) данного плагина.
+     * @param owner панель плагинов, в которой данный плагин отображается
+     */
     void setOwner(PluginPanel owner) {
         this.owner = owner;
     }
 
-    public abstract PluginView createView();
-
-    public void onDataLoadFailure() {
-        Window.alert("Ошибка инициализации плагина");
-    }
-
+    /**
+     * Устанавливает шину сообщений
+     * @param eventBus шина сообщений
+     */
     void setEventBus(EventBus eventBus) {
         this.eventBus = eventBus;
     }
 
+    /**
+     * Возвращает первичные данные плагина.
+     * @return первичные данные плагина
+     */
     PluginData getInitialData() {
         return initialData;
     }
 
+    /**
+     * Устанавливает первичные данные плагина. Эти данные используются при инициализация плагина.
+     * @param initialData первичные данные данного плагина
+     */
     void setInitialData(PluginData initialData) {
         this.initialData = initialData;
     }

@@ -14,10 +14,18 @@ import java.util.List;
 public abstract class ActivePluginData extends PluginData {
     private List<ActionConfig> actionConfigs;
 
+    /**
+     * Возвращает список конфигураций действий, отображаемых в "Панели действий"
+     * @return список конфигураций действий, отображаемых в "Панели действий"
+     */
     public List<ActionConfig> getActionConfigs() {
         return actionConfigs;
     }
 
+    /**
+     * Устанавливает список конфигураций действий, отображаемых в "Панели действий"
+     * @param actionConfigs список конфигураций действий, отображаемых в "Панели действий"
+     */
     public void setActionConfigs(List<ActionConfig> actionConfigs) {
         this.actionConfigs = actionConfigs;
     }
