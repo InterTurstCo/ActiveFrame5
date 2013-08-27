@@ -4,6 +4,11 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import ru.intertrust.cm.core.gui.model.ActionConfig;
+import ru.intertrust.cm.core.gui.model.plugin.ActivePluginData;
+import ru.intertrust.cm.core.gui.model.plugin.IsActive;
+
+import java.util.List;
 
 /**
  * @author Denis Mitavskiy
@@ -19,6 +24,7 @@ public abstract class PluginView implements IsWidget {
 
     protected IsWidget buildActionToolBar() {
         // todo: do this only if plugin is Active
+        List<ActionConfig> actionConfigs = ((ActivePluginData) plugin.getInitialData()).getActionConfigs();
         return new Label("This is a tool bar for now");
     }
 
@@ -27,9 +33,11 @@ public abstract class PluginView implements IsWidget {
     @Override
     public Widget asWidget() {
         VerticalPanel panel = new VerticalPanel();
-        IsWidget actionToolBar = buildActionToolBar();
-        if (actionToolBar != null) {
-            panel.add(actionToolBar);
+        if (plugin instanceof IsActive) {
+            IsWidget actionToolBar = buildActionToolBar();
+            if (actionToolBar != null) {
+                panel.add(actionToolBar);
+            }
         }
         panel.add(getViewWidget());
         return panel;

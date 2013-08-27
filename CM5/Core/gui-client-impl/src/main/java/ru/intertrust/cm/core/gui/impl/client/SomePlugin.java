@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.gui.impl.client;
 
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 
 /**
  * @author Denis Mitavskiy
@@ -13,7 +12,7 @@ import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 public class SomePlugin extends Plugin {
 
     @Override
-    public PluginView createView(PluginData initialData) {
+    public PluginView createView() {
         return new SomePluginView(this);
     }
 

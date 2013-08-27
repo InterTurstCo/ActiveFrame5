@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client;
 
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.plugin.PluginData;
+import ru.intertrust.cm.core.gui.model.plugin.IsActive;
 
 /**
  * @author Denis Mitavskiy
@@ -10,9 +10,9 @@ import ru.intertrust.cm.core.gui.model.plugin.PluginData;
  *         Time: 15:28
  */
 @ComponentName("some.active.plugin")
-public class SomeActivePlugin extends Plugin {
+public class SomeActivePlugin extends Plugin implements IsActive {
     @Override
-    public PluginView createView(PluginData initialData) {
+    public PluginView createView() {
         return new SomeActivePluginView(this);
     }
 

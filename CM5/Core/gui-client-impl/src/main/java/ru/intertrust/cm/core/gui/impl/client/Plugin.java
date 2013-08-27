@@ -27,15 +27,20 @@ public abstract class Plugin extends BaseComponent {
     private PluginPanel owner;
 
     private EventBus eventBus;
+    private PluginData initialData;
     private PluginView view;
 
     void setUp() {
+        if (!isInitializable()) {
+            postSetUp();
+            return;
+        }
+
         AsyncCallback<PluginData> callback = new AsyncCallback<PluginData>() {
             @Override
             public void onSuccess(PluginData result) {
-                view = Plugin.this.createView(result);
-                PluginViewCreatedEvent viewCreatedEvent = new PluginViewCreatedEvent(Plugin.this);
-                eventBus.fireEventFromSource(viewCreatedEvent, Plugin.this);
+                postSetUp();
+                Plugin.this.setInitialData(result); // view will get init data and build tool bar, for instance
             }
 
             @Override
@@ -55,7 +60,7 @@ public abstract class Plugin extends BaseComponent {
         this.owner = owner;
     }
 
-    public abstract PluginView createView(PluginData initialData);
+    public abstract PluginView createView();
 
     public void onDataLoadFailure() {
         Window.alert("Ошибка инициализации плагина");
@@ -63,5 +68,28 @@ public abstract class Plugin extends BaseComponent {
 
     void setEventBus(EventBus eventBus) {
         this.eventBus = eventBus;
+    }
+
+    PluginData getInitialData() {
+        return initialData;
+    }
+
+    void setInitialData(PluginData initialData) {
+        this.initialData = initialData;
+    }
+
+    /**
+     * Определяет, требует ли плагин инициализации. Если нет, то при открытии плагина не будет совершаться вызов
+     * серверных методов, ускоряя его открытие и снижая нагрузку на сервер.
+     * @return true, если плагин требует инициализации и false - в противном случае
+     */
+    protected boolean isInitializable() {
+        return true;
+    }
+
+    private void postSetUp() {
+        view = Plugin.this.createView();
+        PluginViewCreatedEvent viewCreatedEvent = new PluginViewCreatedEvent(Plugin.this);
+        eventBus.fireEventFromSource(viewCreatedEvent, Plugin.this);
     }
 }
