@@ -54,7 +54,7 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
     @ElementList(entry="uniqueKey", type=UniqueKeyConfig.class, inline=true, required = false)
     private List<UniqueKeyConfig> uniqueKeyConfigs = new ArrayList<>();
 
-    List<FieldConfig> domainObjectSystemFieldConfigs = new ArrayList<>();
+    private static final List<FieldConfig> SYSTEM_FIELDS = new ArrayList<>();
 
     static {
         initSystemFields();
@@ -102,7 +102,7 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
     }
 
     public List<FieldConfig> getSystemFieldConfigs() {
-        return domainObjectSystemFieldConfigs;
+        return SYSTEM_FIELDS;
     }
 
     public List<UniqueKeyConfig> getUniqueKeyConfigs() {
@@ -151,7 +151,7 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
                 throw new FatalException("cannot instantiate system field config class");
             }
             systemFieldConfig.setName(systemField.name());
-            domainObjectSystemFieldConfigs.add(systemFieldConfig);
+            SYSTEM_FIELDS.add(systemFieldConfig);
         }
     }
 
