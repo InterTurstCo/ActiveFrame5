@@ -1,38 +1,149 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration>
     <navigation>
-        <link-group name="Private Office" display-text="Личный кабинет">
-            <link name="Outgoing" display-text="Входящие">
+        <link name="Administration" display-text="Администрирование" image="administration.png" child-to-open="Employee">
+            <!-- в администрировании не задан плагин, значит по клику ничего открываться не должно, либо должна открываться дочерняя ссылка. дочерняя ссылка должна быть одной из вложенных (1й уровень вложенности). если не задан ни плагин, ни дочерняя ссылка, то данная ссылка является простой группировкой дочерних -->
+            <child-links group-name="Орг. структура"> <!-- group-name параметр не обязательный. Если он задан, то на экране появляется элемент-название группы (см. "Руководство разработчика", раздел Строение системы, Навигационное дерево -> "Стадии и задачи"-->
+                <link name="Employees" display-text="Сотрудники" image="employees.png">
+                    <plugin>
+                        <!-- DomainObjectSurferConfig и CustomPluginConfig должны наследоваться от PluginConfig -->
+                        <domain-object-surfer collection="Employees">
+                            <sort-criterion field="last_name"/>
+                        </domain-object-surfer>
+                    </plugin>
+                    <decorations>
+                        <collection-counter/>
+                    </decorations>
+                    <child-links>
+                        <link name="Employees_By_Name" display-text="По имени" image="employees-by-name.png">
+                            <plugin>
+                                <domain-object-surfer collection="Employees">
+                                    <sort-criterion field="last_name" order="asc"/> <!-- order опционален -->
+                                    <sort-criterion field="first_name" order="desc"/>
+                                </domain-object-surfer>
+                            </plugin>
+                            <decorations>
+                                <collection-counter/>
+                            </decorations>
+                        </link>
+                    </child-links>
+                </link>
 
-            </link>
-            <link name="Outgoing By Name" display-text="По имени" parent="Outgoing">
+                <link name="Cities" display-text="Города">
+                    <plugin> <!---->
+                        <custom name="Beautiful City Viewer">
+                            <attribute name="display-pics" value="true"/>
+                            <attribute name="search-provider" value="google"/>
+                            <attribute name="sort-order">
+                                <attribute name="sort-criteria">
+                                    <attribute name="sort-criterion">
+                                        <attribute name="field" value="name"/>
+                                        <attribute name="order" value="asc"/>
+                                    </attribute>
+                                    <attribute name="sort-criterion">
+                                        <attribute name="field" value="registration_number"/>
+                                        <attribute name="order" value="desc"/>
+                                    </attribute>
+                                </attribute>
+                            </attribute>
+                        </custom>
+                    </plugin>
+                    <decorations>
+                        <collection-counter collection="Cities"/>
+                    </decorations>
+                </link>
+            </child-links>
+        </link>
 
-            </link>
-            <link name="Outgoing By Receiver" display-text="По получателю" parent="Outgoing">
+        <!-- Пример на основе "Руководства разработчика"-->
+        <link name="Private Office" display-text="Личный кабинет" image="private_office.png">
+            <child-links>
+                <link name="Last Open" display-text="Последние открытые">
+                    <plugin>
+                        <domain-object-surfer collection="last_open_docs">
+                            <sort-criterion field="last_date" order="asc"/>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Last Saved" display-text="Последние сохранённые">
+                    <plugin>
+                        <domain-object-surfer collection="last_saved_docs">
+                            <sort-criterion field="last_date"/>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+            </child-links>
 
-            </link>
-        </link-group>
-        <link-group name="Administration" display-text="Администрирование" image="administration.png">
-            <link name="Employees" display-text="Сотрудники" image="employees.png">
-                <activity>
-                    <!-- DomainObjectSurferConfig и CustomActivityConfig должны наследоваться от ActivityConfig -->
-                    <domain-object-surfer collection="Employees" sort-order="name"/>
-                </activity>
-                <decorations>
-                    <collection-counter/>
-                </decorations>
-            </link>
-            <link name="Cities" display-text="Города">
-                <activity>
-                    <custom name="Beautiful City Viewer">
-                        <parameter name="display-pics" value="true"/>
-                        <parameter name="search-provider" value="google"/>
-                    </custom>
-                </activity>
-                <decorations>
-                    <collection-counter collection="Cities"/>
-                </decorations>
-            </link>
-        </link-group>
+            <child-links>
+                <link name="All Documents" display-text="Все">
+                    <plugin>
+                        <domain-object-surfer collection="all_documents">
+                            <sort-criterion field="date"/>
+                        </domain-object-surfer>
+                    </plugin>
+                    <child-links>
+                        <link name="All Documents By Number" display-text="По номеру">
+                            <plugin>
+                                <domain-object-surfer collection="all_documents">
+                                    <sort-criterion field="registration_number"/>
+                                </domain-object-surfer>
+                            </plugin>
+                        </link>
+                        <link name="All Documents By Type" display-text="По типу">
+                            <plugin>
+                                <domain-object-surfer collection="all_documents">
+                                    <sort-criterion field="type"/>
+                                </domain-object-surfer>
+                            </plugin>
+                        </link>
+                    </child-links>
+                </link>
+
+                <link name="Documents In Work" display-text="В работе" child-to-open="Documents In Work By Number">
+                    <child-links>
+                        <link name="Documents In Work By Number" display-text="По номеру">
+                            <plugin>
+                                <domain-object-surfer collection="documents_in_work">
+                                    <sort-criterion field="registration_number"/>
+                                </domain-object-surfer>
+                            </plugin>
+                        </link>
+                        <link name="Documents In Work By Type" display-text="По типу">
+                            <plugin>
+                                <domain-object-surfer collection="documents_in_work">
+                                    <sort-criterion field="type"/>
+                                </domain-object-surfer>
+                            </plugin>
+                        </link>
+                    </child-links>
+                </link>
+            </child-links>
+
+            <child-links group-name="Стадии и задачи">
+                <link name="Documents Planned" display-text="В плане">
+                    <plugin>
+                        <domain-object-surfer collection="documents_planned">
+                            <sort-criterion field="last_date"/>
+                        </domain-object-surfer>
+                    </plugin>
+                    <child-links>
+                        <link name="Documents Planned By Number" display-text="По номеру">
+                            <plugin>
+                                <domain-object-surfer collection="documents_planned">
+                                    <sort-criterion field="registration_number"/>
+                                </domain-object-surfer>
+                            </plugin>
+                        </link>
+                        <link name="Documents Planned By Type" display-text="По типу">
+                            <plugin>
+                                <domain-object-surfer collection="documents_planned">
+                                    <sort-criterion field="type"/>
+                                </domain-object-surfer>
+                            </plugin>
+                        </link>
+                    </child-links>
+                </link>
+            </child-links>
+        </link>
     </navigation>
 </configuration>
