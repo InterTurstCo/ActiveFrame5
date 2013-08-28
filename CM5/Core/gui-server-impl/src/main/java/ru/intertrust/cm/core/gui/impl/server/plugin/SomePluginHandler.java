@@ -4,7 +4,6 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.PluginData;
-import ru.intertrust.cm.core.gui.model.plugin.SomePluginData;
 
 /**
  * @author Denis Mitavskiy
@@ -13,11 +12,6 @@ import ru.intertrust.cm.core.gui.model.plugin.SomePluginData;
  */
 @ComponentName("some.plugin")
 public class SomePluginHandler extends PluginHandler {
-    @Override
-    public PluginData createPluginData() {
-        return new SomePluginData();
-    }
-
     @Override
     public PluginData initialize(Dto param) {
         System.out.println("SomePluginHandler initialized");
