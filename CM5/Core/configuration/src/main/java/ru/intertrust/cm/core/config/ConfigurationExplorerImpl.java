@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.config;
 
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.config.model.*;
 import ru.intertrust.cm.core.model.FatalException;
 
@@ -180,6 +182,36 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         return dynamicGroups;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public List<DynamicGroupConfig> getDynamicGroupConfigsByTrackDO(Id trackDOId, String status) {
+        List<DynamicGroupConfig> dynamicGroups = new ArrayList<DynamicGroupConfig>();
+
+        Map<String, TopLevelConfig> dynamicGroupMap = topLevelConfigMap.get(DynamicGroupConfig.class);
+
+        for (String groupName : dynamicGroupMap.keySet()) {
+            DynamicGroupConfig dynamicGroup = (DynamicGroupConfig) dynamicGroupMap.get(groupName);
+
+            if (dynamicGroup.getMembers() != null && dynamicGroup.getMembers().getTrackDomainObjects() != null) {
+                TrackDomainObjectsConfig trackDomainObjectsConfig = dynamicGroup.getMembers().getTrackDomainObjects();
+                RdbmsId rdbmsId = (RdbmsId) trackDOId;
+                String trackDOType = rdbmsId.getTypeName();
+
+                String configuredStatus = trackDomainObjectsConfig.getStatus();
+                String configuredType = trackDomainObjectsConfig.getType();
+                if (trackDOType.equalsIgnoreCase(configuredType)) {
+
+                    if (configuredStatus == null || configuredStatus.equals(status)) {
+                        dynamicGroups.add(dynamicGroup);
+                    }
+                }
+
+            }
+        }
+        return dynamicGroups;
+    }
+    
     /**
      * {@inheritDoc}
      */

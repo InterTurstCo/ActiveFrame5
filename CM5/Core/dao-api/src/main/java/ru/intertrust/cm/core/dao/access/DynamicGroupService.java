@@ -20,4 +20,10 @@ public interface DynamicGroupService {
      */
     void cleanDynamicGroupsFor(Id id);
 
+    /**
+     * Пересчет динамических групп при изменении отслеживаемого объекта. Выполняет пересчет дмнамических групп для
+     * отслеживаемого объекта и для связанных объектов.
+     * @param objectId отслеживаемый доменный объект
+     */
+    void notiyDomainObjectChanged(Id objectId);
 }

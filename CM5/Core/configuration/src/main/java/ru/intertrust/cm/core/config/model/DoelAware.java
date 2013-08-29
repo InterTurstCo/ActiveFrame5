@@ -13,7 +13,7 @@ import java.io.Serializable;
  */
 public class DoelAware implements Serializable {
 
-    @Element(name ="doel", required = false)
+    @Element(name ="doel", required = true)
     private String doel;
 
     public String getDoel() {

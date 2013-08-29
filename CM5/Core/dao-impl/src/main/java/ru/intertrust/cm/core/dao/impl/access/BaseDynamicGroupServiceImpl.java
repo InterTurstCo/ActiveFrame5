@@ -73,6 +73,36 @@ public class BaseDynamicGroupServiceImpl {
     }
 
     /**
+     * Возвращает статус доменного объекта
+     * @param objectId идентификатор доменного объекта
+     * @return статус доменного объекта
+     */
+    protected String getStatusFor(Id objectId) {
+        String query = generateGetStatusForQuery(objectId);
+
+        Map<String, Object> parameters = initializeGetStatusParameters(objectId);
+        return jdbcTemplate.queryForObject(query, parameters, String.class);
+    }
+
+    private String generateGetStatusForQuery(Id objectId) {
+        RdbmsId id = (RdbmsId) objectId;
+        String tableName = getSqlName(id.getTypeName());
+        StringBuilder query = new StringBuilder();
+        query.append("select o.status from ");
+        query.append(tableName).append(" o");
+        query.append(" where o.id = :object_id");
+
+        return query.toString();
+    }
+
+    private Map<String, Object> initializeGetStatusParameters(Id objectId) {
+        RdbmsId rdbmsId = (RdbmsId) objectId;
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("object_id", rdbmsId.getId());
+        return parameters;
+    }
+
+    /**
      * Отображает {@link java.sql.ResultSet} на список идентификаторов доменных объектов {@link Id}
      * @author atsvetkov
      */
