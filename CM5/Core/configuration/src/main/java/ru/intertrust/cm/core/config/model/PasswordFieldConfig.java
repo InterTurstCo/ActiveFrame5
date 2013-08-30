@@ -2,6 +2,8 @@ package ru.intertrust.cm.core.config.model;
 
 import org.simpleframework.xml.Attribute;
 
+import ru.intertrust.cm.core.business.api.dto.FieldType;
+
 /**
  * @author Denis Mitavskiy
  *         Date: 5/2/13
@@ -48,5 +50,10 @@ public class PasswordFieldConfig extends FieldConfig {
         int result = super.hashCode();
         result = 31 * result + length;
         return result;
+    }
+
+    @Override
+    public FieldType getFieldType() {
+        return FieldType.PASSWORD;
     }
 }

@@ -2,6 +2,8 @@ package ru.intertrust.cm.core.config.model;
 
 import org.simpleframework.xml.Attribute;
 
+import ru.intertrust.cm.core.business.api.dto.FieldType;
+
 /**
  * @author Denis Mitavskiy
  *         Date: 5/2/13
@@ -63,5 +65,10 @@ public class DecimalFieldConfig extends FieldConfig {
         result = 31 * result + (precision != null ? precision.hashCode() : 0);
         result = 31 * result + (scale != null ? scale.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public FieldType getFieldType() {
+        return FieldType.DECIMAL;
     }
 }

@@ -11,9 +11,9 @@ public class SpringApplicationContext implements ApplicationContextAware {
 
     @Override
     public void setApplicationContext(ApplicationContext ctx) {
-        if (context != null) {
+        /*if (context != null) {
             throw new FatalException("Repeated set of context");
-        }
+        }*/
         context = ctx;
     }
 

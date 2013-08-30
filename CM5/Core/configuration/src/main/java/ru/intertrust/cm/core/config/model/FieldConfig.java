@@ -2,6 +2,8 @@ package ru.intertrust.cm.core.config.model;
 
 import org.simpleframework.xml.Attribute;
 
+import ru.intertrust.cm.core.business.api.dto.FieldType;
+
 import java.io.Serializable;
 
 /**
@@ -34,6 +36,8 @@ public abstract class FieldConfig implements Serializable {
     public void setNotNull(boolean notNull) {
         this.notNull = notNull;
     }
+
+    public abstract FieldType getFieldType();
 
     @Override
     public boolean equals(Object o) {
