@@ -27,7 +27,7 @@ public class CrudSamplerGUI extends AbstractSamplerGui {
     private static final String PROVIDER_URL_FIELD = "providerUrl";
     private static final String SECURITY_PRINCIPAL_FIELD = "securityPrincipal";
     private static final String SECURITY_CREDENTIALS_FIELD = "securityCredentials";
-    private static final String OBJECT_NAME_FIELD = "objectName";
+    //private static final String OBJECT_NAME_FIELD = "objectName";
     private static final String ATRIBUTE_NAME_FIELD = "atributeName";
 
     private static final String ACTION_CREATE_FIELD = "actionCreate";
@@ -37,7 +37,7 @@ public class CrudSamplerGUI extends AbstractSamplerGui {
     private JTextField providerUrl;
     private JTextField securityPrincipal;
     private JTextField securityCredentials;
-    private JTextField objectName;
+    //private JTextField objectName;
     private JTextField atributeName;
 
     private JRadioButton createButton;
@@ -74,7 +74,7 @@ public class CrudSamplerGUI extends AbstractSamplerGui {
         providerUrl.setText(model.getProviderUrl());
         securityPrincipal.setText(model.getSecurityPrincipal());
         securityCredentials.setText(model.getSecurityCredentials());
-        objectName.setText(model.getObjectName());
+        //objectName.setText(model.getObjectName());
         atributeName.setText(model.getAtributeName());
         if (model.getActionName().equals(CREATE)) {
             createButton.setSelected(true);
@@ -93,7 +93,7 @@ public class CrudSamplerGUI extends AbstractSamplerGui {
             model.setProviderUrl(providerUrl.getText());
             model.setSecurityPrincipal(securityPrincipal.getText());
             model.setSecurityCredentials(securityCredentials.getText());
-            model.setObjectName(objectName.getText());
+            //model.setObjectName(objectName.getText());
             model.setAtributeName(atributeName.getText());
 
             if (createButton.isSelected()) {
@@ -136,11 +136,11 @@ public class CrudSamplerGUI extends AbstractSamplerGui {
         JLabel securityCredentialsLabel = new JLabel("Security credentails");
         securityCredentialsLabel.setLabelFor(securityCredentials);
 
-        objectName = new JTextField("", 40);
-        objectName.setName(OBJECT_NAME_FIELD);
+        //objectName = new JTextField("", 40);
+        //objectName.setName(OBJECT_NAME_FIELD);
 
-        JLabel objectNameLabel = new JLabel("Object name");
-        objectNameLabel.setLabelFor(objectName);
+        //JLabel objectNameLabel = new JLabel("Object name");
+        //objectNameLabel.setLabelFor(objectName);
 
         atributeName = new JTextField("", 40);
         atributeName.setName(ATRIBUTE_NAME_FIELD);
@@ -183,8 +183,8 @@ public class CrudSamplerGUI extends AbstractSamplerGui {
         providerUrlBox.add(securityPrincipal);
         providerUrlBox.add(securityCredentialsLabel);
         providerUrlBox.add(securityCredentials);
-        providerUrlBox.add(objectNameLabel);
-        providerUrlBox.add(objectName);
+        //providerUrlBox.add(objectNameLabel);
+        //providerUrlBox.add(objectName);
         providerUrlBox.add(atributeNameLabel);
         providerUrlBox.add(atributeName);
 
