@@ -341,7 +341,7 @@
         <xs:restriction base="xs:string">
             <xs:whiteSpace value="collapse"></xs:whiteSpace>
             <xs:pattern
-                value="([A-Za-z0-9\s]+(\^[A-Za-z0-9\s]*)?\.)*[A-Za-z0-9\s]+">
+                value="([A-Za-z0-9\s]+(\^[A-Za-z0-9\s]*)?(\.)?)*[A-Za-z0-9\s]*">
             </xs:pattern>
         </xs:restriction>
     </xs:simpleType>
