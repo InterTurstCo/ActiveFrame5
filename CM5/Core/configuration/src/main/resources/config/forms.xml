@@ -185,9 +185,27 @@
                 <linked-form name="organization_default_form" inline="true"/>
                 <form-table form-name="some_form"> <!-- у этой формы базовый объект должен быть такого же типа, как correspondent -->
                     <column header="Название" widget-id="name"/>
-                    <column header="Описание" widget-id="description"/> <!-- путь задаётся относительно базового field-path (correspondent) -->
+                    <column header="Описание" widget-id="description"/>
                 </form-table>
             </linked-domain-objects-editable-table>
+
+            <!-- или из шаблона -->
+            <template-based-widget id="77" template-name="organizations-inline-table">
+                <field-path value="correspondent"/>
+            </template-based-widget>
         </widget-config>
     </form>
+
+    <widget-template name="organizations-inline-table" domain-object-type="Organization"> <!-- domain-object-type необязательный параметр. если он установлен, то field-path должен ссылаться на объект этого типа -->
+        <linked-domain-objects-editable-table> <!-- Если тэг виджета находится внутри widget-template, то field-path не обязателен -->
+            <!-- форма, на основании которой строится виджеты в таблице связанных объектов -->
+            <!-- inline необязательный параметр, по умолчанию false (то есть в новом окне открывается). Если форма inline, то на месте текущего плагина открывается дочерний -->
+            <linked-form name="organization_default_form" inline="true"/>
+            <form-table form-name="some_form"> <!-- у этой формы базовый объект должен быть такого же типа, как correspondent -->
+                <column header="Название" widget-id="name"/>
+                <column header="Описание" widget-id="description"/>
+            </form-table>
+        </linked-domain-objects-editable-table>
+    </widget-template>
+
 </configuration>
