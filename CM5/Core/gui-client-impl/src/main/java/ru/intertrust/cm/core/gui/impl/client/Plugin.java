@@ -63,8 +63,8 @@ public abstract class Plugin extends BaseComponent {
         AsyncCallback<PluginData> callback = new AsyncCallback<PluginData>() {
             @Override
             public void onSuccess(PluginData result) {
-                postSetUp();
                 Plugin.this.setInitialData(result); // view will get init data and build tool bar, for instance
+                postSetUp();
             }
 
             @Override

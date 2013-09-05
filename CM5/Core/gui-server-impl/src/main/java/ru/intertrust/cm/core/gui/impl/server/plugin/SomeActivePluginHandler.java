@@ -2,9 +2,12 @@ package ru.intertrust.cm.core.gui.impl.server.plugin;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
+import ru.intertrust.cm.core.gui.model.ActionConfig;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.ActivePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.SomeActivePluginData;
+
+import java.util.ArrayList;
 
 /**
  * @author Denis Mitavskiy
@@ -21,7 +24,11 @@ public class SomeActivePluginHandler extends ActivePluginHandler {
 
     @Override
     public ActivePluginData createPluginData() {
-        return new SomeActivePluginData();
+        SomeActivePluginData pluginData = new SomeActivePluginData();
+        ArrayList<ActionConfig> actionConfigs = new ArrayList<>();
+        actionConfigs.add(new ActionConfig("Action 1"));
+        pluginData.setActionConfigs(actionConfigs);
+        return pluginData;
     }
 
     public ActivePluginData doSomethingVeryGood(Dto dto) {
