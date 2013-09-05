@@ -2,15 +2,15 @@
 <configuration>
     <form name="incoming_document_base_form" domain-object-type="incoming_document">
         <header>
-            <table>
-                <tr>
-                    <td><widget id="1"/></td> <!-- label-list (Входящие, Акт) -->
+            <table width="500px" height="200px">
+                <tr height="100px">
+                    <td width="50%"><widget id="1"/></td> <!-- label-list (Входящие, Акт) -->
                 </tr>
                 <tr>
                     <td colspan="5"><widget id="2"/></td> <!-- text-box -->
                 </tr>
                 <tr>
-                    <td><widget id="3"/></td> <!-- label (№) -->
+                    <td rowspan="2" h-align="left" v-align="top"><widget id="3"/></td> <!-- label (№) -->
                     <td><widget id="4"/></td> <!-- integer-box (рег. номер) -->
                     <td><widget id="5"/></td> <!-- label ("Корреспондент:") -->
                     <td><widget id="6"/></td> <!-- linked-domain-object ("Аэрофлот") -->
