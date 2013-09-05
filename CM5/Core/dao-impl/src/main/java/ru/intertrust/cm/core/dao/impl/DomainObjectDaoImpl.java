@@ -649,7 +649,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     private void initializeDomainParameters(DomainObject domainObject, List<FieldConfig> fieldConfigs,
-            Map<String, Object> parameters) {
+                                            Map<String, Object> parameters) {
         for (FieldConfig fieldConfig : fieldConfigs) {
             Value value = domainObject.getValue(fieldConfig.getName());
             String columnName = getSqlName(fieldConfig.getName());
@@ -661,11 +661,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 } else {
 
                     if (fieldConfig instanceof ReferenceFieldConfig) {
-                        // TODO: Обрабатывать множественные типы ссылок
-                        /*
-                         * columnName = getSqlName(getIndexedName(fieldConfig.getName(), 1)); parameterName =
-                         * DaoUtils.generateParameter(columnName);
-                         */}
+                        //TODO: Обрабатывать множественные типы ссылок
+/*                        columnName = getSqlName(getIndexedName(fieldConfig.getName(), 1));
+                        parameterName = DaoUtils.generateParameter(columnName);
+*/                    }
                     parameters.put(parameterName, value.get());
                 }
             } else {
@@ -825,4 +824,5 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private boolean isDerived(DomainObjectTypeConfig domainObjectTypeConfig) {
         return domainObjectTypeConfig.getExtendsAttribute() != null;
     }
+
 }
