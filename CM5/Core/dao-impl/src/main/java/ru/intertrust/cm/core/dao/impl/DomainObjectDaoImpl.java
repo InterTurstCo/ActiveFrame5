@@ -1,9 +1,27 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlAlias;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.StringUtils;
-import ru.intertrust.cm.core.business.api.dto.*;
+
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
@@ -16,14 +34,11 @@ import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
-import ru.intertrust.cm.core.dao.impl.utils.*;
-
-import javax.sql.DataSource;
-import java.util.*;
-
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getIndexedName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlAlias;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
+import ru.intertrust.cm.core.dao.impl.utils.IdSorterByType;
+import ru.intertrust.cm.core.dao.impl.utils.MultipleIdRowMapper;
+import ru.intertrust.cm.core.dao.impl.utils.MultipleObjectRowMapper;
+import ru.intertrust.cm.core.dao.impl.utils.SingleObjectRowMapper;
 
 /**
  * @author atsvetkov
@@ -634,7 +649,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     private void initializeDomainParameters(DomainObject domainObject, List<FieldConfig> fieldConfigs,
-                                            Map<String, Object> parameters) {
+            Map<String, Object> parameters) {
         for (FieldConfig fieldConfig : fieldConfigs) {
             Value value = domainObject.getValue(fieldConfig.getName());
             String columnName = getSqlName(fieldConfig.getName());
@@ -646,10 +661,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 } else {
 
                     if (fieldConfig instanceof ReferenceFieldConfig) {
-                        //TODO: Обрабатывать множественные типы ссылок
-                        columnName = getSqlName(getIndexedName(fieldConfig.getName(), 1));
-                        parameterName = DaoUtils.generateParameter(columnName);
-                    }
+                        // TODO: Обрабатывать множественные типы ссылок
+                        /*
+                         * columnName = getSqlName(getIndexedName(fieldConfig.getName(), 1)); parameterName =
+                         * DaoUtils.generateParameter(columnName);
+                         */}
                     parameters.put(parameterName, value.get());
                 }
             } else {
