@@ -147,4 +147,11 @@ public class ConfigurationExplorerImplTest {
         assertNotNull(fieldConfig);
         Assert.assertEquals(fieldConfig.getName(), SystemField.updated_date.name());
     }
+
+    @Test
+    public void testFindChildDomainObjectTypes() {
+        Collection<DomainObjectTypeConfig> types = configExplorer.findChildDomainObjectTypes("Person", true);
+        assertTrue(types.contains(configExplorer.getConfig(DomainObjectTypeConfig.class, "Employee")));
+        assertTrue(types.size() == 1);
+    }
 }

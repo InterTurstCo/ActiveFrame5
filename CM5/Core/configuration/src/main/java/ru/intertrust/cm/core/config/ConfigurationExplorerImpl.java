@@ -19,7 +19,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
 
     private Configuration configuration;
 
-    private Map<Class, Map<String, TopLevelConfig>> topLevelConfigMap = new HashMap<>();
+    private Map<Class<?>, Map<String, TopLevelConfig>> topLevelConfigMap = new HashMap<>();
     private Map<FieldConfigKey, FieldConfig> fieldConfigMap = new HashMap<>();
     private Map<FieldConfigKey, CollectionColumnConfig> collectionColumnConfigMap = new HashMap<>();
 
@@ -67,6 +67,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      * {@inheritDoc}
      */
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T getConfig(Class<T> type, String name) {
         Map<String, TopLevelConfig> typeMap = topLevelConfigMap.get(type);
         if(typeMap == null) {
@@ -80,6 +81,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      * {@inheritDoc}
      */
     @Override
+    @SuppressWarnings("unchecked")
     public <T> Collection<T> getConfigs(Class<T> type) {
         Map<String, TopLevelConfig> typeMap = topLevelConfigMap.get(type);
         if(typeMap == null) {
@@ -87,6 +89,21 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         }
 
         return (Collection<T>) typeMap.values();
+    }
+
+    @Override
+    public Collection<DomainObjectTypeConfig> findChildDomainObjectTypes(String typeName, boolean includeIndirect) {
+        ArrayList<DomainObjectTypeConfig> childTypes = new ArrayList<>();
+        Collection<DomainObjectTypeConfig> allTypes = getConfigs(DomainObjectTypeConfig.class);
+        for (DomainObjectTypeConfig type : allTypes) {
+            if (typeName.equals(type.getExtendsAttribute())) {
+                childTypes.add(type);
+                if (includeIndirect) {
+                    childTypes.addAll(findChildDomainObjectTypes(type.getName(), true));
+                }
+            }
+        }
+        return childTypes;
     }
 
     /**

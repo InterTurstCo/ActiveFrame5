@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.config.model.AccessMatrixConfig;
 import ru.intertrust.cm.core.config.model.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.model.Configuration;
 import ru.intertrust.cm.core.config.model.ContextRoleConfig;
+import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.DynamicGroupConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 
@@ -44,6 +45,14 @@ public interface ConfigurationExplorer {
      * @return все конфигурации верхнего уровня данного типа type
      */
     <T> Collection<T> getConfigs(Class<T> type);
+
+    /**
+     * Находит конфигурацию всех типов доменных объектов, являющихся дочерними для заданного типа.
+     * @param domainObjectConfigName имя типа доменного объекта
+     * @param includeIndirect true, если в результат должны быть включены все уровни наследников
+     * @return коллекция типов доменных объектов
+     */
+    Collection<DomainObjectTypeConfig> findChildDomainObjectTypes(String typeName, boolean includeIndirect);
 
     /**
      * Находит конфигурацию поля доменного объекта по имени доменного объекта и имени поля
