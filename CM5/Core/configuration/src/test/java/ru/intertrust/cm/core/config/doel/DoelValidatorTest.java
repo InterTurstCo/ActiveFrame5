@@ -171,8 +171,8 @@ public class DoelValidatorTest {
     @Test
     public void testSimpleStringExpression() {
         DoelExpression expr = DoelExpression.parse("toC.toE.toG.gString");
-        DoelValidator.ValidationProcessor proc = new DoelValidator.ValidationProcessor(expr, "A");
-        DoelValidator.ValidationResult result = proc.process();
+        DoelValidator.Processor proc = new DoelValidator.Processor(expr, "A");
+        DoelValidator.DoelTypes result = proc.process();
         assertTrue("Выражение должно быть корректным", result.isCorrect() && result.isAlwaysCorrect());
         assertTrue("Тип результата выражения должен быть строковым",
                 result.getResultTypes().size() == 1 && result.getResultTypes().contains(FieldType.STRING));
@@ -184,8 +184,8 @@ public class DoelValidatorTest {
     @Test
     public void testSimpleObjectExpression() {
         DoelExpression expr = DoelExpression.parse("toB.toD.toForG");
-        DoelValidator.ValidationProcessor proc = new DoelValidator.ValidationProcessor(expr, "A");
-        DoelValidator.ValidationResult result = proc.process();
+        DoelValidator.Processor proc = new DoelValidator.Processor(expr, "A");
+        DoelValidator.DoelTypes result = proc.process();
         assertTrue("Выражение должно быть корректным", result.isCorrect() && result.isAlwaysCorrect());
         assertTrue("Тип результата выражения должен быть ссылочным",
                 result.getResultTypes().size() == 1 && result.getResultTypes().contains(FieldType.REFERENCE));
@@ -199,8 +199,8 @@ public class DoelValidatorTest {
     @Test
     public void testReverseLinkExpression() {
         DoelExpression expr = DoelExpression.parse("G^toI.D^toForG");
-        DoelValidator.ValidationProcessor proc = new DoelValidator.ValidationProcessor(expr, "I");
-        DoelValidator.ValidationResult result = proc.process();
+        DoelValidator.Processor proc = new DoelValidator.Processor(expr, "I");
+        DoelValidator.DoelTypes result = proc.process();
         assertTrue("Выражение должно быть корректным", result.isCorrect() && result.isAlwaysCorrect());
         assertTrue("Тип результата выражения должен быть ссылочным",
                 result.getResultTypes().size() == 1 && result.getResultTypes().contains(FieldType.REFERENCE));
@@ -214,8 +214,8 @@ public class DoelValidatorTest {
     @Test
     public void testMultiTypeLinkExpression() {
         DoelExpression expr = DoelExpression.parse("toD.toForG.fgLong");
-        DoelValidator.ValidationProcessor proc = new DoelValidator.ValidationProcessor(expr, "B");
-        DoelValidator.ValidationResult result = proc.process();
+        DoelValidator.Processor proc = new DoelValidator.Processor(expr, "B");
+        DoelValidator.DoelTypes result = proc.process();
         assertTrue("Выражение должно быть корректным", result.isCorrect() && result.isAlwaysCorrect());
         assertTrue("Тип результата выражения должен быть числовым",
                 result.getResultTypes().size() == 1 && result.getResultTypes().contains(FieldType.LONG));
@@ -226,8 +226,8 @@ public class DoelValidatorTest {
     @Test
     public void testPartialCorrectExpression() {
         DoelExpression expr = DoelExpression.parse("toForG.toI.iDate");
-        DoelValidator.ValidationProcessor proc = new DoelValidator.ValidationProcessor(expr, "D");
-        DoelValidator.ValidationResult result = proc.process();
+        DoelValidator.Processor proc = new DoelValidator.Processor(expr, "D");
+        DoelValidator.DoelTypes result = proc.process();
         assertTrue("Выражение должно быть корректным", result.isCorrect());
         assertFalse("Корректность выражения должна зависеть от значений полей", result.isAlwaysCorrect());
         assertTrue("Тип результата выражения должен быть датой",
@@ -239,8 +239,8 @@ public class DoelValidatorTest {
     @Test
     public void testUnexistingFieldExpression() {
         DoelExpression expr = DoelExpression.parse("toB.toD.wrongField");
-        DoelValidator.ValidationProcessor proc = new DoelValidator.ValidationProcessor(expr, "A");
-        DoelValidator.ValidationResult result = proc.process();
+        DoelValidator.Processor proc = new DoelValidator.Processor(expr, "A");
+        DoelValidator.DoelTypes result = proc.process();
         assertFalse("Выражение не должно быть корректным", result.isCorrect());
         assertFalse("Выражение не должно быть корректным", result.isAlwaysCorrect());
         assertNull("Выражение не должно возвращать результат", result.getResultTypes());
@@ -250,8 +250,8 @@ public class DoelValidatorTest {
     @Test
     public void testUnexistingLinkExpression() {
         DoelExpression expr = DoelExpression.parse("toC.toE.toB.toD");
-        DoelValidator.ValidationProcessor proc = new DoelValidator.ValidationProcessor(expr, "A");
-        DoelValidator.ValidationResult result = proc.process();
+        DoelValidator.Processor proc = new DoelValidator.Processor(expr, "A");
+        DoelValidator.DoelTypes result = proc.process();
         assertFalse("Выражение не должно быть корректным", result.isCorrect());
         assertFalse("Выражение не должно быть корректным", result.isAlwaysCorrect());
         assertNull("Выражение не должно возвращать результат", result.getResultTypes());
@@ -261,16 +261,16 @@ public class DoelValidatorTest {
     @Test
     public void testInvalidLinkExpression() {
         DoelExpression expr = DoelExpression.parse("toC.cString.toE.toG");
-        DoelValidator.ValidationProcessor proc = new DoelValidator.ValidationProcessor(expr, "A");
-        DoelValidator.ValidationResult result = proc.process();
+        DoelValidator.Processor proc = new DoelValidator.Processor(expr, "A");
+        DoelValidator.DoelTypes result = proc.process();
         assertFalse("Выражение не должно быть корректным", result.isCorrect());
         assertFalse("Выражение не должно быть корректным", result.isAlwaysCorrect());
         assertNull("Выражение не должно возвращать результат", result.getResultTypes());
         checkTypes(result, new String[] { "A", "C" });
     }
 
-    private void checkTypes(DoelValidator.ValidationResult result, Object[] expectedTypes) {
-        DoelValidator.Link link = result.getTypeChain();
+    private void checkTypes(DoelValidator.DoelTypes result, Object[] expectedTypes) {
+        DoelValidator.DoelTypes.Link link = result.getTypeChain();
         for (int i = 0; i < expectedTypes.length; i++) {
             assertEquals("Проверка типа объекта на шаге " + i, expectedTypes[i], link.getType());
             if (i < expectedTypes.length - 1) {
