@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration>
-    <form name="incoming_document_base_form" domain-object-type="incoming_document">
+    <form name="incoming_document_base_form" domain-object-type="incoming_document" is-default="true">
         <header>
             <table width="500px" height="200px">
                 <tr height="100px">
@@ -19,105 +19,113 @@
                 </tr>
             </table>
         </header>
-        <body> <!-- в теле - либо таб, либо группа, либо таблица, вместе - нельзя -->
-            <tab name="Содержание"> <!-- либо таб, либо разметка, вместе - нельзя -->
-                <table>
-                    <tr>
-                        <td><widget id="9"/></td>  <!-- label (Текст) -->
-                    </tr>
-                    <tr>
-                        <td><widget id="10"/></td>  <!-- rich-text-area -->
-                    </tr>
-                </table>
+        <body display-single-tab="false"> <!-- в теле - только закладки -->
+            <tab name="Содержание"> <!-- закладка состоит из групп -->
+                <single-entry-group-set> <!-- наследник от WidgetGroupSetConfig -->
+                    <group-entry> <!-- вхождение в группу уже может содержать разметку -->
+                        <table>
+                            <tr>
+                                <td><widget id="9"/></td>  <!-- label (Текст) -->
+                            </tr>
+                            <tr>
+                                <td><widget id="10"/></td>  <!-- rich-text-area -->
+                            </tr>
+                        </table>
+                    </group-entry>
+                </single-entry-group-set>
             </tab>
-            <tab name="Реквизиты"> <!-- либо табы, либо группы, либо таблица, вместе - нельзя -->
-                <hiding-group name="Основные">
-                    <table>
-                        <tr>
-                            <td><widget id="11"/></td>  <!-- label (Тематика) -->
-                            <td><widget id="12"/></td>  <!-- suggest-box (Тематика) -->
-                        </tr>
-                        <tr>
-                            <td><widget id="13"/></td>  <!-- label (Вид документа) -->
-                            <td><widget id="14"/></td>  <!-- suggest-box (Вид документа) -->
-                        </tr>
-                        <tr>
-                            <td><widget id="15"/></td>  <!-- label (Дата регистрации) -->
-                            <td><widget id="16"/></td>  <!-- suggest-box (Дата регистрации) -->
-                        </tr>
-                        <tr>
-                            <td><widget id="17"/></td>  <!-- label (Корреспондент) -->
-                            <td><widget id="18"/></td>  <!-- suggest-box (Корреспондент) -->
-                        </tr>
-                        <tr>
-                            <td><widget id="19"/></td>  <!-- label (Исполнители) -->
-                            <td><widget id="20"/></td>  <!-- suggest-box (Исполнители) -->
-                        </tr>
-                        <tr>
-                            <td><widget id="21"/></td>  <!-- label (Номер документа) -->
-                            <td><widget id="22"/></td>  <!-- text-box (Номер документа) -->
-                        </tr>
-                        <tr>
-                            <td><widget id="23"/></td>  <!-- label (Дата документа) -->
-                            <td><widget id="24"/></td>  <!-- calendar-box (Номер документа) -->
-                        </tr>
-                        <tr>
-                            <td><widget id="25"/></td>  <!-- label (Адресаты) -->
-                            <td><widget id="26"/></td>  <!-- suggest-box (Адресаты) -->
-                        </tr>
-                    </table>
-                </hiding-group>
-                <hiding-group name="Дополнительные">
-                    <table>
-                        <tr>
-                            <td><widget id="27"/></td>  <!-- label (Место регистрации) -->
-                            <td><widget id="28"/></td>  <!-- linked-domain-object (Место регистрации) -->
-                        </tr>
-                        <tr>
-                            <td><widget id="29"/></td>  <!-- label (Вид доставки) -->
-                            <td><widget id="30"/></td>  <!-- suggest-box (Вид доставки) -->
-                        </tr>
-                        <tr>
-                            <td><widget id="31"/></td>  <!-- label (Кол-во листов) -->
-                            <td><widget id="32"/></td>  <!-- integer-box (Кол-во листов) -->
-                        </tr>
-                        <tr>
-                            <td><widget id="33"/></td>  <!-- label (Кол-во экземпляров) -->
-                            <td><widget id="34"/></td>  <!-- integer-box (Кол-во экземпляров) -->
-                        </tr>
-                        <tr>
-                            <td><widget id="35"/></td>  <!-- label (Кол-во приложений) -->
-                            <td><widget id="36"/></td> <!-- integer-box (Кол-во приложений) -->
-                        </tr>
-                        <tr>
-                            <td><widget id="37"/></td>  <!-- label (Комментарий) -->
-                            <td><widget id="38"/></td>  <!-- text-area (Комментарий) -->
-                        </tr>
-                    </table>
-                </hiding-group>
+            <tab name="Реквизиты"> <!-- закладка состоит из групп -->
+                <hiding-group-set> <!-- наследник от WidgetGroupSetConfig -->
+                    <group-entry name="Основные">
+                        <table>
+                            <tr>
+                                <td><widget id="11"/></td>  <!-- label (Тематика) -->
+                                <td><widget id="12"/></td>  <!-- suggest-box (Тематика) -->
+                            </tr>
+                            <tr>
+                                <td><widget id="13"/></td>  <!-- label (Вид документа) -->
+                                <td><widget id="14"/></td>  <!-- suggest-box (Вид документа) -->
+                            </tr>
+                            <tr>
+                                <td><widget id="15"/></td>  <!-- label (Дата регистрации) -->
+                                <td><widget id="16"/></td>  <!-- suggest-box (Дата регистрации) -->
+                            </tr>
+                            <tr>
+                                <td><widget id="17"/></td>  <!-- label (Корреспондент) -->
+                                <td><widget id="18"/></td>  <!-- suggest-box (Корреспондент) -->
+                            </tr>
+                            <tr>
+                                <td><widget id="19"/></td>  <!-- label (Исполнители) -->
+                                <td><widget id="20"/></td>  <!-- suggest-box (Исполнители) -->
+                            </tr>
+                            <tr>
+                                <td><widget id="21"/></td>  <!-- label (Номер документа) -->
+                                <td><widget id="22"/></td>  <!-- text-box (Номер документа) -->
+                            </tr>
+                            <tr>
+                                <td><widget id="23"/></td>  <!-- label (Дата документа) -->
+                                <td><widget id="24"/></td>  <!-- calendar-box (Номер документа) -->
+                            </tr>
+                            <tr>
+                                <td><widget id="25"/></td>  <!-- label (Адресаты) -->
+                                <td><widget id="26"/></td>  <!-- suggest-box (Адресаты) -->
+                            </tr>
+                        </table>
+                    </group-entry>
+                    <group-entry name="Дополнительные">
+                        <table>
+                            <tr>
+                                <td><widget id="27"/></td>  <!-- label (Место регистрации) -->
+                                <td><widget id="28"/></td>  <!-- linked-domain-object (Место регистрации) -->
+                            </tr>
+                            <tr>
+                                <td><widget id="29"/></td>  <!-- label (Вид доставки) -->
+                                <td><widget id="30"/></td>  <!-- suggest-box (Вид доставки) -->
+                            </tr>
+                            <tr>
+                                <td><widget id="31"/></td>  <!-- label (Кол-во листов) -->
+                                <td><widget id="32"/></td>  <!-- integer-box (Кол-во листов) -->
+                            </tr>
+                            <tr>
+                                <td><widget id="33"/></td>  <!-- label (Кол-во экземпляров) -->
+                                <td><widget id="34"/></td>  <!-- integer-box (Кол-во экземпляров) -->
+                            </tr>
+                            <tr>
+                                <td><widget id="35"/></td>  <!-- label (Кол-во приложений) -->
+                                <td><widget id="36"/></td> <!-- integer-box (Кол-во приложений) -->
+                            </tr>
+                            <tr>
+                                <td><widget id="37"/></td>  <!-- label (Комментарий) -->
+                                <td><widget id="38"/></td>  <!-- text-area (Комментарий) -->
+                            </tr>
+                        </table>
+                    </group-entry>
+                </hiding-group-set>
             </tab>
             <tab name="Жизненный цикл">
-                <tab name="Регистрация"> <!-- либо таб, либо разметка, вместе - нельзя -->
-                    <table>
-                        <tr>
-                            <td><widget id="39"/></td>  <!-- некий виджет -->
-                        </tr>
-                    </table>
-                </tab>
-                <tab name="Ознакомление"> <!-- либо таб, либо разметка, вместе - нельзя -->
-                    <table>
-                        <tr>
-                            <td><widget id="40"/></td>  <!-- некий виджет -->
-                        </tr>
-                    </table>
-                </tab>
-                <tab name="Исполнение"> <!-- либо таб, либо разметка, вместе - нельзя -->
-                    <table>
-                        <tr>
-                            <td><widget id="41"/></td>  <!-- некий виджет -->
-                        </tr>
-                    </table>
-                </tab>
+                <tab-group-set> <!-- наследник от WidgetGroupSetConfig -->
+                    <group-entry name="Регистрация"> <!-- либо таб, либо разметка, вместе - нельзя -->
+                        <table>
+                            <tr>
+                                <td><widget id="39"/></td>  <!-- некий виджет -->
+                            </tr>
+                        </table>
+                    </group-entry>
+                    <group-entry name="Ознакомление"> <!-- либо таб, либо разметка, вместе - нельзя -->
+                        <table>
+                            <tr>
+                                <td><widget id="40"/></td>  <!-- некий виджет -->
+                            </tr>
+                        </table>
+                    </group-entry>
+                    <group-entry name="Исполнение"> <!-- либо таб, либо разметка, вместе - нельзя -->
+                        <table>
+                            <tr>
+                                <td><widget id="41"/></td>  <!-- некий виджет -->
+                            </tr>
+                        </table>
+                    </group-entry>
+                </tab-group-set>
             </tab>
         </body>
         <widget-config>
@@ -208,8 +216,15 @@
         </linked-domain-objects-editable-table>
     </widget-template>
 
-    <user-form>
-
-    </user-form>
+    <form-mappings>
+        <form-mapping domain-object-type="outgoing_document" form="minister_outgoing_document_form">
+            <users>
+                <user uid="admin"/>
+            </users>
+            <roles>
+                <role name="Minister"/>
+            </roles>
+        </form-mapping>
+    </form-mappings>
 
 </configuration>
