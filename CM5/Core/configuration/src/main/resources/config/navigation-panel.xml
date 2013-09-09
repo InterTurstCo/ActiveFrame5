@@ -7,7 +7,8 @@
                 <link name="Employees" display-text="Сотрудники" image="employees.png">
                     <plugin>
                         <!-- DomainObjectSurferConfig и CustomPluginConfig должны наследоваться от PluginConfig -->
-                        <domain-object-surfer collection="Employees">
+                        <!-- если используется collection-view, то collection и use-default нельзя использовать -->
+                        <domain-object-surfer collection="Employees" use-default="true" collection-view="employees_default_view">
                             <sort-criterion field="last_name"/>
                         </domain-object-surfer>
                     </plugin>
