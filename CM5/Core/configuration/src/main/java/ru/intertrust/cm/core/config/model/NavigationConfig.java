@@ -2,34 +2,31 @@ package ru.intertrust.cm.core.config.model;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
+import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
+import java.util.List;
 
 /**
  * Author: Denis Mitavskiy
  * Date: 14.06.13
  * Time: 16:01
  */
-@Root(name="navigation")
+@Root(name = "configuration", strict = false)
 public class NavigationConfig implements TopLevelConfig {
-    @Attribute(name = "name")
-    private String name;
 
-    @Element(name = "link", required = false)
-    private LinkConfig link;
+    @ElementList(name ="navigation", required = false)
+    private List<LinkConfig>  linkConfigList;
 
+    @Override
     public String getName() {
-        return name;
+        return "";  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public List<LinkConfig> getLinkConfigList() {
+        return linkConfigList;
     }
 
-    public LinkConfig getLink() {
-        return link;
-    }
-
-    public void setLink(LinkConfig link) {
-        this.link = link;
+    public void setLinkConfig(List<LinkConfig> linkConfigList ) {
+        this.linkConfigList = linkConfigList;
     }
 }
