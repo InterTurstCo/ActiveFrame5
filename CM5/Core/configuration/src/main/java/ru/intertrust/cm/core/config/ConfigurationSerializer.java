@@ -182,13 +182,11 @@ public class ConfigurationSerializer {
      * @return {@link ru.intertrust.cm.core.config.model.Configuration}
      * @throws Exception
      */
-   private Configuration deserializeConfiguration(String configurationFilePath) throws Exception {
+   public Configuration deserializeConfiguration(String configurationFilePath) throws Exception {
         ConfigurationSchemaValidator schemaValidator = new ConfigurationSchemaValidator(configurationFilePath,
-        coreConfigurationSchemaFilePath);
+                coreConfigurationSchemaFilePath);
         schemaValidator.validate();
-       File file = new File (configurationFilePath);
-       System.out.println(file.getAbsolutePath());
-       System.out.println(file.exists()) ;
+
         return createSerializerInstance().read(Configuration.class, FileUtils.getFileInputStream(configurationFilePath));
     }
 
