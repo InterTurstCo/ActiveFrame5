@@ -11,9 +11,9 @@ import ru.intertrust.cm.core.config.model.TopLevelConfig;
 /**
  * Author: Denis Mitavskiy Date: 14.06.13 Time: 16:01
  */
-@Root(name = "configuration", strict = false)
+@Root(name = "navigation", strict = false)
 public class NavigationConfig implements TopLevelConfig {
-    @ElementList(name = "navigation", required = false)
+    @ElementList(name = "link", required = false, inline = true)
     private List<LinkConfig> linkConfigList = new ArrayList<LinkConfig>();
 
     @Attribute(name = "name")

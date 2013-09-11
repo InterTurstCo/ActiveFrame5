@@ -1,12 +1,35 @@
 package ru.intertrust.cm.core.config;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
-import ru.intertrust.cm.core.config.model.*;
-import ru.intertrust.cm.core.model.FatalException;
+import ru.intertrust.cm.core.config.model.AccessMatrixConfig;
+import ru.intertrust.cm.core.config.model.AttachmentTypeConfig;
+import ru.intertrust.cm.core.config.model.CollectionColumnConfig;
+import ru.intertrust.cm.core.config.model.CollectionConfig;
+import ru.intertrust.cm.core.config.model.Configuration;
+import ru.intertrust.cm.core.config.model.ContextRoleConfig;
+import ru.intertrust.cm.core.config.model.DomainObjectParentConfig;
+import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.model.DynamicGroupConfig;
+import ru.intertrust.cm.core.config.model.FieldConfig;
 
-import java.io.*;
-import java.util.*;
+import ru.intertrust.cm.core.config.model.TopLevelConfig;
+import ru.intertrust.cm.core.config.model.TrackDomainObjectsConfig;
+import ru.intertrust.cm.core.config.model.gui.navigation.LinkConfig;
+import ru.intertrust.cm.core.config.model.gui.navigation.NavigationConfig;
+import ru.intertrust.cm.core.model.FatalException;
 
 /**
  * Предоставляет быстрый доступ к элементам конфигурации.

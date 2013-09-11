@@ -62,7 +62,7 @@ public class NavigationPanelLogicalValidatorTest {
         TopLevelConfigurationCache.getInstance().build(); 
         ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
 
-        Set<String> configPaths = new HashSet<>(Arrays.asList(configPath));
+        Set<String> configPaths = new HashSet<>(Arrays.asList(configPath, DOMAIN_OBJECTS_CONFIG_PATH));
 
         configurationSerializer.setCoreConfigurationFilePaths(configPaths);
         configurationSerializer.setCoreConfigurationSchemaFilePath(CONFIGURATION_SCHEMA_PATH);
