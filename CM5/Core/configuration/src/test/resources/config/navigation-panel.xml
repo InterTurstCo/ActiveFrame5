@@ -9,7 +9,7 @@
                         <!-- DomainObjectSurferConfig и CustomPluginConfig должны наследоваться от PluginConfig -->
                         <!-- если используется collection-view, то collection нельзя использовать -->
                         <domain-object-surfer>
-                            <collection name="Employees" use-default="true"/>
+                            <collectionT name="Employees" use-default="true"/>
                             <sort-criterion field="last_name"/>
                         </domain-object-surfer>
                     </plugin>
@@ -20,7 +20,7 @@
                         <link name="Employees_By_Name" display-text="По имени" image="employees-by-name.png">
                             <plugin>
                                 <domain-object-surfer>
-                                    <collection name="Employees"/>
+                                    <collectionT name="Employees"/>
                                     <sort-criterion field="last_name" order="asc"/> <!-- order опционален -->
                                     <sort-criterion field="first_name" order="desc"/>
                                 </domain-object-surfer>
@@ -64,7 +64,7 @@
                 <link name="Last Open" display-text="Последние открытые">
                     <plugin>
                         <domain-object-surfer>
-                            <collection name="last_open_docs"/>
+                            <collectionT name="last_open_docs"/>
                             <sort-criterion field="last_date" order="asc"/>
                         </domain-object-surfer>
                     </plugin>
@@ -72,7 +72,7 @@
                 <link name="Last Saved" display-text="Последние сохранённые">
                     <plugin>
                         <domain-object-surfer collection="last_saved_docs">
-                            <collection name="last_saved_docs"/>
+                            <collectionT name="last_saved_docs"/>
                             <sort-criterion field="last_date"/>
                         </domain-object-surfer>
                     </plugin>
@@ -83,7 +83,7 @@
                 <link name="All Documents" display-text="Все">
                     <plugin>
                         <domain-object-surfer>
-                            <collection name="all_documents"/>
+                            <collectionT name="all_documents"/>
                             <sort-criterion field="date"/>
                         </domain-object-surfer>
                     </plugin>
@@ -91,7 +91,7 @@
                         <link name="All Documents By Number" display-text="По номеру">
                             <plugin>
                                 <domain-object-surfer>
-                                    <collection name="all_documents"/>
+                                    <collectionT name="all_documents"/>
                                     <sort-criterion field="registration_number"/>
                                 </domain-object-surfer>
                             </plugin>
@@ -99,7 +99,7 @@
                         <link name="All Documents By Type" display-text="По типу">
                             <plugin>
                                 <domain-object-surfer>
-                                    <collection name="all_documents"/>
+                                    <collectionT name="all_documents"/>
                                     <sort-criterion field="type"/>
                                 </domain-object-surfer>
                             </plugin>
@@ -112,7 +112,7 @@
                         <link name="Documents In Work By Number" display-text="По номеру">
                             <plugin>
                                 <domain-object-surfer>
-                                    <collection name="documents_in_work"/>
+                                    <collectionT name="documents_in_work"/>
                                     <sort-criterion field="registration_number"/>
                                 </domain-object-surfer>
                             </plugin>
@@ -120,7 +120,7 @@
                         <link name="Documents In Work By Type" display-text="По типу">
                             <plugin>
                                 <domain-object-surfer>
-                                    <collection name="documents_in_work"/>
+                                    <collectionT name="documents_in_work"/>
                                     <sort-criterion field="type"/>
                                 </domain-object-surfer>
                             </plugin>
@@ -133,7 +133,7 @@
                 <link name="Documents Planned" display-text="В плане">
                     <plugin>
                         <domain-object-surfer>
-                            <collection name="documents_planned"/>
+                            <collectionT name="documents_planned"/>
                             <sort-criterion field="last_date"/>
                         </domain-object-surfer>
                     </plugin>
@@ -141,7 +141,7 @@
                         <link name="Documents Planned By Number" display-text="По номеру">
                             <plugin>
                                 <domain-object-surfer>
-                                    <collection name="documents_planned"/>
+                                    <collectionT name="documents_planned"/>
                                     <sort-criterion field="registration_number"/>
                                 </domain-object-surfer>
                             </plugin>
@@ -149,7 +149,7 @@
                         <link name="Documents Planned By Type" display-text="По типу">
                             <plugin>
                                 <domain-object-surfer>
-                                    <collection name="documents_planned"/>
+                                    <collectionT name="documents_planned"/>
                                     <sort-criterion field="type"/>
                                 </domain-object-surfer>
                             </plugin>

@@ -32,7 +32,7 @@ public class CollectionViewConfig {
             return false;
         }
 
-        CollectionConfig that = (CollectionConfig) o;
+        CollectionNestedConfig that = (CollectionNestedConfig) o;
 
         if (name != null ? !name.equals(that.getName()) : that.getName() != null) {
             return false;

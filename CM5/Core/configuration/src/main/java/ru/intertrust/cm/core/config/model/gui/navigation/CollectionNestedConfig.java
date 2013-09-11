@@ -13,7 +13,7 @@ import java.io.Serializable;
  * To change this template use File | Settings | File Templates.
  */
 @Root(name = "collection")
-public class CollectionConfig implements Serializable {
+public class CollectionNestedConfig implements Serializable {
     @Attribute(name = "name", required = true)
     private String name;
 
@@ -45,7 +45,7 @@ public class CollectionConfig implements Serializable {
             return false;
         }
 
-        CollectionConfig that = (CollectionConfig) o;
+        CollectionNestedConfig that = (CollectionNestedConfig) o;
 
         if (name != null ? !name.equals(that.getName()) : that.getName() != null) {
             return false;

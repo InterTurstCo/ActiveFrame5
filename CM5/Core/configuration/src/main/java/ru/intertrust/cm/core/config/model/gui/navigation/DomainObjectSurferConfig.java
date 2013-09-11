@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.config.model.gui.navigation;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.simpleframework.xml.Attribute;
+
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
@@ -14,7 +14,7 @@ import org.simpleframework.xml.Root;
 @Root(name = "domain-object-surfer")
 public class DomainObjectSurferConfig extends PluginConfigParent {
     @Element(name = "collection", required = false)
-    private CollectionConfig collectionConfig;
+    private CollectionNestedConfig collectionNestedConfig;
 
     @Element(name = "collection-view", required = false)
     private CollectionViewConfig collectionViewConfig;
@@ -22,12 +22,12 @@ public class DomainObjectSurferConfig extends PluginConfigParent {
     @ElementList(inline = true)
     private List<SortCriterionConfig> sortCriterionConfigList = new ArrayList<SortCriterionConfig>();
 
-    public CollectionConfig getCollectionConfig() {
-        return collectionConfig;
+    public CollectionNestedConfig getCollectionNestedConfig() {
+        return collectionNestedConfig;
     }
 
-    public void setCollectionConfig(CollectionConfig collectionConfig) {
-        this.collectionConfig = collectionConfig;
+    public void setCollectionNestedConfig(CollectionNestedConfig collectionNestedConfig) {
+        this.collectionNestedConfig = collectionNestedConfig;
     }
 
     public List<SortCriterionConfig> getSortCriterionConfigList() {
@@ -62,7 +62,7 @@ public class DomainObjectSurferConfig extends PluginConfigParent {
             return false;
         }
 
-        if (collectionConfig != null ? !collectionConfig.equals(that.getCollectionConfig()) : that.getCollectionConfig() != null) {
+        if (collectionNestedConfig != null ? !collectionNestedConfig.equals(that.getCollectionNestedConfig()) : that.getCollectionNestedConfig() != null) {
             return false;
         }
 
@@ -76,7 +76,7 @@ public class DomainObjectSurferConfig extends PluginConfigParent {
     @Override
     public int hashCode() {
         int result = sortCriterionConfigList != null ? sortCriterionConfigList.hashCode() : 0;
-        result = 23 * result + (collectionConfig != null ? collectionConfig.hashCode() : 0);
+        result = 23 * result + (collectionNestedConfig != null ? collectionNestedConfig.hashCode() : 0);
         result = result + (collectionViewConfig != null ? collectionViewConfig.hashCode() : 0);
         return result;
     }

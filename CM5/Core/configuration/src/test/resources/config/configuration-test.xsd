@@ -479,7 +479,7 @@
     <xs:complexType name="domain-object-surferType">
         <xs:sequence>
             <xs:choice>
-                <xs:element type="con:navCollectionType" name="collection" xmlns:con="https://cm5.intertrust.ru/config" />
+                <xs:element type="con:navCollectionTType" name="collectionT" xmlns:con="https://cm5.intertrust.ru/config" />
                 <xs:element type="con:collection-viewType" name="collection-view" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
             </xs:choice>
             <xs:element type="con:sort-criterionType" name="sort-criterion" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config">
@@ -495,7 +495,7 @@
         <xs:attribute type="xs:string" name="name"/>
     </xs:complexType>
 
-    <xs:complexType name="navCollectionType" >
+    <xs:complexType name="navCollectionTType" >
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute type="xs:string" name="name" use="optional"/>
