@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.gui.model.form;
+package ru.intertrust.cm.core.config.model.gui.form;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
@@ -7,5 +7,5 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  *         Date: 05.09.13
  *         Time: 17:47
  */
-public interface Layout extends Dto {
+public interface LayoutConfig extends Dto {
 }
