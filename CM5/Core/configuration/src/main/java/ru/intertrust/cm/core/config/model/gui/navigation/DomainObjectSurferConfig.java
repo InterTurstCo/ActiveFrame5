@@ -13,7 +13,7 @@ import org.simpleframework.xml.Root;
 @SuppressWarnings("serial")
 @Root(name = "domain-object-surfer")
 public class DomainObjectSurferConfig extends PluginConfigParent {
-    @Element(name = "collection", required = false)
+    @Element(name = "collectionT", required = false)
     private CollectionNestedConfig collectionNestedConfig;
 
     @Element(name = "collection-view", required = false)
