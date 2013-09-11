@@ -72,7 +72,11 @@ public class NavigationPanelLogicalValidatorTest {
 
         Configuration configuration = configurationSerializer.deserializeConfiguration();
         System.out.println(ConfigurationSerializer.serializeConfiguration(configuration));
-        return new ConfigurationExplorerImpl(configuration);
+
+        ConfigurationExplorer configurationExplorer = new ConfigurationExplorerImpl(configuration);
+        configurationExplorer.build();
+
+        return configurationExplorer;
     }
     private static Serializer createSerializerInstance() {
         Strategy strategy = new AnnotationStrategy();
