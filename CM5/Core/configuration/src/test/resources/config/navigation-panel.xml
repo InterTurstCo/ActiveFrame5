@@ -71,7 +71,7 @@
                 </link>
                 <link name="Last Saved" display-text="Последние сохранённые">
                     <plugin>
-                        <domain-object-surfer collection="last_saved_docs">
+                        <domain-object-surfer>
                             <collectionT name="last_saved_docs"/>
                             <sort-criterion field="last_date"/>
                         </domain-object-surfer>
