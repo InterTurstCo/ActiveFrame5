@@ -59,6 +59,7 @@ public class NavigationPanelLogicalValidatorTest {
     }           */
 
     private ConfigurationExplorer createConfigurationExplorer(String configPath) throws Exception {
+        TopLevelConfigurationCache.getInstance().build(); 
         ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
 
         Set<String> configPaths = new HashSet<>(Arrays.asList(configPath));
