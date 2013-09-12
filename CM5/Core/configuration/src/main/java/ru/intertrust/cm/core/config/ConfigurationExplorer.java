@@ -21,11 +21,6 @@ import java.util.List;
 public interface ConfigurationExplorer {
 
     /**
-     * Инициализирует экземпляр {@link ConfigurationExplorer}
-     */
-    void build();
-
-    /**
      * Возвращает конфигурацию
      * @return конфигурация
      */
@@ -48,7 +43,7 @@ public interface ConfigurationExplorer {
 
     /**
      * Находит конфигурацию всех типов доменных объектов, являющихся дочерними для заданного типа.
-     * @param domainObjectConfigName имя типа доменного объекта
+     * @param typeName имя типа доменного объекта
      * @param includeIndirect true, если в результат должны быть включены все уровни наследников
      * @return коллекция типов доменных объектов
      */
@@ -80,7 +75,7 @@ public interface ConfigurationExplorer {
      * @return конфигурацию отображаемого поля коллекции
      */
     CollectionColumnConfig getCollectionColumnConfig(String collectionConfigName, String columnConfigName);
-    
+
     /**
      * Поиск списка динамических групп по типу контекстного доменного объекта.
      * @param domainObjectType типу контекстного объекта

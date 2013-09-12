@@ -10,7 +10,6 @@ import java.util.*;
 
 /**
  * Предоставляет быстрый доступ к элементам конфигурации.
- * После создания объекта данного класса требуется выполнить инициализацию через вызов метода {@link #build()}.
  * @author vmatsukevich
  *         Date: 6/12/13
  *         Time: 5:21 PM
@@ -26,14 +25,9 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     /**
      * Создает {@link ConfigurationExplorerImpl}
      */
-    public ConfigurationExplorerImpl() {
-    }
-
-    /**
-     * Создает {@link ConfigurationExplorerImpl}
-     */
     public ConfigurationExplorerImpl(Configuration configuration) {
         this.configuration = configuration;
+        build();
     }
 
     /**
@@ -42,25 +36,6 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     @Override
     public Configuration getConfiguration() {
         return configuration;
-    }
-
-    /**
-     * Устанавливает конфигурацию
-     * @param configuration конфигурация
-     */
-    public void setConfiguration(Configuration configuration) {
-        this.configuration = configuration;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void build() {
-        initConfigurationMaps();
-
-        ConfigurationLogicalValidator logicalValidator = new ConfigurationLogicalValidator(this);
-        logicalValidator.validate();
     }
 
     /**
@@ -228,21 +203,21 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         }
         return dynamicGroups;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public AccessMatrixConfig getAccessMatrixByObjectTypeAndStatus(String domainObjectType, String status) {       
+    public AccessMatrixConfig getAccessMatrixByObjectTypeAndStatus(String domainObjectType, String status) {
         Map<String, TopLevelConfig> accessMatrixMap = topLevelConfigMap.get(AccessMatrixConfig.class);
 
         for (String accessMatrixObjectType : accessMatrixMap.keySet()) {
-            AccessMatrixConfig accessMatrixConfig = (AccessMatrixConfig) accessMatrixMap.get(accessMatrixObjectType);            
+            AccessMatrixConfig accessMatrixConfig = (AccessMatrixConfig) accessMatrixMap.get(accessMatrixObjectType);
             String accessMatrixStatus = null;
             if (accessMatrixConfig.getStatus() != null && accessMatrixConfig.getStatus().getName() != null) {
                 accessMatrixStatus = accessMatrixConfig.getStatus().getName();
             }
-            
+
             if(status!= null && status.equals(accessMatrixStatus) && accessMatrixObjectType.equals(domainObjectType)){
                 return accessMatrixConfig;
             }
@@ -263,6 +238,14 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
 
         return null;
     }
+
+    private void build() {
+        initConfigurationMaps();
+
+        ConfigurationLogicalValidator logicalValidator = new ConfigurationLogicalValidator(this);
+        logicalValidator.validate();
+    }
+
     private void fillTopLevelConfigMap(TopLevelConfig config) {
         Map<String, TopLevelConfig> typeMap = topLevelConfigMap.get(config.getClass());
         if(typeMap == null) {

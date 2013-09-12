@@ -54,12 +54,7 @@ public class ConfigurationControlServiceImplTest {
         TopLevelConfigurationCache.getInstance().build();
 
         configuration = createConfiguration();
-
-        configExplorer = new ConfigurationExplorerImpl();
-        configExplorer.setConfiguration(configuration);
-        configExplorer.build();
-
-        configurationService.setConfigurationExplorer(configExplorer);
+        configurationService.setConfigurationExplorer(new ConfigurationExplorerImpl(configuration));
     }
 
     @Test
@@ -83,8 +78,7 @@ public class ConfigurationControlServiceImplTest {
         when(configurationSerializer.deserializeTrustedConfiguration(configurationString)).thenReturn(configuration);
 
         Configuration updatedConfiguration = createConfiguration();
-        configExplorer.setConfiguration(updatedConfiguration);
-        configExplorer.build();
+        configExplorer = new ConfigurationExplorerImpl(updatedConfiguration);
 
         // Вносим изменения в конфигурацию
         DomainObjectTypeConfig domainObjectTypeConfig =
@@ -109,7 +103,8 @@ public class ConfigurationControlServiceImplTest {
         domainObjectTypeConfig.getUniqueKeyConfigs().add(uniqueKeyConfig);
 
         // Пересобираем configExplorer
-        configExplorer.build();
+        configExplorer = new ConfigurationExplorerImpl(updatedConfiguration);
+        configurationService.setConfigurationExplorer(configExplorer);
 
         configurationService.loadConfiguration();
 

@@ -175,7 +175,6 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
 
         private RecursiveMerger(Configuration oldConfiguration) {
             oldConfigExplorer = new ConfigurationExplorerImpl(oldConfiguration);
-            oldConfigExplorer.build();
         }
 
         @Override
