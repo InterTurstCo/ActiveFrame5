@@ -8,7 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Bondarchuk Yaroslav User: User Date: 04.09.13 Time: 14:35 To
+ * @author Yaroslav Bondacrhuk
+ *         Date: 10/9/13
+ *         Time: 12:05 PM
  */
 @SuppressWarnings("serial")
 @Root(name = "plugin")

@@ -9,7 +9,9 @@ import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 
 /**
- * Author: Yaroslav Bondarchuk Date: 04.09.13 Time: 16:01
+ * @author Yaroslav Bondacrhuk
+ *         Date: 8/9/13
+ *         Time: 12:05 PM
  */
 @SuppressWarnings("serial")
 @Root(name = "attribute")

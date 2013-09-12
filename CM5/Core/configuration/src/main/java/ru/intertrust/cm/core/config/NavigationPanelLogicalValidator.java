@@ -10,7 +10,9 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA. User: Yaroslav Bondarchuk Date: 06.09.13 Time: 14:29 To change
+ * @author Yaroslav Bondacrhuk
+ *         Date: 10/9/13
+ *         Time: 12:05 PM
  */
 public class NavigationPanelLogicalValidator {
     final static Logger logger = LoggerFactory.getLogger(NavigationPanelLogicalValidator.class);
@@ -25,17 +27,16 @@ public class NavigationPanelLogicalValidator {
      * Выполняет логическую валидацию конфигурации панели навигации
      */
     public void validate() {
-        Collection<NavigationConfig> navigationConfigList =
-                configurationExplorer.getConfigs(NavigationConfig.class);
+        Collection<NavigationConfig> navigationConfigList = configurationExplorer.getConfigs(NavigationConfig.class);
+
         if (navigationConfigList.isEmpty()) {
-            System.out.println("empty list");
+            logger.info("Navigation Panel config couldn't be resolved");
             return;
         }
         for (NavigationConfig navigationConfig : navigationConfigList) {
             validateNavigateConfig(navigationConfig);
         }
-        System.out.println("validated!");
-        logger.info("Document has passed logical validation");
+        logger.info("Navigation Panel config has passed logical validation");
     }
 
     private void validateNavigateConfig(NavigationConfig navigationConfig) {
@@ -50,36 +51,6 @@ public class NavigationPanelLogicalValidator {
         for (LinkConfig linkConfig : linkConfigList) {
             validateLinkToOpen(linkConfig);
         }
-
-    }
-
-    private void validateLinkConfig(LinkConfig linkConfig) {
-        if (linkConfig == null) {
-            return;
-        }
-
-        List<ChildLinksConfig> childLinksConfigList = linkConfig.getChildLinksConfigList();
-
-        if (childLinksConfigList == null) {
-            return;
-        }
-        for (ChildLinksConfig childLinksConfig : childLinksConfigList) {
-            List<LinkConfig> linkConfigList = childLinksConfig.getLinkConfigList();
-            if (linkConfigList == null) {
-                return;
-            }
-            validateLinkConfigContainsLink(linkConfigList, linkConfig);
-        }
-    }
-
-    private void validateLinkConfigContainsLink(List<LinkConfig> linkConfigList,
-                                                LinkConfig linkConfigPrototype) {
-        for (LinkConfig linkConfigSerialized : linkConfigList) {
-            if (!linkConfigSerialized.equals(linkConfigPrototype)) {
-                return;
-            }
-        }
-        throw new ConfigurationException("LinkConfig with name '" + linkConfigPrototype.getName() + "' has self link  '");
 
     }
 

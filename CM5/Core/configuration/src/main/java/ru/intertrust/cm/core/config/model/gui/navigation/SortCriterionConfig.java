@@ -5,7 +5,9 @@ import org.simpleframework.xml.Root;
 import java.io.Serializable;
 
 /**
- * User: Yaroslav Bondarchuk Date: 04.09.13 Time: 14:40
+ * @author Yaroslav Bondacrhuk
+ *         Date: 10/9/13
+ *         Time: 12:05 PM
  */
 @SuppressWarnings("serial")
 @Root(name = "sort-criterion")

@@ -423,7 +423,7 @@
         <xs:attribute name="name" type="xs:string" use="required"/>
     </xs:complexType>
 
-       <!--  Navigation Panel part -->
+    <!--  Navigation Panel part -->
     <xs:complexType name="navigationPanelType">
         <xs:sequence>
             <xs:element type="con:linkType" name="link" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
@@ -479,8 +479,8 @@
     <xs:complexType name="domain-object-surferType">
         <xs:sequence>
             <xs:choice>
-                <xs:element type="con:navCollectionTType" name="collectionT" xmlns:con="https://cm5.intertrust.ru/config" />
-                <xs:element type="con:collection-viewType" name="collection-view" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                <xs:element type="con:collection-refType" name="collection-ref" xmlns:con="https://cm5.intertrust.ru/config" />
+                <xs:element type="con:collection-view-refType" name="collection-view-ref" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
             </xs:choice>
             <xs:element type="con:sort-criterionType" name="sort-criterion" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
@@ -495,7 +495,7 @@
         <xs:attribute type="xs:string" name="name"/>
     </xs:complexType>
 
-    <xs:complexType name="navCollectionTType" >
+    <xs:complexType name="collection-refType" >
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute type="xs:string" name="name" use="optional"/>
@@ -504,7 +504,7 @@
         </xs:simpleContent>
     </xs:complexType>
 
-    <xs:complexType name="collection-viewType">
+    <xs:complexType name="collection-view-refType">
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute type="xs:string" name="name"/>

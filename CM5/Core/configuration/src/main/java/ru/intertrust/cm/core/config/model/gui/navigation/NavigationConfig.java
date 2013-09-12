@@ -9,7 +9,9 @@ import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.config.model.TopLevelConfig;
 
 /**
- * Author: Denis Mitavskiy Date: 14.06.13 Time: 16:01
+ * @author Yaroslav Bondacrhuk
+ *         Date: 10/9/13
+ *         Time: 12:05 PM
  */
 @Root(name = "navigation", strict = false)
 public class NavigationConfig implements TopLevelConfig {

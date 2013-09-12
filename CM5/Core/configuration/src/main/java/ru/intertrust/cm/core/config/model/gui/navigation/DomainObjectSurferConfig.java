@@ -8,26 +8,28 @@ import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 
 /**
- * Author: Yaroslav Bondarchuk Date: 04.09.13 Time: 16:01
+ * @author Yaroslav Bondacrhuk
+ *         Date: 10/9/13
+ *         Time: 12:05 PM
  */
 @SuppressWarnings("serial")
 @Root(name = "domain-object-surfer")
 public class DomainObjectSurferConfig extends PluginConfigParent {
-    @Element(name = "collectionT", required = false)
-    private CollectionNestedConfig collectionNestedConfig;
+    @Element(name = "collection-ref", required = false)
+    private CollectionRefConfig collectionRefConfig;
 
-    @Element(name = "collection-view", required = false)
-    private CollectionViewConfig collectionViewConfig;
+    @Element(name = "collection-view-ref", required = false)
+    private CollectionViewRefConfig collectionViewRefConfig;
 
     @ElementList(inline = true)
     private List<SortCriterionConfig> sortCriterionConfigList = new ArrayList<SortCriterionConfig>();
 
-    public CollectionNestedConfig getCollectionNestedConfig() {
-        return collectionNestedConfig;
+    public CollectionRefConfig getCollectionRefConfig() {
+        return collectionRefConfig;
     }
 
-    public void setCollectionNestedConfig(CollectionNestedConfig collectionNestedConfig) {
-        this.collectionNestedConfig = collectionNestedConfig;
+    public void setCollectionRefConfig(CollectionRefConfig collectionRefConfig) {
+        this.collectionRefConfig = collectionRefConfig;
     }
 
     public List<SortCriterionConfig> getSortCriterionConfigList() {
@@ -38,12 +40,12 @@ public class DomainObjectSurferConfig extends PluginConfigParent {
         this.sortCriterionConfigList = sortCriterionConfigList;
     }
 
-    public CollectionViewConfig getCollectionViewConfig() {
-        return collectionViewConfig;
+    public CollectionViewRefConfig getCollectionViewRefConfig() {
+        return collectionViewRefConfig;
     }
 
-    public void setCollectionViewConfig(CollectionViewConfig collectionViewConfig) {
-        this.collectionViewConfig = collectionViewConfig;
+    public void setCollectionViewRefConfig(CollectionViewRefConfig collectionViewRefConfig) {
+        this.collectionViewRefConfig = collectionViewRefConfig;
     }
 
 
@@ -62,11 +64,11 @@ public class DomainObjectSurferConfig extends PluginConfigParent {
             return false;
         }
 
-        if (collectionNestedConfig != null ? !collectionNestedConfig.equals(that.getCollectionNestedConfig()) : that.getCollectionNestedConfig() != null) {
+        if (collectionRefConfig != null ? !collectionRefConfig.equals(that.getCollectionRefConfig()) : that.getCollectionRefConfig() != null) {
             return false;
         }
 
-        if (collectionViewConfig != null ? !collectionViewConfig.equals(that.getCollectionViewConfig()) : that.getCollectionViewConfig() != null) {
+        if (collectionViewRefConfig != null ? !collectionViewRefConfig.equals(that.getCollectionViewRefConfig()) : that.getCollectionViewRefConfig() != null) {
             return false;
         }
 
@@ -76,8 +78,8 @@ public class DomainObjectSurferConfig extends PluginConfigParent {
     @Override
     public int hashCode() {
         int result = sortCriterionConfigList != null ? sortCriterionConfigList.hashCode() : 0;
-        result = 23 * result + (collectionNestedConfig != null ? collectionNestedConfig.hashCode() : 0);
-        result = result + (collectionViewConfig != null ? collectionViewConfig.hashCode() : 0);
+        result = 23 * result + (collectionRefConfig != null ? collectionRefConfig.hashCode() : 0);
+        result = result + (collectionViewRefConfig != null ? collectionViewRefConfig.hashCode() : 0);
         return result;
     }
 }

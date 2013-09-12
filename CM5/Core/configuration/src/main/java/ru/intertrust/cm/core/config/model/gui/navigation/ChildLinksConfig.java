@@ -8,7 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Author: Yaroslav Bondarchuk Date: 04.09.13 Time: 16:01
+ * @author Yaroslav Bondacrhuk
+ *         Date: 10/9/13
+ *         Time: 12:05 PM
  */
 
 @SuppressWarnings("serial")

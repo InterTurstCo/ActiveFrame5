@@ -4,12 +4,12 @@
         <link name="Administration" display-text="Администрирование" image="administration.png" child-to-open="Employee">
             <!-- в администрировании не задан плагин, значит по клику ничего открываться не должно, либо должна открываться дочерняя ссылка. дочерняя ссылка должна быть одной из вложенных (1й уровень вложенности). если не задан ни плагин, ни дочерняя ссылка, то данная ссылка является простой группировкой дочерних -->
             <child-links group-name="Орг. структура"> <!-- group-name параметр не обязательный. Если он задан, то на экране появляется элемент-название группы (см. "Руководство разработчика", раздел Строение системы, Навигационное дерево -> "Стадии и задачи"-->
-                <link name="Employees" display-text="Сотрудники" image="employees.png">
+                <link name="Employee" display-text="Сотрудники" image="employees.png">
                     <plugin>
                         <!-- DomainObjectSurferConfig и CustomPluginConfig должны наследоваться от PluginConfig -->
                         <!-- если используется collection-view, то collection нельзя использовать -->
                         <domain-object-surfer>
-                            <collectionT name="Employees" use-default="true"/>
+                            <collection-ref name="Employees" use-default="true"/>
                             <sort-criterion field="last_name"/>
                         </domain-object-surfer>
                     </plugin>
@@ -20,7 +20,7 @@
                         <link name="Employees_By_Name" display-text="По имени" image="employees-by-name.png">
                             <plugin>
                                 <domain-object-surfer>
-                                    <collectionT name="Employees"/>
+                                    <collection-ref name="Employees"/>
                                     <sort-criterion field="last_name" order="asc"/> <!-- order опционален -->
                                     <sort-criterion field="first_name" order="desc"/>
                                 </domain-object-surfer>
@@ -64,15 +64,15 @@
                 <link name="Last Open" display-text="Последние открытые">
                     <plugin>
                         <domain-object-surfer>
-                            <collectionT name="last_open_docs"/>
+                            <collection-ref name="last_open_docs"/>
                             <sort-criterion field="last_date" order="asc"/>
                         </domain-object-surfer>
                     </plugin>
                 </link>
                 <link name="Last Saved" display-text="Последние сохранённые">
                     <plugin>
-                        <domain-object-surfer collection="last_saved_docs">
-                            <collectionT name="last_saved_docs"/>
+                        <domain-object-surfer>
+                            <collection-ref name="last_saved_docs"/>
                             <sort-criterion field="last_date"/>
                         </domain-object-surfer>
                     </plugin>
@@ -83,7 +83,7 @@
                 <link name="All Documents" display-text="Все">
                     <plugin>
                         <domain-object-surfer>
-                            <collectionT name="all_documents"/>
+                            <collection-ref name="all_documents"/>
                             <sort-criterion field="date"/>
                         </domain-object-surfer>
                     </plugin>
@@ -91,7 +91,7 @@
                         <link name="All Documents By Number" display-text="По номеру">
                             <plugin>
                                 <domain-object-surfer>
-                                    <collectionT name="all_documents"/>
+                                    <collection-ref name="all_documents"/>
                                     <sort-criterion field="registration_number"/>
                                 </domain-object-surfer>
                             </plugin>
@@ -99,7 +99,7 @@
                         <link name="All Documents By Type" display-text="По типу">
                             <plugin>
                                 <domain-object-surfer>
-                                    <collectionT name="all_documents"/>
+                                    <collection-ref name="all_documents"/>
                                     <sort-criterion field="type"/>
                                 </domain-object-surfer>
                             </plugin>
@@ -112,7 +112,7 @@
                         <link name="Documents In Work By Number" display-text="По номеру">
                             <plugin>
                                 <domain-object-surfer>
-                                    <collectionT name="documents_in_work"/>
+                                    <collection-ref name="documents_in_work"/>
                                     <sort-criterion field="registration_number"/>
                                 </domain-object-surfer>
                             </plugin>
@@ -120,7 +120,7 @@
                         <link name="Documents In Work By Type" display-text="По типу">
                             <plugin>
                                 <domain-object-surfer>
-                                    <collectionT name="documents_in_work"/>
+                                    <collection-ref name="documents_in_work" use-default = "true"/>
                                     <sort-criterion field="type"/>
                                 </domain-object-surfer>
                             </plugin>
@@ -133,7 +133,7 @@
                 <link name="Documents Planned" display-text="В плане">
                     <plugin>
                         <domain-object-surfer>
-                            <collectionT name="documents_planned"/>
+                            <collection-view-ref name="documents_planned"/>
                             <sort-criterion field="last_date"/>
                         </domain-object-surfer>
                     </plugin>
@@ -141,7 +141,7 @@
                         <link name="Documents Planned By Number" display-text="По номеру">
                             <plugin>
                                 <domain-object-surfer>
-                                    <collectionT name="documents_planned"/>
+                                    <collection-ref name="documents_planned"/>
                                     <sort-criterion field="registration_number"/>
                                 </domain-object-surfer>
                             </plugin>
@@ -149,7 +149,7 @@
                         <link name="Documents Planned By Type" display-text="По типу">
                             <plugin>
                                 <domain-object-surfer>
-                                    <collectionT name="documents_planned"/>
+                                    <collection-ref name="documents_planned"/>
                                     <sort-criterion field="type"/>
                                 </domain-object-surfer>
                             </plugin>
