@@ -5,7 +5,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.config.ConfigurationLogicalValidator;
 
 import static org.mockito.Mockito.verify;
@@ -21,13 +20,13 @@ public class ConfigurationLoaderTest {
     @InjectMocks
     private ConfigurationLoader configurationLoader = new ConfigurationLoader();
     @Mock
-    private ConfigurationService configurationService;
+    private ConfigurationControlService configurationControlService;
     @Mock
     ConfigurationLogicalValidator logicalValidator;
 
     @Test
     public void testLoad() throws Exception {
         configurationLoader.load();
-        verify(configurationService).loadConfiguration();
+        verify(configurationControlService).loadConfiguration();
     }
 }

@@ -42,6 +42,11 @@
             <artifactId>spring-aspects</artifactId>
             <version>3.2.3.RELEASE</version>
         </dependency>
+        <dependency>
+            <groupId>ru.intertrust.cm-sochi</groupId>
+            <artifactId>configuration</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
     </dependencies>
 </project>
