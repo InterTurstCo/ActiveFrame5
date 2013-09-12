@@ -129,6 +129,9 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         private Id id;
         private ArrayList<Value> fieldValues;
 
+        private FastIdentifiableObjectImpl() {
+        }
+
         private FastIdentifiableObjectImpl(int fieldsSize) {
             fieldValues = new ArrayList<>(fieldsSize);
             for (int i = 0; i < fieldsSize; ++i) {

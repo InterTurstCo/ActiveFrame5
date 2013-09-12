@@ -1,6 +1,8 @@
-package ru.intertrust.cm.core.gui.model.form;
+package ru.intertrust.cm.core.config.model.gui.form;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
+
+import java.util.List;
 
 /**
  * Класс определяет строку в табличной разметке
@@ -9,15 +11,16 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  *         Date: 06.09.13
  *         Time: 12:33
  */
-public class Row implements Dto {
-    private Size height;
-    private VerticalAlignment defaultAlignment;
+public class RowConfig implements Dto {
+    private String height;
+    private String defaultVerticalAlignment;
+    private List<CellConfig> cells;
 
     /**
      * Возвращает высоту строки
      * @return высоту строки
      */
-    public Size getHeight() {
+    public String getHeight() {
         return height;
     }
 
@@ -25,7 +28,7 @@ public class Row implements Dto {
      * Устанавливает высоту строки
      * @param height высота строки
      */
-    public void setHeight(Size height) {
+    public void setHeight(String height) {
         this.height = height;
     }
 
@@ -33,15 +36,23 @@ public class Row implements Dto {
      * Возвращает выравнивание по умолчанию в данной строке
      * @return выравнивание по умолчанию в данной строке
      */
-    public VerticalAlignment getDefaultAlignment() {
-        return defaultAlignment;
+    public String getDefaultVerticalAlignment() {
+        return defaultVerticalAlignment;
     }
 
     /**
      * Устанавливает выравнивание по умолчанию в данной строке
-     * @param defaultAlignment выравнивание по умолчанию в данной строке
+     * @param defaultVerticalAlignment выравнивание по умолчанию в данной строке
      */
-    public void setDefaultAlignment(VerticalAlignment defaultAlignment) {
-        this.defaultAlignment = defaultAlignment;
+    public void setDefaultVerticalAlignment(String defaultVerticalAlignment) {
+        this.defaultVerticalAlignment = defaultVerticalAlignment;
+    }
+
+    public List<CellConfig> getCells() {
+        return cells;
+    }
+
+    public void setCells(List<CellConfig> cells) {
+        this.cells = cells;
     }
 }

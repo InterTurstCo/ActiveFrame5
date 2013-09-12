@@ -29,6 +29,9 @@
         <fields>
             <string name="Name" length="128" />
             <string name="Description" length="128" />
+            <reference name="Executor"> <!-- This means Foreign Key to Employee and index are created automatically -->
+                <type name="Employee"/>
+            </reference>
         </fields>
     </domain-object-type>
 

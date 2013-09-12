@@ -41,6 +41,35 @@ public class BaseDynamicGroupServiceImpl {
         doelResolver.setDataSource(dataSource);
 
     }
+    
+    /**
+     * Удаляет динамическую группу по названию и контекстному объекту.
+     * @param groupName название динамической группы
+     * @param contextObjectId идентфикатор контекстного объекта
+     * @return идентификатор удаленной динамической группы
+     */
+    protected Id deleteUserGroupByGroupNameAndObjectId(String groupName, Long contextObjectId) {
+        Id userGroupId = getUserGroupByGroupNameAndObjectId(groupName, contextObjectId);
+        
+        if (userGroupId != null) {
+            String query = generateDeleteUserGroupQuery();
+
+            Map<String, Object> parameters = initializeProcessUserGroupParameters(groupName, contextObjectId);
+            jdbcTemplate.update(query, parameters);
+        }
+        
+        return userGroupId;
+    }
+
+    private String generateDeleteUserGroupQuery() {
+        String tableName = getSqlName(USER_GROUP_DOMAIN_OBJECT);
+        StringBuilder query = new StringBuilder();
+        query.append("Delete from ");
+        query.append(tableName).append(" ug");
+        query.append(" where ug.group_name = :group_name and ug.object_id = :object_id");
+
+        return query.toString();
+    }
 
     /**
      * Возвращает идентификатор группы пользователей по имени группы и идентификатору контекстного объекта
@@ -51,11 +80,11 @@ public class BaseDynamicGroupServiceImpl {
     protected Id getUserGroupByGroupNameAndObjectId(String groupName, Long contextObjectId) {
         String query = generateGetUserGroupQuery();
 
-        Map<String, Object> parameters = initializeGetUserGroupParameters(groupName, contextObjectId);
+        Map<String, Object> parameters = initializeProcessUserGroupParameters(groupName, contextObjectId);
         return jdbcTemplate.query(query, parameters, new ObjectIdRowMapper("id", USER_GROUP_DOMAIN_OBJECT));
     }
 
-    private Map<String, Object> initializeGetUserGroupParameters(String groupName, Long contextObjectId) {
+    private Map<String, Object> initializeProcessUserGroupParameters(String groupName, Long contextObjectId) {
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("group_name", groupName);
         parameters.put("object_id", contextObjectId);

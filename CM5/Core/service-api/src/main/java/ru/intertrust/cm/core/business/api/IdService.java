@@ -1,15 +1,12 @@
-package ru.intertrust.cm.core.dao.impl;
+package ru.intertrust.cm.core.business.api;
 
-import org.springframework.stereotype.Service;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 
 /**
  * Создание фабричных методов идентификаторов и доменных объектов с идентификатором, чтобы избавиться от new RdbsId().
  * Необходимо для клиентского слоя, который, например из URL вытащит строку Id документа.
  */
-@Service
-public class IdService {
+public interface IdService {
 
     /**
      * Создает идентификатор
@@ -17,7 +14,5 @@ public class IdService {
      * @param stringRep строковое представление индентификатора
      * @return идентификатор {@link ru.intertrust.cm.core.business.api.dto.RdbmsId}
      */
-    public Id createId(String stringRep) {
-        return new RdbmsId(stringRep);
-    }
+    Id createId(String stringRep);
 }

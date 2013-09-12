@@ -27,6 +27,14 @@ public abstract class Value implements Dto {
         return get() == null;
     }
 
+    /**
+     * Возвращает тип поля, значение которого определеятся данным объектом
+     * @return enum-константа, определяющая тип поля
+     */
+    public final FieldType getFieldType() {
+        return FieldType.find(getClass());
+    }
+
     @Override
     public int hashCode() {
         Object object = get();

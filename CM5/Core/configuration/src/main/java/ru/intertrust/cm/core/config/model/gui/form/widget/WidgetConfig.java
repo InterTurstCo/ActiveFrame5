@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.gui.model.form.widget;
+package ru.intertrust.cm.core.config.model.gui.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
@@ -10,7 +10,14 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  *         Date: 06.09.13
  *         Time: 14:52
  */
-public abstract class WidgetDefinition implements Dto {
+public class WidgetConfig implements Dto {
     private String id;
-    private String fieldPath;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 }
