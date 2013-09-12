@@ -60,6 +60,12 @@
             <artifactId>test-module</artifactId>
             <version>${project.version}</version>
         </dependency>
+        
+        <dependency>
+            <groupId>ru.intertrust.cm-sochi</groupId>
+            <artifactId>dataset-generator</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
     </dependencies>
 
