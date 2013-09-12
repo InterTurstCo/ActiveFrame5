@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.business.impl;
 
-import ru.intertrust.cm.core.business.api.ConfigurationService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Класс, предназначенный для загрузки конфигурации доменных объектов
@@ -10,17 +10,18 @@ import ru.intertrust.cm.core.business.api.ConfigurationService;
  */
 public class ConfigurationLoader {
 
-    private ConfigurationService configurationService;
+    @Autowired
+    private ConfigurationControlService configurationControlService;
 
     public ConfigurationLoader() {
     }
 
     /**
-     * Устанавливает {@link #configurationService}
-     * @param configurationService сервис для работы с конфигурацией доменных объектов
+     * Устанавливает {@link #configurationControlService}
+     * @param configurationControlService сервис для работы с конфигурацией доменных объектов
      */
-    public void setConfigurationService(ConfigurationService configurationService) {
-        this.configurationService = configurationService;
+    public void setConfigurationControlService(ConfigurationControlService configurationControlService) {
+        this.configurationControlService = configurationControlService;
     }
 
     /**
@@ -29,7 +30,7 @@ public class ConfigurationLoader {
      * @throws Exception
      */
     public void load() throws Exception {
-        configurationService.loadConfiguration();
+        configurationControlService.loadConfiguration();
     }
 
 }

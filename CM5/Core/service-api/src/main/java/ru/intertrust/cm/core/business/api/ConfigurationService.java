@@ -1,17 +1,14 @@
 package ru.intertrust.cm.core.business.api;
 
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+
 /**
- * Сервис загрузки и работы с конфигурацией доменных объектов
  * @author vmatsukevich
- *         Date: 5/15/13
- *         Time: 4:32 PM
+ *         Date: 9/12/13
+ *         Time: 10:41 AM
  */
-public interface ConfigurationService {
+public interface ConfigurationService extends ConfigurationExplorer {
 
-    interface Remote extends ConfigurationService {}
-
-    /**
-     * Загрузка конфигурации
-     */
-    void loadConfiguration();
+    public interface Remote extends ConfigurationService {
+    }
 }
