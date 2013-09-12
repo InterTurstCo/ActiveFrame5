@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getIndexedName;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlAlias;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 
@@ -662,9 +663,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
                     if (fieldConfig instanceof ReferenceFieldConfig) {
                         //TODO: Обрабатывать множественные типы ссылок
-/*                        columnName = getSqlName(getIndexedName(fieldConfig.getName(), 1));
+                        columnName = getSqlName(getIndexedName(fieldConfig.getName(), 1));
                         parameterName = DaoUtils.generateParameter(columnName);
-*/                    }
+                    }
                     parameters.put(parameterName, value.get());
                 }
             } else {
