@@ -60,6 +60,11 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
         }
     }
 
+    @Override
+    public void notifyDomainObjectCreated(Id objectId) {
+
+    }
+    
     /**
      * Получает список персон динамической группы по дескриптору группы и контекстному объекту.
      * @param dynamicGroupConfig дескриптор динамической группы

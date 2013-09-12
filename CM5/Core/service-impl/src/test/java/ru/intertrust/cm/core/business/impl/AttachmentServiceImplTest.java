@@ -8,7 +8,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
@@ -22,7 +21,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.IdService;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.impl.RdbmsIdServiceImpl;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.config.model.AttachmentTypeConfig;
@@ -62,6 +63,8 @@ public class AttachmentServiceImplTest {
     private static final int BUF_SIZE = 0x1000;
     private static String absDirPath;
     private static Long suffix;
+
+    private static IdService idService = new RdbmsIdServiceImpl();
 
     static private AttachmentServiceRmi stubAttachmentService;
 
@@ -121,7 +124,7 @@ public class AttachmentServiceImplTest {
         public AccessControlService accessControlService() {
             return accessControlService;
         }
-        
+
         @Bean
         public ConfigurationExplorer configurationExplorer() {
             try {
@@ -380,15 +383,13 @@ public class AttachmentServiceImplTest {
     }
 
     static private DomainObjectDao fillDomainObjectDao(DomainObjectDao domainObjectDao, AccessToken accessToken) {
-        new RdbmsId("PERSON|1");
-
         GenericDomainObject domainObject1 = new GenericDomainObjectWrapper();
         domainObject1.setTypeName("Person_Attachment");
-        domainObject1.setId(new RdbmsId("Person_Attachment|1"));
+        domainObject1.setId(idService.createId("Person_Attachment|1"));
         GenericDomainObject domainObject2 = new GenericDomainObjectWrapper();
         domainObject2.setTypeName("Person_Attachment");
-        domainObject2.setId(new RdbmsId("Person_Attachment|2"));
-        
+        domainObject2.setId(idService.createId("Person_Attachment|2"));
+
         when(domainObjectDao.findChildren(any(Id.class), eq("Person_Attachment"), any(AccessToken.class))).
                 thenReturn(Arrays.asList(new DomainObject[]{domainObject1, domainObject2}));
         return domainObjectDao;
