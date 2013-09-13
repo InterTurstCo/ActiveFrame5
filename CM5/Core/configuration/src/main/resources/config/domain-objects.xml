@@ -38,8 +38,9 @@
     <domain-object-type name="Person">
         <fields>
             <string name="EMail" length="128" />
-            <string name="Login" length="64" not-null="true" />
-            <password name="Password" length="128" />
+            <reference name="Login" not-null="true">
+                <type name="Authentication_Info"/>
+            </reference>
         </fields>
        <uniqueKey> <!-- This key means automatic key + index creation-->
             <field name="EMail"/>
@@ -75,9 +76,6 @@
                 <type name="Department"/>
             </reference>
 			<string name="Name" length="64" not-null="true" />
-            <reference name="Login" not-null="true">
-                <type name="Authentication_Info"/>
-            </reference>
 			<string name="Position" length="64" not-null="true" />
 			<string name="Phone" length="32" />
 			<string name="Certificate" length="4096" />

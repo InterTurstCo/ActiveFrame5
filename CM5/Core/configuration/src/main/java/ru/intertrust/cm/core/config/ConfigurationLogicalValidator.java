@@ -89,12 +89,30 @@ public class ConfigurationLogicalValidator {
 
     private void validateExtendsAttribute(DomainObjectTypeConfig domainObjectTypeConfig) {
         String extendsAttributeValue = domainObjectTypeConfig.getExtendsAttribute();
-        if (extendsAttributeValue != null) {
-            DomainObjectTypeConfig extendedConfig =
-                    configurationExplorer.getConfig(DomainObjectTypeConfig.class, extendsAttributeValue);
-            if (extendedConfig == null) {
-                throw new ConfigurationException("Extended DomainObject Configuration is not found for name '" +
-                        extendsAttributeValue + "'");
+
+        if (extendsAttributeValue == null) {
+            return;
+        }
+
+        DomainObjectTypeConfig parentConfig =
+                configurationExplorer.getConfig(DomainObjectTypeConfig.class, extendsAttributeValue);
+
+        if (parentConfig == null) {
+            throw new ConfigurationException("Extended DomainObject Configuration is not found for name '" +
+                    extendsAttributeValue + "'");
+        }
+
+        validateForCoincidentFieldNamesInHierarchy(domainObjectTypeConfig, parentConfig);
+    }
+
+    private void validateForCoincidentFieldNamesInHierarchy(DomainObjectTypeConfig config, DomainObjectTypeConfig parentConfig) {
+        for (FieldConfig fieldConfig : config.getFieldConfigs()) {
+            FieldConfig parentFieldConfig = configurationExplorer.getFieldConfig(parentConfig.getName(),
+                    fieldConfig.getName());
+
+            if (parentFieldConfig != null) {
+                throw new ConfigurationException("FieldConfig with name '" + fieldConfig.getName() + "' is already " +
+                        "used in some inherited DomainObjectTypeConfig of '" + config.getName() + "'");
             }
         }
     }
