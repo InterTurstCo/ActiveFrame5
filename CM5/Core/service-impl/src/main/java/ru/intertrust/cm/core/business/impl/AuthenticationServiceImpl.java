@@ -63,7 +63,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         role.setModifiedDate(currentDate);
         StringValue roleName = new StringValue(authenticationInfo.getRole());
         role.setValue("Role", roleName);
-        role.setValue("Authentication_Info", new LongValue(id.getId()));
+        role.setValue("Authentication_Info", new ReferenceValue(id));
         domainObjectDao.create(role);
     }
 
