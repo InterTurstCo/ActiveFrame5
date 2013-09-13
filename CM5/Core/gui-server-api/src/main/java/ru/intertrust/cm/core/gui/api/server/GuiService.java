@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.gui.api.server;
 
-import ru.intertrust.cm.core.config.model.NavigationConfig;
+import ru.intertrust.cm.core.config.model.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 

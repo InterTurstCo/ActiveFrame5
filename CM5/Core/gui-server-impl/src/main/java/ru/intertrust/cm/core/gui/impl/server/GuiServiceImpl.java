@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.server;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.config.model.NavigationConfig;
+import ru.intertrust.cm.core.config.model.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.impl.server.plugin.SomeActivePluginHandler;
