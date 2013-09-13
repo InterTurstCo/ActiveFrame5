@@ -82,10 +82,6 @@ public class ConfigurationLogicalValidatorTest {
         ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
         Set<String> configPaths = new HashSet<>(Arrays.asList(configPath, COLLECTIONS_CONFIG_PATH));
 
-        File file = new File (configPath);
-        System.out.println(file.getAbsolutePath()) ;
-        System.out.println(file.exists()) ;
-
         configurationSerializer.setCoreConfigurationFilePaths(configPaths);
         configurationSerializer.setCoreConfigurationSchemaFilePath(CONFIGURATION_SCHEMA_PATH);
 
@@ -94,7 +90,6 @@ public class ConfigurationLogicalValidatorTest {
         configurationSerializer.setModulesConfigurationSchemaPath(MODULES_CONFIG_SCHEMA_PATH);
 
         Configuration configuration = configurationSerializer.deserializeConfiguration();
-        System.out.println( ConfigurationSerializer.serializeConfiguration(configuration) );
         return new ConfigurationExplorerImpl(configuration);
     }
 }

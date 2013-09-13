@@ -10,13 +10,12 @@ import java.util.Collection;
  * Логически Валидирует конфигурацию
  * User: atsvetkov Date: 17.05.13 Time: 13:52
  */
-public class ConfigurationLogicalValidator {
-
+public class DomainObjectLogicalValidator {
     final static Logger logger = LoggerFactory.getLogger(ConfigurationLogicalValidator.class);
 
     private ConfigurationExplorer configurationExplorer;
 
-    public ConfigurationLogicalValidator(ConfigurationExplorer configurationExplorer) {
+    public DomainObjectLogicalValidator(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
     }
 
@@ -109,9 +108,11 @@ public class ConfigurationLogicalValidator {
         DomainObjectTypeConfig parentDomainObjectTypeConfig =
                 configurationExplorer.getConfig(DomainObjectTypeConfig.class, parentConfigName);
         if (parentDomainObjectTypeConfig == null) {
-            throw new ConfigurationException("Parent DomainObject Configuration is not found for name '" +
-                    parentConfigName + "'");
+            throw new ConfigurationException("Parent DomainObject Configuration is not found for name '"
+                    + parentConfigName + "'");
         }
     }
 
 }
+
+

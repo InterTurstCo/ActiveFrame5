@@ -16,7 +16,7 @@ import ru.intertrust.cm.core.config.model.TopLevelConfig;
 @Root(name = "navigation", strict = false)
 public class NavigationConfig implements TopLevelConfig {
     @ElementList(name = "link", required = false, inline = true)
-    private List<LinkConfig> linkConfigList = new ArrayList<LinkConfig>();
+    private List<LinkConfig> linkConfigList = new ArrayList<>();
 
     @Attribute(name = "name")
     private String name;
@@ -60,7 +60,8 @@ public class NavigationConfig implements TopLevelConfig {
 
         NavigationConfig that = (NavigationConfig) o;
 
-        if (linkConfigList != null ? !linkConfigList.equals(that.getLinkConfigList()) : that.getLinkConfigList() != null) {
+        if (linkConfigList != null ? !linkConfigList.equals(that.getLinkConfigList()) : that.
+                getLinkConfigList() != null) {
             return false;
         }
 

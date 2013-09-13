@@ -4,7 +4,7 @@
         <markup>
             <header>
                 <table width="500px" height="200px" row-height="50px" col-width="20%" h-align="left" v-align="top">
-                    <tr height="100px">
+                    <tr height="100px" v-align="top">
                         <td width="50%"><widget id="1"/></td> <!-- label-list (Входящие, Акт) -->
                     </tr>
                     <tr>

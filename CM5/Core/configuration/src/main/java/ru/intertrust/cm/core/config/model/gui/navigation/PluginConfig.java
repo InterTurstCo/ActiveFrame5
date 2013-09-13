@@ -19,7 +19,7 @@ public class PluginConfig implements Serializable {
     @ElementListUnion({
             @ElementList(entry = "custom", type = CustomPluginConfig.class, inline = true),
             @ElementList(entry = "domain-object-surfer", type = DomainObjectSurferConfig.class, inline = true) })
-    private List<PluginConfigParent> pluginConfigParentList = new ArrayList<PluginConfigParent>();
+    private List<PluginConfigParent> pluginConfigParentList = new ArrayList<>();
 
     public List<PluginConfigParent> getPluginConfigParentList() {
         return pluginConfigParentList;
@@ -41,8 +41,9 @@ public class PluginConfig implements Serializable {
 
         PluginConfig that = (PluginConfig) o;
 
-        if (pluginConfigParentList != null ? !pluginConfigParentList.equals(that.getPluginConfigParentList()) : that.getPluginConfigParentList() != null) {
-            return false;
+        if (pluginConfigParentList != null ? !pluginConfigParentList.equals(that.getPluginConfigParentList()) : that.
+                getPluginConfigParentList() != null) {
+                    return false;
         }
 
         return true;

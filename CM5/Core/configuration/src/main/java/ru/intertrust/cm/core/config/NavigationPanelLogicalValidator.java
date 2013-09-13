@@ -68,6 +68,8 @@ public class NavigationPanelLogicalValidator {
                 if (isFound) {
                     return;
                 } else {
+                    System.out.println("Child link to open is not found for name '" +
+                            linkConfig.getName() + "'");
                     throw new ConfigurationException("Child link to open is not found for name '" +
                             linkConfig.getName() + "'");
                 }

@@ -36,8 +36,9 @@ public class DecorationsConfig implements Serializable {
 
         DecorationsConfig that = (DecorationsConfig) o;
 
-        if (collectionCounterConfig != null ? !collectionCounterConfig.equals(that.getCollectionCounterConfig()) : that.getCollectionCounterConfig() != null) {
-            return false;
+        if (collectionCounterConfig != null ? !collectionCounterConfig.equals(that.getCollectionCounterConfig()) : that.
+                getCollectionCounterConfig() != null) {
+                    return false;
         }
 
         return true;

@@ -22,7 +22,10 @@ import static ru.intertrust.cm.core.config.Constants.*;
  */
 public class NavigationPanelLogicalValidatorTest {
     private static final String NAVIGATION_PANEL_XML_PATH =
-            "config/navigation-panel.xml";
+            "config/navigation-panel-test.xml";
+
+    private static final String NAVIGATION_PANEL_INVALID_CHILD_TO_OPEN_XML_PATH =
+            "config/navigation-panel-invalid-child-to-open.xml";
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -30,7 +33,16 @@ public class NavigationPanelLogicalValidatorTest {
     @Test
     public void testValidate() throws Exception {
         ConfigurationExplorer configurationExplorer = createConfigurationExplorer(NAVIGATION_PANEL_XML_PATH);
-        configurationExplorer.build();
+
+    }
+    @Test
+    public void testValidateInvalidChildToOpen() throws Exception {
+        expectedException.expect(ConfigurationException.class);
+        expectedException.expectMessage("Child link to open is not found for name 'Administration'");
+        ConfigurationExplorer configurationExplorer =
+                createConfigurationExplorer(NAVIGATION_PANEL_INVALID_CHILD_TO_OPEN_XML_PATH);
+
+
     }
 
     @Test
@@ -56,8 +68,6 @@ public class NavigationPanelLogicalValidatorTest {
         System.out.println(ConfigurationSerializer.serializeConfiguration(configuration));
 
         ConfigurationExplorer configurationExplorer = new ConfigurationExplorerImpl(configuration);
-        configurationExplorer.build();
-
         return configurationExplorer;
     }
     private static Serializer createSerializerInstance() {
@@ -66,7 +76,8 @@ public class NavigationPanelLogicalValidatorTest {
     }
     private Configuration deserializeConfiguration(String configurationFilePath) throws Exception {
 
-        return createSerializerInstance().read(Configuration.class, FileUtils.getFileInputStream(configurationFilePath));
+        return createSerializerInstance().read(Configuration.class,
+                FileUtils.getFileInputStream(configurationFilePath));
     }
 }
 

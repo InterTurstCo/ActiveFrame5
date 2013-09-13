@@ -22,7 +22,7 @@ public class DomainObjectSurferConfig extends PluginConfigParent {
     private CollectionViewRefConfig collectionViewRefConfig;
 
     @ElementList(inline = true)
-    private List<SortCriterionConfig> sortCriterionConfigList = new ArrayList<SortCriterionConfig>();
+    private List<SortCriterionConfig> sortCriterionConfigList = new ArrayList<>();
 
     public CollectionRefConfig getCollectionRefConfig() {
         return collectionRefConfig;
@@ -60,16 +60,19 @@ public class DomainObjectSurferConfig extends PluginConfigParent {
 
         DomainObjectSurferConfig that = (DomainObjectSurferConfig) o;
 
-        if (sortCriterionConfigList != null ? !sortCriterionConfigList.equals(that.getSortCriterionConfigList()) : that.getSortCriterionConfigList() != null) {
-            return false;
+        if (sortCriterionConfigList != null ? !sortCriterionConfigList.equals(that.getSortCriterionConfigList()) : that.
+                getSortCriterionConfigList() != null) {
+                    return false;
         }
 
-        if (collectionRefConfig != null ? !collectionRefConfig.equals(that.getCollectionRefConfig()) : that.getCollectionRefConfig() != null) {
-            return false;
+        if (collectionRefConfig != null ? !collectionRefConfig.equals(that.getCollectionRefConfig()) : that.
+                getCollectionRefConfig() != null) {
+                    return false;
         }
 
-        if (collectionViewRefConfig != null ? !collectionViewRefConfig.equals(that.getCollectionViewRefConfig()) : that.getCollectionViewRefConfig() != null) {
-            return false;
+        if (collectionViewRefConfig != null ? !collectionViewRefConfig.equals(that.getCollectionViewRefConfig()) : that.
+                getCollectionViewRefConfig() != null) {
+                    return false;
         }
 
         return true;

@@ -24,7 +24,7 @@ public class AttributeConfig implements Serializable {
     private String value;
 
     @ElementList(inline = true, required = false)
-    private List<AttributeConfig> attributeConfigList = new ArrayList<AttributeConfig>();
+    private List<AttributeConfig> attributeConfigList = new ArrayList<>();
 
     public String getName() {
         return name;
@@ -61,8 +61,9 @@ public class AttributeConfig implements Serializable {
 
         AttributeConfig that = (AttributeConfig) o;
 
-        if (attributeConfigList != null ? !attributeConfigList.equals(that.getAttributeConfigList()) : that.getAttributeConfigList() != null) {
-            return false;
+        if (attributeConfigList != null ? !attributeConfigList.equals(that.getAttributeConfigList()) :that.
+                getAttributeConfigList() != null) {
+                    return false;
         }
 
         if (value != null ? !value.equals(that.getValue()) : that.getValue() != null) {

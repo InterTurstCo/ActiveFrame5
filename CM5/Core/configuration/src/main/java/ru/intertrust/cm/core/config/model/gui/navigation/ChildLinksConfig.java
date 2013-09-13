@@ -21,7 +21,7 @@ public class ChildLinksConfig implements Serializable {
     private String groupName;
 
     @ElementList(inline = true, required = false)
-    private List<LinkConfig> linkConfigList = new ArrayList<LinkConfig>();
+    private List<LinkConfig> linkConfigList = new ArrayList<>();
 
     public String getGroupName() {
         return groupName;
@@ -50,7 +50,8 @@ public class ChildLinksConfig implements Serializable {
 
         ChildLinksConfig that = (ChildLinksConfig) o;
 
-        if (linkConfigList != null ? !linkConfigList.equals(that.getLinkConfigList()) : that.getLinkConfigList() != null) {
+        if (linkConfigList != null ? !linkConfigList.equals(that.getLinkConfigList()) :
+                that.getLinkConfigList() != null) {
             return false;
         }
 

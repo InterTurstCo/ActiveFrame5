@@ -1,19 +1,19 @@
 package ru.intertrust.cm.core.config.model.gui.form.widget;
 
 import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
- * Виджет - элемент пользовательского интерфейса, отобрающий специфическим образом некоторые данные в определённой части
- * разметки формы.
- *
- * @author Denis Mitavskiy
- *         Date: 06.09.13
- *         Time: 14:52
+ * Created with IntelliJ IDEA.
+ * User: User
+ * Date: 12.09.13
+ * Time: 17:21
+ * To change this template use File | Settings | File Templates.
  */
-@Root(name = "widget")
-public class WidgetConfig implements Dto {
+@Root(name = "linked-form")
+public class LinkedFormConfig implements Dto{
     @Attribute(name = "id")
     private String id;
 
@@ -34,7 +34,7 @@ public class WidgetConfig implements Dto {
             return false;
         }
 
-        WidgetConfig that = (WidgetConfig) o;
+        LinkedFormConfig that = (LinkedFormConfig) o;
 
         if (id != null ? !id.equals(that.id) : that.id != null) {
             return false;

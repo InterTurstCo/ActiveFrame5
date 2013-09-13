@@ -19,7 +19,7 @@ public class CustomPluginConfig extends PluginConfigParent {
     private String name;
 
     @ElementList(inline = true, required = false)
-    private List<AttributeConfig> attributeConfigList = new ArrayList<AttributeConfig>();
+    private List<AttributeConfig> attributeConfigList = new ArrayList<>();
 
     public String getName() {
         return name;
@@ -48,8 +48,9 @@ public class CustomPluginConfig extends PluginConfigParent {
 
         CustomPluginConfig that = (CustomPluginConfig) o;
 
-        if (attributeConfigList != null ? !attributeConfigList.equals(that.getAttributeConfigList()) : that.getAttributeConfigList() != null) {
-            return false;
+        if (attributeConfigList != null ? !attributeConfigList.equals(that.getAttributeConfigList()) : that.
+                getAttributeConfigList() != null) {
+                    return false;
         }
 
         if (name != null ? !name.equals(that.getName()) : that.getName() != null) {

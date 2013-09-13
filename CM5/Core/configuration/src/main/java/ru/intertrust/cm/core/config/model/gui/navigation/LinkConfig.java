@@ -33,7 +33,7 @@ public class LinkConfig implements Serializable {
     private PluginConfig pluginConfig;
 
     @ElementList(inline = true, required = false)
-    private List<ChildLinksConfig> childLinksConfigList = new ArrayList<ChildLinksConfig>();
+    private List<ChildLinksConfig> childLinksConfigList = new ArrayList<>();
 
     @Element(name = "decorations", required = false)
     private DecorationsConfig decorationsConfig;
@@ -105,7 +105,8 @@ public class LinkConfig implements Serializable {
 
         LinkConfig that = (LinkConfig) o;
 
-        if (childLinksConfigList != null ? !childLinksConfigList.equals(that.getChildLinksConfigList()) : that.getChildLinksConfigList() != null) {
+        if (childLinksConfigList != null ? !childLinksConfigList.equals(that.getChildLinksConfigList()) : that.
+                getChildLinksConfigList() != null) {
             return false;
         }
 
@@ -129,8 +130,9 @@ public class LinkConfig implements Serializable {
             return false;
         }
 
-        if (decorationsConfig != null ? !decorationsConfig.equals(that.getDecorationsConfig()) : that.getDecorationsConfig() != null) {
-            return false;
+        if (decorationsConfig != null ? !decorationsConfig.equals(that.getDecorationsConfig()) : that.
+                getDecorationsConfig() != null) {
+                    return false;
         }
 
         return true;
