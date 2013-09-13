@@ -42,7 +42,7 @@ public class CollectionViewRefConfig {
     @Override
     public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
-        return result * 23;
+        return  23 * result;
     }
 }
 
