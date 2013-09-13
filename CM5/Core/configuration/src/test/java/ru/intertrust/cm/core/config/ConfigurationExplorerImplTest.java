@@ -39,18 +39,10 @@ public class ConfigurationExplorerImplTest {
 
         config = configurationSerializer.deserializeConfiguration();
         configExplorer = new ConfigurationExplorerImpl(config);
-        configExplorer.build();
     }
 
     @Test
     public void testGetConfiguration() throws Exception {
-        Configuration testConfiguration = configExplorer.getConfiguration();
-        assertTrue(config == testConfiguration);
-    }
-
-    @Test
-    public void testSetConfiguration() throws Exception {
-        configExplorer.setConfiguration(config);
         Configuration testConfiguration = configExplorer.getConfiguration();
         assertTrue(config == testConfiguration);
     }

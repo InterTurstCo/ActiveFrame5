@@ -234,7 +234,6 @@ public class DomainObjectDaoImplTest {
         configuration.getConfigurationList().add(dot);
 
         ConfigurationExplorer configurationExplorer = new ConfigurationExplorerImpl(configuration);
-        configurationExplorer.build();
 
         dot = configurationExplorer.getConfig(DomainObjectTypeConfig.class, "Person");
         Assert.assertNotNull(dot);

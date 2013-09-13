@@ -24,11 +24,11 @@
     </bean>
 
     <bean id="configurationExplorer"
-          class="ru.intertrust.cm.core.config.ConfigurationExplorerImpl" init-method="build">
-        <property name="configuration">
+          class="ru.intertrust.cm.core.config.ConfigurationExplorerImpl">
+        <constructor-arg>
             <bean class="ru.intertrust.cm.core.config.model.Configuration"
                   factory-bean="configurationSerializer" factory-method="deserializeConfiguration"/>
-        </property>
+        </constructor-arg>
     </bean>
 
     <bean id="topLevelConfigurationCacheInitializer"

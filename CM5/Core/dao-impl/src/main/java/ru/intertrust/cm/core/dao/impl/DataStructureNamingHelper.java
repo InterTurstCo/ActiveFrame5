@@ -56,8 +56,8 @@ public class DataStructureNamingHelper {
         List<String> columnNames = new ArrayList<String>();
         for (FieldConfig fieldConfig : fieldConfigs) {
             if (fieldConfig instanceof ReferenceFieldConfig) {
-                //TODO: Обрабатывать множественные типы ссылок - getIndexedName(fieldConfig.getName(), 1)                
-                columnNames.add(getSqlName(fieldConfig));
+                //TODO: Обрабатывать множественные типы ссылок
+                columnNames.add(getSqlName(getIndexedName(fieldConfig.getName(), 1)));
             } else {
                 columnNames.add(getSqlName(fieldConfig));
             }

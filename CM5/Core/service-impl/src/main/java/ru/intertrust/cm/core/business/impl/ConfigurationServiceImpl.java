@@ -34,11 +34,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     @Override
-    public void build() {
-        configurationExplorer.build();
-    }
-
-    @Override
     public Configuration getConfiguration() {
         return configurationExplorer.getConfiguration();
     }
