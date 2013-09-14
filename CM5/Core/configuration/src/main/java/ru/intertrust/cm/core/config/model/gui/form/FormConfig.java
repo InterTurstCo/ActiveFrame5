@@ -4,7 +4,6 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.config.model.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.model.gui.form.widget.WidgetConfigurationConfig;
 
 /**
@@ -61,7 +60,7 @@ public class FormConfig implements Dto {
         this.default_ = default_;
     }
 
-    public WidgetConfigurationConfig getWidgetConfig() {
+    public WidgetConfigurationConfig getWidgetConfigurationConfig() {
         return widgetConfigurationConfig;
     }
 

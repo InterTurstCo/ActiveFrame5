@@ -4,7 +4,7 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.config.model.gui.form.widget.WidgetConfig;
+import ru.intertrust.cm.core.config.model.gui.form.widget.CellWidgetConfig;
 
 /**
  * Класс определяет ячейку в табличной разметке
@@ -28,7 +28,7 @@ public class CellConfig implements Dto {
     private String verticalAlignment;
 
     @Element(name = "widget", required = false)
-    private WidgetConfig widgetConfig;
+    private CellWidgetConfig widgetConfig;
 
     public String getColumnSpan() {
         return columnSpan;
@@ -62,11 +62,11 @@ public class CellConfig implements Dto {
         this.verticalAlignment = verticalAlignment;
     }
 
-    public WidgetConfig getWidgetConfig() {
+    public CellWidgetConfig getWidgetConfig() {
         return widgetConfig;
     }
 
-    public void setWidgetConfig(WidgetConfig widgetConfig) {
+    public void setWidgetConfig(CellWidgetConfig widgetConfig) {
         this.widgetConfig = widgetConfig;
     }
 

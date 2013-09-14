@@ -15,8 +15,8 @@ import ru.intertrust.cm.core.gui.model.plugin.PluginData;
  */
 public interface GuiService {
     public interface Remote extends GuiService {
-
     }
+
     /**
      * Возвращает конфигурацию панели навигации.
      * @return конфигурацию панели навигации
