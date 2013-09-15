@@ -27,6 +27,12 @@
     	<groupId>ru.intertrust.cm-sochi</groupId>
     	<artifactId>service-api</artifactId>
     	<version>1.0-SNAPSHOT</version>
+    	<exclusions>
+    		<exclusion>
+    			<artifactId>stax-api</artifactId>
+    			<groupId>stax</groupId>
+    		</exclusion>
+    	</exclusions>
     </dependency>
     <dependency>
     	<groupId>ru.intertrust.cm-sochi</groupId>

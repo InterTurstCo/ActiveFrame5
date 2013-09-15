@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema attributeFormDefault="unqualified" elementFormDefault="qualified" version="1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+    jaxb:version="2.0">
+  	
+  	  <xsd:annotation>
+    	<xsd:appinfo>
+      		<jaxb:globalBindings>			
+        		<jaxb:javaType name="java.lang.Integer"
+                		       xmlType="xsd:nonNegativeInteger" />
+      			<jaxb:javaType name="java.util.Date"
+                		       xmlType="xsd:dateTime" />
+                <jaxb:javaType name="javax.xml.datatype.Duration"
+                		       xmlType="xsd:duration" />
+      		</jaxb:globalBindings>
+			<jaxb:schemaBindings>
+				<jaxb:package name="ru.intertrust.cm.performance.dataset.jaxb"/>
+			</jaxb:schemaBindings>
+    	</xsd:appinfo>
+ 	</xsd:annotation>
+	
+	<xsd:element name="query" type="queryType" />
+	<xsd:complexType name="queryType">
+		<xsd:sequence>
+			<xsd:element minOccurs="0" maxOccurs="unbounded" name="template" type="templateType" />
+			<xsd:element minOccurs="1" maxOccurs="unbounded" name="set" type="setType" />
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:complexType name="setType">
+		<xsd:sequence>
+			<xsd:element name="object" type="objectType" />
+		</xsd:sequence>
+		<xsd:attribute name="id" 				type="xsd:string" />
+		<xsd:attribute name="quantity" 			type="xsd:nonNegativeInteger" 		use="optional"/>
+		<xsd:attribute name="minQuantity" 		type="xsd:nonNegativeInteger" 		use="optional"/>
+		<xsd:attribute name="maxQuantity" 		type="xsd:nonNegativeInteger" 		use="optional"/>
+		<xsd:attribute name="averageQuantity" 	type="xsd:nonNegativeInteger" 	use="optional" />		
+	</xsd:complexType>
+	
+	
+	<xsd:complexType name="objectType">
+		<xsd:choice minOccurs="0" maxOccurs="unbounded">
+			<xsd:element minOccurs="0" maxOccurs="unbounded" name="string" 		type="stringType" />
+			<xsd:element minOccurs="0" maxOccurs="unbounded" name="dateTime" 	type="dateTimeType" />
+			<xsd:element minOccurs="0" maxOccurs="unbounded" name="reference" 	type="referenceType" >
+				<xsd:key name="setIdKey">
+					<xsd:selector xpath="set"/>
+					<xsd:field xpath="@id"/>
+				</xsd:key>
+				<xsd:keyref name="setIdKeyRef"  refer="setIdKey">
+					<xsd:selector xpath="reference"/>
+					<xsd:field xpath="@setId"/>
+				</xsd:keyref>
+			</xsd:element>
+			<xsd:element minOccurs="0" maxOccurs="unbounded" name="children" 	type="childrenType" />
+			<xsd:element minOccurs="0" maxOccurs="unbounded" name="long" 		type="longType" />
+			<xsd:element minOccurs="0" maxOccurs="unbounded" name="decimal" 	type="decimalType" />
+		</xsd:choice>
+		<xsd:attribute name="type" type="xsd:string" />
+	</xsd:complexType>
+
+	<xsd:complexType name="decimalType">
+		<!--xsd:choice>
+			<xsd:element name="value" type="doubleLimited"/>
+			<!xsd:sequence>
+				<xsd:element name="minValue" type="doubleLimited"/>
+				<xsd:element name="maxValue" type="doubleLimited"/>
+			</xsd:sequence>
+		</xsd:choice-->
+		<xsd:attribute name="name" 				type="xsd:string" 			use="optional"/>
+		<xsd:attribute name="value" 			type="xsd:decimal" 		use="optional"/>
+		<xsd:attribute name="minValue" 			type="xsd:decimal" 		use="optional" />
+		<xsd:attribute name="maxValue" 			type="xsd:decimal" 		use="optional" />
+		<xsd:attribute name="noValueChance" 	type="doubleLimited" 		use="optional" />	
+	</xsd:complexType>
+
+	<xsd:complexType name="longType">
+		<xsd:attribute name="name" 				type="xsd:string" 			use="optional"/>
+		<xsd:attribute name="value" 			type="xsd:long" 			use="optional"/>
+		<xsd:attribute name="minValue" 			type="xsd:long" 			use="optional" />
+		<xsd:attribute name="maxValue" 			type="xsd:long" 			use="optional" />
+		<xsd:attribute name="noValueChance" 	type="doubleLimited" 		use="optional" />
+	</xsd:complexType>
+
+	<xsd:complexType name="childrenType">
+		<xsd:sequence>
+			<xsd:element minOccurs="0" maxOccurs="1" name="object" type="objectType" />
+		</xsd:sequence>
+		<xsd:attribute name="minTreeDepth" 		type="xsd:nonNegativeInteger"		use="optional" />
+		<xsd:attribute name="maxTreeDepth" 		type="xsd:nonNegativeInteger" 		use="optional" />
+		<xsd:attribute name="treeReference" 	type="xsd:nonNegativeInteger" 		use="optional" />
+		<xsd:attribute name="treeDepth" 		type="xsd:nonNegativeInteger" 		use="optional" />
+		
+		<xsd:attribute name="quantity" 			type="xsd:nonNegativeInteger" 		use="optional"/>
+		<xsd:attribute name="minQuantity" 		type="xsd:nonNegativeInteger" 		use="optional" />
+		<xsd:attribute name="maxQuantity" 		type="xsd:nonNegativeInteger" 		use="optional" />
+		<xsd:attribute name="averageQuantity" 	type="doubleLimited" 	use="optional" />
+	</xsd:complexType>
+
+	<xsd:complexType name="referenceType">
+		<xsd:sequence>
+			<xsd:element minOccurs="0" maxOccurs="1" name="object" 	type="objectType" />
+		</xsd:sequence>
+		<xsd:attribute name="name" 				type="xsd:string" />
+		<xsd:attribute name="parentReference" 	type="xsd:boolean" 		use="optional" />
+		<xsd:attribute name="type" 				type="xsd:string" 		use="optional" />
+		<xsd:attribute name="setId" 			type="xsd:string" 		use="optional" />
+		<xsd:attribute name="treeReference" 	type="xsd:boolean" 		use="optional" />
+		<xsd:attribute name="treeDepth" 		type="xsd:nonNegativeInteger" 		use="optional" />
+		<xsd:attribute name="minTreeDepth" 		type="xsd:nonNegativeInteger" 		use="optional" />
+		<xsd:attribute name="maxTreeDepth" 		type="xsd:nonNegativeInteger"		use="optional" />
+		<xsd:attribute name="averageTreeDepth" 	type="doubleLimited" 	use="optional" />
+	</xsd:complexType>
+
+	<xsd:complexType name="stringType">
+		<xsd:attribute name="name" 				type="xsd:string" 		use="optional"/>
+		<xsd:attribute name="minLength" 		type="xsd:nonNegativeInteger" 		use="optional" />
+		<xsd:attribute name="maxLength" 		type="xsd:nonNegativeInteger" 		use="optional" />
+		<xsd:attribute name="length" 			type="xsd:nonNegativeInteger" 		use="optional" />
+		<xsd:attribute name="value" 			type="xsd:string" 		use="optional" />
+		<xsd:attribute name="noValueChance" 	type="doubleLimited" 	use="optional" />
+	</xsd:complexType>
+
+	<xsd:complexType name="dateTimeType">
+		<xsd:attribute name="name" 				type="xsd:string" />
+		<xsd:attribute name="value" 			type="xsd:dateTime" 	use="optional" />
+		<xsd:attribute name="minValue" 			type="xsd:dateTime" 	use="optional" />
+		<xsd:attribute name="maxValue" 			type="xsd:dateTime" 	use="optional" />
+		<xsd:attribute name="relativeValue" 	type="xsd:duration" 	use="optional" />
+		<xsd:attribute name="relativeMinValue" 	type="xsd:duration" 	use="optional" />
+		<xsd:attribute name="relativeMaxValue" 	type="xsd:duration"		use="optional" />
+		<xsd:attribute name="noValueChance" 	type="doubleLimited" 	use="optional" />
+	</xsd:complexType>
+
+	<xsd:complexType name="templateType">
+		<xsd:sequence>
+			<xsd:element name="object" type="objectType" />
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:simpleType name="doubleLimited" id="doubleLimited">
+		<xsd:restriction base="xsd:double">
+			<xsd:minInclusive value="0" />
+			<xsd:maxInclusive value="1" />
+		</xsd:restriction>
+	</xsd:simpleType>
+</xsd:schema>
