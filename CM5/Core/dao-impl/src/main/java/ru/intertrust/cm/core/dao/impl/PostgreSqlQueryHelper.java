@@ -211,8 +211,8 @@ public class PostgreSqlQueryHelper {
                 continue;
             }
             ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
-            for (int i = 0; i < referenceFieldConfig.getTypes().size(); i ++) {
-                String fieldName = getSqlName(getIndexedName(referenceFieldConfig.getName(), i + 1));
+            for (ReferenceFieldTypeConfig typeConfig : referenceFieldConfig.getTypes()) {
+                String fieldName = getSqlName(referenceFieldConfig, typeConfig);
                 appendIndexQueryPart(query, tableName, fieldName);
             }
         }
@@ -258,12 +258,11 @@ public class PostgreSqlQueryHelper {
             }
 
             ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
-            for (int i = 0; i < referenceFieldConfig.getTypes().size(); i ++) {
+            for (ReferenceFieldTypeConfig typeConfig : referenceFieldConfig.getTypes()) {
                 query.append(", ");
                 appendAlterModeQueryPart(query, isAlterQuery);
 
-                ReferenceFieldTypeConfig typeConfig = referenceFieldConfig.getTypes().get(i);
-                String fieldName = getIndexedName(referenceFieldConfig.getName(), i + 1);
+                String fieldName = getSqlName(referenceFieldConfig, typeConfig);
                 appendFKConstraint(query, tableName, fieldName, typeConfig.getName());
             }
 
@@ -275,12 +274,11 @@ public class PostgreSqlQueryHelper {
         }
     }
 
-    private static void appendFKConstraint(StringBuilder query, String tableName, String fieldName,
+    private static void appendFKConstraint(StringBuilder query, String tableName, String columnName,
                                            String referencedFieldName) {
-        String fieldSqlName = getSqlName(fieldName);
-        String constraintName = "FK_" + tableName + "_" + fieldSqlName;
+        String constraintName = "FK_" + tableName + "_" + columnName;
 
-        query.append("constraint ").append(constraintName).append(" foreign key (").append(fieldSqlName).
+        query.append("constraint ").append(constraintName).append(" foreign key (").append(columnName).
                 append(")").append(" ").append("references").append(" ").
                 append(getSqlName(referencedFieldName)).append("(ID)");
     }
@@ -292,12 +290,12 @@ public class PostgreSqlQueryHelper {
 
         query.append("constraint ").append(constraintName).append(" check (");
 
-        for (int i = 1; i <= referenceFieldConfig.getTypes().size(); i ++) {
-            if (i >1) {
+        for (int i = 0; i < referenceFieldConfig.getTypes().size(); i ++) {
+            if (i > 0) {
                 query.append(" + ");
             }
 
-            String columnName = getSqlName(getIndexedName(referenceFieldConfig.getName(), i));
+            String columnName = getSqlName(referenceFieldConfig, referenceFieldConfig.getTypes().get(i));
             query.append("(case when ").append(columnName).append(" is null then 0 else 1 end)");
         }
 
@@ -355,8 +353,8 @@ public class PostgreSqlQueryHelper {
             if (fieldConfig instanceof ReferenceFieldConfig) {
                 ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
 
-                for (int j = 1; j<= referenceFieldConfig.getTypes().size(); j ++) {
-                    query.append(getSqlName(getIndexedName(fieldConfig.getName(), j))).append(" ");
+                for (ReferenceFieldTypeConfig typeConfig : referenceFieldConfig.getTypes()) {
+                    query.append(getSqlName(referenceFieldConfig, typeConfig)).append(" ");
                     query.append(getSqlType(fieldConfig));
                 }
 

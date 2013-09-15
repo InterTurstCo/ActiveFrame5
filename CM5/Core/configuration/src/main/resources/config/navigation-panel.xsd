@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="configuration" type="configurationType"/>
+  <xs:complexType name="child-linksType">
+    <xs:sequence>
+      <xs:element type="linkType" name="link" maxOccurs="unbounded" minOccurs="0">
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="group-name" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="collectionType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="name" use="optional"/>
+        <xs:attribute type="xs:string" name="use-default" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="configurationType">
+    <xs:sequence>
+      <xs:element type="navigationType" name="navigation"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="sort-criterionType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="field" use="optional"/>
+        <xs:attribute type="xs:string" name="order" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="customType">
+    <xs:sequence>
+      <xs:element type="attributeType" name="attribute" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="name"/>
+  </xs:complexType>
+  <xs:complexType name="decorationsType">
+    <xs:sequence>
+      <xs:element name="collection-counter">
+        <xs:complexType>
+          <xs:simpleContent>
+            <xs:extension base="xs:string">
+              <xs:attribute type="xs:string" name="collection" use="optional"/>
+            </xs:extension>
+          </xs:simpleContent>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="linkType">
+    <xs:sequence>
+      <xs:element type="pluginType" name="plugin" minOccurs="0"/>
+      <xs:element type="decorationsType" name="decorations" minOccurs="0"/>
+      <xs:element type="child-linksType" name="child-links" maxOccurs="unbounded" minOccurs="0">
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="name" use="optional"/>
+    <xs:attribute type="xs:string" name="display-text" use="optional"/>
+    <xs:attribute type="xs:string" name="image" use="optional"/>
+    <xs:attribute type="xs:string" name="child-to-open" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="domain-object-surferType">
+    <xs:sequence>
+      <xs:choice>
+      <xs:element type="collectionType" name="collection"/>
+      <xs:element type="collection-viewType" name="collection-view" minOccurs="0"/>
+      </xs:choice>
+      <xs:element type="sort-criterionType" name="sort-criterion" maxOccurs="unbounded" minOccurs="0">
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="collection" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="attributeType" mixed="true">
+    <xs:sequence>
+      <xs:element type="attributeType" name="attribute" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="name" use="optional"/>
+    <xs:attribute type="xs:string" name="value" use="optional"/>
+  </xs:complexType>
+  <xs:complexType name="navigationType">
+    <xs:sequence>
+      <xs:element type="linkType" name="link" maxOccurs="unbounded" minOccurs="0">
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="is-default"/>
+  </xs:complexType>
+  <xs:complexType name="collection-counterType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="collection" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  <xs:complexType name="pluginType">
+    <xs:sequence>
+      <xs:element type="domain-object-surferType" name="domain-object-surfer" minOccurs="0">
+      </xs:element>
+      <xs:element type="customType" name="custom" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="collection-viewType">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute type="xs:string" name="name"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+</xs:schema>

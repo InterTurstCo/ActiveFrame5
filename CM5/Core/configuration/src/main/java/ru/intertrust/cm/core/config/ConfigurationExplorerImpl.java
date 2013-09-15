@@ -3,6 +3,9 @@ package ru.intertrust.cm.core.config;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.config.model.*;
+
+import ru.intertrust.cm.core.config.model.gui.navigation.LinkConfig;
+import ru.intertrust.cm.core.config.model.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.model.FatalException;
 
 import java.io.*;
@@ -10,6 +13,7 @@ import java.util.*;
 
 /**
  * Предоставляет быстрый доступ к элементам конфигурации.
+ * После создания объекта данного класса требуется выполнить инициализацию через вызов метода {@link #build()}.
  * @author vmatsukevich
  *         Date: 6/12/13
  *         Time: 5:21 PM
@@ -21,6 +25,13 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     private Map<Class<?>, Map<String, TopLevelConfig>> topLevelConfigMap = new HashMap<>();
     private Map<FieldConfigKey, FieldConfig> fieldConfigMap = new HashMap<>();
     private Map<FieldConfigKey, CollectionColumnConfig> collectionColumnConfigMap = new HashMap<>();
+    private Map<String, LinkConfig> linkConfigMap = new HashMap<>();
+
+    /**
+     * Создает {@link ConfigurationExplorerImpl}
+     */
+    public ConfigurationExplorerImpl() {
+    }
 
     /**
      * Создает {@link ConfigurationExplorerImpl}
@@ -36,6 +47,27 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     @Override
     public Configuration getConfiguration() {
         return configuration;
+    }
+
+    /**
+     * Устанавливает конфигурацию
+     * @param configuration конфигурация
+     */
+    public void setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void build() {
+        initConfigurationMaps();
+
+        DomainObjectLogicalValidator domainObjectLogicalValidator = new DomainObjectLogicalValidator(this);
+        domainObjectLogicalValidator.validate();
+
+        NavigationPanelLogicalValidator navigationPanelLogicalValidator = new NavigationPanelLogicalValidator(this);
+        navigationPanelLogicalValidator.validate();
     }
 
     /**
@@ -145,6 +177,9 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
             } else if (CollectionConfig.class.equals(config.getClass())) {
                 CollectionConfig domainObjectTypeConfig = (CollectionConfig) config;
                 fillCollectionColumnConfigMap(domainObjectTypeConfig);
+            } else if (NavigationConfig.class.equals(config.getClass())) {
+                NavigationConfig navigationConfig = (NavigationConfig) config;
+                fillLinkConfigMap(navigationConfig);
             }
         }
 
@@ -203,21 +238,21 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         }
         return dynamicGroups;
     }
-
+    
     /**
      * {@inheritDoc}
      */
     @Override
-    public AccessMatrixConfig getAccessMatrixByObjectTypeAndStatus(String domainObjectType, String status) {
+    public AccessMatrixConfig getAccessMatrixByObjectTypeAndStatus(String domainObjectType, String status) {       
         Map<String, TopLevelConfig> accessMatrixMap = topLevelConfigMap.get(AccessMatrixConfig.class);
 
         for (String accessMatrixObjectType : accessMatrixMap.keySet()) {
-            AccessMatrixConfig accessMatrixConfig = (AccessMatrixConfig) accessMatrixMap.get(accessMatrixObjectType);
+            AccessMatrixConfig accessMatrixConfig = (AccessMatrixConfig) accessMatrixMap.get(accessMatrixObjectType);            
             String accessMatrixStatus = null;
             if (accessMatrixConfig.getStatus() != null && accessMatrixConfig.getStatus().getName() != null) {
                 accessMatrixStatus = accessMatrixConfig.getStatus().getName();
             }
-
+            
             if(status!= null && status.equals(accessMatrixStatus) && accessMatrixObjectType.equals(domainObjectType)){
                 return accessMatrixConfig;
             }
@@ -238,14 +273,6 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
 
         return null;
     }
-
-    private void build() {
-        initConfigurationMaps();
-
-        ConfigurationLogicalValidator logicalValidator = new ConfigurationLogicalValidator(this);
-        logicalValidator.validate();
-    }
-
     private void fillTopLevelConfigMap(TopLevelConfig config) {
         Map<String, TopLevelConfig> typeMap = topLevelConfigMap.get(config.getClass());
         if(typeMap == null) {
@@ -255,13 +282,10 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         typeMap.put(config.getName(), config);
     }
 
-    private void fillFieldsConfigMap(DomainObjectTypeConfig domainObjectTypeConfig) {
-        for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
-            FieldConfigKey fieldConfigKey =
-                    new FieldConfigKey(domainObjectTypeConfig.getName(), fieldConfig.getName());
-            fieldConfigMap.put(fieldConfigKey, fieldConfig);
+    private void fillLinkConfigMap(NavigationConfig navigationPanel) {
+        for (LinkConfig linkConfig : navigationPanel.getLinkConfigList()) {
+            linkConfigMap.put(linkConfig.getName(), linkConfig);
         }
-        fillSystemFields(domainObjectTypeConfig);
     }
 
     private void fillSystemFields(DomainObjectTypeConfig domainObjectTypeConfig) {
@@ -281,6 +305,15 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
 
             }
         }
+    }
+
+    private void fillFieldsConfigMap(DomainObjectTypeConfig domainObjectTypeConfig) {
+        for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
+            FieldConfigKey fieldConfigKey =
+                    new FieldConfigKey(domainObjectTypeConfig.getName(), fieldConfig.getName());
+            fieldConfigMap.put(fieldConfigKey, fieldConfig);
+        }
+        fillSystemFields(domainObjectTypeConfig);
     }
 
     private void initConfigurationMapsOfAttachmentDomainObjectTypes(List<DomainObjectTypeConfig> ownerAttachmentDOTs) {

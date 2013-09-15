@@ -159,7 +159,7 @@ public class DomainObjectDaoImplTest {
         AccessToken accessToken = createMockAccessToken();
         String expectedQuery = "select t.* from assignment t where t.author = :domain_object_id and exists" +
                 " (select r.object_id from assignment_READ r inner join group_member " +
-                "gm on r.group_id = gm.master where gm.person_id = :user_id and r.object_id = t.id)";
+                "gm on r.group_id = gm.master where gm.person_id1 = :user_id and r.object_id = t.id)";
         Assert.assertEquals(expectedQuery, domainObjectDaoImpl.buildFindChildrenQuery("assignment", "author", accessToken));
 
     }
@@ -169,7 +169,7 @@ public class DomainObjectDaoImplTest {
         AccessToken accessToken = createMockAccessToken();
         String expectedQuery = "select t.id from assignment t where t.author = :domain_object_id and exists" +
                 " (select r.object_id from assignment_READ r inner join group_member " +
-                "gm on r.group_id = gm.master where gm.person_id = :user_id and r.object_id = t.id)";
+                "gm on r.group_id = gm.master where gm.person_id1 = :user_id and r.object_id = t.id)";
         Assert.assertEquals(expectedQuery, domainObjectDaoImpl.buildFindChildrenIdsQuery("assignment", "author", accessToken));
 
     }

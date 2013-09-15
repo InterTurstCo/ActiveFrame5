@@ -1,14 +1,14 @@
 package ru.intertrust.cm.core.gui.rpc.server;
 
-import ru.intertrust.cm.core.config.model.NavigationConfig;
+import javax.ejb.EJB;
+import javax.servlet.annotation.WebServlet;
+
+import ru.intertrust.cm.core.config.model.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseService;
-
-import javax.ejb.EJB;
-import javax.servlet.annotation.WebServlet;
 
 /**
  * @author Denis Mitavskiy

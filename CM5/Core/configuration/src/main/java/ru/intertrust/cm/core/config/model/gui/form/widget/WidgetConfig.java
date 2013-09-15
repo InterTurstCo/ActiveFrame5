@@ -1,17 +1,20 @@
 package ru.intertrust.cm.core.config.model.gui.form.widget;
 
+import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
- * Виджет - элемент пользовательского интерфейса, отобрающий специфическим образом некоторые данные в определённой части
- * разметки формы.
- *
  * @author Denis Mitavskiy
- *         Date: 06.09.13
- *         Time: 14:52
+ *         Date: 14.09.13
+ *         Time: 14:16
  */
-public class WidgetConfig implements Dto {
-    private String id;
+public abstract class WidgetConfig implements Dto {
+    @Attribute(name = "id")
+    protected String id;
+
+    @Element(name = "field-path")
+    protected FieldPathConfig fieldPathConfig;
 
     public String getId() {
         return id;
@@ -19,5 +22,13 @@ public class WidgetConfig implements Dto {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public FieldPathConfig getFieldPathConfig() {
+        return fieldPathConfig;
+    }
+
+    public void setFieldPathConfig(FieldPathConfig fieldPathConfig) {
+        this.fieldPathConfig = fieldPathConfig;
     }
 }
