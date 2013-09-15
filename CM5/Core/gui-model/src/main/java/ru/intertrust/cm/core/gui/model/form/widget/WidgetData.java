@@ -10,4 +10,5 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  *         Time: 16:32
  */
 public abstract class WidgetData implements Dto {
+    public abstract String getComponentName();
 }

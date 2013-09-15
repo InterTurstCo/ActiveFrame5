@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.gui.model.plugin;
 
-import java.math.BigDecimal;
+import ru.intertrust.cm.core.gui.model.form.Form;
 
 /**
  * @author Denis Mitavskiy
@@ -8,27 +8,27 @@ import java.math.BigDecimal;
  *         Time: 13:43
  */
 public class SomeActivePluginData extends ActivePluginData {
-    private BigDecimal number;
+    private Form form;
 
     public SomeActivePluginData() {
     }
 
-    public SomeActivePluginData(BigDecimal number) {
-        this.number = number;
+    public SomeActivePluginData(Form form) {
+        this.form = form;
     }
 
-    public BigDecimal getText() {
-        return number;
+    public Form getForm() {
+        return form;
     }
 
-    public void setText(BigDecimal text) {
-        this.number = number;
+    public void setForm(Form form) {
+        this.form = form;
     }
 
     @Override
     public String toString() {
         return "SomeActivePluginData {" +
-                "number=" + number +
+                "form=" + form +
                 "actions=" + getActionConfigs() +
                 '}';
     }

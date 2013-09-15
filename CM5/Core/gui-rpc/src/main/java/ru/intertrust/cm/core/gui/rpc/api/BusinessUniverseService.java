@@ -1,9 +1,11 @@
 package ru.intertrust.cm.core.gui.rpc.api;
 
 import com.google.gwt.user.client.rpc.RemoteService;
+import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.Command;
-import ru.intertrust.cm.core.gui.model.plugin.PluginData;
+import ru.intertrust.cm.core.gui.model.form.Form;
 
 /**
  * @author Denis Mitavskiy
@@ -13,5 +15,7 @@ import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 public interface BusinessUniverseService extends RemoteService {
     BusinessUniverseInitialization getBusinessUniverseInitialization();
 
-    PluginData executeCommand(Command command);
+    Dto executeCommand(Command command);
+
+    public Form getForm(Id domainObjectId);
 }

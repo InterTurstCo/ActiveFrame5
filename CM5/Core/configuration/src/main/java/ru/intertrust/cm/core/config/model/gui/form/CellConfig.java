@@ -4,7 +4,7 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.config.model.gui.form.widget.CellWidgetConfig;
+import ru.intertrust.cm.core.config.model.gui.form.widget.WidgetDisplayConfig;
 
 /**
  * Класс определяет ячейку в табличной разметке
@@ -27,8 +27,10 @@ public class CellConfig implements Dto {
     @Attribute(name = "v-align", required = false)
     private String verticalAlignment;
 
+    private String width;
+
     @Element(name = "widget", required = false)
-    private CellWidgetConfig widgetConfig;
+    private WidgetDisplayConfig widgetConfig;
 
     public String getColumnSpan() {
         return columnSpan;
@@ -62,11 +64,19 @@ public class CellConfig implements Dto {
         this.verticalAlignment = verticalAlignment;
     }
 
-    public CellWidgetConfig getWidgetConfig() {
+    public String getWidth() {
+        return width;
+    }
+
+    public void setWidth(String width) {
+        this.width = width;
+    }
+
+    public WidgetDisplayConfig getWidgetConfig() {
         return widgetConfig;
     }
 
-    public void setWidgetConfig(CellWidgetConfig widgetConfig) {
+    public void setWidgetConfig(WidgetDisplayConfig widgetConfig) {
         this.widgetConfig = widgetConfig;
     }
 
@@ -96,6 +106,9 @@ public class CellConfig implements Dto {
         if (widgetConfig != null ? !widgetConfig.equals(that.widgetConfig) : that.widgetConfig != null) {
             return false;
         }
+        if (width != null ? !width.equals(that.width) : that.width != null) {
+            return false;
+        }
 
         return true;
     }
@@ -104,9 +117,10 @@ public class CellConfig implements Dto {
     public int hashCode() {
         int result = columnSpan != null ? columnSpan.hashCode() : 0;
         result = 31 * result + (rowSpan != null ? rowSpan.hashCode() : 0);
-        result = result + (horizontalAlignment != null ? horizontalAlignment.hashCode() : 0);
-        result = result + (verticalAlignment != null ? verticalAlignment.hashCode() : 0);
-        result = result + (widgetConfig != null ? widgetConfig.hashCode() : 0);
+        result = 31 * result + (horizontalAlignment != null ? horizontalAlignment.hashCode() : 0);
+        result = 31 * result + (verticalAlignment != null ? verticalAlignment.hashCode() : 0);
+        result = 31 * result + (width != null ? width.hashCode() : 0);
+        result = 31 * result + (widgetConfig != null ? widgetConfig.hashCode() : 0);
         return result;
     }
 }

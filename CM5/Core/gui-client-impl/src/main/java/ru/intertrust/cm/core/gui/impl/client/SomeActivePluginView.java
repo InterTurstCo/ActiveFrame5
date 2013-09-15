@@ -1,7 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.IsWidget;
+import ru.intertrust.cm.core.gui.impl.client.form.FormPanel;
+import ru.intertrust.cm.core.gui.model.form.Form;
 
 /**
  * @author Denis Mitavskiy
@@ -9,12 +10,15 @@ import com.google.gwt.user.client.ui.IsWidget;
  *         Time: 15:29
  */
 public class SomeActivePluginView extends PluginView {
-    protected SomeActivePluginView(Plugin plugin) {
+    private final Form form;
+
+    protected SomeActivePluginView(Plugin plugin, Form form) {
         super(plugin);
+        this.form = form;
     }
 
     @Override
     public IsWidget getViewWidget() {
-        return new Button("Active Plugin Button");
+        return new FormPanel(form);
     }
 }

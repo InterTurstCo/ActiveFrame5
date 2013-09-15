@@ -13,6 +13,7 @@ import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.Form;
 import ru.intertrust.cm.core.gui.model.form.widget.IntegerBoxData;
+import ru.intertrust.cm.core.gui.model.form.widget.LabelData;
 import ru.intertrust.cm.core.gui.model.form.widget.TextBoxData;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
 import ru.intertrust.cm.core.gui.model.plugin.PluginData;
@@ -49,7 +50,7 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
     }
 
     @Override
-    public PluginData executeCommand(Command command) {
+    public Dto executeCommand(Command command) {
         // todo: сделать по-человечески через Reflection или Spring Beans
         PluginHandler pluginHandler = null;
         switch (command.getComponentName()) {
@@ -247,27 +248,30 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         }
 
         public static WidgetDef createLabelCell(String id, String text) {
-            CellWidgetConfig cellWidgetConfig = new CellWidgetConfig();
-            cellWidgetConfig.setId(id);
+            WidgetDisplayConfig widgetDisplayConfig = new WidgetDisplayConfig();
+            widgetDisplayConfig.setId(id);
 
             CellConfig cellConfig = new CellConfig();
             cellConfig.setHorizontalAlignment("right");
-            cellConfig.setWidgetConfig(cellWidgetConfig);
+            cellConfig.setWidgetConfig(widgetDisplayConfig);
 
             LabelConfig labelConfig = new LabelConfig();
             labelConfig.setId(id);
             labelConfig.setText(text);
 
-            return new WidgetDef(cellConfig, labelConfig, null);
+            LabelData data = new LabelData();
+            data.setLabel(text);
+
+            return new WidgetDef(cellConfig, labelConfig, data);
         }
 
         public static WidgetDef createTextBoxCell(String id, String text, String colspan) {
-            CellWidgetConfig cellWidgetConfig = new CellWidgetConfig();
-            cellWidgetConfig.setId(id);
+            WidgetDisplayConfig widgetDisplayConfig = new WidgetDisplayConfig();
+            widgetDisplayConfig.setId(id);
 
             CellConfig cellConfig = new CellConfig();
             cellConfig.setHorizontalAlignment("left");
-            cellConfig.setWidgetConfig(cellWidgetConfig);
+            cellConfig.setWidgetConfig(widgetDisplayConfig);
             cellConfig.setColumnSpan(colspan);
 
             TextBoxConfig widgetConfig = new TextBoxConfig();
@@ -281,12 +285,12 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         }
 
         public static WidgetDef createIntegerBoxCell(String id, Integer number, String colSpan, String rowSpan) {
-            CellWidgetConfig cellWidgetConfig = new CellWidgetConfig();
-            cellWidgetConfig.setId(id);
+            WidgetDisplayConfig widgetDisplayConfig = new WidgetDisplayConfig();
+            widgetDisplayConfig.setId(id);
 
             CellConfig cellConfig = new CellConfig();
             cellConfig.setHorizontalAlignment("left");
-            cellConfig.setWidgetConfig(cellWidgetConfig);
+            cellConfig.setWidgetConfig(widgetDisplayConfig);
             cellConfig.setColumnSpan(colSpan);
             cellConfig.setRowSpan(rowSpan);
 

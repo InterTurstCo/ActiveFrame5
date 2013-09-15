@@ -43,8 +43,8 @@ public abstract class Plugin extends BaseComponent {
     }
 
     /**
-     * Возвращает текущее состояние приложения
-     * @return текущее состояние приложения
+     * Возвращает текущее состояние плагина
+     * @return текущее состояние плагина
      */
     public PluginData getCurrentState() {
         return null;
@@ -60,10 +60,10 @@ public abstract class Plugin extends BaseComponent {
             return;
         }
 
-        AsyncCallback<PluginData> callback = new AsyncCallback<PluginData>() {
+        AsyncCallback<Dto> callback = new AsyncCallback<Dto>() {
             @Override
-            public void onSuccess(PluginData result) {
-                Plugin.this.setInitialData(result); // view will get init data and build tool bar, for instance
+            public void onSuccess(Dto result) {
+                Plugin.this.setInitialData((PluginData) result);
                 postSetUp();
             }
 
@@ -104,8 +104,8 @@ public abstract class Plugin extends BaseComponent {
      * Возвращает первичные данные плагина.
      * @return первичные данные плагина
      */
-    PluginData getInitialData() {
-        return initialData;
+    <T> T getInitialData() {
+        return (T) initialData;
     }
 
     /**

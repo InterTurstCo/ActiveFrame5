@@ -15,4 +15,9 @@ public class TextBoxData extends WidgetData {
     public void setText(String text) {
         this.text = text;
     }
+
+    @Override
+    public String getComponentName() {
+        return "text-box";
+    }
 }

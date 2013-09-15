@@ -22,7 +22,7 @@
                     </tr>
                     <tr>
                         <td rowspan="2" h-align="left" v-align="top"><widget id="3"/></td> <!-- label (№) -->
-                        <td><widget id="4"/></td> <!-- integer-box (рег. номер) -->
+                        <td><widget id="4" width="100px" height="100px"/></td> <!-- integer-box (рег. номер) -->
                         <td><widget id="5"/></td> <!-- label ("Корреспондент:") -->
                         <td><widget id="6"/></td> <!-- linked-domain-object ("Аэрофлот") -->
                         <td><widget id="7"/></td> <!-- execution-control-editor (Контроль исполнения - виджет для делопроизводства) -->

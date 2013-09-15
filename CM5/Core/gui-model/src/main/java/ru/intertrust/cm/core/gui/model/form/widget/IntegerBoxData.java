@@ -19,4 +19,9 @@ public class IntegerBoxData extends WidgetData {
     public void setValue(Long value) {
         this.value = value;
     }
+
+    @Override
+    public String getComponentName() {
+        return "integer-box";
+    }
 }

@@ -13,9 +13,13 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  *         Time: 14:52
  */
 @Root(name = "widget")
-public class CellWidgetConfig implements Dto {
+public class WidgetDisplayConfig implements Dto {
     @Attribute(name = "id")
     private String id;
+
+    private String width;
+
+    private String height;
 
     public String getId() {
         return id;
@@ -23,6 +27,22 @@ public class CellWidgetConfig implements Dto {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getWidth() {
+        return width;
+    }
+
+    public void setWidth(String width) {
+        this.width = width;
+    }
+
+    public String getHeight() {
+        return height;
+    }
+
+    public void setHeight(String height) {
+        this.height = height;
     }
 
     @Override
@@ -34,9 +54,15 @@ public class CellWidgetConfig implements Dto {
             return false;
         }
 
-        CellWidgetConfig that = (CellWidgetConfig) o;
+        WidgetDisplayConfig that = (WidgetDisplayConfig) o;
 
-        if (id != null ? !id.equals(that.id) : that.id != null) {
+        if (height != null ? !height.equals(that.height) : that.height != null) {
+            return false;
+        }
+        if (!id.equals(that.id)) {
+            return false;
+        }
+        if (width != null ? !width.equals(that.width) : that.width != null) {
             return false;
         }
 
@@ -45,6 +71,9 @@ public class CellWidgetConfig implements Dto {
 
     @Override
     public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+        int result = id.hashCode();
+        result = 31 * result + (width != null ? width.hashCode() : 0);
+        result = 31 * result + (height != null ? height.hashCode() : 0);
+        return result;
     }
 }

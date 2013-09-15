@@ -7,7 +7,8 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
 import java.util.Map;
 
 /**
- * Данные формы, необходимые для отображения и функционирования её разметки и виджетов.
+ * Данные формы, необходимые для отображения и функционирования её разметки и виджетов. По умолчанию форма является
+ * редактируемой.
  *
  * @author Denis Mitavskiy
  *         Date: 12.09.13
@@ -15,6 +16,7 @@ import java.util.Map;
  */
 public class Form implements Dto {
     private String name;
+    private boolean editable = true;
     private MarkupConfig markup;
     private Map<String, WidgetData> widgetDataMap;
 
@@ -51,6 +53,14 @@ public class Form implements Dto {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean isEditable() {
+        return editable;
+    }
+
+    public void setEditable(boolean editable) {
+        this.editable = editable;
     }
 
     public Map<String, WidgetData> getWidgetDataMap() {

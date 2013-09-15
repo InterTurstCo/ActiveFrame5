@@ -65,11 +65,11 @@ public class PluginPanel implements IsWidget, PluginViewCreatedEventHandler {
     @Override
     public void onPluginViewCreated(PluginViewCreatedEvent event) {
         impl.setWidget(event.getPlugin().getView());
+        impl.setSize("100%", "100%");
     }
 
     @Override
     public Widget asWidget() {
-        impl.setSize("100%", "100%");
         return impl;
     }
 

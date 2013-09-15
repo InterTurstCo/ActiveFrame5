@@ -3,9 +3,11 @@ package ru.intertrust.cm.core.gui.rpc.api;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
+import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.Command;
-import ru.intertrust.cm.core.gui.model.plugin.PluginData;
+import ru.intertrust.cm.core.gui.model.form.Form;
 
 /**
  * @author Denis Mitavskiy
@@ -15,7 +17,9 @@ import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 public interface BusinessUniverseServiceAsync {
     void getBusinessUniverseInitialization(AsyncCallback<BusinessUniverseInitialization> async);
 
-    void executeCommand(Command command, AsyncCallback<? extends PluginData> async);
+    void executeCommand(Command command, AsyncCallback<? extends Dto> async);
+
+    void getForm(Id domainObjectId, AsyncCallback<Form> async);
 
     public static class Impl {
         private static final BusinessUniverseServiceAsync instance;
