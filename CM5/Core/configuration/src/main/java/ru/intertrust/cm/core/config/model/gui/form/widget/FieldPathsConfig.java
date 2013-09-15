@@ -17,7 +17,7 @@ import java.util.List;
 @Root(name = "field-paths")
 public class FieldPathsConfig implements Dto{
     @ElementList(inline = true)
-    private List<FieldPathConfig> rows = new ArrayList<>();
+    private List<FieldPathConfig> rows = new ArrayList<FieldPathConfig>();
 
     public List<FieldPathConfig> getRows() {
         return rows;

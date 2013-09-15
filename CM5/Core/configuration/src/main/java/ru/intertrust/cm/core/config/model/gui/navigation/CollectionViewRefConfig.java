@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.config.model.gui.navigation;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -9,7 +10,7 @@ import org.simpleframework.xml.Root;
  *         Time: 12:05 PM
  */
 @Root(name = "collection-view-ref")
-public class CollectionViewRefConfig {
+public class CollectionViewRefConfig implements Dto {
     @Attribute(name = "name", required = true)
     private String name;
 

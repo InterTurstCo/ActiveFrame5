@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.config.model.gui.form;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
-import ru.intertrust.cm.core.config.model.gui.navigation.ChildLinksConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +18,7 @@ public class HidingGroupListConfig extends TabGroupListConfig {
     private String name;
 
     @ElementList(inline = true)
-    private List<TabGroupConfig> tabGroupConfigs = new ArrayList<>();
+    private List<TabGroupConfig> tabGroupConfigs = new ArrayList<TabGroupConfig>();
 
     public String getName() {
         return name;

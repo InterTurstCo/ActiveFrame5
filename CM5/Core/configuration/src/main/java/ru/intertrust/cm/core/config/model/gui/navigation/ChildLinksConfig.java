@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.model.gui.navigation;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,7 @@ public class ChildLinksConfig implements Serializable {
     private String groupName;
 
     @ElementList(inline = true, required = false)
-    private List<LinkConfig> linkConfigList = new ArrayList<>();
+    private List<LinkConfig> linkConfigList = new ArrayList<LinkConfig>();
 
     public String getGroupName() {
         return groupName;

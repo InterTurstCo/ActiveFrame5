@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.model.gui.navigation;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.ElementListUnion;
 import org.simpleframework.xml.Root;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +20,7 @@ public class PluginConfig implements Serializable {
     @ElementListUnion({
             @ElementList(entry = "custom", type = CustomPluginConfig.class, inline = true),
             @ElementList(entry = "domain-object-surfer", type = DomainObjectSurferConfig.class, inline = true) })
-    private List<PluginConfigParent> pluginConfigParentList = new ArrayList<>();
+    private List<PluginConfigParent> pluginConfigParentList = new ArrayList<PluginConfigParent>();
 
     public List<PluginConfigParent> getPluginConfigParentList() {
         return pluginConfigParentList;

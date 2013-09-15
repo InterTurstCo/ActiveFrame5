@@ -18,7 +18,7 @@ public class BookmarkListConfig extends TabGroupListConfig {
     private String name;
 
     @ElementList(inline = true)
-    private List<TabGroupConfig> tabGroupConfigs = new ArrayList<>();
+    private List<TabGroupConfig> tabGroupConfigs = new ArrayList<TabGroupConfig>();
 
     public String getName() {
         return name;

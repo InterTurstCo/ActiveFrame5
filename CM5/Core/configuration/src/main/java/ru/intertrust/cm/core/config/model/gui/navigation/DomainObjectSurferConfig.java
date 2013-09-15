@@ -1,11 +1,11 @@
 package ru.intertrust.cm.core.config.model.gui.navigation;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -22,7 +22,7 @@ public class DomainObjectSurferConfig extends PluginConfigParent {
     private CollectionViewRefConfig collectionViewRefConfig;
 
     @ElementList(inline = true)
-    private List<SortCriterionConfig> sortCriterionConfigList = new ArrayList<>();
+    private List<SortCriterionConfig> sortCriterionConfigList = new ArrayList<SortCriterionConfig>();
 
     public CollectionRefConfig getCollectionRefConfig() {
         return collectionRefConfig;

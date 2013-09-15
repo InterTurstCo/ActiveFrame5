@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.config.model.gui.form;
 
 import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 
@@ -37,7 +36,7 @@ public class TableLayoutConfig implements LayoutConfig {
     private String vAlign;
 
     @ElementList(inline = true)
-    private List<RowConfig> rows = new ArrayList<>();
+    private List<RowConfig> rows = new ArrayList<RowConfig>();
 
     public List<RowConfig> getRows() {
         return rows;

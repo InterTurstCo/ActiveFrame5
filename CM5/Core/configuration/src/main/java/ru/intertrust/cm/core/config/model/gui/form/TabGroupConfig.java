@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.model.gui.form;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
  * @author Denis Mitavskiy
@@ -10,7 +11,7 @@ import org.simpleframework.xml.Root;
  *         Time: 19:04
  */
 @Root(name = "group")
-public class TabGroupConfig {
+public class TabGroupConfig implements Dto {
     @Attribute(name = "name", required = false)
     private String name;
 

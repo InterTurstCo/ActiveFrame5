@@ -24,7 +24,7 @@ public class RowConfig implements Dto {
     private String defaultVerticalAlignment;
 
     @ElementList(inline = true)
-    private List<CellConfig> cells = new ArrayList<>();
+    private List<CellConfig> cells = new ArrayList<CellConfig>();
 
     /**
      * Возвращает высоту строки

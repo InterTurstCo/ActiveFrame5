@@ -4,6 +4,7 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +34,7 @@ public class LinkConfig implements Serializable {
     private PluginConfig pluginConfig;
 
     @ElementList(inline = true, required = false)
-    private List<ChildLinksConfig> childLinksConfigList = new ArrayList<>();
+    private List<ChildLinksConfig> childLinksConfigList = new ArrayList<ChildLinksConfig>();
 
     @Element(name = "decorations", required = false)
     private DecorationsConfig decorationsConfig;

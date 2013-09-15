@@ -19,7 +19,7 @@ public class BodyConfig implements Dto {
     private boolean displaySingleTab;
 
     @ElementList(inline = true)
-    private List<TabConfig> tabs = new ArrayList<>();
+    private List<TabConfig> tabs = new ArrayList<TabConfig>();
 
     public boolean isDisplaySingleTab() {
         return displaySingleTab;

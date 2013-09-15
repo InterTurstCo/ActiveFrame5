@@ -1,10 +1,11 @@
 package ru.intertrust.cm.core.config.model.gui.navigation;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -19,7 +20,7 @@ public class CustomPluginConfig extends PluginConfigParent {
     private String name;
 
     @ElementList(inline = true, required = false)
-    private List<AttributeConfig> attributeConfigList = new ArrayList<>();
+    private List<AttributeConfig> attributeConfigList = new ArrayList<AttributeConfig>();
 
     public String getName() {
         return name;

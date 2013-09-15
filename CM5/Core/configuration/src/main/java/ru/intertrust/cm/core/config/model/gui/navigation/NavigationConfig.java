@@ -1,12 +1,12 @@
 package ru.intertrust.cm.core.config.model.gui.navigation;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.config.model.TopLevelConfig;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -16,7 +16,7 @@ import ru.intertrust.cm.core.config.model.TopLevelConfig;
 @Root(name = "navigation", strict = false)
 public class NavigationConfig implements TopLevelConfig {
     @ElementList(name = "link", required = false, inline = true)
-    private List<LinkConfig> linkConfigList = new ArrayList<>();
+    private List<LinkConfig> linkConfigList = new ArrayList<LinkConfig>();
 
     @Attribute(name = "name")
     private String name;

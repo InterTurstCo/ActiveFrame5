@@ -4,7 +4,6 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.config.model.gui.form.RowConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +21,7 @@ public class SummaryTableConfig implements Dto {
     private String formName;
 
     @ElementList(inline = true)
-    private List<ColumnConfig> columnConfigs = new ArrayList<>();
+    private List<ColumnConfig> columnConfigs = new ArrayList<ColumnConfig>();
 
     public String getFormName() {
         return formName;

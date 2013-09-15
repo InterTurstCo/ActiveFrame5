@@ -4,8 +4,6 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.config.model.gui.form.HeaderConfig;
-import ru.intertrust.cm.core.config.model.gui.form.TabGroupConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +18,7 @@ import java.util.List;
 @Root(name = "widget-config")
 public class WidgetConfigurationConfig implements Dto {
     @ElementList(inline = true)
-    private List<LabelConfig> labelConfigList = new ArrayList<>();
+    private List<LabelConfig> labelConfigList = new ArrayList<LabelConfig>();
 
     @Element(name = "integer-box")
     private IntegerBoxConfig integerBoxConfig;
