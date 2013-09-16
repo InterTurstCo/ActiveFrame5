@@ -12,6 +12,8 @@ import java.util.List;
  *         Time: 6:40 PM
  */
 public interface CollectionsService {
+    public interface Remote extends CollectionsService {
+    }
 
     /**
      * Возвращает заданную коллекцию, отфильтрованную и упорядоченную согласно порядку сортировки

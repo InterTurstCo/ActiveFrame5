@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import ru.intertrust.cm.core.config.model.Configuration;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -36,52 +37,43 @@ public class ConfigurationLogicalValidatorTest {
     @Test
     public void testValidate() throws Exception {
         ConfigurationExplorer configurationExplorer = createConfigurationExplorer(DOMAIN_OBJECTS_CONFIG_PATH);
-        configurationExplorer.build();
     }
 
     @Test
     public void testValidateInvalidExtendsAttribute() throws Exception {
-        ConfigurationExplorer configurationExplorer =
-                createConfigurationExplorer(DOMAIN_OBJECTS_INVALID_EXTENDS_ATTRIBUTE_CONFIG_PATH);
-
         expectedException.expect(ConfigurationException.class);
         expectedException.expectMessage("Extended DomainObject Configuration is not found for name 'Person'");
 
-        configurationExplorer.build();
+        ConfigurationExplorer configurationExplorer =
+                createConfigurationExplorer(DOMAIN_OBJECTS_INVALID_EXTENDS_ATTRIBUTE_CONFIG_PATH);
     }
 
     @Test
     public void testValidateInvalidParentAttribute() throws Exception {
-        ConfigurationExplorer configurationExplorer =
-                createConfigurationExplorer(DOMAIN_OBJECTS_INVALID_PARENT_CONFIG_PATH);
-
         expectedException.expect(ConfigurationException.class);
         expectedException.expectMessage("Parent DomainObject Configuration is not found for name 'Person'");
 
-        configurationExplorer.build();
+        ConfigurationExplorer configurationExplorer =
+                createConfigurationExplorer(DOMAIN_OBJECTS_INVALID_PARENT_CONFIG_PATH);
     }
 
     @Test
     public void testValidateInvalidReference() throws Exception {
-        ConfigurationExplorer configurationExplorer =
-                createConfigurationExplorer(DOMAIN_OBJECTS_INVALID_REFERENCE_CONFIG_PATH);
-
         expectedException.expect(ConfigurationException.class);
         expectedException.expectMessage("Definition is not found for 'Employee' referenced from 'Incoming_Document2'");
 
-        configurationExplorer.build();
+        ConfigurationExplorer configurationExplorer =
+                createConfigurationExplorer(DOMAIN_OBJECTS_INVALID_REFERENCE_CONFIG_PATH);
     }
 
     @Test
     public void testValidateInvalidUniqueKey() throws Exception {
-        ConfigurationExplorer configurationExplorer =
-                createConfigurationExplorer(DOMAIN_OBJECTS_INVALID_UNIQUE_KEY_CONFIG_PATH);
-
         expectedException.expect(ConfigurationException.class);
         expectedException.expectMessage("FieldConfig with name 'Invalid_field' is not found in domain object " +
                 "'Outgoing_Document'");
 
-        configurationExplorer.build();
+        ConfigurationExplorer configurationExplorer =
+                createConfigurationExplorer(DOMAIN_OBJECTS_INVALID_UNIQUE_KEY_CONFIG_PATH);
     }
 
     private ConfigurationExplorer createConfigurationExplorer(String configPath) throws Exception {

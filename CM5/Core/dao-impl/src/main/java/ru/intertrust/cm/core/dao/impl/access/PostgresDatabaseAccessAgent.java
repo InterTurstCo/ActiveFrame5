@@ -1,18 +1,7 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.sql.DataSource;
-
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.dao.access.AccessType;
@@ -22,12 +11,17 @@ import ru.intertrust.cm.core.dao.access.ExecuteActionAccessType;
 import ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper;
 import ru.intertrust.cm.core.dao.impl.utils.IdSorterByType;
 
+import javax.sql.DataSource;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
+
 /**
  * Реализация агента БД по запросам прав доступа для PostgreSQL.
  * <p>Перед использованием объекта необходимо установить корректный источник данных вызовом метода
  * {@link #setDataSource(DataSource)}. Обычно это делается через соотвествующий атрибут или тег конфигурации
  * объекта в Spring-контексте приложения (beans.xml), где создаётся и сам объект.
- * 
+ *
  * @author apirozhkov
  */
 public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
@@ -36,7 +30,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
     /**
      * Устанавливает источник данных, который будет использоваться для выполнения запросов.
-     * 
+     *
      * @param dataSource Источник данных
      */
     public void setDataSource(DataSource dataSource) {
@@ -46,12 +40,12 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
     @Override
     public boolean checkDomainObjectAccess(int userId, Id objectId, AccessType type) {
         RdbmsId id = (RdbmsId) objectId;
-        String opCode = makeAccessTypeCode(type);                
-        String query = getQueryForCheckDomainObjectAccess(id);        
+        String opCode = makeAccessTypeCode(type);
+        String query = getQueryForCheckDomainObjectAccess(id);
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("user_id", userId);
         parameters.put("object_id", id.getId());
-        parameters.put("operation", opCode);        
+        parameters.put("operation", opCode);
         Integer result = jdbcTemplate.queryForObject(query, parameters, Integer.class);
         return result > 0;
     }
@@ -60,7 +54,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         String domainObjectAclTable = getAclTableName(id);
         String query = "select count(*) from " + domainObjectAclTable + " a " +
                 "inner join group_member gm on a.group_id = gm.master " +
-                "where gm.person_id = :user_id and a.object_id = :object_id and a.operation = :operation";
+                "where gm.person_id1 = :user_id and a.object_id = :object_id and a.operation = :operation";
         return query;
     }
 
@@ -82,7 +76,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
         return idsWithAllowedAccess.toArray(new Id[idsWithAllowedAccess.size()]);
     }
-    
+
     /**
      * Возвращает список id доменных объектов одного типа, для которых разрешен доступ.
      * @param userId id пользователя
@@ -120,10 +114,10 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
         String query = "select a.object_id object_id from " + domainObjectAclTable + " a " +
                 "inner join group_member gm on a.group_id = gm.master " +
-                "where gm.person_id = :user_id and a.object_id in (:object_ids) and a.operation = :operation";
+                "where gm.person_id1 = :user_id and a.object_id in (:object_ids) and a.operation = :operation";
         return query;
     }
-    
+
     @Override
     public AccessType[] checkDomainObjectMultiAccess(int userId, Id objectId, AccessType[] types) {
         RdbmsId id = (RdbmsId) objectId;
@@ -149,7 +143,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         String domainObjectAclTable = getAclTableName(id);
         String query = "select a.operation operation from " + domainObjectAclTable + " a " +
                 "inner join group_member gm on a.group_id = gm.master " +
-                "where gm.person_id = :user_id and a.object_id = :object_id and a.operation in (:operations)";
+                "where gm.person_id1 = :user_id and a.object_id = :object_id and a.operation in (:operations)";
         return query;
     }
 
@@ -222,7 +216,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
     private String getQueryForCheckUserGroup() {
         String query = "select count(*) from user_group ug " +
                 "inner join group_member gm on ug.id = gm.master " +
-                "where gm.person_id = :user_id and ug.group_name = :group_name";
+                "where gm.person_id1 = :user_id and ug.group_name = :group_name";
         return query;
     }
 

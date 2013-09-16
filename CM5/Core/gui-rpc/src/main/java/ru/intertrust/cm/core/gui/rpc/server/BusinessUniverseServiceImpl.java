@@ -1,10 +1,12 @@
 package ru.intertrust.cm.core.gui.rpc.server;
 
-import ru.intertrust.cm.core.config.model.NavigationConfig;
+import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.model.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.Command;
-import ru.intertrust.cm.core.gui.model.plugin.PluginData;
+import ru.intertrust.cm.core.gui.model.form.Form;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseService;
 
 import javax.ejb.EJB;
@@ -28,7 +30,12 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     }
 
     @Override
-    public PluginData executeCommand(Command command) {
+    public Dto executeCommand(Command command) {
         return guiService.executeCommand(command);
+    }
+
+    @Override
+    public Form getForm(Id domainObjectId) {
+        return guiService.getForm(domainObjectId);
     }
 }

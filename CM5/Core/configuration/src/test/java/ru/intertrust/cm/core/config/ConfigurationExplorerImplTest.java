@@ -39,18 +39,10 @@ public class ConfigurationExplorerImplTest {
 
         config = configurationSerializer.deserializeConfiguration();
         configExplorer = new ConfigurationExplorerImpl(config);
-        configExplorer.build();
     }
 
     @Test
     public void testGetConfiguration() throws Exception {
-        Configuration testConfiguration = configExplorer.getConfiguration();
-        assertTrue(config == testConfiguration);
-    }
-
-    @Test
-    public void testSetConfiguration() throws Exception {
-        configExplorer.setConfiguration(config);
         Configuration testConfiguration = configExplorer.getConfiguration();
         assertTrue(config == testConfiguration);
     }
@@ -146,5 +138,12 @@ public class ConfigurationExplorerImplTest {
         fieldConfig = configExplorer.getFieldConfig(PERSON_CONFIG_NAME, SystemField.updated_date.name());
         assertNotNull(fieldConfig);
         Assert.assertEquals(fieldConfig.getName(), SystemField.updated_date.name());
+    }
+
+    @Test
+    public void testFindChildDomainObjectTypes() {
+        Collection<DomainObjectTypeConfig> types = configExplorer.findChildDomainObjectTypes("Person", true);
+        assertTrue(types.contains(configExplorer.getConfig(DomainObjectTypeConfig.class, "Employee")));
+        assertTrue(types.size() == 1);
     }
 }

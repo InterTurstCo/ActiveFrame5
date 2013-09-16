@@ -34,17 +34,15 @@ public abstract class PluginView implements IsWidget {
      */
     protected IsWidget getActionToolBar() {
         // todo: do this only if plugin is Active
-        ActivePluginData initialData = (ActivePluginData) plugin.getInitialData();
+        ActivePluginData initialData = plugin.getInitialData();
         if (initialData == null) {
-            return new Label("This is a tool bar for now");
+            return new Label("This is an empty tool bar for now");
             // todo return null;
         }
         List<ActionConfig> actionConfigs = initialData.getActionConfigs();
-        if (actionConfigs == null || actionConfigs.isEmpty()) {
+        int size = actionConfigs == null ? 0 : actionConfigs.size();
 
-        }
-
-        return new Label("This is a tool bar for now");
+        return new Label("This is a tool bar with actions for now. Actions: " + actionConfigs);
     }
 
     /**

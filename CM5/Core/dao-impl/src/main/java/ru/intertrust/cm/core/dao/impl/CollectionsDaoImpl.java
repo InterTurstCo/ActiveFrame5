@@ -58,7 +58,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
     /*
      * {@see
-     * ru.intertrust.cm.core.dao.api.DomainObjectDao#findCollectionByQuery(ru.intertrust.cm.core.config.model.CollectionConfig,
+     * ru.intertrust.cm.core.dao.api.DomainObjectDao#findCollectionByQuery(ru.intertrust.cm.core.config.model.CollectionNestedConfig,
      * java.util.List, ru.intertrust.cm.core.business.api.dto.SortOrder, int, int)}
      */
     @Override
@@ -91,7 +91,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
     /*
      * {@see ru.intertrust.cm.core.dao.api.DomainObjectDao#findCollectionCountByQuery(ru.intertrust.cm.core.config.model.
-     * CollectionConfig , java.util.List, ru.intertrust.cm.core.business.api.dto.SortOrder)}
+     * CollectionNestedConfig , java.util.List, ru.intertrust.cm.core.business.api.dto.SortOrder)}
      */
     @Override
     public int findCollectionCount(String collectionName,

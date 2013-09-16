@@ -44,36 +44,100 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
 
     public void setDomainObjectDao(DomainObjectDao domainObjectDao) {
         this.domainObjectDao = domainObjectDao;
-    }
+    }    
 
     @Override
-    public void refreshDynamicGroupsFor(Id objectId) {
-        RdbmsId id = (RdbmsId) objectId;
-        List<DynamicGroupConfig> dynamicGroups =
-                configurationExplorer.getDynamicGroupConfigsByContextType(id.getTypeName());
-
-        for (DynamicGroupConfig dynamicGroupConfig : dynamicGroups) {
-            Id dynamicGroupId = refreshUserGroup(dynamicGroupConfig.getName(), id);
-            List<Id> personIds = getGroupMembersFor(dynamicGroupConfig, objectId);
-            refreshGroupMembers(dynamicGroupId, personIds);
-        }
-    }
-
-    @Override
-    public void notiyDomainObjectChanged(Id objectId) {
+    public void notifyDomainObjectChanged(Id objectId) {
         String status = getStatusFor(objectId);
-        RdbmsId id = (RdbmsId) objectId;
 
         List<DynamicGroupConfig> dynamicGroups = getDynamicGroupsFor(objectId, status);
         for (DynamicGroupConfig dynamicGroupConfig : dynamicGroups) {
             Id contextObjectid = getContextObjectId(dynamicGroupConfig, objectId);
-
             Id dynamicGroupId = refreshUserGroup(dynamicGroupConfig.getName(), contextObjectid);
+            List<Long> groupMembres = getAllGroupMembersFor(dynamicGroupConfig, objectId, contextObjectid);
 
-            List<Id> personIds = getAllGroupMembersFor(dynamicGroupConfig, contextObjectid);
-            refreshGroupMembers(dynamicGroupId, personIds);
+            refreshGroupMembers(dynamicGroupId, groupMembres);
+        }
+    }
+
+    @Override
+    public void notifyDomainObjectCreated(Id objectId) {
+
+    }
+    
+    /**
+     * Получает список персон динамической группы по дескриптору группы и контекстному объекту.
+     * @param dynamicGroupConfig дескриптор динамической группы
+     * @param objectId отслеживаемй объект динамической группы. Используется для расчета обратного Doel выражения.
+     * @param contextObjectid контекстному объекту динамической группы
+     * @return список персон группы
+     */
+    private List<Long> getAllGroupMembersFor(DynamicGroupConfig dynamicGroupConfig, Id objectId, Id contextObjectid) {
+        List<?> result = null;
+        List<Long> groupMembers = new ArrayList<Long>();
+        TrackDomainObjectsConfig trackDomainObjects = dynamicGroupConfig.getMembers().getTrackDomainObjects();
+        if (trackDomainObjects != null && trackDomainObjects.getBindContext() != null) {
+            String bindContextDoel = trackDomainObjects.getBindContext().getDoel();
+            DoelExpression bindContextExpr = DoelExpression.parse(bindContextDoel);
+            DoelExpression reverseBindContextExpr = createReverseExpression(objectId, bindContextExpr);
+
+            String getPersonDoel = null;
+            if (trackDomainObjects.getGetPerson() != null && trackDomainObjects.getGetPerson().getDoel() != null) {
+                getPersonDoel = trackDomainObjects.getGetPerson().getDoel();
+            }
+
+            String getGroupPersonsDoel = createRetrieveGroupPersonsDoel(reverseBindContextExpr, getPersonDoel);
+            DoelExpression reverseGetPersonExpr = DoelExpression.parse(getGroupPersonsDoel);
+            result = doelResolver.evaluate(reverseGetPersonExpr, contextObjectid);
+
+            groupMembers = convertToListOfLongs(result);
+        }
+        return groupMembers;
+    }
+
+    /**
+     * Создает обратное Doel выражение.
+     * @param objectId объект, относительно которого вычисляется переданное прямое выражение
+     * @param bindContextExpr прямое Doel выражение.
+     * @return обратное Doel выражение
+     */
+    private DoelExpression createReverseExpression(Id objectId, DoelExpression bindContextExpr) {
+        DoelExpression reverseBindContextExpr =
+                doelResolver.createReverseExpression(bindContextExpr, ((RdbmsId) objectId).getTypeName());
+        return reverseBindContextExpr;
+    }
+
+    private String createRetrieveGroupPersonsDoel(DoelExpression reverseBindContextExpr, String getPersonDoel) {
+        String getGroupPersonsDoel = null;
+        if (getPersonDoel != null) {
+            getGroupPersonsDoel = reverseBindContextExpr.toString() + "." + getPersonDoel;
+
+        } else {
+            getGroupPersonsDoel = reverseBindContextExpr.toString() + "." + "id";
+        }
+        return getGroupPersonsDoel;
+    }
+
+    /**
+     * Конвертирует результат вычисления Doel выражения в список целочисленных типов.
+     * @param result результат вычисления Doel выражения
+     * @return список целочисленных типов
+     */
+    private List<Long> convertToListOfLongs(List<?> result) {
+        List<Long> groupMembers = new ArrayList<Long>();
+
+        if (result != null && result.size() > 0) {
+            for (Map<String, Object> entry : (List<Map<String, Object>>) result) {
+                if (entry != null) {
+                    Collection values = entry.values();
+                    Long longValue = (Long) values.iterator().next();
+                    groupMembers.add(longValue);
+
+                }
+            }
         }
 
+        return groupMembers;
     }
 
     /**
@@ -91,20 +155,19 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
     /**
      * Возвращает контекстный объект для динамической группы и отслеживаемого (изменяемого) доменного объекта
      * @param dynamicGroupConfig конфигурация динамической группы
-     * @param objectId идентификатор отслеживаемый доменный объект
+     * @param objectId идентификатор отслеживаемого доменного объекта
      * @return идентификатор контекстного объекта
-     */    
+     */
     private Id getContextObjectId(DynamicGroupConfig dynamicGroupConfig, Id objectId) {
         TrackDomainObjectsConfig trackDomainObjects = dynamicGroupConfig.getMembers().getTrackDomainObjects();
         Id contextObjectid = null;
 
         if (trackDomainObjects != null && trackDomainObjects.getBindContext() != null) {
-            String bindContextDoel = dynamicGroupConfig.getMembers().getTrackDomainObjects().getBindContext().getDoel();
+            String bindContextDoel = trackDomainObjects.getBindContext().getDoel();
             DoelExpression expr = DoelExpression.parse(bindContextDoel);
             List<?> result = doelResolver.evaluate(expr, objectId);
-            String doelResultType = getDoelReturnValueType(bindContextDoel);
-
-            contextObjectid = convertToId(result, doelResultType);
+            String contextObjectType = dynamicGroupConfig.getContext().getDomainObject().getType();
+            contextObjectid = convertToId(result, contextObjectType);
 
         } else {
             contextObjectid = objectId;
@@ -113,135 +176,35 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
         return contextObjectid;
     }
 
-    private Id convertToId(List<?> result, String doelResultType) {
+    private Id convertToId(List<?> result, String contextObjectType) {
         Id contextObjectId = null;
         if (result != null && result.size() > 0) {
             Collection values = ((List<Map<String, Object>>) result).get(0).values();
             Long idLongValue = (Long) values.iterator().next();
-            contextObjectId = new RdbmsId(doelResultType, idLongValue);
+            contextObjectId = new RdbmsId(contextObjectType, idLongValue);
         }
         return contextObjectId;
-    }
-
-    private String getDoelReturnValueType(String bindContextDoel) {
-        //TODO
-        return "Person";
-    }
-
-    /**
-     * Получает список персон для конкретного экземпляра динамической группы (определяется названием группы и контекстным объектом)
-     * @param dynamicGroupConfig конфигурация динамической группы
-     * @param contextObjectId идентификатор контекстного объекта
-     * @return список идентификаторов персон группы
-     */
-    private List<Id> getAllGroupMembersFor(DynamicGroupConfig dynamicGroupConfig, Id contextObjectId) {
-
-        List<Id> personIds = new ArrayList<Id>();
-        if (dynamicGroupConfig.getMembers() != null && dynamicGroupConfig.getMembers().getTrackDomainObjects() != null) {
-
-            final String contextObjectType = dynamicGroupConfig.getContext().getDomainObject().getType();
-            TrackDomainObjectsConfig trackDomainObjectsConfig = dynamicGroupConfig.getMembers().getTrackDomainObjects();
-            String query = null;
-            final String getPersonField = getGetPersonField(trackDomainObjectsConfig);
-            String trackDomainObjectType = trackDomainObjectsConfig.getType();
-            
-            if (trackDomainObjectsConfig.getBindContext() == null) {
-                query = "Select p.id from " + trackDomainObjectType
-                        + " p where p.id = :contextObjectId";
-
-            } else {
-                String bindContectField = trackDomainObjectsConfig.getBindContext().getDoel();
-
-                query = "Select o." + getPersonField + " from " + trackDomainObjectType + " o where o." +
-                        bindContectField + " = " + ":contextObjectId";
-
-            }
-            Map<String, Object> parameters = initializeGetGroupMembersParameters(contextObjectId);
-            personIds =
-                    jdbcTemplate.query(query, parameters, new ListObjectIdRowMapper(getPersonField, contextObjectType));
-            System.out.println("Found personds for dynamic group : " + dynamicGroupConfig.getName()
-                    + " and context id: " + contextObjectId + " : " + personIds);
-        }
-
-        return personIds;
-    }
-    
-    /**
-     * Получает список персон динамической группы
-     * @param dynamicGroupConfig конфигурация динамической группы
-     * @param contextObjectId идентификатор контекстного объекта
-     * @return список идентификаторов персон группы
-     */
-    private List<Id> getGroupMembersFor(DynamicGroupConfig dynamicGroupConfig, Id contextObjectId) {
-
-        List<Id> personIds = new ArrayList<Id>();
-        if (dynamicGroupConfig.getMembers() != null && dynamicGroupConfig.getMembers().getTrackDomainObjects() != null) {
-
-            final String contextObjectType = dynamicGroupConfig.getContext().getDomainObject().getType();
-            TrackDomainObjectsConfig trackDomainObjectsConfig = dynamicGroupConfig.getMembers().getTrackDomainObjects();
-            String query = null;
-            final String getPersonField = getGetPersonField(trackDomainObjectsConfig);
-            if (trackDomainObjectsConfig.getBindContext() != null) {
-                String trackDomainObjectType = trackDomainObjectsConfig.getType();
-
-                String bindContectField = trackDomainObjectsConfig.getBindContext().getDoel();
-                query = "Select d." + getPersonField + " from " + contextObjectType + " p inner join "
-                        + trackDomainObjectType + " d on d." + bindContectField + " = p.id where p.id = " +
-                        ":contextObjectId";
-            } else {
-                query = "Select p." + getPersonField + " from " + contextObjectType
-                        + " p where p.id = :contextObjectId";
-
-            }
-
-            Map<String, Object> parameters = initializeGetGroupMembersParameters(contextObjectId);
-            personIds =
-                    jdbcTemplate.query(query, parameters, new ListObjectIdRowMapper(getPersonField, contextObjectType));
-            System.out.println("Found personds for dynamic group : " + dynamicGroupConfig.getName()
-                    + " and context id: " + contextObjectId + " : " + personIds);
-        }
-
-        return personIds;
-    }
-    
-    private Map<String, Object> initializeGetGroupMembersParameters(Id contextObjectId) {
-        RdbmsId rdbmsId = (RdbmsId) contextObjectId;
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("contextObjectId", rdbmsId.getId());
-        return parameters;
-    }
-
-    private String getGetPersonField(TrackDomainObjectsConfig trackDomainObjectsConfig) {
-        String getPersonField = null;
-        if (trackDomainObjectsConfig.getGetPerson() != null) {
-            getPersonField = trackDomainObjectsConfig.getGetPerson().getDoel();
-        } else {
-            // если тег get-person не заполнен, то сам отслеживаемый объект совпадает с контекстным
-            getPersonField = "id";
-        }
-        return getPersonField;
-    }
+    }    
 
     /**
      * Пересчитывает список персон динамической группы.
      * @param dynamicGroupId идентификатор динамической группы
      * @param personIds список персон
      */
-    private void refreshGroupMembers(Id dynamicGroupId, List<Id> personIds) {
-
+    private void refreshGroupMembers(Id dynamicGroupId, List<Long> personIds) {
         cleanGroupMembers(dynamicGroupId);
 
         insertGroupMembers(dynamicGroupId, personIds);
     }
 
     // TODO Optimize performance
-    private void insertGroupMembers(Id dynamicGroupId, List<Id> personIds) {
+    private void insertGroupMembers(Id dynamicGroupId, List<Long> personIds) {
         List<DomainObject> groupMembers = new ArrayList<DomainObject>();
-        for (Id personId : personIds) {
+        for (Long personId : personIds) {
 
             GenericDomainObject groupMemeber = new GenericDomainObject();
             groupMemeber.setTypeName(GROUP_MEMBER_DOMAIN_OBJECT);
-            groupMemeber.setLong("person_id", ((RdbmsId) personId).getId());
+            groupMemeber.setLong("person_id", personId);
             groupMemeber.setParent(dynamicGroupId);
             groupMembers.add(groupMemeber);
 
@@ -297,8 +260,16 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
     }
 
     @Override
-    public void cleanDynamicGroupsFor(Id id) {
-        // TODO Auto-generated method stub
+    public void cleanDynamicGroupsFor(Id objectId) {
+        String status = getStatusFor(objectId);
+
+        List<DynamicGroupConfig> dynamicGroups = getDynamicGroupsFor(objectId, status);
+        for (DynamicGroupConfig dynamicGroupConfig : dynamicGroups) {
+            Id contextObjectId = getContextObjectId(dynamicGroupConfig, objectId);
+            Id dynamicGroupId = deleteUserGroupByGroupNameAndObjectId(dynamicGroupConfig.getName(), ((RdbmsId)contextObjectId).getId());           
+            cleanGroupMembers(dynamicGroupId);            
+        }
+
     }
 
 }

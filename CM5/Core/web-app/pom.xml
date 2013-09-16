@@ -60,6 +60,12 @@
             <artifactId>test-module</artifactId>
             <version>${project.version}</version>
         </dependency>
+        
+        <dependency>
+            <groupId>ru.intertrust.cm-sochi</groupId>
+            <artifactId>dataset-generator</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
     </dependencies>
 
@@ -101,6 +107,7 @@
                         <artifact>ru.intertrust.cm-sochi:gui-client-api</artifact>
                         <artifact>ru.intertrust.cm-sochi:gui-client-impl</artifact>
                         <artifact>ru.intertrust.cm-sochi:gui-rpc</artifact>
+                        <artifact>ru.intertrust.cm-sochi:configuration</artifact>
                         <artifact>ru.intertrust.cm-sochi:model</artifact>
                         <artifact>ru.intertrust.cm-sochi:gui-model</artifact>
                     </compileSourcesArtifacts>

@@ -2,6 +2,8 @@ package ru.intertrust.cm.core.config.model;
 
 import org.simpleframework.xml.ElementList;
 
+import ru.intertrust.cm.core.business.api.dto.FieldType;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,5 +55,10 @@ public class ReferenceFieldConfig extends FieldConfig {
         int result = super.hashCode();
         result = 31 * result + (types != null ? types.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public FieldType getFieldType() {
+        return FieldType.REFERENCE;
     }
 }

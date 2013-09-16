@@ -1,18 +1,5 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyMapOf;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,35 +8,45 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.dao.access.AccessType;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyMapOf;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 /**
- * 
+ *
  * @author atsvetkov
  *
  */
 @RunWith(MockitoJUnitRunner.class)
 public class PostgresDatabaseAccessAgentTest {
-    
+
     private static final String CHECK_DOMAIN_OBJECT_ACCESS_QUERY = "select count(*) from Employee_ACL a inner join " +
-    		"group_member gm on a.group_id = gm.master where gm.person_id = :user_id and a.object_id = :object_id " +
+    		"group_member gm on a.group_id = gm.master where gm.person_id1 = :user_id and a.object_id = :object_id " +
     		"and a.operation = :operation";
 
     private static final String CHECK_MULTI_DOMAIN_OBJECT_ACCESS_FOR_EMPLOYEE_QUERY =
             "select a.object_id object_id from Employee_ACL " +
-                    "a inner join group_member gm on a.group_id = gm.master where gm.person_id = :user_id " +
+                    "a inner join group_member gm on a.group_id = gm.master where gm.person_id1 = :user_id " +
                     "and a.object_id in (:object_ids) and a.operation = :operation";
-    
+
     private static final String CHECK_MULTI_DOMAIN_OBJECT_ACCESS_FOR_DEPARTMENT_QUERY =
             "select a.object_id object_id from Department_ACL a inner join group_member gm on a.group_id = gm.master " +
-                    "where gm.person_id = :user_id and a.object_id in (:object_ids) and a.operation = :operation";
+                    "where gm.person_id1 = :user_id and a.object_id in (:object_ids) and a.operation = :operation";
 
     private static final String CHECK_DOMAIN_OBJECT_MULTI_ACCESS_QUERY =
             "select a.operation operation from Employee_ACL a " +
-                    "inner join group_member gm on a.group_id = gm.master where gm.person_id = :user_id " +
+                    "inner join group_member gm on a.group_id = gm.master where gm.person_id1 = :user_id " +
                     "and a.object_id = :object_id and a.operation in (:operations)";
 
     @InjectMocks
@@ -60,20 +57,20 @@ public class PostgresDatabaseAccessAgentTest {
 
     private RdbmsId employeeId;
     private RdbmsId departmentId;
-    
+
     @Before
     public void setUp() throws Exception {
         employeeId = new RdbmsId("Employee", 1);
         departmentId = new RdbmsId("Department", 1);
 
     }
-    
+
     @Test
     public void testCheckDomainObjectAccess() {
         when(jdbcTemplate.queryForObject(eq(CHECK_DOMAIN_OBJECT_ACCESS_QUERY), anyMapOf(String.class, Object.class), eq(Integer.class))).thenReturn(1);
-        boolean result = accessAgent.checkDomainObjectAccess(1, employeeId, DomainObjectAccessType.WRITE);        
+        boolean result = accessAgent.checkDomainObjectAccess(1, employeeId, DomainObjectAccessType.WRITE);
         verify(jdbcTemplate, times(1)).queryForObject(eq(CHECK_DOMAIN_OBJECT_ACCESS_QUERY), anyMapOf(String.class, Object.class), eq(Integer.class));
-        assertEquals(result, true);        
+        assertEquals(result, true);
     }
 
     @Test

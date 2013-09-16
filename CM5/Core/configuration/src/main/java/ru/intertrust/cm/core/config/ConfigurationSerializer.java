@@ -182,7 +182,7 @@ public class ConfigurationSerializer {
      * @return {@link ru.intertrust.cm.core.config.model.Configuration}
      * @throws Exception
      */
-    private Configuration deserializeConfiguration(String configurationFilePath) throws Exception {
+   public Configuration deserializeConfiguration(String configurationFilePath) throws Exception {
         ConfigurationSchemaValidator schemaValidator = new ConfigurationSchemaValidator(configurationFilePath,
                 coreConfigurationSchemaFilePath);
         schemaValidator.validate();

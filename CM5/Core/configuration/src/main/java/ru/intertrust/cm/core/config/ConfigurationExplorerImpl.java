@@ -3,6 +3,9 @@ package ru.intertrust.cm.core.config;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.config.model.*;
+
+import ru.intertrust.cm.core.config.model.gui.navigation.LinkConfig;
+import ru.intertrust.cm.core.config.model.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.model.FatalException;
 
 import java.io.*;
@@ -19,9 +22,10 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
 
     private Configuration configuration;
 
-    private Map<Class, Map<String, TopLevelConfig>> topLevelConfigMap = new HashMap<>();
+    private Map<Class<?>, Map<String, TopLevelConfig>> topLevelConfigMap = new HashMap<>();
     private Map<FieldConfigKey, FieldConfig> fieldConfigMap = new HashMap<>();
     private Map<FieldConfigKey, CollectionColumnConfig> collectionColumnConfigMap = new HashMap<>();
+    private Map<String, LinkConfig> linkConfigMap = new HashMap<>();
 
     /**
      * Создает {@link ConfigurationExplorerImpl}
@@ -34,6 +38,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      */
     public ConfigurationExplorerImpl(Configuration configuration) {
         this.configuration = configuration;
+        build();
     }
 
     /**
@@ -55,18 +60,21 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     /**
      * {@inheritDoc}
      */
-    @Override
     public void build() {
         initConfigurationMaps();
 
-        ConfigurationLogicalValidator logicalValidator = new ConfigurationLogicalValidator(this);
-        logicalValidator.validate();
+        DomainObjectLogicalValidator domainObjectLogicalValidator = new DomainObjectLogicalValidator(this);
+        domainObjectLogicalValidator.validate();
+
+        NavigationPanelLogicalValidator navigationPanelLogicalValidator = new NavigationPanelLogicalValidator(this);
+        navigationPanelLogicalValidator.validate();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T getConfig(Class<T> type, String name) {
         Map<String, TopLevelConfig> typeMap = topLevelConfigMap.get(type);
         if(typeMap == null) {
@@ -80,6 +88,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      * {@inheritDoc}
      */
     @Override
+    @SuppressWarnings("unchecked")
     public <T> Collection<T> getConfigs(Class<T> type) {
         Map<String, TopLevelConfig> typeMap = topLevelConfigMap.get(type);
         if(typeMap == null) {
@@ -87,6 +96,21 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         }
 
         return (Collection<T>) typeMap.values();
+    }
+
+    @Override
+    public Collection<DomainObjectTypeConfig> findChildDomainObjectTypes(String typeName, boolean includeIndirect) {
+        ArrayList<DomainObjectTypeConfig> childTypes = new ArrayList<>();
+        Collection<DomainObjectTypeConfig> allTypes = getConfigs(DomainObjectTypeConfig.class);
+        for (DomainObjectTypeConfig type : allTypes) {
+            if (typeName.equals(type.getExtendsAttribute())) {
+                childTypes.add(type);
+                if (includeIndirect) {
+                    childTypes.addAll(findChildDomainObjectTypes(type.getName(), true));
+                }
+            }
+        }
+        return childTypes;
     }
 
     /**
@@ -153,6 +177,9 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
             } else if (CollectionConfig.class.equals(config.getClass())) {
                 CollectionConfig domainObjectTypeConfig = (CollectionConfig) config;
                 fillCollectionColumnConfigMap(domainObjectTypeConfig);
+            } else if (NavigationConfig.class.equals(config.getClass())) {
+                NavigationConfig navigationConfig = (NavigationConfig) config;
+                fillLinkConfigMap(navigationConfig);
             }
         }
 
@@ -255,13 +282,10 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         typeMap.put(config.getName(), config);
     }
 
-    private void fillFieldsConfigMap(DomainObjectTypeConfig domainObjectTypeConfig) {
-        for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
-            FieldConfigKey fieldConfigKey =
-                    new FieldConfigKey(domainObjectTypeConfig.getName(), fieldConfig.getName());
-            fieldConfigMap.put(fieldConfigKey, fieldConfig);
+    private void fillLinkConfigMap(NavigationConfig navigationPanel) {
+        for (LinkConfig linkConfig : navigationPanel.getLinkConfigList()) {
+            linkConfigMap.put(linkConfig.getName(), linkConfig);
         }
-        fillSystemFields(domainObjectTypeConfig);
     }
 
     private void fillSystemFields(DomainObjectTypeConfig domainObjectTypeConfig) {
@@ -281,6 +305,15 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
 
             }
         }
+    }
+
+    private void fillFieldsConfigMap(DomainObjectTypeConfig domainObjectTypeConfig) {
+        for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
+            FieldConfigKey fieldConfigKey =
+                    new FieldConfigKey(domainObjectTypeConfig.getName(), fieldConfig.getName());
+            fieldConfigMap.put(fieldConfigKey, fieldConfig);
+        }
+        fillSystemFields(domainObjectTypeConfig);
     }
 
     private void initConfigurationMapsOfAttachmentDomainObjectTypes(List<DomainObjectTypeConfig> ownerAttachmentDOTs) {

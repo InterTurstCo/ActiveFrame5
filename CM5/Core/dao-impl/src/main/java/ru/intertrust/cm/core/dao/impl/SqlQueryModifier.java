@@ -1,18 +1,13 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import java.util.List;
-
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.schema.Table;
-import net.sf.jsqlparser.statement.select.FromItem;
-import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.SelectBody;
-import net.sf.jsqlparser.statement.select.SelectExpressionItem;
-import net.sf.jsqlparser.statement.select.Union;
-
+import net.sf.jsqlparser.statement.select.*;
 import ru.intertrust.cm.core.dao.exception.CollectionQueryException;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
+
+import java.util.List;
 
 /**
  * Модифицирует SQL запросы. Добавляет поле Тип Объекта идентификатора в SQL запрос получения данных для коллекции, добавляет ACL фильтр в
@@ -63,9 +58,9 @@ public class SqlQueryModifier {
 
     /**
      * Добавляет ACL фильтр в SQL получения данных для коллекции.
-     * @param query первоначальный запрос 
-     * @param idField название поля, использующегося в качестве ключевого 
-     * @return запрос с добавленным ACL фильтром 
+     * @param query первоначальный запрос
+     * @param idField название поля, использующегося в качестве ключевого
+     * @return запрос с добавленным ACL фильтром
      */
     public String addAclQuery(String query, String idField) {
 
@@ -144,7 +139,7 @@ public class SqlQueryModifier {
         String aclReadTable = AccessControlUtility.getAclReadTableNameFor(domainObjectType);
         aclQuery.append("Select * from " + domainObjectType + " where exists (select r.object_id from ")
                 .append(aclReadTable).append(" r ");
-        aclQuery.append("inner join group_member gm on r.group_id = gm.master where gm.person_id = " + USER_ID_PARAM
+        aclQuery.append("inner join group_member gm on r.group_id = gm.master where gm.person_id1 = " + USER_ID_PARAM
                 + " and r.object_id = ");
         aclQuery.append(idField).append(")");
 
