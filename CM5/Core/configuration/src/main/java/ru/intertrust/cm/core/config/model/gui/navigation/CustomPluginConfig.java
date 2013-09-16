@@ -64,7 +64,7 @@ public class CustomPluginConfig extends PluginConfigParent {
     @Override
     public int hashCode() {
         int result = attributeConfigList != null ? attributeConfigList.hashCode() : 0;
-        result = 23 * result + name != null ? name.hashCode() : 0;
+        result = 23 * result + (name != null ? name.hashCode() : 0);
         return result;
     }
 }

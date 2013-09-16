@@ -1,8 +1,8 @@
 package ru.intertrust.cm.core.config.model.gui.navigation;
 
-import java.io.Serializable;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -11,7 +11,7 @@ import org.simpleframework.xml.Root;
  */
 @SuppressWarnings("serial")
 @Root(name = "decorations")
-public class DecorationsConfig implements Serializable {
+public class DecorationsConfig implements Dto {
 
     @Element(name = "collection-counter", required = false)
     private CollectionCounterConfig collectionCounterConfig;

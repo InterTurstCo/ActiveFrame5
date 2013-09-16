@@ -79,7 +79,7 @@ public class NavigationConfig implements TopLevelConfig {
     @Override
     public int hashCode() {
         int result = linkConfigList != null ? linkConfigList.hashCode() : 0;
-        result = 23 * result + name != null ? name.hashCode() : 0;
+        result = 23 * result + (name != null ? name.hashCode() : 0);
         return result;
     }
 }

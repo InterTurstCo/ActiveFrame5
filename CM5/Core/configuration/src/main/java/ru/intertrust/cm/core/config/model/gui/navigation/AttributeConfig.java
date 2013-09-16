@@ -1,12 +1,12 @@
 package ru.intertrust.cm.core.config.model.gui.navigation;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -15,7 +15,7 @@ import org.simpleframework.xml.Root;
  */
 @SuppressWarnings("serial")
 @Root(name = "attribute")
-public class AttributeConfig implements Serializable {
+public class AttributeConfig implements Dto {
 
     @Attribute(name = "name", required = true)
     private String name;
@@ -24,7 +24,7 @@ public class AttributeConfig implements Serializable {
     private String value;
 
     @ElementList(inline = true, required = false)
-    private List<AttributeConfig> attributeConfigList = new ArrayList<>();
+    private List<AttributeConfig> attributeConfigList = new ArrayList<AttributeConfig>();
 
     public String getName() {
         return name;
@@ -79,8 +79,8 @@ public class AttributeConfig implements Serializable {
     @Override
     public int hashCode() {
         int result = attributeConfigList != null ? attributeConfigList.hashCode() : 0;
-        result = 23 * result + value != null ? value.hashCode() : 0;
-        result = 15 * result + name != null ? name.hashCode() : 0;
+        result = 23 * result + (value != null ? value.hashCode() : 0);
+        result = 15 * result + (name != null ? name.hashCode() : 0);
         return result;
     }
 }

@@ -4,6 +4,7 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ import java.util.List;
  */
 @SuppressWarnings("serial")
 @Root(strict = false, name = "link")
-public class LinkConfig implements Serializable {
+public class LinkConfig implements Dto {
 
     @Attribute(name = "name")
     private String name;
