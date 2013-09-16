@@ -28,12 +28,12 @@ public class RandomGenerators {
     private RandomGenerators() throws IOException{
         this.vocabulary = new ArrayList<String>(5000);
         this.generator = new Random();
-        InputStream stream = instance.getClass().getResourceAsStream("/vocabulary.txt");
+        InputStream stream = getClass().getResourceAsStream("/vocabulary.txt");
         InputStreamReader reader = new InputStreamReader(stream);
         BufferedReader bufferedReader = new BufferedReader(reader);
         String value = null;
         while((value = bufferedReader.readLine()) != null){
-            instance.vocabulary.add(value);
+            vocabulary.add(value);
         }
     };
     
