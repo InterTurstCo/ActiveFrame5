@@ -12,7 +12,6 @@ import java.util.List;
  *         Date: 10/9/13
  *         Time: 12:05 PM
  */
-@SuppressWarnings("serial")
 @Root(name = "domain-object-surfer")
 public class DomainObjectSurferConfig extends PluginConfigParent {
     @Element(name = "collection-ref", required = false)
@@ -80,9 +79,9 @@ public class DomainObjectSurferConfig extends PluginConfigParent {
 
     @Override
     public int hashCode() {
-        int result = sortCriterionConfigList != null ? sortCriterionConfigList.hashCode() : 0;
-        result = 23 * result + (collectionRefConfig != null ? collectionRefConfig.hashCode() : 0);
-        result = result + (collectionViewRefConfig != null ? collectionViewRefConfig.hashCode() : 0);
+        int result = collectionRefConfig != null ? collectionRefConfig.hashCode() : 0;
+        result = 31 * result + (collectionViewRefConfig != null ? collectionViewRefConfig.hashCode() : 0);
+        result = 31 * result + (sortCriterionConfigList != null ? sortCriterionConfigList.hashCode() : 0);
         return result;
     }
 }

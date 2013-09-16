@@ -11,7 +11,6 @@ import java.io.Serializable;
  *         Date: 10/9/13
  *         Time: 12:05 PM
  */
-@SuppressWarnings("serial")
 @Root(name = "sort-criterion")
 public class SortCriterionConfig implements Dto {
     @Attribute(name = "field", required = false)
@@ -60,8 +59,8 @@ public class SortCriterionConfig implements Dto {
 
     @Override
     public int hashCode() {
-        int result = order != null ? order.hashCode() : 0;
-        result = result * 23 + (field != null ? field.hashCode() : 0);
+        int result = field != null ? field.hashCode() : 0;
+        result = 31 * result + (order != null ? order.hashCode() : 0);
         return result;
     }
 }

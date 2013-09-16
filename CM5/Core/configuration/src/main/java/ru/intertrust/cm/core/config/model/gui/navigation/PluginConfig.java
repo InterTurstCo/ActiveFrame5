@@ -14,7 +14,6 @@ import java.util.List;
  *         Date: 10/9/13
  *         Time: 12:05 PM
  */
-@SuppressWarnings("serial")
 @Root(name = "plugin")
 public class PluginConfig implements Dto {
 
@@ -53,8 +52,7 @@ public class PluginConfig implements Dto {
 
     @Override
     public int hashCode() {
-        int result = pluginConfigParentList != null ? pluginConfigParentList.hashCode() : 0;
-        return result * 23;
+        return pluginConfigParentList != null ? pluginConfigParentList.hashCode() : 0;
     }
 }
 

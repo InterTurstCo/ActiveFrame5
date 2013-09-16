@@ -15,7 +15,6 @@ import java.util.List;
  *         Time: 12:05 PM
  */
 
-@SuppressWarnings("serial")
 @Root(strict = false, name = "child-links")
 public class ChildLinksConfig implements Dto {
 
@@ -66,8 +65,8 @@ public class ChildLinksConfig implements Dto {
 
     @Override
     public int hashCode() {
-        int result = linkConfigList != null ? linkConfigList.hashCode() : 0;
-        result = 23 * result + (groupName != null ? groupName.hashCode() : 0);
+        int result = groupName != null ? groupName.hashCode() : 0;
+        result = 31 * result + (linkConfigList != null ? linkConfigList.hashCode() : 0);
         return result;
     }
 }

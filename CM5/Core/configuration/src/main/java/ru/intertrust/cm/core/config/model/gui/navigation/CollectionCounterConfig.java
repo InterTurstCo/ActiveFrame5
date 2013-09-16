@@ -9,7 +9,6 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  *         Date: 10/9/13
  *         Time: 12:05 PM
  */
-@SuppressWarnings("serial")
 @Root(name = "collection-counter")
 public class CollectionCounterConfig implements Dto {
     @Attribute(name = "collection", required = false)
@@ -43,8 +42,6 @@ public class CollectionCounterConfig implements Dto {
 
     @Override
     public int hashCode() {
-        int result = collection != null ? collection.hashCode() : 0;
-        return result * 23;
+        return collection != null ? collection.hashCode() : 0;
     }
-
 }
