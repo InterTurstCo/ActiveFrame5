@@ -18,7 +18,7 @@ public class HidingGroupListConfig extends TabGroupListConfig {
     private String name;
 
     @ElementList(inline = true)
-    private List<TabGroupConfig> tabGroupConfigs = new ArrayList<TabGroupConfig>();
+    private List<TabGroupConfig> tabGroupConfigs = new ArrayList<>();
 
     public String getName() {
         return name;

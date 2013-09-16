@@ -10,13 +10,13 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  *         Date: 10.09.13
  *         Time: 19:04
  */
-@Root(name = "group")
+@Root(name = "tab-group")
 public class TabGroupConfig implements Dto {
     @Attribute(name = "name", required = false)
     private String name;
 
     @Element(name = "table")
-    private LayoutConfig tableLayout;
+    private TableLayoutConfig tableLayout;
 
     public String getName() {
         return name;
@@ -26,11 +26,11 @@ public class TabGroupConfig implements Dto {
         this.name = name;
     }
 
-    public LayoutConfig getLayout() {
+    public TableLayoutConfig getLayout() {
         return tableLayout;
     }
 
-    public void setLayout(LayoutConfig tableLayout) {
+    public void setLayout(TableLayoutConfig tableLayout) {
         this.tableLayout = tableLayout;
     }
 

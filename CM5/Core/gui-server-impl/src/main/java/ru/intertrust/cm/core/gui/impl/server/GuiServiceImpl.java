@@ -253,7 +253,7 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
 
             CellConfig cellConfig = new CellConfig();
             cellConfig.setHorizontalAlignment("right");
-            cellConfig.setWidgetConfig(widgetDisplayConfig);
+            cellConfig.setWidgetDisplayConfig(widgetDisplayConfig);
 
             LabelConfig labelConfig = new LabelConfig();
             labelConfig.setId(id);
@@ -271,7 +271,7 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
 
             CellConfig cellConfig = new CellConfig();
             cellConfig.setHorizontalAlignment("left");
-            cellConfig.setWidgetConfig(widgetDisplayConfig);
+            cellConfig.setWidgetDisplayConfig(widgetDisplayConfig);
             cellConfig.setColumnSpan(colspan);
 
             TextBoxConfig widgetConfig = new TextBoxConfig();
@@ -290,7 +290,7 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
 
             CellConfig cellConfig = new CellConfig();
             cellConfig.setHorizontalAlignment("left");
-            cellConfig.setWidgetConfig(widgetDisplayConfig);
+            cellConfig.setWidgetDisplayConfig(widgetDisplayConfig);
             cellConfig.setColumnSpan(colSpan);
             cellConfig.setRowSpan(rowSpan);
 

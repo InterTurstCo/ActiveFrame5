@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<configuration>
+<configuration xmlns="https://cm5.intertrust.ru/config">
     <!-- Для одного типа доменного объекта может существовать множество форм. Для входящего документа, у регистратора - своя форма,
     у министра - своя форма, содержащая, скорее всего, другие элементы.
 
@@ -33,7 +33,7 @@
             <body display-single-tab="false"> <!-- в теле - только закладки -->
                 <tab name="Содержание"> <!-- закладка состоит из групп с разметкой -->
                     <single-entry-group> <!-- наследник от TabGroupsConfig -->
-                        <group> <!-- вхождение в группу уже может содержать разметку -->
+                        <tab-group> <!-- вхождение в группу уже может содержать разметку -->
                             <table>
                                 <tr>
                                     <td><widget id="9"/></td>  <!-- label (Текст) -->
@@ -42,12 +42,12 @@
                                     <td><widget id="10"/></td>  <!-- rich-text-area -->
                                 </tr>
                             </table>
-                        </group>
+                        </tab-group>
                     </single-entry-group>
                 </tab>
                 <tab name="Реквизиты"> <!-- закладка состоит из групп -->
                     <hiding-groups> <!-- наследник от TabGroupsConfig -->
-                        <group name="Основные">
+                        <tab-group name="Основные">
                             <table>
                                 <tr>
                                     <td><widget id="11"/></td>  <!-- label (Тематика) -->
@@ -82,8 +82,8 @@
                                     <td><widget id="26"/></td>  <!-- suggest-box (Адресаты) -->
                                 </tr>
                             </table>
-                        </group>
-                        <group name="Дополнительные">
+                        </tab-group>
+                        <tab-group name="Дополнительные">
                             <table>
                                 <tr>
                                     <td><widget id="27"/></td>  <!-- label (Место регистрации) -->
@@ -110,32 +110,32 @@
                                     <td><widget id="38"/></td>  <!-- text-area (Комментарий) -->
                                 </tr>
                             </table>
-                        </group>
+                        </tab-group>
                     </hiding-groups>
                 </tab>
                 <tab name="Жизненный цикл">
                     <bookmarks> <!-- наследник от TabGroupsConfig -->
-                        <group name="Регистрация"> <!-- либо таб, либо разметка, вместе - нельзя -->
+                        <tab-group name="Регистрация"> <!-- либо таб, либо разметка, вместе - нельзя -->
                             <table>
                                 <tr>
                                     <td><widget id="39"/></td>  <!-- некий виджет -->
                                 </tr>
                             </table>
-                        </group>
-                        <group name="Ознакомление"> <!-- либо таб, либо разметка, вместе - нельзя -->
+                        </tab-group>
+                        <tab-group name="Ознакомление"> <!-- либо таб, либо разметка, вместе - нельзя -->
                             <table>
                                 <tr>
                                     <td><widget id="40"/></td>  <!-- некий виджет -->
                                 </tr>
                             </table>
-                        </group>
-                        <group name="Исполнение"> <!-- либо таб, либо разметка, вместе - нельзя -->
+                        </tab-group>
+                        <tab-group name="Исполнение"> <!-- либо таб, либо разметка, вместе - нельзя -->
                             <table>
                                 <tr>
                                     <td><widget id="41"/></td>  <!-- некий виджет -->
                                 </tr>
                             </table>
-                        </group>
+                        </tab-group>
                     </bookmarks>
                 </tab>
             </body>
@@ -169,12 +169,9 @@
             <!-- это отдельный виджет, а не частный случай виджета с редактируемой связанной формой в таблице. последняя ограничивает нас тем, что в таблица-резюме (summary-table) ограничена лишь теми значениями, которые есть в редактируемой дочерней таблице -->
             <linked-domain-objects-table id="5">
                 <field-path value="correspondent"/>
-
-                <!-- форма, открывающаяся в модальном окне при редактировании или создании связанного объекта -->
-                <!-- inline необязательный параметр, по умолчанию false (то есть в новом окне открывается). Если форма inline, то на месте текущего плагина открывается дочерний -->
                 <linked-form name="organization_default_form" inline="true"/>
                 <summary-table form-name="some_form">
-                    <column header="Название">
+                    <summary-table-column header="Название">
                         <pattern value="{name}, {short_name}"/> <!-- пути задаются относительно базового field-path (correspondent) -->
                         <formatting>
                             <number-format pattern="###.####">
@@ -189,41 +186,33 @@
                                 </field-paths>
                             </date-format>
                         </formatting>
-                    </column>
-                    <column header="Описание">
+                    </summary-table-column>
+                    <summary-table-column header="Описание">
                         <pattern value="{correspondent.name}, {correspondent.short_name}"/>
-                    </column>
+                    </summary-table-column>
                 </summary-table>
             </linked-domain-objects-table>
-
-            <!-- или если есть много (1:N) связанных объектов и редактирование осуществляется в таблице, в которой одна строка представляет собой "линейный" экземпляр формы редактирования дочернего объекта -->
             <linked-domain-objects-editable-table id="5">
                 <field-path value="correspondent"/>
-
-                <!-- форма, на основании которой строится виджеты в таблице связанных объектов -->
-                <!-- inline необязательный параметр, по умолчанию false (то есть в новом окне открывается). Если форма inline, то на месте текущего плагина открывается дочерний -->
                 <linked-form name="organization_default_form" inline="true"/>
                 <form-table form-name="some_form"> <!-- у этой формы базовый объект должен быть такого же типа, как correspondent -->
-                    <column header="Название" widget-id="name"/>
-                    <column header="Описание" widget-id="description"/>
+                    <form-table-column header="Название" widget-id="name"/>
+                    <form-table-column header="Описание" widget-id="description"/>
                 </form-table>
             </linked-domain-objects-editable-table>
-
-            <!-- или из шаблона -->
             <template-based-widget id="77" template-name="organizations-inline-table">
                 <field-path value="correspondent"/>
             </template-based-widget>
         </widget-config>
     </form>
-
     <widget-template name="organizations-inline-table" domain-object-type="Organization"> <!-- domain-object-type необязательный параметр. если он установлен, то field-path должен ссылаться на объект этого типа -->
         <linked-domain-objects-editable-table> <!-- Если тэг виджета находится внутри widget-template, то field-path не обязателен -->
             <!-- форма, на основании которой строится виджеты в таблице связанных объектов -->
             <!-- inline необязательный параметр, по умолчанию false (то есть в новом окне открывается). Если форма inline, то на месте текущего плагина открывается дочерний -->
             <linked-form name="organization_default_form" inline="true"/>
             <form-table form-name="some_form"> <!-- у этой формы базовый объект должен быть такого же типа, как correspondent -->
-                <column header="Название" widget-id="name"/>
-                <column header="Описание" widget-id="description"/>
+                <form-table-column header="Название" widget-id="name"/>
+                <form-table-column header="Описание" widget-id="description"/>
             </form-table>
         </linked-domain-objects-editable-table>
     </widget-template>

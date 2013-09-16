@@ -5,20 +5,19 @@ import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
- * Виджет - элемент пользовательского интерфейса, отобрающий специфическим образом некоторые данные в определённой части
- * разметки формы.
- *
- * @author Denis Mitavskiy
- *         Date: 06.09.13
- *         Time: 14:52
+ * @author Yaroslav Bondacrhuk
+ *         Date: 13/9/13
+ *         Time: 12:05 PM
  */
 @Root(name = "widget")
 public class WidgetDisplayConfig implements Dto {
     @Attribute(name = "id")
     private String id;
 
+    @Attribute(name = "width", required = false)
     private String width;
 
+    @Attribute(name = "height", required = false)
     private String height;
 
     public String getId() {
@@ -56,13 +55,13 @@ public class WidgetDisplayConfig implements Dto {
 
         WidgetDisplayConfig that = (WidgetDisplayConfig) o;
 
-        if (height != null ? !height.equals(that.height) : that.height != null) {
-            return false;
-        }
-        if (!id.equals(that.id)) {
+        if (id != null ? !id.equals(that.id) : that.id != null) {
             return false;
         }
         if (width != null ? !width.equals(that.width) : that.width != null) {
+            return false;
+        }
+        if (height != null ? !height.equals(that.height) : that.height != null) {
             return false;
         }
 
@@ -71,9 +70,11 @@ public class WidgetDisplayConfig implements Dto {
 
     @Override
     public int hashCode() {
-        int result = id.hashCode();
-        result = 31 * result + (width != null ? width.hashCode() : 0);
-        result = 31 * result + (height != null ? height.hashCode() : 0);
+        int result = width != null ? width.hashCode() : 0;
+        result = 32 * result + height != null ? height.hashCode() : 0;
+        result = 32 * result + id != null ? id.hashCode() : 0;
         return result;
     }
 }
+
+

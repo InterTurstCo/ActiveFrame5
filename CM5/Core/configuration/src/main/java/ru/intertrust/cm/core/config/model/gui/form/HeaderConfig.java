@@ -12,13 +12,13 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 @Root(name = "header")
 public class HeaderConfig implements Dto {
     @Element(name = "table")
-    private LayoutConfig tableLayout;
+    private TableLayoutConfig tableLayout;
 
-    public LayoutConfig getTableLayout() {
+    public TableLayoutConfig getTableLayout() {
         return tableLayout;
     }
 
-    public void setTableLayout(LayoutConfig tableLayout) {
+    public void setTableLayout(TableLayoutConfig tableLayout) {
         this.tableLayout = tableLayout;
     }
 
@@ -33,7 +33,9 @@ public class HeaderConfig implements Dto {
 
         HeaderConfig that = (HeaderConfig) o;
 
-        if (tableLayout != null ? !tableLayout.equals(that.getTableLayout()) : that.getTableLayout() != null) return false;
+        if (tableLayout != null ? !tableLayout.equals(that.getTableLayout()) : that.getTableLayout() != null) {
+            return false;
+        }
 
         return true;
     }

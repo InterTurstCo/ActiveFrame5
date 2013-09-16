@@ -94,7 +94,7 @@ public class RowConfig implements Dto {
     public int hashCode() {
         int result = height != null ? height.hashCode() : 0;
         result = 31 * result + (defaultVerticalAlignment != null ? defaultVerticalAlignment.hashCode() : 0);
-        result = result + (cells != null ? cells.hashCode() : 0);
+        result = 31 * result + (cells != null ? cells.hashCode() : 0);
         return result;
     }
 }

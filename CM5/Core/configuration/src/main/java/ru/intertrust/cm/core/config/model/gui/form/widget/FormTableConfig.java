@@ -13,13 +13,20 @@ import java.util.List;
  *         Date: 13/9/13
  *         Time: 12:05 PM
  */
-@Root(name = "summary-table")
-public class SummaryTableConfig implements Dto {
+@Root(name = "form-table")
+public class FormTableConfig implements Dto {
     @Attribute(name = "form-name")
     private String formName;
-
     @ElementList(inline = true)
-    private List<SummaryTableColumnConfig> summaryTableColumnConfigList = new ArrayList<SummaryTableColumnConfig>();
+    private List<FormTableColumnConfig> formTableColumnConfigList = new ArrayList<FormTableColumnConfig>();
+
+    public List<FormTableColumnConfig> getFormTableColumnConfig() {
+        return formTableColumnConfigList ;
+    }
+
+    public void setFormTableColumnConfig(List<FormTableColumnConfig> formTableColumnConfigList) {
+        this.formTableColumnConfigList  = formTableColumnConfigList ;
+    }
 
     public String getFormName() {
         return formName;
@@ -27,14 +34,6 @@ public class SummaryTableConfig implements Dto {
 
     public void setFormName(String formName) {
         this.formName = formName;
-    }
-
-    public List<SummaryTableColumnConfig> getSummaryTableColumnConfig() {
-        return summaryTableColumnConfigList;
-    }
-
-    public void setSummaryTableColumnConfig(List<SummaryTableColumnConfig> summaryTableColumnConfigList) {
-        this.summaryTableColumnConfigList = summaryTableColumnConfigList;
     }
 
     @Override
@@ -46,9 +45,10 @@ public class SummaryTableConfig implements Dto {
             return false;
         }
 
-        SummaryTableConfig that = (SummaryTableConfig) o;
+        FormTableConfig that = (FormTableConfig) o;
 
-        if (summaryTableColumnConfigList != null ? !summaryTableColumnConfigList.equals(that.summaryTableColumnConfigList) : that.summaryTableColumnConfigList != null) {
+        if (formTableColumnConfigList  != null ? !formTableColumnConfigList .equals(that.
+                formTableColumnConfigList ) : that.formTableColumnConfigList  != null) {
             return false;
         }
         if (formName != null ? !formName.equals(that.formName) : that.formName != null) {
@@ -61,7 +61,7 @@ public class SummaryTableConfig implements Dto {
     @Override
     public int hashCode() {
         int result = formName != null ? formName.hashCode() : 0;
-        result = 31 * result + (summaryTableColumnConfigList != null ? summaryTableColumnConfigList.hashCode() : 0);
+        result = 23 * result + (formTableColumnConfigList  != null ? formTableColumnConfigList .hashCode() : 0);
         return result;
     }
 }

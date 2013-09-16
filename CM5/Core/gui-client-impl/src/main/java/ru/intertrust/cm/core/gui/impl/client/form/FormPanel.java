@@ -72,7 +72,7 @@ public class FormPanel implements IsWidget {
             int colIndex = 0;
             String rowHeight = row.getHeight();
             for (CellConfig cell : cells) {
-                WidgetDisplayConfig displayConfig = cell.getWidgetConfig();
+                WidgetDisplayConfig displayConfig = cell.getWidgetDisplayConfig();
                 WidgetData widgetData = form.getWidgetData(displayConfig.getId());
                 BaseWidget widget = ComponentRegistry.instance.get(widgetData.getComponentName());
                 widget.setEditable(form.isEditable());

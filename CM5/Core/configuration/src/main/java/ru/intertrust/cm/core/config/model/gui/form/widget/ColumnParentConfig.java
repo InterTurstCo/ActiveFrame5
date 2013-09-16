@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.config.model.gui.form.widget;
 
 import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
@@ -9,17 +8,16 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  *         Date: 13/9/13
  *         Time: 12:05 PM
  */
-@Root(name = "pattern")
-public class PatternConfig implements Dto{
-    @Attribute(name = "value")
-    private String value;
+public class ColumnParentConfig implements Dto {
+    @Attribute(name = "header")
+    private String header;
 
-    public String getValue() {
-        return value;
+    public String getHeader() {
+        return header;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setHeader(String header) {
+        this.header = header;
     }
 
     @Override
@@ -31,9 +29,9 @@ public class PatternConfig implements Dto{
             return false;
         }
 
-        PatternConfig that = (PatternConfig) o;
+        ColumnParentConfig that = (ColumnParentConfig) o;
 
-        if (value != null ? !value.equals(that.value) : that.value != null) {
+        if (header != null ? !header.equals(that.header) : that.header != null) {
             return false;
         }
 
@@ -42,7 +40,6 @@ public class PatternConfig implements Dto{
 
     @Override
     public int hashCode() {
-        return value != null ? value.hashCode() : 0;
+        return header != null ? header.hashCode() : 0;
     }
 }
-

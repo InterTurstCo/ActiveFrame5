@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.config.model.gui.form;
 
 import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 
@@ -17,22 +18,22 @@ import java.util.List;
  */
 @Root(name = "table")
 public class TableLayoutConfig implements LayoutConfig {
-    @Attribute(name = "width")
+    @Attribute(name = "width", required = false)
     private String width;
 
-    @Attribute(name = "height")
+    @Attribute(name = "height", required = false)
     private String height;
 
-    @Attribute(name = "row-height")
+    @Attribute(name = "row-height", required = false)
     private String rowHeight;
 
-    @Attribute(name = "col-width")
+    @Attribute(name = "col-width", required = false)
     private String colWidth;
 
-    @Attribute(name = "h-align")
+    @Attribute(name = "h-align", required = false)
     private String hAlign;
 
-    @Attribute(name = "v-align")
+    @Attribute(name = "v-align", required = false)
     private String vAlign;
 
     @ElementList(inline = true)
@@ -78,19 +79,19 @@ public class TableLayoutConfig implements LayoutConfig {
         this.colWidth = colWidth;
     }
 
-    public String gethAlign() {
+    public String getHAlign() {
         return hAlign;
     }
 
-    public void sethAlign(String hAlign) {
+    public void setHAlign(String hAlign) {
         this.hAlign = hAlign;
     }
 
-    public String getvAlign() {
+    public String getVAlign() {
         return vAlign;
     }
 
-    public void setvAlign(String vAlign) {
+    public void setVAlign(String vAlign) {
         this.vAlign = vAlign;
     }
 
@@ -134,11 +135,11 @@ public class TableLayoutConfig implements LayoutConfig {
     public int hashCode() {
         int result = width != null ? width.hashCode() : 0;
         result = 31 * result + (height != null ? height.hashCode() : 0);
-        result = result + (rowHeight != null ? rowHeight.hashCode() : 0);
-        result = result + (colWidth != null ? colWidth.hashCode() : 0);
-        result = result + (hAlign != null ? hAlign.hashCode() : 0);
-        result = result + (vAlign != null ? vAlign.hashCode() : 0);
-        result = result + (rows != null ? rows.hashCode() : 0);
+        result = 31 * result + (rowHeight != null ? rowHeight.hashCode() : 0);
+        result = 31 * result + (colWidth != null ? colWidth.hashCode() : 0);
+        result = 31 * result + (hAlign != null ? hAlign.hashCode() : 0);
+        result = 31 * result + (vAlign != null ? vAlign.hashCode() : 0);
+        result = 31 * result + (rows != null ? rows.hashCode() : 0);
         return result;
     }
 }

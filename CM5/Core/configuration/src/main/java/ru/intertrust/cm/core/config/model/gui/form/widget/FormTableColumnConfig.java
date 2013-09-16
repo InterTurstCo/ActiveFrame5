@@ -1,26 +1,26 @@
 package ru.intertrust.cm.core.config.model.gui.form.widget;
 
-import org.simpleframework.xml.Element;
+import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
-import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
  * @author Yaroslav Bondacrhuk
  *         Date: 13/9/13
  *         Time: 12:05 PM
  */
-@Root(name = "label")
-public class LabelConfig extends WidgetConfig implements Dto {
-    @Element(name = "text", required = false)
-    private String text;
+@Root(name = "form-table-column")
+public class FormTableColumnConfig extends ColumnParentConfig {
+    @Attribute(name = "widget-id", required = false)
+    private String widgetId;
 
-    public String getText() {
-        return text;
+    public String getWidgetId() {
+        return widgetId;
     }
 
-    public void setText(String text) {
-        this.text = text;
+    public void setWidgetId(String widgetId) {
+        this.widgetId = widgetId;
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -33,8 +33,9 @@ public class LabelConfig extends WidgetConfig implements Dto {
             return false;
         }
 
-        LabelConfig that = (LabelConfig) o;
-        if (text != null ? !text.equals(that.text) : that.text != null) {
+        FormTableColumnConfig that = (FormTableColumnConfig) o;
+
+        if (widgetId != null ? !widgetId.equals(that.widgetId) : that.widgetId != null) {
             return false;
         }
 
@@ -44,7 +45,7 @@ public class LabelConfig extends WidgetConfig implements Dto {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + (text != null ? text.hashCode() : 0);
+        result = 31 * result + (widgetId != null ? widgetId.hashCode() : 0);
         return result;
     }
 }
