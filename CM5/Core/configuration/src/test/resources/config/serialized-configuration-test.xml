@@ -58,6 +58,17 @@
          <string name="Name" not-null="true" length="128"/>
       </fields>
    </domain-object-type>
+   <domain-object-type name="Delegation">
+      <fields>
+         <reference name="person" not-null="true">
+            <type name="Employee"/>
+         </reference>
+         <reference name="delegate" not-null="true">
+            <type name="Employee"/>
+         </reference>
+         <string name="Status" not-null="false" length="64"/>
+      </fields>
+   </domain-object-type>
    <domain-object-type name="Authentication_Info">
       <fields>
          <string name="User_Uid" not-null="true" length="64"/>

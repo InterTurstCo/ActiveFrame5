@@ -6,6 +6,7 @@
             <string name="Registration_Number" length="128" /> <!-- REGISTRATION_NUMBER column -->
             <dateTime name="Registration_Date"/>
             <string name="Name" length="128" />
+            <string name="Status" length="64" />
             <string name="Description" length="128" />
             <reference name="Author"> <!-- ID of employee in fact -->
                 <type name="Employee"/>
@@ -29,6 +30,7 @@
         <fields>
             <string name="Name" length="128" />
             <string name="Description" length="128" />
+            <string name="Status" length="64" />            
             <reference name="Executor"> <!-- This means Foreign Key to Employee and index are created automatically -->
                 <type name="Employee"/>
             </reference>
@@ -38,6 +40,7 @@
     <domain-object-type name="Person">
         <fields>
             <string name="EMail" length="128" />
+            <string name="Status" length="64" />
             <reference name="Login" not-null="true">
                 <type name="Authentication_Info"/>
             </reference>
@@ -75,16 +78,29 @@
 			<reference name="Department" not-null="true">
                 <type name="Department"/>
             </reference>
-			<string name="Name" length="64" not-null="true" />
-			<string name="Position" length="64" not-null="true" />
-			<string name="Phone" length="32" />
-			<string name="Certificate" length="4096" />
-			<string name="Fingerprint" length="128" />
+            <string name="Name" length="64" not-null="true" />
+            <string name="Status" length="64" />
+            <string name="Position" length="64" not-null="true" />
+            <string name="Phone" length="32" />
+            <string name="Certificate" length="4096" />
+            <string name="Fingerprint" length="128" />
 		</fields>
 		<uniqueKey> <!-- This key means automatic key + index creation -->
 			<field name="Phone" />
 		</uniqueKey>
 	</domain-object-type>
+
+   <domain-object-type name="Delegation">
+        <fields>
+            <reference name="person" not-null="true">
+                <type name="Employee"/>
+            </reference>
+            <reference name="delegate" not-null="true">
+                <type name="Employee"/>
+            </reference>
+            <string name="Status" length="64" />            
+        </fields>
+    </domain-object-type>
 
     <domain-object-type name="Department">
         <fields>
