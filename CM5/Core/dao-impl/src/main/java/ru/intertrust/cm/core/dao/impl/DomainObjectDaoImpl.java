@@ -28,11 +28,11 @@ import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.model.ReferenceFieldTypeConfig;
+import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.IdGenerator;
-import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
@@ -63,8 +63,15 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
 
     @Autowired
+    private AccessControlService accessControlService;
+
+    @Autowired
     public void setDomainObjectCacheService(DomainObjectCacheServiceImpl domainObjectCacheService) {
         this.domainObjectCacheService = domainObjectCacheService;
+    }
+    
+    public void setAccessControlService(AccessControlService accessControlService) {
+        this.accessControlService = accessControlService;
     }
 
     /**
@@ -174,6 +181,22 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         return updatedObject;
 
+    }
+
+    private List<String> getModifiedFieldNames(DomainObject domainObject) {
+        AccessToken accessToken = accessControlService.createSystemAccessToken("DomainObjectDaoImpl");
+        DomainObject originalDomainObject = find(domainObject.getId(), accessToken);
+        
+        List<String> modifiedFieldNames = new ArrayList<String>();
+        for(String fieldName : domainObject.getFields()){
+            Value originalValue = originalDomainObject.getValue(fieldName);
+            Value newValue = domainObject.getValue(fieldName);
+            if(!originalValue.equals(newValue)){
+                modifiedFieldNames.add(fieldName);
+            }
+            
+        }
+        return modifiedFieldNames;
     }
 
     private Id findParentId(DomainObjectTypeConfig domainObjectTypeConfig, Id id) {

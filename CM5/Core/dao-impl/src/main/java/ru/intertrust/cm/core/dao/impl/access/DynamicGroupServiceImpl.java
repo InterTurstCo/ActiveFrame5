@@ -5,9 +5,13 @@ import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlNam
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -15,9 +19,13 @@ import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.model.BindContextConfig;
+import ru.intertrust.cm.core.config.model.DoelAware;
 import ru.intertrust.cm.core.config.model.DynamicGroupConfig;
+import ru.intertrust.cm.core.config.model.GetPersonConfig;
 import ru.intertrust.cm.core.config.model.TrackDomainObjectsConfig;
 import ru.intertrust.cm.core.config.model.doel.DoelExpression;
+import ru.intertrust.cm.core.config.model.doel.DoelExpression.Element;
 import ru.intertrust.cm.core.dao.access.DynamicGroupService;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 
@@ -26,6 +34,8 @@ import ru.intertrust.cm.core.dao.api.DomainObjectDao;
  * @author atsvetkov
  */
 public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl implements DynamicGroupService {
+
+    final static Logger logger = LoggerFactory.getLogger(DynamicGroupServiceImpl.class);
 
     private static final String USER_GROUP_DOMAIN_OBJECT = "User_Group";
 
@@ -47,10 +57,11 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
     }    
 
     @Override
-    public void notifyDomainObjectChanged(Id objectId) {
+    public void notifyDomainObjectChanged(Id objectId, List<String> modifiedFieldNames) {
         String status = getStatusFor(objectId);
-
-        List<DynamicGroupConfig> dynamicGroups = getDynamicGroupsFor(objectId, status);
+        List<DynamicGroupConfig> dynamicGroups =
+                getDynamicGroupsForToRecalculateForUpdate(objectId, status, modifiedFieldNames);
+        logger.info("Found dynamic groups by id " + objectId + " :" + dynamicGroups);
         for (DynamicGroupConfig dynamicGroupConfig : dynamicGroups) {
             Id contextObjectid = getContextObjectId(dynamicGroupConfig, objectId);
             Id dynamicGroupId = refreshUserGroup(dynamicGroupConfig.getName(), contextObjectid);
@@ -60,8 +71,21 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
         }
     }
 
+    /**
+     * Выполняет пересчет всех динамических групп, где созданный объект является отслеживаемым (указан в теге <track-domain-objects>).
+     */
     @Override
     public void notifyDomainObjectCreated(Id objectId) {
+        String status = getStatusFor(objectId);
+
+        List<DynamicGroupConfig> dynamicGroups = getDynamicGroupsForToRecalculate(objectId, status);
+        for (DynamicGroupConfig dynamicGroupConfig : dynamicGroups) {
+            Id contextObjectid = getContextObjectId(dynamicGroupConfig, objectId);
+            Id dynamicGroupId = refreshUserGroup(dynamicGroupConfig.getName(), contextObjectid);
+            List<Long> groupMembres = getAllGroupMembersFor(dynamicGroupConfig, objectId, contextObjectid);
+
+            refreshGroupMembers(dynamicGroupId, groupMembres);
+        }
 
     }
     
@@ -141,15 +165,79 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
     }
 
     /**
-     * Возвращает динамические группы для изменяемого объекта, которые нужно пересчитывать.
+     * Возвращает динамические группы для изменяемого объекта, которые нужно пересчитывать. Поиск динамических группп выполняется по
+     * типу и статусу отслеживаемого объекта, а также по измененным полям.
+     * @param objectId изменяемый доменный объект
+     * @param status статус изменяемого доменног объекта
+     * @param modifiedFieldNames списке измененных полей доменного объекта
+     * @return список конфигураций динамических групп
+     */
+    private List<DynamicGroupConfig> getDynamicGroupsForToRecalculateForUpdate(Id objectId, String status, List<String> modifiedFieldNames) {
+        List<DynamicGroupConfig> dynamicGroups =
+                configurationExplorer.getDynamicGroupConfigsByTrackDO(objectId, status);
+        
+        Set<DynamicGroupConfig> filteredDynamicGroups = new HashSet<DynamicGroupConfig>();
+
+        for (DynamicGroupConfig dynamicGroup : dynamicGroups) {
+
+            if (dynamicGroup.getMembers() != null && dynamicGroup.getMembers().getTrackDomainObjects() != null) {
+                TrackDomainObjectsConfig trackDomainObjectsConfig = dynamicGroup.getMembers().getTrackDomainObjects();
+
+                BindContextConfig bindContext = trackDomainObjectsConfig.getBindContext();
+
+                if (containsFieldNameInDoel(modifiedFieldNames, bindContext)) {
+                    filteredDynamicGroups.add(dynamicGroup);
+                }
+
+                GetPersonConfig getPerson = trackDomainObjectsConfig.getGetPerson();
+
+                if (containsFieldNameInDoel(modifiedFieldNames, getPerson)) {
+                    filteredDynamicGroups.add(dynamicGroup);
+                }
+
+            }
+        }
+        
+        return new ArrayList<DynamicGroupConfig>(filteredDynamicGroups);
+    }
+
+    /**
+     * Возвращает динамические группы для изменяемого объекта, которые нужно пересчитывать. Поиск динамических группп выполняется по
+     * типу и статусу отслеживаемого объекта
      * @param objectId изменяемый доменный объект
      * @param status статус изменяемого доменног объекта
      * @return список конфигураций динамических групп
      */
-    private List<DynamicGroupConfig> getDynamicGroupsFor(Id objectId, String status) {
+    private List<DynamicGroupConfig> getDynamicGroupsForToRecalculate(Id objectId, String status) {
         List<DynamicGroupConfig> dynamicGroups =
                 configurationExplorer.getDynamicGroupConfigsByTrackDO(objectId, status);
         return dynamicGroups;
+    }
+    
+    /**
+     * Проверяет, содержит ли Doel выражение в первом элементе название поля, которое было указано в списке переданных
+     * измененных полей.
+     * @param modifiedFieldNames списке измененных полей.
+     * @param doelAware Doel выражение
+     * @return true, если содержит, иначе false
+     */
+    private boolean containsFieldNameInDoel(List<String> modifiedFieldNames, DoelAware doelAware) {
+        if (doelAware != null && doelAware.getDoel() != null) {
+            String bindContextDoel = doelAware.getDoel();
+
+            DoelExpression expr = DoelExpression.parse(bindContextDoel);
+
+            if (expr.getElements().length > 0) {
+                Element firstDoelElement = expr.getElements()[0];
+                if (firstDoelElement.getClass().equals(DoelExpression.Field.class)) {
+                    String firstDoelElementName = ((DoelExpression.Field) firstDoelElement).getName();
+                    if (modifiedFieldNames.contains(firstDoelElementName)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -263,7 +351,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
     public void cleanDynamicGroupsFor(Id objectId) {
         String status = getStatusFor(objectId);
 
-        List<DynamicGroupConfig> dynamicGroups = getDynamicGroupsFor(objectId, status);
+        List<DynamicGroupConfig> dynamicGroups = getDynamicGroupsForToRecalculate(objectId, status);
         for (DynamicGroupConfig dynamicGroupConfig : dynamicGroups) {
             Id contextObjectId = getContextObjectId(dynamicGroupConfig, objectId);
             Id dynamicGroupId = deleteUserGroupByGroupNameAndObjectId(dynamicGroupConfig.getName(), ((RdbmsId)contextObjectId).getId());           

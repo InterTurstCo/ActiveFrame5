@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.dao.access;
 
+import java.util.List;
+
 import ru.intertrust.cm.core.business.api.dto.Id;
 
 /**
@@ -19,13 +21,13 @@ public interface DynamicGroupService {
      * которых влияет доменный объект. (Доменный объект входит в список отслеживаемых объектов либо входит в Doel
      * выражение в определении отслеживаемых объектов)
      * @param objectId изменяемый доменный объект
+     * @param modifiedFieldNames список измененных полей доменного объекта.
      */
-    void notifyDomainObjectChanged(Id objectId);
+    void notifyDomainObjectChanged(Id objectId, List<String> modifiedFieldNames);
     
     /**
      * Пересчет динамических групп при создании отслеживаемого объекта. Выполняет пересчет дмнамических групп, на состав
-     * которых влияет отслеживаемый объект. (Доменный объект входит в список отслеживаемых объектов либо входит в Doel
-     * выражение в определении отслеживаемых объектов)
+     * которых влияет отслеживаемый объект. (Доменный объект входит в список отслеживаемых объектов)
      * @param objectId создаваемый доменный объект
      */
     void notifyDomainObjectCreated(Id objectId);
