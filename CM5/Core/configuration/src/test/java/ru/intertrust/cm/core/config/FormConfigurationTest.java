@@ -31,12 +31,6 @@ public class FormConfigurationTest {
     public void testValidate() throws Exception {
         ConfigurationExplorer configurationExplorer = createConfigurationExplorer(FORM_XML_PATH);
 
-    }   
-
-    @Test
-    public void logicalValidate() throws Exception {
-        Configuration configuration = deserializeConfiguration(FORM_XML_PATH);
-        System.out.println(ConfigurationSerializer.serializeConfiguration(configuration));
     }
 
     private ConfigurationExplorer createConfigurationExplorer(String configPath) throws Exception {
@@ -58,14 +52,6 @@ public class FormConfigurationTest {
         ConfigurationExplorer configurationExplorer = new ConfigurationExplorerImpl(configuration);
         return configurationExplorer;
     }
-    private static Serializer createSerializerInstance() {
-        Strategy strategy = new AnnotationStrategy();
-        return new Persister(strategy);
-    }
-    private Configuration deserializeConfiguration(String configurationFilePath) throws Exception {
 
-        return createSerializerInstance().read(Configuration.class,
-                FileUtils.getFileInputStream(configurationFilePath));
-    }
 }
 

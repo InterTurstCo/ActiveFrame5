@@ -45,12 +45,6 @@ public class NavigationPanelLogicalValidatorTest {
 
     }
 
-    @Test
-    public void logicalValidate() throws Exception {
-     Configuration configuration = deserializeConfiguration(NAVIGATION_PANEL_XML_PATH);
-     System.out.println(ConfigurationSerializer.serializeConfiguration(configuration));
-    }
-
     private ConfigurationExplorer createConfigurationExplorer(String configPath) throws Exception {
         TopLevelConfigurationCache.getInstance().build(); 
         ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
@@ -70,14 +64,6 @@ public class NavigationPanelLogicalValidatorTest {
         ConfigurationExplorer configurationExplorer = new ConfigurationExplorerImpl(configuration);
         return configurationExplorer;
     }
-    private static Serializer createSerializerInstance() {
-        Strategy strategy = new AnnotationStrategy();
-        return new Persister(strategy);
-    }
-    private Configuration deserializeConfiguration(String configurationFilePath) throws Exception {
 
-        return createSerializerInstance().read(Configuration.class,
-                FileUtils.getFileInputStream(configurationFilePath));
-    }
 }
 
