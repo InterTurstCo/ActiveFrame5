@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.gui.rpc.server;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.model.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.Command;
@@ -25,7 +24,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
 
     @Override
     public BusinessUniverseInitialization getBusinessUniverseInitialization() {
-        NavigationConfig navigationConfiguration = guiService.getNavigationConfiguration();
+
         return new BusinessUniverseInitialization();
     }
 

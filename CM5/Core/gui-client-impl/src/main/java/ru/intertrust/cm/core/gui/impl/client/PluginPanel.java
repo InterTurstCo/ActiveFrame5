@@ -1,8 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -18,8 +16,14 @@ import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventHandler
  *         Time: 16:53
  */
 public class PluginPanel implements IsWidget, PluginViewCreatedEventHandler {
+
+
     private SimplePanel impl = new SimplePanel();
-    private EventBus eventBus = GWT.create(SimpleEventBus.class);
+    private EventBus eventBus;
+
+    public PluginPanel(EventBus eventBus) {
+        this.eventBus = eventBus;
+    }
 
     /**
      * <p>
@@ -52,7 +56,7 @@ public class PluginPanel implements IsWidget, PluginViewCreatedEventHandler {
      * Закрывает текущий плагин. Если у него есть родитель, то он будет показан по закрытию текущего.
      */
     public void closeCurrentPlugin() {
-
+        impl.remove(asWidget());
     }
 
     /**
@@ -62,8 +66,13 @@ public class PluginPanel implements IsWidget, PluginViewCreatedEventHandler {
 
     }
 
+    public void beforePluginOpening() {
+        // noop
+    }
+
     @Override
     public void onPluginViewCreated(PluginViewCreatedEvent event) {
+        beforePluginOpening();
         impl.setWidget(event.getPlugin().getView());
         impl.setSize("100%", "100%");
     }

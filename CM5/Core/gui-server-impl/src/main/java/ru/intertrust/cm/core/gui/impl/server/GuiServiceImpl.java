@@ -1,14 +1,21 @@
 package ru.intertrust.cm.core.gui.impl.server;
 
+import org.simpleframework.xml.convert.AnnotationStrategy;
+import org.simpleframework.xml.core.Persister;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.FileUtils;
+import ru.intertrust.cm.core.config.model.Configuration;
 import ru.intertrust.cm.core.config.model.gui.form.*;
 import ru.intertrust.cm.core.config.model.gui.form.widget.*;
 import ru.intertrust.cm.core.config.model.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
-import ru.intertrust.cm.core.gui.impl.server.plugin.SomeActivePluginHandler;
-import ru.intertrust.cm.core.gui.impl.server.plugin.SomePluginHandler;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.Form;
@@ -21,9 +28,11 @@ import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 import javax.annotation.Resource;
 import javax.annotation.security.DeclareRoles;
 import javax.annotation.security.RolesAllowed;
+import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,41 +45,53 @@ import java.util.Map;
  * Time: 16:14
  */
 @Stateless
+@EJB(name = "java:app/GuiService", beanInterface = GuiService.class)
 @DeclareRoles("cm_user")
 @RolesAllowed("cm_user")
 @Local(GuiService.class)
 @Remote(GuiService.Remote.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class GuiServiceImpl implements GuiService, GuiService.Remote {
+
+    @Autowired
+    ApplicationContext applicationContext;
+
+    static Logger log = LoggerFactory.getLogger(GuiServiceImpl.class);
+
     @Resource
     private javax.ejb.SessionContext sessionContext;
 
     @Override
     public NavigationConfig getNavigationConfiguration() {
+        Persister persister = new Persister(new AnnotationStrategy());
+        Configuration configuration;
+        try {
+            
+            configuration = persister.read(Configuration.class,
+                    FileUtils.getFileInputStream("config/navigation-panel.xml"));
+            return (NavigationConfig) configuration.getConfigurationList().iterator().next();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
         return null;
     }
 
+
     @Override
-    public Dto executeCommand(Command command) {
-        // todo: сделать по-человечески через Reflection или Spring Beans
-        PluginHandler pluginHandler = null;
-        switch (command.getComponentName()) {
-            case "some.plugin":
-                pluginHandler = new SomePluginHandler();
-                break;
-            case "some.active.plugin":
-                pluginHandler = new SomeActivePluginHandler();
-                break;
-        }
+    public PluginData executeCommand(Command command) {
+        PluginHandler pluginHandler = obtainHandler(command.getComponentName());
         if (pluginHandler == null) {
+            log.warn("handler for component '{}' not found", command.getComponentName());
             return null;
         }
-
         try {
-            return (PluginData) PluginHandler.class.getMethod(command.getName(), Dto.class)
+            return (PluginData) pluginHandler.getClass().getMethod(command.getName(), Dto.class)
                     .invoke(pluginHandler, command.getParameter());
         } catch (NoSuchMethodException e) {
+            log.error(e.getMessage(), e);
             throw new GuiException("No command + " + command.getName() + " implemented");
         } catch (InvocationTargetException | IllegalAccessException e) {
+            log.error(e.getMessage(), e);
             throw new GuiException("Command can't be executed: " + command.getName());
         }
     }
@@ -303,5 +324,10 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
 
             return new WidgetDef(cellConfig, widgetConfig, data);
         }
+    }
+
+    private PluginHandler obtainHandler(String componentName) {
+        boolean containsHandler = applicationContext.containsBean(componentName);
+        return containsHandler ? (PluginHandler) applicationContext.getBean(componentName) : null;
     }
 }

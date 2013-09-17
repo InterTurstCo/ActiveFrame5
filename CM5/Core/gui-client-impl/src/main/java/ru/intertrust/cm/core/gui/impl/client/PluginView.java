@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.gui.model.plugin.ActivePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.IsActive;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Базовый класс представления плагина.
@@ -19,9 +20,12 @@ import java.util.List;
  */
 public abstract class PluginView implements IsWidget {
     protected Plugin plugin;
+    protected static Logger log = Logger.getLogger("PluginView console logger");
+
 
     /**
      * Основной конструктор
+     *
      * @param plugin плагин, являющийся по сути, контроллером (или представителем) в паттерне MVC
      */
     protected PluginView(Plugin plugin) {
@@ -30,6 +34,7 @@ public abstract class PluginView implements IsWidget {
 
     /**
      * Строит "Панель действий" плагина
+     *
      * @return возвращает виджет, отображающий "Панель действий"
      */
     protected IsWidget getActionToolBar() {
@@ -47,6 +52,7 @@ public abstract class PluginView implements IsWidget {
 
     /**
      * Строит и возвращает представление (внешнее отображение) плагина
+     *
      * @return виджет, представляющий плагин
      */
     protected abstract IsWidget getViewWidget();
@@ -63,4 +69,6 @@ public abstract class PluginView implements IsWidget {
         panel.add(getViewWidget());
         return panel;
     }
+
+
 }

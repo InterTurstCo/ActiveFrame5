@@ -31,7 +31,6 @@
                         </link>
                     </child-links>
                 </link>
-
                 <link name="Cities" display-text="Города">
                     <plugin> <!---->
                         <custom name="Beautiful City Viewer">

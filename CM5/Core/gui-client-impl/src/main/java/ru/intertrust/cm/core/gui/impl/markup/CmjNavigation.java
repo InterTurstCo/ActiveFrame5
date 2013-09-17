@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.gui.impl.markup;
 
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.VerticalPanel;
-
+@Deprecated
 public class CmjNavigation extends VerticalPanel {
 
     public CmjNavigation() {
