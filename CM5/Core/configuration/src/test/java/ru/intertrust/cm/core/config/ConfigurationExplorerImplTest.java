@@ -4,9 +4,9 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import ru.intertrust.cm.core.config.model.CollectionConfig;
-import ru.intertrust.cm.core.config.model.Configuration;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
+import ru.intertrust.cm.core.config.model.base.Configuration;
 
 import java.util.ArrayList;
 import java.util.Arrays;

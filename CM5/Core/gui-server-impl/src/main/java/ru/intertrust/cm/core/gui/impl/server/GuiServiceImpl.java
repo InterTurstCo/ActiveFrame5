@@ -10,7 +10,7 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.FileUtils;
-import ru.intertrust.cm.core.config.model.Configuration;
+import ru.intertrust.cm.core.config.model.base.Configuration;
 import ru.intertrust.cm.core.config.model.gui.form.*;
 import ru.intertrust.cm.core.config.model.gui.form.widget.*;
 import ru.intertrust.cm.core.config.model.gui.navigation.NavigationConfig;

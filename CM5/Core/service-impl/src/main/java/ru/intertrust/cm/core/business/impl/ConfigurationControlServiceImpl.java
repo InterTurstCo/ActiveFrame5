@@ -1,16 +1,12 @@
 package ru.intertrust.cm.core.business.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.intertrust.cm.core.business.api.AuthenticationService;
-import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationException;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.config.ConfigurationSerializer;
 import ru.intertrust.cm.core.config.model.*;
+import ru.intertrust.cm.core.config.model.base.Configuration;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.model.FatalException;

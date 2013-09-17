@@ -14,6 +14,7 @@ import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.config.model.*;
+import ru.intertrust.cm.core.config.model.base.Configuration;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
@@ -214,7 +215,7 @@ public class DomainObjectDaoImplTest {
 
     @Test
     public void testGetAttachmentDomainObjectsFor() throws Exception {
-        ru.intertrust.cm.core.config.model.Configuration configuration = new ru.intertrust.cm.core.config.model.Configuration();
+        Configuration configuration = new Configuration();
         DomainObjectTypeConfig dot = new DomainObjectTypeConfig();
         dot.setName("Person");
         AttachmentTypesConfig attachmentTypesConfig = new AttachmentTypesConfig();

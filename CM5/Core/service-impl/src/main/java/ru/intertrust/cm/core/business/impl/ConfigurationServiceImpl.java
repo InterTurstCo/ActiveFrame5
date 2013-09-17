@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.*;
+import ru.intertrust.cm.core.config.model.base.Configuration;
 import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionColumnConfig;
 
 import javax.ejb.Local;

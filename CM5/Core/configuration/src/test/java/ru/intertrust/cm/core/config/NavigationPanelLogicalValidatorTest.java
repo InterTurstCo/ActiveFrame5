@@ -7,7 +7,7 @@ import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.convert.AnnotationStrategy;
 import org.simpleframework.xml.core.Persister;
 import org.simpleframework.xml.strategy.Strategy;
-import ru.intertrust.cm.core.config.model.Configuration;
+import ru.intertrust.cm.core.config.model.base.Configuration;
 
 import java.util.Arrays;
 import java.util.HashSet;

@@ -1,10 +1,9 @@
-package ru.intertrust.cm.core.config.model;
+package ru.intertrust.cm.core.config.model.base;
 
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.convert.Convert;
 import ru.intertrust.cm.core.config.ConfigurationConverter;
-import ru.intertrust.cm.core.config.model.base.TopLevelConfig;
 
 import java.io.Serializable;
 import java.util.ArrayList;

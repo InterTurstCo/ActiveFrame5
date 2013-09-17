@@ -349,8 +349,8 @@ public class AttachmentServiceImplTest {
     }
 
     static private ConfigurationExplorer getConfigurationExplorer() throws Exception {
-        ru.intertrust.cm.core.config.model.Configuration configuration =
-                new ru.intertrust.cm.core.config.model.Configuration();
+        ru.intertrust.cm.core.config.model.base.Configuration configuration =
+                new ru.intertrust.cm.core.config.model.base.Configuration();
         DomainObjectTypeConfig dot = new DomainObjectTypeConfig();
         dot.setName("Person");
         AttachmentTypesConfig attachmentTypesConfig = new AttachmentTypesConfig();

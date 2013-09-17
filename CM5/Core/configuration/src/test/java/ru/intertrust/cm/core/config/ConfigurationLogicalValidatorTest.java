@@ -3,9 +3,8 @@ package ru.intertrust.cm.core.config;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import ru.intertrust.cm.core.config.model.Configuration;
+import ru.intertrust.cm.core.config.model.base.Configuration;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
