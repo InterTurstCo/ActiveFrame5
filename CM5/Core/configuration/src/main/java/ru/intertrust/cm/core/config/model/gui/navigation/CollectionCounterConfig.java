@@ -1,17 +1,16 @@
 package ru.intertrust.cm.core.config.model.gui.navigation;
 
-import java.io.Serializable;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
  * @author Yaroslav Bondacrhuk
  *         Date: 10/9/13
  *         Time: 12:05 PM
  */
-@SuppressWarnings("serial")
 @Root(name = "collection-counter")
-public class CollectionCounterConfig implements Serializable {
+public class CollectionCounterConfig implements Dto {
     @Attribute(name = "collection", required = false)
     private String collection;
 
@@ -43,8 +42,6 @@ public class CollectionCounterConfig implements Serializable {
 
     @Override
     public int hashCode() {
-        int result = collection != null ? collection.hashCode() : 0;
-        return result * 23;
+        return collection != null ? collection.hashCode() : 0;
     }
-
 }

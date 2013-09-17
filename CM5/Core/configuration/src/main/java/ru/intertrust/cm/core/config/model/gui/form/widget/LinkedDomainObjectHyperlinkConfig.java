@@ -5,13 +5,10 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
-
 /**
- * Created with IntelliJ IDEA.
- * User: User
- * Date: 12.09.13
- * Time: 15:54
- * To change this template use File | Settings | File Templates.
+ * @author Yaroslav Bondacrhuk
+ *         Date: 13/9/13
+ *         Time: 12:05 PM
  */
 @Root(name = "linked-domain-object-hyperlink")
 public class LinkedDomainObjectHyperlinkConfig implements Dto {
@@ -27,7 +24,7 @@ public class LinkedDomainObjectHyperlinkConfig implements Dto {
     @Element(name = "pattern")
     private PatternConfig patternConfig;
 
-    @Element(name = "summary-table")
+    @Element(name = "summary-table", required = false)
     private SummaryTableConfig summaryTableConfig;
 
     public String getId() {
@@ -105,9 +102,9 @@ public class LinkedDomainObjectHyperlinkConfig implements Dto {
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (fieldPathConfig != null ? fieldPathConfig.hashCode() : 0);
-        result = result + (linkedFormConfig != null ? linkedFormConfig.hashCode() : 0);
-        result = result + (patternConfig != null ? patternConfig.hashCode() : 0);
-        result = result + (summaryTableConfig != null ? summaryTableConfig.hashCode() : 0);
+        result = 31 * result + (linkedFormConfig != null ? linkedFormConfig.hashCode() : 0);
+        result = 31 * result + (patternConfig != null ? patternConfig.hashCode() : 0);
+        result = 31 * result + (summaryTableConfig != null ? summaryTableConfig.hashCode() : 0);
         return result;
     }
 }

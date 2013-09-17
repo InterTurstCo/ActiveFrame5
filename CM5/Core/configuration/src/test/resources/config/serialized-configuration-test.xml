@@ -89,14 +89,6 @@
       </fields>
    </domain-object-type>
    <collection name="Employees" idField="id" domain-object-type="Employee">
-      <display>
-         <column field="id" name="id" hidden="true" sortable="false" editable="false" type="integer"/>
-         <column field="business_object_type" name="type" hidden="true" sortable="false" editable="false" type="string"/>
-         <column field="name" name="Имя" hidden="false" sortable="true" editable="false" type="string"/>
-         <column field="position" name="Должность" hidden="false" sortable="true" editable="false" type="string"/>
-         <column field="created_date" name="Дата создания" hidden="false" sortable="true" editable="false" type="datetime"/>
-         <column field="updated_date" name="Дата модификации" hidden="false" sortable="true" editable="false" type="datetime"/>
-      </display>
       <prototype><![CDATA[
             
                 select
@@ -132,14 +124,6 @@
       </filter>
    </collection>
    <collection name="Employees_2" idField="id" domain-object-type="Employee">
-      <display>
-         <column field="id" name="id" hidden="true" sortable="false" editable="false" type="integer"/>
-         <column field="business_object_type" name="type" hidden="true" sortable="false" editable="false" type="string"/>
-         <column field="name" name="Имя" hidden="false" sortable="true" editable="false" type="string"/>
-         <column field="position" name="Должность" hidden="false" sortable="true" editable="false" type="string"/>
-         <column field="created_date" name="Дата создания" hidden="false" sortable="true" editable="false" type="string"/>
-         <column field="updated_date" name="Дата модификации" hidden="false" sortable="true" editable="false" type="string"/>
-      </display>
       <filter name="byName"/>
       <filter name="byDepartment"/>
       <renderer className="ru.intertrust.cm.core.business.impl.EmployeesCollectionRenderer"/>

@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.config.model.gui.form.widget;
 
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
+import org.simpleframework.xml.ElementListUnion;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
@@ -9,82 +10,65 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
- * User: User
- * Date: 12.09.13
- * Time: 15:48
- * To change this template use File | Settings | File Templates.
+ * @author Yaroslav Bondacrhuk
+ *         Date: 13/9/13
+ *         Time: 12:05 PM
  */
 @Root(name = "widget-config")
 public class WidgetConfigurationConfig implements Dto {
+    @ElementListUnion({
+            @ElementList(entry = "label", type = LabelConfig.class, inline = true),
+            @ElementList(entry = "rich-text-area", type = TextBoxConfig.class, inline = true),
+            @ElementList(entry = "integer-box", type = IntegerBoxConfig.class, inline = true)
+    })
+    private List<WidgetConfig> widgetConfigList = new ArrayList<WidgetConfig>();
+
     @ElementList(inline = true)
-    private List<LabelConfig> labelConfigList = new ArrayList<LabelConfig>();
+    private List<LinkDomainObjectsEditableTableConfig> linkDomainObjectsEditableTableConfigList =
+            new ArrayList<LinkDomainObjectsEditableTableConfig>();
 
-    @Element(name = "integer-box")
-    private IntegerBoxConfig integerBoxConfig;
+    @ElementList(inline = true)
+    private List<LinkedDomainObjectHyperlinkConfig> linkedDomainObjectHyperlinkConfigList =
+            new ArrayList<LinkedDomainObjectHyperlinkConfig>();
 
-    @Element(name = "linked-domain-objects-editable-table")
-    private LinkDomainObjectsEditableTableConfig linkDomainObjectsEditableTableConfig;
-
-    @Element(name = "linked-domain-object-hyperlink")
-    private LinkedDomainObjectHyperlinkConfig linkedDomainObjectHyperlinkConfig;
-
-    @Element(name = "rich-text-area")
-    private RichTextAreaConfig richTextAreaConfig;
-
-    @Element(name = "linked-domain-objects-table")
-    private LinkedDomainObjectsTableConfig linkedDomainObjectsTableConfig;
+    @ElementList(inline = true)
+    private List<LinkedDomainObjectsTableConfig> linkedDomainObjectsTableConfig =
+            new ArrayList<LinkedDomainObjectsTableConfig>();
 
     @Element(name = "template-based-widget")
     private TemplateBasedWidgetConfig templateBasedWidgetConfig;
 
-    public List<LabelConfig> getLabelConfigList() {
-        return labelConfigList;
+    public List<WidgetConfig> getWidgetConfigList() {
+        return widgetConfigList;
     }
 
-    public void setLabelConfigList(List<LabelConfig> labelConfigList) {
-        this.labelConfigList = labelConfigList;
+    public void setWidgetConfigList(List<WidgetConfig> widgetConfigList) {
+        this.widgetConfigList = widgetConfigList;
     }
 
-    public IntegerBoxConfig getIntegerBoxConfig() {
-        return integerBoxConfig;
+    public List<LinkDomainObjectsEditableTableConfig> getLinkDomainObjectsEditableTableConfigList() {
+        return linkDomainObjectsEditableTableConfigList;
     }
 
-    public void setIntegerBoxConfig(IntegerBoxConfig integerBoxConfig) {
-        this.integerBoxConfig = integerBoxConfig;
+    public void setLinkDomainObjectsEditableTableConfigList(List<LinkDomainObjectsEditableTableConfig>
+                                                                    linkDomainObjectsEditableTableConfigList) {
+        this.linkDomainObjectsEditableTableConfigList = linkDomainObjectsEditableTableConfigList;
     }
 
-    public LinkDomainObjectsEditableTableConfig getLinkDomainObjectsEditableTableConfig() {
-        return linkDomainObjectsEditableTableConfig;
+    public List<LinkedDomainObjectHyperlinkConfig> getLinkedDomainObjectHyperlinkConfigList() {
+        return linkedDomainObjectHyperlinkConfigList;
     }
 
-    public void setLinkDomainObjectsEditableTableConfig
-            (LinkDomainObjectsEditableTableConfig linkDomainObjectsEditableTableConfig) {
-                this.linkDomainObjectsEditableTableConfig = linkDomainObjectsEditableTableConfig;
+    public void setLinkedDomainObjectHyperlinkConfigList(List<LinkedDomainObjectHyperlinkConfig>
+                                                                 linkedDomainObjectHyperlinkConfigList) {
+        this.linkedDomainObjectHyperlinkConfigList = linkedDomainObjectHyperlinkConfigList;
     }
 
-    public LinkedDomainObjectHyperlinkConfig getLinkedDomainObjectHyperlinkConfig() {
-        return linkedDomainObjectHyperlinkConfig;
-    }
-
-    public void setLinkedDomainObjectHyperlinkConfig
-            (LinkedDomainObjectHyperlinkConfig linkedDomainObjectHyperlinkConfig) {
-                this.linkedDomainObjectHyperlinkConfig = linkedDomainObjectHyperlinkConfig;
-    }
-
-    public RichTextAreaConfig getRichTextAreaConfig() {
-        return richTextAreaConfig;
-    }
-
-    public void setRichTextAreaConfig(RichTextAreaConfig richTextAreaConfig) {
-        this.richTextAreaConfig = richTextAreaConfig;
-    }
-
-    public LinkedDomainObjectsTableConfig getLinkedDomainObjectsTableConfig() {
+    public List<LinkedDomainObjectsTableConfig> getLinkedDomainObjectsTableConfig() {
         return linkedDomainObjectsTableConfig;
     }
 
-    public void setLinkedDomainObjectsTableConfig(LinkedDomainObjectsTableConfig linkedDomainObjectsTableConfig) {
+    public void setLinkedDomainObjectsTableConfig(List<LinkedDomainObjectsTableConfig> linkedDomainObjectsTableConfig) {
         this.linkedDomainObjectsTableConfig = linkedDomainObjectsTableConfig;
     }
 
@@ -101,39 +85,32 @@ public class WidgetConfigurationConfig implements Dto {
         if (this == o) {
             return true;
         }
+
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
 
         WidgetConfigurationConfig that = (WidgetConfigurationConfig) o;
 
-        if (integerBoxConfig != null ? !integerBoxConfig.equals(that.integerBoxConfig) : that.
-                integerBoxConfig != null) {
-                    return false;
-        }
-        if (labelConfigList != null ? !labelConfigList.equals(that.labelConfigList) : that.labelConfigList != null) {
+        if (widgetConfigList != null ? !widgetConfigList.equals(that.widgetConfigList) : that.
+                widgetConfigList != null) {
             return false;
         }
-        if (linkDomainObjectsEditableTableConfig != null ? !linkDomainObjectsEditableTableConfig.
-                equals(that.linkDomainObjectsEditableTableConfig) :that.linkDomainObjectsEditableTableConfig != null) {
-                    return false;
-        }
-        if (linkedDomainObjectHyperlinkConfig != null ? !linkedDomainObjectHyperlinkConfig.
-                equals(that.linkedDomainObjectHyperlinkConfig) : that.linkedDomainObjectHyperlinkConfig != null) {
+        if (linkDomainObjectsEditableTableConfigList != null ? !linkDomainObjectsEditableTableConfigList.equals(that.
+                linkDomainObjectsEditableTableConfigList) : that.linkDomainObjectsEditableTableConfigList != null) {
             return false;
         }
-        if (linkedDomainObjectsTableConfig != null ? !linkedDomainObjectsTableConfig.
-                equals(that.linkedDomainObjectsTableConfig) :
-                    that.linkedDomainObjectsTableConfig != null) {
+        if (linkedDomainObjectHyperlinkConfigList != null ? !linkedDomainObjectHyperlinkConfigList.equals(that.
+                linkedDomainObjectHyperlinkConfigList) : that.linkedDomainObjectHyperlinkConfigList != null) {
             return false;
         }
-        if (richTextAreaConfig != null ? !richTextAreaConfig.equals(that.richTextAreaConfig) : that.
-                richTextAreaConfig != null) {
-                    return false;
+        if (linkedDomainObjectsTableConfig != null ? !linkedDomainObjectsTableConfig.equals(that.
+                linkedDomainObjectsTableConfig) : that.linkedDomainObjectsTableConfig != null) {
+            return false;
         }
         if (templateBasedWidgetConfig != null ? !templateBasedWidgetConfig.equals(that.
                 templateBasedWidgetConfig) : that.templateBasedWidgetConfig != null) {
-                    return false;
+            return false;
         }
 
         return true;
@@ -141,14 +118,13 @@ public class WidgetConfigurationConfig implements Dto {
 
     @Override
     public int hashCode() {
-        int result = labelConfigList != null ? labelConfigList.hashCode() : 0;
-        result = 31 * result + (integerBoxConfig != null ? integerBoxConfig.hashCode() : 0);
-        result = result + (linkDomainObjectsEditableTableConfig !=
-                null ? linkDomainObjectsEditableTableConfig.hashCode() : 0);
-        result = result + (linkedDomainObjectHyperlinkConfig != null ? linkedDomainObjectHyperlinkConfig.hashCode() : 0);
-        result = result + (richTextAreaConfig != null ? richTextAreaConfig.hashCode() : 0);
-        result = result + (linkedDomainObjectsTableConfig != null ? linkedDomainObjectsTableConfig.hashCode() : 0);
-        result = result + (templateBasedWidgetConfig != null ? templateBasedWidgetConfig.hashCode() : 0);
+        int result = widgetConfigList != null ? widgetConfigList.hashCode() : 0;
+        result = 31 * result + (linkDomainObjectsEditableTableConfigList != null ?
+                linkDomainObjectsEditableTableConfigList.hashCode() : 0);
+        result = 31 * result + (linkedDomainObjectHyperlinkConfigList != null ?
+                linkedDomainObjectHyperlinkConfigList.hashCode() : 0);
+        result = 31 * result + (linkedDomainObjectsTableConfig != null ? linkedDomainObjectsTableConfig.hashCode() : 0);
+        result = 31 * result + (templateBasedWidgetConfig != null ? templateBasedWidgetConfig.hashCode() : 0);
         return result;
     }
 }

@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.config;
 
 import ru.intertrust.cm.core.config.model.DateTimeFieldConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
-import ru.intertrust.cm.core.config.model.LongFieldConfig;
 import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
 
 /**
@@ -11,7 +10,7 @@ import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
  */
 public enum SystemField {
 
-    id(ReferenceFieldConfig.class), parent(ReferenceFieldConfig.class),
+    id(ReferenceFieldConfig.class), master(ReferenceFieldConfig.class),
     created_date(DateTimeFieldConfig.class), updated_date(DateTimeFieldConfig.class);
 
     private Class<? extends FieldConfig> fieldConfigClass;

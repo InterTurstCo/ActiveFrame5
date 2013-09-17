@@ -9,11 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
- * User: User
- * Date: 12.09.13
- * Time: 17:47
- * To change this template use File | Settings | File Templates.
+ * @author Yaroslav Bondacrhuk
+ *         Date: 13/9/13
+ *         Time: 12:05 PM
  */
 @Root(name = "summary-table")
 public class SummaryTableConfig implements Dto {
@@ -21,7 +19,7 @@ public class SummaryTableConfig implements Dto {
     private String formName;
 
     @ElementList(inline = true)
-    private List<ColumnConfig> columnConfigs = new ArrayList<ColumnConfig>();
+    private List<SummaryTableColumnConfig> summaryTableColumnConfigList = new ArrayList<SummaryTableColumnConfig>();
 
     public String getFormName() {
         return formName;
@@ -31,12 +29,12 @@ public class SummaryTableConfig implements Dto {
         this.formName = formName;
     }
 
-    public List<ColumnConfig> getColumnConfigs() {
-        return columnConfigs;
+    public List<SummaryTableColumnConfig> getSummaryTableColumnConfig() {
+        return summaryTableColumnConfigList;
     }
 
-    public void setColumnConfigs(List<ColumnConfig> columnConfigs) {
-        this.columnConfigs = columnConfigs;
+    public void setSummaryTableColumnConfig(List<SummaryTableColumnConfig> summaryTableColumnConfigList) {
+        this.summaryTableColumnConfigList = summaryTableColumnConfigList;
     }
 
     @Override
@@ -50,7 +48,7 @@ public class SummaryTableConfig implements Dto {
 
         SummaryTableConfig that = (SummaryTableConfig) o;
 
-        if (columnConfigs != null ? !columnConfigs.equals(that.columnConfigs) : that.columnConfigs != null) {
+        if (summaryTableColumnConfigList != null ? !summaryTableColumnConfigList.equals(that.summaryTableColumnConfigList) : that.summaryTableColumnConfigList != null) {
             return false;
         }
         if (formName != null ? !formName.equals(that.formName) : that.formName != null) {
@@ -63,7 +61,7 @@ public class SummaryTableConfig implements Dto {
     @Override
     public int hashCode() {
         int result = formName != null ? formName.hashCode() : 0;
-        result = 31 * result + (columnConfigs != null ? columnConfigs.hashCode() : 0);
+        result = 31 * result + (summaryTableColumnConfigList != null ? summaryTableColumnConfigList.hashCode() : 0);
         return result;
     }
 }

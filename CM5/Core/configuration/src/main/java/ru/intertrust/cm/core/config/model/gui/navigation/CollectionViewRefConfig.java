@@ -42,8 +42,7 @@ public class CollectionViewRefConfig implements Dto {
 
     @Override
     public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        return  23 * result;
+        return name != null ? name.hashCode() : 0;
     }
 }
 

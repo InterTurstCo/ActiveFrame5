@@ -9,4 +9,5 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  *         Time: 12:37
  */
 public class BusinessUniverseInitialization implements Dto {
+
 }

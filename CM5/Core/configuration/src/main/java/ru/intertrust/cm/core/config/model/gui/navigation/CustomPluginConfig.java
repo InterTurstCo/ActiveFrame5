@@ -12,7 +12,6 @@ import java.util.List;
  *         Date: 10/9/13
  *         Time: 12:05 PM
  */
-@SuppressWarnings("serial")
 @Root(name = "custom")
 public class CustomPluginConfig extends PluginConfigParent {
 
@@ -63,8 +62,8 @@ public class CustomPluginConfig extends PluginConfigParent {
 
     @Override
     public int hashCode() {
-        int result = attributeConfigList != null ? attributeConfigList.hashCode() : 0;
-        result = 23 * result + name != null ? name.hashCode() : 0;
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (attributeConfigList != null ? attributeConfigList.hashCode() : 0);
         return result;
     }
 }

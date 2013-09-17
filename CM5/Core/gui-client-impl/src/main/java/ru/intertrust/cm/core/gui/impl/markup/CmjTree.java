@@ -5,6 +5,7 @@ import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
+@Deprecated
 public class CmjTree extends VerticalPanel {
 
     public CmjTree() {

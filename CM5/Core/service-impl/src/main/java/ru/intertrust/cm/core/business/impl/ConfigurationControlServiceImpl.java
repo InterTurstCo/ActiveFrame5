@@ -1,13 +1,12 @@
 package ru.intertrust.cm.core.business.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.intertrust.cm.core.business.api.AuthenticationService;
-import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
 import ru.intertrust.cm.core.config.ConfigurationException;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.config.ConfigurationSerializer;
 import ru.intertrust.cm.core.config.model.*;
+import ru.intertrust.cm.core.config.model.base.Configuration;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.model.FatalException;
@@ -22,8 +21,6 @@ import java.util.*;
  */
 public class ConfigurationControlServiceImpl implements ConfigurationControlService {
 
-    private static final String ADMIN_LOGIN = "admin";
-    private static final String ADMIN_PASSWORD = "admin";
     private static final String COMMON_ERROR_MESSAGE = "It's only allowed to add some new configuration " +
             "but not to modify or delete the existing one.";
 
@@ -33,8 +30,6 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     private DataStructureDao dataStructureDao;
     @Autowired
     private ConfigurationDao configurationDao;
-    @Autowired
-    private AuthenticationService authenticationService;
     @Autowired
     private ConfigurationSerializer configurationSerializer;
 
@@ -48,14 +43,6 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
 
     public void setConfigurationDao(ConfigurationDao configurationDao) {
         this.configurationDao = configurationDao;
-    }
-
-    /**
-     * Устанавливает сервис аутентификации
-     * @param authenticationService AuthenticationService
-     */
-    public void setAuthenticationService(AuthenticationService authenticationService) {
-        this.authenticationService = authenticationService;
     }
 
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
@@ -76,7 +63,6 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
             recursiveLoader.load();
 
             saveConfiguration();
-            insertAdminAuthenticationInfoIfEmpty();
             return;
         }
 
@@ -141,23 +127,6 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
                 }
             }
         }
-    }
-
-    /**
-     * Добавляет запись для Администратора в таблицу пользователей, если эта запись еще не была добавлена.
-     */
-    private void insertAdminAuthenticationInfoIfEmpty() {
-        if (!authenticationService.existsAuthenticationInfo(ADMIN_LOGIN)) {
-            insertAdminAuthenticationInfo();
-        }
-    }
-
-    private void insertAdminAuthenticationInfo() {
-        AuthenticationInfoAndRole admin = new AuthenticationInfoAndRole();
-        admin.setUserUid(ADMIN_LOGIN);
-        admin.setPassword(ADMIN_PASSWORD);
-        admin.setRole("admin");
-        authenticationService.insertAuthenticationInfoAndRole(admin);
     }
 
     private Boolean isConfigurationLoaded() {

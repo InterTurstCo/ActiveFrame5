@@ -4,12 +4,19 @@ import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
- * Created with IntelliJ IDEA.
- * User: User
- * Date: 12.09.13
- * Time: 15:53
- * To change this template use File | Settings | File Templates.
+ * @author Yaroslav Bondacrhuk
+ *         Date: 13/9/13
+ *         Time: 12:05 PM
  */
 @Root(name = "integer-box")
 public class IntegerBoxConfig extends WidgetConfig implements Dto {
+    @Override
+    public boolean equals(Object o) {
+       return super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+       return  super.hashCode();
+    }
 }

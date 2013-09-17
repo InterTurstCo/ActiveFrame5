@@ -6,11 +6,9 @@ import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
- * Created with IntelliJ IDEA.
- * User: User
- * Date: 12.09.13
- * Time: 18:37
- * To change this template use File | Settings | File Templates.
+ * @author Yaroslav Bondacrhuk
+ *         Date: 13/9/13
+ *         Time: 12:05 PM
  */
 @Root(name = "date-format")
 public class DateFormatConfig implements Dto {
@@ -75,7 +73,7 @@ public class DateFormatConfig implements Dto {
     public int hashCode() {
         int result = pattern != null ? pattern.hashCode() : 0;
         result = 31 * result + (style != null ? style.hashCode() : 0);
-        result = result + (fieldsPathConfig != null ? fieldsPathConfig.hashCode() : 0);
+        result = 31 * result + (fieldsPathConfig != null ? fieldsPathConfig.hashCode() : 0);
         return result;
     }
 }

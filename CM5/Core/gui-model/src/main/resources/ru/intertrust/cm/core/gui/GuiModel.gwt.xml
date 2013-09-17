@@ -3,7 +3,7 @@
 <module>
 
     <inherits name="ru.intertrust.cm.core.config.model.Configuration"/>
-    <inherits name="ru.intertrust.cm.core.business.Model"/>
+    <inherits name="ru.intertrust.cm.core.Model"/>
 
     <source path="model"/>
 </module>

@@ -1,16 +1,23 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.event.shared.SimpleEventBus;
+import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.RootLayoutPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
+
+import java.util.logging.Logger;
 
 /**
  * @author Denis Mitavskiy
@@ -19,26 +26,32 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
  */
 @ComponentName("business.universe")
 public class BusinessUniverse extends BaseComponent implements EntryPoint {
+    static Logger logger = Logger.getLogger("Business universe");
+    private DockLayoutPanel mainLayoutPanel;
+
+    private EventBus eventBus = GWT.create(SimpleEventBus.class);
+
     public void onModuleLoad() {
         AsyncCallback<BusinessUniverseInitialization> callback = new AsyncCallback<BusinessUniverseInitialization>() {
             @Override
             public void onSuccess(BusinessUniverseInitialization result) {
-                PluginPanel pluginPanel = new PluginPanel();
-                Plugin myPlugin = ComponentRegistry.instance.get("some.plugin");
+                mainLayoutPanel = new DockLayoutPanel(Style.Unit.EM);
 
-                PluginPanel anotherPluginPanel = new PluginPanel();
-                Plugin anotherPlugin = ComponentRegistry.instance.get("some.active.plugin");
+                Plugin searchPlugin = ComponentRegistry.instance.get("search.plugin");
+                PluginPanel searchPluginPanel = new PluginPanel(BusinessUniverse.this.eventBus);
+                searchPluginPanel.open(searchPlugin);
+                VerticalPanel headerPanel = prepareHeaderPanel(searchPluginPanel);
+                mainLayoutPanel.addNorth(headerPanel, 5.6);
 
-                VerticalPanel verticalPanel = new VerticalPanel();
+                Plugin navigationTreePlugin = ComponentRegistry.instance.get("navigation.tree");
+                Plugin domainObjectSurferPlugin = ComponentRegistry.instance.get("domain.object.surfer.plugin");
 
-                verticalPanel.add(pluginPanel);
-                verticalPanel.add(anotherPluginPanel);
+                addNavigationTree(mainLayoutPanel, navigationTreePlugin, domainObjectSurferPlugin);
 
-                RootLayoutPanel.get().add(verticalPanel);
-                pluginPanel.open(myPlugin);
-                anotherPluginPanel.open(anotherPlugin);
+                addDragPanel(mainLayoutPanel);
 
-
+                addStickerPanel(mainLayoutPanel);
+                RootLayoutPanel.get().add(mainLayoutPanel);
             }
 
             @Override
@@ -49,8 +62,158 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
         BusinessUniverseServiceAsync.Impl.getInstance().getBusinessUniverseInitialization(callback);
     }
 
+    private void addStickerPanel(DockLayoutPanel mainLayoutPanel) {
+
+        PluginPanel stickerPluginPanel = new PluginPanel(eventBus);
+        Plugin stickerPlugin = ComponentRegistry.instance.get("sticker.plugin");
+        stickerPluginPanel.open(stickerPlugin);
+
+        mainLayoutPanel.addEast(stickerPluginPanel, 5);
+    }
+
+    private void prepareActionPanel(VerticalPanel grid) {
+        HorizontalPanel actionPanel = buildFakeActionPanel();
+        grid.add(actionPanel);
+    }
+
+    private HorizontalPanel buildFakeActionPanel() {
+        HorizontalPanel actionPanel = new HorizontalPanel();
+        Image imgRefresh = new Image("css/icons/ico-reload.gif");
+        Label labelRefresh = new Label("Обновить");
+        Image imgCreate = new Image("css/icons/icon-create.png");
+        Label labelCreate = new Label("Создать");
+        Label labelOther = new Label("Другое");
+        Label labelSelect = new Label("Отметить");
+        Image imgPlane = new Image("css/icons/icon-datepicker2.png");
+        Label labelPlane = new Label("Запланировать");
+        Label labelsignate = new Label("Назначить");
+        actionPanel.add(imgRefresh);
+        actionPanel.add(labelRefresh);
+        actionPanel.add(imgCreate);
+        actionPanel.add(labelCreate);
+        actionPanel.add(labelOther);
+        actionPanel.add(labelSelect);
+        actionPanel.add(imgPlane);
+        actionPanel.add(labelPlane);
+        actionPanel.add(labelsignate);
+        return actionPanel;
+    }
+
+    private VerticalPanel prepareHeaderPanel(PluginPanel searchPluginPanel) {
+
+        VerticalPanel verticalPanel = new VerticalPanel();
+        verticalPanel.getElement().getStyle().setProperty("backgroundColor", "#EEE");
+        verticalPanel.getElement().getStyle().setProperty("margin", "5px");
+
+        HorizontalPanel headerPanel = new HorizontalPanel();
+        Image logo = createLogo();
+
+        Label profileUserLink = new Label("User");
+        Image imageUserLink = new Image("images/user.png");
+        imageUserLink.getElement().getStyle().setProperty("marginRight", "30px");
+
+        Image settings = new Image("css/images/settings.png");
+
+        Image help = new Image("css/images/help.png");
+        help.getElement().getStyle().setProperty("marginRight", "30px");
+
+        Label exit = new Label("Выход");
+
+        headerPanel.add(logo);
+        headerPanel.add(searchPluginPanel);
+        headerPanel.add(profileUserLink);
+        headerPanel.add(imageUserLink);
+        headerPanel.add(settings);
+        headerPanel.add(help);
+        headerPanel.add(exit);
+
+        headerPanel.setHeight("34px");
+
+        verticalPanel.add(headerPanel);
+
+        prepareMenuPanel(verticalPanel);
+        verticalPanel.setWidth("100%");
+        return verticalPanel;
+    }
+
+    private Image createLogo() {
+        Image logo = new Image("images/cm-logo.png");
+        logo.getElement().getStyle().setProperty("marginRight", "30px");
+        return logo;
+    }
+
+    private void addDragPanel(DockLayoutPanel mainLayoutPanel) {
+        PluginPanel dragPluginPanel = new PluginPanel(eventBus);
+        Plugin dragPanelPlugin = ComponentRegistry.instance.get("dragpanel.plugin");
+        dragPluginPanel.open(dragPanelPlugin);
+        mainLayoutPanel.addSouth(dragPluginPanel, 2);
+    }
+
+    private void addNavigationTree(DockLayoutPanel dockLayoutPanel, final Plugin navigationTreePlugin, final Plugin domainObjectSurfer) {
+        PluginPanel navigationTreePanel = new PluginPanel(eventBus) {
+            @Override
+            public void beforePluginOpening() {
+                PluginPanel domainObjectSurferPanel = new PluginPanel(eventBus);
+                domainObjectSurferPanel.open(domainObjectSurfer);
+                domainObjectSurfer.registerEventHandlingFromExternalSource(NavigationTreeItemSelectedEvent.TYPE,
+                        navigationTreePlugin, domainObjectSurfer);
+                mainLayoutPanel.add(domainObjectSurferPanel);
+            }
+        };
+        navigationTreePanel.open(navigationTreePlugin);
+        dockLayoutPanel.addWest(navigationTreePanel, 15);
+    }
+
     @Override
     public Component createNew() {
         return new BusinessUniverse();
+    }
+
+    private void prepareMenuPanel(VerticalPanel cmjHeader) {
+        DockLayoutPanel menuPanel = new DockLayoutPanel(Style.Unit.EM);
+
+        Button createBtn = new Button("Создать");
+        Image treeBtnShow = new Image("css/images/icon-folderlist.png");
+
+        Command cmd = new Command() {
+            public void execute() {
+                //
+            }
+        };
+
+        MenuBar allMenu = new MenuBar(true);
+        allMenu.addItem("Все", cmd);
+        allMenu.addItem("Все", cmd);
+        allMenu.addItem("Все", cmd);
+
+        MenuBar notreadMenu = new MenuBar(true);
+        notreadMenu.addItem("Непрочтенные", cmd);
+        notreadMenu.addItem("Непрочтенные", cmd);
+        notreadMenu.addItem("Непрочтенные", cmd);
+
+        MenuBar recMenu = new MenuBar(true);
+        recMenu.addItem("Корзина", cmd);
+        recMenu.addItem("Корзина", cmd);
+        recMenu.addItem("Корзина", cmd);
+
+        MenuBar menu = new MenuBar();
+        menu.addItem("Все", allMenu);
+        menu.addItem("Непрочтенные", notreadMenu);
+        menu.addItem("Корзина", recMenu);
+
+        Image positionForSplitPanelH = new Image("css/images/btn-verthor2.png");
+        Image positionForSplitPanelV = new Image("css/images/btn-verthor2.png");
+        Image showStickerPanel = new Image("css/images/icon-folderlist.png");
+
+        menuPanel.addWest(createBtn, 15);
+        menuPanel.addWest(treeBtnShow, 4);
+        menuPanel.addEast(showStickerPanel, 4);
+
+        menuPanel.addEast(positionForSplitPanelH, 2.3);
+        menuPanel.addEast(positionForSplitPanelV, 2.3);
+
+        menuPanel.add(menu);
+        menuPanel.setHeight("30px");
+        cmjHeader.add(menuPanel);
     }
 }

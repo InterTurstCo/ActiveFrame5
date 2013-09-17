@@ -6,23 +6,32 @@ import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
- * Created with IntelliJ IDEA.
- * User: User
- * Date: 12.09.13
- * Time: 17:21
- * To change this template use File | Settings | File Templates.
+ * @author Yaroslav Bondacrhuk
+ *         Date: 13/9/13
+ *         Time: 12:05 PM
  */
 @Root(name = "linked-form")
 public class LinkedFormConfig implements Dto{
-    @Attribute(name = "id")
-    private String id;
+    @Attribute(name = "name")
+    private String name;
 
-    public String getId() {
-        return id;
+    @Attribute(name = "inline", required = false)
+    private boolean inline;
+
+    public String getName() {
+        return name;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public boolean isInline() {
+        return inline;
+    }
+
+    public void setInline(boolean inline) {
+        this.inline = inline;
     }
 
     @Override
@@ -36,7 +45,10 @@ public class LinkedFormConfig implements Dto{
 
         LinkedFormConfig that = (LinkedFormConfig) o;
 
-        if (id != null ? !id.equals(that.id) : that.id != null) {
+        if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (inline!=that.inline) {
             return false;
         }
 
@@ -45,6 +57,6 @@ public class LinkedFormConfig implements Dto{
 
     @Override
     public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+        return name != null ? name.hashCode() : 0;
     }
 }

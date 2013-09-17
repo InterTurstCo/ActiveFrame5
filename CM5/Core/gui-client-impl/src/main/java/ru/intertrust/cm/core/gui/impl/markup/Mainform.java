@@ -12,6 +12,8 @@ public class Mainform extends DockLayoutPanel {
     MainContainerWithSplitPanel center = new MainContainerWithSplitPanel();
 
     public Mainform() {
+
+
         super(Unit.EM);//px?
         this.addNorth(north, 5.6);
         this.addSouth(south, showDrag);

@@ -8,23 +8,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
- * User: User
- * Date: 12.09.13
- * Time: 18:29
- * To change this template use File | Settings | File Templates.
+ * @author Yaroslav Bondacrhuk
+ *         Date: 13/9/13
+ *         Time: 12:05 PM
  */
 @Root(name = "field-paths")
 public class FieldPathsConfig implements Dto{
     @ElementList(inline = true)
-    private List<FieldPathConfig> rows = new ArrayList<FieldPathConfig>();
+    private List<FieldPathConfig> fieldPathConfigsList = new ArrayList<FieldPathConfig>();
 
-    public List<FieldPathConfig> getRows() {
-        return rows;
+    public List<FieldPathConfig> getFieldPathConfigsList() {
+        return fieldPathConfigsList;
     }
 
-    public void setRows(List<FieldPathConfig> rows) {
-        this.rows = rows;
+    public void setFieldPathConfigsList(List<FieldPathConfig> fieldPathConfigsList) {
+        this.fieldPathConfigsList = fieldPathConfigsList;
     }
 
     @Override
@@ -38,7 +36,8 @@ public class FieldPathsConfig implements Dto{
 
         FieldPathsConfig that = (FieldPathsConfig) o;
 
-        if (rows != null ? !rows.equals(that.rows) : that.rows != null) {
+        if (fieldPathConfigsList != null ? !fieldPathConfigsList.equals(that.fieldPathConfigsList) : that.
+                fieldPathConfigsList != null) {
             return false;
         }
 
@@ -47,6 +46,6 @@ public class FieldPathsConfig implements Dto{
 
     @Override
     public int hashCode() {
-        return rows != null ? rows.hashCode() : 0;
+        return fieldPathConfigsList != null ? fieldPathConfigsList.hashCode() : 0;
     }
 }

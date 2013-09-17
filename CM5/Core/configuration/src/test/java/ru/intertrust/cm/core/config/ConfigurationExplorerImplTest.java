@@ -4,9 +4,9 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import ru.intertrust.cm.core.config.model.CollectionConfig;
-import ru.intertrust.cm.core.config.model.Configuration;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
+import ru.intertrust.cm.core.config.model.base.Configuration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -127,9 +127,9 @@ public class ConfigurationExplorerImplTest {
         assertNotNull(fieldConfig);
         Assert.assertEquals(fieldConfig.getName(), SystemField.id.name());
 
-        fieldConfig = configExplorer.getFieldConfig(PERSON_CONFIG_NAME, SystemField.parent.name());
+        fieldConfig = configExplorer.getFieldConfig(PERSON_CONFIG_NAME, SystemField.master.name());
         assertNotNull(fieldConfig);
-        Assert.assertEquals(fieldConfig.getName(), SystemField.parent.name());
+        Assert.assertEquals(fieldConfig.getName(), SystemField.master.name());
 
         fieldConfig = configExplorer.getFieldConfig(PERSON_CONFIG_NAME, SystemField.created_date.name());
         assertNotNull(fieldConfig);

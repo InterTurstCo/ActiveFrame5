@@ -4,6 +4,7 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -14,9 +15,8 @@ import java.util.List;
  *         Date: 10/9/13
  *         Time: 12:05 PM
  */
-@SuppressWarnings("serial")
 @Root(strict = false, name = "link")
-public class LinkConfig implements Serializable {
+public class LinkConfig implements Dto {
 
     @Attribute(name = "name")
     private String name;
@@ -141,14 +141,13 @@ public class LinkConfig implements Serializable {
 
     @Override
     public int hashCode() {
-        int result = childLinksConfigList != null ? childLinksConfigList.hashCode() : 0;
-        result = 23 * result + (name != null ? name.hashCode() : 0);
-        result = result + (displayText != null ? displayText.hashCode() : 0);
-        result = result + (image != null ? image.hashCode() : 0);
-        result = result + (childToOpen != null ? childToOpen.hashCode() : 0);
-        result = result + (pluginConfig != null ? pluginConfig.hashCode() : 0);
-        result = result + (decorationsConfig != null ? decorationsConfig.hashCode() : 0);
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (displayText != null ? displayText.hashCode() : 0);
+        result = 31 * result + (image != null ? image.hashCode() : 0);
+        result = 31 * result + (childToOpen != null ? childToOpen.hashCode() : 0);
+        result = 31 * result + (pluginConfig != null ? pluginConfig.hashCode() : 0);
+        result = 31 * result + (childLinksConfigList != null ? childLinksConfigList.hashCode() : 0);
+        result = 31 * result + (decorationsConfig != null ? decorationsConfig.hashCode() : 0);
         return result;
     }
-
 }

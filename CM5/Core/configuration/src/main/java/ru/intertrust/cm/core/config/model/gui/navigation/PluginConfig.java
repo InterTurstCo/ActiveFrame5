@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.model.gui.navigation;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.ElementListUnion;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -13,9 +14,8 @@ import java.util.List;
  *         Date: 10/9/13
  *         Time: 12:05 PM
  */
-@SuppressWarnings("serial")
 @Root(name = "plugin")
-public class PluginConfig implements Serializable {
+public class PluginConfig implements Dto {
 
     @ElementListUnion({
             @ElementList(entry = "custom", type = CustomPluginConfig.class, inline = true),
@@ -52,8 +52,7 @@ public class PluginConfig implements Serializable {
 
     @Override
     public int hashCode() {
-        int result = pluginConfigParentList != null ? pluginConfigParentList.hashCode() : 0;
-        return result * 23;
+        return pluginConfigParentList != null ? pluginConfigParentList.hashCode() : 0;
     }
 }
 

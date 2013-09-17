@@ -26,7 +26,7 @@
     <bean id="configurationExplorer"
           class="ru.intertrust.cm.core.config.ConfigurationExplorerImpl">
         <constructor-arg>
-            <bean class="ru.intertrust.cm.core.config.model.Configuration"
+            <bean class="ru.intertrust.cm.core.config.model.base.Configuration"
                   factory-bean="configurationSerializer" factory-method="deserializeConfiguration"/>
         </constructor-arg>
     </bean>

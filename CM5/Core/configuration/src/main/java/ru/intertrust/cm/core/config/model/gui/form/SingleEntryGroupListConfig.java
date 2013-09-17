@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.config.model.gui.form;
 
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
-import ru.intertrust.cm.core.config.model.gui.navigation.PluginConfig;
 
 /**
  * @author Denis Mitavskiy
@@ -11,7 +10,7 @@ import ru.intertrust.cm.core.config.model.gui.navigation.PluginConfig;
  */
 @Root(name = "single-entry-group")
 public class SingleEntryGroupListConfig extends TabGroupListConfig {
-    @Element(name = "table")
+    @Element(name = "tab-group")
     private TabGroupConfig tabGroupConfig;
 
     public TabGroupConfig getTabGroupConfig() {

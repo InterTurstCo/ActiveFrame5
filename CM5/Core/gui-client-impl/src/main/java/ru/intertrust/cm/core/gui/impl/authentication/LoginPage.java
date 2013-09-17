@@ -12,6 +12,7 @@ public class LoginPage implements EntryPoint {
     public void onModuleLoad() {
         LoginWindow loginWindow = new LoginWindow();
         loginWindow.center();
+
         //loginWindow.show();
     }
 }

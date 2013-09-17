@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.model.gui.navigation;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -14,9 +15,8 @@ import java.util.List;
  *         Time: 12:05 PM
  */
 
-@SuppressWarnings("serial")
 @Root(strict = false, name = "child-links")
-public class ChildLinksConfig implements Serializable {
+public class ChildLinksConfig implements Dto {
 
     @Attribute(name = "group-name", required = false)
     private String groupName;
@@ -65,8 +65,8 @@ public class ChildLinksConfig implements Serializable {
 
     @Override
     public int hashCode() {
-        int result = linkConfigList != null ? linkConfigList.hashCode() : 0;
-        result = 23 * result + groupName != null ? groupName.hashCode() : 0;
+        int result = groupName != null ? groupName.hashCode() : 0;
+        result = 31 * result + (linkConfigList != null ? linkConfigList.hashCode() : 0);
         return result;
     }
 }

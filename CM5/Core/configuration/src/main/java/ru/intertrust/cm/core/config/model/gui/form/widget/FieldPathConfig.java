@@ -5,15 +5,13 @@ import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
- * Created with IntelliJ IDEA.
- * User: User
- * Date: 12.09.13
- * Time: 16:53
- * To change this template use File | Settings | File Templates.
+ * @author Yaroslav Bondacrhuk
+ *         Date: 13/9/13
+ *         Time: 12:05 PM
  */
 @Root(name = "field-path")
 public class FieldPathConfig implements Dto {
-    @Attribute(name = "value")
+    @Attribute(name = "value", required = false)
     private String value;
 
     public String getValue() {

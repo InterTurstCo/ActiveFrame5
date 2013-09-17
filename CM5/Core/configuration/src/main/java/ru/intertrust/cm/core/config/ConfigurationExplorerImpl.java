@@ -3,7 +3,10 @@ package ru.intertrust.cm.core.config;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.config.model.*;
-
+import ru.intertrust.cm.core.config.model.base.Configuration;
+import ru.intertrust.cm.core.config.model.base.TopLevelConfig;
+import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionColumnConfig;
+import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.model.gui.navigation.LinkConfig;
 import ru.intertrust.cm.core.config.model.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.model.FatalException;
@@ -174,9 +177,9 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
                 if (domainObjectTypeConfig.getAttachmentTypesConfig() != null) {
                     attachmentOwnerDots.add(domainObjectTypeConfig);
                 }
-            } else if (CollectionConfig.class.equals(config.getClass())) {
-                CollectionConfig domainObjectTypeConfig = (CollectionConfig) config;
-                fillCollectionColumnConfigMap(domainObjectTypeConfig);
+            } else if (CollectionViewConfig.class.equals(config.getClass())) {
+                CollectionViewConfig collectionViewConfig = (CollectionViewConfig) config;
+                fillCollectionColumnConfigMap(collectionViewConfig);
             } else if (NavigationConfig.class.equals(config.getClass())) {
                 NavigationConfig navigationConfig = (NavigationConfig) config;
                 fillLinkConfigMap(navigationConfig);
@@ -296,11 +299,12 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         }
     }
 
-    private void fillCollectionColumnConfigMap(CollectionConfig collectionConfig) {
-        if (collectionConfig.getDisplayConfig() != null) {
-            for (CollectionColumnConfig columnConfig : collectionConfig.getDisplayConfig().getColumnConfig()) {
-                FieldConfigKey fieldConfigKey =
-                        new FieldConfigKey(collectionConfig.getName(), columnConfig.getField());
+    private void fillCollectionColumnConfigMap(CollectionViewConfig collectionViewConfig) {
+     if (collectionViewConfig.getCollectionDisplayConfig() != null) {
+            for (CollectionColumnConfig columnConfig : collectionViewConfig.getCollectionDisplayConfig().
+                    getColumnConfig()) {
+                        FieldConfigKey fieldConfigKey =
+                        new FieldConfigKey(collectionViewConfig.getName(), columnConfig.getField());
                 collectionColumnConfigMap.put(fieldConfigKey, columnConfig);
 
             }

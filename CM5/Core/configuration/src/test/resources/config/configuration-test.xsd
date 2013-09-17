@@ -125,6 +125,21 @@
             <xs:element name="navigation" type="con:navigationPanelType"
                         maxOccurs="unbounded" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element name="form" type="con:formType"
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element name="form-mappings" type="con:formMappingsType"
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element name="widget-template" type="con:widgetTemplateType"
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element name="collection-view" type="con:collectionViewType"
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element name="collection-mappings" type="con:collectionMappingsType"
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:choice>
     </xs:complexType>
 
@@ -193,37 +208,10 @@
         <xs:attribute type="xs:string" name="name" use="optional" />
     </xs:complexType>
 
-    <xs:complexType name="displayType">
-        <xs:sequence>
-            <xs:element type="con:columnType" name="column"
-                        maxOccurs="unbounded" minOccurs="0"
-                        xmlns:con="https://cm5.intertrust.ru/config" />
-        </xs:sequence>
-    </xs:complexType>
-
     <xs:complexType name="filterReferenceType">
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute type="xs:string" name="placeholder" />
-            </xs:extension>
-        </xs:simpleContent>
-    </xs:complexType>
-
-    <xs:complexType name="columnType">
-        <xs:simpleContent>
-            <xs:extension base="xs:string">
-                <xs:attribute type="xs:string" name="field"
-                              use="optional" />
-                <xs:attribute type="xs:string" name="name"
-                              use="optional" />
-                <xs:attribute type="xs:string" name="hidden"
-                              use="optional" />
-                <xs:attribute type="xs:string" name="sortable"
-                              use="optional" />
-                <xs:attribute type="xs:string" name="editable"
-                              use="optional" />
-                <xs:attribute type="xs:string" name="type"
-                              use="optional" />
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -247,9 +235,6 @@
 
     <xs:complexType name="collectionType">
         <xs:sequence>
-            <xs:element type="con:displayType" name="display"
-                        xmlns:con="https://cm5.intertrust.ru/config">
-            </xs:element>
             <xs:element type="xs:string" name="prototype"
                         minOccurs="0" maxOccurs="1" />
             <xs:element type="xs:string" name="counting-prototype"
@@ -580,5 +565,374 @@
                         xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:sequence>
         <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+    <!-- Form types definition-->
+    <xs:complexType name="bookmarksType">
+        <xs:sequence>
+            <xs:element type="con:tabGroupType" name="tab-group" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config">
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="formType">
+        <xs:sequence>
+            <xs:element type="con:markupType" name="markup" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:widgetConfigType" name="widget-config" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="name"/>
+        <xs:attribute type="xs:string" name="domain-object-type"/>
+        <xs:attribute type="xs:string" name="is-default"/>
+    </xs:complexType>
+
+    <xs:complexType name="columnFromType" mixed="true">
+        <xs:sequence>
+            <xs:element type="con:patternType" name="pattern" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:formattingType" name="formatting" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config">
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="header" use="optional"/>
+        <xs:attribute type="xs:string" name="widget-id" use="optional"/>
+    </xs:complexType>
+    <xs:complexType name="trType">
+        <xs:sequence>
+            <xs:element type="con:tdType" name="td" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="height" use="optional"/>
+        <xs:attribute type="xs:string" name="v-align" use="optional"/>
+    </xs:complexType>
+    <xs:complexType name="numberFormatType">
+        <xs:sequence>
+            <xs:element type="con:fieldPathsType" name="field-paths" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="pattern"/>
+    </xs:complexType>
+    <xs:complexType name="formMappingType">
+        <xs:sequence>
+            <xs:element type="con:usersType" name="users" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:rolesType" name="roles" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="domain-object-type"/>
+        <xs:attribute type="xs:string" name="form"/>
+    </xs:complexType>
+    <xs:complexType name="richTextAreaType">
+        <xs:sequence>
+            <xs:element type="con:fieldPathType" name="field-path" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element name="text" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="id" use="optional"/>
+    </xs:complexType>
+    <xs:complexType name="usersType">
+        <xs:sequence>
+            <xs:element type="con:userType" name="user" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="userType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="uid"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="bodyType">
+        <xs:sequence>
+            <xs:element type="con:tabType" name="tab" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config">
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="display-single-tab"/>
+    </xs:complexType>
+    <xs:complexType name="markupType">
+        <xs:sequence>
+            <xs:element type="con:headerType" name="header" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:bodyType" name="body" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="headerType">
+        <xs:sequence>
+            <xs:element type="con:tableType" name="table" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="fieldPathType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="value" use="optional"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="tdType">
+        <xs:sequence>
+            <xs:element type="con:widgetType" name="widget" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="width" use="optional"/>
+        <xs:attribute type="xs:string" name="colspan" use="optional"/>
+        <xs:attribute type="xs:string" name="rowspan" use="optional"/>
+        <xs:attribute type="xs:string" name="h-align" use="optional"/>
+        <xs:attribute type="xs:string" name="v-align" use="optional"/>
+    </xs:complexType>
+    <xs:complexType name="formTableType">
+        <xs:sequence>
+            <xs:element type="con:formTableColumnType" name="form-table-column" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config">
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="form-name" use="optional"/>
+    </xs:complexType>
+    <xs:complexType name="patternType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="value" use="optional"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="singleEntryGroupType">
+        <xs:sequence>
+            <xs:element type="con:tabGroupType" name="tab-group" xmlns:con="https://cm5.intertrust.ru/config">
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="formMappingsType">
+        <xs:sequence>
+            <xs:element type="con:formMappingType" name="form-mapping" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="roleType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="name"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="linkedDomainObjectsTableType">
+        <xs:sequence>
+            <xs:element type="con:fieldPathType" name="field-path" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:linkedFormType" name="linked-form" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:summaryTableType" name="summary-table" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="id"/>
+    </xs:complexType>
+    <xs:complexType name="summaryTableType">
+        <xs:sequence>
+            <xs:element type="con:summaryTableColumnType" name="summary-table-column" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="form-name"/>
+    </xs:complexType>
+    <xs:complexType name="integerBoxType">
+        <xs:sequence>
+            <xs:element type="con:fieldPathType" name="field-path" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element name="text" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="Текст документа"/>
+                        <xs:enumeration value="№"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="id" use="optional"/>
+    </xs:complexType>
+    <xs:complexType name="linkedDomainObjectHyperlinkType">
+        <xs:sequence>
+            <xs:element type="con:fieldPathType" name="field-path" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:linkedFormType" name="linked-form" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:patternType" name="pattern" xmlns:con="https://cm5.intertrust.ru/config">
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="id"/>
+    </xs:complexType>
+    <xs:complexType name="hidingGroupsType">
+        <xs:sequence>
+            <xs:element type="con:tabGroupType" name="tab-group" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config">
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="tabType">
+        <xs:sequence>
+            <xs:element type="con:singleEntryGroupType" name="single-entry-group" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config">
+            </xs:element>
+            <xs:element type="con:hidingGroupsType" name="hiding-groups" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config">
+            </xs:element>
+            <xs:element type="con:bookmarksType" name="bookmarks" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="name" use="optional"/>
+    </xs:complexType>
+    <xs:complexType name="tabGroupType">
+        <xs:sequence>
+            <xs:element type="con:tableType" name="table" xmlns:con="https://cm5.intertrust.ru/config">
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="name" use="optional"/>
+    </xs:complexType>
+    <xs:complexType name="rolesType">
+        <xs:sequence>
+            <xs:element type="con:roleType" name="role" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="fieldPathsType">
+        <xs:sequence>
+            <xs:element type="con:fieldPathType" name="field-path" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="linkedFormType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="name" use="optional"/>
+                <xs:attribute type="xs:string" name="inline" use="optional"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="widgetTemplateType">
+        <xs:sequence>
+            <xs:element type="con:linkedDomainObjectsEditableTableType" name="linked-domain-objects-editable-table" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="name"/>
+        <xs:attribute type="xs:string" name="domain-object-type"/>
+    </xs:complexType>
+    <xs:complexType name="formattingType">
+        <xs:sequence>
+            <xs:element type="con:numberFormatType" name="number-format" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:dateFormatType" name="date-format" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="widgetConfigType">
+        <xs:choice maxOccurs="unbounded" minOccurs="0">
+            <xs:element type="con:labelType" name="label" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:richTextAreaType" name="rich-text-area" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:integerBoxType" name="integer-box" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:linkedDomainObjectHyperlinkType" name="linked-domain-object-hyperlink" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:linkedDomainObjectsTableType" name="linked-domain-objects-table" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:linkedDomainObjectsEditableTableType" name="linked-domain-objects-editable-table" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:templateBasedWidgetType" name="template-based-widget" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="templateBasedWidgetType">
+        <xs:sequence>
+            <xs:element type="con:fieldPathType" name="field-path" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="id"/>
+        <xs:attribute type="xs:string" name="template-name"/>
+    </xs:complexType>
+    <xs:complexType name="widgetType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="id" use="optional"/>
+                <xs:attribute type="xs:string" name="width" use="optional"/>
+                <xs:attribute type="xs:string" name="height" use="optional"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="labelType">
+        <xs:sequence>
+            <xs:element name="field-path" minOccurs="0">
+                <xs:complexType>
+                    <xs:simpleContent>
+                        <xs:extension base="xs:string">
+                            <xs:attribute type="xs:string" name="value" use="optional"/>
+                        </xs:extension>
+                    </xs:simpleContent>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="text" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="id" use="optional"/>
+    </xs:complexType>
+    <xs:complexType name="tableType">
+        <xs:sequence>
+            <xs:element type="con:trType" name="tr" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="width" use="optional"/>
+        <xs:attribute type="xs:string" name="height" use="optional"/>
+        <xs:attribute type="xs:string" name="row-height" use="optional"/>
+        <xs:attribute type="xs:string" name="col-width" use="optional"/>
+        <xs:attribute type="xs:string" name="h-align" use="optional"/>
+        <xs:attribute type="xs:string" name="v-align" use="optional"/>
+    </xs:complexType>
+    <xs:complexType name="dateFormatType">
+        <xs:sequence>
+            <xs:element type="con:fieldPathsType" name="field-paths" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="pattern"/>
+        <xs:attribute type="xs:string" name="style"/>
+    </xs:complexType>
+    <xs:complexType name="linkedDomainObjectsEditableTableType">
+        <xs:sequence>
+            <xs:element type="con:fieldPathType" name="field-path" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:linkedFormType" name="linked-form" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:formTableType" name="form-table" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="id" use="optional"/>
+    </xs:complexType>
+    <xs:complexType name="summaryTableColumnType">
+        <xs:sequence>
+            <xs:element type="con:patternType" name="pattern" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:formattingType" name="formatting" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config">
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="header" use="optional"/>
+    </xs:complexType>
+    <xs:complexType name="formTableColumnType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="header" use="optional"/>
+                <xs:attribute type="xs:string" name="widget-id" use="optional"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <!-- Collection-view part -->
+    <xs:complexType name="collectionMappingsType">
+        <xs:sequence>
+            <xs:element type="con:collectionMappingType" name="collection-mapping" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="columnType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="field"
+                              use="optional" />
+                <xs:attribute type="xs:string" name="name"
+                              use="optional" />
+                <xs:attribute type="xs:string" name="hidden"
+                              use="optional" />
+                <xs:attribute type="xs:string" name="sortable"
+                              use="optional" />
+                <xs:attribute type="xs:string" name="editable"
+                              use="optional" />
+                <xs:attribute type="xs:string" name="type"
+                              use="optional" />
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="displayType">
+        <xs:sequence>
+            <xs:element type="con:columnType" name="column"
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="collectionMappingType">
+        <xs:sequence>
+            <xs:element type="con:usersType" name="users" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:rolesType" name="roles" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="collection"/>
+        <xs:attribute type="xs:string" name="view"/>
+    </xs:complexType>
+    <xs:complexType name="collectionViewType">
+        <xs:sequence>
+            <xs:element type="con:displayType" name="display" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="name"/>
+        <xs:attribute type="xs:string" name="collection"/>
+        <xs:attribute type="xs:string" name="is-default"/>
     </xs:complexType>
 </xs:schema>

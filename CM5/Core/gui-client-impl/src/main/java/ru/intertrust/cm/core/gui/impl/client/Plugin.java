@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import ru.intertrust.cm.core.business.api.dto.Dto;
@@ -10,6 +11,8 @@ import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
+
+import java.util.logging.Logger;
 
 /**
  * <p>
@@ -27,24 +30,26 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
  */
 public abstract class Plugin extends BaseComponent {
     private PluginPanel owner;
-
     private EventBus eventBus;
     private PluginData initialData;
     private PluginView view;
 
+    static Logger logger = Logger.getLogger("plugin logger");
+
     /**
      * Создаёт представление данного плагина
+     *
      * @return представление данного плагина
      */
     public abstract PluginView createView();
 
     public void onDataLoadFailure() {
-        Window.alert("Ошибка инициализации плагина");
+        Window.alert("Ошибка инициализации плагина " + this.getName());
     }
 
     /**
-     * Возвращает текущее состояние плагина
-     * @return текущее состояние плагина
+     * Возвращает текущее состояние приложения
+     * @return текущее состояние приложения
      */
     public PluginData getCurrentState() {
         return null;
@@ -65,11 +70,13 @@ public abstract class Plugin extends BaseComponent {
             public void onSuccess(Dto result) {
                 Plugin.this.setInitialData((PluginData) result);
                 postSetUp();
+                //logger.info("success " + getName());
             }
 
             @Override
             public void onFailure(Throwable caught) {
                 Plugin.this.onDataLoadFailure();
+                logger.info("failed " + getName());
             }
         };
         Command command = new Command("initialize", this.getName(), null);
@@ -78,6 +85,7 @@ public abstract class Plugin extends BaseComponent {
 
     /**
      * Возвращает представление плагина.
+     *
      * @return представление плагина
      */
     PluginView getView() {
@@ -86,6 +94,7 @@ public abstract class Plugin extends BaseComponent {
 
     /**
      * Устанавливает "владельца" (панель плагинов) данного плагина.
+     *
      * @param owner панель плагинов, в которой данный плагин отображается
      */
     void setOwner(PluginPanel owner) {
@@ -94,6 +103,7 @@ public abstract class Plugin extends BaseComponent {
 
     /**
      * Устанавливает шину сообщений
+     *
      * @param eventBus шина сообщений
      */
     void setEventBus(EventBus eventBus) {
@@ -102,6 +112,7 @@ public abstract class Plugin extends BaseComponent {
 
     /**
      * Возвращает первичные данные плагина.
+     *
      * @return первичные данные плагина
      */
     <T> T getInitialData() {
@@ -110,6 +121,7 @@ public abstract class Plugin extends BaseComponent {
 
     /**
      * Устанавливает первичные данные плагина. Эти данные используются при инициализация плагина.
+     *
      * @param initialData первичные данные данного плагина
      */
     void setInitialData(PluginData initialData) {
@@ -119,6 +131,7 @@ public abstract class Plugin extends BaseComponent {
     /**
      * Определяет, требует ли плагин инициализации. Если нет, то при открытии плагина не будет совершаться вызов
      * серверных методов, ускоряя его открытие и снижая нагрузку на сервер.
+     *
      * @return true, если плагин требует инициализации и false - в противном случае
      */
     protected boolean isInitializable() {
@@ -130,4 +143,18 @@ public abstract class Plugin extends BaseComponent {
         PluginViewCreatedEvent viewCreatedEvent = new PluginViewCreatedEvent(this);
         eventBus.fireEventFromSource(viewCreatedEvent, this);
     }
+
+    public PluginPanel getOwner() {
+        return owner;
+    }
+
+    public EventBus getEventBus() {
+        return eventBus;
+    }
+
+    public void registerEventHandlingFromExternalSource(GwtEvent.Type eventType, Object externalEventSource, Object handler) {
+        getEventBus().addHandlerToSource(eventType, externalEventSource, handler);
+    }
+
+
 }

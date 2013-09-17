@@ -27,10 +27,11 @@ public class CellConfig implements Dto {
     @Attribute(name = "v-align", required = false)
     private String verticalAlignment;
 
+    @Attribute(name = "width", required = false)
     private String width;
 
     @Element(name = "widget", required = false)
-    private WidgetDisplayConfig widgetConfig;
+    private WidgetDisplayConfig widgetDisplayConfig;
 
     public String getColumnSpan() {
         return columnSpan;
@@ -46,6 +47,14 @@ public class CellConfig implements Dto {
 
     public void setRowSpan(String rowSpan) {
         this.rowSpan = rowSpan;
+    }
+
+    public String getWidth() {
+        return width;
+    }
+
+    public void setWidth(String width) {
+        this.width = width;
     }
 
     public String getHorizontalAlignment() {
@@ -64,20 +73,12 @@ public class CellConfig implements Dto {
         this.verticalAlignment = verticalAlignment;
     }
 
-    public String getWidth() {
-        return width;
+    public WidgetDisplayConfig getWidgetDisplayConfig() {
+        return widgetDisplayConfig;
     }
 
-    public void setWidth(String width) {
-        this.width = width;
-    }
-
-    public WidgetDisplayConfig getWidgetConfig() {
-        return widgetConfig;
-    }
-
-    public void setWidgetConfig(WidgetDisplayConfig widgetConfig) {
-        this.widgetConfig = widgetConfig;
+    public void setWidgetDisplayConfig(WidgetDisplayConfig widgetDisplayConfig) {
+        this.widgetDisplayConfig = widgetDisplayConfig;
     }
 
     @Override
@@ -94,16 +95,19 @@ public class CellConfig implements Dto {
         if (columnSpan != null ? !columnSpan.equals(that.columnSpan) : that.columnSpan != null) {
             return false;
         }
-        if (horizontalAlignment != null ? !horizontalAlignment.equals(that.horizontalAlignment) : that.horizontalAlignment != null) {
+        if (horizontalAlignment != null ? !horizontalAlignment.equals(that.horizontalAlignment) : that.
+                horizontalAlignment != null) {
             return false;
         }
         if (rowSpan != null ? !rowSpan.equals(that.rowSpan) : that.rowSpan != null) {
             return false;
         }
-        if (verticalAlignment != null ? !verticalAlignment.equals(that.verticalAlignment) : that.verticalAlignment != null) {
+        if (verticalAlignment != null ? !verticalAlignment.equals(that.verticalAlignment) : that.
+                verticalAlignment != null) {
             return false;
         }
-        if (widgetConfig != null ? !widgetConfig.equals(that.widgetConfig) : that.widgetConfig != null) {
+        if (widgetDisplayConfig != null ? !widgetDisplayConfig.equals(that.widgetDisplayConfig) : that.
+                widgetDisplayConfig != null) {
             return false;
         }
         if (width != null ? !width.equals(that.width) : that.width != null) {
@@ -119,8 +123,8 @@ public class CellConfig implements Dto {
         result = 31 * result + (rowSpan != null ? rowSpan.hashCode() : 0);
         result = 31 * result + (horizontalAlignment != null ? horizontalAlignment.hashCode() : 0);
         result = 31 * result + (verticalAlignment != null ? verticalAlignment.hashCode() : 0);
+        result = 31 * result + (widgetDisplayConfig != null ? widgetDisplayConfig.hashCode() : 0);
         result = 31 * result + (width != null ? width.hashCode() : 0);
-        result = 31 * result + (widgetConfig != null ? widgetConfig.hashCode() : 0);
         return result;
     }
 }

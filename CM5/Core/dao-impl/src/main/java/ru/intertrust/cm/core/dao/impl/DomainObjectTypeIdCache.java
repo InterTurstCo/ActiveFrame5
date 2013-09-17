@@ -1,6 +1,8 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectTypeId;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 
 import java.util.List;
 import java.util.Map;
@@ -14,17 +16,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class DomainObjectTypeIdCache {
 
-    private static DomainObjectTypeIdCache instance = new DomainObjectTypeIdCache();
+    @Autowired
+    private DomainObjectTypeIdDao domainObjectTypeIdDao;
 
     private Map<String, Integer> nameToIdMap = new ConcurrentHashMap<>();
-
-    /**
-     * Возврящает экземпляр {@link DomainObjectTypeIdCache}
-     * @return экземпляр {@link DomainObjectTypeIdCache}
-     */
-    public static DomainObjectTypeIdCache getInstance() {
-        return instance;
-    }
 
     private DomainObjectTypeIdCache() {
 
@@ -32,9 +27,10 @@ public class DomainObjectTypeIdCache {
 
     /**
      * Конструирует кэш из списка {@link DomainObjectTypeId}
-      * @param domainObjectTypeIds список {@link DomainObjectTypeId}
      */
-    public void  build(List<DomainObjectTypeId> domainObjectTypeIds) {
+    public void  build() {
+        List<DomainObjectTypeId> domainObjectTypeIds = domainObjectTypeIdDao.readAll();
+
         if (domainObjectTypeIds == null || domainObjectTypeIds.isEmpty()) {
             return;
         }

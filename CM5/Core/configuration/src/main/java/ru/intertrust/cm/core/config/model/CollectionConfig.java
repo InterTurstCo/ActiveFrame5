@@ -4,6 +4,7 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.config.model.base.TopLevelConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,9 +25,6 @@ public class CollectionConfig implements TopLevelConfig {
 
     @Attribute(name = "domain-object-type", required = true)
     private String domainObjectType;
-
-    @Element(name = "display", required = true)
-    private CollectionDisplayConfig displayConfig;
 
     @Element(name = "prototype", required = false, data=true)
     private String prototype;
@@ -63,14 +61,6 @@ public class CollectionConfig implements TopLevelConfig {
 
     public void setDomainObjectType(String domainObjectType) {
         this.domainObjectType = domainObjectType;
-    }
-
-    public CollectionDisplayConfig getDisplayConfig() {
-        return displayConfig;
-    }
-
-    public void setDisplayConfig(CollectionDisplayConfig displayConfig) {
-        this.displayConfig = displayConfig;
     }
 
     public String getPrototype() {
@@ -130,9 +120,6 @@ public class CollectionConfig implements TopLevelConfig {
             return false;
         }
         if (countingPrototype != null ? !countingPrototype.equals(that.countingPrototype) : that.countingPrototype != null) {
-            return false;
-        }
-        if (displayConfig != null ? !displayConfig.equals(that.displayConfig) : that.displayConfig != null) {
             return false;
         }
         if (filters != null ? !filters.equals(that.filters) : that.filters != null) {

@@ -5,19 +5,15 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
-import java.io.Serializable;
-
 /**
- * Created with IntelliJ IDEA.
- * User: User
- * Date: 12.09.13
- * Time: 15:56
- * To change this template use File | Settings | File Templates.
+ * @author Yaroslav Bondacrhuk
+ *         Date: 13/9/13
+ *         Time: 12:05 PM
  */
 @Root(name = "linked-domain-objects-table")
 public class LinkedDomainObjectsTableConfig implements Dto {
     @Attribute(name = "id")
-    private long id;
+    private String id;
 
     @Element(name = "field-path")
     private FieldPathConfig fieldPathConfig;
@@ -25,17 +21,17 @@ public class LinkedDomainObjectsTableConfig implements Dto {
     @Element(name = "linked-form")
     private LinkedFormConfig linkedFormConfig;
 
-    @Element(name = "pattern")
+    @Element(name = "pattern", required = false)
     private PatternConfig patternConfig;
 
     @Element(name = "summary-table")
     private SummaryTableConfig summaryTableConfig;
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -85,7 +81,7 @@ public class LinkedDomainObjectsTableConfig implements Dto {
         if (fieldPathConfig != null ? !fieldPathConfig.equals(that.fieldPathConfig) : that.fieldPathConfig != null) {
             return false;
         }
-        if (id != that.id) {
+        if (id != null ? !id.equals(that.id) : that.id != null) {
             return false;
         }
         if (linkedFormConfig != null ? !linkedFormConfig.equals(that.linkedFormConfig) : that.linkedFormConfig != null) {
@@ -104,11 +100,11 @@ public class LinkedDomainObjectsTableConfig implements Dto {
 
     @Override
     public int hashCode() {
-        int result = (int)id;
+        int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (fieldPathConfig != null ? fieldPathConfig.hashCode() : 0);
-        result = result + (linkedFormConfig != null ? linkedFormConfig.hashCode() : 0);
-        result = result + (patternConfig != null ? patternConfig.hashCode() : 0);
-        result = result + (summaryTableConfig != null ? summaryTableConfig.hashCode() : 0);
+        result = 31 * result + (linkedFormConfig != null ? linkedFormConfig.hashCode() : 0);
+        result = 31 * result + (patternConfig != null ? patternConfig.hashCode() : 0);
+        result = 31 * result + (summaryTableConfig != null ? summaryTableConfig.hashCode() : 0);
         return result;
     }
 }

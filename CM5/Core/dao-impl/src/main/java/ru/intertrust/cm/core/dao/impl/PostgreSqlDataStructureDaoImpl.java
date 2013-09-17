@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import ru.intertrust.cm.core.business.api.dto.DomainObjectTypeId;
 import ru.intertrust.cm.core.config.model.DomainObjectParentConfig;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
@@ -80,7 +79,6 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
 
         Integer id = domainObjectTypeIdDao.insert(config.getName());
         config.setId(new Long(id));
-        DomainObjectTypeIdCache.getInstance().add(new DomainObjectTypeId(config.getName(), id));
     }
 
     /**

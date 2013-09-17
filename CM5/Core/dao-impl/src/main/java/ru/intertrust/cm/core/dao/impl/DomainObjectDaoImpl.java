@@ -60,6 +60,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private DomainObjectCacheServiceImpl domainObjectCacheService;
 
     @Autowired
+    private DomainObjectTypeIdCache domainObjectTypeIdCache;
+
+    @Autowired
     public void setDomainObjectCacheService(DomainObjectCacheServiceImpl domainObjectCacheService) {
         this.domainObjectCacheService = domainObjectCacheService;
     }
@@ -91,10 +94,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         this.configurationExplorer = configurationExplorer;
     }
 
+    public void setDomainObjectTypeIdCache(DomainObjectTypeIdCache domainObjectTypeIdCache) {
+        this.domainObjectTypeIdCache = domainObjectTypeIdCache;
+    }
+
     @Override
     public DomainObject create(DomainObject domainObject) {
-        DomainObject createdObject = create(domainObject, DomainObjectTypeIdCache.getInstance().getIdByName
-                (domainObject.getTypeName()));
+        DomainObject createdObject =
+                create(domainObject, domainObjectTypeIdCache.getIdByName(domainObject.getTypeName()));
         domainObjectCacheService.putObjectToCache(createdObject);
 
         return createdObject;

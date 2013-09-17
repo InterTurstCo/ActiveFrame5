@@ -4,6 +4,7 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.model.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.model.gui.form.widget.WidgetConfigurationConfig;
 
 /**
@@ -11,21 +12,21 @@ import ru.intertrust.cm.core.config.model.gui.form.widget.WidgetConfigurationCon
  *         Date: 05.09.13
  *         Time: 15:58
  */
-@Root( name = "form")
-public class FormConfig implements Dto {
-    @Attribute(name = "name")
+@Root( name = "form", strict = false)
+public class FormConfig implements Dto, TopLevelConfig {
+    @Attribute(name = "name", required = false)
     private String name;
 
-    @Attribute(name = "domain-object-type")
+    @Attribute(name = "domain-object-type", required = false)
     private String domainObjectType;
 
-    @Attribute(name = "is-default")
-    private boolean default_;
+    @Attribute(name = "is-default",required = false)
+    private boolean isDefault;
 
     @Element(name = "markup")
     private MarkupConfig markup;
 
-    @Element(name = "widget-template")
+    @Element(name = "widget-config")
     private WidgetConfigurationConfig widgetConfigurationConfig;
 
     public MarkupConfig getMarkup() {
@@ -35,9 +36,9 @@ public class FormConfig implements Dto {
     public void setMarkup(MarkupConfig markup) {
         this.markup = markup;
     }
-
+    @Override
     public String getName() {
-        return name;
+        return name != null ? name : "form";
     }
 
     public void setName(String name) {
@@ -52,12 +53,12 @@ public class FormConfig implements Dto {
         this.domainObjectType = domainObjectType;
     }
 
-    public boolean isDefault_() {
-        return default_;
+    public boolean isDefault() {
+        return isDefault;
     }
 
-    public void setDefault_(boolean default_) {
-        this.default_ = default_;
+    public void setDefault(boolean isDefault) {
+        this.isDefault = isDefault;
     }
 
     public WidgetConfigurationConfig getWidgetConfigurationConfig() {
@@ -79,7 +80,7 @@ public class FormConfig implements Dto {
 
         FormConfig that = (FormConfig) o;
 
-        if (default_ != that.default_) {
+        if (isDefault != that.isDefault) {
             return false;
         }
         if (domainObjectType != null ? !domainObjectType.equals(that.domainObjectType) : that.domainObjectType != null) {
@@ -91,7 +92,8 @@ public class FormConfig implements Dto {
         if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
         }
-        if (widgetConfigurationConfig != null ? !widgetConfigurationConfig.equals(that.widgetConfigurationConfig) : that.widgetConfigurationConfig != null) {
+        if (widgetConfigurationConfig != null ? !widgetConfigurationConfig.equals(that.
+                widgetConfigurationConfig) : that.widgetConfigurationConfig != null) {
             return false;
         }
 
@@ -102,9 +104,9 @@ public class FormConfig implements Dto {
     public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (domainObjectType != null ? domainObjectType.hashCode() : 0);
-        result = result + (default_ ? 1 : 0);
-        result = result + (markup != null ? markup.hashCode() : 0);
-        result = result + (widgetConfigurationConfig != null ? widgetConfigurationConfig.hashCode() : 0);
+        result = 31 * result + (isDefault ? 1 : 0);
+        result = 31 * result + (markup != null ? markup.hashCode() : 0);
+        result = 31 * result + (widgetConfigurationConfig != null ? widgetConfigurationConfig.hashCode() : 0);
         return result;
     }
 }
