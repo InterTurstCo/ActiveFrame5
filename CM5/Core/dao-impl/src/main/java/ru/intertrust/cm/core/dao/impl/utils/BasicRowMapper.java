@@ -2,14 +2,7 @@ package ru.intertrust.cm.core.dao.impl.utils;
 
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.SystemField;
-import ru.intertrust.cm.core.config.model.DateTimeFieldConfig;
-import ru.intertrust.cm.core.config.model.DecimalFieldConfig;
-import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.model.FieldConfig;
-import ru.intertrust.cm.core.config.model.LongFieldConfig;
-import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
-import ru.intertrust.cm.core.config.model.StringFieldConfig;
+import ru.intertrust.cm.core.config.model.*;
 import ru.intertrust.cm.core.dao.impl.DataType;
 import ru.intertrust.cm.core.model.FatalException;
 
@@ -21,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+
 /**
  * Базовй класс для отображения {@link java.sql.ResultSet} на доменные объекты и коллекции.
  *
@@ -28,11 +23,10 @@ import java.util.List;
  */
 public class BasicRowMapper {
 
-    private static final String DEFAULT_PARENT_FIELD = "parent";
+    private static final String MASTER_FIELD = "master";
 
     protected final String domainObjectType;
     protected final String idField;
-    protected final String parentField;
 
     protected ConfigurationExplorer configurationExplorer;
 
@@ -40,7 +34,6 @@ public class BasicRowMapper {
         this.domainObjectType = domainObjectType;
         this.idField = idField;
         this.configurationExplorer = configurationExplorer;
-        this.parentField = DEFAULT_PARENT_FIELD;
     }
 
     /**
@@ -118,7 +111,7 @@ public class BasicRowMapper {
             } else {
                 throw new FatalException("Id field can not be null for object " + domainObjectType);
             }
-        } else if (parentField.equalsIgnoreCase(columnName)) {
+        } else if (MASTER_FIELD.equalsIgnoreCase(columnName)) {
             if (parentDomainObjectType == null) {
                 throw new FatalException("Parent is not configured for domain object but exists in DB: "
                         + domainObjectType);
@@ -152,12 +145,11 @@ public class BasicRowMapper {
                 value = new DecimalValue();
             }
         } else if (fieldConfig != null && ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
-            // TODO: Реализовать обработку множественных типов ссылки
-            String referenceType = ((ReferenceFieldConfig) fieldConfig).getTypes().get(0).getName();
-            Long longValue = rs.getLong(columnName);
             if (!rs.wasNull()) {
-                Id referenceId = new RdbmsId(referenceType, longValue);
-                value = new ReferenceValue(referenceId);
+                String referenceType = findTypeByColumnName((ReferenceFieldConfig) fieldConfig, columnName);
+                Long longValue = rs.getLong(columnName);
+
+                value = new ReferenceValue(new RdbmsId(referenceType, longValue));
             } else {
                 value = new ReferenceValue();
             }
@@ -198,6 +190,16 @@ public class BasicRowMapper {
         if (valueModel.getValue() != null) {
             object.setValue(columnName, valueModel.getValue());
         }
+    }
+
+    private String findTypeByColumnName(ReferenceFieldConfig fieldConfig, String columnName) {
+        for (ReferenceFieldTypeConfig typeConfig : fieldConfig.getTypes()) {
+            if (columnName.equalsIgnoreCase(getSqlName(fieldConfig, typeConfig))) {
+                return typeConfig.getName();
+            }
+        }
+
+        throw new FatalException("Domain Object Type cannot be found for column '" + columnName + "'");
     }
 
     //protected void fillValueModelWithSystemFields(SystemField systemFields,)

@@ -16,6 +16,9 @@
 
     <bean id="configurationLoader" class="ru.intertrust.cm.core.business.impl.ConfigurationLoader" init-method="load"/>
 
+    <bean id="initialDataLoader" class="ru.intertrust.cm.core.business.impl.InitialDataLoader" init-method="load"
+          depends-on="configurationLoader"/>
+
     <bean id="configurationControlService"
           class="ru.intertrust.cm.core.business.impl.ConfigurationControlServiceImpl"/>
 
