@@ -4,7 +4,7 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Namespace;
 import org.simpleframework.xml.Root;
-import ru.intertrust.cm.core.config.model.TopLevelConfig;
+import ru.intertrust.cm.core.config.model.base.TopLevelConfig;
 
 /**
  * Тестовая конфигурация верхнего уровня внешнего модуля

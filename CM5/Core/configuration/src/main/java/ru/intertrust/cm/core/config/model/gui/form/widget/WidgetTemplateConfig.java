@@ -4,7 +4,7 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.config.model.TopLevelConfig;
+import ru.intertrust.cm.core.config.model.base.TopLevelConfig;
 
 /**
  * @author Yaroslav Bondacrhuk

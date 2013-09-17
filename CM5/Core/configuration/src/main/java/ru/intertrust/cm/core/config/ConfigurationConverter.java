@@ -5,7 +5,7 @@ import org.simpleframework.xml.core.Persister;
 import org.simpleframework.xml.stream.InputNode;
 import org.simpleframework.xml.stream.OutputNode;
 import ru.intertrust.cm.core.config.model.Configuration;
-import ru.intertrust.cm.core.config.model.TopLevelConfig;
+import ru.intertrust.cm.core.config.model.base.TopLevelConfig;
 
 /**
  * Конвертер для сериализации конфигурации

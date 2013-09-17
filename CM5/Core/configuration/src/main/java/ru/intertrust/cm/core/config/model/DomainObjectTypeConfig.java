@@ -5,6 +5,7 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.config.SystemField;
+import ru.intertrust.cm.core.config.model.base.TopLevelConfig;
 import ru.intertrust.cm.core.model.FatalException;
 
 import java.util.ArrayList;
