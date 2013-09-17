@@ -11,7 +11,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.model.CollectionColumnConfig;
+import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.dao.impl.DataType;
 import ru.intertrust.cm.core.dao.impl.SqlQueryModifier;
 import ru.intertrust.cm.core.model.FatalException;

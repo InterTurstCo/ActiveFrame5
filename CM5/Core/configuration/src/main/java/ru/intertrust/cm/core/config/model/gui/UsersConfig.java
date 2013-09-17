@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.config.model.gui.form;
+package ru.intertrust.cm.core.config.model.gui;
 
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;

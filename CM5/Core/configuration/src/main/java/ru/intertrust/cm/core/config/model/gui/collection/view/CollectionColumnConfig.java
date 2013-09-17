@@ -1,15 +1,15 @@
-package ru.intertrust.cm.core.config.model;
+package ru.intertrust.cm.core.config.model.gui.collection.view;
 
 import org.simpleframework.xml.Attribute;
-
-import java.io.Serializable;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
  *
  * @author atsvetkov
  *
  */
-public class CollectionColumnConfig implements Serializable {
+
+public class CollectionColumnConfig implements Dto {
 
     @Attribute(required = true)
     private String field;

@@ -1,8 +1,8 @@
-package ru.intertrust.cm.core.config.model;
+package ru.intertrust.cm.core.config.model.gui.collection.view;
 
 import org.simpleframework.xml.ElementList;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +11,7 @@ import java.util.List;
  * @author atsvetkov
  *
  */
-public class CollectionDisplayConfig implements Serializable {
+public class CollectionDisplayConfig implements Dto {
 
     @ElementList(entry="column", type=CollectionColumnConfig.class, inline=true)
     private List<CollectionColumnConfig> columnConfig = new ArrayList<>();

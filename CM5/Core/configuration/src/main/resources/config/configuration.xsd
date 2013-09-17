@@ -134,6 +134,12 @@
             <xs:element name="widget-template" type="con:widgetTemplateType"
                         maxOccurs="unbounded" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element name="collection-view" type="con:collectionViewType"
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element name="collection-mappings" type="con:collectionMappingsType"
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:choice>
     </xs:complexType>
 
@@ -202,37 +208,10 @@
         <xs:attribute type="xs:string" name="name" use="optional" />
     </xs:complexType>
 
-    <xs:complexType name="displayType">
-        <xs:sequence>
-            <xs:element type="con:columnType" name="column"
-                        maxOccurs="unbounded" minOccurs="0"
-                        xmlns:con="https://cm5.intertrust.ru/config" />
-        </xs:sequence>
-    </xs:complexType>
-
     <xs:complexType name="filterReferenceType">
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute type="xs:string" name="placeholder" />
-            </xs:extension>
-        </xs:simpleContent>
-    </xs:complexType>
-
-    <xs:complexType name="columnType">
-        <xs:simpleContent>
-            <xs:extension base="xs:string">
-                <xs:attribute type="xs:string" name="field"
-                              use="optional" />
-                <xs:attribute type="xs:string" name="name"
-                              use="optional" />
-                <xs:attribute type="xs:string" name="hidden"
-                              use="optional" />
-                <xs:attribute type="xs:string" name="sortable"
-                              use="optional" />
-                <xs:attribute type="xs:string" name="editable"
-                              use="optional" />
-                <xs:attribute type="xs:string" name="type"
-                              use="optional" />
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -256,9 +235,6 @@
 
     <xs:complexType name="collectionType">
         <xs:sequence>
-            <xs:element type="con:displayType" name="display"
-                        xmlns:con="https://cm5.intertrust.ru/config">
-            </xs:element>
             <xs:element type="xs:string" name="prototype"
                         minOccurs="0" maxOccurs="1" />
             <xs:element type="xs:string" name="counting-prototype"
@@ -909,5 +885,54 @@
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
+    <!-- Collection-view part -->
+    <xs:complexType name="collectionMappingsType">
+        <xs:sequence>
+            <xs:element type="con:collectionMappingType" name="collection-mapping" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
 
+    <xs:complexType name="columnType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="field"
+                              use="optional" />
+                <xs:attribute type="xs:string" name="name"
+                              use="optional" />
+                <xs:attribute type="xs:string" name="hidden"
+                              use="optional" />
+                <xs:attribute type="xs:string" name="sortable"
+                              use="optional" />
+                <xs:attribute type="xs:string" name="editable"
+                              use="optional" />
+                <xs:attribute type="xs:string" name="type"
+                              use="optional" />
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="displayType">
+        <xs:sequence>
+            <xs:element type="con:columnType" name="column"
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="collectionMappingType">
+        <xs:sequence>
+            <xs:element type="con:usersType" name="users" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:rolesType" name="roles" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="collection"/>
+        <xs:attribute type="xs:string" name="view"/>
+    </xs:complexType>
+    <xs:complexType name="collectionViewType">
+        <xs:sequence>
+            <xs:element type="con:displayType" name="display" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="name"/>
+        <xs:attribute type="xs:string" name="collection"/>
+        <xs:attribute type="xs:string" name="is-default"/>
+    </xs:complexType>
 </xs:schema>

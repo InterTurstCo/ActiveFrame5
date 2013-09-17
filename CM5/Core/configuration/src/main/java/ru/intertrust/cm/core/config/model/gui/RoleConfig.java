@@ -1,25 +1,24 @@
-package ru.intertrust.cm.core.config.model.gui.form;
+package ru.intertrust.cm.core.config.model.gui;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
-import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
  * @author Yaroslav Bondacrhuk
  *         Date: 13/9/13
  *         Time: 12:05 PM
  */
-@Root(name = "user")
-public class UserConfig implements Dto {
-    @Attribute(name = "uid")
-    private String uid;
+@Root(name = "role")
+public class RoleConfig {
+    @Attribute(name = "name")
+    private String name;
 
-    public String getUid() {
-        return uid;
+    public String getName() {
+        return name;
     }
 
-    public void setUid(String uid) {
-        this.uid = uid;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
@@ -31,9 +30,9 @@ public class UserConfig implements Dto {
             return false;
         }
 
-        UserConfig that = (UserConfig) o;
+        RoleConfig that = (RoleConfig) o;
 
-        if (uid != null ? !uid.equals(that.uid) : that.uid != null) {
+        if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
         }
 
@@ -42,6 +41,6 @@ public class UserConfig implements Dto {
 
     @Override
     public int hashCode() {
-        return uid != null ? uid.hashCode() : 0;
+        return name != null ? name.hashCode() : 0;
     }
 }
