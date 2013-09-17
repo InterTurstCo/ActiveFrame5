@@ -3,10 +3,6 @@ package ru.intertrust.cm.core.config;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.simpleframework.xml.Serializer;
-import org.simpleframework.xml.convert.AnnotationStrategy;
-import org.simpleframework.xml.core.Persister;
-import org.simpleframework.xml.strategy.Strategy;
 import ru.intertrust.cm.core.config.model.base.Configuration;
 
 import java.util.Arrays;
@@ -59,7 +55,6 @@ public class NavigationPanelLogicalValidatorTest {
         configurationSerializer.setModulesConfigurationSchemaPath(MODULES_CONFIG_SCHEMA_PATH);
 
         Configuration configuration = configurationSerializer.deserializeConfiguration();
-        System.out.println(ConfigurationSerializer.serializeConfiguration(configuration));
 
         ConfigurationExplorer configurationExplorer = new ConfigurationExplorerImpl(configuration);
         return configurationExplorer;
