@@ -13,7 +13,6 @@ import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPanel;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
@@ -36,13 +35,13 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
         AsyncCallback<BusinessUniverseInitialization> callback = new AsyncCallback<BusinessUniverseInitialization>() {
             @Override
             public void onSuccess(BusinessUniverseInitialization result) {
-                mainLayoutPanel = new DockLayoutPanel(Style.Unit.EM);
+                mainLayoutPanel = new DockLayoutPanel(Style.Unit.PCT);
 
                 Plugin searchPlugin = ComponentRegistry.instance.get("search.plugin");
                 PluginPanel searchPluginPanel = new PluginPanel(BusinessUniverse.this.eventBus);
                 searchPluginPanel.open(searchPlugin);
                 VerticalPanel headerPanel = prepareHeaderPanel(searchPluginPanel);
-                mainLayoutPanel.addNorth(headerPanel, 5.6);
+                mainLayoutPanel.addNorth(headerPanel, 20);
 
                 Plugin navigationTreePlugin = ComponentRegistry.instance.get("navigation.tree");
                 Plugin domainObjectSurferPlugin = ComponentRegistry.instance.get("domain.object.surfer.plugin");
@@ -52,9 +51,9 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
                 addCollection(mainLayoutPanel, collectionPlugin,  domainObjectSurferPlugin);
                 addNavigationTree(mainLayoutPanel, navigationTreePlugin, domainObjectSurferPlugin);
 
-                addDragPanel(mainLayoutPanel);
+                addFormPanel(mainLayoutPanel);
 
-                addStickerPanel(mainLayoutPanel);
+                //addStickerPanel(mainLayoutPanel);
                 RootLayoutPanel.get().add(mainLayoutPanel);
             }
 
@@ -72,7 +71,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
         Plugin stickerPlugin = ComponentRegistry.instance.get("sticker.plugin");
         stickerPluginPanel.open(stickerPlugin);
 
-        mainLayoutPanel.addEast(stickerPluginPanel, 5);
+        mainLayoutPanel.addEast(stickerPluginPanel, 20);
     }
 
     private void prepareActionPanel(VerticalPanel grid) {
@@ -146,11 +145,14 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
         return logo;
     }
 
-    private void addDragPanel(DockLayoutPanel mainLayoutPanel) {
-        //PluginPanel dragPluginPanel = new PluginPanel(eventBus);
-        //Plugin dragPanelPlugin = ComponentRegistry.instance.get("dragpanel.plugin");
-        //dragPluginPanel.open(dragPanelPlugin);
-        //mainLayoutPanel.addSouth(dragPluginPanel, 2);
+    private void addFormPanel(DockLayoutPanel mainLayoutPanel) {
+        PluginPanel formPlaginPanel = new PluginPanel(eventBus);
+        Plugin plugin = ComponentRegistry.instance.get("some.active.plugin");
+        formPlaginPanel.open(plugin);
+        SimpleLayoutPanel layoutPanel = new SimpleLayoutPanel();
+        layoutPanel.setSize("100%", "100%");
+        layoutPanel.add(formPlaginPanel);
+        mainLayoutPanel.addSouth(layoutPanel, 50);
     }
 
     private void addNavigationTree(DockLayoutPanel dockLayoutPanel, final Plugin navigationTreePlugin, final Plugin domainObjectSurfer) {
@@ -164,12 +166,12 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
                 mainLayoutPanel.add(domainObjectSurferPanel);
             }
         };
-        navigationTreePanel.open(navigationTreePlugin);
+        //navigationTreePanel.open(navigationTreePlugin);
         dockLayoutPanel.addWest(navigationTreePanel, 15);
     }
     private void addCollection(DockLayoutPanel dockLayoutPanel, final Plugin collectionPlugin, final Plugin domainObjectSurfer) {
         PluginPanel collectionPanel = new PluginPanel(eventBus) ;
-        collectionPanel.open(collectionPlugin);
+        //collectionPanel.open(collectionPlugin);
       dockLayoutPanel.addSouth(collectionPanel, 15);
     }
 
