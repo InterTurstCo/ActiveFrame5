@@ -8,10 +8,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
-import ru.intertrust.cm.core.config.model.CollectionConfig;
-import ru.intertrust.cm.core.config.model.CollectionFilterConfig;
-import ru.intertrust.cm.core.config.model.CollectionFilterCriteriaConfig;
-import ru.intertrust.cm.core.config.model.CollectionFilterReferenceConfig;
+import ru.intertrust.cm.core.config.model.base.CollectionConfig;
+import ru.intertrust.cm.core.config.model.base.CollectionFilterConfig;
+import ru.intertrust.cm.core.config.model.base.CollectionFilterCriteriaConfig;
+import ru.intertrust.cm.core.config.model.base.CollectionFilterReferenceConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 

@@ -8,8 +8,8 @@ import java.util.Set;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion.Order;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
-import ru.intertrust.cm.core.config.model.CollectionConfig;
-import ru.intertrust.cm.core.config.model.CollectionFilterConfig;
+import ru.intertrust.cm.core.config.model.base.CollectionConfig;
+import ru.intertrust.cm.core.config.model.base.CollectionFilterConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.model.FatalException;
 
@@ -34,7 +34,6 @@ public class CollectionQueryInitializer {
 
     /**
      * Применение фильтров, сортировки и т.д. к прототипу запроса.
-     * @param prototypeQuery прототип запроса
      * @param filledFilterConfigs заполненные фильтры
      * @param sortOrder порядок сортировки
      * @param offset смещение
@@ -88,7 +87,6 @@ public class CollectionQueryInitializer {
 
     /**
      * Применение фильтров, и т.д. к прототипу запроса на количество доменных объектов в коллекции.
-     * @param prototypeQuery прототип запроса
      * @param filledFilterConfigs заполненные фильтры
      * @return
      */

@@ -13,6 +13,7 @@ import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPanel;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
@@ -46,6 +47,9 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
                 Plugin navigationTreePlugin = ComponentRegistry.instance.get("navigation.tree");
                 Plugin domainObjectSurferPlugin = ComponentRegistry.instance.get("domain.object.surfer.plugin");
 
+                Plugin collectionPlugin = ComponentRegistry.instance.get("collection.plugin");
+
+                addCollection(mainLayoutPanel, collectionPlugin,  domainObjectSurferPlugin);
                 addNavigationTree(mainLayoutPanel, navigationTreePlugin, domainObjectSurferPlugin);
 
                 addDragPanel(mainLayoutPanel);
@@ -143,10 +147,10 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
     }
 
     private void addDragPanel(DockLayoutPanel mainLayoutPanel) {
-        PluginPanel dragPluginPanel = new PluginPanel(eventBus);
-        Plugin dragPanelPlugin = ComponentRegistry.instance.get("dragpanel.plugin");
-        dragPluginPanel.open(dragPanelPlugin);
-        mainLayoutPanel.addSouth(dragPluginPanel, 2);
+        //PluginPanel dragPluginPanel = new PluginPanel(eventBus);
+        //Plugin dragPanelPlugin = ComponentRegistry.instance.get("dragpanel.plugin");
+        //dragPluginPanel.open(dragPanelPlugin);
+        //mainLayoutPanel.addSouth(dragPluginPanel, 2);
     }
 
     private void addNavigationTree(DockLayoutPanel dockLayoutPanel, final Plugin navigationTreePlugin, final Plugin domainObjectSurfer) {
@@ -162,6 +166,11 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
         };
         navigationTreePanel.open(navigationTreePlugin);
         dockLayoutPanel.addWest(navigationTreePanel, 15);
+    }
+    private void addCollection(DockLayoutPanel dockLayoutPanel, final Plugin collectionPlugin, final Plugin domainObjectSurfer) {
+        PluginPanel collectionPanel = new PluginPanel(eventBus) ;
+        collectionPanel.open(collectionPlugin);
+      dockLayoutPanel.addSouth(collectionPanel, 15);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.config.model;
+package ru.intertrust.cm.core.config.model.base;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
@@ -33,7 +33,7 @@ public class CollectionConfig implements TopLevelConfig {
     private String countingPrototype;
 
     @ElementList(entry = "filter", required = false, inline=true)
-    private List<CollectionFilterConfig> filters = new ArrayList<>();
+    private List<CollectionFilterConfig> filters = new ArrayList<CollectionFilterConfig>();
 
     @Element(name = "renderer", required = false)
     private CollectionRendererConfig renderer;

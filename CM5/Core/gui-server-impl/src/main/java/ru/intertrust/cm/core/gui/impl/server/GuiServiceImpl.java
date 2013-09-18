@@ -10,7 +10,9 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.FileUtils;
+import ru.intertrust.cm.core.config.model.base.CollectionConfig;
 import ru.intertrust.cm.core.config.model.base.Configuration;
+import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.model.gui.form.*;
 import ru.intertrust.cm.core.config.model.gui.form.widget.*;
 import ru.intertrust.cm.core.config.model.gui.navigation.NavigationConfig;
@@ -75,7 +77,6 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         }
         return null;
     }
-
 
     @Override
     public PluginData executeCommand(Command command) {

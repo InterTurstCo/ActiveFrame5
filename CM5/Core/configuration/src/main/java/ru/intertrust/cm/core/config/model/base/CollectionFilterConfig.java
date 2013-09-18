@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.config.model;
+package ru.intertrust.cm.core.config.model.base;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;

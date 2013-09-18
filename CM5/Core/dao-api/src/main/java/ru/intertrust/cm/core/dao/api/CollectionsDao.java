@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.dao.api;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
-import ru.intertrust.cm.core.config.model.CollectionFilterConfig;
+import ru.intertrust.cm.core.config.model.base.CollectionFilterConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 
 import java.util.List;

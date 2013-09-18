@@ -4,6 +4,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import ru.intertrust.cm.core.config.model.*;
+import ru.intertrust.cm.core.config.model.base.CollectionConfig;
 import ru.intertrust.cm.core.config.model.base.Configuration;
 
 import java.io.DataInputStream;

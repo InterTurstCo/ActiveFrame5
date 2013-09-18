@@ -14,7 +14,7 @@ import java.util.List;
 public class CollectionDisplayConfig implements Dto {
 
     @ElementList(entry="column", type=CollectionColumnConfig.class, inline=true)
-    private List<CollectionColumnConfig> columnConfig = new ArrayList<>();
+    private List<CollectionColumnConfig> columnConfig = new ArrayList<CollectionColumnConfig>();
 
     public List<CollectionColumnConfig> getColumnConfig() {
         return columnConfig;
