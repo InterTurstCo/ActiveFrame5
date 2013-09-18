@@ -241,21 +241,21 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         }
         return dynamicGroups;
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public AccessMatrixConfig getAccessMatrixByObjectTypeAndStatus(String domainObjectType, String status) {       
+    public AccessMatrixConfig getAccessMatrixByObjectTypeAndStatus(String domainObjectType, String status) {
         Map<String, TopLevelConfig> accessMatrixMap = topLevelConfigMap.get(AccessMatrixConfig.class);
 
         for (String accessMatrixObjectType : accessMatrixMap.keySet()) {
-            AccessMatrixConfig accessMatrixConfig = (AccessMatrixConfig) accessMatrixMap.get(accessMatrixObjectType);            
+            AccessMatrixConfig accessMatrixConfig = (AccessMatrixConfig) accessMatrixMap.get(accessMatrixObjectType);
             String accessMatrixStatus = null;
             if (accessMatrixConfig.getStatus() != null && accessMatrixConfig.getStatus().getName() != null) {
                 accessMatrixStatus = accessMatrixConfig.getStatus().getName();
             }
-            
+
             if(status!= null && status.equals(accessMatrixStatus) && accessMatrixObjectType.equals(domainObjectType)){
                 return accessMatrixConfig;
             }

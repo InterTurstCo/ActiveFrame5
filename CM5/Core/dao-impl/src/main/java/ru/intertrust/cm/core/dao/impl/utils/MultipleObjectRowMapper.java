@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.impl.DomainObjectCacheServiceImpl;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
@@ -23,8 +24,9 @@ public class MultipleObjectRowMapper extends BasicRowMapper implements ResultSet
 
     private DomainObjectCacheServiceImpl domainObjectCacheService;
 
-    public MultipleObjectRowMapper(String domainObjectType, ConfigurationExplorer configurationExplorer) {
-        super(domainObjectType, DefaultFields.DEFAULT_ID_FIELD, configurationExplorer);
+    public MultipleObjectRowMapper(String domainObjectType, ConfigurationExplorer configurationExplorer,
+                                   DomainObjectTypeIdCache domainObjectTypeIdCache) {
+        super(domainObjectType, DefaultFields.DEFAULT_ID_FIELD, configurationExplorer, domainObjectTypeIdCache);
     }
 
     @Override

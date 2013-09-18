@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.model.ReferenceFieldTypeConfig;
 import ru.intertrust.cm.core.config.model.doel.DoelExpression;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 
 import java.util.Collections;
 
@@ -26,11 +27,14 @@ public class DoelResolverTest {
     private NamedParameterJdbcTemplate jdbcTemplate;
     @Mock
     private ConfigurationExplorer configurationExplorer;
+    @Mock
+    private DomainObjectTypeIdCache domainObjectTypeIdCache;
 
     @Test
     @SuppressWarnings("unchecked")
     public void testEvaluation() {
-        RdbmsId id = new RdbmsId("InternalDoc", 1L);
+        when(domainObjectTypeIdCache.getName(1)).thenReturn("Employee");
+        RdbmsId id = new RdbmsId(1, 1L);
         DoelExpression expr = DoelExpression.parse("Commission^parent.Job^parent.Assignee.Department");
         doelResolver.evaluate(expr, id);
 

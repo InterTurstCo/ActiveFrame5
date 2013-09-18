@@ -1,38 +1,26 @@
 package ru.intertrust.cm.core.dao.impl.doel;
 
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.model.*;
+import ru.intertrust.cm.core.config.model.doel.DoelExpression;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper;
+
+import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.sql.DataSource;
-
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-
-import ru.intertrust.cm.core.business.api.dto.DecimalValue;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.LongValue;
-import ru.intertrust.cm.core.business.api.dto.RdbmsId;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.business.api.dto.TimestampValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.model.DateTimeFieldConfig;
-import ru.intertrust.cm.core.config.model.DecimalFieldConfig;
-import ru.intertrust.cm.core.config.model.FieldConfig;
-import ru.intertrust.cm.core.config.model.LongFieldConfig;
-import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
-import ru.intertrust.cm.core.config.model.StringFieldConfig;
-import ru.intertrust.cm.core.config.model.doel.DoelExpression;
-import ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper;
-
 public class DoelResolver {
 
     private NamedParameterJdbcTemplate jdbcTemplate;
     private ConfigurationExplorer configurationExplorer;
+    private DomainObjectTypeIdCache domainObjectTypeIdCache;
 
     public void setDataSource(DataSource dataSource) {
         this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
@@ -44,6 +32,10 @@ public class DoelResolver {
 
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
+    }
+
+    public void setDomainObjectTypeIdCache(DomainObjectTypeIdCache domainObjectTypeIdCache) {
+        this.domainObjectTypeIdCache = domainObjectTypeIdCache;
     }
 
     private String generateEvaluationQuery(DoelExpression expression, String sourceType) {
@@ -135,7 +127,7 @@ public class DoelResolver {
             }
         }
         if (types.resultType == null) {
-            //types.resultType = 
+            //types.resultType =
         }
         return types;
     }
@@ -161,7 +153,7 @@ public class DoelResolver {
         //TODO Change return type
         RdbmsId id = (RdbmsId) sourceObjectId;
         //TODO: Реализовать выборку объекта из транзакционного кэша, если он там есть, вместо обращения к БД
-        String query = generateEvaluationQuery(expression, id.getTypeName());
+        String query = generateEvaluationQuery(expression, domainObjectTypeIdCache.getName(id.getTypeId()));
         Map<String, Object> params = new HashMap<>();
         params.put("id", id.getId());
 

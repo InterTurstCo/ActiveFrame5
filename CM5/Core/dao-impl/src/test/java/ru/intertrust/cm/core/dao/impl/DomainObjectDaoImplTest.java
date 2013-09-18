@@ -128,7 +128,7 @@ public class DomainObjectDaoImplTest {
         domainObject.setValue("Password", new StringValue("passUpdate"));
 
         Date currentDate = new Date();
-        domainObject.setId(new RdbmsId("person", 1));
+        domainObject.setId(new RdbmsId(1, 1));
         domainObject.setCreatedDate(currentDate);
         domainObject.setModifiedDate(currentDate);
 
@@ -265,12 +265,12 @@ public class DomainObjectDaoImplTest {
 
         GenericDomainObject domainObject = new GenericDomainObject();
         domainObject.setTypeName("Person1_Attachment");
-        domainObject.setId(new RdbmsId("Person1_Attachment", 1));
+        domainObject.setId(new RdbmsId(1, 1));
         when(result.get(0)).thenReturn(domainObject);
 
         domainObject = new GenericDomainObject();
         domainObject.setTypeName("Person1_Attachment");
-        domainObject.setId(new RdbmsId("Person1_Attachment", 2));
+        domainObject.setId(new RdbmsId(1, 2));
         when(result.get(1)).thenReturn(domainObject);
 
         any(MultipleObjectRowMapper.class);
@@ -288,7 +288,7 @@ public class DomainObjectDaoImplTest {
 
         AccessToken accessToken = createMockAccessToken();
 
-        List<DomainObject> l = domainObjectDao.findChildren(new RdbmsId("PERSON", 1), "Person1_Attachment",
+        List<DomainObject> l = domainObjectDao.findChildren(new RdbmsId(1, 1), "Person1_Attachment",
                 accessToken);
         Assert.assertEquals(1, ((RdbmsId) l.get(0).getId()).getId());
         Assert.assertEquals(2, ((RdbmsId) l.get(1).getId()).getId());

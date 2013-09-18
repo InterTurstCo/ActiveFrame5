@@ -1,13 +1,8 @@
 package ru.intertrust.cm.core.dao.impl.utils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+
+import java.util.*;
 
 /**
  * Группирует идентификаторы доменных объектов по типу. Это нужно для оптимизации поиска списка ДО по списку разнотипных Id, проверки прав доступа к списку ДО разных типов и т.д.
@@ -16,9 +11,9 @@ import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 
 public class IdSorterByType {
 
-    private Set<String> domainObjectTypes = new HashSet<String>();
+    private Set<Integer> domainObjectTypeIds = new HashSet<>();
 
-    private Map<String, List<RdbmsId>> groupedByTypeObjectIds = new HashMap<String, List<RdbmsId>>();
+    private Map<Integer, List<RdbmsId>> groupedByTypeObjectIds = new HashMap<>();
 
     public IdSorterByType(RdbmsId[] ids) {
         collectDomainObjectTypes(ids);
@@ -27,10 +22,10 @@ public class IdSorterByType {
     }
 
     private void groupIdsByType(RdbmsId[] objectIds) {
-        for (String domainObjectType : domainObjectTypes) {
+        for (Integer domainObjectType : domainObjectTypeIds) {
             List<RdbmsId> singleTypeIds = null;
             for (RdbmsId id : objectIds) {
-                if (domainObjectType.equals(id.getTypeName())) {
+                if (domainObjectType.equals(id.getTypeId())) {
                     if (groupedByTypeObjectIds.get(domainObjectType) != null) {
                         singleTypeIds = groupedByTypeObjectIds.get(domainObjectType);
                     } else {
@@ -46,8 +41,8 @@ public class IdSorterByType {
 
     private void collectDomainObjectTypes(RdbmsId[] objectIds) {
         for (RdbmsId id : objectIds) {
-            String typeName = id.getTypeName();
-            domainObjectTypes.add(typeName);
+            Integer typeName = id.getTypeId();
+            domainObjectTypeIds.add(typeName);
         }
     }
 
@@ -56,7 +51,7 @@ public class IdSorterByType {
      * @param domainObjectType тип ДО
      * @return список идентификаторов заданного типа
      */
-    public List<RdbmsId> getIdsOfType(String domainObjectType) {
+    public List<RdbmsId> getIdsOfType(Integer domainObjectType) {
         return groupedByTypeObjectIds.get(domainObjectType);
     }
 
@@ -64,7 +59,7 @@ public class IdSorterByType {
      * Возвращает список типов доменных объектов.
      * @return список типов ДО
      */
-    public Set<String> getDomainObjectTypes() {
-        return domainObjectTypes;
+    public Set<Integer> getDomainObjectTypeIds() {
+        return domainObjectTypeIds;
     }
 }

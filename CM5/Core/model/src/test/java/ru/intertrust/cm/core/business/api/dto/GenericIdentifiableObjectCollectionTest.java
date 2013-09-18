@@ -1,11 +1,11 @@
 package ru.intertrust.cm.core.business.api.dto;
 
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.ArrayList;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Тестовый клас для {@link GenericIdentifiableObjectCollection}
@@ -14,12 +14,12 @@ import org.junit.Test;
  */
 public class GenericIdentifiableObjectCollectionTest {
 
-    
+
     private static final int TEST_ROW = 5;
     private static final int TEST_INDEX = 2;
-    
+
     private IdentifiableObjectCollection collection;
-    
+
     @Before
     public void setUp() {
         collection = new GenericIdentifiableObjectCollection();
@@ -36,9 +36,9 @@ public class GenericIdentifiableObjectCollectionTest {
         assertEquals("Type2", collection.getFields().get(collection.getFieldIndex("Type2")));
         //проверить, что естественный порядок полей сохраняется
         assertEquals(1, collection.getFieldIndex("Type2"));
-        
+
     }
-    
+
     @Test
     public void testGetField(){
         int fieldIndex = TEST_INDEX;
@@ -49,10 +49,10 @@ public class GenericIdentifiableObjectCollectionTest {
         assertEquals(longValue, collection.get(fieldIndex, rowNum));
 
     }
-    
+
     @Test
     public void testGetId(){
-        Id id = new RdbmsId("unique_key", 1000);
+        Id id = new RdbmsId(10, 1000);
         collection.setId(TEST_ROW, id);
         assertEquals(id, collection.get(TEST_ROW).getId());
 

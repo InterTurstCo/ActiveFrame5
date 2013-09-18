@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.dao.impl.utils;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.*;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.impl.DataType;
 import ru.intertrust.cm.core.model.FatalException;
 
@@ -29,11 +30,14 @@ public class BasicRowMapper {
     protected final String idField;
 
     protected ConfigurationExplorer configurationExplorer;
+    protected DomainObjectTypeIdCache domainObjectTypeIdCache;
 
-    public BasicRowMapper(String domainObjectType, String idField, ConfigurationExplorer configurationExplorer) {
+    public BasicRowMapper(String domainObjectType, String idField, ConfigurationExplorer configurationExplorer,
+                          DomainObjectTypeIdCache domainObjectTypeIdCache) {
         this.domainObjectType = domainObjectType;
         this.idField = idField;
         this.configurationExplorer = configurationExplorer;
+        this.domainObjectTypeIdCache = domainObjectTypeIdCache;
     }
 
     /**
@@ -107,7 +111,7 @@ public class BasicRowMapper {
         if (idField.equalsIgnoreCase(columnName)) {
             Long longValue = rs.getLong(columnName);
             if (!rs.wasNull()) {
-                id = new RdbmsId(domainObjectType, longValue);
+                id = new RdbmsId(domainObjectTypeIdCache.getId(domainObjectType), longValue);
             } else {
                 throw new FatalException("Id field can not be null for object " + domainObjectType);
             }
@@ -118,7 +122,7 @@ public class BasicRowMapper {
             }
             Long longValue = rs.getLong(columnName);
             if (!rs.wasNull()) {
-                parentId = new RdbmsId(parentDomainObjectType, longValue);
+                parentId = new RdbmsId(domainObjectTypeIdCache.getId(parentDomainObjectType), longValue);
             } else {
                 parentId = null;
             }
@@ -149,7 +153,7 @@ public class BasicRowMapper {
                 String referenceType = findTypeByColumnName((ReferenceFieldConfig) fieldConfig, columnName);
                 Long longValue = rs.getLong(columnName);
 
-                value = new ReferenceValue(new RdbmsId(referenceType, longValue));
+                value = new ReferenceValue(new RdbmsId(domainObjectTypeIdCache.getId(referenceType), longValue));
             } else {
                 value = new ReferenceValue();
             }

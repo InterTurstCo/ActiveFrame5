@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -8,6 +9,7 @@ import ru.intertrust.cm.core.dao.access.AccessType;
 import ru.intertrust.cm.core.dao.access.CreateChildAccessType;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.access.ExecuteActionAccessType;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper;
 import ru.intertrust.cm.core.dao.impl.utils.IdSorterByType;
 
@@ -26,7 +28,14 @@ import java.util.*;
  */
 public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
+    @Autowired
+    private DomainObjectTypeIdCache domainObjetcTypeIdCache;
+
     private NamedParameterJdbcTemplate jdbcTemplate;
+
+    public void setDomainObjetcTypeIdCache(DomainObjectTypeIdCache domainObjetcTypeIdCache) {
+        this.domainObjetcTypeIdCache = domainObjetcTypeIdCache;
+    }
 
     /**
      * Устанавливает источник данных, который будет использоваться для выполнения запросов.
@@ -69,7 +78,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         List<Id> idsWithAllowedAccess = new ArrayList<Id>();
         IdSorterByType idSorterByType = new IdSorterByType(ids);
 
-        for (final String domainObjectType : idSorterByType.getDomainObjectTypes()) {
+        for (final Integer domainObjectType : idSorterByType.getDomainObjectTypeIds()) {
             List<Id> checkedIds = getIdsWithAllowedAccessByType(userId, opCode, idSorterByType, domainObjectType);
             idsWithAllowedAccess.addAll(checkedIds);
         }
@@ -86,8 +95,8 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
      * @return
      */
     private List<Id> getIdsWithAllowedAccessByType(int userId, String opCode, IdSorterByType sorterByType,
-            final String domainObjectType) {
-        String query = getQueryForCheckMultiDomainObjectAccess(domainObjectType);
+            final Integer domainObjectType) {
+        String query = getQueryForCheckMultiDomainObjectAccess(domainObjetcTypeIdCache.getName(domainObjectType));
 
         List<Long> listIds = AccessControlUtility.convertRdbmsIdsToLongIds(sorterByType.getIdsOfType(domainObjectType));
 
@@ -148,7 +157,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
     }
 
     private String getAclTableName(RdbmsId id) {
-        String domainObjectTable = id.getTypeName();
+        String domainObjectTable = domainObjetcTypeIdCache.getName(id.getTypeId());
         return getAclTableNameFor(domainObjectTable);
     }
 

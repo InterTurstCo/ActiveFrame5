@@ -16,10 +16,10 @@ import java.util.List;
  */
 public class MultipleIdRowMapper implements ResultSetExtractor<List<Id>> {
 
-    private String domainObjectType;
+    private Integer domainObjectTypeId;
 
-    public MultipleIdRowMapper(String domainObjectType) {
-        this.domainObjectType = domainObjectType;
+    public MultipleIdRowMapper(Integer domainObjectTypeId) {
+        this.domainObjectTypeId = domainObjectTypeId;
     }
 
     @Override
@@ -27,7 +27,7 @@ public class MultipleIdRowMapper implements ResultSetExtractor<List<Id>> {
         List<Id> ids = new ArrayList<>();
         while (rs.next()) {
             long id = rs.getLong(DefaultFields.DEFAULT_ID_FIELD);
-            ids.add(new RdbmsId(domainObjectType, id));
+            ids.add(new RdbmsId(domainObjectTypeId, id));
         }
         return ids;
     }

@@ -384,10 +384,10 @@ public class AttachmentServiceImplTest {
     static private DomainObjectDao fillDomainObjectDao(DomainObjectDao domainObjectDao, AccessToken accessToken) {
         GenericDomainObject domainObject1 = new GenericDomainObjectWrapper();
         domainObject1.setTypeName("Person_Attachment");
-        domainObject1.setId(idService.createId("Person_Attachment|1"));
+        domainObject1.setId(idService.createId("0001000000000001"));
         GenericDomainObject domainObject2 = new GenericDomainObjectWrapper();
         domainObject2.setTypeName("Person_Attachment");
-        domainObject2.setId(idService.createId("Person_Attachment|2"));
+        domainObject2.setId(idService.createId("0001000000000002"));
 
         when(domainObjectDao.findChildren(any(Id.class), eq("Person_Attachment"), any(AccessToken.class))).
                 thenReturn(Arrays.asList(new DomainObject[]{domainObject1, domainObject2}));

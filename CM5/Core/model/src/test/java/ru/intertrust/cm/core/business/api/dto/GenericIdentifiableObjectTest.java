@@ -76,7 +76,7 @@ public class GenericIdentifiableObjectTest {
     }
 
     private RdbmsId createId() {
-        return new RdbmsId("object|12345");
+        return new RdbmsId("0012000000012345");
     }
 
     private GenericDomainObject createGenericDomainObject() {

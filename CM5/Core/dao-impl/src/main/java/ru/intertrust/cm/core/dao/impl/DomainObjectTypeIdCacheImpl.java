@@ -2,6 +2,9 @@ package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectTypeId;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 
 import java.util.List;
@@ -14,14 +17,15 @@ import java.util.concurrent.ConcurrentHashMap;
  *         Date: 8/13/13
  *         Time: 3:12 PM
  */
-public class DomainObjectTypeIdCache {
+public class DomainObjectTypeIdCacheImpl implements DomainObjectTypeIdCache {
 
     @Autowired
     private DomainObjectTypeIdDao domainObjectTypeIdDao;
 
     private Map<String, Integer> nameToIdMap = new ConcurrentHashMap<>();
+    private Map<Integer, String> idToNameMap = new ConcurrentHashMap<>();
 
-    private DomainObjectTypeIdCache() {
+    private DomainObjectTypeIdCacheImpl() {
 
     }
 
@@ -39,26 +43,35 @@ public class DomainObjectTypeIdCache {
         for (DomainObjectTypeId domainObjectTypeId : domainObjectTypeIds) {
             nameToIdMap.put(domainObjectTypeId.getName(), domainObjectTypeId.getId());
         }
-    }
 
-    /**
-     * Добавляет в кэш идентификатор типа доменного объекта
-     * @param domainObjectTypeId {@link DomainObjectTypeId}
-     */
-    public void add(DomainObjectTypeId domainObjectTypeId) {
-        if (domainObjectTypeId == null || domainObjectTypeId.getName() == null || domainObjectTypeId.getId() == null) {
-            return;
+        idToNameMap.clear();
+        for (DomainObjectTypeId domainObjectTypeId : domainObjectTypeIds) {
+            idToNameMap.put(domainObjectTypeId.getId(), domainObjectTypeId.getName());
         }
-
-        nameToIdMap.put(domainObjectTypeId.getName(), domainObjectTypeId.getId());
     }
 
     /**
-     * Возвращает идентификатор типа доменного объекта по его имени
-     * @param name имя типа доменного объекта
-     * @return идентификатор типа доменного объекта
+     * {@inheritDoc}
      */
-    public Integer getIdByName(String name) {
+    @Override
+    public Integer getId(String name) {
         return nameToIdMap.get(name);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getName(Integer id) {
+        return idToNameMap.get(id);
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getName(Id id) {
+        return idToNameMap.get(((RdbmsId) id).getTypeId());
     }
 }

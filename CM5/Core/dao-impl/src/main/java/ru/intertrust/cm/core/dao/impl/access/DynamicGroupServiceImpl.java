@@ -13,7 +13,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -28,6 +27,11 @@ import ru.intertrust.cm.core.config.model.doel.DoelExpression;
 import ru.intertrust.cm.core.config.model.doel.DoelExpression.Element;
 import ru.intertrust.cm.core.dao.access.DynamicGroupService;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+
+import java.util.*;
+
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 
 /**
  * Реализация сервиса по работе с динамическими группами пользователей
@@ -54,7 +58,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
 
     public void setDomainObjectDao(DomainObjectDao domainObjectDao) {
         this.domainObjectDao = domainObjectDao;
-    }    
+    }
 
     @Override
     public void notifyDomainObjectChanged(Id objectId, List<String> modifiedFieldNames) {
@@ -88,7 +92,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
         }
 
     }
-    
+
     /**
      * Получает список персон динамической группы по дескриптору группы и контекстному объекту.
      * @param dynamicGroupConfig дескриптор динамической группы
@@ -126,8 +130,9 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
      * @return обратное Doel выражение
      */
     private DoelExpression createReverseExpression(Id objectId, DoelExpression bindContextExpr) {
+        String domainObjectTypeName = domainObjectTypeIdCache.getName(((RdbmsId) objectId).getTypeId());
         DoelExpression reverseBindContextExpr =
-                doelResolver.createReverseExpression(bindContextExpr, ((RdbmsId) objectId).getTypeName());
+                doelResolver.createReverseExpression(bindContextExpr, domainObjectTypeName);
         return reverseBindContextExpr;
     }
 
@@ -173,9 +178,11 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
      * @return список конфигураций динамических групп
      */
     private List<DynamicGroupConfig> getDynamicGroupsForToRecalculateForUpdate(Id objectId, String status, List<String> modifiedFieldNames) {
+    private List<DynamicGroupConfig> getDynamicGroupsFor(Id objectId, String status) {
+        String objectTypeName = domainObjectTypeIdCache.getName(((RdbmsId) objectId).getTypeId());
         List<DynamicGroupConfig> dynamicGroups =
                 configurationExplorer.getDynamicGroupConfigsByTrackDO(objectId, status);
-        
+
         Set<DynamicGroupConfig> filteredDynamicGroups = new HashSet<DynamicGroupConfig>();
 
         for (DynamicGroupConfig dynamicGroup : dynamicGroups) {
@@ -197,7 +204,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
 
             }
         }
-        
+
         return new ArrayList<DynamicGroupConfig>(filteredDynamicGroups);
     }
 
@@ -211,9 +218,10 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
     private List<DynamicGroupConfig> getDynamicGroupsForToRecalculate(Id objectId, String status) {
         List<DynamicGroupConfig> dynamicGroups =
                 configurationExplorer.getDynamicGroupConfigsByTrackDO(objectId, status);
+                configurationExplorer.getDynamicGroupConfigsByTrackDO(objectTypeName, status);
         return dynamicGroups;
     }
-    
+
     /**
      * Проверяет, содержит ли Doel выражение в первом элементе название поля, которое было указано в списке переданных
      * измененных полей.
@@ -269,10 +277,10 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
         if (result != null && result.size() > 0) {
             Collection values = ((List<Map<String, Object>>) result).get(0).values();
             Long idLongValue = (Long) values.iterator().next();
-            contextObjectId = new RdbmsId(contextObjectType, idLongValue);
+            contextObjectId = new RdbmsId(domainObjectTypeIdCache.getId(contextObjectType), idLongValue);
         }
         return contextObjectId;
-    }    
+    }
 
     /**
      * Пересчитывает список персон динамической группы.
@@ -354,8 +362,8 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
         List<DynamicGroupConfig> dynamicGroups = getDynamicGroupsForToRecalculate(objectId, status);
         for (DynamicGroupConfig dynamicGroupConfig : dynamicGroups) {
             Id contextObjectId = getContextObjectId(dynamicGroupConfig, objectId);
-            Id dynamicGroupId = deleteUserGroupByGroupNameAndObjectId(dynamicGroupConfig.getName(), ((RdbmsId)contextObjectId).getId());           
-            cleanGroupMembers(dynamicGroupId);            
+            Id dynamicGroupId = deleteUserGroupByGroupNameAndObjectId(dynamicGroupConfig.getName(), ((RdbmsId)contextObjectId).getId());
+            cleanGroupMembers(dynamicGroupId);
         }
 
     }

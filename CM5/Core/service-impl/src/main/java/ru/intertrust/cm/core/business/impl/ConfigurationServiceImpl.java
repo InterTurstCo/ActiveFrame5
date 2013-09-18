@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.*;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.config.model.base.Configuration;
 import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionColumnConfig;
 
@@ -31,8 +32,15 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     @Autowired
     private ConfigurationExplorer configurationExplorer;
 
+    @Autowired
+    private DomainObjectTypeIdCache domainObjectTypeIdCache;
+
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
+    }
+
+    public void setDomainObjectTypeIdCache(DomainObjectTypeIdCache domainObjectTypeIdCache) {
+        this.domainObjectTypeIdCache = domainObjectTypeIdCache;
     }
 
     @Override
@@ -77,7 +85,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     @Override
     public List<DynamicGroupConfig> getDynamicGroupConfigsByTrackDO(Id objectId, String status) {
-        return configurationExplorer.getDynamicGroupConfigsByTrackDO(objectId, status);
+        return configurationExplorer.getDynamicGroupConfigsByTrackDO(domainObjectTypeIdCache.getName(objectId),
+                status);
     }
 
     @Override

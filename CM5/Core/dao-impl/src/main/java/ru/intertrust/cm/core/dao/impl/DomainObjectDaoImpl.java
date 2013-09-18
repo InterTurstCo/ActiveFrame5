@@ -1,28 +1,9 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlAlias;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.generateParameter;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.sql.DataSource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.StringUtils;
-
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.RdbmsId;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
@@ -32,16 +13,20 @@ import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.IdGenerator;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
-import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
-import ru.intertrust.cm.core.dao.impl.utils.IdSorterByType;
-import ru.intertrust.cm.core.dao.impl.utils.MultipleIdRowMapper;
-import ru.intertrust.cm.core.dao.impl.utils.MultipleObjectRowMapper;
-import ru.intertrust.cm.core.dao.impl.utils.SingleObjectRowMapper;
+import ru.intertrust.cm.core.dao.impl.utils.*;
+
+import javax.sql.DataSource;
+import java.util.*;
+
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlAlias;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.generateParameter;
 
 /**
  * @author atsvetkov
@@ -108,7 +93,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     @Override
     public DomainObject create(DomainObject domainObject) {
         DomainObject createdObject =
-                create(domainObject, domainObjectTypeIdCache.getIdByName(domainObject.getTypeName()));
+                create(domainObject, domainObjectTypeIdCache.getId(domainObject.getTypeName()));
         domainObjectCacheService.putObjectToCache(createdObject);
 
         return createdObject;
@@ -211,7 +196,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         parametersMap.put("id", ((RdbmsId) id).getId());
 
         Long parentId = jdbcTemplate.queryForObject(query, parametersMap, Long.class);
-        return new RdbmsId(domainObjectTypeConfig.getExtendsAttribute(), parentId);
+        return new RdbmsId(domainObjectTypeIdCache.getId(domainObjectTypeConfig.getExtendsAttribute()), parentId);
     }
 
     @Override
@@ -221,7 +206,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         RdbmsId rdbmsId = (RdbmsId) id;
 
         DomainObjectTypeConfig domainObjectTypeConfig =
-                configurationExplorer.getConfig(DomainObjectTypeConfig.class, rdbmsId.getTypeName());
+                configurationExplorer.getConfig(DomainObjectTypeConfig.class, getDOTypeName(rdbmsId.getTypeId()));
 
         if (isDerived(domainObjectTypeConfig)) {
             Id parentId = findParentId(domainObjectTypeConfig, id);
@@ -271,7 +256,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         validateIdType(id);
 
         StringBuilder query = new StringBuilder();
-        query.append(generateExistsQuery(rdbmsId.getTypeName()));
+        query.append(generateExistsQuery(getDOTypeName(rdbmsId.getTypeId())));
 
         Map<String, Object> parameters = initializeExistsParameters(id);
         long total = jdbcTemplate.queryForObject(query.toString(), parameters, Long.class);
@@ -291,19 +276,20 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         RdbmsId rdbmsId = (RdbmsId) id;
+        String typeName = getDOTypeName(rdbmsId.getTypeId());
 
-        String tableAlias = getSqlAlias(rdbmsId.getTypeName());
+        String tableAlias = getSqlAlias(typeName);
 
         StringBuilder query = new StringBuilder();
         query.append("select ");
-        appendColumnsQueryPart(query, rdbmsId.getTypeName());
+        appendColumnsQueryPart(query, typeName);
         query.append(" from ");
-        appendTableNameQueryPart(query, rdbmsId.getTypeName());
+        appendTableNameQueryPart(query, typeName);
         query.append(" where ").append(tableAlias).append(".ID=:id ");
 
         Map<String, Object> aclParameters = new HashMap<String, Object>();
         if (accessToken.isDeferred()) {
-            String aclReadTable = AccessControlUtility.getAclReadTableName(rdbmsId);
+            String aclReadTable = AccessControlUtility.getAclReadTableName(typeName);
             query.append(" and exists (select a.object_id from " + aclReadTable + " a inner join group_member gm " +
                     "on a.group_id = gm.master where gm.person_id1 = :user_id and a.object_id = :id)");
             aclParameters = getAclParameters(accessToken);
@@ -314,7 +300,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             parameters.putAll(aclParameters);
         }
 
-        return jdbcTemplate.query(query.toString(), parameters, new SingleObjectRowMapper(rdbmsId.getTypeName(), configurationExplorer));
+        return jdbcTemplate.query(query.toString(), parameters,
+                new SingleObjectRowMapper(typeName, configurationExplorer, domainObjectTypeIdCache));
     }
 
     @Override
@@ -326,9 +313,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         IdSorterByType idSorterByType = new IdSorterByType(ids.toArray(new RdbmsId[ids.size()]));
 
-        for (final String domainObjectType : idSorterByType.getDomainObjectTypes()) {
+        for (final Integer domainObjectType : idSorterByType.getDomainObjectTypeIds()) {
             List<RdbmsId> idsOfSingleType = idSorterByType.getIdsOfType(domainObjectType);
-            allDomainObjects.addAll(findSingleTypeDomainObjects(idsOfSingleType, accessToken, domainObjectType));
+            String doTypeName = domainObjectTypeIdCache.getName(domainObjectType);
+            allDomainObjects.addAll(findSingleTypeDomainObjects(idsOfSingleType, accessToken, doTypeName));
         }
 
         return allDomainObjects;
@@ -373,7 +361,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             parameters.putAll(aclParameters);
         }
 
-        return jdbcTemplate.query(query.toString(), parameters, new MultipleObjectRowMapper(domainObjectType, configurationExplorer));
+        return jdbcTemplate.query(query.toString(), parameters, new MultipleObjectRowMapper(domainObjectType,
+                configurationExplorer, domainObjectTypeIdCache));
     }
 
     @Deprecated
@@ -396,7 +385,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         if (accessToken.isDeferred()) {
             parameters.putAll(getAclParameters(accessToken));
         }
-        return jdbcTemplate.query(query, parameters, new MultipleObjectRowMapper(linkedType, configurationExplorer));
+        return jdbcTemplate.query(query, parameters, new MultipleObjectRowMapper(linkedType, configurationExplorer,
+                domainObjectTypeIdCache));
     }
 
     @Override
@@ -407,7 +397,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         if (accessToken.isDeferred()) {
             parameters.putAll(getAclParameters(accessToken));
         }
-        return jdbcTemplate.query(query, parameters, new MultipleIdRowMapper(linkedType));
+        Integer linkedTypeId = domainObjectTypeIdCache.getId(linkedType);
+        return jdbcTemplate.query(query, parameters, new MultipleIdRowMapper(linkedTypeId));
     }
 
     /**
@@ -672,7 +663,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         RdbmsId id = (RdbmsId) domainObject.getParent();
-        String idType = id.getTypeName();
+        String idType = getDOTypeName(id.getTypeId());
         String parentName = config.getParentConfig() != null ? config.getParentConfig().getName() : null;
 
         if (!idType.equals(parentName)) {
@@ -691,7 +682,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             if (value != null) {
                 if (value instanceof ReferenceValue) {
                     RdbmsId rdbmsId = (RdbmsId) value.get();
-                    parameterName = generateParameter((ReferenceFieldConfig) fieldConfig, rdbmsId.getTypeName());
+                    parameterName =
+                            generateParameter((ReferenceFieldConfig) fieldConfig, getDOTypeName(rdbmsId.getTypeId()));
                     parameters.put(parameterName, rdbmsId.getId());
                 } else {
                     parameters.put(parameterName, value.get());
@@ -757,7 +749,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         Object nextId = idGenerator.generatetId(domainObjectTypeConfig);
 
-        RdbmsId id = new RdbmsId(updatedObject.getTypeName(), (Long) nextId);
+        RdbmsId id = new RdbmsId(domainObjectTypeIdCache.getId(updatedObject.getTypeName()), (Long) nextId);
 
         updatedObject.setId(id);
 
@@ -860,6 +852,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     private boolean isDerived(DomainObjectTypeConfig domainObjectTypeConfig) {
         return domainObjectTypeConfig.getExtendsAttribute() != null;
+    }
+
+    private String getDOTypeName(Integer typeId) {
+        return domainObjectTypeIdCache.getName(typeId);
     }
 
 }

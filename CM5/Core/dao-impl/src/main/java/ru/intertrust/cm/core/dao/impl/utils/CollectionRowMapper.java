@@ -16,6 +16,12 @@ import ru.intertrust.cm.core.dao.impl.DataType;
 import ru.intertrust.cm.core.dao.impl.SqlQueryModifier;
 import ru.intertrust.cm.core.model.FatalException;
 
+import java.math.BigDecimal;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Date;
+
 /**
  * Отображает {@link java.sql.ResultSet} на {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection}.
  *
@@ -26,9 +32,10 @@ public class CollectionRowMapper extends BasicRowMapper implements
         ResultSetExtractor<IdentifiableObjectCollection> {
 
     protected final String collectionName;
-    
-    public CollectionRowMapper(String collectionName, String idField, ConfigurationExplorer configurationExplorer) {
-        super(null, idField, configurationExplorer);
+
+    public CollectionRowMapper(String collectionName, String idField, ConfigurationExplorer configurationExplorer,
+                               DomainObjectTypeIdCache domainObjectTypeIdCache) {
+        super(null, idField, configurationExplorer, domainObjectTypeIdCache);
         this.collectionName = collectionName;
     }
 
@@ -39,21 +46,21 @@ public class CollectionRowMapper extends BasicRowMapper implements
         ColumnModel columnModel = new ColumnModel();
         for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
             String fieldName = rs.getMetaData().getColumnName(i);
-            columnModel.getColumnNames().add(fieldName);            
+            columnModel.getColumnNames().add(fieldName);
         }
 
         collection.setFields(columnModel.getColumnNames());
 
         int row = 0;
         while (rs.next()) {
-            
+
             int index = 0;
             int columnIndex = 0;
             FieldValueModel valueModel = new FieldValueModel();
-            
-            for (String columnName : columnModel.getColumnNames()) {                               
+
+            for (String columnName : columnModel.getColumnNames()) {
                 fillValueModel(rs, valueModel, columnName);
-                
+
                 if (valueModel.getId() != null) {
                     collection.setId(row, valueModel.getId());
                     columnIndex = index == 0 ? 0 : index -1;
@@ -65,7 +72,7 @@ public class CollectionRowMapper extends BasicRowMapper implements
             }
             row++;
         }
-                       
+
         return collection;
     }
 
@@ -83,9 +90,9 @@ public class CollectionRowMapper extends BasicRowMapper implements
         if (idField.equalsIgnoreCase(columnName)) {
             Long longValue = rs.getLong(columnName);
             String idType = rs.getString(SqlQueryModifier.DOMAIN_OBJECT_TYPE_ALIAS);
-            
+
             if (!rs.wasNull()) {
-                id = new RdbmsId(idType, longValue);
+                id = new RdbmsId(domainObjectTypeIdCache.getId(idType), longValue);
             } else {
                 throw new FatalException("Id field can not be null for object " + domainObjectType);
             }

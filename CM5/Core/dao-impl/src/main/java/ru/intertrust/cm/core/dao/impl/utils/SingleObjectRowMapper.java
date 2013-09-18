@@ -1,16 +1,16 @@
 package ru.intertrust.cm.core.dao.impl.utils;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
-
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.impl.DomainObjectCacheServiceImpl;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 
 /**
@@ -23,8 +23,9 @@ public class SingleObjectRowMapper extends BasicRowMapper implements ResultSetEx
 
     private DomainObjectCacheServiceImpl domainObjectCacheService;
 
-    public SingleObjectRowMapper(String domainObjectType, ConfigurationExplorer configurationExplorer) {
-        super(domainObjectType, DefaultFields.DEFAULT_ID_FIELD, configurationExplorer);
+    public SingleObjectRowMapper(String domainObjectType, ConfigurationExplorer configurationExplorer,
+                                 DomainObjectTypeIdCache domainObjectTypeIdCache) {
+        super(domainObjectType, DefaultFields.DEFAULT_ID_FIELD, configurationExplorer, domainObjectTypeIdCache);
     }
 
     @Override

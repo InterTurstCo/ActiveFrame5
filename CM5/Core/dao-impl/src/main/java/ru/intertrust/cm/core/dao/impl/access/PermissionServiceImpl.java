@@ -31,6 +31,7 @@ import ru.intertrust.cm.core.dao.access.CreateChildAccessType;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.access.ExecuteActionAccessType;
 import ru.intertrust.cm.core.dao.access.PermissionService;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 
 /**
  * Реализвация сервиса обновления списков доступа.
@@ -41,9 +42,16 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
     @Autowired
     private ConfigurationExplorer configurationExplorer;
 
+    @Autowired
+    private DomainObjectTypeIdCache domainObjectTypeIdCache;
+
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
         doelResolver.setConfigurationExplorer(configurationExplorer);
+    }
+
+    public void setDomainObjectTypeIdCache(DomainObjectTypeIdCache domainObjectTypeIdCache) {
+        this.domainObjectTypeIdCache = domainObjectTypeIdCache;
     }
 
     @Override
@@ -51,7 +59,7 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
         deleteAclFor(objectId);
 
         RdbmsId rdbmsId = (RdbmsId) objectId;
-        String domainObjectType = rdbmsId.getTypeName();
+        String domainObjectType = domainObjectTypeIdCache.getName(rdbmsId.getTypeId());
         String status = getStatusFor(objectId);
         AccessMatrixConfig accessMatrixConfig =
                 configurationExplorer.getAccessMatrixByObjectTypeAndStatus(domainObjectType, status);
@@ -100,7 +108,7 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
     private void processOperationPermissions(Id objectId, BaseOperationPermitConfig operationPermitConfig,
             AccessType accessType) {
         RdbmsId rdbmsId = (RdbmsId) objectId;
-        String domainObjectType = rdbmsId.getTypeName();
+        String domainObjectType = domainObjectTypeIdCache.getName(rdbmsId.getTypeId());
 
         for (BasePermit permit : operationPermitConfig.getPermitConfigs()) {
             if (permit.getClass().equals(PermitRole.class)) {
@@ -171,7 +179,7 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
 
     private String generateInsertAclReadRecordQuery(RdbmsId objectId) {
         String tableName = null;
-        tableName = AccessControlUtility.getAclReadTableName(objectId);
+        tableName = AccessControlUtility.getAclReadTableName(domainObjectTypeIdCache.getName(objectId.getTypeId()));
 
         StringBuilder query = new StringBuilder();
         query.append("insert  into ");
@@ -183,7 +191,7 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
 
     private String generateInsertAclRecordQuery(RdbmsId objectId) {
         String tableName = null;
-        tableName = AccessControlUtility.getAclTableName(objectId);
+        tableName = AccessControlUtility.getAclTableName(domainObjectTypeIdCache.getName(objectId.getTypeId()));
 
         StringBuilder query = new StringBuilder();
         query.append("insert  into ");
@@ -269,10 +277,11 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
 
     private String generateDeleteAclQuery(RdbmsId objectId, boolean isAclReadTable) {
         String tableName = null;
+        String typeName = domainObjectTypeIdCache.getName(objectId.getTypeId());
         if (isAclReadTable) {
-            tableName = AccessControlUtility.getAclReadTableName(objectId);
+            tableName = AccessControlUtility.getAclReadTableName(typeName);
         } else {
-            tableName = AccessControlUtility.getAclTableName(objectId);
+            tableName = AccessControlUtility.getAclTableName(typeName);
         }
 
         StringBuilder query = new StringBuilder();

@@ -14,6 +14,7 @@ import ru.intertrust.cm.core.config.model.base.CollectionFilterReferenceConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.impl.utils.CollectionRowMapper;
 
 import javax.sql.DataSource;
@@ -38,6 +39,9 @@ public class CollectionsDaoImpl implements CollectionsDao {
     @Autowired
     private ConfigurationExplorer configurationExplorer;
 
+    @Autowired
+    private DomainObjectTypeIdCache domainObjectTypeIdCache;
+
     /**
      * Устанавливает источник соединений
      *
@@ -45,6 +49,11 @@ public class CollectionsDaoImpl implements CollectionsDao {
      */
     public void setDataSource(DataSource dataSource) {
         this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+    }
+
+
+    public void setDomainObjectTypeIdCache(DomainObjectTypeIdCache domainObjectTypeIdCache) {
+        this.domainObjectTypeIdCache = domainObjectTypeIdCache;
     }
 
     /**
@@ -75,12 +84,13 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
         if (accessToken.isDeferred()) {
             fillAclParameters(accessToken, parameters);
-        }        
-        
+        }
+
         collectionQuery = adjustParameterNamesForSpring(collectionQuery);
-        
+
         IdentifiableObjectCollection collection = jdbcTemplate.query(collectionQuery, parameters,
-                new CollectionRowMapper(collectionName, collectionConfig.getIdField(), configurationExplorer));
+                new CollectionRowMapper(collectionName, collectionConfig.getIdField(), configurationExplorer,
+                        domainObjectTypeIdCache));
 
         return collection;
     }
@@ -107,7 +117,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
             fillAclParameters(accessToken, parameters);
         }
         collectionQuery = adjustParameterNamesForSpring(collectionQuery);
-        
+
         return jdbcTemplate.queryForObject(collectionQuery, parameters, Integer.class);
     }
 
@@ -136,10 +146,10 @@ public class CollectionsDaoImpl implements CollectionsDao {
                                             List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder,
                                             int offset, int limit, AccessToken accessToken) {
         CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer();
-        
+
         String collectionQuery = collectionQueryInitializer.initializeQuery(collectionConfig, filledFilterConfigs,
                         sortOrder, offset, limit, accessToken);
-                
+
         return collectionQuery;
     }
 
@@ -155,7 +165,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
         CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer();
 
         String collectionQuery =
-                collectionQueryInitializer.initializeCountQuery(collectionConfig, filledFilterConfigs, accessToken);        
+                collectionQueryInitializer.initializeCountQuery(collectionConfig, filledFilterConfigs, accessToken);
 
         return collectionQuery;
     }

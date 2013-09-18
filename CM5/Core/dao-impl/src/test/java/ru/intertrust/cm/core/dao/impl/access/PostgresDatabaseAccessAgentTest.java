@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.dao.access.AccessType;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,20 +55,23 @@ public class PostgresDatabaseAccessAgentTest {
 
     @Mock
     private NamedParameterJdbcTemplate jdbcTemplate;
+    @Mock
+    private DomainObjectTypeIdCache domainObjetcTypeIdCache;
 
     private RdbmsId employeeId;
     private RdbmsId departmentId;
 
     @Before
     public void setUp() throws Exception {
-        employeeId = new RdbmsId("Employee", 1);
-        departmentId = new RdbmsId("Department", 1);
+        employeeId = new RdbmsId(1, 1);
+        departmentId = new RdbmsId(2, 1);
 
     }
 
     @Test
     public void testCheckDomainObjectAccess() {
         when(jdbcTemplate.queryForObject(eq(CHECK_DOMAIN_OBJECT_ACCESS_QUERY), anyMapOf(String.class, Object.class), eq(Integer.class))).thenReturn(1);
+        when(domainObjetcTypeIdCache.getName(1)).thenReturn("Employee");
         boolean result = accessAgent.checkDomainObjectAccess(1, employeeId, DomainObjectAccessType.WRITE);
         verify(jdbcTemplate, times(1)).queryForObject(eq(CHECK_DOMAIN_OBJECT_ACCESS_QUERY), anyMapOf(String.class, Object.class), eq(Integer.class));
         assertEquals(result, true);
@@ -85,6 +89,8 @@ public class PostgresDatabaseAccessAgentTest {
                 anyMapOf(String.class, Object.class), any(RowMapper.class))).thenReturn(employeeIds);
         when(jdbcTemplate.query(eq(CHECK_MULTI_DOMAIN_OBJECT_ACCESS_FOR_DEPARTMENT_QUERY),
                 anyMapOf(String.class, Object.class), any(RowMapper.class))).thenReturn(departmentIds);
+        when(domainObjetcTypeIdCache.getName(1)).thenReturn("Employee");
+        when(domainObjetcTypeIdCache.getName(2)).thenReturn("Department");
 
         RdbmsId[] inputIds = new RdbmsId[2];
         inputIds[0] = employeeId;
@@ -109,6 +115,7 @@ public class PostgresDatabaseAccessAgentTest {
 
         when(jdbcTemplate.query(eq(CHECK_DOMAIN_OBJECT_MULTI_ACCESS_QUERY), anyMapOf(String.class, Object.class),
                 any(RowMapper.class))).thenReturn(accessTypesToReturn);
+        when(domainObjetcTypeIdCache.getName(1)).thenReturn("Employee");
         AccessType[] types = new AccessType[2];
         types[0] = DomainObjectAccessType.WRITE;
         types[1] = DomainObjectAccessType.DELETE;

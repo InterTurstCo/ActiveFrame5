@@ -1,10 +1,10 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Утилитный класс системы контроля доступа.
@@ -13,9 +13,8 @@ import ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper;
  */
 public class AccessControlUtility {
 
-    public static String getAclTableName(RdbmsId id) {
-        String domainObjectTable = id.getTypeName();
-        return getAclTableNameFor(domainObjectTable);
+    public static String getAclTableName(String doTypeName) {
+        return getAclTableNameFor(doTypeName);
     }
 
     public static String getAclTableNameFor(String domainObjectTable) {
@@ -23,9 +22,8 @@ public class AccessControlUtility {
         return domainObjectAclTable;
     }
 
-    public static String getAclReadTableName(RdbmsId id) {
-        String domainObjectTable = id.getTypeName();
-        return getAclReadTableNameFor(domainObjectTable);
+    public static String getAclReadTableName(String doTypeName) {
+        return getAclReadTableNameFor(doTypeName);
     }
 
     public static String getAclReadTableNameFor(String domainObjectTable) {

@@ -1,7 +1,15 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.impl.doel.DoelResolver;
 
+import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -9,15 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.sql.DataSource;
-
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.RdbmsId;
-import ru.intertrust.cm.core.dao.impl.doel.DoelResolver;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 
 /**
  * @author atsvetkov
@@ -32,6 +32,14 @@ public class BaseDynamicGroupServiceImpl {
 
     protected DoelResolver doelResolver = new DoelResolver();
 
+    @Autowired
+    protected DomainObjectTypeIdCache domainObjectTypeIdCache;
+
+    public void setDomainObjectTypeIdCache(DomainObjectTypeIdCache domainObjectTypeIdCache) {
+        this.domainObjectTypeIdCache = domainObjectTypeIdCache;
+        doelResolver.setDomainObjectTypeIdCache(domainObjectTypeIdCache);
+    }
+
     /**
      * Устанавливает источник соединений
      * @param dataSource
@@ -41,7 +49,7 @@ public class BaseDynamicGroupServiceImpl {
         doelResolver.setDataSource(dataSource);
 
     }
-    
+
     /**
      * Удаляет динамическую группу по названию и контекстному объекту.
      * @param groupName название динамической группы
@@ -50,14 +58,14 @@ public class BaseDynamicGroupServiceImpl {
      */
     protected Id deleteUserGroupByGroupNameAndObjectId(String groupName, Long contextObjectId) {
         Id userGroupId = getUserGroupByGroupNameAndObjectId(groupName, contextObjectId);
-        
+
         if (userGroupId != null) {
             String query = generateDeleteUserGroupQuery();
 
             Map<String, Object> parameters = initializeProcessUserGroupParameters(groupName, contextObjectId);
             jdbcTemplate.update(query, parameters);
         }
-        
+
         return userGroupId;
     }
 
@@ -81,7 +89,8 @@ public class BaseDynamicGroupServiceImpl {
         String query = generateGetUserGroupQuery();
 
         Map<String, Object> parameters = initializeProcessUserGroupParameters(groupName, contextObjectId);
-        return jdbcTemplate.query(query, parameters, new ObjectIdRowMapper("id", USER_GROUP_DOMAIN_OBJECT));
+        Integer doTypeId = domainObjectTypeIdCache.getId(USER_GROUP_DOMAIN_OBJECT);
+        return jdbcTemplate.query(query, parameters, new ObjectIdRowMapper("id", doTypeId));
     }
 
     private Map<String, Object> initializeProcessUserGroupParameters(String groupName, Long contextObjectId) {
@@ -115,7 +124,7 @@ public class BaseDynamicGroupServiceImpl {
 
     private String generateGetStatusForQuery(Id objectId) {
         RdbmsId id = (RdbmsId) objectId;
-        String tableName = getSqlName(id.getTypeName());
+        String tableName = getSqlName(domainObjectTypeIdCache.getName(id.getTypeId()));
         StringBuilder query = new StringBuilder();
         query.append("select o.status from ");
         query.append(tableName).append(" o");
@@ -139,9 +148,9 @@ public class BaseDynamicGroupServiceImpl {
 
         private String idField;
 
-        private String domainObjectType;
+        private Integer domainObjectType;
 
-        public ListObjectIdRowMapper(String idField, String domainObjectType) {
+        public ListObjectIdRowMapper(String idField, Integer domainObjectType) {
             this.idField = idField;
             this.domainObjectType = domainObjectType;
         }
@@ -169,9 +178,9 @@ public class BaseDynamicGroupServiceImpl {
 
         private String idField;
 
-        private String domainObjectType;
+        private Integer domainObjectType;
 
-        public ObjectIdRowMapper(String idField, String domainObjectType) {
+        public ObjectIdRowMapper(String idField, Integer domainObjectType) {
             this.idField = idField;
             this.domainObjectType = domainObjectType;
         }
