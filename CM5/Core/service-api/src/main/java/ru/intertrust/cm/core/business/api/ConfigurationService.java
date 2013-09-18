@@ -2,6 +2,8 @@ package ru.intertrust.cm.core.business.api;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.model.*;
+import ru.intertrust.cm.core.config.model.base.Configuration;
+import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionColumnConfig;
 
 import java.util.Collection;
 import java.util.List;

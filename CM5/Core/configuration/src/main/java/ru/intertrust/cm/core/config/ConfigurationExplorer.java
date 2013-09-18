@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.config;
 
-import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.model.*;
 import ru.intertrust.cm.core.config.model.base.Configuration;
 import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionColumnConfig;
@@ -81,11 +80,11 @@ public interface ConfigurationExplorer {
 
     /**
      * Поиск динамических групп по отслеживаемым объектам.
-     * @param objectId идентификатор отслеживаемого объекта
+     * @param objectTypeName тип отслеживаемого объекта
      * @param status статус отслеживаемого объекта
      * @return список дескрипторов динамических групп
      */
-    List<DynamicGroupConfig> getDynamicGroupConfigsByTrackDO(Id objectId, String status);
+    List<DynamicGroupConfig> getDynamicGroupConfigsByTrackDO(String objectTypeName, String status);
 
     /**
      * Поиск конфигурации матрицы доступа для доменного объекта данного типа в данном статусе.

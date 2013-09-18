@@ -178,10 +178,10 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
      * @return список конфигураций динамических групп
      */
     private List<DynamicGroupConfig> getDynamicGroupsForToRecalculateForUpdate(Id objectId, String status, List<String> modifiedFieldNames) {
-    private List<DynamicGroupConfig> getDynamicGroupsFor(Id objectId, String status) {
         String objectTypeName = domainObjectTypeIdCache.getName(((RdbmsId) objectId).getTypeId());
         List<DynamicGroupConfig> dynamicGroups =
-                configurationExplorer.getDynamicGroupConfigsByTrackDO(objectId, status);
+                configurationExplorer.getDynamicGroupConfigsByTrackDO(domainObjectTypeIdCache.getName(objectId),
+                        status);
 
         Set<DynamicGroupConfig> filteredDynamicGroups = new HashSet<DynamicGroupConfig>();
 
@@ -217,8 +217,8 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
      */
     private List<DynamicGroupConfig> getDynamicGroupsForToRecalculate(Id objectId, String status) {
         List<DynamicGroupConfig> dynamicGroups =
-                configurationExplorer.getDynamicGroupConfigsByTrackDO(objectId, status);
-                configurationExplorer.getDynamicGroupConfigsByTrackDO(objectTypeName, status);
+                configurationExplorer.getDynamicGroupConfigsByTrackDO(domainObjectTypeIdCache.getName(objectId),
+                        status);
         return dynamicGroups;
     }
 
