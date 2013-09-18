@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.gui.model;
+package ru.intertrust.cm.core.config.model.gui;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
@@ -9,8 +9,9 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  */
 public class ActionConfig implements Dto {
     private String name;
+    private String text;
     private String imageUrl;
-    private boolean imageOnly;
+    private boolean showText;
 
     public ActionConfig() {
     }
@@ -27,6 +28,14 @@ public class ActionConfig implements Dto {
         this.name = name;
     }
 
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
     public String getImageUrl() {
         return imageUrl;
     }
@@ -35,12 +44,12 @@ public class ActionConfig implements Dto {
         this.imageUrl = imageUrl;
     }
 
-    public boolean isImageOnly() {
-        return imageOnly;
+    public boolean displayText() {
+        return showText;
     }
 
-    public void setImageOnly(boolean imageOnly) {
-        this.imageOnly = imageOnly;
+    public void setShowText(boolean showText) {
+        this.showText = showText;
     }
 
     @Override
@@ -48,7 +57,7 @@ public class ActionConfig implements Dto {
         return "ActionConfig {" +
                 "name='" + name + '\'' +
                 ", imageUrl='" + imageUrl + '\'' +
-                ", imageOnly=" + imageOnly +
+                ", showText=" + showText +
                 '}';
     }
 }

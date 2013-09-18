@@ -1,7 +1,8 @@
-package ru.intertrust.cm.core.gui.impl.client;
+package ru.intertrust.cm.core.gui.impl.client.action;
 
+import ru.intertrust.cm.core.config.model.gui.ActionConfig;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
-import ru.intertrust.cm.core.gui.model.ActionConfig;
+import ru.intertrust.cm.core.gui.impl.client.Plugin;
 
 /**
  * <p>

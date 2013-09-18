@@ -31,11 +31,11 @@ public class FormPanel implements IsWidget {
     private VerticalPanel build() {
         MarkupConfig markup = form.getMarkup();
         HeaderConfig header = markup.getHeader();
-        IsWidget headerTabel = buildTable(header.getTableLayout());
+        IsWidget headerTable = buildTable(header.getTableLayout());
 
 
-        TabLayoutPanel bodyTabPanel = new TabLayoutPanel(20, Style.Unit.EM);
-        bodyTabPanel.setSize("100%", "500px"); // todo - something else
+        TabLayoutPanel bodyTabPanel = new TabLayoutPanel(30, Style.Unit.PX);
+        bodyTabPanel.setSize("100%", "200px"); // todo - something else
         BodyConfig body = markup.getBody();
         List<TabConfig> tabs = body.getTabs();
         for (TabConfig tab : tabs) {
@@ -44,7 +44,8 @@ public class FormPanel implements IsWidget {
         bodyTabPanel.selectTab(0);
 
         VerticalPanel verticalPanel = new VerticalPanel();
-        verticalPanel.add(headerTabel);
+        verticalPanel.setSize("100%", "100%");
+        verticalPanel.add(headerTable);
         verticalPanel.add(bodyTabPanel);
 
         return verticalPanel;

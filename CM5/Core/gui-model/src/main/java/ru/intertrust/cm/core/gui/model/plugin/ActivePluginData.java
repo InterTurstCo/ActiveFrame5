@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.gui.model.plugin;
 
-import ru.intertrust.cm.core.gui.model.ActionConfig;
+import ru.intertrust.cm.core.config.model.gui.ActionConfig;
 
 import java.util.List;
 

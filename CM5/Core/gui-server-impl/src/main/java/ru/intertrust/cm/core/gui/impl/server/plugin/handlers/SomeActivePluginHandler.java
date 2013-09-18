@@ -1,9 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.model.gui.ActionConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
-import ru.intertrust.cm.core.gui.model.ActionConfig;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.plugin.ActivePluginData;
@@ -32,7 +32,9 @@ public class SomeActivePluginHandler extends ActivePluginHandler {
 
     public List<ActionConfig> getActions()  {
         ArrayList<ActionConfig> actions = new ArrayList<>();
-        actions.add(new ActionConfig("Сохранить"));
+        ActionConfig saveAction = new ActionConfig("save.action");
+        saveAction.setText("Сохранить");
+        actions.add(saveAction);
         return actions;
     }
 

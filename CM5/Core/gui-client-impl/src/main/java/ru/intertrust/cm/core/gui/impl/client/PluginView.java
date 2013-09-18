@@ -1,10 +1,11 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
-import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
-import ru.intertrust.cm.core.gui.model.ActionConfig;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.*;
+import ru.intertrust.cm.core.config.model.gui.ActionConfig;
+import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.impl.client.action.Action;
 import ru.intertrust.cm.core.gui.model.plugin.ActivePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.IsActive;
 
@@ -45,9 +46,20 @@ public abstract class PluginView implements IsWidget {
             // todo return null;
         }
         List<ActionConfig> actionConfigs = initialData.getActionConfigs();
-        int size = actionConfigs == null ? 0 : actionConfigs.size();
+        HorizontalPanel actionPanel = new HorizontalPanel();
+        if (actionConfigs == null) {
+            return new Label("Empty panel - fix later");
+        }
+        for (final ActionConfig actionConfig : actionConfigs) {
+            actionPanel.add(new Button(actionConfig.getText(), new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    ((Action) ComponentRegistry.instance.get(actionConfig.getName())).execute();
+                }
+            }));
+        }
 
-        return new Label("This is a tool bar with actions for now. Actions: " + actionConfigs);
+        return actionPanel;
     }
 
     /**
