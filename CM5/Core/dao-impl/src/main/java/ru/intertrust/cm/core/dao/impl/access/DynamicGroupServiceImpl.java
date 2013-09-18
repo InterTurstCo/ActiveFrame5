@@ -13,10 +13,14 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.config.ConfigurationException;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.BindContextConfig;
 import ru.intertrust.cm.core.config.model.DoelAware;
@@ -27,11 +31,6 @@ import ru.intertrust.cm.core.config.model.doel.DoelExpression;
 import ru.intertrust.cm.core.config.model.doel.DoelExpression.Element;
 import ru.intertrust.cm.core.dao.access.DynamicGroupService;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
-import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
-
-import java.util.*;
-
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 
 /**
  * Реализация сервиса по работе с динамическими группами пользователей
@@ -261,9 +260,9 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
         if (trackDomainObjects != null && trackDomainObjects.getBindContext() != null) {
             String bindContextDoel = trackDomainObjects.getBindContext().getDoel();
             DoelExpression expr = DoelExpression.parse(bindContextDoel);
-            List<?> result = doelResolver.evaluate(expr, objectId);
+            List<Value> result = doelResolver.evaluate(expr, objectId);
             String contextObjectType = dynamicGroupConfig.getContext().getDomainObject().getType();
-            contextObjectid = convertToId(result, contextObjectType);
+            contextObjectid = convertToId(result);
 
         } else {
             contextObjectid = objectId;
@@ -272,12 +271,21 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
         return contextObjectid;
     }
 
-    private Id convertToId(List<?> result, String contextObjectType) {
+    /**
+     * Конвертирует результат вычисления doel выражения поиска контекстного объекта в идентификатор контекстного объекта.
+     * @param result вычисления doel выражения поиска контекстного объекта
+     * @return идентификатор контекстного объекта
+     */
+    private Id convertToId(List<Value> result) {
         Id contextObjectId = null;
         if (result != null && result.size() > 0) {
-            Collection values = ((List<Map<String, Object>>) result).get(0).values();
-            Long idLongValue = (Long) values.iterator().next();
-            contextObjectId = new RdbmsId(domainObjectTypeIdCache.getId(contextObjectType), idLongValue);
+            Value value = ((List<Value>) result).get(0);
+
+            if (value.getClass().equals(ReferenceValue.class)) {
+                contextObjectId = ((ReferenceValue) value).get();
+            } else {
+                throw new ConfigurationException("Doel expression in bind context should result in ReferenceValue");
+            }
         }
         return contextObjectId;
     }

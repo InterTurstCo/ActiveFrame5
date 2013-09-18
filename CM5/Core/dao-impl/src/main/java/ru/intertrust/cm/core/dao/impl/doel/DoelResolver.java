@@ -1,20 +1,41 @@
 package ru.intertrust.cm.core.dao.impl.doel;
 
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.model.*;
-import ru.intertrust.cm.core.config.model.doel.DoelExpression;
-import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
-import ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 
-import javax.sql.DataSource;
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.sql.DataSource;
+
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+
+import ru.intertrust.cm.core.business.api.dto.DecimalValue;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.LongValue;
+import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.TimestampValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.model.DateTimeFieldConfig;
+import ru.intertrust.cm.core.config.model.DecimalFieldConfig;
+import ru.intertrust.cm.core.config.model.FieldConfig;
+import ru.intertrust.cm.core.config.model.LongFieldConfig;
+import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.model.ReferenceFieldTypeConfig;
+import ru.intertrust.cm.core.config.model.StringFieldConfig;
+import ru.intertrust.cm.core.config.model.doel.DoelExpression;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper;
+import ru.intertrust.cm.core.model.FatalException;
 
 public class DoelResolver {
 
@@ -38,13 +59,15 @@ public class DoelResolver {
         this.domainObjectTypeIdCache = domainObjectTypeIdCache;
     }
 
-    private String generateEvaluationQuery(DoelExpression expression, String sourceType) {
+    private EvaluationQueryResult generateEvaluationQuery(DoelExpression expression, String sourceType) {
         DoelExpression.Element[] doelElements = expression.getElements();
         StringBuilder query = new StringBuilder();
         int tableNum = 0;
         String currentType = sourceType;
         String fieldName = null;
+        FieldConfig resultFieldConfig = null;
         boolean backLink = false;
+        String resultDomainObjectType = null;
         for (DoelExpression.Element doelElem : doelElements) {
             if (tableNum == 0) {
                 ++tableNum;
@@ -52,6 +75,7 @@ public class DoelResolver {
                      .append(DataStructureNamingHelper.getSqlName(currentType))
                      .append(" t")
                      .append(tableNum);
+                resultDomainObjectType = currentType;
             } else {
                 ++tableNum;
                 query.append(" JOIN ")
@@ -75,13 +99,27 @@ public class DoelResolver {
                     ReferenceFieldConfig refConfig = (ReferenceFieldConfig) fieldConfig;
                     //TODO: Реализовать обработку множественных типов ссылки
                     currentType = refConfig.getTypes().get(0).getName();
+                    fieldName = DataStructureNamingHelper.getSqlName(refConfig, refConfig.getTypes().get(0));
+                    resultFieldConfig = refConfig;
+                } else {
+                    fieldName = fieldConfig.getName();
+
                 }
-                fieldName = fieldConfig.getName();
+                resultFieldConfig = fieldConfig;
                 backLink = false;
             } else if (DoelExpression.ElementType.CHILDREN == doelElem.getElementType()) {
                 DoelExpression.Children children = (DoelExpression.Children) doelElem;
                 currentType = children.getChildType();
                 fieldName = children.getParentLink();
+                
+                FieldConfig fieldConfig = configurationExplorer.getFieldConfig(children.getChildType(), children.getParentLink());
+                if(fieldConfig instanceof ReferenceFieldConfig) {
+                    ReferenceFieldConfig refConfig = (ReferenceFieldConfig) fieldConfig;
+                    String childParentType = refConfig.getTypes().get(0).getName();
+                    fieldName = DataStructureNamingHelper.getSqlName(refConfig, refConfig.getTypes().get(0));
+                    resultFieldConfig = refConfig;
+                }
+                
                 backLink = true;
             } else {
                 throw new RuntimeException("Unknown element type: " + doelElem.getClass().getName());
@@ -92,9 +130,40 @@ public class DoelResolver {
              .insert(0, tableNum)
              .insert(0, "SELECT t");
         query.append(" WHERE t1.id=:id");
-        return query.toString();
+        return new EvaluationQueryResult(query.toString(), fieldName, resultFieldConfig);
     }
 
+    /**
+     * Результат анализа Doel выражения. Содержит SQL запрос, дескриптор возвращаемого поля и название возвращаемого
+     * поля в базе (в случае ссылочных полей название поля в базе отличается от названия в дескрипторе).
+     * @author atsvetkov
+     */
+    private class EvaluationQueryResult {
+
+        private String query;
+        private String fieldName;
+        private FieldConfig resultFieldConfig;
+
+        public EvaluationQueryResult(String query, String fieldName, FieldConfig resultFieldConfig) {
+            this.query = query;
+            this.fieldName = fieldName;
+            this.resultFieldConfig = resultFieldConfig;
+        }
+
+        public String getQuery() {
+            return query;
+        }
+
+        public String getFieldName() {
+            return fieldName;
+        }
+
+        public FieldConfig getResultFieldConfig() {
+            return resultFieldConfig;
+        }
+
+    }
+    
     private class ExpressionTypes {
         String[] elementTypes;
         Class<? extends Value> resultType;
@@ -149,22 +218,81 @@ public class DoelResolver {
         throw new IllegalArgumentException("Unknown field type: " + fieldClass.getName());
     }
 
-    public <T extends Value> List<T> evaluate(DoelExpression expression, Id sourceObjectId) {
+    public <T extends Value> List<Value> evaluate(DoelExpression expression, Id sourceObjectId) {
         //TODO Change return type
         RdbmsId id = (RdbmsId) sourceObjectId;
         //TODO: Реализовать выборку объекта из транзакционного кэша, если он там есть, вместо обращения к БД
-        String query = generateEvaluationQuery(expression, domainObjectTypeIdCache.getName(id.getTypeId()));
+        final EvaluationQueryResult evaluationQueryResult = generateEvaluationQuery(expression, domainObjectTypeIdCache.getName(id.getTypeId()));
+        String query = evaluationQueryResult.getQuery();
+
         Map<String, Object> params = new HashMap<>();
         params.put("id", id.getId());
 
-        return jdbcTemplate.query(query, params, new RowMapper() {
+        final FieldConfig fieldConfig = evaluationQueryResult.getResultFieldConfig();
+        final String columnName = evaluationQueryResult.getFieldName();
+        
+        return jdbcTemplate.query(query, params, new RowMapper<Value>() {
             @Override
-            public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
-                /*T value = new T();
-                return value;*/
-                return null;
+            public Value mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return createFieldValueFromFieldConfig(rs, fieldConfig, columnName);
+            }
+
+            private Value createFieldValueFromFieldConfig(ResultSet rs, final FieldConfig fieldConfig,
+                    final String columnName) throws SQLException {
+                Value value = null;
+                if (fieldConfig != null && StringFieldConfig.class.equals(fieldConfig.getClass())) {
+                    String fieldValue = rs.getString(columnName);
+                    if (!rs.wasNull()) {
+                        value = new StringValue(fieldValue);
+                    } else {
+                        value = new StringValue();
+                    }
+                } else if (fieldConfig != null && LongFieldConfig.class.equals(fieldConfig.getClass())) {
+                    Long longValue = rs.getLong(columnName);
+                    if (!rs.wasNull()) {
+                        value = new LongValue(longValue);
+                    } else {
+                        value = new LongValue();
+                    }
+                } else if (fieldConfig != null && DecimalFieldConfig.class.equals(fieldConfig.getClass())) {
+                    BigDecimal fieldValue = rs.getBigDecimal(columnName);
+                    if (!rs.wasNull()) {
+                        value = new DecimalValue(fieldValue);
+                    } else {
+                        value = new DecimalValue();
+                    }
+                } else if (fieldConfig != null && ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
+                    if (!rs.wasNull()) {
+                        String referenceType = findTypeByColumnName((ReferenceFieldConfig) fieldConfig, columnName);
+                        Long longValue = rs.getLong(columnName);
+
+                        value = new ReferenceValue(new RdbmsId(domainObjectTypeIdCache.getId(referenceType), longValue));
+                    } else {
+                        value = new ReferenceValue();
+                    }
+                } else if (fieldConfig != null && DateTimeFieldConfig.class.equals(fieldConfig.getClass())) {
+                    Timestamp timestamp = rs.getTimestamp(columnName);
+                    if (!rs.wasNull()) {
+                        Date date = new Date(timestamp.getTime());
+                        value = new TimestampValue(date);
+                    } else {
+                        value = new TimestampValue();
+                    }
+                }
+
+                return value;
             }
         });
+    }
+
+    private String findTypeByColumnName(ReferenceFieldConfig fieldConfig, String columnName) {
+        for (ReferenceFieldTypeConfig typeConfig : fieldConfig.getTypes()) {
+            if (columnName.equalsIgnoreCase(getSqlName(fieldConfig, typeConfig))) {
+                return typeConfig.getName();
+            }
+        }
+
+        throw new FatalException("Domain Object Type cannot be found for column '" + columnName + "'");
     }
 
     public DoelExpression createReverseExpression(DoelExpression expr, String sourceType) {
