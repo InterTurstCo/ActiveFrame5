@@ -60,6 +60,7 @@
     	<version>${project.version}</version>
     </dependency>
     <dependency>
+
     	<groupId>org.jboss.as</groupId>
     	<artifactId>jboss-as-ejb-client-bom</artifactId>
     	<version>7.1.1.Final</version>

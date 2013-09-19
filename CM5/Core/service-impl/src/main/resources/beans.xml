@@ -22,16 +22,12 @@
     <bean id="configurationControlService"
           class="ru.intertrust.cm.core.business.impl.ConfigurationControlServiceImpl"/>
 
-    <bean id="configurationService" class="ru.intertrust.cm.core.business.impl.ConfigurationServiceImpl"/>
-
     <bean id="authenticationService"
           class="ru.intertrust.cm.core.business.impl.AuthenticationServiceImpl"
           p:authenticationDao-ref="authenticationDao" p:md5Service-ref="md5Service"
           p:domainObjectDao-ref="domainObjectDao"/>
 
-    <bean id="md5Service" class="ru.intertrust.cm.core.business.impl.MD5ServiceImpl" />
-
-    <bean id="crudService" class="ru.intertrust.cm.core.business.impl.CrudServiceImpl"/>
+    <bean id="md5Service" class="ru.intertrust.cm.core.business.impl.MD5ServiceImpl"/>
 
     <bean id="collectionsService" class="ru.intertrust.cm.core.business.impl.CollectionsServiceImpl"/>
 

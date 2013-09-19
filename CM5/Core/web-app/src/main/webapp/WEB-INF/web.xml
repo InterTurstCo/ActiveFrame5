@@ -6,9 +6,14 @@
     <display-name>Business Universe</display-name>
 
     <session-config>
-        <session-timeout>30</session-timeout> <!-- minutes -->
+        <session-timeout>30</session-timeout>
+        <!-- minutes -->
     </session-config>
 
+    <context-param>
+        <param-name>parentContextKey</param-name>
+        <param-value>ear.context</param-value>
+    </context-param>
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>

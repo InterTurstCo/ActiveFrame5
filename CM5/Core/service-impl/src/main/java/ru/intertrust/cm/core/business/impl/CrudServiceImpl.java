@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.business.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
@@ -14,6 +15,7 @@ import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -26,7 +28,7 @@ import java.util.List;
 @Stateless
 @Local(CrudService.class)
 @Remote(CrudService.Remote.class)
-//@Interceptors(EjbAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     @Autowired

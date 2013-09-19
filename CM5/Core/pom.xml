@@ -28,6 +28,7 @@
         <module>gui-server-api</module>
         <module>gui-server-impl</module>
         <module>web-app</module>
+        <module>bootstrap</module>
     </modules>
 
     <properties>

@@ -43,6 +43,7 @@
         <url>http://www.intertrust.ru</url>
     </organization>
 
+
     <licenses>
         <license>
             <name>Proprietary software license</name>
@@ -217,7 +218,6 @@
                 <version>1.0</version>
             </extension>
         </extensions>
-
         <pluginManagement>
 
             <plugins>
