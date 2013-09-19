@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.server.action;
 
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
+import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
 
@@ -9,9 +10,10 @@ import ru.intertrust.cm.core.gui.model.action.ActionData;
  *         Date: 19.09.13
  *         Time: 13:18
  */
+@ComponentName("save.action")
 public class SaveActionHandler extends ActionHandler {
     @Override
     public <T extends ActionData> T executeAction(ActionContext context) {
-        return null;
+        return (T) new ActionData();
     }
 }

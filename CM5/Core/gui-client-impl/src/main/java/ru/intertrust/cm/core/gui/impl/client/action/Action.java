@@ -60,8 +60,5 @@ public abstract class Action extends BaseComponent {
         this.config = config;
     }
 
-    /**
-     * Выполняет данное действие
-     */
     public abstract void execute();
 }
