@@ -10,14 +10,12 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.FileUtils;
-import ru.intertrust.cm.core.config.model.base.CollectionConfig;
 import ru.intertrust.cm.core.config.model.base.Configuration;
-import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.model.gui.form.*;
 import ru.intertrust.cm.core.config.model.gui.form.widget.*;
 import ru.intertrust.cm.core.config.model.gui.navigation.NavigationConfig;
+import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
-import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.Form;
@@ -25,7 +23,6 @@ import ru.intertrust.cm.core.gui.model.form.widget.IntegerBoxData;
 import ru.intertrust.cm.core.gui.model.form.widget.LabelData;
 import ru.intertrust.cm.core.gui.model.form.widget.TextBoxData;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
-import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 
 import javax.annotation.Resource;
 import javax.annotation.security.DeclareRoles;
@@ -79,14 +76,14 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
     }
 
     @Override
-    public PluginData executeCommand(Command command) {
-        PluginHandler pluginHandler = obtainHandler(command.getComponentName());
+    public Dto executeCommand(Command command) {
+        ComponentHandler pluginHandler = obtainHandler(command.getComponentName());
         if (pluginHandler == null) {
             log.warn("handler for component '{}' not found", command.getComponentName());
             return null;
         }
         try {
-            return (PluginData) pluginHandler.getClass().getMethod(command.getName(), Dto.class)
+            return (Dto) pluginHandler.getClass().getMethod(command.getName(), Dto.class)
                     .invoke(pluginHandler, command.getParameter());
         } catch (NoSuchMethodException e) {
             log.error(e.getMessage(), e);
@@ -327,8 +324,8 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         }
     }
 
-    private PluginHandler obtainHandler(String componentName) {
+    private ComponentHandler obtainHandler(String componentName) {
         boolean containsHandler = applicationContext.containsBean(componentName);
-        return containsHandler ? (PluginHandler) applicationContext.getBean(componentName) : null;
+        return containsHandler ? (ComponentHandler) applicationContext.getBean(componentName) : null;
     }
 }

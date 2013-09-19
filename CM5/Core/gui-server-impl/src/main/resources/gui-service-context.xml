@@ -3,7 +3,7 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
     <bean class="ru.intertrust.cm.core.gui.impl.server.plugin.handlers.loader.PluginHandlerDefinitionsLoader">
-        <property name="basePackage" value="ru/intertrust/cm/core/gui/impl/server/plugin/handlers"/>
+        <property name="basePackage" value="ru/intertrust/cm/core/gui/impl/server"/>
     </bean>
     <bean class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor">
         <property name="alwaysUseJndiLookup" value="true"/>
