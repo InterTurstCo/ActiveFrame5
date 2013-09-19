@@ -4,14 +4,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <artifactId>bootstrap</artifactId>
+    <name>bootstrap</name>
+
     <parent>
         <groupId>ru.intertrust.cm-sochi</groupId>
         <artifactId>core</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>ru.intertrust.cm-sochi</groupId>
-    <artifactId>bootstrap</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -23,6 +24,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
         </dependency>
     </dependencies>
 
