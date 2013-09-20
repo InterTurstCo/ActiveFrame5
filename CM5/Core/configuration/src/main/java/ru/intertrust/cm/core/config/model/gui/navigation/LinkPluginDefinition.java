@@ -1,12 +1,9 @@
 package ru.intertrust.cm.core.config.model.gui.navigation;
 
-import org.simpleframework.xml.ElementList;
-import org.simpleframework.xml.ElementListUnion;
+import org.simpleframework.xml.Element;
+import org.simpleframework.xml.ElementUnion;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -16,17 +13,17 @@ import java.util.List;
 @Root(name = "plugin")
 public class LinkPluginDefinition implements Dto {
 
-    @ElementListUnion({
-            @ElementList(entry = "custom", type = CustomPluginConfig.class, inline = true),
-            @ElementList(entry = "domain-object-surfer", type = DomainObjectSurferConfig.class, inline = true) })
-    private List<PluginConfig> pluginConfigList = new ArrayList<PluginConfig>();
+    @ElementUnion({
+            @Element(name = "custom", type = CustomPluginConfig.class),
+            @Element(name = "domain-object-surfer", type = DomainObjectSurferConfig.class) })
+    private PluginConfig pluginConfig;
 
-    public List<PluginConfig> getPluginConfigList() {
-        return pluginConfigList;
+    public PluginConfig getPluginConfig() {
+        return pluginConfig;
     }
 
-    public void setPluginConfigList(List<PluginConfig> pluginConfigList) {
-        this.pluginConfigList = pluginConfigList;
+    public void setPluginConfig(PluginConfig pluginConfig) {
+        this.pluginConfig = pluginConfig;
     }
 
     @Override
@@ -41,8 +38,8 @@ public class LinkPluginDefinition implements Dto {
 
         LinkPluginDefinition that = (LinkPluginDefinition) o;
 
-        if (pluginConfigList != null ? !pluginConfigList.equals(that.getPluginConfigList()) : that.
-                getPluginConfigList() != null) {
+        if (pluginConfig != null ? !pluginConfig.equals(that.getPluginConfig()) : that.
+                getPluginConfig() != null) {
                     return false;
         }
 
@@ -51,7 +48,7 @@ public class LinkPluginDefinition implements Dto {
 
     @Override
     public int hashCode() {
-        return pluginConfigList != null ? pluginConfigList.hashCode() : 0;
+        return pluginConfig != null ? pluginConfig.hashCode() : 0;
     }
 }
 

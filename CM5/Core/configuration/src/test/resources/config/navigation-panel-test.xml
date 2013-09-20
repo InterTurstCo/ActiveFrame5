@@ -9,8 +9,10 @@
                         <!-- DomainObjectSurferConfig и CustomPluginConfig должны наследоваться от PluginConfig -->
                         <!-- если используется collection-view, то collection нельзя использовать -->
                         <domain-object-surfer>
-                            <collection-ref name="Employees" use-default="true"/>
-                            <sort-criterion field="last_name"/>
+                            <collection-viewer>
+                                <collection-ref name="Employees" use-default="true"/>
+                                <sort-criterion field="last_name"/>
+                            </collection-viewer>
                         </domain-object-surfer>
                     </plugin>
                     <decorations>
@@ -20,9 +22,11 @@
                         <link name="Employees_By_Name" display-text="По имени" image="employees-by-name.png">
                             <plugin>
                                 <domain-object-surfer>
-                                    <collection-ref name="Employees"/>
-                                    <sort-criterion field="last_name" order="asc"/> <!-- order опционален -->
-                                    <sort-criterion field="first_name" order="desc"/>
+                                    <collection-viewer>
+                                        <collection-ref name="Employees"/>
+                                        <sort-criterion field="last_name" order="asc"/> <!-- order опционален -->
+                                        <sort-criterion field="first_name" order="desc"/>
+                                    </collection-viewer>
                                 </domain-object-surfer>
                             </plugin>
                             <decorations>
@@ -64,16 +68,20 @@
                 <link name="Last Open" display-text="Последние открытые">
                     <plugin>
                         <domain-object-surfer>
-                            <collection-ref name="last_open_docs"/>
-                            <sort-criterion field="last_date" order="asc"/>
+                            <collection-viewer>
+                                <collection-ref name="last_open_docs"/>
+                                <sort-criterion field="last_date" order="asc"/>
+                            </collection-viewer>
                         </domain-object-surfer>
                     </plugin>
                 </link>
                 <link name="Last Saved" display-text="Последние сохранённые">
                     <plugin>
                         <domain-object-surfer>
-                            <collection-ref name="last_saved_docs"/>
-                            <sort-criterion field="last_date"/>
+                            <collection-viewer>
+                                <collection-ref name="last_saved_docs"/>
+                                <sort-criterion field="last_date"/>
+                            </collection-viewer>
                         </domain-object-surfer>
                     </plugin>
                 </link>
@@ -83,24 +91,30 @@
                 <link name="All Documents" display-text="Все">
                     <plugin>
                         <domain-object-surfer>
-                            <collection-ref name="all_documents"/>
-                            <sort-criterion field="date"/>
+                            <collection-viewer>
+                                <collection-ref name="all_documents"/>
+                                <sort-criterion field="date"/>
+                            </collection-viewer>
                         </domain-object-surfer>
                     </plugin>
                     <child-links>
                         <link name="All Documents By Number" display-text="По номеру">
                             <plugin>
                                 <domain-object-surfer>
-                                    <collection-ref name="all_documents"/>
-                                    <sort-criterion field="registration_number"/>
+                                    <collection-viewer>
+                                        <collection-ref name="all_documents"/>
+                                        <sort-criterion field="registration_number"/>
+                                    </collection-viewer>
                                 </domain-object-surfer>
                             </plugin>
                         </link>
                         <link name="All Documents By Type" display-text="По типу">
                             <plugin>
                                 <domain-object-surfer>
+                                        <collection-viewer>
                                     <collection-ref name="all_documents"/>
                                     <sort-criterion field="type"/>
+                                        </collection-viewer>
                                 </domain-object-surfer>
                             </plugin>
                         </link>
@@ -112,16 +126,20 @@
                         <link name="Documents In Work By Number" display-text="По номеру">
                             <plugin>
                                 <domain-object-surfer>
-                                    <collection-ref name="documents_in_work"/>
-                                    <sort-criterion field="registration_number"/>
+                                    <collection-viewer>
+                                        <collection-ref name="documents_in_work"/>
+                                        <sort-criterion field="registration_number"/>
+                                    </collection-viewer>
                                 </domain-object-surfer>
                             </plugin>
                         </link>
                         <link name="Documents In Work By Type" display-text="По типу">
                             <plugin>
                                 <domain-object-surfer>
-                                    <collection-ref name="documents_in_work" use-default = "true"/>
-                                    <sort-criterion field="type"/>
+                                    <collection-viewer>
+                                        <collection-ref name="documents_in_work" use-default = "true"/>
+                                        <sort-criterion field="type"/>
+                                    </collection-viewer>
                                 </domain-object-surfer>
                             </plugin>
                         </link>
@@ -133,24 +151,30 @@
                 <link name="Documents Planned" display-text="В плане">
                     <plugin>
                         <domain-object-surfer>
-                            <collection-view-ref name="documents_planned"/>
-                            <sort-criterion field="last_date"/>
+                            <collection-viewer>
+                                <collection-view-ref name="documents_planned"/>
+                                <sort-criterion field="last_date"/>
+                            </collection-viewer>
                         </domain-object-surfer>
                     </plugin>
                     <child-links>
                         <link name="Documents Planned By Number" display-text="По номеру">
                             <plugin>
                                 <domain-object-surfer>
-                                    <collection-ref name="documents_planned"/>
-                                    <sort-criterion field="registration_number"/>
+                                    <collection-viewer>
+                                        <collection-ref name="documents_planned"/>
+                                        <sort-criterion field="registration_number"/>
+                                    </collection-viewer>
                                 </domain-object-surfer>
                             </plugin>
                         </link>
                         <link name="Documents Planned By Type" display-text="По типу">
                             <plugin>
                                 <domain-object-surfer>
-                                    <collection-ref name="documents_planned"/>
-                                    <sort-criterion field="type"/>
+                                    <collection-viewer>
+                                        <collection-ref name="documents_planned"/>
+                                        <sort-criterion field="type"/>
+                                    </collection-viewer>
                                 </domain-object-surfer>
                             </plugin>
                         </link>

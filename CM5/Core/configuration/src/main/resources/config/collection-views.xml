@@ -9,17 +9,17 @@
             <column field="position" name="Должность" type="string" editable="false" sortable="true" />
             <column field="created_date" name="Дата создания" type="datetime" editable="false" sortable="true" />
             <column field="updated_date" name="Дата модификации" type="datetime" editable="false" sortable="true" />
-        </display>
-    </collection-view>
+                </display>
+            </collection-view>
 
-    <collection-mappings>
-        <collection-mapping collection="employees" view="employees_minister_view">
-            <users>
-                <user uid="admin"/>
-            </users>
-            <roles>
-                <role name="Minister"/>
-            </roles>
-        </collection-mapping>
-    </collection-mappings>
-</configuration>
+            <collection-mappings>
+                <collection-mapping collection="employees" view="employees_minister_view">
+                    <users>
+                        <user uid="admin"/>
+                    </users>
+                    <roles>
+                        <role name="Minister"/>
+                    </roles>
+                </collection-mapping>
+            </collection-mappings>
+        </configuration>
