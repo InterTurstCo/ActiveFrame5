@@ -41,12 +41,15 @@ public class AuthenticationFilter implements Filter {
         }
         UserUidWithPassword userUidWithPassword = (UserUidWithPassword) credentials;
         try {
-            request.login(userUidWithPassword.getUserUid(), userUidWithPassword.getPassword());
+            if (request.getUserPrincipal() == null) { // just in case parallel thread logged in, but not logged out yet
+                request.login(userUidWithPassword.getUserUid(), userUidWithPassword.getPassword());
+            }
+            if (request.getUserPrincipal() != null) {
+                request.logout();
+            }
             filterChain.doFilter(servletRequest, servletResponse);
         } catch (ServletException e) {
             forwardToLogin(servletRequest, servletResponse);
-        } finally {
-            request.logout();
         }
     }
 

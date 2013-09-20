@@ -32,7 +32,6 @@ import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -88,7 +87,7 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         } catch (NoSuchMethodException e) {
             log.error(e.getMessage(), e);
             throw new GuiException("No command + " + command.getName() + " implemented");
-        } catch (InvocationTargetException | IllegalAccessException e) {
+        } catch (Throwable e) {
             log.error(e.getMessage(), e);
             throw new GuiException("Command can't be executed: " + command.getName());
         }
