@@ -5,6 +5,7 @@ import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.model.gui.navigation.PluginConfig;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
@@ -31,6 +32,7 @@ import java.util.logging.Logger;
 public abstract class Plugin extends BaseComponent {
     private PluginPanel owner;
     private EventBus eventBus;
+    private PluginConfig pluginConfig;
     private PluginData initialData;
     private PluginView view;
 
@@ -108,6 +110,22 @@ public abstract class Plugin extends BaseComponent {
      */
     void setEventBus(EventBus eventBus) {
         this.eventBus = eventBus;
+    }
+
+    /**
+     * Возвращает конфигурацию плагина
+     * @return конфигурацию плагина
+     */
+    public PluginConfig getPluginConfig() {
+        return pluginConfig;
+    }
+
+    /**
+     * Устанавливает конфигурацию плагина
+     * @param pluginConfig конфигурация плагина
+     */
+    public void setPluginConfig(PluginConfig pluginConfig) {
+        this.pluginConfig = pluginConfig;
     }
 
     /**

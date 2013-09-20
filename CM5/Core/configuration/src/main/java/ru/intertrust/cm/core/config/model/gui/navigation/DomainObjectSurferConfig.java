@@ -13,7 +13,7 @@ import java.util.List;
  *         Time: 12:05 PM
  */
 @Root(name = "domain-object-surfer")
-public class DomainObjectSurferConfig extends PluginConfigParent {
+public class DomainObjectSurferConfig extends PluginConfig {
     @Element(name = "collection-ref", required = false)
     private CollectionRefConfig collectionRefConfig;
 

@@ -6,7 +6,6 @@ import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +30,7 @@ public class LinkConfig implements Dto {
     private String childToOpen;
 
     @Element(name = "plugin", required = false)
-    private PluginConfig pluginConfig;
+    private LinkPluginDefinition pluginDefinition;
 
     @ElementList(inline = true, required = false)
     private List<ChildLinksConfig> childLinksConfigList = new ArrayList<ChildLinksConfig>();
@@ -71,12 +70,12 @@ public class LinkConfig implements Dto {
         this.image = image;
     }
 
-    public PluginConfig getPluginConfig() {
-        return pluginConfig;
+    public LinkPluginDefinition getPluginDefinition() {
+        return pluginDefinition;
     }
 
-    public void setPluginConfig(PluginConfig pluginConfig) {
-        this.pluginConfig = pluginConfig;
+    public void setPluginDefinition(LinkPluginDefinition pluginDefinition) {
+        this.pluginDefinition = pluginDefinition;
     }
 
     public List<ChildLinksConfig> getChildLinksConfigList() {
@@ -127,7 +126,7 @@ public class LinkConfig implements Dto {
             return false;
         }
 
-        if (pluginConfig != null ? !pluginConfig.equals(that.getPluginConfig()) : that.getPluginConfig() != null) {
+        if (pluginDefinition != null ? !pluginDefinition.equals(that.getPluginDefinition()) : that.getPluginDefinition() != null) {
             return false;
         }
 
@@ -145,7 +144,7 @@ public class LinkConfig implements Dto {
         result = 31 * result + (displayText != null ? displayText.hashCode() : 0);
         result = 31 * result + (image != null ? image.hashCode() : 0);
         result = 31 * result + (childToOpen != null ? childToOpen.hashCode() : 0);
-        result = 31 * result + (pluginConfig != null ? pluginConfig.hashCode() : 0);
+        result = 31 * result + (pluginDefinition != null ? pluginDefinition.hashCode() : 0);
         result = 31 * result + (childLinksConfigList != null ? childLinksConfigList.hashCode() : 0);
         result = 31 * result + (decorationsConfig != null ? decorationsConfig.hashCode() : 0);
         return result;

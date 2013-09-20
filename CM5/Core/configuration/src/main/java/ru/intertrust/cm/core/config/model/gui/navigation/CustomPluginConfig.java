@@ -13,7 +13,7 @@ import java.util.List;
  *         Time: 12:05 PM
  */
 @Root(name = "custom")
-public class CustomPluginConfig extends PluginConfigParent {
+public class CustomPluginConfig extends PluginConfig {
 
     @Attribute(name = "name")
     private String name;
