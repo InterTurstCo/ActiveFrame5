@@ -6,6 +6,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
+import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationServiceAsync;
 
@@ -15,9 +16,9 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationServiceAs
  *         Time: 14:47
  */
 @ComponentName("login.window")
-public class LoginWindow extends DialogBox {
-    private TextBox loginField;
-    private PasswordTextBox passwordField;
+public class LoginWindow extends DialogBox implements Component {
+    protected TextBox loginField;
+    protected PasswordTextBox passwordField;
     private Label message;
     private Button loginButton;
 
@@ -44,11 +45,10 @@ public class LoginWindow extends DialogBox {
         dialogPanel.add(passwordField);
         dialogPanel.add(loginButton);
 
-
         setWidget(dialogPanel);
     }
 
-    private void login() {
+    protected void login() {
         AsyncCallback<Void> callback = new AsyncCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
@@ -63,5 +63,15 @@ public class LoginWindow extends DialogBox {
         };
         UserUidWithPassword credentials = new UserUidWithPassword(loginField.getText(), passwordField.getText());
         BusinessUniverseAuthenticationServiceAsync.Impl.getInstance().login(credentials, callback);
+    }
+
+    @Override
+    public String getName() {
+        return "login.window";
+    }
+
+    @Override
+    public Component createNew() {
+        return new LoginWindow();
     }
 }

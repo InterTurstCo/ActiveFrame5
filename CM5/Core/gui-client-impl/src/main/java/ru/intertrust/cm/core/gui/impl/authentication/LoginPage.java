@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.authentication;
 
 import com.google.gwt.core.client.EntryPoint;
+import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 
 /**
  * @author Denis Mitavskiy
@@ -10,7 +11,7 @@ import com.google.gwt.core.client.EntryPoint;
 public class LoginPage implements EntryPoint {
     @Override
     public void onModuleLoad() {
-        LoginWindow loginWindow = new LoginWindow();
+        LoginWindow loginWindow = (LoginWindow) ComponentRegistry.instance.get("login.window");
         loginWindow.center();
 
         //loginWindow.show();

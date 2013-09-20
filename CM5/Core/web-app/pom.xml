@@ -83,6 +83,7 @@
                 <filtering>false</filtering>
                 <includes>
                     <include>deploy.properties</include>
+                    <include>gui.properties</include>
                     <include>log4j.xml</include>
                 </includes>
             </resource>
