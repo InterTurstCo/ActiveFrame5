@@ -6,7 +6,6 @@
 	<version>1.0.0-SNAPSHOT</version>
 	<name>performance</name>
 	<build>
-		<sourceDirectory>src</sourceDirectory>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -103,6 +102,11 @@
 			<version>7.1.1.Final</version>
 			<type>pom</type>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>3.10-beta1</version>
+		</dependency>
 	</dependencies>
 	<profiles>
 		<profile>
@@ -121,7 +125,7 @@
 								</goals>
 								<configuration>
 									<files>
-										<file>src/install.properties</file>
+										<file>install.properties</file>
 									</files>
 								</configuration>
 							</execution>
