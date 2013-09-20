@@ -32,7 +32,7 @@ import java.util.logging.Logger;
 public abstract class Plugin extends BaseComponent {
     private PluginPanel owner;
     private EventBus eventBus;
-    private PluginConfig pluginConfig;
+    private PluginConfig config;
     private PluginData initialData;
     private PluginView view;
 
@@ -81,7 +81,7 @@ public abstract class Plugin extends BaseComponent {
                 logger.info("failed " + getName());
             }
         };
-        Command command = new Command("initialize", this.getName(), null);
+        Command command = new Command("initialize", this.getName(), getConfig());
         BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, callback);
     }
 
@@ -116,16 +116,16 @@ public abstract class Plugin extends BaseComponent {
      * Возвращает конфигурацию плагина
      * @return конфигурацию плагина
      */
-    public PluginConfig getPluginConfig() {
-        return pluginConfig;
+    public PluginConfig getConfig() {
+        return config;
     }
 
     /**
      * Устанавливает конфигурацию плагина
-     * @param pluginConfig конфигурация плагина
+     * @param config конфигурация плагина
      */
-    public void setPluginConfig(PluginConfig pluginConfig) {
-        this.pluginConfig = pluginConfig;
+    public void setConfig(PluginConfig config) {
+        this.config = config;
     }
 
     /**
