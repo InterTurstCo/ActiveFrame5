@@ -54,7 +54,11 @@ public abstract class PluginView implements IsWidget {
             actionPanel.add(new Button(actionConfig.getText(), new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    ((Action) ComponentRegistry.instance.get(actionConfig.getName())).execute();
+                    String component = actionConfig.getComponent();
+                    if (component == null) {
+                        component = "generic.workflow.action";
+                    }
+                    ((Action) ComponentRegistry.instance.get(component)).execute();
                 }
             }));
         }

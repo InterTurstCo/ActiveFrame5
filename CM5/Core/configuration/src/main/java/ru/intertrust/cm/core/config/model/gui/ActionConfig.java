@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  */
 public class ActionConfig implements Dto {
     private String name;
+    private String component;
     private String text;
     private String imageUrl;
     private boolean showText;
@@ -20,12 +21,25 @@ public class ActionConfig implements Dto {
         this.name = name;
     }
 
+    public ActionConfig(String name, String component) {
+        this.name = name;
+        this.component = component;
+    }
+
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getComponent() {
+        return component;
+    }
+
+    public void setComponent(String component) {
+        this.component = component;
     }
 
     public String getText() {

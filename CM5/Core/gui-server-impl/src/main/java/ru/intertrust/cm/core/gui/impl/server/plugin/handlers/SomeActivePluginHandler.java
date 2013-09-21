@@ -32,7 +32,7 @@ public class SomeActivePluginHandler extends ActivePluginHandler {
 
     public List<ActionConfig> getActions()  {
         ArrayList<ActionConfig> actions = new ArrayList<>();
-        ActionConfig saveAction = new ActionConfig("save.action");
+        ActionConfig saveAction = new ActionConfig("save.action", "save.action");
         saveAction.setText("Сохранить");
         actions.add(saveAction);
         return actions;

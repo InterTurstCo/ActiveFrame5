@@ -23,6 +23,6 @@ public abstract class SystemException extends RuntimeException {
     }
 
     protected SystemException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
+        super(message, cause); // игнорируем 2 остальных параметра в интересах GWT, не воспринимающего методы JDK 1.7
     }
 }
