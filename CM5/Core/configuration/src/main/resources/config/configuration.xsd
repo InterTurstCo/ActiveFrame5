@@ -631,6 +631,18 @@
         </xs:sequence>
         <xs:attribute type="xs:string" name="id" use="optional"/>
     </xs:complexType>
+    <xs:complexType name="textAreaType">
+        <xs:sequence>
+            <xs:element type="con:fieldPathType" name="field-path" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element name="text" minOccurs="0">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="id" use="optional"/>
+    </xs:complexType>
     <xs:complexType name="usersType">
         <xs:sequence>
             <xs:element type="con:userType" name="user" xmlns:con="https://cm5.intertrust.ru/config"/>
@@ -724,17 +736,15 @@
         </xs:sequence>
         <xs:attribute type="xs:string" name="form-name"/>
     </xs:complexType>
+    <xs:complexType name="textBoxType">
+        <xs:sequence>
+            <xs:element type="con:fieldPathType" name="field-path" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="id" use="optional"/>
+    </xs:complexType>
     <xs:complexType name="integerBoxType">
         <xs:sequence>
             <xs:element type="con:fieldPathType" name="field-path" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element name="text" minOccurs="0">
-                <xs:simpleType>
-                    <xs:restriction base="xs:string">
-                        <xs:enumeration value="Текст документа"/>
-                        <xs:enumeration value="№"/>
-                    </xs:restriction>
-                </xs:simpleType>
-            </xs:element>
         </xs:sequence>
         <xs:attribute type="xs:string" name="id" use="optional"/>
     </xs:complexType>
@@ -806,6 +816,8 @@
         <xs:choice maxOccurs="unbounded" minOccurs="0">
             <xs:element type="con:labelType" name="label" xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:richTextAreaType" name="rich-text-area" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:textBoxType" name="text-box" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:textAreaType" name="text-area" xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:integerBoxType" name="integer-box" xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:linkedDomainObjectHyperlinkType" name="linked-domain-object-hyperlink" xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:linkedDomainObjectsTableType" name="linked-domain-objects-table" xmlns:con="https://cm5.intertrust.ru/config"/>

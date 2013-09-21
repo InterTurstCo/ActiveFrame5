@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.FileUtils;
@@ -16,15 +17,13 @@ import ru.intertrust.cm.core.config.model.gui.form.widget.*;
 import ru.intertrust.cm.core.config.model.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
+import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.Form;
-import ru.intertrust.cm.core.gui.model.form.widget.IntegerBoxData;
-import ru.intertrust.cm.core.gui.model.form.widget.LabelData;
-import ru.intertrust.cm.core.gui.model.form.widget.TextBoxData;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
+import ru.intertrust.cm.core.gui.model.form.widget.*;
+import ru.intertrust.cm.core.util.ConfigurationUtil;
 
-import javax.annotation.Resource;
 import javax.annotation.security.DeclareRoles;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;
@@ -34,6 +33,7 @@ import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -51,13 +51,13 @@ import java.util.Map;
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class GuiServiceImpl implements GuiService, GuiService.Remote {
 
+    static Logger log = LoggerFactory.getLogger(GuiServiceImpl.class);
+
     @Autowired
     ApplicationContext applicationContext;
 
-    static Logger log = LoggerFactory.getLogger(GuiServiceImpl.class);
-
-    @Resource
-    private javax.ejb.SessionContext sessionContext;
+    @EJB
+    private ConfigurationService configurationService;
 
     @Override
     public NavigationConfig getNavigationConfiguration() {
@@ -88,7 +88,7 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
             log.error(e.getMessage(), e);
             throw new GuiException("No command + " + command.getName() + " implemented");
         } catch (Throwable e) {
-            log.error(e.getMessage(), e);
+            e.printStackTrace();
             throw new GuiException("Command can't be executed: " + command.getName());
         }
     }
@@ -99,7 +99,7 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         // если флаг "использовать по умолчанию" не установлен
         // в конечном итоге получаем FormConfig
         HashMap<String, WidgetData> widgetDataMap = new HashMap<>();
-        FormConfig formConfig = createFakeConfig(widgetDataMap);
+        FormConfig formConfig = createCountryConfig(widgetDataMap);
         // в реальности необходимо заполнить widgetDataMap на основе полученного formConfig. мы же его заполняем попутно.
         // будет происходить нечто подобное:
         // Form form = new Form(formConfig.getName(), formConfig.getMarkup());
@@ -112,6 +112,19 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
 
 
         return new Form(formConfig.getName(), formConfig.getMarkup(), widgetDataMap);
+    }
+
+    private FormConfig createCountryConfig(Map<String, WidgetData> widgetDataMapToFill) {
+        FormConfig formConfig = configurationService.getConfig(FormConfig.class, "country_form");
+        WidgetConfigurationConfig widgetConfigurationConfig = formConfig.getWidgetConfigurationConfig();
+        List<WidgetConfig> widgetConfigs = widgetConfigurationConfig.getWidgetConfigList();
+        for (WidgetConfig config : widgetConfigs) {
+            WidgetHandler componentHandler = obtainHandler(ConfigurationUtil.getWidgetTag(config));
+            WidgetContext widgetContext = new WidgetContext();
+            widgetContext.setWidgetConfig(config);
+            widgetDataMapToFill.put(config.getId(), componentHandler.getInitialDisplayData(widgetContext, null));
+        }
+        return formConfig;
     }
 
     private FormConfig createFakeConfig(Map<String, WidgetData> widgetDataMapToFill) {
@@ -323,8 +336,8 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         }
     }
 
-    private ComponentHandler obtainHandler(String componentName) {
+    private <T extends ComponentHandler> T obtainHandler(String componentName) {
         boolean containsHandler = applicationContext.containsBean(componentName);
-        return containsHandler ? (ComponentHandler) applicationContext.getBean(componentName) : null;
+        return containsHandler ? (T) applicationContext.getBean(componentName) : null;
     }
 }

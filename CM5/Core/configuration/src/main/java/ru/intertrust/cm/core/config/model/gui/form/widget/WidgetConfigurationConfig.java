@@ -17,25 +17,26 @@ import java.util.List;
 @Root(name = "widget-config")
 public class WidgetConfigurationConfig implements Dto {
     @ElementListUnion({
-            @ElementList(entry = "label", type = LabelConfig.class, inline = true),
-            @ElementList(entry = "rich-text-area", type = TextBoxConfig.class, inline = true),
-            @ElementList(entry = "integer-box", type = IntegerBoxConfig.class, inline = true)
+            @ElementList(entry = "label", type = LabelConfig.class, inline = true, required = false),
+            @ElementList(entry = "rich-text-area", type = TextBoxConfig.class, inline = true, required = false),
+            @ElementList(entry = "integer-box", type = IntegerBoxConfig.class, inline = true, required = false),
+            @ElementList(entry = "text-box", type = IntegerBoxConfig.class, inline = true, required = false)
     })
     private List<WidgetConfig> widgetConfigList = new ArrayList<WidgetConfig>();
 
-    @ElementList(inline = true)
+    @ElementList(inline = true, required = false)
     private List<LinkDomainObjectsEditableTableConfig> linkDomainObjectsEditableTableConfigList =
             new ArrayList<LinkDomainObjectsEditableTableConfig>();
 
-    @ElementList(inline = true)
+    @ElementList(inline = true, required = false)
     private List<LinkedDomainObjectHyperlinkConfig> linkedDomainObjectHyperlinkConfigList =
             new ArrayList<LinkedDomainObjectHyperlinkConfig>();
 
-    @ElementList(inline = true)
+    @ElementList(inline = true, required = false)
     private List<LinkedDomainObjectsTableConfig> linkedDomainObjectsTableConfig =
             new ArrayList<LinkedDomainObjectsTableConfig>();
 
-    @Element(name = "template-based-widget")
+    @Element(name = "template-based-widget", required = false)
     private TemplateBasedWidgetConfig templateBasedWidgetConfig;
 
     public List<WidgetConfig> getWidgetConfigList() {

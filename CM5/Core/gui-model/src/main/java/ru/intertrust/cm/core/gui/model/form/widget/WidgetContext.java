@@ -13,6 +13,14 @@ public class WidgetContext implements Dto {
     private Id rootObjectId;
     private WidgetConfig widgetConfig;
 
+    public WidgetContext() {
+    }
+
+    public WidgetContext(Id rootObjectId, WidgetConfig widgetConfig) {
+        this.rootObjectId = rootObjectId;
+        this.widgetConfig = widgetConfig;
+    }
+
     public Id getRootObjectId() {
         return rootObjectId;
     }
@@ -21,8 +29,8 @@ public class WidgetContext implements Dto {
         this.rootObjectId = rootObjectId;
     }
 
-    public WidgetConfig getWidgetConfig() {
-        return widgetConfig;
+    public <T extends WidgetConfig> T getWidgetConfig() {
+        return (T) widgetConfig;
     }
 
     public void setWidgetConfig(WidgetConfig widgetConfig) {

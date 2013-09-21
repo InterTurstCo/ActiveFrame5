@@ -8,6 +8,13 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 public class LabelData extends WidgetData {
     private String label;
 
+    public LabelData() {
+    }
+
+    public LabelData(String label) {
+        this.label = label;
+    }
+
     public String getLabel() {
         return label;
     }

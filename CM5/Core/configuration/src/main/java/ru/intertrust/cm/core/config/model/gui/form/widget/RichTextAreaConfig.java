@@ -5,11 +5,11 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
  * @author Denis Mitavskiy
- *         Date: 14.09.13
- *         Time: 14:17
+ *         Date: 21.09.13
+ *         Time: 13:43
  */
-@Root(name = "text-box")
-public class TextBoxConfig extends WidgetConfig implements Dto {
+@Root(name = "rich-text-area")
+public class RichTextAreaConfig extends WidgetConfig implements Dto {
     @Override
     public boolean equals(Object o) {
         return super.equals(o);

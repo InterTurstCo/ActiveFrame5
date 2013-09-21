@@ -41,14 +41,19 @@ public class IntegerBoxWidget extends BaseWidget {
     @Override
     protected Widget asEditableWidget() {
         TextBox textBox = new TextBox();
-        textBox.setValue(this.<IntegerBoxData>getInitialData().getValue().toString());
+        textBox.setValue(getText());
         return textBox;
     }
 
     @Override
     protected Widget asNonEditableWidget() {
         Label result = new Label();
-        result.setText(this.<IntegerBoxData>getInitialData().getValue().toString());
+        result.setText(getText());
         return result;
+    }
+
+    private String getText() {
+        Long value = this.<IntegerBoxData>getInitialData().getValue();
+        return value == null ? "" : value.toString();
     }
 }

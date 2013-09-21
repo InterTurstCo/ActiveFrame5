@@ -35,7 +35,7 @@ public class FormPanel implements IsWidget {
 
 
         TabLayoutPanel bodyTabPanel = new TabLayoutPanel(30, Style.Unit.PX);
-        bodyTabPanel.setSize("100%", "200px"); // todo - something else
+        bodyTabPanel.setSize("500px", "200px"); // todo - something else
         BodyConfig body = markup.getBody();
         List<TabConfig> tabs = body.getTabs();
         for (TabConfig tab : tabs) {
@@ -44,7 +44,7 @@ public class FormPanel implements IsWidget {
         bodyTabPanel.selectTab(0);
 
         VerticalPanel verticalPanel = new VerticalPanel();
-        verticalPanel.setSize("100%", "100%");
+        verticalPanel.setSize("500px", "100%");
         verticalPanel.add(headerTable);
         verticalPanel.add(bodyTabPanel);
 
@@ -53,7 +53,7 @@ public class FormPanel implements IsWidget {
 
     private IsWidget buildTabContent(TabConfig tabConfig) {
         SimpleLayoutPanel panel = new SimpleLayoutPanel();
-        panel.setSize("100%", "100%");
+        panel.setSize("500px", "100%");
         TabGroupListConfig groupList = tabConfig.getGroupList();
         if (groupList instanceof SingleEntryGroupListConfig) {
             panel.add(buildTable(((SingleEntryGroupListConfig) groupList).getTabGroupConfig().getLayout()));
@@ -64,6 +64,7 @@ public class FormPanel implements IsWidget {
     private IsWidget buildTable(LayoutConfig layout) {
         TableLayoutConfig tableLayout = (TableLayoutConfig) layout;
         FlexTable table = new FlexTable();
+        table.setSize("500px", "100%");
         FlexTable.FlexCellFormatter cellFormatter = table.getFlexCellFormatter();
         HTMLTable.ColumnFormatter columnFormatter = table.getColumnFormatter();
         int rowIndex = 0;
