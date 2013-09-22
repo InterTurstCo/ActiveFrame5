@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
+import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.FileUtils;
@@ -20,7 +22,9 @@ import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
+import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.Form;
+import ru.intertrust.cm.core.gui.model.form.FormData;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.util.ConfigurationUtil;
 
@@ -31,10 +35,7 @@ import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Базовая реализация сервиса GUI
@@ -58,6 +59,9 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
 
     @EJB
     private ConfigurationService configurationService;
+
+    @EJB
+    private CrudService crudService;
 
     @Override
     public NavigationConfig getNavigationConfiguration() {
@@ -98,8 +102,7 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         // далее находится форма для данного контекста, учитывая факт того, переопределена ли форма для пользователя/роли,
         // если флаг "использовать по умолчанию" не установлен
         // в конечном итоге получаем FormConfig
-        HashMap<String, WidgetData> widgetDataMap = new HashMap<>();
-        FormConfig formConfig = createCountryConfig(widgetDataMap);
+
         // в реальности необходимо заполнить widgetDataMap на основе полученного formConfig. мы же его заполняем попутно.
         // будет происходить нечто подобное:
         // Form form = new Form(formConfig.getName(), formConfig.getMarkup());
@@ -110,21 +113,92 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         //     form.setWidgetData(config.getId(), getWidgetHandler().getInitialDisplayData(context, formData));
         // }
 
+        DomainObject root;
+        if (domainObjectId == null) {
+            root = crudService.createDomainObject("country");
+        } else {
+            root = crudService.find(domainObjectId);
+            if (root == null) {
+                throw new GuiException("Object with id: " + domainObjectId.toStringRepresentation() + " doesn't exist");
+            }
+        }
+        if (domainObjectId == null) { // empty form
+            // todo empty form
+        }
 
-        return new Form(formConfig.getName(), formConfig.getMarkup(), widgetDataMap);
+
+        return createCountryForm(root);
     }
 
-    private FormConfig createCountryConfig(Map<String, WidgetData> widgetDataMapToFill) {
+    private Form createCountryForm(DomainObject root) {
+        HashMap<String, WidgetData> widgetDataMap = new HashMap<>();
         FormConfig formConfig = configurationService.getConfig(FormConfig.class, "country_form");
         WidgetConfigurationConfig widgetConfigurationConfig = formConfig.getWidgetConfigurationConfig();
         List<WidgetConfig> widgetConfigs = widgetConfigurationConfig.getWidgetConfigList();
+        FormData formData = getFormData(root, widgetConfigs);
         for (WidgetConfig config : widgetConfigs) {
             WidgetHandler componentHandler = obtainHandler(ConfigurationUtil.getWidgetTag(config));
             WidgetContext widgetContext = new WidgetContext();
             widgetContext.setWidgetConfig(config);
-            widgetDataMapToFill.put(config.getId(), componentHandler.getInitialDisplayData(widgetContext, null));
+            widgetDataMap.put(config.getId(), componentHandler.getInitialDisplayData(widgetContext, formData));
         }
-        return formConfig;
+        return new Form(formConfig.getName(), formConfig.getMarkup(), widgetDataMap);
+    }
+
+    private Map<WidgetConfig, FieldPath> getFieldPaths(List<WidgetConfig> configs) {
+        HashMap<WidgetConfig, FieldPath> paths = new HashMap<>(configs.size());
+        for (WidgetConfig config : configs) {
+            FieldPathConfig fieldPathConfig = config.getFieldPathConfig();
+            if (fieldPathConfig == null || fieldPathConfig.getValue() == null) {
+                if (!(config instanceof LabelConfig)) {
+                    throw new GuiException("Widget, id: " + config.getId() + " is not configured with Field Path");
+                } else {
+                    continue;
+                }
+            }
+            paths.put(config, new FieldPath(fieldPathConfig.getValue()));
+        }
+        return paths;
+    }
+
+    private FormData getFormData(DomainObject root, List<WidgetConfig> widgetConfigs) {
+        // не уверен, нужен ли здесь будет Business Object, но наверно нужен в некотором урезанном виде - для оптимистических блокировок
+
+        Map<WidgetConfig, FieldPath> fieldPaths = getFieldPaths(widgetConfigs); // todo -> convert to list
+
+        HashMap<FieldPath, DomainObject> fieldPathObjects = new HashMap<>();
+        fieldPathObjects.put(null, root);
+        for (FieldPath fieldPath : fieldPaths.values()) {
+            DomainObject currentRoot = root;
+            for (Iterator<FieldPath> subPathIterator = fieldPath.subPathIterator(); subPathIterator.hasNext(); ) {
+                FieldPath subPath = subPathIterator.next();
+                if (!subPathIterator.hasNext()) { // значит текущий путь указывает на Value и будет получаться из Domain Object
+                    break; // значит ничего не делаем, а раз следующего нет, выходим из цикла
+                }
+                if (fieldPathObjects.containsKey(subPath)) {
+                    continue;
+                }
+
+                String linkField = subPath.getLastElement();
+                if (linkField.contains("^")) { // it's a "back-link"
+                    //todo
+                } else {
+                    Id linkedObjectId = currentRoot.getReference(linkField);
+                    if (linkedObjectId != null) {
+                        DomainObject linkedDo = crudService.find(linkedObjectId);
+                        fieldPathObjects.put(subPath, linkedDo);
+                        currentRoot = linkedDo;
+                    } else {
+                        break; // текущий root становится null, таким образом все последующие вызовы бессмыссленны
+                    }
+                }
+            }
+        }
+
+        FormData formData = new FormData();
+        formData.setFieldPathObjects(fieldPathObjects);
+
+        return formData;
     }
 
     private FormConfig createFakeConfig(Map<String, WidgetData> widgetDataMapToFill) {

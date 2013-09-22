@@ -15,6 +15,6 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 public class IntegerBoxHandler extends WidgetHandler {
     @Override
     public IntegerBoxData getInitialDisplayData(WidgetContext context, FormData formData) {
-        return new IntegerBoxData();
+        return new IntegerBoxData((Long) getFieldPathValue(context, formData));
     }
 }

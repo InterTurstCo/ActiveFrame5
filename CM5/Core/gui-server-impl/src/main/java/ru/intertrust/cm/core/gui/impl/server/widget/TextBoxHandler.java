@@ -15,6 +15,6 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 public class TextBoxHandler extends WidgetHandler {
     @Override
     public TextBoxData getInitialDisplayData(WidgetContext context, FormData formData) {
-        return new TextBoxData();
+        return new TextBoxData((String) getFieldPathValue(context, formData));
     }
 }

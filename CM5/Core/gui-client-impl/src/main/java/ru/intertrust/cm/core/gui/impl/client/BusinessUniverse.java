@@ -146,12 +146,13 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
     }
 
     private void addFormPanel(DockLayoutPanel mainLayoutPanel) {
-        PluginPanel formPlaginPanel = new PluginPanel(eventBus);
+        PluginPanel formPluginPanel = new PluginPanel(eventBus);
+        formPluginPanel.setSize("500px", "300px");
         Plugin plugin = ComponentRegistry.instance.get("some.active.plugin");
-        formPlaginPanel.open(plugin);
+        formPluginPanel.open(plugin);
         SimpleLayoutPanel layoutPanel = new SimpleLayoutPanel();
-        layoutPanel.setSize("100%", "100%");
-        layoutPanel.add(formPlaginPanel);
+        layoutPanel.setSize("500px", "300px");
+        layoutPanel.add(formPluginPanel);
         mainLayoutPanel.addSouth(layoutPanel, 50);
     }
 
@@ -172,7 +173,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
     private void addCollection(DockLayoutPanel dockLayoutPanel, final Plugin collectionPlugin, final Plugin domainObjectSurfer) {
         PluginPanel collectionPanel = new PluginPanel(eventBus) ;
         //collectionPanel.open(collectionPlugin);
-      dockLayoutPanel.addSouth(collectionPanel, 15);
+      //dockLayoutPanel.addSouth(collectionPanel, 15);
     }
 
     @Override

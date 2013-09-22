@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.config.model.gui.ActionConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
@@ -25,7 +26,7 @@ public class SomeActivePluginHandler extends ActivePluginHandler {
     public ActivePluginData initialize(Dto param) {
         SomeActivePluginData pluginData = new SomeActivePluginData();
         pluginData.setActionConfigs(getActions());
-        pluginData.setForm(getGuiService().getForm(null));
+        pluginData.setForm(getGuiService().getForm(new RdbmsId(11,1)));
         System.out.println("SomeActivePluginHandler initialized!");
         return pluginData;
     }

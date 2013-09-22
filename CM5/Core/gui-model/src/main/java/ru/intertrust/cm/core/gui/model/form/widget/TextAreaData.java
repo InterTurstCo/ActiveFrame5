@@ -8,6 +8,13 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 public class TextAreaData extends WidgetData {
     private String text;
 
+    public TextAreaData() {
+    }
+
+    public TextAreaData(String text) {
+        this.text = text;
+    }
+
     public String getText() {
         return text;
     }

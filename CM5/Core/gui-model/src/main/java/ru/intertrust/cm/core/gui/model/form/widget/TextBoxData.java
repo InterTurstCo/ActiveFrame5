@@ -8,6 +8,13 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 public class TextBoxData extends WidgetData {
     private String text;
 
+    public TextBoxData() {
+    }
+
+    public TextBoxData(String text) {
+        this.text = text;
+    }
+
     public String getText() {
         return text;
     }

@@ -15,6 +15,6 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 public class TextAreaHandler extends WidgetHandler {
     @Override
     public TextAreaData getInitialDisplayData(WidgetContext context, FormData formData) {
-        return new TextAreaData();
+        return new TextAreaData((String) getFieldPathValue(context, formData));
     }
 }

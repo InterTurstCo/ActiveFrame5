@@ -8,6 +8,13 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 public class IntegerBoxData extends WidgetData {
     private Long value;
 
+    public IntegerBoxData() {
+    }
+
+    public IntegerBoxData(Long value) {
+        this.value = value;
+    }
+
     public Long getValue() {
         return value;
     }

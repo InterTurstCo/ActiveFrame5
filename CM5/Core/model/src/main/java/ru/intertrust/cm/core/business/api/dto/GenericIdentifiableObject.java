@@ -30,11 +30,12 @@ public class GenericIdentifiableObject implements IdentifiableObject {
      * @param source исходный объект
      */
     public GenericIdentifiableObject(IdentifiableObject source) {
-        id = source.getId();
+        this();
+        setId(source.getId());
         ArrayList<String> sourceFields = source.getFields();
         fieldValues = new LinkedHashMap<>(sourceFields.size());
         for (String field : sourceFields) {
-            fieldValues.put(field, source.getValue(field));
+            setValue(field, source.getValue(field));
         }
     }
 
@@ -65,52 +66,90 @@ public class GenericIdentifiableObject implements IdentifiableObject {
 
     @Override
     public void setString(String field, String value) {
-        fieldValues.put(field, new StringValue(value));
+        if (value != null) {
+            fieldValues.put(field, new StringValue(value));
+        }
     }
 
     @Override
     public String getString(String field) {
-        return this.<StringValue>getValue(field).get();
+        StringValue value = getValue(field);
+        return value == null ? null : value.get();
     }
 
     @Override
     public void setLong(String field, Long value) {
-        fieldValues.put(field, new LongValue(value));
+        if (value != null) {
+            fieldValues.put(field, new LongValue(value));
+        }
     }
 
     @Override
     public Long getLong(String field) {
-        return this.<LongValue>getValue(field).get();
+        LongValue value = getValue(field);
+        return value == null ? null : value.get();
     }
 
     @Override
     public void setBoolean(String field, Boolean value) {
-        fieldValues.put(field, new BooleanValue(value));
+        if (value != null) {
+            fieldValues.put(field, new BooleanValue(value));
+        }
     }
 
     @Override
     public Boolean getBoolean(String field) {
-        return this.<BooleanValue>getValue(field).get();
+        BooleanValue value = getValue(field);
+        return value == null ? null : value.get();
     }
 
     @Override
     public void setDecimal(String field, BigDecimal value) {
-        fieldValues.put(field, new DecimalValue(value));
+        if (value != null) {
+            fieldValues.put(field, new DecimalValue(value));
+        }
     }
 
     @Override
     public BigDecimal getDecimal(String field) {
-        return this.<DecimalValue>getValue(field).get();
+        DecimalValue value = getValue(field);
+        return value == null ? null : value.get();
     }
 
     @Override
     public void setTimestamp(String field, Date value) {
-        fieldValues.put(field, new TimestampValue(value));
+        if (value != null) {
+            fieldValues.put(field, new TimestampValue(value));
+        }
     }
 
     @Override
     public Date getTimestamp(String field) {
-        return this.<TimestampValue>getValue(field).get();
+        TimestampValue value = getValue(field);
+        return value == null ? null : value.get();
+    }
+
+    @Override
+    public void setReference(String field, DomainObject domainObject) {
+        if (domainObject != null) {
+            Id id = domainObject.getId();
+            if (id != null) {
+                fieldValues.put(field, new ReferenceValue(id));
+            }
+        }
+    }
+
+    @Override
+    public void setReference(String field, Id id) {
+        if (id != null) {
+            fieldValues.put(field, new ReferenceValue(id));
+        }
+    }
+
+    @Override
+    public Id getReference(String field) {
+        ReferenceValue value = getValue(field);
+        return value == null ? null : value.get();
     }
 
     public String toString() {
@@ -119,20 +158,5 @@ public class GenericIdentifiableObject implements IdentifiableObject {
         result.append(ModelUtil.getDetailedDescription(this));
         result.append('}');
         return result.toString();
-    }
-
-    @Override
-    public void setReference(String field, DomainObject domainObject) {
-        fieldValues.put(field, new ReferenceValue(domainObject.getId()));
-    }
-
-    @Override
-    public void setReference(String field, Id id) {
-        fieldValues.put(field, new ReferenceValue(id));
-    }
-
-    @Override
-    public Id getReference(String field) {
-        return this.<ReferenceValue>getValue(field).get();
     }
 }

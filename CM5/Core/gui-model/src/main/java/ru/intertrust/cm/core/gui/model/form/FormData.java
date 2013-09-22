@@ -1,12 +1,10 @@
 package ru.intertrust.cm.core.gui.model.form;
 
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.gui.model.GuiException;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -15,34 +13,42 @@ import java.util.Map;
  *         Time: 18:09
  */
 public class FormData implements Dto {
-    private Map<String, List<Value>> fieldPathValues;
+    private Map<FieldPath, DomainObject> fieldPathObjects;
 
     public FormData() {
-        fieldPathValues = new HashMap<>();
+        fieldPathObjects = new HashMap<FieldPath, DomainObject>();
     }
 
-    public void setFieldPathValue(String fieldPath, Value value) {
-        ArrayList<Value> list = new ArrayList<>(1);
-        list.add(value);
-        this.fieldPathValues.put(fieldPath, list);
+    public Map<FieldPath, DomainObject> getFieldPathObjects() {
+        return fieldPathObjects;
     }
 
-    public void setFieldPathValues(String fieldPath, List<Value> values) {
-        this.fieldPathValues.put(fieldPath, values);
+    public void setFieldPathObjects(Map<FieldPath, DomainObject> fieldPathObjects) {
+        this.fieldPathObjects = fieldPathObjects;
     }
 
-    public <T extends Value> T getFieldPathValue(String fieldPath) {
-        List<Value> valueList = this.getFieldPathValues(fieldPath);
-        if (valueList == null) {
-            return null;
+    public void setFieldPathObject(FieldPath fieldPath, DomainObject object) {
+        fieldPathObjects.put(fieldPath, object);
+    }
+
+    public DomainObject getFieldPathObject(FieldPath fieldPath) {
+        return fieldPathObjects.get(fieldPath);
+    }
+
+    public void setFieldPathValue(FieldPath fieldPath, Value value) {
+        FieldPath objectPath = fieldPath.createFieldPathWithoutLastElement();
+        if (objectPath.size() == 0) {
+            objectPath = null;
         }
-        if (valueList.size() > 1) {
-            throw new GuiException("Field path: " + fieldPath + " contains more than 1 value");
-        }
-        return (T) valueList.get(0);
+        fieldPathObjects.get(objectPath).setValue(fieldPath.getLastElement(), value);
     }
 
-    public <T extends Value> List<T> getFieldPathValues(String fieldPath) {
-        return (List<T>) this.fieldPathValues.get(fieldPath);
+    public <T extends Value> T getFieldPathValue(FieldPath fieldPath) {
+        FieldPath objectPath = fieldPath.createFieldPathWithoutLastElement();
+        if (objectPath.size() == 0) {
+            objectPath = null;
+        }
+        DomainObject fieldPathObject = fieldPathObjects.get(objectPath);
+        return fieldPathObject == null ? null : (T) fieldPathObject.getValue(fieldPath.getLastElement());
     }
 }
