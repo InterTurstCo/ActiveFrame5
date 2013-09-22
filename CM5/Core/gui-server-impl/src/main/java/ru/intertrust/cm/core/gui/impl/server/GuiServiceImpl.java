@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.FileUtils;
 import ru.intertrust.cm.core.config.model.base.Configuration;
 import ru.intertrust.cm.core.config.model.gui.form.*;
@@ -103,16 +104,6 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         // если флаг "использовать по умолчанию" не установлен
         // в конечном итоге получаем FormConfig
 
-        // в реальности необходимо заполнить widgetDataMap на основе полученного formConfig. мы же его заполняем попутно.
-        // будет происходить нечто подобное:
-        // Form form = new Form(formConfig.getName(), formConfig.getMarkup());
-        // FormData formData = retrieveFormData(); // на основе конфигурации (field-paths)
-        // WidgetConfigurationConfig widgetConfigurations = formConfig.getWidgetConfigurationConfig();
-        // List<WidgetConfig> widgetConfigs = widgetConfigurations.getWidgets();
-        // for (WidgetConfig config : widgetConfigs) {
-        //     form.setWidgetData(config.getId(), getWidgetHandler().getInitialDisplayData(context, formData));
-        // }
-
         DomainObject root;
         if (domainObjectId == null) {
             root = crudService.createDomainObject("country");
@@ -130,6 +121,28 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         return createCountryForm(root);
     }
 
+    public void saveForm(Form form) {
+        FormConfig formConfig = configurationService.getConfig(FormConfig.class, "country_form");
+        WidgetConfigurationConfig widgetConfigurationConfig = formConfig.getWidgetConfigurationConfig();
+        List<WidgetConfig> widgetConfigs = widgetConfigurationConfig.getWidgetConfigList();
+        FormData formData = form.getFormData();
+        List<DomainObject> toSave = new ArrayList<>();
+        for (WidgetConfig widgetConfig : widgetConfigs) {
+            WidgetData widgetData = form.getWidgetData(widgetConfig.getId());
+            if (widgetData == null) { // ignore - such data shouldn't be saved
+                continue;
+            }
+            Value newValue = widgetData.toValue();
+            FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
+            Value oldValue = formData.getFieldPathValue(fieldPath);
+            if (!newValue.equals(oldValue)) {
+                DomainObject objectToSave = formData.setFieldPathValue(fieldPath, newValue);
+                toSave.add(objectToSave);
+            }
+        }
+        crudService.save(toSave);
+    }
+
     private Form createCountryForm(DomainObject root) {
         HashMap<String, WidgetData> widgetDataMap = new HashMap<>();
         FormConfig formConfig = configurationService.getConfig(FormConfig.class, "country_form");
@@ -142,7 +155,8 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
             widgetContext.setWidgetConfig(config);
             widgetDataMap.put(config.getId(), componentHandler.getInitialDisplayData(widgetContext, formData));
         }
-        return new Form(formConfig.getName(), formConfig.getMarkup(), widgetDataMap);
+        Form form = new Form(formConfig.getName(), formConfig.getMarkup(), widgetDataMap, formData);
+        return form;
     }
 
     private Map<WidgetConfig, FieldPath> getFieldPaths(List<WidgetConfig> configs) {
@@ -189,7 +203,13 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
                         fieldPathObjects.put(subPath, linkedDo);
                         currentRoot = linkedDo;
                     } else {
-                        break; // текущий root становится null, таким образом все последующие вызовы бессмыссленны
+                        // текущий root становится null, таким образом все последующие вызовы бессмыссленны
+                        break;
+
+                        // todo или создавать пустой Domain Object? если мы разрешаем сохранение "новых" связанных
+                        // объектов, то нужна для этого инфраструктура
+                        // сценарий: у страны есть столица, а на форме показано название столицы. когда столица не назначена,
+                        // поле пусто. Когда его заполняет пользователь, то такую столицу надо создать...
                     }
                 }
             }

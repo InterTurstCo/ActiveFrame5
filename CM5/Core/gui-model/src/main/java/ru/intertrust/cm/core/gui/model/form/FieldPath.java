@@ -73,7 +73,7 @@ public class FieldPath implements Dto {
     }
 
     public static List<FieldPath> toFieldPaths(List<String> paths) {
-        List<FieldPath> result = new ArrayList<>(paths.size());
+        List<FieldPath> result = new ArrayList<FieldPath>(paths.size());
         for (String path : paths) {
             result.add(new FieldPath(path));
         }

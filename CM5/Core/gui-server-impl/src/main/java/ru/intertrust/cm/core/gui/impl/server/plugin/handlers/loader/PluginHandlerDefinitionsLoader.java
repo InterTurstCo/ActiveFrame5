@@ -30,6 +30,7 @@ public class PluginHandlerDefinitionsLoader implements BeanDefinitionRegistryPos
 
     private void registerBeanDefinitionInRegistry(BeanDefinitionRegistry registry, ScannedGenericBeanDefinition pluginHandlerDefinition) {
         ScannedGenericBeanDefinition scannedGenericBeanDefinition = pluginHandlerDefinition;
+        scannedGenericBeanDefinition.setScope(BeanDefinition.SCOPE_PROTOTYPE);
         String annotationValue = scannedGenericBeanDefinition.getMetadata().getAnnotationAttributes(ComponentName.class.getName()).get(VALUE_ATTRIBUTE).toString();
         registry.registerBeanDefinition(annotationValue, scannedGenericBeanDefinition);
     }

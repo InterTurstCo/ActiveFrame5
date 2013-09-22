@@ -21,7 +21,7 @@ public class GenericIdentifiableObject implements IdentifiableObject {
      * Создаёт объект
      */
     public GenericIdentifiableObject() {
-        fieldValues = new LinkedHashMap<>(); // параметры специфицированы явно, для поддержки GWT
+        fieldValues = new LinkedHashMap<String, Value>(); // параметры специфицированы явно, для поддержки GWT
     }
 
     /**
@@ -33,7 +33,7 @@ public class GenericIdentifiableObject implements IdentifiableObject {
         this();
         setId(source.getId());
         ArrayList<String> sourceFields = source.getFields();
-        fieldValues = new LinkedHashMap<>(sourceFields.size());
+        fieldValues = new LinkedHashMap<String, Value>(sourceFields.size());
         for (String field : sourceFields) {
             setValue(field, source.getValue(field));
         }
@@ -61,7 +61,7 @@ public class GenericIdentifiableObject implements IdentifiableObject {
 
     @Override
     public ArrayList<String> getFields() {
-        return new ArrayList<>(fieldValues.keySet());
+        return new ArrayList<String>(fieldValues.keySet());
     }
 
     @Override

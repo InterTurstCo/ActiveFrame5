@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.model.form.Form;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,14 +19,20 @@ import java.util.List;
  */
 public class FormPanel implements IsWidget {
     private Form form;
+    private List<BaseWidget> widgets;
 
     public FormPanel(Form form) {
         this.form = form;
+        widgets = new ArrayList<BaseWidget>(form.getFullWidgetData().size());
     }
 
     @Override
     public com.google.gwt.user.client.ui.Widget asWidget() {
         return build();
+    }
+
+    public List<BaseWidget> getWidgets() {
+        return widgets;
     }
 
     private VerticalPanel build() {
@@ -80,6 +87,7 @@ public class FormPanel implements IsWidget {
                 widget.setEditable(form.isEditable());
                 widget.setDisplayConfig(displayConfig);
                 widget.setInitialData(widgetData);
+                widgets.add(widget);
                 table.setWidget(rowIndex, colIndex, widget);
 
                 String cellWidth = cell.getWidth();

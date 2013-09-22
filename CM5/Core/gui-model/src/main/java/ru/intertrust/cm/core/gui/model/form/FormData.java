@@ -35,20 +35,22 @@ public class FormData implements Dto {
         return fieldPathObjects.get(fieldPath);
     }
 
-    public void setFieldPathValue(FieldPath fieldPath, Value value) {
-        FieldPath objectPath = fieldPath.createFieldPathWithoutLastElement();
-        if (objectPath.size() == 0) {
-            objectPath = null;
-        }
-        fieldPathObjects.get(objectPath).setValue(fieldPath.getLastElement(), value);
+    public DomainObject setFieldPathValue(FieldPath fieldPath, Value value) {
+        DomainObject fieldPathObject = getObjectContainingFieldPathValue(fieldPath);
+        fieldPathObject.setValue(fieldPath.getLastElement(), value);
+        return fieldPathObject;
     }
 
     public <T extends Value> T getFieldPathValue(FieldPath fieldPath) {
+        DomainObject fieldPathObject = getObjectContainingFieldPathValue(fieldPath);
+        return fieldPathObject == null ? null : (T) fieldPathObject.getValue(fieldPath.getLastElement());
+    }
+
+    private DomainObject getObjectContainingFieldPathValue(FieldPath fieldPath) {
         FieldPath objectPath = fieldPath.createFieldPathWithoutLastElement();
         if (objectPath.size() == 0) {
             objectPath = null;
         }
-        DomainObject fieldPathObject = fieldPathObjects.get(objectPath);
-        return fieldPathObject == null ? null : (T) fieldPathObject.getValue(fieldPath.getLastElement());
+        return fieldPathObjects.get(objectPath);
     }
 }

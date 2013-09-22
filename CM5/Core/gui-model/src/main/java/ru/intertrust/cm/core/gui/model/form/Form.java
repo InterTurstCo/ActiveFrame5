@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.model.form;
 
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.model.gui.form.MarkupConfig;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
@@ -19,6 +20,7 @@ public class Form implements Dto {
     private boolean editable = true;
     private MarkupConfig markup;
     private Map<String, WidgetData> widgetDataMap;
+    private FormData formData;
 
     /**
      * Конструктор по умолчанию.
@@ -47,6 +49,13 @@ public class Form implements Dto {
         this.widgetDataMap = widgetDataMap;
     }
 
+    public Form(String name, MarkupConfig markup, Map<String, WidgetData> widgetDataMap, FormData formData) {
+        this.name = name;
+        this.markup = markup;
+        this.formData = formData;
+        this.widgetDataMap = widgetDataMap;
+    }
+
     public String getName() {
         return name;
     }
@@ -61,10 +70,6 @@ public class Form implements Dto {
 
     public void setEditable(boolean editable) {
         this.editable = editable;
-    }
-
-    public Map<String, WidgetData> getWidgetDataMap() {
-        return widgetDataMap;
     }
 
     public void setWidgetDataMap(Map<String, WidgetData> widgetDataMap) {
@@ -112,5 +117,17 @@ public class Form implements Dto {
      */
     public Map<String, WidgetData> getFullWidgetData() {
         return widgetDataMap;
+    }
+
+    public FormData getFormData() {
+        return formData;
+    }
+
+    public void setFormData(FormData formData) {
+        this.formData = formData;
+    }
+
+    public DomainObject getRootObject() {
+        return formData.getFieldPathObject(null);
     }
 }

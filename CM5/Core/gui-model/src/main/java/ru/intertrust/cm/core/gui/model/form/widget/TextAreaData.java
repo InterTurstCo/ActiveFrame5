@@ -1,5 +1,8 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
+import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
+
 /**
  * @author Denis Mitavskiy
  *         Date: 21.09.13
@@ -26,5 +29,10 @@ public class TextAreaData extends WidgetData {
     @Override
     public String getComponentName() {
         return "text-area";
+    }
+
+    @Override
+    public Value toValue() {
+        return new StringValue(text);
     }
 }

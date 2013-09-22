@@ -58,7 +58,10 @@ public abstract class PluginView implements IsWidget {
                     if (component == null) {
                         component = "generic.workflow.action";
                     }
-                    ((Action) ComponentRegistry.instance.get(component)).execute();
+                    Action action = ComponentRegistry.instance.get(component);
+                    action.setConfig(actionConfig);
+                    action.setPlugin(plugin);
+                    action.execute();
                 }
             }));
         }

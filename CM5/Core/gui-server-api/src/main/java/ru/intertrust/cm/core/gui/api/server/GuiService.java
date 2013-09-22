@@ -2,8 +2,6 @@ package ru.intertrust.cm.core.gui.api.server;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.model.base.CollectionConfig;
-import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.form.Form;
 
@@ -33,5 +31,7 @@ public interface GuiService {
      */
     Dto executeCommand(Command command);
 
-    public Form getForm(Id domainObjectId);
+    Form getForm(Id domainObjectId);
+
+    void saveForm(Form form);
 }

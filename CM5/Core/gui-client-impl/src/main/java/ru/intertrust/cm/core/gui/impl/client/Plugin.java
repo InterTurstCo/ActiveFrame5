@@ -50,10 +50,10 @@ public abstract class Plugin extends BaseComponent {
     }
 
     /**
-     * Возвращает текущее состояние приложения
-     * @return текущее состояние приложения
+     * Возвращает текущее состояние плагина
+     * @return текущее состояние плагина
      */
-    public PluginData getCurrentState() {
+    public Dto getCurrentState() {
         return null;
     }
 

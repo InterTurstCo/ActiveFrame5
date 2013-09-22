@@ -111,17 +111,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     @Override
     public List<DomainObject> save(List<DomainObject> domainObjects) {
-        List<DomainObject> result = new ArrayList();
+        //todo this can be optimized with batches
+
+        List<DomainObject> result = new ArrayList<>();
 
         for (DomainObject domainObject : domainObjects) {
             DomainObject newDomainObject;
-            try {
-                newDomainObject = save(domainObject);
-                result.add(newDomainObject);
-            } catch (Exception e) {
-                // TODO: пока ничего не делаем...разобраться как обрабатывать ошибки
-            }
-
+            newDomainObject = save(domainObject);
+            result.add(newDomainObject);
         }
 
         return result;
@@ -229,6 +226,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     @Override
     public int delete(Collection<Id> ids) {
+        // todo: in a batch
         // TODO как обрабатывать ошибки при удалении каждого доменного объекта...
         int count = 0;
         for (Id id : ids) {

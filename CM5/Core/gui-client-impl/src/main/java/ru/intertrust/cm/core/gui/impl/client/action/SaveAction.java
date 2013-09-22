@@ -2,6 +2,8 @@ package ru.intertrust.cm.core.gui.impl.client.action;
 
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
+import ru.intertrust.cm.core.gui.model.form.Form;
 
 /**
  * @author Denis Mitavskiy
@@ -18,5 +20,14 @@ public class SaveAction extends SimpleServerAction {
     @Override
     public Component createNew() {
         return new SaveAction();
+    }
+
+    @Override
+    protected SaveActionContext getContext() {
+        Form form = (Form) getPlugin().getCurrentState();
+        SaveActionContext context = new SaveActionContext();
+        context.setRootObjectId(form.getRootObject().getId());
+        context.setForm(form);
+        return context;
     }
 }
