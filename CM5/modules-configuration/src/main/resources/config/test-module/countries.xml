@@ -6,9 +6,9 @@
             <dateTime name="independence_day"/>
             <long name="population"/>
             <decimal name="square" precision="9" scale="2"/>
-            <reference name="capital">
+            <!--<reference name="capital">
                 <type name="city"/>
-            </reference>
+            </reference>-->
             <string name="description" length="1024"/>
         </fields>
         <uniqueKey>
