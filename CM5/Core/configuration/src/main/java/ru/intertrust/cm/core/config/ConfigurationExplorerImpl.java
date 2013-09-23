@@ -300,7 +300,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
             for (CollectionColumnConfig columnConfig : collectionViewConfig.getCollectionDisplayConfig().
                     getColumnConfig()) {
                         FieldConfigKey fieldConfigKey =
-                        new FieldConfigKey(collectionViewConfig.getName(), columnConfig.getField());
+                        new FieldConfigKey(collectionViewConfig.getCollection(), columnConfig.getField());
                 collectionColumnConfigMap.put(fieldConfigKey, columnConfig);
 
             }
