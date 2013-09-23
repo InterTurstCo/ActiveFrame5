@@ -78,31 +78,27 @@ public class PostgreSqlQueryHelperTest {
                 "REGISTRATION_DATE timestamp, AUTHOR1 bigint, " +
                 "LONG_FIELD bigint, DECIMAL_FIELD_1 decimal(10, 2), DECIMAL_FIELD_2 decimal(10), " +
                 "constraint PK_OUTGOING_DOCUMENT_ID primary key (ID), " +
-                "constraint U_OUTGOING_DOCUMENT_REGISTRATION_NUMBER_REGISTRATION_DATE unique (REGISTRATION_NUMBER, REGISTRATION_DATE), " +
+                "constraint FK_OUTGOING_DOCUMENT_" + PARENT_COLUMN + " foreign key (" + PARENT_COLUMN +
+                    ") references DOCUMENT(ID), " +
                 "constraint FK_OUTGOING_DOCUMENT_" + MASTER_COLUMN + " foreign key (" + MASTER_COLUMN +
-                    ") references PARENT_DOCUMENT(ID), " +
-                "constraint FK_OUTGOING_DOCUMENT_AUTHOR1 foreign key (AUTHOR1) references EMPLOYEE(ID)" +
-                ", constraint FK_OUTGOING_DOCUMENT_" + PARENT_COLUMN + " foreign key (" + PARENT_COLUMN +
-                    ") references DOCUMENT(ID))";
+                    ") references PARENT_DOCUMENT(ID))";
         assertEquals(checkQuery, query);
     }
 
     @Test
     public void testGenerateCreateTableQueryWithoutExtendsAttribute() throws Exception {
-        domainObjectTypeConfig.setExtendsAttribute(null);
-        String query = PostgreSqlQueryHelper.generateCreateTableQuery(domainObjectTypeConfig);
         String checkQuery = "create table OUTGOING_DOCUMENT ( ID bigint not null, " +
                 "CREATED_DATE timestamp not null, " + "UPDATED_DATE timestamp not null, " + TYPE_COLUMN +" integer, " +
                 MASTER_COLUMN + " bigint, REGISTRATION_NUMBER varchar(128), " +
                 "REGISTRATION_DATE timestamp, AUTHOR1 bigint, " +
                 "LONG_FIELD bigint, DECIMAL_FIELD_1 decimal(10, 2), DECIMAL_FIELD_2 decimal(10), " +
                 "constraint PK_OUTGOING_DOCUMENT_ID primary key (ID), " +
-                "constraint U_OUTGOING_DOCUMENT_REGISTRATION_NUMBER_REGISTRATION_DATE unique (REGISTRATION_NUMBER, REGISTRATION_DATE), " +
-                "constraint FK_OUTGOING_DOCUMENT_" + MASTER_COLUMN + " foreign key (" + MASTER_COLUMN +
-                    ") references PARENT_DOCUMENT(ID), " +
-                "constraint FK_OUTGOING_DOCUMENT_AUTHOR1 foreign key (AUTHOR1) references EMPLOYEE(ID), " +
                 "constraint FK_OUTGOING_DOCUMENT_" + TYPE_COLUMN + " foreign key (" + TYPE_COLUMN + ") references " +
-                    "DOMAIN_OBJECT_TYPE_ID(ID))";
+                "DOMAIN_OBJECT_TYPE_ID(ID), " +
+                "constraint FK_OUTGOING_DOCUMENT_" + MASTER_COLUMN + " foreign key (" + MASTER_COLUMN +
+                ") references PARENT_DOCUMENT(ID))";
+        domainObjectTypeConfig.setExtendsAttribute(null);
+        String query = PostgreSqlQueryHelper.generateCreateTableQuery(domainObjectTypeConfig);
         assertEquals(checkQuery, query);
     }
 
@@ -132,15 +128,13 @@ public class PostgreSqlQueryHelperTest {
     }
 
     @Test
-    public void testGenerateUpdateTableQuery() {
+    public void testGenerateAddColumnsQuery() {
         String expectedQuery = "alter table OUTGOING_DOCUMENT " +
                 "add column " + MASTER_COLUMN + " bigint, " +
                 "add column DESCRIPTION varchar(256), " +
                 "add column EXECUTOR1 bigint not null, " +
                 "add constraint FK_OUTGOING_DOCUMENT_" + MASTER_COLUMN + " foreign key (" + MASTER_COLUMN + ") " +
-                "references PARENT_DOCUMENT(ID), " +
-                "add constraint FK_OUTGOING_DOCUMENT_EXECUTOR1 foreign key (EXECUTOR1) references EMPLOYEE(ID), " +
-                "add constraint U_OUTGOING_DOCUMENT_REGISTRATION_NUMBER unique (REGISTRATION_NUMBER)";
+                "references PARENT_DOCUMENT(ID)";
 
         List<FieldConfig> newColumns = new ArrayList<>();
 
@@ -156,18 +150,38 @@ public class PostgreSqlQueryHelperTest {
         executorFieldConfig.setNotNull(true);
         newColumns.add(executorFieldConfig);
 
-        UniqueKeyConfig uniqueKeyConfig = new UniqueKeyConfig();
+        DomainObjectParentConfig parentConfig = new DomainObjectParentConfig();
+        parentConfig.setName("PARENT_DOCUMENT");
+
+
+        String testQuery = PostgreSqlQueryHelper.generateAddColumnsQuery(domainObjectTypeConfig.getName(), newColumns,
+                parentConfig);
+
+        assertEquals(expectedQuery, testQuery);
+    }
+
+    @Test
+    public void testGenerateCreateForeignKeyAndUniqueConstraintsQuery() {
+        String expectedQuery = "alter table OUTGOING_DOCUMENT " +
+                "add constraint FK_OUTGOING_DOCUMENT_EXECUTOR1 foreign key (EXECUTOR1) references EMPLOYEE(ID), " +
+                "add constraint U_OUTGOING_DOCUMENT_REGISTRATION_NUMBER" + " unique (REGISTRATION_NUMBER)";
+
+        ReferenceFieldConfig executorFieldConfig = new ReferenceFieldConfig();
+        executorFieldConfig.setName("Executor");
+        executorFieldConfig.setTypes(Collections.singletonList(new ReferenceFieldTypeConfig("Employee")));
+        executorFieldConfig.setNotNull(true);
+
+        List<ReferenceFieldConfig> newColumns = new ArrayList<>();
+        newColumns.add(executorFieldConfig);
+
         UniqueKeyFieldConfig uniqueKeyFieldConfig = new UniqueKeyFieldConfig();
         uniqueKeyFieldConfig.setName("Registration_Number");
+
+        UniqueKeyConfig uniqueKeyConfig = new UniqueKeyConfig();
         uniqueKeyConfig.getUniqueKeyFieldConfigs().add(uniqueKeyFieldConfig);
-        List<UniqueKeyConfig> newUniqueConfigs = Collections.singletonList(uniqueKeyConfig);
 
-        DomainObjectParentConfig parentconfig = new DomainObjectParentConfig();
-        parentconfig.setName("PARENT_DOCUMENT");
-
-
-        String testQuery = PostgreSqlQueryHelper.generateUpdateTableQuery(domainObjectTypeConfig.getName(), newColumns,
-                newUniqueConfigs, parentconfig);
+        String testQuery = PostgreSqlQueryHelper.generateCreateForeignKeyAndUniqueConstraintsQuery
+                (domainObjectTypeConfig.getName(), newColumns, Collections.singletonList(uniqueKeyConfig));
 
         assertEquals(expectedQuery, testQuery);
     }

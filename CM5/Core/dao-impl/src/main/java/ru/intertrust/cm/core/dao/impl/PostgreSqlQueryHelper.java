@@ -125,8 +125,8 @@ public class PostgreSqlQueryHelper {
         }
 
         appendPKConstraintQueryPart(query, tableName);
-        appendUniqueConstraintsQueryPart(query, tableName, config.getUniqueKeyConfigs(), false);
-        appendFKConstraintsQueryPart(query, tableName, config);
+        appendParentFKConstraintsQueryPart(query, tableName, config);
+        appendMasterFKConstraintsQueryPart(query, config.getName(), config.getParentConfig(), false);
 
         query.append(")");
 
@@ -172,18 +172,70 @@ public class PostgreSqlQueryHelper {
      * Генерирует запрос для обновления структуры таблицы (добавления колонок и уникальных ключей)
      * @param domainObjectConfigName название доменного объекта, таблицу которого необходимо обновить
      * @param fieldConfigList список колонок для добавления
-     * @param uniqueKeyConfigList список уникальных ключей
      * @return запрос для обновления структуры таблицы (добавления колонок и уникальных ключей)
      */
-    public static String generateUpdateTableQuery(String domainObjectConfigName, List<FieldConfig> fieldConfigList,
-                                                  List<UniqueKeyConfig> uniqueKeyConfigList,
-                                                  DomainObjectParentConfig parentConfig) {
+    public static String generateAddColumnsQuery(String domainObjectConfigName, List<FieldConfig> fieldConfigList,
+                                                 DomainObjectParentConfig parentConfig) {
+        String tableName = getSqlName(domainObjectConfigName);
+        StringBuilder query = new StringBuilder("alter table ").append(tableName).append(" ");
+        appendColumnsQueryPart(query, fieldConfigList, parentConfig, true);
+        appendMasterFKConstraintsQueryPart(query, domainObjectConfigName, parentConfig, true);
+
+        return query.toString();
+    }
+
+    /**
+     * Генерирует запрос для создания форен-ки и уникальных констрэйнтов
+     * @param domainObjectConfigName название доменного объекта, таблицу которого необходимо обновить
+     * @param fieldConfigList список колонок для создания форен-ки констрэйнтов
+     * @param uniqueKeyConfigList список уникальных ключей
+     * @return запрос для обновления структуры таблицы (добавления форен-ки и уникальных констрэйнтов)
+     */
+    public static String generateCreateForeignKeyAndUniqueConstraintsQuery(String domainObjectConfigName,
+                                                       List<ReferenceFieldConfig> fieldConfigList,
+                                                  List<UniqueKeyConfig> uniqueKeyConfigList) {
         String tableName = getSqlName(domainObjectConfigName);
         StringBuilder query = new StringBuilder("alter table ").append(tableName).append(" ");
 
-        appendColumnsQueryPart(query, fieldConfigList, parentConfig, true);
-        appendFKConstraintsQueryPart(query, tableName, fieldConfigList, parentConfig, true);
-        appendUniqueConstraintsQueryPart(query, tableName, uniqueKeyConfigList, true);
+        boolean commaNeeded = false;
+        for(ReferenceFieldConfig fieldConfig : fieldConfigList) {
+            for (ReferenceFieldTypeConfig typeConfig : fieldConfig.getTypes()) {
+                if (commaNeeded) {
+                    query.append(", ");
+                } else {
+                    commaNeeded = true;
+                }
+                query.append("add ");
+
+                String fieldName = getSqlName(fieldConfig, typeConfig);
+                appendFKConstraint(query, tableName, fieldName, typeConfig.getName());
+            }
+
+            if (fieldConfig.getTypes().size() > 1) {
+                query.append(", add ");
+                appendSingleColumnOfManyNotNullConstraint(query, tableName, fieldConfig);
+            }
+        }
+
+        for(UniqueKeyConfig uniqueKeyConfig : uniqueKeyConfigList) {
+            if(uniqueKeyConfig.getUniqueKeyFieldConfigs().isEmpty()) {
+                continue;
+            }
+
+            String constraintName = "U_" + tableName + "_" +
+                    getFieldsListAsSql(uniqueKeyConfig.getUniqueKeyFieldConfigs(), "_");
+            String fieldsList = getFieldsListAsSql(uniqueKeyConfig.getUniqueKeyFieldConfigs(), ", ");
+
+            if (commaNeeded) {
+                query.append(", ");
+            } else {
+                commaNeeded = true;
+            }
+            query.append("add ");
+
+            query.append("constraint ").append(constraintName).append(" unique (").
+                    append(fieldsList).append(")");
+        }
 
         return query.toString();
     }
@@ -230,10 +282,8 @@ public class PostgreSqlQueryHelper {
                 append(fieldName).append(");\n");
     }
 
-    private static void appendFKConstraintsQueryPart(StringBuilder query, String tableName,
-                                                     DomainObjectTypeConfig config) {
-        appendFKConstraintsQueryPart(query, tableName, config.getFieldConfigs(), config.getParentConfig(), false);
-
+    private static void appendParentFKConstraintsQueryPart(StringBuilder query, String tableName,
+                                                           DomainObjectTypeConfig config) {
         query.append(", ");
         if (config.getExtendsAttribute() != null) {
             appendFKConstraint(query, tableName, PARENT_COLUMN, config.getExtendsAttribute());
@@ -242,36 +292,21 @@ public class PostgreSqlQueryHelper {
         }
     }
 
-    private static void appendFKConstraintsQueryPart(StringBuilder query, String tableName,
-                                                     List<FieldConfig> fieldConfigList,
-                                                     DomainObjectParentConfig parentConfig,
-                                                     boolean isAlterQuery) {
-        if(parentConfig != null) {
-            query.append(", ");
-            appendAlterModeQueryPart(query, isAlterQuery);
-            appendFKConstraint(query, tableName, MASTER_COLUMN, parentConfig.getName());
+    public static void appendMasterFKConstraintsQueryPart(StringBuilder query, String domainObjectConfigName,
+                                                          DomainObjectParentConfig parentConfig,
+                                                          boolean isAlterQuery) {
+        if (parentConfig == null) {
+            return;
         }
 
-        for(FieldConfig fieldConfig : fieldConfigList) {
-            if(!ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
-                continue;
-            }
+        String tableName = getSqlName(domainObjectConfigName);
 
-            ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
-            for (ReferenceFieldTypeConfig typeConfig : referenceFieldConfig.getTypes()) {
-                query.append(", ");
-                appendAlterModeQueryPart(query, isAlterQuery);
-
-                String fieldName = getSqlName(referenceFieldConfig, typeConfig);
-                appendFKConstraint(query, tableName, fieldName, typeConfig.getName());
-            }
-
-            if (referenceFieldConfig.getTypes().size() > 1) {
-                query.append(", ");
-                appendAlterModeQueryPart(query, isAlterQuery);
-                appendSingleColumnOfManyHasValueConstraint(query, tableName, referenceFieldConfig);
-            }
+        query.append(", ");
+        if (isAlterQuery) {
+            query.append("add ");
         }
+
+        appendFKConstraint(query, tableName, MASTER_COLUMN, parentConfig.getName());
     }
 
     private static void appendFKConstraint(StringBuilder query, String tableName, String columnName,
@@ -283,8 +318,8 @@ public class PostgreSqlQueryHelper {
                 append(getSqlName(referencedFieldName)).append("(ID)");
     }
 
-    private static void appendSingleColumnOfManyHasValueConstraint(StringBuilder query, String tableName,
-                                                                   ReferenceFieldConfig referenceFieldConfig) {
+    private static void appendSingleColumnOfManyNotNullConstraint(StringBuilder query, String tableName,
+                                                                  ReferenceFieldConfig referenceFieldConfig) {
         String fieldSqlName = getSqlName(referenceFieldConfig);
         String constraintName = "SV_" + tableName + "_" + fieldSqlName;
 
@@ -303,12 +338,6 @@ public class PostgreSqlQueryHelper {
             query.append(" = 1)");
         } else {
             query.append(" <= 1)");
-        }
-    }
-
-    private static void appendAlterModeQueryPart(StringBuilder query, boolean isAlterQuery) {
-        if (isAlterQuery) {
-            query.append("add ");
         }
     }
 
@@ -367,26 +396,6 @@ public class PostgreSqlQueryHelper {
                     query.append(" not null");
                 }
             }
-        }
-    }
-
-    private static void appendUniqueConstraintsQueryPart(StringBuilder query, String tableName,
-                                                         List<UniqueKeyConfig> uniqueKeyConfigList,
-                                                         boolean isAlterQuery) {
-        for(UniqueKeyConfig uniqueKeyConfig : uniqueKeyConfigList) {
-            if(uniqueKeyConfig.getUniqueKeyFieldConfigs().isEmpty()) {
-                continue;
-            }
-
-            String constraintName = "U_" + tableName + "_" +
-                    getFieldsListAsSql(uniqueKeyConfig.getUniqueKeyFieldConfigs(), "_");
-            String fieldsList = getFieldsListAsSql(uniqueKeyConfig.getUniqueKeyFieldConfigs(), ", ");
-
-            query.append(", ");
-            appendAlterModeQueryPart(query, isAlterQuery);
-
-            query.append("constraint ").append(constraintName).append(" unique (").
-                    append(fieldsList).append(")");
         }
     }
 

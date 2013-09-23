@@ -88,13 +88,12 @@ public class PostgreSqlDataStructureDaoImplTest {
         UniqueKeyFieldConfig uniqueKeyFieldConfig = new UniqueKeyFieldConfig();
         uniqueKeyFieldConfig.setName("Registration Number");
         uniqueKeyConfig.getUniqueKeyFieldConfigs().add(uniqueKeyFieldConfig);
-        List<UniqueKeyConfig> newUniqueConfigs = Collections.singletonList(uniqueKeyConfig);
 
-        dataStructureDao.updateTableStructure(domainObjectTypeConfig.getName(), newColumns, newUniqueConfigs,
+        dataStructureDao.updateTableStructure(domainObjectTypeConfig.getName(), newColumns,
                 domainObjectTypeConfig.getParentConfig());
 
-        verify(jdbcTemplate).update(generateUpdateTableQuery(domainObjectTypeConfig.getName(),
-                newColumns, newUniqueConfigs, domainObjectTypeConfig.getParentConfig()));
+        verify(jdbcTemplate).update(generateAddColumnsQuery(domainObjectTypeConfig.getName(),
+                newColumns, domainObjectTypeConfig.getParentConfig()));
         verify(jdbcTemplate).update(generateCreateIndexesQuery(domainObjectTypeConfig.getName(), newColumns,
                 domainObjectTypeConfig.getParentConfig()));
     }
