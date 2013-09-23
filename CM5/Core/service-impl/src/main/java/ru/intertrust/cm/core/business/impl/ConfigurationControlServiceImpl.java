@@ -120,6 +120,21 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
             loadDomainObjectConfig(domainObjectTypeConfig);
         }
 
+        @Override
+        protected void postProcessConfig(DomainObjectTypeConfig config) {
+            List<ReferenceFieldConfig> referenceFieldConfigs = new ArrayList<>();
+            for (FieldConfig fieldConfig : config.getFieldConfigs()) {
+                if (fieldConfig instanceof ReferenceFieldConfig) {
+                    referenceFieldConfigs.add((ReferenceFieldConfig) fieldConfig);
+                }
+            }
+
+            if (!referenceFieldConfigs.isEmpty() || !config.getUniqueKeyConfigs().isEmpty()) {
+                dataStructureDao.createForeignKeyAndUniqueConstraints(config.getName(), referenceFieldConfigs,
+                        config.getUniqueKeyConfigs());
+            }
+        }
+
         private void createAclTables(Collection<DomainObjectTypeConfig> configList) {
             for (DomainObjectTypeConfig config : configList) {
                 if (!config.isTemplate()) {
@@ -152,6 +167,38 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
         }
 
         @Override
+        protected void postProcessConfig(DomainObjectTypeConfig config) {
+            DomainObjectTypeConfig oldConfig =
+                    oldConfigExplorer.getConfig(DomainObjectTypeConfig.class, config.getName());
+
+            List<ReferenceFieldConfig> newReferenceFieldConfigs = new ArrayList<>();
+            List<UniqueKeyConfig> newUniqueKeyConfigs = new ArrayList<>();
+
+            for (FieldConfig fieldConfig : config.getFieldConfigs()) {
+                if (!(fieldConfig instanceof ReferenceFieldConfig)) {
+                    continue;
+                }
+
+                FieldConfig oldFieldConfig = oldConfigExplorer.getFieldConfig(config.getName(),
+                        fieldConfig.getName(), false);
+
+                if (oldFieldConfig == null) {
+                    newReferenceFieldConfigs.add((ReferenceFieldConfig) fieldConfig);
+                }
+            }
+
+            for (UniqueKeyConfig uniqueKeyConfig : config.getUniqueKeyConfigs()) {
+                if (!oldConfig.getUniqueKeyConfigs().contains(uniqueKeyConfig)) {
+                    newUniqueKeyConfigs.add(uniqueKeyConfig);
+                }
+            }
+
+            if (!newReferenceFieldConfigs.isEmpty() || !newUniqueKeyConfigs.isEmpty()) {
+                dataStructureDao.createForeignKeyAndUniqueConstraints(config.getName(),
+                        newReferenceFieldConfigs, newUniqueKeyConfigs);
+            }
+        }
+
         protected void loadDomainObjectConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
             super.loadDomainObjectConfig(domainObjectTypeConfig);
             createAclTablesFor(domainObjectTypeConfig);
@@ -186,7 +233,6 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
             processDependentConfigs(domainObjectTypeConfig);
 
             List<FieldConfig> newFieldConfigs = new ArrayList<>();
-            List<UniqueKeyConfig> newUniqueKeyConfigs = new ArrayList<>();
 
             for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
                 FieldConfig oldFieldConfig = oldConfigExplorer.getFieldConfig(domainObjectTypeConfig.getName(),
@@ -201,19 +247,12 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
                 }
             }
 
-            for (UniqueKeyConfig uniqueKeyConfig : domainObjectTypeConfig.getUniqueKeyConfigs()) {
-                if (!oldDomainObjectTypeConfig.getUniqueKeyConfigs().contains(uniqueKeyConfig)) {
-                    newUniqueKeyConfigs.add(uniqueKeyConfig);
-                }
-            }
-
             DomainObjectParentConfig parentConfig = domainObjectTypeConfig.getParentConfig() != null &&
                     !domainObjectTypeConfig.getParentConfig().equals(oldDomainObjectTypeConfig.getParentConfig()) ?
                     domainObjectTypeConfig.getParentConfig() : null;
 
-            if (!newFieldConfigs.isEmpty() || !newUniqueKeyConfigs.isEmpty()|| parentConfig != null) {
-                dataStructureDao.updateTableStructure(domainObjectTypeConfig.getName(), newFieldConfigs,
-                        newUniqueKeyConfigs, parentConfig);
+            if (!newFieldConfigs.isEmpty() || parentConfig != null) {
+                dataStructureDao.updateTableStructure(domainObjectTypeConfig.getName(), newFieldConfigs, parentConfig);
             }
         }
 
@@ -273,31 +312,19 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     private abstract class AbstractRecursiveLoader {
 
         private final Set<String> processedConfigs = new HashSet<>();
-        private final Set<String> inProcessConfigs = new HashSet<>();
 
         protected final void processDependentConfigs(DomainObjectTypeConfig domainObjectTypeConfig) {
             if (domainObjectTypeConfig.getExtendsAttribute() != null) {
-                DomainObjectTypeConfig parentConfig =
-                        configurationExplorer.getConfig(DomainObjectTypeConfig.class,
+                DomainObjectTypeConfig parentConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class,
                                 domainObjectTypeConfig.getExtendsAttribute());
                 processConfig(parentConfig);
             }
 
             DomainObjectParentConfig masterConfig = domainObjectTypeConfig.getParentConfig();
             if (masterConfig != null) {
-                processConfig(configurationExplorer.getConfig(DomainObjectTypeConfig.class, masterConfig.getName()));
-            }
-
-            for(FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
-                if( !ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
-                    continue;
-                }
-
-                ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
-                for (ReferenceFieldTypeConfig typeConfig : referenceFieldConfig.getTypes()) {
-                    processConfig(configurationExplorer.getConfig(DomainObjectTypeConfig.class, typeConfig.getName()));
-                }
-
+                DomainObjectTypeConfig masterDOTypeConfig = configurationExplorer.getConfig(
+                        DomainObjectTypeConfig.class, masterConfig.getName());
+                processConfig(masterDOTypeConfig);
             }
         }
 
@@ -307,8 +334,12 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
         }
 
         protected final void processConfigs(Collection<DomainObjectTypeConfig> configList) {
-            for(DomainObjectTypeConfig config : configList) {
+            for (DomainObjectTypeConfig config : configList) {
                 processConfig(config);
+            }
+
+            for (DomainObjectTypeConfig config : configList) {
+                postProcessConfig(config);
             }
         }
 
@@ -318,15 +349,13 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
 
         protected abstract void doProcessConfig(DomainObjectTypeConfig domainObjectTypeConfig);
 
+        protected abstract void postProcessConfig(DomainObjectTypeConfig domainObjectTypeConfig);
+
         private void processConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
-            // пропускаем, если конфиг уже загружен или если он как раз загружается в этот момент
-            if (isProcessed(domainObjectTypeConfig) || isInProcess(domainObjectTypeConfig)) {
+            if (isProcessed(domainObjectTypeConfig)) {
                 return;
             }
-
-            setAsInProcess(domainObjectTypeConfig);
             doProcessConfig(domainObjectTypeConfig);
-
             setAsProcessed(domainObjectTypeConfig);
         }
 
@@ -342,16 +371,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
         }
 
         private void setAsProcessed(DomainObjectTypeConfig domainObjectTypeConfig) {
-            inProcessConfigs.remove(domainObjectTypeConfig.getName());
             processedConfigs.add(domainObjectTypeConfig.getName());
-        }
-
-        private boolean isInProcess(DomainObjectTypeConfig domainObjectTypeConfig) {
-            return inProcessConfigs.contains(domainObjectTypeConfig.getName());
-        }
-
-        private void setAsInProcess(DomainObjectTypeConfig domainObjectTypeConfig) {
-            inProcessConfigs.add(domainObjectTypeConfig.getName());
         }
     }
 }

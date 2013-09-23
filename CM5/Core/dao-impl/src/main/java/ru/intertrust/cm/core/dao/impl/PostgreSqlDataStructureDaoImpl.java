@@ -2,10 +2,7 @@ package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import ru.intertrust.cm.core.config.model.DomainObjectParentConfig;
-import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.model.FieldConfig;
-import ru.intertrust.cm.core.config.model.UniqueKeyConfig;
+import ru.intertrust.cm.core.config.model.*;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 
@@ -94,20 +91,33 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
 
     @Override
     public void updateTableStructure(String domainObjectConfigName, List<FieldConfig> fieldConfigList,
-                                     List<UniqueKeyConfig> uniqueKeyConfigList, DomainObjectParentConfig parentConfig) {
-        if(domainObjectConfigName == null || ((fieldConfigList == null || fieldConfigList.isEmpty()) &&
-                (uniqueKeyConfigList == null || uniqueKeyConfigList.isEmpty()))) {
+                                     DomainObjectParentConfig parentConfig) {
+        if(domainObjectConfigName == null || ((fieldConfigList == null || fieldConfigList.isEmpty()))) {
             throw new IllegalArgumentException("Invalid (null or empty) arguments");
         }
 
         String query =
-                generateUpdateTableQuery(domainObjectConfigName, fieldConfigList, uniqueKeyConfigList, parentConfig);
+                generateAddColumnsQuery(domainObjectConfigName, fieldConfigList, parentConfig);
         jdbcTemplate.update(query);
 
         String createIndexesQuery = generateCreateIndexesQuery(domainObjectConfigName, fieldConfigList, parentConfig);
         if(createIndexesQuery != null) {
             jdbcTemplate.update(createIndexesQuery);
         }
+    }
+
+    @Override
+    public void createForeignKeyAndUniqueConstraints(String domainObjectConfigName,
+                                                     List<ReferenceFieldConfig> fieldConfigList,
+                                                     List<UniqueKeyConfig> uniqueKeyConfigList) {
+        if(domainObjectConfigName == null || ((fieldConfigList == null || fieldConfigList.isEmpty()) &&
+                (uniqueKeyConfigList == null || uniqueKeyConfigList.isEmpty()))) {
+            throw new IllegalArgumentException("Invalid (null or empty) arguments");
+        }
+
+        String query = generateCreateForeignKeyAndUniqueConstraintsQuery(domainObjectConfigName, fieldConfigList,
+                uniqueKeyConfigList);
+        jdbcTemplate.update(query);
     }
 
     /**
