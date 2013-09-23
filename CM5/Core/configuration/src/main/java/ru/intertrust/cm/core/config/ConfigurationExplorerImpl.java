@@ -357,11 +357,11 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
 
             FieldConfigKey that = (FieldConfigKey) o;
 
-            if (domainObjectName != null ? !domainObjectName.equals(that.domainObjectName) :
+            if (domainObjectName != null ? !domainObjectName.equalsIgnoreCase(that.domainObjectName) :
                     that.domainObjectName != null) {
                 return false;
             }
-            if (fieldConfigName != null ? !fieldConfigName.equals(that.fieldConfigName) :
+            if (fieldConfigName != null ? !fieldConfigName.equalsIgnoreCase(that.fieldConfigName) :
                     that.fieldConfigName != null) {
                 return false;
             }
