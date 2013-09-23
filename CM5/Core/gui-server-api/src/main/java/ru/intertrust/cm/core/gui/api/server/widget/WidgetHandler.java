@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.api.server.widget;
 
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.model.gui.form.widget.FieldPathConfig;
 import ru.intertrust.cm.core.config.model.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
@@ -26,6 +27,7 @@ public abstract class WidgetHandler implements ComponentHandler {
     }
 
     protected static <T> T getFieldPathValue(WidgetContext context, FormData formData) {
-        return (T) formData.getFieldPathValue(getFieldPath(context.getWidgetConfig())).get();
+        Value fieldPathValue = formData.getFieldPathValue(getFieldPath(context.getWidgetConfig()));
+        return fieldPathValue == null ? null : (T) fieldPathValue.get();
     }
 }

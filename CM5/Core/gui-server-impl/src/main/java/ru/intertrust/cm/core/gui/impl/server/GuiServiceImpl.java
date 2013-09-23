@@ -98,26 +98,23 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         }
     }
 
+    @Override
+    public Form getForm(String domainObjectType) {
+        DomainObject root = crudService.createDomainObject("country");
+        // todo: separate empty form?
+        return createCountryForm(root);
+    }
+
     public Form getForm(Id domainObjectId) {
         // по Id ищется тип доменного объекта
         // далее находится форма для данного контекста, учитывая факт того, переопределена ли форма для пользователя/роли,
         // если флаг "использовать по умолчанию" не установлен
         // в конечном итоге получаем FormConfig
 
-        DomainObject root;
-        if (domainObjectId == null) {
-            root = crudService.createDomainObject("country");
-        } else {
-            root = crudService.find(domainObjectId);
-            if (root == null) {
-                throw new GuiException("Object with id: " + domainObjectId.toStringRepresentation() + " doesn't exist");
-            }
+        DomainObject root= crudService.find(domainObjectId);
+        if (root == null) {
+            throw new GuiException("Object with id: " + domainObjectId.toStringRepresentation() + " doesn't exist");
         }
-        if (domainObjectId == null) { // empty form
-            // todo empty form
-        }
-
-
         return createCountryForm(root);
     }
 

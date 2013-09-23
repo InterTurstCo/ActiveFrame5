@@ -140,7 +140,7 @@
                 <text>Столица:</text>
             </label>
             <label id="8">
-                <field-path value="capital.name"/>
+                <field-path value="capital1.name"/>
                 <!-- а для области столицы: capital . federal_unit_city^city . federal_unit . name -->
             </label>
 

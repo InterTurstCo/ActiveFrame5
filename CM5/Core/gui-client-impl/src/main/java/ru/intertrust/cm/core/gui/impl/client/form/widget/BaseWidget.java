@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
+import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.config.model.gui.form.widget.WidgetDisplayConfig;
@@ -75,5 +76,17 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget {
         if (height != null && !height.isEmpty()) {
             widget.setHeight(height);
         }
+    }
+
+    protected static String getTrimmedText(HasText widget) {
+        String text = widget.getText();
+        if (text == null) {
+            return null;
+        }
+        String trimmedText = text.trim();
+        if (trimmedText.isEmpty()) {
+            return null;
+        }
+        return trimmedText;
     }
 }

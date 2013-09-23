@@ -31,6 +31,8 @@ public interface GuiService {
      */
     Dto executeCommand(Command command);
 
+    Form getForm(String domainObjectType);
+
     Form getForm(Id domainObjectId);
 
     void saveForm(Form form);

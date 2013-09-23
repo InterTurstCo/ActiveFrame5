@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
-import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.Form;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
@@ -25,7 +25,7 @@ public class SomeActivePlugin extends Plugin implements IsActive {
     }
 
     @Override
-    public Component createNew() {
+    public SomeActivePlugin createNew() {
         return new SomeActivePlugin();
     }
 
@@ -36,5 +36,9 @@ public class SomeActivePlugin extends Plugin implements IsActive {
         Map<String,WidgetData> widgetData = view.getWidgetData();
 
         return new Form(initialForm.getName(), null, widgetData, initialForm.getFormData());
+    }
+
+    public DomainObject getRootDomainObject() {
+        return this.<SomeActivePluginData>getInitialData().getForm().getRootObject();
     }
 }
