@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.dao.impl.access;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -63,12 +62,12 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
     public void notifyDomainObjectChanged(Id objectId, List<String> modifiedFieldNames) {
         String status = getStatusFor(objectId);
         List<DynamicGroupConfig> dynamicGroups =
-                getDynamicGroupsForToRecalculateForUpdate(objectId, status, modifiedFieldNames);
+                getDynamicGroupsToRecalculateForUpdate(objectId, status, modifiedFieldNames);
         logger.info("Found dynamic groups by id " + objectId + " :" + dynamicGroups);
         for (DynamicGroupConfig dynamicGroupConfig : dynamicGroups) {
             Id contextObjectid = getContextObjectId(dynamicGroupConfig, objectId);
             Id dynamicGroupId = refreshUserGroup(dynamicGroupConfig.getName(), contextObjectid);
-            List<Long> groupMembres = getAllGroupMembersFor(dynamicGroupConfig, objectId, contextObjectid);
+            List<Value> groupMembres = getAllGroupMembersFor(dynamicGroupConfig, objectId, contextObjectid);
 
             refreshGroupMembers(dynamicGroupId, groupMembres);
         }
@@ -81,11 +80,11 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
     public void notifyDomainObjectCreated(Id objectId) {
         String status = getStatusFor(objectId);
 
-        List<DynamicGroupConfig> dynamicGroups = getDynamicGroupsForToRecalculate(objectId, status);
+        List<DynamicGroupConfig> dynamicGroups = getDynamicGroupsToRecalculate(objectId, status);
         for (DynamicGroupConfig dynamicGroupConfig : dynamicGroups) {
             Id contextObjectid = getContextObjectId(dynamicGroupConfig, objectId);
             Id dynamicGroupId = refreshUserGroup(dynamicGroupConfig.getName(), contextObjectid);
-            List<Long> groupMembres = getAllGroupMembersFor(dynamicGroupConfig, objectId, contextObjectid);
+            List<Value> groupMembres = getAllGroupMembersFor(dynamicGroupConfig, objectId, contextObjectid);
 
             refreshGroupMembers(dynamicGroupId, groupMembres);
         }
@@ -99,9 +98,8 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
      * @param contextObjectid контекстному объекту динамической группы
      * @return список персон группы
      */
-    private List<Long> getAllGroupMembersFor(DynamicGroupConfig dynamicGroupConfig, Id objectId, Id contextObjectid) {
-        List<?> result = null;
-        List<Long> groupMembers = new ArrayList<Long>();
+    private List<Value> getAllGroupMembersFor(DynamicGroupConfig dynamicGroupConfig, Id objectId, Id contextObjectid) {
+        List<Value> result = null;
         TrackDomainObjectsConfig trackDomainObjects = dynamicGroupConfig.getMembers().getTrackDomainObjects();
         if (trackDomainObjects != null && trackDomainObjects.getBindContext() != null) {
             String bindContextDoel = trackDomainObjects.getBindContext().getDoel();
@@ -116,10 +114,9 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
             String getGroupPersonsDoel = createRetrieveGroupPersonsDoel(reverseBindContextExpr, getPersonDoel);
             DoelExpression reverseGetPersonExpr = DoelExpression.parse(getGroupPersonsDoel);
             result = doelResolver.evaluate(reverseGetPersonExpr, contextObjectid);
-
-            groupMembers = convertToListOfLongs(result);
+            
         }
-        return groupMembers;
+        return result;
     }
 
     /**
@@ -147,28 +144,6 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
     }
 
     /**
-     * Конвертирует результат вычисления Doel выражения в список целочисленных типов.
-     * @param result результат вычисления Doel выражения
-     * @return список целочисленных типов
-     */
-    private List<Long> convertToListOfLongs(List<?> result) {
-        List<Long> groupMembers = new ArrayList<Long>();
-
-        if (result != null && result.size() > 0) {
-            for (Map<String, Object> entry : (List<Map<String, Object>>) result) {
-                if (entry != null) {
-                    Collection values = entry.values();
-                    Long longValue = (Long) values.iterator().next();
-                    groupMembers.add(longValue);
-
-                }
-            }
-        }
-
-        return groupMembers;
-    }
-
-    /**
      * Возвращает динамические группы для изменяемого объекта, которые нужно пересчитывать. Поиск динамических группп выполняется по
      * типу и статусу отслеживаемого объекта, а также по измененным полям.
      * @param objectId изменяемый доменный объект
@@ -176,7 +151,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
      * @param modifiedFieldNames списке измененных полей доменного объекта
      * @return список конфигураций динамических групп
      */
-    private List<DynamicGroupConfig> getDynamicGroupsForToRecalculateForUpdate(Id objectId, String status, List<String> modifiedFieldNames) {
+    private List<DynamicGroupConfig> getDynamicGroupsToRecalculateForUpdate(Id objectId, String status, List<String> modifiedFieldNames) {
         String objectTypeName = domainObjectTypeIdCache.getName(((RdbmsId) objectId).getTypeId());
         List<DynamicGroupConfig> dynamicGroups =
                 configurationExplorer.getDynamicGroupConfigsByTrackDO(domainObjectTypeIdCache.getName(objectId),
@@ -214,7 +189,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
      * @param status статус изменяемого доменног объекта
      * @return список конфигураций динамических групп
      */
-    private List<DynamicGroupConfig> getDynamicGroupsForToRecalculate(Id objectId, String status) {
+    private List<DynamicGroupConfig> getDynamicGroupsToRecalculate(Id objectId, String status) {
         List<DynamicGroupConfig> dynamicGroups =
                 configurationExplorer.getDynamicGroupConfigsByTrackDO(domainObjectTypeIdCache.getName(objectId),
                         status);
@@ -260,8 +235,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
         if (trackDomainObjects != null && trackDomainObjects.getBindContext() != null) {
             String bindContextDoel = trackDomainObjects.getBindContext().getDoel();
             DoelExpression expr = DoelExpression.parse(bindContextDoel);
-            List<Value> result = doelResolver.evaluate(expr, objectId);
-            String contextObjectType = dynamicGroupConfig.getContext().getDomainObject().getType();
+            List<Value> result = doelResolver.evaluate(expr, objectId);           
             contextObjectid = convertToId(result);
 
         } else {
@@ -295,22 +269,23 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
      * @param dynamicGroupId идентификатор динамической группы
      * @param personIds список персон
      */
-    private void refreshGroupMembers(Id dynamicGroupId, List<Long> personIds) {
+    private void refreshGroupMembers(Id dynamicGroupId, List<Value> personIds) {
         cleanGroupMembers(dynamicGroupId);
 
         insertGroupMembers(dynamicGroupId, personIds);
     }
 
     // TODO Optimize performance
-    private void insertGroupMembers(Id dynamicGroupId, List<Long> personIds) {
+    private void insertGroupMembers(Id dynamicGroupId, List<Value> personIds) {
         List<DomainObject> groupMembers = new ArrayList<DomainObject>();
-        for (Long personId : personIds) {
-
-            GenericDomainObject groupMemeber = new GenericDomainObject();
-            groupMemeber.setTypeName(GROUP_MEMBER_DOMAIN_OBJECT);
-            groupMemeber.setLong("person_id", personId);
-            groupMemeber.setParent(dynamicGroupId);
-            groupMembers.add(groupMemeber);
+        for (Value personValue : personIds) {
+            if (personValue.getClass().equals(ReferenceValue.class)) {
+                GenericDomainObject groupMemeber = new GenericDomainObject();
+                groupMemeber.setTypeName(GROUP_MEMBER_DOMAIN_OBJECT);
+                groupMemeber.setReference("person_id", ((ReferenceValue)personValue).get());
+                groupMemeber.setParent(dynamicGroupId);
+                groupMembers.add(groupMemeber);
+            }
 
         }
         List<DomainObject> savedGroupMembers = domainObjectDao.save(groupMembers);
@@ -367,7 +342,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
     public void cleanDynamicGroupsFor(Id objectId) {
         String status = getStatusFor(objectId);
 
-        List<DynamicGroupConfig> dynamicGroups = getDynamicGroupsForToRecalculate(objectId, status);
+        List<DynamicGroupConfig> dynamicGroups = getDynamicGroupsToRecalculate(objectId, status);
         for (DynamicGroupConfig dynamicGroupConfig : dynamicGroups) {
             Id contextObjectId = getContextObjectId(dynamicGroupConfig, objectId);
             Id dynamicGroupId = deleteUserGroupByGroupNameAndObjectId(dynamicGroupConfig.getName(), ((RdbmsId)contextObjectId).getId());

@@ -1,9 +1,28 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlAlias;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.generateParameter;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.StringUtils;
-import ru.intertrust.cm.core.business.api.dto.*;
+
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
@@ -19,14 +38,11 @@ import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
-import ru.intertrust.cm.core.dao.impl.utils.*;
-
-import javax.sql.DataSource;
-import java.util.*;
-
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlAlias;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.generateParameter;
+import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
+import ru.intertrust.cm.core.dao.impl.utils.IdSorterByType;
+import ru.intertrust.cm.core.dao.impl.utils.MultipleIdRowMapper;
+import ru.intertrust.cm.core.dao.impl.utils.MultipleObjectRowMapper;
+import ru.intertrust.cm.core.dao.impl.utils.SingleObjectRowMapper;
 
 /**
  * @author atsvetkov
@@ -856,4 +872,207 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         return domainObjectTypeIdCache.getName(typeId);
     }
 
+/*    private static String CONFIGURATION_SCHEMA_PATH = "config/configuration-test.xsd";
+    private static String DOMAIN_OBJECTS_CONFIG_PATH = "config/domain-objects-test.xml";   
+    private static String SYSTEM_DOMAIN_OBJECTS_CONFIG_PATH = "test-config/system-domain-objects-test.xml";
+    private static String COLLECTIONS_CONFIG_PATH = "config/collections-test.xml";
+    private static String ACCESS_CONFIG_PATH = "config/access-test.xml";
+    private static String COLLECTIONS_VIEW_PATH = "config/collection-view-test.xml";
+
+    private static String MODULES_CONFIG_FOLDER = "modules-configuration";
+    private static String MODULES_CONFIG_PATH = "/modules-configuration-test.xml";
+    private static String MODULES_CONFIG_SCHEMA_PATH = "config/modules-configuration-test.xsd";
+
+    static ConfigurationSerializer createConfigurationSerializer(String configPath) throws Exception {
+        TopLevelConfigurationCache.getInstance().build(); // Инициализируем кэш конфигурации тэг-класс
+
+        ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
+        Set<String> configPaths =
+                new HashSet<>(Arrays.asList(configPath, COLLECTIONS_CONFIG_PATH, ACCESS_CONFIG_PATH, COLLECTIONS_VIEW_PATH));
+
+        configurationSerializer.setCoreConfigurationFilePaths(configPaths);
+        configurationSerializer.setCoreConfigurationSchemaFilePath(CONFIGURATION_SCHEMA_PATH);
+
+        configurationSerializer.setModulesConfigurationFolder(MODULES_CONFIG_FOLDER);
+        configurationSerializer.setModulesConfigurationPath(MODULES_CONFIG_PATH);
+        configurationSerializer.setModulesConfigurationSchemaPath(MODULES_CONFIG_SCHEMA_PATH);
+
+        return configurationSerializer;
+    }
+    
+    public static void main(String[] args) throws Exception {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName("org.postgresql.xa.PGXADataSource");
+        dataSource.setUrl("dbc:postgresql://localhost:5432/br4j22");
+        dataSource.setUsername("br4j");
+        dataSource.setPassword("welcome");
+        
+        
+        DoelExpression expr = DoelExpression.parse("linkDoc2.fieldDoc3");
+        DoelExpression.Element firstElement = expr.getElements()[0];
+        
+        System.out.print("Element class: " + firstElement.getClass());
+        
+        PostgresDatabaseAccessAgent databaseAccessAgent = new PostgresDatabaseAccessAgent();
+        databaseAccessAgent.setDataSource(dataSource);
+        
+        AccessControlServiceImpl accessControlService = new AccessControlServiceImpl();                
+        accessControlService.setDatabaseAgent(databaseAccessAgent);
+                
+        SequenceIdGenerator idGenerator = new SequenceIdGenerator();
+        idGenerator.setDataSource(dataSource);
+        
+        DomainObjectDaoImpl domainObjectDao = new DomainObjectDaoImpl();
+        domainObjectDao.setDataSource(dataSource);
+        
+        ConfigurationSerializer configurationSerializer = createConfigurationSerializer(DOMAIN_OBJECTS_CONFIG_PATH);
+
+        Configuration configuration = configurationSerializer.deserializeConfiguration();
+        ConfigurationExplorer configurationExplorer = new ConfigurationExplorerImpl(configuration);
+        domainObjectDao.setConfigurationExplorer(configurationExplorer);
+        
+        domainObjectDao.setIdGenerator(idGenerator);
+        
+        CrudServiceImpl crudService = new CrudServiceImpl();        
+        crudService.setAccessControlService(accessControlService);
+        crudService.setDomainObjectDao(domainObjectDao);
+
+        DomainObjectCacheServiceImpl cacheServiceImpl = new DomainObjectCacheServiceImpl(){
+            @Override
+            public DomainObject getObjectToCache(Id id) {
+                return null;            
+            }
+            
+            @Override
+            public List<DomainObject> getObjectToCache(List<? extends Id> ids){
+                return null;                
+            }
+            
+            @Override
+            public List<DomainObject> getObjectToCache(Id parentId, String ... key){
+                return null;
+            }
+            
+            @Override
+            protected TransactionSynchronizationRegistry getTxReg(){
+                return null;
+            }
+            
+            @Override
+            public Id putObjectToCache(DomainObject dobj) {
+                return null;
+            }
+        };
+        
+        domainObjectDao.setDomainObjectCacheService(cacheServiceImpl);
+        
+        DomainObjectTypeIdDaoImpl domainObjectTypeIdDao = new DomainObjectTypeIdDaoImpl();
+        domainObjectTypeIdDao.setDataSource(dataSource);
+        
+        DomainObjectTypeIdCacheImpl domainObjectTypeIdCache = new DomainObjectTypeIdCacheImpl();
+        domainObjectTypeIdCache.setDomainObjectTypeIdDao(domainObjectTypeIdDao);        
+        domainObjectTypeIdCache.build();
+        
+        domainObjectDao.setDomainObjectTypeIdCache(domainObjectTypeIdCache);
+        
+        Id employeeId = new RdbmsId(domainObjectTypeIdCache.getId("Employee"), 2);
+//        employeeId = null;
+        AccessToken accessToken = new AccessControlServiceImpl().createAccessToken(1, employeeId, DomainObjectAccessType.READ);
+ 
+//       DomainObject domainObject = domainObjectDao.find(employeeId, accessToken);
+//        System.out.println("Find domainObject: " + domainObject);
+        
+        Id newEmployeeId = new RdbmsId(domainObjectTypeIdCache.getId("Employee"), 5);
+        
+//        domainObject.setId(null);
+//        crudService.save(domainObject);
+        
+        
+
+        Id employee2Id = new RdbmsId(domainObjectTypeIdCache.getId("Employee"), 2);
+        Id departmentId = new RdbmsId(domainObjectTypeIdCache.getId("Department"), 1);
+
+        List<Id> employeeIds = new ArrayList<Id>();
+        employeeIds.add(employeeId);
+        employeeIds.add(employee2Id);
+        employeeIds.add(departmentId);
+        
+        DoelResolver doelResolver = new DoelResolver();        
+        doelResolver.setConfigurationExplorer(configurationExplorer);
+        doelResolver.setDataSource(dataSource);
+
+        DoelExpression doelExpr = DoelExpression.parse("Delegation^person");
+//        List<Value> result = doelResolver.evaluate(doelExpr, employee2Id);
+        
+//        List<DomainObject> domainObjects = domainObjectDao.find(employeeIds, accessToken);
+//        System.out.println("Find list of domainObjects: " + domainObjects);
+        
+//        Id assignmentId = new RdbmsId(domainObjectTypeIdCache.getId("assignment"), 1);
+//        Id outDocId = new RdbmsId(domainObjectTypeIdCache.getId("outgoing_document"), 1);
+        
+//        List<DomainObject> childrenObjects = domainObjectDao.findChildren(outDocId, "Assignment", accessToken);
+//        System.out.println("children for outgoing_document: " + childrenObjects);
+        
+
+        CollectionsDaoImpl collectionsService = new CollectionsDaoImpl();
+        collectionsService.setDataSource(dataSource);
+        collectionsService.setConfigurationExplorer(configurationExplorer);
+        collectionsService.setDomainObjectTypeIdCache(domainObjectTypeIdCache);
+        
+        SortOrder sortOrder = new SortOrder();
+        sortOrder.add(new SortCriterion("id", Order.ASCENDING));
+        
+        List<Filter> filterValues = new ArrayList<Filter>();
+        
+        Filter filter = new Filter();
+        filter.setFilter("byDepartment");
+        filter.addCriterion(0, new StringValue("dep1"));
+//        filterValues.add(filter);
+        IdentifiableObjectCollection objectCollection = collectionsService.findCollection("Employees", filterValues, sortOrder, 0, 0, accessToken);
+        System.out.println("Colection emploees: " + objectCollection);
+
+        Boolean allowed = databaseAccessAgent.checkDomainObjectAccess(1, new RdbmsId(domainObjectTypeIdCache.getId("Employee"), 1), DomainObjectAccessType.WRITE);
+        System.out.println("Allowed: " + allowed);
+
+        RdbmsId[] objectIds = new RdbmsId[3];
+        objectIds[0] = new RdbmsId(domainObjectTypeIdCache.getId("Employee"), 1);
+        
+        objectIds[1] = new RdbmsId(domainObjectTypeIdCache.getId("Department"), 1);
+        objectIds[2] = new RdbmsId(domainObjectTypeIdCache.getId("Employee"), 2);
+        
+        Id[] allowedIds = databaseAccessAgent.checkMultiDomainObjectAccess(1, objectIds, DomainObjectAccessType.WRITE);        
+        System.out.println("Allowed ids : " + Arrays.asList(allowedIds));
+        
+        AccessType[] types = new AccessType[2];
+        types[0] = DomainObjectAccessType.WRITE;        
+        types[1] = DomainObjectAccessType.DELETE;
+        
+        AccessType[] accessTypes = databaseAccessAgent.checkDomainObjectMultiAccess(1, new RdbmsId(domainObjectTypeIdCache.getId("Employee"), 2), types);
+        System.out.println("Allowed types : " + Arrays.asList(accessTypes));
+        
+        boolean isUserInGroup = databaseAccessAgent.checkUserGroup(1, "group2");
+        System.out.println("User in group: " + isUserInGroup);
+        
+        AccessMatrixConfig accessMatrixConfig = configurationExplorer.getConfig(AccessMatrixConfig.class, "Outgoing document");
+        System.out.println("accessMatrixConfig: " + accessMatrixConfig);
+        
+        DynamicGroupServiceImpl dynamicGroupService = new DynamicGroupServiceImpl();
+        
+        dynamicGroupService.setConfigurationExplorer(configurationExplorer);
+        
+        dynamicGroupService.setDomainObjectDao(domainObjectDao);
+        dynamicGroupService.setDataSource(dataSource);
+        
+        dynamicGroupService.setDomainObjectTypeIdCache(domainObjectTypeIdCache);
+        
+        Id objectId = new RdbmsId(domainObjectTypeIdCache.getId("Delegation"), 1);
+        List<String> modifiedFields = new ArrayList<String>();
+        modifiedFields.add("person");
+//        dynamicGroupService.notifyDomainObjectChanged(objectId, modifiedFields);
+                
+//        domainObjectDao.delete(objectId);
+//        dynamicGroupService.cleanDynamicGroupsFor(objectId);               
+                
+        
+    }*/
 }

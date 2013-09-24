@@ -37,7 +37,7 @@
         <members>
             <!-- Отслеживаем сохранение/удаление объектов типа "Delegation" 
                 в статусе "active" -->
-            <track-domain-objects type="Delegate"
+            <track-domain-objects type="Delegation"
                 status="active">
                 <!-- Указываем, какую именно группу (с каким контекстом) 
                     менять - берём пользователя из поля "person" -->
@@ -90,6 +90,95 @@
             </bind-context>
         </include-group>
     </dynamic-group>
+
+    <!-- <dynamic-group name="Исполнители Поручений">
+        По одной группе на каждый объект "Outgoing_Document" (документ) в системе
+        <context>
+            <domain-object type="Outgoing_Document" />
+        </context>
+        <members>
+            Отслеживаем сохранение/удаление объектов типа "Подпись" в статусе "active"
+            <track-domain-objects type="Execution" status="active">
+                <bind-context>
+                    <doel>parent.parent</doel>
+                </bind-context>
+                <get-person>
+                    <doel>executor</doel>
+                </get-person>
+            </track-domain-objects>
+
+            <track-domain-objects type="Commission">
+                <bind-context>
+                    <doel>parent</doel>
+                </bind-context>
+                <get-person>
+                    <doel>Execution^parent.executor</doel>
+                </get-person>
+            </track-domain-objects>
+        </members>
+    </dynamic-group>
+-->    
+
+    <!-- Forward Link used from Doc1 to Doc 3 -->
+    <!--
+    Doc1      ->        Doc2         ->   Doc3
+    linkToDoc2          linkToDoc3        fieldDoc3
+    -->
+ <!--    <dynamic-group name="Rule on Field Doc3 ">
+        <context>
+            <domain-object type="Doc1" />
+        </context>
+        <members>            
+            <track-domain-objects type="Doc3" status="active">
+                <bind-context>
+                    <doel>Doc2^linkToDoc3.Doc1^linkToDoc2</doel>
+                </bind-context>
+                <get-person>
+                    <doel>fieldDoc3</doel>
+                </get-person>
+            </track-domain-objects>
+
+            <track-domain-objects type="Doc2">
+                <bind-context>
+                    <doel>Doc1^linkToDoc2</doel>
+                </bind-context>
+                <get-person>
+                    <doel>linkToDoc3.fieldDoc3</doel>
+                </get-person>
+            </track-domain-objects>
+        </members>
+    </dynamic-group> -->
+
+    <!-- Back link  from Doc1 to Doc3-->
+    <!--
+    Doc1      ->        Doc2         ->   Doc3
+    linkToDoc2          linkToDoc1        linkToDoc2
+                                          fieldDoc3
+    -->
+    <!-- <dynamic-group name="Rule on Field Doc3 ">
+        <context>
+            <domain-object type="Doc1" />
+        </context>
+        <members>            
+            <track-domain-objects type="Doc3" status="active">
+                <bind-context>
+                    <doel>linkToDoc2.linkToDoc1</doel>
+                </bind-context>
+                <get-person>
+                    <doel>fieldDoc3</doel>
+                </get-person>
+            </track-domain-objects>
+
+            <track-domain-objects type="Doc2">
+                <bind-context>
+                    <doel>linkToDoc1</doel>
+                </bind-context>
+                <get-person>
+                    <doel>Doc3^linkDoc2.fieldDoc3</doel>
+                </get-person>
+            </track-domain-objects>
+        </members>
+    </dynamic-group> -->
 
     <!-- Контекстные роли -->
     <context-role name="Автор документа">
