@@ -168,5 +168,23 @@
         </widget-config>
     </form>
 
+    <collection name="Countries" idField="id" domain-object-type="country">
+        <!--todo поддержка конвертации значений, например, в картинки -->
+
+        <prototype>
+            <![CDATA[
+                select
+                    c.id, c.name, c.population
+                from
+                    country c
+            ]]>
+        </prototype>
+
+        <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) вместо названий колонок -->
+        <counting-prototype>
+            select count(*) from country
+        </counting-prototype>
+    </collection>
+
 
 </configuration>

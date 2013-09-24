@@ -1,10 +1,7 @@
 package ru.intertrust.cm.core.business.impl;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
@@ -13,11 +10,22 @@ import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * @author vmatsukevich
  *         Date: 7/1/13
  *         Time: 6:39 PM
  */
+@Stateless
+@Local(CollectionsService.class)
+@Remote(CollectionsService.Remote.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class CollectionsServiceImpl implements CollectionsService {
 
     @Autowired

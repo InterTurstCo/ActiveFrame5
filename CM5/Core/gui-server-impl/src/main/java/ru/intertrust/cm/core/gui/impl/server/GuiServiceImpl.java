@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -64,6 +65,9 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
     @EJB
     private CrudService crudService;
 
+    @EJB
+    private CollectionsService collectionsService;
+
     @Override
     public NavigationConfig getNavigationConfiguration() {
         Persister persister = new Persister(new AnnotationStrategy());
@@ -100,6 +104,7 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
 
     @Override
     public Form getForm(String domainObjectType) {
+        System.out.println(collectionsService.findCollection("Countries", null, null));
         DomainObject root = crudService.createDomainObject("country");
         // todo: separate empty form?
         return createCountryForm(root);
