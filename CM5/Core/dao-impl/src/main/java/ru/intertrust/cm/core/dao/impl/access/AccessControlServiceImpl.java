@@ -1,18 +1,12 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.dao.access.*;
+import ru.intertrust.cm.core.dao.exception.AccessException;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.dao.access.AccessControlService;
-import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.dao.access.AccessType;
-import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
-import ru.intertrust.cm.core.dao.access.Subject;
-import ru.intertrust.cm.core.dao.access.SystemSubject;
-import ru.intertrust.cm.core.dao.access.UserSubject;
-import ru.intertrust.cm.core.dao.exception.AccessException;
 
 /**
  * Реализация службы контроля доступа.
@@ -156,7 +150,8 @@ public class AccessControlServiceImpl implements AccessControlService {
             this.subject = subject;
             this.objectId = objectId;
             this.type = type;
-            this.deferred = deferred;
+            //this.deferred = deferred;
+            this.deferred = false;
         }
 
         @Override

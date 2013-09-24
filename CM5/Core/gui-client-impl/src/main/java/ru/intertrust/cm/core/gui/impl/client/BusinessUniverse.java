@@ -15,6 +15,7 @@ import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.plugin.SomeActivePluginConfig;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.logging.Logger;
@@ -149,6 +150,8 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
         PluginPanel formPluginPanel = new PluginPanel(eventBus);
         formPluginPanel.setSize("500px", "300px");
         Plugin plugin = ComponentRegistry.instance.get("some.active.plugin");
+        SomeActivePluginConfig config = new SomeActivePluginConfig("country");
+        plugin.setConfig(config);
         formPluginPanel.open(plugin);
         SimpleLayoutPanel layoutPanel = new SimpleLayoutPanel();
         layoutPanel.setSize("500px", "300px");

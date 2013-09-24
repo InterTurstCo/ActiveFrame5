@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
+import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
@@ -24,7 +25,7 @@ public class IntegerBoxWidget extends BaseWidget {
     @Override
     public WidgetData getCurrentState() {
         IntegerBoxData data = new IntegerBoxData();
-        String text = ((TextBox) impl).getText();
+        String text = getTrimmedText((HasText) impl);
         if (text == null) {
             return data;
         }
