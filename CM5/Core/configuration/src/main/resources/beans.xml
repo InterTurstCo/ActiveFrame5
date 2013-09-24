@@ -18,6 +18,7 @@
                 <value>config/system-domain-objects.xml</value>
                 <value>config/domain-objects.xml</value>
                 <value>config/collections.xml</value>
+                <value>config/collection-views.xml</value>
                 <value>config/access.xml</value>
             </set>
         </property>
