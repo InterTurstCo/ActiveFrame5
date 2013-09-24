@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <configuration xmlns="https://cm5.intertrust.ru/config">
     <navigation name = "panel" is-default="true" > <!-- is-default определяет факт того, что данная панель навигации является таковой "по умолчанию", то есть используется для тех пользователей и ролей, для которых панель навигации не переопределена -->
-        <link name="Administration" display-text="Администрирование" image="administration.png" child-to-open="Employee">
+        <link name="Administration" display-text="Администрирование" image="images/inbox.png" child-to-open="Employee">
             <!-- в администрировании не задан плагин, значит по клику ничего открываться не должно, либо должна открываться дочерняя ссылка. дочерняя ссылка должна быть одной из вложенных (1й уровень вложенности). если не задан ни плагин, ни дочерняя ссылка, то данная ссылка является простой группировкой дочерних -->
             <child-links group-name="Орг. структура"> <!-- group-name параметр не обязательный. Если он задан, то на экране появляется элемент-название группы (см. "Руководство разработчика", раздел Строение системы, Навигационное дерево -> "Стадии и задачи"-->
-                <link name="Employee" display-text="Сотрудники" image="employees.png">
+                <link name="Employee" display-text="Сотрудники" image="images/inbox.png">
                     <plugin>
                         <!-- DomainObjectSurferConfig и CustomPluginConfig должны наследоваться от PluginConfig -->
                         <!-- если используется collection-view, то collection нельзя использовать -->
@@ -35,7 +35,6 @@
                         </link>
                     </child-links>
                 </link>
-
                 <link name="Cities" display-text="Города">
                     <plugin> <!---->
                         <custom name="Beautiful City Viewer">
@@ -63,7 +62,7 @@
         </link>
 
         <!-- Пример на основе "Руководства разработчика"-->
-        <link name="Private Office" display-text="Личный кабинет" image="private_office.png">
+        <link name="Private Office" display-text="Личный кабинет" image="images/inbox.png" child-to-open="Last Open">
             <child-links>
                 <link name="Last Open" display-text="Последние открытые">
                     <plugin>

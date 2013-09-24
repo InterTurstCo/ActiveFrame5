@@ -13,7 +13,9 @@ import java.util.logging.Logger;
 
 @ComponentName("domain.object.surfer.plugin")
 public class DomainObjectSurferPlugin extends Plugin implements IsActive, NavigationTreeItemSelectedEventHandler {
+
     static Logger log = Logger.getLogger("domain.object.surfer.plugin");
+
 
     @Override
     public PluginView createView() {
@@ -29,7 +31,8 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Naviga
     public void onNavigationTreeItemSelected(NavigationTreeItemSelectedEvent event) {
         log.info("domain object surfer plugin reloaded");
         getOwner().closeCurrentPlugin();
-        Plugin domainObjectSurfer = ComponentRegistry.instance.get("domain.object.surfer.plugin");
+        DomainObjectSurferPlugin domainObjectSurfer = ComponentRegistry.instance.get("domain.object.surfer.plugin");
+        domainObjectSurfer.setConfig(event.getPluginConfig());
         getOwner().open(domainObjectSurfer);
     }
 }

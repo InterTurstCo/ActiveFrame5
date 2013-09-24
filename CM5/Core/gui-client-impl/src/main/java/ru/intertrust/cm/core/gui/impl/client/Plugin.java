@@ -50,8 +50,8 @@ public abstract class Plugin extends BaseComponent {
     }
 
     /**
-     * Возвращает текущее состояние плагина
-     * @return текущее состояние плагина
+     * Возвращает текущее состояние приложения
+     * @return текущее состояние приложения
      */
     public Dto getCurrentState() {
         return null;
@@ -72,18 +72,23 @@ public abstract class Plugin extends BaseComponent {
             public void onSuccess(Dto result) {
                 Plugin.this.setInitialData((PluginData) result);
                 postSetUp();
-                //logger.info("success " + getName());
             }
 
             @Override
             public void onFailure(Throwable caught) {
                 Plugin.this.onDataLoadFailure();
-                logger.info("failed " + getName());
             }
         };
         Command command = new Command("initialize", this.getName(), getConfig());
         BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, callback);
     }
+
+    protected void reinit(PluginData initData) {
+        getOwner().closeCurrentPlugin();
+        Plugin.this.setInitialData(initData);
+        postSetUp();
+    }
+
 
     /**
      * Возвращает представление плагина.
@@ -133,7 +138,7 @@ public abstract class Plugin extends BaseComponent {
      *
      * @return первичные данные плагина
      */
-    <T> T getInitialData() {
+    public <T> T getInitialData() {
         return (T) initialData;
     }
 

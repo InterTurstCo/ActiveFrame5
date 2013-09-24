@@ -4,6 +4,7 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventHandler;
 
@@ -34,11 +35,16 @@ public class PluginPanel implements IsWidget, PluginViewCreatedEventHandler {
      * @param plugin плагин, который нужно открыть в панели
      */
     public void open(Plugin plugin) {
+        open(plugin, null);
+    }
+
+    public void open(Plugin plugin, Dto initParams) {
         eventBus.addHandlerToSource(PluginViewCreatedEvent.TYPE, plugin, this);
         plugin.setEventBus(eventBus);
         plugin.setOwner(this);
         plugin.setUp();
     }
+
 
     /**
      * <p>

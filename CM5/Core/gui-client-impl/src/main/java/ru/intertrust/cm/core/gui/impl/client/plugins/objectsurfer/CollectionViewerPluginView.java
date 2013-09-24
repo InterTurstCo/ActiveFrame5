@@ -52,7 +52,13 @@ public class CollectionViewerPluginView extends PluginView {
             flexTable.setWidget(i, 10, new Label(""));
             flexTable.setWidget(i, 11, new Label(""));
             flexTable.setWidget(i, 12, new Label(""));
+
+
+
+
         }
+
+
 
         container.add(flexTable);
 

@@ -13,6 +13,7 @@ import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.plugins.navigation.RootLinkSelectedEvent;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.SomeActivePluginConfig;
@@ -49,8 +50,14 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
 
                 Plugin collectionPlugin = ComponentRegistry.instance.get("collection.plugin");
 
-                addCollection(mainLayoutPanel, collectionPlugin,  domainObjectSurferPlugin);
+                addCollection(mainLayoutPanel, collectionPlugin, domainObjectSurferPlugin);
                 addNavigationTree(mainLayoutPanel, navigationTreePlugin, domainObjectSurferPlugin);
+
+                PluginPanel domainObjectSurferPanel = new PluginPanel(eventBus);
+                domainObjectSurferPanel.open(domainObjectSurferPlugin);
+                domainObjectSurferPlugin.registerEventHandlingFromExternalSource(NavigationTreeItemSelectedEvent.TYPE,
+                        navigationTreePlugin, domainObjectSurferPlugin);
+                mainLayoutPanel.addNorth(domainObjectSurferPanel,5);
 
                 addFormPanel(mainLayoutPanel);
 
@@ -65,6 +72,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
         };
         BusinessUniverseServiceAsync.Impl.getInstance().getBusinessUniverseInitialization(callback);
     }
+
 
     private void addStickerPanel(DockLayoutPanel mainLayoutPanel) {
 
@@ -163,20 +171,18 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
         PluginPanel navigationTreePanel = new PluginPanel(eventBus) {
             @Override
             public void beforePluginOpening() {
-                PluginPanel domainObjectSurferPanel = new PluginPanel(eventBus);
-                domainObjectSurferPanel.open(domainObjectSurfer);
-                domainObjectSurfer.registerEventHandlingFromExternalSource(NavigationTreeItemSelectedEvent.TYPE,
-                        navigationTreePlugin, domainObjectSurfer);
-                mainLayoutPanel.add(domainObjectSurferPanel);
+
             }
         };
-        //navigationTreePanel.open(navigationTreePlugin);
+        navigationTreePanel.open(navigationTreePlugin);
+        navigationTreePlugin.registerEventHandlingFromExternalSource(RootLinkSelectedEvent.TYPE, navigationTreePlugin, navigationTreePlugin);
         dockLayoutPanel.addWest(navigationTreePanel, 15);
     }
+
     private void addCollection(DockLayoutPanel dockLayoutPanel, final Plugin collectionPlugin, final Plugin domainObjectSurfer) {
-        PluginPanel collectionPanel = new PluginPanel(eventBus) ;
+        PluginPanel collectionPanel = new PluginPanel(eventBus);
         //collectionPanel.open(collectionPlugin);
-      //dockLayoutPanel.addSouth(collectionPanel, 15);
+      dockLayoutPanel.addSouth(collectionPanel, 15);
     }
 
     @Override
