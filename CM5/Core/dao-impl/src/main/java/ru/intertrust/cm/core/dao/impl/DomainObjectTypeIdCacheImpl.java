@@ -25,7 +25,7 @@ public class DomainObjectTypeIdCacheImpl implements DomainObjectTypeIdCache {
     private Map<String, Integer> nameToIdMap = new ConcurrentHashMap<>();
     private Map<Integer, String> idToNameMap = new ConcurrentHashMap<>();
 
-    public DomainObjectTypeIdCacheImpl() {
+    private DomainObjectTypeIdCacheImpl() {
 
     }
 

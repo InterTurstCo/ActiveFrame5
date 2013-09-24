@@ -312,7 +312,7 @@ public class DomainObjectCacheServiceImpl {
 
     }
 
-    protected TransactionSynchronizationRegistry getTxReg() {
+    private TransactionSynchronizationRegistry getTxReg() {
         if (txReg == null) {
             try {
                 txReg = (TransactionSynchronizationRegistry) new InitialContext().lookup("java:comp/TransactionSynchronizationRegistry");
