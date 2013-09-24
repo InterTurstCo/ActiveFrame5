@@ -35,7 +35,7 @@
 		<xsd:attribute name="quantity" 			type="xsd:nonNegativeInteger" 		use="optional"/>
 		<xsd:attribute name="minQuantity" 		type="xsd:nonNegativeInteger" 		use="optional"/>
 		<xsd:attribute name="maxQuantity" 		type="xsd:nonNegativeInteger" 		use="optional"/>
-		<xsd:attribute name="averageQuantity" 	type="xsd:nonNegativeInteger" 	use="optional" />		
+		<xsd:attribute name="averageQuantity" 	type="xsd:nonNegativeInteger" 	    use="optional" />		
 	</xsd:complexType>
 	
 	
