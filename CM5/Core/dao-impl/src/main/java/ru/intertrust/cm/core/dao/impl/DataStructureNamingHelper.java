@@ -88,6 +88,10 @@ public class DataStructureNamingHelper {
                     fieldConfig.getName() + "'");
         }
 
+        if (fieldConfig.getTypes().size() == 1) {
+            return getSqlName(fieldConfig.getName());
+        }
+
         return getSqlName(getIndexedName(fieldConfig.getName(), index + 1));
     }
 

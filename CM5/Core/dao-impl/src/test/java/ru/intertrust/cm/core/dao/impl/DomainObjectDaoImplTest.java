@@ -48,7 +48,6 @@ public class DomainObjectDaoImplTest {
     @Mock
     private JdbcTemplate jdbcTemplate;
 
-    @Mock
     private ConfigurationExplorerImpl configurationExplorer;
 
     @Mock
@@ -59,9 +58,12 @@ public class DomainObjectDaoImplTest {
 
     private DomainObjectTypeConfig domainObjectTypeConfig;
 
+    private Configuration configuration;
+
     @Before
     public void setUp() throws Exception {
-        initDomainObjectConfig();
+        initConfigs();
+
         accessControlService = mock(AccessControlService.class);
         AccessToken mockAccessToken = createMockAccessToken();
         when(accessControlService.createSystemAccessToken(anyString())).thenReturn(mockAccessToken);
@@ -83,11 +85,22 @@ public class DomainObjectDaoImplTest {
 
         String checkCreateQuery =
                 "insert into PERSON (ID, CREATED_DATE, UPDATED_DATE, TYPE, EMAIL," +
-                        "LOGIN,PASSWORD) values " +
-                        "(:id , :created_date, :updated_date, :type, :email,:login,:password)";
+                        "LOGIN,PASSWORD,BOSS1,BOSS2) values " +
+                        "(:id , :created_date, :updated_date, :type, :email,:login,:password,:boss1,:boss2)";
 
         String query = domainObjectDaoImpl.generateCreateQuery(domainObjectTypeConfig);
         assertEquals(checkCreateQuery, query);
+    }
+
+    @Test
+    public void testGenerateFindQuery() throws Exception {
+        AccessToken accessToken = createMockAccessToken();
+        String expectedQuery = "select person.*, (case when person.BOSS1 is not null then person.BOSS1 " +
+                "when person.BOSS2 is not null then person.BOSS2 else null) as BOSS  " +
+                "from PERSON person where person.ID=:id  and " +
+                "exists (select a.object_id from Person_READ a inner join group_member gm on " +
+                "a.group_id = gm.master where gm.person_id1 = :user_id and a.object_id = :id)";
+        Assert.assertEquals(expectedQuery, domainObjectDaoImpl.generateFindQuery("Person", accessToken));
     }
 
     @Test
@@ -133,7 +146,8 @@ public class DomainObjectDaoImplTest {
         domainObject.setModifiedDate(currentDate);
 
         String checkUpdateQuery = "update PERSON set UPDATED_DATE=:current_date, " +
-                "EMAIL=:email, LOGIN=:login, PASSWORD=:password where ID=:id and UPDATED_DATE=:updated_date";
+                "EMAIL=:email, LOGIN=:login, PASSWORD=:password, BOSS1=:boss1, " +
+                "BOSS2=:boss2 where ID=:id and UPDATED_DATE=:updated_date";
 
         String query = domainObjectDaoImpl.generateUpdateQuery(domainObjectTypeConfig);
         assertEquals(checkUpdateQuery, query);
@@ -186,7 +200,7 @@ public class DomainObjectDaoImplTest {
     }
 
 
-    private void initDomainObjectConfig() {
+    private void initConfigs() {
 
         /*
          * Создаем конфигурацию следующего ввида <domain-object name="Person">
@@ -203,16 +217,23 @@ public class DomainObjectDaoImplTest {
         email.setLength(128);
         domainObjectTypeConfig.getFieldConfigs().add(email);
 
-        StringFieldConfig Login = new StringFieldConfig();
-        Login.setName("Login");
-        Login.setLength(64);
-        Login.setNotNull(true);
-        domainObjectTypeConfig.getFieldConfigs().add(Login);
+        StringFieldConfig login = new StringFieldConfig();
+        login.setName("Login");
+        login.setLength(64);
+        login.setNotNull(true);
+        domainObjectTypeConfig.getFieldConfigs().add(login);
 
-        StringFieldConfig Password = new StringFieldConfig();
-        Password.setName("Password");
-        Password.setLength(128);
-        domainObjectTypeConfig.getFieldConfigs().add(Password);
+        StringFieldConfig password = new StringFieldConfig();
+        password.setName("Password");
+        password.setLength(128);
+        domainObjectTypeConfig.getFieldConfigs().add(password);
+
+        ReferenceFieldConfig boss = new ReferenceFieldConfig();
+        boss.setName("Boss");
+        boss.getTypes().add(new ReferenceFieldTypeConfig("Internal_Employee"));
+        boss.getTypes().add(new ReferenceFieldTypeConfig("External_Employee"));
+        domainObjectTypeConfig.getFieldConfigs().add(boss);
+
 
         UniqueKeyConfig uniqueKeyConfig = new UniqueKeyConfig();
         domainObjectTypeConfig.getUniqueKeyConfigs().add(uniqueKeyConfig);
@@ -221,6 +242,19 @@ public class DomainObjectDaoImplTest {
         uniqueKeyFieldConfig1.setName("EMail");
         uniqueKeyConfig.getUniqueKeyFieldConfigs().add(uniqueKeyFieldConfig1);
 
+        DomainObjectTypeConfig internalEmployee = new DomainObjectTypeConfig();
+        internalEmployee.setName("Internal_Employee");
+
+        DomainObjectTypeConfig externalEmployee = new DomainObjectTypeConfig();
+        externalEmployee.setName("External_Employee");
+
+        Configuration configuration = new Configuration();
+        configuration.getConfigurationList().add(domainObjectTypeConfig);
+        configuration.getConfigurationList().add(internalEmployee);
+        configuration.getConfigurationList().add(externalEmployee);
+
+        configurationExplorer = new ConfigurationExplorerImpl(configuration);
+        domainObjectDaoImpl.setConfigurationExplorer(configurationExplorer);
     }
 
     @Test

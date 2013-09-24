@@ -75,7 +75,7 @@ public class PostgreSqlQueryHelperTest {
         String query = PostgreSqlQueryHelper.generateCreateTableQuery(domainObjectTypeConfig);
         String checkQuery = "create table OUTGOING_DOCUMENT ( ID bigint not null, " +
                 PARENT_COLUMN + " bigint not null, MASTER bigint, REGISTRATION_NUMBER varchar(128), " +
-                "REGISTRATION_DATE timestamp, AUTHOR1 bigint, " +
+                "REGISTRATION_DATE timestamp, AUTHOR bigint, " +
                 "LONG_FIELD bigint, DECIMAL_FIELD_1 decimal(10, 2), DECIMAL_FIELD_2 decimal(10), " +
                 "constraint PK_OUTGOING_DOCUMENT_ID primary key (ID), " +
                 "constraint FK_OUTGOING_DOCUMENT_" + PARENT_COLUMN + " foreign key (" + PARENT_COLUMN +
@@ -90,7 +90,7 @@ public class PostgreSqlQueryHelperTest {
         String checkQuery = "create table OUTGOING_DOCUMENT ( ID bigint not null, " +
                 "CREATED_DATE timestamp not null, " + "UPDATED_DATE timestamp not null, " + TYPE_COLUMN +" integer, " +
                 MASTER_COLUMN + " bigint, REGISTRATION_NUMBER varchar(128), " +
-                "REGISTRATION_DATE timestamp, AUTHOR1 bigint, " +
+                "REGISTRATION_DATE timestamp, AUTHOR bigint, " +
                 "LONG_FIELD bigint, DECIMAL_FIELD_1 decimal(10, 2), DECIMAL_FIELD_2 decimal(10), " +
                 "constraint PK_OUTGOING_DOCUMENT_ID primary key (ID), " +
                 "constraint FK_OUTGOING_DOCUMENT_" + TYPE_COLUMN + " foreign key (" + TYPE_COLUMN + ") references " +
@@ -132,7 +132,7 @@ public class PostgreSqlQueryHelperTest {
         String expectedQuery = "alter table OUTGOING_DOCUMENT " +
                 "add column " + MASTER_COLUMN + " bigint, " +
                 "add column DESCRIPTION varchar(256), " +
-                "add column EXECUTOR1 bigint not null, " +
+                "add column EXECUTOR bigint not null, " +
                 "add constraint FK_OUTGOING_DOCUMENT_" + MASTER_COLUMN + " foreign key (" + MASTER_COLUMN + ") " +
                 "references PARENT_DOCUMENT(ID)";
 
@@ -163,7 +163,7 @@ public class PostgreSqlQueryHelperTest {
     @Test
     public void testGenerateCreateForeignKeyAndUniqueConstraintsQuery() {
         String expectedQuery = "alter table OUTGOING_DOCUMENT " +
-                "add constraint FK_OUTGOING_DOCUMENT_EXECUTOR1 foreign key (EXECUTOR1) references EMPLOYEE(ID), " +
+                "add constraint FK_OUTGOING_DOCUMENT_EXECUTOR foreign key (EXECUTOR) references EMPLOYEE(ID), " +
                 "add constraint U_OUTGOING_DOCUMENT_REGISTRATION_NUMBER" + " unique (REGISTRATION_NUMBER)";
 
         ReferenceFieldConfig executorFieldConfig = new ReferenceFieldConfig();
@@ -192,7 +192,7 @@ public class PostgreSqlQueryHelperTest {
                 domainObjectTypeConfig.getFieldConfigs(), domainObjectTypeConfig.getParentConfig());
         String checkQuery = "create index I_OUTGOING_DOCUMENT_" + MASTER_COLUMN + " on OUTGOING_DOCUMENT (" +
                 MASTER_COLUMN + ");\n" +
-                "create index I_OUTGOING_DOCUMENT_AUTHOR1 on OUTGOING_DOCUMENT (AUTHOR1);\n";
+                "create index I_OUTGOING_DOCUMENT_AUTHOR on OUTGOING_DOCUMENT (AUTHOR);\n";
         assertEquals(query, checkQuery);
     }
 

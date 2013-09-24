@@ -70,7 +70,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     public void setDomainObjectCacheService(DomainObjectCacheServiceImpl domainObjectCacheService) {
         this.domainObjectCacheService = domainObjectCacheService;
     }
-    
+
     public void setAccessControlService(AccessControlService accessControlService) {
         this.accessControlService = accessControlService;
     }
@@ -184,7 +184,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private List<String> getModifiedFieldNames(DomainObject domainObject) {
         AccessToken accessToken = accessControlService.createSystemAccessToken("DomainObjectDaoImpl");
         DomainObject originalDomainObject = find(domainObject.getId(), accessToken);
-        
+
         List<String> modifiedFieldNames = new ArrayList<String>();
         for(String fieldName : domainObject.getFields()){
             Value originalValue = originalDomainObject.getValue(fieldName);
@@ -192,7 +192,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             if(!originalValue.equals(newValue)){
                 modifiedFieldNames.add(fieldName);
             }
-            
+
         }
         return modifiedFieldNames;
     }
@@ -292,29 +292,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         RdbmsId rdbmsId = (RdbmsId) id;
         String typeName = getDOTypeName(rdbmsId.getTypeId());
 
-        String tableAlias = getSqlAlias(typeName);
-
-        StringBuilder query = new StringBuilder();
-        query.append("select ");
-        appendColumnsQueryPart(query, typeName);
-        query.append(" from ");
-        appendTableNameQueryPart(query, typeName);
-        query.append(" where ").append(tableAlias).append(".ID=:id ");
-
-        Map<String, Object> aclParameters = new HashMap<String, Object>();
-        if (accessToken.isDeferred()) {
-            String aclReadTable = AccessControlUtility.getAclReadTableName(typeName);
-            query.append(" and exists (select a.object_id from " + aclReadTable + " a inner join group_member gm " +
-                    "on a.group_id = gm.master where gm.person_id1 = :user_id and a.object_id = :id)");
-            aclParameters = getAclParameters(accessToken);
-        }
+        String query = generateFindQuery(typeName, accessToken);
 
         Map<String, Object> parameters = initializeIdParameter(rdbmsId);
         if (accessToken.isDeferred()) {
-            parameters.putAll(aclParameters);
+            parameters.putAll(getAclParameters(accessToken));
         }
 
-        return jdbcTemplate.query(query.toString(), parameters,
+        return jdbcTemplate.query(query, parameters,
                 new SingleObjectRowMapper(typeName, configurationExplorer, domainObjectTypeIdCache));
     }
 
@@ -445,6 +430,31 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         initializeDomainParameters(domainObject, feldConfigs, parameters);
 
         return parameters;
+    }
+
+    /**
+     * Создает SQL запрос для нахождения доменного объекта
+     * @param typeName тип доменного объекта
+     * @return SQL запрос для нахождения доменного объекта
+     */
+    protected String generateFindQuery(String typeName, AccessToken accessToken) {
+        String tableAlias = getSqlAlias(typeName);
+
+        StringBuilder query = new StringBuilder();
+        query.append("select ");
+        appendColumnsQueryPart(query, typeName);
+        query.append(" from ");
+        appendTableNameQueryPart(query, typeName);
+        query.append(" where ").append(tableAlias).append(".ID=:id ");
+
+        Map<String, Object> aclParameters = new HashMap<String, Object>();
+        if (accessToken.isDeferred()) {
+            String aclReadTable = AccessControlUtility.getAclReadTableName(typeName);
+            query.append(" and exists (select a.object_id from " + aclReadTable + " a inner join group_member gm " +
+                    "on a.group_id = gm.master where gm.person_id1 = :user_id and a.object_id = :id)");
+        }
+
+        return query.toString();
     }
 
     /**
@@ -807,10 +817,38 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private void appendColumnsQueryPart(StringBuilder query, String typeName) {
         DomainObjectTypeConfig config = configurationExplorer.getConfig(DomainObjectTypeConfig.class, typeName);
 
-        query.append(getSqlAlias(typeName)).append(".* ");
+        query.append(getSqlAlias(typeName)).append(".*");
+        // Т.к. ссылочному полю с множественными типами в бд соответствует несколько колонок с именами отличными от
+        // имени поля доменного объекта, делаем выборку значащей колонки, используя синоним, чтобы результат выполнения
+        // запроса выглядел как в случае обычного поля доменного объекта
+        appendReferenceColumnsWithMultipleTypes(query, config);
+        query.append(" ");
 
         if (config.getExtendsAttribute() != null) {
-            appendParentColumns(query, config);;
+            appendParentColumns(query, config);
+        }
+    }
+
+    private void appendReferenceColumnsWithMultipleTypes(StringBuilder query, DomainObjectTypeConfig config) {
+        String tableAlias = getSqlAlias(config.getName());
+
+        for (FieldConfig fieldConfig : config.getFieldConfigs()) {
+            if (!(fieldConfig instanceof ReferenceFieldConfig)) {
+                continue;
+            }
+
+            ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
+            if (referenceFieldConfig.getTypes().size() < 2) {
+                continue;
+            }
+
+            query.append(", (case");
+            for (ReferenceFieldTypeConfig typeConfig : referenceFieldConfig.getTypes()) {
+                String columnName = getSqlName(referenceFieldConfig, typeConfig);
+                query.append(" when ").append(tableAlias).append(".").append(columnName).append(" is not null then ");
+                query.append(tableAlias).append(".").append(columnName);
+            }
+            query.append(" else null) as ").append(getSqlName(fieldConfig));
         }
     }
 
