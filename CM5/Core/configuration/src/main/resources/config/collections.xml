@@ -8,7 +8,7 @@
                 select
                     e.id, e.name, e.position
                 from
-                    employee e
+                    Employee e
                      ::from-clause
                 where
                     1=1 ::where-clause
@@ -17,7 +17,7 @@
 
         <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) вместо названий колонок -->
         <counting-prototype>
-            select count(*) from employee e ::from-clause WHERE 1=1 ::where-clause
+            select count(*) from Employee e ::from-clause WHERE 1=1 ::where-clause
         </counting-prototype>
 
         <filter name="byDepartment">
@@ -66,7 +66,7 @@
                 select
                     od.id, od.name, od.description, od.registration_date
                 from
-                    outgoing_document od
+                    Outgoing_document od
                      ::from-clause
                 where
                     1=1 ::where-clause
@@ -75,7 +75,7 @@
 
         <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) вместо названий колонок -->
         <counting-prototype>
-            select count(*) from outgoing_document od ::from-clause WHERE 1=1 ::where-clause
+            select count(*) from Outgoing_document od ::from-clause WHERE 1=1 ::where-clause
         </counting-prototype>
 
     </collection>
@@ -88,7 +88,7 @@
                 select
                     s.id, s.name, s.description,s.master
                 from
-                    assignment s
+                    Assignment s
                      ::from-clause
                 where
                     1=1 ::where-clause
@@ -97,7 +97,7 @@
 
         <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) вместо названий колонок -->
         <counting-prototype>
-            select count(*) from assignment s ::from-clause WHERE 1=1 ::where-clause
+            select count(*) from Assignment s ::from-clause WHERE 1=1 ::where-clause
         </counting-prototype>
 		<filter name="byDoc">
             <criteria placeholder="where-clause">
