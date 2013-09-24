@@ -150,8 +150,7 @@ public class AccessControlServiceImpl implements AccessControlService {
             this.subject = subject;
             this.objectId = objectId;
             this.type = type;
-            //this.deferred = deferred;
-            this.deferred = false;
+            this.deferred = deferred;
         }
 
         @Override
