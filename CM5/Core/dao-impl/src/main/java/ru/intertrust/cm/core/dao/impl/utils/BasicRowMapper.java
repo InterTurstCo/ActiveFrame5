@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.dao.impl.utils;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.*;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.impl.DataType;
 import ru.intertrust.cm.core.model.FatalException;
@@ -23,8 +24,6 @@ import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlNam
  * @author atsvetkov
  */
 public class BasicRowMapper {
-
-    private static final String MASTER_FIELD = "master";
 
     protected final String domainObjectType;
     protected final String idField;
@@ -115,7 +114,7 @@ public class BasicRowMapper {
             } else {
                 throw new FatalException("Id field can not be null for object " + domainObjectType);
             }
-        } else if (MASTER_FIELD.equalsIgnoreCase(columnName)) {
+        } else if (DomainObjectDao.MASTER_COLUMN.equalsIgnoreCase(columnName)) {
             if (parentDomainObjectType == null) {
                 throw new FatalException("Parent is not configured for domain object but exists in DB: "
                         + domainObjectType);
@@ -149,10 +148,9 @@ public class BasicRowMapper {
                 value = new DecimalValue();
             }
         } else if (fieldConfig != null && ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
+            Long longValue = rs.getLong(columnName);
             if (!rs.wasNull()) {
                 String referenceType = findTypeByColumnName((ReferenceFieldConfig) fieldConfig, columnName);
-                Long longValue = rs.getLong(columnName);
-
                 value = new ReferenceValue(new RdbmsId(domainObjectTypeIdCache.getId(referenceType), longValue));
             } else {
                 value = new ReferenceValue();
@@ -162,9 +160,16 @@ public class BasicRowMapper {
             if (!rs.wasNull()) {
                 Date date = new Date(timestamp.getTime());
                 value = new TimestampValue(date);
+
+                if (DomainObjectDao.CREATED_DATE_COLUMN.equalsIgnoreCase(columnName)) {
+                    valueModel.setCreatedDate(date);
+                } else if (DomainObjectDao.UPDATED_DATE_COLUMN.equalsIgnoreCase(columnName)) {
+                    valueModel.setModifiedDate(date);
+                }
             } else {
                 value = new TimestampValue();
             }
+
         }
 
         if (id != null) {
@@ -190,6 +195,12 @@ public class BasicRowMapper {
         }
         if (valueModel.getParentId() != null) {
             object.setParent(valueModel.getParentId());
+        }
+        if (valueModel.getModifiedDate() != null) {
+            object.setModifiedDate(valueModel.getModifiedDate());
+        }
+        if (valueModel.getCreatedDate() != null) {
+            object.setCreatedDate(valueModel.getCreatedDate());
         }
         if (valueModel.getValue() != null) {
             object.setValue(columnName, valueModel.getValue());
@@ -217,6 +228,8 @@ public class BasicRowMapper {
         private Id id = null;
         private Id parentId = null;
         private Value value = null;
+        private Date createdDate = null;
+        private Date modifiedDate = null;
 
         public Id getId() {
             return id;
@@ -240,6 +253,22 @@ public class BasicRowMapper {
 
         public void setParentId(Id parentId) {
             this.parentId = parentId;
+        }
+
+        public Date getCreatedDate() {
+            return createdDate;
+        }
+
+        public void setCreatedDate(Date createdDate) {
+            this.createdDate = createdDate;
+        }
+
+        public Date getModifiedDate() {
+            return modifiedDate;
+        }
+
+        public void setModifiedDate(Date modifiedDate) {
+            this.modifiedDate = modifiedDate;
         }
     }
 
