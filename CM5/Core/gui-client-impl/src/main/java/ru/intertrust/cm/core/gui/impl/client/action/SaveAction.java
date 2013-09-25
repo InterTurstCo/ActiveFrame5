@@ -1,8 +1,11 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
+import com.google.gwt.user.client.Window;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.action.ActionData;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
+import ru.intertrust.cm.core.gui.model.action.SaveActionData;
 import ru.intertrust.cm.core.gui.model.form.Form;
 
 /**
@@ -29,5 +32,12 @@ public class SaveAction extends SimpleServerAction {
         context.setRootObjectId(form.getRootObject().getId());
         context.setForm(form);
         return context;
+    }
+
+    @Override
+    protected void onSuccess(ActionData result) {
+        SaveActionData data = (SaveActionData) result;
+        getPlugin().reinit(data.getSomeActivePluginData());
+        Window.alert("Saved!!!");
     }
 }

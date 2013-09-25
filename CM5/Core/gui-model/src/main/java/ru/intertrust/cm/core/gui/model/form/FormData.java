@@ -28,7 +28,7 @@ public class FormData implements Dto {
     }
 
     public void setFieldPathObject(FieldPath fieldPath, DomainObject object) {
-        fieldPathObjects.put(fieldPath, object);
+        // todo
     }
 
     public DomainObject getFieldPathObject(FieldPath fieldPath) {
@@ -48,9 +48,6 @@ public class FormData implements Dto {
 
     private DomainObject getObjectContainingFieldPathValue(FieldPath fieldPath) {
         FieldPath objectPath = fieldPath.createFieldPathWithoutLastElement();
-        if (objectPath.size() == 0) {
-            objectPath = null;
-        }
         return fieldPathObjects.get(objectPath);
     }
 }

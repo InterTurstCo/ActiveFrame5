@@ -83,7 +83,7 @@ public abstract class Plugin extends BaseComponent {
         BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, callback);
     }
 
-    protected void reinit(PluginData initData) {
+    public void reinit(PluginData initData) {
         getOwner().closeCurrentPlugin();
         Plugin.this.setInitialData(initData);
         postSetUp();

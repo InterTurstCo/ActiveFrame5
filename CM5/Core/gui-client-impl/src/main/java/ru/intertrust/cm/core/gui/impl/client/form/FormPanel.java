@@ -35,6 +35,10 @@ public class FormPanel implements IsWidget {
         return widgets;
     }
 
+    public void update(Form form) {
+
+    }
+
     private VerticalPanel build() {
         MarkupConfig markup = form.getMarkup();
         HeaderConfig header = markup.getHeader();
@@ -86,7 +90,7 @@ public class FormPanel implements IsWidget {
                 BaseWidget widget = ComponentRegistry.instance.get(widgetData.getComponentName());
                 widget.setEditable(form.isEditable());
                 widget.setDisplayConfig(displayConfig);
-                widget.setInitialData(widgetData);
+                widget.setState(widgetData);
                 widgets.add(widget);
                 table.setWidget(rowIndex, colIndex, widget);
 

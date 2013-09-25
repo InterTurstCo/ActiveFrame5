@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.api.server;
 
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.model.Command;
@@ -35,5 +36,5 @@ public interface GuiService {
 
     Form getForm(Id domainObjectId);
 
-    void saveForm(Form form);
+    DomainObject saveForm(Form form);
 }

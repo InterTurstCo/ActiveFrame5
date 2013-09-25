@@ -12,10 +12,14 @@ import java.util.List;
  *         Time: 13:47
  */
 public class FieldPath implements Dto {
+    public static final FieldPath ROOT = new FieldPath();
+
     private String path;
     private transient String[] pathElements;
 
     public FieldPath() {
+        this.path = "";
+        pathElements = new String[0];
     }
 
     public FieldPath(String path) {
@@ -28,6 +32,9 @@ public class FieldPath implements Dto {
 
     public FieldPath createFieldPathWithoutLastElement() {
         int resultSize = size() - 1;
+        if (resultSize == 0) {
+            return ROOT;
+        }
         String[] newPathElements = new String[resultSize];
         System.arraycopy(pathElements, 0, newPathElements, 0, resultSize);
         return new FieldPath(newPathElements);

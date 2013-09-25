@@ -39,8 +39,10 @@ public class SomeActivePluginView extends PluginView {
                 continue;
             }
             String id = widget.getDisplayConfig().getId();
-            WidgetData state = widget.getState();
-            result.put(id, state);
+            if (widget.isEditable()) {
+                WidgetData state = widget.getCurrentState();
+                result.put(id, state);
+            }
         }
         return result;
     }

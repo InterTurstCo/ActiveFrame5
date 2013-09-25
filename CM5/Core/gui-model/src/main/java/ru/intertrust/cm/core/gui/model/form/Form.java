@@ -128,6 +128,6 @@ public class Form implements Dto {
     }
 
     public DomainObject getRootObject() {
-        return formData.getFieldPathObject(null);
+        return formData.getFieldPathObject(FieldPath.ROOT);
     }
 }

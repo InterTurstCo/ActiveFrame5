@@ -10,10 +10,7 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.FileUtils;
 import ru.intertrust.cm.core.config.model.base.Configuration;
 import ru.intertrust.cm.core.config.model.gui.form.*;
@@ -104,7 +101,9 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
 
     @Override
     public Form getForm(String domainObjectType) {
-        System.out.println(collectionsService.findCollection("Countries", null, null));
+        IdentifiableObjectCollection employees = collectionsService.findCollection("Employees", null, null);
+        Value name = employees.get(0).getValue("name");
+        System.out.println(employees);
         DomainObject root = crudService.createDomainObject("country");
         // todo: separate empty form?
         return createCountryForm(root);
@@ -123,12 +122,13 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         return createCountryForm(root);
     }
 
-    public void saveForm(Form form) {
+    public DomainObject saveForm(Form form) {
         FormConfig formConfig = configurationService.getConfig(FormConfig.class, "country_form");
         WidgetConfigurationConfig widgetConfigurationConfig = formConfig.getWidgetConfigurationConfig();
         List<WidgetConfig> widgetConfigs = widgetConfigurationConfig.getWidgetConfigList();
         FormData formData = form.getFormData();
-        List<DomainObject> toSave = new ArrayList<>();
+
+        HashSet<FieldPath> objectsFieldPathsToSave = new HashSet<>();
         for (WidgetConfig widgetConfig : widgetConfigs) {
             WidgetData widgetData = form.getWidgetData(widgetConfig.getId());
             if (widgetData == null) { // ignore - such data shouldn't be saved
@@ -138,11 +138,28 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
             FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
             Value oldValue = formData.getFieldPathValue(fieldPath);
             if (!newValue.equals(oldValue)) {
-                DomainObject objectToSave = formData.setFieldPathValue(fieldPath, newValue);
-                toSave.add(objectToSave);
+                formData.setFieldPathValue(fieldPath, newValue);
+                objectsFieldPathsToSave.add(fieldPath.createFieldPathWithoutLastElement());
             }
         }
+        ArrayList<DomainObject> toSave = new ArrayList<>(objectsFieldPathsToSave.size());
+        // todo sort field paths in such a way that linked objects are saved first?
+        // root DO is save separately as we should return it's identifier in case it's created from scratch
+        boolean saveRoot = false;
+        for (FieldPath fieldPath : objectsFieldPathsToSave) {
+            if (fieldPath.equals(FieldPath.ROOT)) {
+                saveRoot = true;
+                continue;
+            }
+            toSave.add(formData.getFieldPathObject(fieldPath));
+        }
         crudService.save(toSave);
+        DomainObject rootDomainObject = formData.getFieldPathObject(FieldPath.ROOT);
+        if (saveRoot) {
+            return crudService.save(rootDomainObject);
+        } else {
+            return rootDomainObject;
+        }
     }
 
     private Form createCountryForm(DomainObject root) {
@@ -183,7 +200,7 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         Map<WidgetConfig, FieldPath> fieldPaths = getFieldPaths(widgetConfigs); // todo -> convert to list
 
         HashMap<FieldPath, DomainObject> fieldPathObjects = new HashMap<>();
-        fieldPathObjects.put(null, root);
+        fieldPathObjects.put(new FieldPath(), root);
         for (FieldPath fieldPath : fieldPaths.values()) {
             DomainObject currentRoot = root;
             for (Iterator<FieldPath> subPathIterator = fieldPath.subPathIterator(); subPathIterator.hasNext(); ) {

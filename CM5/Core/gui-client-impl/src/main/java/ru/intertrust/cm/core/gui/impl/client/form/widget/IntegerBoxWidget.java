@@ -22,6 +22,11 @@ public class IntegerBoxWidget extends BaseWidget {
         return new IntegerBoxWidget();
     }
 
+    public void setCurrentState(WidgetData state) {
+        Long value = ((IntegerBoxData) state).getValue();
+        setTrimmedText((HasText) impl, value == null ? "" : value.toString());
+    }
+
     @Override
     public WidgetData getCurrentState() {
         IntegerBoxData data = new IntegerBoxData();
@@ -41,16 +46,12 @@ public class IntegerBoxWidget extends BaseWidget {
 
     @Override
     protected Widget asEditableWidget() {
-        TextBox textBox = new TextBox();
-        textBox.setValue(getText());
-        return textBox;
+        return new TextBox();
     }
 
     @Override
     protected Widget asNonEditableWidget() {
-        Label result = new Label();
-        result.setText(getText());
-        return result;
+        return new Label();
     }
 
     private String getText() {

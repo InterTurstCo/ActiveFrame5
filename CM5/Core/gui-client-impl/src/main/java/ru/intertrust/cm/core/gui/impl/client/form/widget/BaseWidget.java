@@ -45,23 +45,25 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget {
 
     @Override
     public Widget asWidget() {
-        if (impl != null) {
-            return impl;
-        }
-        impl = isEditable ? asEditableWidget() : asNonEditableWidget();
-        applySizeTo(impl);
         return impl;
     }
+
+    public void setState(WidgetData state) {
+        if (impl == null) {
+            impl = isEditable ? asEditableWidget() : asNonEditableWidget();
+            applySizeTo(impl);
+        }
+        setCurrentState(state);
+        this.initialData = state;
+    }
+
+    public abstract void setCurrentState(WidgetData state);
 
     /**
      * Возвращает текущее состояние виджета. Если виджет в режиме "только чтение", возвращает null
      * @return текущее состояние виджета или null, если виджет в режиме "только чтение"
      */
-    public WidgetData getState() {
-        return isEditable ? getCurrentState() : null;
-    }
-
-    protected abstract WidgetData getCurrentState();
+    public abstract WidgetData getCurrentState();
 
     protected abstract Widget asEditableWidget();
 
@@ -88,5 +90,9 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget {
             return null;
         }
         return trimmedText;
+    }
+
+    protected static void setTrimmedText(HasText widget, String text) {
+        widget.setText(text == null ? "" : text.trim());
     }
 }

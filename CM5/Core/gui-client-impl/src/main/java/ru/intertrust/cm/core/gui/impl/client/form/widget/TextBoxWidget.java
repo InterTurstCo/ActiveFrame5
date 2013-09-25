@@ -21,6 +21,10 @@ public class TextBoxWidget extends BaseWidget {
         return new TextBoxWidget();
     }
 
+    public void setCurrentState(WidgetData state) {
+        setTrimmedText((HasText) impl, ((TextBoxData) state).getText());
+    }
+
     @Override
     public WidgetData getCurrentState() {
         TextBoxData data = new TextBoxData();
@@ -30,15 +34,11 @@ public class TextBoxWidget extends BaseWidget {
 
     @Override
     protected Widget asEditableWidget() {
-        TextBox textBox = new TextBox();
-        textBox.setValue(this.<TextBoxData>getInitialData().getText());
-        return textBox;
+        return new TextBox();
     }
 
     @Override
     protected Widget asNonEditableWidget() {
-        Label result = new Label();
-        result.setText(this.<TextBoxData>getInitialData().getText());
-        return result;
+        return new Label();
     }
 }

@@ -10,6 +10,8 @@
 
     <entry-point class='ru.intertrust.cm.core.gui.impl.client.BusinessUniverse'/>
 
+    <inherits name="com.google.gwt.user.theme.chrome.Chrome"/>
+
     <source path="client"/>
     <set-property name="gwt.logging.logLevel" value="ALL"/>
     <set-property name="gwt.logging.enabled" value="TRUE"/>
