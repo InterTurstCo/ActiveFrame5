@@ -1,17 +1,21 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion.Order;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.model.FieldConfig;
+import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.model.base.CollectionConfig;
 import ru.intertrust.cm.core.config.model.base.CollectionFilterConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.model.FatalException;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Инициализирует запрос для извлечения коллекций, заполняет параметры в конфигурации фильтров, устанавливает порядок сортировки
@@ -32,6 +36,12 @@ public class CollectionQueryInitializer {
 
     public static final String DEFAULT_CRITERIA_CONDITION = "and";
 
+    private ConfigurationExplorer configurationExplorer;
+
+    public CollectionQueryInitializer(ConfigurationExplorer configurationExplorer) {
+        this.configurationExplorer = configurationExplorer;
+    }
+
     /**
      * Применение фильтров, сортировки и т.д. к прототипу запроса.
      * @param filledFilterConfigs заполненные фильтры
@@ -43,10 +53,11 @@ public class CollectionQueryInitializer {
     public String initializeQuery(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs,
             SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
         String prototypeQuery = collectionConfig.getPrototype();
-        
-        String filledQuery =  fillPrototypeQuery(collectionConfig, filledFilterConfigs, sortOrder, offset, limit, accessToken,
+
+        String filledQuery =  fillPrototypeQuery(collectionConfig, filledFilterConfigs, sortOrder, offset, limit,
+                accessToken,
                 prototypeQuery);
-        
+
         filledQuery = postProcessQuery(collectionConfig, accessToken, filledQuery);
 
         return filledQuery;
@@ -63,10 +74,36 @@ public class CollectionQueryInitializer {
     private String postProcessQuery(CollectionConfig collectionConfig, AccessToken accessToken, String query) {
         SqlQueryModifier sqlQueryModifier = new SqlQueryModifier();
         query = sqlQueryModifier.addTypeColumn(query);
+        query = processMultipleTypeReferences(collectionConfig, query, sqlQueryModifier);
 
         if (accessToken.isDeferred()) {
             query = sqlQueryModifier.addAclQuery(query, collectionConfig.getIdField());
         }
+        return query;
+    }
+
+    private String processMultipleTypeReferences(CollectionConfig collectionConfig, String query,
+                                                 SqlQueryModifier sqlQueryModifier) {
+        if (collectionConfig.getDomainObjectType() == null) {
+            return query;
+        }
+
+        DomainObjectTypeConfig doTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class,
+                collectionConfig.getDomainObjectType());
+
+        for (FieldConfig fieldConfig : doTypeConfig.getFieldConfigs()) {
+            if (!(fieldConfig instanceof ReferenceFieldConfig)) {
+                continue;
+            }
+            ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
+            if (referenceFieldConfig.getTypes().size() < 2) {
+                continue;
+            }
+
+            query = sqlQueryModifier.processMultipleTypeReference(query, referenceFieldConfig);
+
+        }
+
         return query;
     }
 
@@ -80,7 +117,7 @@ public class CollectionQueryInitializer {
         collectionQuery.append(mergeFilledFilterConfigsInPrototypeQuery(prototypeQuery, filledFilterConfigs));
 
 
-        applySortOrder(sortOrder, collectionQuery);       
+        applySortOrder(sortOrder, collectionQuery);
         applyLimitAndOffset(offset, limit, collectionQuery);
         return collectionQuery.toString();
     }
@@ -90,11 +127,11 @@ public class CollectionQueryInitializer {
      * @param filledFilterConfigs заполненные фильтры
      * @return
      */
-    public String initializeCountQuery(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs, AccessToken accessToken) {        
+    public String initializeCountQuery(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs, AccessToken accessToken) {
         String prototypeQuery = collectionConfig.getCountingPrototype();
         String filledQuery = fillPrototypeQuery(collectionConfig, filledFilterConfigs, null, 0, 0, accessToken,
                 prototypeQuery);
-        
+
         filledQuery = postProcessQuery(collectionConfig, accessToken, filledQuery);
 
         return filledQuery;
@@ -108,10 +145,10 @@ public class CollectionQueryInitializer {
     }
 
     private String mergeFilledFilterConfigsInPrototypeQuery(String prototypeQuery, List<CollectionFilterConfig> filledFilterConfigs) {
-        
+
         ReferencePlaceHolderCollector referencePlaceHolderCollector = new ReferencePlaceHolderCollector();
         CriteriaPlaceHolderCollector criteriaPlaceHolderCollector = new CriteriaPlaceHolderCollector();
-        
+
         for (CollectionFilterConfig collectionFilterConfig : filledFilterConfigs) {
             if (collectionFilterConfig.getFilterReference() != null
                     && collectionFilterConfig.getFilterReference().getPlaceholder() != null) {
@@ -127,7 +164,7 @@ public class CollectionQueryInitializer {
                 criteriaPlaceHolderCollector.addPlaceholderValue(placeholder, value);
             }
         }
-        
+
         for (String placeholder : referencePlaceHolderCollector.getPlaceholders()) {
             String placeholderValue = referencePlaceHolderCollector.getPlaceholderValue(placeholder);
             prototypeQuery = prototypeQuery.replace(PLACEHOLDER_PREFIX + placeholder, placeholderValue);
@@ -160,13 +197,13 @@ public class CollectionQueryInitializer {
                 endPlaceHolderIndex = prototypeQuery.length();
             }
             String placeHolder = prototypeQuery.substring(startPlaceHolderIndex, endPlaceHolderIndex);
-            
+
             prototypeQuery = prototypeQuery.replaceAll(placeHolder, "");
-            
+
         }
         return prototypeQuery;
     }
-    
+
     private String applySortOrder(SortOrder sortOrder, StringBuilder prototypeQuery) {
         boolean hasSortEntry = false;
         if (sortOrder != null && sortOrder.size() > 0) {
@@ -190,7 +227,7 @@ public class CollectionQueryInitializer {
             return SQL_ASCENDING_ORDER;
         }
     }
-    
+
     /**
      * Группирует фильтры после кл. слова from по названию placeholder.
      * @author atsvetkov
@@ -219,7 +256,7 @@ public class CollectionQueryInitializer {
             return placeholdersMap.keySet();
         }
     }
- 
+
     /**
      * Группирует все фильтры после слова where по названию placeholder. Т.е. для каждого placeholder составляет запрос
      * из заполненных фильтров. По умолчанию все фильтры соединяются через условие AND ({@link CollectionQueryInitializer#DEFAULT_CRITERIA_CONDITION})
@@ -231,7 +268,7 @@ public class CollectionQueryInitializer {
 
         public void addPlaceholderValue(String placeholder, String value) {
             String placeholderValue = placeholdersMap.get(placeholder);
-            
+
             if (placeholderValue != null) {
                 placeholderValue += createCriteriaValue(value);
             } else {
@@ -244,7 +281,7 @@ public class CollectionQueryInitializer {
         private String createCriteriaValue(String value) {
             String condition = DEFAULT_CRITERIA_CONDITION;
             StringBuilder criteriaValue = new StringBuilder();
-            criteriaValue.append(EMPTY_STRING).append(condition).append(EMPTY_STRING).append(value);            
+            criteriaValue.append(EMPTY_STRING).append(condition).append(EMPTY_STRING).append(value);
             return criteriaValue.toString();
         }
 
@@ -256,5 +293,5 @@ public class CollectionQueryInitializer {
             return placeholdersMap.keySet();
         }
     }
-    
+
 }

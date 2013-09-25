@@ -2,12 +2,17 @@ package ru.intertrust.cm.core.dao.impl;
 
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
+import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.*;
+import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.exception.CollectionQueryException;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
 
 import java.util.List;
+
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.generateMultipleTypeReferenceSelectColumn;
 
 /**
  * Модифицирует SQL запросы. Добавляет поле Тип Объекта идентификатора в SQL запрос получения данных для коллекции, добавляет ACL фильтр в
@@ -56,6 +61,31 @@ public class SqlQueryModifier {
         return modifiedQuery;
     }
 
+    public String processMultipleTypeReference(String query, ReferenceFieldConfig fieldConfig) {
+        String modifiedQuery = null;
+        SqlQueryParser sqlParser = new SqlQueryParser(query);
+
+        SelectBody selectBody = sqlParser.getSelectBody();
+        if (selectBody.getClass().equals(PlainSelect.class)) {
+            PlainSelect plainSelect = (PlainSelect) selectBody;
+            processMultipleTypeReferenceInPlainSelect(plainSelect, fieldConfig);
+            modifiedQuery = plainSelect.toString();
+        } else if (selectBody.getClass().equals(Union.class)) {
+            Union union = (Union) selectBody;
+            List plainSelects = union.getPlainSelects();
+
+            for (Object plainSelect : plainSelects) {
+                processMultipleTypeReferenceInPlainSelect((PlainSelect) plainSelect, fieldConfig);
+            }
+
+            modifiedQuery = union.toString();
+        } else {
+            throw new IllegalArgumentException("Unsupported type of select body: " + selectBody.getClass());
+        }
+
+        return modifiedQuery;
+    }
+
     /**
      * Добавляет ACL фильтр в SQL получения данных для коллекции.
      * @param query первоначальный запрос
@@ -94,6 +124,25 @@ public class SqlQueryModifier {
         SelectExpressionItem objectTypeSelectItem = createObjectTypeSelectItem(dominObjectType);
 
         existingSelectItems.add(objectTypeSelectItem);
+    }
+
+    private void processMultipleTypeReferenceInPlainSelect(PlainSelect plainSelect, ReferenceFieldConfig fieldConfig) {
+        List existingSelectItems = plainSelect.getSelectItems();
+
+        for (Object selectItem : existingSelectItems) {
+            SelectExpressionItem selectExpressionItem = (SelectExpressionItem) selectItem;
+            if (!(selectExpressionItem.getExpression() instanceof Column)) {
+                continue;
+            }
+
+            Column columnExpression = (Column) selectExpressionItem.getExpression();
+            String fieldSqlName = getSqlName(fieldConfig);
+            if (fieldSqlName.equalsIgnoreCase(columnExpression.getColumnName())) {
+                String tableAlias = plainSelect.getFromItem().getAlias();
+                String newColumnExpression = generateMultipleTypeReferenceSelectColumn(tableAlias, fieldConfig);
+                selectExpressionItem.setExpression(new Column(new Table(), newColumnExpression));
+            }
+        }
     }
 
     private String getDomainObjectTypeFromSelect(PlainSelect plainSelect) {

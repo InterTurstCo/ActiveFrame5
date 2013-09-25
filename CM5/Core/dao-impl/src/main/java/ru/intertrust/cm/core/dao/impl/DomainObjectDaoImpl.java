@@ -26,6 +26,7 @@ import java.util.*;
 
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlAlias;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.generateMultipleTypeReferenceSelectColumn;
 import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.generateParameter;
 
 /**
@@ -826,13 +827,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 continue;
             }
 
-            query.append(", (case");
-            for (ReferenceFieldTypeConfig typeConfig : referenceFieldConfig.getTypes()) {
-                String columnName = getSqlName(referenceFieldConfig, typeConfig);
-                query.append(" when ").append(tableAlias).append(".").append(columnName).append(" is not null then ");
-                query.append(tableAlias).append(".").append(columnName);
-            }
-            query.append(" else null) as ").append(getSqlName(fieldConfig));
+            query.append(", ").append(generateMultipleTypeReferenceSelectColumn(tableAlias, referenceFieldConfig));
         }
     }
 
