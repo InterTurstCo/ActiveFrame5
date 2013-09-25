@@ -14,7 +14,9 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Отображает {@link java.sql.ResultSet} на {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection}.
@@ -43,7 +45,9 @@ public class CollectionRowMapper extends BasicRowMapper implements
             columnModel.getColumnNames().add(fieldName);
         }
 
-        collection.setFields(columnModel.getColumnNames());
+        List<String> fieldNamesToInsert = collectColumnNamesToInsert(columnModel);
+
+        collection.setFields(fieldNamesToInsert);
 
         int row = 0;
         while (rs.next()) {
@@ -57,7 +61,7 @@ public class CollectionRowMapper extends BasicRowMapper implements
 
                 if (valueModel.getId() != null) {
                     collection.setId(row, valueModel.getId());
-                    columnIndex = index == 0 ? 0 : index -1;
+                    columnIndex = index == 0 ? 0 : index - 1;
                 }
                 if (valueModel.getValue() != null) {
                     collection.set(columnIndex, row, valueModel.getValue());
@@ -68,6 +72,28 @@ public class CollectionRowMapper extends BasicRowMapper implements
         }
 
         return collection;
+    }
+
+    /**
+     * Возвращает список названий колонок, которые будут добавлены в коллекцию. SQL запрос коллекции может содержать
+     * произвольные поля, но добавляются в коллекцию только поля, которые указаны в конфигурации представления
+     * коллекции. Причем, список не содержит колонку-идентификатор.
+     * @param columnModel модель колонок содержит список всех колонок из запроса.
+     * @return список колонок, которые будут добавлены в коллекцию.
+     */
+    private List<String> collectColumnNamesToInsert(ColumnModel columnModel) {
+        List<String> fieldNamesToInsert = new ArrayList<String>();
+        for (String columnName : columnModel.getColumnNames()) {
+            CollectionColumnConfig columnConfig =
+                    configurationExplorer.getCollectionColumnConfig(collectionName, columnName);
+            if(idField.equals(columnName)) {
+                continue;
+            }
+            if (columnConfig != null) {
+                fieldNamesToInsert.add(columnName);
+            }
+        }
+        return fieldNamesToInsert;
     }
 
     protected void fillValueModel(ResultSet rs, FieldValueModel valueModel, String columnName) throws SQLException {
