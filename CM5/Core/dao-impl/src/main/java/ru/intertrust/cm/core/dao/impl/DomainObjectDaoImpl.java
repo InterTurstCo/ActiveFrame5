@@ -328,7 +328,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             String aclReadTable = AccessControlUtility.getAclReadTableNameFor(domainObjectType);
             query.append("select distinct t.* from " + domainObjectType + " t inner join " + aclReadTable + " r " +
                     "on t.id = r.object_id inner join group_member gm on r.group_id = gm.master " +
-                    "where gm.person_id1 = :user_id and t.id in (:object_ids) ");
+                    "where gm.person_id = :user_id and t.id in (:object_ids) ");
 
             aclParameters = getAclParameters(accessToken);
 
@@ -435,7 +435,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         if (accessToken.isDeferred()) {
             String aclReadTable = AccessControlUtility.getAclReadTableName(typeName);
             query.append(" and exists (select a.object_id from " + aclReadTable + " a inner join group_member gm " +
-                    "on a.group_id = gm.master where gm.person_id1 = :user_id and a.object_id = :id)");
+                    "on a.group_id = gm.master where gm.person_id = :user_id and a.object_id = :id)");
         }
 
         return query.toString();
@@ -737,7 +737,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private void appendAccessControlLogicToQuery(StringBuilder query, String linkedType) {
         String childAclReadTable = AccessControlUtility.getAclReadTableNameFor(linkedType);
         query.append(" and exists (select r.object_id from ").append(childAclReadTable).append(" r ");
-        query.append("inner join group_member gm on r.group_id = gm.master where gm.person_id1 = :user_id and r" +
+        query.append("inner join group_member gm on r.group_id = gm.master where gm.person_id = :user_id and r" +
                 ".object_id = t.id)");
     }
 

@@ -30,13 +30,13 @@ import static org.mockito.Mockito.when;
 public class CollectionsDaoImplTest {
 
     private static final String COLLECTION_ACL_QUERY = "EXISTS (SELECT r.object_id FROM employee_READ AS r INNER JOIN" +
-            " group_member AS gm ON r.group_id = gm.master WHERE gm.person_id1 = :user_id AND r.object_id = id) ";
+            " group_member AS gm ON r.group_id = gm.master WHERE gm.person_id = :user_id AND r.object_id = id) ";
 
     private static final String COLLECTION_COUNT_WITH_FILTERS =
             "SELECT count(*), 'employee' AS TYPE_CONSTANT FROM employee AS e " +
             "INNER JOIN department AS d ON e.department = d.id WHERE EXISTS " +
             "(SELECT r.object_id FROM employee_READ AS r INNER JOIN group_member AS gm ON r.group_id = gm.master " +
-                    "WHERE gm.person_id1 = :user_id " +
+                    "WHERE gm.person_id = :user_id " +
             "AND r.object_id = id) " +
             "AND 1 = 1 AND d.name = 'dep1' AND e.name = 'employee1'";
 
