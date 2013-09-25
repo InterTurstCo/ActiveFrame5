@@ -36,7 +36,14 @@ public class FormPanel implements IsWidget {
     }
 
     public void update(Form form) {
-
+        for (BaseWidget widget : widgets) {
+            WidgetData newState = form.getWidgetData(widget.getDisplayConfig().getId());
+            WidgetData currentState = widget.getCurrentState();
+            if (!newState.equals(currentState)) {
+                widget.setState(newState);
+            }
+        }
+        this.form = form;
     }
 
     private VerticalPanel build() {

@@ -27,7 +27,9 @@ public class LabelWidget extends BaseWidget {
 
     @Override
     public WidgetData getCurrentState() {
-        return null;
+        LabelData data = new LabelData();
+        data.setLabel(getTrimmedText((HasText) impl));
+        return data;
     }
 
     @Override

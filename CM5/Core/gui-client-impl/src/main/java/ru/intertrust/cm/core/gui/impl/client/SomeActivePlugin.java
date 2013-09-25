@@ -16,8 +16,6 @@ import java.util.Map;
  */
 @ComponentName("some.active.plugin")
 public class SomeActivePlugin extends Plugin implements IsActive {
-    private Form form;
-
     @Override
     public PluginView createView() {
         SomeActivePluginData initialData = getInitialData();
@@ -27,6 +25,12 @@ public class SomeActivePlugin extends Plugin implements IsActive {
     @Override
     public SomeActivePlugin createNew() {
         return new SomeActivePlugin();
+    }
+
+    public void update(Form form) {
+        ((SomeActivePluginView) getView()).update(form);
+        SomeActivePluginData initialData = getInitialData();
+        initialData.setForm(form);
     }
 
     @Override

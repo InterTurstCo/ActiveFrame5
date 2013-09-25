@@ -46,4 +46,8 @@ public class SomeActivePluginView extends PluginView {
         }
         return result;
     }
+
+    void update(Form form) {
+        formPanel.update(form);
+    }
 }
