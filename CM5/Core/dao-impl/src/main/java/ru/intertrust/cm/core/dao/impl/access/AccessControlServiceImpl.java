@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 /**
  * Реализация службы контроля доступа.
  * <p>Объект типа AccessControlServiceImpl создаётся через Spring-контекст приложения (beans.xml).
@@ -19,6 +21,7 @@ import java.util.Set;
  */
 public class AccessControlServiceImpl implements AccessControlService {
 
+    @Autowired
     private DatabaseAccessAgent databaseAgent;
 
     /**
