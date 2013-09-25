@@ -309,6 +309,21 @@ public class PostgreSqlQueryHelper {
         appendFKConstraint(query, tableName, MASTER_COLUMN, parentConfig.getName());
     }
 
+    public static String generateMultipleTypeReferenceSelectColumn(String tableAlias, ReferenceFieldConfig
+                                                                      fieldConfig) {
+        StringBuffer query = new StringBuffer("(case");
+
+        for (ReferenceFieldTypeConfig typeConfig : fieldConfig.getTypes()) {
+            String columnName = getSqlName(fieldConfig, typeConfig);
+            query.append(" when ").append(tableAlias).append(".").append(columnName).append(" is not null then ");
+            query.append(tableAlias).append(".").append(columnName);
+        }
+
+        query.append(" else null end) as ").append(getSqlName(fieldConfig));
+
+        return query.toString();
+    }
+
     private static void appendFKConstraint(StringBuilder query, String tableName, String columnName,
                                            String referencedFieldName) {
         String constraintName = "FK_" + tableName + "_" + columnName;

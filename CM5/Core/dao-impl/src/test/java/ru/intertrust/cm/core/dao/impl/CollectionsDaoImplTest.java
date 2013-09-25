@@ -8,10 +8,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
-import ru.intertrust.cm.core.config.model.base.CollectionConfig;
-import ru.intertrust.cm.core.config.model.base.CollectionFilterConfig;
-import ru.intertrust.cm.core.config.model.base.CollectionFilterCriteriaConfig;
-import ru.intertrust.cm.core.config.model.base.CollectionFilterReferenceConfig;
+import ru.intertrust.cm.core.config.model.*;
+import ru.intertrust.cm.core.config.model.base.*;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 
@@ -52,6 +50,13 @@ public class CollectionsDaoImplTest {
             COLLECTION_ACL_QUERY +
             "AND 1 = 1 AND d.name = 'dep1' ORDER BY e.name";
 
+    private static final String FIND_COLLECTION_QUERY_WITH_MULTIPLE_TYPE_REFERENCE =
+            "SELECT p.id, p.login, p.password, (CASE WHEN p.BOSS1 IS NOT NULL THEN p.BOSS1 WHEN p.BOSS2 IS NOT NULL " +
+                    "THEN p.BOSS2 ELSE NULL END) AS BOSS, p.created_date, p.updated_date, 'person' AS TYPE_CONSTANT " +
+                    "FROM person AS p WHERE EXISTS (SELECT r.object_id FROM person_READ AS r " +
+                    "INNER JOIN group_member AS gm ON r.group_id = gm.master WHERE gm.person_id = :user_id AND " +
+                    "r.object_id = id) AND 1 = 1";
+
     private static final String FIND_COMPLEX_COLLECTION_QUERY_WITH_FILTERS =
             "SELECT e.id, e.name, e.position, e.created_date, e.updated_date, 'employee' AS TYPE_CONSTANT FROM employee AS e " +
             "INNER JOIN department AS d ON e.department = d.id " +
@@ -88,13 +93,23 @@ public class CollectionsDaoImplTest {
             "                where\n" +
             "                    1=1 ::where-clause1 ::where-clause2";
 
+    private static final String PERSONS_PROROTYPE = "select\n" +
+            "                    p.id, p.login, p.password, p.boss, p.created_date, p.updated_date\n" +
+            "                from\n" +
+            "                    person p\n" +
+            "                     ::from-clause\n" +
+            "                where\n" +
+            "                    1=1 ::where-clause";
+
+    private static final String PERSONS_COUNTING_PROTOTYPE = "select count(*) from person p ::from-clause WHERE " +
+            "1=1 ::where-clause";
+
     @InjectMocks
     private final CollectionsDaoImpl collectionsDaoImpl = new CollectionsDaoImpl();
 
     @Mock
     private JdbcTemplate jdbcTemplate;
 
-    @Mock
     private ConfigurationExplorerImpl configurationExplorer;
 
     private CollectionFilterConfig byDepartmentFilterConfig;
@@ -105,6 +120,7 @@ public class CollectionsDaoImplTest {
 
     private CollectionConfig collectionConfig;
     private CollectionConfig complexCollectionConfig;
+    private CollectionConfig personsCollectionConfig;
 
     private SortOrder sortOrder;
 
@@ -121,6 +137,57 @@ public class CollectionsDaoImplTest {
 
         collectionConfig = createEmployeesCollectionConfig();
         complexCollectionConfig = createEmployeesComplexCollectionConfig();
+        personsCollectionConfig = createPersonsCollectionConfig();
+
+        initConfigurationExplorer();
+    }
+
+    private void initConfigurationExplorer() {
+        DomainObjectTypeConfig doTypeConfig = new DomainObjectTypeConfig();
+        doTypeConfig.setName("Person");
+        StringFieldConfig email = new StringFieldConfig();
+        email.setName("EMail");
+        email.setLength(128);
+        doTypeConfig.getFieldConfigs().add(email);
+
+        StringFieldConfig login = new StringFieldConfig();
+        login.setName("Login");
+        login.setLength(64);
+        login.setNotNull(true);
+        doTypeConfig.getFieldConfigs().add(login);
+
+        StringFieldConfig password = new StringFieldConfig();
+        password.setName("Password");
+        password.setLength(128);
+        doTypeConfig.getFieldConfigs().add(password);
+
+        ReferenceFieldConfig boss = new ReferenceFieldConfig();
+        boss.setName("Boss");
+        boss.getTypes().add(new ReferenceFieldTypeConfig("Internal_Employee"));
+        boss.getTypes().add(new ReferenceFieldTypeConfig("External_Employee"));
+        doTypeConfig.getFieldConfigs().add(boss);
+
+
+        UniqueKeyConfig uniqueKeyConfig = new UniqueKeyConfig();
+        doTypeConfig.getUniqueKeyConfigs().add(uniqueKeyConfig);
+
+        UniqueKeyFieldConfig uniqueKeyFieldConfig1 = new UniqueKeyFieldConfig();
+        uniqueKeyFieldConfig1.setName("EMail");
+        uniqueKeyConfig.getUniqueKeyFieldConfigs().add(uniqueKeyFieldConfig1);
+
+        DomainObjectTypeConfig internalEmployee = new DomainObjectTypeConfig();
+        internalEmployee.setName("Internal_Employee");
+
+        DomainObjectTypeConfig externalEmployee = new DomainObjectTypeConfig();
+        externalEmployee.setName("External_Employee");
+
+        Configuration configuration = new Configuration();
+        configuration.getConfigurationList().add(doTypeConfig);
+        configuration.getConfigurationList().add(internalEmployee);
+        configuration.getConfigurationList().add(externalEmployee);
+
+        configurationExplorer = new ConfigurationExplorerImpl(configuration);
+        collectionsDaoImpl.setConfigurationExplorer(configurationExplorer);
     }
 
     private AccessToken createMockAccessToken() {
@@ -143,6 +210,17 @@ public class CollectionsDaoImplTest {
         String actualQuery = collectionsDaoImpl.getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, 0, 0, accessToken);
         String refinedActualQuery = refineQuery(actualQuery);
         assertEquals(FIND_COLLECTION_QUERY_WITH_FILTERS, refinedActualQuery);
+    }
+
+    @Test
+    public void testFindCollectionWithMultipleReferenceTypes() throws Exception {
+        List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<>();
+
+        AccessToken accessToken = createMockAccessToken();
+        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(personsCollectionConfig, filledFilterConfigs,
+                new SortOrder(), 0, 0, accessToken);
+        String refinedActualQuery = refineQuery(actualQuery);
+        assertEquals(FIND_COLLECTION_QUERY_WITH_MULTIPLE_TYPE_REFERENCE, refinedActualQuery);
     }
 
     @Test
@@ -306,6 +384,17 @@ public class CollectionsDaoImplTest {
         result.setCountingPrototype(EMPLOYEES_COUNTING_PROTOTYPE);
         result.getFilters().add(byDepartmentFilterConfig);
         result.setIdField("id");
+        return result;
+    }
+
+    private CollectionConfig createPersonsCollectionConfig() {
+        CollectionConfig result = new CollectionConfig();
+        result.setName("Persons");
+        result.setDomainObjectType("Person");
+        result.setPrototype(PERSONS_PROROTYPE);
+        result.setCountingPrototype(PERSONS_COUNTING_PROTOTYPE);
+        result.setIdField("id");
+
         return result;
     }
 }

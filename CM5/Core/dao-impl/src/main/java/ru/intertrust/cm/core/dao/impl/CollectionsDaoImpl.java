@@ -145,7 +145,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
     protected String getFindCollectionQuery(CollectionConfig collectionConfig,
                                             List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder,
                                             int offset, int limit, AccessToken accessToken) {
-        CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer();
+        CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer(configurationExplorer);
 
         String collectionQuery = collectionQueryInitializer.initializeQuery(collectionConfig, filledFilterConfigs,
                         sortOrder, offset, limit, accessToken);
@@ -162,7 +162,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
      */
     protected String getFindCollectionCountQuery(CollectionConfig collectionConfig,
             List<CollectionFilterConfig> filledFilterConfigs, AccessToken accessToken) {
-        CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer();
+        CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer(configurationExplorer);
 
         String collectionQuery =
                 collectionQueryInitializer.initializeCountQuery(collectionConfig, filledFilterConfigs, accessToken);
