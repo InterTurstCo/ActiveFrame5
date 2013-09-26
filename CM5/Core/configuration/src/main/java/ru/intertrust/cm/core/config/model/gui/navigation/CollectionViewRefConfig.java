@@ -31,7 +31,7 @@ public class CollectionViewRefConfig implements Dto {
             return false;
         }
 
-        CollectionRefConfig that = (CollectionRefConfig) o;
+        CollectionViewRefConfig that = (CollectionViewRefConfig) o;
 
         if (name != null ? !name.equals(that.getName()) : that.getName() != null) {
             return false;
