@@ -2151,91 +2151,6 @@ button.ui-datepicker-trigger,button.ui-datepicker-trigger:hover {
 	border-bottom: 1px dotted;
 }
 
-.triangle-close {
-	
-}
-
-.triangle-close:AFTER {
-	content: "▲";
-}
-
-.triangle-open {
-	
-}
-
-.triangle-open:AFTER {
-	content: "▼";
-}
-
-/*
-	Buttons and components
-*/
-.discussant-button-up,.discussant-button-up-hovering {
-	background: #ffffff; /* Old browsers */
-	background: -moz-linear-gradient(top, #ffffff 0%, #e3e4e6 100%);
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ffffff),
-		color-stop(100%, #e3e4e6) ); /* Chrome,Safari4+ */
-	background: -webkit-linear-gradient(top, #ffffff 0%, #e3e4e6 100%);
-	/* Chrome10+,Safari5.1+ */
-	background: -o-linear-gradient(top, #ffffff 0%, #e3e4e6 100%);
-	/* Opera11.10+ */
-	background: -ms-linear-gradient(top, #ffffff 0%, #e3e4e6 100%);
-	/* IE10+ */
-	filter: progid:DXImageTransform.Microsoft.gradient(    startColorstr='#ffffff',
-		endColorstr='#e3e4e6', GradientType=0 ); /* IE6-9 */
-	background: linear-gradient(top, #ffffff 0%, #e3e4e6 100%); /* W3C */
-	font-family: Arial, sans-serif;
-	font-size: 12px;
-	font-weight: bold;
-	box-shadow: 0 2px 2px #999;
-	text-shadow: none;
-	padding: 6px 10px;
-	border-width: 1px;
-	border-radius: 10px;
-	-webkit-border-radius: 10px;
-	-moz-border-radius: 10px;
-	color: #297ED4;
-	cursor: pointer;
-	position: absolute;
-	top: 5px;
-	right: 15px;
-}
-
-.discussant-button-down,.discussant-button-down-hovering {
-	background: #54b5df; /* Old browsers */
-	background: -moz-linear-gradient(top, #54b5df 0%, #135ea1 50%, #3177b2 51%, #353f86
-		100%); /* FF3.6+ */
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #54b5df),
-		color-stop(50%, #135ea1), color-stop(51%, #3177b2),
-		color-stop(100%, #353f86) ); /* Chrome,Safari4+ */
-	background: -webkit-linear-gradient(top, #54b5df 0%, #135ea1 50%, #3177b2 51%,
-		#353f86 100%); /* Chrome10+,Safari5.1+ */
-	background: -o-linear-gradient(top, #54b5df 0%, #135ea1 50%, #3177b2 51%, #353f86
-		100%); /* Opera11.10+ */
-	background: -ms-linear-gradient(top, #54b5df 0%, #135ea1 50%, #3177b2 51%, #353f86
-		100%); /* IE10+ */
-	filter: progid:DXImageTransform.Microsoft.gradient(   startColorstr='#54b5df',
-		endColorstr='#353f86', GradientType=0 ); /* IE6-9 */
-	background: linear-gradient(top, #54b5df 0%, #135ea1 50%, #3177b2 51%, #353f86 100%);
-	/* W3C */
-	font-family: Arial, sans-serif;
-	font-size: 12px;
-	font-weight: bold;
-	box-shadow: 0px 2px 2px 2px rgb(79, 164, 213) inset;
-	-moz-box-shadow: 0px 2px 2px 2px rgb(79, 164, 213) inset;
-	-webkit-box-shadow: 0px 2px 2px 2px rgb(79, 164, 213) inset;
-	padding: 6px 10px;
-	border-width: 1px;
-	border-radius: 10px;
-	-webkit-border-radius: 10px;
-	-moz-border-radius: 10px;
-	color: #FFFFFF;
-	cursor: pointer;
-	position: absolute;
-	top: 5px;
-	right: 15px;
-}
-
 /* related add button*/
 .related-button-up,.related-button-up-hovering {
 	background: #ffffff; /* Old browsers */
@@ -7662,6 +7577,7 @@ td.Im_button_col {
 	font-weight: bold;
 	margin-left: 5px;
 	float: right;
+	white-space: nowrap;
 }
 
 .pseudo-deadline {
@@ -8248,7 +8164,7 @@ ul.editableList li .addContainer .addValue {
 	padding-left: 8px;
 }
 
-/* objectsurfer-cm4.css */
+/* grid-cm4.css */
 .loading-div {
 	background-image: url("images/bar.gif");
 	background-repeat: no-repeat;
@@ -8994,6 +8910,10 @@ body {
 	background-image: url("icons/ico-edit.gif");
 }
 
+.icon-help {
+	background-image: url("icons/icon-help.png");
+}
+
 .icon-create {
 	background-image: url("icons/icon-create.png");
 }
@@ -9073,6 +8993,10 @@ body {
 
 .icon-find {
 	background-image: url("i/loupe.png");
+}
+
+.icon-locker {
+	background-image: url("icons/icon_locker.png");
 }
 
 .icon.back {

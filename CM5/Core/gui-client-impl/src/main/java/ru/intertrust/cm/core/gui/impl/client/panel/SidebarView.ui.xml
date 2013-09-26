@@ -1,0 +1,27 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui">
+	<g:HTMLPanel ui:field="hpan">
+		<g:LayoutPanel ui:field="sidebarPanel">
+			<g:layer>
+				<g:HTMLPanel>
+					<div class="gradient"></div>
+					<g:ScrollPanel ui:field="scrollPanel">
+						<g:HTMLPanel ui:field="tasksWrap">
+							<ul id="tasks">
+								<g:VerticalPanel ui:field="menuItems"></g:VerticalPanel>
+							</ul>
+						</g:HTMLPanel>
+					</g:ScrollPanel>
+					<g:HTMLPanel ui:field="arrsPanel">
+						<span class="arr top disabled" ui:field="arrTop"></span>
+						<span class="arr bottom" ui:field="arrBottom"></span>
+					</g:HTMLPanel>
+					<g:HTMLPanel ui:field="stickerPanel">
+<!-- 						<g:FlowPanel ui:field="labelStickers"></g:FlowPanel> -->
+					</g:HTMLPanel>
+				</g:HTMLPanel>
+			</g:layer>
+		</g:LayoutPanel>
+	</g:HTMLPanel>
+</ui:UiBinder>

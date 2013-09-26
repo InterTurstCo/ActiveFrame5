@@ -16,12 +16,12 @@
         <!--todo поддержка конвертации значений, например, в картинки -->
         <display>
             <column field="id" name="id" type="integer" hidden="true" sortable="false" />
-            <column field="business_object_type" name="type" type="string" editable="false" hidden="true"
-                sortable="false" /> <!--todo - rethink? -->
+          <!--  <column field="business_object_type" name="type" type="string" editable="false" hidden="true"
+                sortable="false" /> todo - rethink?-->
             <column field="name" name="Имя" editable="false" type="string" sortable="true" />
             <column field="position" name="Должность" type="string" editable="false" sortable="true" />
-            <column field="created_date" name="Дата создания" type="datetime" editable="false" sortable="true" />
-            <column field="updated_date" name="Дата модификации" type="datetime" editable="false" sortable="true" />
+          <!--  <column field="created_date" name="Дата создания" type="datetime" editable="false" sortable="true" />
+            <column field="updated_date" name="Дата модификации" type="datetime" editable="false" sortable="true" />-->
         </display>
     </collection-view>
 

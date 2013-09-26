@@ -35,9 +35,9 @@
                         </link>
                     </child-links>
                 </link>
-                <link name="Cities" display-text="Города">
+                <link name="Countries" display-text="Страны">
                     <plugin> <!---->
-                        <custom name="Beautiful City Viewer">
+                        <!--<custom name="Beautiful City Viewer">
                             <attribute name="display-pics" value="true"/>
                             <attribute name="search-provider" value="google"/>
                             <attribute name="sort-order">
@@ -52,7 +52,13 @@
                                     </attribute>
                                 </attribute>
                             </attribute>
-                        </custom>
+                        </custom>-->
+                        <domain-object-surfer>
+                            <collection-viewer>
+                                <collection-ref name="Countries" use-default="true"/>
+                                <sort-criterion field="name"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
                     </plugin>
                     <decorations>
                         <collection-counter collection="Cities"/>

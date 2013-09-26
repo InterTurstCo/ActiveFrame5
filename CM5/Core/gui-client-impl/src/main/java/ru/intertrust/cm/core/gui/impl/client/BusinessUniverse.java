@@ -3,18 +3,20 @@ package ru.intertrust.cm.core.gui.impl.client;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
-import ru.intertrust.cm.core.config.model.gui.navigation.CollectionRefConfig;
-import ru.intertrust.cm.core.config.model.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.panel.HeaderContainer;
+import ru.intertrust.cm.core.gui.impl.client.panel.SplitterTable;
 import ru.intertrust.cm.core.gui.impl.client.plugins.navigation.RootLinkSelectedEvent;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -35,37 +37,48 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
 
     private EventBus eventBus = GWT.create(SimpleEventBus.class);
 
+    FlowPanel rootPanel = new FlowPanel();
+    HorizontalPanel toolPanel = new HorizontalPanel();
+    HorizontalPanel bodyPanel = new HorizontalPanel();
+
+    HeaderContainer header = new HeaderContainer();
+    FlowPanel contentAction = new FlowPanel();
+    SplitLayoutPanel splitterNew = new SplitLayoutPanel(8);
+    FlowPanel headerPanel = new FlowPanel();
+
     public void onModuleLoad() {
         AsyncCallback<BusinessUniverseInitialization> callback = new AsyncCallback<BusinessUniverseInitialization>() {
             @Override
             public void onSuccess(BusinessUniverseInitialization result) {
-                mainLayoutPanel = new DockLayoutPanel(Style.Unit.EM);
+                SplitterTable spp = new SplitterTable(headerPanel);
+                spp.init();
 
-                Plugin searchPlugin = ComponentRegistry.instance.get("search.plugin");
-                PluginPanel searchPluginPanel = new PluginPanel(BusinessUniverse.this.eventBus);
-                searchPluginPanel.open(searchPlugin);
-                VerticalPanel headerPanel = prepareHeaderPanel(searchPluginPanel);
-                mainLayoutPanel.addNorth(headerPanel, 20);
+                splitterNew.addNorth(spp.getRoot(), 500);
+                splitterNew.add(new HTMLPanel("all"));
+                contentAction.add(splitterNew);
 
+                rootPanel.add(header.createHeader());
+                rootPanel.add(toolPanel);
+
+                PluginPanel navigationTreePanel = new PluginPanel(eventBus);
                 Plugin navigationTreePlugin = ComponentRegistry.instance.get("navigation.tree");
                 Plugin domainObjectSurferPlugin = ComponentRegistry.instance.get("domain.object.surfer.plugin");
-
-                Plugin collectionPlugin = ComponentRegistry.instance.get("collection.plugin");
-
-
-                addNavigationTree(mainLayoutPanel, navigationTreePlugin, domainObjectSurferPlugin);
-
                 PluginPanel domainObjectSurferPanel = new PluginPanel(eventBus);
                 domainObjectSurferPanel.open(domainObjectSurferPlugin);
+
                 domainObjectSurferPlugin.registerEventHandlingFromExternalSource(NavigationTreeItemSelectedEvent.TYPE,
                         navigationTreePlugin, domainObjectSurferPlugin);
-                mainLayoutPanel.addNorth(domainObjectSurferPanel,5);
+                navigationTreePanel.open(navigationTreePlugin);
 
-                addFormPanel(mainLayoutPanel);
+                navigationTreePlugin.registerEventHandlingFromExternalSource(RootLinkSelectedEvent.TYPE, navigationTreePlugin, navigationTreePlugin);
+                bodyPanel.add(navigationTreePanel);
+                bodyPanel.add(domainObjectSurferPanel);
+                rootPanel.add(bodyPanel);
 
-                addStickerPanel(mainLayoutPanel);
-                addCollection(mainLayoutPanel, collectionPlugin,  domainObjectSurferPlugin);
-                RootLayoutPanel.get().add(mainLayoutPanel);
+               // bodyPanel.add(contentAction);
+
+                RootPanel.get().add(rootPanel);
+                show();
             }
 
             @Override
@@ -76,13 +89,43 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
         BusinessUniverseServiceAsync.Impl.getInstance().getBusinessUniverseInitialization(callback);
     }
 
+    private void drawSplitter() {
+        int width = Window.getClientWidth() - 360;
+        int heigt = Window.getClientHeight() - 130;
+        splitterNew.setSize(width + "px", heigt + "px");
+        contentAction.setSize(width + "px", heigt + "px");
+        headerPanel.setWidth(width + "px");
+    }
+
+    public void splitterPanelResize() {
+
+        Window.addResizeHandler(new ResizeHandler() {
+            @Override
+            public void onResize(ResizeEvent event) {
+                drawSplitter();
+            }
+        });
+
+    }
+
+
+    private void show() {
+        toolPanel.setStyleName("content-tools");
+        toolPanel.setWidth("100%");
+        rootPanel.setStyleName("content");
+        rootPanel.setSize("100%", "100%");
+        contentAction.setStyleName("centerTopBottomDividerRoot");
+        splitterPanelResize();
+        drawSplitter();
+    }
+
     private void addStickerPanel(DockLayoutPanel mainLayoutPanel) {
 
         PluginPanel stickerPluginPanel = new PluginPanel(eventBus);
         Plugin stickerPlugin = ComponentRegistry.instance.get("sticker.plugin");
         stickerPluginPanel.open(stickerPlugin);
 
-        mainLayoutPanel.addEast(stickerPluginPanel, 5);
+        mainLayoutPanel.addEast(stickerPluginPanel, 20);
     }
 
     private void prepareActionPanel(VerticalPanel grid) {
@@ -180,15 +223,11 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
         navigationTreePlugin.registerEventHandlingFromExternalSource(RootLinkSelectedEvent.TYPE, navigationTreePlugin, navigationTreePlugin);
         dockLayoutPanel.addWest(navigationTreePanel, 15);
     }
+
     private void addCollection(DockLayoutPanel dockLayoutPanel, final Plugin collectionPlugin, final Plugin domainObjectSurfer) {
         PluginPanel collectionPanel = new PluginPanel(eventBus);
-        CollectionViewerConfig config = new CollectionViewerConfig();
-        CollectionRefConfig collectionRefConfig = new CollectionRefConfig();
-        collectionRefConfig.setName("Countries");
-        config.setCollectionRefConfig(collectionRefConfig);
-        collectionPlugin.setConfig(config);
-        collectionPanel.open(collectionPlugin);
-      dockLayoutPanel.addSouth(collectionPanel, 15);
+        //collectionPanel.open(collectionPlugin);
+       dockLayoutPanel.addSouth(collectionPanel, 15);
     }
 
     @Override

@@ -4,5 +4,5 @@
     <inherits name="com.google.gwt.user.User" />
     <source path="client" />
     <source path="entity"/>
-  <!--  <entry-point class="ru.intertrust.cm.core.gui.impl.markup.cmj41.navigation.client.TreeTest" />  -->
+  <!--  <entry-point class="ru.intertrust.cm.core.gui.impl.markup.cmj41.navigation.ru.intertrust.cm.core.gui.impl.client.panel.NavigationTreeonTree" />  -->
 </module>

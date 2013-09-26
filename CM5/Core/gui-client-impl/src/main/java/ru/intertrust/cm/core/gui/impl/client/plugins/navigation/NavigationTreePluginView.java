@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.navigation;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
@@ -9,6 +10,9 @@ import ru.intertrust.cm.core.config.model.gui.navigation.*;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.panel.RootNodeButton;
+import ru.intertrust.cm.core.gui.impl.client.panel.SidebarView;
+import ru.intertrust.cm.core.gui.impl.client.panel.SystemTreeStyles;
 import ru.intertrust.cm.core.gui.model.plugin.NavigationTreePluginData;
 
 import java.util.ArrayList;
@@ -25,8 +29,25 @@ public class NavigationTreePluginView extends PluginView {
         super(plugin);
     }
 
+    TreeItem currentActiveItem;
+
+    interface MyTreeImages extends TreeImages {
+        @Resource("treeOpen.png")
+        AbstractImagePrototype treeOpen();
+
+        @Resource("treeClosed.png")
+        AbstractImagePrototype treeClosed();
+    }
+
     @Override
     protected IsWidget getViewWidget() {
+        HorizontalPanel navigationTreeContainer = new HorizontalPanel();
+        SidebarView sideBarView = new SidebarView();
+        navigationTreeContainer.getElement().getStyle().setColor("white");
+        SystemTreeStyles.I.styles().ensureInjected();
+
+        TreeImages images = GWT.create(MyTreeImages.class);
+
         VerticalPanel rootLinksPanel = new VerticalPanel();
         addStylesToChapterMenu(rootLinksPanel);
 
@@ -36,7 +57,8 @@ public class NavigationTreePluginView extends PluginView {
         List<LinkConfig> linkConfigList = navigationConfig.getLinkConfigList();
 
         String selectedRootLinkName = navigationTreePluginData.getRootLinkSelectedName();
-        buildRootLinks(rootLinksPanel, linkConfigList, selectedRootLinkName);
+        buildRootLinks(rootLinksPanel, linkConfigList, selectedRootLinkName, sideBarView);
+        navigationTreeContainer.add(sideBarView);
         HorizontalPanel navigationTreePanel = new HorizontalPanel();
 
         navigationTreePanel.add(rootLinksPanel);
@@ -52,6 +74,7 @@ public class NavigationTreePluginView extends PluginView {
         List<LinkConfig> firstLevelChildLinks = firstLevelChildrenContainer.getLinkConfigList();
 
         String childToOpen = navigationTreePluginData.getChildToOpen();
+        VerticalPanel navigationTrees = new VerticalPanel();
         for (LinkConfig firstLevelChildLink : firstLevelChildLinks) {
 
             List<TreeItem> defaultSelections = new ArrayList<TreeItem>();
@@ -61,6 +84,8 @@ public class NavigationTreePluginView extends PluginView {
             buildSubNodes(firstLevelTreeItem, firstLevelChildLink, childToOpen, defaultSelections);
 
             Tree firstLevelTree = new Tree();
+            firstLevelTree.setAnimationEnabled(true);
+            firstLevelTree.setStyleName("folder-list");
 
             addSelectionEventToTree(firstLevelTree);
 
@@ -69,11 +94,11 @@ public class NavigationTreePluginView extends PluginView {
                 firstLevelTree.setSelectedItem(defaultSelection, true);
             }
             firstLevelTree.addItem(firstLevelTreeItem);
-            treeContainer.add(firstLevelTree);
+            navigationTrees.add(firstLevelTree);
         }
+        navigationTreeContainer.add(navigationTrees);
+        return navigationTreeContainer;
 
-        navigationTreePanel.add(treeContainer);
-        return navigationTreePanel;
     }
 
     private void processChildsToOpen(String childToOpen, List<TreeItem> defaultSelections, TreeItem firstLevelTreeItem) {
@@ -84,10 +109,16 @@ public class NavigationTreePluginView extends PluginView {
         }
     }
 
-    private void addSelectionEventToTree(Tree firstLevelTree) {
-        firstLevelTree.addSelectionHandler(new SelectionHandler<TreeItem>() {
+    private void addSelectionEventToTree(Tree tree) {
+        tree.addSelectionHandler(new SelectionHandler<TreeItem>() {
             @Override
             public void onSelection(SelectionEvent<TreeItem> event) {
+                if (currentActiveItem != null && currentActiveItem != event.getSelectedItem()) {
+                    currentActiveItem.removeStyleName("synchronized");
+                    currentActiveItem.setStyleName("tree-cell");
+                }
+                currentActiveItem = event.getSelectedItem();
+                event.getSelectedItem().setStyleName("synchronized");
                 log.info("tree selected, selected item = " + event.getSelectedItem().getUserObject().toString());
                 Map<String, Object> treeItemUserObject = (Map<String, Object>) event.getSelectedItem().getUserObject();
                 plugin.getEventBus().fireEventFromSource(
@@ -109,29 +140,28 @@ public class NavigationTreePluginView extends PluginView {
     }
 
     private void buildRootLinks(VerticalPanel rootLinksPanel, List<LinkConfig> linkConfigList,
-                                final String selectedRootLinkName) {
+                                final String selectedRootLinkName, SidebarView sideBarView) {
+
         for (LinkConfig linkConfig : linkConfigList) {
-            Image rootLinkImage = decorateRootLinkImage(new Image(linkConfig.getImage()));
-            rootLinkImage.setTitle(linkConfig.getName());
+
+            RootNodeButton my = new RootNodeButton(linkConfig.getDisplayText());
+            sideBarView.sidebarItem("images/inbox.png", linkConfig.getDisplayText(), linkConfig.getName(), 3587L, my);
+            sideBarView.getMenuItems().add(my);
 
             if (linkConfig.getName().equals(selectedRootLinkName)) {
-                // add selected style to image
+                my.setStyleName("selected");
             }
-            rootLinkImage.addClickHandler(new ClickHandler() {
+            my.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-
-                    Image source = (Image) event.getSource();
+                    RootNodeButton source = (RootNodeButton) event.getSource();
                     log.info("root link selected " + source.getTitle());
                     //higlight selection
-
                     highlightSelection(source);
-
                     //fire reload plugin event
                     plugin.getEventBus().fireEventFromSource(new RootLinkSelectedEvent(source.getTitle()), plugin);
                 }
             });
-            rootLinksPanel.add(rootLinkImage);
         }
     }
 
@@ -150,7 +180,7 @@ public class NavigationTreePluginView extends PluginView {
     }
 
 
-    private void highlightSelection(Image source) {
+    private void highlightSelection(RootNodeButton source) {
         //To change body of created methods use File | Settings | File Templates.
     }
 
@@ -179,5 +209,22 @@ public class NavigationTreePluginView extends PluginView {
         element.getElement().getStyle().setProperty("borderWidth", "1");
         element.getElement().getStyle().setProperty("borderColor", "BLACK");
         return element;
+    }
+
+    public String selected(String text, int counter) {
+        return "<div class='fl-selected'>" + text
+                + "<div class='fl-arrow-left'></div><div class='fl-arrow-right'></div>" + counter(counter) + "</div>";
+    }
+
+    public String textWrap(String text, int counter) {
+        return "<span>" + text + "</span>" + counter(counter);
+    }
+
+    public String counter(int num) {
+        if (num > 0) {
+            return "<div class='fl-counter'>" + num + "</div>";
+        } else {
+            return "";
+        }
     }
 }

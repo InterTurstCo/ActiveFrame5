@@ -137,7 +137,7 @@ public class CollectionPluginView extends PluginView {
         cellViewPanel.add(tableBody);
         cellViewPanel.setWidth("100%");
         horizontalPanel.setHeight("100%");
-        root.setHeight("500px");
+        //root.setHeight("500px");
 
     }
 

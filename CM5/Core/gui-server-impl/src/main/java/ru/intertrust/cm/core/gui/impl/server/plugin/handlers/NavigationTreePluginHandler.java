@@ -46,6 +46,7 @@ public class NavigationTreePluginHandler extends PluginHandler {
         out.setChildToOpen(childToOpen);
         out.setNavigationConfig(navigationConfig);
         out.setRootLinkConfig(rootLinkConfig);
+        out.setRootLinkSelectedName(inputParams.getRootLinkSelectedName());
         return out;
     }
 
