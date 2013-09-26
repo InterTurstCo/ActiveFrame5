@@ -39,12 +39,15 @@
 
     <domain-object-type name="Person">
         <fields>
+            <string name="Login" length="128" />
+            <string name="FirstName" length="128" />
+            <string name="LastName" length="128" />
             <string name="EMail" length="128" />
             <string name="Status" length="64" />
-            <reference name="Login" not-null="true">
-                <type name="Authentication_Info"/>
-            </reference>
         </fields>
+       <uniqueKey> <!-- This key means automatic key + index creation-->
+            <field name="Login"/>
+       </uniqueKey>
        <uniqueKey> <!-- This key means automatic key + index creation-->
             <field name="EMail"/>
        </uniqueKey>
@@ -132,4 +135,62 @@
             <string name="role_name" length="64" not-null="true" />
         </fields>
     </domain-object-type>
+    
+    <domain-object-type name="Person_Task">
+        <fields>
+            <string name="TaskId" length="32" />
+            <string name="ActivityId" length="32" />
+            <string name="Name" length="512" />
+            <string name="Description" length="1024" />
+            <long name="Priority"/>
+            <string name="MainAttachment" length="512"/>
+            <long name="State"/>
+            <string name="Actions" length="512"/>
+            <string name="Result" length="512"/>
+        </fields>
+        <uniqueKey>
+            <field name="TaskId"/>
+        </uniqueKey>        
+    </domain-object-type>
+
+    <domain-object-type name="Task_Attachment">
+        <fields>
+            <reference name="PersonTask">
+                <type name="Person_Task"/>
+            </reference>
+            <string name="AttachmentId" length="512" />            
+        </fields>        
+    </domain-object-type>
+
+    <domain-object-type name="Assignee_Person">
+        <fields>
+            <reference name="PersonTask">
+                <type name="Person_Task"/>
+            </reference>
+            <reference name="Person">
+                <type name="Person"/>
+            </reference>            
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="Assignee_Group">
+        <fields>
+            <reference name="PersonTask">
+                <type name="Person_Task"/>
+            </reference>
+            <reference name="UserGroup">
+                <type name="User_Group"/>
+            </reference>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="test_process_attachment">
+        <fields>
+        	<string name="test_text" length="512"/>
+			<dateTime name="test_date"/>
+			<long name="test_long"/>
+			<decimal name="test_decimal" precision="10" scale="2"/>
+        </fields>
+    </domain-object-type>
+        
 </configuration>

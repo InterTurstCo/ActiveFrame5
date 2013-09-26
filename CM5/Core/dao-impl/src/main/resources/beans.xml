@@ -62,4 +62,5 @@
 
     <bean id="domainObjectCacheService" class="ru.intertrust.cm.core.dao.impl.DomainObjectCacheServiceImpl"/>
 
+    <bean id="personManagement" class="ru.intertrust.cm.core.dao.impl.PersonManagementServiceImpl"/>
 </beans>
