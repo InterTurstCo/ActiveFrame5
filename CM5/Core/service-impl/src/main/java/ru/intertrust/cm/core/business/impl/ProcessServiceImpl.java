@@ -169,8 +169,8 @@ public class ProcessServiceImpl implements ProcessService {
 		Id personId = personManagerService.getPersonId(personLogin);
 		// Костыль, нужно избавлятся от использования идентификатора как int или
 		// long
-		int personIdAsint = Integer.parseInt(personId.toStringRepresentation()
-				.substring(personId.toStringRepresentation().indexOf('|') + 1));
+		/*int personIdAsint = Integer.parseInt(personId.toStringRepresentation()
+				.substring(personId.toStringRepresentation().indexOf('|') + 1));*/
 		// поиск задач отправленных пользователю, или любой группе в которую
 		// входит пользователь
 
@@ -217,8 +217,8 @@ public class ProcessServiceImpl implements ProcessService {
 		Id personId = personManagerService.getPersonId(personLogin);
 		// Костыль, нужно избавлятся от использования идентификатора как int или
 		// long
-		int personIdAsint = Integer.parseInt(personId.toStringRepresentation()
-				.substring(personId.toStringRepresentation().indexOf('|') + 1));
+		/*int personIdAsint = Integer.parseInt(personId.toStringRepresentation()
+				.substring(personId.toStringRepresentation().indexOf('|') + 1));*/
 		// поиск задач отправленных пользователю, или любой группе в которую
 		// входит пользователь
 
@@ -270,8 +270,8 @@ public class ProcessServiceImpl implements ProcessService {
 		Id personId = personManagerService.getPersonId(personLogin);
 		// Костыль, нужно избавлятся от использования идентификатора как int или
 		// long
-		int personIdAsInt = Integer.parseInt(personId.toStringRepresentation()
-				.substring(personId.toStringRepresentation().indexOf('|') + 1));
+		/*int personIdAsInt = Integer.parseInt(personId.toStringRepresentation()
+				.substring(personId.toStringRepresentation().indexOf('|') + 1));*/
 
 		/**
 		 * AccessToken accessToken = accessControlService.createAccessToken(

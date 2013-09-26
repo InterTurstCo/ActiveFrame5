@@ -43,16 +43,6 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     @Autowired
     private AccessControlService accessControlService;
-
-    @PostConstruct
-	public void init() throws JAXBException, SAXException, IOException {
-		// TODO Эти строчки можно будет удалить после того, как будет реализован
-		// autowire для удаленных ejb.
-		AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
-		bpp.setBeanFactory(SpringApplicationContext.getContext()
-				.getAutowireCapableBeanFactory());
-		bpp.processInjection(this);
-	}    
     
     public void setDomainObjectDao(DomainObjectDao domainObjectDao) {
         this.domainObjectDao = domainObjectDao;

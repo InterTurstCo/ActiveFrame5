@@ -15,6 +15,9 @@ import ru.intertrust.cm.core.business.api.IdService;
 import ru.intertrust.cm.core.business.api.ProcessService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.dao.access.AccessControlService;
+import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.tools.SpringClient;
 
@@ -33,6 +36,9 @@ public class GlobalCreateTaskListener extends SpringClient implements
 	
 	@Autowired
 	FormService formService;
+	
+	@Autowired
+	private AccessControlService accessControlService;	
 
 	/**
 	 * Входная точка слушителя. вызывается при создание пользовательской задачи
@@ -80,9 +86,13 @@ public class GlobalCreateTaskListener extends SpringClient implements
 		
 		//Сохранение доменного объекта
 		taskDomainObject = domainObjectDao.save(taskDomainObject);
+		Id assigneeId = idService.createId(delegateTask.getAssignee());
+		AccessToken accessToken = accessControlService
+				.createSystemAccessToken("GlobalCreateTaskListener");
+		DomainObject assignee = domainObjectDao.find(assigneeId, accessToken);
 
 		// Создание связанного AssigneePerson или AssigneeGroup
-		if (delegateTask.getAssignee().startsWith("person")) {
+		if (assignee.getTypeName().equals("Person")) {
 			DomainObject assigneePersonDomainObject = createDomainObject("Assignee_Person");
 
 			assigneePersonDomainObject.setReference("PersonTask",

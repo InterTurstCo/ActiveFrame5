@@ -2,22 +2,6 @@
 <configuration xmlns="https://cm5.intertrust.ru/config">
     <collection name="Employees" idField="id"
         domain-object-type="Employee">
-        <!--todo поддержка конвертации значений, например, в картинки -->
-        <display>
-            <column field="id" name="id" type="integer" hidden="true"
-                sortable="false" />
-            <column field="business_object_type" name="type"
-                type="string" editable="false" hidden="true" sortable="false" /> <!--todo - rethink? -->
-            <column field="name" name="Имя" editable="false"
-                type="string" sortable="true" />
-            <column field="position" name="Должность" type="string"
-                editable="false" sortable="true" />
-            <column field="created_date" name="Дата создания"
-                type="datetime" editable="false" sortable="true" />
-            <column field="updated_date" name="Дата модификации"
-                type="datetime" editable="false" sortable="true" />
-        </display>
-
         <prototype>
             <![CDATA[
                 select
@@ -72,20 +56,6 @@
 
     <collection name="Employees_2" idField="id"
         domain-object-type="Employee">
-        <display>
-            <column field="id" name="id" type="integer" hidden="true"
-                sortable="false" />
-            <column field="business_object_type" name="type"
-                type="string" editable="false" hidden="true" sortable="false" /> <!--todo - rethink? -->
-            <column field="name" name="Имя" type="string"
-                editable="false" sortable="true" />
-            <column field="position" name="Должность" type="string"
-                editable="false" sortable="true" />
-            <column field="created_date" name="Дата создания"
-                type="string" editable="false" sortable="true" />
-            <column field="updated_date" name="Дата модификации"
-                type="string" editable="false" sortable="true" />
-        </display>
         <renderer
             className="ru.intertrust.cm.core.business.impl.EmployeesCollectionRenderer" />
         <filter name="byName" />
@@ -95,22 +65,6 @@
     <collection name="Outgoing_Document" idField="id"
         domain-object-type="Outgoing_Document">
         <!--todo поддержка конвертации значений, например, в картинки -->
-        <display>
-            <column field="id" name="id" type="integer" hidden="true"
-                sortable="false" />
-            <column field="business_object_type" name="type"
-                type="string" editable="false" hidden="true" sortable="false" /> <!--todo - rethink? -->
-            <column field="name" name="Имя" editable="false"
-                type="string" sortable="true" />
-            <column field="description" name="Описание" type="string"
-                editable="false" sortable="true" />
-            <column field="created_date" name="Дата создания"
-                type="datetime" editable="false" sortable="true" />
-            <column field="updated_date" name="Дата модификации"
-                type="datetime" editable="false" sortable="true" />
-            <column field="registration_date" name="Дата регистрации"
-                type="datetime" editable="false" sortable="true" />
-        </display>
 
         <prototype>
             <![CDATA[
@@ -135,20 +89,6 @@
     <collection name="Assignment" idField="id"
         domain-object-type="Assignment">
         <!--todo поддержка конвертации значений, например, в картинки -->
-        <display>
-            <column field="id" name="id" type="integer" hidden="true"
-                sortable="false" />
-            <column field="business_object_type" name="type"
-                type="string" editable="false" hidden="true" sortable="false" /> <!--todo - rethink? -->
-            <column field="name" name="Имя" editable="false"
-                type="string" sortable="true" />
-            <column field="description" name="Описание" type="string"
-                editable="false" sortable="true" />
-            <column field="created_date" name="Дата создания"
-                type="datetime" editable="false" sortable="true" />
-            <column field="updated_date" name="Дата модификации"
-                type="datetime" editable="false" sortable="true" />
-        </display>
 
         <prototype>
             <![CDATA[
@@ -179,22 +119,6 @@
     <collection name="Outgoing_Document" idField="id"
         domain-object-type="Outgoing_Document">
         <!--todo поддержка конвертации значений, например, в картинки -->
-        <display>
-            <column field="id" name="id" type="integer" hidden="true"
-                sortable="false" />
-            <column field="business_object_type" name="type"
-                type="string" editable="false" hidden="true" sortable="false" /> <!--todo - rethink? -->
-            <column field="name" name="Имя" editable="false"
-                type="string" sortable="true" />
-            <column field="description" name="Описание" type="string"
-                editable="false" sortable="true" />
-            <column field="created_date" name="Дата создания"
-                type="datetime" editable="false" sortable="true" />
-            <column field="updated_date" name="Дата модификации"
-                type="datetime" editable="false" sortable="true" />
-            <column field="registration_date" name="Дата регистрации"
-                type="datetime" editable="false" sortable="true" />
-        </display>
 
         <prototype>
             <![CDATA[
@@ -219,19 +143,13 @@
 
     <collection name="PersonByLogin" idField="id"
         domain-object-type="Person">
-        <display>
-            <column field="id" name="id" type="integer" hidden="true"
-                sortable="false" />
-            <column field="Login" name="Логин" type="string"
-                editable="false" sortable="true" />
-        </display>
 
         <prototype>
             <![CDATA[
                 select
                     s.id, s.login
                 from
-                    person s
+                    Person s
                      ::from-clause
                 where
                     1=1 ::where-clause
@@ -249,17 +167,13 @@
 
     <collection name="PersonInGroup" idField="id"
         domain-object-type="Person">
-        <display>
-            <column field="id" name="id" type="integer" hidden="true"
-                sortable="false" />
-        </display>
 
         <prototype>
             <![CDATA[
                 select
-                    g.person_id1
+                    g.person_id
                 from
-                    group_member g 
+                    Group_Member g 
                      ::from-clause
                 where
                     1=1 ::where-clause
@@ -277,17 +191,13 @@
 
     <collection name="AllPersonInGroup" idField="id"
         domain-object-type="Person">
-        <display>
-            <column field="id" name="id" type="integer" hidden="true"
-                sortable="false" />
-        </display>
 
         <prototype>
             <![CDATA[
                 select
-                    g.person_id1
+                    g.person_id
                 from
-                    group_member g 
+                    Group_Member g 
                      ::from-clause
                 where
                     1=1 ::where-clause
@@ -305,17 +215,13 @@
 
     <collection name="IsPersonInGroup" idField="id"
         domain-object-type="Person">
-        <display>
-            <column field="id" name="id" type="integer" hidden="true"
-                sortable="false" />
-        </display>
 
         <prototype>
             <![CDATA[
                 select
-                    g.person_id1
+                    g.person_id
                 from
-                    group_member g 
+                    Group_Member g 
                      ::from-clause
                 where
                     1=1 ::where-clause
@@ -333,17 +239,13 @@
 
     <collection name="PersonGroups" idField="id"
         domain-object-type="User_Group">
-        <display>
-            <column field="id" name="id" type="integer" hidden="true"
-                sortable="false" />
-        </display>
 
         <prototype>
             <![CDATA[
                 select
                     g.id
                 from
-                    group_member g 
+                    Group_Member g 
                      ::from-clause
                 where
                     1=1 ::where-clause
@@ -353,7 +255,7 @@
         <filter name="byPerson">
             <criteria placeholder="where-clause">
                 <![CDATA[
-                    g.person_id1  = {0}
+                    g.person_id  = {0}
                 ]]>
             </criteria>
         </filter>
@@ -361,17 +263,13 @@
 
     <collection name="PersonTask" idField="id"
         domain-object-type="Person_Task">
-        <display>
-            <column field="id" name="id" type="integer" hidden="true"
-                sortable="false" />
-        </display>
 
         <prototype>
             <![CDATA[
                 select
                     t.id
                 from
-                    Person_Task t inner join assignee_person ap on (t.id = ap.persontask1) 
+                    Person_Task t inner join Assignee_Person ap on (t.id = ap.persontask) 
                      ::from-clause
                 where
                     t.state in (1,2) ::where-clause
@@ -381,7 +279,7 @@
         <filter name="byPerson">
             <criteria placeholder="where-clause">
                 <![CDATA[
-                    ap.person1  = {0}
+                    ap.person  = {0}
                 ]]>
             </criteria>
         </filter>
@@ -396,19 +294,15 @@
 
     <collection name="PersonGroupTask" idField="id"
         domain-object-type="Person_Task">
-        <display>
-            <column field="id" name="id" type="integer" hidden="true"
-                sortable="false" />
-        </display>
 
         <prototype>
             <![CDATA[
                 select
                     t.id
                 from
-                    person_task t 
-                    inner join assignee_group ag on (t.id = ag.persontask1)
-                    inner join group_member gm on (ag.usergroup1 = gm.master)  
+                    Person_Task t 
+                    inner join assignee_group ag on (t.id = ag.persontask)
+                    inner join group_member gm on (ag.usergroup = gm.master)  
                      ::from-clause
                 where
                      t.state in (1,2) ::where-clause
@@ -418,7 +312,7 @@
         <filter name="byPerson">
             <criteria placeholder="where-clause">
                 <![CDATA[
-                    gm.person_id1  = {0}
+                    gm.person_id  = {0}
                 ]]>
             </criteria>
         </filter>
