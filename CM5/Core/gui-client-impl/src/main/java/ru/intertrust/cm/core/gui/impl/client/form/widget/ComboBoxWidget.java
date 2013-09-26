@@ -48,6 +48,9 @@ public class ComboBoxWidget extends BaseWidget {
     public WidgetData getCurrentState() {
         ComboBoxData state = new ComboBoxData();
         ListBox listBox = (ListBox) impl;
+        if (listBox.getItemCount() == 0) {
+            return state;
+        }
         state.setId(idMap.get(listBox.getValue(listBox.getSelectedIndex())));
         return state;
     }
