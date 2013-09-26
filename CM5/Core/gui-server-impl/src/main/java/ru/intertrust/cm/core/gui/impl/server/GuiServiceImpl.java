@@ -1,7 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.server;
 
-import org.simpleframework.xml.convert.AnnotationStrategy;
-import org.simpleframework.xml.core.Persister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +12,6 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.config.FileUtils;
-import ru.intertrust.cm.core.config.model.base.Configuration;
 import ru.intertrust.cm.core.config.model.gui.form.*;
 import ru.intertrust.cm.core.config.model.gui.form.widget.*;
 import ru.intertrust.cm.core.config.model.gui.navigation.NavigationConfig;
@@ -70,17 +66,9 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
 
     @Override
     public NavigationConfig getNavigationConfiguration() {
-        Persister persister = new Persister(new AnnotationStrategy());
-        Configuration configuration;
-        try {
-            
-            configuration = persister.read(Configuration.class,
-                    FileUtils.getFileInputStream("config/navigation-panel.xml"));
-            return (NavigationConfig) configuration.getConfigurationList().iterator().next();
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-        }
-        return null;
+        String navigationPanelName = "panel_old";
+        NavigationConfig navigationConfig = configurationService.getConfig(NavigationConfig.class, navigationPanelName);
+        return navigationConfig;
     }
 
     @Override

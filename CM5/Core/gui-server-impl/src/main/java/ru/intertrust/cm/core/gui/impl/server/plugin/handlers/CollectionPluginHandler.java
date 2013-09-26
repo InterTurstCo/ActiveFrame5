@@ -142,7 +142,7 @@ public class CollectionPluginHandler extends PluginHandler {
     private List<List<String>> preparingRowsForWidget
             (IdentifiableObjectCollection identifiableObjectCollection, List<String> columnFields) {
         List<List<String>> rowsList = new ArrayList<List<String>>();
-        for( int i = identifiableObjectCollection.size() - 1; i >= 0; i--){
+        for( int i = 0; i < identifiableObjectCollection.size(); i++){
             IdentifiableObject identifiableObject = identifiableObjectCollection.get(i);
             List<String> rowList = new ArrayList<String>();
             for(String field: columnFields){
