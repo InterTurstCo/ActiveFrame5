@@ -1,6 +1,9 @@
 package ru.intertrust.cm.core.business.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
+import org.xml.sax.SAXException;
+
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -11,11 +14,15 @@ import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.util.SpringApplicationContext;
 
+import javax.annotation.PostConstruct;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
+import javax.xml.bind.JAXBException;
 import javax.interceptor.Interceptors;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -37,6 +44,16 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
     @Autowired
     private AccessControlService accessControlService;
 
+    @PostConstruct
+	public void init() throws JAXBException, SAXException, IOException {
+		// TODO Эти строчки можно будет удалить после того, как будет реализован
+		// autowire для удаленных ejb.
+		AutowiredAnnotationBeanPostProcessor bpp = new AutowiredAnnotationBeanPostProcessor();
+		bpp.setBeanFactory(SpringApplicationContext.getContext()
+				.getAutowireCapableBeanFactory());
+		bpp.processInjection(this);
+	}    
+    
     public void setDomainObjectDao(DomainObjectDao domainObjectDao) {
         this.domainObjectDao = domainObjectDao;
     }

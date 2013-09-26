@@ -53,7 +53,7 @@ public class DaoUtils {
 
     public static String generateParameter(ReferenceFieldConfig fieldConfig, String type) {
         for (ReferenceFieldTypeConfig typeConfig : fieldConfig.getTypes()) {
-            if (type.equals(typeConfig.getName())) {
+            if (type.equalsIgnoreCase(typeConfig.getName())) {
                 return generateParameter(getSqlName(fieldConfig, typeConfig));
             }
         }

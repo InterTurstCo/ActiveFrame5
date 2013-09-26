@@ -47,6 +47,10 @@ public class SingleObjectRowMapper extends BasicRowMapper implements ResultSetEx
                 fillValueModel(rs, valueModel, columnName);
                 fillObjectValue(object, valueModel, columnName);
             }
+            
+            //TODO добавлено Лариным. М. после выноса системных арибутов в родительский класс надо будет убрать эти 2 строчки
+            object.setCreatedDate(object.getTimestamp("created_date"));
+            object.setModifiedDate(object.getTimestamp("updated_date"));
 
             if (object.getId() != null) {
                 getDomainObjectCacheService().putObjectToCache(object);

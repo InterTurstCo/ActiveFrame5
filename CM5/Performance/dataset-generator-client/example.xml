@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<query>
+	<template>
+		<object>
+			<string name="Name" minLength="4" maxLength="32"/>
+		</object>
+	</template>
+	<template>
+		<object type="Outcoming_Document">
+			<reference name="Attachment">
+					<object type="Attachment">
+						<string name="Attachment_path" minLength="10" maxLength="100"/>
+					</object>
+			</reference>
+		</object>
+	</template>
+	<set quantity="10000" id="genericIncoming">
+		<object type="Incoming_Document">
+			<string length="3"/>
+			<string name="Registration_Number" length="10"/>
+			<string name="Description" minLength="0" maxLength="20"/>
+			<dateTime name="Registration_Date" minValue="2010-02-13T00:00:00+03:00" maxValue="2014-02-13T00:00:00+03:00"/>
+			<reference name="Author" type="Employee" />
+			<reference name="Attachment">
+				<object type="Attachment">
+					<string name="Attachment_path" minLength="10" maxLength="100"/>
+				</object>
+			</reference>
+			<children minQuantity="6" maxQuantity="8">
+				<object type="Visa">
+					<string name="Attachment_path" minLength="10" maxLength="100"/>
+					<reference name="parent" parentReference="true"/>
+				</object>
+			</children>
+			<children minQuantity="0" maxQuantity="3" minTreeDepth="2" maxTreeDepth="3"/>
+			<long name="Long_Field" value="0"/> 
+			<long name="Another_Long_Field" minValue="0" maxValue="7779"/> 
+			<decimal name="something" value="88" />
+			<decimal name="Decimal_Field" minValue="0" maxValue="777.777" />
+		</object>
+	</set>
+</query>

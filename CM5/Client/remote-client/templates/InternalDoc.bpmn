@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="InternalDocument" name="Обработка внутреннего документа" isExecutable="true">
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <callActivity id="callNegotiation" name="Согласование">
+      <extensionElements>
+        <activiti:in source="document" target="document"></activiti:in>
+      </extensionElements>
+    </callActivity>
+    <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="callNegotiation"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow2" sourceRef="callNegotiation" targetRef="exclusivegateway1"></sequenceFlow>
+    <serviceTask id="toDraft" name="Возврат на доработку"></serviceTask>
+    <sequenceFlow id="ifNotAgreed" name="Не согласовано" sourceRef="exclusivegateway1" targetRef="toDraft">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${status=='rejected'}]]></conditionExpression>
+    </sequenceFlow>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <sequenceFlow id="flow4" sourceRef="toDraft" targetRef="endevent1"></sequenceFlow>
+    <sequenceFlow id="ifAgreed" name="Согласовано" sourceRef="exclusivegateway1" targetRef="callSign">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${status=='agreed'}]]></conditionExpression>
+    </sequenceFlow>
+    <callActivity id="callSign" name="Подписание"></callActivity>
+    <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow7" sourceRef="callSign" targetRef="exclusivegateway2"></sequenceFlow>
+    <serviceTask id="toDraft2" name="Возврат на доработку"></serviceTask>
+    <sequenceFlow id="ifRejected" name="Не подписано" sourceRef="exclusivegateway2" targetRef="toDraft2">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${status=='rejected'}]]></conditionExpression>
+    </sequenceFlow>
+    <endEvent id="endevent2" name="End"></endEvent>
+    <sequenceFlow id="flow9" sourceRef="toDraft2" targetRef="endevent2"></sequenceFlow>
+    <sequenceFlow id="ifSigned" name="Подписано" sourceRef="exclusivegateway2" targetRef="callRegistration">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${status=='signed'}]]></conditionExpression>
+    </sequenceFlow>
+    <callActivity id="callRegistration" name="Регистрация"></callActivity>
+    <callActivity id="callExecution" name="Рассмотрение и исполнение"></callActivity>
+    <sequenceFlow id="flow10" sourceRef="callRegistration" targetRef="callExecution"></sequenceFlow>
+    <serviceTask id="toArchive" name="Списание в дело"></serviceTask>
+    <sequenceFlow id="flow11" sourceRef="callExecution" targetRef="toArchive"></sequenceFlow>
+    <endEvent id="endevent3" name="End"></endEvent>
+    <sequenceFlow id="flow12" sourceRef="toArchive" targetRef="endevent3"></sequenceFlow>
+    <sequenceFlow id="ifSignedPre" name="Подписано" sourceRef="exclusivegateway1" targetRef="exclusivegateway2">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${status=='signed'}]]></conditionExpression>
+    </sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_InternalDocument">
+    <bpmndi:BPMNPlane bpmnElement="InternalDocument" id="BPMNPlane_InternalDocument">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="121.0" y="30.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40.0" width="40.0" x="118.0" y="190.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="toDraft" id="BPMNShape_toDraft">
+        <omgdc:Bounds height="55.0" width="105.0" x="301.0" y="183.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="461.0" y="193.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="callSign" id="BPMNShape_callSign">
+        <omgdc:Bounds height="55.0" width="105.0" x="86.0" y="280.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway2" id="BPMNShape_exclusivegateway2">
+        <omgdc:Bounds height="40.0" width="40.0" x="118.0" y="369.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="toDraft2" id="BPMNShape_toDraft2">
+        <omgdc:Bounds height="55.0" width="105.0" x="301.0" y="362.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent2" id="BPMNShape_endevent2">
+        <omgdc:Bounds height="35.0" width="35.0" x="461.0" y="372.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="callRegistration" id="BPMNShape_callRegistration">
+        <omgdc:Bounds height="55.0" width="105.0" x="86.0" y="443.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="callExecution" id="BPMNShape_callExecution">
+        <omgdc:Bounds height="55.0" width="105.0" x="86.0" y="540.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="toArchive" id="BPMNShape_toArchive">
+        <omgdc:Bounds height="55.0" width="105.0" x="86.0" y="640.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent3" id="BPMNShape_endevent3">
+        <omgdc:Bounds height="35.0" width="35.0" x="121.0" y="730.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="callNegotiation" id="BPMNShape_callNegotiation">
+        <omgdc:Bounds height="55.0" width="105.0" x="86.0" y="100.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="138.0" y="65.0"></omgdi:waypoint>
+        <omgdi:waypoint x="138.0" y="100.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="138.0" y="155.0"></omgdi:waypoint>
+        <omgdi:waypoint x="138.0" y="190.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="ifNotAgreed" id="BPMNEdge_ifNotAgreed">
+        <omgdi:waypoint x="158.0" y="210.0"></omgdi:waypoint>
+        <omgdi:waypoint x="301.0" y="210.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="81.0" x="-48.0" y="-17.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="406.0" y="210.0"></omgdi:waypoint>
+        <omgdi:waypoint x="461.0" y="210.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="ifAgreed" id="BPMNEdge_ifAgreed">
+        <omgdi:waypoint x="138.0" y="230.0"></omgdi:waypoint>
+        <omgdi:waypoint x="138.0" y="280.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="66.0" x="3.0" y="-13.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+        <omgdi:waypoint x="138.0" y="335.0"></omgdi:waypoint>
+        <omgdi:waypoint x="138.0" y="369.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="ifRejected" id="BPMNEdge_ifRejected">
+        <omgdi:waypoint x="158.0" y="389.0"></omgdi:waypoint>
+        <omgdi:waypoint x="301.0" y="389.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="70.0" x="-48.0" y="-17.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
+        <omgdi:waypoint x="406.0" y="389.0"></omgdi:waypoint>
+        <omgdi:waypoint x="461.0" y="389.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="ifSigned" id="BPMNEdge_ifSigned">
+        <omgdi:waypoint x="138.0" y="409.0"></omgdi:waypoint>
+        <omgdi:waypoint x="138.0" y="443.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="55.0" x="3.0" y="-10.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow10" id="BPMNEdge_flow10">
+        <omgdi:waypoint x="138.0" y="498.0"></omgdi:waypoint>
+        <omgdi:waypoint x="138.0" y="540.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow11" id="BPMNEdge_flow11">
+        <omgdi:waypoint x="138.0" y="595.0"></omgdi:waypoint>
+        <omgdi:waypoint x="138.0" y="640.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow12" id="BPMNEdge_flow12">
+        <omgdi:waypoint x="138.0" y="695.0"></omgdi:waypoint>
+        <omgdi:waypoint x="138.0" y="730.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="ifSignedPre" id="BPMNEdge_ifSignedPre">
+        <omgdi:waypoint x="118.0" y="210.0"></omgdi:waypoint>
+        <omgdi:waypoint x="29.0" y="210.0"></omgdi:waypoint>
+        <omgdi:waypoint x="29.0" y="389.0"></omgdi:waypoint>
+        <omgdi:waypoint x="118.0" y="389.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="55.0" x="21.0" y="-107.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

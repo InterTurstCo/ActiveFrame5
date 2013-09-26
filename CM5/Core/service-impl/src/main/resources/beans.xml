@@ -35,4 +35,30 @@
 
     <bean id="accessControlService" class="ru.intertrust.cm.core.dao.impl.access.AccessControlServiceImpl"/>
 
+	<!-- Интеграция с Activiti -->
+	<bean id="processEngineConfiguration" class="org.activiti.spring.SpringProcessEngineConfiguration">
+    	<property name="dataSource" ref="dataSource" />
+    	<property name="transactionManager" ref="transactionManager" />
+    	<property name="databaseSchemaUpdate" value="true" />
+    	<property name="jobExecutorActivate" value="false" />
+    	<property name="history" value="full" />
+    	<property name="customDefaultBpmnParseHandlers">
+            <list>
+                <bean class="ru.intertrust.cm.core.process.CustomUserTaskParseHandler" />
+            </list>
+        </property>
+  	</bean>
+  
+  	<bean id="processEngine" class="org.activiti.spring.ProcessEngineFactoryBean">
+    	<property name="processEngineConfiguration" ref="processEngineConfiguration" />
+  	</bean>
+  
+  	<bean id="repositoryService" factory-bean="processEngine" factory-method="getRepositoryService" />
+  	<bean id="runtimeService" factory-bean="processEngine" factory-method="getRuntimeService" />
+  	<bean id="taskService" factory-bean="processEngine" factory-method="getTaskService" />
+  	<bean id="historyService" factory-bean="processEngine" factory-method="getHistoryService" />
+  	<bean id="managementService" factory-bean="processEngine" factory-method="getManagementService" />
+  	<bean id="formService" factory-bean="processEngine" factory-method="getFormService" />
+  	<!-- Интеграция с Activiti -->
+
 </beans>

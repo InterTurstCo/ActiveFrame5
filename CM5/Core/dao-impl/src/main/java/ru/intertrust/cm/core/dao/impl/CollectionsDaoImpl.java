@@ -2,8 +2,11 @@ package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
@@ -18,6 +21,7 @@ import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.impl.utils.CollectionRowMapper;
 
 import javax.sql.DataSource;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -182,7 +186,11 @@ public class CollectionsDaoImpl implements CollectionsDao {
                 for (Integer key : filter.getCriterionKeys()) {
                     String parameterName = filter.getFilter() + key;
                     Value value = filter.getCriterion(key);
-                    parameters.put(parameterName, value.get());
+                    if (value instanceof ReferenceValue){
+                    	parameters.put(parameterName, ((RdbmsId)value.get()).getId());
+                    }else{
+                    	parameters.put(parameterName, value.get());
+                    }
                 }
             }
         }
