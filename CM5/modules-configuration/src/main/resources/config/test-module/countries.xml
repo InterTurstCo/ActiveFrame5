@@ -6,9 +6,9 @@
             <dateTime name="independence_day"/>
             <long name="population"/>
             <decimal name="square" precision="9" scale="2"/>
-            <reference name="capital">
+            <!--<reference name="capital">
                 <type name="city"/>
-            </reference>
+            </reference>-->
             <string name="description" length="1024"/>
         </fields>
         <uniqueKey>
@@ -140,7 +140,7 @@
                 <text>Столица:</text>
             </label>
             <label id="8">
-                <field-path value="capital1.name"/>
+                <field-path value="capital.name"/>
                 <!-- а для области столицы: capital . federal_unit_city^city . federal_unit . name -->
             </label>
 
@@ -167,24 +167,33 @@
 
         </widget-config>
     </form>
-
     <collection name="Countries" idField="id" domain-object-type="country">
         <!--todo поддержка конвертации значений, например, в картинки -->
 
         <prototype>
             <![CDATA[
                 select
-                    c.id, c.name, c.population
+                 co.id,   co.name, co.independence_day, co.population, co.description
                 from
-                    country c
+                    country co
+                     ::from-clause
+                where
+                    1=1 ::where-clause
             ]]>
         </prototype>
 
         <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) вместо названий колонок -->
         <counting-prototype>
-            select count(*) from country
+            select count(*) from country od ::from-clause WHERE 1=1 ::where-clause
         </counting-prototype>
     </collection>
-
-
+    <collection-view name="countries_default_view" collection="Countries" is-default="true">
+        <display>
+    <column field="id" name="id" type="integer"  sortable="false" />
+    <column field="name" name="Название" editable="false" type="string" sortable="true" />
+    <column field="independence_day" name="День Независимости" type="datetime" editable="false" sortable="true" />
+    <column field="population" name="Популяция" type="string" editable="false" sortable="true" />
+    <column field="description" name="Описание" type="string" editable="false" sortable="true" />
+        </display>
+   </collection-view>
 </configuration>

@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.gui.model.plugin;
 import ru.intertrust.cm.core.config.model.base.CollectionConfig;
 import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionViewConfig;
 
-import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -11,28 +11,57 @@ import java.util.Collection;
  *         Time: 12:05 PM
  */
 public class CollectionPluginData extends PluginData {
+    private String collectionName;
 
-    private Collection<CollectionConfig> collectionConfigs;
+    private CollectionConfig collectionConfig;
 
-    private Collection<CollectionViewConfig> collectionViewConfigs;
+    private CollectionViewConfig collectionViewConfig;
+
+    private List<String> columnNames;
+
+    private List<List<String>> stringList;
 
     public CollectionPluginData() {
 
     }
 
-    public Collection<CollectionConfig> getCollectionConfigs() {
-        return collectionConfigs;
+    public List<List<String>> getStringList() {
+        return stringList;
     }
 
-    public void setCollectionConfigs(Collection<CollectionConfig> collectionConfigs) {
-        this.collectionConfigs = collectionConfigs;
+    public void setStringList(List<List<String>> stringList) {
+        this.stringList = stringList;
     }
 
-    public Collection<CollectionViewConfig> getCollectionViewConfigs() {
-        return collectionViewConfigs;
+    public String getCollectionName() {
+        return collectionName;
     }
 
-    public void setCollectionViewConfigs(Collection<CollectionViewConfig> collectionViewConfigs) {
-        this.collectionViewConfigs = collectionViewConfigs;
+    public void setCollectionName(String collectionName) {
+        this.collectionName = collectionName;
+    }
+
+    public CollectionConfig getCollectionConfig() {
+        return collectionConfig;
+    }
+
+    public void setCollectionConfig(CollectionConfig collectionConfig) {
+        this.collectionConfig = collectionConfig;
+    }
+
+    public CollectionViewConfig getCollectionViewConfig() {
+        return collectionViewConfig;
+    }
+
+    public void setCollectionViewConfig(CollectionViewConfig collectionViewConfig) {
+        this.collectionViewConfig = collectionViewConfig;
+    }
+
+    public List<String> getColumnNames() {
+        return columnNames;
+    }
+
+    public void setColumnNames(List<String> columnNames) {
+        this.columnNames = columnNames;
     }
 }

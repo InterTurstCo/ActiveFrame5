@@ -9,6 +9,8 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
+import ru.intertrust.cm.core.config.model.gui.navigation.CollectionRefConfig;
+import ru.intertrust.cm.core.config.model.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
@@ -37,7 +39,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
         AsyncCallback<BusinessUniverseInitialization> callback = new AsyncCallback<BusinessUniverseInitialization>() {
             @Override
             public void onSuccess(BusinessUniverseInitialization result) {
-                mainLayoutPanel = new DockLayoutPanel(Style.Unit.PCT);
+                mainLayoutPanel = new DockLayoutPanel(Style.Unit.EM);
 
                 Plugin searchPlugin = ComponentRegistry.instance.get("search.plugin");
                 PluginPanel searchPluginPanel = new PluginPanel(BusinessUniverse.this.eventBus);
@@ -50,7 +52,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
 
                 Plugin collectionPlugin = ComponentRegistry.instance.get("collection.plugin");
 
-                addCollection(mainLayoutPanel, collectionPlugin, domainObjectSurferPlugin);
+
                 addNavigationTree(mainLayoutPanel, navigationTreePlugin, domainObjectSurferPlugin);
 
                 PluginPanel domainObjectSurferPanel = new PluginPanel(eventBus);
@@ -61,7 +63,8 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
 
                 addFormPanel(mainLayoutPanel);
 
-                //addStickerPanel(mainLayoutPanel);
+                addStickerPanel(mainLayoutPanel);
+                addCollection(mainLayoutPanel, collectionPlugin,  domainObjectSurferPlugin);
                 RootLayoutPanel.get().add(mainLayoutPanel);
             }
 
@@ -73,14 +76,13 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
         BusinessUniverseServiceAsync.Impl.getInstance().getBusinessUniverseInitialization(callback);
     }
 
-
     private void addStickerPanel(DockLayoutPanel mainLayoutPanel) {
 
         PluginPanel stickerPluginPanel = new PluginPanel(eventBus);
         Plugin stickerPlugin = ComponentRegistry.instance.get("sticker.plugin");
         stickerPluginPanel.open(stickerPlugin);
 
-        mainLayoutPanel.addEast(stickerPluginPanel, 20);
+        mainLayoutPanel.addEast(stickerPluginPanel, 5);
     }
 
     private void prepareActionPanel(VerticalPanel grid) {
@@ -178,10 +180,14 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
         navigationTreePlugin.registerEventHandlingFromExternalSource(RootLinkSelectedEvent.TYPE, navigationTreePlugin, navigationTreePlugin);
         dockLayoutPanel.addWest(navigationTreePanel, 15);
     }
-
     private void addCollection(DockLayoutPanel dockLayoutPanel, final Plugin collectionPlugin, final Plugin domainObjectSurfer) {
         PluginPanel collectionPanel = new PluginPanel(eventBus);
-        //collectionPanel.open(collectionPlugin);
+        CollectionViewerConfig config = new CollectionViewerConfig();
+        CollectionRefConfig collectionRefConfig = new CollectionRefConfig();
+        collectionRefConfig.setName("Countries");
+        config.setCollectionRefConfig(collectionRefConfig);
+        collectionPlugin.setConfig(config);
+        collectionPanel.open(collectionPlugin);
       dockLayoutPanel.addSouth(collectionPanel, 15);
     }
 
