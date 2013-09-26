@@ -51,4 +51,11 @@ public class ReferenceFieldTypeConfig implements Serializable {
     public int hashCode() {
         return name != null ? name.hashCode() : 0;
     }
+
+    @Override
+    public String toString() {
+        return "ReferenceFieldTypeConfig{" +
+                "name='" + name + '\'' +
+                '}';
+    }
 }

@@ -37,7 +37,7 @@ public class SomeActivePlugin extends Plugin implements IsActive {
     public Form getCurrentState() {
         Form initialForm = this.<SomeActivePluginData>getInitialData().getForm();
         SomeActivePluginView view = (SomeActivePluginView) getView();
-        Map<String,WidgetData> widgetData = view.getWidgetData();
+        Map<String, WidgetData> widgetData = view.getWidgetData();
 
         return new Form(initialForm.getName(), null, widgetData, initialForm.getFormData());
     }

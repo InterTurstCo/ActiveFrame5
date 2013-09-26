@@ -1,9 +1,11 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.IsWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.FormPanel;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.LabelWidget;
+import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.Form;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
 
@@ -40,8 +42,12 @@ public class SomeActivePluginView extends PluginView {
             }
             String id = widget.getDisplayConfig().getId();
             if (widget.isEditable()) {
-                WidgetData state = widget.getCurrentState();
-                result.put(id, state);
+                try {
+                    WidgetData state = widget.getCurrentState();
+                    result.put(id, state);
+                } catch (GuiException e) {
+                    Window.alert(e.getMessage()); // todo something more interesting
+                }
             }
         }
         return result;

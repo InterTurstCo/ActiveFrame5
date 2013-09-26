@@ -46,7 +46,7 @@ public class FormData implements Dto {
         return fieldPathObject == null ? null : (T) fieldPathObject.getValue(fieldPath.getLastElement());
     }
 
-    private DomainObject getObjectContainingFieldPathValue(FieldPath fieldPath) {
+    public DomainObject getObjectContainingFieldPathValue(FieldPath fieldPath) {
         FieldPath objectPath = fieldPath.createFieldPathWithoutLastElement();
         return fieldPathObjects.get(objectPath);
     }

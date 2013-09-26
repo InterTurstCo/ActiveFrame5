@@ -20,7 +20,11 @@ public class WidgetConfigurationConfig implements Dto {
             @ElementList(entry = "label", type = LabelConfig.class, inline = true, required = false),
             @ElementList(entry = "rich-text-area", type = TextBoxConfig.class, inline = true, required = false),
             @ElementList(entry = "integer-box", type = IntegerBoxConfig.class, inline = true, required = false),
-            @ElementList(entry = "text-box", type = TextBoxConfig.class, inline = true, required = false)
+            @ElementList(entry = "text-box", type = TextBoxConfig.class, inline = true, required = false),
+            @ElementList(entry = "text-area", type = TextAreaConfig.class, inline = true, required = false),
+            @ElementList(entry = "decimal-box", type = DecimalBoxConfig.class, inline = true, required = false),
+            @ElementList(entry = "date-box", type = DateBoxConfig.class, inline = true, required = false),
+            @ElementList(entry = "combo-box", type = ComboBoxConfig.class, inline = true, required = false)
     })
     private List<WidgetConfig> widgetConfigList = new ArrayList<WidgetConfig>();
 

@@ -10,7 +10,10 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.FileUtils;
 import ru.intertrust.cm.core.config.model.base.Configuration;
 import ru.intertrust.cm.core.config.model.gui.form.*;
@@ -101,9 +104,6 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
 
     @Override
     public Form getForm(String domainObjectType) {
-        IdentifiableObjectCollection employees = collectionsService.findCollection("Employees", null, null);
-        Value name = employees.get(0).getValue("name");
-        System.out.println(employees);
         DomainObject root = crudService.createDomainObject("country");
         // todo: separate empty form?
         return createCountryForm(root);

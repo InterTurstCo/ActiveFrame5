@@ -748,6 +748,25 @@
         </xs:sequence>
         <xs:attribute type="xs:string" name="id" use="optional"/>
     </xs:complexType>
+    <xs:complexType name="decimalBoxType">
+        <xs:sequence>
+            <xs:element type="con:fieldPathType" name="field-path" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="id" use="optional"/>
+    </xs:complexType>
+    <xs:complexType name="dateBoxType">
+        <xs:sequence>
+            <xs:element type="con:fieldPathType" name="field-path" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="id" use="optional"/>
+    </xs:complexType>
+    <xs:complexType name="comboBoxType">
+        <xs:sequence>
+            <xs:element type="con:fieldPathType" name="field-path" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:patternType" name="pattern" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="id"/>
+    </xs:complexType>
     <xs:complexType name="linkedDomainObjectHyperlinkType">
         <xs:sequence>
             <xs:element type="con:fieldPathType" name="field-path" xmlns:con="https://cm5.intertrust.ru/config"/>
@@ -819,6 +838,9 @@
             <xs:element type="con:textBoxType" name="text-box" xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:textAreaType" name="text-area" xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:integerBoxType" name="integer-box" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:decimalBoxType" name="decimal-box" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:dateBoxType" name="date-box" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:comboBoxType" name="combo-box" xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:linkedDomainObjectHyperlinkType" name="linked-domain-object-hyperlink" xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:linkedDomainObjectsTableType" name="linked-domain-objects-table" xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:linkedDomainObjectsEditableTableType" name="linked-domain-objects-editable-table" xmlns:con="https://cm5.intertrust.ru/config"/>

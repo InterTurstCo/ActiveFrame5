@@ -5,10 +5,10 @@
             <string name="name" length="128" />
             <dateTime name="independence_day"/>
             <long name="population"/>
-            <decimal name="square" precision="9" scale="2"/>
-            <!--<reference name="capital">
+            <decimal name="square" precision="15" scale="2"/>
+            <reference name="capital">
                 <type name="city"/>
-            </reference>-->
+            </reference>
             <string name="description" length="1024"/>
         </fields>
         <uniqueKey>
@@ -139,24 +139,25 @@
             <label id="7">
                 <text>Столица:</text>
             </label>
-            <label id="8">
-                <field-path value="capital.name"/>
+            <combo-box id="8">
+                <field-path value="capital"/>
                 <!-- а для области столицы: capital . federal_unit_city^city . federal_unit . name -->
-            </label>
+                <pattern value="{name} ({population} чел.)"/>
+            </combo-box>
 
             <label id="9">
                 <text>День независимости:</text>
             </label>
-            <label id="10">
+            <date-box id="10">
                 <field-path value="independence_day"/>
-            </label>
+            </date-box>
 
             <label id="11">
                 <text>Описание:</text>
             </label>
-            <label id="12">
+            <text-area id="12">
                 <field-path value="description"/>
-            </label>
+            </text-area>
 
             <label id="13">
                 <text>Области:</text>
