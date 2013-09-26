@@ -289,6 +289,23 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     @Override
+    public List<DomainObject> findAll(String domainObjectType, AccessToken accessToken) {
+        if(domainObjectType == null || domainObjectType.trim().isEmpty()){
+            throw new IllegalArgumentException("Domain Object type can not be null or empty");
+        }
+
+        String query = generateFindAllQuery(domainObjectType, accessToken);
+
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        if (accessToken.isDeferred()) {
+            parameters.putAll(getAclParameters(accessToken));
+        }
+
+        return jdbcTemplate.query(query, parameters,
+                new MultipleObjectRowMapper(domainObjectType, configurationExplorer, domainObjectTypeIdCache));
+    }
+
+    @Override
     public List<DomainObject> find(List<Id> ids, AccessToken accessToken) {
         if (ids == null || ids.size() == 0) {
             return new ArrayList<>();
@@ -437,6 +454,30 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             String aclReadTable = AccessControlUtility.getAclReadTableName(typeName);
             query.append(" and exists (select a.object_id from " + aclReadTable + " a inner join group_member gm " +
                     "on a.group_id = gm.master where gm.person_id = :user_id and a.object_id = :id)");
+        }
+
+        return query.toString();
+    }
+
+    /**
+     * Создает SQL запрос для нахождения всех доменных объектов определенного типа
+     * @param typeName тип доменного объекта
+     * @return SQL запрос для нахождения доменного объекта
+     */
+    protected String generateFindAllQuery(String typeName, AccessToken accessToken) {
+        String tableAlias = getSqlAlias(typeName);
+
+        StringBuilder query = new StringBuilder();
+        query.append("select ");
+        appendColumnsQueryPart(query, typeName);
+        query.append(" from ");
+        appendTableNameQueryPart(query, typeName);
+
+        if (accessToken.isDeferred()) {
+            String aclReadTable = AccessControlUtility.getAclReadTableName(typeName);
+            query.append(" where exists (select a.object_id from " + aclReadTable + " a inner join group_member gm " +
+                    "on a.group_id = gm.master where gm.person_id = :user_id and a.object_id = ").
+                    append(tableAlias).append(".ID)");
         }
 
         return query.toString();

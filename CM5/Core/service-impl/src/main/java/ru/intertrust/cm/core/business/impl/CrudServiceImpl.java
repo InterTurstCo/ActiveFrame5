@@ -107,8 +107,21 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
     }
 
     @Override
+    public List<DomainObject> findAll(String domainObjectType) {
+        if (domainObjectType == null || domainObjectType.trim().isEmpty()) {
+            throw new IllegalArgumentException("Domain Object type can not be null or empty");
+        }
+        // TODO get user from EJB Context
+        int userId = 1;
+        AccessToken accessToken =
+                accessControlService.createAccessToken(userId, null, DomainObjectAccessType.READ);
+
+        return domainObjectDao.findAll(domainObjectType, accessToken);
+    }
+
+    @Override
     public void delete(Id id) {
-        //TODO get userId from EJB Context        
+        //TODO get userId from EJB Context
         int userId = 1;
         accessControlService.createAccessToken(userId, id, DomainObjectAccessType.DELETE);
         domainObjectDao.delete(id);

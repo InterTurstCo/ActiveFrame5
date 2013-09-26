@@ -21,6 +21,8 @@ import java.util.List;
  * Time: 22:01
  */
 public interface CrudService {
+    List<DomainObject> findAll(String domainObjectType);
+
     public interface Remote extends CrudService {
     }
 

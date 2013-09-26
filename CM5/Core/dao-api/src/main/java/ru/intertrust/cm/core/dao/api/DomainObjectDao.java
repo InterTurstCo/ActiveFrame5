@@ -144,4 +144,5 @@ public interface DomainObjectDao {
      */
     List<Id> findLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField, AccessToken accessToken);
 
+    List<DomainObject> findAll(String domainObjectType, AccessToken accessToken);
 }
