@@ -6,7 +6,9 @@ import ru.intertrust.cm.core.config.model.*;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.impl.DataType;
+import ru.intertrust.cm.core.dao.impl.DomainObjectCacheServiceImpl;
 import ru.intertrust.cm.core.model.FatalException;
+import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 import java.math.BigDecimal;
 import java.sql.ResultSet;
@@ -30,6 +32,8 @@ public class BasicRowMapper {
 
     protected ConfigurationExplorer configurationExplorer;
     protected DomainObjectTypeIdCache domainObjectTypeIdCache;
+
+    private DomainObjectCacheServiceImpl domainObjectCacheService;
 
     public BasicRowMapper(String domainObjectType, String idField, ConfigurationExplorer configurationExplorer,
                           DomainObjectTypeIdCache domainObjectTypeIdCache) {
@@ -92,10 +96,7 @@ public class BasicRowMapper {
      * @param columnName имя колонки, которая извлекается из {@see ResultSet}
      * @throws SQLException
      */
-    protected void fillValueModel(ResultSet rs, FieldValueModel valueModel, String columnName) throws SQLException {
-
-        FieldConfig fieldConfig = configurationExplorer.getFieldConfig(domainObjectType, columnName);
-
+    protected void fillValueModel(ResultSet rs, FieldValueModel valueModel, String columnName, FieldConfig fieldConfig) throws SQLException {
         Value value = null;
         Id id = null;
         Id parentId = null;
@@ -187,9 +188,9 @@ public class BasicRowMapper {
      *
      * @param object     исходный доменного объекта
      * @param valueModel модель {@see FieldValueModel}
-     * @param columnName имя поля, нужно если заполняется обычное поле
+     * @param fieldConfig имя поля, нужно если заполняется обычное поле
      */
-    protected void fillObjectValue(GenericDomainObject object, FieldValueModel valueModel, String columnName) {
+    protected void fillObjectValue(GenericDomainObject object, FieldValueModel valueModel, FieldConfig fieldConfig) {
         if (valueModel.getId() != null) {
             object.setId(valueModel.getId());
         }
@@ -203,8 +204,38 @@ public class BasicRowMapper {
             object.setCreatedDate(valueModel.getCreatedDate());
         }
         if (valueModel.getValue() != null) {
-            object.setValue(columnName, valueModel.getValue());
+            object.setValue(fieldConfig.getName(), valueModel.getValue());
         }
+    }
+
+    protected DomainObject buildDomainObject(ResultSet rs, ColumnModel columnModel) throws SQLException {
+        GenericDomainObject object = new GenericDomainObject();
+        object.setTypeName(domainObjectType);
+
+        for (String columnName : columnModel.getColumnNames()) {
+            FieldValueModel valueModel = new FieldValueModel();
+            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(domainObjectType, columnName);
+            fillValueModel(rs, valueModel, columnName, fieldConfig);
+            fillObjectValue(object, valueModel, fieldConfig);
+        }
+
+        //TODO добавлено Лариным. М. после выноса системных арибутов в родительский класс надо будет убрать эти 2 строчки
+        object.setCreatedDate(object.getTimestamp("created_date"));
+        object.setModifiedDate(object.getTimestamp("updated_date"));
+
+        if (object.getId() != null) {
+            getDomainObjectCacheService().putObjectToCache(object);
+        }
+
+        return object;
+    }
+
+    protected DomainObjectCacheServiceImpl getDomainObjectCacheService() {
+        if (domainObjectCacheService == null) {
+            domainObjectCacheService = SpringApplicationContext.getContext().getBean("domainObjectCacheService",
+                    DomainObjectCacheServiceImpl.class);
+        }
+        return domainObjectCacheService;
     }
 
     private String findTypeByColumnName(ReferenceFieldConfig fieldConfig, String columnName) {
