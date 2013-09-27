@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:p="http://www.springframework.org/schema/p"
-       xmlns:jee="http://www.springframework.org/schema/jee"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xsi:schemaLocation="
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:jee="http://www.springframework.org/schema/jee" xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="
      http://www.springframework.org/schema/beans
      http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
      http://www.springframework.org/schema/jee
@@ -11,56 +10,69 @@
      http://www.springframework.org/schema/context
      http://www.springframework.org/schema/context/spring-context-3.2.xsd">
 
-    <context:annotation-config/>
+    <context:annotation-config />
 
     <jee:jndi-lookup id="dataSource" jndi-name="java:jboss/datasources/CM5" />
 
-    <jee:jndi-lookup id="transactionSynchronizationRegistry" jndi-name="java:comp/TransactionSynchronizationRegistry"
-            expected-type="javax.transaction.TransactionSynchronizationRegistry"/>
+    <jee:jndi-lookup id="transactionSynchronizationRegistry"
+        jndi-name="java:comp/TransactionSynchronizationRegistry"
+        expected-type="javax.transaction.TransactionSynchronizationRegistry" />
 
-    <bean id="transactionManager" class="org.springframework.transaction.jta.JtaTransactionManager"/>
+    <bean id="transactionManager"
+        class="org.springframework.transaction.jta.JtaTransactionManager" />
 
-    <context:property-placeholder location="classpath:deploy.properties"/>
+    <context:property-placeholder location="classpath:deploy.properties" />
 
     <bean id="dataStructureDao"
         class="ru.intertrust.cm.core.dao.impl.PostgreSqlDataStructureDaoImpl"
         p:dataSource-ref="dataSource" />
 
     <bean id="configurationDao" class="ru.intertrust.cm.core.dao.impl.ConfigurationDaoImpl"
-          p:dataSource-ref="dataSource" />
+        p:dataSource-ref="dataSource" />
 
-    <bean id="domainObjectTypeIdDao" class="ru.intertrust.cm.core.dao.impl.DomainObjectTypeIdDaoImpl"
-          p:dataSource-ref="dataSource" />
+    <bean id="domainObjectTypeIdDao"
+        class="ru.intertrust.cm.core.dao.impl.DomainObjectTypeIdDaoImpl"
+        p:dataSource-ref="dataSource" />
 
     <bean id="authenticationDao" class="ru.intertrust.cm.core.dao.impl.AuthenticationDaoImpl"
         p:dataSource-ref="dataSource" />
 
     <bean id="sequenceIdGenerator" class="ru.intertrust.cm.core.dao.impl.SequenceIdGenerator"
-          p:dataSource-ref="dataSource"/>
+        p:dataSource-ref="dataSource" />
 
-    <bean id="domainObjectDao"
-          class="ru.intertrust.cm.core.dao.impl.DomainObjectDaoImpl" p:dataSource-ref="dataSource" />
+    <bean id="domainObjectDao" class="ru.intertrust.cm.core.dao.impl.DomainObjectDaoImpl"
+        p:dataSource-ref="dataSource" />
 
-    <bean id="collectionsDao"
-          class="ru.intertrust.cm.core.dao.impl.CollectionsDaoImpl" p:dataSource-ref="dataSource" />
+    <bean id="collectionsDao" class="ru.intertrust.cm.core.dao.impl.CollectionsDaoImpl"
+        p:dataSource-ref="dataSource" />
 
     <bean id="databaseAccessAgent"
-          class="ru.intertrust.cm.core.dao.impl.access.PostgresDatabaseAccessAgent"
-          p:dataSource-ref="dataSource"/>
+        class="ru.intertrust.cm.core.dao.impl.access.PostgresDatabaseAccessAgent"
+        p:dataSource-ref="dataSource" />
 
     <bean id="accessControlService"
-          class="ru.intertrust.cm.core.dao.impl.access.AccessControlServiceImpl"
-          p:databaseAgent-ref="databaseAccessAgent"/>
+        class="ru.intertrust.cm.core.dao.impl.access.AccessControlServiceImpl"
+        p:databaseAgent-ref="databaseAccessAgent" />
 
-    <bean id="attachmentContentDao" class="ru.intertrust.cm.core.dao.impl.FileSystemAttachmentContentDaoImpl"
-            p:attachmentSaveLocation="c:/attachemnts"/>
+    <bean id="attachmentContentDao"
+        class="ru.intertrust.cm.core.dao.impl.FileSystemAttachmentContentDaoImpl"
+        p:attachmentSaveLocation="c:/attachemnts" />
 
-    <bean id="userTransactionService" class="ru.intertrust.cm.core.dao.impl.UserTransactionServiceImpl"/>
+    <bean id="userTransactionService"
+        class="ru.intertrust.cm.core.dao.impl.UserTransactionServiceImpl" />
 
-    <bean id="domainObjectTypeIdCache" class="ru.intertrust.cm.core.dao.impl.DomainObjectTypeIdCacheImpl"
-          init-method="build" depends-on="configurationLoader"/>
+    <bean id="domainObjectTypeIdCache"
+        class="ru.intertrust.cm.core.dao.impl.DomainObjectTypeIdCacheImpl"
+        init-method="build" depends-on="configurationLoader" />
 
-    <bean id="domainObjectCacheService" class="ru.intertrust.cm.core.dao.impl.DomainObjectCacheServiceImpl"/>
+    <bean id="domainObjectCacheService"
+        class="ru.intertrust.cm.core.dao.impl.DomainObjectCacheServiceImpl" />
 
-    <bean id="personManagement" class="ru.intertrust.cm.core.dao.impl.PersonManagementServiceImpl"/>
+    <bean id="personManagement"
+        class="ru.intertrust.cm.core.dao.impl.PersonManagementServiceImpl" />
+
+    <bean id="extensionService" class="ru.intertrust.cm.core.dao.impl.ExtensionServiceImpl">
+        <property name="basePackage" value="ru/intertrust/cm" />
+    </bean>
+
 </beans>
