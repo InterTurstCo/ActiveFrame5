@@ -340,8 +340,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             throw new IllegalArgumentException("Domain Object type can not be null or empty");
         }
 
-        List<DomainObject> result = domainObjectCacheService.getObjectToCache(null, domainObjectType,
-                String.valueOf(offset), String.valueOf(limit));
+        String[] cacheKey = new String[] {domainObjectType, String.valueOf(offset), String.valueOf(limit)};
+        List<DomainObject> result = domainObjectCacheService.getObjectToCache(cacheKey);
         if (result != null) {
             return result;
         }
@@ -353,8 +353,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             parameters.putAll(getAclParameters(accessToken));
         }
 
-        return jdbcTemplate.query(query, parameters,
+        result = jdbcTemplate.query(query, parameters,
                 new MultipleObjectRowMapper(domainObjectType, configurationExplorer, domainObjectTypeIdCache));
+        domainObjectCacheService.putObjectToCache(result, cacheKey);
+
+        return result;
     }
 
     @Override

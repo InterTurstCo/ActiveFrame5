@@ -2,10 +2,7 @@ package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.stereotype.Service;
 import org.springframework.util.SerializationUtils;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 
 import javax.annotation.Resource;
@@ -35,6 +32,11 @@ import java.util.*;
  */
 @Service
 public class DomainObjectCacheServiceImpl {
+
+    /**
+     * Псевдо-идентификатор для кэширования списков доменных объектов, не имеющих родителя
+     */
+    private static final Id GLOBAL_PSEUDO_ID = new RdbmsId(-1, -1);
 
     @Resource
     private TransactionSynchronizationRegistry txReg;
@@ -224,6 +226,21 @@ public class DomainObjectCacheServiceImpl {
     }
 
     /**
+     * Кеширование списка DomainObject в транзакционный кеш для случая, когда список не имеет родительского доменного
+     * объекта.
+     * Кеш сохраняет в своей внутренней структуре клон передаваемого DomainObject.
+     * @see #putObjectToCache(DomainObject)
+     * @param dobjs список кешируемых доменных объектов
+     * @param key ключевая фраза - формирует уникальный список дочерних доменных объектов
+     * для указанного родительского доменного объекта.
+     * @return список идентификаторов доменных объектов добавленных в кеш
+     * @throws DaoException - если key == null или содержит пустой список.
+     */
+    public List<Id> putObjectToCache(List<DomainObject> dobjs, String ... key) {
+        return putObjectToCache(GLOBAL_PSEUDO_ID, dobjs, key);
+    }
+
+    /**
      * Возвращает клон доменного объекта из кеш
      * @param id - Id запрашиваемого доменного объекта
      * @return клон доменного объект
@@ -288,6 +305,18 @@ public class DomainObjectCacheServiceImpl {
             }
         }
         return ret.size() == 0 ? null : ret;
+    }
+
+    /**
+     * Возвращает список клонированных доменных объектов из кеш в случае, когда список не имеет родительского
+     * доменного объекта
+     * @param key ключевая фраза,  см. определение в описании класса.
+     * @return список дочерних доменных объектов по отношению к parentId.
+     * @throws DaoException - если key == null или содержит пустой список.
+     * null - если не согласованно с базой данных
+     */
+    public List<DomainObject> getObjectToCache(String ... key) {
+        return getObjectToCache(GLOBAL_PSEUDO_ID, key);
     }
 
     /**
