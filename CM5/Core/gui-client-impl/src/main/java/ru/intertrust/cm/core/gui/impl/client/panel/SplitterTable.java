@@ -1,8 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.panel;
 
 
-
-
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.user.cellview.client.Column;
@@ -36,7 +34,7 @@ public class SplitterTable { // extends Composite {
         map1.put("6", union);
         map1.put("7", topic);
 
-        return new MyData("type", map1, null, null );
+        return new MyData("type", map1, null, null);
     }
 
     static List<MyData> MYDATA;
@@ -58,7 +56,7 @@ public class SplitterTable { // extends Composite {
         MyData line14 = createNode("sss", "Акт", "Аэрофлот", "Пупкин В", "Заголовок документа", "", "МЭДО");
         MyData line15 = createNode("sss", "Акт", "Аэрофлот", "Пупкин В", "Заголовок документа", "", "МЭДО");
         MyData line16 = createNode("sss", "Акт", "Аэрофлот", "Пупкин В", "Заголовок документа", "", "МЭДО");
-        MyData line17= createNode("sss", "Акт", "Аэрофлот", "Пупкин В", "Заголовок документа", "", "МЭДО");
+        MyData line17 = createNode("sss", "Акт", "Аэрофлот", "Пупкин В", "Заголовок документа", "", "МЭДО");
 
 
         MYDATA = new ArrayList<MyData>();
@@ -95,9 +93,10 @@ public class SplitterTable { // extends Composite {
         dgStyles.dgStyle().ensureInjected();
 
     }
+
     private final DGCellTableResourceAdapter adapter;
 
-    public SplitterTable(FlowPanel panel){
+    public SplitterTable(FlowPanel panel) {
         adapter = new DGCellTableResourceAdapter(DGCellTableResourcesCommon.I);
         tableHeader = new CellTableHeader<MyData>(adapter);
         tableBody = new CellTableBody<MyData>(adapter);
@@ -107,13 +106,13 @@ public class SplitterTable { // extends Composite {
 
     CellTableHeader<MyData> tableHeader;
     CellTableBody<MyData> tableBody;
-    private  int counter = 0;
+    private int counter = 0;
 
     SimplePanel cellViewPanel = new SimplePanel();
     ScrollPanel scrollViewPanel = new ScrollPanel();
     HTMLPanel rootPathHeader = new HTMLPanel("");
-    FlowPanel headerPanel ;
-    HTMLPanel root =  new HTMLPanel("");
+    FlowPanel headerPanel;
+    HTMLPanel root = new HTMLPanel("");
     SimplePanel dummyHeader = new SimplePanel();
 
     /**
@@ -123,7 +122,7 @@ public class SplitterTable { // extends Composite {
     VerticalPanel verticalPanelFirst = new VerticalPanel();
     VerticalPanel verticalPanelSecond = new VerticalPanel();
 
-    public void init(){
+    public void init() {
 
         Column<MyData, String> column1 = buildNameColumn();
         Column<MyData, String> column2 = buildName2Column();
@@ -134,13 +133,13 @@ public class SplitterTable { // extends Composite {
         Column<MyData, String> column7 = buildName7Column();
 
 
-        tableHeader.addColumn(column1, new ColumnResizeController<MyData>("Статус", tableHeader,tableBody, column1));
-        tableHeader.addColumn(column2, new ColumnResizeController<MyData>("Вид документа", tableHeader,tableBody, column2));
-        tableHeader.addColumn(column3, new ColumnResizeController<MyData>("Подписант", tableHeader,tableBody, column3));
-        tableHeader.addColumn(column4, new ColumnResizeController<MyData>("Адресаты", tableHeader,tableBody, column4));
-        tableHeader.addColumn(column5, new ColumnResizeController<MyData>("Заголовок", tableHeader,tableBody, column5));
-        tableHeader.addColumn(column6, new ColumnResizeController<MyData>("Связи", tableHeader,tableBody, column6));
-        tableHeader.addColumn(column7, new ColumnResizeController<MyData>("Тема", tableHeader,tableBody, column7));
+        tableHeader.addColumn(column1, new ColumnResizeController<MyData>("Статус", tableHeader, tableBody, column1));
+        tableHeader.addColumn(column2, new ColumnResizeController<MyData>("Вид документа", tableHeader, tableBody, column2));
+        tableHeader.addColumn(column3, new ColumnResizeController<MyData>("Подписант", tableHeader, tableBody, column3));
+        tableHeader.addColumn(column4, new ColumnResizeController<MyData>("Адресаты", tableHeader, tableBody, column4));
+        tableHeader.addColumn(column5, new ColumnResizeController<MyData>("Заголовок", tableHeader, tableBody, column5));
+        tableHeader.addColumn(column6, new ColumnResizeController<MyData>("Связи", tableHeader, tableBody, column6));
+        tableHeader.addColumn(column7, new ColumnResizeController<MyData>("Тема", tableHeader, tableBody, column7));
 
 
         tableBody.addColumn(column1);
@@ -154,14 +153,14 @@ public class SplitterTable { // extends Composite {
         tableBody.setData(MYDATA);
 
         root.add(headerPanel);
-    headerPanelResize();
-    buildPanel();
-       show();
-       draw();
+        headerPanelResize();
+        buildPanel();
+        show();
+        draw();
     }
 
 
-    public void headerPanelResize(){
+    public void headerPanelResize() {
 
         Window.addResizeHandler(new ResizeHandler() {
             @Override
@@ -175,26 +174,21 @@ public class SplitterTable { // extends Composite {
     }
 
 
-
-    private void draw(){
-        for (int i =0; i < tableHeader.getColumnCount(); i++){
-            int headerPanelwidth =  headerPanel.getOffsetWidth()/tableHeader.getColumnCount();
+    private void draw() {
+        for (int i = 0; i < tableHeader.getColumnCount(); i++) {
+            int headerPanelwidth = headerPanel.getOffsetWidth() / tableHeader.getColumnCount();
 //                if (headerPanelwidth < 350){
 //                    headerPanelwidth = 350;
 //                }
-            tableHeader.setColumnWidth(tableHeader.getColumn(i), headerPanelwidth+"px");
-            tableBody.setColumnWidth(tableBody.getColumn(i), headerPanelwidth+"px");
+            tableHeader.setColumnWidth(tableHeader.getColumn(i), headerPanelwidth + "px");
+            tableBody.setColumnWidth(tableBody.getColumn(i), headerPanelwidth + "px");
 
         }
     }
 
 
-
-
-
-
-    private TextColumn<MyData> buildNameColumn(){
-        return new TextColumn<MyData>()  {
+    private TextColumn<MyData> buildNameColumn() {
+        return new TextColumn<MyData>() {
             @Override
             public String getValue(MyData object) {
                 return object.getValueByKey("1", String.class);
@@ -202,8 +196,8 @@ public class SplitterTable { // extends Composite {
         };
     }
 
-    private TextColumn<MyData> buildName2Column(){
-        return new TextColumn<MyData>()  {
+    private TextColumn<MyData> buildName2Column() {
+        return new TextColumn<MyData>() {
             @Override
             public String getValue(MyData object) {
                 return object.getValueByKey("2", String.class);
@@ -211,8 +205,8 @@ public class SplitterTable { // extends Composite {
         };
     }
 
-    private TextColumn<MyData> buildName3Column(){
-        return new TextColumn<MyData>()  {
+    private TextColumn<MyData> buildName3Column() {
+        return new TextColumn<MyData>() {
             @Override
             public String getValue(MyData object) {
                 return object.getValueByKey("3", String.class);
@@ -220,8 +214,8 @@ public class SplitterTable { // extends Composite {
         };
     }
 
-    private TextColumn<MyData> buildName4Column(){
-        return new TextColumn<MyData>()  {
+    private TextColumn<MyData> buildName4Column() {
+        return new TextColumn<MyData>() {
             @Override
             public String getValue(MyData object) {
                 return object.getValueByKey("4", String.class);
@@ -229,8 +223,8 @@ public class SplitterTable { // extends Composite {
         };
     }
 
-    private TextColumn<MyData> buildName5Column(){
-        return new TextColumn<MyData>()  {
+    private TextColumn<MyData> buildName5Column() {
+        return new TextColumn<MyData>() {
             @Override
             public String getValue(MyData object) {
                 return object.getValueByKey("5", String.class);
@@ -238,8 +232,8 @@ public class SplitterTable { // extends Composite {
         };
     }
 
-    private TextColumn<MyData> buildName6Column(){
-        return new TextColumn<MyData>()  {
+    private TextColumn<MyData> buildName6Column() {
+        return new TextColumn<MyData>() {
             @Override
             public String getValue(MyData object) {
                 return object.getValueByKey("6", String.class);
@@ -247,8 +241,8 @@ public class SplitterTable { // extends Composite {
         };
     }
 
-    private TextColumn<MyData> buildName7Column(){
-        return new TextColumn<MyData>()  {
+    private TextColumn<MyData> buildName7Column() {
+        return new TextColumn<MyData>() {
             @Override
             public String getValue(MyData object) {
                 return object.getValueByKey("7", String.class);
@@ -256,23 +250,22 @@ public class SplitterTable { // extends Composite {
         };
     }
 
-    private void show(){
-       headerPanel.clear();
-       headerPanel.setStyleName(adapter.getResources().cellTableStyle().docsCelltableHeaderPanel());
-       headerPanel.add(tableHeader);
-       cellViewPanel.add(tableBody);
-       cellViewPanel.setWidth("100%");
+    private void show() {
+        headerPanel.clear();
+        headerPanel.setStyleName(adapter.getResources().cellTableStyle().docsCelltableHeaderPanel());
+        headerPanel.add(tableHeader);
+        cellViewPanel.add(tableBody);
+        cellViewPanel.setWidth("100%");
         cellViewPanel.setHeight("100%");
-       horizontalPanel.setHeight("100%");
+        horizontalPanel.setHeight("100%");
 
-       root.setHeight("500px");
+        root.setHeight("500px");
 
-       RootPanel.get().add(root);
+        RootPanel.get().add(root);
     }
 
 
-
-    private void buildPanel(){
+    private void buildPanel() {
         root.add(horizontalPanel);
         horizontalPanel.add(scrollViewPanel);
         scrollViewPanel.add(verticalPanelFirst);

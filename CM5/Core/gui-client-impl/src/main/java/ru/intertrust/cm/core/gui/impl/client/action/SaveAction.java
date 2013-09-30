@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client.action;
 import com.google.gwt.user.client.Window;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.SomeActivePlugin;
+import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
@@ -28,7 +29,8 @@ public class SaveAction extends SimpleServerAction {
 
     @Override
     protected SaveActionContext getContext() {
-        Form form = (Form) getPlugin().getCurrentState();
+        DomainObjectSurferPlugin domainObjectSurferPlugin = (DomainObjectSurferPlugin) getPlugin();
+        Form form = (Form) domainObjectSurferPlugin.getFormPlugin().getCurrentState();
         SaveActionContext context = new SaveActionContext();
         context.setRootObjectId(form.getRootObject().getId());
         context.setForm(form);
@@ -38,7 +40,9 @@ public class SaveAction extends SimpleServerAction {
     @Override
     protected void onSuccess(ActionData result) {
         SaveActionData data = (SaveActionData) result;
-        ((SomeActivePlugin) getPlugin()).update(data.getSomeActivePluginData().getForm());
+        DomainObjectSurferPlugin domainObjectSurfer = (DomainObjectSurferPlugin) getPlugin();
+        SomeActivePlugin formPlugin = (SomeActivePlugin) domainObjectSurfer.getFormPlugin();
+        formPlugin.update(data.getSomeActivePluginData().getForm());
         Window.alert("Saved!!!");
     }
 }

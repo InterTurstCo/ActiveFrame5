@@ -1,19 +1,23 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
-import com.google.gwt.dom.client.NativeEvent;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
+import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.cellview.client.RowStyles;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
-import com.google.gwt.view.client.CellPreviewEvent;
+import com.google.gwt.view.client.ListDataProvider;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CellTableBody;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CellTableEx;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CellTableHeader;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CellTableEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CheckedSelectionModel;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.ColumnResizeController;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.SystemColumns;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.resources.DGCellTableResourceAdapter;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.resources.DGCellTableResourcesCommon;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.resources.DynamicGridStyles;
@@ -30,19 +34,19 @@ import java.util.List;
  *         Time: 12:05 PM
  */
 public class CollectionPluginView extends PluginView {
-    CellTableHeader<MyData> tableHeader;
-    CellTableBody<MyData> tableBody;
+    CellTable<MyData> tableHeader;
+    CellTable<MyData> tableBody;
 
-    SimplePanel cellViewPanel = new SimplePanel();
-    ScrollPanel scrollViewPanel = new ScrollPanel();
-    HTMLPanel rootPathHeader = new HTMLPanel("");
     FlowPanel headerPanel = new FlowPanel();
-    HTMLPanel root =  new HTMLPanel("");
-    SimplePanel dummyHeader = new SimplePanel();
+    SimplePanel bodyPanel = new SimplePanel();
+    VerticalPanel verticalPanel = new VerticalPanel();
+    ScrollPanel root = new ScrollPanel();
 
+    private List<MyData> tableContent =new ArrayList<MyData>();
     /**
      * Создание стилей для ящеек таблицы
      */
+    private final DGCellTableResourceAdapter adapter;
     private static DynamicGridStyles dgStyles = DynamicGridStyles.I;
     static {
         DGCellTableResourcesCommon.I.cellTableStyle().ensureInjected();
@@ -50,32 +54,14 @@ public class CollectionPluginView extends PluginView {
         dgStyles.dgStyle().ensureInjected();
 
     }
-    /**
-     * Вспомогательные компоненты в uibinder
-     */
-    HorizontalPanel horizontalPanel = new HorizontalPanel();
-    VerticalPanel verticalPanelFirst = new VerticalPanel();
-    VerticalPanel verticalPanelSecond = new VerticalPanel();
-    private final DGCellTableResourceAdapter adapter;
 
     protected CollectionPluginView(Plugin plugin) {
         super(plugin);
         adapter = new DGCellTableResourceAdapter(DGCellTableResourcesCommon.I);
-        tableHeader = new CellTableHeader<MyData>(adapter);
-        tableBody = new CellTableBody<MyData>(adapter);
-    }
-
-    @Override
-    protected IsWidget getViewWidget() {
-
-        CollectionPluginData collectionPluginData =  plugin.getInitialData();
-        List<String> columnNames = collectionPluginData.getColumnNames();
-        init(columnNames, collectionPluginData.getStringList());
-        return root;
+        tableHeader = new CellTable<MyData>(999,  adapter.getResources());
+        tableBody = new CellTable<MyData>(999, adapter.getResources());
 
     }
-    private List<MyData> tableContent =new ArrayList<MyData>();
-
     public List<MyData> getTableContent() {
         return tableContent;
     }
@@ -84,38 +70,60 @@ public class CollectionPluginView extends PluginView {
         this.tableContent = tableContent;
     }
 
+    @Override
+    protected IsWidget getViewWidget() {
+
+        CollectionPluginData collectionPluginData =  plugin.getInitialData();
+        List<Id> ids = collectionPluginData.getIds();
+        IdentifiableObjectCollection collection = collectionPluginData.getCollection();
+        List<String> columnNames = collectionPluginData.getColumnNames();
+        List<List<String>> columnData = collectionPluginData.getStringList();
+        init(columnNames, columnData);
+        return root;
+
+    }
+
     public void init(List<String> columnName, List<List<String>> myStringList){
-        transformToMyDataList(myStringList);
-        createCellTableHeader(columnName);
-        root.add(headerPanel);
-        headerPanelResize();
+
         buildPanel();
-        show();
+        setLinearSizes();
+        settingStyles();
+        addHandlers();
+        transformIncomingData(myStringList);
+        buildColumnsOfTables(columnName);
+        attachingDataProvider(tableBody, tableContent);
         draw();
 
     }
 
-    public void headerPanelResize(){
+    private void addResizeHandler(){
 
         Window.addResizeHandler(new ResizeHandler() {
             @Override
             public void onResize(ResizeEvent event) {
-                tableHeader.redraw();
-                tableBody.redraw();
-                draw();
+            tableHeader.redraw();
+            tableBody.redraw();
+             draw();
             }
         });
 
     }
+    private void addHandlers(){
+        addResizeHandler();
+        tableBody.addCellPreviewHandler(new CellTableEventHandler<MyData>(tableBody, plugin));
+    }
 
     private void draw(){
         for (int i =0; i < tableHeader.getColumnCount(); i++){
-            int headerPanelwidth =  headerPanel.getOffsetWidth()/tableHeader.getColumnCount();
-            if (headerPanelwidth < 350){
-                headerPanelwidth = 350;
+            tableHeader.setWidth("100%", true);
+            tableBody.setWidth("100%", true);
+            int headerPanelwidth = 100/tableHeader.getColumnCount();
+            System.out.println("lenght: " + headerPanelwidth);
+            if (headerPanelwidth < 35) {
+                headerPanelwidth = 35;
             }
-            tableHeader.setColumnWidth(tableHeader.getColumn(i), headerPanelwidth+"px");
-            tableBody.setColumnWidth(tableBody.getColumn(i), headerPanelwidth+"px");
+            tableHeader.setColumnWidth(tableHeader.getColumn(i), headerPanelwidth+ "%");
+            tableBody.setColumnWidth(tableBody.getColumn(i), headerPanelwidth+"%");
 
         }
     }
@@ -130,31 +138,24 @@ public class CollectionPluginView extends PluginView {
         };
     }
 
-    private void show(){
-        headerPanel.clear();
-        headerPanel.setStyleName(adapter.getResources().cellTableStyle().docsCelltableHeaderPanel());
-        headerPanel.add(tableHeader);
-        cellViewPanel.add(tableBody);
-        cellViewPanel.setWidth("100%");
-        horizontalPanel.setHeight("100%");
-        //root.setHeight("500px");
+    private void setLinearSizes(){
+        root.setHeight("150px");
+        bodyPanel.setWidth("100%");
 
     }
 
     private void buildPanel(){
-        root.add(horizontalPanel);
-        horizontalPanel.add(scrollViewPanel);
-        scrollViewPanel.add(verticalPanelFirst);
-        verticalPanelFirst.add(rootPathHeader);
-        verticalPanelFirst.add(headerPanel);
-        verticalPanelFirst.add(cellViewPanel);
-        verticalPanelSecond.add(dummyHeader);
 
-        scrollViewPanel.setHeight("300px");
-        //  rootPathHeader.addStyleName("docs-ctg-listContainerHeader");
+        headerPanel.add(tableHeader);
+        bodyPanel.add(tableBody);
+        verticalPanel.add(headerPanel);
+        verticalPanel.add(bodyPanel);
+
+        root.add(verticalPanel);
+
     }
 
-    public void createCellTableHeader(List<String> columnNames){
+    private void buildColumnsOfTables(List<String> columnNames){
         for( int i = 0; i <columnNames.size(); i++ ) {
             Column<MyData, String> column = buildNameColumn(i);
             String nameOfColumn = columnNames.get(i);
@@ -163,16 +164,16 @@ public class CollectionPluginView extends PluginView {
         }
 
         tableBody.setRowCount(tableContent.size());
-        tableBody.setData(tableContent);
 
     }
-    public void transformToMyDataList(List<List<String>> stringLists) {
+    private void transformIncomingData(List<List<String>> stringLists) {
         List<MyData>  myDataList = new ArrayList<MyData>();
         for(List<String> list: stringLists) {
-            MyData myData = createNode( list );
+            MyData myData = createNode(list);
             myDataList.add(myData);
         }
         setTableContent(myDataList);
+
     }
     private MyData createNode(List<String> list) {
         HashMap<String, Object> values = new HashMap<String,Object>();
@@ -184,46 +185,46 @@ public class CollectionPluginView extends PluginView {
 
         return new MyData( values );
     }
-    private class CellTableEventHandler<T1> implements CellPreviewEvent.Handler<T1> {
-                 private CellTableEx<MyData> cellTableEx;
-        private CellTableEventHandler() {
-
-        }
-
-        private CellTableEventHandler(CellTableEx<MyData> cellTableEx) {
-            this.cellTableEx = cellTableEx;
-        }
-
-        /**
-         * Обработка события {@link com.google.gwt.view.client.CellPreviewEvent}.
-         * Обрабатываются события типа:
-         * "click" - устанавливается текущая строка и колонка таблицы;
-         * "focus" - устанавливается текущая колонка;
-         * "touchstart" - запоминается номер строки, которой коснулся пользователь.
-         *
-         * @param event
-         *          Экземпляр {@link com.google.gwt.view.client.CellPreviewEvent}
-         */
-        @Override
-        public void onCellPreview(CellPreviewEvent<T1> event) {
-            NativeEvent nativeEvent = event.getNativeEvent();
-            if ("click".equals(nativeEvent.getType())) {
-                int currentRow = event.getIndex();
-                cellTableEx.setCurrentColumn(event.getColumn());
-                MyData myData = cellTableEx.getDataProvider().getList().get(currentRow);
-                Window.alert("selected  " + myData.getRowValues() );
-                if (currentRow != cellTableEx.getCurrentRow()) {
-                    cellTableEx.setCurrentRow(currentRow);
-                }
-            }
-            else if ("focus".equals(nativeEvent.getType())) {
-                cellTableEx.setCurrentColumn(event.getColumn());
-            }
-            else if ("touchstart".equals(nativeEvent.getType())) {
-                cellTableEx.setTouchRow(event.getIndex());
-            }
-        }
+    private void attachingDataProvider(CellTable<MyData> cellTable, List<MyData> myDataList) {
+        ListDataProvider<MyData> dataProvider = new ListDataProvider<MyData>(myDataList);
+        // Connect the table to the data provider.
+        dataProvider.addDataDisplay(cellTable);
     }
+    private void settingStyles() {
+        setStyleOfHeaderTable();
+        setStyleOfBodyTable();
+    }
+      private void setStyleOfHeaderTable() {
+          tableHeader.setStyleName(adapter.getResources().cellTableStyle().docsCelltableHeader());
+          tableHeader.setTableLayoutFixed(true);
+          headerPanel.setStyleName(adapter.getResources().cellTableStyle().docsCelltableHeaderPanel());
 
+          tableBody.setStyleName(adapter.getResources().cellTableStyle().docsCelltableBody());
+      }
+    private void setStyleOfBodyTable() {
+        final CheckedSelectionModel<MyData> selectionModel = new CheckedSelectionModel<MyData>();
+        String emptyTableText = null;
+
+        HTML emptyTableWidget = new HTML("<br/><div align='center'> <h1> " + emptyTableText + " </h1> </div>");
+        emptyTableWidget.getElement().getStyle().setPaddingLeft(60, Style.Unit.PX);
+
+        tableBody.setRowStyles(new RowStyles<MyData>() {
+            @Override
+            public String getStyleNames(MyData row, int rowIndex) {
+                String style = adapter.getResources().cellTableStyle().docsCelltableTrCommon();
+                if (row != null) {
+                    Boolean value = row.getValueByKey(SystemColumns.ISUNREAD.getColumnName(), Boolean.class);
+                    if (value != null && value.booleanValue()) {
+                        style = adapter.getResources().cellTableStyle().docsCelltableTrUnread();
+                    }
+                }
+                return style;
+            }
+        });
+
+        tableBody.setEmptyTableWidget(emptyTableWidget);
+        tableBody.setSelectionModel(selectionModel);
+        tableBody.setTableLayoutFixed(true);
+    }
  }
 

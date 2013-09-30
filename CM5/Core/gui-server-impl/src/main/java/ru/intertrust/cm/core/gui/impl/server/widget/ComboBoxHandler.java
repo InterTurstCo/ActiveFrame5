@@ -1,8 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.model.ReferenceFieldTypeConfig;
 import ru.intertrust.cm.core.config.model.gui.form.widget.ComboBoxConfig;
@@ -37,25 +35,29 @@ public class ComboBoxHandler extends WidgetHandler {
         if (referenceFieldTypes.size() > 1) {
             throw new IllegalArgumentException("Combo-box is not supposed to be used with multi-typed fields");
         }
+        // todo: find LINKED: only cities of that country
+        // List<DomainObject> listToDisplay = getCrudService().findLinkedDomainObjects(rootObjectForComboBoxField.getId(), "city", "country");
         List<DomainObject> listToDisplay = getCrudService().findAll(referenceFieldTypes.get(0).getName());
+        LinkedHashMap<Id, String> idDisplayMapping = new LinkedHashMap<>();
+        idDisplayMapping.put(null, "");
+
+        ComboBoxData result = new ComboBoxData();
+        result.setListValues(idDisplayMapping);
+
         if (listToDisplay == null) {
-            return new ComboBoxData();
+            return result;
         }
 
         Pattern pattern = Pattern.compile("\\{\\w+\\}");
         Matcher matcher = pattern.matcher(widgetConfig.getPatternConfig().getValue());
-        LinkedHashMap<Id, String> idDisplayMapping = new LinkedHashMap<>();
         for (DomainObject domainObject : listToDisplay) {
             String format = format(domainObject, matcher);
             idDisplayMapping.put(domainObject.getId(), format);
-
         }
 
         ReferenceValue fieldPathValue = formData.getFieldPathValue(getFieldPath(widgetConfig));
         Id selectedId = fieldPathValue == null ? null : fieldPathValue.get();
 
-        ComboBoxData result = new ComboBoxData();
-        result.setListValues(idDisplayMapping);
         result.setId(selectedId);
 
         return result;
@@ -66,7 +68,19 @@ public class ComboBoxHandler extends WidgetHandler {
         while (matcher.find()) {
             String group = matcher.group();
             String fieldName = group.substring(1, group.length() - 1);
-            matcher.appendReplacement(replacement, domainObject.getValue(fieldName).toString());
+            Value value = domainObject.getValue(fieldName);
+            String displayValue = "";
+            if (value != null) {
+                Object primitiveValue = value.get();
+                if (primitiveValue == null) {
+                    if (value instanceof LongValue || value instanceof DecimalValue) {
+                        displayValue = "0";
+                    }
+                } else {
+                    displayValue = primitiveValue.toString();
+                }
+            }
+            matcher.appendReplacement(replacement, displayValue);
         }
         matcher.appendTail(replacement);
         matcher.reset();

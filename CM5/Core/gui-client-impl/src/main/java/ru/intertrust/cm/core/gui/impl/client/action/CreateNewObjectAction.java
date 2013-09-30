@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.action;
 
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.SomeActivePlugin;
+import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.SomeActivePluginConfig;
 
@@ -14,15 +15,16 @@ import ru.intertrust.cm.core.gui.model.plugin.SomeActivePluginConfig;
 public class CreateNewObjectAction extends Action {
     @Override
     public void execute() {
-        SomeActivePlugin currentPlugin = (SomeActivePlugin) getPlugin();
-        String domainObjectTypeToCreate = currentPlugin.getRootDomainObject().getTypeName();
+        DomainObjectSurferPlugin currentPlugin = (DomainObjectSurferPlugin) getPlugin();
+        SomeActivePlugin formPlugin = (SomeActivePlugin) currentPlugin.getFormPlugin();
+        String domainObjectTypeToCreate = formPlugin.getRootDomainObject().getTypeName();
 
         SomeActivePluginConfig config = new SomeActivePluginConfig(domainObjectTypeToCreate);
         config.setDomainObjectTypeToCreate(domainObjectTypeToCreate);
-        SomeActivePlugin newPlugin = ComponentRegistry.instance.get(currentPlugin.getName());
+        SomeActivePlugin newPlugin = ComponentRegistry.instance.get(formPlugin.getName());
         newPlugin.setConfig(config);
-
-        currentPlugin.getOwner().open(newPlugin);
+        currentPlugin.setFormPlugin(newPlugin);
+        formPlugin.getOwner().open(newPlugin);
     }
 
     @Override

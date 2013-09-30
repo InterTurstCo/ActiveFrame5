@@ -1,7 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import ru.intertrust.cm.core.business.api.dto.Dto;
@@ -13,6 +15,8 @@ import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -35,6 +39,7 @@ public abstract class Plugin extends BaseComponent {
     private PluginConfig config;
     private PluginData initialData;
     private PluginView view;
+    private List<HandlerRegistration> handlerRegistrations = new ArrayList<HandlerRegistration>();
 
     static Logger logger = Logger.getLogger("plugin logger");
 
@@ -89,6 +94,15 @@ public abstract class Plugin extends BaseComponent {
         postSetUp();
     }
 
+    protected <H extends EventHandler> void addHandler(GwtEvent.Type<H> type, H handler) {
+        handlerRegistrations.add(eventBus.addHandler(type, handler));
+    }
+
+    void clearHandlers() {
+        for (HandlerRegistration registration : handlerRegistrations) {
+            registration.removeHandler();
+        }
+    }
 
     /**
      * Возвращает представление плагина.

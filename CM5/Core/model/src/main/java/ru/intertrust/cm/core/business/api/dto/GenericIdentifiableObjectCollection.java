@@ -14,9 +14,12 @@ import java.util.*;
  */
 public class GenericIdentifiableObjectCollection implements IdentifiableObjectCollection {
 
-    private ArrayList<IdentifiableObject> list = new ArrayList<>();
-    private HashMap<String, Integer> fieldIndexes = new HashMap<>();
+    private ArrayList<IdentifiableObject> list = new ArrayList<IdentifiableObject>();
+    private HashMap<String, Integer> fieldIndexes = new HashMap<String, Integer>();
     private ArrayList<String> fields;
+
+    public GenericIdentifiableObjectCollection() {
+    }
 
     @Override
     public void setFields(List<String> fields) {
@@ -24,9 +27,9 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
             throw new IllegalArgumentException("Collection fields are already set");
         }
         if (fields == null) {
-            this.fields = new ArrayList<>();
+            this.fields = new ArrayList<String>();
         } else {
-            this.fields = new ArrayList<>(fields);
+            this.fields = new ArrayList<String>(fields);
         }
         int fieldIndex = 0;
         for (String field : this.fields) {
@@ -79,7 +82,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
 
     @Override
     public ArrayList<String> getFields() {
-        return fields == null ? new ArrayList<String>() : new ArrayList<>(fields);
+        return fields == null ? new ArrayList<String>() : new ArrayList<String>(fields);
     }
 
     @Override
@@ -119,21 +122,24 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         if (fields == null) {
             setFields(Collections.<String>emptyList());
         }
-        return new FastIdentifiableObjectImpl(fields.size());
+        return new FastIdentifiableObjectImpl(this);
     }
 
     /**
      * Имплементация, позволяющая получить быстрый доступ к значениям полей по индексу
      */
-    private class FastIdentifiableObjectImpl implements IdentifiableObject {
+    static class FastIdentifiableObjectImpl implements IdentifiableObject {
         private Id id;
         private ArrayList<Value> fieldValues;
+        private IdentifiableObjectCollection collection;
 
-        private FastIdentifiableObjectImpl() {
+        FastIdentifiableObjectImpl() {
         }
 
-        private FastIdentifiableObjectImpl(int fieldsSize) {
-            fieldValues = new ArrayList<>(fieldsSize);
+        private FastIdentifiableObjectImpl(IdentifiableObjectCollection collection) {
+            this.collection = collection;
+            int fieldsSize = collection.getFields().size();
+            fieldValues = new ArrayList<Value>(fieldsSize);
             for (int i = 0; i < fieldsSize; ++i) {
                 fieldValues.add(null);
             }
@@ -151,12 +157,12 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
 
         @Override
         public void setValue(String field, Value value) {
-            fieldValues.set(getFieldIndex(field), value);
+            fieldValues.set(collection.getFieldIndex(field), value);
         }
 
         @Override
         public <T extends Value> T getValue(String field) {
-            return (T) fieldValues.get(getFieldIndex(field));
+            return (T) fieldValues.get(collection.getFieldIndex(field));
         }
 
         public void setValue(int index, Value value) {
@@ -169,7 +175,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
 
         @Override
         public void setString(String field, String value) {
-            fieldValues.set(getFieldIndex(field), new StringValue(value));
+            fieldValues.set(collection.getFieldIndex(field), new StringValue(value));
         }
 
         public void setString(int index, String value) {
@@ -188,7 +194,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
 
         @Override
         public void setLong(String field, Long value) {
-            fieldValues.set(getFieldIndex(field), new LongValue(value));
+            fieldValues.set(collection.getFieldIndex(field), new LongValue(value));
         }
 
         public void setLong(int index, Long value) {
@@ -206,7 +212,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
 
         @Override
         public void setBoolean(String field, Boolean value) {
-            fieldValues.set(getFieldIndex(field), new BooleanValue(value));
+            fieldValues.set(collection.getFieldIndex(field), new BooleanValue(value));
         }
 
         public void setBoolean(int index, Boolean value) {
@@ -224,7 +230,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
 
         @Override
         public void setDecimal(String field, BigDecimal value) {
-            fieldValues.set(getFieldIndex(field), new DecimalValue(value));
+            fieldValues.set(collection.getFieldIndex(field), new DecimalValue(value));
         }
 
         public void setDecimal(int index, BigDecimal value) {
@@ -242,7 +248,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
 
         @Override
         public void setTimestamp(String field, Date value) {
-            fieldValues.set(getFieldIndex(field), new TimestampValue(value));
+            fieldValues.set(collection.getFieldIndex(field), new TimestampValue(value));
         }
 
         public void setTimestamp(int index, Date value) {
@@ -260,7 +266,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
 
         @Override
         public void setReference(String field, DomainObject domainObject) {
-            fieldValues.set(getFieldIndex(field), new ReferenceValue(domainObject.getId()));
+            fieldValues.set(collection.getFieldIndex(field), new ReferenceValue(domainObject.getId()));
         }
 
         public void setReference(int index, DomainObject domainObject) {
@@ -269,7 +275,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
 
         @Override
         public void setReference(String field, Id id) {
-            fieldValues.set(getFieldIndex(field), new ReferenceValue(id));
+            fieldValues.set(collection.getFieldIndex(field), new ReferenceValue(id));
         }
 
         @Override
@@ -283,7 +289,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
 
         @Override
         public ArrayList<String> getFields() {
-            return GenericIdentifiableObjectCollection.this.getFields();
+            return collection.getFields();
         }
 
         @Override

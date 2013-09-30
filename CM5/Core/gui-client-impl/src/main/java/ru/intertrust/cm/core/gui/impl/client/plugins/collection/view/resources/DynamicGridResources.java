@@ -77,4 +77,6 @@ public interface DynamicGridResources extends CssResource {
 
   @ClassName("gridMoveColumnDiv")
   String gridMoveColumnDiv();
+
+    String Ds_search_box();
 }

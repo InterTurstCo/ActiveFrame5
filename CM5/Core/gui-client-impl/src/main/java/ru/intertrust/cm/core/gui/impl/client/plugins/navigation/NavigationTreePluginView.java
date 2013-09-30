@@ -83,7 +83,7 @@ public class NavigationTreePluginView extends PluginView {
             processChildsToOpen(childToOpen, defaultSelections, firstLevelTreeItem);
             buildSubNodes(firstLevelTreeItem, firstLevelChildLink, childToOpen, defaultSelections);
 
-            Tree firstLevelTree = new Tree();
+            Tree firstLevelTree = new Tree(images);
             firstLevelTree.setAnimationEnabled(true);
             firstLevelTree.setStyleName("folder-list");
 

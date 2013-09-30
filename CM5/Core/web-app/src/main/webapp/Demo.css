@@ -17,6 +17,15 @@ h1 {
     background-color: red;
 }
 
+.white{
+    background-color: white;
+    border-radius: 5px;
+    padding: 4px 4px 4px 4px;
+    width: 100%;
+    margin-left: 3px;
+    margin-right: 1%;
+}
+
 #header {
     height: 60px; /**/
     /*padding: 10px;/**/
@@ -467,7 +476,7 @@ h1 {
 }
 
 .centerTopBottomDividerRoot {
-    margin: 10px 10px 100px 0;
+    margin: 10px 10px 1px 0;
     background: #ffffff;
     background: -moz-linear-gradient(top, #ffffff 0%, #e8eff3 100%);
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ffffff),
@@ -479,10 +488,13 @@ h1 {
 
     '#ffffff', endColorstr=   '#e8eff3', GradientType=   0 );
     background: linear-gradient(top, #ffffff 0%, #e8eff3 100%);
+
+
+
     border-radius: 5px;
 }
 
-#content-actions button.Ca_button:hover {
+.content-actions button.Ca_button:hover {
     background: #ffffff;
     background: -moz-linear-gradient(top, #ffffff 0%, #e8eff3 100%);
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ffffff),
@@ -496,7 +508,7 @@ h1 {
     background: linear-gradient(top, #ffffff 0%, #e8eff3 100%);
 }
 
-#content-actions button.Ca_button:active { /*background: #fff;/**/
+.content-actions button.Ca_button:active { /*background: #fff;/**/
     box-shadow: inset 0 1px 2px #999;
     background: #ffffff;
     background: -moz-linear-gradient(top, #ffffff 0%, #d0d6da 100%);
@@ -511,7 +523,7 @@ h1 {
     background: linear-gradient(top, #ffffff 0%, #d0d6da 100%);
 }
 
-#content-actions-without-shadow button.Caws_button {
+.content-actions-without-shadow button.Caws_button {
     width: 22px;
     height: 22px;
     margin: 0 0 0 10px;
@@ -519,4 +531,580 @@ h1 {
     border-radius: 5px;
     box-shadow: 0 1px 2px #999;
     font: 16px/16px Arial;
+}
+
+
+
+/*
+.gwt-Label{
+    vertical-align: middle;
+    padding-top: 5px;
+    padding-bottom: 7px;
+}
+
+.dialZag .gwt-Label{
+    vertical-align: middle;
+    padding: 5px;
+}
+
+.gwt-Label{
+    vertical-align: middle;
+    padding-right: 5px;
+}
+*/
+
+div.gwt-Label{
+    margin-left: 20px;
+    font-size: 120%;
+    text-align: left;
+}
+
+
+
+.gwt-TabLayoutPanel {
+
+}
+
+/*** TAB PANEL***/
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelTabs { /* background: #ccc; */
+    padding-top: 6px;
+    padding-left: 5px;
+    margin-left: 0px;
+    margin-right: 20px;
+}
+
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelContentContainer {
+    border-color: #ccc;
+    border-style: solid;
+    border-width: 0px 1px 1px;
+    /* �������� 03.11.2011
+   �����, ���� �� ������������ ������ �����
+    height: 1000px;
+    position: relative;
+    background: white;
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+*/
+}
+
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelContent {
+    overflow: visible;
+    /* padding: 6px; */
+}
+
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelTab {
+    color: #000000;
+    font-size: 110%;
+    margin-left: 4px;
+    margin-right: 20px;
+    /*
+    padding: 10px;
+*/
+    cursor: pointer;
+    cursor: hand;
+    font-weight: normal;
+    text-align: center;
+    -moz-border-radius: 3px 3px 0px 0px;
+    border-radius: 3px 3px 0px 0px;
+    text-decoration: underline;
+}
+
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelTab-selected {
+    cursor: default;
+    color: #333;
+    font-weight: bold;
+    text-decoration: none;
+    background: url("css/images/tabs_selected_r.png") no-repeat scroll 100% 0
+    transparent;
+}
+
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelTab-corner {
+    background: url("css/images/tabs_selected_l.gif") no-repeat 0 0 #fff;
+    margin-right: 24px;
+    padding: 1px 1 1px 1px;
+}
+
+.tab-content{
+    background-color: #c2e7f0;
+    border-radius: 5px;
+
+}
+
+.centerTopSlotPanel-shadowed {
+    z-index: 1;
+}
+
+.actionBar {
+    z-index: 1;
+    width: auto;
+    height: 40px;
+    overflow: hidden;
+}
+
+.Ca_refresh i {
+    background: url('css/actionbar/toolbar_icons.png') no-repeat 0 0;
+}
+
+.Ca_add 	i {
+    background: url('css/actionbar/toolbar_icons.png') no-repeat 0 -15px;
+}
+
+.Ca_send 	i {
+    background: url('css/actionbar/toolbar_icons.png') no-repeat 0 -30px;
+}
+
+.Ca_folder 	i {
+    background: url('css/actionbar/toolbar_icons.png') no-repeat 0 -45px;
+}
+
+.Ca_edit 	i {
+    background: url('css/actionbar/toolbar_icons.png') no-repeat 0 -60px;
+}
+
+.Ca_control	i {
+    background: url('css/actionbar/toolbar_icons.png') no-repeat 0 -75px;
+}
+
+.Ca_save	i {
+    background: url('css/actionbar/toolbar_icons.png') no-repeat 0 -90px;
+}
+
+.Ca_delete	i {
+    background: url('css/actionbar/toolbar_icons.png') no-repeat 0 -105px;
+}
+
+.Ca_close	i {
+    background: url('css/actionbar/toolbar_icons.png') no-repeat 0 -120px;
+}
+
+.Ca_plan	i {
+    background: url('css/actionbar/toolbar_icons.png') no-repeat 0 -135px;
+}
+
+a:hover .icon.back {
+    background-position: -18px 0;
+}
+
+a:active .icon.back {
+    background-position: -36px 0;
+}
+
+.icon.remove {
+    background: url("css/icons/icons.png") left top no-repeat;
+    top: 0;
+    cursor: pointer;
+}
+
+.pseudo .icon.remove {
+    margin-right: -3px;
+}
+
+.pseudo:hover .icon.remove,.icon.remove:hover {
+    background-position: -16px 0;
+}
+
+.icon.remove-small {
+    background: url("css/icons/icons.png") -32px top no-repeat;
+    top: 5px;
+    left: -3px;
+    cursor: pointer;
+}
+
+.pseudo:hover .icon.remove-small,.icon.remove-small:hover {
+    background-position: -48px 0;
+}
+
+.pseudo .icon.remove-small {
+    margin-right: -6px;
+}
+
+.icon.add {
+    height: 16px;
+    width: 16px;
+    background: url("css/icons/icon-add.png") center center no-repeat;
+    cursor: pointer;
+}
+
+.triangle {
+    border-bottom: none !important;
+    font-size: 70%;
+    width: auto;
+    height: auto;
+    margin-right: 3px;
+    top: 0;
+    vertical-align: middle;
+}
+
+.icon.under-control {
+    background: url("css/icons/icons-status.png") -32px 0px no-repeat;
+    height: 16px;
+    width: 16px;
+}
+
+.icon.di-progress {
+    background-image: url("css/icons/ico-progress.gif");
+}
+
+.icon .reload {
+    background-image: url("css/icons/icon-reload.png");
+    margin-right: -2px;
+}
+
+.icon.save {
+    background-image: url("css/icons/icon-save.png");
+    margin-right: 1px;
+}
+
+.icon.new {
+    background-image: url("css/icons/icon-new.png");
+    margin-right: -1px;
+}
+
+.icon.complete {
+    background-image: url("css/icons/icon-complete.png");
+    /* margin-right:-3px; */
+    margin-right: 3px; /* by Vipovskiy */
+}
+
+.icon.icon-cert-big {
+    width: 24px;
+    height: 24px;
+    background-image: url("css/icons/icon-cert-big.png");
+    top: 5px;
+}
+
+.icon.cert {
+    background-image: url("css/icons/icon-cert2.png");
+}
+
+.icon.close {
+    background: url("css/icons/icon-close.png") left top no-repeat;
+}
+
+.icon.close:hover {
+    background: url("css/icons/icon-close.png") -16px top no-repeat;
+}
+
+.icon.pause {
+    background-image: url("css/icons/icon-pause.png");
+    margin-right: -3px;
+    top: 0;
+}
+
+.pseudo .icon.pause {
+    top: 3px;
+    margin-right: 0px; /* by Vipovskiy */
+}
+
+.icon.wait {
+    background-image: url("css/icons/icon-wait.png");
+    /* margin-right:-3px; */
+    margin-right: 3px; /* by Vipovskiy */
+}
+
+.icon.skip {
+    background-image: url("css/icons/icon-skip.png");
+    /* margin-right:-3px; */
+    margin-right: 0; /* by Vipovskiy */
+    top: 3px;
+}
+
+.icon.comment {
+    background-image: url("css/i/icon-comment.png");
+    top: 5px;
+}
+
+.icon.answer {
+    background: url("css/icons/icons-cross.png") no-repeat scroll -119px
+    -38px transparent;
+    top: 0px;
+}
+
+.icon.edit {
+    background-image: url("css/icons/icon-edit.png");
+    left: 20px; /* by Vipovskiy */
+}
+
+.icon-edit-sticker-title {
+    background-image: url("css/icons/icon-edit-sticker-title.png");
+}
+
+.icon-change-sticker-color {
+    background-image: url("css/icons/icon-change-sticker-color.png");
+}
+
+.icon.icon-pdf {
+    width: 24px;
+}
+
+.icon-pdf {
+    background-image: url("css/icons/ico-pdf.gif");
+    width: 24px;
+}
+
+.icon-dropdown {
+    float: right;
+    margin: -0.1em 0 0 0;
+    cursor: pointer;
+    cursor: hand;
+    background-image: url("css/icons/list-open.gif");
+}
+
+.icon-toolbar-dropdown {
+    float: right;
+    margin: 0 0 0 0;
+    cursor: pointer;
+    cursor: hand;
+    background-image: url("css/icons/toolbar-dropdown.gif");
+}
+
+.with-icon .arr {
+    border-bottom: none !important;
+}
+
+.icon.important {
+    background-image: url("css/icons/icon-excl.png");
+}
+
+.icon.red-square,.icon.blue-square,.icon.green-square,.icon.orange-square,.icon.grey-square,.icon.red-square,.icon.red-square
+{
+    height: 8px;
+    width: 8px;
+    top: 0;
+}
+
+.icon.red-square {
+    background: red;
+}
+
+.icon.blue-square {
+    background: #4a80e3;
+}
+
+.icon.green-square {
+    background: #45aa2e;
+}
+
+.icon.orange-square {
+    background: #ff8d02;
+}
+
+.icon.grey-square {
+    background: #666;
+}
+
+.icon.folder {
+    background-image: url("css/icons/icon-folder.png");
+}
+
+.pseudo .folder {
+    margin-right: -3px;
+}
+
+.icon.placeholder {
+    background-image: url("css/icons/icon-placeholder.png");
+}
+
+.pseudo .placeholder {
+    margin-right: -3px;
+}
+
+.icon.ordinary {
+    background-image: url("css/icons/icon-ordinary.png");
+}
+
+.icon.attach {
+    background-image: url("css/icons/icon-attach.png");
+}
+
+.icon.more {
+    background-image: url("css/icons/toolbar-more.gif");
+    cursor: pointer;
+}
+
+.icon.more-back {
+    background-image: url("css/icons/toolbar-more-back.gif");
+    cursor: pointer;
+}
+
+.action-bar-menu{
+    height: 40px;
+    vertical-align: middle;
+
+    padding-top: 10px;
+    padding-left: 10px;
+
+
+}
+
+.icon {
+    display: inline-block;
+    position: relative;
+    float: none;
+    height: 16px;
+    width: 16px;
+    left: auto;
+    border-bottom: none !important;
+    background-position: center center;
+    background-repeat: no-repeat; /*//
+	display: inline; //
+	zoom: 1; //
+	top: 0px;*/
+    vertical-align: bottom;
+}
+
+.icon-close {
+    background-image: url("css/icons/ico-close.gif");
+}
+
+.icon-progress {
+    background-image: url("css/icons/ico-progress.gif");
+}
+
+.icon-dot {
+    background-image: url("css/icons/ico-dot.gif");
+}
+
+.icon-flag {
+    background-image: url("css/icons/icon-flag.png");
+    /*margin-left: -25px;*/
+}
+
+.icon-flag-off {
+    background: url("css/iplan/pcontrol.png");
+    /*margin-left: -25px;*/
+}
+
+.icon-cert {
+    background-image: url("css/icons/ico-cert.gif");
+}
+
+.icon-clockring {
+    background-image: url("css/icons/clokring.png");
+}
+
+.icon-excl {
+    background-image: url("css/icons/icon-excl.png");
+}
+
+.icon-star {
+    background-image: url("css/icons/icon-star.png");
+}
+
+.icon-nostar {
+    background-image: url("css/icons/ico-nostar.gif");
+}
+
+.icon-reload {
+    background-image: url("css/icons/ico-reload.gif");
+}
+
+.icon-setup {
+    background-image: url("css/icons/ico-setup.gif");
+}
+
+.icon-setup-grey {
+    background-image: url("css/icons/ico-setup-grey.gif");
+}
+
+.icon-edit {
+    background-image: url("css/icons/ico-edit.gif");
+}
+
+.icon-help {
+    background-image: url("css/icons/icon-help.png");
+}
+
+.icon-create {
+    background-image: url("css/icons/icon-create.png");
+}
+
+.icon-send {
+    background-image: url("css/icons/icon-send.png");
+}
+
+.icon-ok {
+    background-image: url("css/icons/ico-ok.gif");
+}
+
+.icon-unlink {
+    background-image: url("css/icons/ico-unlink.gif");
+}
+
+.icon-talk {
+    background-image: url("css/icons/ico-talk.gif");
+}
+
+.icon-zoomin {
+    background-image: url("css/icons/ico-zoomin.gif");
+}
+
+.icon-zoomout {
+    background-image: url("css/icons/ico-zoomout.gif");
+}
+
+.icon-print {
+    background-image: url("css/icons/ico-print.gif");
+}
+
+.icon-up {
+    background-image: url("css/icons/ico-up.gif");
+}
+
+.icon-down {
+    background-image: url("css/icons/ico-down.gif");
+}
+
+.icon-plan-task {
+    background-image: url("css/icons/icon-datepicker2.png");
+}
+
+.icon-btn-dropdown {
+    background-image: url("css/icons/ico-btn-dropdown.gif");
+}
+
+.icon-attach {
+    background-image: url("css/icons/ico-attach.gif");
+}
+
+.icon-showblock {
+    background-image: url("css/icons/ico-showblock.gif");
+    cursor: pointer;
+    cursor: hand;
+}
+
+.icon-hideblock {
+    background-image: url("css/icons/ico-hideblock.gif");
+    cursor: pointer;
+    cursor: hand;
+}
+
+.icon-folder {
+    background-image: url("css/icons/ico-folder.gif");
+}
+
+.icon-save {
+    background-image: url("css/icons/ico-save.gif");
+}
+
+.icon-delete {
+    background-image: url("css/icons/ico-delete.gif");
+}
+
+.icon-find {
+    background-image: url("css/i/loupe.png");
+}
+
+
+
+.icon-switch {
+    background-image: url("css/icons/icon-switch.png");
+    height: 18px;
+    width: 21px;
+    cursor: pointer;
+}
+
+.icon-locker {
+    background-image: url("css/icons/icon_locker.png");
 }

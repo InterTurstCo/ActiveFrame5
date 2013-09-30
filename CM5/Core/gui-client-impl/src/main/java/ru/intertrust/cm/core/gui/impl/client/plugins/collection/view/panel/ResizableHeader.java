@@ -38,9 +38,6 @@ public abstract class ResizableHeader<T> extends Header<String> {
     protected final Column<T, ?> column;
     private final String resizeStyle;
 
-
-
-
     public ResizableHeader(String title, AbstractCellTable<T> tableHeader, AbstractCellTable<T> tableBody, Column<T, ?> column) {
         this(title, tableHeader,tableBody, column, null);
     }
@@ -58,8 +55,6 @@ public abstract class ResizableHeader<T> extends Header<String> {
         this.resizeStyle = resizeStyle;
 
     }
-
-
 
     @Override
     public String getValue() {
@@ -259,15 +254,12 @@ public abstract class ResizableHeader<T> extends Header<String> {
             final int bodyHeight = getTableBodyHeight();
             setLine(ghostLineStyle, ghostLineWidth, top, bodyHeight, RESIZE_COLOR);
 
-
         }
 
         @Override
         public void onPreviewNativeEvent(Event.NativePreviewEvent event) {
 
         }
-
-
     }
 
     private static class HeaderCell extends AbstractCell<String> {
@@ -285,9 +277,6 @@ public abstract class ResizableHeader<T> extends Header<String> {
         tableHeader.setColumnWidth(column, newWidth + "px");
         tableBody.setColumnWidth(column, newWidth + "px");
     }
-
-
-
 
     protected abstract int getTableBodyHeight();
 };

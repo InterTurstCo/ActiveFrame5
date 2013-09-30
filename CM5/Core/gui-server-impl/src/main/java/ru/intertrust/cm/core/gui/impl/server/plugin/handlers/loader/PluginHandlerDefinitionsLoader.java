@@ -14,7 +14,7 @@ import java.util.Set;
 
 public class PluginHandlerDefinitionsLoader implements BeanDefinitionRegistryPostProcessor {
 
-    public static final String VALUE_ATTRIBUTE = "value";
+    private static final String VALUE_ATTRIBUTE = "value";
     private String basePackage;
 
     @Override

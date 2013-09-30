@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -21,6 +22,8 @@ public class PluginPanel implements IsWidget, PluginViewCreatedEventHandler {
 
     private SimplePanel impl = new SimplePanel();
     private EventBus eventBus;
+    private HandlerRegistration viewCreatedHandlerRegistration;
+    private Plugin currentPlugin;
 
     public PluginPanel(EventBus eventBus) {
         this.eventBus = eventBus;
@@ -39,7 +42,7 @@ public class PluginPanel implements IsWidget, PluginViewCreatedEventHandler {
     }
 
     public void open(Plugin plugin, Dto initParams) {
-        eventBus.addHandlerToSource(PluginViewCreatedEvent.TYPE, plugin, this);
+        viewCreatedHandlerRegistration = eventBus.addHandlerToSource(PluginViewCreatedEvent.TYPE, plugin, this);
         plugin.setEventBus(eventBus);
         plugin.setOwner(this);
         plugin.setUp();
@@ -62,6 +65,7 @@ public class PluginPanel implements IsWidget, PluginViewCreatedEventHandler {
      * Закрывает текущий плагин. Если у него есть родитель, то он будет показан по закрытию текущего.
      */
     public void closeCurrentPlugin() {
+        currentPlugin.clearHandlers();
         impl.remove(asWidget());
     }
 
@@ -78,6 +82,8 @@ public class PluginPanel implements IsWidget, PluginViewCreatedEventHandler {
 
     @Override
     public void onPluginViewCreated(PluginViewCreatedEvent event) {
+        viewCreatedHandlerRegistration.removeHandler();
+        this.currentPlugin = event.getPlugin();
         beforePluginOpening();
         impl.setWidget(event.getPlugin().getView());
         impl.setSize("100%", "100%");

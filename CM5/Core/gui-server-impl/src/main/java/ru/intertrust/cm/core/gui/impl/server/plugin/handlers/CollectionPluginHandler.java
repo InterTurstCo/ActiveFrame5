@@ -2,9 +2,7 @@ package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
-import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.model.base.CollectionConfig;
 import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionDisplayConfig;
@@ -50,10 +48,20 @@ public class CollectionPluginHandler extends PluginHandler {
 
         pluginData.setColumnNames(columnNames);
         IdentifiableObjectCollection identifiableObjectCollection = getData(collectionName);
+        pluginData.setCollection(identifiableObjectCollection);
+        if (identifiableObjectCollection != null) {
+            List<Id> ids = new ArrayList<>(identifiableObjectCollection.size());
+            for (IdentifiableObject identifiableObject : identifiableObjectCollection) {
+                ids.add(identifiableObject.getId());
+            }
+            pluginData.setIds(ids);
+        }
 
         List<String> columnFields = getColumnFields(collectionViewConfig);
         List<List<String>> rowsList = preparingRowsForWidget(identifiableObjectCollection, columnFields);
         pluginData.setStringList(rowsList);
+
+       // pluginData.setIdentifiableObjects(identifiableObjectCollection);
 
         return pluginData;
     }
@@ -146,8 +154,13 @@ public class CollectionPluginHandler extends PluginHandler {
             IdentifiableObject identifiableObject = identifiableObjectCollection.get(i);
             List<String> rowList = new ArrayList<String>();
             for(String field: columnFields){
-                String fieldValue = "id".equalsIgnoreCase(field) ? identifiableObject.getId().toStringRepresentation():
-                        String.valueOf(identifiableObject.getValue(field));
+                String fieldValue;
+                if ("id".equalsIgnoreCase(field)) {
+                    fieldValue = identifiableObject.getId().toStringRepresentation();
+                } else {
+                    Value value = identifiableObject.getValue(field);
+                    fieldValue = value == null || value.get() == null ? "" : value.get().toString();
+                }
 
                 rowList.add(fieldValue);
             }

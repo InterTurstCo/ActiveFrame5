@@ -7,11 +7,9 @@ import java.util.HashMap;
 
 
 /**
- * Created with IntelliJ IDEA.
- * User: lvov
- * Date: 12.09.13
- * Time: 13:56
- * To change this template use File | Settings | File Templates.
+ * @author Yaroslav Bondacrhuk
+ *         Date: 17/9/13
+ *         Time: 12:05 PM
  */
 public class MyData implements Dto {
 
@@ -19,6 +17,9 @@ public class MyData implements Dto {
 
     public MyData(HashMap<String, Object> value) {
         this.value=value;
+    }
+
+    public MyData() {
     }
 
     public <T> T getValueByKey(String key, Class<T> type) {

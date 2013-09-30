@@ -2,10 +2,10 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.themes;
 
 public class GlobalThemesManager {
 
-  public static final String         THEME_DEFAULT = "default";
+  public static final String THEME_DEFAULT = "default";
 
-  public static final String         THEME_IRIDESCENT     = "iridescent";
-  public static final String         THEME_BRIGHT  = "bright";
+  public static final String THEME_IRIDESCENT = "iridescent";
+  public static final String THEME_BRIGHT  = "bright";
 
   private static GlobalThemesManager instance;
 

@@ -34,10 +34,10 @@ public class ComboBoxWidget extends BaseWidget {
         ListBox listBox = (ListBox) impl;
         int index = 0;
         for (Id id : listValues.keySet()) {
-            String idString = id.toStringRepresentation();
+            String idString = id == null ? "" : id.toStringRepresentation();
             listBox.addItem(listValues.get(id), idString);
             idMap.put(idString, id);
-            if (id.equals(selectedId)) {
+            if (id == null && selectedId == null || id != null && id.equals(selectedId)) {
                 listBox.setSelectedIndex(index);
             }
             ++index;

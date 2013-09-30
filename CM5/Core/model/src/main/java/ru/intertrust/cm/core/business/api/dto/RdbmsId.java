@@ -12,9 +12,9 @@ import ru.intertrust.cm.core.model.FatalException;
  */
 public class RdbmsId implements Id {
 
-    public static final int MAX_DO_TYPE_ID_LENGTH = 4;
-    public static final int MAX_DO_ID_LENGTH = 12;
-    public static final int MAX_ID_LENGTH = MAX_DO_TYPE_ID_LENGTH + MAX_DO_ID_LENGTH;
+    public  static final int MAX_DO_TYPE_ID_LENGTH = 4;
+    public  static final int MAX_DO_ID_LENGTH = 12;
+    public  static final int MAX_ID_LENGTH = MAX_DO_TYPE_ID_LENGTH + MAX_DO_ID_LENGTH;
 
     private int typeId;
     private long id;

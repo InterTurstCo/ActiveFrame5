@@ -4,7 +4,6 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.Form;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
-import ru.intertrust.cm.core.gui.model.plugin.IsActive;
 import ru.intertrust.cm.core.gui.model.plugin.SomeActivePluginData;
 
 import java.util.Map;
@@ -15,7 +14,7 @@ import java.util.Map;
  *         Time: 15:28
  */
 @ComponentName("some.active.plugin")
-public class SomeActivePlugin extends Plugin implements IsActive {
+public class SomeActivePlugin extends Plugin {
     @Override
     public PluginView createView() {
         SomeActivePluginData initialData = getInitialData();

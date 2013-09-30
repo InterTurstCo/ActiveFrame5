@@ -66,7 +66,7 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
 
     @Override
     public NavigationConfig getNavigationConfiguration() {
-        String navigationPanelName = "panel_old";
+        String navigationPanelName = "panel";
         NavigationConfig navigationConfig = configurationService.getConfig(NavigationConfig.class, navigationPanelName);
         return navigationConfig;
     }
@@ -92,9 +92,9 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
 
     @Override
     public Form getForm(String domainObjectType) {
-        DomainObject root = crudService.createDomainObject("country");
+        DomainObject root = crudService.createDomainObject(domainObjectType);
         // todo: separate empty form?
-        return createCountryForm(root);
+        return buildDomainObjectForm(root);
     }
 
     public Form getForm(Id domainObjectId) {
@@ -103,15 +103,15 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         // если флаг "использовать по умолчанию" не установлен
         // в конечном итоге получаем FormConfig
 
-        DomainObject root= crudService.find(domainObjectId);
+        DomainObject root = crudService.find(domainObjectId);
         if (root == null) {
             throw new GuiException("Object with id: " + domainObjectId.toStringRepresentation() + " doesn't exist");
         }
-        return createCountryForm(root);
+        return buildDomainObjectForm(root);
     }
 
     public DomainObject saveForm(Form form) {
-        FormConfig formConfig = configurationService.getConfig(FormConfig.class, "country_form");
+        FormConfig formConfig = configurationService.getConfig(FormConfig.class, form.getName());
         WidgetConfigurationConfig widgetConfigurationConfig = formConfig.getWidgetConfigurationConfig();
         List<WidgetConfig> widgetConfigs = widgetConfigurationConfig.getWidgetConfigList();
         FormData formData = form.getFormData();
@@ -150,9 +150,9 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         }
     }
 
-    private Form createCountryForm(DomainObject root) {
+    private Form buildDomainObjectForm(DomainObject root) {
         HashMap<String, WidgetData> widgetDataMap = new HashMap<>();
-        FormConfig formConfig = configurationService.getConfig(FormConfig.class, "country_form");
+        FormConfig formConfig = findFormConfig(root);
         WidgetConfigurationConfig widgetConfigurationConfig = formConfig.getWidgetConfigurationConfig();
         List<WidgetConfig> widgetConfigs = widgetConfigurationConfig.getWidgetConfigList();
         FormData formData = getFormData(root, widgetConfigs);
@@ -164,6 +164,19 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         }
         Form form = new Form(formConfig.getName(), formConfig.getMarkup(), widgetDataMap, formData);
         return form;
+    }
+
+    private FormConfig findFormConfig(DomainObject root) {
+        // todo drop HARDCODE
+        String typeName = root.getTypeName();
+        switch (typeName) {
+            case "country":
+                return configurationService.getConfig(FormConfig.class, "country_form");
+            case "city":
+                return configurationService.getConfig(FormConfig.class, "city_form");
+            default:
+                throw new GuiException("Form not found for type: " + typeName);
+        }
     }
 
     private Map<WidgetConfig, FieldPath> getFieldPaths(List<WidgetConfig> configs) {

@@ -16,7 +16,6 @@ import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.panel.HeaderContainer;
-import ru.intertrust.cm.core.gui.impl.client.panel.SplitterTable;
 import ru.intertrust.cm.core.gui.impl.client.plugins.navigation.RootLinkSelectedEvent;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -33,7 +32,6 @@ import java.util.logging.Logger;
 @ComponentName("business.universe")
 public class BusinessUniverse extends BaseComponent implements EntryPoint {
     static Logger logger = Logger.getLogger("Business universe");
-    private DockLayoutPanel mainLayoutPanel;
 
     private EventBus eventBus = GWT.create(SimpleEventBus.class);
 
@@ -50,12 +48,6 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
         AsyncCallback<BusinessUniverseInitialization> callback = new AsyncCallback<BusinessUniverseInitialization>() {
             @Override
             public void onSuccess(BusinessUniverseInitialization result) {
-                SplitterTable spp = new SplitterTable(headerPanel);
-                spp.init();
-
-                splitterNew.addNorth(spp.getRoot(), 500);
-                splitterNew.add(new HTMLPanel("all"));
-                contentAction.add(splitterNew);
 
                 rootPanel.add(header.createHeader());
                 rootPanel.add(toolPanel);
@@ -68,14 +60,14 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
 
                 domainObjectSurferPlugin.registerEventHandlingFromExternalSource(NavigationTreeItemSelectedEvent.TYPE,
                         navigationTreePlugin, domainObjectSurferPlugin);
+                /*eventBus.addHandler(CollectionRowSelectedEvent.TYPE,
+                        (DomainObjectSurferPlugin) domainObjectSurferPlugin);*/
                 navigationTreePanel.open(navigationTreePlugin);
 
                 navigationTreePlugin.registerEventHandlingFromExternalSource(RootLinkSelectedEvent.TYPE, navigationTreePlugin, navigationTreePlugin);
                 bodyPanel.add(navigationTreePanel);
                 bodyPanel.add(domainObjectSurferPanel);
                 rootPanel.add(bodyPanel);
-
-               // bodyPanel.add(contentAction);
 
                 RootPanel.get().add(rootPanel);
                 show();
