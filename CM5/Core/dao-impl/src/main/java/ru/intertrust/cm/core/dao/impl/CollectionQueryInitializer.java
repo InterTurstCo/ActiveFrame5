@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.applyOffsetAndLimit;
+
 /**
  * Инициализирует запрос для извлечения коллекций, заполняет параметры в конфигурации фильтров, устанавливает порядок сортировки
  * @author atsvetkov
@@ -118,7 +120,7 @@ public class CollectionQueryInitializer {
 
 
         applySortOrder(sortOrder, collectionQuery);
-        applyLimitAndOffset(offset, limit, collectionQuery);
+        applyOffsetAndLimit(collectionQuery, offset, limit);
         return collectionQuery.toString();
     }
 
@@ -136,12 +138,6 @@ public class CollectionQueryInitializer {
 
         return filledQuery;
 
-    }
-
-    private void applyLimitAndOffset(int offset, int limit, StringBuilder collectionQuery) {
-        if (limit != 0) {
-            collectionQuery.append(" limit ").append(limit).append(" OFFSET ").append(offset);
-        }
     }
 
     private String mergeFilledFilterConfigsInPrototypeQuery(String prototypeQuery, List<CollectionFilterConfig> filledFilterConfigs) {

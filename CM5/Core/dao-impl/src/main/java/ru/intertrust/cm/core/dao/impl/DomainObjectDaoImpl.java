@@ -86,7 +86,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     /**
      * Устанавливает источник соединений
-     * 
+     *
      * @param dataSource
      */
     public void setDataSource(DataSource dataSource) {
@@ -95,7 +95,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     /**
      * Устанавливает генератор для создания уникальных идентифиткаторово
-     * 
+     *
      * @param idGenerator
      */
     public void setIdGenerator(IdGenerator idGenerator) {
@@ -104,7 +104,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     /**
      * Устанавливает {@link #configurationExplorer}
-     * 
+     *
      * @param configurationExplorer
      *            {@link #configurationExplorer}
      */
@@ -346,14 +346,23 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     @Override
-    public List<DomainObject> findAll(String domainObjectType,
-            AccessToken accessToken) {
-        if (domainObjectType == null || domainObjectType.trim().isEmpty()) {
-            throw new IllegalArgumentException(
-                    "Domain Object type can not be null or empty");
+    public List<DomainObject> findAll(String domainObjectType, AccessToken accessToken) {
+        return findAll(domainObjectType, 0, 0, accessToken);
+    }
+
+    @Override
+    public List<DomainObject> findAll(String domainObjectType, int offset, int limit, AccessToken accessToken) {
+        if(domainObjectType == null || domainObjectType.trim().isEmpty()){
+            throw new IllegalArgumentException("Domain Object type can not be null or empty");
         }
 
-        String query = generateFindAllQuery(domainObjectType, accessToken);
+        List<DomainObject> result = domainObjectCacheService.getObjectToCache(null, domainObjectType,
+                String.valueOf(offset), String.valueOf(limit));
+        if (result != null) {
+            return result;
+        }
+
+        String query = generateFindAllQuery(domainObjectType, offset, limit, accessToken);
 
         Map<String, Object> parameters = new HashMap<String, Object>();
         if (accessToken.isDeferred()) {
@@ -361,8 +370,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         return jdbcTemplate.query(query, parameters,
-                new MultipleObjectRowMapper(domainObjectType,
-                        configurationExplorer, domainObjectTypeIdCache));
+                new MultipleObjectRowMapper(domainObjectType, configurationExplorer, domainObjectTypeIdCache));
     }
 
     @Override
@@ -390,7 +398,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     /**
      * Поиск доменных объектов одного типа.
-     * 
+     *
      * @param ids
      *            идентификаторы доменных объектов
      * @param accessToken
@@ -399,12 +407,21 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
      *            тип доменного объекта
      * @return список доменных объектов
      */
-    private List<DomainObject> findSingleTypeDomainObjects(List<RdbmsId> ids,
-            AccessToken accessToken, String domainObjectType) {
-        List<DomainObject> domainObjects = domainObjectCacheService
-                .getObjectToCache(ids);
-        if (domainObjects != null) {
-            return domainObjects;
+    private List<DomainObject> findSingleTypeDomainObjects(List<RdbmsId> ids, AccessToken accessToken,
+                                                           String domainObjectType) {
+        List<DomainObject> cachedDomainObjects = domainObjectCacheService.getObjectToCache(ids);
+        if (cachedDomainObjects != null && cachedDomainObjects.size() == ids.size()) {
+            return cachedDomainObjects;
+        }
+
+        List<RdbmsId> idsToRead = null;
+        if  (cachedDomainObjects == null) {
+            idsToRead = ids;
+        } else {
+            idsToRead = new ArrayList<>(ids.size());
+            for (DomainObject domainObject : cachedDomainObjects) {
+                idsToRead.remove(domainObject.getId());
+            }
         }
 
         StringBuilder query = new StringBuilder();
@@ -430,16 +447,23 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         Map<String, Object> parameters = new HashMap<String, Object>();
-        List<Long> listIds = AccessControlUtility.convertRdbmsIdsToLongIds(ids);
+        List<Long> listIds = AccessControlUtility.convertRdbmsIdsToLongIds(idsToRead);
         parameters.put("object_ids", listIds);
 
         if (accessToken.isDeferred()) {
             parameters.putAll(aclParameters);
         }
 
-        return jdbcTemplate.query(query.toString(), parameters,
-                new MultipleObjectRowMapper(domainObjectType,
-                        configurationExplorer, domainObjectTypeIdCache));
+        List<DomainObject> readDomainObjects = jdbcTemplate.query(query.toString(), parameters,
+                new MultipleObjectRowMapper(domainObjectType, configurationExplorer, domainObjectTypeIdCache));
+
+        if (cachedDomainObjects == null) {
+            return readDomainObjects;
+        } else {
+            List result = cachedDomainObjects;
+            result.addAll(readDomainObjects);
+            return result;
+        }
     }
 
     @Deprecated
@@ -451,33 +475,50 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     @Override
-    public List<DomainObject> findLinkedDomainObjects(Id domainObjectId,
-            String linkedType, String linkedField, AccessToken accessToken) {
-        List<DomainObject> domainObjects = domainObjectCacheService
-                .getObjectToCache(domainObjectId, linkedType, linkedField);
+    public List<DomainObject> findLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField, AccessToken accessToken) {
+        return findLinkedDomainObjects(domainObjectId, linkedType, linkedField, 0, 0, accessToken);
+    }
+
+    @Override
+    public List<DomainObject> findLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField,
+                                                      int offset, int limit, AccessToken accessToken) {
+        String[] cacheKey = new String[] {linkedType, linkedField, String.valueOf(offset), String.valueOf(limit)};
+        List<DomainObject> domainObjects = domainObjectCacheService.getObjectToCache(domainObjectId, cacheKey);
         if (domainObjects != null) {
             return domainObjects;
         }
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("domain_object_id", ((RdbmsId) domainObjectId).getId());
-        String query = buildFindChildrenQuery(linkedType, linkedField,
-                accessToken);
+        String query = buildFindChildrenQuery(linkedType, linkedField, offset, limit, accessToken);
         if (accessToken.isDeferred()) {
             parameters.putAll(getAclParameters(accessToken));
         }
-        return jdbcTemplate.query(query, parameters,
-                new MultipleObjectRowMapper(linkedType, configurationExplorer,
-                        domainObjectTypeIdCache));
+
+        domainObjects = jdbcTemplate.query(query, parameters, new MultipleObjectRowMapper(linkedType,
+                configurationExplorer, domainObjectTypeIdCache));
+        domainObjectCacheService.putObjectToCache(domainObjectId, domainObjects, cacheKey);
+
+        return domainObjects;
     }
 
     @Override
-    public List<Id> findLinkedDomainObjectsIds(Id domainObjectId,
-            String linkedType, String linkedField, AccessToken accessToken) {
+    public List<Id> findLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField, AccessToken accessToken) {
+        return findLinkedDomainObjectsIds(domainObjectId, linkedType, linkedField, 0, 0, accessToken);
+    }
+
+    @Override
+    public List<Id> findLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField,
+                                               int offset, int limit, AccessToken accessToken) {
+        String[] cacheKey = new String[] {linkedType, linkedField, String.valueOf(offset), String.valueOf(limit)};
+        List<DomainObject> domainObjects = domainObjectCacheService.getObjectToCache(domainObjectId, cacheKey);
+        if (domainObjects != null) {
+            return extractIds(domainObjects);
+        }
+
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("domain_object_id", ((RdbmsId) domainObjectId).getId());
-        String query = buildFindChildrenIdsQuery(linkedType, linkedField,
-                accessToken);
+        String query = buildFindChildrenIdsQuery(linkedType, linkedField, offset, limit, accessToken);
         if (accessToken.isDeferred()) {
             parameters.putAll(getAclParameters(accessToken));
         }
@@ -488,7 +529,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     /**
      * Инициализирует параметры для для создания доменного объекта
-     * 
+     *
      * @param domainObject
      *            доменный объект
      * @param domainObjectTypeConfig
@@ -524,7 +565,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     /**
      * Создает SQL запрос для нахождения доменного объекта
-     * 
+     *
      * @param typeName
      *            тип доменного объекта
      * @return SQL запрос для нахождения доменного объекта
@@ -555,13 +596,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     /**
      * Создает SQL запрос для нахождения всех доменных объектов определенного
      * типа
-     * 
+     *
      * @param typeName
      *            тип доменного объекта
      * @return SQL запрос для нахождения доменного объекта
      */
-    protected String generateFindAllQuery(String typeName,
-            AccessToken accessToken) {
+    protected String generateFindAllQuery(String typeName, int offset, int limit, AccessToken accessToken) {
         String tableAlias = getSqlAlias(typeName);
 
         StringBuilder query = new StringBuilder();
@@ -581,12 +621,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                     .append(tableAlias).append(".ID)");
         }
 
+            applyOffsetAndLimitWithDefaultOrdering(query, tableAlias, offset, limit);
+
         return query.toString();
     }
 
     /**
      * Создает SQL запрос для модификации доменного объекта
-     * 
+     *
      * @param domainObjectTypeConfig
      *            конфигурация доменного объекта
      * @return строку запроса для модиификации доменного объекта с параметрами
@@ -631,7 +673,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     /**
      * Инициализирует параметры для для создания доменного объекта
-     * 
+     *
      * @param domainObject
      *            доменный объект
      * @param domainObjectTypeConfig
@@ -662,7 +704,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     /**
      * Создает SQL запрос для создания доменного объекта
-     * 
+     *
      * @param domainObjectTypeConfig
      *            конфигурация доменного объекта
      * @return строку запроса для создания доменного объекта с параметрами
@@ -718,7 +760,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     /**
      * Создает SQL запрос для удаления доменного объекта
-     * 
+     *
      * @param domainObjectTypeConfig
      *            конфигурация доменного объекта
      * @return строку запроса для удаления доменного объекта с параметрами
@@ -739,7 +781,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     /**
      * Создает SQL запрос для удаления всех доменных объектов
-     * 
+     *
      * @param domainObjectTypeConfig
      *            конфигурация доменного объекта
      * @return строку запроса для удаления всех доменных объектов
@@ -759,7 +801,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     /**
      * Инициализирует параметр c id доменного объекта
-     * 
+     *
      * @param id
      *            идентификатор доменного объекта
      * @return карту объектов содержащую имя параметра и его значение
@@ -773,7 +815,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     /**
      * Создает SQL запрос для проверки существует ли доменный объект
-     * 
+     *
      * @param domainObjectName
      *            название доменного объекта
      * @return строку запроса для удаления доменного объекта с параметрами
@@ -793,7 +835,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     /**
      * Инициализирует параметры для удаления доменного объекта
-     * 
+     *
      * @param id
      *            идентификатор доменных объектов для удаления
      * @return карту объектов содержащую имя параметра и его значение
@@ -809,7 +851,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     /**
      * Инициализация параметров для отложенной провеки доступа.
-     * 
+     *
      * @param accessToken
      * @return
      */
@@ -883,8 +925,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         return rdbmsParentId.getId();
     }
 
-    protected String buildFindChildrenQuery(String linkedType,
-            String linkedField, AccessToken accessToken) {
+    protected String buildFindChildrenQuery(String linkedType, String linkedField, int offset, int limit,
+                                            AccessToken accessToken) {
         StringBuilder query = new StringBuilder();
         query.append("select t.* from ").append(linkedType)
                 .append(" t where t.").append(linkedField)
@@ -892,11 +934,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         if (accessToken.isDeferred()) {
             appendAccessControlLogicToQuery(query, linkedType);
         }
+
+        applyOffsetAndLimitWithDefaultOrdering(query, "t", offset, limit);
+
         return query.toString();
     }
 
-    protected String buildFindChildrenIdsQuery(String linkedType,
-            String linkedField, AccessToken accessToken) {
+    protected String buildFindChildrenIdsQuery(String linkedType, String linkedField, int offset, int limit,
+                                               AccessToken accessToken) {
         StringBuilder query = new StringBuilder();
         query.append("select t.id from ").append(linkedType)
                 .append(" t where t.").append(linkedField)
@@ -904,6 +949,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         if (accessToken.isDeferred()) {
             appendAccessControlLogicToQuery(query, linkedType);
         }
+
+        applyOffsetAndLimitWithDefaultOrdering(query, "t", offset, limit);
+
         return query.toString();
     }
 
@@ -1083,5 +1131,26 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     private String getDOTypeName(Integer typeId) {
         return domainObjectTypeIdCache.getName(typeId);
+    }
+
+    private void applyOffsetAndLimitWithDefaultOrdering(StringBuilder query, String tableAlias, int offset,
+                                                        int limit) {
+        if (limit != 0) {
+            query.append(" order by ").append(tableAlias).append(".ID");
+            PostgreSqlQueryHelper.applyOffsetAndLimit(query, offset, limit);
+        }
+    }
+
+    private List<Id> extractIds(List<DomainObject> domainObjectList) {
+        if (domainObjectList == null || domainObjectList.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<Id> result = new ArrayList<>(domainObjectList.size());
+        for (DomainObject domainObject : domainObjectList) {
+            result.add(domainObject.getId());
+        }
+
+        return result;
     }
 }

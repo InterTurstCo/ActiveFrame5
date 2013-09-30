@@ -185,7 +185,8 @@ public class DomainObjectDaoImplTest {
         String expectedQuery = "select t.* from assignment t where t.author = :domain_object_id and exists" +
                 " (select r.object_id from assignment_READ r inner join group_member " +
                 "gm on r.group_id = gm.master where gm.person_id = :user_id and r.object_id = t.id)";
-        Assert.assertEquals(expectedQuery, domainObjectDaoImpl.buildFindChildrenQuery("assignment", "author", accessToken));
+        Assert.assertEquals(expectedQuery, domainObjectDaoImpl.buildFindChildrenQuery("assignment", "author",
+                0, 0, accessToken));
 
     }
 
@@ -195,7 +196,8 @@ public class DomainObjectDaoImplTest {
         String expectedQuery = "select t.id from assignment t where t.author = :domain_object_id and exists" +
                 " (select r.object_id from assignment_READ r inner join group_member " +
                 "gm on r.group_id = gm.master where gm.person_id = :user_id and r.object_id = t.id)";
-        Assert.assertEquals(expectedQuery, domainObjectDaoImpl.buildFindChildrenIdsQuery("assignment", "author", accessToken));
+        Assert.assertEquals(expectedQuery, domainObjectDaoImpl.buildFindChildrenIdsQuery("assignment", "author",
+                0, 0, accessToken));
 
     }
 
@@ -316,7 +318,7 @@ public class DomainObjectDaoImplTest {
         DomainObjectDaoImpl domainObjectDao = new DomainObjectDaoImpl();
 
         when(domainObjectCacheService.getObjectToCache(any(Id.class),
-                any(String.class), any(String.class))).thenReturn(null);
+                any(String.class), any(String.class), any(String.class), any(String.class))).thenReturn(null);
         domainObjectDao.setDomainObjectCacheService(domainObjectCacheService);
         ReflectionTestUtils.setField(domainObjectDao, "jdbcTemplate", jdbcTemplate);
 

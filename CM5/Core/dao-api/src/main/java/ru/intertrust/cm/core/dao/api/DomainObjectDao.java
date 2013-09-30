@@ -134,7 +134,23 @@ public interface DomainObjectDao {
     List<DomainObject> findLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField, AccessToken accessToken);
 
     /**
-     * Поиск списка идентификаторов связанных доменных объектов по уникальному идентификатору владельца в системе,типу дочернего
+     * Поиск списка связанных доменных объектов по уникальному идентификатору владельца в системе, типу дочернего
+     * (запрашиваемого) доменного объекта и указанному полю с указанием максимального количества возвращаемых объектов и
+     * отступа
+     *
+     * @param domainObjectId идентификатор доменного объекта, владельца вложений
+     * @param linkedType     тип связанного (дочернего) доменного объекта
+     * @param linkedField    название поля, которым связаны объекты
+     * @param offset отступ
+     * @param limit максимальное количество возвращаемых доменных объектов
+     * @return список связанных доменных объектов
+     */
+    List<DomainObject> findLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField,
+                                               int offset, int limit, AccessToken accessToken);
+
+    /**
+     * Поиск списка идентификаторов связанных доменных объектов по уникальному идентификатору владельца в системе,
+     * типу дочернего
      * (запрашиваемого) доменного объекта и указанному полю.
      *
      * @param domainObjectId идентификатор доменного объекта, владельца вложений
@@ -144,5 +160,38 @@ public interface DomainObjectDao {
      */
     List<Id> findLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField, AccessToken accessToken);
 
+    /**
+     * Поиск списка идентификаторов связанных доменных объектов по уникальному идентификатору владельца в системе,
+     * типу дочернего
+     * (запрашиваемого) доменного объекта и указанному полю с указанием максимального количества возвращаемых объектов и
+     * отступа
+     *
+     * @param domainObjectId идентификатор доменного объекта, владельца вложений
+     * @param linkedType     тип связанного (дочернего) доменного объекта
+     * @param linkedField    название поля, которым связаны объекты
+     * @param offset отступ
+     * @param limit максимальное количество возвращаемых доменных объектов
+     * @return список идентификаторов связанных доменных объектов
+     */
+    List<Id> findLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField,
+                                        int offset, int limit, AccessToken accessToken);
+
+    /**
+     * Поиск всех доменного объектов указанного типа в системе.
+     *
+     * @param domainObjectType тип доменного объекта
+     * @return {@link ru.intertrust.cm.core.business.api.dto.DomainObject}
+     */
     List<DomainObject> findAll(String domainObjectType, AccessToken accessToken);
+
+    /**
+     * Поиск доменных объектов указанного типа в системе с указанием максимального количества возвращаемых объектов и
+     * отступа
+     *
+     * @param domainObjectType тип доменного объекта
+     * @param offset отступ
+     * @param limit максимальное количество возвращаемых доменных объектов
+     * @return {@link ru.intertrust.cm.core.business.api.dto.DomainObject}
+     */
+    List<DomainObject> findAll(String domainObjectType, int offset, int limit, AccessToken accessToken);
 }

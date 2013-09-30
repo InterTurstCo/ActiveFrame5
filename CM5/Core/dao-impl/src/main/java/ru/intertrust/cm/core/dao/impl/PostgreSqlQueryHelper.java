@@ -324,6 +324,12 @@ public class PostgreSqlQueryHelper {
         return query.toString();
     }
 
+    public static void applyOffsetAndLimit(StringBuilder query, int offset, int limit) {
+        if (limit != 0) {
+            query.append(" limit ").append(limit).append(" OFFSET ").append(offset);
+        }
+    }
+
     private static void appendFKConstraint(StringBuilder query, String tableName, String columnName,
                                            String referencedFieldName) {
         String constraintName = "FK_" + tableName + "_" + columnName;
