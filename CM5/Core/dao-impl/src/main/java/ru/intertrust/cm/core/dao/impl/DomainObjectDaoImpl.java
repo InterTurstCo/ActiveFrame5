@@ -1,29 +1,9 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlAlias;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.generateMultipleTypeReferenceSelectColumn;
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.generateParameter;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.sql.DataSource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.StringUtils;
-
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.RdbmsId;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
@@ -42,11 +22,15 @@ import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
-import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
-import ru.intertrust.cm.core.dao.impl.utils.IdSorterByType;
-import ru.intertrust.cm.core.dao.impl.utils.MultipleIdRowMapper;
-import ru.intertrust.cm.core.dao.impl.utils.MultipleObjectRowMapper;
-import ru.intertrust.cm.core.dao.impl.utils.SingleObjectRowMapper;
+import ru.intertrust.cm.core.dao.impl.utils.*;
+
+import javax.sql.DataSource;
+import java.util.*;
+
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlAlias;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.generateMultipleTypeReferenceSelectColumn;
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.generateParameter;
 
 /**
  * @author atsvetkov
@@ -548,8 +532,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         parameters.put("master", getMasterId(domainObject));
 
         if (!isDerived(domainObjectTypeConfig)) {
-            parameters.put("created_date", domainObject.getCreatedDate());
-            parameters.put("updated_date", domainObject.getModifiedDate());
+            parameters.put("created_date", getGMTDate(domainObject.getCreatedDate()));
+            parameters.put("updated_date", getGMTDate(domainObject.getModifiedDate()));
             parameters.put("type", type);
         } else {
             parameters.put("parent", parentId);
@@ -689,8 +673,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         RdbmsId rdbmsId = (RdbmsId) domainObject.getId();
 
         parameters.put("id", rdbmsId.getId());
-        parameters.put("current_date", currentDate);
-        parameters.put("updated_date", domainObject.getModifiedDate());
+        parameters.put("current_date", getGMTDate(currentDate));
+        parameters.put("updated_date", getGMTDate(domainObject.getModifiedDate()));
         parameters.put("master", getMasterId(domainObject));
 
         List<FieldConfig> fieldConfigs = domainObjectTypeConfig
@@ -899,20 +883,22 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             String columnName = getSqlName(fieldConfig.getName());
             String parameterName = generateParameter(columnName);
 
-            if (value != null) {
-                if ((value instanceof ReferenceValue) && value.get() != null) {
-                    RdbmsId rdbmsId = (RdbmsId) value.get();
-                    parameterName = generateParameter(
-                            (ReferenceFieldConfig) fieldConfig,
-                            getDOTypeName(rdbmsId.getTypeId()));
-                    parameters.put(parameterName, rdbmsId.getId());
-                } else {
-                    parameters.put(parameterName, value.get());
-                }
-            } else {
+            if (value == null || value.get() == null) {
                 parameters.put(parameterName, null);
+                continue;
             }
 
+            if (value instanceof ReferenceValue) {
+                RdbmsId rdbmsId = (RdbmsId) value.get();
+                parameterName = generateParameter(
+                        (ReferenceFieldConfig) fieldConfig,
+                        getDOTypeName(rdbmsId.getTypeId()));
+                parameters.put(parameterName, rdbmsId.getId());
+            } else if (value instanceof TimestampValue){
+                parameters.put(parameterName, getGMTDate((Date) value.get()));
+            } else {
+                parameters.put(parameterName, value.get());
+            }
         }
     }
 
@@ -1152,5 +1138,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         return result;
+    }
+
+    private Calendar getGMTDate(Date date) {
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        calendar.setTime(date);
+        return calendar;
     }
 }

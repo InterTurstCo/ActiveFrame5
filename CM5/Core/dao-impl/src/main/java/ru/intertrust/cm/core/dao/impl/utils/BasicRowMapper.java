@@ -14,9 +14,7 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 
@@ -31,6 +29,7 @@ public class BasicRowMapper {
     protected final String idField;
 
     protected ConfigurationExplorer configurationExplorer;
+
     protected DomainObjectTypeIdCache domainObjectTypeIdCache;
 
     private DomainObjectCacheServiceImpl domainObjectCacheService;
@@ -157,7 +156,8 @@ public class BasicRowMapper {
                 value = new ReferenceValue();
             }
         } else if (fieldConfig != null && DateTimeFieldConfig.class.equals(fieldConfig.getClass())) {
-            Timestamp timestamp = rs.getTimestamp(columnName);
+            Calendar gmtCalendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+            Timestamp timestamp = rs.getTimestamp(columnName, gmtCalendar);
             if (!rs.wasNull()) {
                 Date date = new Date(timestamp.getTime());
                 value = new TimestampValue(date);
