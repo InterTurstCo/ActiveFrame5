@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+    <domain-object-type name="country">
+        <fields>
+            <string name="name" length="128" />
+            <dateTime name="independence_day"/>
+            <long name="population"/>
+            <decimal name="square" precision="9" scale="2"/>
+            <reference name="capital">
+                <type name="city"/>
+            </reference>
+            <string name="description" length="1024"/>
+        </fields>
+        <uniqueKey>
+            <field name="name"/>
+        </uniqueKey>
+    </domain-object-type>
+
+    <domain-object-type name="city">
+        <fields>
+            <reference name="country">
+                <type name="country"/>
+            </reference>
+            <string name="name" length="128"/>
+            <long name="population"/>
+            <long name="year_of_foundation"/>
+            <decimal name="latitude" precision="9" scale="2"/>
+            <decimal name="longitude" precision="9" scale="2"/>
+            <decimal name="square" precision="9" scale="2"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="federal_unit">
+        <fields>
+            <reference name="country">
+                <type name="country"/>
+            </reference>
+            <string name="name" length="128"/>
+            <decimal name="square" precision="9" scale="2"/>
+            <reference name="capital">
+                <type name="city"/>
+            </reference>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="federal_unit_city">
+        <fields>
+            <reference name="federal_unit">
+                <type name="federal_unit"/>
+            </reference>
+            <reference name="city">
+                <type name="city"/>
+            </reference>
+        </fields>
+    </domain-object-type>
+
+    <form name="country_form" domain-object-type="country" is-default="true">
+        <markup>
+            <header>
+                <table width="500px" height="200px">
+                    <tr>
+                        <td width="100px" h-align="right"><widget id="1"/></td> <!-- label (Название) -->
+                        <td width="100%" h-align="left"><widget id="2"/></td> <!-- text-box (Название) -->
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false"> <!-- в теле - только закладки -->
+                <tab name="Главная"> <!-- закладка состоит из групп с разметкой -->
+                    <single-entry-group> <!-- наследник от TabGroupsConfig -->
+                        <tab-group> <!-- вхождение в группу уже может содержать разметку -->
+                            <table>
+                                <tr>
+                                    <td h-align="right"><widget id="3"/></td>  <!-- label (Население) -->
+                                    <td h-align="left"><widget id="4"/></td>  <!-- integer-box (Население) -->
+                                    <td><widget id="5"/></td>  <!-- label (Площадь) -->
+                                    <td h-align="left"><widget id="6"/></td>  <!-- integer-box (Площадь) -->
+                                </tr>
+                                <tr>
+                                    <td h-align="right"><widget id="7"/></td>  <!-- label (Столица) -->
+                                    <td colspan="3" h-align="left"><widget id="8"/></td>  <!-- suggest-box (Столица) -->
+                                </tr>
+                                <tr>
+                                    <td h-align="right"><widget id="9"/></td>  <!-- label (День независимости) -->
+                                    <td colspan="3" h-align="left"><widget id="10"/></td>  <!-- date-box (День независимости) -->
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+                <tab name="Описание">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td h-align="right"><widget id="11"/></td>  <!-- label (Описание) -->
+                                    <td h-align="left"><widget id="12"/></td>  <!-- text-area (Описание) -->
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+                <tab name="Области">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td h-align="right"><widget id="13"/></td>  <!-- label (Области) -->
+                                    <td h-align="left"><widget id="14"/></td>  <!-- linked-domain-objects-table (Описание) -->
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="1">
+                <field-path/>
+                <text>Название:</text>
+            </label>
+            <text-box id="2">
+                <field-path value="name"/>
+            </text-box>
+
+            <label id="3">
+                <text>Население:</text>
+            </label>
+            <integer-box id="4">
+                <field-path value="population"/>
+            </integer-box>
+
+            <label id="5">
+                <text>Площадь:</text>
+            </label>
+            <label id="6">
+                <field-path value="square"/>
+            </label>
+
+            <label id="7">
+                <text>Столица:</text>
+            </label>
+            <label id="8">
+                <field-path value="capital1.name"/>
+                <!-- а для области столицы: capital . federal_unit_city^city . federal_unit . name -->
+            </label>
+
+            <label id="9">
+                <text>День независимости:</text>
+            </label>
+            <label id="10">
+                <field-path value="independence_day"/>
+            </label>
+
+            <label id="11">
+                <text>Описание:</text>
+            </label>
+            <label id="12">
+                <field-path value="description"/>
+            </label>
+
+            <label id="13">
+                <text>Области:</text>
+            </label>
+            <label id="14">
+                <text>Тут будут области</text>
+            </label>
+
+        </widget-config>
+    </form>
+
+    <collection name="Countries" idField="id" domain-object-type="country">
+        <!--todo поддержка конвертации значений, например, в картинки -->
+
+        <prototype>
+            <![CDATA[
+                select
+                    c.id, c.name, c.population
+                from
+                    country c
+            ]]>
+        </prototype>
+
+        <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) вместо названий колонок -->
+        <counting-prototype>
+            select count(*) from country
+        </counting-prototype>
+    </collection>
+
+
+</configuration>
