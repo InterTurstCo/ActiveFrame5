@@ -416,7 +416,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         Map<String, Object> aclParameters = new HashMap<String, Object>();
 
         if (accessToken.isDeferred()) {
-            String aclReadTable = AccessControlUtility
+            /*String aclReadTable = AccessControlUtility
                     .getAclReadTableNameFor(domainObjectType);
             query.append("select distinct t.* from "
                     + domainObjectType
@@ -426,7 +426,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                     + "on t.id = r.object_id inner join group_member gm on r.group_id = gm.master "
                     + "where gm.person_id = :user_id and t.id in (:object_ids) ");
 
-            aclParameters = getAclParameters(accessToken);
+            aclParameters = getAclParameters(accessToken);*/
 
         } else {
             query.append("select * from ").append(domainObjectType)
@@ -569,12 +569,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         Map<String, Object> aclParameters = new HashMap<String, Object>();
         if (accessToken.isDeferred()) {
-            String aclReadTable = AccessControlUtility
+            /*String aclReadTable = AccessControlUtility
                     .getAclReadTableName(typeName);
             query.append(" and exists (select a.object_id from "
                     + aclReadTable
                     + " a inner join group_member gm "
-                    + "on a.group_id = gm.master where gm.person_id = :user_id and a.object_id = :id)");
+                    + "on a.group_id = gm.master where gm.person_id = :user_id and a.object_id = :id)");*/
         }
 
         return query.toString();
@@ -598,14 +598,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         appendTableNameQueryPart(query, typeName);
 
         if (accessToken.isDeferred()) {
-            String aclReadTable = AccessControlUtility
+           /* String aclReadTable = AccessControlUtility
                     .getAclReadTableName(typeName);
             query.append(
                     " where exists (select a.object_id from "
                             + aclReadTable
                             + " a inner join group_member gm "
                             + "on a.group_id = gm.master where gm.person_id = :user_id and a.object_id = ")
-                    .append(tableAlias).append(".ID)");
+                    .append(tableAlias).append(".ID)");*/
         }
 
             applyOffsetAndLimitWithDefaultOrdering(query, tableAlias, offset, limit);
@@ -921,7 +921,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 .append(" t where t.").append(linkedField)
                 .append(" = :domain_object_id");
         if (accessToken.isDeferred()) {
-            appendAccessControlLogicToQuery(query, linkedType);
+//            appendAccessControlLogicToQuery(query, linkedType);
         }
 
         applyOffsetAndLimitWithDefaultOrdering(query, "t", offset, limit);
@@ -936,7 +936,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 .append(" t where t.").append(linkedField)
                 .append(" = :domain_object_id");
         if (accessToken.isDeferred()) {
-            appendAccessControlLogicToQuery(query, linkedType);
+//            appendAccessControlLogicToQuery(query, linkedType);
         }
 
         applyOffsetAndLimitWithDefaultOrdering(query, "t", offset, limit);

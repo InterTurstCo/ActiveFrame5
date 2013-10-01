@@ -78,10 +78,10 @@ public class CollectionQueryInitializer {
         query = sqlQueryModifier.addTypeColumn(query);
         query = processMultipleTypeReferences(collectionConfig, query, sqlQueryModifier);
 
-        if (accessToken.isDeferred()) {
+/*        if (accessToken.isDeferred()) {
             query = sqlQueryModifier.addAclQuery(query, collectionConfig.getIdField());
         }
-        return query;
+*/        return query;
     }
 
     private String processMultipleTypeReferences(CollectionConfig collectionConfig, String query,
