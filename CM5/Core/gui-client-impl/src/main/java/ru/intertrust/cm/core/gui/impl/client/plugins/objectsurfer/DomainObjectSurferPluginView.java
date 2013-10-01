@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer;
 
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
-import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.config.model.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
@@ -12,7 +12,6 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin
 import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.SomeActivePluginConfig;
 
-import java.util.List;
 import java.util.logging.Logger;
 
 public class DomainObjectSurferPluginView extends PluginView {
@@ -53,13 +52,13 @@ public class DomainObjectSurferPluginView extends PluginView {
                 @Override
                 public void beforePluginOpening() {
                     CollectionPluginData collectionPluginData = collectionViewerPlugin.getInitialData();
-                    List<Id> ids = collectionPluginData.getIds();
+                    IdentifiableObjectCollection collection = collectionPluginData.getCollection();
                     SomeActivePluginConfig config;
-                    if (ids == null || ids.size() == 0) {
+                    if (collection == null || collection.size() == 0) {
                         // open empty form for collection domain object type
                         config = new SomeActivePluginConfig(collectionPluginData.getCollectionConfig().getDomainObjectType());
                     } else {
-                        config = new SomeActivePluginConfig(ids.get(0));
+                        config = new SomeActivePluginConfig(collection.get(0).getId());
                     }
                     Plugin plugin = ComponentRegistry.instance.get("some.active.plugin");
                     domainObjectSurferPlugin.setFormPlugin(plugin);

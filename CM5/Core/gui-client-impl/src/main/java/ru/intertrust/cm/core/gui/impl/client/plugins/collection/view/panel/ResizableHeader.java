@@ -14,11 +14,9 @@ import com.google.gwt.user.client.Event;
 import static com.google.gwt.dom.client.Style.Unit.PX;
 
 /**
- * Created with IntelliJ IDEA.
- * User: lvov
- * Date: 13.09.13
- * Time: 15:49
- * To change this template use File | Settings | File Templates.
+ * @author Yaroslav Bondacrhuk
+ *         Date: 30/9/13
+ *         Time: 12:05 PM
  */
 public abstract class ResizableHeader<T> extends Header<String> {
     //TODO Have following strings localized from separate properties file
@@ -96,7 +94,7 @@ public abstract class ResizableHeader<T> extends Header<String> {
 
         public HeaderHelper(Element target, NativeEvent event) {
             this.source = target;
-            System.out.println(source.getOffsetTop() + " " +source.getAbsoluteTop());
+
             event.preventDefault();
             event.stopPropagation();
             mover = document.createDivElement();

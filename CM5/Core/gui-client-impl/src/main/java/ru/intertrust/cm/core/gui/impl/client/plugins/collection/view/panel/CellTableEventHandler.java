@@ -8,9 +8,9 @@ import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
 
 /**
- *
- * @author mike-khukh
- * @param <T1>
+ * @author Yaroslav Bondacrhuk
+ *         Date: 17/9/13
+ *         Time: 12:05 PM
  */
 public class CellTableEventHandler<T1> implements CellPreviewEvent.Handler<T1> {
     public CellTable cellTableEx;
@@ -39,7 +39,8 @@ public class CellTableEventHandler<T1> implements CellPreviewEvent.Handler<T1> {
 
         if (plugin != null) {
             CollectionPluginData pluginData = plugin.getInitialData();
-            plugin.getEventBus().fireEvent(new CollectionRowSelectedEvent(pluginData.getIds().get(currentRow)));
+            plugin.getEventBus().fireEvent(new CollectionRowSelectedEvent(pluginData.
+                    getCollection().get(currentRow).getId()));
         }
     }
 

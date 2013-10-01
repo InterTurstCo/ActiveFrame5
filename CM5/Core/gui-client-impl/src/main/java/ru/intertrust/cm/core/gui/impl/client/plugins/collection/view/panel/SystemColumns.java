@@ -8,9 +8,9 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel;
 
 /**
- * TODO Описание (от mike-khukh)
- * @author mike-khukh
- * @since 4.1
+ * @author Yaroslav Bondacrhuk
+ *         Date: 17/9/13
+ *         Time: 12:05 PM
  */
 
 public enum SystemColumns {
@@ -26,16 +26,5 @@ public enum SystemColumns {
   public String getColumnName() {
     return columnName;
   }
-
-  public static boolean contains(String columnName) {
-    for (SystemColumns item : SystemColumns.values()) {
-      if (item.getColumnName().equals(columnName)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-
 
 }

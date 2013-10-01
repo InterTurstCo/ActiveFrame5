@@ -11,15 +11,15 @@ import java.util.HashMap;
  *         Date: 17/9/13
  *         Time: 12:05 PM
  */
-public class MyData implements Dto {
+public class CollectionData implements Dto {
 
     private  HashMap<String, Object> value;
 
-    public MyData(HashMap<String, Object> value) {
+    public CollectionData(HashMap<String, Object> value) {
         this.value=value;
     }
 
-    public MyData() {
+    public CollectionData() {
     }
 
     public <T> T getValueByKey(String key, Class<T> type) {

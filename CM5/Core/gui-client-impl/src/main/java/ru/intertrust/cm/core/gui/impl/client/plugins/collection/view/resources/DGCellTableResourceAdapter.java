@@ -8,19 +8,19 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.resources;
 
 /**
- * TODO Описание (от mike-khukh)
- * @author mike-khukh
- * @since 4.1
+ * @author Yaroslav Bondacrhuk
+ *         Date: 30/9/13
+ *         Time: 12:05 PM
  */
 public class DGCellTableResourceAdapter {
 
-  private DGCellTableResources resources;
+  private CellTableResourcesEx resources;
 
-  public DGCellTableResourceAdapter(DGCellTableResources resources) {
+  public DGCellTableResourceAdapter(CellTableResourcesEx resources) {
     this.resources = resources;
   }
 
-  public DGCellTableResources getResources() {
+  public CellTableResourcesEx getResources() {
     return resources;
   }
 

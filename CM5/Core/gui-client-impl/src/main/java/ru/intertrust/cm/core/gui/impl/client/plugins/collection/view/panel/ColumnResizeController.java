@@ -4,11 +4,9 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 
 /**
- * Created with IntelliJ IDEA.
- * User: lvov
- * Date: 13.09.13
- * Time: 15:46
- * To change this template use File | Settings | File Templates.
+ * @author Yaroslav Bondacrhuk
+ *         Date: 17/9/13
+ *         Time: 12:05 PM
  */
 public class ColumnResizeController<T> extends ResizableHeader<T> {
     private final CellTable<T> tableHeader;
@@ -19,8 +17,6 @@ public class ColumnResizeController<T> extends ResizableHeader<T> {
         this.tableHeader = tableHeader;
         this.tableBody = tableBody;
     }
-
-
 
     @Override
     protected int getTableBodyHeight() {
