@@ -12,10 +12,10 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
  */
 public interface BeforeSaveExtensionHandler extends ExtensionPointHandler {
 
-	/**
-	 * Входная точка обработчика точки расширения.
-	 * 
-	 * @param domainObject
-	 */
-	void onBeforeSave(DomainObject domainObject);
+    /**
+     * Входная точка обработчика точки расширения.
+     * 
+     * @param domainObject
+     */
+    void onBeforeSave(DomainObject domainObject);
 }
