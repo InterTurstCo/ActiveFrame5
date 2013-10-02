@@ -51,9 +51,8 @@ public class CollectionsDaoImplTest {
             "AND 1 = 1 AND d.name = 'dep1' ORDER BY e.name";
 
     private static final String FIND_COLLECTION_QUERY_WITH_MULTIPLE_TYPE_REFERENCE =
-            "SELECT p.id, p.login, p.password, (CASE WHEN p.BOSS1 IS NOT NULL THEN p.BOSS1 WHEN p.BOSS2 IS NOT NULL " +
-                    "THEN p.BOSS2 ELSE NULL END) AS BOSS, p.created_date, p.updated_date, 'person' AS TYPE_CONSTANT " +
-                    "FROM person AS p WHERE EXISTS (SELECT r.object_id FROM person_READ AS r " +
+            "SELECT p.id, p.login, p.password, coalesce(p.BOSS1, p.BOSS2) AS BOSS, p.created_date, p.updated_date, " +
+                    "'person' AS TYPE_CONSTANT FROM person AS p WHERE EXISTS (SELECT r.object_id FROM person_READ AS r " +
                     "INNER JOIN group_member AS gm ON r.group_id = gm.master WHERE gm.person_id = :user_id AND " +
                     "r.object_id = id) AND 1 = 1";
 

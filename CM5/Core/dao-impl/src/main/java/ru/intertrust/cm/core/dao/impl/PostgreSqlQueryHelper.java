@@ -311,15 +311,21 @@ public class PostgreSqlQueryHelper {
 
     public static String generateMultipleTypeReferenceSelectColumn(String tableAlias, ReferenceFieldConfig
                                                                       fieldConfig) {
-        StringBuffer query = new StringBuffer("(case");
+        StringBuffer query = new StringBuffer("coalesce(");
 
+        boolean commaNeeded = false;
         for (ReferenceFieldTypeConfig typeConfig : fieldConfig.getTypes()) {
+            if (!commaNeeded) {
+                commaNeeded = true;
+            } else {
+                query.append(", ");
+            }
+
             String columnName = getSqlName(fieldConfig, typeConfig);
-            query.append(" when ").append(tableAlias).append(".").append(columnName).append(" is not null then ");
             query.append(tableAlias).append(".").append(columnName);
         }
 
-        query.append(" else null end) as ").append(getSqlName(fieldConfig));
+        query.append(") AS ").append(getSqlName(fieldConfig));
 
         return query.toString();
     }
