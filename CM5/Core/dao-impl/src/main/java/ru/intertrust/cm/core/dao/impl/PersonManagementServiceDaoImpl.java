@@ -19,6 +19,7 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
+import ru.intertrust.cm.core.model.ExtensionPointException;
 
 /**
  * Реализация сервиса вхождения управления пользователями и группами
@@ -122,22 +123,27 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
      */
     @Override
     public boolean isPersonInGroup(Id groupId, Id personId) {
-        Filter filter = new Filter();
-        filter.setFilter("byGroupAndPerson");
-        ReferenceValue rvGroup = new ReferenceValue(groupId);
-        filter.addCriterion(0, rvGroup);
-        ReferenceValue rvPerson = new ReferenceValue(personId);
-        filter.addCriterion(1, rvPerson);
-        List<Filter> filters = new ArrayList<>();
-        filters.add(filter);
+        try {
+            Filter filter = new Filter();
+            filter.setFilter("byGroupAndPerson");
+            ReferenceValue rvGroup = new ReferenceValue(groupId);
+            filter.addCriterion(0, rvGroup);
+            ReferenceValue rvPerson = new ReferenceValue(personId);
+            filter.addCriterion(1, rvPerson);
+            List<Filter> filters = new ArrayList<>();
+            filters.add(filter);
 
-        AccessToken accessToken = accessControlService
-                .createSystemAccessToken("PersonManagementService");
+            AccessToken accessToken = accessControlService
+                    .createSystemAccessToken("PersonManagementService");
 
-        IdentifiableObjectCollection collection = collectionsDao
-                .findCollection("IsPersonInGroup", filters, null, 0, 0,
-                        accessToken);
-        return collection.size() > 0;
+            IdentifiableObjectCollection collection = collectionsDao
+                    .findCollection("IsPersonInGroup", filters, null, 0, 0,
+                            accessToken);
+            return collection.size() > 0;
+        } catch (Throwable ex) {
+            ex.printStackTrace();
+            throw new ExtensionPointException(ex.getMessage());
+        }
     }
 
     /**

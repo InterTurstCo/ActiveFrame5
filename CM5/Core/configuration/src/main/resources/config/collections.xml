@@ -17,7 +17,8 @@
         <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) 
             вместо названий колонок -->
         <counting-prototype>
-            select count(*) from Employee e ::from-clause WHERE 1=1 ::where-clause
+            select count(*) from Employee e
+            ::from-clause WHERE 1=1 ::where-clause
         </counting-prototype>
 
         <filter name="byDepartment">
@@ -81,7 +82,8 @@
         <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) 
             вместо названий колонок -->
         <counting-prototype>
-            select count(*) from Outgoing_document od ::from-clause WHERE 1=1 ::where-clause
+            select count(*) from Outgoing_document od
+            ::from-clause WHERE 1=1 ::where-clause
         </counting-prototype>
 
     </collection>
@@ -105,7 +107,8 @@
         <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) 
             вместо названий колонок -->
         <counting-prototype>
-            select count(*) from Assignment s ::from-clause WHERE 1=1 ::where-clause
+            select count(*) from Assignment s
+            ::from-clause WHERE 1=1 ::where-clause
         </counting-prototype>
         <filter name="byDoc">
             <criteria placeholder="where-clause">
@@ -135,7 +138,8 @@
         <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) 
             вместо названий колонок -->
         <counting-prototype>
-            select count(*) from outgoing_document od ::from-clause WHERE 1=1
+            select count(*) from outgoing_document od
+            ::from-clause WHERE 1=1
             ::where-clause
         </counting-prototype>
 
@@ -195,20 +199,17 @@
 
         <prototype>
             <![CDATA[
-                select
-                    g.person_id
-                from
-                    Group_Member g 
-                     ::from-clause
-                where
-                    1=1 ::where-clause
+                select p.id
+                from Person p
+                inner join group_member gm on (gm.person_id = p.id)
+                where 1=1 ::where-clause
             ]]>
         </prototype>
 
         <filter name="byGroup">
             <criteria placeholder="where-clause">
                 <![CDATA[
-                    g.id = {0}
+                    gm.master = {0}
                 ]]>
             </criteria>
         </filter>
@@ -219,44 +220,39 @@
 
         <prototype>
             <![CDATA[
-                select
-                    g.person_id
-                from
-                    Group_Member g 
-                     ::from-clause
-                where
-                    1=1 ::where-clause
+                select p.id
+                from Person p
+                inner join group_member gm on (gm.person_id = p.id)
+                inner join group_group gg on (gg.child_group_id = gm.master)
+                where 1=1 ::where-clause
             ]]>
         </prototype>
 
         <filter name="byGroup">
             <criteria placeholder="where-clause">
                 <![CDATA[
-                    g.id = {0}
+                    gg.parent_group_id = {0}
                 ]]>
             </criteria>
         </filter>
     </collection>
 
     <collection name="IsPersonInGroup" idField="id"
-        domain-object-type="Group_Member">
+        domain-object-type="group_group">
 
         <prototype>
             <![CDATA[
-                select
-                    g.id
-                from
-                    Group_Member g 
-                     ::from-clause
-                where
-                    1=1 ::where-clause
+                select gg.id 
+                from group_group gg
+                inner join group_member gm on (gg.child_group_id = gm.master)
+                where 1=1 ::where-clause
             ]]>
         </prototype>
 
         <filter name="byGroupAndPerson">
             <criteria placeholder="where-clause">
                 <![CDATA[
-                    g.master = {0} and g.person_id  = {1}
+                    gg.parent_group_id = {0} and gm.person_id = {1}
                 ]]>
             </criteria>
         </filter>
@@ -267,20 +263,18 @@
 
         <prototype>
             <![CDATA[
-                select
-                    g.id
-                from
-                    Group_Member g 
-                     ::from-clause
-                where
-                    1=1 ::where-clause
+                select ug.id
+                from User_Group ug
+                inner join group_group gg on (gg.parent_group_id = ug.id)
+                inner join group_member gm on (gg.child_group_id = gm.master)
+                where 1=1 ::where-clause
             ]]>
         </prototype>
 
         <filter name="byPerson">
             <criteria placeholder="where-clause">
                 <![CDATA[
-                    g.person_id  = {0}
+                    gm.person_id  = {0}
                 ]]>
             </criteria>
         </filter>
@@ -351,7 +345,7 @@
     </collection>
 
     <collection name="GroupInGroup" idField="id"
-        domain-object-type="User_Group">
+        domain-object-type="group_group_settings">
 
         <prototype>
             <![CDATA[
@@ -361,7 +355,7 @@
                     group_group_settings gs 
                      ::from-clause
                 where
-                     ::where-clause
+                     1=1 ::where-clause
             ]]>
         </prototype>
 
@@ -375,7 +369,7 @@
     </collection>
 
     <collection name="AllGroupInGroup" idField="id"
-        domain-object-type="User_Group">
+        domain-object-type="group_group">
 
         <prototype>
             <![CDATA[
@@ -385,7 +379,7 @@
                     group_group gs 
                      ::from-clause
                 where
-                     ::where-clause
+                     1=1 ::where-clause
             ]]>
         </prototype>
 
@@ -410,7 +404,7 @@
                     inner join group_group gs on (g.id = gs.parent_group_id) 
                      ::from-clause
                 where
-                     ::where-clause
+                     1=1 ::where-clause
             ]]>
         </prototype>
 
@@ -435,7 +429,7 @@
                     inner join group_group_settings gs on (g.id = gs.child_group_id) 
                      ::from-clause
                 where
-                     ::where-clause
+                     1=1 ::where-clause
             ]]>
         </prototype>
 
@@ -460,7 +454,7 @@
                     inner join group_group gs on (g.id = gs.child_group_id) 
                      ::from-clause
                 where
-                     ::where-clause
+                     1=1 ::where-clause
             ]]>
         </prototype>
 
@@ -484,7 +478,7 @@
                     group_group g 
                      ::from-clause
                 where
-                     ::where-clause
+                     1=1 ::where-clause
             ]]>
         </prototype>
 
@@ -497,6 +491,7 @@
         </filter>
     </collection>
 
+
     <collection name="GroupGroupSettings" idField="id"
         domain-object-type="group_group_settings">
 
@@ -508,7 +503,7 @@
                     group_group_settings g 
                      ::from-clause
                 where
-                     ::where-clause
+                     1=1 ::where-clause
             ]]>
         </prototype>
 
@@ -522,17 +517,17 @@
     </collection>
 
     <collection name="PersonGroup" idField="id"
-        domain-object-type="group_members">
+        domain-object-type="Group_Member">
 
         <prototype>
             <![CDATA[
                 select
                     g.id
                 from                    
-                    Group_Members g 
+                    Group_Member g 
                      ::from-clause
                 where
-                     ::where-clause
+                     1=1 ::where-clause
             ]]>
         </prototype>
 
