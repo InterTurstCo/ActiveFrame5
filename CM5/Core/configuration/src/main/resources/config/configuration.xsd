@@ -144,7 +144,7 @@
     </xs:complexType>
 
     <xs:complexType name="uniqueKeyType">
-        <xs:sequence>
+        <xs:sequence maxOccurs="unbounded">
             <xs:element type="con:fieldType" name="field"
                         xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
