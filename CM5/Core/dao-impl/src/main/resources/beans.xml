@@ -69,7 +69,7 @@
         class="ru.intertrust.cm.core.dao.impl.DomainObjectCacheServiceImpl" />
 
     <bean id="personManagement"
-        class="ru.intertrust.cm.core.dao.impl.PersonManagementServiceImpl" />
+        class="ru.intertrust.cm.core.dao.impl.PersonManagementServiceDaoImpl" />
 
     <bean id="extensionService" class="ru.intertrust.cm.core.dao.impl.ExtensionServiceImpl">
         <property name="basePackage" value="ru/intertrust/cm" />

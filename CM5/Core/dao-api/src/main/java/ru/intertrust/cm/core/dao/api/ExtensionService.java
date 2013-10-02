@@ -1,7 +1,5 @@
 package ru.intertrust.cm.core.dao.api;
 
-import ru.intertrust.cm.core.dao.api.extension.ExtensionPointHandler;
-
 /**
  * интерфейс сервиса точек расширения
  * 
@@ -9,12 +7,12 @@ import ru.intertrust.cm.core.dao.api.extension.ExtensionPointHandler;
  * 
  */
 public interface ExtensionService {
-	/**
-	 * Получение точки расширения в месте ее вызова
-	 * 
-	 * @param extentionPointInterface
-	 * @return
-	 */
-	ExtensionPointHandler getExtentionPoint(Class<? extends ExtensionPointHandler> extentionPointInterface, String filter);
+    /**
+     * Получение точки расширения в месте ее вызова
+     * 
+     * @param extentionPointInterface
+     * @return
+     */
+    <T> T getExtentionPoint(Class<T> extentionPointInterface, String filter);
 
 }

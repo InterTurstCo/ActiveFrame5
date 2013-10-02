@@ -165,6 +165,31 @@
         </filter>
     </collection>
 
+    <collection name="GroupByName" idField="id"
+        domain-object-type="User_Group">
+
+        <prototype>
+            <![CDATA[
+                select
+                    s.id
+                from
+                    User_Group s
+                     ::from-clause
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+
+        <filter name="byName">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    s.group_name = {0}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
+
     <collection name="PersonInGroup" idField="id"
         domain-object-type="Person">
 
@@ -214,12 +239,12 @@
     </collection>
 
     <collection name="IsPersonInGroup" idField="id"
-        domain-object-type="Person">
+        domain-object-type="Group_Member">
 
         <prototype>
             <![CDATA[
                 select
-                    g.person_id
+                    g.id
                 from
                     Group_Member g 
                      ::from-clause
@@ -231,7 +256,7 @@
         <filter name="byGroupAndPerson">
             <criteria placeholder="where-clause">
                 <![CDATA[
-                    g.id = {0} and g.person_id1  = {1}
+                    g.master = {0} and g.person_id  = {1}
                 ]]>
             </criteria>
         </filter>
@@ -320,6 +345,201 @@
             <criteria placeholder="where-clause">
                 <![CDATA[
                     t.mainattachment  = {0}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
+    <collection name="GroupInGroup" idField="id"
+        domain-object-type="User_Group">
+
+        <prototype>
+            <![CDATA[
+                select
+                    gs.id
+                from
+                    group_group_settings gs 
+                     ::from-clause
+                where
+                     ::where-clause
+            ]]>
+        </prototype>
+
+        <filter name="byMembers">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    gs.parent_group_id = {0} and gs.child_group_id = {1}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
+    <collection name="AllGroupInGroup" idField="id"
+        domain-object-type="User_Group">
+
+        <prototype>
+            <![CDATA[
+                select
+                    gs.id
+                from
+                    group_group gs 
+                     ::from-clause
+                where
+                     ::where-clause
+            ]]>
+        </prototype>
+
+        <filter name="byMembers">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    gs.parent_group_id = {0} and gs.child_group_id = {1}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
+    <collection name="AllParentGroups" idField="id"
+        domain-object-type="User_Group">
+
+        <prototype>
+            <![CDATA[
+                select
+                    g.id
+                from                    
+                    User_Group g
+                    inner join group_group gs on (g.id = gs.parent_group_id) 
+                     ::from-clause
+                where
+                     ::where-clause
+            ]]>
+        </prototype>
+
+        <filter name="byChild">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    gs.child_group_id = {0}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
+    <collection name="ChildGroups" idField="id"
+        domain-object-type="User_Group">
+
+        <prototype>
+            <![CDATA[
+                select
+                    g.id
+                from                    
+                    User_Group g
+                    inner join group_group_settings gs on (g.id = gs.child_group_id) 
+                     ::from-clause
+                where
+                     ::where-clause
+            ]]>
+        </prototype>
+
+        <filter name="byParent">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    gs.parent_group_id = {0}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
+    <collection name="AllChildGroups" idField="id"
+        domain-object-type="User_Group">
+
+        <prototype>
+            <![CDATA[
+                select
+                    g.id
+                from                    
+                    User_Group g
+                    inner join group_group gs on (g.id = gs.child_group_id) 
+                     ::from-clause
+                where
+                     ::where-clause
+            ]]>
+        </prototype>
+
+        <filter name="byParent">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    gs.parent_group_id = {0}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
+    <collection name="GroupGroup" idField="id"
+        domain-object-type="group_group">
+
+        <prototype>
+            <![CDATA[
+                select
+                    g.id
+                from                    
+                    group_group g 
+                     ::from-clause
+                where
+                     ::where-clause
+            ]]>
+        </prototype>
+
+        <filter name="byMember">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    g.parent_group_id = {0} and g.child_group_id = {1}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
+    <collection name="GroupGroupSettings" idField="id"
+        domain-object-type="group_group_settings">
+
+        <prototype>
+            <![CDATA[
+                select
+                    g.id
+                from                    
+                    group_group_settings g 
+                     ::from-clause
+                where
+                     ::where-clause
+            ]]>
+        </prototype>
+
+        <filter name="byMember">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    g.parent_group_id = {0} and g.child_group_id = {1}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
+    <collection name="PersonGroup" idField="id"
+        domain-object-type="group_members">
+
+        <prototype>
+            <![CDATA[
+                select
+                    g.id
+                from                    
+                    Group_Members g 
+                     ::from-clause
+                where
+                     ::where-clause
+            ]]>
+        </prototype>
+
+        <filter name="byMember">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    g.master = {0} and g.person_id = {1}
                 ]]>
             </criteria>
         </filter>

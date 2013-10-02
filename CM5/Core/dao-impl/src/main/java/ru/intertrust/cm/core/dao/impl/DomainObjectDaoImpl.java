@@ -16,7 +16,9 @@ import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.dao.api.IdGenerator;
+import ru.intertrust.cm.core.dao.api.extension.AfterDeleteExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.AfterSaveExtensionHandler;
+import ru.intertrust.cm.core.dao.api.extension.BeforeDeleteExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.BeforeSaveExtensionHandler;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
@@ -115,24 +117,26 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     public DomainObject save(DomainObject domainObject)
             throws InvalidIdException, ObjectNotFoundException,
             OptimisticLockException {
-        if (domainObject.isNew()) {
-            return create(domainObject);
-        }
 
+        DomainObject result = null;
         // Вызов точки расширения до сохранения
-        BeforeSaveExtensionHandler beforeSaveExtension = (BeforeSaveExtensionHandler) extensionService
+        BeforeSaveExtensionHandler beforeSaveExtension = extensionService
                 .getExtentionPoint(BeforeSaveExtensionHandler.class,
                         domainObject.getTypeName());
         beforeSaveExtension.onBeforeSave(domainObject);
 
         // Сохранение в базе
-        DomainObject result = update(domainObject);
+        if (domainObject.isNew()) {
+            result = create(domainObject);
+        } else {
+            result = update(domainObject);
+        }
 
         // Вызов точки расширения после сохранения
-        AfterSaveExtensionHandler afterSaveExtension = (AfterSaveExtensionHandler) extensionService
+        AfterSaveExtensionHandler afterSaveExtension = extensionService
                 .getExtentionPoint(AfterSaveExtensionHandler.class,
                         domainObject.getTypeName());
-        afterSaveExtension.onAfterSave(domainObject);
+        afterSaveExtension.onAfterSave(result);
 
         return result;
     }
@@ -244,6 +248,17 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 .getConfig(DomainObjectTypeConfig.class,
                         getDOTypeName(rdbmsId.getTypeId()));
 
+        //Получаем удаляемый доменный объект для нужд точек расширения
+        AccessToken accessToken = accessControlService
+                .createSystemAccessToken("DomainObjectDaoImpl");
+
+        DomainObject deletedObject = find(id, accessToken);
+        
+        // Точка расширения до удаления
+        BeforeDeleteExtensionHandler beforeDeleteEH =
+                extensionService.getExtentionPoint(BeforeDeleteExtensionHandler.class, domainObjectTypeConfig.getName());
+        beforeDeleteEH.onBeforeDelete(deletedObject);
+
         if (isDerived(domainObjectTypeConfig)) {
             Id parentId = findParentId(domainObjectTypeConfig, id);
             delete(parentId);
@@ -261,6 +276,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             throw new ObjectNotFoundException(rdbmsId);
         }
 
+        // Точка расширения после
+        AfterDeleteExtensionHandler afterDeleteEH =
+                extensionService.getExtentionPoint(AfterDeleteExtensionHandler.class, domainObjectTypeConfig.getName());
+        afterDeleteEH.onAfterDelete(deletedObject);
     }
 
     @Override

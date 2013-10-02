@@ -124,7 +124,7 @@
         <parent name="User_Group" />
         <fields>
             <reference name="person_id" not-null="true">
-                <type name="Authentication_Info"/>
+                <type name="Person"/>
             </reference>
         </fields>
     </domain-object-type>
@@ -192,5 +192,35 @@
 			<decimal name="test_decimal" precision="10" scale="2"/>
         </fields>
     </domain-object-type>
+
+    <domain-object-type name="group_group_settings">
+        <fields>
+            <reference name="parent_group_id">
+                <type name="User_Group"/>
+            </reference>
+            <reference name="child_group_id">
+                <type name="User_Group"/>
+            </reference>
+        </fields>
+        <!-- uniqueKey>
+            <field name="parent_group_id"/>
+            <field name="child_group_id"/>
+        </uniqueKey-->
+    </domain-object-type>    
+
+    <domain-object-type name="group_group">
+        <fields>
+            <reference name="parent_group_id">
+                <type name="User_Group"/>
+            </reference>
+            <reference name="child_group_id">
+                <type name="User_Group"/>
+            </reference>
+        </fields>
+        <!-- uniqueKey>
+            <field name="parent_group_id"/>
+            <field name="child_group_id"/>
+        </uniqueKey-->
+    </domain-object-type>    
         
 </configuration>
