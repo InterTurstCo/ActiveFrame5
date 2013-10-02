@@ -130,7 +130,8 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
     public void delete(Id id) {
         //TODO get userId from EJB Context
         int userId = 1;
-        accessControlService.createAccessToken(userId, id, DomainObjectAccessType.DELETE);
+        //TODO закомментировал использование AcessToken до его работоспособности
+        //accessControlService.createAccessToken(userId, id, DomainObjectAccessType.DELETE);
         domainObjectDao.delete(id);
     }
 
