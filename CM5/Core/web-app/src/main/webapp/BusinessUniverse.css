@@ -8,3 +8,16 @@ body {
 .test {
     background-color: red;
 }
+
+#debug{
+    background-color: red;
+    border-collapse: collapse;
+}
+
+#align-left{
+   text-align: left;
+}
+
+#align-right{
+    text-align: right;
+}

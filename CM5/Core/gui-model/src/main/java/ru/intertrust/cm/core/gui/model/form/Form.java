@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.model.form;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.model.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.model.gui.form.MarkupConfig;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
 
@@ -21,7 +22,7 @@ public class Form implements Dto {
     private MarkupConfig markup;
     private Map<String, WidgetData> widgetDataMap;
     private FormData formData;
-
+    private FormConfig formConfig;
     /**
      * Конструктор по умолчанию.
      */
@@ -49,11 +50,12 @@ public class Form implements Dto {
         this.widgetDataMap = widgetDataMap;
     }
 
-    public Form(String name, MarkupConfig markup, Map<String, WidgetData> widgetDataMap, FormData formData) {
+    public Form(String name, MarkupConfig markup, Map<String, WidgetData> widgetDataMap, FormData formData, FormConfig formConfig) {
         this.name = name;
         this.markup = markup;
         this.formData = formData;
         this.widgetDataMap = widgetDataMap;
+        this.formConfig = formConfig;
     }
 
     public String getName() {
@@ -129,5 +131,13 @@ public class Form implements Dto {
 
     public DomainObject getRootObject() {
         return formData.getFieldPathObject(FieldPath.ROOT);
+    }
+
+    public FormConfig getFormConfig() {
+        return formConfig;
+    }
+
+    public void setFormConfig(FormConfig formConfig) {
+        this.formConfig = formConfig;
     }
 }

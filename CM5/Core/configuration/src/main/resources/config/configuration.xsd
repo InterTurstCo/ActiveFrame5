@@ -586,7 +586,8 @@
         </xs:sequence>
         <xs:attribute type="xs:string" name="name"/>
         <xs:attribute type="xs:string" name="domain-object-type"/>
-        <xs:attribute type="xs:string" name="is-default"/>
+        <xs:attribute type="xs:boolean" name="is-default"/>
+        <xs:attribute type="xs:boolean" name="debug"/>
     </xs:complexType>
 
     <xs:complexType name="columnFromType" mixed="true">
