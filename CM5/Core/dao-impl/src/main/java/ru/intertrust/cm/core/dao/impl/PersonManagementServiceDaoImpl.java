@@ -23,9 +23,9 @@ import ru.intertrust.cm.core.model.ExtensionPointException;
 
 /**
  * Реализация сервиса вхождения управления пользователями и группами
- * 
+ *
  * @author larin
- * 
+ *
  */
 public class PersonManagementServiceDaoImpl implements PersonManagementServiceDao {
 
@@ -390,7 +390,7 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
 
     /**
      * Создание нового доменного обьекта переданного типа
-     * 
+     *
      * @param type
      * @return
      */
@@ -400,7 +400,6 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
         Date currentDate = new Date();
         domainObject.setCreatedDate(currentDate);
         domainObject.setModifiedDate(currentDate);
-        domainObject.setParent(parent);
         return domainObject;
     }
 
