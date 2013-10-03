@@ -23,6 +23,9 @@ public class FormConfig implements Dto, TopLevelConfig {
     @Attribute(name = "is-default",required = false)
     private boolean isDefault;
 
+    @Attribute(name = "debug",required = false)
+    private boolean debug;
+
     @Element(name = "markup")
     private MarkupConfig markup;
 
@@ -61,6 +64,14 @@ public class FormConfig implements Dto, TopLevelConfig {
         this.isDefault = isDefault;
     }
 
+    public boolean getDebug() {
+        return debug;
+    }
+
+    public void setDebug(boolean debug) {
+        this.debug = debug;
+    }
+
     public WidgetConfigurationConfig getWidgetConfigurationConfig() {
         return widgetConfigurationConfig;
     }
@@ -81,6 +92,9 @@ public class FormConfig implements Dto, TopLevelConfig {
         FormConfig that = (FormConfig) o;
 
         if (isDefault != that.isDefault) {
+            return false;
+        }
+        if (debug != that.debug) {
             return false;
         }
         if (domainObjectType != null ? !domainObjectType.equals(that.domainObjectType) : that.domainObjectType != null) {
@@ -105,6 +119,7 @@ public class FormConfig implements Dto, TopLevelConfig {
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (domainObjectType != null ? domainObjectType.hashCode() : 0);
         result = 31 * result + (isDefault ? 1 : 0);
+        result = 31 * result + (debug ? 1 : 0);
         result = 31 * result + (markup != null ? markup.hashCode() : 0);
         result = 31 * result + (widgetConfigurationConfig != null ? widgetConfigurationConfig.hashCode() : 0);
         return result;

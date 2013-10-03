@@ -55,7 +55,7 @@
         </fields>
     </domain-object-type>
 
-    <form name="country_form" domain-object-type="country" is-default="true">
+    <form name="country_form" domain-object-type="country" is-default="true" debug = "false">
         <markup>
             <header>
                 <table width="500px" height="200px">
@@ -71,7 +71,7 @@
                         <tab-group> <!-- вхождение в группу уже может содержать разметку -->
                             <table>
                                 <tr>
-                                    <td h-align="right"><widget id="3"/></td>  <!-- label (Население) -->
+                                    <td h-align="center" v-align = "middle"><widget id="3"/></td>  <!-- label (Население) -->
                                     <td h-align="left"><widget id="4"/></td>  <!-- integer-box (Население) -->
                                     <td><widget id="5"/></td>  <!-- label (Площадь) -->
                                     <td h-align="left"><widget id="6"/></td>  <!-- integer-box (Площадь) -->

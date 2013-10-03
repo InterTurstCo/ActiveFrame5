@@ -82,6 +82,10 @@ public class FormPanel implements IsWidget {
     private IsWidget buildTable(LayoutConfig layout) {
         TableLayoutConfig tableLayout = (TableLayoutConfig) layout;
         FlexTable table = new FlexTable();
+        if (form.getFormConfig().getDebug()){
+            table.setBorderWidth(1);
+            table.getElement().setId("debug");
+        }
         table.setSize("500px", "100%");
         FlexTable.FlexCellFormatter cellFormatter = table.getFlexCellFormatter();
         HTMLTable.ColumnFormatter columnFormatter = table.getColumnFormatter();
@@ -94,6 +98,15 @@ public class FormPanel implements IsWidget {
             for (CellConfig cell : cells) {
                 WidgetDisplayConfig displayConfig = cell.getWidgetDisplayConfig();
                 WidgetData widgetData = form.getWidgetData(displayConfig.getId());
+
+                if (displayConfig.getWidth() == null){
+                    displayConfig.setWidth("97%");
+                }
+
+                if (widgetData.getComponentName().equals("date-box")){
+                    displayConfig.setWidth(null);
+                }
+
                 BaseWidget widget = ComponentRegistry.instance.get(widgetData.getComponentName());
                 widget.setEditable(form.isEditable());
                 widget.setDisplayConfig(displayConfig);
@@ -111,13 +124,41 @@ public class FormPanel implements IsWidget {
                 }
                 cellFormatter.setColSpan(rowIndex, colIndex, getSpan(cell.getColumnSpan()));
                 cellFormatter.setRowSpan(rowIndex, colIndex, getSpan(cell.getRowSpan()));
+                cellFormatter.setHorizontalAlignment(rowIndex, colIndex, getHorizontalAligmentForCurrentCell(cell.getHorizontalAlignment()));
+                cellFormatter.setVerticalAlignment(rowIndex, colIndex, getVerticalAligmentForCurrentCell(cell.getVerticalAlignment()));
                 ++colIndex;
             }
             ++rowIndex;
         }
         return table;
     }
+    private HasHorizontalAlignment.HorizontalAlignmentConstant getHorizontalAligmentForCurrentCell(String cellAligment){
+        HasHorizontalAlignment.HorizontalAlignmentConstant  horizontalAlligment = HasHorizontalAlignment.ALIGN_LEFT;;
+                if (cellAligment == null || cellAligment.equals("left")){
+                    horizontalAlligment = HasHorizontalAlignment.ALIGN_LEFT;
+                }
+                if (cellAligment != null && cellAligment.equals("right")){
+                    horizontalAlligment = HasHorizontalAlignment.ALIGN_RIGHT;
+                }
+                if (cellAligment != null &&cellAligment.equals("center")){
+                    horizontalAlligment = HasHorizontalAlignment.ALIGN_CENTER;
+                }
+       return horizontalAlligment;
+    }
 
+    private HasVerticalAlignment.VerticalAlignmentConstant getVerticalAligmentForCurrentCell(String cellAligment){
+        HasVerticalAlignment.VerticalAlignmentConstant  verticalAlligment = HasVerticalAlignment.ALIGN_MIDDLE;
+        if (cellAligment == null || cellAligment.equals("middle")){
+            verticalAlligment = HasVerticalAlignment.ALIGN_MIDDLE;
+        }
+        if (cellAligment != null && cellAligment.equals("top")){
+            verticalAlligment = HasVerticalAlignment.ALIGN_TOP;
+        }
+        if (cellAligment != null &&cellAligment.equals("bottom")){
+            verticalAlligment = HasVerticalAlignment.ALIGN_BOTTOM;
+        }
+        return verticalAlligment;
+    }
     private int getSpan(String configValue) {
         return configValue == null || configValue.isEmpty() ? 1 : Integer.parseInt(configValue);
     }
