@@ -52,10 +52,12 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
      */
     @Override
     public void createSequence(DomainObjectTypeConfig config) {
+        if (config.getExtendsAttribute() != null) {
+            return; // Для таблиц дочерхних доменных объектов индекс не создается - используется индекс родителя
+        }
+
         String createSequenceQuery = generateSequenceQuery(config);
-
         jdbcTemplate.update(createSequenceQuery);
-
     }
 
     /**

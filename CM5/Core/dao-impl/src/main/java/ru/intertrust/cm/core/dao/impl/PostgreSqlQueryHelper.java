@@ -6,8 +6,8 @@ import java.util.List;
 
 import static ru.intertrust.cm.core.dao.api.ConfigurationDao.CONFIGURATION_TABLE;
 import static ru.intertrust.cm.core.dao.api.DataStructureDao.AUTHENTICATION_INFO_TABLE;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.ID_COLUMN;
 import static ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao.DOMAIN_OBJECT_TYPE_ID_TABLE;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.PARENT_COLUMN;
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TYPE_COLUMN;
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.MASTER_COLUMN;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
@@ -286,10 +286,11 @@ public class PostgreSqlQueryHelper {
                                                            DomainObjectTypeConfig config) {
         query.append(", ");
         if (config.getExtendsAttribute() != null) {
-            appendFKConstraint(query, tableName, PARENT_COLUMN, config.getExtendsAttribute());
-        } else {
-            appendFKConstraint(query, tableName, TYPE_COLUMN, DOMAIN_OBJECT_TYPE_ID_TABLE);
+            appendFKConstraint(query, tableName, ID_COLUMN, config.getExtendsAttribute());
+            query.append(", ");
         }
+
+        appendFKConstraint(query, tableName, TYPE_COLUMN, DOMAIN_OBJECT_TYPE_ID_TABLE);
     }
 
     public static void appendMasterFKConstraintsQueryPart(StringBuilder query, String domainObjectConfigName,
@@ -379,10 +380,9 @@ public class PostgreSqlQueryHelper {
         if (config.getExtendsAttribute() == null) {
             query.append("CREATED_DATE timestamp not null, ");
             query.append("UPDATED_DATE timestamp not null, ");
-            query.append(TYPE_COLUMN + " integer");
-        } else {
-            query.append(PARENT_COLUMN + " bigint not null");
         }
+
+        query.append(TYPE_COLUMN + " integer");
     }
 
     private static void appendColumnsQueryPart(StringBuilder query, List<FieldConfig> fieldConfigList,

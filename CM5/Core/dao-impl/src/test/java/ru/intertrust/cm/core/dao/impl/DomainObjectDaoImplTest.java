@@ -84,9 +84,9 @@ public class DomainObjectDaoImplTest {
         domainObject.setModifiedDate(currentDate);
 
         String checkCreateQuery =
-                "insert into PERSON (ID, CREATED_DATE, UPDATED_DATE, TYPE, EMAIL," +
+                "insert into PERSON (ID, CREATED_DATE, UPDATED_DATE, TYPE_ID, EMAIL," +
                         "LOGIN,PASSWORD,BOSS1,BOSS2) values " +
-                        "(:id , :created_date, :updated_date, :type, :email,:login,:password,:boss1,:boss2)";
+                        "(:id , :created_date, :updated_date, :type_id, :email,:login,:password,:boss1,:boss2)";
 
         String query = domainObjectDaoImpl.generateCreateQuery(domainObjectTypeConfig);
         assertEquals(checkCreateQuery, query);

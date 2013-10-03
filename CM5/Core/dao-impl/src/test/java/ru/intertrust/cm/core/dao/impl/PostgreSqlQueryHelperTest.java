@@ -12,7 +12,6 @@ import static org.junit.Assert.assertEquals;
 import static ru.intertrust.cm.core.dao.api.ConfigurationDao.CONFIGURATION_TABLE;
 import static ru.intertrust.cm.core.dao.api.DataStructureDao.AUTHENTICATION_INFO_TABLE;
 import static ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao.DOMAIN_OBJECT_TYPE_ID_TABLE;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.PARENT_COLUMN;
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.MASTER_COLUMN;
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TYPE_COLUMN;
 
@@ -73,13 +72,14 @@ public class PostgreSqlQueryHelperTest {
     @Test
      public void testGenerateCreateTableQuery() throws Exception {
         String query = PostgreSqlQueryHelper.generateCreateTableQuery(domainObjectTypeConfig);
-        String checkQuery = "create table OUTGOING_DOCUMENT ( ID bigint not null, " +
-                PARENT_COLUMN + " bigint not null, MASTER bigint, REGISTRATION_NUMBER varchar(128), " +
+        String checkQuery = "create table OUTGOING_DOCUMENT ( ID bigint not null, TYPE_ID integer, " +
+                "MASTER bigint, REGISTRATION_NUMBER varchar(128), " +
                 "REGISTRATION_DATE timestamp, AUTHOR bigint, " +
                 "LONG_FIELD bigint, DECIMAL_FIELD_1 decimal(10, 2), DECIMAL_FIELD_2 decimal(10), " +
                 "constraint PK_OUTGOING_DOCUMENT_ID primary key (ID), " +
-                "constraint FK_OUTGOING_DOCUMENT_" + PARENT_COLUMN + " foreign key (" + PARENT_COLUMN +
-                    ") references DOCUMENT(ID), " +
+                "constraint FK_OUTGOING_DOCUMENT_ID" + " foreign key (ID) references DOCUMENT(ID), " +
+                "constraint FK_OUTGOING_DOCUMENT_" + TYPE_COLUMN + " foreign key (" + TYPE_COLUMN +
+                    ") references DOMAIN_OBJECT_TYPE_ID(ID), " +
                 "constraint FK_OUTGOING_DOCUMENT_" + MASTER_COLUMN + " foreign key (" + MASTER_COLUMN +
                     ") references PARENT_DOCUMENT(ID))";
         assertEquals(checkQuery, query);

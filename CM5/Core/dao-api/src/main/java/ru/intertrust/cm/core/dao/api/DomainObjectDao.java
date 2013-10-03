@@ -19,8 +19,7 @@ public interface DomainObjectDao {
 
     String ID_COLUMN = "ID";
     String MASTER_COLUMN = "MASTER";
-    String PARENT_COLUMN = "PARENT";
-    String TYPE_COLUMN = "TYPE";
+    String TYPE_COLUMN = "TYPE_ID";
     String CREATED_DATE_COLUMN = "CREATED_DATE";
     String UPDATED_DATE_COLUMN = "UPDATED_DATE";
 
