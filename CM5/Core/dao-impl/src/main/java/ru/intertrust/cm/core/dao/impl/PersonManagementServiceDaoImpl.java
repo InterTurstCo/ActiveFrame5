@@ -123,27 +123,22 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
      */
     @Override
     public boolean isPersonInGroup(Id groupId, Id personId) {
-        try {
-            Filter filter = new Filter();
-            filter.setFilter("byGroupAndPerson");
-            ReferenceValue rvGroup = new ReferenceValue(groupId);
-            filter.addCriterion(0, rvGroup);
-            ReferenceValue rvPerson = new ReferenceValue(personId);
-            filter.addCriterion(1, rvPerson);
-            List<Filter> filters = new ArrayList<>();
-            filters.add(filter);
+        Filter filter = new Filter();
+        filter.setFilter("byGroupAndPerson");
+        ReferenceValue rvGroup = new ReferenceValue(groupId);
+        filter.addCriterion(0, rvGroup);
+        ReferenceValue rvPerson = new ReferenceValue(personId);
+        filter.addCriterion(1, rvPerson);
+        List<Filter> filters = new ArrayList<>();
+        filters.add(filter);
 
-            AccessToken accessToken = accessControlService
-                    .createSystemAccessToken("PersonManagementService");
+        AccessToken accessToken = accessControlService
+                .createSystemAccessToken("PersonManagementService");
 
-            IdentifiableObjectCollection collection = collectionsDao
-                    .findCollection("IsPersonInGroup", filters, null, 0, 0,
-                            accessToken);
-            return collection.size() > 0;
-        } catch (Throwable ex) {
-            ex.printStackTrace();
-            throw new ExtensionPointException(ex.getMessage());
-        }
+        IdentifiableObjectCollection collection = collectionsDao
+                .findCollection("IsPersonInGroup", filters, null, 0, 0,
+                        accessToken);
+        return collection.size() > 0;
     }
 
     /**

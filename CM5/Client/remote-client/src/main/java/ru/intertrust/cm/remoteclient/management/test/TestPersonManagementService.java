@@ -138,7 +138,7 @@ public class TestPersonManagementService extends ClientBase {
                 assertFalse("Person in group", personService.isPersonInGroup(groupIds.get("group" + i), personIds.get("person" + i)));
 
                 crudService.delete(groupIds.get("group" + i));
-                crudService.delete(groupIds.get("person" + i));
+                crudService.delete(personIds.get("person" + i));
             }
 
         } finally {
@@ -156,12 +156,14 @@ public class TestPersonManagementService extends ClientBase {
         if (!param) {
             throw new Exception(message);
         }
+        System.out.println(message + ": OK");
     }
 
     private void assertFalse(String message, boolean param) throws Exception {
         if (param) {
             throw new Exception(message);
         }
+        System.out.println(message + ": OK");
     }
 
 }
