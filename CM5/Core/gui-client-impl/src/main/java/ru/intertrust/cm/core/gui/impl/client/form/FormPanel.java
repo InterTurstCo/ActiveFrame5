@@ -51,7 +51,6 @@ public class FormPanel implements IsWidget {
         HeaderConfig header = markup.getHeader();
         IsWidget headerTable = buildTable(header.getTableLayout());
 
-
         TabLayoutPanel bodyTabPanel = new TabLayoutPanel(30, Style.Unit.PX);
         bodyTabPanel.setSize("500px", "200px"); // todo - something else
         BodyConfig body = markup.getBody();
@@ -82,7 +81,7 @@ public class FormPanel implements IsWidget {
     private IsWidget buildTable(LayoutConfig layout) {
         TableLayoutConfig tableLayout = (TableLayoutConfig) layout;
         FlexTable table = new FlexTable();
-        if (form.getFormConfig().getDebug()){
+        if (form.getDebug()){
             table.setBorderWidth(1);
             table.getElement().setId("debug");
         }
@@ -98,15 +97,6 @@ public class FormPanel implements IsWidget {
             for (CellConfig cell : cells) {
                 WidgetDisplayConfig displayConfig = cell.getWidgetDisplayConfig();
                 WidgetData widgetData = form.getWidgetData(displayConfig.getId());
-
-                if (displayConfig.getWidth() == null){
-                    displayConfig.setWidth("97%");
-                }
-
-                if (widgetData.getComponentName().equals("date-box")){
-                    displayConfig.setWidth(null);
-                }
-
                 BaseWidget widget = ComponentRegistry.instance.get(widgetData.getComponentName());
                 widget.setEditable(form.isEditable());
                 widget.setDisplayConfig(displayConfig);
@@ -133,14 +123,14 @@ public class FormPanel implements IsWidget {
         return table;
     }
     private HasHorizontalAlignment.HorizontalAlignmentConstant getHorizontalAligmentForCurrentCell(String cellAligment){
-        HasHorizontalAlignment.HorizontalAlignmentConstant  horizontalAlligment = HasHorizontalAlignment.ALIGN_LEFT;;
+        HasHorizontalAlignment.HorizontalAlignmentConstant  horizontalAlligment = HasHorizontalAlignment.ALIGN_LEFT;
                 if (cellAligment == null || cellAligment.equals("left")){
                     horizontalAlligment = HasHorizontalAlignment.ALIGN_LEFT;
                 }
                 if (cellAligment != null && cellAligment.equals("right")){
                     horizontalAlligment = HasHorizontalAlignment.ALIGN_RIGHT;
                 }
-                if (cellAligment != null &&cellAligment.equals("center")){
+                if (cellAligment != null && cellAligment.equals("center")){
                     horizontalAlligment = HasHorizontalAlignment.ALIGN_CENTER;
                 }
        return horizontalAlligment;
@@ -154,7 +144,7 @@ public class FormPanel implements IsWidget {
         if (cellAligment != null && cellAligment.equals("top")){
             verticalAlligment = HasVerticalAlignment.ALIGN_TOP;
         }
-        if (cellAligment != null &&cellAligment.equals("bottom")){
+        if (cellAligment != null && cellAligment.equals("bottom")){
             verticalAlligment = HasVerticalAlignment.ALIGN_BOTTOM;
         }
         return verticalAlligment;

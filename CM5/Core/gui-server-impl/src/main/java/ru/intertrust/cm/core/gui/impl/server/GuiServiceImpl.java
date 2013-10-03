@@ -162,7 +162,7 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
             widgetContext.setWidgetConfig(config);
             widgetDataMap.put(config.getId(), componentHandler.getInitialDisplayData(widgetContext, formData));
         }
-        Form form = new Form(formConfig.getName(), formConfig.getMarkup(), widgetDataMap, formData, formConfig);
+        Form form = new Form(formConfig.getName(), formConfig.getMarkup(), widgetDataMap, formData, formConfig.getDebug());
         return form;
     }
 
