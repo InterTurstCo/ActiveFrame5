@@ -62,7 +62,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
     private String getQueryForCheckDomainObjectAccess(RdbmsId id) {
         String domainObjectAclTable = getAclTableName(id);
         String query = "select count(*) from " + domainObjectAclTable + " a " +
-                "inner join group_member gm on a.group_id = gm.master " +
+                "inner join group_member gm on a.group_id = gm.usergroup " +
                 "where gm.person_id = :user_id and a.object_id = :object_id and a.operation = :operation";
         return query;
     }
@@ -122,7 +122,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         String domainObjectAclTable = getAclTableNameFor(domainObjectType);
 
         String query = "select a.object_id object_id from " + domainObjectAclTable + " a " +
-                "inner join group_member gm on a.group_id = gm.master " +
+                "inner join group_member gm on a.group_id = gm.usergroup " +
                 "where gm.person_id = :user_id and a.object_id in (:object_ids) and a.operation = :operation";
         return query;
     }
@@ -151,7 +151,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
     private String getQueryForCheckDomainObjectMultiAccess(RdbmsId id) {
         String domainObjectAclTable = getAclTableName(id);
         String query = "select a.operation operation from " + domainObjectAclTable + " a " +
-                "inner join group_member gm on a.group_id = gm.master " +
+                "inner join group_member gm on a.group_id = gm.usergroup " +
                 "where gm.person_id = :user_id and a.object_id = :object_id and a.operation in (:operations)";
         return query;
     }
@@ -224,7 +224,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
     private String getQueryForCheckUserGroup() {
         String query = "select count(*) from user_group ug " +
-                "inner join group_member gm on ug.id = gm.master " +
+                "inner join group_member gm on ug.id = gm.usergroup " +
                 "where gm.person_id = :user_id and ug.group_name = :group_name";
         return query;
     }

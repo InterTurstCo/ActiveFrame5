@@ -10,8 +10,9 @@ import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
  */
 public enum SystemField {
 
-    id(ReferenceFieldConfig.class), master(ReferenceFieldConfig.class),
-    created_date(DateTimeFieldConfig.class), updated_date(DateTimeFieldConfig.class);
+    id(ReferenceFieldConfig.class),
+    created_date(DateTimeFieldConfig.class),
+    updated_date(DateTimeFieldConfig.class);
 
     private Class<? extends FieldConfig> fieldConfigClass;
 

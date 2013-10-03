@@ -18,7 +18,6 @@ import java.util.List;
 public interface DomainObjectDao {
 
     String ID_COLUMN = "ID";
-    String MASTER_COLUMN = "MASTER";
     String TYPE_COLUMN = "TYPE_ID";
     String CREATED_DATE_COLUMN = "CREATED_DATE";
     String UPDATED_DATE_COLUMN = "UPDATED_DATE";
@@ -108,18 +107,6 @@ public interface DomainObjectDao {
      * @return {@link List< ru.intertrust.cm.core.business.api.dto.DomainObject >}
      */
     List<DomainObject> find(List<Id> ids, AccessToken accessToken);
-
-
-    /**
-     * Поиск списка вложенных доменных объектов по уникальному идентификатору владельца в системе и типу дочернего
-     * (запрашиваемого) доменного объекта.
-     *
-     * @param domainObjectId - id идентификатор доменного объекта владельца вложений
-     * @param childType      - тип вложенного (дочернего) доменного объекта
-     * @return
-     */
-    @Deprecated
-    List<DomainObject> findChildren(Id domainObjectId, String childType, AccessToken accessToken);
 
     /**
      * Поиск списка связанных доменных объектов по уникальному идентификатору владельца в системе,типу дочернего

@@ -100,13 +100,6 @@ public class BasicRowMapper {
         Id id = null;
         Id parentId = null;
 
-        DomainObjectTypeConfig objectTypeConfig =
-                configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObjectType);
-        String parentDomainObjectType = null;
-        if (objectTypeConfig != null && objectTypeConfig.getParentConfig() != null) {
-            parentDomainObjectType = objectTypeConfig.getParentConfig().getName();
-        }
-
         if (idField.equalsIgnoreCase(columnName)) {
             Long longValue = rs.getLong(columnName);
             if (!rs.wasNull()) {
@@ -114,18 +107,6 @@ public class BasicRowMapper {
             } else {
                 throw new FatalException("Id field can not be null for object " + domainObjectType);
             }
-        } else if (DomainObjectDao.MASTER_COLUMN.equalsIgnoreCase(columnName)) {
-            if (parentDomainObjectType == null) {
-                throw new FatalException("Parent is not configured for domain object but exists in DB: "
-                        + domainObjectType);
-            }
-            Long longValue = rs.getLong(columnName);
-            if (!rs.wasNull()) {
-                parentId = new RdbmsId(domainObjectTypeIdCache.getId(parentDomainObjectType), longValue);
-            } else {
-                parentId = null;
-            }
-
         } else if (fieldConfig != null && StringFieldConfig.class.equals(fieldConfig.getClass())) {
             String fieldValue = rs.getString(columnName);
             if (!rs.wasNull()) {
@@ -193,9 +174,6 @@ public class BasicRowMapper {
     protected void fillObjectValue(GenericDomainObject object, FieldValueModel valueModel, FieldConfig fieldConfig) {
         if (valueModel.getId() != null) {
             object.setId(valueModel.getId());
-        }
-        if (valueModel.getParentId() != null) {
-            object.setParent(valueModel.getParentId());
         }
         if (valueModel.getModifiedDate() != null) {
             object.setModifiedDate(valueModel.getModifiedDate());

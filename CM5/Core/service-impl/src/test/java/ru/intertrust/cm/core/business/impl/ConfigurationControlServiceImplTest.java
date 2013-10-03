@@ -110,8 +110,7 @@ public class ConfigurationControlServiceImplTest {
         configurationService.loadConfiguration();
 
         verify(dataStructureDao).countTables();
-        verify(dataStructureDao).updateTableStructure(anyString(), anyListOf(FieldConfig.class),
-                any(DomainObjectParentConfig.class));
+        verify(dataStructureDao).updateTableStructure(anyString(), anyListOf(FieldConfig.class));
         verify(configurationDao).save(ConfigurationSerializer.serializeConfiguration(updatedConfiguration));
     }
 

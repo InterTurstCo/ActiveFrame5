@@ -17,7 +17,7 @@ public class AttachmentTypeConfig {
     private String mimeType;
 
     @Element(name = "parent", required = false)
-    private DomainObjectParentConfig parentConfig;
+    private ReferenceFieldConfig parentReference;
 
     public AttachmentTypeConfig() {
     }
@@ -46,12 +46,12 @@ public class AttachmentTypeConfig {
         this.mimeType = mimeType;
     }
 
-    public DomainObjectParentConfig getParentConfig() {
-        return parentConfig;
+    public ReferenceFieldConfig getParentReference() {
+        return parentReference;
     }
 
-    public void setParentConfig(DomainObjectParentConfig parentConfig) {
-        this.parentConfig = parentConfig;
+    public void setParentReference(ReferenceFieldConfig parentReference) {
+        this.parentReference = parentReference;
     }
 
     public AttachmentTypeConfig clone() throws CloneNotSupportedException {
@@ -81,7 +81,7 @@ public class AttachmentTypeConfig {
             return false;
         }
 
-        if (parentConfig != null ? !parentConfig.equals(that.parentConfig) : that.parentConfig != null) {
+        if (parentReference != null ? !parentReference.equals(that.parentReference) : that.parentReference != null) {
             return false;
         }
 

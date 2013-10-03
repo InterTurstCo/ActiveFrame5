@@ -25,8 +25,10 @@
     </domain-object-type>
 
     <domain-object-type name="Assignment"> <!-- ASSIGNMENT table -->
-        <parent name="Outgoing_Document"/>
         <fields>
+            <reference name="Outgoing_Document" not-null="true">
+                <type name="Outgoing_Document"/>
+            </reference>
             <string name="Name" length="128" />
             <string name="Description" length="128" />
         </fields>
@@ -73,7 +75,7 @@
             <reference name="delegate" not-null="true">
                 <type name="Employee"/>
             </reference>
-            <string name="Status" length="64" />            
+            <string name="Status" length="64" />
         </fields>
     </domain-object-type>
 
@@ -98,8 +100,10 @@
     </domain-object-type>
 
     <domain-object-type name="Group_Member">
-        <parent name="User_Group" />
         <fields>
+            <reference name="UserGroup" not-null="true">
+                <type name="User_Group"/>
+            </reference>
             <reference name="person_id" not-null="true">
                 <type name="Authentication_Info"/>
             </reference>
@@ -107,8 +111,10 @@
     </domain-object-type>
 
     <domain-object-type name="Group_Admin">
-        <parent name="User_Group" />
         <fields>
+            <reference name="UserGroup" not-null="true">
+                <type name="User_Group"/>
+            </reference>
             <string name="role_name" length="64" not-null="true" />
         </fields>
     </domain-object-type>

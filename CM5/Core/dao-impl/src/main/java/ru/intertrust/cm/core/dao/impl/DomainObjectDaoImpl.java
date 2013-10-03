@@ -169,7 +169,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                         updatedObject.getTypeName());
 
         validateIdType(updatedObject.getId());
-        validateMasterIdType(updatedObject, domainObjectTypeConfig);
         updateParentDO(domainObjectTypeConfig, domainObject);
 
         String query = generateUpdateQuery(domainObjectTypeConfig);
@@ -424,7 +423,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                     + " t inner join "
                     + aclReadTable
                     + " r "
-                    + "on t.id = r.object_id inner join group_member gm on r.group_id = gm.master "
+                    + "on t.id = r.object_id inner join group_member gm on r.group_id = gm.usergroup "
                     + "where gm.person_id = :user_id and t.id in (:object_ids) ");
 
             aclParameters = getAclParameters(accessToken);*/
@@ -452,14 +451,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             result.addAll(readDomainObjects);
             return result;
         }
-    }
-
-    @Deprecated
-    @Override
-    public List<DomainObject> findChildren(Id domainObjectId, String childType,
-            AccessToken accessToken) {
-        return findLinkedDomainObjects(domainObjectId, childType, "master",
-                accessToken);
     }
 
     @Override
@@ -571,7 +562,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             query.append(" and exists (select a.object_id from "
                     + aclReadTable
                     + " a inner join group_member gm "
-                    + "on a.group_id = gm.master where gm.person_id = :user_id and a.object_id = :id)");*/
+                    + "on a.group_id = gm.usergroup where gm.person_id = :user_id and a.object_id = :id)");*/
         }
 
         return query.toString();
@@ -601,7 +592,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                     " where exists (select a.object_id from "
                             + aclReadTable
                             + " a inner join group_member gm "
-                            + "on a.group_id = gm.master where gm.person_id = :user_id and a.object_id = ")
+                            + "on a.group_id = gm.usergroup where gm.person_id = :user_id and a.object_id = ")
                     .append(tableAlias).append(".ID)");*/
         }
 
@@ -637,10 +628,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         if (!isDerived(domainObjectTypeConfig)) {
             query.append(UPDATED_DATE_COLUMN).append("=:current_date, ");
-        }
-
-        if (domainObjectTypeConfig.getParentConfig() != null) {
-            query.append(MASTER_COLUMN).append("=:master, ");
         }
 
         query.append(fieldsWithparams);
@@ -714,10 +701,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
         query.append(TYPE_COLUMN).append(", ");
 
-        if (domainObjectTypeConfig.getParentConfig() != null) {
-            query.append(MASTER_COLUMN).append(", ");
-        }
-
         query.append(commaSeparatedColumns);
         query.append(") values (:id , ");
 
@@ -725,10 +708,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             query.append(":created_date, :updated_date, ");
         }
         query.append(":type_id, ");
-
-        if (domainObjectTypeConfig.getParentConfig() != null) {
-            query.append(":master, ");
-        }
 
         query.append(commaSeparatedParameters);
         query.append(")");
@@ -853,24 +832,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
     }
 
-    private void validateMasterIdType(DomainObject domainObject,
-            DomainObjectTypeConfig config) {
-        if (domainObject.getParent() == null) {
-            return;
-        }
-
-        RdbmsId id = (RdbmsId) domainObject.getParent();
-        String idType = getDOTypeName(id.getTypeId());
-        String parentName = config.getParentConfig() != null ? config
-                .getParentConfig().getName() : null;
-
-        if (!idType.equals(parentName)) {
-            String errorMessage = "Invalid parent id type: expected '"
-                    + parentName + "' but was '" + idType + "'";
-            throw new InvalidIdException(errorMessage, id);
-        }
-    }
-
     private void initializeDomainParameters(DomainObject domainObject,
             List<FieldConfig> fieldConfigs, Map<String, Object> parameters) {
         for (FieldConfig fieldConfig : fieldConfigs) {
@@ -941,9 +902,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
                 .getConfig(DomainObjectTypeConfig.class,
                         domainObject.getTypeName());
-        GenericDomainObject updatedObject = new GenericDomainObject(
-                domainObject);
-        validateMasterIdType(updatedObject, domainObjectTypeConfig);
+        GenericDomainObject updatedObject = new GenericDomainObject(domainObject);
 
         DomainObject parentDo = createParentDO(domainObject,
                 domainObjectTypeConfig, type);

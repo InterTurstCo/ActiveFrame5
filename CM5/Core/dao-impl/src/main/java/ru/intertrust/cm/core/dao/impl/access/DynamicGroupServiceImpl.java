@@ -114,7 +114,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
             String getGroupPersonsDoel = createRetrieveGroupPersonsDoel(reverseBindContextExpr, getPersonDoel);
             DoelExpression reverseGetPersonExpr = DoelExpression.parse(getGroupPersonsDoel);
             result = doelResolver.evaluate(reverseGetPersonExpr, contextObjectid);
-            
+
         }
         return result;
     }
@@ -235,7 +235,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
         if (trackDomainObjects != null && trackDomainObjects.getBindContext() != null) {
             String bindContextDoel = trackDomainObjects.getBindContext().getDoel();
             DoelExpression expr = DoelExpression.parse(bindContextDoel);
-            List<Value> result = doelResolver.evaluate(expr, objectId);           
+            List<Value> result = doelResolver.evaluate(expr, objectId);
             contextObjectid = convertToId(result);
 
         } else {
@@ -283,7 +283,6 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
                 GenericDomainObject groupMemeber = new GenericDomainObject();
                 groupMemeber.setTypeName(GROUP_MEMBER_DOMAIN_OBJECT);
                 groupMemeber.setReference("person_id", ((ReferenceValue)personValue).get());
-                groupMemeber.setParent(dynamicGroupId);
                 groupMembers.add(groupMemeber);
             }
 
@@ -303,7 +302,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
         StringBuilder query = new StringBuilder();
         query.append("delete from ");
         query.append(tableName);
-        query.append(" where master=:master");
+        query.append(" where usergroup=:usergroup");
 
         return query.toString();
 
@@ -312,7 +311,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
     protected Map<String, Object> initializeDeleteGroupMembersParameters(Id groupId) {
         RdbmsId rdbmsId = (RdbmsId) groupId;
         Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("master", rdbmsId.getId());
+        parameters.put("usergroup", rdbmsId.getId());
         return parameters;
     }
 

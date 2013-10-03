@@ -27,9 +27,6 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
     @Attribute(name = "extends", required = false)
     private String extendsAttribute;
 
-    @Element(name = "parent", required = false)
-    private DomainObjectParentConfig parentConfig;
-
     /**
      * флаг конструирования, определяет является ли объект шаблоном
      * true - создать таблицу в базе данных
@@ -118,14 +115,6 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
         }
     }
 
-    public DomainObjectParentConfig getParentConfig() {
-        return parentConfig;
-    }
-
-    public void setParentConfig(DomainObjectParentConfig parentConfig) {
-        this.parentConfig = parentConfig;
-    }
-
     public Boolean isTemplate() {
         return isTemplate == null ? false : isTemplate;
     }
@@ -177,9 +166,6 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
             return false;
         }
         if (name != null ? !name.equals(that.name) : that.name != null) {
-            return false;
-        }
-        if (parentConfig != null ? !parentConfig.equals(that.parentConfig) : that.parentConfig != null) {
             return false;
         }
         if (uniqueKeyConfigs != null ? !uniqueKeyConfigs.equals(that.uniqueKeyConfigs) : that.uniqueKeyConfigs != null) {

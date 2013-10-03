@@ -16,9 +16,6 @@
 
     <xs:complexType name="domainObjectType">
         <xs:sequence>
-            <xs:element type="con:parentType" name="parent"
-                        minOccurs="0" maxOccurs="1"
-                        xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:fieldsType" name="fields"
                         xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
@@ -149,15 +146,6 @@
                         xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
         </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="parentType">
-        <xs:simpleContent>
-            <xs:extension base="xs:string">
-                <xs:attribute name="name" use="required"
-                              type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config" />
-            </xs:extension>
-        </xs:simpleContent>
     </xs:complexType>
 
     <xs:complexType name="passwordType">

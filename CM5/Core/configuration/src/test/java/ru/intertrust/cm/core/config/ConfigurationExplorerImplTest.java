@@ -127,10 +127,6 @@ public class ConfigurationExplorerImplTest {
         assertNotNull(fieldConfig);
         Assert.assertEquals(fieldConfig.getName(), SystemField.id.name());
 
-        fieldConfig = configExplorer.getFieldConfig(PERSON_CONFIG_NAME, SystemField.master.name());
-        assertNotNull(fieldConfig);
-        Assert.assertEquals(fieldConfig.getName(), SystemField.master.name());
-
         fieldConfig = configExplorer.getFieldConfig(PERSON_CONFIG_NAME, SystemField.created_date.name());
         assertNotNull(fieldConfig);
         Assert.assertEquals(fieldConfig.getName(), SystemField.created_date.name());

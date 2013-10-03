@@ -53,7 +53,7 @@ public class PostgreSqlDataStructureDaoImplTest {
 
         verify(jdbcTemplate).update(generateCreateTableQuery(domainObjectTypeConfig));
         verify(jdbcTemplate).update(generateCreateIndexesQuery(domainObjectTypeConfig.getName(),
-                domainObjectTypeConfig.getFieldConfigs(), domainObjectTypeConfig.getParentConfig()));
+                domainObjectTypeConfig.getFieldConfigs()));
 
         verify(domainObjectTypeIdDao).insert(domainObjectTypeConfig.getName());
 
@@ -89,13 +89,10 @@ public class PostgreSqlDataStructureDaoImplTest {
         uniqueKeyFieldConfig.setName("Registration Number");
         uniqueKeyConfig.getUniqueKeyFieldConfigs().add(uniqueKeyFieldConfig);
 
-        dataStructureDao.updateTableStructure(domainObjectTypeConfig.getName(), newColumns,
-                domainObjectTypeConfig.getParentConfig());
+        dataStructureDao.updateTableStructure(domainObjectTypeConfig.getName(), newColumns);
 
-        verify(jdbcTemplate).update(generateAddColumnsQuery(domainObjectTypeConfig.getName(),
-                newColumns, domainObjectTypeConfig.getParentConfig()));
-        verify(jdbcTemplate).update(generateCreateIndexesQuery(domainObjectTypeConfig.getName(), newColumns,
-                domainObjectTypeConfig.getParentConfig()));
+        verify(jdbcTemplate).update(generateAddColumnsQuery(domainObjectTypeConfig.getName(), newColumns));
+        verify(jdbcTemplate).update(generateCreateIndexesQuery(domainObjectTypeConfig.getName(), newColumns));
     }
 
     @Test
@@ -179,9 +176,5 @@ public class PostgreSqlDataStructureDaoImplTest {
         UniqueKeyFieldConfig uniqueKeyFieldConfig2 = new UniqueKeyFieldConfig();
         uniqueKeyFieldConfig2.setName("Registration Date");
         uniqueKeyConfig.getUniqueKeyFieldConfigs().add(uniqueKeyFieldConfig2);
-
-        DomainObjectParentConfig parentConfig = new DomainObjectParentConfig();
-        parentConfig.setName("Parent_Document");
-        domainObjectTypeConfig.setParentConfig(parentConfig);
     }
 }

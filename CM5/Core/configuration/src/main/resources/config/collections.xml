@@ -14,7 +14,7 @@
             ]]>
         </prototype>
 
-        <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) 
+        <!-- если запрос-счётчик отсутствует, то в select подставляется count(*)
             вместо названий колонок -->
         <counting-prototype>
             select count(*) from Employee e
@@ -28,9 +28,9 @@
                 ]]>
             </reference>
 
-            <!-- по умолчанию and, если перед условием нет других (только 
+            <!-- по умолчанию and, если перед условием нет других (только
                 ключ. слово where), то условие опускаем -->
-            <!-- {0} - это параметр фильтра, у одного фильтра может быть 
+            <!-- {0} - это параметр фильтра, у одного фильтра может быть
                 несколько параметров -->
             <criteria placeholder="where-clause">
                 <![CDATA[
@@ -79,7 +79,7 @@
             ]]>
         </prototype>
 
-        <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) 
+        <!-- если запрос-счётчик отсутствует, то в select подставляется count(*)
             вместо названий колонок -->
         <counting-prototype>
             select count(*) from Outgoing_document od
@@ -95,7 +95,7 @@
         <prototype>
             <![CDATA[
                 select
-                    s.id, s.name, s.description,s.master
+                    s.id, s.name, s.description, s.parent_document
                 from
                     Assignment s
                      ::from-clause
@@ -104,7 +104,7 @@
             ]]>
         </prototype>
 
-        <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) 
+        <!-- если запрос-счётчик отсутствует, то в select подставляется count(*)
             вместо названий колонок -->
         <counting-prototype>
             select count(*) from Assignment s
@@ -113,7 +113,7 @@
         <filter name="byDoc">
             <criteria placeholder="where-clause">
                 <![CDATA[
-                    s.master = {0}
+                    s.parent_document = {0}
                 ]]>
             </criteria>
         </filter>
@@ -135,7 +135,7 @@
             ]]>
         </prototype>
 
-        <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) 
+        <!-- если запрос-счётчик отсутствует, то в select подставляется count(*)
             вместо названий колонок -->
         <counting-prototype>
             select count(*) from outgoing_document od
@@ -242,7 +242,7 @@
 
         <prototype>
             <![CDATA[
-                select gg.id 
+                select gg.id
                 from group_group gg
                 inner join group_member gm on (gg.child_group_id = gm.master)
                 where 1=1 ::where-clause
@@ -288,7 +288,7 @@
                 select
                     t.id
                 from
-                    Person_Task t inner join Assignee_Person ap on (t.id = ap.persontask) 
+                    Person_Task t inner join Assignee_Person ap on (t.id = ap.persontask)
                      ::from-clause
                 where
                     t.state in (1,2) ::where-clause
@@ -319,9 +319,9 @@
                 select
                     t.id
                 from
-                    Person_Task t 
+                    Person_Task t
                     inner join assignee_group ag on (t.id = ag.persontask)
-                    inner join group_member gm on (ag.usergroup = gm.master)  
+                    inner join group_member gm on (ag.usergroup = gm.usergroup)
                      ::from-clause
                 where
                      t.state in (1,2) ::where-clause
@@ -352,7 +352,7 @@
                 select
                     gs.id
                 from
-                    group_group_settings gs 
+                    group_group_settings gs
                      ::from-clause
                 where
                      1=1 ::where-clause
@@ -376,7 +376,7 @@
                 select
                     gs.id
                 from
-                    group_group gs 
+                    group_group gs
                      ::from-clause
                 where
                      1=1 ::where-clause
@@ -399,9 +399,9 @@
             <![CDATA[
                 select
                     g.id
-                from                    
+                from
                     User_Group g
-                    inner join group_group gs on (g.id = gs.parent_group_id) 
+                    inner join group_group gs on (g.id = gs.parent_group_id)
                      ::from-clause
                 where
                      1=1 ::where-clause
@@ -424,9 +424,9 @@
             <![CDATA[
                 select
                     g.id
-                from                    
+                from
                     User_Group g
-                    inner join group_group_settings gs on (g.id = gs.child_group_id) 
+                    inner join group_group_settings gs on (g.id = gs.child_group_id)
                      ::from-clause
                 where
                      1=1 ::where-clause
@@ -449,9 +449,9 @@
             <![CDATA[
                 select
                     g.id
-                from                    
+                from
                     User_Group g
-                    inner join group_group gs on (g.id = gs.child_group_id) 
+                    inner join group_group gs on (g.id = gs.child_group_id)
                      ::from-clause
                 where
                      1=1 ::where-clause
@@ -474,8 +474,8 @@
             <![CDATA[
                 select
                     g.id
-                from                    
-                    group_group g 
+                from
+                    group_group g
                      ::from-clause
                 where
                      1=1 ::where-clause
@@ -499,8 +499,8 @@
             <![CDATA[
                 select
                     g.id
-                from                    
-                    group_group_settings g 
+                from
+                    group_group_settings g
                      ::from-clause
                 where
                      1=1 ::where-clause
@@ -523,8 +523,8 @@
             <![CDATA[
                 select
                     g.id
-                from                    
-                    Group_Member g 
+                from
+                    Group_Member g
                      ::from-clause
                 where
                      1=1 ::where-clause

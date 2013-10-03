@@ -11,7 +11,7 @@ import java.util.Collection;
  * User: atsvetkov Date: 17.05.13 Time: 13:52
  */
 public class DomainObjectLogicalValidator {
-    final static Logger logger = LoggerFactory.getLogger(ConfigurationLogicalValidator.class);
+    final static Logger logger = LoggerFactory.getLogger(DomainObjectLogicalValidator.class);
 
     private ConfigurationExplorer configurationExplorer;
 
@@ -41,7 +41,6 @@ public class DomainObjectLogicalValidator {
         }
 
         validateExtendsAttribute(domainObjectTypeConfig);
-        validateParentConfig(domainObjectTypeConfig);
         validateReferenceFields(domainObjectTypeConfig);
         validateUniqueKeys(domainObjectTypeConfig);
     }
@@ -91,28 +90,27 @@ public class DomainObjectLogicalValidator {
         if (extendsAttributeValue != null) {
             DomainObjectTypeConfig extendedConfig =
                     configurationExplorer.getConfig(DomainObjectTypeConfig.class, extendsAttributeValue);
+
             if (extendedConfig == null) {
                 throw new ConfigurationException("Extended DomainObject Configuration is not found for name '" +
                         extendsAttributeValue + "'");
             }
+
+            validateForCoincidentFieldNamesInHierarchy(domainObjectTypeConfig, extendedConfig);
         }
     }
 
-    private void validateParentConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
-        DomainObjectParentConfig parentConfig = domainObjectTypeConfig.getParentConfig();
-        if (parentConfig == null) {
-            return;
-        }
+    private void validateForCoincidentFieldNamesInHierarchy(DomainObjectTypeConfig config, DomainObjectTypeConfig parentConfig) {
+        for (FieldConfig fieldConfig : config.getFieldConfigs()) {
+            FieldConfig parentFieldConfig = configurationExplorer.getFieldConfig(parentConfig.getName(),
+                    fieldConfig.getName());
 
-        String parentConfigName = parentConfig.getName();
-        DomainObjectTypeConfig parentDomainObjectTypeConfig =
-                configurationExplorer.getConfig(DomainObjectTypeConfig.class, parentConfigName);
-        if (parentDomainObjectTypeConfig == null) {
-            throw new ConfigurationException("Parent DomainObject Configuration is not found for name '"
-                    + parentConfigName + "'");
+            if (parentFieldConfig != null) {
+                throw new ConfigurationException("FieldConfig with name '" + fieldConfig.getName() + "' is already " +
+                        "used in some inherited DomainObjectTypeConfig of '" + config.getName() + "'");
+            }
         }
     }
-
 }
 
 

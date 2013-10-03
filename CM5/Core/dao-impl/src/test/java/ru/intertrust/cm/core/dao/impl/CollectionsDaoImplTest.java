@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import org.junit.Before;
-import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -28,12 +27,12 @@ import static org.mockito.Mockito.when;
 public class CollectionsDaoImplTest {
 
     private static final String COLLECTION_ACL_QUERY = "EXISTS (SELECT r.object_id FROM employee_READ AS r INNER JOIN" +
-            " group_member AS gm ON r.group_id = gm.master WHERE gm.person_id = :user_id AND r.object_id = id) ";
+            " group_member AS gm ON r.group_id = gm.usergroup WHERE gm.person_id = :user_id AND r.object_id = id) ";
 
     private static final String COLLECTION_COUNT_WITH_FILTERS =
             "SELECT count(*), 'employee' AS TYPE_CONSTANT FROM employee AS e " +
             "INNER JOIN department AS d ON e.department = d.id WHERE EXISTS " +
-            "(SELECT r.object_id FROM employee_READ AS r INNER JOIN group_member AS gm ON r.group_id = gm.master " +
+            "(SELECT r.object_id FROM employee_READ AS r INNER JOIN group_member AS gm ON r.group_id = gm.usergroup " +
                     "WHERE gm.person_id = :user_id " +
             "AND r.object_id = id) " +
             "AND 1 = 1 AND d.name = 'dep1' AND e.name = 'employee1'";
@@ -53,7 +52,7 @@ public class CollectionsDaoImplTest {
     private static final String FIND_COLLECTION_QUERY_WITH_MULTIPLE_TYPE_REFERENCE =
             "SELECT p.id, p.login, p.password, coalesce(p.BOSS1, p.BOSS2) AS BOSS, p.created_date, p.updated_date, " +
                     "'person' AS TYPE_CONSTANT FROM person AS p WHERE EXISTS (SELECT r.object_id FROM person_READ AS r " +
-                    "INNER JOIN group_member AS gm ON r.group_id = gm.master WHERE gm.person_id = :user_id AND " +
+                    "INNER JOIN group_member AS gm ON r.group_id = gm.usergroup WHERE gm.person_id = :user_id AND " +
                     "r.object_id = id) AND 1 = 1";
 
     private static final String FIND_COMPLEX_COLLECTION_QUERY_WITH_FILTERS =

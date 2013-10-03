@@ -33,6 +33,7 @@ import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -120,6 +121,9 @@ public class AttachmentServiceImplTest {
         @Mock
         AccessToken accessToken;
 
+        @Mock
+        private DomainObjectTypeIdCache domainObjectTypeIdCache;
+
         @Bean
         public AccessControlService accessControlService() {
             return accessControlService;
@@ -137,6 +141,11 @@ public class AttachmentServiceImplTest {
         @Bean
         public AttachmentService attachmentService() {
             return new AttachmentServiceImpl();
+        }
+
+        @Bean
+        public DomainObjectTypeIdCache getDomainObjectTypeIdCache() {
+            return domainObjectTypeIdCache;
         }
 
         @Bean
@@ -389,7 +398,8 @@ public class AttachmentServiceImplTest {
         domainObject2.setTypeName("Person_Attachment");
         domainObject2.setId(idService.createId("0001000000000002"));
 
-        when(domainObjectDao.findChildren(any(Id.class), eq("Person_Attachment"), any(AccessToken.class))).
+        when(domainObjectDao.findLinkedDomainObjects(any(Id.class), eq("Person_Attachment"), eq("Person_Attachment"),
+                any(AccessToken.class))).
                 thenReturn(Arrays.asList(new DomainObject[]{domainObject1, domainObject2}));
         return domainObjectDao;
     }

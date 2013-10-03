@@ -145,9 +145,6 @@ public class DomainObjectCacheServiceImpl {
                 ret.put(fn, (Id) v.get());
             }
         }
-        if (dobj.getParent() != null) {
-            ret.put("parent", dobj.getParent());
-        }
         return ret;
     }
 

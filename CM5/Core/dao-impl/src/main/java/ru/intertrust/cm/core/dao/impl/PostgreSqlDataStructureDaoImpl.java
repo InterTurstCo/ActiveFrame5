@@ -92,17 +92,16 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
     }
 
     @Override
-    public void updateTableStructure(String domainObjectConfigName, List<FieldConfig> fieldConfigList,
-                                     DomainObjectParentConfig parentConfig) {
+    public void updateTableStructure(String domainObjectConfigName, List<FieldConfig> fieldConfigList) {
         if(domainObjectConfigName == null || ((fieldConfigList == null || fieldConfigList.isEmpty()))) {
             throw new IllegalArgumentException("Invalid (null or empty) arguments");
         }
 
         String query =
-                generateAddColumnsQuery(domainObjectConfigName, fieldConfigList, parentConfig);
+                generateAddColumnsQuery(domainObjectConfigName, fieldConfigList);
         jdbcTemplate.update(query);
 
-        String createIndexesQuery = generateCreateIndexesQuery(domainObjectConfigName, fieldConfigList, parentConfig);
+        String createIndexesQuery = generateCreateIndexesQuery(domainObjectConfigName, fieldConfigList);
         if(createIndexesQuery != null) {
             jdbcTemplate.update(createIndexesQuery);
         }

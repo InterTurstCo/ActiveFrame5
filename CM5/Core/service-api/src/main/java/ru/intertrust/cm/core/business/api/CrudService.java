@@ -141,14 +141,4 @@ public interface CrudService {
      * @return список идентификаторов связанных доменных объектов
      */
     List<Id> findLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField);
-
-    /**
-     * Получает список доменных объектов Вложений для переданного доменного объекта
-     *
-     * @param domainObjectId уникальный идентификатор доменного объекта в системе
-     * @param childType      тип доменного объекта в системе
-     * @return список доменных объектов Вложений для переданного доменного объекта
-     */
-    @Deprecated
-    List<DomainObject> findChildren(Id domainObjectId, String childType);
 }

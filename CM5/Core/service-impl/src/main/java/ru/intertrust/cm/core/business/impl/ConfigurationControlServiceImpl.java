@@ -223,7 +223,6 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
                 loadDomainObjectConfig(domainObjectTypeConfig);
             } else if (!domainObjectTypeConfig.equals(oldDomainObjectTypeConfig)) {
                 validateExtendsAttribute(domainObjectTypeConfig, oldDomainObjectTypeConfig);
-                validateParentConfig(domainObjectTypeConfig, oldDomainObjectTypeConfig);
                 updateDomainObjectConfig(domainObjectTypeConfig, oldDomainObjectTypeConfig);
             }
         }
@@ -247,12 +246,8 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
                 }
             }
 
-            DomainObjectParentConfig parentConfig = domainObjectTypeConfig.getParentConfig() != null &&
-                    !domainObjectTypeConfig.getParentConfig().equals(oldDomainObjectTypeConfig.getParentConfig()) ?
-                    domainObjectTypeConfig.getParentConfig() : null;
-
-            if (!newFieldConfigs.isEmpty() || parentConfig != null) {
-                dataStructureDao.updateTableStructure(domainObjectTypeConfig.getName(), newFieldConfigs, parentConfig);
+            if (!newFieldConfigs.isEmpty()) {
+                dataStructureDao.updateTableStructure(domainObjectTypeConfig.getName(), newFieldConfigs);
             }
         }
 
@@ -297,18 +292,6 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
         }
     }
 
-    private void validateParentConfig(DomainObjectTypeConfig domainObjectTypeConfig,
-                                          DomainObjectTypeConfig oldDomainObjectTypeConfig) {
-        DomainObjectParentConfig parentConfig = domainObjectTypeConfig.getParentConfig();
-        DomainObjectParentConfig oldParentConfig = oldDomainObjectTypeConfig.getParentConfig();
-
-        if ((parentConfig == null && oldParentConfig != null) ||
-                (parentConfig != null && !parentConfig.equals(oldParentConfig))) {
-            throw new ConfigurationException("Configuration loading aborted: parent config was changed " +
-                    "for '" + domainObjectTypeConfig.getName() + ". " + COMMON_ERROR_MESSAGE);
-        }
-    }
-
     private abstract class AbstractRecursiveLoader {
 
         private final Set<String> processedConfigs = new HashSet<>();
@@ -318,13 +301,6 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
                 DomainObjectTypeConfig parentConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class,
                                 domainObjectTypeConfig.getExtendsAttribute());
                 processConfig(parentConfig);
-            }
-
-            DomainObjectParentConfig masterConfig = domainObjectTypeConfig.getParentConfig();
-            if (masterConfig != null) {
-                DomainObjectTypeConfig masterDOTypeConfig = configurationExplorer.getConfig(
-                        DomainObjectTypeConfig.class, masterConfig.getName());
-                processConfig(masterDOTypeConfig);
             }
         }
 

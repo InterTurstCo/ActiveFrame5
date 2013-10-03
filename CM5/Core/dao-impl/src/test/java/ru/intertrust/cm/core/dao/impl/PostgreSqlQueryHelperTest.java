@@ -12,7 +12,6 @@ import static org.junit.Assert.assertEquals;
 import static ru.intertrust.cm.core.dao.api.ConfigurationDao.CONFIGURATION_TABLE;
 import static ru.intertrust.cm.core.dao.api.DataStructureDao.AUTHENTICATION_INFO_TABLE;
 import static ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao.DOMAIN_OBJECT_TYPE_ID_TABLE;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.MASTER_COLUMN;
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TYPE_COLUMN;
 
 /**
@@ -73,15 +72,13 @@ public class PostgreSqlQueryHelperTest {
      public void testGenerateCreateTableQuery() throws Exception {
         String query = PostgreSqlQueryHelper.generateCreateTableQuery(domainObjectTypeConfig);
         String checkQuery = "create table OUTGOING_DOCUMENT ( ID bigint not null, TYPE_ID integer, " +
-                "MASTER bigint, REGISTRATION_NUMBER varchar(128), " +
+                "REGISTRATION_NUMBER varchar(128), " +
                 "REGISTRATION_DATE timestamp, AUTHOR bigint, " +
                 "LONG_FIELD bigint, DECIMAL_FIELD_1 decimal(10, 2), DECIMAL_FIELD_2 decimal(10), " +
                 "constraint PK_OUTGOING_DOCUMENT_ID primary key (ID), " +
                 "constraint FK_OUTGOING_DOCUMENT_ID" + " foreign key (ID) references DOCUMENT(ID), " +
                 "constraint FK_OUTGOING_DOCUMENT_" + TYPE_COLUMN + " foreign key (" + TYPE_COLUMN +
-                    ") references DOMAIN_OBJECT_TYPE_ID(ID), " +
-                "constraint FK_OUTGOING_DOCUMENT_" + MASTER_COLUMN + " foreign key (" + MASTER_COLUMN +
-                    ") references PARENT_DOCUMENT(ID))";
+                    ") references DOMAIN_OBJECT_TYPE_ID(ID))";
         assertEquals(checkQuery, query);
     }
 
@@ -89,14 +86,11 @@ public class PostgreSqlQueryHelperTest {
     public void testGenerateCreateTableQueryWithoutExtendsAttribute() throws Exception {
         String checkQuery = "create table OUTGOING_DOCUMENT ( ID bigint not null, " +
                 "CREATED_DATE timestamp not null, " + "UPDATED_DATE timestamp not null, " + TYPE_COLUMN +" integer, " +
-                MASTER_COLUMN + " bigint, REGISTRATION_NUMBER varchar(128), " +
-                "REGISTRATION_DATE timestamp, AUTHOR bigint, " +
+                "REGISTRATION_NUMBER varchar(128), REGISTRATION_DATE timestamp, AUTHOR bigint, " +
                 "LONG_FIELD bigint, DECIMAL_FIELD_1 decimal(10, 2), DECIMAL_FIELD_2 decimal(10), " +
                 "constraint PK_OUTGOING_DOCUMENT_ID primary key (ID), " +
                 "constraint FK_OUTGOING_DOCUMENT_" + TYPE_COLUMN + " foreign key (" + TYPE_COLUMN + ") references " +
-                "DOMAIN_OBJECT_TYPE_ID(ID), " +
-                "constraint FK_OUTGOING_DOCUMENT_" + MASTER_COLUMN + " foreign key (" + MASTER_COLUMN +
-                ") references PARENT_DOCUMENT(ID))";
+                "DOMAIN_OBJECT_TYPE_ID(ID))";
         domainObjectTypeConfig.setExtendsAttribute(null);
         String query = PostgreSqlQueryHelper.generateCreateTableQuery(domainObjectTypeConfig);
         assertEquals(checkQuery, query);
@@ -130,11 +124,8 @@ public class PostgreSqlQueryHelperTest {
     @Test
     public void testGenerateAddColumnsQuery() {
         String expectedQuery = "alter table OUTGOING_DOCUMENT " +
-                "add column " + MASTER_COLUMN + " bigint, " +
                 "add column DESCRIPTION varchar(256), " +
-                "add column EXECUTOR bigint not null, " +
-                "add constraint FK_OUTGOING_DOCUMENT_" + MASTER_COLUMN + " foreign key (" + MASTER_COLUMN + ") " +
-                "references PARENT_DOCUMENT(ID)";
+                "add column EXECUTOR bigint not null";
 
         List<FieldConfig> newColumns = new ArrayList<>();
 
@@ -150,12 +141,8 @@ public class PostgreSqlQueryHelperTest {
         executorFieldConfig.setNotNull(true);
         newColumns.add(executorFieldConfig);
 
-        DomainObjectParentConfig parentConfig = new DomainObjectParentConfig();
-        parentConfig.setName("PARENT_DOCUMENT");
 
-
-        String testQuery = PostgreSqlQueryHelper.generateAddColumnsQuery(domainObjectTypeConfig.getName(), newColumns,
-                parentConfig);
+        String testQuery = PostgreSqlQueryHelper.generateAddColumnsQuery(domainObjectTypeConfig.getName(), newColumns);
 
         assertEquals(expectedQuery, testQuery);
     }
@@ -189,10 +176,8 @@ public class PostgreSqlQueryHelperTest {
     @Test
     public void testGenerateCreateIndexesQuery() throws Exception {
         String query = PostgreSqlQueryHelper.generateCreateIndexesQuery(domainObjectTypeConfig.getName(),
-                domainObjectTypeConfig.getFieldConfigs(), domainObjectTypeConfig.getParentConfig());
-        String checkQuery = "create index I_OUTGOING_DOCUMENT_" + MASTER_COLUMN + " on OUTGOING_DOCUMENT (" +
-                MASTER_COLUMN + ");\n" +
-                "create index I_OUTGOING_DOCUMENT_AUTHOR on OUTGOING_DOCUMENT (AUTHOR);\n";
+                domainObjectTypeConfig.getFieldConfigs());
+        String checkQuery = "create index I_OUTGOING_DOCUMENT_AUTHOR on OUTGOING_DOCUMENT (AUTHOR);\n";
         assertEquals(query, checkQuery);
     }
 
@@ -244,9 +229,5 @@ public class PostgreSqlQueryHelperTest {
         UniqueKeyFieldConfig uniqueKeyFieldConfig2 = new UniqueKeyFieldConfig();
         uniqueKeyFieldConfig2.setName("Registration_Date");
         uniqueKeyConfig.getUniqueKeyFieldConfigs().add(uniqueKeyFieldConfig2);
-
-        DomainObjectParentConfig parentConfig = new DomainObjectParentConfig();
-        parentConfig.setName("Parent_Document");
-        domainObjectTypeConfig.setParentConfig(parentConfig);
     }
 }

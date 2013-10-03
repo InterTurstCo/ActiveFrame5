@@ -38,9 +38,9 @@ import ru.intertrust.cm.core.dao.api.DomainObjectDao;
  * 6) открыть список сотрудников из орг.структуры, сортированный по ФИО, начиная со случайной буквы;
  * 7) пролистать список сотрудников несколько раз;
  * 8) создать/сохранить поручение по документу для случайно выбранного сотрудника;
- * 
+ *
  * @author Dmitry Lyakin Date: 12.09.13 Time: 09:23
- * 
+ *
  */
 public class UserJobTestScriptSampler extends AbstractSampler {
 
@@ -51,7 +51,7 @@ public class UserJobTestScriptSampler extends AbstractSampler {
     public static final String PROVIDER_URL = "JndiSampler.provider_url";
     public static final String SECURITY_PRINCIPAL = "JndiSampler.security_principal";
     public static final String SECURITY_CREDENTIALS = "JndiSampler.security_credentials";
-    
+
     public static final String CONNECTION_CONFIG = "JndiSampler.connection_config";
     //Количество записей в коллекции
     public static final int PAGE_COUNT=10;
@@ -150,7 +150,7 @@ public class UserJobTestScriptSampler extends AbstractSampler {
             //Исполнитель
             dobj.setReference("Executor", employee.getId());
             //Ссылка на исходящий документ
-            dobj.setReference(DomainObjectDao.MASTER_COLUMN, element.getId());
+            dobj.setReference("Parent_Document", element.getId());
             crudService.save(dobj);
            // res.setResponseData(dobj.toString(), null);
             //res.setDataType(SampleResult.TEXT);
@@ -163,7 +163,7 @@ public class UserJobTestScriptSampler extends AbstractSampler {
             //res.setResponseData("Object created: "+dobj.toString(), null);
             res.sampleEnd();
             ctx.close();
-            
+
         } catch (Exception ex) {
             log.debug("", ex);
             res.setResponseMessage(ex.toString());
@@ -197,6 +197,6 @@ public class UserJobTestScriptSampler extends AbstractSampler {
     public String getSecurityCredentials() {
         return getPropertyAsString(SECURITY_CREDENTIALS);
     }
-    
+
 
 }

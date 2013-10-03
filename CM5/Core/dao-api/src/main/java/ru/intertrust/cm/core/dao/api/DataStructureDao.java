@@ -30,10 +30,8 @@ public interface DataStructureDao {
      * Обновляет структуру таблицы (добавляет колонки и уникальные ключи)
      * @param domainObjectConfigName название доменного объекта, таблицу которого необходимо обновить
      * @param fieldConfigList список колонок для добавления
-     * @param parentConfig конфигурация родительского доменного объекта
      */
-    void updateTableStructure(String domainObjectConfigName, List<FieldConfig> fieldConfigList,
-                              DomainObjectParentConfig parentConfig);
+    void updateTableStructure(String domainObjectConfigName, List<FieldConfig> fieldConfigList);
 
     /**
      * Создает форен-ки и уникальные констрэйнты

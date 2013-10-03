@@ -16,13 +16,10 @@ import static ru.intertrust.cm.core.config.Constants.*;
  *         Date: 6/24/13
  *         Time: 5:21 PM
  */
-public class ConfigurationLogicalValidatorTest {
+public class DomainObjectLogicalValidatorTest {
 
     private static final String DOMAIN_OBJECTS_INVALID_EXTENDS_ATTRIBUTE_CONFIG_PATH =
             "config/domain-objects-invalid-extends-attribute-test.xml";
-
-    private static final String DOMAIN_OBJECTS_INVALID_PARENT_CONFIG_PATH =
-            "config/domain-objects-invalid-parent-test.xml";
 
     private static final String DOMAIN_OBJECTS_INVALID_REFERENCE_CONFIG_PATH =
             "config/domain-objects-invalid-reference-field-test.xml";
@@ -45,15 +42,6 @@ public class ConfigurationLogicalValidatorTest {
 
         ConfigurationExplorer configurationExplorer =
                 createConfigurationExplorer(DOMAIN_OBJECTS_INVALID_EXTENDS_ATTRIBUTE_CONFIG_PATH);
-    }
-
-    @Test
-    public void testValidateInvalidParentAttribute() throws Exception {
-        expectedException.expect(ConfigurationException.class);
-        expectedException.expectMessage("Parent DomainObject Configuration is not found for name 'Person'");
-
-        ConfigurationExplorer configurationExplorer =
-                createConfigurationExplorer(DOMAIN_OBJECTS_INVALID_PARENT_CONFIG_PATH);
     }
 
     @Test

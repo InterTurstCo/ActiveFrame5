@@ -7,10 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.AttachmentTypeConfig;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
@@ -19,6 +16,7 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 
 import javax.ejb.Local;
@@ -58,15 +56,24 @@ public class AttachmentServiceImpl implements AttachmentService {
     @Autowired
     private AccessControlService accessControlService;
 
+    @Autowired
+    private DomainObjectTypeIdCache domainObjectTypeIdCache;
+
     @Override
     public DomainObject createAttachmentDomainObjectFor(Id objectId, String attachmentType) {
         GenericDomainObject attachmentDomainObject = (GenericDomainObject) crudService.createDomainObject(attachmentType);
-        attachmentDomainObject.setParent(objectId);
+
+        String objectType = domainObjectTypeIdCache.getName(((RdbmsId) objectId).getTypeId());
+        attachmentDomainObject.setReference(objectType, objectId);
         return attachmentDomainObject;
     }
 
     public void setAccessControlService(AccessControlService accessControlService) {
         this.accessControlService = accessControlService;
+    }
+
+    public void setDomainObjectTypeIdCache(DomainObjectTypeIdCache domainObjectTypeIdCache) {
+        this.domainObjectTypeIdCache = domainObjectTypeIdCache;
     }
 
     @Override
@@ -150,11 +157,13 @@ public class AttachmentServiceImpl implements AttachmentService {
                 domainObjectTypeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs()) {
             DomainObjectTypeConfig attachDomainObjectTypeConfig =
                     configurationExplorer.getConfig(DomainObjectTypeConfig.class, attachmentTypeConfig.getName());
-            //TODO get userId from EJB Context  
+            //TODO get userId from EJB Context
             int userId = 1;
             AccessToken accessToken = accessControlService.createAccessToken(userId, domainObject.getId(), DomainObjectAccessType.READ);
+            String attachmentType = attachDomainObjectTypeConfig.getName();
             attachmentDomainObjects.addAll(
-                    domainObjectDao.findChildren(domainObject.getId(), attachDomainObjectTypeConfig.getName(), accessToken));
+                    domainObjectDao.findLinkedDomainObjects(domainObject.getId(), attachmentType, attachmentType,
+                            accessToken));
         }
         return attachmentDomainObjects;
     }

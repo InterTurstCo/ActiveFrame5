@@ -33,21 +33,23 @@ import static org.mockito.Mockito.*;
 public class PostgresDatabaseAccessAgentTest {
 
     private static final String CHECK_DOMAIN_OBJECT_ACCESS_QUERY = "select count(*) from Employee_ACL a inner join " +
-    		"group_member gm on a.group_id = gm.master where gm.person_id = :user_id and a.object_id = :object_id " +
+    		"group_member gm on a.group_id = gm.usergroup where gm.person_id = :user_id and a.object_id = :object_id " +
+            "" +
     		"and a.operation = :operation";
 
     private static final String CHECK_MULTI_DOMAIN_OBJECT_ACCESS_FOR_EMPLOYEE_QUERY =
             "select a.object_id object_id from Employee_ACL " +
-                    "a inner join group_member gm on a.group_id = gm.master where gm.person_id = :user_id " +
+                    "a inner join group_member gm on a.group_id = gm.usergroup where gm.person_id = :user_id " +
                     "and a.object_id in (:object_ids) and a.operation = :operation";
 
     private static final String CHECK_MULTI_DOMAIN_OBJECT_ACCESS_FOR_DEPARTMENT_QUERY =
-            "select a.object_id object_id from Department_ACL a inner join group_member gm on a.group_id = gm.master " +
+            "select a.object_id object_id from Department_ACL a inner join group_member gm on " +
+                    "a.group_id = gm.usergroup " +
                     "where gm.person_id = :user_id and a.object_id in (:object_ids) and a.operation = :operation";
 
     private static final String CHECK_DOMAIN_OBJECT_MULTI_ACCESS_QUERY =
             "select a.operation operation from Employee_ACL a " +
-                    "inner join group_member gm on a.group_id = gm.master where gm.person_id = :user_id " +
+                    "inner join group_member gm on a.group_id = gm.usergroup where gm.person_id = :user_id " +
                     "and a.object_id = :object_id and a.operation in (:operations)";
 
     @InjectMocks

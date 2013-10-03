@@ -318,12 +318,12 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
 
     private void initConfigurationMapsOfAttachmentDomainObjectTypes(List<DomainObjectTypeConfig> ownerAttachmentDOTs) {
         try {
-            PrototypeHelper factory = new PrototypeHelper("Attachment");
+            AttachmentPrototypeHelper factory = new AttachmentPrototypeHelper();
             for (DomainObjectTypeConfig domainObjectTypeConfig : ownerAttachmentDOTs) {
                 for (AttachmentTypeConfig attachmentTypeConfig : domainObjectTypeConfig.getAttachmentTypesConfig()
                         .getAttachmentTypeConfigs()) {
                     DomainObjectTypeConfig attachmentDomainObjectTypeConfig =
-                            factory.makeDomainObjectTypeConfig(attachmentTypeConfig.getName(),
+                            factory.makeAttachmentConfig(attachmentTypeConfig.getName(),
                                     domainObjectTypeConfig.getName());
                     fillTopLevelConfigMap(attachmentDomainObjectTypeConfig);
                     fillFieldsConfigMap(attachmentDomainObjectTypeConfig);
@@ -391,18 +391,34 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
             bis = new ByteArrayInputStream(bos.toByteArray());
         }
 
-        public DomainObjectTypeConfig makeDomainObjectTypeConfig(String name, String parentName)
+        public DomainObjectTypeConfig makeDomainObjectTypeConfig(String name)
                 throws IOException, ClassNotFoundException {
             bis.reset();
             DomainObjectTypeConfig cloneDomainObjectTypeConfig =
                     (DomainObjectTypeConfig) new ObjectInputStream(bis).readObject();
             cloneDomainObjectTypeConfig.setTemplate(false);
-            DomainObjectTypeConfig parentDomainObjectTypeConfig =
-                    (DomainObjectTypeConfig) topLevelConfigMap.get(DomainObjectTypeConfig.class).get(parentName);
-            DomainObjectParentConfig parentConfig = new DomainObjectParentConfig();
-            parentConfig.setName(parentDomainObjectTypeConfig.getName());
-            cloneDomainObjectTypeConfig.setParentConfig(parentConfig);
             cloneDomainObjectTypeConfig.setName(name);
+
+            return cloneDomainObjectTypeConfig;
+        }
+    }
+
+    private class AttachmentPrototypeHelper {
+        private PrototypeHelper prototypeHelper;
+
+        private AttachmentPrototypeHelper() throws IOException {
+            prototypeHelper = new PrototypeHelper("Attachment");
+        }
+
+        public DomainObjectTypeConfig makeAttachmentConfig(String name, String ownerTypeName)
+                throws IOException, ClassNotFoundException {
+            DomainObjectTypeConfig cloneDomainObjectTypeConfig = prototypeHelper.makeDomainObjectTypeConfig(name);
+
+            ReferenceFieldConfig ownerReferenceConfig = new ReferenceFieldConfig();
+            ownerReferenceConfig.setName(ownerTypeName);
+            ownerReferenceConfig.getTypes().add(new ReferenceFieldTypeConfig(ownerTypeName));
+            cloneDomainObjectTypeConfig.getFieldConfigs().add(ownerReferenceConfig);
+
             return cloneDomainObjectTypeConfig;
         }
     }

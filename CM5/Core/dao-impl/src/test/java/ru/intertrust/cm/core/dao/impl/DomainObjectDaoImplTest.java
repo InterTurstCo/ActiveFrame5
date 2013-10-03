@@ -99,7 +99,7 @@ public class DomainObjectDaoImplTest {
                 "from PERSON person where person.ID=:id "/* +
                 "  and " +
                 "exists (select a.object_id from Person_READ a inner join group_member gm on " +
-                "a.group_id = gm.master where gm.person_id = :user_id and a.object_id = :id)"*/;
+                "a.group_id = gm.usergroup where gm.person_id = :user_id and a.object_id = :id)"*/;
         Assert.assertEquals(expectedQuery, domainObjectDaoImpl.generateFindQuery("Person", accessToken));
     }
 
@@ -185,7 +185,7 @@ public class DomainObjectDaoImplTest {
         String expectedQuery = "select t.* from assignment t where t.author = :domain_object_id"/* +
         		" and exists" +
                 " (select r.object_id from assignment_READ r inner join group_member " +
-                "gm on r.group_id = gm.master where gm.person_id = :user_id and r.object_id = t.id)"*/;
+                "gm on r.group_id = gm.usergroup where gm.person_id = :user_id and r.object_id = t.id)"*/;
         Assert.assertEquals(expectedQuery, domainObjectDaoImpl.buildFindChildrenQuery("assignment", "author",
                 0, 0, accessToken));
 
@@ -197,7 +197,7 @@ public class DomainObjectDaoImplTest {
         String expectedQuery = "select t.id from assignment t where t.author = :domain_object_id"/* +
         		" and exists" +
                 " (select r.object_id from assignment_READ r inner join group_member " +
-                "gm on r.group_id = gm.master where gm.person_id = :user_id and r.object_id = t.id)"*/;
+                "gm on r.group_id = gm.usergroup where gm.person_id = :user_id and r.object_id = t.id)"*/;
         Assert.assertEquals(expectedQuery, domainObjectDaoImpl.buildFindChildrenIdsQuery("assignment", "author",
                 0, 0, accessToken));
 
@@ -313,7 +313,7 @@ public class DomainObjectDaoImplTest {
 
         any(MultipleObjectRowMapper.class);
 
-        when(jdbcTemplate.query("select t.* from PERSON1_ATTACHMENT t where master = :master_id",
+        when(jdbcTemplate.query("select t.* from PERSON1_ATTACHMENT t where usergroup = :usergroup",
                 any(HashMap.class),
                 any(MultipleObjectRowMapper.class))).thenReturn(result);
 
@@ -326,8 +326,8 @@ public class DomainObjectDaoImplTest {
 
         AccessToken accessToken = createMockAccessToken();
 
-        List<DomainObject> l = domainObjectDao.findChildren(new RdbmsId(1, 1), "Person1_Attachment",
-                accessToken);
+        List<DomainObject> l = domainObjectDao.findLinkedDomainObjects(new RdbmsId(1, 1), "Attachment",
+                "Person1_Attachment", accessToken);
         Assert.assertEquals(1, ((RdbmsId) l.get(0).getId()).getId());
         Assert.assertEquals(2, ((RdbmsId) l.get(1).getId()).getId());
     }

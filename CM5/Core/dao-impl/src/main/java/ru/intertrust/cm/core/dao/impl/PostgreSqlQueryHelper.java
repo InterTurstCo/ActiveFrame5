@@ -9,7 +9,6 @@ import static ru.intertrust.cm.core.dao.api.DataStructureDao.AUTHENTICATION_INFO
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.ID_COLUMN;
 import static ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao.DOMAIN_OBJECT_TYPE_ID_TABLE;
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TYPE_COLUMN;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.MASTER_COLUMN;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 
@@ -119,14 +118,13 @@ public class PostgreSqlQueryHelper {
 
         appendSystemColumnsQueryPart(config, query);
 
-        if (config.getFieldConfigs().size() > 0 || config.getParentConfig() != null) {
+        if (config.getFieldConfigs().size() > 0) {
             query.append(", ");
-            appendColumnsQueryPart(query, config.getFieldConfigs(), config.getParentConfig(), false);
+            appendColumnsQueryPart(query, config.getFieldConfigs(), false);
         }
 
         appendPKConstraintQueryPart(query, tableName);
         appendParentFKConstraintsQueryPart(query, tableName, config);
-        appendMasterFKConstraintsQueryPart(query, config.getName(), config.getParentConfig(), false);
 
         query.append(")");
 
@@ -174,12 +172,10 @@ public class PostgreSqlQueryHelper {
      * @param fieldConfigList список колонок для добавления
      * @return запрос для обновления структуры таблицы (добавления колонок и уникальных ключей)
      */
-    public static String generateAddColumnsQuery(String domainObjectConfigName, List<FieldConfig> fieldConfigList,
-                                                 DomainObjectParentConfig parentConfig) {
+    public static String generateAddColumnsQuery(String domainObjectConfigName, List<FieldConfig> fieldConfigList) {
         String tableName = getSqlName(domainObjectConfigName);
         StringBuilder query = new StringBuilder("alter table ").append(tableName).append(" ");
-        appendColumnsQueryPart(query, fieldConfigList, parentConfig, true);
-        appendMasterFKConstraintsQueryPart(query, domainObjectConfigName, parentConfig, true);
+        appendColumnsQueryPart(query, fieldConfigList, true);
 
         return query.toString();
     }
@@ -241,7 +237,7 @@ public class PostgreSqlQueryHelper {
     }
 
     public static String generateCreateIndexesQuery(DomainObjectTypeConfig config) {
-        return generateCreateIndexesQuery(config.getName(), config.getFieldConfigs(), config.getParentConfig());
+        return generateCreateIndexesQuery(config.getName(), config.getFieldConfigs());
     }
 
     /**
@@ -249,14 +245,9 @@ public class PostgreSqlQueryHelper {
      * @param configName название конфигурации доменного объекта
      * @return запрос, для создания индексов по конфигурации доменного объекта
      */
-    public static String generateCreateIndexesQuery(String configName, List<FieldConfig> fieldConfigList,
-                                                    DomainObjectParentConfig parentConfig) {
+    public static String generateCreateIndexesQuery(String configName, List<FieldConfig> fieldConfigList) {
         StringBuilder query = new StringBuilder();
         String tableName = getSqlName(configName);
-
-        if(parentConfig != null) {
-            appendIndexQueryPart(query, tableName, MASTER_COLUMN);
-        }
 
         for(FieldConfig fieldConfig : fieldConfigList) {
             if(!ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
@@ -291,23 +282,6 @@ public class PostgreSqlQueryHelper {
         }
 
         appendFKConstraint(query, tableName, TYPE_COLUMN, DOMAIN_OBJECT_TYPE_ID_TABLE);
-    }
-
-    public static void appendMasterFKConstraintsQueryPart(StringBuilder query, String domainObjectConfigName,
-                                                          DomainObjectParentConfig parentConfig,
-                                                          boolean isAlterQuery) {
-        if (parentConfig == null) {
-            return;
-        }
-
-        String tableName = getSqlName(domainObjectConfigName);
-
-        query.append(", ");
-        if (isAlterQuery) {
-            query.append("add ");
-        }
-
-        appendFKConstraint(query, tableName, MASTER_COLUMN, parentConfig.getName());
     }
 
     public static String generateMultipleTypeReferenceSelectColumn(String tableAlias, ReferenceFieldConfig
@@ -386,14 +360,7 @@ public class PostgreSqlQueryHelper {
     }
 
     private static void appendColumnsQueryPart(StringBuilder query, List<FieldConfig> fieldConfigList,
-                                               DomainObjectParentConfig parentConfig, boolean isAlterQuery) {
-        if (parentConfig != null) {
-            if(isAlterQuery) {
-                query.append("add column ");
-            }
-            query.append(MASTER_COLUMN).append(" bigint, ");
-        }
-
+                                               boolean isAlterQuery) {
         int size = fieldConfigList.size();
         for (int i = 0; i < size; i ++) {
             FieldConfig fieldConfig = fieldConfigList.get(i);

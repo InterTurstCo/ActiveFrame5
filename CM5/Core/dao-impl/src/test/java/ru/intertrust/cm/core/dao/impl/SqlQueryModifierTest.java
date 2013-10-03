@@ -17,7 +17,7 @@ public class SqlQueryModifierTest {
 
     private static final String PLAIN_SELECT_QUERY_WITHOUT_WHERE_ACL_APPLIED = "SELECT * FROM EMPLOYEE AS e, " +
             "Department AS d WHERE EXISTS " +
-            "(SELECT r.object_id FROM EMPLOYEE_READ AS r INNER JOIN group_member AS gm ON r.group_id = gm.master " +
+            "(SELECT r.object_id FROM EMPLOYEE_READ AS r INNER JOIN group_member AS gm ON r.group_id = gm.usergroup " +
             "WHERE gm.person_id = :user_id AND r.object_id = id)";
 
     private static final String PLAIN_SELECT_QUERY_WITH_TYPE = "SELECT *, 'EMPLOYEE' AS TYPE_CONSTANT FROM " +
@@ -31,13 +31,13 @@ public class SqlQueryModifierTest {
 
     private static final String PLAIN_SELECT_QUERY_WITH_ACL = "SELECT * FROM EMPLOYEE AS e, " +
             "Department AS d WHERE EXISTS (SELECT r.object_id FROM EMPLOYEE_READ AS r INNER JOIN group_member AS gm " +
-            "ON r.group_id = gm.master WHERE gm.person_id = :user_id AND r.object_id = id) AND 1 = 1 AND e.id = 1";
+            "ON r.group_id = gm.usergroup WHERE gm.person_id = :user_id AND r.object_id = id) AND 1 = 1 AND e.id = 1";
 
     private static final String UNION_QUERY_WITH_ACL = "(SELECT * FROM EMPLOYEE AS e, Department AS d WHERE " +
             "EXISTS (SELECT r.object_id FROM EMPLOYEE_READ AS r INNER JOIN group_member AS gm ON " +
-            "r.group_id = gm.master WHERE gm.person_id = :user_id AND r.object_id = id) AND 1 = 1 AND e.id = 1) " +
+            "r.group_id = gm.usergroup WHERE gm.person_id = :user_id AND r.object_id = id) AND 1 = 1 AND e.id = 1) " +
             "UNION (SELECT * FROM EMPLOYEE AS e, Department AS d WHERE EXISTS (SELECT r.object_id " +
-            "FROM EMPLOYEE_READ AS r INNER JOIN group_member AS gm ON r.group_id = gm.master WHERE " +
+            "FROM EMPLOYEE_READ AS r INNER JOIN group_member AS gm ON r.group_id = gm.usergroup WHERE " +
             "gm.person_id = :user_id AND r.object_id = id) AND 1 = 1 AND e.id = 2)";
 
     @Test

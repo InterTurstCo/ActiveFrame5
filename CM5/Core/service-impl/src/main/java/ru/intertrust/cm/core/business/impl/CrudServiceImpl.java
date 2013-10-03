@@ -43,7 +43,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     @Autowired
     private AccessControlService accessControlService;
-    
+
     public void setDomainObjectDao(DomainObjectDao domainObjectDao) {
         this.domainObjectDao = domainObjectDao;
     }
@@ -162,15 +162,4 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         AccessToken accessToken = accessControlService.createCollectionAccessToken(userId);
         return domainObjectDao.findLinkedDomainObjectsIds(domainObjectId, linkedType, linkedField, accessToken);
     }
-
-    @Deprecated
-    @Override
-    public List<DomainObject> findChildren(Id domainObjectId, String childType) {
-        // TODO get userId from EJB Context
-        int userId = 1;
-        AccessToken accessToken = accessControlService.createCollectionAccessToken(userId);
-        return domainObjectDao.findChildren(domainObjectId, childType, accessToken);
-    }
-
-
 }
