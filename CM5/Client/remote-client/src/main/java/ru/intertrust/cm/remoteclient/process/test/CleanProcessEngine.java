@@ -5,6 +5,7 @@ import java.util.List;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.ProcessService;
 import ru.intertrust.cm.core.business.api.dto.DeployedProcess;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.remoteclient.ClientBase;
 
 /**
@@ -38,12 +39,14 @@ public class CleanProcessEngine extends ClientBase {
         }
 
         // Удаление задач
-        /*
-         * List<DomainObject> tasks = service.getUserTasks(); log("Find " +
-         * tasks.size() + " tasks"); for (DomainObject domainObject : tasks) {
-         * crudService.delete(domainObject.getId()); log("Delete " +
-         * domainObject.getId()); }
-         */
+        List<DomainObject> tasks = service.getUserTasks();
+        log("Find " +
+                tasks.size() + " tasks");
+        for (DomainObject domainObject : tasks) {
+            crudService.delete(domainObject.getId());
+            log("Delete " +
+                    domainObject.getId());
+        }
 
         writeLog();
     }

@@ -87,7 +87,7 @@ public class TestProcess extends ClientBase {
             List<DomainObject> tasks = service.getUserTasks();
             log("Find " + tasks.size() + " tasks");
             for (DomainObject task : tasks) {
-                if ("usertask1".equals(task.getString("activityid"))) {
+                if ("usertask1".equals(task.getString("ActivityId"))) {
                     service.completeTask(task.getId(), null, null);
                     log("Complete " + task.getId());
                 }
@@ -104,7 +104,7 @@ public class TestProcess extends ClientBase {
             tasks = service.getUserDomainObjectTasks(attachment.getId());
             log("Find " + tasks.size() + " tasks");
             for (DomainObject task : tasks) {
-                if ("usertask2".equals(task.getString("activityid"))) {
+                if ("usertask2".equals(task.getString("ActivityId"))) {
                     service.completeTask(task.getId(), null, null);
                     log("Complete " + task.getId());
                 }
@@ -115,9 +115,9 @@ public class TestProcess extends ClientBase {
             tasks = service.getUserDomainObjectTasks(attachment.getId());
             log("Find " + tasks.size() + " tasks");
             for (DomainObject task : tasks) {
-                if ("usertask3".equals(task.getString("activityid"))) {
+                if ("usertask3".equals(task.getString("ActivityId"))) {
                     // Получаем все доступные действия
-                    String actions = task.getString("actions");
+                    String actions = task.getString("Actions");
                     log("All actions = " + actions);
                     service.completeTask(task.getId(), null, "YES");
                     log("Complete " + task.getId());

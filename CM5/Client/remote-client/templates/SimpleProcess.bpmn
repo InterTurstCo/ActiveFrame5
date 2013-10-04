@@ -18,10 +18,10 @@ test += " Изменен в скрипте.";
 MAIN_ATTACHMENT.set("test_text", test);
 MAIN_ATTACHMENT.set("test_long", 20);
 MAIN_ATTACHMENT.set("test_decimal", 20);
-//MAIN_ATTACHMENT.set("test_date", new Date());
 MAIN_ATTACHMENT.save();
 
-var newObject = MAIN_ATTACHMENT.create("test_process_attachment");
+var newObject = SESSION.create("test_process_attachment");
+
 newObject.set("test_text", "Создан в скрипте");
 newObject.set("test_long", 30);
 newObject.set("test_decimal", 30);

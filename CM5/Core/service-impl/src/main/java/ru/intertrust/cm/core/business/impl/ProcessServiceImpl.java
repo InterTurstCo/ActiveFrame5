@@ -44,6 +44,7 @@ import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.model.ProcessException;
 import ru.intertrust.cm.core.tools.DomainObjectAccessor;
+import ru.intertrust.cm.core.tools.Session;
 
 @Stateless(name = "ProcessService")
 @Local(ProcessService.class)
@@ -103,6 +104,8 @@ public class ProcessServiceImpl implements ProcessService {
             variablesHM.put(ProcessService.MAIN_ATTACHMENT,
                     new DomainObjectAccessor(attachedObjectId));
         }
+        
+        variablesHM.put(ProcessService.SESSION, new Session());
 
         idProcess = runtimeService.startProcessInstanceByKey(processName,
                 variablesHM).getId();
@@ -292,7 +295,7 @@ public class ProcessServiceImpl implements ProcessService {
         taskDomainObject.setLong("State", ProcessService.TASK_STATE_COMPLETE);
         domainObjectDao.save(taskDomainObject);
 
-        String taskId = taskDomainObject.getString("taskid");
+        String taskId = taskDomainObject.getString("TaskId");
 
         Map<String, String> params = new Hashtable<String, String>();
         if (variables != null) {
