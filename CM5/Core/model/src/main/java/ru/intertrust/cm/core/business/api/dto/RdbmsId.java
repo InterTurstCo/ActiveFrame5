@@ -18,7 +18,7 @@ public class RdbmsId implements Id {
 
     private int typeId;
     private long id;
-    private String stringRepresentation;
+    private transient String stringRepresentation;
 
     /**
      * Конструктор по умолчанию. Обычно не используется. Требуется для сериализации
@@ -114,7 +114,9 @@ public class RdbmsId implements Id {
 
     @Override
     public int hashCode() {
-        return (int) (id ^ (id >>> 32));
+        int result = typeId;
+        result = 31 * result + (int) (id ^ (id >>> 32));
+        return result;
     }
 
     @Override

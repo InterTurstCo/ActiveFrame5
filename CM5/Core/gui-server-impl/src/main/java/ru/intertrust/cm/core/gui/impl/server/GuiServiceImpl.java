@@ -12,8 +12,11 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.config.model.gui.form.*;
-import ru.intertrust.cm.core.config.model.gui.form.widget.*;
+import ru.intertrust.cm.core.config.model.gui.form.FormConfig;
+import ru.intertrust.cm.core.config.model.gui.form.widget.FieldPathConfig;
+import ru.intertrust.cm.core.config.model.gui.form.widget.LabelConfig;
+import ru.intertrust.cm.core.config.model.gui.form.widget.WidgetConfig;
+import ru.intertrust.cm.core.config.model.gui.form.widget.WidgetConfigurationConfig;
 import ru.intertrust.cm.core.config.model.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
@@ -22,8 +25,9 @@ import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.Form;
-import ru.intertrust.cm.core.gui.model.form.FormData;
-import ru.intertrust.cm.core.gui.model.form.widget.*;
+import ru.intertrust.cm.core.gui.model.form.FormObjects;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
 import ru.intertrust.cm.core.util.ConfigurationUtil;
 
 import javax.annotation.security.DeclareRoles;
@@ -114,7 +118,7 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         FormConfig formConfig = configurationService.getConfig(FormConfig.class, form.getName());
         WidgetConfigurationConfig widgetConfigurationConfig = formConfig.getWidgetConfigurationConfig();
         List<WidgetConfig> widgetConfigs = widgetConfigurationConfig.getWidgetConfigList();
-        FormData formData = form.getFormData();
+        FormObjects formObjects = form.getFormObjects();
 
         HashSet<FieldPath> objectsFieldPathsToSave = new HashSet<>();
         for (WidgetConfig widgetConfig : widgetConfigs) {
@@ -124,9 +128,9 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
             }
             Value newValue = widgetData.toValue();
             FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
-            Value oldValue = formData.getFieldPathValue(fieldPath);
+            Value oldValue = formObjects.getObjectValue(fieldPath);
             if (!newValue.equals(oldValue)) {
-                formData.setFieldPathValue(fieldPath, newValue);
+                formObjects.setObjectValue(fieldPath, newValue);
                 objectsFieldPathsToSave.add(fieldPath.createFieldPathWithoutLastElement());
             }
         }
@@ -139,10 +143,10 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
                 saveRoot = true;
                 continue;
             }
-            toSave.add(formData.getFieldPathObject(fieldPath));
+            toSave.add(formObjects.getObject(fieldPath));
         }
         crudService.save(toSave);
-        DomainObject rootDomainObject = formData.getFieldPathObject(FieldPath.ROOT);
+        DomainObject rootDomainObject = formObjects.getObject(FieldPath.ROOT);
         if (saveRoot) {
             return crudService.save(rootDomainObject);
         } else {
@@ -155,14 +159,14 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         FormConfig formConfig = findFormConfig(root);
         WidgetConfigurationConfig widgetConfigurationConfig = formConfig.getWidgetConfigurationConfig();
         List<WidgetConfig> widgetConfigs = widgetConfigurationConfig.getWidgetConfigList();
-        FormData formData = getFormData(root, widgetConfigs);
+        FormObjects formObjects = getFormData(root, widgetConfigs);
         for (WidgetConfig config : widgetConfigs) {
             WidgetHandler componentHandler = obtainHandler(ConfigurationUtil.getWidgetTag(config));
             WidgetContext widgetContext = new WidgetContext();
             widgetContext.setWidgetConfig(config);
-            widgetDataMap.put(config.getId(), componentHandler.getInitialDisplayData(widgetContext, formData));
+            widgetDataMap.put(config.getId(), componentHandler.getInitialDisplayData(widgetContext, formObjects));
         }
-        Form form = new Form(formConfig.getName(), formConfig.getMarkup(), widgetDataMap, formData, formConfig.getDebug());
+        Form form = new Form(formConfig.getName(), formConfig.getMarkup(), widgetDataMap, formObjects, formConfig.getDebug());
         return form;
     }
 
@@ -179,8 +183,8 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         }
     }
 
-    private Map<WidgetConfig, FieldPath> getFieldPaths(List<WidgetConfig> configs) {
-        HashMap<WidgetConfig, FieldPath> paths = new HashMap<>(configs.size());
+    private List<FieldPath> getFieldPaths(List<WidgetConfig> configs) {
+        List<FieldPath> paths = new ArrayList<>(configs.size());
         for (WidgetConfig config : configs) {
             FieldPathConfig fieldPathConfig = config.getFieldPathConfig();
             if (fieldPathConfig == null || fieldPathConfig.getValue() == null) {
@@ -190,26 +194,26 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
                     continue;
                 }
             }
-            paths.put(config, new FieldPath(fieldPathConfig.getValue()));
+            paths.add(new FieldPath(fieldPathConfig.getValue()));
         }
         return paths;
     }
 
-    private FormData getFormData(DomainObject root, List<WidgetConfig> widgetConfigs) {
+    private FormObjects getFormData(DomainObject root, List<WidgetConfig> widgetConfigs) {
         // не уверен, нужен ли здесь будет Business Object, но наверно нужен в некотором урезанном виде - для оптимистических блокировок
 
-        Map<WidgetConfig, FieldPath> fieldPaths = getFieldPaths(widgetConfigs); // todo -> convert to list
+        List<FieldPath> fieldPaths = getFieldPaths(widgetConfigs);
 
-        HashMap<FieldPath, DomainObject> fieldPathObjects = new HashMap<>();
-        fieldPathObjects.put(new FieldPath(), root);
-        for (FieldPath fieldPath : fieldPaths.values()) {
+        FormObjects formObjects = new FormObjects();
+        formObjects.setObject(new FieldPath(), root);
+        for (FieldPath fieldPath : fieldPaths) {
             DomainObject currentRoot = root;
-            for (Iterator<FieldPath> subPathIterator = fieldPath.subPathIterator(); subPathIterator.hasNext(); ) {
+            for (Iterator<FieldPath> subPathIterator = fieldPath.subPathIterator(); subPathIterator.hasNext();) {
                 FieldPath subPath = subPathIterator.next();
                 if (!subPathIterator.hasNext()) { // значит текущий путь указывает на Value и будет получаться из Domain Object
-                    break; // значит ничего не делаем, а раз следующего нет, выходим из цикла
+                    break; // ничего не делаем, а раз следующего нет, выходим из цикла
                 }
-                if (fieldPathObjects.containsKey(subPath)) {
+                if (formObjects.isObjectSet(subPath)) {
                     continue;
                 }
 
@@ -220,7 +224,7 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
                     Id linkedObjectId = currentRoot.getReference(linkField);
                     if (linkedObjectId != null) {
                         DomainObject linkedDo = crudService.find(linkedObjectId);
-                        fieldPathObjects.put(subPath, linkedDo);
+                        formObjects.setObject(subPath, linkedDo);
                         currentRoot = linkedDo;
                     } else {
                         // текущий root становится null, таким образом все последующие вызовы бессмыссленны
@@ -235,219 +239,7 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
             }
         }
 
-        FormData formData = new FormData();
-        formData.setFieldPathObjects(fieldPathObjects);
-
-        return formData;
-    }
-
-    private FormConfig createFakeConfig(Map<String, WidgetData> widgetDataMapToFill) {
-        MarkupConfig markup = new MarkupConfig();
-        markup.setHeader(getHeaderConfig(widgetDataMapToFill));
-        markup.setBody(getBodyConfig(widgetDataMapToFill));
-
-        FormConfig config = new FormConfig();
-        config.setName("some_form");
-        config.setDomainObjectType("person");
-        config.setWidgetConfigurationConfig(null);
-        config.setMarkup(markup);
-
-        return config;
-    }
-
-    private HeaderConfig getHeaderConfig(Map<String, WidgetData> widgetDataMap) {
-        // 2 закладки и в каждой:
-        // +-------------+----------------------------+------------+-------------------------+
-        // |        Имя: | Текстовое поле             |   Возраст: | Целое поле              |
-        // +-------------+----------------------------+------------+                         +
-        // |    Фамилия: | Текстовое поле                          |                         |
-        // +-------------+----------------------------+------------+-------------------------+
-
-        WidgetDef nameLabel = WidgetDef.createLabelCell("1", "Имя:");
-        WidgetDef nameTextBox = WidgetDef.createTextBoxCell("2", "Василий", "1");
-        WidgetDef ageLabel = WidgetDef.createLabelCell("3", "Возраст:");
-        WidgetDef ageIntegerBoxCell = WidgetDef.createIntegerBoxCell("4", 27, "1", "2");
-
-        WidgetDef surnameLabel = WidgetDef.createLabelCell("5", "Фамилия:");
-        WidgetDef surnameTextBox = WidgetDef.createTextBoxCell("6", "Длиннофамильный-Закарпатскийараратов", "1");
-
-        addWidgetDataToMap(new WidgetDef[]{nameLabel, nameTextBox, ageLabel, ageIntegerBoxCell, surnameLabel, surnameTextBox}, widgetDataMap);
-
-        ArrayList<CellConfig> headerRow1Cols = new ArrayList<>();
-        headerRow1Cols.add(nameLabel.cellConfig);
-        headerRow1Cols.add(nameTextBox.cellConfig);
-        headerRow1Cols.add(ageLabel.cellConfig);
-        headerRow1Cols.add(ageIntegerBoxCell.cellConfig);
-
-        ArrayList<CellConfig> headerRow2Cols = new ArrayList<>();
-        headerRow2Cols.add(surnameLabel.cellConfig);
-        headerRow2Cols.add(surnameTextBox.cellConfig);
-
-        RowConfig row1Config = new RowConfig();
-        row1Config.setCells(headerRow1Cols);
-
-        RowConfig row2Config = new RowConfig();
-        row2Config.setCells(headerRow2Cols);
-
-        ArrayList<RowConfig> headerRows = new ArrayList<>();
-        headerRows.add(row1Config);
-        headerRows.add(row2Config);
-
-        TableLayoutConfig headerLayout = new TableLayoutConfig();
-        headerLayout.setWidth("500px");
-        headerLayout.setRows(headerRows);
-        HeaderConfig header = new HeaderConfig();
-        header.setTableLayout(headerLayout);
-        return header;
-    }
-
-    private BodyConfig getBodyConfig(Map<String, WidgetData> widgetDataMap) {
-        TabConfig tab1 = createBodyTab("Главная", widgetDataMap);
-        TabConfig tab2 = createBodyTab("Второстепенная", widgetDataMap);
-
-        ArrayList<TabConfig> tabs = new ArrayList<>();
-        tabs.add(tab1);
-        tabs.add(tab2);
-
-        BodyConfig bodyConfig = new BodyConfig();
-        bodyConfig.setTabs(tabs);
-
-        return bodyConfig;
-    }
-
-    private TabConfig createBodyTab(String name, Map<String, WidgetData> form) {
-        // 2 закладки и в каждой:
-        // +-------------+----------------------------+------------+-------------------------+
-        // |    Рост(см):| Целое поле                 | Цвет глаз: |                         |
-        // +-------------+----------------------------+------------+-------------------------+
-        // |     Вес(кг):| Целое поле                 |     Хобби: |                         |
-        // +-------------+----------------------------+------------+-------------------------+
-
-        WidgetDef heightLabel = WidgetDef.createLabelCell("7" + name.hashCode(), "Рост(см):");
-        WidgetDef heightIntegerBox = WidgetDef.createTextBoxCell("8" + name.hashCode(), "222", "1");
-        WidgetDef eyesColorLabel = WidgetDef.createLabelCell("9" + name.hashCode(), "Цвет глаз:");
-        WidgetDef eyesColorTextBox = WidgetDef.createTextBoxCell("10" + name.hashCode(), "Сизый", "1");
-
-        WidgetDef weightLabel = WidgetDef.createLabelCell("11" + name.hashCode(), "Вес(кг):");
-        WidgetDef weightIntegerBox = WidgetDef.createTextBoxCell("12" + name.hashCode(), "222", "1");
-        WidgetDef hobbyLabel = WidgetDef.createLabelCell("13" + name.hashCode(), "Хобби:");
-        WidgetDef hobbyTextBox = WidgetDef.createTextBoxCell("14" + name.hashCode(), "Продажа слонов", "1");
-
-        addWidgetDataToMap(
-                new WidgetDef[]{heightLabel, heightIntegerBox, eyesColorLabel, eyesColorTextBox, weightLabel,
-                        weightIntegerBox, hobbyLabel, hobbyTextBox}, form);
-
-        ArrayList<CellConfig> headerRow1Cols = new ArrayList<>();
-        headerRow1Cols.add(heightLabel.cellConfig);
-        headerRow1Cols.add(heightIntegerBox.cellConfig);
-        headerRow1Cols.add(eyesColorLabel.cellConfig);
-        headerRow1Cols.add(eyesColorTextBox.cellConfig);
-
-        ArrayList<CellConfig> headerRow2Cols = new ArrayList<>();
-        headerRow2Cols.add(weightLabel.cellConfig);
-        headerRow2Cols.add(weightIntegerBox.cellConfig);
-        headerRow2Cols.add(hobbyLabel.cellConfig);
-        headerRow2Cols.add(hobbyTextBox.cellConfig);
-
-        RowConfig row1Config = new RowConfig();
-        row1Config.setCells(headerRow1Cols);
-
-        RowConfig row2Config = new RowConfig();
-        row2Config.setCells(headerRow2Cols);
-
-        ArrayList<RowConfig> headerRows = new ArrayList<>();
-        headerRows.add(row1Config);
-        headerRows.add(row2Config);
-
-        TableLayoutConfig layout = new TableLayoutConfig();
-        layout.setWidth("500px");
-        layout.setRows(headerRows);
-
-        TabGroupConfig tabGroupConfig = new TabGroupConfig();
-        tabGroupConfig.setLayout(layout);
-
-        SingleEntryGroupListConfig groupList = new SingleEntryGroupListConfig();
-        groupList.setTabGroupConfig(tabGroupConfig);
-
-        TabConfig tab = new TabConfig();
-        tab.setName(name);
-        tab.setGroupList(groupList);
-        return tab;
-    }
-
-    private void addWidgetDataToMap(WidgetDef[] widgetDefs, Map<String, WidgetData> form) {
-        for (WidgetDef widgetDef : widgetDefs) {
-            form.put(widgetDef.widgetConfig.getId(), widgetDef.widgetData);
-        }
-    }
-
-    private static class WidgetDef {
-        public final CellConfig cellConfig;
-        public final WidgetConfig widgetConfig;
-        public final WidgetData widgetData;
-
-        public WidgetDef(CellConfig cellConfig, WidgetConfig widgetConfig, WidgetData widgetData) {
-            this.cellConfig = cellConfig;
-            this.widgetConfig = widgetConfig;
-            this.widgetData = widgetData;
-        }
-
-        public static WidgetDef createLabelCell(String id, String text) {
-            WidgetDisplayConfig widgetDisplayConfig = new WidgetDisplayConfig();
-            widgetDisplayConfig.setId(id);
-
-            CellConfig cellConfig = new CellConfig();
-            cellConfig.setHorizontalAlignment("right");
-            cellConfig.setWidgetDisplayConfig(widgetDisplayConfig);
-
-            LabelConfig labelConfig = new LabelConfig();
-            labelConfig.setId(id);
-            labelConfig.setText(text);
-
-            LabelData data = new LabelData();
-            data.setLabel(text);
-
-            return new WidgetDef(cellConfig, labelConfig, data);
-        }
-
-        public static WidgetDef createTextBoxCell(String id, String text, String colspan) {
-            WidgetDisplayConfig widgetDisplayConfig = new WidgetDisplayConfig();
-            widgetDisplayConfig.setId(id);
-
-            CellConfig cellConfig = new CellConfig();
-            cellConfig.setHorizontalAlignment("left");
-            cellConfig.setWidgetDisplayConfig(widgetDisplayConfig);
-            cellConfig.setColumnSpan(colspan);
-
-            TextBoxConfig widgetConfig = new TextBoxConfig();
-            widgetConfig.setId(id);
-            widgetConfig.setFieldPathConfig(null);
-
-            TextBoxData data = new TextBoxData();
-            data.setText(text);
-
-            return new WidgetDef(cellConfig, widgetConfig, data);
-        }
-
-        public static WidgetDef createIntegerBoxCell(String id, Integer number, String colSpan, String rowSpan) {
-            WidgetDisplayConfig widgetDisplayConfig = new WidgetDisplayConfig();
-            widgetDisplayConfig.setId(id);
-
-            CellConfig cellConfig = new CellConfig();
-            cellConfig.setHorizontalAlignment("left");
-            cellConfig.setWidgetDisplayConfig(widgetDisplayConfig);
-            cellConfig.setColumnSpan(colSpan);
-            cellConfig.setRowSpan(rowSpan);
-
-            IntegerBoxConfig widgetConfig = new IntegerBoxConfig();
-            widgetConfig.setId(id);
-            widgetConfig.setFieldPathConfig(null);
-
-            IntegerBoxData data = new IntegerBoxData();
-            data.setValue(number);
-
-            return new WidgetDef(cellConfig, widgetConfig, data);
-        }
+        return formObjects;
     }
 
     private <T extends ComponentHandler> T obtainHandler(String componentName) {

@@ -12,10 +12,10 @@ import java.util.Map;
  *         Date: 14.09.13
  *         Time: 18:09
  */
-public class FormData implements Dto {
+public class FormObjects implements Dto {
     private Map<FieldPath, DomainObject> fieldPathObjects;
 
-    public FormData() {
+    public FormObjects() {
         fieldPathObjects = new HashMap<FieldPath, DomainObject>();
     }
 
@@ -23,30 +23,30 @@ public class FormData implements Dto {
         return fieldPathObjects;
     }
 
-    public void setFieldPathObjects(Map<FieldPath, DomainObject> fieldPathObjects) {
-        this.fieldPathObjects = fieldPathObjects;
+    public boolean isObjectSet(FieldPath fieldPath) {
+        return fieldPathObjects.containsKey(fieldPath);
     }
 
-    public void setFieldPathObject(FieldPath fieldPath, DomainObject object) {
-        // todo
+    public void setObject(FieldPath fieldPath, DomainObject object) {
+        this.fieldPathObjects.put(fieldPath, object);
     }
 
-    public DomainObject getFieldPathObject(FieldPath fieldPath) {
+    public DomainObject getObject(FieldPath fieldPath) {
         return fieldPathObjects.get(fieldPath);
     }
 
-    public DomainObject setFieldPathValue(FieldPath fieldPath, Value value) {
+    public DomainObject setObjectValue(FieldPath fieldPath, Value value) {
         DomainObject fieldPathObject = getObjectContainingFieldPathValue(fieldPath);
         fieldPathObject.setValue(fieldPath.getLastElement(), value);
         return fieldPathObject;
     }
 
-    public <T extends Value> T getFieldPathValue(FieldPath fieldPath) {
+    public <T extends Value> T getObjectValue(FieldPath fieldPath) {
         DomainObject fieldPathObject = getObjectContainingFieldPathValue(fieldPath);
         return fieldPathObject == null ? null : (T) fieldPathObject.getValue(fieldPath.getLastElement());
     }
 
-    public DomainObject getObjectContainingFieldPathValue(FieldPath fieldPath) {
+    private DomainObject getObjectContainingFieldPathValue(FieldPath fieldPath) {
         FieldPath objectPath = fieldPath.createFieldPathWithoutLastElement();
         return fieldPathObjects.get(objectPath);
     }

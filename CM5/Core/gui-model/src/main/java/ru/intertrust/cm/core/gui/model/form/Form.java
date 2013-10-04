@@ -20,7 +20,7 @@ public class Form implements Dto {
     private boolean editable = true;
     private MarkupConfig markup;
     private Map<String, WidgetData> widgetDataMap;
-    private FormData formData;
+    private FormObjects formObjects;
     private boolean debug = false;
     /**
      * Конструктор по умолчанию.
@@ -49,10 +49,10 @@ public class Form implements Dto {
         this.widgetDataMap = widgetDataMap;
     }
 
-    public Form(String name, MarkupConfig markup, Map<String, WidgetData> widgetDataMap, FormData formData, boolean debug) {
+    public Form(String name, MarkupConfig markup, Map<String, WidgetData> widgetDataMap, FormObjects formObjects, boolean debug) {
         this.name = name;
         this.markup = markup;
-        this.formData = formData;
+        this.formObjects = formObjects;
         this.widgetDataMap = widgetDataMap;
         this.debug = debug;
     }
@@ -120,16 +120,16 @@ public class Form implements Dto {
         return widgetDataMap;
     }
 
-    public FormData getFormData() {
-        return formData;
+    public FormObjects getFormObjects() {
+        return formObjects;
     }
 
-    public void setFormData(FormData formData) {
-        this.formData = formData;
+    public void setFormObjects(FormObjects formObjects) {
+        this.formObjects = formObjects;
     }
 
     public DomainObject getRootObject() {
-        return formData.getFieldPathObject(FieldPath.ROOT);
+        return formObjects.getObject(FieldPath.ROOT);
     }
 
     public boolean getDebug() {

@@ -7,7 +7,7 @@ import ru.intertrust.cm.core.config.model.gui.form.widget.ComboBoxConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
-import ru.intertrust.cm.core.gui.model.form.FormData;
+import ru.intertrust.cm.core.gui.model.form.FormObjects;
 import ru.intertrust.cm.core.gui.model.form.widget.ComboBoxData;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 
@@ -24,10 +24,10 @@ import java.util.regex.Pattern;
 @ComponentName("combo-box")
 public class ComboBoxHandler extends WidgetHandler {
     @Override
-    public ComboBoxData getInitialDisplayData(WidgetContext context, FormData formData) {
+    public ComboBoxData getInitialDisplayData(WidgetContext context, FormObjects formObjects) {
         ComboBoxConfig widgetConfig = context.getWidgetConfig();
         FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
-        DomainObject rootObjectForComboBoxField = formData.getFieldPathObject(fieldPath.createFieldPathWithoutLastElement());
+        DomainObject rootObjectForComboBoxField = formObjects.getObject(fieldPath.createFieldPathWithoutLastElement());
         String field = fieldPath.getLastElement();
         String rootObjectType = rootObjectForComboBoxField.getTypeName();
         ReferenceFieldConfig fieldConfig = (ReferenceFieldConfig) getConfigurationService().getFieldConfig(rootObjectType, field);
@@ -55,7 +55,7 @@ public class ComboBoxHandler extends WidgetHandler {
             idDisplayMapping.put(domainObject.getId(), format);
         }
 
-        ReferenceValue fieldPathValue = formData.getFieldPathValue(getFieldPath(widgetConfig));
+        ReferenceValue fieldPathValue = formObjects.getObjectValue(getFieldPath(widgetConfig));
         Id selectedId = fieldPathValue == null ? null : fieldPathValue.get();
 
         result.setId(selectedId);

@@ -9,7 +9,7 @@ import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
-import ru.intertrust.cm.core.gui.model.form.FormData;
+import ru.intertrust.cm.core.gui.model.form.FormObjects;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
 
@@ -22,7 +22,7 @@ import javax.naming.NamingException;
  *         Time: 16:58
  */
 public abstract class WidgetHandler implements ComponentHandler {
-    public abstract <T extends WidgetData> T getInitialDisplayData(WidgetContext context, FormData formData);
+    public abstract <T extends WidgetData> T getInitialDisplayData(WidgetContext context, FormObjects formObjects);
 
     protected static FieldPath getFieldPath(WidgetConfig widgetConfig) {
         FieldPathConfig fieldPathConfig = widgetConfig.getFieldPathConfig();
@@ -33,8 +33,8 @@ public abstract class WidgetHandler implements ComponentHandler {
         return fieldPath == null ? null : new FieldPath(fieldPath);
     }
 
-    protected static <T> T getFieldPathValue(WidgetContext context, FormData formData) {
-        Value fieldPathValue = formData.getFieldPathValue(getFieldPath(context.getWidgetConfig()));
+    protected static <T> T getFieldPathValue(WidgetContext context, FormObjects formObjects) {
+        Value fieldPathValue = formObjects.getObjectValue(getFieldPath(context.getWidgetConfig()));
         return fieldPathValue == null ? null : (T) fieldPathValue.get();
     }
 

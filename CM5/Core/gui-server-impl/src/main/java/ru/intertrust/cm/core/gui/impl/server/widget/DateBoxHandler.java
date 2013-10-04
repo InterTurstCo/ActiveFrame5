@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.form.FormData;
+import ru.intertrust.cm.core.gui.model.form.FormObjects;
 import ru.intertrust.cm.core.gui.model.form.widget.DateBoxData;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 
@@ -16,7 +16,7 @@ import java.util.Date;
 @ComponentName("date-box")
 public class DateBoxHandler extends WidgetHandler {
     @Override
-    public DateBoxData getInitialDisplayData(WidgetContext context, FormData formData) {
-        return new DateBoxData((Date) getFieldPathValue(context, formData));
+    public DateBoxData getInitialDisplayData(WidgetContext context, FormObjects formObjects) {
+        return new DateBoxData((Date) getFieldPathValue(context, formObjects));
     }
 }

@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.form.FormData;
+import ru.intertrust.cm.core.gui.model.form.FormObjects;
 import ru.intertrust.cm.core.gui.model.form.widget.IntegerBoxData;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 
@@ -14,7 +14,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 @ComponentName("integer-box")
 public class IntegerBoxHandler extends WidgetHandler {
     @Override
-    public IntegerBoxData getInitialDisplayData(WidgetContext context, FormData formData) {
-        return new IntegerBoxData((Long) getFieldPathValue(context, formData));
+    public IntegerBoxData getInitialDisplayData(WidgetContext context, FormObjects formObjects) {
+        return new IntegerBoxData((Long) getFieldPathValue(context, formObjects));
     }
 }

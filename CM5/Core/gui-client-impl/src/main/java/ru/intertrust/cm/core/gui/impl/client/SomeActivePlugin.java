@@ -38,7 +38,7 @@ public class SomeActivePlugin extends Plugin {
         SomeActivePluginView view = (SomeActivePluginView) getView();
         Map<String, WidgetData> widgetData = view.getWidgetData();
 
-        return new Form(initialForm.getName(), null, widgetData, initialForm.getFormData(), initialForm.getDebug());
+        return new Form(initialForm.getName(), null, widgetData, initialForm.getFormObjects(), initialForm.getDebug());
     }
 
     public DomainObject getRootDomainObject() {
