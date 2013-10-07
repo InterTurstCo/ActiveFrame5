@@ -1,12 +1,13 @@
 package ru.intertrust.cm.performance.dataset.generatefields;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 
+import ru.intertrust.cm.performance.dataset.RandomGenerators;
 import ru.intertrust.cm.performance.dataset.xmltypes.FieldType;
 import ru.intertrust.cm.performance.dataset.xmltypes.LongType;
 import ru.intertrust.cm.performance.dataset.xmltypes.ObjectType;
-import ru.intertrust.cm.performance.dataset.xmltypes.StringType;
 import ru.intertrust.cm.performance.dataset.xmltypes.TemplateType;
 
 public class GenerateLongField {
@@ -30,36 +31,47 @@ public class GenerateLongField {
     /**
      * метод генерирует строковое поле доменного объекта, путем анализа
      * инструкции
-     * 
+     *
      * */
-    public void generateField(LongType longType, List<TemplateType> templateList, String type) {
+    public void generateField(LongType longType, List<TemplateType> templateList, String type) throws IOException {
         if (longType.getName() != null) {
             field = longType.getName();
         } else {
             field = getNameFromTemplate(templateList, type);
         }
 
-        if ((Long) longType.getValue() != null) {
+        if (longType.getValue() != null) {
             value = longType.getValue();
         } else {
-            Long minValue = -1L;
-            Long maxValue = -1L;
+            /*
+             * Long minValue = -1L; Long maxValue = -1L;
+             *
+             * if ((Long) longType.getMinValue() != null) { minValue =
+             * longType.getMinValue(); } if ((Long) longType.getMaxValue() !=
+             * null) { maxValue = longType.getMaxValue(); }
+             *
+             * value = getNumberOfRange(minValue, maxValue);
+             */
 
-            if ((Long) longType.getMinValue() != null) {
-                minValue = longType.getMinValue();
-            }
-            if ((Long) longType.getMaxValue() != null) {
-                maxValue = longType.getMaxValue();
-            }
+            RandomGenerators randomGenerators = RandomGenerators.getInstance();
+            value = randomGenerators.getUniform(longType.getMinValue(), longType.getMaxValue());
 
-            value = getNumberOfRange(minValue, maxValue);
         }
+
+    }
+
+    public void generateField(String fieldName) throws IOException {
+
+        field = fieldName;
+
+        RandomGenerators randomGenerators = RandomGenerators.getInstance();
+        value = randomGenerators.getUniform(0L, Long.MAX_VALUE);
 
     }
 
     private Long getNumberOfRange(Long minValue, Long maxValue) {
         Long lgth = 0L;
-        
+
         // Инициализируем генератор
         Random rnd = new Random(System.currentTimeMillis());
         long longRand = rnd.nextLong();

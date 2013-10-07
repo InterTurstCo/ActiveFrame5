@@ -86,14 +86,17 @@ public class RandomGenerators {
         if(minValue instanceof Long){
             Long result = (long) ((Long) minValue + ((Long) maxValue - (Long) minValue) * m);
             return (T) result;
-        } else if(minValue instanceof BigDecimal){
+        } else if(minValue instanceof Integer){
+            Integer result = (int) ((Integer) minValue + ((Integer) maxValue - (Integer) minValue) * m);
+            return (T) result;
+        }else if(minValue instanceof BigDecimal){
             BigDecimal result = ((BigDecimal) maxValue)
                     .subtract((BigDecimal) minValue)
                     .multiply(new BigDecimal(m))
                     .add((BigDecimal) minValue);
             return (T) result;
         } else if(minValue instanceof Date){
-           Date result = new Date((long) ((((Date) maxValue).getTime() - ((Date) minValue).getTime()) * m));
+           Date result = new Date( ((Date) minValue).getTime() + (long) ((((Date) maxValue).getTime() - ((Date) minValue).getTime()) * m));
            return (T) result;
         } else if(minValue instanceof Duration){
             Duration result = ((Duration) maxValue).subtract((Duration) minValue).multiply(new BigDecimal(m)).add((Duration) minValue);
@@ -131,7 +134,7 @@ public class RandomGenerators {
             buffer.append(word);
         }
         buffer.append(".");
-        return null;
+        return buffer.toString();
     }       
     
     private static String capitalize(String word) {

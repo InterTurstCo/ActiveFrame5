@@ -1,12 +1,15 @@
 package ru.intertrust.cm.performance.dataset.generatefields;
 
-import java.math.BigDecimal;
-import java.sql.Timestamp;
+import java.io.IOException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
 
-import ru.intertrust.cm.performance.dataset.xmltypes.*;
+import ru.intertrust.cm.performance.dataset.RandomGenerators;
+import ru.intertrust.cm.performance.dataset.xmltypes.DateTimeType;
+import ru.intertrust.cm.performance.dataset.xmltypes.FieldType;
+import ru.intertrust.cm.performance.dataset.xmltypes.ObjectType;
+import ru.intertrust.cm.performance.dataset.xmltypes.TemplateType;
 
 public class GenerateDateTimeField {
     protected String field;
@@ -25,36 +28,43 @@ public class GenerateDateTimeField {
         return ignore;
     }
 
-    public void generateField(DateTimeType dateTimeType, List<TemplateType> templateList, String type) {
+    public void generateField(DateTimeType dateTimeType, List<TemplateType> templateList, String type)
+            throws IOException {
         if (dateTimeType.getName() != null) {
             field = dateTimeType.getName();
         } else {
             field = getNameFromTemplate(templateList, type);
         }
-        try {
 
-            if ((Date) dateTimeType.getValue() != null) {
-                value = dateTimeType.getValue();
-            } else {
-                Date minValue = null;
-                Date maxValue = null;
+        if (dateTimeType.getValue() != null) {
+            value = dateTimeType.getValue();
+        } else {
+            Date minValue = null;
+            Date maxValue = null;
 
-                if ((Date) dateTimeType.getMinValue() != null) {
-                    minValue = dateTimeType.getMinValue();
-                }
-                if ((Date) dateTimeType.getMaxValue() != null) {
-                    maxValue = dateTimeType.getMaxValue();
-                }
-
-                value = getDateOfRange(minValue, maxValue);
-                ignore = false;
+            if (dateTimeType.getMinValue() != null) {
+                minValue = dateTimeType.getMinValue();
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            ignore = true;
+            if (dateTimeType.getMaxValue() != null) {
+                maxValue = dateTimeType.getMaxValue();
+            }
+            RandomGenerators randomGenerators = RandomGenerators.getInstance();
+            value = randomGenerators.getUniform(minValue, maxValue);
+            // value = getDateOfRange(minValue, maxValue);
+            ignore = false;
         }
+    }
 
+    public void generateField(String nameField) throws IOException {
+        Calendar c1 = Calendar.getInstance();
+        c1.set(2010, 0, 01);
+        Date minValue = new Date(c1.getTimeInMillis());
+        c1.set(2014, 11, 31);
+        Date maxValue = new Date(c1.getTimeInMillis());
+
+        field = nameField;
+
+        value = getDateOfRange(minValue, maxValue);
     }
 
     private Date getDateOfRange(Date minValue, Date maxValue) {

@@ -1,34 +1,45 @@
 package ru.intertrust.cm.performance.dataset.generatefields;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 
-import ru.intertrust.cm.performance.dataset.xmltypes.*;
+import ru.intertrust.cm.performance.dataset.DatasetGenerationServiceImpl;
+import ru.intertrust.cm.performance.dataset.RandomGenerators;
+import ru.intertrust.cm.performance.dataset.xmltypes.FieldType;
+import ru.intertrust.cm.performance.dataset.xmltypes.ObjectType;
+import ru.intertrust.cm.performance.dataset.xmltypes.StringType;
+import ru.intertrust.cm.performance.dataset.xmltypes.TemplateType;
 
 /**
  * Класс предназначен для формирования строкового поля в доменном объекте
- * 
+ *
  * */
 public class GenerateStringField {
     protected String field;
     protected String value;
+
     /**
      * метод возвращает вычисленное наименование поля
      * */
     public String getField() {
         return field;
     }
+
     /**
      * метод возвращает вычисленное значение аргумента
      * */
     public String getValue() {
         return value;
     }
+
     /**
-     * метод генерирует строковое поле доменного объекта, путем анализа инструкции
-     * 
+     * метод генерирует строковое поле доменного объекта, путем анализа
+     * инструкции
+     *
      * */
-    public void generateField(StringType stringType, List<TemplateType> templateList, String type) {
+    public void generateField(StringType stringType, List<TemplateType> templateList, String type,
+            DatasetGenerationServiceImpl dgsi) throws IOException {
         if (stringType.getName() != null) {
             field = stringType.getName();
         } else {
@@ -37,23 +48,39 @@ public class GenerateStringField {
         if (stringType.getValue() != null) {
             value = stringType.getValue();
         } else {
-            int length = -1;
-            int minLength = -1;
-            int maxLength = -1;
-            if ((Object) stringType.getLength() != null) {
-                length = stringType.getLength();
-            }
-            if ((Object) stringType.getMinLength() != null) {
-                minLength = stringType.getMinLength();
-            }
-            if ((Object) stringType.getMaxLength() != null) {
-                maxLength = stringType.getMaxLength();
-            }
+            if (dgsi.getUniqueInfo(type, field)) {
+                int length = -1;
+                int minLength = -1;
+                int maxLength = -1;
+                if (stringType.getLength() != null) {
+                    length = stringType.getLength();
+                }
+                if (stringType.getMinLength() != null) {
+                    minLength = stringType.getMinLength();
+                }
+                if (stringType.getMaxLength() != null) {
+                    maxLength = stringType.getMaxLength();
+                }
 
-            int len = getLengthOfString(length, minLength, maxLength);
-            value = randomString(len);
+                int len = getLengthOfString(length, minLength, maxLength);
+                value = randomString(len);
+            } else {
+                RandomGenerators randomGenerators = RandomGenerators.getInstance();
+                if (stringType.getLength() != null) {
+                    value = randomGenerators.getText(stringType.getLength(), stringType.getLength());
+                }
+                if (stringType.getMinLength() != null && stringType.getMaxLength() != null) {
+                    value = randomGenerators.getText(stringType.getMinLength(), stringType.getMaxLength());
+                }
+            }
         }
+    }
 
+    public void generateField(String stringFieldName, int length) throws IOException {
+
+        field = stringFieldName;
+
+        value = randomString(length);
     }
 
     private int getLengthOfString(int length, int minLength, int maxLength) {
@@ -71,17 +98,38 @@ public class GenerateStringField {
 
     private String randomString(int length) {
 
-        char[] signsSet = {'a', 'b', 'c', 'd', 'e', 'f', 'g',
-                'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',
-                'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
-        int rightLimit = signsSet.length;
-        StringBuilder randomName = new StringBuilder("");
-        Random random = new Random();
-        for (int i = 0; i < length; i++)
-            randomName.append(signsSet[random.nextInt(rightLimit)]);
-        return randomName.toString();
+        String tempString = "";
+        Long tempL = System.currentTimeMillis();
+        char tempChar[] = new char[3];
 
+        for (int i = 0; i < 3; i++) {
+            tempChar[i] = (char) tempL.shortValue();
+            tempL >>= 16;
+        }
+        tempString = new String(tempChar);
+
+        // String tempString = Long.toString(System.currentTimeMillis());
+        if (tempString.length() > length) {
+            // return tempString.substring(0, length);
+            return tempString.substring(tempString.length() - length);
+        } else {
+
+            char[] signsSet = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q',
+                    'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
+
+            int rightLimit = signsSet.length;
+
+            StringBuilder randomName = new StringBuilder("");
+
+            Random random = new Random();
+
+            for (int i = tempString.length(); i < length; i++) {
+                randomName.append(signsSet[random.nextInt(rightLimit)]);
+            }
+            randomName.append(tempString);
+
+            return randomName.toString();
+        }
     }
 
     private String getNameFromTemplate(List<TemplateType> templateList, String type) {
