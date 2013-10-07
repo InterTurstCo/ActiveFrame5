@@ -13,6 +13,9 @@ import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
+import javax.transaction.UserTransaction;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.Duration;
@@ -72,7 +75,7 @@ import ru.intertrust.cm.performance.dataset.xmltypes.TemplateType;
  */
 @Local(DatasetGenerationService.class)
 @Remote(DatasetGenerationService.Remote.class)
-// @TransactionManagement(TransactionManagementType.BEAN)
+@TransactionManagement(TransactionManagementType.BEAN)
 @Stateless
 public class DatasetGenerationServiceImpl implements DatasetGenerationService, DatasetGenerationService.Remote {
 
@@ -157,7 +160,7 @@ public class DatasetGenerationServiceImpl implements DatasetGenerationService, D
 
     private void fillProcessQuery(QueryType query) throws IOException, Exception {
 
-        // UserTransaction utx = sessionContext.getUserTransaction();
+        UserTransaction utx = sessionContext.getUserTransaction();
 
         // получим множество объектов Template из xml
         List<TemplateType> templateList = query.getTemplate();
@@ -186,7 +189,7 @@ public class DatasetGenerationServiceImpl implements DatasetGenerationService, D
             for (Long i = 0L; i < count; i++) {
                 // открываем транзакцию
                 try {
-                    // utx.begin();
+                    utx.begin();
 
                     // запускаем метод создания доменных объектов, а его
                     // результат добавляем в множество объектов
@@ -205,10 +208,11 @@ public class DatasetGenerationServiceImpl implements DatasetGenerationService, D
                     generateChildrenFiled.generateField(newDomainObject, templateList, objectType, this);
 
                     // закрываем транзакцию
-                    // utx.commit();
+                    utx.commit();
 
                 } catch (Exception e) {
                     e.printStackTrace();
+                    utx.rollback();
                     throw new Exception(e);
                 }
             }
