@@ -98,17 +98,7 @@ public class GenerateStringField {
 
     private String randomString(int length) {
 
-        String tempString = "";
-        Long tempL = System.currentTimeMillis();
-        char tempChar[] = new char[3];
-
-        for (int i = 0; i < 3; i++) {
-            tempChar[i] = (char) tempL.shortValue();
-            tempL >>= 16;
-        }
-        tempString = new String(tempChar);
-
-        // String tempString = Long.toString(System.currentTimeMillis());
+        String tempString = String.valueOf(System.nanoTime());
         if (tempString.length() > length) {
             // return tempString.substring(0, length);
             return tempString.substring(tempString.length() - length);
