@@ -20,14 +20,6 @@
                     <tr>
                         <td colspan="5"><widget id="2"/></td> <!-- text-box -->
                     </tr>
-                    <tr>
-                        <td rowspan="2" h-align="left" v-align="top"><widget id="3"/></td> <!-- label (№) -->
-                        <td><widget id="4" width="100px" height="100px"/></td> <!-- integer-box (рег. номер) -->
-                        <td><widget id="5"/></td> <!-- label ("Корреспондент:") -->
-                        <td><widget id="6"/></td> <!-- linked-domain-object ("Аэрофлот") -->
-                        <td><widget id="7"/></td> <!-- execution-control-editor (Контроль исполнения - виджет для делопроизводства) -->
-                        <td><widget id="8"/></td> <!-- execution-status-editor (Исполнение - виджет для делопроизводства - или если получится - обобщить) -->
-                    </tr>
                 </table>
             </header>
             <body display-single-tab="false"> <!-- в теле - только закладки -->
@@ -38,9 +30,6 @@
                                 <tr>
                                     <td><widget id="9"/></td>  <!-- label (Текст) -->
                                 </tr>
-                                <tr>
-                                    <td><widget id="10"/></td>  <!-- rich-text-area -->
-                                </tr>
                             </table>
                         </tab-group>
                     </single-entry-group>
@@ -50,64 +39,15 @@
                         <tab-group name="Основные">
                             <table>
                                 <tr>
-                                    <td><widget id="11"/></td>  <!-- label (Тематика) -->
-                                    <td><widget id="12"/></td>  <!-- suggest-box (Тематика) -->
-                                </tr>
-                                <tr>
-                                    <td><widget id="13"/></td>  <!-- label (Вид документа) -->
-                                    <td><widget id="14"/></td>  <!-- suggest-box (Вид документа) -->
-                                </tr>
-                                <tr>
-                                    <td><widget id="15"/></td>  <!-- label (Дата регистрации) -->
-                                    <td><widget id="16"/></td>  <!-- suggest-box (Дата регистрации) -->
-                                </tr>
-                                <tr>
-                                    <td><widget id="17"/></td>  <!-- label (Корреспондент) -->
-                                    <td><widget id="18"/></td>  <!-- suggest-box (Корреспондент) -->
-                                </tr>
-                                <tr>
-                                    <td><widget id="19"/></td>  <!-- label (Исполнители) -->
-                                    <td><widget id="20"/></td>  <!-- suggest-box (Исполнители) -->
-                                </tr>
-                                <tr>
-                                    <td><widget id="21"/></td>  <!-- label (Номер документа) -->
-                                    <td><widget id="22"/></td>  <!-- text-box (Номер документа) -->
-                                </tr>
-                                <tr>
-                                    <td><widget id="23"/></td>  <!-- label (Дата документа) -->
-                                    <td><widget id="24"/></td>  <!-- calendar-box (Номер документа) -->
-                                </tr>
-                                <tr>
-                                    <td><widget id="25"/></td>  <!-- label (Адресаты) -->
-                                    <td><widget id="26"/></td>  <!-- suggest-box (Адресаты) -->
+                                    <td><widget id="5"/></td>  <!-- label (Адресаты) -->
+                                    <td><widget id="2"/></td>  <!-- suggest-box (Адресаты) -->
                                 </tr>
                             </table>
                         </tab-group>
                         <tab-group name="Дополнительные">
                             <table>
                                 <tr>
-                                    <td><widget id="27"/></td>  <!-- label (Место регистрации) -->
-                                    <td><widget id="28"/></td>  <!-- linked-domain-object (Место регистрации) -->
-                                </tr>
-                                <tr>
-                                    <td><widget id="29"/></td>  <!-- label (Вид доставки) -->
-                                    <td><widget id="30"/></td>  <!-- suggest-box (Вид доставки) -->
-                                </tr>
-                                <tr>
-                                    <td><widget id="31"/></td>  <!-- label (Кол-во листов) -->
-                                    <td><widget id="32"/></td>  <!-- integer-box (Кол-во листов) -->
-                                </tr>
-                                <tr>
-                                    <td><widget id="33"/></td>  <!-- label (Кол-во экземпляров) -->
-                                    <td><widget id="34"/></td>  <!-- integer-box (Кол-во экземпляров) -->
-                                </tr>
-                                <tr>
-                                    <td><widget id="35"/></td>  <!-- label (Кол-во приложений) -->
-                                    <td><widget id="36"/></td> <!-- integer-box (Кол-во приложений) -->
-                                </tr>
-                                <tr>
-                                    <td><widget id="37"/></td>  <!-- label (Комментарий) -->
-                                    <td><widget id="38"/></td>  <!-- text-area (Комментарий) -->
+                                    <td><widget id="1"/></td>  <!-- label (Место регистрации) -->
                                 </tr>
                             </table>
                         </tab-group>
@@ -118,21 +58,21 @@
                         <tab-group name="Регистрация"> <!-- либо таб, либо разметка, вместе - нельзя -->
                             <table>
                                 <tr>
-                                    <td><widget id="39"/></td>  <!-- некий виджет -->
+                                    <td><widget id="2"/></td>  <!-- некий виджет -->
                                 </tr>
                             </table>
                         </tab-group>
                         <tab-group name="Ознакомление"> <!-- либо таб, либо разметка, вместе - нельзя -->
                             <table>
                                 <tr>
-                                    <td><widget id="40"/></td>  <!-- некий виджет -->
+                                    <td><widget id="4"/></td>  <!-- некий виджет -->
                                 </tr>
                             </table>
                         </tab-group>
                         <tab-group name="Исполнение"> <!-- либо таб, либо разметка, вместе - нельзя -->
                             <table>
                                 <tr>
-                                    <td><widget id="41"/></td>  <!-- некий виджет -->
+                                    <td><widget id="1"/></td>  <!-- некий виджет -->
                                 </tr>
                             </table>
                         </tab-group>
@@ -157,6 +97,9 @@
             </integer-box>
 
             <label id="4">
+                <field-path value="correspondent"/>
+            </label>
+            <label id="5">
                 <field-path value="correspondent"/>
             </label>
             <linked-domain-object-hyperlink id="5"> <!-- для единичного связанного объекта -->

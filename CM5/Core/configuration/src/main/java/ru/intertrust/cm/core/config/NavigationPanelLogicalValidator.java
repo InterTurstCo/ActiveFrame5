@@ -49,33 +49,34 @@ public class NavigationPanelLogicalValidator {
             return;
         }
         for (LinkConfig linkConfig : linkConfigList) {
-            validateLinkToOpen(linkConfig);
+            validateChildLinkToOpen(linkConfig);
+            //validatePluginHandlers();
         }
 
     }
 
-    private void validateLinkToOpen(LinkConfig linkConfig) {
+    private void validateChildLinkToOpen(LinkConfig linkConfig) {
         boolean isFound = false;
         String childToOpen = linkConfig.getChildToOpen();
         if (childToOpen != null) {
             List<ChildLinksConfig> linkConfigList = linkConfig.getChildLinksConfigList();
             if (linkConfigList.isEmpty()) {
-                throw new ConfigurationException("Child link to open is not found for name '" +
+                logger.error("Child link to open is not found for name '" +
                         linkConfig.getName() + "'");
             }
             for (ChildLinksConfig childLinksConfig : linkConfigList) {
-                isFound = validateChildLinkForRequiredLink(childLinksConfig, childToOpen);
+                isFound = findLinkByName(childLinksConfig, childToOpen);
                 if (isFound) {
                     return;
                 } else {
-                    throw new ConfigurationException("Child link to open is not found for name '" +
+                    logger.error("Child link to open is not found for name '" +
                             linkConfig.getName() + "'");
                 }
             }
         }
     }
 
-    private boolean validateChildLinkForRequiredLink(ChildLinksConfig childLinksConfig, String toCompareName) {
+    private boolean findLinkByName(ChildLinksConfig childLinksConfig, String toCompareName) {
         List<LinkConfig> linkConfigList = childLinksConfig.getLinkConfigList();
         if (linkConfigList.isEmpty()) {
             return false;
@@ -88,4 +89,12 @@ public class NavigationPanelLogicalValidator {
         }
         return false;
     }
+    /*private void validatePluginHandlers() {
+        Plugin navigationTreePlugin = ComponentRegistry.instance.get("navigation.tree");
+        if(navigationTreePlugin != null) {
+            logger.info("Navigation tree plugin was found");
+        }  else {
+            logger.info("Navigation tree plugin was not found");
+        }
+    }*/
 }

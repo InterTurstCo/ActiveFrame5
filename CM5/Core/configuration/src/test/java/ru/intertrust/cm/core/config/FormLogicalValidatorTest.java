@@ -1,12 +1,6 @@
 package ru.intertrust.cm.core.config;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.simpleframework.xml.Serializer;
-import org.simpleframework.xml.convert.AnnotationStrategy;
-import org.simpleframework.xml.core.Persister;
-import org.simpleframework.xml.strategy.Strategy;
 import ru.intertrust.cm.core.config.model.base.Configuration;
 
 import java.util.Arrays;
@@ -20,12 +14,9 @@ import static ru.intertrust.cm.core.config.Constants.*;
  *         Date: 13/9/13
  *         Time: 12:05 PM
  */
-public class FormConfigurationTest {
+public class FormLogicalValidatorTest {
     private static final String FORM_XML_PATH =
             "config/forms-test.xml";
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Test
     public void testValidate() throws Exception {
@@ -47,7 +38,6 @@ public class FormConfigurationTest {
         configurationSerializer.setModulesConfigurationSchemaPath(MODULES_CONFIG_SCHEMA_PATH);
 
         Configuration configuration = configurationSerializer.deserializeConfiguration();
-        System.out.println(ConfigurationSerializer.serializeConfiguration(configuration));
 
         ConfigurationExplorer configurationExplorer = new ConfigurationExplorerImpl(configuration);
         return configurationExplorer;

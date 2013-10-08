@@ -1,8 +1,6 @@
 package ru.intertrust.cm.core.config;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import ru.intertrust.cm.core.config.model.base.Configuration;
 
 import java.util.Arrays;
@@ -16,12 +14,9 @@ import static ru.intertrust.cm.core.config.Constants.*;
  *         Date: 13/9/13
  *         Time: 12:05 PM
  */
-public class CollectionViewConfigTest {
+public class CollectionViewLogicalValidatorTest {
     private static final String COLLECTION_VIEW_XML_PATH =
             "config/collection-view-test.xml";
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Test
     public void testValidate() throws Exception {

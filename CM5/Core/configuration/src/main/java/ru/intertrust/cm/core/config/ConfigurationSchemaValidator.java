@@ -115,7 +115,9 @@ public class ConfigurationSchemaValidator {
     }
 
     private void validateAgainstXSD() {
+        System.setProperty("javax.xml.validation.SchemaFactory:http://www.w3.org/XML/XMLSchema/v1.1", "org.apache.xerces.jaxp.validation.XMLSchema11Factory");
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+
 
         try {
             if (configurationSchemaInputStreams == null) {

@@ -69,6 +69,12 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
 
         NavigationPanelLogicalValidator navigationPanelLogicalValidator = new NavigationPanelLogicalValidator(this);
         navigationPanelLogicalValidator.validate();
+
+        CollectionViewLogicalValidator collectionLogicalValidator = new CollectionViewLogicalValidator(this);
+        collectionLogicalValidator.validate();
+
+        FormLogicalValidator formLogicalValidator = new FormLogicalValidator(this);
+        formLogicalValidator.validate();
     }
 
     /**

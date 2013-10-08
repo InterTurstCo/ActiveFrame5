@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<?xml version="1.1" encoding="UTF-8" standalone="yes" ?>
 <configuration xmlns="https://cm5.intertrust.ru/config">
     <navigation name = "panel_old" is-default="true" > <!-- is-default определяет факт того, что данная панель навигации является таковой "по умолчанию", то есть используется для тех пользователей и ролей, для которых панель навигации не переопределена -->
         <link name="Administration" display-text="Администрирование" image="images/inbox.png" child-to-open="Employee">
@@ -15,9 +15,42 @@
                             </collection-viewer>
                         </domain-object-surfer>
                     </plugin>
+
                     <decorations>
                         <collection-counter/>
                     </decorations>
+                    <child-links>
+                        <link name="Employees_By_Name" display-text="По имени" image="employees-by-name.png">
+                            <plugin>
+                                <domain-object-surfer>
+                                    <collection-viewer>
+                                        <collection-ref name="Employees"/>
+                                        <sort-criterion field="last_name" order="asc"/> <!-- order опционален -->
+                                        <sort-criterion field="first_name" order="desc"/>
+                                    </collection-viewer>
+                                </domain-object-surfer>
+                            </plugin>
+                            <decorations>
+                                <collection-counter/>
+                            </decorations>
+                        </link>
+                    </child-links>
+                    <child-links>
+                        <link name="Employees_By_Name" display-text="По имени" image="employees-by-name.png">
+                            <plugin>
+                                <domain-object-surfer>
+                                    <collection-viewer>
+                                        <collection-ref name="Employees"/>
+                                        <sort-criterion field="last_name" order="asc"/> <!-- order опционален -->
+                                        <sort-criterion field="first_name" order="desc"/>
+                                    </collection-viewer>
+                                </domain-object-surfer>
+                            </plugin>
+                            <decorations>
+                                <collection-counter/>
+                            </decorations>
+                        </link>
+                    </child-links>
                     <child-links>
                         <link name="Employees_By_Name" display-text="По имени" image="employees-by-name.png">
                             <plugin>
