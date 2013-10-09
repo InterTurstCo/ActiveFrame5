@@ -24,20 +24,20 @@ import java.util.regex.Pattern;
 @ComponentName("combo-box")
 public class ComboBoxHandler extends WidgetHandler {
     @Override
-    public ComboBoxData getInitialDisplayData(WidgetContext context, FormObjects formObjects) {
+    public ComboBoxData getInitialDisplayData(WidgetContext context) {
         ComboBoxConfig widgetConfig = context.getWidgetConfig();
         FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
-        DomainObject rootObjectForComboBoxField = formObjects.getObject(fieldPath.createFieldPathWithoutLastElement());
+        DomainObject objectContainingField = context.getFormObjects().getObject(fieldPath.createFieldPathWithoutLastElement());
         String field = fieldPath.getLastElement();
-        String rootObjectType = rootObjectForComboBoxField.getTypeName();
-        ReferenceFieldConfig fieldConfig = (ReferenceFieldConfig) configurationService.getFieldConfig(rootObjectType, field);
+        String objectType = objectContainingField.getTypeName();
+        ReferenceFieldConfig fieldConfig = (ReferenceFieldConfig) getConfigurationService().getFieldConfig(objectType, field);
         List<ReferenceFieldTypeConfig> referenceFieldTypes = fieldConfig.getTypes();
         if (referenceFieldTypes.size() > 1) {
             throw new IllegalArgumentException("Combo-box is not supposed to be used with multi-typed fields");
         }
         // todo: find LINKED: only cities of that country
-        // List<DomainObject> listToDisplay = getCrudService().findLinkedDomainObjects(rootObjectForComboBoxField.getId(), "city", "country");
-        List<DomainObject> listToDisplay = crudService.findAll(referenceFieldTypes.get(0).getName());
+        // List<DomainObject> listToDisplay = getCrudService().findLinkedDomainObjects(objectContainingField.getId(), "city", "country");
+        List<DomainObject> listToDisplay = getCrudService().findAll(referenceFieldTypes.get(0).getName());
         LinkedHashMap<Id, String> idDisplayMapping = new LinkedHashMap<>();
         idDisplayMapping.put(null, "");
 
@@ -55,8 +55,7 @@ public class ComboBoxHandler extends WidgetHandler {
             idDisplayMapping.put(domainObject.getId(), format);
         }
 
-        ReferenceValue fieldPathValue = formObjects.getObjectValue(getFieldPath(widgetConfig));
-        Id selectedId = fieldPathValue == null ? null : fieldPathValue.get();
+        Id selectedId = context.getFieldPathPlainValue();
 
         result.setId(selectedId);
 

@@ -35,6 +35,14 @@ public class FormObjects implements Dto {
         return fieldPathObjects.get(fieldPath);
     }
 
+    public void setRootObject(DomainObject object) {
+        this.fieldPathObjects.put(FieldPath.ROOT, object);
+    }
+
+    public DomainObject getRootObject() {
+        return fieldPathObjects.get(FieldPath.ROOT);
+    }
+
     public DomainObject setObjectValue(FieldPath fieldPath, Value value) {
         DomainObject fieldPathObject = getObjectContainingFieldPathValue(fieldPath);
         fieldPathObject.setValue(fieldPath.getLastElement(), value);

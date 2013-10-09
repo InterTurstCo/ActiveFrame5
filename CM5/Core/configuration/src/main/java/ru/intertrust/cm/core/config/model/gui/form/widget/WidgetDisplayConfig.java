@@ -55,13 +55,13 @@ public class WidgetDisplayConfig implements Dto {
 
         WidgetDisplayConfig that = (WidgetDisplayConfig) o;
 
+        if (height != null ? !height.equals(that.height) : that.height != null) {
+            return false;
+        }
         if (id != null ? !id.equals(that.id) : that.id != null) {
             return false;
         }
         if (width != null ? !width.equals(that.width) : that.width != null) {
-            return false;
-        }
-        if (height != null ? !height.equals(that.height) : that.height != null) {
             return false;
         }
 
@@ -70,9 +70,9 @@ public class WidgetDisplayConfig implements Dto {
 
     @Override
     public int hashCode() {
-        int result = width != null ? width.hashCode() : 0;
-        result = 32 * result + height != null ? height.hashCode() : 0;
-        result = 32 * result + id != null ? id.hashCode() : 0;
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (width != null ? width.hashCode() : 0);
+        result = 31 * result + (height != null ? height.hashCode() : 0);
         return result;
     }
 }

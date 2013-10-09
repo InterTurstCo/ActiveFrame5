@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.form.FormObjects;
 import ru.intertrust.cm.core.gui.model.form.widget.TextBoxData;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 
@@ -14,7 +13,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 @ComponentName("text-box")
 public class TextBoxHandler extends WidgetHandler {
     @Override
-    public TextBoxData getInitialDisplayData(WidgetContext context, FormObjects formObjects) {
-        return new TextBoxData((String) getFieldPathValue(context, formObjects));
+    public TextBoxData getInitialDisplayData(WidgetContext context) {
+        return new TextBoxData(context.<String>getFieldPathPlainValue());
     }
 }

@@ -1,11 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
-import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.model.gui.form.widget.LabelConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
-import ru.intertrust.cm.core.gui.model.form.FormObjects;
 import ru.intertrust.cm.core.gui.model.form.widget.LabelData;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 
@@ -17,13 +15,13 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 @ComponentName("label")
 public class LabelHandler extends WidgetHandler {
     @Override
-    public LabelData getInitialDisplayData(WidgetContext context, FormObjects formObjects) {
-        LabelConfig widgetConfig = context.getWidgetConfig();
-        FieldPath fieldPath = getFieldPath(widgetConfig);
+    public LabelData getInitialDisplayData(WidgetContext context) {
+        FieldPath fieldPath = context.getFieldPath();
         if (fieldPath != null) {
-            Value fieldPathValue = formObjects.getObjectValue(fieldPath);
-            return new LabelData(fieldPathValue == null || fieldPathValue.isEmpty() ? "" : fieldPathValue.toString());
+            String plainValue = context.getFieldPathPlainValue();
+            return new LabelData(plainValue == null || plainValue.isEmpty() ? "" : plainValue);
         } else {
+            LabelConfig widgetConfig = context.getWidgetConfig();
             return new LabelData(widgetConfig.getText());
         }
     }

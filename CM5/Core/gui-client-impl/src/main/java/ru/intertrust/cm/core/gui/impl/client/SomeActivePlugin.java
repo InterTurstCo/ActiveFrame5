@@ -38,10 +38,10 @@ public class SomeActivePlugin extends Plugin {
         SomeActivePluginView view = (SomeActivePluginView) getView();
         Map<String, WidgetData> widgetData = view.getWidgetData();
 
-        return new Form(initialForm.getName(), null, widgetData, initialForm.getFormObjects(), initialForm.getDebug());
+        return new Form(initialForm.getName(), null, widgetData, initialForm.getObjects(), initialForm.getDebug());
     }
 
     public DomainObject getRootDomainObject() {
-        return this.<SomeActivePluginData>getInitialData().getForm().getRootObject();
+        return this.<SomeActivePluginData>getInitialData().getForm().getObjects().getRootObject();
     }
 }

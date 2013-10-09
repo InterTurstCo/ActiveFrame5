@@ -117,7 +117,7 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         FormConfig formConfig = configurationService.getConfig(FormConfig.class, form.getName());
         WidgetConfigurationConfig widgetConfigurationConfig = formConfig.getWidgetConfigurationConfig();
         List<WidgetConfig> widgetConfigs = widgetConfigurationConfig.getWidgetConfigList();
-        FormObjects formObjects = form.getFormObjects();
+        FormObjects formObjects = form.getObjects();
 
         HashSet<FieldPath> objectsFieldPathsToSave = new HashSet<>();
         for (WidgetConfig widgetConfig : widgetConfigs) {
@@ -158,12 +158,11 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         FormConfig formConfig = findFormConfig(root);
         WidgetConfigurationConfig widgetConfigurationConfig = formConfig.getWidgetConfigurationConfig();
         List<WidgetConfig> widgetConfigs = widgetConfigurationConfig.getWidgetConfigList();
-        FormObjects formObjects = getFormData(root, widgetConfigs);
+        FormObjects formObjects = getFormObjects(root, widgetConfigs);
         for (WidgetConfig config : widgetConfigs) {
             WidgetHandler componentHandler = obtainHandler(ConfigurationUtil.getWidgetTag(config));
-            WidgetContext widgetContext = new WidgetContext();
-            widgetContext.setWidgetConfig(config);
-            widgetDataMap.put(config.getId(), componentHandler.getInitialDisplayData(widgetContext, formObjects));
+            WidgetContext widgetContext = new WidgetContext(config, formObjects);
+            widgetDataMap.put(config.getId(), componentHandler.getInitialDisplayData(widgetContext));
         }
         Form form = new Form(formConfig.getName(), formConfig.getMarkup(), widgetDataMap, formObjects, formConfig.getDebug());
         return form;
@@ -198,13 +197,13 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         return paths;
     }
 
-    private FormObjects getFormData(DomainObject root, List<WidgetConfig> widgetConfigs) {
+    private FormObjects getFormObjects(DomainObject root, List<WidgetConfig> widgetConfigs) {
         // не уверен, нужен ли здесь будет Business Object, но наверно нужен в некотором урезанном виде - для оптимистических блокировок
 
         List<FieldPath> fieldPaths = getFieldPaths(widgetConfigs);
 
         FormObjects formObjects = new FormObjects();
-        formObjects.setObject(new FieldPath(), root);
+        formObjects.setRootObject(root);
         for (FieldPath fieldPath : fieldPaths) {
             DomainObject currentRoot = root;
             for (Iterator<FieldPath> subPathIterator = fieldPath.subPathIterator(); subPathIterator.hasNext(); ) {

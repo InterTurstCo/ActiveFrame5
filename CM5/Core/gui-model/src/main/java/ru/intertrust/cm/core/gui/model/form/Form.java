@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.gui.model.form;
 
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.model.gui.form.MarkupConfig;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
@@ -20,7 +19,7 @@ public class Form implements Dto {
     private boolean editable = true;
     private MarkupConfig markup;
     private Map<String, WidgetData> widgetDataMap;
-    private FormObjects formObjects;
+    private FormObjects objects;
     private boolean debug = false;
     /**
      * Конструктор по умолчанию.
@@ -49,10 +48,10 @@ public class Form implements Dto {
         this.widgetDataMap = widgetDataMap;
     }
 
-    public Form(String name, MarkupConfig markup, Map<String, WidgetData> widgetDataMap, FormObjects formObjects, boolean debug) {
+    public Form(String name, MarkupConfig markup, Map<String, WidgetData> widgetDataMap, FormObjects objects, boolean debug) {
         this.name = name;
         this.markup = markup;
-        this.formObjects = formObjects;
+        this.objects = objects;
         this.widgetDataMap = widgetDataMap;
         this.debug = debug;
     }
@@ -120,16 +119,12 @@ public class Form implements Dto {
         return widgetDataMap;
     }
 
-    public FormObjects getFormObjects() {
-        return formObjects;
+    public FormObjects getObjects() {
+        return objects;
     }
 
-    public void setFormObjects(FormObjects formObjects) {
-        this.formObjects = formObjects;
-    }
-
-    public DomainObject getRootObject() {
-        return formObjects.getObject(FieldPath.ROOT);
+    public void setObjects(FormObjects objects) {
+        this.objects = objects;
     }
 
     public boolean getDebug() {
