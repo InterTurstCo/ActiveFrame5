@@ -53,9 +53,10 @@ public class AccessControlServiceImpl implements AccessControlService {
         if (DomainObjectAccessType.READ.equals(type)) {
             deferred = true;    // Проверка прав на чтение объекта осуществляется при его выборке
         } else {    // Для всех других типов доступа к доменному объекту производим запрос в БД
-            if (!databaseAgent.checkDomainObjectAccess(userId, objectId, type)) {
-                throw new AccessException();
-            }
+              //TODO Uncomment when access control will be restored
+//            if (!databaseAgent.checkDomainObjectAccess(userId, objectId, type)) {
+//                throw new AccessException();
+//            }
         }
         AccessToken token = new SimpleAccessToken(new UserSubject(userId), objectId, type, deferred);
         return token;
@@ -72,11 +73,15 @@ public class AccessControlServiceImpl implements AccessControlService {
     @Override
     public AccessToken createAccessToken(int userId, Id[] objectIds, AccessType type, boolean requireAll)
             throws AccessException {
-        Id[] ids = databaseAgent.checkMultiDomainObjectAccess(userId, objectIds, type);
-        if (requireAll ? ids.length < objectIds.length : ids.length == 0) {
-            throw new AccessException();
-        }
-        AccessToken token = new MultiObjectAccessToken(new UserSubject(userId), ids, type);
+        
+//        Id[] ids = databaseAgent.checkMultiDomainObjectAccess(userId, objectIds, type);
+//        if (requireAll ? ids.length < objectIds.length : ids.length == 0) {
+//            throw new AccessException();
+//        }
+//        AccessToken token = new MultiObjectAccessToken(new UserSubject(userId), ids, type);
+        //TODO Uncomment when access control will be restored
+        AccessToken token = new MultiObjectAccessToken(new UserSubject(userId), objectIds, type);
+        
         return token;
     }
 
