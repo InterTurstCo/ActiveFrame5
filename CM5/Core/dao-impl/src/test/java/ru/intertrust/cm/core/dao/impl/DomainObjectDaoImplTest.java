@@ -85,8 +85,8 @@ public class DomainObjectDaoImplTest {
 
         String checkCreateQuery =
                 "insert into PERSON (ID, CREATED_DATE, UPDATED_DATE, TYPE_ID, EMAIL," +
-                        "LOGIN,PASSWORD,BOSS1,BOSS2) values " +
-                        "(:id , :created_date, :updated_date, :type_id, :email,:login,:password,:boss1,:boss2)";
+                        "LOGIN,PASSWORD,BOSS,BOSS_TYPE) values " +
+                        "(:id , :created_date, :updated_date, :type_id, :email,:login,:password,:boss,:boss_type)";
 
         String query = domainObjectDaoImpl.generateCreateQuery(domainObjectTypeConfig);
         assertEquals(checkCreateQuery, query);
@@ -95,8 +95,7 @@ public class DomainObjectDaoImplTest {
     @Test
     public void testGenerateFindQuery() throws Exception {
         AccessToken accessToken = createMockAccessToken();
-        String expectedQuery = "select person.*, coalesce(person.BOSS1, person.BOSS2) AS BOSS  " +
-                "from PERSON person where person.ID=:id "/* +
+        String expectedQuery = "select person.* from PERSON person where person.ID=:id "/* +
                 "  and " +
                 "exists (select a.object_id from Person_READ a inner join group_member gm on " +
                 "a.group_id = gm.usergroup where gm.person_id = :user_id and a.object_id = :id)"*/;
@@ -146,8 +145,8 @@ public class DomainObjectDaoImplTest {
         domainObject.setModifiedDate(currentDate);
 
         String checkUpdateQuery = "update PERSON set UPDATED_DATE=:current_date, " +
-                "EMAIL=:email, LOGIN=:login, PASSWORD=:password, BOSS1=:boss1, " +
-                "BOSS2=:boss2 where ID=:id and UPDATED_DATE=:updated_date";
+                "EMAIL=:email, LOGIN=:login, PASSWORD=:password, BOSS=:boss, " +
+                "BOSS_TYPE=:boss_type where ID=:id and UPDATED_DATE=:updated_date";
 
         String query = domainObjectDaoImpl.generateUpdateQuery(domainObjectTypeConfig);
         assertEquals(checkUpdateQuery, query);
@@ -234,8 +233,7 @@ public class DomainObjectDaoImplTest {
 
         ReferenceFieldConfig boss = new ReferenceFieldConfig();
         boss.setName("Boss");
-        boss.getTypes().add(new ReferenceFieldTypeConfig("Internal_Employee"));
-        boss.getTypes().add(new ReferenceFieldTypeConfig("External_Employee"));
+        boss.setType("Internal_Employee");
         domainObjectTypeConfig.getFieldConfigs().add(boss);
 
 

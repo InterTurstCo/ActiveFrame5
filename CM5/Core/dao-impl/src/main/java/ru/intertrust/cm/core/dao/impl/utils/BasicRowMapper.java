@@ -16,7 +16,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.*;
 
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.REFERENCE_TYPE_POSTFIX;
 
 /**
  * Базовй класс для отображения {@link java.sql.ResultSet} на доменные объекты и коллекции.
@@ -33,6 +33,9 @@ public class BasicRowMapper {
     protected DomainObjectTypeIdCache domainObjectTypeIdCache;
 
     private DomainObjectCacheServiceImpl domainObjectCacheService;
+
+    private Integer domainObjectRealTypeId = null;
+    private Map<String, Integer> referenceFieldTypeMaps = new HashMap<>();
 
     public BasicRowMapper(String domainObjectType, String idField, ConfigurationExplorer configurationExplorer,
                           DomainObjectTypeIdCache domainObjectTypeIdCache) {
@@ -103,7 +106,7 @@ public class BasicRowMapper {
         if (idField.equalsIgnoreCase(columnName)) {
             Long longValue = rs.getLong(columnName);
             if (!rs.wasNull()) {
-                id = new RdbmsId(domainObjectTypeIdCache.getId(domainObjectType), longValue);
+                id = new RdbmsId(domainObjectRealTypeId, longValue);
             } else {
                 throw new FatalException("Id field can not be null for object " + domainObjectType);
             }
@@ -131,8 +134,7 @@ public class BasicRowMapper {
         } else if (fieldConfig != null && ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
             Long longValue = rs.getLong(columnName);
             if (!rs.wasNull()) {
-                String referenceType = findTypeByColumnName((ReferenceFieldConfig) fieldConfig, columnName);
-                value = new ReferenceValue(new RdbmsId(domainObjectTypeIdCache.getId(referenceType), longValue));
+                value = new ReferenceValue(new RdbmsId(referenceFieldTypeMaps.get(fieldConfig.getName()), longValue));
             } else {
                 value = new ReferenceValue();
             }
@@ -190,6 +192,8 @@ public class BasicRowMapper {
         GenericDomainObject object = new GenericDomainObject();
         object.setTypeName(domainObjectType);
 
+        fillReferenceTypes(rs, columnModel);
+
         for (String columnName : columnModel.getColumnNames()) {
             FieldValueModel valueModel = new FieldValueModel();
             FieldConfig fieldConfig = configurationExplorer.getFieldConfig(domainObjectType, columnName);
@@ -216,14 +220,29 @@ public class BasicRowMapper {
         return domainObjectCacheService;
     }
 
-    private String findTypeByColumnName(ReferenceFieldConfig fieldConfig, String columnName) {
-        for (ReferenceFieldTypeConfig typeConfig : fieldConfig.getTypes()) {
-            if (columnName.equalsIgnoreCase(getSqlName(fieldConfig, typeConfig))) {
-                return typeConfig.getName();
+    private void fillReferenceTypes(ResultSet rs, ColumnModel columnModel) throws SQLException {
+        for (String columnName : columnModel.getColumnNames()) {
+            if (DomainObjectDao.TYPE_COLUMN.equalsIgnoreCase(columnName)) {
+                domainObjectRealTypeId = rs.getInt(columnName);
+                continue;
             }
-        }
 
-        throw new FatalException("Domain Object Type cannot be found for column '" + columnName + "'");
+            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(domainObjectType, columnName);
+            if (fieldConfig != null || !columnName.toUpperCase().endsWith(REFERENCE_TYPE_POSTFIX)) {
+                continue;
+            }
+
+            String fieldConfigName = columnName.substring(0, columnName.length() - REFERENCE_TYPE_POSTFIX.length());
+            fieldConfig = configurationExplorer.getFieldConfig(domainObjectType, fieldConfigName);
+
+            if (fieldConfig == null) {
+                continue;
+            }
+
+            // Это служебная колонка с типом ссылки
+            Integer referenceTypeId = rs.getInt(columnName);
+            referenceFieldTypeMaps.put(fieldConfig.getName(), referenceTypeId);
+        }
     }
 
     //protected void fillValueModelWithSystemFields(SystemField systemFields,)

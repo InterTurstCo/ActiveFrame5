@@ -39,7 +39,6 @@ import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.config.model.LongFieldConfig;
 import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
-import ru.intertrust.cm.core.config.model.ReferenceFieldTypeConfig;
 import ru.intertrust.cm.core.config.model.StringFieldConfig;
 import ru.intertrust.cm.core.config.model.UniqueKeyConfig;
 import ru.intertrust.cm.core.config.model.UniqueKeyFieldConfig;
@@ -274,12 +273,7 @@ public class DatasetGenerationServiceImpl implements DatasetGenerationService, D
                     // преобразуем поле конфиграции к типу ссылка
                     ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
 
-                    List<ReferenceFieldTypeConfig> referenceFieldTypeConfigList = referenceFieldConfig.getTypes();
-
-                    String referenceTypeName = "";
-                    for (ReferenceFieldTypeConfig referenceFieldTypeConfig : referenceFieldTypeConfigList) {
-                        referenceTypeName = referenceFieldTypeConfig.getName();
-                    }
+                    String referenceTypeName = referenceFieldConfig.getType();
 
                     if (parentDomainObject != null) {
                         if (parentDomainObject.getTypeName().equals(referenceTypeName)) {

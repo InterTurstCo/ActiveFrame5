@@ -416,7 +416,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
 
             ReferenceFieldConfig ownerReferenceConfig = new ReferenceFieldConfig();
             ownerReferenceConfig.setName(ownerTypeName);
-            ownerReferenceConfig.getTypes().add(new ReferenceFieldTypeConfig(ownerTypeName));
+            ownerReferenceConfig.setType(ownerTypeName);
             cloneDomainObjectTypeConfig.getFieldConfigs().add(ownerReferenceConfig);
 
             return cloneDomainObjectTypeConfig;

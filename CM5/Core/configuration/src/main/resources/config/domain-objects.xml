@@ -8,15 +8,10 @@
             <string name="Name" length="128" />
             <string name="Status" length="64" />
             <string name="Description" length="128" />
-            <reference name="Author"> <!-- ID of employee in fact -->
-                <type name="Employee"/>
-            </reference>
-            <reference name="Negotiator"> <!-- This means Foreign Key to Employee and index are created automatically -->
-                <type name="Employee"/>
-            </reference>
-            <reference name="Signer">
-                <type name="Employee"/>
-            </reference>
+            <reference name="Author" type="Employee"/> <!-- ID of employee in fact -->
+            <reference name="Negotiator" type="Employee"/> <!-- This means
+             Foreign Key to Employee and index are created automatically -->
+            <reference name="Signer" type="Employee"/>
             <long name="Long_Field"/> <!-- mapping to LONG_FIELD column -->
             <decimal name="Decimal_Field" precision="10" scale="2" />
         </fields>
@@ -30,12 +25,9 @@
             <string name="Name" length="128" />
             <string name="Description" length="128" />
             <string name="Status" length="64" />
-            <reference name="Parent_Document">
-                <type name="Outgoing_Document"/>
-            </reference>
-            <reference name="Executor"> <!-- This means Foreign Key to Employee and index are created automatically -->
-                <type name="Employee"/>
-            </reference>
+            <reference name="Parent_Document" type="Outgoing_Document"/>
+            <reference name="Executor" type="Employee"/> <!-- This means
+             Foreign Key to Employee and index are created automatically -->
         </fields>
     </domain-object-type>
 
@@ -69,9 +61,7 @@
     <domain-object-type name="Employee_Role">
         <fields>
             <string name="Role" length="128" not-null="true" />
-            <reference name="Authentication_Info"  not-null="true">
-                <type name="Authentication_Info"/>
-            </reference>
+            <reference name="Authentication_Info" type="Authentication_Info" not-null="true"/>
         </fields>
        <uniqueKey> <!-- This key means automatic key + index creation-->
             <field name="Role"/>
@@ -80,9 +70,7 @@
 
 	<domain-object-type name="Employee" extends="Person">
 		<fields>
-			<reference name="Department" not-null="true">
-                <type name="Department"/>
-            </reference>
+			<reference name="Department" type="Department" not-null="true"/>
             <string name="Name" length="64" not-null="true" />
             <string name="Position" length="64" not-null="true" />
             <string name="Phone" length="32" />
@@ -96,12 +84,8 @@
 
    <domain-object-type name="Delegation">
         <fields>
-            <reference name="person" not-null="true">
-                <type name="Employee"/>
-            </reference>
-            <reference name="delegate" not-null="true">
-                <type name="Employee"/>
-            </reference>
+            <reference name="person" type="Employee" not-null="true"/>
+            <reference name="delegate" type="Employee" not-null="true"/>
             <string name="Status" length="64" />
         </fields>
     </domain-object-type>
@@ -123,20 +107,14 @@
 
     <domain-object-type name="Group_Member">
         <fields>
-            <reference name="UserGroup" not-null="true">
-                <type name="User_Group"/>
-            </reference>
-            <reference name="person_id" not-null="true">
-                <type name="Person"/>
-            </reference>
+            <reference name="UserGroup" type="User_Group" not-null="true"/>
+            <reference name="person_id" type="User_Group" not-null="true"/>
         </fields>
     </domain-object-type>
 
     <domain-object-type name="Group_Admin">
         <fields>
-            <reference name="UserGroup" not-null="true">
-                <type name="User_Group"/>
-            </reference>
+            <reference name="UserGroup" type="User_Group" not-null="true"/>
             <string name="role_name" length="64" not-null="true" />
         </fields>
     </domain-object-type>
@@ -160,32 +138,22 @@
 
     <domain-object-type name="Task_Attachment">
         <fields>
-            <reference name="PersonTask">
-                <type name="Person_Task"/>
-            </reference>
+            <reference name="PersonTask" type="Person_Task"/>
             <string name="AttachmentId" length="512" />
         </fields>
     </domain-object-type>
 
     <domain-object-type name="Assignee_Person">
         <fields>
-            <reference name="PersonTask">
-                <type name="Person_Task"/>
-            </reference>
-            <reference name="Person">
-                <type name="Person"/>
-            </reference>
+            <reference name="PersonTask" type="Person_Task"/>
+            <reference name="Person" type="Person"/>
         </fields>
     </domain-object-type>
 
     <domain-object-type name="Assignee_Group">
         <fields>
-            <reference name="PersonTask">
-                <type name="Person_Task"/>
-            </reference>
-            <reference name="UserGroup">
-                <type name="User_Group"/>
-            </reference>
+            <reference name="PersonTask" type="Person_Task"/>
+            <reference name="UserGroup" type="User_Group"/>
         </fields>
     </domain-object-type>
 
@@ -200,12 +168,8 @@
 
     <domain-object-type name="group_group_settings">
         <fields>
-            <reference name="parent_group_id">
-                <type name="User_Group"/>
-            </reference>
-            <reference name="child_group_id">
-                <type name="User_Group"/>
-            </reference>
+            <reference name="parent_group_id" type="User_Group"/>
+            <reference name="child_group_id" type="User_Group"/>
         </fields>
         <!-- uniqueKey>
             <field name="parent_group_id"/>
@@ -215,12 +179,8 @@
 
     <domain-object-type name="group_group">
         <fields>
-            <reference name="parent_group_id">
-                <type name="User_Group"/>
-            </reference>
-            <reference name="child_group_id">
-                <type name="User_Group"/>
-            </reference>
+            <reference name="parent_group_id" type="User_Group"/>
+            <reference name="child_group_id" type="User_Group"/>
         </fields>
         <!-- uniqueKey>
             <field name="parent_group_id"/>

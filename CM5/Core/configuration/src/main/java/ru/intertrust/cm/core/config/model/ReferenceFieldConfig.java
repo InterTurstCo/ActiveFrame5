@@ -1,11 +1,7 @@
 package ru.intertrust.cm.core.config.model;
 
-import org.simpleframework.xml.ElementList;
-
+import org.simpleframework.xml.Attribute;
 import ru.intertrust.cm.core.business.api.dto.FieldType;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Denis Mitavskiy
@@ -14,19 +10,20 @@ import java.util.List;
  */
 public class ReferenceFieldConfig extends FieldConfig {
 
-    @ElementList(entry="type", inline=true)
-    private List<ReferenceFieldTypeConfig> types = new ArrayList<>();
+    @Attribute(name = "type")
+    private String type;
 
-    public List<ReferenceFieldTypeConfig> getTypes() {
-        return types;
+    public String getType() {
+        return type;
     }
 
-    public void setTypes(List<ReferenceFieldTypeConfig> types) {
-        if(types != null) {
-            this.types = types;
-        } else {
-            this.types.clear();
-        }
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    @Override
+    public FieldType getFieldType() {
+        return FieldType.REFERENCE;
     }
 
     @Override
@@ -43,7 +40,7 @@ public class ReferenceFieldConfig extends FieldConfig {
 
         ReferenceFieldConfig that = (ReferenceFieldConfig) o;
 
-        if (types != null ? !types.equals(that.types) : that.types != null) {
+        if (type != null ? !type.equals(that.type) : that.type != null) {
             return false;
         }
 
@@ -53,12 +50,7 @@ public class ReferenceFieldConfig extends FieldConfig {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + (types != null ? types.hashCode() : 0);
+        result = 31 * result + (type != null ? type.hashCode() : 0);
         return result;
-    }
-
-    @Override
-    public FieldType getFieldType() {
-        return FieldType.REFERENCE;
     }
 }

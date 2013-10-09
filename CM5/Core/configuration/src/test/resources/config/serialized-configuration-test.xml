@@ -5,15 +5,9 @@
          <dateTime name="Registration_Date" not-null="false"/>
          <string name="Name" not-null="false" length="128"/>
          <string name="Description" not-null="false" length="128"/>
-         <reference name="Author" not-null="false">
-            <type name="Employee"/>
-         </reference>
-         <reference name="Negotiator" not-null="false">
-            <type name="Employee"/>
-         </reference>
-         <reference name="Signer" not-null="false">
-            <type name="Employee"/>
-         </reference>
+         <reference name="Author" not-null="false" type="Employee"/>
+         <reference name="Negotiator" not-null="false" type="Employee"/>
+         <reference name="Signer" not-null="false" type="Employee"/>
          <long name="Long_Field" not-null="false"/>
          <decimal name="Decimal_Field" not-null="false" precision="10" scale="2"/>
       </fields>
@@ -23,9 +17,7 @@
    </domain-object-type>
    <domain-object-type name="Assignment">
       <fields>
-         <reference name="Outgoing_Document" not-null="true">
-            <type name="Outgoing_Document"/>
-         </reference>
+         <reference name="Outgoing_Document" not-null="true" type="Employee"/>
          <string name="Name" not-null="false" length="128"/>
          <string name="Description" not-null="false" length="128"/>
       </fields>
@@ -42,9 +34,7 @@
    </domain-object-type>
    <domain-object-type name="Employee" extends="Person">
       <fields>
-         <reference name="Department" not-null="true">
-            <type name="Department"/>
-         </reference>
+         <reference name="Department" not-null="true" type="Employee"/>
          <string name="Name" not-null="true" length="64"/>
          <string name="Position" not-null="true" length="64"/>
          <string name="Phone" not-null="false" length="32"/>
@@ -62,12 +52,8 @@
    </domain-object-type>
    <domain-object-type name="Delegation">
       <fields>
-         <reference name="person" not-null="true">
-            <type name="Employee"/>
-         </reference>
-         <reference name="delegate" not-null="true">
-            <type name="Employee"/>
-         </reference>
+         <reference name="person" not-null="true" type="Employee"/>
+         <reference name="delegate" not-null="true" type="Employee"/>
          <string name="Status" not-null="false" length="64"/>
       </fields>
    </domain-object-type>
@@ -89,19 +75,13 @@
    </domain-object-type>
    <domain-object-type name="Group_Member">
       <fields>
-         <reference name="UserGroup" not-null="true">
-            <type name="User_Group"/>
-         </reference>
-         <reference name="person_id" not-null="true">
-            <type name="Authentication_Info"/>
-         </reference>
+         <reference name="UserGroup" not-null="true" type="User_Group"/>
+         <reference name="person_id" not-null="true" type="Authentication_Info"/>
       </fields>
    </domain-object-type>
    <domain-object-type name="Group_Admin">
       <fields>
-         <reference name="UserGroup" not-null="true">
-            <type name="User_Group"/>
-         </reference>
+         <reference name="UserGroup" not-null="true" type="User_Group"/>
          <string name="role_name" not-null="true" length="64"/>
       </fields>
    </domain-object-type>
@@ -151,15 +131,9 @@
          <dateTime name="Registration_Date" not-null="false"/>
          <string name="Name" not-null="false" length="128"/>
          <string name="Description" not-null="false" length="128"/>
-         <reference name="Author" not-null="false">
-            <type name="Employee"/>
-         </reference>
-         <reference name="Negotiator" not-null="false">
-            <type name="Employee"/>
-         </reference>
-         <reference name="Signer" not-null="false">
-            <type name="Employee"/>
-         </reference>
+         <reference name="Author" not-null="false" type="Employee"/>
+         <reference name="Negotiator" not-null="false" type="Employee"/>
+         <reference name="Signer" not-null="false" type="Employee"/>
          <long name="Long_Field" not-null="false"/>
          <decimal name="Decimal_Field" not-null="false" precision="10" scale="2"/>
       </fields>
@@ -173,15 +147,9 @@
          <dateTime name="Registration_Date" not-null="false"/>
          <string name="Name" not-null="false" length="128"/>
          <string name="Description" not-null="false" length="128"/>
-         <reference name="Author" not-null="false">
-            <type name="Employee"/>
-         </reference>
-         <reference name="Negotiator" not-null="false">
-            <type name="Employee"/>
-         </reference>
-         <reference name="Signer" not-null="false">
-            <type name="Employee"/>
-         </reference>
+         <reference name="Author" not-null="false" type="Employee"/>
+         <reference name="Negotiator" not-null="false" type="Employee"/>
+         <reference name="Signer" not-null="false" type="Employee"/>
          <long name="Long_Field" not-null="false"/>
          <decimal name="Decimal_Field" not-null="false" precision="10" scale="2"/>
       </fields>

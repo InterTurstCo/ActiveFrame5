@@ -5,10 +5,10 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.StringUtils;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.model.DateTimeFieldConfig;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
-import ru.intertrust.cm.core.config.model.ReferenceFieldTypeConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserSubject;
@@ -29,9 +29,7 @@ import ru.intertrust.cm.core.dao.impl.utils.*;
 import javax.sql.DataSource;
 import java.util.*;
 
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlAlias;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.generateMultipleTypeReferenceSelectColumn;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
 import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.generateParameter;
 
 /**
@@ -618,8 +616,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         List<FieldConfig> feldConfigs = domainObjectTypeConfig
                 .getDomainObjectFieldsConfig().getFieldConfigs();
 
-        List<String> columnNames = DataStructureNamingHelper
-                .getColumnNames(feldConfigs);
+        List<String> columnNames = DataStructureNamingHelper.getColumnNames(feldConfigs);
 
         String fieldsWithparams = DaoUtils
                 .generateCommaSeparatedListWithParams(columnNames);
@@ -840,17 +837,22 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             String parameterName = generateParameter(columnName);
 
             if (value == null || value.get() == null) {
-                parameters.put(parameterName, null);
+                if (ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
+                    parameters.put(parameterName, null);
+                    parameterName = generateParameter(getReferenceTypeColumnName((ReferenceFieldConfig) fieldConfig));
+                    parameters.put(parameterName, null);
+                } else {
+                    parameters.put(parameterName, null);
+                }
                 continue;
             }
 
-            if (value instanceof ReferenceValue) {
+            if (ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
                 RdbmsId rdbmsId = (RdbmsId) value.get();
-                parameterName = generateParameter(
-                        (ReferenceFieldConfig) fieldConfig,
-                        getDOTypeName(rdbmsId.getTypeId()));
                 parameters.put(parameterName, rdbmsId.getId());
-            } else if (value instanceof TimestampValue){
+                parameterName = generateParameter(getReferenceTypeColumnName((ReferenceFieldConfig) fieldConfig));
+                parameters.put(parameterName, rdbmsId.getTypeId());
+            } else if (DateTimeFieldConfig.class.equals(fieldConfig.getClass())){
                 parameters.put(parameterName, getGMTDate((Date) value.get()));
             } else {
                 parameters.put(parameterName, value.get());
@@ -964,36 +966,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 DomainObjectTypeConfig.class, typeName);
 
         query.append(getSqlAlias(typeName)).append(".*");
-        // Т.к. ссылочному полю с множественными типами в бд соответствует
-        // несколько колонок с именами отличными от
-        // имени поля доменного объекта, делаем выборку значащей колонки,
-        // используя синоним, чтобы результат выполнения
-        // запроса выглядел как в случае обычного поля доменного объекта
-        appendReferenceColumnsWithMultipleTypes(query, config);
-        query.append(" ");
 
         if (isDerived(config)) {
             appendParentColumns(query, config);
-        }
-    }
-
-    private void appendReferenceColumnsWithMultipleTypes(StringBuilder query,
-            DomainObjectTypeConfig config) {
-        String tableAlias = getSqlAlias(config.getName());
-
-        for (FieldConfig fieldConfig : config.getFieldConfigs()) {
-            if (!(fieldConfig instanceof ReferenceFieldConfig)) {
-                continue;
-            }
-
-            ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
-            if (referenceFieldConfig.getTypes().size() < 2) {
-                continue;
-            }
-
-            query.append(", ").append(
-                    generateMultipleTypeReferenceSelectColumn(tableAlias,
-                            referenceFieldConfig));
         }
     }
 
@@ -1030,19 +1005,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 continue;
             }
 
-            if (fieldConfig instanceof ReferenceFieldConfig) {
-                ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
-                for (ReferenceFieldTypeConfig typeConfig : referenceFieldConfig
-                        .getTypes()) {
-                    String columnName = getSqlName(referenceFieldConfig,
-                            typeConfig);
-                    query.append(", ").append(tableAlias).append(".")
-                            .append(columnName);
-                }
-            } else {
-                query.append(", ").append(tableAlias).append(".")
-                        .append(getSqlName(fieldConfig));
-            }
+            query.append(", ").append(tableAlias).append(".").append(getSqlName(fieldConfig));
         }
 
         if (parentConfig.getExtendsAttribute() != null) {

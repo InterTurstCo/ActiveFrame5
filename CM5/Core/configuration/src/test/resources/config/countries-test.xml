@@ -6,9 +6,7 @@
             <dateTime name="independence_day"/>
             <long name="population"/>
             <decimal name="square" precision="9" scale="2"/>
-            <reference name="capital">
-                <type name="city"/>
-            </reference>
+            <reference name="capital" type="city"/>
             <string name="description" length="1024"/>
         </fields>
         <uniqueKey>
@@ -16,11 +14,15 @@
         </uniqueKey>
     </domain-object-type>
 
+    <domain-object-type name="super_country" extends="country">
+        <fields>
+            <string name="additional_name" length="128" />
+        </fields>
+    </domain-object-type>
+
     <domain-object-type name="city">
         <fields>
-            <reference name="country">
-                <type name="country"/>
-            </reference>
+            <reference name="country" type="country"/>
             <string name="name" length="128"/>
             <long name="population"/>
             <long name="year_of_foundation"/>
@@ -32,25 +34,17 @@
 
     <domain-object-type name="federal_unit">
         <fields>
-            <reference name="country">
-                <type name="country"/>
-            </reference>
+            <reference name="country" type="country"/>
             <string name="name" length="128"/>
             <decimal name="square" precision="9" scale="2"/>
-            <reference name="capital">
-                <type name="city"/>
-            </reference>
+            <reference name="capital" type="city"/>
         </fields>
     </domain-object-type>
 
     <domain-object-type name="federal_unit_city">
         <fields>
-            <reference name="federal_unit">
-                <type name="federal_unit"/>
-            </reference>
-            <reference name="city">
-                <type name="city"/>
-            </reference>
+            <reference name="federal_unit" type="federal_unit"/>
+            <reference name="city" type="city"/>
         </fields>
     </domain-object-type>
 

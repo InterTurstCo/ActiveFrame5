@@ -161,8 +161,7 @@ public class CollectionsDaoImplTest {
 
         ReferenceFieldConfig boss = new ReferenceFieldConfig();
         boss.setName("Boss");
-        boss.getTypes().add(new ReferenceFieldTypeConfig("Internal_Employee"));
-        boss.getTypes().add(new ReferenceFieldTypeConfig("External_Employee"));
+        boss.setType("Internal_Employee");
         doTypeConfig.getFieldConfigs().add(boss);
 
 

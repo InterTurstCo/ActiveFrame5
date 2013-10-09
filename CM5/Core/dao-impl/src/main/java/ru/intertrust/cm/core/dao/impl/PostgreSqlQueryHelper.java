@@ -2,15 +2,15 @@ package ru.intertrust.cm.core.dao.impl;
 
 import ru.intertrust.cm.core.config.model.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static ru.intertrust.cm.core.dao.api.ConfigurationDao.CONFIGURATION_TABLE;
 import static ru.intertrust.cm.core.dao.api.DataStructureDao.AUTHENTICATION_INFO_TABLE;
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.ID_COLUMN;
-import static ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao.DOMAIN_OBJECT_TYPE_ID_TABLE;
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TYPE_COLUMN;
+import static ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao.DOMAIN_OBJECT_TYPE_ID_TABLE;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 
 /**
  * Класс для генерации sql запросов для {@link PostgreSqlDataStructureDaoImpl}
@@ -124,6 +124,11 @@ public class PostgreSqlQueryHelper {
         }
 
         appendPKConstraintQueryPart(query, tableName);
+
+        // Необходимо создать уникальный ключ (ID, TYPE_ID), чтобы обеспесить возможность создания внешнего ключа,
+        // ссылающегося на эти колонки
+        appendIdTypeUniqueConstraint(query, tableName);
+
         appendParentFKConstraintsQueryPart(query, tableName, config);
 
         query.append(")");
@@ -195,33 +200,6 @@ public class PostgreSqlQueryHelper {
 
         boolean commaNeeded = false;
         for(ReferenceFieldConfig fieldConfig : fieldConfigList) {
-            for (ReferenceFieldTypeConfig typeConfig : fieldConfig.getTypes()) {
-                if (commaNeeded) {
-                    query.append(", ");
-                } else {
-                    commaNeeded = true;
-                }
-                query.append("add ");
-
-                String fieldName = getSqlName(fieldConfig, typeConfig);
-                appendFKConstraint(query, tableName, fieldName, typeConfig.getName());
-            }
-
-            if (fieldConfig.getTypes().size() > 1) {
-                query.append(", add ");
-                appendSingleColumnOfManyNotNullConstraint(query, tableName, fieldConfig);
-            }
-        }
-
-        for(UniqueKeyConfig uniqueKeyConfig : uniqueKeyConfigList) {
-            if(uniqueKeyConfig.getUniqueKeyFieldConfigs().isEmpty()) {
-                continue;
-            }
-
-            String constraintName = "U_" + tableName + "_" +
-                    getFieldsListAsSql(uniqueKeyConfig.getUniqueKeyFieldConfigs(), "_");
-            String fieldsList = getFieldsListAsSql(uniqueKeyConfig.getUniqueKeyFieldConfigs(), ", ");
-
             if (commaNeeded) {
                 query.append(", ");
             } else {
@@ -229,8 +207,37 @@ public class PostgreSqlQueryHelper {
             }
             query.append("add ");
 
-            query.append("constraint ").append(constraintName).append(" unique (").
-                    append(fieldsList).append(")");
+            String columnName = getSqlName(fieldConfig);
+            String typeReferenceColumnName = getReferenceTypeColumnName(fieldConfig);
+            String referencedTableName = getSqlName(fieldConfig.getType());
+            appendFKConstraint(query, tableName, new String[] {columnName, typeReferenceColumnName},
+                    referencedTableName, new String[] {ID_COLUMN, TYPE_COLUMN});
+        }
+
+        for(UniqueKeyConfig uniqueKeyConfig : uniqueKeyConfigList) {
+            if(uniqueKeyConfig.getUniqueKeyFieldConfigs().isEmpty()) {
+                continue;
+            }
+
+            DelimitedListFormatter<UniqueKeyFieldConfig> listFormatter =
+                    new DelimitedListFormatter<UniqueKeyFieldConfig> () {
+                        @Override
+                        protected String format(UniqueKeyFieldConfig item) {
+                            return getSqlName(item.getName());
+                    }};
+
+            String constraintName = "U_" + tableName + "_" +
+                    listFormatter.formatAsDelimitedList(uniqueKeyConfig.getUniqueKeyFieldConfigs(), "_");
+            String fieldsList = listFormatter.formatAsDelimitedList(uniqueKeyConfig.getUniqueKeyFieldConfigs(), ", ");
+
+            if (commaNeeded) {
+                query.append(", ");
+            } else {
+                commaNeeded = true;
+            }
+
+            query.append("add ");
+            appendUniqueConstraint(query, constraintName, fieldsList);
         }
 
         return query.toString();
@@ -253,11 +260,7 @@ public class PostgreSqlQueryHelper {
             if(!ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
                 continue;
             }
-            ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
-            for (ReferenceFieldTypeConfig typeConfig : referenceFieldConfig.getTypes()) {
-                String fieldName = getSqlName(referenceFieldConfig, typeConfig);
-                appendIndexQueryPart(query, tableName, fieldName);
-            }
+            appendIndexQueryPart(query, tableName, getSqlName(fieldConfig));
         }
 
         if(query.length() == 0) {
@@ -277,32 +280,11 @@ public class PostgreSqlQueryHelper {
                                                            DomainObjectTypeConfig config) {
         query.append(", ");
         if (config.getExtendsAttribute() != null) {
-            appendFKConstraint(query, tableName, ID_COLUMN, config.getExtendsAttribute());
+            appendFKConstraint(query, tableName, ID_COLUMN, config.getExtendsAttribute(), ID_COLUMN);
             query.append(", ");
         }
 
-        appendFKConstraint(query, tableName, TYPE_COLUMN, DOMAIN_OBJECT_TYPE_ID_TABLE);
-    }
-
-    public static String generateMultipleTypeReferenceSelectColumn(String tableAlias, ReferenceFieldConfig
-                                                                      fieldConfig) {
-        StringBuffer query = new StringBuffer("coalesce(");
-
-        boolean commaNeeded = false;
-        for (ReferenceFieldTypeConfig typeConfig : fieldConfig.getTypes()) {
-            if (!commaNeeded) {
-                commaNeeded = true;
-            } else {
-                query.append(", ");
-            }
-
-            String columnName = getSqlName(fieldConfig, typeConfig);
-            query.append(tableAlias).append(".").append(columnName);
-        }
-
-        query.append(") AS ").append(getSqlName(fieldConfig));
-
-        return query.toString();
+        appendFKConstraint(query, tableName, TYPE_COLUMN, DOMAIN_OBJECT_TYPE_ID_TABLE, ID_COLUMN);
     }
 
     public static void applyOffsetAndLimit(StringBuilder query, int offset, int limit) {
@@ -312,40 +294,37 @@ public class PostgreSqlQueryHelper {
     }
 
     private static void appendFKConstraint(StringBuilder query, String tableName, String columnName,
-                                           String referencedFieldName) {
-        String constraintName = "FK_" + tableName + "_" + columnName;
-
-        query.append("constraint ").append(constraintName).append(" foreign key (").append(columnName).
-                append(")").append(" ").append("references").append(" ").
-                append(getSqlName(referencedFieldName)).append("(ID)");
+                                           String referencedTable, String referencedFieldName) {
+        appendFKConstraint(query, tableName, new String[] {columnName}, referencedTable,
+                new String[]{referencedFieldName});
     }
 
-    private static void appendSingleColumnOfManyNotNullConstraint(StringBuilder query, String tableName,
-                                                                  ReferenceFieldConfig referenceFieldConfig) {
-        String fieldSqlName = getSqlName(referenceFieldConfig);
-        String constraintName = "SV_" + tableName + "_" + fieldSqlName;
+    private static void appendFKConstraint(StringBuilder query, String tableName, String[] columnNames,
+                                           String referencedTable, String[] referencedFieldNames) {
+        DelimitedListFormatter<String> listFormatter = new DelimitedListFormatter<>();
 
-        query.append("constraint ").append(constraintName).append(" check (");
+        String constraintName = "FK_" + tableName + "_" + listFormatter.formatAsDelimitedList(columnNames, "_");
 
-        for (int i = 0; i < referenceFieldConfig.getTypes().size(); i ++) {
-            if (i > 0) {
-                query.append(" + ");
-            }
-
-            String columnName = getSqlName(referenceFieldConfig, referenceFieldConfig.getTypes().get(i));
-            query.append("(case when ").append(columnName).append(" is null then 0 else 1 end)");
-        }
-
-        if (referenceFieldConfig.isNotNull()) {
-            query.append(" = 1)");
-        } else {
-            query.append(" <= 1)");
-        }
+        query.append("constraint ").append(constraintName).append(" foreign key (").
+                append(listFormatter.formatAsDelimitedList(columnNames, ", ")).append(")").
+                append(" ").append("references").append(" ").append(getSqlName(referencedTable)).
+                append("(").append(listFormatter.formatAsDelimitedList(referencedFieldNames, ", ")).append(")");
     }
 
     private static void appendPKConstraintQueryPart(StringBuilder query, String tableName) {
         String pkName = "PK_" + tableName + "_ID";
         query.append(", constraint ").append(pkName).append(" primary key (ID)");
+    }
+
+    private static void appendIdTypeUniqueConstraint(StringBuilder query, String tableName) {
+        DelimitedListFormatter<String> listFormatter = new DelimitedListFormatter<>();
+        String[] keyFields = new String[] {ID_COLUMN, TYPE_COLUMN};
+
+        String constraintName = "U_" + tableName + "_" + listFormatter.formatAsDelimitedList(keyFields, "_");
+        String fieldsList = listFormatter.formatAsDelimitedList(keyFields, ", ");
+
+        query.append(", ");
+        appendUniqueConstraint(query, constraintName, fieldsList);
     }
 
     private static void appendSystemColumnsQueryPart(DomainObjectTypeConfig config, StringBuilder query) {
@@ -373,19 +352,14 @@ public class PostgreSqlQueryHelper {
                 query.append("add column ");
             }
 
-            if (fieldConfig instanceof ReferenceFieldConfig) {
-                ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
+            query.append(getSqlName(fieldConfig)).append(" ").append(getSqlType(fieldConfig));
+            if (fieldConfig.isNotNull()) {
+                query.append(" not null");
+            }
 
-                for (ReferenceFieldTypeConfig typeConfig : referenceFieldConfig.getTypes()) {
-                    query.append(getSqlName(referenceFieldConfig, typeConfig)).append(" ");
-                    query.append(getSqlType(fieldConfig));
-                }
-
-                if (referenceFieldConfig.getTypes().size() == 1 && fieldConfig.isNotNull()) {
-                    query.append(" not null");
-                }
-            } else {
-                query.append(getSqlName(fieldConfig)).append(" ").append(getSqlType(fieldConfig));
+            if (ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
+                query.append(", ");
+                query.append(getReferenceTypeColumnName((ReferenceFieldConfig) fieldConfig)).append(" integer");
                 if (fieldConfig.isNotNull()) {
                     query.append(" not null");
                 }
@@ -393,20 +367,9 @@ public class PostgreSqlQueryHelper {
         }
     }
 
-    private static String getFieldsListAsSql(List<UniqueKeyFieldConfig> uniqueKeyFieldConfigList, String delimiter) {
-        if(uniqueKeyFieldConfigList.isEmpty()) {
-            throw new IllegalArgumentException("UniqueKeyFieldConfig list is empty");
-        }
-
-        String result = "";
-        for(int i = 0; i < uniqueKeyFieldConfigList.size(); i++) {
-            if(i > 0) {
-                result += delimiter;
-            }
-            result += getSqlName(uniqueKeyFieldConfigList.get(i).getName());
-        }
-
-        return result;
+    private static void appendUniqueConstraint(StringBuilder query, String constraintName, String fieldsList) {
+        query.append("constraint ").append(constraintName).append(" unique (").
+                append(fieldsList).append(")");
     }
 
     private static String getSqlType(FieldConfig fieldConfig) {
@@ -445,5 +408,35 @@ public class PostgreSqlQueryHelper {
         }
 
         throw new IllegalArgumentException("Invalid field type");
+    }
+
+    private static class DelimitedListFormatter<T> {
+
+        public String formatAsDelimitedList(Iterable<T> iterable, String delimiter) {
+            if(!iterable.iterator().hasNext()) {
+                throw new IllegalArgumentException("Iterable parameter is empty");
+            }
+
+            StringBuilder result = new StringBuilder();
+            boolean delimiterNeed = false;
+            for (T item : iterable) {
+                if (delimiterNeed) {
+                    result.append(delimiter);
+                } else {
+                    delimiterNeed = true;
+                }
+                result.append(format(item));
+            }
+
+            return result.toString();
+        }
+
+        public String formatAsDelimitedList(T[] items, String delimiter) {
+            return formatAsDelimitedList(Arrays.asList(items), delimiter);
+        }
+
+        protected String format(T item) {
+            return item.toString();
+        }
     }
 }

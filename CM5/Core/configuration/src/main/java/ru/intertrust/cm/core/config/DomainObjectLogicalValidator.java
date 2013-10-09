@@ -72,15 +72,11 @@ public class DomainObjectLogicalValidator {
 
             ReferenceFieldConfig referenceFieldConfig  = (ReferenceFieldConfig) fieldConfig;
 
-            for (ReferenceFieldTypeConfig typeConfig : referenceFieldConfig.getTypes()) {
-                String referencedDomainObjectConfigName = typeConfig.getName();
-                DomainObjectTypeConfig referencedConfig =
-                        configurationExplorer.getConfig(DomainObjectTypeConfig.class,
-                                referencedDomainObjectConfigName);
-                if (referencedConfig == null) {
-                    throw new ConfigurationException("Definition is not found for '" + referencedDomainObjectConfigName +
-                            "' referenced from '" + domainObjectTypeConfig.getName() + "'");
-                }
+            DomainObjectTypeConfig referencedConfig =
+                    configurationExplorer.getConfig(DomainObjectTypeConfig.class, referenceFieldConfig.getType());
+            if (referencedConfig == null) {
+                throw new ConfigurationException("Definition is not found for '" + referenceFieldConfig.getType() +
+                        "' referenced from '" + domainObjectTypeConfig.getName() + "'");
             }
         }
     }

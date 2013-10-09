@@ -1,22 +1,17 @@
 package ru.intertrust.cm.core.config.model.doel;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
-import ru.intertrust.cm.core.config.model.ReferenceFieldTypeConfig;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
+
+import java.util.*;
 
 /**
  * Контейнер статических методов, осуществляющих проверку DOEL-выражений.
  * Создание экземпляров данного класса не имеет смысла.
- * 
+ *
  * @author apirozhkov
  */
 public class DoelValidator {
@@ -24,7 +19,7 @@ public class DoelValidator {
     /**
      * Хранилище информации о типах проверенного DOEL-выражения.
      * Экземпляры этого класса возвращаются методом {@link DoelValidator#validateTypes(DoelExpression, String)}.
-     * 
+     *
      * @author apirozhkov
      */
     public static class DoelTypes {
@@ -36,7 +31,7 @@ public class DoelValidator {
 
         /**
          * Элемент цепочки (дерева) типов доменных объектов, используемых при вычислении DOEL-выражения.
-         * 
+         *
          * @author apirozhkov
          */
         public static class Link {
@@ -45,7 +40,7 @@ public class DoelValidator {
 
             /**
              * Возвращает тип доменного объекта, используемого на очередном шаге DOEL-выражения.
-             * 
+             *
              * @return имя типа доменного объекта
              */
             public String getType() {
@@ -56,7 +51,7 @@ public class DoelValidator {
              * Возвращает список элементов, содержащих следующий уровень дерева типов.
              * Чаще всего список содержит единственный элемент. Если элементов несколько, то каждый из них
              * начинает собственную ветвь дерева.
-             * 
+             *
              * @return список элементов следующего уровня; null, если следующий уровень отсутствует
              */
             public List<Link> getNext() {
@@ -71,7 +66,7 @@ public class DoelValidator {
          * Если используемое поле связи может указывать на различные типы объектов, то цепочка типов на данном шаге
          * будет разветвляться (превращаясь в дерево).
          * <p>Для корректных выражений длина цепочки типов равна количеству элементов в выражении.
-         * 
+         *
          * @return Корень дерева типов выражения
          */
         public Link getTypeChain() {
@@ -81,7 +76,7 @@ public class DoelValidator {
         /**
          * Позволяет определить, является ли вычисляемое выражением значение единственным.
          * Выражение может возвращать множество значений, если в нём используются обратные связи.
-         * 
+         *
          * @return true, если выражение всегда возвращает единственное значение
          */
         public boolean isSingleResult() {
@@ -95,7 +90,7 @@ public class DoelValidator {
          * являются корректными, но последнее поле в различных ветвях имеет разный тип.
          * <p>Метод возвращает null, если выражение не является корректным
          * (метод {@link #isCorrect()} возвращает false).
-         * 
+         *
          * @return Множество типов полей
          */
         public Set<FieldType> getResultTypes() {
@@ -106,7 +101,7 @@ public class DoelValidator {
          * Возвращает типы доменных объектов, которые могут возвращаться при вычислении выражения.
          * <p>Метод возвращает null, если выражение не вычисляется в поле ссылочного типа
          * (метод {@link #getResultTypes()} возвращает множество, не содержащее {@link FieldType#REFERENCE}).
-         * 
+         *
          * @return Множество имён типов доменных объектов или null.
          */
         public Set<String> getResultObjectTypes() {
@@ -123,7 +118,7 @@ public class DoelValidator {
          * определённого типа. Если ссылочное поле, используемое на любом шаге вычисления выражения,
          * содержит null, или же по обратной ссылке не находится ни одного элемента, вычисление выражения
          * будет прекращено и возращено пустое значение (null).
-         * 
+         *
          * @return true, если выражение корректно
          */
         public boolean isCorrect() {
@@ -136,7 +131,7 @@ public class DoelValidator {
          * возвращает то же значение, что и {@link #isCorrect()}. При наличии же ветвлений этот метод возвращает
          * true, только если <i>все</i> пути в дереве от корня имеют длину, равную количеству элементов в выражении.
          * (Метод isCorrect() возвращает true, если в этот дереве есть <i>хотя бы один</i> путь такой длины.)
-         * 
+         *
          * @return true, если выражение корректно всегда
          */
         public boolean isAlwaysCorrect() {
@@ -179,17 +174,13 @@ public class DoelValidator {
                 fieldConfig = config.getFieldConfig(currentType.type, fieldElem.getName());
                 if (fieldConfig != null && fieldConfig instanceof ReferenceFieldConfig) {
                     ReferenceFieldConfig refFieldConfig = (ReferenceFieldConfig) fieldConfig;
-                    nextTypes = new ArrayList<>(refFieldConfig.getTypes().size());
-                    for (ReferenceFieldTypeConfig type : refFieldConfig.getTypes()) {
-                        nextTypes.add(type.getName());
-                    }
+                    nextTypes = Collections.singletonList(refFieldConfig.getType());
                 }
             } else if (exprElem instanceof DoelExpression.Children) {
                 DoelExpression.Children chilrenElem = (DoelExpression.Children) exprElem;
                 fieldConfig = config.getFieldConfig(chilrenElem.getChildType(), chilrenElem.getParentLink());
                 if (fieldConfig != null && !(fieldConfig instanceof ReferenceFieldConfig &&
-                        ((ReferenceFieldConfig) fieldConfig).getTypes().contains(
-                                new ReferenceFieldTypeConfig(currentType.getType())))) {
+                        ((ReferenceFieldConfig) fieldConfig).getType().equals(currentType.getType()))) {
                     //TODO: Несвязанная ссылка: тип и поле правильные, но не ссылается на предыдущий объект
                 } else {
                     result.singleResult = false;
@@ -231,8 +222,8 @@ public class DoelValidator {
 
     /**
      * Выполняет проверку корректности DOEL-выражения в применении к заданному типу доменного объекта,
-     * определяет тип возвращаемого значения и используемые промежуточные типы доменных объектов. 
-     * 
+     * определяет тип возвращаемого значения и используемые промежуточные типы доменных объектов.
+     *
      * @param expr проверяемое DOEL-выражение
      * @param sourceType имя типа исходного (контекстного) доменного объекта
      * @return объект, содержащий информацию о типах, используемых и вычисляемых выражением

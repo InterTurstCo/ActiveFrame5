@@ -73,9 +73,10 @@ public class PostgreSqlQueryHelperTest {
         String query = PostgreSqlQueryHelper.generateCreateTableQuery(domainObjectTypeConfig);
         String checkQuery = "create table OUTGOING_DOCUMENT ( ID bigint not null, TYPE_ID integer, " +
                 "REGISTRATION_NUMBER varchar(128), " +
-                "REGISTRATION_DATE timestamp, AUTHOR bigint, " +
+                "REGISTRATION_DATE timestamp, AUTHOR bigint, AUTHOR_TYPE integer, " +
                 "LONG_FIELD bigint, DECIMAL_FIELD_1 decimal(10, 2), DECIMAL_FIELD_2 decimal(10), " +
                 "constraint PK_OUTGOING_DOCUMENT_ID primary key (ID), " +
+                "constraint U_OUTGOING_DOCUMENT_ID_TYPE_ID unique (ID, TYPE_ID), " +
                 "constraint FK_OUTGOING_DOCUMENT_ID" + " foreign key (ID) references DOCUMENT(ID), " +
                 "constraint FK_OUTGOING_DOCUMENT_" + TYPE_COLUMN + " foreign key (" + TYPE_COLUMN +
                     ") references DOMAIN_OBJECT_TYPE_ID(ID))";
@@ -86,9 +87,10 @@ public class PostgreSqlQueryHelperTest {
     public void testGenerateCreateTableQueryWithoutExtendsAttribute() throws Exception {
         String checkQuery = "create table OUTGOING_DOCUMENT ( ID bigint not null, " +
                 "CREATED_DATE timestamp not null, " + "UPDATED_DATE timestamp not null, " + TYPE_COLUMN +" integer, " +
-                "REGISTRATION_NUMBER varchar(128), REGISTRATION_DATE timestamp, AUTHOR bigint, " +
+                "REGISTRATION_NUMBER varchar(128), REGISTRATION_DATE timestamp, AUTHOR bigint, AUTHOR_TYPE integer, " +
                 "LONG_FIELD bigint, DECIMAL_FIELD_1 decimal(10, 2), DECIMAL_FIELD_2 decimal(10), " +
                 "constraint PK_OUTGOING_DOCUMENT_ID primary key (ID), " +
+                "constraint U_OUTGOING_DOCUMENT_ID_TYPE_ID unique (ID, TYPE_ID), " +
                 "constraint FK_OUTGOING_DOCUMENT_" + TYPE_COLUMN + " foreign key (" + TYPE_COLUMN + ") references " +
                 "DOMAIN_OBJECT_TYPE_ID(ID))";
         domainObjectTypeConfig.setExtendsAttribute(null);
@@ -125,7 +127,7 @@ public class PostgreSqlQueryHelperTest {
     public void testGenerateAddColumnsQuery() {
         String expectedQuery = "alter table OUTGOING_DOCUMENT " +
                 "add column DESCRIPTION varchar(256), " +
-                "add column EXECUTOR bigint not null";
+                "add column EXECUTOR bigint not null, EXECUTOR_TYPE integer not null";
 
         List<FieldConfig> newColumns = new ArrayList<>();
 
@@ -137,7 +139,7 @@ public class PostgreSqlQueryHelperTest {
 
         ReferenceFieldConfig executorFieldConfig = new ReferenceFieldConfig();
         executorFieldConfig.setName("Executor");
-        executorFieldConfig.setTypes(Collections.singletonList(new ReferenceFieldTypeConfig("Employee")));
+        executorFieldConfig.setType("Employee");
         executorFieldConfig.setNotNull(true);
         newColumns.add(executorFieldConfig);
 
@@ -150,12 +152,13 @@ public class PostgreSqlQueryHelperTest {
     @Test
     public void testGenerateCreateForeignKeyAndUniqueConstraintsQuery() {
         String expectedQuery = "alter table OUTGOING_DOCUMENT " +
-                "add constraint FK_OUTGOING_DOCUMENT_EXECUTOR foreign key (EXECUTOR) references EMPLOYEE(ID), " +
+                "add constraint FK_OUTGOING_DOCUMENT_EXECUTOR_EXECUTOR_TYPE " +
+                "foreign key (EXECUTOR, EXECUTOR_TYPE) references EMPLOYEE(ID, TYPE_ID), " +
                 "add constraint U_OUTGOING_DOCUMENT_REGISTRATION_NUMBER" + " unique (REGISTRATION_NUMBER)";
 
         ReferenceFieldConfig executorFieldConfig = new ReferenceFieldConfig();
         executorFieldConfig.setName("Executor");
-        executorFieldConfig.setTypes(Collections.singletonList(new ReferenceFieldTypeConfig("Employee")));
+        executorFieldConfig.setType("Employee");
         executorFieldConfig.setNotNull(true);
 
         List<ReferenceFieldConfig> newColumns = new ArrayList<>();
@@ -199,7 +202,7 @@ public class PostgreSqlQueryHelperTest {
 
         ReferenceFieldConfig referenceFieldConfig = new ReferenceFieldConfig();
         referenceFieldConfig.setName("Author");
-        referenceFieldConfig.setTypes(Collections.singletonList(new ReferenceFieldTypeConfig("Employee")));
+        referenceFieldConfig.setType("Employee");
         domainObjectTypeConfig.getFieldConfigs().add(referenceFieldConfig);
 
         LongFieldConfig longFieldConfig = new LongFieldConfig();

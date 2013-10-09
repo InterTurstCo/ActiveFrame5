@@ -11,7 +11,6 @@ import ru.intertrust.cm.core.config.model.*;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -80,7 +79,7 @@ public class PostgreSqlDataStructureDaoImplTest {
 
         ReferenceFieldConfig executorFieldConfig = new ReferenceFieldConfig();
         executorFieldConfig.setName("Executor");
-        executorFieldConfig.setTypes(Collections.singletonList(new ReferenceFieldTypeConfig("Employee")));
+        executorFieldConfig.setType("Employee");
         executorFieldConfig.setNotNull(true);
         newColumns.add(executorFieldConfig);
 
@@ -146,7 +145,7 @@ public class PostgreSqlDataStructureDaoImplTest {
 
         ReferenceFieldConfig referenceFieldConfig = new ReferenceFieldConfig();
         referenceFieldConfig.setName("Author");
-        referenceFieldConfig.setTypes(Collections.singletonList(new ReferenceFieldTypeConfig("Employee")));
+        referenceFieldConfig.setType("Employee");
         domainObjectTypeConfig.getFieldConfigs().add(referenceFieldConfig);
 
         LongFieldConfig longFieldConfig = new LongFieldConfig();

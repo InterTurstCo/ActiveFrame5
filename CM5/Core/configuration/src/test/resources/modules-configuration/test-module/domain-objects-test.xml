@@ -7,15 +7,10 @@
             <dateTime name="Registration_Date"/>
             <string name="Name" length="128" />
             <string name="Description" length="128" />
-            <reference name="Author"> <!-- ID of employee in fact -->
-                <type name="Employee"/>
-            </reference>
-            <reference name="Negotiator"> <!-- This means Foreign Key to Employee and index are created automatically -->
-                <type name="Employee"/>
-            </reference>
-            <reference name="Signer">
-                <type name="Employee"/>
-            </reference>
+            <reference name="Author" type="Employee"/> <!-- ID of employee in fact -->
+            <reference name="Negotiator" type="Employee"/>
+                <!-- This means Foreign Key to Employee and index are created automatically -->
+            <reference name="Signer" type="Employee"/>
             <long name="Long_Field"/> <!-- mapping to LONG_FIELD column -->
             <decimal name="Decimal_Field" precision="10" scale="2" />
         </fields>

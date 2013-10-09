@@ -4,9 +4,6 @@ import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion.Order;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.model.FieldConfig;
-import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.model.base.CollectionConfig;
 import ru.intertrust.cm.core.config.model.base.CollectionFilterConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
@@ -76,37 +73,11 @@ public class CollectionQueryInitializer {
     private String postProcessQuery(CollectionConfig collectionConfig, AccessToken accessToken, String query) {
         SqlQueryModifier sqlQueryModifier = new SqlQueryModifier();
         query = sqlQueryModifier.addTypeColumn(query);
-        query = processMultipleTypeReferences(collectionConfig, query, sqlQueryModifier);
 
 /*        if (accessToken.isDeferred()) {
             query = sqlQueryModifier.addAclQuery(query, collectionConfig.getIdField());
         }
 */        return query;
-    }
-
-    private String processMultipleTypeReferences(CollectionConfig collectionConfig, String query,
-                                                 SqlQueryModifier sqlQueryModifier) {
-        if (collectionConfig.getDomainObjectType() == null) {
-            return query;
-        }
-
-        DomainObjectTypeConfig doTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class,
-                collectionConfig.getDomainObjectType());
-
-        for (FieldConfig fieldConfig : doTypeConfig.getFieldConfigs()) {
-            if (!(fieldConfig instanceof ReferenceFieldConfig)) {
-                continue;
-            }
-            ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
-            if (referenceFieldConfig.getTypes().size() < 2) {
-                continue;
-            }
-
-            query = sqlQueryModifier.processMultipleTypeReference(query, referenceFieldConfig);
-
-        }
-
-        return query;
     }
 
     private String fillPrototypeQuery(CollectionConfig collectionConfig,

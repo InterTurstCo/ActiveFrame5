@@ -3,8 +3,6 @@ package ru.intertrust.cm.core.dao.impl;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
-import ru.intertrust.cm.core.config.model.ReferenceFieldTypeConfig;
-import ru.intertrust.cm.core.dao.exception.DaoException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +16,7 @@ import java.util.List;
 public class DataStructureNamingHelper {
 
     public static final int MAX_NAME_LENGTH = 25;
+    public static final String REFERENCE_TYPE_POSTFIX = "_TYPE";
 
     /**
      * Возвращает имя доменного объекта в sql-виде
@@ -57,15 +56,10 @@ public class DataStructureNamingHelper {
 
         List<String> columnNames = new ArrayList<String>();
         for (FieldConfig fieldConfig : fieldConfigs) {
+            columnNames.add(getSqlName(fieldConfig));
             if (fieldConfig instanceof ReferenceFieldConfig) {
-                ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
-                for (ReferenceFieldTypeConfig typeConfig : ((ReferenceFieldConfig) fieldConfig).getTypes()) {
-                    columnNames.add(getSqlName(referenceFieldConfig, typeConfig));
-                }
-            } else {
-                columnNames.add(getSqlName(fieldConfig));
+                columnNames.add(getReferenceTypeColumnName((ReferenceFieldConfig) fieldConfig));
             }
-
         }
 
         return columnNames;
@@ -80,19 +74,18 @@ public class DataStructureNamingHelper {
         return convertToSqlFormat(name);
     }
 
-    public static String getSqlName(ReferenceFieldConfig fieldConfig, ReferenceFieldTypeConfig typeConfig) {
-        int index = fieldConfig.getTypes().indexOf(typeConfig);
+    public static String getReferenceTypeColumnName(ReferenceFieldConfig fieldConfig) {
+        String name = fieldConfig.getName();
 
-        if (index < 0) {
-            throw new DaoException("Type '" + typeConfig.getName() + "' is not found in field configuration '" +
-                    fieldConfig.getName() + "'");
+        final String postfix = REFERENCE_TYPE_POSTFIX;
+        String resultName;
+        if (name.length() + postfix.length() > MAX_NAME_LENGTH) {
+            resultName = name.substring(0, MAX_NAME_LENGTH - postfix.length() - 1) + postfix;
+        } else {
+            resultName = name + postfix;
         }
 
-        if (fieldConfig.getTypes().size() == 1) {
-            return getSqlName(fieldConfig.getName());
-        }
-
-        return getSqlName(getIndexedName(fieldConfig.getName(), index + 1));
+        return getSqlName(resultName);
     }
 
     public static String getSqlAlias(String name) {
@@ -121,19 +114,5 @@ public class DataStructureNamingHelper {
         }
 
         return name.toUpperCase();
-    }
-
-    private static String getIndexedName(String name1, Integer index) {
-        if (name1 == null || name1.isEmpty()) {
-            throw new IllegalArgumentException("Name is null or empty");
-        }
-
-        String indexString = index.toString();
-
-        if (name1.length() + indexString.length() > MAX_NAME_LENGTH) {
-            return name1.substring(0, MAX_NAME_LENGTH - indexString.length() - 1) + indexString;
-        } else {
-            return name1 + indexString;
-        }
     }
 }

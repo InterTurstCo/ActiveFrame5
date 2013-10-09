@@ -7,14 +7,15 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.model.*;
+import ru.intertrust.cm.core.config.model.DateTimeFieldConfig;
+import ru.intertrust.cm.core.config.model.LongFieldConfig;
+import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.model.StringFieldConfig;
 import ru.intertrust.cm.core.config.model.doel.DoelExpression;
 import ru.intertrust.cm.core.config.model.doel.DoelValidator;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
@@ -67,56 +68,53 @@ public class DoelValidatorTest {
         // ================ Связи =================
         ReferenceFieldConfig refField = new ReferenceFieldConfig();
         refField.setName("toB");
-        refField.setTypes(Collections.singletonList(new ReferenceFieldTypeConfig("B")));
+        refField.setType("B");
         when(config.getFieldConfig("A", "toB")).thenReturn(refField);
 
         refField = new ReferenceFieldConfig();
         refField.setName("toC");
-        refField.setTypes(Collections.singletonList(new ReferenceFieldTypeConfig("C")));
+        refField.setType("C");
         when(config.getFieldConfig("A", "toC")).thenReturn(refField);
 
         refField = new ReferenceFieldConfig();
         refField.setName("toD");
-        refField.setTypes(Collections.singletonList(new ReferenceFieldTypeConfig("D")));
+        refField.setType("D");
         when(config.getFieldConfig("B", "toD")).thenReturn(refField);
 
         refField = new ReferenceFieldConfig();
         refField.setName("toE");
-        refField.setTypes(Collections.singletonList(new ReferenceFieldTypeConfig("E")));
+        refField.setType("E");
         when(config.getFieldConfig("C", "toE")).thenReturn(refField);
 
         refField = new ReferenceFieldConfig();
         refField.setName("toE");
-        refField.setTypes(Collections.singletonList(new ReferenceFieldTypeConfig("E")));
+        refField.setType("E");
         when(config.getFieldConfig("D", "toE")).thenReturn(refField);
 
         refField = new ReferenceFieldConfig();
-        refField.setName("toForG");
-        ArrayList<ReferenceFieldTypeConfig> types = new ArrayList<>();
-        types.add(new ReferenceFieldTypeConfig("F"));
-        types.add(new ReferenceFieldTypeConfig("G"));
-        refField.setTypes(types);
-        when(config.getFieldConfig("D", "toForG")).thenReturn(refField);
+        refField.setName("toForF");
+        refField.setType("F");
+        when(config.getFieldConfig("D", "toForF")).thenReturn(refField);
 
         refField = new ReferenceFieldConfig();
         refField.setName("toG");
-        refField.setTypes(Collections.singletonList(new ReferenceFieldTypeConfig("G")));
+        refField.setType("G");
         when(config.getFieldConfig("E", "toG")).thenReturn(refField);
 
         refField = new ReferenceFieldConfig();
         refField.setName("toH");
-        refField.setTypes(Collections.singletonList(new ReferenceFieldTypeConfig("H")));
+        refField.setType("H");
         when(config.getFieldConfig("F", "toH")).thenReturn(refField);
 
         refField = new ReferenceFieldConfig();
         refField.setName("toH");
-        refField.setTypes(Collections.singletonList(new ReferenceFieldTypeConfig("H")));
+        refField.setType("H");
         when(config.getFieldConfig("G", "toH")).thenReturn(refField);
 
         refField = new ReferenceFieldConfig();
         refField.setName("toI");
-        refField.setTypes(Collections.singletonList(new ReferenceFieldTypeConfig("I")));
-        when(config.getFieldConfig("G", "toI")).thenReturn(refField);
+        refField.setType("I");
+        when(config.getFieldConfig("F", "toI")).thenReturn(refField);
 
         // ============== Другие поля ==============
         StringFieldConfig stringField = new StringFieldConfig();
@@ -167,7 +165,7 @@ public class DoelValidatorTest {
 
     @Test
     public void testSimpleObjectExpression() {
-        DoelExpression expr = DoelExpression.parse("toB.toD.toForG");
+        DoelExpression expr = DoelExpression.parse("toB.toD.toForF");
         DoelValidator.Processor proc = new DoelValidator.Processor(expr, "A");
         DoelValidator.DoelTypes result = proc.process();
         assertTrue("Выражение должно быть корректным", result.isCorrect() && result.isAlwaysCorrect());
@@ -175,14 +173,14 @@ public class DoelValidatorTest {
                 result.getResultTypes().size() == 1 && result.getResultTypes().contains(FieldType.REFERENCE));
         assertTrue("Выражение должно возвращать единственный результат", result.isSingleResult());
         assertNotNull("Выражение должно возвращать доменный объект", result.getResultObjectTypes());
-        assertTrue("Проверка типов возвращаемых доменных объектов", result.getResultObjectTypes().size() == 2 &&
-                result.getResultObjectTypes().containsAll(Arrays.asList(new String[] { "F", "G" })));
+        assertTrue("Проверка типов возвращаемых доменных объектов", result.getResultObjectTypes().size() == 1 &&
+                result.getResultObjectTypes().containsAll(Arrays.asList(new String[] { "F"})));
         checkTypes(result, new String[] { "A", "B", "D" });
     }
 
     @Test
     public void testReverseLinkExpression() {
-        DoelExpression expr = DoelExpression.parse("G^toI.D^toForG");
+        DoelExpression expr = DoelExpression.parse("F^toI.D^toForF");
         DoelValidator.Processor proc = new DoelValidator.Processor(expr, "I");
         DoelValidator.DoelTypes result = proc.process();
         assertTrue("Выражение должно быть корректным", result.isCorrect() && result.isAlwaysCorrect());
@@ -192,12 +190,12 @@ public class DoelValidatorTest {
         assertNotNull("Выражение должно возвращать доменный объект", result.getResultObjectTypes());
         assertTrue("Проверка типа возвращаемого доменного объекта", result.getResultObjectTypes().size() == 1 &&
                 result.getResultObjectTypes().contains("D"));
-        checkTypes(result, new String[] { "I", "G" });
+        checkTypes(result, new String[] { "I", "F" });
     }
 
     @Test
     public void testMultiTypeLinkExpression() {
-        DoelExpression expr = DoelExpression.parse("toD.toForG.fgLong");
+        DoelExpression expr = DoelExpression.parse("toD.toForF.fgLong");
         DoelValidator.Processor proc = new DoelValidator.Processor(expr, "B");
         DoelValidator.DoelTypes result = proc.process();
         assertTrue("Выражение должно быть корректным", result.isCorrect() && result.isAlwaysCorrect());
@@ -209,11 +207,11 @@ public class DoelValidatorTest {
 
     @Test
     public void testPartialCorrectExpression() {
-        DoelExpression expr = DoelExpression.parse("toForG.toI.iDate");
+        DoelExpression expr = DoelExpression.parse("toForF.toI.iDate");
         DoelValidator.Processor proc = new DoelValidator.Processor(expr, "D");
         DoelValidator.DoelTypes result = proc.process();
         assertTrue("Выражение должно быть корректным", result.isCorrect());
-        assertFalse("Корректность выражения должна зависеть от значений полей", result.isAlwaysCorrect());
+        assertTrue("Выражение должно быть всегда корректным", result.isAlwaysCorrect());
         assertTrue("Тип результата выражения должен быть датой",
                 result.getResultTypes().size() == 1 && result.getResultTypes().contains(FieldType.DATETIME));
         assertTrue("Выражение должно возвращать единственный результат", result.isSingleResult());

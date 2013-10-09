@@ -17,9 +17,7 @@
 
     <domain-object-type name="Employee" extends="Person">
         <fields>
-            <reference name="Department" not-null="true">
-                <type name="Department"/>
-            </reference>
+            <reference name="Department" type="Department" not-null="true"/>
             <string name="Name" length="64" not-null="true" />
             <string name="Position" length="64" not-null="true" />
             <string name="Phone" length="32" />

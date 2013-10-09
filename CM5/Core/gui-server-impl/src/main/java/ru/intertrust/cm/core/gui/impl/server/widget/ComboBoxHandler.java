@@ -5,7 +5,6 @@ import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
-import ru.intertrust.cm.core.config.model.ReferenceFieldTypeConfig;
 import ru.intertrust.cm.core.config.model.gui.form.widget.ComboBoxConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -38,13 +37,9 @@ public class ComboBoxHandler extends WidgetHandler {
         String field = fieldPath.getLastElement();
         String objectType = objectContainingField.getTypeName();
         ReferenceFieldConfig fieldConfig = (ReferenceFieldConfig) configurationService.getFieldConfig(objectType, field);
-        List<ReferenceFieldTypeConfig> referenceFieldTypes = fieldConfig.getTypes();
-        if (referenceFieldTypes.size() > 1) {
-            throw new IllegalArgumentException("Combo-box is not supposed to be used with multi-typed fields");
-        }
         // todo: find LINKED: only cities of that country
-        // List<DomainObject> listToDisplay = getCrudService().findLinkedDomainObjects(objectContainingField.getId(), "city", "country");
-        List<DomainObject> listToDisplay = crudService.findAll(referenceFieldTypes.get(0).getName());
+        // List<DomainObject> listToDisplay = getCrudService().findLinkedDomainObjects(rootObjectForComboBoxField.getId(), "city", "country");
+        List<DomainObject> listToDisplay = crudService.findAll(fieldConfig.getType());
         LinkedHashMap<Id, String> idDisplayMapping = new LinkedHashMap<>();
         idDisplayMapping.put(null, "");
 

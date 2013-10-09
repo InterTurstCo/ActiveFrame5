@@ -80,10 +80,8 @@
     </xs:complexType>
 
     <xs:complexType name="referenceType">
-        <xs:sequence>
-            <xs:element type="con:fieldType" name="type" xmlns:con="https://cm5.intertrust.ru/config"/>
-        </xs:sequence>
         <xs:attribute name="name" use="required" type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config" />
+        <xs:attribute name="type" use="required" type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config" />
         <xs:attribute type="xs:string" name="not-null" use="optional" />
     </xs:complexType>
 

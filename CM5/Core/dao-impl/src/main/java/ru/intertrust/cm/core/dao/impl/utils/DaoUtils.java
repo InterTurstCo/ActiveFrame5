@@ -1,12 +1,6 @@
 package ru.intertrust.cm.core.dao.impl.utils;
 
-import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
-import ru.intertrust.cm.core.config.model.ReferenceFieldTypeConfig;
-import ru.intertrust.cm.core.dao.exception.DaoException;
-
 import java.util.Collection;
-
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 
 /**
  * Представляет набор функций для работы со колонками доменного объекта
@@ -49,17 +43,6 @@ public class DaoUtils {
     public static String generateParameter(String columnName) {
         return columnName.toLowerCase();
 
-    }
-
-    public static String generateParameter(ReferenceFieldConfig fieldConfig, String type) {
-        for (ReferenceFieldTypeConfig typeConfig : fieldConfig.getTypes()) {
-            if (type.equalsIgnoreCase(typeConfig.getName())) {
-                return generateParameter(getSqlName(fieldConfig, typeConfig));
-            }
-        }
-
-        throw new DaoException("Type '" + type + "' is not found in field configuration '" + fieldConfig.getName() +
-                "'");
     }
 
     /**

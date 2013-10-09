@@ -61,15 +61,9 @@
          <dateTime name="Registration Date" not-null="false"/>
          <string name="Name" not-null="false" length="128"/>
          <string name="Description" not-null="false" length="128"/>
-         <reference name="Author" not-null="false">
-			<type name="Employee"/>
-		 </reference>
-         <reference name="Negotiator" not-null="false">
-			<type name="Employee"/>
-		 </reference>
-         <reference name="Signer" not-null="false">
-			<type name="Employee"/>
-		 </reference>
+         <reference name="Author" type="Employee" not-null="false"/>
+         <reference name="Negotiator" type="Employee" not-null="false"/>
+         <reference name="Signer" type="Employee" not-null="false"/>
          <long name="Long_Field" not-null="false"/>
          <decimal name="Decimal Field" not-null="false" precision="10" scale="2"/>
       </fields>
@@ -89,9 +83,7 @@
    </domain-object-type>
    <domain-object-type name="Employee" extends="Person">
       <fields>
-         <reference name="Department" not-null="true">
-			<type name="Department"/>
-		 </reference>
+         <reference name="Department" type="Department" not-null="true"/>
          <string name="Name" not-null="true" length="64"/>
          <string name="Position" not-null="true" length="64"/>
          <string name="Phone" not-null="false" length="32"/>

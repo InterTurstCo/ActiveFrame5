@@ -18,8 +18,6 @@ import ru.intertrust.cm.core.config.model.base.Configuration;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 
-import java.util.Collections;
-
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
@@ -93,7 +91,7 @@ public class ConfigurationControlServiceImplTest {
 
         ReferenceFieldConfig executorFieldConfig = new ReferenceFieldConfig();
         executorFieldConfig.setName("Executor");
-        executorFieldConfig.setTypes(Collections.singletonList(new ReferenceFieldTypeConfig("Employee")));
+        executorFieldConfig.setType("Employee");
         executorFieldConfig.setNotNull(true);
         domainObjectTypeConfig.getFieldConfigs().add(executorFieldConfig);
 
