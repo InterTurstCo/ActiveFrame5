@@ -46,7 +46,6 @@ import java.util.*;
  * Time: 16:14
  */
 @Stateless
-@EJB(name = "java:app/GuiService", beanInterface = GuiService.class)
 @DeclareRoles("cm_user")
 @RolesAllowed("cm_user")
 @Local(GuiService.class)
@@ -208,7 +207,7 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         formObjects.setObject(new FieldPath(), root);
         for (FieldPath fieldPath : fieldPaths) {
             DomainObject currentRoot = root;
-            for (Iterator<FieldPath> subPathIterator = fieldPath.subPathIterator(); subPathIterator.hasNext();) {
+            for (Iterator<FieldPath> subPathIterator = fieldPath.subPathIterator(); subPathIterator.hasNext(); ) {
                 FieldPath subPath = subPathIterator.next();
                 if (!subPathIterator.hasNext()) { // значит текущий путь указывает на Value и будет получаться из Domain Object
                     break; // ничего не делаем, а раз следующего нет, выходим из цикла

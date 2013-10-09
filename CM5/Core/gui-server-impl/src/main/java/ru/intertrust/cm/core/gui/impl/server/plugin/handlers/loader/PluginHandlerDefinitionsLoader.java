@@ -12,6 +12,11 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 
 import java.util.Set;
 
+/**
+ * A bean registry postprocessor which loads classes, annotated with {@link ComponentName} as bean definitions
+ * to spring bean factory.
+ * Target path for scanning is defined in {@link basePackage} field.
+ */
 public class PluginHandlerDefinitionsLoader implements BeanDefinitionRegistryPostProcessor {
 
     private static final String VALUE_ATTRIBUTE = "value";
@@ -24,11 +29,11 @@ public class PluginHandlerDefinitionsLoader implements BeanDefinitionRegistryPos
         Set<BeanDefinition> pluginHandlerDefinitions = componentProvider.findCandidateComponents(basePackage);
 
         for (BeanDefinition pluginHandlerDefinition : pluginHandlerDefinitions) {
-            registerBeanDefinitionInRegistry(registry, (ScannedGenericBeanDefinition) pluginHandlerDefinition);
+            registerBeanDefinitionInRegistry((ScannedGenericBeanDefinition) pluginHandlerDefinition, registry);
         }
     }
 
-    private void registerBeanDefinitionInRegistry(BeanDefinitionRegistry registry, ScannedGenericBeanDefinition pluginHandlerDefinition) {
+    private void registerBeanDefinitionInRegistry(ScannedGenericBeanDefinition pluginHandlerDefinition, BeanDefinitionRegistry registry) {
         ScannedGenericBeanDefinition scannedGenericBeanDefinition = pluginHandlerDefinition;
         scannedGenericBeanDefinition.setScope(BeanDefinition.SCOPE_PROTOTYPE);
         String annotationValue = scannedGenericBeanDefinition.getMetadata().getAnnotationAttributes(ComponentName.class.getName()).get(VALUE_ATTRIBUTE).toString();

@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.model.gui.navigation.LinkConfig;
 import ru.intertrust.cm.core.config.model.gui.navigation.NavigationConfig;
@@ -9,13 +10,12 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.NavigationTreePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 
-import javax.ejb.EJB;
 import java.util.List;
 
 @ComponentName("navigation.tree")
 public class NavigationTreePluginHandler extends PluginHandler {
 
-    @EJB(mappedName = "java:app/GuiService")
+    @Autowired
     GuiService guiService;
 
     @Override

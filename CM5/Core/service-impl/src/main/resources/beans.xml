@@ -3,12 +3,12 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:p="http://www.springframework.org/schema/p"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:jee="http://www.springframework.org/schema/jee"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
      http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
      http://www.springframework.org/schema/context
      http://www.springframework.org/schema/context/spring-context-3.2.xsd
-     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd">
 
     <context:annotation-config/>
 
@@ -22,6 +22,18 @@
     <bean id="configurationControlService"
           class="ru.intertrust.cm.core.business.impl.ConfigurationControlServiceImpl"/>
 
+    <jee:local-slsb id="configurationService"
+                    jndi-name="java:app/web-app/ConfigurationServiceImpl!ru.intertrust.cm.core.business.api.ConfigurationService"
+                    business-interface="ru.intertrust.cm.core.business.api.ConfigurationService"/>
+
+    <jee:local-slsb id="collectionsService"
+                    jndi-name="java:app/web-app/CollectionsServiceImpl!ru.intertrust.cm.core.business.api.CollectionsService"
+                    business-interface="ru.intertrust.cm.core.business.api.CollectionsService"/>
+
+    <jee:local-slsb id="crudService"
+                    jndi-name="java:app/web-app/CrudServiceImpl!ru.intertrust.cm.core.business.api.CrudService"
+                    business-interface="ru.intertrust.cm.core.business.api.CrudService"/>
+
     <bean id="authenticationService"
           class="ru.intertrust.cm.core.business.impl.AuthenticationServiceImpl"
           p:authenticationDao-ref="authenticationDao" p:md5Service-ref="md5Service"
@@ -29,36 +41,35 @@
 
     <bean id="md5Service" class="ru.intertrust.cm.core.business.impl.MD5ServiceImpl"/>
 
-    <bean id="collectionsService" class="ru.intertrust.cm.core.business.impl.CollectionsServiceImpl"/>
 
     <bean id="attachmentCleaner" class="ru.intertrust.cm.core.business.impl.AttachmentCleaner"/>
 
     <bean id="accessControlService" class="ru.intertrust.cm.core.dao.impl.access.AccessControlServiceImpl"/>
 
-	<!-- Интеграция с Activiti -->
-	<bean id="processEngineConfiguration" class="org.activiti.spring.SpringProcessEngineConfiguration">
-    	<property name="dataSource" ref="dataSource" />
-    	<property name="transactionManager" ref="transactionManager" />
-    	<property name="databaseSchemaUpdate" value="true" />
-    	<property name="jobExecutorActivate" value="false" />
-    	<property name="history" value="full" />
-    	<property name="customDefaultBpmnParseHandlers">
+    <!-- Интеграция с Activiti -->
+    <bean id="processEngineConfiguration" class="org.activiti.spring.SpringProcessEngineConfiguration">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="databaseSchemaUpdate" value="true"/>
+        <property name="jobExecutorActivate" value="false"/>
+        <property name="history" value="full"/>
+        <property name="customDefaultBpmnParseHandlers">
             <list>
-                <bean class="ru.intertrust.cm.core.process.CustomUserTaskParseHandler" />
+                <bean class="ru.intertrust.cm.core.process.CustomUserTaskParseHandler"/>
             </list>
         </property>
-  	</bean>
-  
-  	<bean id="processEngine" class="org.activiti.spring.ProcessEngineFactoryBean">
-    	<property name="processEngineConfiguration" ref="processEngineConfiguration" />
-  	</bean>
-  
-  	<bean id="repositoryService" factory-bean="processEngine" factory-method="getRepositoryService" />
-  	<bean id="runtimeService" factory-bean="processEngine" factory-method="getRuntimeService" />
-  	<bean id="taskService" factory-bean="processEngine" factory-method="getTaskService" />
-  	<bean id="historyService" factory-bean="processEngine" factory-method="getHistoryService" />
-  	<bean id="managementService" factory-bean="processEngine" factory-method="getManagementService" />
-  	<bean id="formService" factory-bean="processEngine" factory-method="getFormService" />
-  	<!-- Интеграция с Activiti -->
+    </bean>
+
+    <bean id="processEngine" class="org.activiti.spring.ProcessEngineFactoryBean">
+        <property name="processEngineConfiguration" ref="processEngineConfiguration"/>
+    </bean>
+
+    <bean id="repositoryService" factory-bean="processEngine" factory-method="getRepositoryService"/>
+    <bean id="runtimeService" factory-bean="processEngine" factory-method="getRuntimeService"/>
+    <bean id="taskService" factory-bean="processEngine" factory-method="getTaskService"/>
+    <bean id="historyService" factory-bean="processEngine" factory-method="getHistoryService"/>
+    <bean id="managementService" factory-bean="processEngine" factory-method="getManagementService"/>
+    <bean id="formService" factory-bean="processEngine" factory-method="getFormService"/>
+    <!-- Интеграция с Activiti -->
 
 </beans>

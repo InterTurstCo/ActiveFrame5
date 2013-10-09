@@ -30,14 +30,14 @@ public class ComboBoxHandler extends WidgetHandler {
         DomainObject rootObjectForComboBoxField = formObjects.getObject(fieldPath.createFieldPathWithoutLastElement());
         String field = fieldPath.getLastElement();
         String rootObjectType = rootObjectForComboBoxField.getTypeName();
-        ReferenceFieldConfig fieldConfig = (ReferenceFieldConfig) getConfigurationService().getFieldConfig(rootObjectType, field);
+        ReferenceFieldConfig fieldConfig = (ReferenceFieldConfig) configurationService.getFieldConfig(rootObjectType, field);
         List<ReferenceFieldTypeConfig> referenceFieldTypes = fieldConfig.getTypes();
         if (referenceFieldTypes.size() > 1) {
             throw new IllegalArgumentException("Combo-box is not supposed to be used with multi-typed fields");
         }
         // todo: find LINKED: only cities of that country
         // List<DomainObject> listToDisplay = getCrudService().findLinkedDomainObjects(rootObjectForComboBoxField.getId(), "city", "country");
-        List<DomainObject> listToDisplay = getCrudService().findAll(referenceFieldTypes.get(0).getName());
+        List<DomainObject> listToDisplay = crudService.findAll(referenceFieldTypes.get(0).getName());
         LinkedHashMap<Id, String> idDisplayMapping = new LinkedHashMap<>();
         idDisplayMapping.put(null, "");
 
