@@ -1,5 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import ru.intertrust.cm.core.business.api.ConfigurationService;
+import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.model.ReferenceFieldTypeConfig;
@@ -7,7 +10,6 @@ import ru.intertrust.cm.core.config.model.gui.form.widget.ComboBoxConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
-import ru.intertrust.cm.core.gui.model.form.FormObjects;
 import ru.intertrust.cm.core.gui.model.form.widget.ComboBoxData;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 
@@ -23,6 +25,11 @@ import java.util.regex.Pattern;
  */
 @ComponentName("combo-box")
 public class ComboBoxHandler extends WidgetHandler {
+    @Autowired
+    protected CrudService crudService;
+    @Autowired
+    protected ConfigurationService configurationService;
+
     @Override
     public ComboBoxData getInitialDisplayData(WidgetContext context) {
         ComboBoxConfig widgetConfig = context.getWidgetConfig();
@@ -30,14 +37,14 @@ public class ComboBoxHandler extends WidgetHandler {
         DomainObject objectContainingField = context.getFormObjects().getObject(fieldPath.createFieldPathWithoutLastElement());
         String field = fieldPath.getLastElement();
         String objectType = objectContainingField.getTypeName();
-        ReferenceFieldConfig fieldConfig = (ReferenceFieldConfig) getConfigurationService().getFieldConfig(objectType, field);
+        ReferenceFieldConfig fieldConfig = (ReferenceFieldConfig) configurationService.getFieldConfig(objectType, field);
         List<ReferenceFieldTypeConfig> referenceFieldTypes = fieldConfig.getTypes();
         if (referenceFieldTypes.size() > 1) {
             throw new IllegalArgumentException("Combo-box is not supposed to be used with multi-typed fields");
         }
         // todo: find LINKED: only cities of that country
         // List<DomainObject> listToDisplay = getCrudService().findLinkedDomainObjects(objectContainingField.getId(), "city", "country");
-        List<DomainObject> listToDisplay = getCrudService().findAll(referenceFieldTypes.get(0).getName());
+        List<DomainObject> listToDisplay = crudService.findAll(referenceFieldTypes.get(0).getName());
         LinkedHashMap<Id, String> idDisplayMapping = new LinkedHashMap<>();
         idDisplayMapping.put(null, "");
 
