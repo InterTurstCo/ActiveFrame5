@@ -22,6 +22,7 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.LongValue;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion.Order;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
@@ -114,7 +115,7 @@ public class UserJobTestScriptSampler extends AbstractSampler {
             // Фильтр по документу
             Filter filter = new Filter();
             filter.setFilter("byDoc");
-            LongValue lv = new LongValue(((RdbmsId) outgoingDoc.getId()).getId());
+            ReferenceValue lv = new ReferenceValue(outgoingDoc.getId());
             filter.addCriterion(0, lv);
             List<Filter> filters = new ArrayList<>();
             filters.add(filter);
