@@ -58,7 +58,7 @@ public class GlobalCreateTaskListener extends SpringClient implements
 		//переделать на системное поле state доменного объекта
 		taskDomainObject.setLong("State", ProcessService.TASK_STATE_SEND);
 		
-		String mainAttachmentId = (String)delegateTask.getVariable("MAIN_ATTACHMENT_ID");
+		String mainAttachmentId = ((Id)delegateTask.getVariable("MAIN_ATTACHMENT_ID")).toStringRepresentation();
 		if (mainAttachmentId != null){
 			taskDomainObject.setString("MainAttachment", mainAttachmentId); 
 		}

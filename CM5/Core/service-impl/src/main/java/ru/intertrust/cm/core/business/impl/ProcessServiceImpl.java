@@ -100,7 +100,7 @@ public class ProcessServiceImpl implements ProcessService {
 
         if (attachedObjectId != null) {
             variablesHM.put(ProcessService.MAIN_ATTACHMENT_ID,
-                    attachedObjectId.toStringRepresentation());
+                    attachedObjectId);
             variablesHM.put(ProcessService.MAIN_ATTACHMENT,
                     new DomainObjectAccessor(attachedObjectId));
         }

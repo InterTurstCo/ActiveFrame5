@@ -39,7 +39,7 @@ public class CleanProcessEngine extends ClientBase {
         }
 
         // Удаление задач
-        List<DomainObject> tasks = service.getUserTasks();
+       /* List<DomainObject> tasks = service.getUserTasks();
         log("Find " +
                 tasks.size() + " tasks");
         for (DomainObject domainObject : tasks) {
@@ -47,7 +47,7 @@ public class CleanProcessEngine extends ClientBase {
             log("Delete " +
                     domainObject.getId());
         }
-
+        */
         writeLog();
     }
 }
