@@ -35,5 +35,8 @@
 
     <bean id="topLevelConfigurationCacheInitializer"
           class="ru.intertrust.cm.core.config.TopLevelConfigurationCacheInitializer" init-method="init"/>
+    <bean id="formLogicalValidator"
+          class="ru.intertrust.cm.core.config.FormLogicalValidator" >
 
+          </bean>
 </beans>

@@ -121,7 +121,7 @@
                     </child-links>
                 </link>
 
-                <link name="Documents In Work" display-text="В работе" child-to-open="Documents In Work By Number">
+                <link name="Documents In Work" display-text="В работе" child-to-open="Documents In Work By Numbers">
                     <child-links>
                         <link name="Documents In Work By Number" display-text="По номеру">
                             <plugin>

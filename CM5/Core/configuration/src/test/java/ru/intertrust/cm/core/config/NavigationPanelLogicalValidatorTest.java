@@ -1,48 +1,51 @@
 package ru.intertrust.cm.core.config;
 
+import org.junit.Rule;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.rules.ExpectedException;
 import ru.intertrust.cm.core.config.model.base.Configuration;
-import ru.intertrust.cm.core.config.model.gui.navigation.ChildLinksConfig;
-import ru.intertrust.cm.core.config.model.gui.navigation.LinkConfig;
-import ru.intertrust.cm.core.config.model.gui.navigation.NavigationConfig;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import static ru.intertrust.cm.core.config.Constants.*;
-
 /**
  * @author Yaroslav Bondacrhuk
  *         Date: 10/9/13
  *         Time: 12:05 PM
  */
 public class NavigationPanelLogicalValidatorTest {
-    final static Logger logger = LoggerFactory.getLogger(NavigationPanelLogicalValidatorTest.class);
+
     private static final String NAVIGATION_PANEL_XML_PATH =
             "config/navigation-panel-test.xml";
 
     private static final String NAVIGATION_PANEL_INVALID_CHILD_TO_OPEN_XML_PATH =
             "config/navigation-panel-invalid-child-to-open.xml";
 
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
     @Test
     public void testValidate() throws Exception {
-        ConfigurationExplorer configurationExplorer = createConfigurationExplorer(NAVIGATION_PANEL_XML_PATH);
 
+        ConfigurationExplorer configurationExplorer = createConfigurationExplorer(NAVIGATION_PANEL_XML_PATH);
+        NavigationPanelLogicalValidator panelValidator = new NavigationPanelLogicalValidator(configurationExplorer);
+        panelValidator.validate();
     }
 
     @Test
     public void testValidateInvalidChildToOpen() throws Exception {
+        expectedException.expect(ConfigurationException.class);
+        expectedException.expectMessage("Configuration of "
+        + "navigation panel with name 'panel' was validated with errors.Count: 2 Content:\n"
+        + "Child link to open is not found for link with name 'Administration'\n"
+        + "Child link to open is not found for link with name 'Documents In Work'");
         ConfigurationExplorer configurationExplorer =
                 createConfigurationExplorer(NAVIGATION_PANEL_INVALID_CHILD_TO_OPEN_XML_PATH);
+        NavigationPanelLogicalValidator panelValidator = new NavigationPanelLogicalValidator(configurationExplorer);
+        panelValidator.validate();
 
-    /*    String logMsg = builder.toString();
-        Assert.assertNotNull(logMsg);
-        System.out.println("-----------------logMsg begin:\n" + logMsg + "\n ---------End");
-        Assert.assertTrue(logMsg.contains("Child link to open is not found for name 'Administration'")); */
     }
 
     private ConfigurationExplorer createConfigurationExplorer(String configPath) throws Exception {
@@ -60,35 +63,10 @@ public class NavigationPanelLogicalValidatorTest {
 
         Configuration configuration = configurationSerializer.deserializeConfiguration();
 
-        ConfigurationExplorer configurationExplorer = new ConfigurationExplorerImpl(configuration);
+        ConfigurationExplorerImpl configurationExplorer = new ConfigurationExplorerImpl();
+        configurationExplorer.setConfiguration(configuration);
+        configurationExplorer.build();
         return configurationExplorer;
-    }
-     private void findRequiredLink(ConfigurationExplorer configurationExplorer) {
-         NavigationConfig navigationConfig = configurationExplorer.getConfig(NavigationConfig.class, "panel");
-         List<LinkConfig> linkConfigList =  navigationConfig.getLinkConfigList();
-         for(LinkConfig link: linkConfigList) {
-             String childToOpen = link.getChildToOpen();
-             if(childToOpen != null){
-                 List<ChildLinksConfig> childLinksConfigs = link.getChildLinksConfigList();
-             if(!findLinkByName(childLinksConfigs, childToOpen)) {
-                 logger.error("Child link to open is not found for name '" + childToOpen + "'");
-             }
-             }
-         }
-         logger.info("All child links to open are described in configuration");
-     }
-    private boolean findLinkByName(List<ChildLinksConfig> childLinksConfigs, String name) {
-        if(childLinksConfigs != null && !childLinksConfigs.isEmpty()) {
-              for(ChildLinksConfig childLink: childLinksConfigs) {
-                  for(LinkConfig link: childLink.getLinkConfigList()) {
-                      String linkName = link.getName();
-                      if(name.equalsIgnoreCase(linkName)) {
-                        return true;
-                      }
-                  }
-              }
-        }
-        return false;
     }
 
 }

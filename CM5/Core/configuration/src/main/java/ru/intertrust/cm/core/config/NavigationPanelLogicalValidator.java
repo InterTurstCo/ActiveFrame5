@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.config.model.gui.navigation.ChildLinksConfig;
 import ru.intertrust.cm.core.config.model.gui.navigation.LinkConfig;
 import ru.intertrust.cm.core.config.model.gui.navigation.NavigationConfig;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -15,14 +16,20 @@ import java.util.List;
  *         Time: 12:05 PM
  */
 public class NavigationPanelLogicalValidator {
-    final static Logger logger = LoggerFactory.getLogger(NavigationPanelLogicalValidator.class);
 
+    private static final Logger logger = LoggerFactory.getLogger(NavigationPanelLogicalValidator.class);
+
+    private List<LogicalErrors> validationLogicalErrors;
     private ConfigurationExplorer configurationExplorer;
 
     public NavigationPanelLogicalValidator(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
+        validationLogicalErrors = new ArrayList<LogicalErrors>();
     }
 
+    public List<LogicalErrors> getValidationLogicalErrors() {
+        return validationLogicalErrors;
+    }
     /**
      * Выполняет логическую валидацию конфигурации панели навигации
      */
@@ -34,46 +41,74 @@ public class NavigationPanelLogicalValidator {
             return;
         }
         for (NavigationConfig navigationConfig : navigationConfigList) {
+
             validateNavigateConfig(navigationConfig);
         }
-        logger.info("Navigation Panel config has passed logical validation");
+        StringBuilder errorLogBuilder = new StringBuilder();
+        for (LogicalErrors errors : validationLogicalErrors) {
+              if(errors.getErrorCount() != 0) {
+                  errorLogBuilder.append(errors.toString());
+                  errorLogBuilder.append("\n");
+              }
+        }
+        String errorLog = errorLogBuilder.toString();
+        if (!errorLog.equalsIgnoreCase("")) {
+            throw new ConfigurationException(errorLog);
+
+        }
+        logger.info("Navigation Panel configuration has passed logical validation without errors");
     }
 
     private void validateNavigateConfig(NavigationConfig navigationConfig) {
         if (navigationConfig == null) {
             return;
         }
+        String navigationPanelName = navigationConfig.getName();
+        LogicalErrors logicalErrors = LogicalErrors.getInstance(navigationPanelName, "navigation panel");
         List<LinkConfig> linkConfigList = navigationConfig.getLinkConfigList();
 
         if (linkConfigList == null) {
             return;
         }
         for (LinkConfig linkConfig : linkConfigList) {
-            validateChildLinkToOpen(linkConfig);
+            validateExistingChild(linkConfig, logicalErrors);
             //validatePluginHandlers();
         }
 
+        validationLogicalErrors.add(logicalErrors);
     }
 
-    private void validateChildLinkToOpen(LinkConfig linkConfig) {
+    private void validateExistingChild(LinkConfig linkConfig, LogicalErrors logicalErrors) {
         boolean isFound = false;
         String childToOpen = linkConfig.getChildToOpen();
+        List<ChildLinksConfig> linkConfigList = linkConfig.getChildLinksConfigList();
         if (childToOpen != null) {
-            List<ChildLinksConfig> linkConfigList = linkConfig.getChildLinksConfigList();
+
             if (linkConfigList.isEmpty()) {
-                logger.error("Child link to open is not found for name '" +
-                        linkConfig.getName() + "'");
+                logger.error("Child link to open is not found for link with name '{}'", linkConfig.getName());
+                logicalErrors.addError(String.
+                        format("Child link to open is not found for link with name '%s'", linkConfig.getName()));
+
             }
             for (ChildLinksConfig childLinksConfig : linkConfigList) {
                 isFound = findLinkByName(childLinksConfig, childToOpen);
-                if (isFound) {
-                    return;
-                } else {
-                    logger.error("Child link to open is not found for name '" +
-                            linkConfig.getName() + "'");
+                if (!isFound) {
+                    logger.error("Child link to open is not found for link with name '{}'", linkConfig.getName());
+                    logicalErrors.addError(String.
+                            format("Child link to open is not found for link with name '%s'", linkConfig.getName()));
                 }
             }
         }
+        findInsideChildLinksAttributeChildToOpen(linkConfigList, logicalErrors);
+    }
+
+    private void findInsideChildLinksAttributeChildToOpen(List<ChildLinksConfig> childLinksConfigList , LogicalErrors logicalErrors) {
+        for (ChildLinksConfig childLinksConfig : childLinksConfigList) {
+        List<LinkConfig> linkConfigList = childLinksConfig.getLinkConfigList();
+        for(LinkConfig linkConfig : linkConfigList) {
+            validateExistingChild(linkConfig, logicalErrors);
+        }
+    }
     }
 
     private boolean findLinkByName(ChildLinksConfig childLinksConfig, String toCompareName) {

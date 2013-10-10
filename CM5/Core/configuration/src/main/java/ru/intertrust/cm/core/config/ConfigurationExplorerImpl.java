@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.config.model.*;
 import ru.intertrust.cm.core.config.model.base.Configuration;
 import ru.intertrust.cm.core.config.model.base.TopLevelConfig;
@@ -28,6 +30,8 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     private Map<FieldConfigKey, CollectionColumnConfig> collectionColumnConfigMap = new HashMap<>();
     private Map<String, LinkConfig> linkConfigMap = new HashMap<>();
 
+    @Autowired
+    ApplicationContext context;
     /**
      * Создает {@link ConfigurationExplorerImpl}
      */
@@ -40,6 +44,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     public ConfigurationExplorerImpl(Configuration configuration) {
         this.configuration = configuration;
         build();
+        validate();
     }
 
     /**
@@ -63,20 +68,25 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      */
     public void build() {
         initConfigurationMaps();
-
-        DomainObjectLogicalValidator domainObjectLogicalValidator = new DomainObjectLogicalValidator(this);
-        domainObjectLogicalValidator.validate();
-
-        NavigationPanelLogicalValidator navigationPanelLogicalValidator = new NavigationPanelLogicalValidator(this);
-        navigationPanelLogicalValidator.validate();
-
-        CollectionViewLogicalValidator collectionLogicalValidator = new CollectionViewLogicalValidator(this);
-        collectionLogicalValidator.validate();
-
-        FormLogicalValidator formLogicalValidator = new FormLogicalValidator(this);
-        formLogicalValidator.validate();
     }
 
+    private void validate() {
+        DomainObjectLogicalValidator domainObjectLogicalValidator = new DomainObjectLogicalValidator(this);
+        domainObjectLogicalValidator.validate();
+        try {
+            NavigationPanelLogicalValidator navigationPanelLogicalValidator = new NavigationPanelLogicalValidator(this);
+            navigationPanelLogicalValidator.validate();
+
+            CollectionViewLogicalValidator collectionLogicalValidator = new CollectionViewLogicalValidator(this);
+            collectionLogicalValidator.validate();
+
+            FormLogicalValidator formLogicalValidator = (FormLogicalValidator) context.getBean("formLogicalValidator");
+            formLogicalValidator.setConfigurationExplorer(this);
+            formLogicalValidator.validate();
+        } catch (ConfigurationException e) {
+            //TODO some useful handling
+        }
+    }
     /**
      * {@inheritDoc}
      */

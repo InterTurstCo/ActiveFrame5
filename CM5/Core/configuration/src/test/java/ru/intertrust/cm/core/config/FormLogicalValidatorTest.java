@@ -1,6 +1,13 @@
 package ru.intertrust.cm.core.config;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import ru.intertrust.cm.core.config.model.base.Configuration;
 
 import java.util.Arrays;
@@ -14,13 +21,40 @@ import static ru.intertrust.cm.core.config.Constants.*;
  *         Date: 13/9/13
  *         Time: 12:05 PM
  */
+
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration({"classpath*:beans.xml"})
 public class FormLogicalValidatorTest {
-    private static final String FORM_XML_PATH =
-            "config/forms-test.xml";
+    private static final String FORM_XML_PATH = "config/forms-test.xml";
+    private static final String INVALID_FORM_XML_PATH = "config/form-with-three-errors.xml";
+    @Autowired
+    ApplicationContext context;
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     @Test
     public void testValidate() throws Exception {
         ConfigurationExplorer configurationExplorer = createConfigurationExplorer(FORM_XML_PATH);
+
+        FormLogicalValidator formLogicalValidator = (FormLogicalValidator) context.getBean("formLogicalValidator");
+        formLogicalValidator.setConfigurationExplorer(configurationExplorer);
+        formLogicalValidator.validate();
+    }
+
+    @Test
+    public void testWithThreeErrors() throws Exception {
+        expectedException.expect(ConfigurationException.class);
+        expectedException.expectMessage("Configuration of form with name 'incoming_document_base_form'"
+                + " was validated with errors.Count: 3 Content:\n"
+                + "Dimension '50pxx' is incorrect\n"
+                + "Couldn't find widget with id '9'\n"
+                + "v-align 'middle' is incorrect");
+        ConfigurationExplorer configurationExplorer = createConfigurationExplorer(INVALID_FORM_XML_PATH);
+
+        FormLogicalValidator formLogicalValidator = (FormLogicalValidator) context.getBean("formLogicalValidator");
+        formLogicalValidator.setConfigurationExplorer(configurationExplorer);
+        formLogicalValidator.validate();
 
     }
 
@@ -39,7 +73,9 @@ public class FormLogicalValidatorTest {
 
         Configuration configuration = configurationSerializer.deserializeConfiguration();
 
-        ConfigurationExplorer configurationExplorer = new ConfigurationExplorerImpl(configuration);
+        ConfigurationExplorerImpl configurationExplorer = new ConfigurationExplorerImpl();
+        configurationExplorer.setConfiguration(configuration);
+        configurationExplorer.build();
         return configurationExplorer;
     }
 
