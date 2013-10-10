@@ -87,6 +87,67 @@
         </counting-prototype>
 
     </collection>
+    
+    <collection name="Internal_Document" idField="id"
+        domain-object-type="Internal_Document">
+        <!--todo поддержка конвертации значений, например, в картинки -->
+        <prototype>
+            <![CDATA[
+                select
+                    i_doc.id, i_doc.name, i_doc.status
+                from
+                    Internal_Document i_doc
+                     ::from-clause
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+        <!-- если запрос-счётчик отсутствует, то в select подставляется count(*)
+            вместо названий колонок -->
+        <counting-prototype>
+            select count(*) from Internal_Document i_doc
+            ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+    </collection>
+    
+        <collection name="Negotiation_Card" idField="id"
+        domain-object-type="Negotiation_Card">
+        <!--todo поддержка конвертации значений, например, в картинки -->
+
+        <prototype>
+            <![CDATA[
+                select
+                    nc.id, nc.name, nc.status,nc.parent_document
+                from
+                    Negotiation_Card nc
+                     ::from-clause
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+
+        <!-- если запрос-счётчик отсутствует, то в select подставляется count(*)
+            вместо названий колонок -->
+        <counting-prototype>
+            select count(*) from Negotiation_Card nc
+            ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+        <filter name="byDoc">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    nc.parent_document = {0}
+                ]]>
+            </criteria>
+        </filter>
+                <filter name="byStatus">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    nc.status = {0}
+                ]]>
+            </criteria>
+        </filter>
+
+    </collection>
 
     <collection name="Assignment" idField="id"
         domain-object-type="Assignment">

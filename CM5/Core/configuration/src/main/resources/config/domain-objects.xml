@@ -19,6 +19,27 @@
             <field name="Registration_Number"/>
         </uniqueKey>
     </domain-object-type>
+    
+     <domain-object-type name="Internal_Document"> <!-- Internal_Document table -->
+        <fields>
+            <string name="Name" length="128" />
+            <string name="Status" length="64" />
+            <long name="Stage"/>
+        </fields>
+    </domain-object-type>
+    
+    <domain-object-type name="Negotiation_Card"> <!-- Internal_Document table -->
+        <fields>
+            <string name="Name" length="128" />
+            <string name="Status" length="64" />
+            <reference name="Parent_Document">
+                <type name="Internal_Document"/>
+            </reference>
+            <reference name="Negotiator"> <!-- This means Foreign Key to Employee and index are created automatically -->
+                <type name="Employee"/>
+            </reference>
+        </fields>
+    </domain-object-type>
 
     <domain-object-type name="Assignment"> <!-- ASSIGNMENT table -->
         <fields>
