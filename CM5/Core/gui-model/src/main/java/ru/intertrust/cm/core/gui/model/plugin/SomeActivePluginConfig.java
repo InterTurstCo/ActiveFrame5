@@ -38,4 +38,9 @@ public class SomeActivePluginConfig extends PluginConfig {
     public void setDomainObjectTypeToCreate(String domainObjectTypeToCreate) {
         this.domainObjectTypeToCreate = domainObjectTypeToCreate;
     }
+
+    @Override
+    public String getComponentName() {
+        return "some.active.plugin";
+    }
 }

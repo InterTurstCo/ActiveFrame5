@@ -10,5 +10,5 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  */
 @Root
 public abstract class PluginConfig implements Dto {
-
+    public abstract String getComponentName();
 }

@@ -84,5 +84,10 @@ public class CollectionViewerConfig extends PluginConfig{
         result = 31 * result + (sortCriterionConfigList != null ? sortCriterionConfigList.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String getComponentName() {
+        return "collection.plugin";
+    }
 }
 

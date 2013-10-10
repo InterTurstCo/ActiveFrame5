@@ -55,6 +55,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
                 PluginPanel navigationTreePanel = new PluginPanel(eventBus);
                 Plugin navigationTreePlugin = ComponentRegistry.instance.get("navigation.tree");
                 Plugin domainObjectSurferPlugin = ComponentRegistry.instance.get("domain.object.surfer.plugin");
+                // todo мы должны просто класть туда панель - пустую, а nav tree plugin уже будет открывать в ней что нужно
                 PluginPanel domainObjectSurferPanel = new PluginPanel(eventBus);
                 domainObjectSurferPanel.open(domainObjectSurferPlugin);
 

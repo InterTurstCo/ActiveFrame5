@@ -76,14 +76,14 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
 
     @Override
     public Dto executeCommand(Command command) {
-        ComponentHandler pluginHandler = obtainHandler(command.getComponentName());
-        if (pluginHandler == null) {
+        ComponentHandler componentHandler = obtainHandler(command.getComponentName());
+        if (componentHandler == null) {
             log.warn("handler for component '{}' not found", command.getComponentName());
             return null;
         }
         try {
-            return (Dto) pluginHandler.getClass().getMethod(command.getName(), Dto.class)
-                    .invoke(pluginHandler, command.getParameter());
+            return (Dto) componentHandler.getClass().getMethod(command.getName(), Dto.class)
+                    .invoke(componentHandler, command.getParameter());
         } catch (NoSuchMethodException e) {
             log.error(e.getMessage(), e);
             throw new GuiException("No command + " + command.getName() + " implemented");

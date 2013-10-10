@@ -44,5 +44,10 @@ public class DomainObjectSurferConfig extends PluginConfig {
     public int hashCode() {
         return collectionViewerConfig != null ? collectionViewerConfig.hashCode() : 0;
     }
+
+    @Override
+    public String getComponentName() {
+        return "domain.object.surfer";
+    }
 }
 

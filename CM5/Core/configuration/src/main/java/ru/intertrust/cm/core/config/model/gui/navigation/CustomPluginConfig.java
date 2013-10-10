@@ -66,5 +66,10 @@ public class CustomPluginConfig extends PluginConfig {
         result = 31 * result + (attributeConfigList != null ? attributeConfigList.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String getComponentName() {
+        return this.name;
+    }
 }
 
