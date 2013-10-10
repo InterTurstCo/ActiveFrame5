@@ -18,11 +18,11 @@ import java.util.Map;
  *         Date: 23.08.13
  *         Time: 15:29
  */
-public class SomeActivePluginView extends PluginView {
+public class FormPluginView extends PluginView {
     private final Form form;
     private FormPanel formPanel;
 
-    protected SomeActivePluginView(Plugin plugin, Form form) {
+    protected FormPluginView(Plugin plugin, Form form) {
         super(plugin);
         this.form = form;
     }

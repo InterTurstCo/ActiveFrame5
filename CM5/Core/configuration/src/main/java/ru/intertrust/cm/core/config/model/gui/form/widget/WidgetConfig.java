@@ -58,4 +58,6 @@ public abstract class WidgetConfig implements Dto {
         result = 31 * result + (fieldPathConfig != null ? fieldPathConfig.hashCode() : 0);
         return result;
     }
+
+    public abstract String getComponentName();
 }

@@ -2,17 +2,17 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer;
 
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
-import ru.intertrust.cm.core.gui.impl.client.SomeActivePlugin;
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEventHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.IsActive;
-import ru.intertrust.cm.core.gui.model.plugin.SomeActivePluginConfig;
 
 import java.util.logging.Logger;
 
@@ -57,8 +57,8 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Naviga
         // todo 2 times!!!
         PluginPanel formPluginPanel = formPlugin.getOwner();
         formPluginPanel.closeCurrentPlugin();
-        SomeActivePlugin newFormPlugin = ComponentRegistry.instance.get("some.active.plugin");
-        newFormPlugin.setConfig(new SomeActivePluginConfig(event.getId()));
+        FormPlugin newFormPlugin = ComponentRegistry.instance.get("form.plugin");
+        newFormPlugin.setConfig(new FormPluginConfig(event.getId()));
         formPluginPanel.open(newFormPlugin);
         this.formPlugin = newFormPlugin;
     }

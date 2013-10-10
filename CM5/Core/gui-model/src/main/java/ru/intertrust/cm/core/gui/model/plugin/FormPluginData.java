@@ -7,13 +7,13 @@ import ru.intertrust.cm.core.gui.model.form.Form;
  *         Date: 23.08.13
  *         Time: 13:43
  */
-public class SomeActivePluginData extends ActivePluginData {
+public class FormPluginData extends ActivePluginData {
     private Form form;
 
-    public SomeActivePluginData() {
+    public FormPluginData() {
     }
 
-    public SomeActivePluginData(Form form) {
+    public FormPluginData(Form form) {
         this.form = form;
     }
 

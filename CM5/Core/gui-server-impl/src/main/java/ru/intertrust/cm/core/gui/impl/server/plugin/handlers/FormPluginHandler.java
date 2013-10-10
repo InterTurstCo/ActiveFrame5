@@ -9,9 +9,9 @@ import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.Form;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.PluginData;
-import ru.intertrust.cm.core.gui.model.plugin.SomeActivePluginConfig;
-import ru.intertrust.cm.core.gui.model.plugin.SomeActivePluginData;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 import java.lang.reflect.InvocationTargetException;
@@ -21,8 +21,8 @@ import java.lang.reflect.InvocationTargetException;
  *         Date: 23.08.13
  *         Time: 13:22
  */
-@ComponentName("some.active.plugin")
-public class SomeActivePluginHandler extends PluginHandler {
+@ComponentName("form.plugin")
+public class FormPluginHandler extends PluginHandler {
 
     @Autowired
     ConfigurationService configurationService;
@@ -31,11 +31,11 @@ public class SomeActivePluginHandler extends PluginHandler {
     GuiService guiService;
 
     public PluginData initialize(Dto param) {
-        SomeActivePluginConfig config = (SomeActivePluginConfig) param;
+        FormPluginConfig config = (FormPluginConfig) param;
         String domainObjectToCreate = config.getDomainObjectTypeToCreate();
         Form form = domainObjectToCreate != null ? guiService.getForm(domainObjectToCreate) : guiService.getForm(config.getDomainObjectId());
 
-        SomeActivePluginData pluginData = new SomeActivePluginData();
+        FormPluginData pluginData = new FormPluginData();
         pluginData.setForm(form);//getId("country", 1L)));
         return pluginData;
     }

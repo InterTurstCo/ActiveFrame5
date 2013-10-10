@@ -47,4 +47,9 @@ public class LabelConfig extends WidgetConfig implements Dto {
         result = 31 * result + (text != null ? text.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String getComponentName() {
+        return "label";
+    }
 }

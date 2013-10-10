@@ -8,18 +8,18 @@ import ru.intertrust.cm.core.config.model.gui.navigation.PluginConfig;
  *         Date: 23.09.13
  *         Time: 20:21
  */
-public class SomeActivePluginConfig extends PluginConfig {
+public class FormPluginConfig extends PluginConfig {
     private Id domainObjectId;
     private String domainObjectTypeToCreate;
 
-    public SomeActivePluginConfig() {
+    public FormPluginConfig() {
     }
 
-    public SomeActivePluginConfig(Id domainObjectId) {
+    public FormPluginConfig(Id domainObjectId) {
         this.domainObjectId = domainObjectId;
     }
 
-    public SomeActivePluginConfig(String domainObjectTypeToCreate) {
+    public FormPluginConfig(String domainObjectTypeToCreate) {
         this.domainObjectTypeToCreate = domainObjectTypeToCreate;
     }
 
@@ -41,6 +41,6 @@ public class SomeActivePluginConfig extends PluginConfig {
 
     @Override
     public String getComponentName() {
-        return "some.active.plugin";
+        return "form.plugin";
     }
 }

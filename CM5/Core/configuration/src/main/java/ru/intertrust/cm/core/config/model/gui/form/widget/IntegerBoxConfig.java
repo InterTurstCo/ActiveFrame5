@@ -19,4 +19,9 @@ public class IntegerBoxConfig extends WidgetConfig implements Dto {
     public int hashCode() {
        return  super.hashCode();
     }
+
+    @Override
+    public String getComponentName() {
+        return "integer-box";
+    }
 }

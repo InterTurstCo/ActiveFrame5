@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.action;
 
 import com.google.gwt.user.client.Window;
 import ru.intertrust.cm.core.gui.api.client.Component;
-import ru.intertrust.cm.core.gui.impl.client.SomeActivePlugin;
+import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
@@ -41,8 +41,8 @@ public class SaveAction extends SimpleServerAction {
     protected void onSuccess(ActionData result) {
         SaveActionData data = (SaveActionData) result;
         DomainObjectSurferPlugin domainObjectSurfer = (DomainObjectSurferPlugin) getPlugin();
-        SomeActivePlugin formPlugin = (SomeActivePlugin) domainObjectSurfer.getFormPlugin();
-        formPlugin.update(data.getSomeActivePluginData().getForm());
+        FormPlugin formPlugin = (FormPlugin) domainObjectSurfer.getFormPlugin();
+        formPlugin.update(data.getFormPluginData().getForm());
         Window.alert("Saved!!!");
     }
 }

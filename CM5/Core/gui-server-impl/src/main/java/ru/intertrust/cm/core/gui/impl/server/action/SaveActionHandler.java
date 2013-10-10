@@ -5,14 +5,14 @@ import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
-import ru.intertrust.cm.core.gui.impl.server.plugin.handlers.SomeActivePluginHandler;
+import ru.intertrust.cm.core.gui.impl.server.plugin.handlers.FormPluginHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.action.SaveActionData;
-import ru.intertrust.cm.core.gui.model.plugin.SomeActivePluginConfig;
-import ru.intertrust.cm.core.gui.model.plugin.SomeActivePluginData;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 
 /**
  * @author Denis Mitavskiy
@@ -30,10 +30,10 @@ public class SaveActionHandler extends ActionHandler {
     @Override
     public <T extends ActionData> T executeAction(ActionContext context) {
         DomainObject rootDomainObject = guiService.saveForm(((SaveActionContext) context).getForm());
-        SomeActivePluginHandler handler = (SomeActivePluginHandler) applicationContext.getBean("some.active.plugin");
-        SomeActivePluginConfig config = new SomeActivePluginConfig(rootDomainObject.getId());
+        FormPluginHandler handler = (FormPluginHandler) applicationContext.getBean("form.plugin");
+        FormPluginConfig config = new FormPluginConfig(rootDomainObject.getId());
         SaveActionData result = new SaveActionData();
-        result.setSomeActivePluginData((SomeActivePluginData) handler.initialize(config));
+        result.setFormPluginData((FormPluginData) handler.initialize(config));
         return (T) result;
     }
 }

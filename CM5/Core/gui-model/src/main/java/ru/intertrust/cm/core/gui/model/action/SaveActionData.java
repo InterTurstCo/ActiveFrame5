@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.gui.model.action;
 
-import ru.intertrust.cm.core.gui.model.plugin.SomeActivePluginData;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 
 /**
  * @author Denis Mitavskiy
@@ -8,13 +8,13 @@ import ru.intertrust.cm.core.gui.model.plugin.SomeActivePluginData;
  *         Time: 18:19
  */
 public class SaveActionData extends ActionData {
-    private SomeActivePluginData someActivePluginData;
+    private FormPluginData formPluginData;
 
-    public SomeActivePluginData getSomeActivePluginData() {
-        return someActivePluginData;
+    public FormPluginData getFormPluginData() {
+        return formPluginData;
     }
 
-    public void setSomeActivePluginData(SomeActivePluginData someActivePluginData) {
-        this.someActivePluginData = someActivePluginData;
+    public void setFormPluginData(FormPluginData formPluginData) {
+        this.formPluginData = formPluginData;
     }
 }

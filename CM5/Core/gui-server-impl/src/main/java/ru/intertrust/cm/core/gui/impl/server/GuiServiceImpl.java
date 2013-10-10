@@ -28,7 +28,6 @@ import ru.intertrust.cm.core.gui.model.form.Form;
 import ru.intertrust.cm.core.gui.model.form.FormObjects;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
-import ru.intertrust.cm.core.util.ConfigurationUtil;
 
 import javax.annotation.security.DeclareRoles;
 import javax.annotation.security.RolesAllowed;
@@ -160,7 +159,7 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         List<WidgetConfig> widgetConfigs = widgetConfigurationConfig.getWidgetConfigList();
         FormObjects formObjects = getFormObjects(root, widgetConfigs);
         for (WidgetConfig config : widgetConfigs) {
-            WidgetHandler componentHandler = obtainHandler(ConfigurationUtil.getWidgetTag(config));
+            WidgetHandler componentHandler = obtainHandler(config.getComponentName());
             WidgetContext widgetContext = new WidgetContext(config, formObjects);
             widgetDataMap.put(config.getId(), componentHandler.getInitialDisplayData(widgetContext));
         }

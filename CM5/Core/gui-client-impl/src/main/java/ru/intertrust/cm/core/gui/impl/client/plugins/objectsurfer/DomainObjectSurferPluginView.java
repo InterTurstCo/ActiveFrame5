@@ -10,7 +10,7 @@ import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
-import ru.intertrust.cm.core.gui.model.plugin.SomeActivePluginConfig;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 
 import java.util.logging.Logger;
 
@@ -53,14 +53,14 @@ public class DomainObjectSurferPluginView extends PluginView {
                 public void beforePluginOpening() {
                     CollectionPluginData collectionPluginData = collectionViewerPlugin.getInitialData();
                     IdentifiableObjectCollection collection = collectionPluginData.getCollection();
-                    SomeActivePluginConfig config;
+                    FormPluginConfig config;
                     if (collection == null || collection.size() == 0) {
                         // open empty form for collection domain object type
-                        config = new SomeActivePluginConfig(collectionPluginData.getCollectionConfig().getDomainObjectType());
+                        config = new FormPluginConfig(collectionPluginData.getCollectionConfig().getDomainObjectType());
                     } else {
-                        config = new SomeActivePluginConfig(collection.get(0).getId());
+                        config = new FormPluginConfig(collection.get(0).getId());
                     }
-                    Plugin plugin = ComponentRegistry.instance.get("some.active.plugin");
+                    Plugin plugin = ComponentRegistry.instance.get("form.plugin");
                     domainObjectSurferPlugin.setFormPlugin(plugin);
                     plugin.setConfig(config);
                     formPluginPanel.open(plugin);
