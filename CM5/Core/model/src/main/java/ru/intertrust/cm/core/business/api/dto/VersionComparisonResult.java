@@ -58,12 +58,12 @@ public interface VersionComparisonResult {
      * изменений
      * @return
      */
-    String geyIpAddress();
+    String getIpAddress();
     
     /**
      * Информация о изменившихся атрибутах
      * @return
      */
-    List<FieldModification> getModifiedAttributes();
+    List<FieldModification> getModifiedFields();
 
 }
