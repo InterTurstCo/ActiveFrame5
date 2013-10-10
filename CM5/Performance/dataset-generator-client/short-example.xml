@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<query>
+    <set quantity="100">
+        <object type="Department"/>
+    </set>
+    <set quantity="100">
+        <object type="Employee"/>
+    </set>
+	<set quantity="100">
+		<object type="Incoming_Document"/>
+	</set>
+</query>

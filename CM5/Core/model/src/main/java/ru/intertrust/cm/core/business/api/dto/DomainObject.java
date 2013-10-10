@@ -59,7 +59,7 @@ public interface DomainObject extends IdentifiableObject {
     //void setParent(Id parent);
 
     /**
-     * Определяет являеться ли объект новым
+     * Определяет является ли объект новым
      *
      * @return true если объект новый иначе возвращает false
      */
