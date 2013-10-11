@@ -108,7 +108,7 @@
     <domain-object-type name="Group_Member">
         <fields>
             <reference name="UserGroup" type="User_Group" not-null="true"/>
-            <reference name="person_id" type="User_Group" not-null="true"/>
+            <reference name="person_id" type="Person" not-null="true"/>
         </fields>
     </domain-object-type>
 
