@@ -22,6 +22,11 @@ public interface DomainObjectDao {
     String CREATED_DATE_COLUMN = "CREATED_DATE";
     String UPDATED_DATE_COLUMN = "UPDATED_DATE";
     String REFERENCE_TYPE_POSTFIX = "_TYPE";
+    String DOMAIN_OBJECT_ID = "DOMAIN_OBJECT_ID";
+    String COMPONENT = "COMPONENT";
+    String IP_ADDRESS = "IP_ADDRESS";
+    String INFO = "INFO";
+    
 
     /**
      * Создает новый доменный объект

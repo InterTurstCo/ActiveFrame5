@@ -108,6 +108,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 domainObjectTypeIdCache.getId(domainObject.getTypeName()));
         domainObjectCacheService.putObjectToCache(createdObject);
 
+        //Запись в аудит лог
+        createAuditLog(createdObject,
+                domainObjectTypeIdCache.getId(domainObject.getTypeName()));
+        
         return createdObject;
     }
 
@@ -130,6 +134,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             result = update(domainObject);
         }
 
+        //Запись в auditLog
+        
+        
         // Вызов точки расширения после сохранения
         AfterSaveExtensionHandler afterSaveExtension = extensionService
                 .getExtentionPoint(AfterSaveExtensionHandler.class,
@@ -714,6 +721,46 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     /**
+     * Формирование запроса на добавление записи в таблицу аудита
+     * @param domainObjectTypeConfig
+     * @return
+     */
+    protected String generateCreateAuditLogQuery(
+            DomainObjectTypeConfig domainObjectTypeConfig) {
+        List<FieldConfig> fieldConfigs = domainObjectTypeConfig
+                .getFieldConfigs();
+
+        String tableName = getSqlName(domainObjectTypeConfig) + "_LOG";
+        List<String> columnNames = DataStructureNamingHelper
+                .getColumnNames(fieldConfigs);
+
+        String commaSeparatedColumns = StringUtils
+                .collectionToCommaDelimitedString(columnNames);
+        String commaSeparatedParameters = DaoUtils
+                .generateCommaSeparatedParameters(columnNames);
+
+        StringBuilder query = new StringBuilder();
+        query.append("insert into ").append(tableName).append("(");
+        query.append(ID_COLUMN).append(", ");
+        query.append(CREATED_DATE_COLUMN).append(", ");
+        query.append(TYPE_COLUMN).append(", ");
+        query.append(DOMAIN_OBJECT_ID).append(", ");
+        query.append(INFO).append(", ");
+        query.append(COMPONENT).append(", ");
+
+        query.append(commaSeparatedColumns);
+        query.append(") values (:id, :created_date,");
+        query.append(":type_id, :domain_object_id, :info, :component, ");
+
+        query.append(commaSeparatedParameters);
+        query.append(")");
+
+        return query.toString();
+
+    }
+    
+    
+    /**
      * Создает SQL запрос для удаления доменного объекта
      *
      * @param domainObjectTypeConfig
@@ -931,6 +978,29 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         return updatedObject;
     }
 
+    /**
+     * Запись информации аудит лог в базу
+     * @param domainObject
+     * @param type
+     * @return
+     */
+    private void createAuditLog(DomainObject domainObject, Integer type) {
+        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
+                .getConfig(DomainObjectTypeConfig.class,
+                        domainObject.getTypeName());
+
+        DomainObject parentDo = createParentDO(domainObject,
+                domainObjectTypeConfig, type);
+
+        String query = generateCreateAuditLogQuery(domainObjectTypeConfig);
+
+
+        Map<String, Object> parameters = initializeCreateParameters(domainObject, domainObjectTypeConfig, type);
+        jdbcTemplate.update(query, parameters);
+
+    }
+    
+    
     private DomainObject createParentDO(DomainObject domainObject,
             DomainObjectTypeConfig domainObjectTypeConfig, Integer type) {
         if (!isDerived(domainObjectTypeConfig)) {

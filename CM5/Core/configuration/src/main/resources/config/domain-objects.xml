@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration xmlns="https://cm5.intertrust.ru/config">
 
-    <domain-object-type name="Outgoing_Document"> <!-- OUTGOING_DOCUMENT table -->
+    
+    <domain-object-type name="Outgoing_Document" audit-log="true"> <!-- OUTGOING_DOCUMENT table -->
         <fields>
             <string name="Registration_Number" length="128" /> <!-- REGISTRATION_NUMBER column -->
             <dateTime name="Registration_Date"/>
@@ -87,7 +88,7 @@
        </uniqueKey>
     </domain-object-type>
 
-	<domain-object-type name="Employee" extends="Person">
+	<domain-object-type name="Employee" extends="Person" audit-log="true">
 		<fields>
 			<reference name="Department" type="Department" not-null="true"/>
             <string name="Name" length="64" not-null="true" />
@@ -182,6 +183,7 @@
 			<dateTime name="test_date"/>
 			<long name="test_long"/>
 			<decimal name="test_decimal" precision="10" scale="2"/>
+            <string name="new_field" length="512"/>
         </fields>
     </domain-object-type>
 

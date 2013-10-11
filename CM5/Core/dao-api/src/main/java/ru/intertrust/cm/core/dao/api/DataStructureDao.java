@@ -65,4 +65,10 @@ public interface DataStructureDao {
      * @return true если существует, иначе false
      */
     boolean doesTableExists(String tableName);
+
+    /**
+     * Создание таблицы для хранения информации сервиса AuditLog
+     * @param config
+     */
+    void createAuditLogTable(DomainObjectTypeConfig config);
 }

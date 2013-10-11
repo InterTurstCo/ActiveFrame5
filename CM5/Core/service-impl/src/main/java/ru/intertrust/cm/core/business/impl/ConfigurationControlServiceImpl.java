@@ -245,6 +245,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
 
             if (!newFieldConfigs.isEmpty()) {
                 dataStructureDao.updateTableStructure(domainObjectTypeConfig.getName(), newFieldConfigs);
+                dataStructureDao.updateTableStructure(domainObjectTypeConfig.getName() + "_LOG", newFieldConfigs);
             }
         }
 
@@ -349,6 +350,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
         private void createDbStructures(DomainObjectTypeConfig domainObjectTypeConfig) {
             if (!domainObjectTypeConfig.isTemplate()) {
                 dataStructureDao.createTable(domainObjectTypeConfig);
+                dataStructureDao.createAuditLogTable(domainObjectTypeConfig);
                 dataStructureDao.createSequence(domainObjectTypeConfig);
             }
         }

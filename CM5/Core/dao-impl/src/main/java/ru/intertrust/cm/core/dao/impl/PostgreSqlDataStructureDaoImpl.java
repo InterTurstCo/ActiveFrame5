@@ -2,11 +2,14 @@ package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.*;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 
 import javax.sql.DataSource;
+
 import java.util.List;
 
 import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.*;
@@ -25,6 +28,9 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
     @Autowired
     private DomainObjectTypeIdDao domainObjectTypeIdDao;
 
+    @Autowired
+    private ConfigurationExplorer configurationExplorer;    
+    
     private JdbcTemplate jdbcTemplate;
 
     /**
@@ -79,6 +85,23 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
         Integer id = domainObjectTypeIdDao.insert(config.getName());
         config.setId(new Long(id));
     }
+    
+    /**
+     * Создание таблицы для хранения информации AuditLog
+     */
+    @Override
+    public void createAuditLogTable(DomainObjectTypeConfig config) {
+        if (config.isTemplate()) {
+            return;
+        }
+        jdbcTemplate.update(generateCreateAuditTableQuery(config));
+
+        String createIndexesQuery = generateCreateAuditLogIndexesQuery(config);
+        if(createIndexesQuery != null) {
+            jdbcTemplate.update(createIndexesQuery);
+        }
+    }
+    
 
     /**
      * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#createAclTables(DomainObjectTypeConfig)}

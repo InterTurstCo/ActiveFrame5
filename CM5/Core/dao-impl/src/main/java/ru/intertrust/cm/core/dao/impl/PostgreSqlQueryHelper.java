@@ -9,6 +9,10 @@ import static ru.intertrust.cm.core.dao.api.ConfigurationDao.CONFIGURATION_TABLE
 import static ru.intertrust.cm.core.dao.api.DataStructureDao.AUTHENTICATION_INFO_TABLE;
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.ID_COLUMN;
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TYPE_COLUMN;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.COMPONENT;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.INFO;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.DOMAIN_OBJECT_ID;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.IP_ADDRESS;
 import static ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao.DOMAIN_OBJECT_TYPE_ID_TABLE;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
 
@@ -108,9 +112,9 @@ public class PostgreSqlQueryHelper {
 
 
     /**
-     * Генерирует запрос, создающий талицу по конфигурации доменного объекта
+     * Генерирует запрос, создающий таблицу по конфигурации доменного объекта
      * @param config конфигурация доменного объекта
-     * @return запрос, создающий талицу по конфигурации доменного объекта
+     * @return запрос, создающий таблицу по конфигурации доменного объекта
      */
     public static String generateCreateTableQuery(DomainObjectTypeConfig config) {
         String tableName = getSqlName(config);
@@ -125,7 +129,7 @@ public class PostgreSqlQueryHelper {
 
         appendPKConstraintQueryPart(query, tableName);
 
-        // Необходимо создать уникальный ключ (ID, TYPE_ID), чтобы обеспесить возможность создания внешнего ключа,
+        // Необходимо создать уникальный ключ (ID, TYPE_ID), чтобы обеспечить возможность создания внешнего ключа,
         // ссылающегося на эти колонки
         appendIdTypeUniqueConstraint(query, tableName);
 
@@ -137,9 +141,54 @@ public class PostgreSqlQueryHelper {
     }
 
     /**
+     * Генерирует запрос, создающий таблицу аудит лога по конфигурации доменного объекта
+     * @param config конфигурация доменного объекта
+     * @return запрос, создающий таблицу по конфигурации доменного объекта
+     */
+    public static String generateCreateAuditTableQuery(DomainObjectTypeConfig config) {
+        String tableName = getSqlName(config) + "_LOG";
+        StringBuilder query = new StringBuilder("create table ").append(tableName).append(" ( ");
+
+        //Системные атрибуты
+        query.append("ID bigint not null, ");
+        query.append(TYPE_COLUMN + " integer not null, ");
+        if (config.getExtendsAttribute() == null) {
+            query.append("CREATED_DATE timestamp not null, ");
+        }
+        query.append(DOMAIN_OBJECT_ID + " bigint not null, ");
+        query.append(COMPONENT + " varchar(512), ");
+        query.append(IP_ADDRESS + " varchar(16), ");
+        query.append(INFO + " varchar(512)");
+
+        if (config.getFieldConfigs().size() > 0) {
+            query.append(", ");
+            appendColumnsQueryPart(query, config.getFieldConfigs(), false);
+        }
+
+        appendPKConstraintQueryPart(query, tableName);
+
+        // Необходимо создать уникальный ключ (ID, TYPE_ID), чтобы обеспечить возможность создания внешнего ключа,
+        // ссылающегося на эти колонки
+        appendIdTypeUniqueConstraint(query, tableName);
+
+        query.append(", ");
+        if (config.getExtendsAttribute() != null) {
+            appendFKConstraint(query, tableName, ID_COLUMN, config.getExtendsAttribute() + "_LOG", ID_COLUMN);
+            query.append(", ");
+        }
+
+        appendFKConstraint(query, tableName, TYPE_COLUMN, DOMAIN_OBJECT_TYPE_ID_TABLE, ID_COLUMN);
+
+        query.append(")");
+
+        return query.toString();
+    }
+    
+    
+    /**
      * Генерирует запрос, создающий _ACL таблицу (таблица прав доступа, кроме чтения для ДО) для соответствующего доменного объекта.
      * @param config конфигурация доменного объекта
-     * @return запрос, создающий _ACL талицу для соответствующего доменного объекта
+     * @return запрос, создающий _ACL таблицу для соответствующего доменного объекта
      */
     public static String generateCreateAclTableQuery(DomainObjectTypeConfig config) {
         String domainObjectType = getSqlName(config);
@@ -247,6 +296,11 @@ public class PostgreSqlQueryHelper {
         return generateCreateIndexesQuery(config.getName(), config.getFieldConfigs());
     }
 
+    public static String generateCreateAuditLogIndexesQuery(DomainObjectTypeConfig config) {
+        return generateCreateIndexesQuery(config.getName() + "_LOG", config.getFieldConfigs());
+    }
+
+    
     /**
      * Генерирует запрос, для создания индексов по конфигурации доменного объекта
      * @param configName название конфигурации доменного объекта
