@@ -92,16 +92,7 @@ public class GlobalCreateTaskListener extends SpringClient implements
 		DomainObject assignee = domainObjectDao.find(assigneeId, accessToken);
 
 		// Создание связанного AssigneePerson или AssigneeGroup
-		if (assignee.getTypeName().equals("Person")) {
-			DomainObject assigneePersonDomainObject = createDomainObject("Assignee_Person");
-
-			assigneePersonDomainObject.setReference("PersonTask",
-					taskDomainObject);
-			assigneePersonDomainObject.setReference("Person",
-					idService.createId(delegateTask.getAssignee()));
-			
-			domainObjectDao.save(assigneePersonDomainObject);
-		} else {
+		if (assignee.getTypeName().equals("UserGroup")) {
 			DomainObject assigneePersonDomainObject = createDomainObject("Assignee_Group");
 
 			assigneePersonDomainObject.setReference("PersonTask",
@@ -109,6 +100,15 @@ public class GlobalCreateTaskListener extends SpringClient implements
 			assigneePersonDomainObject.setReference("UserGroup",
 					idService.createId(delegateTask.getAssignee()));
 
+			domainObjectDao.save(assigneePersonDomainObject);
+		} else {
+			DomainObject assigneePersonDomainObject = createDomainObject("Assignee_Person");
+
+			assigneePersonDomainObject.setReference("PersonTask",
+					taskDomainObject);
+			assigneePersonDomainObject.setReference("Person",
+					idService.createId(delegateTask.getAssignee()));
+			
 			domainObjectDao.save(assigneePersonDomainObject);
 		}
 

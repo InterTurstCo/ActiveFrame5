@@ -25,6 +25,7 @@
             <string name="Name" length="128" />
             <string name="Status" length="64" />
             <long name="Stage"/>
+            <string name="ReturnOnReject" length="3" />
         </fields>
     </domain-object-type>
     
@@ -32,12 +33,9 @@
         <fields>
             <string name="Name" length="128" />
             <string name="Status" length="64" />
-            <reference name="Parent_Document">
-                <type name="Internal_Document"/>
-            </reference>
-            <reference name="Negotiator"> <!-- This means Foreign Key to Employee and index are created automatically -->
-                <type name="Employee"/>
-            </reference>
+            <reference name="Parent_Document" type="Internal_Document"/>
+            <reference name="Negotiator" type="Employee"/> <!-- This means Foreign Key to Employee and index are created automatically -->
+            <reference name="Add_Negotiation_Card" type="Negotiation_Card"/>
         </fields>
     </domain-object-type>
 

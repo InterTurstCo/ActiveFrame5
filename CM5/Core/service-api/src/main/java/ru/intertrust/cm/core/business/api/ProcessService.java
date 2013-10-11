@@ -78,26 +78,44 @@ public interface ProcessService {
     void undeployProcess(String processDefinitionId, boolean cascade);
 
     /**
-     * Получение доступных задач для юзера
+     * Получение доступных задач для текущего юзера
      * 
      * @return список объектов типов UserTask
      */
     List<DomainObject> getUserTasks();
+    
+    /**
+     * Получение доступных задач для юзера по userId
+     * 
+     * @param personId -id юзера, для которого нужно получить задачи
+     * @return список объектов типов UserTask
+     */
+    List<DomainObject> getUserTasks(Id personId);
 
     /**
-     * Получение доступных задач для юзера и определенного доменного обьекта
+     * Получение доступных задач для текущего юзера и определенного доменного обьекта
      * 
      * @param attachedObjectId
      *            Идентификатор доменного объекта
      * @return список доменных объектов типа UserTask
      */
     List<DomainObject> getUserDomainObjectTasks(Id attachedObjectId);
+    
+    /**
+     * Получение доступных задач для юзера по userId и определенного доменного обьекта
+     * 
+     * @param attachedObjectId
+     *            Идентификатор доменного объекта
+     * @param personId -id юзера, для которого нужно получить задачи        
+     * @return список доменных объектов типа UserTask
+     */
+    List<DomainObject> getUserDomainObjectTasks(Id attachedObjectId, Id personId);
 
     /**
      * Завершить задачу
      * 
      * @param taskId
-     *            идентификатор задачи
+     *            идентификатор задачи   
      * @variables Список переменных процесса
      * 
      */

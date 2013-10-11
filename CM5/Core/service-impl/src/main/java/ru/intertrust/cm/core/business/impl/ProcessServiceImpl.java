@@ -164,108 +164,21 @@ public class ProcessServiceImpl implements ProcessService {
 
     @Override
     public List<DomainObject> getUserTasks() {
-
+        List<DomainObject> result = new ArrayList<DomainObject>();
         String personLogin = context.getCallerPrincipal().getName();
         Id personId = personManagerService.getPersonId(personLogin);
-        // Костыль, нужно избавлятся от использования идентификатора как int или
-        // long
-        /*
-         * int personIdAsint =
-         * Integer.parseInt(personId.toStringRepresentation()
-         * .substring(personId.toStringRepresentation().indexOf('|') + 1));
-         */
-        // поиск задач отправленных пользователю, или любой группе в которую
-        // входит пользователь
-
-        Filter filter = new Filter();
-        filter.setFilter("byPerson");
-        ReferenceValue rv = new ReferenceValue(personId);
-        filter.addCriterion(0, rv);
-        List<Filter> filters = new ArrayList<>();
-        filters.add(filter);
-
-        /*
-         * AccessToken accessToken = accessControlService
-         * .createCollectionAccessToken(personIdAsint);
-         */
-        // TODO пока права не работают работаю от имени админа
-        AccessToken accessToken = accessControlService
-                .createSystemAccessToken("ProcessService");
-
-        IdentifiableObjectCollection collection1 = collectionsDao
-                .findCollection("PersonTask", filters, null, 0, 0, accessToken);
-        IdentifiableObjectCollection collection2 = collectionsDao
-                .findCollection("PersonGroupTask", filters, null, 0, 0,
-                        accessToken);
-
-        List<DomainObject> result = new ArrayList<DomainObject>();
-        for (IdentifiableObject item : collection1) {
-            DomainObject group = domainObjectDao
-                    .find(item.getId(), accessToken);
-            result.add(group);
-        }
-        for (IdentifiableObject item : collection2) {
-            DomainObject group = domainObjectDao
-                    .find(item.getId(), accessToken);
-            result.add(group);
-        }
+        result = getUserTasks(personId);
         return result;
 
     }
 
     @Override
     public List<DomainObject> getUserDomainObjectTasks(Id attachedObjectId) {
-
+        List<DomainObject> result = new ArrayList<DomainObject>();
         String personLogin = context.getCallerPrincipal().getName();
         Id personId = personManagerService.getPersonId(personLogin);
-        // Костыль, нужно избавлятся от использования идентификатора как int или
-        // long
-        /*
-         * int personIdAsint =
-         * Integer.parseInt(personId.toStringRepresentation()
-         * .substring(personId.toStringRepresentation().indexOf('|') + 1));
-         */
-        // поиск задач отправленных пользователю, или любой группе в которую
-        // входит пользователь
-
-        Filter filter = new Filter();
-        filter.setFilter("byPerson");
-        Value rv = new ReferenceValue(personId);
-        filter.addCriterion(0, rv);
-        List<Filter> filters = new ArrayList<>();
-        filters.add(filter);
-        filter = new Filter();
-        filter.setFilter("byAttachment");
-        rv = new StringValue(attachedObjectId.toStringRepresentation());
-        filter.addCriterion(0, rv);
-        filters.add(filter);
-
-        /*
-         * AccessToken accessToken = accessControlService
-         * .createCollectionAccessToken(personIdAsint);
-         */
-        // TODO пока права не работают работаю от имени процесса
-        AccessToken accessToken = accessControlService
-                .createSystemAccessToken("ProcessService");
-
-        IdentifiableObjectCollection collection1 = collectionsDao
-                .findCollection("PersonTask", filters, null, 0, 0, accessToken);
-        IdentifiableObjectCollection collection2 = collectionsDao
-                .findCollection("PersonGroupTask", filters, null, 0, 0,
-                        accessToken);
-
-        List<DomainObject> result = new ArrayList<DomainObject>();
-        for (IdentifiableObject item : collection1) {
-            DomainObject group = domainObjectDao
-                    .find(item.getId(), accessToken);
-            result.add(group);
-        }
-        for (IdentifiableObject item : collection2) {
-            DomainObject group = domainObjectDao
-                    .find(item.getId(), accessToken);
-            result.add(group);
-        }
-        return result;
+        result = getUserDomainObjectTasks(attachedObjectId, personId);
+		return result;     
     }
 
     @Override
@@ -328,5 +241,105 @@ public class ProcessServiceImpl implements ProcessService {
         }
         return result;
     }
+
+	@Override
+	public List<DomainObject> getUserTasks(Id personId) {
+        // Костыль, нужно избавлятся от использования идентификатора как int или
+        // long
+        /*
+         * int personIdAsint =
+         * Integer.parseInt(personId.toStringRepresentation()
+         * .substring(personId.toStringRepresentation().indexOf('|') + 1));
+         */
+        // поиск задач отправленных пользователю, или любой группе в которую
+        // входит пользователь
+
+        Filter filter = new Filter();
+        filter.setFilter("byPerson");
+        ReferenceValue rv = new ReferenceValue(personId);
+        filter.addCriterion(0, rv);
+        List<Filter> filters = new ArrayList<>();
+        filters.add(filter);
+
+        /*
+         * AccessToken accessToken = accessControlService
+         * .createCollectionAccessToken(personIdAsint);
+         */
+        // TODO пока права не работают работаю от имени админа
+        AccessToken accessToken = accessControlService
+                .createSystemAccessToken("ProcessService");
+
+        IdentifiableObjectCollection collection1 = collectionsDao
+                .findCollection("PersonTask", filters, null, 0, 0, accessToken);
+        IdentifiableObjectCollection collection2 = collectionsDao
+                .findCollection("PersonGroupTask", filters, null, 0, 0,
+                        accessToken);
+
+        List<DomainObject> result = new ArrayList<DomainObject>();
+        for (IdentifiableObject item : collection1) {
+            DomainObject group = domainObjectDao
+                    .find(item.getId(), accessToken);
+            result.add(group);
+        }
+        for (IdentifiableObject item : collection2) {
+            DomainObject group = domainObjectDao
+                    .find(item.getId(), accessToken);
+            result.add(group);
+        }
+        return result;
+	}
+
+	@Override
+	public List<DomainObject> getUserDomainObjectTasks(Id attachedObjectId,
+			Id personId) {
+		 // Костыль, нужно избавлятся от использования идентификатора как int или
+        // long
+        /*
+         * int personIdAsint =
+         * Integer.parseInt(personId.toStringRepresentation()
+         * .substring(personId.toStringRepresentation().indexOf('|') + 1));
+         */
+        // поиск задач отправленных пользователю, или любой группе в которую
+        // входит пользователь
+
+        Filter filter = new Filter();
+        filter.setFilter("byPerson");
+        Value rv = new ReferenceValue(personId);
+        filter.addCriterion(0, rv);
+        List<Filter> filters = new ArrayList<>();
+        filters.add(filter);
+        filter = new Filter();
+        filter.setFilter("byAttachment");
+        rv = new StringValue(attachedObjectId.toStringRepresentation());
+        filter.addCriterion(0, rv);
+        filters.add(filter);
+
+        /*
+         * AccessToken accessToken = accessControlService
+         * .createCollectionAccessToken(personIdAsint);
+         */
+        // TODO пока права не работают работаю от имени процесса
+        AccessToken accessToken = accessControlService
+                .createSystemAccessToken("ProcessService");
+
+        IdentifiableObjectCollection collection1 = collectionsDao
+                .findCollection("PersonTask", filters, null, 0, 0, accessToken);
+        IdentifiableObjectCollection collection2 = collectionsDao
+                .findCollection("PersonGroupTask", filters, null, 0, 0,
+                        accessToken);
+
+        List<DomainObject> result = new ArrayList<DomainObject>();
+        for (IdentifiableObject item : collection1) {
+            DomainObject group = domainObjectDao
+                    .find(item.getId(), accessToken);
+            result.add(group);
+        }
+        for (IdentifiableObject item : collection2) {
+            DomainObject group = domainObjectDao
+                    .find(item.getId(), accessToken);
+            result.add(group);
+        }
+        return result;
+	}
 
 }

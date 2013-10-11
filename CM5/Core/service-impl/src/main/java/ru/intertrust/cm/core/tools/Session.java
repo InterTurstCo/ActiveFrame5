@@ -9,14 +9,15 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.mozilla.javascript.NativeObject;
 import org.springframework.context.ApplicationContext;
 
+import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.IdService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.LongValue;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
@@ -88,7 +89,7 @@ public class Session implements Serializable {
      * @param o - массив параметров
      * @return
      */
-    public IdentifiableObjectCollection find(String collectionName,Hashtable<String, Object> filtersHT) {
+    public List<IdentifiableObject> find(String collectionName,Hashtable<String, Object> filtersHT) {
         AccessToken accessToken = getAccessControlService().createSystemAccessToken("Session");
         //Создаем массив фильтров
         List<Filter> filters = new ArrayList<>();
@@ -129,7 +130,12 @@ public class Session implements Serializable {
         // TODO перобразовать коллекцию в коллекцию DomainObjectAccessor, но там
         // неи должно быть save, тоесть нужно создать другой класс для результата коллекции
         // List<DomainObjectAccessor> result = new ArrayList<DomainObjectAccessor>();
-        return collection;
+        Iterator<IdentifiableObject> iterator2 = collection.iterator();
+        ArrayList<IdentifiableObject> list = new ArrayList<IdentifiableObject>();
+        while (iterator2.hasNext()){
+        	list.add(iterator2.next());
+        }
+        return list;
     }
 
     /**
@@ -172,6 +178,22 @@ public class Session implements Serializable {
     private IdService getIdService() {
         ApplicationContext ctx = SpringApplicationContext.getContext();
         return ctx.getBean(IdService.class);
+    }
+    
+    /**
+     * Получение сервиса CrudService
+     * @return
+     */
+    private CrudService getCrudService() {
+        ApplicationContext ctx = SpringApplicationContext.getContext();
+        return ctx.getBean(CrudService.class);
+    }
+    
+    /**
+     * Получение объекта по Id
+     */
+    public DomainObjectAccessor find(Id id){
+    	return new DomainObjectAccessor(id);
     }
 
 }

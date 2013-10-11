@@ -56,15 +56,29 @@ public class DomainObjectAccessor implements Serializable {
     /**
      * Получает поле объекта
      * 
-     * @param fieldName
+     * @param fieldName - имя поля. Может быть составным Negotiator.Employee.Name - вернет значение поля "Name" объекта Employee, ссылка на который хранится в поле Negotiator объекта domainObject
      * @return
      */
     public Object get(String fieldName) {
-        Value value = domainObject.getValue(fieldName);
-        Object result = null;
-        if (value != null) {
-            result = value.get();
-        }
+    	Object result = null;
+    	//Если fieldName - простое
+    	if (fieldName.indexOf(".")==-1){
+            Value value = domainObject.getValue(fieldName);
+            if (value != null) {
+                result = value.get();
+            }
+        //Если fieldName - составное (пример: Negotiator.Employee.Name)
+    	}else{
+    		//Получаем имя поля (пример: Negotiator)
+    		String value = fieldName.substring(0,fieldName.indexOf("."));
+    		//Получаем остальную часть строки (пример: Employee.Name)
+    		String other = fieldName.substring(fieldName.indexOf(".")+1);
+    		//Получаем дочерний объект по имени поля (пример: Negotiator)
+    		DomainObjectAccessor doa = new DomainObjectAccessor(domainObject.getReference(value));
+    		//Получаем у дочернего объекта значение поля (пример: Employee.Name) 
+    		result = doa.get(other);
+    	}
+
         return result;
     }
 

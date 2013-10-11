@@ -117,7 +117,7 @@
         <prototype>
             <![CDATA[
                 select
-                    nc.id, nc.name, nc.status,nc.parent_document
+                    nc.id, nc.name, nc.status,nc.parent_document,nc.add_negotiation_card
                 from
                     Negotiation_Card nc
                      ::from-clause
@@ -146,7 +146,20 @@
                 ]]>
             </criteria>
         </filter>
-
+                <filter name="byParentNecotiationCard">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    nc.add_negotiation_card= {0}
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="onlyTopLevelCard">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    nc.add_negotiation_card is null
+                ]]>
+            </criteria>
+        </filter>
     </collection>
 
     <collection name="Assignment" idField="id"
