@@ -325,4 +325,26 @@
             <column field="square" name="Площадь" type="string" editable="false" sortable="true" />
         </display>
     </collection-view>
+
+    <form-mappings name="country_mappings">
+        <form-mapping domain-object-type="country" form="country_form">
+            <users>
+                <user uid="admin"/>
+            </users>
+            <roles>
+                <role name="Minister"/>
+            </roles>
+        </form-mapping>
+    </form-mappings>
+
+    <form-mappings name="city_mappings">
+        <form-mapping domain-object-type="city" form="city_form">
+            <users>
+                <user uid="admin"/>
+            </users>
+            <roles>
+                <role name="Minister"/>
+            </roles>
+        </form-mapping>
+    </form-mappings>
 </configuration>

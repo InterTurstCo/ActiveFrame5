@@ -41,7 +41,7 @@ public class FormConfig implements Dto, TopLevelConfig {
     }
     @Override
     public String getName() {
-        return name != null ? name : "form";
+        return name;
     }
 
     public void setName(String name) {

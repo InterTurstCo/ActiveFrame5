@@ -689,6 +689,7 @@
         <xs:sequence>
             <xs:element type="con:formMappingType" name="form-mapping" xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
+        <xs:attribute type="xs:string" name="name" use="optional" />
     </xs:complexType>
     <xs:complexType name="roleType">
         <xs:simpleContent>

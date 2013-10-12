@@ -87,6 +87,10 @@ public class FieldPath implements Dto {
         return result;
     }
 
+    public boolean isRoot() {
+        return equals(ROOT);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

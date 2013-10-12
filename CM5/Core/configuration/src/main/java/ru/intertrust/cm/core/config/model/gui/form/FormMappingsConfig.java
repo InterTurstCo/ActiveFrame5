@@ -23,7 +23,7 @@ public class FormMappingsConfig implements Dto, TopLevelConfig {
     private List<FormMappingConfig> formMappingConfigList = new ArrayList<FormMappingConfig>();
 
     public String getName() {
-       return name != null ? name : "form-mappings";
+       return name;
     }
 
     public void setName(String name) {
