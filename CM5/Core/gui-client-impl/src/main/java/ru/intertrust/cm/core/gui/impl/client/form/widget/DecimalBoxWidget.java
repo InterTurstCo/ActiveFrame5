@@ -7,9 +7,9 @@ import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
-import ru.intertrust.cm.core.gui.model.form.widget.DecimalBoxData;
-import ru.intertrust.cm.core.gui.model.form.widget.IntegerBoxData;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
+import ru.intertrust.cm.core.gui.model.form.widget.DecimalBoxState;
+import ru.intertrust.cm.core.gui.model.form.widget.IntegerBoxState;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.math.BigDecimal;
 
@@ -25,14 +25,14 @@ public class DecimalBoxWidget extends BaseWidget {
         return new DecimalBoxWidget();
     }
 
-    public void setCurrentState(WidgetData state) {
-        BigDecimal value = ((DecimalBoxData) state).getValue();
+    public void setCurrentState(WidgetState state) {
+        BigDecimal value = ((DecimalBoxState) state).getValue();
         setTrimmedText((HasText) impl, value == null ? "" : value.toString());
     }
 
     @Override
-    public WidgetData getCurrentState() {
-        DecimalBoxData data = new DecimalBoxData();
+    public WidgetState getCurrentState() {
+        DecimalBoxState data = new DecimalBoxState();
         String text = getTrimmedText((HasText) impl);
         if (text == null) {
             return data;
@@ -58,7 +58,7 @@ public class DecimalBoxWidget extends BaseWidget {
     }
 
     private String getText() {
-        Long value = this.<IntegerBoxData>getInitialData().getValue();
+        Long value = this.<IntegerBoxState>getInitialData().getValue();
         return value == null ? "" : value.toString();
     }
 }

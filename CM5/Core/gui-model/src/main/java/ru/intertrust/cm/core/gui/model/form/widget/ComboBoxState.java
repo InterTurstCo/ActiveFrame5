@@ -11,18 +11,18 @@ import java.util.LinkedHashMap;
  *         Date: 26.09.13
  *         Time: 12:29
  */
-public class ComboBoxData extends WidgetData {
+public class ComboBoxState extends WidgetState {
     private Id id;
     private LinkedHashMap<Id, String> listValues;
 
-    public ComboBoxData() {
+    public ComboBoxState() {
     }
 
-    public ComboBoxData(Id id) {
+    public ComboBoxState(Id id) {
         this.id = id;
     }
 
-    public ComboBoxData(LinkedHashMap<Id, String> listValues) {
+    public ComboBoxState(LinkedHashMap<Id, String> listValues) {
         this.listValues = listValues;
     }
 
@@ -40,11 +40,6 @@ public class ComboBoxData extends WidgetData {
 
     public void setListValues(LinkedHashMap<Id, String> listValues) {
         this.listValues = listValues;
-    }
-
-    @Override
-    public String getComponentName() {
-        return "combo-box";
     }
 
     @Override

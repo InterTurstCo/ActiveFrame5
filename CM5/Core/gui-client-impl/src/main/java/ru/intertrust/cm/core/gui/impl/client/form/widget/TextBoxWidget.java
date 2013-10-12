@@ -6,8 +6,8 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.form.widget.TextBoxData;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
+import ru.intertrust.cm.core.gui.model.form.widget.TextBoxState;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 /**
  * @author Denis Mitavskiy
@@ -21,13 +21,13 @@ public class TextBoxWidget extends BaseWidget {
         return new TextBoxWidget();
     }
 
-    public void setCurrentState(WidgetData state) {
-        setTrimmedText((HasText) impl, ((TextBoxData) state).getText());
+    public void setCurrentState(WidgetState state) {
+        setTrimmedText((HasText) impl, ((TextBoxState) state).getText());
     }
 
     @Override
-    public WidgetData getCurrentState() {
-        TextBoxData data = new TextBoxData();
+    public WidgetState getCurrentState() {
+        TextBoxState data = new TextBoxState();
         data.setText(getTrimmedText((HasText) impl));
         return data;
     }

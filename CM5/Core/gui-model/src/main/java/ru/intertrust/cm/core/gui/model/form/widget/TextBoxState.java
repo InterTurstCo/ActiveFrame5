@@ -8,13 +8,13 @@ import ru.intertrust.cm.core.business.api.dto.Value;
  *         Date: 14.09.13
  *         Time: 11:42
  */
-public class TextBoxData extends WidgetData {
+public class TextBoxState extends WidgetState {
     private String text;
 
-    public TextBoxData() {
+    public TextBoxState() {
     }
 
-    public TextBoxData(String text) {
+    public TextBoxState(String text) {
         this.text = text;
     }
 
@@ -24,11 +24,6 @@ public class TextBoxData extends WidgetData {
 
     public void setText(String text) {
         this.text = text;
-    }
-
-    @Override
-    public String getComponentName() {
-        return "text-box";
     }
 
     @Override

@@ -5,8 +5,8 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.form.widget.LabelData;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
+import ru.intertrust.cm.core.gui.model.form.widget.LabelState;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 /**
  * @author Denis Mitavskiy
@@ -21,13 +21,13 @@ public class LabelWidget extends BaseWidget {
     }
 
     @Override
-    public void setCurrentState(WidgetData state) {
-        setTrimmedText((HasText) impl, ((LabelData) state).getLabel());
+    public void setCurrentState(WidgetState state) {
+        setTrimmedText((HasText) impl, ((LabelState) state).getLabel());
     }
 
     @Override
-    public WidgetData getCurrentState() {
-        LabelData data = new LabelData();
+    public WidgetState getCurrentState() {
+        LabelState data = new LabelState();
         data.setLabel(getTrimmedText((HasText) impl));
         return data;
     }

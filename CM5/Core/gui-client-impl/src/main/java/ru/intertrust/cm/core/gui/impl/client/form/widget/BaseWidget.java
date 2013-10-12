@@ -5,7 +5,7 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.config.model.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 /**
  * @author Denis Mitavskiy
@@ -13,17 +13,17 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
  *         Time: 14:40
  */
 public abstract class BaseWidget extends BaseComponent implements IsWidget {
-    protected WidgetData initialData;
+    protected WidgetState initialData;
     protected WidgetDisplayConfig displayConfig;
     protected boolean isEditable = true;
 
     protected Widget impl;
 
-    public <T extends WidgetData> T getInitialData() {
+    public <T extends WidgetState> T getInitialData() {
         return (T) initialData;
     }
 
-    public void setInitialData(WidgetData initialData) {
+    public void setInitialData(WidgetState initialData) {
         this.initialData = initialData;
     }
 
@@ -48,7 +48,7 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget {
         return impl;
     }
 
-    public void setState(WidgetData state) {
+    public void setState(WidgetState state) {
         if (impl == null) {
             impl = isEditable ? asEditableWidget() : asNonEditableWidget();
             applySizeTo(impl);
@@ -57,13 +57,13 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget {
         this.initialData = state;
     }
 
-    public abstract void setCurrentState(WidgetData state);
+    public abstract void setCurrentState(WidgetState state);
 
     /**
      * Возвращает текущее состояние виджета. Если виджет в режиме "только чтение", возвращает null
      * @return текущее состояние виджета или null, если виджет в режиме "только чтение"
      */
-    public abstract WidgetData getCurrentState();
+    public abstract WidgetState getCurrentState();
 
     protected abstract Widget asEditableWidget();
 

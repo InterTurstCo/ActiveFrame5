@@ -3,6 +3,8 @@ package ru.intertrust.cm.core.gui.model.form;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.model.gui.form.MarkupConfig;
 
+import java.util.HashMap;
+
 /**
  * @author Denis Mitavskiy
  *         Date: 12.10.13
@@ -11,24 +13,19 @@ import ru.intertrust.cm.core.config.model.gui.form.MarkupConfig;
 public class FormDisplayData implements Dto {
     private FormState formState;
     private MarkupConfig markup;
+    private HashMap<String, String> widgetComponents;
     private boolean debug;
-    private boolean editable = true;
+    private boolean editable;
 
     public FormDisplayData() {
     }
 
-    public FormDisplayData(FormState formState, MarkupConfig markup) {
+    public FormDisplayData(FormState formState, MarkupConfig markup, HashMap<String, String> widgetComponents,
+                           boolean debug, boolean editable) {
         this.formState = formState;
         this.markup = markup;
-    }
-
-    public FormDisplayData(FormState formState, MarkupConfig markup, boolean debug) {
-        this(formState, markup);
+        this.widgetComponents = widgetComponents;
         this.debug = debug;
-    }
-
-    public FormDisplayData(FormState formState, MarkupConfig markup, boolean debug, boolean editable) {
-        this(formState, markup, debug);
         this.editable = editable;
     }
 
@@ -54,6 +51,18 @@ public class FormDisplayData implements Dto {
      */
     public void setMarkup(MarkupConfig markup) {
         this.markup = markup;
+    }
+
+    public HashMap<String, String> getWidgetComponents() {
+        return widgetComponents;
+    }
+
+    public void setWidgetComponents(HashMap<String, String> widgetComponents) {
+        this.widgetComponents = widgetComponents;
+    }
+
+    public String getWidgetComponent(String widgetId) {
+        return this.widgetComponents.get(widgetId);
     }
 
     public boolean isDebug() {

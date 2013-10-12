@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.form.widget.DecimalBoxData;
+import ru.intertrust.cm.core.gui.model.form.widget.DecimalBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 
 import java.math.BigDecimal;
@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @ComponentName("decimal-box")
 public class DecimalBoxHandler extends WidgetHandler {
     @Override
-    public DecimalBoxData getInitialDisplayData(WidgetContext context) {
-        return new DecimalBoxData(context.<BigDecimal>getFieldPathPlainValue());
+    public DecimalBoxState getInitialState(WidgetContext context) {
+        return new DecimalBoxState(context.<BigDecimal>getFieldPathPlainValue());
     }
 }

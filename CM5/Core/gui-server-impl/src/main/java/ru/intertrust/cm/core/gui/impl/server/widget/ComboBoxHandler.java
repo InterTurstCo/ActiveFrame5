@@ -9,7 +9,7 @@ import ru.intertrust.cm.core.config.model.gui.form.widget.ComboBoxConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
-import ru.intertrust.cm.core.gui.model.form.widget.ComboBoxData;
+import ru.intertrust.cm.core.gui.model.form.widget.ComboBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 
 import java.util.LinkedHashMap;
@@ -30,7 +30,7 @@ public class ComboBoxHandler extends WidgetHandler {
     protected ConfigurationService configurationService;
 
     @Override
-    public ComboBoxData getInitialDisplayData(WidgetContext context) {
+    public ComboBoxState getInitialState(WidgetContext context) {
         ComboBoxConfig widgetConfig = context.getWidgetConfig();
         FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
         DomainObject objectContainingField = context.getFormObjects().getObject(fieldPath.createFieldPathWithoutLastElement());
@@ -43,7 +43,7 @@ public class ComboBoxHandler extends WidgetHandler {
         LinkedHashMap<Id, String> idDisplayMapping = new LinkedHashMap<>();
         idDisplayMapping.put(null, "");
 
-        ComboBoxData result = new ComboBoxData();
+        ComboBoxState result = new ComboBoxState();
         result.setListValues(idDisplayMapping);
 
         if (listToDisplay == null) {

@@ -8,7 +8,7 @@ import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +24,7 @@ public class FormPanel implements IsWidget {
 
     public FormPanel(FormDisplayData formDisplayData) {
         this.formDisplayData = formDisplayData;
-        widgets = new ArrayList<BaseWidget>(formDisplayData.getFormState().getFullWidgetData().size());
+        widgets = new ArrayList<BaseWidget>(formDisplayData.getFormState().getFullWidgetsState().size());
     }
 
     @Override
@@ -38,8 +38,8 @@ public class FormPanel implements IsWidget {
 
     public void update(FormState formState) {
         for (BaseWidget widget : widgets) {
-            WidgetData newState = formState.getWidgetData(widget.getDisplayConfig().getId());
-            WidgetData currentState = widget.getCurrentState();
+            WidgetState newState = formState.getWidgetState(widget.getDisplayConfig().getId());
+            WidgetState currentState = widget.getCurrentState();
             if (!newState.equals(currentState)) {
                 widget.setState(newState);
             }
@@ -99,11 +99,12 @@ public class FormPanel implements IsWidget {
             boolean editable = formDisplayData.isEditable();
             for (CellConfig cell : cells) {
                 WidgetDisplayConfig displayConfig = cell.getWidgetDisplayConfig();
-                WidgetData widgetData = formState.getWidgetData(displayConfig.getId());
-                BaseWidget widget = ComponentRegistry.instance.get(widgetData.getComponentName());
+                WidgetState widgetState = formState.getWidgetState(displayConfig.getId());
+                String widgetComponent = formDisplayData.getWidgetComponent(displayConfig.getId());
+                BaseWidget widget = ComponentRegistry.instance.get(widgetComponent);
                 widget.setEditable(editable);
                 widget.setDisplayConfig(displayConfig);
-                widget.setState(widgetData);
+                widget.setState(widgetState);
                 widgets.add(widget);
                 table.setWidget(rowIndex, colIndex, widget);
 

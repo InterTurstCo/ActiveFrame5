@@ -10,13 +10,13 @@ import java.util.Date;
  *         Date: 26.09.13
  *         Time: 12:29
  */
-public class DateBoxData extends WidgetData {
+public class DateBoxState extends WidgetState {
     private Date value;
 
-    public DateBoxData() {
+    public DateBoxState() {
     }
 
-    public DateBoxData(Date value) {
+    public DateBoxState(Date value) {
         this.value = value;
     }
 
@@ -26,11 +26,6 @@ public class DateBoxData extends WidgetData {
 
     public void setValue(Date value) {
         this.value = value;
-    }
-
-    @Override
-    public String getComponentName() {
-        return "date-box";
     }
 
     @Override

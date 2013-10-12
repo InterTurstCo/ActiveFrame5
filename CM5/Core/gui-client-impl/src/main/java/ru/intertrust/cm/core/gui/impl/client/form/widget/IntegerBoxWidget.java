@@ -7,8 +7,8 @@ import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
-import ru.intertrust.cm.core.gui.model.form.widget.IntegerBoxData;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
+import ru.intertrust.cm.core.gui.model.form.widget.IntegerBoxState;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 /**
  * @author Denis Mitavskiy
@@ -22,14 +22,14 @@ public class IntegerBoxWidget extends BaseWidget {
         return new IntegerBoxWidget();
     }
 
-    public void setCurrentState(WidgetData state) {
-        Long value = ((IntegerBoxData) state).getValue();
+    public void setCurrentState(WidgetState state) {
+        Long value = ((IntegerBoxState) state).getValue();
         setTrimmedText((HasText) impl, value == null ? "" : value.toString());
     }
 
     @Override
-    public WidgetData getCurrentState() {
-        IntegerBoxData data = new IntegerBoxData();
+    public WidgetState getCurrentState() {
+        IntegerBoxState data = new IntegerBoxState();
         String text = getTrimmedText((HasText) impl);
         if (text == null) {
             return data;
@@ -55,7 +55,7 @@ public class IntegerBoxWidget extends BaseWidget {
     }
 
     private String getText() {
-        Long value = this.<IntegerBoxData>getInitialData().getValue();
+        Long value = this.<IntegerBoxState>getInitialData().getValue();
         return value == null ? "" : value.toString();
     }
 }

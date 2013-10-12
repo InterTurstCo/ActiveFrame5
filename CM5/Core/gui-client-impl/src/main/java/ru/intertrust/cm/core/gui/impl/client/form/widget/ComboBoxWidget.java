@@ -6,8 +6,8 @@ import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.form.widget.ComboBoxData;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
+import ru.intertrust.cm.core.gui.model.form.widget.ComboBoxState;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -26,8 +26,8 @@ public class ComboBoxWidget extends BaseWidget {
         return new ComboBoxWidget();
     }
 
-    public void setCurrentState(WidgetData state) {
-        ComboBoxData comboBoxState = (ComboBoxData) state;
+    public void setCurrentState(WidgetState state) {
+        ComboBoxState comboBoxState = (ComboBoxState) state;
         Id selectedId = comboBoxState.getId();
         LinkedHashMap<Id,String> listValues = comboBoxState.getListValues();
         idMap = new HashMap<String, Id>(listValues.size());
@@ -45,8 +45,8 @@ public class ComboBoxWidget extends BaseWidget {
     }
 
     @Override
-    public WidgetData getCurrentState() {
-        ComboBoxData state = new ComboBoxData();
+    public WidgetState getCurrentState() {
+        ComboBoxState state = new ComboBoxState();
         ListBox listBox = (ListBox) impl;
         if (listBox.getItemCount() == 0) {
             return state;

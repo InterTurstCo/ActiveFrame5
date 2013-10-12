@@ -8,13 +8,13 @@ import ru.intertrust.cm.core.business.api.dto.Value;
  *         Date: 14.09.13
  *         Time: 15:09
  */
-public class IntegerBoxData extends WidgetData {
+public class IntegerBoxState extends WidgetState {
     private Long value;
 
-    public IntegerBoxData() {
+    public IntegerBoxState() {
     }
 
-    public IntegerBoxData(Long value) {
+    public IntegerBoxState(Long value) {
         this.value = value;
     }
 
@@ -28,11 +28,6 @@ public class IntegerBoxData extends WidgetData {
 
     public void setValue(Long value) {
         this.value = value;
-    }
-
-    @Override
-    public String getComponentName() {
-        return "integer-box";
     }
 
     @Override

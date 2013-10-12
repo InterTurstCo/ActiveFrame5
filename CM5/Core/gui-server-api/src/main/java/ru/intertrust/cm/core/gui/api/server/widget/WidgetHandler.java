@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.gui.api.server.widget;
 
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 /**
  * @author Denis Mitavskiy
@@ -10,5 +10,5 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
  *         Time: 16:58
  */
 public abstract class WidgetHandler implements ComponentHandler {
-    public abstract <T extends WidgetData> T getInitialDisplayData(WidgetContext context);
+    public abstract <T extends WidgetState> T getInitialState(WidgetContext context);
 }

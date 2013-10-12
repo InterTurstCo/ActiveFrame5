@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FormState;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 
 import java.util.Map;
@@ -36,9 +36,9 @@ public class FormPlugin extends Plugin {
     public FormState getCurrentState() {
         FormState initialFormState = this.<FormPluginData>getInitialData().getFormDisplayData().getFormState();
         FormPluginView view = (FormPluginView) getView();
-        Map<String, WidgetData> widgetData = view.getWidgetData();
+        Map<String, WidgetState> widgetsState = view.getWidgetsState();
 
-        return new FormState(initialFormState.getName(), widgetData, initialFormState.getObjects());
+        return new FormState(initialFormState.getName(), widgetsState, initialFormState.getObjects());
     }
 
     public DomainObject getRootDomainObject() {

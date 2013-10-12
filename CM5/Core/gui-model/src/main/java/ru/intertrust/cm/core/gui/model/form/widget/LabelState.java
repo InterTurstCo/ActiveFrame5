@@ -7,13 +7,13 @@ import ru.intertrust.cm.core.business.api.dto.Value;
  *         Date: 14.09.13
  *         Time: 13:41
  */
-public class LabelData extends WidgetData {
+public class LabelState extends WidgetState {
     private String label;
 
-    public LabelData() {
+    public LabelState() {
     }
 
-    public LabelData(String label) {
+    public LabelState(String label) {
         this.label = label;
     }
 
@@ -23,11 +23,6 @@ public class LabelData extends WidgetData {
 
     public void setLabel(String label) {
         this.label = label;
-    }
-
-    @Override
-    public String getComponentName() {
-        return "label";
     }
 
     @Override

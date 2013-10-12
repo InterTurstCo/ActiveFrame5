@@ -8,7 +8,7 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.LabelWidget;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.util.HashMap;
 import java.util.List;
@@ -32,9 +32,9 @@ public class FormPluginView extends PluginView {
         return formPanel;
     }
 
-    public Map<String, WidgetData> getWidgetData() {
+    public Map<String, WidgetState> getWidgetsState() {
         List<BaseWidget> widgets = formPanel.getWidgets();
-        HashMap<String, WidgetData> result = new HashMap<String, WidgetData>(widgets.size());
+        HashMap<String, WidgetState> result = new HashMap<String, WidgetState>(widgets.size());
         for (BaseWidget widget : widgets) {
             if (widget instanceof LabelWidget) {
                 continue;
@@ -42,7 +42,7 @@ public class FormPluginView extends PluginView {
             String id = widget.getDisplayConfig().getId();
             if (widget.isEditable()) {
                 try {
-                    WidgetData state = widget.getCurrentState();
+                    WidgetState state = widget.getCurrentState();
                     result.put(id, state);
                 } catch (GuiException e) {
                     Window.alert(e.getMessage()); // todo something more interesting

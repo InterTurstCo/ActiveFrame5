@@ -5,7 +5,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.form.widget.TextAreaData;
+import ru.intertrust.cm.core.gui.model.form.widget.TextAreaState;
 
 /**
  * @author Denis Mitavskiy
@@ -20,8 +20,8 @@ public class TextAreaWidget extends TextBoxWidget {
     }
 
     @Override
-    public TextAreaData getCurrentState() {
-        TextAreaData data = new TextAreaData();
+    public TextAreaState getCurrentState() {
+        TextAreaState data = new TextAreaState();
         data.setText(getTrimmedText((HasText) impl));
         return data;
     }

@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.gui.model.form;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.util.Map;
 
@@ -15,7 +15,7 @@ import java.util.Map;
  */
 public class FormState implements Dto {
     private String name;
-    private Map<String, WidgetData> widgetDataMap;
+    private Map<String, WidgetState> widgetStateMap;
     private FormObjects objects;
 
     /**
@@ -24,18 +24,10 @@ public class FormState implements Dto {
     public FormState() {
     }
 
-    /**
-     * Конструктор формы по названию и разметке.
-     * @param name название формы
-     */
-    public FormState(String name) {
-        this.name = name;
-    }
-
-    public FormState(String name, Map<String, WidgetData> widgetDataMap, FormObjects objects) {
+    public FormState(String name, Map<String, WidgetState> widgetStateMap, FormObjects objects) {
         this.name = name;
         this.objects = objects;
-        this.widgetDataMap = widgetDataMap;
+        this.widgetStateMap = widgetStateMap;
     }
 
     public String getName() {
@@ -46,17 +38,17 @@ public class FormState implements Dto {
         this.name = name;
     }
 
-    public void setWidgetDataMap(Map<String, WidgetData> widgetDataMap) {
-        this.widgetDataMap = widgetDataMap;
+    public void setWidgetStateMap(Map<String, WidgetState> widgetStateMap) {
+        this.widgetStateMap = widgetStateMap;
     }
 
     /**
      * Устанавливает данные конкретного виджета. Если данные уже установлены, замещает их.
      * @param widgetId идентификатор виджета
-     * @param widgetData данные виджета
+     * @param widgetState данные виджета
      */
-    public void setWidgetData(String widgetId, WidgetData widgetData) {
-        widgetDataMap.put(widgetId, widgetData);
+    public void setWidgetState(String widgetId, WidgetState widgetState) {
+        widgetStateMap.put(widgetId, widgetState);
     }
 
     /**
@@ -64,8 +56,8 @@ public class FormState implements Dto {
      * @param widgetId идентификатор виджета
      * @return данные виджета
      */
-    public WidgetData getWidgetData(String widgetId) {
-        return widgetDataMap.get(widgetId);
+    public WidgetState getWidgetState(String widgetId) {
+        return widgetStateMap.get(widgetId);
     }
 
     /**
@@ -73,8 +65,8 @@ public class FormState implements Dto {
      * повлекут за собой изменения в самом объекте формы.
      * @return данные всех виджетов формы в виде "карты", ключом которой является идентификатор виджета
      */
-    public Map<String, WidgetData> getFullWidgetData() {
-        return widgetDataMap;
+    public Map<String, WidgetState> getFullWidgetsState() {
+        return widgetStateMap;
     }
 
     public FormObjects getObjects() {

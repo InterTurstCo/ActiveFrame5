@@ -31,7 +31,7 @@ import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormObjects;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import javax.annotation.Resource;
 import javax.annotation.security.DeclareRoles;
@@ -123,11 +123,11 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
 
         HashSet<FieldPath> objectsFieldPathsToSave = new HashSet<>();
         for (WidgetConfig widgetConfig : widgetConfigs) {
-            WidgetData widgetData = formState.getWidgetData(widgetConfig.getId());
-            if (widgetData == null) { // ignore - such data shouldn't be saved
+            WidgetState widgetState = formState.getWidgetState(widgetConfig.getId());
+            if (widgetState == null) { // ignore - such data shouldn't be saved
                 continue;
             }
-            Value newValue = widgetData.toValue();
+            Value newValue = widgetState.toValue();
             FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
             Value oldValue = formObjects.getObjectValue(fieldPath);
             if (!newValue.equals(oldValue)) {
@@ -157,17 +157,19 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
 
     private FormDisplayData buildDomainObjectForm(DomainObject root) {
         FormConfig formConfig = findFormConfig(root);
-        WidgetConfigurationConfig widgetConfigurationConfig = formConfig.getWidgetConfigurationConfig();
-        List<WidgetConfig> widgetConfigs = widgetConfigurationConfig.getWidgetConfigList();
-        HashMap<String, WidgetData> widgetDataMap = new HashMap<>(widgetConfigs.size());
+        List<WidgetConfig> widgetConfigs = formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
+        HashMap<String, WidgetState> widgetStateMap = new HashMap<>(widgetConfigs.size());
+        HashMap<String, String> widgetComponents = new HashMap<>(widgetConfigs.size());
         FormObjects formObjects = getFormObjects(root, widgetConfigs);
         for (WidgetConfig config : widgetConfigs) {
+            String widgetId = config.getId();
             WidgetHandler componentHandler = obtainHandler(config.getComponentName());
             WidgetContext widgetContext = new WidgetContext(config, formObjects);
-            widgetDataMap.put(config.getId(), componentHandler.getInitialDisplayData(widgetContext));
+            widgetStateMap.put(widgetId, componentHandler.getInitialState(widgetContext));
+            widgetComponents.put(widgetId, config.getComponentName());
         }
-        FormState formState = new FormState(formConfig.getName(), widgetDataMap, formObjects);
-        return new FormDisplayData(formState, formConfig.getMarkup(), formConfig.getDebug());
+        FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects);
+        return new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents, formConfig.getDebug(), true);
     }
 
     private static FormMappingsCache formMappingsCache; // todo drop this ugly thing

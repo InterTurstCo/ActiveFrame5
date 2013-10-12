@@ -4,7 +4,7 @@ import ru.intertrust.cm.core.config.model.gui.form.widget.LabelConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
-import ru.intertrust.cm.core.gui.model.form.widget.LabelData;
+import ru.intertrust.cm.core.gui.model.form.widget.LabelState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 
 /**
@@ -15,14 +15,14 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 @ComponentName("label")
 public class LabelHandler extends WidgetHandler {
     @Override
-    public LabelData getInitialDisplayData(WidgetContext context) {
+    public LabelState getInitialState(WidgetContext context) {
         FieldPath fieldPath = context.getFieldPath();
         if (fieldPath != null) {
             String plainValue = context.getFieldPathPlainValue();
-            return new LabelData(plainValue == null || plainValue.isEmpty() ? "" : plainValue);
+            return new LabelState(plainValue == null || plainValue.isEmpty() ? "" : plainValue);
         } else {
             LabelConfig widgetConfig = context.getWidgetConfig();
-            return new LabelData(widgetConfig.getText());
+            return new LabelState(widgetConfig.getText());
         }
     }
 }

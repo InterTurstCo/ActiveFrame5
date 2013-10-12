@@ -7,8 +7,8 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.DateBox;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.form.widget.DateBoxData;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
+import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.util.Date;
 
@@ -27,8 +27,8 @@ public class DateBoxWidget extends BaseWidget {
         return new DateBoxWidget();
     }
 
-    public void setCurrentState(WidgetData state) {
-        Date value = ((DateBoxData) state).getValue();
+    public void setCurrentState(WidgetState state) {
+        Date value = ((DateBoxState) state).getValue();
         if (isEditable) {
             DateBox dateBox = (DateBox) impl;
             dateBox.setValue(value);
@@ -38,8 +38,8 @@ public class DateBoxWidget extends BaseWidget {
     }
 
     @Override
-    public WidgetData getCurrentState() {
-        DateBoxData data = new DateBoxData();
+    public WidgetState getCurrentState() {
+        DateBoxState data = new DateBoxState();
         if (isEditable) {
             data.setValue(((DateBox) impl).getValue());
         } else {

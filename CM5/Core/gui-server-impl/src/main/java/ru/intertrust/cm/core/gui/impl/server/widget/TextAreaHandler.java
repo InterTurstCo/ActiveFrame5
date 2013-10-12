@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.form.widget.TextAreaData;
+import ru.intertrust.cm.core.gui.model.form.widget.TextAreaState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 
 /**
@@ -13,7 +13,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 @ComponentName("text-area")
 public class TextAreaHandler extends WidgetHandler {
     @Override
-    public TextAreaData getInitialDisplayData(WidgetContext context) {
-        return new TextAreaData(context.<String>getFieldPathPlainValue());
+    public TextAreaState getInitialState(WidgetContext context) {
+        return new TextAreaState(context.<String>getFieldPathPlainValue());
     }
 }

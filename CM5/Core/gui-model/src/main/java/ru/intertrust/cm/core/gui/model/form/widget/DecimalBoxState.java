@@ -10,13 +10,13 @@ import java.math.BigDecimal;
  *         Date: 26.09.13
  *         Time: 11:40
  */
-public class DecimalBoxData extends WidgetData {
+public class DecimalBoxState extends WidgetState {
     private BigDecimal value;
 
-    public DecimalBoxData() {
+    public DecimalBoxState() {
     }
 
-    public DecimalBoxData(BigDecimal value) {
+    public DecimalBoxState(BigDecimal value) {
         this.value = value;
     }
 
@@ -26,11 +26,6 @@ public class DecimalBoxData extends WidgetData {
 
     public void setValue(BigDecimal value) {
         this.value = value;
-    }
-
-    @Override
-    public String getComponentName() {
-        return "decimal-box";
     }
 
     @Override
