@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.gui.model.form;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.config.model.gui.form.MarkupConfig;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
 
 import java.util.Map;
@@ -14,46 +13,29 @@ import java.util.Map;
  *         Date: 12.09.13
  *         Time: 18:18
  */
-public class Form implements Dto {
+public class FormState implements Dto {
     private String name;
-    private boolean editable = true;
-    private MarkupConfig markup;
     private Map<String, WidgetData> widgetDataMap;
     private FormObjects objects;
-    private boolean debug = false;
+
     /**
      * Конструктор по умолчанию.
      */
-    public Form() {
+    public FormState() {
     }
 
     /**
      * Конструктор формы по названию и разметке.
      * @param name название формы
-     * @param markup разметка формы
      */
-    public Form(String name, MarkupConfig markup) {
+    public FormState(String name) {
         this.name = name;
-        this.markup = markup;
     }
 
-    /**
-     * Конструктор формы по названию, разметке и данным виджетов.
-     * @param name название формы
-     * @param markup разметка формы
-     * @param widgetDataMap данные виджетов
-     */
-    public Form(String name, MarkupConfig markup, Map<String, WidgetData> widgetDataMap) {
-        this(name, markup);
-        this.widgetDataMap = widgetDataMap;
-    }
-
-    public Form(String name, MarkupConfig markup, Map<String, WidgetData> widgetDataMap, FormObjects objects, boolean debug) {
+    public FormState(String name, Map<String, WidgetData> widgetDataMap, FormObjects objects) {
         this.name = name;
-        this.markup = markup;
         this.objects = objects;
         this.widgetDataMap = widgetDataMap;
-        this.debug = debug;
     }
 
     public String getName() {
@@ -64,32 +46,8 @@ public class Form implements Dto {
         this.name = name;
     }
 
-    public boolean isEditable() {
-        return editable;
-    }
-
-    public void setEditable(boolean editable) {
-        this.editable = editable;
-    }
-
     public void setWidgetDataMap(Map<String, WidgetData> widgetDataMap) {
         this.widgetDataMap = widgetDataMap;
-    }
-
-    /**
-     * Возвращает разметку формы.
-     * @return разметку формы
-     */
-    public MarkupConfig getMarkup() {
-        return markup;
-    }
-
-    /**
-     * Устанавливает разметку формы.
-     * @param markup разметка формы
-     */
-    public void setMarkup(MarkupConfig markup) {
-        this.markup = markup;
     }
 
     /**
@@ -127,11 +85,4 @@ public class Form implements Dto {
         this.objects = objects;
     }
 
-    public boolean getDebug() {
-        return debug;
-    }
-
-    public void setDebug(boolean debug) {
-        this.debug = debug;
-    }
 }

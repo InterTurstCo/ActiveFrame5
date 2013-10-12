@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.gui.model.action;
 
-import ru.intertrust.cm.core.gui.model.form.Form;
+import ru.intertrust.cm.core.gui.model.form.FormState;
 
 /**
  * @author Denis Mitavskiy
@@ -8,13 +8,13 @@ import ru.intertrust.cm.core.gui.model.form.Form;
  *         Time: 23:09
  */
 public class SaveActionContext extends ActionContext {
-    private Form form;
+    private FormState formState;
 
-    public Form getForm() {
-        return form;
+    public FormState getFormState() {
+        return formState;
     }
 
-    public void setForm(Form form) {
-        this.form = form;
+    public void setFormState(FormState formState) {
+        this.formState = formState;
     }
 }

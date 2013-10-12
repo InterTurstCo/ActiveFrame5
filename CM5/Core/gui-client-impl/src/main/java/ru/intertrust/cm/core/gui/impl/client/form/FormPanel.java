@@ -6,7 +6,8 @@ import ru.intertrust.cm.core.config.model.gui.form.*;
 import ru.intertrust.cm.core.config.model.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
-import ru.intertrust.cm.core.gui.model.form.Form;
+import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
+import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
 
 import java.util.ArrayList;
@@ -18,12 +19,12 @@ import java.util.List;
  *         Time: 14:53
  */
 public class FormPanel implements IsWidget {
-    private Form form;
+    private FormDisplayData formDisplayData;
     private List<BaseWidget> widgets;
 
-    public FormPanel(Form form) {
-        this.form = form;
-        widgets = new ArrayList<BaseWidget>(form.getFullWidgetData().size());
+    public FormPanel(FormDisplayData formDisplayData) {
+        this.formDisplayData = formDisplayData;
+        widgets = new ArrayList<BaseWidget>(formDisplayData.getFormState().getFullWidgetData().size());
     }
 
     @Override
@@ -35,19 +36,19 @@ public class FormPanel implements IsWidget {
         return widgets;
     }
 
-    public void update(Form form) {
+    public void update(FormState formState) {
         for (BaseWidget widget : widgets) {
-            WidgetData newState = form.getWidgetData(widget.getDisplayConfig().getId());
+            WidgetData newState = formState.getWidgetData(widget.getDisplayConfig().getId());
             WidgetData currentState = widget.getCurrentState();
             if (!newState.equals(currentState)) {
                 widget.setState(newState);
             }
         }
-        this.form = form;
+        this.formDisplayData.setFormState(formState);
     }
 
     private VerticalPanel build() {
-        MarkupConfig markup = form.getMarkup();
+        MarkupConfig markup = formDisplayData.getMarkup();
         HeaderConfig header = markup.getHeader();
         IsWidget headerTable = buildTable(header.getTableLayout());
 
@@ -81,9 +82,9 @@ public class FormPanel implements IsWidget {
     private IsWidget buildTable(LayoutConfig layout) {
         TableLayoutConfig tableLayout = (TableLayoutConfig) layout;
         FlexTable table = new FlexTable();
-        if (form.getDebug()){
+        if (formDisplayData.isDebug()){
             table.setBorderWidth(1);
-            table.getElement().setId("debug");
+            table.getElement().setId("debug"); // todo: why ID?
         }
         table.setSize("500px", "100%");
         FlexTable.FlexCellFormatter cellFormatter = table.getFlexCellFormatter();
@@ -94,11 +95,13 @@ public class FormPanel implements IsWidget {
             List<CellConfig> cells = row.getCells();
             int colIndex = 0;
             String rowHeight = row.getHeight();
+            FormState formState = formDisplayData.getFormState();
+            boolean editable = formDisplayData.isEditable();
             for (CellConfig cell : cells) {
                 WidgetDisplayConfig displayConfig = cell.getWidgetDisplayConfig();
-                WidgetData widgetData = form.getWidgetData(displayConfig.getId());
+                WidgetData widgetData = formState.getWidgetData(displayConfig.getId());
                 BaseWidget widget = ComponentRegistry.instance.get(widgetData.getComponentName());
-                widget.setEditable(form.isEditable());
+                widget.setEditable(editable);
                 widget.setDisplayConfig(displayConfig);
                 widget.setState(widgetData);
                 widgets.add(widget);
@@ -114,37 +117,37 @@ public class FormPanel implements IsWidget {
                 }
                 cellFormatter.setColSpan(rowIndex, colIndex, getSpan(cell.getColumnSpan()));
                 cellFormatter.setRowSpan(rowIndex, colIndex, getSpan(cell.getRowSpan()));
-                cellFormatter.setHorizontalAlignment(rowIndex, colIndex, getHorizontalAligmentForCurrentCell(cell.getHorizontalAlignment()));
-                cellFormatter.setVerticalAlignment(rowIndex, colIndex, getVerticalAligmentForCurrentCell(cell.getVerticalAlignment()));
+                cellFormatter.setHorizontalAlignment(rowIndex, colIndex, getHorizontalAlignmentForCurrentCell(cell.getHorizontalAlignment()));
+                cellFormatter.setVerticalAlignment(rowIndex, colIndex, getVerticalAlignmentForCurrentCell(cell.getVerticalAlignment()));
                 ++colIndex;
             }
             ++rowIndex;
         }
         return table;
     }
-    private HasHorizontalAlignment.HorizontalAlignmentConstant getHorizontalAligmentForCurrentCell(String cellAligment){
-        HasHorizontalAlignment.HorizontalAlignmentConstant  horizontalAlligment = HasHorizontalAlignment.ALIGN_LEFT;
-                if (cellAligment == null || cellAligment.equals("left")){
-                    horizontalAlligment = HasHorizontalAlignment.ALIGN_LEFT;
+    private HasHorizontalAlignment.HorizontalAlignmentConstant getHorizontalAlignmentForCurrentCell(String cellAlignment){
+        HasHorizontalAlignment.HorizontalAlignmentConstant  horizontalAllignment = HasHorizontalAlignment.ALIGN_LEFT;
+                if (cellAlignment == null || cellAlignment.equals("left")){
+                    horizontalAllignment = HasHorizontalAlignment.ALIGN_LEFT;
                 }
-                if (cellAligment != null && cellAligment.equals("right")){
-                    horizontalAlligment = HasHorizontalAlignment.ALIGN_RIGHT;
+                if (cellAlignment != null && cellAlignment.equals("right")){
+                    horizontalAllignment = HasHorizontalAlignment.ALIGN_RIGHT;
                 }
-                if (cellAligment != null && cellAligment.equals("center")){
-                    horizontalAlligment = HasHorizontalAlignment.ALIGN_CENTER;
+                if (cellAlignment != null && cellAlignment.equals("center")){
+                    horizontalAllignment = HasHorizontalAlignment.ALIGN_CENTER;
                 }
-       return horizontalAlligment;
+       return horizontalAllignment;
     }
 
-    private HasVerticalAlignment.VerticalAlignmentConstant getVerticalAligmentForCurrentCell(String cellAligment){
-        HasVerticalAlignment.VerticalAlignmentConstant  verticalAlligment = HasVerticalAlignment.ALIGN_MIDDLE;
-        if (cellAligment == null || cellAligment.equals("middle")){
+    private HasVerticalAlignment.VerticalAlignmentConstant getVerticalAlignmentForCurrentCell(String cellAlignment) {
+        HasVerticalAlignment.VerticalAlignmentConstant verticalAlligment = HasVerticalAlignment.ALIGN_MIDDLE;
+        if (cellAlignment == null || cellAlignment.equals("middle")) {
             verticalAlligment = HasVerticalAlignment.ALIGN_MIDDLE;
         }
-        if (cellAligment != null && cellAligment.equals("top")){
+        if (cellAlignment != null && cellAlignment.equals("top")) {
             verticalAlligment = HasVerticalAlignment.ALIGN_TOP;
         }
-        if (cellAligment != null && cellAligment.equals("bottom")){
+        if (cellAlignment != null && cellAlignment.equals("bottom")) {
             verticalAlligment = HasVerticalAlignment.ALIGN_BOTTOM;
         }
         return verticalAlligment;

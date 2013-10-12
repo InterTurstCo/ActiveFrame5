@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.form.Form;
+import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 
@@ -18,7 +18,7 @@ public class FormPlugin extends Plugin {
     @Override
     public PluginView createView() {
         FormPluginData initialData = getInitialData();
-        return new FormPluginView(this, initialData.getForm());
+        return new FormPluginView(this, initialData.getFormDisplayData());
     }
 
     @Override
@@ -26,22 +26,22 @@ public class FormPlugin extends Plugin {
         return new FormPlugin();
     }
 
-    public void update(Form form) {
-        ((FormPluginView) getView()).update(form);
+    public void update(FormState formState) {
+        ((FormPluginView) getView()).update(formState);
         FormPluginData initialData = getInitialData();
-        initialData.setForm(form);
+        initialData.getFormDisplayData().setFormState(formState);
     }
 
     @Override
-    public Form getCurrentState() {
-        Form initialForm = this.<FormPluginData>getInitialData().getForm();
+    public FormState getCurrentState() {
+        FormState initialFormState = this.<FormPluginData>getInitialData().getFormDisplayData().getFormState();
         FormPluginView view = (FormPluginView) getView();
         Map<String, WidgetData> widgetData = view.getWidgetData();
 
-        return new Form(initialForm.getName(), null, widgetData, initialForm.getObjects(), initialForm.getDebug());
+        return new FormState(initialFormState.getName(), widgetData, initialFormState.getObjects());
     }
 
     public DomainObject getRootDomainObject() {
-        return this.<FormPluginData>getInitialData().getForm().getObjects().getRootObject();
+        return this.<FormPluginData>getInitialData().getFormDisplayData().getFormState().getObjects().getRootObject();
     }
 }

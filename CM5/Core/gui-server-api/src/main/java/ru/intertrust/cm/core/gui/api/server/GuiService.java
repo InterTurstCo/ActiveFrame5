@@ -4,7 +4,8 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.model.Command;
-import ru.intertrust.cm.core.gui.model.form.Form;
+import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
+import ru.intertrust.cm.core.gui.model.form.FormState;
 
 /**
  * Данный класс-служба содержит операции, относящиеся к клиентскому приложению. Клиентское приложение может быть
@@ -32,9 +33,9 @@ public interface GuiService {
      */
     Dto executeCommand(Command command);
 
-    Form getForm(String domainObjectType);
+    FormDisplayData getForm(String domainObjectType);
 
-    Form getForm(Id domainObjectId);
+    FormDisplayData getForm(Id domainObjectId);
 
-    DomainObject saveForm(Form form);
+    DomainObject saveForm(FormState formState);
 }

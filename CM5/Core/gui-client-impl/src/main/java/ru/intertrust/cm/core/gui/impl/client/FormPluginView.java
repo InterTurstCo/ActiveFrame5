@@ -6,7 +6,8 @@ import ru.intertrust.cm.core.gui.impl.client.form.FormPanel;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.LabelWidget;
 import ru.intertrust.cm.core.gui.model.GuiException;
-import ru.intertrust.cm.core.gui.model.form.Form;
+import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
+import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
 
 import java.util.HashMap;
@@ -19,17 +20,15 @@ import java.util.Map;
  *         Time: 15:29
  */
 public class FormPluginView extends PluginView {
-    private final Form form;
     private FormPanel formPanel;
 
-    protected FormPluginView(Plugin plugin, Form form) {
+    protected FormPluginView(Plugin plugin, FormDisplayData formDisplayData) {
         super(plugin);
-        this.form = form;
+        formPanel = new FormPanel(formDisplayData);
     }
 
     @Override
     public IsWidget getViewWidget() {
-        formPanel = new FormPanel(form);
         return formPanel;
     }
 
@@ -53,7 +52,7 @@ public class FormPluginView extends PluginView {
         return result;
     }
 
-    void update(Form form) {
-        formPanel.update(form);
+    void update(FormState formState) {
+        formPanel.update(formState);
     }
 }

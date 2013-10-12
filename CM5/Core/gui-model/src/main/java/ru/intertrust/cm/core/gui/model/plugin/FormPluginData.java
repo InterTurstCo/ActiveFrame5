@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.gui.model.plugin;
 
-import ru.intertrust.cm.core.gui.model.form.Form;
+import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 
 /**
  * @author Denis Mitavskiy
@@ -8,27 +8,27 @@ import ru.intertrust.cm.core.gui.model.form.Form;
  *         Time: 13:43
  */
 public class FormPluginData extends ActivePluginData {
-    private Form form;
+    private FormDisplayData formDisplayData;
 
     public FormPluginData() {
     }
 
-    public FormPluginData(Form form) {
-        this.form = form;
+    public FormPluginData(FormDisplayData formDisplayData) {
+        this.formDisplayData = formDisplayData;
     }
 
-    public Form getForm() {
-        return form;
+    public FormDisplayData getFormDisplayData() {
+        return formDisplayData;
     }
 
-    public void setForm(Form form) {
-        this.form = form;
+    public void setFormDisplayData(FormDisplayData formDisplayData) {
+        this.formDisplayData = formDisplayData;
     }
 
     @Override
     public String toString() {
         return "SomeActivePluginData {" +
-                "form=" + form +
+                "form=" + formDisplayData +
                 "actions=" + getActionConfigs() +
                 '}';
     }

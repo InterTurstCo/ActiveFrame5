@@ -152,7 +152,7 @@ public abstract class Plugin extends BaseComponent {
      *
      * @return первичные данные плагина
      */
-    public <T> T getInitialData() {
+    public <T extends PluginData> T getInitialData() {
         return (T) initialData;
     }
 

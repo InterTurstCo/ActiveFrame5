@@ -5,7 +5,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.Command;
-import ru.intertrust.cm.core.gui.model.form.Form;
+import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseService;
 
 import javax.ejb.EJB;
@@ -34,7 +34,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     }
 
     @Override
-    public Form getForm(Id domainObjectId) {
+    public FormDisplayData getForm(Id domainObjectId) {
         return guiService.getForm(domainObjectId);
     }
 }

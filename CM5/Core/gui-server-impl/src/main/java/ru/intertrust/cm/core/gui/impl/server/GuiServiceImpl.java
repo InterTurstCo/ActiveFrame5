@@ -27,8 +27,9 @@ import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
-import ru.intertrust.cm.core.gui.model.form.Form;
+import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormObjects;
+import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetData;
 
@@ -53,13 +54,13 @@ import java.util.*;
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class GuiServiceImpl implements GuiService, GuiService.Remote {
 
-    static Logger log = LoggerFactory.getLogger(GuiServiceImpl.class);
+    private static Logger log = LoggerFactory.getLogger(GuiServiceImpl.class);
 
     @Autowired
-    ApplicationContext applicationContext;
+    private ApplicationContext applicationContext;
 
     @Resource
-    SessionContext sessionContext;
+    private SessionContext sessionContext;
 
     @Autowired
     private ConfigurationExplorer configurationExplorer;
@@ -100,13 +101,13 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
     }
 
     @Override
-    public Form getForm(String domainObjectType) {
+    public FormDisplayData getForm(String domainObjectType) {
         DomainObject root = crudService.createDomainObject(domainObjectType);
         // todo: separate empty form?
         return buildDomainObjectForm(root);
     }
 
-    public Form getForm(Id domainObjectId) {
+    public FormDisplayData getForm(Id domainObjectId) {
         DomainObject root = crudService.find(domainObjectId);
         if (root == null) {
             throw new GuiException("Object with id: " + domainObjectId.toStringRepresentation() + " doesn't exist");
@@ -114,15 +115,15 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         return buildDomainObjectForm(root);
     }
 
-    public DomainObject saveForm(Form form) {
-        FormConfig formConfig = configurationExplorer.getConfig(FormConfig.class, form.getName());
+    public DomainObject saveForm(FormState formState) {
+        FormConfig formConfig = configurationExplorer.getConfig(FormConfig.class, formState.getName());
         WidgetConfigurationConfig widgetConfigurationConfig = formConfig.getWidgetConfigurationConfig();
         List<WidgetConfig> widgetConfigs = widgetConfigurationConfig.getWidgetConfigList();
-        FormObjects formObjects = form.getObjects();
+        FormObjects formObjects = formState.getObjects();
 
         HashSet<FieldPath> objectsFieldPathsToSave = new HashSet<>();
         for (WidgetConfig widgetConfig : widgetConfigs) {
-            WidgetData widgetData = form.getWidgetData(widgetConfig.getId());
+            WidgetData widgetData = formState.getWidgetData(widgetConfig.getId());
             if (widgetData == null) { // ignore - such data shouldn't be saved
                 continue;
             }
@@ -154,19 +155,19 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         }
     }
 
-    private Form buildDomainObjectForm(DomainObject root) {
-        HashMap<String, WidgetData> widgetDataMap = new HashMap<>();
+    private FormDisplayData buildDomainObjectForm(DomainObject root) {
         FormConfig formConfig = findFormConfig(root);
         WidgetConfigurationConfig widgetConfigurationConfig = formConfig.getWidgetConfigurationConfig();
         List<WidgetConfig> widgetConfigs = widgetConfigurationConfig.getWidgetConfigList();
+        HashMap<String, WidgetData> widgetDataMap = new HashMap<>(widgetConfigs.size());
         FormObjects formObjects = getFormObjects(root, widgetConfigs);
         for (WidgetConfig config : widgetConfigs) {
             WidgetHandler componentHandler = obtainHandler(config.getComponentName());
             WidgetContext widgetContext = new WidgetContext(config, formObjects);
             widgetDataMap.put(config.getId(), componentHandler.getInitialDisplayData(widgetContext));
         }
-        Form form = new Form(formConfig.getName(), formConfig.getMarkup(), widgetDataMap, formObjects, formConfig.getDebug());
-        return form;
+        FormState formState = new FormState(formConfig.getName(), widgetDataMap, formObjects);
+        return new FormDisplayData(formState, formConfig.getMarkup(), formConfig.getDebug());
     }
 
     private static FormMappingsCache formMappingsCache; // todo drop this ugly thing

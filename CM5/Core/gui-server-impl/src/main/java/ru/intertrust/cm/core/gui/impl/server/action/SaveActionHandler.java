@@ -29,7 +29,7 @@ public class SaveActionHandler extends ActionHandler {
 
     @Override
     public <T extends ActionData> T executeAction(ActionContext context) {
-        DomainObject rootDomainObject = guiService.saveForm(((SaveActionContext) context).getForm());
+        DomainObject rootDomainObject = guiService.saveForm(((SaveActionContext) context).getFormState());
         FormPluginHandler handler = (FormPluginHandler) applicationContext.getBean("form.plugin");
         FormPluginConfig config = new FormPluginConfig(rootDomainObject.getId());
         SaveActionData result = new SaveActionData();

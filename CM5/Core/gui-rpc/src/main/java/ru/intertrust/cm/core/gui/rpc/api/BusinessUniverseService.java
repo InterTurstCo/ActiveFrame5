@@ -5,7 +5,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.Command;
-import ru.intertrust.cm.core.gui.model.form.Form;
+import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 
 /**
  * @author Denis Mitavskiy
@@ -17,5 +17,5 @@ public interface BusinessUniverseService extends RemoteService {
 
     Dto executeCommand(Command command);
 
-    public Form getForm(Id domainObjectId);
+    public FormDisplayData getForm(Id domainObjectId);
 }

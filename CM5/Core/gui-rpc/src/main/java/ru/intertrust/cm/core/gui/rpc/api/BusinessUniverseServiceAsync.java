@@ -7,7 +7,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.Command;
-import ru.intertrust.cm.core.gui.model.form.Form;
+import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 
 /**
  * @author Denis Mitavskiy
@@ -19,7 +19,7 @@ public interface BusinessUniverseServiceAsync {
 
     void executeCommand(Command command, AsyncCallback<? extends Dto> async);
 
-    void getForm(Id domainObjectId, AsyncCallback<Form> async);
+    void getForm(Id domainObjectId, AsyncCallback<FormDisplayData> async);
 
     public static class Impl {
         private static final BusinessUniverseServiceAsync instance;
