@@ -138,6 +138,9 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         if (returnInheritedConfig) {
             DomainObjectTypeConfig domainObjectTypeConfig =
                     getConfig(DomainObjectTypeConfig.class, domainObjectConfigName);
+            if (domainObjectTypeConfig == null) {
+                return null;
+            }
             if (domainObjectTypeConfig.getExtendsAttribute() != null) {
                 return getFieldConfig(domainObjectTypeConfig.getExtendsAttribute(), fieldConfigName);
             }

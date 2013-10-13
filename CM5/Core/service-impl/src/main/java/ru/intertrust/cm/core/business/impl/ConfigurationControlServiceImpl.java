@@ -5,7 +5,10 @@ import ru.intertrust.cm.core.config.ConfigurationException;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.config.ConfigurationSerializer;
-import ru.intertrust.cm.core.config.model.*;
+import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.model.FieldConfig;
+import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.model.UniqueKeyConfig;
 import ru.intertrust.cm.core.config.model.base.Configuration;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
@@ -122,17 +125,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
 
         @Override
         protected void postProcessConfig(DomainObjectTypeConfig config) {
-            List<ReferenceFieldConfig> referenceFieldConfigs = new ArrayList<>();
-            for (FieldConfig fieldConfig : config.getFieldConfigs()) {
-                if (fieldConfig instanceof ReferenceFieldConfig) {
-                    referenceFieldConfigs.add((ReferenceFieldConfig) fieldConfig);
-                }
-            }
-
-            if (!referenceFieldConfigs.isEmpty() || !config.getUniqueKeyConfigs().isEmpty()) {
-                dataStructureDao.createForeignKeyAndUniqueConstraints(config.getName(), referenceFieldConfigs,
-                        config.getUniqueKeyConfigs());
-            }
+            createAllConstraints(config);
         }
 
         private void createAclTables(Collection<DomainObjectTypeConfig> configList) {
@@ -170,6 +163,10 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
         protected void postProcessConfig(DomainObjectTypeConfig config) {
             DomainObjectTypeConfig oldConfig =
                     oldConfigExplorer.getConfig(DomainObjectTypeConfig.class, config.getName());
+            if (oldConfig == null) { // newly created type, nothing to merge, just create form scratch
+                createAllConstraints(config);
+                return;
+            }
 
             List<ReferenceFieldConfig> newReferenceFieldConfigs = new ArrayList<>();
             List<UniqueKeyConfig> newUniqueKeyConfigs = new ArrayList<>();
@@ -326,6 +323,20 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
         protected abstract void doProcessConfig(DomainObjectTypeConfig domainObjectTypeConfig);
 
         protected abstract void postProcessConfig(DomainObjectTypeConfig domainObjectTypeConfig);
+
+        protected void createAllConstraints(DomainObjectTypeConfig config) {
+            List<ReferenceFieldConfig> referenceFieldConfigs = new ArrayList<>();
+            for (FieldConfig fieldConfig : config.getFieldConfigs()) {
+                if (fieldConfig instanceof ReferenceFieldConfig) {
+                    referenceFieldConfigs.add((ReferenceFieldConfig) fieldConfig);
+                }
+            }
+
+            if (!referenceFieldConfigs.isEmpty() || !config.getUniqueKeyConfigs().isEmpty()) {
+                dataStructureDao.createForeignKeyAndUniqueConstraints(config.getName(), referenceFieldConfigs,
+                        config.getUniqueKeyConfigs());
+            }
+        }
 
         private void processConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
             if (isProcessed(domainObjectTypeConfig)) {
