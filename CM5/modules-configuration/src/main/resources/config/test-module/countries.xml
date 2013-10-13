@@ -14,6 +14,16 @@
         </uniqueKey>
     </domain-object-type>
 
+    <domain-object-type name="country_best_friend">
+        <fields>
+            <reference name="country" type="country"/>
+            <reference name="best_friend" type="country"/>
+        </fields>
+        <uniqueKey>
+            <field name="country"/>
+        </uniqueKey>
+    </domain-object-type>
+
     <domain-object-type name="super_country" extends="country">
         <fields>
             <string name="additional_name" length="128" />
@@ -57,7 +67,7 @@
     <form name="country_form" domain-object-type="country" is-default="true" debug = "false">
         <markup>
             <header>
-                <table width="500px" height="200px">
+                <table width="800px" height="200px">
                     <tr>
                         <td width="100px" h-align="right"><widget id="1"/></td> <!-- label (Название) -->
                         <td width="100%" h-align="left"><widget id="2"/></td> <!-- text-box (Название) -->
@@ -77,7 +87,9 @@
                                 </tr>
                                 <tr>
                                     <td h-align="right"><widget id="7"/></td>  <!-- label (Столица) -->
-                                    <td colspan="3" h-align="left"><widget id="8"/></td>  <!-- suggest-box (Столица) -->
+                                    <td h-align="left"><widget id="8"/></td>  <!-- suggest-box (Столица) -->
+                                    <td><widget id="best_friend_label"/></td>  <!-- label (Лучший друг) -->
+                                    <td h-align="left"><widget id="best_friend"/></td>  <!-- text-box (Лучший друг (название)) -->
                                 </tr>
                                 <tr>
                                     <td h-align="right"><widget id="9"/></td>  <!-- label (День независимости) -->
@@ -144,6 +156,13 @@
                 <!-- а для области столицы: capital . federal_unit_city^city . federal_unit . name -->
                 <pattern value="{name} ({population} чел.)"/>
             </combo-box>
+
+            <label id="best_friend_label">
+                <text>Лучший друг (назв. страны):</text>
+            </label>
+            <text-box id="best_friend">
+                <field-path value="country_best_friend^country.best_friend.name"/>
+            </text-box>
 
             <label id="9">
                 <text>День независимости:</text>

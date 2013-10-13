@@ -1,6 +1,8 @@
 package ru.intertrust.cm.core.business.api;
 
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 
 import java.util.Collection;
 import java.util.List;
@@ -123,7 +125,8 @@ public interface CrudService {
     int delete(Collection<Id> ids);
 
     /**
-     * Получает список связанных доменных объектов по типу объекта и указанному полю
+     * Получает список связанных доменных объектов по типу объекта и указанному полю. Если связанные объекты
+     * отсутствуют, возвращает пустой список (не null)
      *
      * @param domainObjectId уникальный идентификатор доменного объекта в системе
      * @param linkedType     тип доменного объекта в системе
@@ -133,7 +136,8 @@ public interface CrudService {
     List<DomainObject> findLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField);
 
     /**
-     * Получает список идентификаторов связанных доменных объектов по типу объекта и указанному полю
+     * Получает список идентификаторов связанных доменных объектов по типу объекта и указанному полю. Если связанные
+     * объекты отсутствуют, возвращает пустой список (не null)
      *
      * @param domainObjectId уникальный идентификатор доменного объекта в системе
      * @param linkedType     тип доменного объекта в системе

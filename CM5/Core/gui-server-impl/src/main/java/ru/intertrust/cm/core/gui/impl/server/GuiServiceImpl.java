@@ -9,6 +9,8 @@ import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.model.FieldConfig;
+import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.model.gui.RoleConfig;
 import ru.intertrust.cm.core.config.model.gui.RolesConfig;
 import ru.intertrust.cm.core.config.model.gui.UserConfig;
@@ -213,8 +215,8 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         return firstMetForm;
     }
 
-    private List<FieldPath> getFieldPaths(List<WidgetConfig> configs) {
-        List<FieldPath> paths = new ArrayList<>(configs.size());
+    private List<Pair<FieldPath, WidgetConfig>> findMatchingFieldPaths(List<WidgetConfig> configs) {
+        List<Pair<FieldPath, WidgetConfig>> paths = new ArrayList<>(configs.size());
         for (WidgetConfig config : configs) {
             FieldPathConfig fieldPathConfig = config.getFieldPathConfig();
             if (fieldPathConfig == null || fieldPathConfig.getValue() == null) {
@@ -224,7 +226,7 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
                     continue;
                 }
             }
-            paths.add(new FieldPath(fieldPathConfig.getValue()));
+            paths.add(new Pair<>(new FieldPath(fieldPathConfig.getValue()), config));
         }
         return paths;
     }
@@ -232,44 +234,82 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
     private FormObjects getFormObjects(DomainObject root, List<WidgetConfig> widgetConfigs) {
         // не уверен, нужен ли здесь будет Business Object, но наверно нужен в некотором урезанном виде - для оптимистических блокировок
 
-        List<FieldPath> fieldPaths = getFieldPaths(widgetConfigs);
+        List<Pair<FieldPath, WidgetConfig>> fieldPaths = findMatchingFieldPaths(widgetConfigs);
 
         FormObjects formObjects = new FormObjects();
         formObjects.setRootObject(root);
-        for (FieldPath fieldPath : fieldPaths) {
+        for (Pair<FieldPath, WidgetConfig> fieldPathWithConfig : fieldPaths) {
+            FieldPath fieldPath = fieldPathWithConfig.getFirst();
+            WidgetConfig widgetConfig = fieldPathWithConfig.getSecond();
             DomainObject currentRoot = root;
             for (Iterator<FieldPath> subPathIterator = fieldPath.subPathIterator(); subPathIterator.hasNext(); ) {
                 FieldPath subPath = subPathIterator.next();
-                if (!subPathIterator.hasNext()) { // значит текущий путь указывает на Value и будет получаться из Domain Object
-                    break; // ничего не делаем, а раз следующего нет, выходим из цикла
+                if (!subPathIterator.hasNext()) {
+                    break; // current path is pointing to a Value and will be found in Domain Object, nothing to do else
                 }
+
+                // sub-path points to an object referenced from current root
                 if (formObjects.isObjectSet(subPath)) {
                     continue;
                 }
 
-                String linkField = subPath.getLastElement();
-                if (linkField.contains("^")) { // it's a "back-link"
-                    //todo
-                } else {
-                    Id linkedObjectId = currentRoot.getReference(linkField);
-                    if (linkedObjectId != null) {
-                        DomainObject linkedDo = crudService.find(linkedObjectId);
-                        formObjects.setObject(subPath, linkedDo);
-                        currentRoot = linkedDo;
-                    } else {
-                        // текущий root становится null, таким образом все последующие вызовы бессмыссленны
-                        break;
+                String linkPath = subPath.getLastElement();
+                DomainObject linkedDo = findLinkedDomainObject(currentRoot, linkPath);
 
-                        // todo или создавать пустой Domain Object? если мы разрешаем сохранение "новых" связанных
-                        // объектов, то нужна для этого инфраструктура
-                        // сценарий: у страны есть столица, а на форме показано название столицы. когда столица не назначена,
-                        // поле пусто. Когда его заполняет пользователь, то такую столицу надо создать...
-                    }
+                if (linkedDo != null) {
+                    formObjects.setObject(subPath, linkedDo);
+                    currentRoot = linkedDo;
+                } else {
+                    // current root becomes null, thus further iterations don't make sense
+                    break;
+
+                    // todo or create an empty Domain Object?
+                    // if we allow "new" linked objects saving, appropriate infrastructure required
+                    // scenario: country has a capital and form displays only capital's name. when capital isn't defined
+                    // the field is empty. But when this field is filled by user, such capital (city) should be created..
                 }
             }
         }
 
         return formObjects;
+    }
+
+    private DomainObject findLinkedDomainObject(DomainObject domainObject, String linkPath) {
+        if (!linkPath.contains("^")) {
+            Id linkedObjectId = domainObject.getReference(linkPath);
+            return linkedObjectId == null ? null : crudService.find(linkedObjectId);
+        }
+
+        // it's a "back-link" (like country_best_friend^country)
+        String[] domainObjectTypeAndReference = linkPath.split("\\^");
+        if (domainObjectTypeAndReference.length != 2) {
+            throw new GuiException("Invalid reference: " + linkPath);
+        }
+        String linkedDomainObjectType = domainObjectTypeAndReference[0];
+        String referenceField = domainObjectTypeAndReference[1];
+        FieldConfig fieldConfig = configurationExplorer.getFieldConfig(linkedDomainObjectType, referenceField);
+        if (fieldConfig == null) {
+            throw new GuiException(linkPath + " is referencing a non-existing type/field");
+        }
+        if (!(fieldConfig instanceof ReferenceFieldConfig)) {
+            throw new GuiException(linkPath + " is not pointing to a reference");
+        }
+        ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
+        if (!referenceFieldConfig.getType().equals(domainObject.getTypeName())) {
+            throw new GuiException(linkPath + " is not of type: " + domainObject.getTypeName());
+        }
+
+        // todo after CMFIVE-122 is done - get the first two linked objects, not everything!
+        // todo after cardinality functionality is developed, check cardinality (static-check, not runtime)
+        List<DomainObject> linkedDomainObjects = crudService.findLinkedDomainObjects(domainObject.getId(), linkedDomainObjectType, referenceField);
+        if (linkedDomainObjects.size() > 1) {
+            // such situation means that one field of a collection of DOs should be displayed/edited
+            // for example names of country's cities. this is not supported, such behavior is handled by
+            // widgets configured by back-link path
+            throw new GuiException(linkPath + " is pointing to a collection of fields values");
+        }
+
+        return linkedDomainObjects.isEmpty() ? null : linkedDomainObjects.get(0);
     }
 
     private <T extends ComponentHandler> T obtainHandler(String componentName) {
