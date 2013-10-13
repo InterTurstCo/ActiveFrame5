@@ -18,10 +18,24 @@
         <fields>
             <reference name="country" type="country"/>
             <reference name="best_friend" type="country"/>
+            <reference name="description" type="c_best_friend_desc"/>
         </fields>
         <uniqueKey>
             <field name="country"/>
         </uniqueKey>
+    </domain-object-type>
+
+    <domain-object-type name="c_best_friend_desc">
+        <fields>
+            <string name="text" length="100"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="c_best_friend_desc_back">
+        <fields>
+            <reference name="country_best_friend" type="country_best_friend"/>
+            <string name="text" length="100"/>
+        </fields>
     </domain-object-type>
 
     <domain-object-type name="super_country" extends="country">
@@ -87,9 +101,7 @@
                                 </tr>
                                 <tr>
                                     <td h-align="right"><widget id="7"/></td>  <!-- label (Столица) -->
-                                    <td h-align="left"><widget id="8"/></td>  <!-- suggest-box (Столица) -->
-                                    <td><widget id="best_friend_label"/></td>  <!-- label (Лучший друг) -->
-                                    <td h-align="left"><widget id="best_friend"/></td>  <!-- text-box (Лучший друг (название)) -->
+                                    <td colspan="3" h-align="left"><widget id="8"/></td>  <!-- suggest-box (Столица) -->
                                 </tr>
                                 <tr>
                                     <td h-align="right"><widget id="9"/></td>  <!-- label (День независимости) -->
@@ -118,6 +130,26 @@
                                 <tr>
                                     <td h-align="right"><widget id="13"/></td>  <!-- label (Области) -->
                                     <td h-align="left"><widget id="14"/></td>  <!-- linked-domain-objects-table (Описание) -->
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+                <tab name="Friends">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td><widget id="best_friend_label"/></td>  <!-- label (Лучший друг) -->
+                                    <td h-align="left"><widget id="best_friend"/></td>  <!-- text-box (Лучший друг (название)) -->
+                                </tr>
+                                <tr>
+                                    <td><widget id="best_desc_label"/></td>
+                                    <td h-align="left"><widget id="best_friend_desc"/></td>
+                                </tr>
+                                <tr>
+                                    <td><widget id="best_desc_back_label"/></td>
+                                    <td h-align="left"><widget id="best_friend_desc_back"/></td>
                                 </tr>
                             </table>
                         </tab-group>
@@ -162,6 +194,20 @@
             </label>
             <text-box id="best_friend">
                 <field-path value="country_best_friend^country.best_friend.name"/>
+            </text-box>
+
+            <label id="best_desc_label">
+                <text>Description:</text>
+            </label>
+            <text-box id="best_friend_desc">
+                <field-path value="country_best_friend^country.description.text"/>
+            </text-box>
+
+            <label id="best_desc_back_label">
+                <text>Description (Back):</text>
+            </label>
+            <text-box id="best_friend_desc_back">
+                <field-path value="country_best_friend^country.c_best_friend_desc_back^country_best_friend.text"/>
             </text-box>
 
             <label id="9">

@@ -11,5 +11,15 @@ import ru.intertrust.cm.core.business.api.dto.Value;
  *         Time: 16:32
  */
 public abstract class WidgetState implements Dto {
+    protected boolean editable;
+
     public abstract Value toValue();
+
+    public boolean isEditable() {
+        return editable;
+    }
+
+    public void setEditable(boolean editable) {
+        this.editable = editable;
+    }
 }

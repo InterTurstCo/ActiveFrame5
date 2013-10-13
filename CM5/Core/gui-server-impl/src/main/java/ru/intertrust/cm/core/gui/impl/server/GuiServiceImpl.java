@@ -132,7 +132,7 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
             Value newValue = widgetState.toValue();
             FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
             Value oldValue = formObjects.getObjectValue(fieldPath);
-            if (!newValue.equals(oldValue)) {
+            if (!areValuesSemanticallyEqual(newValue, oldValue)) {
                 formObjects.setObjectValue(fieldPath, newValue);
                 objectsFieldPathsToSave.add(fieldPath.createFieldPathWithoutLastElement());
             }
@@ -157,17 +157,32 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         }
     }
 
+    private boolean areValuesSemanticallyEqual(Value newValue, Value oldValue) {
+        boolean newValueEmpty = newValue == null || newValue.get() == null;
+        boolean oldValueEmpty = oldValue == null || oldValue.get() == null;
+        if (newValueEmpty && oldValueEmpty) {
+            return true;
+        }
+        if (newValueEmpty || oldValueEmpty) { // something is NOT empty then (prev. condition)
+            return false;
+        }
+        return newValue.equals(oldValue);
+    }
+
     private FormDisplayData buildDomainObjectForm(DomainObject root) {
         FormConfig formConfig = findFormConfig(root);
         List<WidgetConfig> widgetConfigs = formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
         HashMap<String, WidgetState> widgetStateMap = new HashMap<>(widgetConfigs.size());
         HashMap<String, String> widgetComponents = new HashMap<>(widgetConfigs.size());
-        FormObjects formObjects = getFormObjects(root, widgetConfigs);
+        ProcessedWidgetsDetail processedWidgetsDetail = new ProcessedWidgetsDetail(widgetConfigs);
+        FormObjects formObjects = getFormObjects(root, processedWidgetsDetail);
         for (WidgetConfig config : widgetConfigs) {
             String widgetId = config.getId();
             WidgetHandler componentHandler = obtainHandler(config.getComponentName());
             WidgetContext widgetContext = new WidgetContext(config, formObjects);
-            widgetStateMap.put(widgetId, componentHandler.getInitialState(widgetContext));
+            WidgetState initialState = componentHandler.getInitialState(widgetContext);
+            initialState.setEditable(processedWidgetsDetail.isWidgetEditable(config));
+            widgetStateMap.put(widgetId, initialState);
             widgetComponents.put(widgetId, config.getComponentName());
         }
         FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects);
@@ -231,18 +246,12 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         return paths;
     }
 
-    private FormObjects getFormObjects(DomainObject root, List<WidgetConfig> widgetConfigs) {
-        // не уверен, нужен ли здесь будет Business Object, но наверно нужен в некотором урезанном виде - для оптимистических блокировок
-
-        List<Pair<FieldPath, WidgetConfig>> fieldPaths = findMatchingFieldPaths(widgetConfigs);
-
+    private FormObjects getFormObjects(DomainObject root, ProcessedWidgetsDetail processedWidgetsDetail) {
         FormObjects formObjects = new FormObjects();
         formObjects.setRootObject(root);
-        for (Pair<FieldPath, WidgetConfig> fieldPathWithConfig : fieldPaths) {
-            FieldPath fieldPath = fieldPathWithConfig.getFirst();
-            WidgetConfig widgetConfig = fieldPathWithConfig.getSecond();
+        for (WidgetDetail widgetDetail : processedWidgetsDetail.getWidgetDetails()) {
             DomainObject currentRoot = root;
-            for (Iterator<FieldPath> subPathIterator = fieldPath.subPathIterator(); subPathIterator.hasNext(); ) {
+            for (Iterator<FieldPath> subPathIterator = widgetDetail.fieldPath.subPathIterator(); subPathIterator.hasNext(); ) {
                 FieldPath subPath = subPathIterator.next();
                 if (!subPathIterator.hasNext()) {
                     break; // current path is pointing to a Value and will be found in Domain Object, nothing to do else
@@ -301,7 +310,11 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
 
         // todo after CMFIVE-122 is done - get the first two linked objects, not everything!
         // todo after cardinality functionality is developed, check cardinality (static-check, not runtime)
-        List<DomainObject> linkedDomainObjects = crudService.findLinkedDomainObjects(domainObject.getId(), linkedDomainObjectType, referenceField);
+        if (domainObject.getId() == null) {
+            return null;
+        }
+        List<DomainObject> linkedDomainObjects =
+                crudService.findLinkedDomainObjects(domainObject.getId(), linkedDomainObjectType, referenceField);
         if (linkedDomainObjects.size() > 1) {
             // such situation means that one field of a collection of DOs should be displayed/edited
             // for example names of country's cities. this is not supported, such behavior is handled by
@@ -425,6 +438,50 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
                 }
                 userFormConfigs.add(formConfig);
             }
+        }
+
+    }
+
+    private static class ProcessedWidgetsDetail {
+        private ArrayList<WidgetDetail> widgetDetails;
+        private HashMap<String, FieldPath> fieldPathsByWidgetId;
+
+        public ProcessedWidgetsDetail(List<WidgetConfig> configs) {
+            widgetDetails = new ArrayList<>(configs.size());
+            fieldPathsByWidgetId = new HashMap<>(configs.size());
+            for (WidgetConfig config : configs) {
+                FieldPathConfig fieldPathConfig = config.getFieldPathConfig();
+                if (fieldPathConfig == null || fieldPathConfig.getValue() == null) {
+                    if (!(config instanceof LabelConfig)) {
+                        throw new GuiException("Widget, id: " + config.getId() + " is not configured with Field Path");
+                    } else {
+                        continue;
+                    }
+                }
+                FieldPath fieldPath = new FieldPath(fieldPathConfig.getValue());
+                widgetDetails.add(new WidgetDetail(config, fieldPath));
+                fieldPathsByWidgetId.put(config.getId(), fieldPath);
+            }
+        }
+
+        public ArrayList<WidgetDetail> getWidgetDetails() {
+            return widgetDetails;
+        }
+
+        public boolean isWidgetEditable(WidgetConfig widgetConfig) {
+            // it's editable only if widget is editable by nature and if it's a property of the very root object
+            FieldPath fieldPath = fieldPathsByWidgetId.get(widgetConfig.getId());
+            return fieldPath != null && fieldPath.size() == 1;
+        }
+    }
+
+    private static class WidgetDetail {
+        public final WidgetConfig widgetConfig;
+        public final FieldPath fieldPath;
+
+        private WidgetDetail(WidgetConfig widgetConfig, FieldPath fieldPath) {
+            this.widgetConfig = widgetConfig;
+            this.fieldPath = fieldPath;
         }
     }
 }
