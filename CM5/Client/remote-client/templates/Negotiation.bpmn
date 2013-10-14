@@ -114,7 +114,7 @@
     <scriptTask id="initNegotiation" name="Начало согласования" scriptFormat="javascript" activiti:autoStoreVariables="true">
       <script>stage=0;</script>
     </scriptTask>
-    <scriptTask id="nextStage" name="На следующий этап" scriptFormat="javascript" activiti:autoStoreVariables="true">
+    <scriptTask id="nextStage" name="На следующий этап" scriptFormat="groovy" activiti:autoStoreVariables="true">
       <script>stage++;</script>
     </scriptTask>
     <sequenceFlow id="flow5" sourceRef="nextStage" targetRef="exclusivegateway1"></sequenceFlow>
