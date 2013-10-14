@@ -38,10 +38,19 @@ public class SequenceIdGenerator implements IdGenerator {
         query.append(sequenceName);
         query.append("')");
         return jdbcTemplate.queryForObject(query.toString(), Long.class);
-
-
     }
 
+    @Override
+    public Object generatetLogId(DomainObjectTypeConfig domainObjectTypeConfig) {
 
+        String sequenceName = DataStructureNamingHelper.getSqlAuditSequenceName(domainObjectTypeConfig);
 
+        StringBuilder query = new StringBuilder();
+        query.append("select nextval ('");
+        query.append(sequenceName);
+        query.append("')");
+        return jdbcTemplate.queryForObject(query.toString(), Long.class);
+    }
+    
+    
 }

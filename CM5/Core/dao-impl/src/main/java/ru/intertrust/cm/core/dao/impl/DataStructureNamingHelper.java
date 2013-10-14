@@ -37,6 +37,16 @@ public class DataStructureNamingHelper {
         return convertToSqlFormat(domainObjectTypeConfig.getName()) + "_SEQ";
     }
 
+    /**
+     * Возвращает имя последовательности(сиквенса) лога доменного объекта в sql-виде
+     * @param domainObjectTypeConfig конфигурация доменного объекта
+     * @return имя последовательности для доменного объекта в sql-виде
+     */
+    public static String getSqlAuditSequenceName(DomainObjectTypeConfig domainObjectTypeConfig) {
+
+        return convertToSqlFormat(domainObjectTypeConfig.getName()) + "_LOG_SEQ";
+    }
+    
 
     /**
      * Возвращает имя поля доменного объекта в sql-виде

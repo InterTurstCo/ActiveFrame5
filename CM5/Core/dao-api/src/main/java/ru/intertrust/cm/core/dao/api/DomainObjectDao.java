@@ -26,6 +26,7 @@ public interface DomainObjectDao {
     String COMPONENT = "COMPONENT";
     String IP_ADDRESS = "IP_ADDRESS";
     String INFO = "INFO";
+    String OPERATION_COLUMN = "OPERATION";
     
 
     /**

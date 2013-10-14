@@ -124,6 +124,8 @@ public class TestProcess extends ClientBase {
                 }
             }
 
+            crudService.delete(attachmentNotInProcess.getId());
+            
         } finally {
             writeLog();
         }

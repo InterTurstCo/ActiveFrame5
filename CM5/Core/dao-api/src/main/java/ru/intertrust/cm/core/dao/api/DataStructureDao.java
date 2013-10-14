@@ -71,4 +71,10 @@ public interface DataStructureDao {
      * @param config
      */
     void createAuditLogTable(DomainObjectTypeConfig config);
+
+    /**
+     * Создание последовательности для таблицы аудита типа, переданного в параметре
+     * @param config
+     */
+    void createAuditSequence(DomainObjectTypeConfig config);
 }

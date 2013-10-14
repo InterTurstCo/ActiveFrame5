@@ -352,6 +352,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
                 dataStructureDao.createTable(domainObjectTypeConfig);
                 dataStructureDao.createAuditLogTable(domainObjectTypeConfig);
                 dataStructureDao.createSequence(domainObjectTypeConfig);
+                dataStructureDao.createAuditSequence(domainObjectTypeConfig);
             }
         }
 

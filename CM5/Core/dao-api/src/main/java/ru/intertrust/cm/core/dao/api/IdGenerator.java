@@ -17,7 +17,14 @@ public interface IdGenerator {
      * @param domainObjectTypeConfig конфигурация доменного объекта
      * @return уникальный идентификатор
      */
-    public Object generatetId(DomainObjectTypeConfig domainObjectTypeConfig);
+    Object generatetId(DomainObjectTypeConfig domainObjectTypeConfig);
+
+    /**
+     * Создает уникальный идентификатор записи в AuditLog для переданной конфигурации доменного объекта
+     * @param domainObjectTypeConfig
+     * @return
+     */
+    Object generatetLogId(DomainObjectTypeConfig domainObjectTypeConfig);
 
 
 }

@@ -66,6 +66,17 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
         jdbcTemplate.update(createSequenceQuery);
     }
 
+    @Override
+    public void createAuditSequence(DomainObjectTypeConfig config) {
+        if (config.getExtendsAttribute() != null) {
+            return; // Для таблиц дочерхних доменных объектов индекс не создается - используется индекс родителя
+        }
+
+        String createAuditSequenceQuery = generateAuditSequenceQuery(config);
+        jdbcTemplate.update(createAuditSequenceQuery);    
+    }
+    
+    
     /**
      * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#createTable(ru.intertrust.cm.core.config.model.DomainObjectTypeConfig)}
      * Dot шаблон (с isTemplate = true) не отображается в базе данных

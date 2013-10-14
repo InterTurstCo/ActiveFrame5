@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import ru.intertrust.cm.core.config.model.*;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 
 import java.util.Arrays;
 import java.util.List;
@@ -110,6 +111,20 @@ public class PostgreSqlQueryHelper {
         return query.toString();
     }
 
+    /**
+     * Генерирует запрос, создающий последовательность(сиквенс) по конфигурации доменного объекта
+     * @param config конфигурация доменного объекта
+     * @return запрос, создающий последовательность(сиквенс) по конфигурации доменного объекта
+     */
+    public static String generateAuditSequenceQuery(DomainObjectTypeConfig config) {
+        String sequenceName = getSqlAuditSequenceName(config);
+        StringBuilder query = new StringBuilder();
+        query.append("create sequence ");
+        query.append(sequenceName);
+
+        return query.toString();
+    }
+    
 
     /**
      * Генерирует запрос, создающий таблицу по конфигурации доменного объекта
@@ -151,14 +166,16 @@ public class PostgreSqlQueryHelper {
 
         //Системные атрибуты
         query.append("ID bigint not null, ");
-        query.append(TYPE_COLUMN + " integer not null, ");
+        query.append(TYPE_COLUMN + " integer not null");
         if (config.getExtendsAttribute() == null) {
-            query.append("CREATED_DATE timestamp not null, ");
+            query.append(", ");
+            query.append(DomainObjectDao.OPERATION_COLUMN +" int not null, ");
+            query.append(DomainObjectDao.UPDATED_DATE_COLUMN +" timestamp not null, ");
+            query.append(DOMAIN_OBJECT_ID + " bigint not null, ");
+            query.append(COMPONENT + " varchar(512), ");
+            query.append(IP_ADDRESS + " varchar(16), ");
+            query.append(INFO + " varchar(512)");
         }
-        query.append(DOMAIN_OBJECT_ID + " bigint not null, ");
-        query.append(COMPONENT + " varchar(512), ");
-        query.append(IP_ADDRESS + " varchar(16), ");
-        query.append(INFO + " varchar(512)");
 
         if (config.getFieldConfigs().size() > 0) {
             query.append(", ");

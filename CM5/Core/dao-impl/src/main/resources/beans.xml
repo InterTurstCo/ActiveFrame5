@@ -75,4 +75,8 @@
         <property name="basePackage" value="ru/intertrust/cm" />
     </bean>
 
+    <bean id="auditService"
+        class="ru.intertrust.cm.core.dao.impl.AuditLogServiceDaoImpl" />
+
+
 </beans>
