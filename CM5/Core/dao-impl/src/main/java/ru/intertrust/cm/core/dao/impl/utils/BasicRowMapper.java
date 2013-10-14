@@ -35,9 +35,6 @@ public class BasicRowMapper {
 
     private DomainObjectCacheServiceImpl domainObjectCacheService;
 
-    private Integer domainObjectRealTypeId = null;
-    private Map<String, Integer> referenceFieldTypeMaps = new HashMap<>();
-
     public BasicRowMapper(String domainObjectType, String idField, ConfigurationExplorer configurationExplorer,
                           DomainObjectTypeIdCache domainObjectTypeIdCache) {
         this.domainObjectType = domainObjectType;
@@ -105,12 +102,7 @@ public class BasicRowMapper {
         Id parentId = null;
 
         if (idField.equalsIgnoreCase(columnName)) {
-            Long longValue = rs.getLong(columnName);
-            if (!rs.wasNull()) {
-                id = new RdbmsId(domainObjectRealTypeId, longValue);
-            } else {
-                throw new FatalException("Id field can not be null for object " + domainObjectType);
-            }
+            id = readId(rs, columnName);
         } else if (fieldConfig != null && StringFieldConfig.class.equals(fieldConfig.getClass())) {
             String fieldValue = rs.getString(columnName);
             if (!rs.wasNull()) {
@@ -133,12 +125,8 @@ public class BasicRowMapper {
                 value = new DecimalValue();
             }
         } else if (fieldConfig != null && ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
-            Long longValue = rs.getLong(columnName);
-            if (!rs.wasNull()) {
-                value = new ReferenceValue(new RdbmsId(referenceFieldTypeMaps.get(fieldConfig.getName()), longValue));
-            } else {
-                value = new ReferenceValue();
-            }
+            String typeColumnName = columnName + REFERENCE_TYPE_POSTFIX;
+            value = readReferenceValue(rs, columnName, typeColumnName);
         } else if (fieldConfig != null && DateTimeFieldConfig.class.equals(fieldConfig.getClass())) {
             Calendar gmtCalendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
             Timestamp timestamp = rs.getTimestamp(columnName, gmtCalendar);
@@ -193,8 +181,6 @@ public class BasicRowMapper {
         GenericDomainObject object = new GenericDomainObject();
         object.setTypeName(domainObjectType);
 
-        fillReferenceTypes(rs, columnModel);
-
         for (String columnName : columnModel.getColumnNames()) {
             FieldValueModel valueModel = new FieldValueModel();
             FieldConfig fieldConfig = configurationExplorer.getFieldConfig(domainObjectType, columnName);
@@ -221,28 +207,31 @@ public class BasicRowMapper {
         return domainObjectCacheService;
     }
 
-    private void fillReferenceTypes(ResultSet rs, ColumnModel columnModel) throws SQLException {
-        for (String columnName : columnModel.getColumnNames()) {
-            if (DomainObjectDao.TYPE_COLUMN.equalsIgnoreCase(columnName)) {
-                domainObjectRealTypeId = rs.getInt(columnName);
-                continue;
+    protected RdbmsId readId(ResultSet rs, String columnName) throws SQLException {
+        Long longValue = rs.getLong(columnName);
+        if (rs.wasNull()) {
+            throw new FatalException("Id field can not be null for object " + domainObjectType);
+        }
+
+        Integer idType = rs.getInt(TYPE_ID_COLUMN);
+        if (rs.wasNull()) {
+            throw new FatalException("Id type field can not be null for object " + domainObjectType);
+        }
+
+        return new RdbmsId(idType, longValue);
+    }
+
+    protected Value readReferenceValue(ResultSet rs, String columnName, String typeColumnName) throws SQLException {
+        Long longValue = rs.getLong(columnName);
+        if (rs.wasNull()) {
+            return new LongValue();
+        } else {
+            Integer typeId = rs.getInt(typeColumnName);
+            if (!rs.wasNull()) {
+                return new ReferenceValue(new RdbmsId(typeId, longValue));
+            } else {
+                throw new FatalException("Reference type field can not be null for object " + domainObjectType);
             }
-
-            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(domainObjectType, columnName);
-            if (fieldConfig != null || !columnName.toUpperCase().endsWith(REFERENCE_TYPE_POSTFIX)) {
-                continue;
-            }
-
-            String fieldConfigName = columnName.substring(0, columnName.length() - REFERENCE_TYPE_POSTFIX.length());
-            fieldConfig = configurationExplorer.getFieldConfig(domainObjectType, fieldConfigName);
-
-            if (fieldConfig == null) {
-                continue;
-            }
-
-            // Это служебная колонка с типом ссылки
-            Integer referenceTypeId = rs.getInt(columnName);
-            referenceFieldTypeMaps.put(fieldConfig.getName(), referenceTypeId);
         }
     }
 

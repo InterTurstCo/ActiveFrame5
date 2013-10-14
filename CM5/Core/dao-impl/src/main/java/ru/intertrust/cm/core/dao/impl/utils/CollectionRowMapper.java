@@ -7,7 +7,6 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.impl.DataType;
-import ru.intertrust.cm.core.model.FatalException;
 
 import java.math.BigDecimal;
 import java.sql.ResultSet;
@@ -108,33 +107,12 @@ public class CollectionRowMapper extends BasicRowMapper implements
         Id id = null;
 
         if (idField.equalsIgnoreCase(columnName)) {
-            Long longValue = rs.getLong(columnName);
-            if (rs.wasNull()) {
-                throw new FatalException("Id field can not be null for object " + domainObjectType);
-            }
-
-            Integer idType = rs.getInt(TYPE_ID_COLUMN);
-            if (rs.wasNull()) {
-                throw new FatalException("Id type field can not be null for object " + domainObjectType);
-            }
-
-            id = new RdbmsId(idType, longValue);
-
+            id = readId(rs, columnName);
         } else if (DataType.INTEGER.equals(fieldType)) {
             String typeColumnName = columnName + REFERENCE_TYPE_POSTFIX;
             if (columnModel.getColumnNames().contains(typeColumnName)) {
                 // Это id поле
-                Long longValue = rs.getLong(columnName);
-                if (rs.wasNull()) {
-                    value = new LongValue();
-                } else {
-                    Integer typeId = rs.getInt(typeColumnName);
-                    if (!rs.wasNull()) {
-                        value = new ReferenceValue(new RdbmsId(typeId, longValue));
-                    } else {
-                        throw new FatalException("Reference type field can not be null for object " + domainObjectType);
-                    }
-                }
+                value = readReferenceValue(rs, columnName, typeColumnName);
             } else {
                 // Это просто целочисленное поле
                 Long longValue = rs.getLong(columnName);
