@@ -55,8 +55,11 @@ public class DomainObjectSurferPluginView extends PluginView {
                     IdentifiableObjectCollection collection = collectionPluginData.getCollection();
                     FormPluginConfig config;
                     if (collection == null || collection.size() == 0) {
+                        // TODO: New approach needed, collection type is no longer available
                         // open empty form for collection domain object type
-                        config = new FormPluginConfig(collectionPluginData.getCollectionConfig().getDomainObjectType());
+                        // config = new SomeActivePluginConfig(collectionPluginData.getCollectionConfig()
+                        // .getDomainObjectType());
+                        config = new FormPluginConfig("country");
                     } else {
                         config = new FormPluginConfig(collection.get(0).getId());
                     }

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration xmlns="https://cm5.intertrust.ru/config">
-    <collection name="Employees" idField="id"
-        domain-object-type="Employee">
+    <collection name="Employees" idField="id">
         <prototype>
             <![CDATA[
                 select
@@ -55,16 +54,14 @@
         </filter>
     </collection>
 
-    <collection name="Employees_2" idField="id"
-        domain-object-type="Employee">
+    <collection name="Employees_2" idField="id">
         <renderer
             className="ru.intertrust.cm.core.business.impl.EmployeesCollectionRenderer" />
         <filter name="byName" />
         <filter name="byDepartment" />
     </collection>
 
-    <collection name="Outgoing_Document" idField="id"
-        domain-object-type="Outgoing_Document">
+    <collection name="Outgoing_Document" idField="id">
         <!--todo поддержка конвертации значений, например, в картинки -->
 
         <prototype>
@@ -162,8 +159,7 @@
         </filter>
     </collection>
 
-    <collection name="Assignment" idField="id"
-        domain-object-type="Assignment">
+    <collection name="Assignment" idField="id">
         <!--todo поддержка конвертации значений, например, в картинки -->
 
         <prototype>
@@ -193,8 +189,7 @@
         </filter>
     </collection>
 
-    <collection name="Outgoing_Document" idField="id"
-        domain-object-type="Outgoing_Document">
+    <collection name="Outgoing_Document" idField="id">
         <!--todo поддержка конвертации значений, например, в картинки -->
 
         <prototype>
@@ -219,8 +214,7 @@
 
     </collection>
 
-    <collection name="PersonByLogin" idField="id"
-        domain-object-type="Person">
+    <collection name="PersonByLogin" idField="id">
 
         <prototype>
             <![CDATA[
@@ -243,8 +237,7 @@
         </filter>
     </collection>
 
-    <collection name="GroupByName" idField="id"
-        domain-object-type="User_Group">
+    <collection name="GroupByName" idField="id">
 
         <prototype>
             <![CDATA[
@@ -268,8 +261,7 @@
     </collection>
 
 
-    <collection name="PersonInGroup" idField="id"
-        domain-object-type="Person">
+    <collection name="PersonInGroup" idField="id">
 
         <prototype>
             <![CDATA[
@@ -289,8 +281,7 @@
         </filter>
     </collection>
 
-    <collection name="AllPersonInGroup" idField="id"
-        domain-object-type="Person">
+    <collection name="AllPersonInGroup" idField="id">
 
         <prototype>
             <![CDATA[
@@ -311,8 +302,7 @@
         </filter>
     </collection>
 
-    <collection name="IsPersonInGroup" idField="id"
-        domain-object-type="group_group">
+    <collection name="IsPersonInGroup" idField="id">
 
         <prototype>
             <![CDATA[
@@ -332,8 +322,7 @@
         </filter>
     </collection>
 
-    <collection name="PersonGroups" idField="id"
-        domain-object-type="User_Group">
+    <collection name="PersonGroups" idField="id">
 
         <prototype>
             <![CDATA[
@@ -354,8 +343,7 @@
         </filter>
     </collection>
 
-    <collection name="PersonTask" idField="id"
-        domain-object-type="Person_Task">
+    <collection name="PersonTask" idField="id">
 
         <prototype>
             <![CDATA[
@@ -385,8 +373,7 @@
         </filter>
     </collection>
 
-    <collection name="PersonGroupTask" idField="id"
-        domain-object-type="Person_Task">
+    <collection name="PersonGroupTask" idField="id">
 
         <prototype>
             <![CDATA[
@@ -418,8 +405,7 @@
         </filter>
     </collection>
 
-    <collection name="GroupInGroup" idField="id"
-        domain-object-type="group_group_settings">
+    <collection name="GroupInGroup" idField="id">
 
         <prototype>
             <![CDATA[
@@ -442,8 +428,7 @@
         </filter>
     </collection>
 
-    <collection name="AllGroupInGroup" idField="id"
-        domain-object-type="group_group">
+    <collection name="AllGroupInGroup" idField="id">
 
         <prototype>
             <![CDATA[
@@ -466,8 +451,7 @@
         </filter>
     </collection>
 
-    <collection name="AllParentGroups" idField="id"
-        domain-object-type="User_Group">
+    <collection name="AllParentGroups" idField="id">
 
         <prototype>
             <![CDATA[
@@ -491,8 +475,7 @@
         </filter>
     </collection>
 
-    <collection name="ChildGroups" idField="id"
-        domain-object-type="User_Group">
+    <collection name="ChildGroups" idField="id">
 
         <prototype>
             <![CDATA[
@@ -516,8 +499,7 @@
         </filter>
     </collection>
 
-    <collection name="AllChildGroups" idField="id"
-        domain-object-type="User_Group">
+    <collection name="AllChildGroups" idField="id">
 
         <prototype>
             <![CDATA[
@@ -541,8 +523,7 @@
         </filter>
     </collection>
 
-    <collection name="GroupGroup" idField="id"
-        domain-object-type="group_group">
+    <collection name="GroupGroup" idField="id">
 
         <prototype>
             <![CDATA[
@@ -566,8 +547,7 @@
     </collection>
 
 
-    <collection name="GroupGroupSettings" idField="id"
-        domain-object-type="group_group_settings">
+    <collection name="GroupGroupSettings" idField="id">
 
         <prototype>
             <![CDATA[
@@ -590,8 +570,7 @@
         </filter>
     </collection>
 
-    <collection name="PersonGroup" idField="id"
-        domain-object-type="Group_Member">
+    <collection name="PersonGroup" idField="id">
 
         <prototype>
             <![CDATA[

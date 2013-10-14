@@ -77,7 +77,10 @@ public class CollectionQueryInitializer {
 /*        if (accessToken.isDeferred()) {
             query = sqlQueryModifier.addAclQuery(query, collectionConfig.getIdField());
         }
-*/        return query;
+*/
+        sqlQueryModifier.checkDuplicatedColumns(query);
+
+        return query;
     }
 
     private String fillPrototypeQuery(CollectionConfig collectionConfig,

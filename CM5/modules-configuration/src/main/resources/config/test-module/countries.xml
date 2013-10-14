@@ -330,13 +330,13 @@
 
         </widget-config>
     </form>
-    <collection name="Countries" idField="id" domain-object-type="country">
+    <collection name="Countries" idField="id">
         <!--todo поддержка конвертации значений, например, в картинки -->
 
         <prototype>
             <![CDATA[
                 select
-                 co.id,   co.name, co.independence_day, co.population, co.description
+                 co.id, co.name, co.independence_day, co.population, co.description, co.capital
                 from
                     country co
                      ::from-clause
@@ -360,7 +360,7 @@
         </display>
    </collection-view>
 
-    <collection name="Cities" idField="id" domain-object-type="city">
+    <collection name="Cities" idField="id">
 
         <prototype>
             <![CDATA[

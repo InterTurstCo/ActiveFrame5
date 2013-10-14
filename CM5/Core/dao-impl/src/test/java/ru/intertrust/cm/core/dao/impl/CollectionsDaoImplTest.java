@@ -387,7 +387,6 @@ public class CollectionsDaoImplTest {
     private CollectionConfig createPersonsCollectionConfig() {
         CollectionConfig result = new CollectionConfig();
         result.setName("Persons");
-        result.setDomainObjectType("Person");
         result.setPrototype(PERSONS_PROROTYPE);
         result.setCountingPrototype(PERSONS_COUNTING_PROTOTYPE);
         result.setIdField("id");

@@ -2,12 +2,16 @@ package ru.intertrust.cm.core.dao.impl;
 
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
+import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.*;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.exception.CollectionQueryException;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Модифицирует SQL запросы. Добавляет поле Тип Объекта идентификатора в SQL запрос получения данных для коллекции, добавляет ACL фильтр в
@@ -86,22 +90,53 @@ public class SqlQueryModifier {
 
     }
 
+    public void checkDuplicatedColumns(String query) {
+        SqlQueryParser sqlParser = new SqlQueryParser(query);
+
+        SelectBody selectBody = sqlParser.getSelectBody();
+        if (selectBody.getClass().equals(PlainSelect.class)) {
+            PlainSelect plainSelect = (PlainSelect) selectBody;
+            checkDuplicatedColumnsInPlainSelect(plainSelect);
+        } else if (selectBody.getClass().equals(Union.class)) {
+            Union union = (Union) selectBody;
+            List plainSelects = union.getPlainSelects();
+            for (Object plainSelect : plainSelects) {
+                checkDuplicatedColumnsInPlainSelect((PlainSelect) plainSelect);
+            }
+        } else {
+            throw new IllegalArgumentException("Unsupported type of select body: " + selectBody.getClass());
+        }
+    }
+
+    private void checkDuplicatedColumnsInPlainSelect(PlainSelect plainSelect) {
+        Set<String> columns = new HashSet<>();
+        for (Object selectItem : plainSelect.getSelectItems()) {
+            SelectExpressionItem selectExpressionItem = (SelectExpressionItem) selectItem;
+            String column = selectExpressionItem.getAlias() + ":" + selectExpressionItem.getExpression().toString();
+            column = column.toLowerCase();
+            if (!columns.add(column)) {
+                throw new CollectionQueryException("Collection query contains duplicated columns: " +
+                        plainSelect.toString());
+            }
+        }
+    }
+
     private void addTypeColumnInPlainSelect(PlainSelect plainSelect) {
-        String dominObjectType = getDomainObjectTypeFromSelect(plainSelect);
-
-        List existingSelectItems = plainSelect.getSelectItems();
-
-        SelectExpressionItem objectTypeSelectItem = createObjectTypeSelectItem(dominObjectType);
-
-        existingSelectItems.add(objectTypeSelectItem);
+        String tableAlias = getFromTableAlias(plainSelect);
+        SelectExpressionItem objectTypeSelectItem = createObjectTypeSelectItem(tableAlias);
+        plainSelect.getSelectItems().add(objectTypeSelectItem);
     }
 
     private String getDomainObjectTypeFromSelect(PlainSelect plainSelect) {
         FromItem fromItem = plainSelect.getFromItem();
         validateFromItem(fromItem);
+        return ((Table) fromItem).getName();
+    }
 
-        String dominObjectType = ((Table) fromItem).getName();
-        return dominObjectType;
+    private String getFromTableAlias(PlainSelect plainSelect) {
+        FromItem fromItem = plainSelect.getFromItem();
+        validateFromItem(fromItem);
+        return fromItem.getAlias();
     }
 
     private void validateFromItem(FromItem fromItem) {
@@ -111,10 +146,9 @@ public class SqlQueryModifier {
         }
     }
 
-    private SelectExpressionItem createObjectTypeSelectItem(String dominObjectType) {
+    private SelectExpressionItem createObjectTypeSelectItem(String fromTableAlias) {
         SelectExpressionItem objectTypeItem = new SelectExpressionItem();
-        objectTypeItem.setAlias(DOMAIN_OBJECT_TYPE_ALIAS);
-        objectTypeItem.setExpression(new net.sf.jsqlparser.expression.StringValue("'" + dominObjectType + "'"));
+        objectTypeItem.setExpression(new Column(new Table(), fromTableAlias + "." + DomainObjectDao.TYPE_COLUMN));
         return objectTypeItem;
     }
 

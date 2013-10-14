@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.dao.impl;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,6 @@ import java.util.List;
 public class DataStructureNamingHelper {
 
     public static final int MAX_NAME_LENGTH = 25;
-    public static final String REFERENCE_TYPE_POSTFIX = "_TYPE";
 
     /**
      * Возвращает имя доменного объекта в sql-виде
@@ -77,7 +77,7 @@ public class DataStructureNamingHelper {
     public static String getReferenceTypeColumnName(ReferenceFieldConfig fieldConfig) {
         String name = fieldConfig.getName();
 
-        final String postfix = REFERENCE_TYPE_POSTFIX;
+        final String postfix = DomainObjectDao.REFERENCE_TYPE_POSTFIX;
         String resultName;
         if (name.length() + postfix.length() > MAX_NAME_LENGTH) {
             resultName = name.substring(0, MAX_NAME_LENGTH - postfix.length() - 1) + postfix;

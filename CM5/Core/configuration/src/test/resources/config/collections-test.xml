@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration xmlns="https://cm5.intertrust.ru/config">
-    <collection name="Employees" idField="id" domain-object-type="Employee">
+    <collection name="Employees" idField="id">
         <!--todo поддержка конвертации значений, например, в картинки -->
 
         <prototype>
@@ -45,8 +45,7 @@
         </filter>
     </collection>
 
-    <collection name="Employees_2" idField="id" domain-object-type="Employee">
-
+    <collection name="Employees_2" idField="id">
         <renderer className="ru.intertrust.cm.core.business.impl.EmployeesCollectionRenderer"/>
         <filter name="byName"/>
         <filter name="byDepartment"/>

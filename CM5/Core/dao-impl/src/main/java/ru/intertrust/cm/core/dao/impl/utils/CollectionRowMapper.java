@@ -7,7 +7,6 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.impl.DataType;
-import ru.intertrust.cm.core.dao.impl.SqlQueryModifier;
 import ru.intertrust.cm.core.model.FatalException;
 
 import java.math.BigDecimal;
@@ -57,7 +56,7 @@ public class CollectionRowMapper extends BasicRowMapper implements
             FieldValueModel valueModel = new FieldValueModel();
 
             for (String columnName : columnModel.getColumnNames()) {
-                fillValueModel(rs, valueModel, columnName);
+                fillValueModel(rs, columnModel, valueModel, columnName);
 
                 if (valueModel.getId() != null) {
                     collection.setId(row, valueModel.getId());
@@ -96,7 +95,8 @@ public class CollectionRowMapper extends BasicRowMapper implements
         return fieldNamesToInsert;
     }
 
-    protected void fillValueModel(ResultSet rs, FieldValueModel valueModel, String columnName) throws SQLException {
+    protected void fillValueModel(ResultSet rs, ColumnModel columnModel, FieldValueModel valueModel,
+                                  String columnName) throws SQLException {
         CollectionColumnConfig columnConfig =
                 configurationExplorer.getCollectionColumnConfig(collectionName, columnName);
 
@@ -109,20 +109,40 @@ public class CollectionRowMapper extends BasicRowMapper implements
 
         if (idField.equalsIgnoreCase(columnName)) {
             Long longValue = rs.getLong(columnName);
-            String idType = rs.getString(SqlQueryModifier.DOMAIN_OBJECT_TYPE_ALIAS);
-
-            if (!rs.wasNull()) {
-                id = new RdbmsId(domainObjectTypeIdCache.getId(idType), longValue);
-            } else {
+            if (rs.wasNull()) {
                 throw new FatalException("Id field can not be null for object " + domainObjectType);
             }
+
+            Integer idType = rs.getInt(TYPE_ID_COLUMN);
+            if (rs.wasNull()) {
+                throw new FatalException("Id type field can not be null for object " + domainObjectType);
+            }
+
+            id = new RdbmsId(idType, longValue);
+
         } else if (DataType.INTEGER.equals(fieldType)) {
-            value = new DecimalValue();
-            Long longValue = rs.getLong(columnName);
-            if (!rs.wasNull()) {
-                value = new LongValue(longValue);
+            String typeColumnName = columnName + REFERENCE_TYPE_POSTFIX;
+            if (columnModel.getColumnNames().contains(typeColumnName)) {
+                // Это id поле
+                Long longValue = rs.getLong(columnName);
+                if (rs.wasNull()) {
+                    value = new LongValue();
+                } else {
+                    Integer typeId = rs.getInt(typeColumnName);
+                    if (!rs.wasNull()) {
+                        value = new ReferenceValue(new RdbmsId(typeId, longValue));
+                    } else {
+                        throw new FatalException("Reference type field can not be null for object " + domainObjectType);
+                    }
+                }
             } else {
-                value = new LongValue();
+                // Это просто целочисленное поле
+                Long longValue = rs.getLong(columnName);
+                if (!rs.wasNull()) {
+                    value = new LongValue(longValue);
+                } else {
+                    value = new LongValue();
+                }
             }
 
         } else if (DataType.DATETIME.equals(fieldType)) {

@@ -16,14 +16,15 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.*;
 
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.REFERENCE_TYPE_POSTFIX;
-
 /**
  * Базовй класс для отображения {@link java.sql.ResultSet} на доменные объекты и коллекции.
  *
  * @author atsvetkov
  */
 public class BasicRowMapper {
+
+    protected static final String TYPE_ID_COLUMN = DomainObjectDao.TYPE_COLUMN.toLowerCase();
+    protected static final String REFERENCE_TYPE_POSTFIX = DomainObjectDao.REFERENCE_TYPE_POSTFIX.toLowerCase();
 
     protected final String domainObjectType;
     protected final String idField;

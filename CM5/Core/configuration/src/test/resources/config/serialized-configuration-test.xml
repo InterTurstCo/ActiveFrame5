@@ -85,7 +85,7 @@
          <string name="role_name" not-null="true" length="64"/>
       </fields>
    </domain-object-type>
-   <collection name="Employees" idField="id" domain-object-type="Employee">
+   <collection name="Employees" idField="id">
       <prototype><![CDATA[
             
                 select
@@ -120,7 +120,7 @@
             ]]></criteria>
       </filter>
    </collection>
-   <collection name="Employees_2" idField="id" domain-object-type="Employee">
+   <collection name="Employees_2" idField="id">
       <filter name="byName"/>
       <filter name="byDepartment"/>
       <renderer className="ru.intertrust.cm.core.business.impl.EmployeesCollectionRenderer"/>

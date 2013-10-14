@@ -4,7 +4,6 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
-import ru.intertrust.cm.core.config.model.base.TopLevelConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,9 +21,6 @@ public class CollectionConfig implements TopLevelConfig {
 
     @Attribute(required = true)
     private String idField;
-
-    @Attribute(name = "domain-object-type", required = true)
-    private String domainObjectType;
 
     @Element(name = "prototype", required = false, data=true)
     private String prototype;
@@ -53,14 +49,6 @@ public class CollectionConfig implements TopLevelConfig {
 
     public void setIdField(String idField) {
         this.idField = idField;
-    }
-
-    public String getDomainObjectType() {
-        return domainObjectType;
-    }
-
-    public void setDomainObjectType(String domainObjectType) {
-        this.domainObjectType = domainObjectType;
     }
 
     public String getPrototype() {
@@ -113,9 +101,6 @@ public class CollectionConfig implements TopLevelConfig {
         if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
         }
-        if (domainObjectType != null ? !domainObjectType.equals(that.domainObjectType) : that.domainObjectType != null) {
-            return false;
-        }
         if (idField != null ? !idField.equals(that.idField) : that.idField != null) {
             return false;
         }
@@ -138,7 +123,7 @@ public class CollectionConfig implements TopLevelConfig {
     @Override
     public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (domainObjectType != null ? domainObjectType.hashCode() : 0);
+        result = 31 * result + (idField != null ? idField.hashCode() : 0);
         return result;
     }
 }
