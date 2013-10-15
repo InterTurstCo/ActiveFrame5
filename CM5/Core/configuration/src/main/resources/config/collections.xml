@@ -85,8 +85,7 @@
 
     </collection>
     
-    <collection name="Internal_Document" idField="id"
-        domain-object-type="Internal_Document">
+    <collection name="Internal_Document" idField="id">
         <!--todo поддержка конвертации значений, например, в картинки -->
         <prototype>
             <![CDATA[
@@ -107,8 +106,7 @@
         </counting-prototype>
     </collection>
     
-        <collection name="Negotiation_Card" idField="id"
-        domain-object-type="Negotiation_Card">
+        <collection name="Negotiation_Card" idField="id">
         <!--todo поддержка конвертации значений, например, в картинки -->
 
         <prototype>
@@ -400,6 +398,29 @@
             <criteria placeholder="where-clause">
                 <![CDATA[
                     t.mainattachment  = {0}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
+    <collection name="NotCompleteTask" idField="id">
+
+        <prototype>
+            <![CDATA[
+                select
+                    t.id
+                from
+                    Person_Task t
+                     ::from-clause
+                where
+                     t.state in (1,2) ::where-clause
+            ]]>
+        </prototype>
+
+        <filter name="byExecutionIdAndTaskId">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    t.executionid  = {0} and t.activityid = {1}
                 ]]>
             </criteria>
         </filter>

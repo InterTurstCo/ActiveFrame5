@@ -18,6 +18,7 @@ public interface ProcessService {
     public static final long TASK_STATE_SEND = 1;
     public static final long TASK_STATE_ACQUIRED = 2;
     public static final long TASK_STATE_COMPLETE = 3;
+    public static final long TASK_STATE_PRETERMIT = 4;
 
     public static final String MAIN_ATTACHMENT = "MAIN_ATTACHMENT";
     public static final String MAIN_ATTACHMENT_ID = "MAIN_ATTACHMENT_ID";

@@ -150,6 +150,7 @@
             <long name="State"/>
             <string name="Actions" length="512"/>
             <string name="Result" length="512"/>
+            <string name="ExecutionId" length="32" />
         </fields>
         <uniqueKey>
             <field name="TaskId"/>

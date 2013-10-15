@@ -86,6 +86,7 @@ public class TestProcess extends ClientBase {
             // Получение всех задач пользователя и их завершение
             List<DomainObject> tasks = service.getUserTasks();
             log("Find " + tasks.size() + " tasks");
+            assertTrue("Find all tasks", tasks.size() > 0);
             for (DomainObject task : tasks) {
                 if ("usertask1".equals(task.getString("ActivityId"))) {
                     service.completeTask(task.getId(), null, null);
@@ -99,6 +100,7 @@ public class TestProcess extends ClientBase {
                     .getId());
             log("Find " + tasks.size()
                     + " tasks for noattached to process document");
+            assertTrue("Find all to not attached document tasks", tasks.size() == 0);
 
             // Получение всех задач по документу и их завершение
             tasks = service.getUserDomainObjectTasks(attachment.getId());
@@ -124,8 +126,33 @@ public class TestProcess extends ClientBase {
                 }
             }
 
+            // Получение задачи в подпроцессе и завершение одной из них
+            tasks = service.getUserDomainObjectTasks(attachment.getId());
+            log("Find " + tasks.size() + " tasks");
+            for (DomainObject task : tasks) {
+                if ("usertask4".equals(task.getString("ActivityId"))) {
+                    service.completeTask(task.getId(), null, null);
+                    log("Complete " + task.getId());
+                    // Завершаем только одну из двух
+                    break;
+                }
+            }
+
+            // Получение задачи, по подпроцессу задачи быть не должно, задача
+            // должна быть только по следующей активнности
+            tasks = service.getUserDomainObjectTasks(attachment.getId());
+            log("Find " + tasks.size() + " tasks");
+            assertTrue("Delete subprocess task", tasks.size() == 1);
+            for (DomainObject task : tasks) {
+                if ("usertask5".equals(task.getString("ActivityId"))) {
+                    service.completeTask(task.getId(), null, null);
+                    log("Complete " + task.getId());
+                    break;
+                }
+            }
+
             crudService.delete(attachmentNotInProcess.getId());
-            
+
         } finally {
             writeLog();
         }
@@ -150,4 +177,19 @@ public class TestProcess extends ClientBase {
             out.close();
         }
     }
+
+    private void assertTrue(String message, boolean param) throws Exception {
+        if (!param) {
+            throw new Exception(message);
+        }
+        System.out.println(message + ": OK");
+    }
+
+    private void assertFalse(String message, boolean param) throws Exception {
+        if (param) {
+            throw new Exception(message);
+        }
+        System.out.println(message + ": OK");
+    }
+
 }
