@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="InternalDocument" name="Обработка внутреннего документа" isExecutable="true">
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <endEvent id="endevent4" name="End"></endEvent>
+    <callActivity id="callNegotiation" name="Согласование" calledElement="Negotiation">
+      <extensionElements>
+        <activiti:in source="MAIN_ATTACHMENT_ID" target="MAIN_ATTACHMENT_ID"></activiti:in>
+        <activiti:in source="SESSION" target="SESSION"></activiti:in>
+        <activiti:in source="MAIN_ATTACHMENT" target="MAIN_ATTACHMENT"></activiti:in>
+        <activiti:in sourceExpression="additional" target="additional"></activiti:in>
+      </extensionElements>
+    </callActivity>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow20" sourceRef="startevent1" targetRef="initInternalDoc"></sequenceFlow>
+    <sequenceFlow id="flow21" sourceRef="exclusivegateway1" targetRef="callNegotiation"></sequenceFlow>
+    <parallelGateway id="parallelgateway1" name="Parallel Gateway"></parallelGateway>
+    <sequenceFlow id="flow22" sourceRef="callNegotiation" targetRef="parallelgateway1"></sequenceFlow>
+    <sequenceFlow id="flow23" sourceRef="parallelgateway1" targetRef="endevent4"></sequenceFlow>
+    <scriptTask id="initInternalDoc" name="Инициализация wf" scriptFormat="javascript" activiti:autoStoreVariables="false">
+      <script>var additional="false";
+execution.setVariableLocal("additional", additional);</script>
+    </scriptTask>
+    <sequenceFlow id="flow24" sourceRef="initInternalDoc" targetRef="exclusivegateway1"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_InternalDocument">
+    <bpmndi:BPMNPlane bpmnElement="InternalDocument" id="BPMNPlane_InternalDocument">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="121.0" y="-30.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent4" id="BPMNShape_endevent4">
+        <omgdc:Bounds height="35.0" width="35.0" x="121.0" y="490.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40.0" width="40.0" x="118.0" y="40.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="parallelgateway1" id="BPMNShape_parallelgateway1">
+        <omgdc:Bounds height="40.0" width="40.0" x="118.0" y="210.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="callNegotiation" id="BPMNShape_callNegotiation">
+        <omgdc:Bounds height="55.0" width="105.0" x="86.0" y="120.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="initInternalDoc" id="BPMNShape_initInternalDoc">
+        <omgdc:Bounds height="55.0" width="105.0" x="220.0" y="4.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow20" id="BPMNEdge_flow20">
+        <omgdi:waypoint x="156.0" y="-13.0"></omgdi:waypoint>
+        <omgdi:waypoint x="272.0" y="4.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow21" id="BPMNEdge_flow21">
+        <omgdi:waypoint x="138.0" y="80.0"></omgdi:waypoint>
+        <omgdi:waypoint x="138.0" y="120.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow22" id="BPMNEdge_flow22">
+        <omgdi:waypoint x="138.0" y="175.0"></omgdi:waypoint>
+        <omgdi:waypoint x="138.0" y="210.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow23" id="BPMNEdge_flow23">
+        <omgdi:waypoint x="138.0" y="250.0"></omgdi:waypoint>
+        <omgdi:waypoint x="138.0" y="490.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow24" id="BPMNEdge_flow24">
+        <omgdi:waypoint x="220.0" y="31.0"></omgdi:waypoint>
+        <omgdi:waypoint x="158.0" y="60.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

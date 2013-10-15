@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <message id="cancelNegotiation" name="cancelNegotiation"></message>
+  <message id="signed" name="signed"></message>
+  <process id="Negotiation" name="Согласование" isExecutable="true">
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <scriptTask id="getNegotiationList" name="Получение списка согласующих" scriptFormat="javascript" activiti:autoStoreVariables="false">
+      <script>var filter = new java.util.Hashtable();
+var taskLabel="";
+if(typeof NEGOTIATION_CARD !=="undefined"){
+filter.put("byParentNecotiationCard",NEGOTIATION_CARD_ID);
+taskLabel="1Дополнительное согласование";
+}else{
+filter.put("byDoc",MAIN_ATTACHMENT_ID);
+filter.put("onlyTopLevelCard",new java.lang.Object());
+taskLabel="2Согласование";
+}
+filter.put("byStatus","Черновик");
+var collection = SESSION.find("Negotiation_Card",filter );
+execution.setVariable("negotiationCardIds", collection );
+execution.setVariable("taskLabel", taskLabel);</script>
+    </scriptTask>
+    <sequenceFlow id="flow4" sourceRef="startevent1" targetRef="initNegotiation"></sequenceFlow>
+    <scriptTask id="initNegotiation" name="Начало согласования" scriptFormat="javascript" activiti:autoStoreVariables="false">
+      <script>if(typeof NEGOTIATION_CARD =="undefined"){
+MAIN_ATTACHMENT.set("Status", "Согласование");
+MAIN_ATTACHMENT.save();
+}</script>
+    </scriptTask>
+    <sequenceFlow id="flow5" sourceRef="initNegotiation" targetRef="getNegotiationList"></sequenceFlow>
+    <sequenceFlow id="flow6" sourceRef="getNegotiationList" targetRef="exclusivegateway1"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
+    <subProcess id="eachNegotiator" name="Каждый согласующий">
+      <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="${negotiationCardIds}" activiti:elementVariable="negotiationCardId"></multiInstanceLoopCharacteristics>
+      <startEvent id="startevent2" name="Start"></startEvent>
+      <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway"></exclusiveGateway>
+      <userTask id="askNegotiate" name="${taskLabel} документа для пользователя &quot;${negotioationCard.get(&quot;Negotiator.Name&quot;)}&quot; - ${negotioationCard.get(&quot;Name&quot;)}(${negotiationCardId})" activiti:assignee="${negotioationCard.get(&quot;Negotiator&quot;).toStringRepresentation()}">
+        <extensionElements>
+          <activiti:formProperty id="ACTIONS" name="Решение по согласованию" type="enum" variable="RESULT">
+            <activiti:value id="REJECT" name="Не согласен"></activiti:value>
+            <activiti:value id="AGREE" name="Согласен"></activiti:value>
+            <activiti:value id="ADDITIONAL_NEGOTIATION" name="Дополнительное согласование"></activiti:value>
+          </activiti:formProperty>
+        </extensionElements>
+      </userTask>
+      <sequenceFlow id="flow8" sourceRef="exclusivegateway2" targetRef="askNegotiate"></sequenceFlow>
+      <exclusiveGateway id="exclusivegateway3" name="Exclusive Gateway"></exclusiveGateway>
+      <sequenceFlow id="flow11" sourceRef="askNegotiate" targetRef="exclusivegateway3"></sequenceFlow>
+      <exclusiveGateway id="exclusivegateway4" name="Exclusive Gateway"></exclusiveGateway>
+      <sequenceFlow id="flow12" sourceRef="exclusivegateway3" targetRef="exclusivegateway4"></sequenceFlow>
+      <sequenceFlow id="flow13" sourceRef="startevent2" targetRef="getNegotiationCard"></sequenceFlow>
+      <endEvent id="endevent2" name="End"></endEvent>
+      <scriptTask id="getNegotiationCard" name="Карточка согласования" scriptFormat="javascript" activiti:autoStoreVariables="false">
+        <script>var negotioationCard = SESSION.find(negotiationCardId.getId());
+negotioationCard.set("Status", "Согласование");
+negotioationCard.save();
+execution.setVariableLocal("negotioationCard", negotioationCard);</script>
+      </scriptTask>
+      <sequenceFlow id="flow17" sourceRef="getNegotiationCard" targetRef="exclusivegateway2"></sequenceFlow>
+      <scriptTask id="doAgree" name="Согласовано" scriptFormat="javascript" activiti:autoStoreVariables="false">
+        <script>negotioationCard.set("Status", "Согласовано");
+negotioationCard.save();</script>
+      </scriptTask>
+      <scriptTask id="doAdditionalNegotiation" name="Дополнительное согласование" scriptFormat="javascript" activiti:autoStoreVariables="false">
+        <script>negotioationCard.set("Status", "Дополнительное согласование");
+negotioationCard.save();</script>
+      </scriptTask>
+      <scriptTask id="doReject" name="Не согласовано" scriptFormat="javascript" activiti:autoStoreVariables="false">
+        <script>negotioationCard.set("Status", "Не согласовано");
+negotioationCard.save();</script>
+      </scriptTask>
+      <sequenceFlow id="ifReject" name="Не согласен" sourceRef="exclusivegateway4" targetRef="doReject">
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${RESULT.equals("REJECT")}]]></conditionExpression>
+      </sequenceFlow>
+      <sequenceFlow id="ifAdditionalNegotiation" name="Дополнительное согласование" sourceRef="exclusivegateway4" targetRef="doAdditionalNegotiation">
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${RESULT.equals("ADDITIONAL_NEGOTIATION")}]]></conditionExpression>
+      </sequenceFlow>
+      <sequenceFlow id="ifAgreed" name="Согласен" sourceRef="exclusivegateway4" targetRef="doAgree">
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${RESULT.equals("AGREE")}]]></conditionExpression>
+      </sequenceFlow>
+      <sequenceFlow id="flow18" name="TODO Дополнительное согласование" sourceRef="doAdditionalNegotiation" targetRef="callNegotiation"></sequenceFlow>
+      <sequenceFlow id="flow19" sourceRef="doAgree" targetRef="endevent2"></sequenceFlow>
+      <exclusiveGateway id="exclusivegateway5" name="Exclusive Gateway"></exclusiveGateway>
+      <sequenceFlow id="flow20" sourceRef="doReject" targetRef="exclusivegateway5"></sequenceFlow>
+      <endEvent id="cancel" name="Согласование завершено досрочно">
+        <errorEventDefinition errorRef="cancel"></errorEventDefinition>
+      </endEvent>
+      <sequenceFlow id="ifReturn" name="Возвращать при первом отказе" sourceRef="exclusivegateway5" targetRef="cancel">
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${MAIN_ATTACHMENT.get("ReturnOnReject").equals("YES")}]]></conditionExpression>
+      </sequenceFlow>
+      <callActivity id="callNegotiation" name="Дополнительное согласование" calledElement="Negotiation">
+        <extensionElements>
+          <activiti:in source="SESSION" target="SESSION"></activiti:in>
+          <activiti:in source="negotioationCard" target="NEGOTIATION_CARD"></activiti:in>
+          <activiti:in sourceExpression="${negotiationCardId.getId()}" target="NEGOTIATION_CARD_ID"></activiti:in>
+          <activiti:in source="MAIN_ATTACHMENT" target="MAIN_ATTACHMENT"></activiti:in>
+          <activiti:in source="MAIN_ATTACHMENT_ID" target="MAIN_ATTACHMENT_ID"></activiti:in>
+        </extensionElements>
+      </callActivity>
+      <sequenceFlow id="flow31" sourceRef="callNegotiation" targetRef="getNegotiationCard"></sequenceFlow>
+      <sequenceFlow id="ifNotReturn" name="Не возвращать" sourceRef="exclusivegateway5" targetRef="endevent2">
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${MAIN_ATTACHMENT.get("ReturnOnReject").equals("NO")}]]></conditionExpression>
+      </sequenceFlow>
+    </subProcess>
+    <sequenceFlow id="flow15" name="TODO Этапы согласования" sourceRef="eachNegotiator" targetRef="getNegotiationList"></sequenceFlow>
+    <sequenceFlow id="ifNoMoreNegotiators" name="Все согласовали" sourceRef="exclusivegateway1" targetRef="endevent1">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${negotiationCardIds.size()==0}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="ifLeftNegotiators" name="Остались согласующие" sourceRef="exclusivegateway1" targetRef="eachNegotiator">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${negotiationCardIds.size()>0}]]></conditionExpression>
+    </sequenceFlow>
+    <boundaryEvent id="onCancel" name="Message" attachedToRef="eachNegotiator">
+      <errorEventDefinition></errorEventDefinition>
+    </boundaryEvent>
+    <boundaryEvent id="onSigned" name="Signed" attachedToRef="eachNegotiator" cancelActivity="true">
+      <messageEventDefinition messageRef="signed"></messageEventDefinition>
+    </boundaryEvent>
+    <scriptTask id="doSigned" name="Документ подписан" scriptFormat="javascript" activiti:autoStoreVariables="false">
+      <script>MAIN_ATTACHMENT.set("Status", "Подписан");
+MAIN_ATTACHMENT.save();</script>
+    </scriptTask>
+    <sequenceFlow id="flow21" sourceRef="onSigned" targetRef="doSigned"></sequenceFlow>
+    <sequenceFlow id="flow22" sourceRef="doSigned" targetRef="endevent1"></sequenceFlow>
+    <sequenceFlow id="flow27" sourceRef="onCancel" targetRef="doRejectDoc"></sequenceFlow>
+    <scriptTask id="doRejectDoc" name="Документ не согласован" scriptFormat="javascript" activiti:autoStoreVariables="false">
+      <script>MAIN_ATTACHMENT.set("Status", "Не согласован");
+MAIN_ATTACHMENT.save();</script>
+    </scriptTask>
+    <sequenceFlow id="flow29" sourceRef="doRejectDoc" targetRef="endevent1"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Negotiation">
+    <bpmndi:BPMNPlane bpmnElement="Negotiation" id="BPMNPlane_Negotiation">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="735.0" y="0.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="720.0" y="759.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="getNegotiationList" id="BPMNShape_getNegotiationList">
+        <omgdc:Bounds height="55.0" width="105.0" x="700.0" y="140.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="initNegotiation" id="BPMNShape_initNegotiation">
+        <omgdc:Bounds height="55.0" width="105.0" x="700.0" y="60.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40.0" width="40.0" x="732.0" y="258.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="eachNegotiator" id="BPMNShape_eachNegotiator" isExpanded="false">
+        <omgdc:Bounds height="539.0" width="681.0" x="-118.0" y="0.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="startevent2" id="BPMNShape_startevent2">
+        <omgdc:Bounds height="35.0" width="35.0" x="452.0" y="48.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway2" id="BPMNShape_exclusivegateway2">
+        <omgdc:Bounds height="40.0" width="40.0" x="232.0" y="45.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="askNegotiate" id="BPMNShape_askNegotiate">
+        <omgdc:Bounds height="55.0" width="105.0" x="92.0" y="38.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway3" id="BPMNShape_exclusivegateway3">
+        <omgdc:Bounds height="40.0" width="40.0" x="124.0" y="218.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway4" id="BPMNShape_exclusivegateway4">
+        <omgdc:Bounds height="40.0" width="40.0" x="124.0" y="288.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent2" id="BPMNShape_endevent2">
+        <omgdc:Bounds height="35.0" width="35.0" x="127.0" y="480.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="getNegotiationCard" id="BPMNShape_getNegotiationCard">
+        <omgdc:Bounds height="55.0" width="105.0" x="312.0" y="38.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="doAgree" id="BPMNShape_doAgree">
+        <omgdc:Bounds height="55.0" width="105.0" x="312.0" y="364.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="doAdditionalNegotiation" id="BPMNShape_doAdditionalNegotiation">
+        <omgdc:Bounds height="55.0" width="105.0" x="312.0" y="281.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="doReject" id="BPMNShape_doReject">
+        <omgdc:Bounds height="55.0" width="105.0" x="-100.0" y="281.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway5" id="BPMNShape_exclusivegateway5">
+        <omgdc:Bounds height="40.0" width="40.0" x="-68.0" y="390.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="cancel" id="BPMNShape_cancel">
+        <omgdc:Bounds height="35.0" width="35.0" x="90.0" y="393.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="callNegotiation" id="BPMNShape_callNegotiation">
+        <omgdc:Bounds height="55.0" width="105.0" x="312.0" y="150.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="onCancel" id="BPMNShape_onCancel">
+        <omgdc:Bounds height="30.0" width="30.0" x="102.0" y="530.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="onSigned" id="BPMNShape_onSigned">
+        <omgdc:Bounds height="30.0" width="30.0" x="-12.0" y="530.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="doSigned" id="BPMNShape_doSigned">
+        <omgdc:Bounds height="55.0" width="105.0" x="-50.0" y="669.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="doRejectDoc" id="BPMNShape_doRejectDoc">
+        <omgdc:Bounds height="55.0" width="105.0" x="64.0" y="669.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="752.0" y="35.0"></omgdi:waypoint>
+        <omgdi:waypoint x="752.0" y="60.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
+        <omgdi:waypoint x="752.0" y="115.0"></omgdi:waypoint>
+        <omgdi:waypoint x="752.0" y="140.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+        <omgdi:waypoint x="752.0" y="195.0"></omgdi:waypoint>
+        <omgdi:waypoint x="752.0" y="258.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
+        <omgdi:waypoint x="232.0" y="65.0"></omgdi:waypoint>
+        <omgdi:waypoint x="197.0" y="65.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow11" id="BPMNEdge_flow11">
+        <omgdi:waypoint x="144.0" y="93.0"></omgdi:waypoint>
+        <omgdi:waypoint x="144.0" y="218.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow12" id="BPMNEdge_flow12">
+        <omgdi:waypoint x="144.0" y="258.0"></omgdi:waypoint>
+        <omgdi:waypoint x="144.0" y="288.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow13" id="BPMNEdge_flow13">
+        <omgdi:waypoint x="452.0" y="65.0"></omgdi:waypoint>
+        <omgdi:waypoint x="417.0" y="65.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow15" id="BPMNEdge_flow15">
+        <omgdi:waypoint x="222.0" y="539.0"></omgdi:waypoint>
+        <omgdi:waypoint x="-96.0" y="559.0"></omgdi:waypoint>
+        <omgdi:waypoint x="-96.0" y="898.0"></omgdi:waypoint>
+        <omgdi:waypoint x="224.0" y="898.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1205.0" y="898.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1205.0" y="654.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1205.0" y="167.0"></omgdi:waypoint>
+        <omgdi:waypoint x="989.0" y="167.0"></omgdi:waypoint>
+        <omgdi:waypoint x="805.0" y="167.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="42.0" width="100.0" x="224.0" y="-278.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="ifNoMoreNegotiators" id="BPMNEdge_ifNoMoreNegotiators">
+        <omgdi:waypoint x="772.0" y="278.0"></omgdi:waypoint>
+        <omgdi:waypoint x="806.0" y="281.0"></omgdi:waypoint>
+        <omgdi:waypoint x="981.0" y="281.0"></omgdi:waypoint>
+        <omgdi:waypoint x="737.0" y="759.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="87.0" x="14.0" y="-17.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="ifLeftNegotiators" id="BPMNEdge_ifLeftNegotiators">
+        <omgdi:waypoint x="732.0" y="278.0"></omgdi:waypoint>
+        <omgdi:waypoint x="563.0" y="269.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="42.0" width="100.0" x="-45.0" y="-53.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow17" id="BPMNEdge_flow17">
+        <omgdi:waypoint x="312.0" y="65.0"></omgdi:waypoint>
+        <omgdi:waypoint x="272.0" y="65.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="ifReject" id="BPMNEdge_ifReject">
+        <omgdi:waypoint x="124.0" y="308.0"></omgdi:waypoint>
+        <omgdi:waypoint x="5.0" y="308.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="62.0" x="-39.0" y="-20.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow19" id="BPMNEdge_flow19">
+        <omgdi:waypoint x="364.0" y="419.0"></omgdi:waypoint>
+        <omgdi:waypoint x="363.0" y="497.0"></omgdi:waypoint>
+        <omgdi:waypoint x="162.0" y="497.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow20" id="BPMNEdge_flow20">
+        <omgdi:waypoint x="-48.0" y="336.0"></omgdi:waypoint>
+        <omgdi:waypoint x="-48.0" y="390.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="ifAdditionalNegotiation" id="BPMNEdge_ifAdditionalNegotiation">
+        <omgdi:waypoint x="164.0" y="308.0"></omgdi:waypoint>
+        <omgdi:waypoint x="312.0" y="308.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="42.0" width="100.0" x="-46.0" y="-50.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="ifAgreed" id="BPMNEdge_ifAgreed">
+        <omgdi:waypoint x="144.0" y="328.0"></omgdi:waypoint>
+        <omgdi:waypoint x="144.0" y="391.0"></omgdi:waypoint>
+        <omgdi:waypoint x="312.0" y="391.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="47.0" x="-4.0" y="-21.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow18" id="BPMNEdge_flow18">
+        <omgdi:waypoint x="364.0" y="281.0"></omgdi:waypoint>
+        <omgdi:waypoint x="364.0" y="205.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="42.0" width="100.0" x="-49.0" y="-11.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="ifReturn" id="BPMNEdge_ifReturn">
+        <omgdi:waypoint x="-28.0" y="410.0"></omgdi:waypoint>
+        <omgdi:waypoint x="90.0" y="410.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="42.0" width="100.0" x="-40.0" y="-46.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow31" id="BPMNEdge_flow31">
+        <omgdi:waypoint x="364.0" y="150.0"></omgdi:waypoint>
+        <omgdi:waypoint x="364.0" y="93.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow21" id="BPMNEdge_flow21">
+        <omgdi:waypoint x="3.0" y="560.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2.0" y="669.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow22" id="BPMNEdge_flow22">
+        <omgdi:waypoint x="2.0" y="724.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2.0" y="848.0"></omgdi:waypoint>
+        <omgdi:waypoint x="737.0" y="848.0"></omgdi:waypoint>
+        <omgdi:waypoint x="737.0" y="794.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow27" id="BPMNEdge_flow27">
+        <omgdi:waypoint x="117.0" y="560.0"></omgdi:waypoint>
+        <omgdi:waypoint x="116.0" y="624.0"></omgdi:waypoint>
+        <omgdi:waypoint x="116.0" y="669.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow29" id="BPMNEdge_flow29">
+        <omgdi:waypoint x="116.0" y="724.0"></omgdi:waypoint>
+        <omgdi:waypoint x="116.0" y="776.0"></omgdi:waypoint>
+        <omgdi:waypoint x="720.0" y="776.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="ifNotReturn" id="BPMNEdge_ifNotReturn">
+        <omgdi:waypoint x="-48.0" y="430.0"></omgdi:waypoint>
+        <omgdi:waypoint x="-48.0" y="497.0"></omgdi:waypoint>
+        <omgdi:waypoint x="127.0" y="497.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="79.0" x="10.0" y="0.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
