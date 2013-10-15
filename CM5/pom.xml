@@ -11,7 +11,7 @@
 
     <modules>
         <module>Core</module>
-        <module>Performance/dataset-generator</module>
+        <module>Performance</module>
         <module>Workstation</module>
 	    <module>Ear</module>
         <module>test-module</module>

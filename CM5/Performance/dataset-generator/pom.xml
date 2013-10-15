@@ -7,7 +7,7 @@
   
   <parent>
 	<groupId>ru.intertrust.cm-sochi</groupId>
-	<artifactId>core</artifactId>
+	<artifactId>performance</artifactId>
 	<version>1.0-SNAPSHOT</version>
   </parent>
 
@@ -44,5 +44,9 @@
         <artifactId>dao-api</artifactId>
         <version>1.0-SNAPSHOT</version>
     </dependency>
+	<dependency>
+        <groupId>javax</groupId>
+        <artifactId>javaee-api</artifactId>
+    </dependency>	
   </dependencies>
 </project>
