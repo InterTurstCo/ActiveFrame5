@@ -10,6 +10,27 @@ import java.util.Date;
 public interface DomainObjectVersion extends IdentifiableObject {
 
     /**
+     * Перечисление операций аудит лога
+     * @author larin
+     * 
+     */
+    enum AuditLogOperation {
+        CREATE(1),
+        UPDATE(2),
+        DELETE(3);
+
+        private int operation;
+
+        AuditLogOperation(int operation) {
+            this.operation = operation;
+        }
+
+        public int getOperation() {
+            return operation;
+        }
+    }
+        
+    /**
      * Идентификатор доменного объекта
      * @return
      */
@@ -33,7 +54,7 @@ public interface DomainObjectVersion extends IdentifiableObject {
      * изменений
      * @return
      */
-    String geyIpAddress();
+    String getIpAddress();
 
     /**
      * Идентификатор персоны (тип Person) выполнившей изменение
@@ -47,5 +68,14 @@ public interface DomainObjectVersion extends IdentifiableObject {
      * @return дату модификации данного доменного объекта
      */
     Date getModifiedDate();
+    
+    /**
+     * Получение операции выполненной с доменным объектом
+     * <li>1 - создание
+     * <li>2 - изменение
+     * <li>3 - удаление
+     * @return
+     */
+    AuditLogOperation getOperation();
 
 }

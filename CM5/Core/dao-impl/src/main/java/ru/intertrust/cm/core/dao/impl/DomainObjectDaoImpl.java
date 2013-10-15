@@ -21,6 +21,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.StringUtils;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.DomainObjectVersion;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
@@ -57,27 +58,6 @@ import ru.intertrust.cm.core.dao.impl.utils.SingleObjectRowMapper;
  */
 
 public class DomainObjectDaoImpl implements DomainObjectDao {
-
-    /**
-     * Перечисление операций аудит лога
-     * @author larin
-     * 
-     */
-    public enum AuditLogOperation {
-        CREATE(1),
-        UPDATE(2),
-        DELETE(3);
-
-        private int operation;
-
-        AuditLogOperation(int operation) {
-            this.operation = operation;
-        }
-
-        public int getOperation() {
-            return operation;
-        }
-    }
 
     private NamedParameterJdbcTemplate jdbcTemplate;
 
@@ -163,15 +143,15 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                         domainObject.getTypeName());
         beforeSaveExtension.onBeforeSave(domainObject);
 
-        AuditLogOperation operation = null;
+        DomainObjectVersion.AuditLogOperation operation = null;
 
         // Сохранение в базе
         if (domainObject.isNew()) {
             result = create(domainObject);
-            operation = AuditLogOperation.CREATE;
+            operation = DomainObjectVersion.AuditLogOperation.CREATE;
         } else {
             result = update(domainObject);
-            operation = AuditLogOperation.UPDATE;
+            operation = DomainObjectVersion.AuditLogOperation.UPDATE;
         }
 
         // Запись в auditLog
@@ -304,7 +284,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         // Пишем в лог
-        createAuditLog(deletedObject, deletedObject.getTypeName(), domainObjectTypeIdCache.getId(deletedObject.getTypeName()), AuditLogOperation.DELETE);
+        createAuditLog(deletedObject, deletedObject.getTypeName(), domainObjectTypeIdCache.getId(deletedObject.getTypeName()),
+                DomainObjectVersion.AuditLogOperation.DELETE);
 
         // Точка расширения после
         AfterDeleteExtensionHandler afterDeleteEH =
@@ -1046,7 +1027,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             // аудит лога то принимаем конфигурацию из блока глобальной
             // конфигурации
             GlobalSettingsConfig globalSettings = configurationExplorer.getConfiguration().getGlobalSettings();
-            if (globalSettings != null && globalSettings.getAuditLog() != null){
+            if (globalSettings != null && globalSettings.getAuditLog() != null) {
                 result = globalSettings.getAuditLog().isEnable();
             }
         }
@@ -1059,7 +1040,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
      * @param type
      * @return
      */
-    private Long createAuditLog(DomainObject domainObject, String typeName, Integer type, AuditLogOperation operation) {
+    private Long createAuditLog(DomainObject domainObject, String typeName, Integer type, DomainObjectVersion.AuditLogOperation operation) {
         Long id = null;
         if (typeName != null) {
             DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
@@ -1094,7 +1075,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 List<FieldConfig> feldConfigs = domainObjectTypeConfig
                         .getDomainObjectFieldsConfig().getFieldConfigs();
 
-                if (operation == AuditLogOperation.DELETE) {
+                if (operation == DomainObjectVersion.AuditLogOperation.DELETE) {
                     initializeDomainParameters(null, feldConfigs, parameters);
                 } else {
                     initializeDomainParameters(domainObject, feldConfigs, parameters);

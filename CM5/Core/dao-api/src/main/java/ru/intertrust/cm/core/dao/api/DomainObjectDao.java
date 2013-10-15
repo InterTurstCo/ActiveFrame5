@@ -27,7 +27,6 @@ public interface DomainObjectDao {
     String IP_ADDRESS = "IP_ADDRESS";
     String INFO = "INFO";
     String OPERATION_COLUMN = "OPERATION";
-    
 
     /**
      * Создает новый доменный объект

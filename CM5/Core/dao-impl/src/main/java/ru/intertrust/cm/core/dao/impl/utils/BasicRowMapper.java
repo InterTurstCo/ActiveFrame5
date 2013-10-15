@@ -17,8 +17,9 @@ import java.sql.Timestamp;
 import java.util.*;
 
 /**
- * Базовй класс для отображения {@link java.sql.ResultSet} на доменные объекты и коллекции.
- *
+ * Базовй класс для отображения {@link java.sql.ResultSet} на доменные объекты и
+ * коллекции.
+ * 
  * @author atsvetkov
  */
 public class BasicRowMapper {
@@ -36,7 +37,7 @@ public class BasicRowMapper {
     private DomainObjectCacheServiceImpl domainObjectCacheService;
 
     public BasicRowMapper(String domainObjectType, String idField, ConfigurationExplorer configurationExplorer,
-                          DomainObjectTypeIdCache domainObjectTypeIdCache) {
+            DomainObjectTypeIdCache domainObjectTypeIdCache) {
         this.domainObjectType = domainObjectType;
         this.idField = idField;
         this.configurationExplorer = configurationExplorer;
@@ -44,8 +45,9 @@ public class BasicRowMapper {
     }
 
     /**
-     * Отображает типы полей в базе на {@link ru.intertrust.cm.core.dao.impl.DataType}
-     *
+     * Отображает типы полей в базе на
+     * {@link ru.intertrust.cm.core.dao.impl.DataType}
+     * 
      * @param columnTypeName
      * @return
      */
@@ -67,9 +69,11 @@ public class BasicRowMapper {
     }
 
     /**
-     * Отображает типы колонок в конфигурации коллекции на {@link ru.intertrust.cm.core.dao.impl.DataType}.
-     *
-     * @param columnType типы колонок в конфигурации
+     * Отображает типы колонок в конфигурации коллекции на
+     * {@link ru.intertrust.cm.core.dao.impl.DataType}.
+     * 
+     * @param columnType
+     *            типы колонок в конфигурации
      * @return объект {@link ru.intertrust.cm.core.dao.impl.DataType}
      */
     protected DataType getColumnDataType(String columnType) {
@@ -90,10 +94,13 @@ public class BasicRowMapper {
 
     /**
      * Заполняет модель {@see FieldValueModel} из объекта {@see ResultSet}.
-     *
-     * @param rs         {@see ResultSet}
-     * @param valueModel модель {@see FieldValueModel}
-     * @param columnName имя колонки, которая извлекается из {@see ResultSet}
+     * 
+     * @param rs
+     *            {@see ResultSet}
+     * @param valueModel
+     *            модель {@see FieldValueModel}
+     * @param columnName
+     *            имя колонки, которая извлекается из {@see ResultSet}
      * @throws SQLException
      */
     protected void fillValueModel(ResultSet rs, FieldValueModel valueModel, String columnName, FieldConfig fieldConfig) throws SQLException {
@@ -156,11 +163,15 @@ public class BasicRowMapper {
     }
 
     /**
-     * Заполняет поля доменного объекта (id, parent или атрибут) из модели {@see FieldValueModel}.
-     *
-     * @param object     исходный доменного объекта
-     * @param valueModel модель {@see FieldValueModel}
-     * @param fieldConfig имя поля, нужно если заполняется обычное поле
+     * Заполняет поля доменного объекта (id, parent или атрибут) из модели
+     * {@see FieldValueModel}.
+     * 
+     * @param object
+     *            исходный доменного объекта
+     * @param valueModel
+     *            модель {@see FieldValueModel}
+     * @param fieldConfig
+     *            имя поля, нужно если заполняется обычное поле
      */
     protected void fillObjectValue(GenericDomainObject object, FieldValueModel valueModel, FieldConfig fieldConfig) {
         if (valueModel.getId() != null) {
@@ -188,7 +199,8 @@ public class BasicRowMapper {
             fillObjectValue(object, valueModel, fieldConfig);
         }
 
-        //TODO добавлено Лариным. М. после выноса системных арибутов в родительский класс надо будет убрать эти 2 строчки
+        // TODO добавлено Лариным. М. после выноса системных арибутов в
+        // родительский класс надо будет убрать эти 2 строчки
         object.setCreatedDate(object.getTimestamp("created_date"));
         object.setModifiedDate(object.getTimestamp("updated_date"));
 
@@ -197,6 +209,49 @@ public class BasicRowMapper {
         }
 
         return object;
+    }
+
+    protected DomainObjectVersion buildDomainObjectVersion(ResultSet rs) throws SQLException {
+        GenericDomainObjectVersion object = new GenericDomainObjectVersion();
+
+        int typeId = domainObjectTypeIdCache.getId(domainObjectType);
+
+        // Установка полей версии
+        object.setId(new RdbmsId(typeId, rs.getLong(DomainObjectDao.ID_COLUMN)));
+        object.setDomainObjectId(new RdbmsId(typeId, rs.getLong(DomainObjectDao.DOMAIN_OBJECT_ID)));
+        object.setModifiedDate(object.getTimestamp(DomainObjectDao.UPDATED_DATE_COLUMN));
+        object.setModifiedDate(object.getTimestamp(DomainObjectDao.INFO));
+        object.setModifiedDate(object.getTimestamp(DomainObjectDao.IP_ADDRESS));
+        object.setModifiedDate(object.getTimestamp(DomainObjectDao.COMPONENT));
+        object.setOperation(getOperation(rs.getInt(DomainObjectDao.OPERATION_COLUMN)));
+
+        setDomainObjectFields(object, rs, domainObjectType);
+
+        return object;
+    }
+
+    private DomainObjectVersion.AuditLogOperation getOperation(int operation){
+        DomainObjectVersion.AuditLogOperation result = null;
+        if (operation == 1){
+            result = DomainObjectVersion.AuditLogOperation.CREATE;
+        }else if(operation == 2){
+            result = DomainObjectVersion.AuditLogOperation.UPDATE;
+        }else{
+            result = DomainObjectVersion.AuditLogOperation.DELETE;
+        }
+        return result;
+    }
+    
+    private void setDomainObjectFields(GenericDomainObjectVersion object, ResultSet rs, String type) throws SQLException {
+        if (type != null) {
+            DomainObjectTypeConfig doConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, type);
+            // Установка полей доменного объекта
+            for (FieldConfig fieldConfig : doConfig.getDomainObjectFieldsConfig().getFieldConfigs()) {
+                FieldValueModel valueModel = new FieldValueModel();
+                fillValueModel(rs, valueModel, fieldConfig.getName(), fieldConfig);
+            }
+            setDomainObjectFields(object, rs, doConfig.getExtendsAttribute());
+        }
     }
 
     protected DomainObjectCacheServiceImpl getDomainObjectCacheService() {
@@ -235,11 +290,12 @@ public class BasicRowMapper {
         }
     }
 
-    //protected void fillValueModelWithSystemFields(SystemField systemFields,)
+    // protected void fillValueModelWithSystemFields(SystemField systemFields,)
 
     /**
-     * Обертывает заполненное поле (атрибут), поле parent или поле id в доменном объекте.
-     *
+     * Обертывает заполненное поле (атрибут), поле parent или поле id в доменном
+     * объекте.
+     * 
      * @author atsvetkov
      */
     protected class FieldValueModel {
@@ -291,8 +347,9 @@ public class BasicRowMapper {
     }
 
     /**
-     * Модель для хранкения названия колонолк и названия колонки-первичного ключа для доменного объекта.
-     *
+     * Модель для хранкения названия колонолк и названия колонки-первичного
+     * ключа для доменного объекта.
+     * 
      * @author atsvetkov
      */
     protected class ColumnModel {
