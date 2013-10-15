@@ -12,7 +12,7 @@ public class GlobalSettingsConfig {
     @Element(name = "audit-log ", required = true)
     private AuditLog auditLog;
 
-    public AuditLog isAuditLog() {
+    public AuditLog getAuditLog() {
         return auditLog;
     }
     

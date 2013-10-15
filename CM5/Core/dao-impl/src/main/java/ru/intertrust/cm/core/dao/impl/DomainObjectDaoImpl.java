@@ -1,13 +1,35 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlAlias;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.generateParameter;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
+
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.StringUtils;
-import ru.intertrust.cm.core.business.api.dto.*;
+
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.DateTimeFieldConfig;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
+import ru.intertrust.cm.core.config.model.GlobalSettingsConfig;
 import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
@@ -24,13 +46,11 @@ import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
-import ru.intertrust.cm.core.dao.impl.utils.*;
-
-import javax.sql.DataSource;
-import java.util.*;
-
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.generateParameter;
+import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
+import ru.intertrust.cm.core.dao.impl.utils.IdSorterByType;
+import ru.intertrust.cm.core.dao.impl.utils.MultipleIdRowMapper;
+import ru.intertrust.cm.core.dao.impl.utils.MultipleObjectRowMapper;
+import ru.intertrust.cm.core.dao.impl.utils.SingleObjectRowMapper;
 
 /**
  * @author atsvetkov
@@ -1010,6 +1030,30 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     /**
+     * Получение конфигурации включения аудит лога для типа
+     * @param domainObjectTypeConfig
+     * @return
+     */
+    private boolean isAuditLogEnable(DomainObjectTypeConfig domainObjectTypeConfig) {
+        boolean result = false;
+
+        // Если в конфигурации доменного объекта указан флаг включения аудит
+        // лога то принимаем его
+        if (domainObjectTypeConfig.isAuditLog() != null) {
+            result = domainObjectTypeConfig.isAuditLog();
+        } else {
+            // Если в конфигурации доменного объекта НЕ указан флаг включения
+            // аудит лога то принимаем конфигурацию из блока глобальной
+            // конфигурации
+            GlobalSettingsConfig globalSettings = configurationExplorer.getConfiguration().getGlobalSettings();
+            if (globalSettings != null && globalSettings.getAuditLog() != null){
+                result = globalSettings.getAuditLog().isEnable();
+            }
+        }
+        return result;
+    }
+
+    /**
      * Запись информации аудит лог в базу
      * @param domainObject
      * @param type
@@ -1021,42 +1065,45 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
                     .getConfig(DomainObjectTypeConfig.class, typeName);
 
-            id = createAuditLog(domainObject,
-                    domainObjectTypeConfig.getExtendsAttribute(), type, operation);
+            if (isAuditLogEnable(domainObjectTypeConfig)) {
 
-            if (id == null) {
-                id = (Long) idGenerator.generatetLogId(domainObjectTypeConfig);
+                id = createAuditLog(domainObject,
+                        domainObjectTypeConfig.getExtendsAttribute(), type, operation);
+
+                if (id == null) {
+                    id = (Long) idGenerator.generatetLogId(domainObjectTypeConfig);
+                }
+
+                String query = generateCreateAuditLogQuery(domainObjectTypeConfig);
+
+                Map<String, Object> parameters = new HashMap<String, Object>();
+                parameters.put(DomainObjectDao.ID_COLUMN, id);
+                parameters.put(DomainObjectDao.TYPE_COLUMN, type);
+
+                if (!isDerived(domainObjectTypeConfig)) {
+                    parameters.put(DomainObjectDao.OPERATION_COLUMN, operation.getOperation());
+                    parameters.put(DomainObjectDao.UPDATED_DATE_COLUMN, getGMTDate(domainObject.getModifiedDate()));
+                    // TODO Получение имени компонента из AcceeToken
+                    parameters.put(DomainObjectDao.COMPONENT, "");
+                    parameters.put(DomainObjectDao.DOMAIN_OBJECT_ID, ((RdbmsId) domainObject.getId()).getId());
+                    parameters.put(DomainObjectDao.INFO, "");
+                    // TODO Получение ip адреса
+                    parameters.put(DomainObjectDao.IP_ADDRESS, "");
+                }
+
+                List<FieldConfig> feldConfigs = domainObjectTypeConfig
+                        .getDomainObjectFieldsConfig().getFieldConfigs();
+
+                if (operation == AuditLogOperation.DELETE) {
+                    initializeDomainParameters(null, feldConfigs, parameters);
+                } else {
+                    initializeDomainParameters(domainObject, feldConfigs, parameters);
+                }
+
+                jdbcTemplate.update(query, parameters);
             }
 
-            String query = generateCreateAuditLogQuery(domainObjectTypeConfig);
-
-            Map<String, Object> parameters = new HashMap<String, Object>();
-            parameters.put(DomainObjectDao.ID_COLUMN, id);
-            parameters.put(DomainObjectDao.TYPE_COLUMN, type);
-
-            if (!isDerived(domainObjectTypeConfig)) {
-                parameters.put(DomainObjectDao.OPERATION_COLUMN, operation.getOperation());
-                parameters.put(DomainObjectDao.UPDATED_DATE_COLUMN, getGMTDate(domainObject.getModifiedDate()));
-                // TODO Получение имени компонента из AcceeToken
-                parameters.put(DomainObjectDao.COMPONENT, "");
-                parameters.put(DomainObjectDao.DOMAIN_OBJECT_ID, ((RdbmsId) domainObject.getId()).getId());
-                parameters.put(DomainObjectDao.INFO, "");
-                // TODO Получение ip адреса
-                parameters.put(DomainObjectDao.IP_ADDRESS, "");
-            }
-
-            List<FieldConfig> feldConfigs = domainObjectTypeConfig
-                    .getDomainObjectFieldsConfig().getFieldConfigs();
-
-            if (operation == AuditLogOperation.DELETE){
-                initializeDomainParameters(null, feldConfigs, parameters);
-            }else{
-                initializeDomainParameters(domainObject, feldConfigs, parameters);
-            }
-
-            jdbcTemplate.update(query, parameters);
         }
-
         return id;
     }
 

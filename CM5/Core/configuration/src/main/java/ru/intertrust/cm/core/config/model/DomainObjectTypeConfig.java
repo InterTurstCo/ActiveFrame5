@@ -28,7 +28,7 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
     private String extendsAttribute;
     
     @Attribute(name = "audit-log", required = false)
-    private boolean auditLog;
+    private Boolean auditLog;
 
     /**
      * флаг конструирования, определяет является ли объект шаблоном
@@ -177,7 +177,7 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
         if (attachmentTypesConfig != null ? !attachmentTypesConfig.equals(that.attachmentTypesConfig) : that.attachmentTypesConfig != null) {
             return false;
         }
-        if (auditLog != that.isAuditLog()) {
+        if (auditLog != null ? !auditLog == that.auditLog : that.auditLog != null) {
             return false;
         }
 
@@ -190,7 +190,7 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
         return name != null ? name.hashCode() : 0;
     }
 
-    public boolean isAuditLog() {
+    public Boolean isAuditLog() {
         return auditLog;
     }
 }
