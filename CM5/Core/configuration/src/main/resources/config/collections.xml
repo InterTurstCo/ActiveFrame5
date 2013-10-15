@@ -86,7 +86,6 @@
     </collection>
     
     <collection name="Internal_Document" idField="id">
-       <!-- domain-object-type="Internal_Document">-->
         <!--todo поддержка конвертации значений, например, в картинки -->
         <prototype>
             <![CDATA[
@@ -107,7 +106,6 @@
         </counting-prototype>
     </collection>
     
-        <collection name="Negotiation_Card" idField="id"  >
       <!--  domain-object-type="Negotiation_Card">-->
         <!--todo поддержка конвертации значений, например, в картинки -->
 
@@ -154,6 +152,13 @@
             <criteria placeholder="where-clause">
                 <![CDATA[
                     nc.add_negotiation_card is null
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="RejectStatus">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    nc.status = 'Reject'
                 ]]>
             </criteria>
         </filter>
