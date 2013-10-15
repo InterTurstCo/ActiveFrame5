@@ -1,6 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.client.form;
 
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.config.model.gui.form.*;
 import ru.intertrust.cm.core.config.model.gui.form.widget.WidgetDisplayConfig;
@@ -52,7 +54,7 @@ public class FormPanel implements IsWidget {
         HeaderConfig header = markup.getHeader();
         IsWidget headerTable = buildTable(header.getTableLayout());
 
-        TabLayoutPanel bodyTabPanel = new TabLayoutPanel(30, Style.Unit.PX);
+        final TabLayoutPanel bodyTabPanel = new TabLayoutPanel(30, Style.Unit.PX);
         bodyTabPanel.setSize("500px", "200px"); // todo - something else
         BodyConfig body = markup.getBody();
         List<TabConfig> tabs = body.getTabs();
@@ -65,10 +67,29 @@ public class FormPanel implements IsWidget {
         verticalPanel.setSize("500px", "100%");
         verticalPanel.add(headerTable);
         verticalPanel.add(bodyTabPanel);
+        bodyTabPanel.getTabWidget(0).getElement().getStyle().setProperty("backgroundColor", "white");
+        bodyTabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
+            @Override
+            public void onSelection(SelectionEvent<Integer> event) {
+                setStyleForAllTabs(event.getSelectedItem(), bodyTabPanel);
+            }
+        });
+
 
         return verticalPanel;
     }
+    void setStyleForAllTabs(Integer activeTab, TabLayoutPanel bodyTabPanel) {
+        for (int i = 0; i < bodyTabPanel.getWidgetCount(); i++) {
+            if (activeTab == i) {
+                bodyTabPanel.getTabWidget(i).getElement().getStyle().setProperty("backgroundColor", "white");
+            }
+            else {
+                bodyTabPanel.getTabWidget(i).getElement().getStyle().setProperty("backgroundColor", "#c2e7f0");
+            }
 
+        }
+
+    }
     private IsWidget buildTabContent(TabConfig tabConfig) {
         SimpleLayoutPanel panel = new SimpleLayoutPanel();
         panel.setSize("500px", "100%");
