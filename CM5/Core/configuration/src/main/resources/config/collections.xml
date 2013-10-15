@@ -373,6 +373,30 @@
         </filter>
     </collection>
 
+    <collection name="NotCompleteTask" idField="id">
+
+        <prototype>
+            <![CDATA[
+                select
+                    t.id
+                from
+                    Person_Task t 
+                     ::from-clause
+                where
+                    t.state in (1,2) ::where-clause
+            ]]>
+        </prototype>
+
+        <filter name="byExecutionIdAndTaskId">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    t.executionid = {0} and t.activityid = {1} 
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
+
     <collection name="PersonGroupTask" idField="id">
 
         <prototype>
