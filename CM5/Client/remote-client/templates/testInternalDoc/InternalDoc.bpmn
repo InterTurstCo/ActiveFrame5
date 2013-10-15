@@ -8,20 +8,16 @@
         <activiti:in source="MAIN_ATTACHMENT_ID" target="MAIN_ATTACHMENT_ID"></activiti:in>
         <activiti:in source="SESSION" target="SESSION"></activiti:in>
         <activiti:in source="MAIN_ATTACHMENT" target="MAIN_ATTACHMENT"></activiti:in>
-        <activiti:in sourceExpression="additional" target="additional"></activiti:in>
       </extensionElements>
     </callActivity>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow20" sourceRef="startevent1" targetRef="initInternalDoc"></sequenceFlow>
     <sequenceFlow id="flow21" sourceRef="exclusivegateway1" targetRef="callNegotiation"></sequenceFlow>
-    <parallelGateway id="parallelgateway1" name="Parallel Gateway"></parallelGateway>
-    <sequenceFlow id="flow22" sourceRef="callNegotiation" targetRef="parallelgateway1"></sequenceFlow>
-    <sequenceFlow id="flow23" sourceRef="parallelgateway1" targetRef="endevent4"></sequenceFlow>
     <scriptTask id="initInternalDoc" name="Инициализация wf" scriptFormat="javascript" activiti:autoStoreVariables="false">
-      <script>var additional="false";
-execution.setVariableLocal("additional", additional);</script>
+      <script>var v="";</script>
     </scriptTask>
     <sequenceFlow id="flow24" sourceRef="initInternalDoc" targetRef="exclusivegateway1"></sequenceFlow>
+    <sequenceFlow id="flow25" sourceRef="callNegotiation" targetRef="endevent4"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_InternalDocument">
     <bpmndi:BPMNPlane bpmnElement="InternalDocument" id="BPMNPlane_InternalDocument">
@@ -33,9 +29,6 @@ execution.setVariableLocal("additional", additional);</script>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
         <omgdc:Bounds height="40.0" width="40.0" x="118.0" y="40.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="parallelgateway1" id="BPMNShape_parallelgateway1">
-        <omgdc:Bounds height="40.0" width="40.0" x="118.0" y="210.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="callNegotiation" id="BPMNShape_callNegotiation">
         <omgdc:Bounds height="55.0" width="105.0" x="86.0" y="120.0"></omgdc:Bounds>
@@ -51,17 +44,13 @@ execution.setVariableLocal("additional", additional);</script>
         <omgdi:waypoint x="138.0" y="80.0"></omgdi:waypoint>
         <omgdi:waypoint x="138.0" y="120.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow22" id="BPMNEdge_flow22">
-        <omgdi:waypoint x="138.0" y="175.0"></omgdi:waypoint>
-        <omgdi:waypoint x="138.0" y="210.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow23" id="BPMNEdge_flow23">
-        <omgdi:waypoint x="138.0" y="250.0"></omgdi:waypoint>
-        <omgdi:waypoint x="138.0" y="490.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow24" id="BPMNEdge_flow24">
         <omgdi:waypoint x="220.0" y="31.0"></omgdi:waypoint>
         <omgdi:waypoint x="158.0" y="60.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow25" id="BPMNEdge_flow25">
+        <omgdi:waypoint x="138.0" y="175.0"></omgdi:waypoint>
+        <omgdi:waypoint x="138.0" y="490.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
