@@ -27,6 +27,7 @@ import ru.intertrust.cm.remoteclient.ClientBase;
  */
 public class TestProcessInternalDoc extends ClientBase {
     private Hashtable<String, Id> personIds = new Hashtable<String, Id>();
+    private Hashtable<String, Id> additionalPersonIds = new Hashtable<String, Id>();
     public static void main(String[] args) {
         try {
             TestProcessInternalDoc test = new TestProcessInternalDoc();
@@ -85,7 +86,7 @@ public class TestProcessInternalDoc extends ClientBase {
                 DomainObject negotiationCard = crudService
                         .createDomainObject("Negotiation_Card");
                 negotiationCard.setString("Name", "Карточка согласования #"+String.valueOf(i));
-                negotiationCard.setString("Status", "Черновик");
+                negotiationCard.setString("Status", "Draft");
                 negotiationCard.setReference("Parent_Document", attachment);
                 
                 personId = personService.getPersonId("Negotiator" + i);
@@ -100,7 +101,7 @@ public class TestProcessInternalDoc extends ClientBase {
                 	 DomainObject negotiationCardChild = crudService
                              .createDomainObject("Negotiation_Card");
                 	 negotiationCardChild.setString("Name", "Дочерняя карточка согласования #"+String.valueOf(i));
-                	 negotiationCardChild.setString("Status", "Черновик");
+                	 negotiationCardChild.setString("Status", "Draft");
                 	 negotiationCardChild.setReference("Parent_Document", attachment);
                 	 negotiationCardChild.setReference("Add_Negotiation_Card", negotiationCard);
                 	 personId = personService.getPersonId(i+"SubNegatiator" + j);
@@ -108,7 +109,7 @@ public class TestProcessInternalDoc extends ClientBase {
                      	DomainObject person =	createEmployee();
                      	personId =person.getId();
                      }
-                     personIds.put(i+"SubNegatiator" + j, personId);
+                     additionalPersonIds.put(i+"SubNegatiator" + j, personId);
                      negotiationCardChild.setReference("Negotiator", personId);
                      negotiationCardChild =  crudService.save(negotiationCardChild);
                 	
@@ -131,12 +132,31 @@ public class TestProcessInternalDoc extends ClientBase {
                         // Получаем все доступные действия
                         String actions = task.getString("Actions");
                         log("All Actions = " + actions);
+                        service.completeTask(task.getId(), null, "ADDITIONAL_NEGOTIATION");
+                        log("Complete " + task.getId());
+                    }
+                }
+            }
+            
+            iter = additionalPersonIds.entrySet().iterator();
+        	
+            while (iter.hasNext()){
+            	Entry<String, Id> entry = iter.next();
+            	personId = entry.getValue();
+            	// Получение всех задач пользователя и их завершение
+                List<DomainObject> tasks = service.getUserTasks(personId);
+                log("Find " + tasks.size() + " tasks for user: " +entry.getKey());
+                for (DomainObject task : tasks) {
+                    if ("askNegotiate".equals(task.getString("ActivityId"))) {
+                        // Получаем все доступные действия
+                        String actions = task.getString("Actions");
+                        log("All Actions = " + actions);
                         service.completeTask(task.getId(), null, "AGREE");
                         log("Complete " + task.getId());
                     }
                 }
             }
-
+            
         } finally {
             writeLog();
         }
