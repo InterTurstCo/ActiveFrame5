@@ -20,8 +20,8 @@ import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CellTableEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CheckedSelectionModel;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.ColumnResizeController;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.SystemColumns;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.TableController;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.resources.CellTableResourcesEx;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.resources.DGCellTableResourceAdapter;
 import ru.intertrust.cm.core.gui.model.GuiException;
@@ -40,6 +40,11 @@ import java.util.List;
 public class CollectionPluginView extends PluginView {
     CellTable<CollectionData> tableHeader;
     CellTable<CollectionData> tableBody;
+/*    SplitLayoutPanel splitterSize;*/
+    TableController tableController;
+    List<String> columnNames;
+    List<String> columnFields;
+
 
     FlowPanel headerPanel = new FlowPanel();
     SimplePanel bodyPanel = new SimplePanel();
@@ -52,11 +57,15 @@ public class CollectionPluginView extends PluginView {
      */
     private final DGCellTableResourceAdapter adapter;
 
-    protected CollectionPluginView(Plugin plugin) {
+    protected CollectionPluginView(Plugin plugin/*, SplitLayoutPanel splitterSize*/) {
         super(plugin);
+     /*   this.splitterSize = splitterSize;*/
         adapter = new DGCellTableResourceAdapter(CellTableResourcesEx.I);
         tableHeader = new CellTable<CollectionData>(999,  adapter.getResources());
         tableBody = new CellTable<CollectionData>(999, adapter.getResources());
+        tableController = new TableController(tableHeader, tableBody, headerPanel);
+
+
 
     }
 
@@ -67,8 +76,8 @@ public class CollectionPluginView extends PluginView {
 
         IdentifiableObjectCollection collection = collectionPluginData.getCollection();
         CollectionViewConfig collectionViewConfig = collectionPluginData.getCollectionViewConfig();
-        List<String> columnNames = getColumnNames(collectionViewConfig);
-        List<String> columnFields = getColumnFields(collectionViewConfig);
+        columnNames = getColumnNames(collectionViewConfig);
+        columnFields = getColumnFields(collectionViewConfig);
 
         init(columnNames, collection, columnFields);
 
@@ -88,8 +97,13 @@ public class CollectionPluginView extends PluginView {
 
         addHandlers();
 
-        draw();
+       // draw();
 
+    }
+
+    private void headerAndBodyResize(){
+//        headerPanel.setWidth("100%");
+//        bodyPanel.setWidth("100%");
     }
 
     private void addResizeHandler(){
@@ -99,20 +113,20 @@ public class CollectionPluginView extends PluginView {
             public void onResize(ResizeEvent event) {
             tableHeader.redraw();
             tableBody.redraw();
-             draw();
+             //draw();
             }
         });
 
     }
     private void addHandlers(){
-        addResizeHandler();
+       // addResizeHandler();
         tableBody.addCellPreviewHandler(new CellTableEventHandler<CollectionData>(tableBody, plugin));
     }
 
     private void draw(){
         for (int i =0; i < tableHeader.getColumnCount(); i++){
-            tableHeader.setWidth("100%", true);
-            tableBody.setWidth("100%", true);
+//            tableHeader.setWidth("100%", true);
+//            tableBody.setWidth("100%", true);
             int headerPanelwidth = 100/tableHeader.getColumnCount();
             if (headerPanelwidth < 35) {
                 headerPanelwidth = 35;
@@ -134,8 +148,8 @@ public class CollectionPluginView extends PluginView {
     }
 
     private void setLinearSizes(){
-        root.setHeight("150px");
-        bodyPanel.setWidth("100%");
+     //   root.setHeight("150px");
+      //  bodyPanel.setWidth("100%");
 
     }
 
@@ -145,22 +159,35 @@ public class CollectionPluginView extends PluginView {
         bodyPanel.add(tableBody);
         verticalPanel.add(headerPanel);
         verticalPanel.add(bodyPanel);
+      //  verticalPanel.setSize("100%","100%");
+
 
         root.add(verticalPanel);
 
     }
 
     private void buildColumnsOfTables(List<String> columnNames, List<String> columnFields){
+        int count =columnNames.size();
+        int columnSize = (headerPanel.getOffsetWidth() / count);
         for( int i = 0; i <columnNames.size(); i++ ) {
             Column<CollectionData, String> column = buildNameColumn(columnFields.get(i));
             String nameOfColumn = columnNames.get(i);
-            tableHeader.addColumn(column, new ColumnResizeController<CollectionData>(nameOfColumn, tableHeader,tableBody, column));
+            tableHeader.addColumn(column, nameOfColumn);
+            tableHeader.setColumnWidth(column, 300/*columnSize*/+"px");
+            column.setDataStoreName(nameOfColumn);
             tableBody.addColumn(column);
+            tableBody.setColumnWidth(column, 300/*columnSize*/+"px");
         }
 
+
+
         tableBody.setRowCount(tableContent.size());
+//        headerPanel.setWidth("700px");
+      //  draw();
 
     }
+
+
 
     private void attachingDataProvider(CellTable<CollectionData> cellTable, List<CollectionData> myDataList) {
         ListDataProvider<CollectionData> dataProvider = new ListDataProvider<CollectionData>(myDataList);
