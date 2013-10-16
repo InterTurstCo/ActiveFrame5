@@ -42,6 +42,8 @@
             <plugin>
                 <artifactId>maven-ear-plugin</artifactId>
                 <configuration>
+                    <applicationName>cm-sochi</applicationName>
+                    <version>6</version>
                     <modules>
                         <webModule>
                             <groupId>ru.intertrust.cm-sochi</groupId>
