@@ -27,6 +27,7 @@
             <string name="Status" length="64" />
             <long name="Stage"/>
             <string name="ReturnOnReject" length="3" />
+            <reference name="docAuthor" type="Employee"/>
         </fields>
     </domain-object-type>
     

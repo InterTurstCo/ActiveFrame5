@@ -58,6 +58,14 @@ public class TestProcessInternalDoc extends ClientBase {
                 person.setString("LastName", "Администраторович");
                 person.setString("EMail", "admin@cm5.ru");
                 person = crudService.save(person);
+                adminPerson = person.getId();
+            }
+            
+            // Создаем Автора документа
+            Id docAuthor = personService.getPersonId("docAuthor");
+            if (docAuthor == null) {
+             	DomainObject person =	createEmployee();
+                docAuthor = person.getId();
             }
             
 
@@ -74,9 +82,10 @@ public class TestProcessInternalDoc extends ClientBase {
             DomainObject attachment = crudService
                     .createDomainObject("Internal_Document");
             attachment.setString("Name", "Тестовый документ");
-            attachment.setString("Status", "Черновик");
+            attachment.setString("Status", "Draft");
             attachment.setString("ReturnOnReject", "YES");
             attachment.setLong("Stage", 0L);
+            attachment.setReference("docAuthor", docAuthor); 
             attachment = crudService.save(attachment);
             Id personId = null;
             //Создание карточек согласования
@@ -132,7 +141,7 @@ public class TestProcessInternalDoc extends ClientBase {
                         // Получаем все доступные действия
                         String actions = task.getString("Actions");
                         log("All Actions = " + actions);
-                        service.completeTask(task.getId(), null, "ADDITIONAL_NEGOTIATION");
+                        service.completeTask(task.getId(), null, "REJECT");
                         log("Complete " + task.getId());
                     }
                 }

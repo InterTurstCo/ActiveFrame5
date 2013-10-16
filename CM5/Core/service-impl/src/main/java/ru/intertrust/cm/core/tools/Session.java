@@ -67,6 +67,7 @@ public class Session implements Serializable {
      * @return
      */
     public IdentifiableObjectCollection find(String collectionName, Id id, String filterName) {
+
         AccessToken accessToken = getAccessControlService().createSystemAccessToken("Session");
         //Создаем новый фильтр
         Filter filter = new Filter();
@@ -194,6 +195,17 @@ public class Session implements Serializable {
      */
     public DomainObjectAccessor find(Id id){
     	return new DomainObjectAccessor(id);
+    }
+    
+    /**
+     * Получение объекта по StringRepresentation Id
+     */
+    public DomainObjectAccessor findByStrId(String strId){
+    	return new DomainObjectAccessor(getIdService().createId(strId));
+    }
+    
+    public void Log(String msg){
+        System.out.println(msg);
     }
 
 }

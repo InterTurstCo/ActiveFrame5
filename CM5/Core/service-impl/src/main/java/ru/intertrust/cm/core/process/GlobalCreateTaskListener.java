@@ -27,6 +27,7 @@ import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.model.ProcessException;
 import ru.intertrust.cm.core.tools.SpringClient;
 
 /**
@@ -71,15 +72,12 @@ public class GlobalCreateTaskListener extends SpringClient implements
         // переделать на системное поле state доменного объекта
         taskDomainObject.setLong("State", ProcessService.TASK_STATE_SEND);
 
-        String mainAttachmentId = ((Id) delegateTask.getVariable("MAIN_ATTACHMENT_ID")).toStringRepresentation();
-        if (mainAttachmentId != null) {
-            taskDomainObject.setString("MainAttachment", mainAttachmentId);
-        }
         // Получение полей формы задачи ACTIONS и сохранение его в обьект
         // задача
         TaskFormData taskData = formService.getTaskFormData(delegateTask.getId());
         List<FormProperty> formProperties = taskData.getFormProperties();
-        for (FormProperty formProperty : formProperties) {
+        String mainAttachmentId = null;
+		for (FormProperty formProperty : formProperties) {
             if (formProperty.getId().equals("ACTIONS")) {
                 Map<String, String> values = (Map<String, String>) formProperty.getType().getInformation("values");
                 StringBuilder actions = new StringBuilder();
@@ -96,7 +94,15 @@ public class GlobalCreateTaskListener extends SpringClient implements
                 }
                 taskDomainObject.setString("Actions", actions.toString());
             }
+            else if (formProperty.getId().equals("MAIN_ATTACHMENT_ID")) {
+            	mainAttachmentId  = formProperty.getValue();
+            }
         }
+        //Id mainAttachmentId = ((Id) delegateTask.getVariable("MAIN_ATTACHMENT_ID"));
+        if (mainAttachmentId == null) {
+        	throw new ProcessException("MAIN_ATTACHMENT_ID is requred");  	
+        }
+        taskDomainObject.setString("MainAttachment", mainAttachmentId);
 
         // Сохранение доменного объекта
         taskDomainObject = domainObjectDao.save(taskDomainObject);
