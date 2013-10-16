@@ -86,20 +86,20 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
             navigationPanelLogicalValidator.setConfigurationExplorer(this);
             navigationPanelLogicalValidator.validate();
         } catch (ConfigurationException e) {
-            //  logger.error("Exception while validating navigation panels configuration" + e);
+
         }
         try {
             formLogicalValidator.setConfigurationExplorer(this);
             formLogicalValidator.validate();
         } catch (ConfigurationException e) {
-            logger.error("Exception while validating forms configuration" + e);
+
         }
 
         try {
             CollectionViewLogicalValidator collectionLogicalValidator = new CollectionViewLogicalValidator(this);
             collectionLogicalValidator.validate();
         } catch (ConfigurationException e) {
-            logger.error("Exception while validating collection views configuration" + e);
+
         }
     }
     /**
