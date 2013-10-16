@@ -97,8 +97,9 @@ public class CollectionViewLogicalValidator {
                 return collectionConfig;
             }
         }
-        logger.error("Couldn't find collection with name '{}'", collection);
-        logicalErrors.addError(String.format("Couldn't find collection with name '%s'", collection));
+        String error = String.format("Couldn't find collection with name '%s'", collection);
+        logger.error(error);
+        logicalErrors.addError(error);
 
         return null;
     }
@@ -112,9 +113,10 @@ public class CollectionViewLogicalValidator {
           String field = column.getField();
           if (!sqlQuery.contains(field)) {
               String collectionName = colConf.getName();
-              logger.error("Couldn't find field '{}' in sql query for collection with name '{}'",field, collectionName);
-              logicalErrors.addError(String.format("Couldn't find field '%s' in sql query for collection with name '%s'",
-                      field, collectionName));
+              String error = String.format("Couldn't find field '%s' in sql query for collection with name '%s'",
+                      field, collectionName);
+              logger.error(error);
+              logicalErrors.addError(error);
           }
         }
         }

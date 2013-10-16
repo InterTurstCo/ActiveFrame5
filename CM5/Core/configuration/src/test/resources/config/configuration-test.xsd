@@ -412,7 +412,7 @@
                             xmlns:con="https://cm5.intertrust.ru/config"/>
             </xs:choice>
         </xs:sequence>
-        <xs:attribute type="xs:string" name="name" use="optional"/>
+        <xs:attribute type="xs:string" name="name"/>
         <xs:attribute type="xs:string" name="display-text" use="optional"/>
         <xs:attribute type="xs:string" name="image" use="optional"/>
         <xs:attribute type="xs:string" name="child-to-open" use="optional"/>

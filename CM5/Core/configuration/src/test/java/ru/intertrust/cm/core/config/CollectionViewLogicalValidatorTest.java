@@ -17,7 +17,7 @@ import static ru.intertrust.cm.core.config.Constants.*;
  */
 public class CollectionViewLogicalValidatorTest {
     private static final String COLLECTION_VIEW_XML_PATH = "config/collection-view-test.xml";
-    private static final String INVALID_COLLECTION_VIEW_XML_PATH = "config/collection-view-with-two-errors.xml";
+    private static final String INVALID_COLLECTION_VIEW_XML_PATH = "config/collection-view-with-errors.xml";
     private static final String COLLECTION_XML_PATH = "config/collections-test.xml";
 
     @Rule

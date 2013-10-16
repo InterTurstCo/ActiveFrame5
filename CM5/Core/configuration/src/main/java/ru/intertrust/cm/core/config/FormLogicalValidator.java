@@ -205,8 +205,9 @@ public class FormLogicalValidator {
                 return;
             }
         }
-        logger.error("Couldn't find widget with id '{}'",widgetId);
-        logicalErrors.addError(String.format("Couldn't find widget with id '%s'", widgetId));
+        String error = String.format("Couldn't find widget with id '%s'", widgetId);
+        logger.error(error);
+        logicalErrors.addError(error);
     }
 
     private void validateTableAlignAndDimensions(TableLayoutConfig table, LogicalErrors logicalErrors) {
@@ -247,24 +248,27 @@ public class FormLogicalValidator {
 
     private void validateWidthAndHeight(String sizeValue, LogicalErrors logicalErrors) {
         if (!sizeValue.matches("\\d{1,4}(px|em|%)")) {
-            logger.error("Dimension '{}' is incorrect", sizeValue);
-            logicalErrors.addError(String.format("Dimension '%s' is incorrect", sizeValue));
+            String error = String.format("Dimension '%s' is incorrect", sizeValue);
+            logger.error(error);
+            logicalErrors.addError(error);
 
         }
     }
     private void validateVAlign(String align, LogicalErrors logicalErrors) {
         if (!ALIGN_BOTTOM.equalsIgnoreCase(align) && !ALIGN_CENTER.equalsIgnoreCase(align)
                 && !ALIGN_TOP.equalsIgnoreCase(align)) {
-            logger.error("v-align '{}' is incorrect", align);
-            logicalErrors.addError(String.format("v-align '%s' is incorrect", align));
+            String error = String.format("v-align '%s' is incorrect", align);
+            logger.error(error);
+            logicalErrors.addError(error);
         }
     }
 
     private void validateHAlign(String align, LogicalErrors logicalErrors) {
         if (!ALIGN_LEFT.equalsIgnoreCase(align) && !ALIGN_CENTER.equalsIgnoreCase(align)
                 && !ALIGN_RIGHT.equalsIgnoreCase(align)) {
-            logger.error("h-align '{}' is incorrect" , align);
-            logicalErrors.addError(String.format("h-align '%s' is incorrect", align));
+            String error = String.format("h-align '%s' is incorrect", align);
+            logger.error(error);
+            logicalErrors.addError(error);
 
         }
     }
@@ -323,25 +327,23 @@ public class FormLogicalValidator {
 
         }
     }
-    private boolean validateWidgetHandlerExtending(Class clazz, String componentName, LogicalErrors logicalErrors) {
+    private void validateWidgetHandlerExtending(Class clazz, String componentName, LogicalErrors logicalErrors) {
         Class  parentClass = clazz.getSuperclass();
 
              if (parentClass == null) {
                  String error = String.format("Could not find widget handler for widget with name '%s'", componentName);
                  logger.error(error);
                  logicalErrors.addError(error);
-                 return true;
+                 return;
              }
 
             String parentClassFullName = parentClass.getCanonicalName();
              if (WIDGET_HANDLER_FULL_QUALIFIED_NAME.equalsIgnoreCase(parentClassFullName)) {
-                      return true;
+                      return;
                   }
 
-             if(validateWidgetHandlerExtending(parentClass,componentName, logicalErrors)) {
-                return true;
-        }
-        return true;
+             validateWidgetHandlerExtending(parentClass,componentName, logicalErrors);
+
     }
 
     private void validateFieldPaths(WidgetConfigurationConfig widgetConfiguration,
@@ -360,9 +362,7 @@ public class FormLogicalValidator {
             if (fieldPathValue == null) {
             continue;
             }
-
             parseAndValidateFieldPath(domainObjectType, fieldPathValue, logicalErrors);
-
             }
     }
 
@@ -372,13 +372,12 @@ public class FormLogicalValidator {
            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(domainObjectType, fieldPathPart);
 
            if (fieldConfig == null) {
-               String error = String.format("Could not find field '%s'  in path '%s'", fieldPathPart, fullFieldPathValue);
+               String error = String.format("Could not find field '%s'  in path '%s'",
+                       fieldPathPart, fullFieldPathValue);
                logger.error(error);
                logicalErrors.addError(error);
                return false;
            }
-           System.out.println("field exist " + fieldConfig.getName());
-           System.out.println("fieldConfig" + fieldConfig.getClass().getCanonicalName());
 
            if (numberOfParts == 0) {
                return true;
@@ -387,7 +386,8 @@ public class FormLogicalValidator {
            if (REFERENCE_FIELD_CONFIG_FULL_QUALIFIED_NAME.equalsIgnoreCase(fieldConfig.getClass().getCanonicalName())){
                return true;
            }
-           String error = String.format("Path part '%s' in  '%s' isn't a reference type", fieldPathPart, fullFieldPathValue);
+           String error = String.format("Path part '%s' in  '%s' isn't a reference type",
+                   fieldPathPart, fullFieldPathValue);
            logger.error(error);
            logicalErrors.addError(error);
            return false;
@@ -408,29 +408,15 @@ public class FormLogicalValidator {
                    String [] backReferenceAndField = pathPart.split("\\^");
                    String backReference = backReferenceAndField[0];
                    String field = backReferenceAndField[1];
-                   try {
+
                       if (!validateFieldPath(backReference, field, fieldPathValue, numberOfParts, logicalErrors)) {
                           break;
                       }
-                   } catch (Exception e) {
-                       String error = String.format("Could not find domain object type '%s'", domainObjectType);
-                       logger.error(error);
-                       logicalErrors.addError(error);
-                       break;
-                   }
                    lastReference = field;
-
                } else {
-                   try {
                      if  (!validateFieldPath(lastReference, pathPart, fieldPathValue, numberOfParts, logicalErrors)) {
                          break;
                      }
-                   } catch (Exception e) {
-                       String error = String.format("Could not find domain object type '%s'", domainObjectType);
-                       logger.error(error);
-                       logicalErrors.addError(error);
-                       break;
-                   }
                    lastReference = pathPart;
                }
            }

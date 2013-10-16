@@ -266,7 +266,7 @@
 
         </widget-config>
     </form>
-    <collection name="Countries" idField="id" domain-object-type="country">
+    <collection name="Countries" idField="id">
         <!--todo поддержка конвертации значений, например, в картинки -->
 
         <prototype>
@@ -296,7 +296,7 @@
         </display>
     </collection-view>
 
-    <collection name="Cities" idField="id" domain-object-type="city">
+    <collection name="Cities" idField="id">
 
         <prototype>
             <![CDATA[

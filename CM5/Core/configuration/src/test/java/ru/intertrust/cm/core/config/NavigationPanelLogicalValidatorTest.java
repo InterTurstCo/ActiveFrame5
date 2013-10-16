@@ -1,9 +1,7 @@
 package ru.intertrust.cm.core.config;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -30,11 +28,12 @@ public class NavigationPanelLogicalValidatorTest {
             "config/navigation-panel-test.xml";
 
     private static final String NAVIGATION_PANEL_INVALID_CHILD_TO_OPEN_XML_PATH =
-            "config/navigation-panel-invalid-child-to-open.xml";
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
+            "config/navigation-panel-with-errors.xml";
+    /**
+     * Вызов метода validatePluginHandlers исключается на время тестов
+     * Для корректной работы validatePluginHandlers требуется спринг контекст
+     * @throws Exception
+     */
     @Before
     public void SetUp() throws Exception {
         suppress(method(NavigationPanelLogicalValidator.class, "validatePluginHandlers"));

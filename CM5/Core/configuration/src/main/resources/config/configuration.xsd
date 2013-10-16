@@ -434,22 +434,20 @@
 
 
     <xs:complexType name="linkType">
-        <xs:sequence>
-            <xs:element type="con:pluginType" name="plugin"
-                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config" />
-            <xs:element type="con:decorationsType" name="decorations"
-                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config" />
-            <xs:element type="con:childLinksType" name="child-links"
-                maxOccurs="unbounded" minOccurs="0"
-                xmlns:con="https://cm5.intertrust.ru/config">
-            </xs:element>
+        <xs:sequence minOccurs="0" maxOccurs="3">
+            <xs:choice>
+                <xs:element type="con:childLinksType" name="child-links" minOccurs="0" maxOccurs="unbounded"
+                            xmlns:con="https://cm5.intertrust.ru/config"/>
+                <xs:element type="con:decorationsType" name="decorations" minOccurs="0" maxOccurs="1"
+                            xmlns:con="https://cm5.intertrust.ru/config"/>
+                <xs:element type="con:pluginType" name="plugin" minOccurs="0" maxOccurs="1"
+                            xmlns:con="https://cm5.intertrust.ru/config"/>
+            </xs:choice>
         </xs:sequence>
-        <xs:attribute type="xs:string" name="name" use="optional" />
-        <xs:attribute type="xs:string" name="display-text"
-            use="optional" />
-        <xs:attribute type="xs:string" name="image" use="optional" />
-        <xs:attribute type="xs:string" name="child-to-open"
-            use="optional" />
+        <xs:attribute type="xs:string" name="name"/>
+        <xs:attribute type="xs:string" name="display-text" use="optional"/>
+        <xs:attribute type="xs:string" name="image" use="optional"/>
+        <xs:attribute type="xs:string" name="child-to-open" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="pluginType">
@@ -971,7 +969,7 @@
             <xs:element type="con:fieldPathType" name="field-path"
                 xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:sequence>
-        <xs:attribute type="xs:string" name="id" />
+        <xs:attribute type="xs:string" name="id" use="optional" />
         <xs:attribute type="xs:string" name="template-name" />
     </xs:complexType>
     <xs:complexType name="widgetType">

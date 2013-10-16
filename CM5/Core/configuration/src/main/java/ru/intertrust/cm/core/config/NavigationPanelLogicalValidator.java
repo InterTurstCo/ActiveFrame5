@@ -186,24 +186,21 @@ public class NavigationPanelLogicalValidator {
 
     }
 
-    private boolean validatePluginHandlerExtending(Class clazz, String componentName, LogicalErrors logicalErrors) {
+    private void validatePluginHandlerExtending(Class clazz, String componentName, LogicalErrors logicalErrors) {
         Class  parentClass = clazz.getSuperclass();
 
         if (parentClass == null) {
             String error = String.format("Could not find plugin handler for widget with name '%s'", componentName);
             logger.error(error);
             logicalErrors.addError(error);
-            return true;
+            return;
         }
 
         String parentClassFullName = parentClass.getCanonicalName();
         if (PlUGIN_HANDLER_FULL_QUALIFIED_NAME.equalsIgnoreCase(parentClassFullName)) {
-            return true;
+            return;
         }
+        validatePluginHandlerExtending(parentClass, componentName, logicalErrors);
 
-        if(validatePluginHandlerExtending(parentClass, componentName, logicalErrors)) {
-            return true;
-        }
-        return true;
     }
 }
