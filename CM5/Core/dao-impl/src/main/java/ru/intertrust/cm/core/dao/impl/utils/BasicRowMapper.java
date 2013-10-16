@@ -204,6 +204,8 @@ public class BasicRowMapper {
         object.setCreatedDate(object.getTimestamp("created_date"));
         object.setModifiedDate(object.getTimestamp("updated_date"));
 
+        object.resetDirty();
+
         if (object.getId() != null) {
             getDomainObjectCacheService().putObjectToCache(object);
         }
@@ -226,6 +228,8 @@ public class BasicRowMapper {
         object.setOperation(getOperation(rs.getInt(DomainObjectDao.OPERATION_COLUMN)));
 
         setDomainObjectFields(object, rs, domainObjectType);
+
+        object.resetDirty();
 
         return object;
     }

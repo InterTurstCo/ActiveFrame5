@@ -35,7 +35,7 @@ public class CollectionRowMapper extends BasicRowMapper implements
 
     @Override
     public IdentifiableObjectCollection extractData(ResultSet rs) throws SQLException, DataAccessException {
-        IdentifiableObjectCollection collection = new GenericIdentifiableObjectCollection();
+        GenericIdentifiableObjectCollection collection = new GenericIdentifiableObjectCollection();
 
         ColumnModel columnModel = new ColumnModel();
         for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
@@ -66,6 +66,8 @@ public class CollectionRowMapper extends BasicRowMapper implements
                 }
                 index++;
             }
+
+            collection.resetDirty(row);
             row++;
         }
 

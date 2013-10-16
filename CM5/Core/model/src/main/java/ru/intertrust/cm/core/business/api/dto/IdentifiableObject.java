@@ -154,4 +154,11 @@ public interface IdentifiableObject extends Dto {
      * @return значение поля
      */
     Id getReference(String field);
+
+    /**
+     * Возвращает признак наличия несохранённых изменений в объекте
+     * 
+     * @return true, если объект был изменён, но не сохранён
+     */
+    boolean isDirty();
 }

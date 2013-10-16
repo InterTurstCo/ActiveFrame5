@@ -226,6 +226,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         updatedObject.setModifiedDate(currentDate);
+        updatedObject.resetDirty();
 
         domainObjectCacheService.putObjectToCache(updatedObject);
 

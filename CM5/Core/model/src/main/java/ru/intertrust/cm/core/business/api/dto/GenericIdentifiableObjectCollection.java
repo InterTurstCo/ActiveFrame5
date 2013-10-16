@@ -118,6 +118,10 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         }
     }
 
+    public void resetDirty(int row) {
+        ((FastIdentifiableObjectImpl) list.get(row)).resetDirty();
+    }
+
     private IdentifiableObject createObjectByTemplate() {
         if (fields == null) {
             setFields(Collections.<String>emptyList());
@@ -132,6 +136,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         private Id id;
         private ArrayList<Value> fieldValues;
         private IdentifiableObjectCollection collection;
+        private boolean dirty = false;
 
         FastIdentifiableObjectImpl() {
         }
@@ -153,11 +158,13 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         @Override
         public void setId(Id id) {
             this.id = id;
+            dirty = true;
         }
 
         @Override
         public void setValue(String field, Value value) {
             fieldValues.set(collection.getFieldIndex(field), value);
+            dirty = true;
         }
 
         @Override
@@ -167,6 +174,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
 
         public void setValue(int index, Value value) {
             fieldValues.set(index, value);
+            dirty = true;
         }
 
         public <T extends Value> T getValue(int index) {
@@ -176,10 +184,12 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         @Override
         public void setString(String field, String value) {
             fieldValues.set(collection.getFieldIndex(field), new StringValue(value));
+            dirty = true;
         }
 
         public void setString(int index, String value) {
             fieldValues.set(index, new StringValue(value));
+            dirty = true;
         }
 
         @Override
@@ -195,10 +205,12 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         @Override
         public void setLong(String field, Long value) {
             fieldValues.set(collection.getFieldIndex(field), new LongValue(value));
+            dirty = true;
         }
 
         public void setLong(int index, Long value) {
             fieldValues.set(index, new LongValue(value));
+            dirty = true;
         }
 
         @Override
@@ -213,10 +225,12 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         @Override
         public void setBoolean(String field, Boolean value) {
             fieldValues.set(collection.getFieldIndex(field), new BooleanValue(value));
+            dirty = true;
         }
 
         public void setBoolean(int index, Boolean value) {
             fieldValues.set(index, new BooleanValue(value));
+            dirty = true;
         }
 
         @Override
@@ -231,10 +245,12 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         @Override
         public void setDecimal(String field, BigDecimal value) {
             fieldValues.set(collection.getFieldIndex(field), new DecimalValue(value));
+            dirty = true;
         }
 
         public void setDecimal(int index, BigDecimal value) {
             fieldValues.set(index, new DecimalValue(value));
+            dirty = true;
         }
 
         @Override
@@ -249,10 +265,12 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         @Override
         public void setTimestamp(String field, Date value) {
             fieldValues.set(collection.getFieldIndex(field), new TimestampValue(value));
+            dirty = true;
         }
 
         public void setTimestamp(int index, Date value) {
             fieldValues.set(index, new TimestampValue(value));
+            dirty = true;
         }
 
         @Override
@@ -267,15 +285,18 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         @Override
         public void setReference(String field, DomainObject domainObject) {
             fieldValues.set(collection.getFieldIndex(field), new ReferenceValue(domainObject.getId()));
+            dirty = true;
         }
 
         public void setReference(int index, DomainObject domainObject) {
             fieldValues.set(index, new ReferenceValue(domainObject.getId()));
+            dirty = true;
         }
 
         @Override
         public void setReference(String field, Id id) {
             fieldValues.set(collection.getFieldIndex(field), new ReferenceValue(id));
+            dirty = true;
         }
 
         @Override
@@ -295,6 +316,15 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         @Override
         public String toString() {
             return ModelUtil.getDetailedDescription(this);
+        }
+
+        @Override
+        public boolean isDirty() {
+            return dirty;
+        }
+
+        public void resetDirty() {
+            dirty = false;
         }
     }
 }

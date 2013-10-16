@@ -16,6 +16,7 @@ public class GenericIdentifiableObject implements IdentifiableObject {
 
     private Id id;
     protected LinkedHashMap<String, Value> fieldValues;
+    protected boolean dirty = false;
 
     /**
      * Создаёт объект
@@ -37,6 +38,7 @@ public class GenericIdentifiableObject implements IdentifiableObject {
         for (String field : sourceFields) {
             setValue(field, source.getValue(field));
         }
+        dirty = source.isDirty();
     }
 
     @Override
@@ -47,13 +49,20 @@ public class GenericIdentifiableObject implements IdentifiableObject {
     //@Override
     public void setId(Id id) {
         this.id = id;
+        dirty = true;
     }
 
     @Override
     public void setValue(String field, Value value) {
-        fieldValues.put(field, value);
+        if (value != null) {
+            fieldValues.put(field, value);
+        } else {
+            fieldValues.remove(field);
+        }
+        dirty = true;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends Value> T getValue(String field) {
         return (T) fieldValues.get(field);
@@ -68,7 +77,10 @@ public class GenericIdentifiableObject implements IdentifiableObject {
     public void setString(String field, String value) {
         if (value != null) {
             fieldValues.put(field, new StringValue(value));
+        } else {
+            fieldValues.remove(field);
         }
+        dirty = true;
     }
 
     @Override
@@ -81,7 +93,10 @@ public class GenericIdentifiableObject implements IdentifiableObject {
     public void setLong(String field, Long value) {
         if (value != null) {
             fieldValues.put(field, new LongValue(value));
+        } else {
+            fieldValues.remove(field);
         }
+        dirty = true;
     }
 
     @Override
@@ -94,7 +109,10 @@ public class GenericIdentifiableObject implements IdentifiableObject {
     public void setBoolean(String field, Boolean value) {
         if (value != null) {
             fieldValues.put(field, new BooleanValue(value));
+        } else {
+            fieldValues.remove(field);
         }
+        dirty = true;
     }
 
     @Override
@@ -107,7 +125,10 @@ public class GenericIdentifiableObject implements IdentifiableObject {
     public void setDecimal(String field, BigDecimal value) {
         if (value != null) {
             fieldValues.put(field, new DecimalValue(value));
+        } else {
+            fieldValues.remove(field);
         }
+        dirty = true;
     }
 
     @Override
@@ -120,7 +141,10 @@ public class GenericIdentifiableObject implements IdentifiableObject {
     public void setTimestamp(String field, Date value) {
         if (value != null) {
             fieldValues.put(field, new TimestampValue(value));
+        } else {
+            fieldValues.remove(field);
         }
+        dirty = true;
     }
 
     @Override
@@ -135,15 +159,23 @@ public class GenericIdentifiableObject implements IdentifiableObject {
             Id id = domainObject.getId();
             if (id != null) {
                 fieldValues.put(field, new ReferenceValue(id));
+            } else {
+                throw new NullPointerException("Impossible to reference to an unsaved object");
             }
+        } else {
+            fieldValues.remove(field);
         }
+        dirty = true;
     }
 
     @Override
     public void setReference(String field, Id id) {
         if (id != null) {
             fieldValues.put(field, new ReferenceValue(id));
+        } else {
+            fieldValues.remove(field);
         }
+        dirty = true;
     }
 
     @Override
@@ -158,5 +190,14 @@ public class GenericIdentifiableObject implements IdentifiableObject {
         result.append(ModelUtil.getDetailedDescription(this));
         result.append('}');
         return result.toString();
+    }
+
+    @Override
+    public boolean isDirty() {
+        return dirty;
+    }
+
+    public void resetDirty() {
+        dirty = false;
     }
 }
