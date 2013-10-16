@@ -3,14 +3,13 @@ package ru.intertrust.cm.core.config.model.gui.form.widget;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import ru.intertrust.cm.core.business.api.dto.Dto;
-
 /**
  * @author Denis Mitavskiy
  *         Date: 14.09.13
  *         Time: 14:16
  */
 public abstract class WidgetConfig implements Dto {
-    @Attribute(name = "id")
+    @Attribute(name = "id", required = false)
     protected String id;
 
     @Element(name = "field-path", required = false)

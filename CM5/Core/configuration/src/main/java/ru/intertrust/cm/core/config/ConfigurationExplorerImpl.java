@@ -1,7 +1,8 @@
 package ru.intertrust.cm.core.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.config.model.*;
 import ru.intertrust.cm.core.config.model.base.Configuration;
 import ru.intertrust.cm.core.config.model.base.TopLevelConfig;
@@ -22,6 +23,7 @@ import java.util.*;
  *         Time: 5:21 PM
  */
 public class ConfigurationExplorerImpl implements ConfigurationExplorer {
+    private final static Logger logger = LoggerFactory.getLogger(ConfigurationExplorerImpl.class);
 
     private Configuration configuration;
 
@@ -31,12 +33,10 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     private Map<String, LinkConfig> linkConfigMap = new HashMap<>();
 
     @Autowired
-    ApplicationContext context;
-    /**
-     * Создает {@link ConfigurationExplorerImpl}
-     */
-    public ConfigurationExplorerImpl() {
-    }
+    FormLogicalValidator formLogicalValidator;
+
+    @Autowired
+    NavigationPanelLogicalValidator navigationPanelLogicalValidator;
 
     /**
      * Создает {@link ConfigurationExplorerImpl}
@@ -70,21 +70,36 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         initConfigurationMaps();
     }
 
+    /**
+     * Каждый логический валидатор находится в блоке try/catch
+     * для отображения всех ошибок, возникнувших в результате
+     * валидации, а не только первого бросившего exception
+     *
+     */
     private void validate() {
         DomainObjectLogicalValidator domainObjectLogicalValidator = new DomainObjectLogicalValidator(this);
         domainObjectLogicalValidator.validate();
+
+    }
+    public void validateGui() {
         try {
-            NavigationPanelLogicalValidator navigationPanelLogicalValidator = new NavigationPanelLogicalValidator(this);
+            navigationPanelLogicalValidator.setConfigurationExplorer(this);
             navigationPanelLogicalValidator.validate();
-
-            CollectionViewLogicalValidator collectionLogicalValidator = new CollectionViewLogicalValidator(this);
-            collectionLogicalValidator.validate();
-
-            FormLogicalValidator formLogicalValidator = (FormLogicalValidator) context.getBean("formLogicalValidator");
+        } catch (ConfigurationException e) {
+            //  logger.error("Exception while validating navigation panels configuration" + e);
+        }
+        try {
             formLogicalValidator.setConfigurationExplorer(this);
             formLogicalValidator.validate();
         } catch (ConfigurationException e) {
-            //TODO some useful handling
+            logger.error("Exception while validating forms configuration" + e);
+        }
+
+        try {
+            CollectionViewLogicalValidator collectionLogicalValidator = new CollectionViewLogicalValidator(this);
+            collectionLogicalValidator.validate();
+        } catch (ConfigurationException e) {
+            logger.error("Exception while validating collection views configuration" + e);
         }
     }
     /**

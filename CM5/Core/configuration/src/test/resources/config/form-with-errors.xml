@@ -60,7 +60,7 @@
             <header>
                 <table width="500px" height="200px">
                     <tr>
-                        <td width="100px" h-align="right"><widget id="1"/></td> <!-- label (Название) -->
+                        <td width="100px" h-align="righ"><widget id="1"/></td> <!-- label (Название) -->
                         <td width="100%" h-align="left"><widget id="2"/></td> <!-- text-box (Название) -->
                     </tr>
                 </table>
@@ -71,7 +71,7 @@
                         <tab-group> <!-- вхождение в группу уже может содержать разметку -->
                             <table>
                                 <tr>
-                                    <td h-align="center" v-align = "center"><widget id="3"/></td>  <!-- label (Население) -->
+                                    <td h-align="center" v-align = "middle"><widget id="3"/></td>  <!-- label (Население) -->
                                     <td h-align="left"><widget id="4"/></td>  <!-- integer-box (Население) -->
                                     <td><widget id="5"/></td>  <!-- label (Площадь) -->
                                     <td h-align="left"><widget id="6"/></td>  <!-- integer-box (Площадь) -->
@@ -233,14 +233,14 @@
                 <text>Население:</text>
             </label>
             <integer-box id="4">
-                <field-path value="country^federal_unit.country.population"/>
+                <field-path value="country^federal_unit.city.population"/>
             </integer-box>
 
             <label id="5">
                 <text>Год основания:</text>
             </label>
             <integer-box id="6">
-                <field-path value="year_of_foundation"/>
+                <field-path value="year_of_foundation.date"/>
             </integer-box>
 
             <label id="7">

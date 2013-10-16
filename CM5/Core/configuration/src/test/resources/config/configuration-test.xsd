@@ -905,7 +905,7 @@
         <xs:sequence>
             <xs:element type="con:fieldPathType" name="field-path" xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
-        <xs:attribute type="xs:string" name="id"/>
+        <xs:attribute type="xs:string" name="id" use="optional"/>
         <xs:attribute type="xs:string" name="template-name"/>
     </xs:complexType>
 

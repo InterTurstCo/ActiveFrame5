@@ -160,7 +160,7 @@
                 <field-path value="correspondent"/>
             </label>
             <linked-domain-object-hyperlink id="5"> <!-- для единичного связанного объекта -->
-                <field-path value="correspondent"/> <!-- для связанных объектов field-path обязательно должен ссылаться на поле типа reference -->
+                <field-path value="name"/> <!-- для связанных объектов field-path обязательно должен ссылаться на поле типа reference -->
                 <linked-form name="organization_default_form"/> <!-- форма, открывающаяся в модальном окне при нажатии на гиперссылку -->
                 <pattern value="{name}, {short_name}"/> <!-- в паттерне ссылки задаются относительно field-path -->
             </linked-domain-object-hyperlink>

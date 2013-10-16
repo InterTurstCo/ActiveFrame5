@@ -47,7 +47,7 @@ public class DomainObjectSurferConfig extends PluginConfig {
 
     @Override
     public String getComponentName() {
-        return "domain.object.surfer";
+        return "domain.object.surfer.plugin";
     }
 }
 

@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static ru.intertrust.cm.core.config.Constants.*;
-
 /**
  * @author Yaroslav Bondacrhuk
  *         Date: 13/9/13
@@ -25,7 +24,7 @@ public class CollectionViewLogicalValidatorTest {
     public ExpectedException expectedException = ExpectedException.none();
 
     @Test
-    public void testValidate() throws Exception {
+    public void validateCorrectCollectionView() throws Exception {
         ConfigurationExplorer configurationExplorer = createConfigurationExplorer(COLLECTION_VIEW_XML_PATH);
 
         CollectionViewLogicalValidator collectionViewValidator =
@@ -34,12 +33,14 @@ public class CollectionViewLogicalValidatorTest {
     }
 
     @Test
-    public void testWithTwoErrors() throws Exception {
+    public void validateIncorrectCollectionView() throws Exception {
         expectedException.expect(ConfigurationException.class);
-        expectedException.expectMessage("Configuration of collection-view with name 'countries_view' was validated with errors.Count: 1 Content:\n" +
-                "Couldn't find collection with name 'Countries'\n" +
-                "Configuration of collection-view with name 'employees_default_view' was validated with errors.Count: 1 Content:\n" +
-                "Couldn't find field 'updated_date' in sql query for collection with name 'Employees'");
+        expectedException.expectMessage("Configuration of collection-view with name "
+                + "'countries_view' was validated with errors.Count: 1 Content:\n"
+                + "Couldn't find collection with name 'Countries'\n"
+                + "Configuration of collection-view with name 'employees_default_view' "
+                + "was validated with errors.Count: 1 Content:\n"
+                + "Couldn't find field 'updated_date' in sql query for collection with name 'Employees'");
 
         ConfigurationExplorer configurationExplorer = createConfigurationExplorer(INVALID_COLLECTION_VIEW_XML_PATH);
 
@@ -65,8 +66,8 @@ public class CollectionViewLogicalValidatorTest {
 
         Configuration configuration = configurationSerializer.deserializeConfiguration();
 
-        ConfigurationExplorerImpl configurationExplorer = new ConfigurationExplorerImpl();
-        configurationExplorer.setConfiguration(configuration);
+        ConfigurationExplorerImpl configurationExplorer = new ConfigurationExplorerImpl(configuration);
+
         configurationExplorer.build();
         return configurationExplorer;
     }

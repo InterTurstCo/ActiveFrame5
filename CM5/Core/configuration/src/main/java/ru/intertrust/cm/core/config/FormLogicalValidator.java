@@ -2,13 +2,15 @@ package ru.intertrust.cm.core.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.config.model.gui.form.*;
+import ru.intertrust.cm.core.config.model.gui.form.widget.FieldPathConfig;
 import ru.intertrust.cm.core.config.model.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.model.gui.form.widget.WidgetConfigurationConfig;
 import ru.intertrust.cm.core.config.model.gui.form.widget.WidgetDisplayConfig;
-import ru.intertrust.cm.core.util.ConfigurationUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,21 +23,27 @@ import java.util.List;
  */
 public class FormLogicalValidator {
 
-    private final static String ALIGN_TOP = "top";
-    private final static String ALIGN_BOTTOM = "bottom";
-    private final static String ALIGN_CENTER = "center";
-    private final static String ALIGN_LEFT = "left";
-    private final static String ALIGN_RIGHT = "right";
+    private static final String ALIGN_TOP = "top";
+    private static final String ALIGN_BOTTOM = "bottom";
+    private static final String ALIGN_CENTER = "center";
+    private static final String ALIGN_LEFT = "left";
+    private static final String ALIGN_RIGHT = "right";
+
+    private static final String WIDGET_HANDLER_FULL_QUALIFIED_NAME =
+            "ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler";
+    private static final String REFERENCE_FIELD_CONFIG_FULL_QUALIFIED_NAME =
+            "ru.intertrust.cm.core.config.model.ReferenceFieldConfig";
 
     @Autowired
     ApplicationContext context;
+
     private final static Logger logger = LoggerFactory.getLogger(FormLogicalValidator.class);
 
     private ConfigurationExplorer configurationExplorer;
     private List<LogicalErrors> validationLogicalErrors;
 
     public FormLogicalValidator() {
-
+        validationLogicalErrors = new ArrayList<LogicalErrors>();
     }
     public FormLogicalValidator(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
@@ -45,7 +53,6 @@ public class FormLogicalValidator {
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
     }
-
     /**
      * Выполняет логическую валидацию конфигурации форм
      */
@@ -79,6 +86,7 @@ public class FormLogicalValidator {
     }
     private void validateFormConfig(FormConfig formConfig, LogicalErrors logicalErrors) {
        String formName = formConfig.getName();
+       String domainObjectType = formConfig.getDomainObjectType();
        logger.info("Validating '{}' form", formName);
        MarkupConfig markup = formConfig.getMarkup();
         if (markup == null )  {
@@ -88,9 +96,11 @@ public class FormLogicalValidator {
         if(widgetConfiguration == null )  {
             return;
         }
-        validateWidgetsHandlers(widgetConfiguration, logicalErrors);
+
         validateHeader(markup, widgetConfiguration, logicalErrors);
         validateBody(markup, widgetConfiguration, logicalErrors);
+        validateWidgetsHandlers(widgetConfiguration, logicalErrors);
+        validateFieldPaths(widgetConfiguration, domainObjectType, logicalErrors);
         logger.info("Form '{}' is validated", formName);
     }
 
@@ -296,16 +306,134 @@ public class FormLogicalValidator {
             if (widgetConfig == null )  {
                 continue;
             }
-           String componentName = ConfigurationUtil.getWidgetTag(widgetConfig);
-            Object bean = context.getBean(componentName);
+            String componentName = widgetConfig.getComponentName();
 
-            if (bean == null) {
+            Object bean = null;
+            try{
+                bean = context.getBean(componentName);
+            } catch (BeansException exception) {
                 String error = String.format("Could not find widget handler for widget with name '%s'", componentName);
                 logger.error(error);
                 logicalErrors.addError(error);
+                continue;
             }
 
+            Class clazz = bean.getClass();
+            validateWidgetHandlerExtending(clazz, componentName, logicalErrors);
 
         }
     }
+    private boolean validateWidgetHandlerExtending(Class clazz, String componentName, LogicalErrors logicalErrors) {
+        Class  parentClass = clazz.getSuperclass();
+
+             if (parentClass == null) {
+                 String error = String.format("Could not find widget handler for widget with name '%s'", componentName);
+                 logger.error(error);
+                 logicalErrors.addError(error);
+                 return true;
+             }
+
+            String parentClassFullName = parentClass.getCanonicalName();
+             if (WIDGET_HANDLER_FULL_QUALIFIED_NAME.equalsIgnoreCase(parentClassFullName)) {
+                      return true;
+                  }
+
+             if(validateWidgetHandlerExtending(parentClass,componentName, logicalErrors)) {
+                return true;
+        }
+        return true;
+    }
+
+    private void validateFieldPaths(WidgetConfigurationConfig widgetConfiguration,
+                                    String domainObjectType, LogicalErrors logicalErrors) {
+
+        List<WidgetConfig> widgetConfigs = widgetConfiguration.getWidgetConfigList();
+
+        for (WidgetConfig widgetConfig : widgetConfigs) {
+            FieldPathConfig fieldPath = widgetConfig.getFieldPathConfig();
+
+            if (fieldPath == null) {
+            continue;
+            }
+            String fieldPathValue = fieldPath.getValue();
+
+            if (fieldPathValue == null) {
+            continue;
+            }
+
+            parseAndValidateFieldPath(domainObjectType, fieldPathValue, logicalErrors);
+
+            }
+    }
+
+       private boolean validateFieldPath (String domainObjectType,String fieldPathPart,
+                                        String fullFieldPathValue, int numberOfParts, LogicalErrors logicalErrors) {
+
+           FieldConfig fieldConfig = configurationExplorer.getFieldConfig(domainObjectType, fieldPathPart);
+
+           if (fieldConfig == null) {
+               String error = String.format("Could not find field '%s'  in path '%s'", fieldPathPart, fullFieldPathValue);
+               logger.error(error);
+               logicalErrors.addError(error);
+               return false;
+           }
+           System.out.println("field exist " + fieldConfig.getName());
+           System.out.println("fieldConfig" + fieldConfig.getClass().getCanonicalName());
+
+           if (numberOfParts == 0) {
+               return true;
+           }
+
+           if (REFERENCE_FIELD_CONFIG_FULL_QUALIFIED_NAME.equalsIgnoreCase(fieldConfig.getClass().getCanonicalName())){
+               return true;
+           }
+           String error = String.format("Path part '%s' in  '%s' isn't a reference type", fieldPathPart, fullFieldPathValue);
+           logger.error(error);
+           logicalErrors.addError(error);
+           return false;
+       }
+
+       private void parseAndValidateFieldPath(String domainObjectType,
+                                   String fieldPathValue, LogicalErrors logicalErrors) {
+           String [] pathParts = fieldPathValue.split("\\.");
+           int numberOfParts = pathParts.length;
+
+           String lastReference = "";
+           for (String pathPart : pathParts)  {
+                 numberOfParts--;
+               if(lastReference.equalsIgnoreCase("")) {
+                   lastReference = domainObjectType;
+               }
+               if (pathPart.contains("^")) {
+                   String [] backReferenceAndField = pathPart.split("\\^");
+                   String backReference = backReferenceAndField[0];
+                   String field = backReferenceAndField[1];
+                   try {
+                      if (!validateFieldPath(backReference, field, fieldPathValue, numberOfParts, logicalErrors)) {
+                          break;
+                      }
+                   } catch (Exception e) {
+                       String error = String.format("Could not find domain object type '%s'", domainObjectType);
+                       logger.error(error);
+                       logicalErrors.addError(error);
+                       break;
+                   }
+                   lastReference = field;
+
+               } else {
+                   try {
+                     if  (!validateFieldPath(lastReference, pathPart, fieldPathValue, numberOfParts, logicalErrors)) {
+                         break;
+                     }
+                   } catch (Exception e) {
+                       String error = String.format("Could not find domain object type '%s'", domainObjectType);
+                       logger.error(error);
+                       logicalErrors.addError(error);
+                       break;
+                   }
+                   lastReference = pathPart;
+               }
+           }
+
+       }
 }

@@ -8,6 +8,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.AuthenticationService;
 import ru.intertrust.cm.core.config.ConfigurationException;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
@@ -21,7 +22,6 @@ import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
-
 /**
  * @author vmatsukevich
  *         Date: 5/27/13
@@ -43,6 +43,9 @@ public class ConfigurationControlServiceImplTest {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
+
+    @Mock
+    private ApplicationContext context;
 
     private ConfigurationExplorerImpl configExplorer;
     private Configuration configuration;

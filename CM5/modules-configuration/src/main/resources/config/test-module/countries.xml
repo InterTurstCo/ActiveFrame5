@@ -94,7 +94,7 @@
                         <tab-group> <!-- вхождение в группу уже может содержать разметку -->
                             <table>
                                 <tr>
-                                    <td h-align="center" v-align = "middle"><widget id="3"/></td>  <!-- label (Население) -->
+                                    <td h-align="center" v-align = "center"><widget id="3"/></td>  <!-- label (Население) -->
                                     <td h-align="left"><widget id="4"/></td>  <!-- integer-box (Население) -->
                                     <td><widget id="5"/></td>  <!-- label (Площадь) -->
                                     <td h-align="left"><widget id="6"/></td>  <!-- integer-box (Площадь) -->
@@ -297,7 +297,7 @@
                 <text>Население:</text>
             </label>
             <integer-box id="4">
-                <field-path value="population"/>
+                <field-path value="country^population"/>
             </integer-box>
 
             <label id="5">

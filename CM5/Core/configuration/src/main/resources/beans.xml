@@ -26,7 +26,8 @@
     </bean>
 
     <bean id="configurationExplorer"
-          class="ru.intertrust.cm.core.config.ConfigurationExplorerImpl">
+          class="ru.intertrust.cm.core.config.ConfigurationExplorerImpl"
+          init-method="validateGui" >
         <constructor-arg>
             <bean class="ru.intertrust.cm.core.config.model.base.Configuration"
                   factory-bean="configurationSerializer" factory-method="deserializeConfiguration"/>
@@ -35,8 +36,12 @@
 
     <bean id="topLevelConfigurationCacheInitializer"
           class="ru.intertrust.cm.core.config.TopLevelConfigurationCacheInitializer" init-method="init"/>
-    <bean id="formLogicalValidator"
-          class="ru.intertrust.cm.core.config.FormLogicalValidator" >
 
-          </bean>
+    <bean id="formLogicalValidator"
+          class="ru.intertrust.cm.core.config.FormLogicalValidator" />
+
+    <bean id="navigationPanelLogicalValidator"
+          class="ru.intertrust.cm.core.config.NavigationPanelLogicalValidator" />
+
+
 </beans>

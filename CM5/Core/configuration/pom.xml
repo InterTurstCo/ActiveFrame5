@@ -41,7 +41,7 @@
             <version>${spring.version}</version>
             <scope>test</scope>
         </dependency>
-
+         <!-- Added for Unit tests-->
         <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-module-junit4</artifactId>
@@ -54,15 +54,17 @@
             <version>1.5.1</version>
             <scope>test</scope>
         </dependency>
-
-
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4-rule</artifactId>
+            <version>1.5.1</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.0.9</version>
         </dependency>
-
-
 
     </dependencies>
 

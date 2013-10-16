@@ -13,11 +13,14 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.CrudService;
@@ -26,6 +29,8 @@ import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.impl.RdbmsIdServiceImpl;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
+import ru.intertrust.cm.core.config.FormLogicalValidator;
+import ru.intertrust.cm.core.config.NavigationPanelLogicalValidator;
 import ru.intertrust.cm.core.config.model.AttachmentTypeConfig;
 import ru.intertrust.cm.core.config.model.AttachmentTypesConfig;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
@@ -55,8 +60,9 @@ import static org.mockito.Mockito.when;
 /**
  * @author Vlad
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(PowerMockRunner.class)
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class)
+@PrepareForTest(ConfigurationExplorerImpl.class)
 public class AttachmentServiceImplTest {
 
     static private final String TEST_OUT_DIR = System.getProperty("test.cnf.testOutDir");
@@ -68,6 +74,9 @@ public class AttachmentServiceImplTest {
     private static IdService idService = new RdbmsIdServiceImpl();
 
     static private AttachmentServiceRmi stubAttachmentService;
+
+    @Autowired
+    ApplicationContext context;
 
     static class GenericDomainObjectWrapper extends GenericDomainObject {
         Map<String, Value> values = new HashMap<>();
@@ -123,6 +132,20 @@ public class AttachmentServiceImplTest {
 
         @Mock
         private DomainObjectTypeIdCache domainObjectTypeIdCache;
+
+        @Mock
+        private FormLogicalValidator formLogicalValidator;
+
+        @Mock
+        private NavigationPanelLogicalValidator navigationPanelLogicalValidator;
+
+        @Mock
+        private ApplicationContext context;
+
+        @Bean
+        public ApplicationContext context() {
+            return context;
+        }
 
         @Bean
         public AccessControlService accessControlService() {
@@ -182,6 +205,16 @@ public class AttachmentServiceImplTest {
         public CrudService crudService() {
             return new CrudServiceImpl();
         }
+
+        @Bean
+        public FormLogicalValidator formLogicalValidator() {
+            return formLogicalValidator;
+        }
+
+        @Bean
+        public NavigationPanelLogicalValidator navigationPanelLogicalValidator() {
+            return navigationPanelLogicalValidator;
+        }
     }
 
     @BeforeClass
@@ -197,6 +230,9 @@ public class AttachmentServiceImplTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+
+        ApplicationContext ctx = new AnnotationConfigApplicationContext(ContextConfiguration.class);
+        ctx.getAutowireCapableBeanFactory().autowireBean(this);
         if (stubAttachmentService == null) {
             Registry registry = LocateRegistry.createRegistry(PORT_RMI);
             AttachmentServiceRmiImpl serviceRmi = new AttachmentServiceRmiImpl();

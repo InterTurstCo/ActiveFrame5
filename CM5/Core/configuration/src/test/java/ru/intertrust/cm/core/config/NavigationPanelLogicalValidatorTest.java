@@ -1,20 +1,29 @@
 package ru.intertrust.cm.core.config;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import ru.intertrust.cm.core.config.model.base.Configuration;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.junit.Assert.assertEquals;
+import static org.powermock.api.support.membermodification.MemberMatcher.method;
+import static org.powermock.api.support.membermodification.MemberModifier.suppress;
 import static ru.intertrust.cm.core.config.Constants.*;
 /**
  * @author Yaroslav Bondacrhuk
  *         Date: 10/9/13
  *         Time: 12:05 PM
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(NavigationPanelLogicalValidator.class)
 public class NavigationPanelLogicalValidatorTest {
 
     private static final String NAVIGATION_PANEL_XML_PATH =
@@ -26,8 +35,14 @@ public class NavigationPanelLogicalValidatorTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
+    @Before
+    public void SetUp() throws Exception {
+        suppress(method(NavigationPanelLogicalValidator.class, "validatePluginHandlers"));
+
+    }
+
     @Test
-    public void testValidate() throws Exception {
+    public void validateCorrectNavigationPanel() throws Exception {
 
         ConfigurationExplorer configurationExplorer = createConfigurationExplorer(NAVIGATION_PANEL_XML_PATH);
         NavigationPanelLogicalValidator panelValidator = new NavigationPanelLogicalValidator(configurationExplorer);
@@ -35,16 +50,21 @@ public class NavigationPanelLogicalValidatorTest {
     }
 
     @Test
-    public void testValidateInvalidChildToOpen() throws Exception {
-        expectedException.expect(ConfigurationException.class);
-        expectedException.expectMessage("Configuration of "
+    public void validateIncorrectNavigationPanel() throws Exception {
+
+        String exceptionMessage = ("Configuration of "
         + "navigation panel with name 'panel' was validated with errors.Count: 2 Content:\n"
         + "Child link to open is not found for link with name 'Administration'\n"
-        + "Child link to open is not found for link with name 'Documents In Work'");
+        + "Child link to open is not found for link with name 'Documents In Work'\n");
         ConfigurationExplorer configurationExplorer =
                 createConfigurationExplorer(NAVIGATION_PANEL_INVALID_CHILD_TO_OPEN_XML_PATH);
-        NavigationPanelLogicalValidator panelValidator = new NavigationPanelLogicalValidator(configurationExplorer);
+        NavigationPanelLogicalValidator panelValidator = new NavigationPanelLogicalValidator();
+        panelValidator.setConfigurationExplorer(configurationExplorer);
+        try {
         panelValidator.validate();
+        } catch(ConfigurationException e) {
+           assertEquals(exceptionMessage, e.getMessage());
+        }
 
     }
 
@@ -63,8 +83,8 @@ public class NavigationPanelLogicalValidatorTest {
 
         Configuration configuration = configurationSerializer.deserializeConfiguration();
 
-        ConfigurationExplorerImpl configurationExplorer = new ConfigurationExplorerImpl();
-        configurationExplorer.setConfiguration(configuration);
+        ConfigurationExplorerImpl configurationExplorer = new ConfigurationExplorerImpl(configuration);
+
         configurationExplorer.build();
         return configurationExplorer;
     }

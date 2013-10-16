@@ -7,6 +7,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -32,7 +33,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
 /**
  * Юнит тест для DomainObjectDaoImpl
  *
@@ -56,9 +56,10 @@ public class DomainObjectDaoImplTest {
     @Mock
     private DomainObjectCacheServiceImpl domainObjectCacheService;
 
-    private DomainObjectTypeConfig domainObjectTypeConfig;
+    @Mock
+    private ApplicationContext context;
 
-    private Configuration configuration;
+    private DomainObjectTypeConfig domainObjectTypeConfig;
 
     @Before
     public void setUp() throws Exception {

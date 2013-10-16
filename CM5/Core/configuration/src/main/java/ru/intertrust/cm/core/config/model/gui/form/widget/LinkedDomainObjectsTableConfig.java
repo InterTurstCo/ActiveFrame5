@@ -1,9 +1,7 @@
 package ru.intertrust.cm.core.config.model.gui.form.widget;
 
-import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
-import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -11,12 +9,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  *         Time: 12:05 PM
  */
 @Root(name = "linked-domain-objects-table")
-public class LinkedDomainObjectsTableConfig implements Dto {
-    @Attribute(name = "id")
-    private String id;
-
-    @Element(name = "field-path")
-    private FieldPathConfig fieldPathConfig;
+public class LinkedDomainObjectsTableConfig extends WidgetConfig {
 
     @Element(name = "linked-form")
     private LinkedFormConfig linkedFormConfig;
@@ -26,22 +19,6 @@ public class LinkedDomainObjectsTableConfig implements Dto {
 
     @Element(name = "summary-table")
     private SummaryTableConfig summaryTableConfig;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public FieldPathConfig getFieldPathConfig() {
-        return fieldPathConfig;
-    }
-
-    public void setFieldPathConfig(FieldPathConfig fieldPathConfig) {
-        this.fieldPathConfig = fieldPathConfig;
-    }
 
     public LinkedFormConfig getLinkedFormConfig() {
         return linkedFormConfig;
@@ -75,15 +52,12 @@ public class LinkedDomainObjectsTableConfig implements Dto {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
+        if (!super.equals(o)) {
+            return false;
+        }
 
         LinkedDomainObjectsTableConfig that = (LinkedDomainObjectsTableConfig) o;
 
-        if (fieldPathConfig != null ? !fieldPathConfig.equals(that.fieldPathConfig) : that.fieldPathConfig != null) {
-            return false;
-        }
-        if (id != null ? !id.equals(that.id) : that.id != null) {
-            return false;
-        }
         if (linkedFormConfig != null ? !linkedFormConfig.equals(that.linkedFormConfig) : that.linkedFormConfig != null) {
             return false;
         }
@@ -100,12 +74,16 @@ public class LinkedDomainObjectsTableConfig implements Dto {
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (fieldPathConfig != null ? fieldPathConfig.hashCode() : 0);
+        int result = super.hashCode();
         result = 31 * result + (linkedFormConfig != null ? linkedFormConfig.hashCode() : 0);
         result = 31 * result + (patternConfig != null ? patternConfig.hashCode() : 0);
         result = 31 * result + (summaryTableConfig != null ? summaryTableConfig.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String getComponentName() {
+        return "";  //To change body of implemented methods use File | Settings | File Templates.
     }
 }
 
