@@ -19,7 +19,6 @@ import ru.intertrust.cm.core.dao.api.ConfigurationDao;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -108,7 +107,7 @@ public class ConfigurationControlServiceImplTest {
         configurationService.loadConfiguration();
 
         verify(dataStructureDao).countTables();
-        verify(dataStructureDao).updateTableStructure(anyString(), anyListOf(FieldConfig.class));
+        //verify(dataStructureDao).updateTableStructure(anyString(), anyListOf(FieldConfig.class));
         verify(configurationDao).save(ConfigurationSerializer.serializeConfiguration(updatedConfiguration));
     }
 
