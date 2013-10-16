@@ -195,11 +195,18 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                         updatedObject.getTypeName());
 
         validateIdType(updatedObject.getId());
-        updateParentDO(domainObjectTypeConfig, domainObject);
+        DomainObject parentDO = updateParentDO(domainObjectTypeConfig, domainObject);
 
         String query = generateUpdateQuery(domainObjectTypeConfig);
 
         Date currentDate = new Date();
+        // В случае если сохранялся родительский объект то берем дату
+        // модификации из нее, иначе в базе и возвращаемом доменном объекте
+        // будут различные даты изменения и изменение объект отвалится по ошибке
+        // OptimisticLockException
+        if (parentDO != null) {
+            currentDate = parentDO.getModifiedDate();
+        }
 
         Map<String, Object> parameters = initializeUpdateParameters(
                 updatedObject, domainObjectTypeConfig, currentDate);
@@ -266,11 +273,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 extensionService.getExtentionPoint(BeforeDeleteExtensionHandler.class, domainObjectTypeConfig.getName());
         beforeDeleteEH.onBeforeDelete(deletedObject);
 
-        Id parentId = getParentId(rdbmsId, domainObjectTypeConfig);
-        if (parentId != null) {
-            delete(parentId);
-        }
-
         String query = generateDeleteQuery(domainObjectTypeConfig);
 
         Map<String, Object> parameters = initializeIdParameter(rdbmsId);
@@ -283,7 +285,13 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             throw new ObjectNotFoundException(rdbmsId);
         }
 
-        // Пишем в лог
+        //Удаление родительского объекта, перенесено ниже удаления дочернего объекта для того чтобы не ругались foreign key
+        Id parentId = getParentId(rdbmsId, domainObjectTypeConfig);
+        if (parentId != null) {
+            delete(parentId);
+        }
+        
+        // Пишем в аудит лог
         createAuditLog(deletedObject, deletedObject.getTypeName(), domainObjectTypeIdCache.getId(deletedObject.getTypeName()),
                 DomainObjectVersion.AuditLogOperation.DELETE);
 
@@ -769,16 +777,20 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         query.append("insert into ").append(tableName).append("(");
         query.append(ID_COLUMN).append(", ");
         query.append(TYPE_COLUMN).append(", ");
-        query.append(OPERATION_COLUMN).append(", ");
-        query.append(UPDATED_DATE_COLUMN).append(", ");
-        query.append(COMPONENT).append(", ");
-        query.append(DOMAIN_OBJECT_ID).append(", ");
-        query.append(INFO).append(", ");
-        query.append(IP_ADDRESS).append(", ");
+        if (!isDerived(domainObjectTypeConfig)) {
+            query.append(OPERATION_COLUMN).append(", ");
+            query.append(UPDATED_DATE_COLUMN).append(", ");
+            query.append(COMPONENT).append(", ");
+            query.append(DOMAIN_OBJECT_ID).append(", ");
+            query.append(INFO).append(", ");
+            query.append(IP_ADDRESS).append(", ");
+        }
 
         query.append(commaSeparatedColumns);
-        query.append(") values (:ID, :TYPE_ID, :OPERATION, :UPDATED_DATE,");
-        query.append(":COMPONENT, :DOMAIN_OBJECT_ID, :INFO, :IP_ADDRESS, ");
+        query.append(") values (:ID, :TYPE_ID, ");
+        if (!isDerived(domainObjectTypeConfig)) {
+            query.append(":OPERATION, :UPDATED_DATE, :COMPONENT, :DOMAIN_OBJECT_ID, :INFO, :IP_ADDRESS, ");
+        }
 
         query.append(commaSeparatedParameters);
         query.append(")");
@@ -988,9 +1000,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         DomainObject parentDo = createParentDO(domainObject,
                 domainObjectTypeConfig, type);
 
-        Date currentDate = new Date();
-        updatedObject.setCreatedDate(currentDate);
-        updatedObject.setModifiedDate(currentDate);
+        if (parentDo != null) {
+            updatedObject.setCreatedDate(parentDo.getCreatedDate());
+            updatedObject.setModifiedDate(parentDo.getModifiedDate());
+        } else {
+            Date currentDate = new Date();
+            updatedObject.setCreatedDate(currentDate);
+            updatedObject.setModifiedDate(currentDate);
+        }
 
         String query = generateCreateQuery(domainObjectTypeConfig);
 
@@ -1046,7 +1063,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
                     .getConfig(DomainObjectTypeConfig.class, typeName);
 
-            if (isAuditLogEnable(domainObjectTypeConfig)) {
+            // Проверка на включенность аудит лога, или если пришли рекурсивно
+            // из подчиненного уровня, где аудит был вулючен
+            if (isAuditLogEnable(domainObjectTypeConfig) || !domainObject.getTypeName().equals(typeName)) {
 
                 id = createAuditLog(domainObject,
                         domainObjectTypeConfig.getExtendsAttribute(), type, operation);
@@ -1099,17 +1118,17 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         return create(parentDO, type);
     }
 
-    private void updateParentDO(DomainObjectTypeConfig domainObjectTypeConfig, DomainObject domainObject) {
+    private DomainObject updateParentDO(DomainObjectTypeConfig domainObjectTypeConfig, DomainObject domainObject) {
         RdbmsId parentId = getParentId((RdbmsId) domainObject.getId(), domainObjectTypeConfig);
         if (parentId == null) {
-            return;
+            return null;
         }
 
         GenericDomainObject parentObject = new GenericDomainObject(domainObject);
         parentObject.setId(parentId);
         parentObject.setTypeName(domainObjectTypeConfig.getExtendsAttribute());
 
-        update(parentObject);
+        return update(parentObject);
     }
 
     private void appendTableNameQueryPart(StringBuilder query, String typeName) {
