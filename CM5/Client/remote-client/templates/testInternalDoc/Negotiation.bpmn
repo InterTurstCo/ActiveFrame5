@@ -105,9 +105,6 @@ negotioationCard.save();</script>
           <activiti:in source="SESSION" target="SESSION"></activiti:in>
           <activiti:in source="negotioationCard" target="NEGOTIATION_CARD"></activiti:in>
           <activiti:in sourceExpression="${negotiationCardId.getId()}" target="NEGOTIATION_CARD_ID"></activiti:in>
-          <activiti:in source="MAIN_ATTACHMENT" target="MAIN_ATTACHMENT"></activiti:in>
-          <activiti:in source="MAIN_ATTACHMENT_ID" target="MAIN_ATTACHMENT_ID"></activiti:in>
-          <activiti:out sourceExpression="execution.setVariableLocal(&quot;decision_on_negotiation&quot;)"></activiti:out>
         </extensionElements>
       </callActivity>
       <sequenceFlow id="flow31" sourceRef="callNegotiation" targetRef="getNegotiationCard"></sequenceFlow>
