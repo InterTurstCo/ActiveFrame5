@@ -76,7 +76,8 @@
     </bean>
 
     <bean id="auditService"
-        class="ru.intertrust.cm.core.dao.impl.AuditLogServiceDaoImpl" />
+        class="ru.intertrust.cm.core.dao.impl.AuditLogServiceDaoImpl"
+        p:dataSource-ref="dataSource" />
 
 
 </beans>

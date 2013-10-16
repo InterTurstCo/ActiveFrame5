@@ -221,10 +221,10 @@ public class BasicRowMapper {
         // Установка полей версии
         object.setId(new RdbmsId(typeId, rs.getLong(DomainObjectDao.ID_COLUMN)));
         object.setDomainObjectId(new RdbmsId(typeId, rs.getLong(DomainObjectDao.DOMAIN_OBJECT_ID)));
-        object.setModifiedDate(object.getTimestamp(DomainObjectDao.UPDATED_DATE_COLUMN));
-        object.setModifiedDate(object.getTimestamp(DomainObjectDao.INFO));
-        object.setModifiedDate(object.getTimestamp(DomainObjectDao.IP_ADDRESS));
-        object.setModifiedDate(object.getTimestamp(DomainObjectDao.COMPONENT));
+        object.setModifiedDate(rs.getTimestamp(DomainObjectDao.UPDATED_DATE_COLUMN));
+        object.setVersionInfo(rs.getString(DomainObjectDao.INFO));
+        object.setIpAddress(rs.getString(DomainObjectDao.IP_ADDRESS));
+        object.setComponent(rs.getString(DomainObjectDao.COMPONENT));
         object.setOperation(getOperation(rs.getInt(DomainObjectDao.OPERATION_COLUMN)));
 
         setDomainObjectFields(object, rs, domainObjectType);
@@ -253,6 +253,7 @@ public class BasicRowMapper {
             for (FieldConfig fieldConfig : doConfig.getDomainObjectFieldsConfig().getFieldConfigs()) {
                 FieldValueModel valueModel = new FieldValueModel();
                 fillValueModel(rs, valueModel, fieldConfig.getName(), fieldConfig);
+                object.setValue(fieldConfig.getName(), valueModel.getValue());
             }
             setDomainObjectFields(object, rs, doConfig.getExtendsAttribute());
         }

@@ -111,7 +111,7 @@
         </fields>
     </domain-object-type>
 
-    <domain-object-type name="Department">
+    <domain-object-type name="Department" audit-log="true">
         <fields>
             <string name="Name" length="128" not-null="true" />
         </fields>

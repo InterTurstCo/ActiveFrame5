@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObjectVersion;
+import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
@@ -33,8 +34,8 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
     private ConfigurationExplorer configurationExplorer;
 
     @Autowired
-    private DomainObjectTypeIdCache domainObjectTypeIdCache;    
-    
+    private DomainObjectTypeIdCache domainObjectTypeIdCache;
+
     /**
      * Устанавливает источник соединений
      * 
@@ -58,12 +59,12 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
 
         RdbmsId rdbmsId = (RdbmsId) domainObjectId;
         String typeName = domainObjectTypeIdCache.getName(domainObjectId);
-        
+
         String query = generateAllVersionsFindQuery(typeName);
 
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("id", rdbmsId.getId());
-        
+
         return jdbcTemplate.query(query, parameters, new MultipleVersionRowMapper(
                 typeName, DefaultFields.DEFAULT_ID_FIELD, configurationExplorer, domainObjectTypeIdCache));
     }
@@ -79,19 +80,57 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
 
         RdbmsId rdbmsId = (RdbmsId) versionId;
         String typeName = domainObjectTypeIdCache.getName(versionId);
-        
-        String query = generateAllVersionsFindQuery(typeName);
+
+        String query = generateVersionFindQuery(typeName);
 
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("id", rdbmsId.getId());
-        
+
         return jdbcTemplate.query(query, parameters, new SingleVersionRowMapper(
                 typeName, DefaultFields.DEFAULT_ID_FIELD, configurationExplorer, domainObjectTypeIdCache));
     }
 
+    public String generateDeleteLogQuery(String typeName, String rootType) {
+
+        StringBuilder query = new StringBuilder();
+        query.append("delete ");
+        query.append(" from ");
+        query.append(getSqlName(typeName));
+        query.append("_LOG ");
+        query.append("where id in (select id from ");
+        query.append(getSqlName(rootType));
+        query.append("_LOG ");
+        query.append("where domain_object_id = :id)");
+
+        return query.toString();
+    }
+
     @Override
     public void clean(Id domainObjectId) {
-        // TODO Auto-generated method stub
+
+        if (domainObjectId == null) {
+            throw new IllegalArgumentException("Object domainObjectId can not be null");
+        }
+        // TODO удаление версии для всех кроме администратора, или
+        // продумать права на версию
+
+        String typeName = domainObjectTypeIdCache.getName(domainObjectId);
+        deleteLog(domainObjectId, typeName);
+    }
+
+    private void deleteLog(Id domainObjectId, String typeName) {
+        if (typeName != null) {
+            DomainObjectTypeConfig config = configurationExplorer.getConfig(
+                    DomainObjectTypeConfig.class, typeName);
+            String query = generateDeleteLogQuery(typeName, getRootTypeName(config));
+            RdbmsId rdbmsId = (RdbmsId) domainObjectId;
+            Map<String, Object> parameters = new HashMap<String, Object>();
+            parameters.put("id", rdbmsId.getId());
+
+            jdbcTemplate.update(query, parameters);
+
+            deleteLog(domainObjectId, config.getExtendsAttribute());
+        }
 
     }
 
@@ -107,36 +146,67 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("id", rdbmsId.getId());
         return parameters;
-    }    
-    
+    }
+
     protected String generateVersionFindQuery(String typeName) {
-        String tableAlias = getSqlAlias(typeName);
+        DomainObjectTypeConfig config = configurationExplorer.getConfig(
+                DomainObjectTypeConfig.class, typeName);
+
+        String rootAlias = getRootTypeName(config);
 
         StringBuilder query = new StringBuilder();
-        query.append("select ");
-        appendColumnsQueryPart(query, typeName);
-        query.append(" from ");
-        appendTableNameQueryPart(query, typeName);
-        query.append(" where ").append(tableAlias).append(".id=:id ");
+        query.append(generateFindQuery(typeName));
+        query.append(" where ").append(rootAlias).append(".id=:id ");
 
         return query.toString();
     }
 
     protected String generateAllVersionsFindQuery(String typeName) {
-        String tableAlias = getSqlAlias(typeName);
+        DomainObjectTypeConfig config = configurationExplorer.getConfig(
+                DomainObjectTypeConfig.class, typeName);
+
+        String rootAlias = getRootTypeName(config);
 
         StringBuilder query = new StringBuilder();
-        query.append("select ");
-        query.append("id, type_id, operation, updated_date, domain_object_id, component, ip_address, info ");
-        appendColumnsQueryPart(query, typeName);
-        query.append(" from ");
-        appendTableNameQueryPart(query, typeName);
-        query.append(" where ").append(tableAlias).append(".domain_object_id=:id ");
+        query.append(generateFindQuery(typeName));
+        query.append(" where ").append(rootAlias).append(".domain_object_id=:id ");
 
         return query.toString();
     }
-    
-    
+
+    private String generateFindQuery(String typeName) {
+        DomainObjectTypeConfig config = configurationExplorer.getConfig(
+                DomainObjectTypeConfig.class, typeName);
+
+        String rootAlias = getRootTypeName(config);
+
+        StringBuilder query = new StringBuilder();
+        query.append("select ");
+        query.append(rootAlias).append(".id, ");
+        query.append(rootAlias).append(".type_id, ");
+        query.append(rootAlias).append(".operation, ");
+        query.append(rootAlias).append(".updated_date, ");
+        query.append(rootAlias).append(".domain_object_id, ");
+        query.append(rootAlias).append(".component, ");
+        query.append(rootAlias).append(".ip_address, ");
+        query.append(rootAlias).append(".info ");
+        appendColumnsQueryPart(query, typeName);
+        query.append(" from ");
+        appendVersionTableNameQueryPart(query, typeName);
+
+        return query.toString();
+    }
+
+    private String getRootTypeName(DomainObjectTypeConfig config) {
+        String result = config.getName();
+        if (config.getExtendsAttribute() != null) {
+            DomainObjectTypeConfig parentConfig = configurationExplorer.getConfig(
+                    DomainObjectTypeConfig.class, config.getExtendsAttribute());
+            result = getRootTypeName(parentConfig);
+        }
+        return result;
+    }
+
     private void appendColumnsQueryPart(StringBuilder query, String typeName) {
         DomainObjectTypeConfig config = configurationExplorer.getConfig(
                 DomainObjectTypeConfig.class, typeName);
@@ -149,6 +219,9 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
             }
 
             query.append(", ").append(tableAlias).append(".").append(getSqlName(fieldConfig));
+            if (fieldConfig.getFieldType().equals(FieldType.REFERENCE)) {
+                query.append(", ").append(tableAlias).append(".").append(getSqlName(fieldConfig)).append("_type");
+            }
         }
 
         if (config.getExtendsAttribute() != null) {
@@ -160,6 +233,34 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
         String tableName = getSqlName(typeName);
         query.append(tableName).append(" ").append(getSqlAlias(tableName));
         appendParentTable(query, typeName);
+    }
+
+    private void appendVersionTableNameQueryPart(StringBuilder query, String typeName) {
+        String aliasName = getSqlName(typeName);
+        String tableName = getSqlName(typeName) + "_LOG";
+        query.append(tableName).append(" ").append(aliasName);
+        appendVersionParentTable(query, typeName);
+    }
+
+    private void appendVersionParentTable(StringBuilder query, String typeName) {
+        DomainObjectTypeConfig config = configurationExplorer.getConfig(
+                DomainObjectTypeConfig.class, typeName);
+
+        if (config.getExtendsAttribute() == null) {
+            return;
+        }
+
+        String tableAlias = getSqlAlias(typeName);
+
+        String parentTableName = getSqlName(config.getExtendsAttribute()) + "_LOG";
+        String parentTableAlias = getSqlAlias(config.getExtendsAttribute());
+
+        query.append(" inner join ").append(parentTableName).append(" ")
+                .append(parentTableAlias);
+        query.append(" on ").append(tableAlias).append(".").append(DomainObjectDao.ID_COLUMN).append("=");
+        query.append(parentTableAlias).append(".").append(DomainObjectDao.ID_COLUMN);
+
+        appendParentTable(query, config.getExtendsAttribute());
     }
 
     private void appendParentTable(StringBuilder query, String typeName) {

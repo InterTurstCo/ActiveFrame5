@@ -2,9 +2,16 @@ package ru.intertrust.cm.core.business.impl;
 
 import java.util.List;
 
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.AuditService;
+import ru.intertrust.cm.core.business.api.ProcessService;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectVersion;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.VersionComparisonResult;
@@ -15,6 +22,10 @@ import ru.intertrust.cm.core.dao.api.AuditLogServiceDao;
  * @author larin
  *
  */
+@Stateless(name = "AuditService")
+@Local(AuditService.class)
+@Remote(AuditService.Remote.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class AuditServiceImpl implements AuditService {
 
     @Autowired

@@ -14,6 +14,14 @@ import ru.intertrust.cm.core.business.api.dto.VersionComparisonResult;
 public interface AuditService {
 
     /**
+     * Удаленный интерфейс
+     * @author larin
+     *
+     */
+    public interface Remote extends AuditService {
+    }
+    
+    /**
      * Получение всех версий доменного объекта
      * @param domainObjectId
      * @return

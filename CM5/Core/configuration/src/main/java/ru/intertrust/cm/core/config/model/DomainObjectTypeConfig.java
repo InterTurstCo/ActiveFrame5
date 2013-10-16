@@ -177,7 +177,7 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
         if (attachmentTypesConfig != null ? !attachmentTypesConfig.equals(that.attachmentTypesConfig) : that.attachmentTypesConfig != null) {
             return false;
         }
-        if (auditLog != null ? !auditLog == that.auditLog : that.auditLog != null) {
+        if (auditLog != null ? auditLog != that.auditLog : that.auditLog != null) {
             return false;
         }
 
