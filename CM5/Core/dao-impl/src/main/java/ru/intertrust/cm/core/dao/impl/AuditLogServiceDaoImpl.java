@@ -229,12 +229,6 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
         }
     }
 
-    private void appendTableNameQueryPart(StringBuilder query, String typeName) {
-        String tableName = getSqlName(typeName);
-        query.append(tableName).append(" ").append(getSqlAlias(tableName));
-        appendParentTable(query, typeName);
-    }
-
     private void appendVersionTableNameQueryPart(StringBuilder query, String typeName) {
         String aliasName = getSqlName(typeName);
         String tableName = getSqlName(typeName) + "_LOG";
@@ -282,5 +276,50 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
         query.append(parentTableAlias).append(".").append(DomainObjectDao.ID_COLUMN);
 
         appendParentTable(query, config.getExtendsAttribute());
+    }
+
+    /**
+     * Получение крайней версии доменного объекта
+     */
+    @Override
+    public DomainObjectVersion findLastVersion(Id domainObjectId) {
+        if (domainObjectId == null) {
+            throw new IllegalArgumentException("Object domainObjectId can not be null");
+        }
+
+        // TODO Запретить получение версии для всех кроме администратора, или
+        // продумать права на версию
+
+        RdbmsId rdbmsId = (RdbmsId) domainObjectId;
+        String typeName = domainObjectTypeIdCache.getName(domainObjectId);
+
+        String query = generateFindLastVersionQuery(typeName);
+
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("id", rdbmsId.getId());
+
+        Long versionId = jdbcTemplate.queryForObject(query, parameters, Long.class);
+        return findVersion(new RdbmsId(rdbmsId.getTypeId(), versionId));
+    }
+
+    /**
+     * Вормирование запроса на получение идентификатора крайней версии доменного объекта
+     * @param typeName
+     * @return
+     */
+    private String generateFindLastVersionQuery(String typeName) {
+        DomainObjectTypeConfig config = configurationExplorer.getConfig(
+                DomainObjectTypeConfig.class, typeName);
+
+        String rootType = getRootTypeName(config);
+
+        StringBuilder query = new StringBuilder();
+        query.append("select max(id) ");
+        query.append("from ");
+        query.append(getSqlName(rootType));
+        query.append("_log ");
+        query.append("where domain_object_id = :id");
+
+        return query.toString();
     }
 }

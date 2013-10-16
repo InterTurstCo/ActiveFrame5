@@ -5,7 +5,7 @@ package ru.intertrust.cm.core.business.api.dto;
  * @author larin
  *
  */
-public interface FieldModification {
+public interface FieldModification extends Dto{
     /**
      * Получение имени атрибута
      * @return
@@ -16,11 +16,11 @@ public interface FieldModification {
      * Получение значение атрибута базовой версии
      * @return
      */
-    <T extends Value> T getBaseValue();
+    Value getBaseValue();
 
     /**
      * Получение значения атрибута сравниваемой версии
      * @return
      */
-    <T extends Value> T getComparedValue();
+    Value getComparedValue();
 }

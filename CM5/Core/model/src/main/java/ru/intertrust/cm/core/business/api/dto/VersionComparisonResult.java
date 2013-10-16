@@ -8,7 +8,7 @@ import java.util.List;
  * @author larin
  * 
  */
-public interface VersionComparisonResult {
+public interface VersionComparisonResult extends Dto{
     /**
      * Возвращает идентификатор версии, с которой производится сравнение
      * @return
