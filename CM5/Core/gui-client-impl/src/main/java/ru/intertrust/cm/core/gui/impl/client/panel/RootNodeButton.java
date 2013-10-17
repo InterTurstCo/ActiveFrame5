@@ -7,13 +7,8 @@ public class RootNodeButton extends HTML {
     private HTML html;
     private String nameName;
 
-    private final SidebarView sidebar = new SidebarView();
-
-    public RootNodeButton(String name) {
-
-        this.html = sidebar.getSidebarItem();
-
-        this.sidebar.putNavigationMap(name, html);
+    public RootNodeButton() {
+        this.html = new HTML();
 
     }
 

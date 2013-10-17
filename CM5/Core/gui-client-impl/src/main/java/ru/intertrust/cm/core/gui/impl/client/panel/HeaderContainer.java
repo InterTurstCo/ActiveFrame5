@@ -6,36 +6,19 @@ import com.google.gwt.user.client.ui.*;
 /**
  * Entry point classes define <code>createHeader()</code>
  */
-public class HeaderContainer {
+public class HeaderContainer extends SimplePanel {
 
     public static final int FIRST_ROW = 0;
 
-    /**
-     * This is the entry point method.
-     */
-    public SimplePanel createHeader() {
+    public HeaderContainer() {
 
-        MainContainer mainContainer = new MainContainer().build();
+        this.getElement().setId("container");
+        this.getElement().getStyle().setProperty("position", "relative");
 
-        FlexTable headTable = new FlexTable();
-        headTable.addStyleName("HeadTable");
+        SimplePanel head = createHeadPanel(this);
+        FlexTable headTable = createHeadTable();
 
-        headTable.getFlexCellFormatter().setStyleName(FIRST_ROW, 0, "H_td_logo");
-
-        headTable.setWidget(FIRST_ROW, 0, new Image("logo.gif"));
-
-        //suggest box
-        MultiWordSuggestOracle oracle = new MultiWordSuggestOracle();
-
-        oracle.add("Cat");
-        oracle.add("Cat");
-        oracle.add("Cat");
-        oracle.add("Dog");
-        oracle.add("Dog");
-        oracle.add("Dog");
-        oracle.add("Dog");
-
-        SuggestBox suggestBox = new SuggestBox(oracle);
+        TextBox suggestBox = new TextBox();
         suggestBox.setWidth("100%");
 
         headTable.setWidget(FIRST_ROW, 1, suggestBox);
@@ -51,48 +34,37 @@ public class HeaderContainer {
         userInfoPanel.add(new SimplePanel(userPosition));
 
         headTable.setWidget(FIRST_ROW, 2, userInfoPanel);
-
         headTable.getFlexCellFormatter().setStyleName(FIRST_ROW, 2, "H_td_user");
 
         FlowPanel linksPanel = new FlowPanel();
         Anchor settings = new Anchor("Settings", "Settings");
-        //settings.removeStyleName("gwt-Anchor");
         linksPanel.add(new SimplePanel(settings));
         Anchor help = new Anchor("Help", "Help");
-        //help.removeStyleName("gwt-Anchor");
         linksPanel.add(new SimplePanel(help));
 
-        headTable.setWidget(FIRST_ROW,3,linksPanel);
-        headTable.getCellFormatter().setStyleName(FIRST_ROW,3,"H_td_links");
+        headTable.setWidget(FIRST_ROW, 3, linksPanel);
+        headTable.getCellFormatter().setStyleName(FIRST_ROW, 3, "H_td_links");
 
-        headTable.setWidget(FIRST_ROW,4,new Hyperlink("Exit","Exit"));
-        headTable.getCellFormatter().setStyleName(FIRST_ROW,4,"H_td_logout");
+        headTable.setWidget(FIRST_ROW, 4, new Hyperlink("Exit", "Exit"));
+        headTable.getCellFormatter().setStyleName(FIRST_ROW, 4, "H_td_logout");
+        head.add(headTable);
 
-        mainContainer.getHead().add(headTable);
-        return mainContainer.getContainer();
+    }
+
+    private FlexTable createHeadTable() {
+        FlexTable headTable = new FlexTable();
+        headTable.addStyleName("HeadTable");
+        headTable.getFlexCellFormatter().setStyleName(FIRST_ROW, 0, "H_td_logo");
+        headTable.setWidget(FIRST_ROW, 0, new Image("logo.gif"));
+        return headTable;
+    }
+
+    private SimplePanel createHeadPanel(SimplePanel container) {
+        SimplePanel head = new SimplePanel();
+        container.add(head);
+        head.getElement().setId("Head");
+        return head;
     }
 
 
-    private class MainContainer {
-        private SimplePanel container;
-        private SimplePanel head;
-
-        public SimplePanel getContainer() {
-            return container;
-        }
-
-        public SimplePanel getHead() {
-            return head;
-        }
-
-        public MainContainer build() {
-            container = new SimplePanel();
-            container.getElement().setId("container");
-            container.getElement().getStyle().setProperty("position","relative");
-            head = new SimplePanel();
-            container.add(head);
-            head.getElement().setId("Head");
-            return this;
-        }
-    }
 }

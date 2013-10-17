@@ -124,7 +124,6 @@
                     </plugin>
                 </link>
             </child-links>
-
             <child-links>
                 <link name="All Documents" display-text="Все">
                     <plugin>

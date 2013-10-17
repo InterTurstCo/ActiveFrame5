@@ -28,44 +28,35 @@ public class SidebarView extends Composite {
     public final static String DIV_SIDEBAR_ID = "sidebar";
     public final static String DIV_TASKSWRAP_ID = "tasks-wrap";
 
-    /**
-   *
-   */
+
     HashMap<String, String> hasImg = new HashMap<String, String>();
 
-     /**
-      * Поля Байндера
-      * */
     HTMLPanel hpan = new HTMLPanel("");
     LayoutPanel sidebarPanel = new LayoutPanel();
     ScrollPanel scrollPanel = new ScrollPanel();
     HTMLPanel tasksWrap = new HTMLPanel("");
     HTMLPanel arrsPanel = new HTMLPanel("");
     Element arrTop;
-    Element arrBottom ;
+    Element arrBottom;
     VerticalPanel menuItems = new VerticalPanel();
 
-    public void createSideBar(){
+    public void createSideBar() {
         hpan.add(sidebarPanel);
-            HTMLPanel support = new HTMLPanel("");
-                sidebarPanel.add(support);
-                    support.addStyleName("gradient");
-                        support.add(scrollPanel);
-                            scrollPanel.add(tasksWrap);
-                                tasksWrap.add(menuItems);
-            support.add(arrsPanel);
-                arrTop = DOM.createSpan();
-                arrTop.addClassName("arr top disabled");
-                arrBottom = DOM.createSpan();
-                arrBottom.addClassName("arr bottom");
+        HTMLPanel support = new HTMLPanel("");
+        sidebarPanel.add(support);
+        support.addStyleName("gradient");
+        support.add(scrollPanel);
+        scrollPanel.add(tasksWrap);
+        tasksWrap.add(menuItems);
+        support.add(arrsPanel);
+        arrTop = DOM.createSpan();
+        arrTop.addClassName("arr top disabled");
+        arrBottom = DOM.createSpan();
+        arrBottom.addClassName("arr bottom");
         DOM.appendChild(arrsPanel.getElement(), (com.google.gwt.user.client.Element) arrTop);
         DOM.appendChild(arrsPanel.getElement(), (com.google.gwt.user.client.Element) arrBottom);
 
     }
-
-
-
-
 
     public VerticalPanel getMenuItems() {
         return menuItems;
@@ -79,14 +70,9 @@ public class SidebarView extends Composite {
     }
 
     public SidebarView() {
-           createSideBar();
+        createSideBar();
         initWidget(hpan);
-
-
-
-
         init();
-
         Window.addResizeHandler(new ResizeHandler() {
             @Override
             public void onResize(ResizeEvent event) {
@@ -221,8 +207,7 @@ public class SidebarView extends Composite {
 
         if (scrollPanel.getVerticalScrollPosition() == scrollPanel.getMinimumVerticalScrollPosition()) {
             disableUpArrow();
-        }
-        else if (scrollPanel.getVerticalScrollPosition() == scrollPanel.getMaximumVerticalScrollPosition()) {
+        } else if (scrollPanel.getVerticalScrollPosition() == scrollPanel.getMaximumVerticalScrollPosition()) {
             disableDownArrow();
         }
     }
@@ -248,18 +233,11 @@ public class SidebarView extends Composite {
     }
 
 
-    public HTML getSidebarItem() {
-        HTML h = new HTML();
-        return h;
-    }
-
-
     public void sidebarItem(String path, String title, String name, Long value, HTML h) {
         if (value > 0) {
             h.setHTML("<li><a><img width=\"60\" height=\"50\" border=\"0\" alt=\"\" src=\"" + path + "\"><span>"
                     + title + "</span><small>" + value + "</small></a></li>");
-        }
-        else {
+        } else {
             h.setHTML("<li><a><img width=\"60\" height=\"50\" border=\"0\" alt=\"\" src=\"" + path + "\"><span>"
                     + title + "</span></a></li>");
         }
@@ -275,7 +253,7 @@ public class SidebarView extends Composite {
      */
     // @Override
     public void correctStyle(String name) {
-        for (Iterator<?> iterator = navigationMap.values().iterator(); iterator.hasNext();) {
+        for (Iterator<?> iterator = navigationMap.values().iterator(); iterator.hasNext(); ) {
             HTML type = (HTML) iterator.next();
             type.removeStyleName("selected");
         }
@@ -290,22 +268,6 @@ public class SidebarView extends Composite {
         return navigationMap;
     }
 
-    /**
-     * Get actual history token (without parameters)
-     * @return
-     */
-//    @SuppressWarnings("unused")
-//    private String loadActualHistoryToken() {
-//
-//        String token = History.getToken();
-//
-//        if (token.indexOf(";") != -1) {
-//            token = token.substring(0, token.indexOf(";"));
-//        }
-//
-//        return token;
-//    }
-
     public final static int SB_ELEM_HEIGHT = 84;
     public final static int BUT_RESERV_HEIGHT = 30;
 
@@ -314,6 +276,7 @@ public class SidebarView extends Composite {
 
     /**
      * Sidebar content correct function. See main.js for details
+     *
      * @author labotski, alex oreshkevich
      */
     private strictfp void sidebarContentCorrect() {
@@ -335,8 +298,7 @@ public class SidebarView extends Composite {
         if (visibleHeight > 0 && visibleItemCount < currentItemsCount) {
             scrollPanel.setHeight(Integer.toString(visibleHeight) + "px");
             showArrs();
-        }
-        else {
+        } else {
             scrollPanel.setHeight("auto");
             hideArrs();
         }
@@ -355,7 +317,6 @@ public class SidebarView extends Composite {
     public void correctContentStyles() {
         sidebarContentCorrect();
     }
-
 
 
 }

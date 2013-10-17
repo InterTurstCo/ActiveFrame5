@@ -56,6 +56,7 @@ public abstract class Plugin extends BaseComponent {
 
     /**
      * Возвращает текущее состояние приложения
+     *
      * @return текущее состояние приложения
      */
     public Dto getCurrentState() {
@@ -109,7 +110,7 @@ public abstract class Plugin extends BaseComponent {
      *
      * @return представление плагина
      */
-    PluginView getView() {
+    protected PluginView getView() {
         return view;
     }
 
@@ -133,6 +134,7 @@ public abstract class Plugin extends BaseComponent {
 
     /**
      * Возвращает конфигурацию плагина
+     *
      * @return конфигурацию плагина
      */
     public PluginConfig getConfig() {
@@ -141,6 +143,7 @@ public abstract class Plugin extends BaseComponent {
 
     /**
      * Устанавливает конфигурацию плагина
+     *
      * @param config конфигурация плагина
      */
     public void setConfig(PluginConfig config) {
