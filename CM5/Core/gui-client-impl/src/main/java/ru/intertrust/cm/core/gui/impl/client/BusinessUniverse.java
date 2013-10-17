@@ -41,12 +41,11 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
             @Override
             public void onSuccess(BusinessUniverseInitialization result) {
                 FlowPanel rootPanel = createRootPanel();
-                HorizontalPanel toolPanel = createToolPanel();
                 FlowPanel headerPanel = createHeaderPanel();
                 HorizontalPanel bodyPanel = new HorizontalPanel();
 
                 rootPanel.add(new HeaderContainer());
-                rootPanel.add(toolPanel);
+
 
                 PluginPanel navigationTreePanel = new PluginPanel(eventBus);
                 // todo мы должны просто класть туда панель - пустую, а nav tree plugin уже будет открывать в ней что нужно

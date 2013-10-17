@@ -47,7 +47,7 @@ public class CollectionPluginView extends PluginView {
     ScrollPanel scrollPanelHeader = new ScrollPanel();
     ScrollPanel scrollPanelBody = new ScrollPanel();
 
-    private int                                lastHorizontalScrollPos     = 0;
+
 
     FlowPanel headerPanel = new FlowPanel();
     FlowPanel bodyPanel = new FlowPanel();
@@ -203,7 +203,8 @@ public class CollectionPluginView extends PluginView {
         tableBody.setEmptyTableWidget(emptyTableWidget);
         tableBody.setSelectionModel(selectionModel);
         tableBody.setTableLayoutFixed(true);
-    }
+
+}
 
     private void preparingTableContent
             (IdentifiableObjectCollection identifiableObjectCollection, List<String> columnFields) {
