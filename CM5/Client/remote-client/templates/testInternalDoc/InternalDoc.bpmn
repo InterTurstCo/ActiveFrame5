@@ -19,8 +19,6 @@
     <sequenceFlow id="ifAgreed" name="Согласовано" sourceRef="exclusivegateway2" targetRef="scripttask3">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decisionOnNegotiation.equals("Agree")}]]></conditionExpression>
     </sequenceFlow>
-    <exclusiveGateway id="exclusivegateway3" name="Exclusive Gateway"></exclusiveGateway>
-    <sequenceFlow id="flow27" sourceRef="exclusivegateway3" targetRef="endevent4"></sequenceFlow>
     <userTask id="toDraft" name="Возврат на доработку" activiti:assignee="${MAIN_ATTACHMENT.get(&quot;docAuthor&quot;).toStringRepresentation()}">
       <extensionElements>
         <activiti:formProperty id="MAIN_ATTACHMENT_ID" type="string" expression="${MAIN_ATTACHMENT_ID.toStringRepresentation()}"></activiti:formProperty>
@@ -41,14 +39,16 @@ MAIN_ATTACHMENT.save();</script>
     </scriptTask>
     <sequenceFlow id="flow30" sourceRef="scripttask2" targetRef="toDraft"></sequenceFlow>
     <sequenceFlow id="flow31" sourceRef="toDraft" targetRef="exclusivegateway1"></sequenceFlow>
-    <sequenceFlow id="ifSignedPre" name="Подписано" sourceRef="exclusivegateway2" targetRef="exclusivegateway3">
+    <sequenceFlow id="ifSignedPre" name="Подписано" sourceRef="exclusivegateway2" targetRef="exclusivegateway4">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decisionOnNegotiation.equals("SignPre")}]]></conditionExpression>
     </sequenceFlow>
     <scriptTask id="scripttask3" name="Установка статуса документа Подписание" scriptFormat="javascript" activiti:autoStoreVariables="true">
       <script>MAIN_ATTACHMENT.set("Status","Sign");
 MAIN_ATTACHMENT.save();</script>
     </scriptTask>
-    <sequenceFlow id="flow32" sourceRef="scripttask3" targetRef="exclusivegateway3"></sequenceFlow>
+    <sequenceFlow id="flow32" sourceRef="scripttask3" targetRef="exclusivegateway4"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway4" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow34" sourceRef="exclusivegateway4" targetRef="endevent4"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_InternalDocument">
     <bpmndi:BPMNPlane bpmnElement="InternalDocument" id="BPMNPlane_InternalDocument">
@@ -56,7 +56,7 @@ MAIN_ATTACHMENT.save();</script>
         <omgdc:Bounds height="35.0" width="35.0" x="121.0" y="-60.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="endevent4" id="BPMNShape_endevent4">
-        <omgdc:Bounds height="35.0" width="35.0" x="119.0" y="600.0"></omgdc:Bounds>
+        <omgdc:Bounds height="35.0" width="35.0" x="119.0" y="570.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
         <omgdc:Bounds height="40.0" width="40.0" x="118.0" y="0.0"></omgdc:Bounds>
@@ -66,9 +66,6 @@ MAIN_ATTACHMENT.save();</script>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway2" id="BPMNShape_exclusivegateway2">
         <omgdc:Bounds height="40.0" width="40.0" x="116.0" y="264.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="exclusivegateway3" id="BPMNShape_exclusivegateway3">
-        <omgdc:Bounds height="27.0" width="146.0" x="116.0" y="500.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="toDraft" id="BPMNShape_toDraft">
         <omgdc:Bounds height="55.0" width="105.0" x="400.0" y="106.0"></omgdc:Bounds>
@@ -81,6 +78,9 @@ MAIN_ATTACHMENT.save();</script>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask3" id="BPMNShape_scripttask3">
         <omgdc:Bounds height="71.0" width="105.0" x="84.0" y="377.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway4" id="BPMNShape_exclusivegateway4">
+        <omgdc:Bounds height="40.0" width="40.0" x="116.0" y="490.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow20" id="BPMNEdge_flow20">
         <omgdi:waypoint x="138.0" y="-25.0"></omgdi:waypoint>
@@ -100,10 +100,6 @@ MAIN_ATTACHMENT.save();</script>
         <bpmndi:BPMNLabel>
           <omgdc:Bounds height="14.0" width="66.0" x="10.0" y="-4.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow27" id="BPMNEdge_flow27">
-        <omgdi:waypoint x="189.0" y="527.0"></omgdi:waypoint>
-        <omgdi:waypoint x="136.0" y="600.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="ifNotAgreed" id="BPMNEdge_ifNotAgreed">
         <omgdi:waypoint x="156.0" y="284.0"></omgdi:waypoint>
@@ -128,15 +124,19 @@ MAIN_ATTACHMENT.save();</script>
       <bpmndi:BPMNEdge bpmnElement="ifSignedPre" id="BPMNEdge_ifSignedPre">
         <omgdi:waypoint x="116.0" y="284.0"></omgdi:waypoint>
         <omgdi:waypoint x="26.0" y="283.0"></omgdi:waypoint>
-        <omgdi:waypoint x="26.0" y="520.0"></omgdi:waypoint>
-        <omgdi:waypoint x="116.0" y="513.0"></omgdi:waypoint>
+        <omgdi:waypoint x="26.0" y="510.0"></omgdi:waypoint>
+        <omgdi:waypoint x="116.0" y="510.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
           <omgdc:Bounds height="14.0" width="55.0" x="4.0" y="-66.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow32" id="BPMNEdge_flow32">
         <omgdi:waypoint x="136.0" y="448.0"></omgdi:waypoint>
-        <omgdi:waypoint x="189.0" y="500.0"></omgdi:waypoint>
+        <omgdi:waypoint x="136.0" y="490.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow34" id="BPMNEdge_flow34">
+        <omgdi:waypoint x="136.0" y="530.0"></omgdi:waypoint>
+        <omgdi:waypoint x="136.0" y="570.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
