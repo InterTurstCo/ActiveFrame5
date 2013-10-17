@@ -9,6 +9,7 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlowPanel;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionData;
 
@@ -23,7 +24,7 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
 
     private FlowPanel           tablePanelWinth;
     private int                 resizeModifier;
-    private int                 offsetPanelWidts;
+
     static final int            COLUMN_MIN_WIDTH = 100;
     private Point               startResizePoint;
     private Point               startMovePoint;
@@ -40,10 +41,10 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
     CellTable<CollectionData> header;
     CellTable<CollectionData> body;
 
-    public TableController(CellTable<CollectionData> header, CellTable<CollectionData> body, FlowPanel tablePanelWidth) {
+    public TableController(CellTable<CollectionData> header, CellTable<CollectionData> body) {
         this.header = header;
         this.body = body;
-        this.tablePanelWinth = tablePanelWidth;
+
 
         header.sinkEvents(Event.ONMOUSEDOWN | Event.ONMOUSEUP | Event.ONMOUSEMOVE | Event.ONMOUSEOVER);
         header.addHandler(this, MouseDownEvent.getType());
@@ -51,6 +52,18 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
         header.addHandler(this, MouseMoveEvent.getType());
         header.addHandler(this, MouseUpEvent.getType());
 
+
+    }
+
+    public void columnWindowResize(int width){
+        int count = header.getColumnCount();
+        for (int i = 0; i <count; i++ ){
+            Column headCol = header.getColumn(i);
+            Column bodyCol = body.getColumn(i);
+            header.setColumnWidth(headCol, width+"px");
+            body.setColumnWidth(bodyCol, width + "px");
+
+        }
 
     }
 
@@ -189,8 +202,16 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
             }
             if ( move > 0){
                 if (move > COLUMN_MIN_WIDTH) {
+                    if (colIdx == header.getColumnCount()-1){
+                        if (header.getOffsetWidth() > header.getOffsetWidth() - move){
+                            columnWindowResize((Window.getClientWidth() - 230) / header.getColumnCount());
+
+                        }
+                    }
+                    else {
                     header.setColumnWidth(column, move+"px");
                     body.setColumnWidth(column, move+"px");
+                    }
                 }
                 else {
 
@@ -232,10 +253,6 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
         else if (resizeModifier < 0) {
             int lastColumntSize = (lastColumnWidth + resizeModifier);
             if (lastColumntSize < COLUMN_MIN_WIDTH){
-                Column col = header.getColumn(colIdx);
-//                System.out.println("currentColumn negative resize after: "+header.getColumnWidth(col));
-//                header.setColumnWidth(col, currentColumn - (COLUMN_MIN_WIDTH - lastColumntSize) + "px");
-//                System.out.println("currentColumn negative resize before: "+header.getColumnWidth(col));
                 lastColumntSize = COLUMN_MIN_WIDTH;
                 header.setColumnWidth(column, lastColumntSize+"px");
                 body.setColumnWidth(column, lastColumntSize+"px");
@@ -251,18 +268,6 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
         }
     }
 
-    private void tableSizeCorrector(){
-        if (header.getOffsetWidth() == offsetPanelWidts){
-            return;
-        }
-        else if (header.getOffsetWidth() > offsetPanelWidts){
-            tablePanelWinth.setWidth(header.getOffsetWidth()+"px");
-
-        }
-        else {
-            tablePanelWinth.setWidth(offsetPanelWidts+"px");
-        }
-    }
 
     private int getThisColumnWidth(Column column){
         String colWidth = header.getColumnWidth(column);
@@ -319,7 +324,4 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
 
     }
 
-    public void setOffsetPanelWidts(int offsetPanelWidts) {
-        this.offsetPanelWidts = offsetPanelWidts;
-    }
 }

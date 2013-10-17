@@ -3,8 +3,6 @@ package ru.intertrust.cm.core.gui.impl.client;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.logical.shared.ResizeEvent;
-import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.Command;
@@ -36,12 +34,8 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
     private EventBus eventBus = GWT.create(SimpleEventBus.class);
 
     FlowPanel rootPanel = new FlowPanel();
-    HorizontalPanel toolPanel = new HorizontalPanel();
     HorizontalPanel bodyPanel = new HorizontalPanel();
-
     HeaderContainer header = new HeaderContainer();
-    FlowPanel contentAction = new FlowPanel();
-    SplitLayoutPanel splitterNew = new SplitLayoutPanel(8);
     FlowPanel headerPanel = new FlowPanel();
 
     public void onModuleLoad() {
@@ -50,7 +44,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
             public void onSuccess(BusinessUniverseInitialization result) {
 
                 rootPanel.add(header.createHeader());
-                rootPanel.add(toolPanel);
+              //  rootPanel.add(toolPanel);
 
                 PluginPanel navigationTreePanel = new PluginPanel(eventBus);
                 Plugin navigationTreePlugin = ComponentRegistry.instance.get("navigation.tree");
@@ -83,34 +77,9 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
         BusinessUniverseServiceAsync.Impl.getInstance().getBusinessUniverseInitialization(callback);
     }
 
-    private void drawSplitter() {
-        int width = Window.getClientWidth() - 360;
-        int heigt = Window.getClientHeight() - 130;
-        splitterNew.setSize(width + "px", heigt + "px");
-        contentAction.setSize(width + "px", heigt + "px");
-        headerPanel.setWidth(width + "px");
-    }
-
-    public void splitterPanelResize() {
-
-        Window.addResizeHandler(new ResizeHandler() {
-            @Override
-            public void onResize(ResizeEvent event) {
-                drawSplitter();
-            }
-        });
-
-    }
-
-
     private void show() {
-        toolPanel.setStyleName("content-tools");
-        toolPanel.setWidth("100%");
         rootPanel.setStyleName("content");
         rootPanel.setSize("100%", "100%");
-        contentAction.setStyleName("centerTopBottomDividerRoot");
-        splitterPanelResize();
-        drawSplitter();
     }
 
     private void addStickerPanel(DockLayoutPanel mainLayoutPanel) {

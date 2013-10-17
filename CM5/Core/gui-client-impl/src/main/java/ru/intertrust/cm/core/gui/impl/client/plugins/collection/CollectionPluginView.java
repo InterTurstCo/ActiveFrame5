@@ -44,12 +44,15 @@ public class CollectionPluginView extends PluginView {
     TableController tableController;
     List<String> columnNames;
     List<String> columnFields;
+    ScrollPanel scrollPanelHeader = new ScrollPanel();
+    ScrollPanel scrollPanelBody = new ScrollPanel();
 
+    private int                                lastHorizontalScrollPos     = 0;
 
     FlowPanel headerPanel = new FlowPanel();
-    SimplePanel bodyPanel = new SimplePanel();
+    FlowPanel bodyPanel = new FlowPanel();
     VerticalPanel verticalPanel = new VerticalPanel();
-    ScrollPanel root = new ScrollPanel();
+    FlowPanel root = new FlowPanel();
 
     private List<CollectionData> tableContent =new ArrayList<CollectionData>();
     /**
@@ -63,7 +66,7 @@ public class CollectionPluginView extends PluginView {
         adapter = new DGCellTableResourceAdapter(CellTableResourcesEx.I);
         tableHeader = new CellTable<CollectionData>(999,  adapter.getResources());
         tableBody = new CellTable<CollectionData>(999, adapter.getResources());
-        tableController = new TableController(tableHeader, tableBody, headerPanel);
+        tableController = new TableController(tableHeader, tableBody);
 
 
 
@@ -86,56 +89,38 @@ public class CollectionPluginView extends PluginView {
     }
 
     public void init(List<String> columnNames, IdentifiableObjectCollection collection, List<String> columnFields){
-
         buildPanel();
         buildColumnsOfTables(columnNames, columnFields);
-        setLinearSizes();
         settingStyles();
-
         preparingTableContent(collection, columnFields);
         attachingDataProvider(tableBody, tableContent);
-
         addHandlers();
 
-       // draw();
-
     }
 
-    private void headerAndBodyResize(){
-//        headerPanel.setWidth("100%");
-//        bodyPanel.setWidth("100%");
-    }
+
 
     private void addResizeHandler(){
 
         Window.addResizeHandler(new ResizeHandler() {
             @Override
             public void onResize(ResizeEvent event) {
-            tableHeader.redraw();
-            tableBody.redraw();
-             //draw();
+                int width = (Window.getClientWidth() - 230) / tableHeader.getColumnCount();
+                if (width < 100){
+                    width = 100;
+                }
+                tableController.columnWindowResize(width);
+
             }
         });
 
     }
     private void addHandlers(){
-       // addResizeHandler();
+        addResizeHandler();
         tableBody.addCellPreviewHandler(new CellTableEventHandler<CollectionData>(tableBody, plugin));
     }
 
-    private void draw(){
-        for (int i =0; i < tableHeader.getColumnCount(); i++){
-//            tableHeader.setWidth("100%", true);
-//            tableBody.setWidth("100%", true);
-            int headerPanelwidth = 100/tableHeader.getColumnCount();
-            if (headerPanelwidth < 35) {
-                headerPanelwidth = 35;
-            }
-            tableHeader.setColumnWidth(tableHeader.getColumn(i), headerPanelwidth+ "%");
-            tableBody.setColumnWidth(tableBody.getColumn(i), headerPanelwidth+"%");
 
-        }
-    }
 
     private TextColumn<CollectionData> buildNameColumn(final String s){
 
@@ -147,46 +132,32 @@ public class CollectionPluginView extends PluginView {
         };
     }
 
-    private void setLinearSizes(){
-     //   root.setHeight("150px");
-      //  bodyPanel.setWidth("100%");
-
-    }
 
     private void buildPanel(){
-
         headerPanel.add(tableHeader);
         bodyPanel.add(tableBody);
         verticalPanel.add(headerPanel);
         verticalPanel.add(bodyPanel);
-      //  verticalPanel.setSize("100%","100%");
-
-
+        verticalPanel.setSize("100%","100%");
         root.add(verticalPanel);
 
     }
 
     private void buildColumnsOfTables(List<String> columnNames, List<String> columnFields){
         int count =columnNames.size();
-        int columnSize = (headerPanel.getOffsetWidth() / count);
+        int columnSize = ((Window.getClientWidth() - 230) / count);
         for( int i = 0; i <columnNames.size(); i++ ) {
             Column<CollectionData, String> column = buildNameColumn(columnFields.get(i));
             String nameOfColumn = columnNames.get(i);
             tableHeader.addColumn(column, nameOfColumn);
-            tableHeader.setColumnWidth(column, 300/*columnSize*/+"px");
+            tableHeader.setColumnWidth(column, columnSize+"px");
             column.setDataStoreName(nameOfColumn);
             tableBody.addColumn(column);
-            tableBody.setColumnWidth(column, 300/*columnSize*/+"px");
+            tableBody.setColumnWidth(column, columnSize+"px");
         }
 
-
-
         tableBody.setRowCount(tableContent.size());
-//        headerPanel.setWidth("700px");
-      //  draw();
-
     }
-
 
 
     private void attachingDataProvider(CellTable<CollectionData> cellTable, List<CollectionData> myDataList) {

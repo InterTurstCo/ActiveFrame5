@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer;
 
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
@@ -15,13 +17,35 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import java.util.logging.Logger;
 
 public class DomainObjectSurferPluginView extends PluginView {
-
+    SplitLayoutPanel splitterNew = new SplitLayoutPanel(8);
+    FlowPanel formFlowPanel = new FlowPanel();
+    SimplePanel splitterNorthPanel = new SimplePanel();
     private DomainObjectSurferPlugin domainObjectSurferPlugin;
     static Logger log = Logger.getLogger("DomainObjectSurfer");
 
     public DomainObjectSurferPluginView(DomainObjectSurferPlugin domainObjectSurferPlugin) {
         super(domainObjectSurferPlugin);
         this.domainObjectSurferPlugin = domainObjectSurferPlugin;
+        splitterSetSize();
+        addWindowResizeListeners();
+    }
+
+    protected void splitterSetSize(){
+        splitterNew.clear();
+        int width = Window.getClientWidth() - 230;
+        int heigt = Window.getClientHeight() - 98;
+        splitterNew.setSize(width + "px", heigt + "px");
+        splitterNew.addNorth(splitterNorthPanel, (Window.getClientHeight()-230) / 2);
+        splitterNew.add(formFlowPanel);
+    }
+
+    private void addWindowResizeListeners(){
+        Window.addResizeHandler(new ResizeHandler() {
+            @Override
+            public void onResize(ResizeEvent event) {
+                splitterSetSize();
+            }
+        });
     }
 
     @Override
@@ -29,17 +53,15 @@ public class DomainObjectSurferPluginView extends PluginView {
 
         FlowPanel flowPanel = new FlowPanel();
         flowPanel.setStyleName("centerTopBottomDividerRoot");
-        final SplitLayoutPanel splitterNew = new SplitLayoutPanel(8);
-        int width = Window.getClientWidth() - 260;
-        int heigt = Window.getClientHeight() - 190;
-        splitterNew.setSize(width + "px", heigt + "px");
-
         final VerticalPanel container = new VerticalPanel();
         flowPanel.add(container);
-        VerticalPanel w = new VerticalPanel();
-        w.setHeight("40px");
-        w.setWidth("100%");
-        container.add(w);
+        splitterNorthPanel.addStyleName("scrollHeader");
+
+
+//        VerticalPanel w = new VerticalPanel();
+//        w.setHeight("40px");
+//        w.setWidth("100%");
+//        container.add(w);
         container.add(splitterNew);
 
         DomainObjectSurferConfig config = (DomainObjectSurferConfig) domainObjectSurferPlugin.getConfig();
@@ -67,12 +89,14 @@ public class DomainObjectSurferPluginView extends PluginView {
                     domainObjectSurferPlugin.setFormPlugin(plugin);
                     plugin.setConfig(config);
                     formPluginPanel.open(plugin);
-                    splitterNew.addNorth(new ScrollPanel(this.asWidget()), 300);
-                    FlowPanel formFlowPanel = new FlowPanel();
+                    splitterNorthPanel.add(this.asWidget());
+
+
+
                     formFlowPanel.setStyleName("tab-content");
                     formFlowPanel.setSize("100%", "100%");
                     formFlowPanel.add(new ScrollPanel(formPluginPanel.asWidget()));
-                    splitterNew.add(formFlowPanel);
+
 
                 }
             };
