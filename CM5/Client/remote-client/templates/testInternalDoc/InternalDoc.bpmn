@@ -23,7 +23,7 @@
     <sequenceFlow id="flow27" sourceRef="exclusivegateway3" targetRef="endevent4"></sequenceFlow>
     <userTask id="toDraft" name="Возврат на доработку" activiti:assignee="${MAIN_ATTACHMENT.get(&quot;docAuthor&quot;).toStringRepresentation()}">
       <extensionElements>
-        <activiti:formProperty id="MAIN_ATTACHMENT_ID" type="string" expression="MAIN_ATTACHMENT_ID.toStringRepresentation()"></activiti:formProperty>
+        <activiti:formProperty id="MAIN_ATTACHMENT_ID" type="string" expression="${MAIN_ATTACHMENT_ID.toStringRepresentation()}"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <sequenceFlow id="ifNotAgreed" name="Не согласовано" sourceRef="exclusivegateway2" targetRef="scripttask2">
