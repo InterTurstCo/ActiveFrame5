@@ -205,6 +205,11 @@ public class Session implements Serializable {
     		}   		
     	}
     }
+    
+    /**
+     * Создание фильтра
+     * @return
+     */
     public ScriptTaskFilter createFilter(){
     	return new ScriptTaskFilter();
     }
