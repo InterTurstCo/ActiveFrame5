@@ -5,7 +5,7 @@
     <artifactId>remote-client</artifactId>
     <packaging>jar</packaging>
 
-    <name>process-client</name>
+    <name>Remote client</name>
     <url>http://maven.apache.org</url>
 
     <properties>

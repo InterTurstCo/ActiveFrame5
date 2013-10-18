@@ -11,9 +11,10 @@
 
     <modules>
         <module>Core</module>
-        <!-- module>Performance</module-->
+        <module>Performance</module>
         <module>Workstation</module>
 	    <module>Ear</module>
+        <module>Client</module>
         <module>test-module</module>
         <module>modules-configuration</module>
     </modules>
