@@ -1,6 +1,7 @@
 package ru.intertrust.cm.remoteclient;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ import org.apache.commons.cli.ParseException;
  */
 public abstract class ClientBase {
     private CommandLine commandLine;
+    private Properties properties = new Properties();
     private StringBuilder log = new StringBuilder();
     private String address;
     private String user;
@@ -63,8 +65,14 @@ public abstract class ClientBase {
      * Получение распарсенных параметров командной строки
      * @return
      */
-    protected CommandLine getCommandLine() {
-        return commandLine;
+    protected String getParamerer(String name) {
+    	String result = null;
+    	if (properties.getProperty(name) != null){
+    		result = properties.getProperty(name);
+    	}else{
+    		result = commandLine.getOptionValue(name);
+    	}
+        return result;
     }
 
     /**
@@ -107,10 +115,16 @@ public abstract class ClientBase {
         }
 
         parseArguments(args, optionNamesList.toArray(new String[optionNamesList.size()]));
-        address = commandLine.getOptionValue("address");
-        user = commandLine.getOptionValue("user");
-        password = commandLine.getOptionValue("password");
-        logPath = commandLine.getOptionValue("log");
+        
+        File propFile = new File("client.properties");
+        if (propFile.exists()){
+        	properties.load(new FileInputStream(propFile));
+        }
+        
+        address = properties.getProperty("address") != null ? properties.getProperty("address") : commandLine.getOptionValue("address");
+        user = properties.getProperty("user") != null ? properties.getProperty("user") : commandLine.getOptionValue("user");
+        password = properties.getProperty("password") != null ? properties.getProperty("password") : commandLine.getOptionValue("password");
+        logPath = properties.getProperty("log") != null ? properties.getProperty("log") : commandLine.getOptionValue("log");
     }
 
     /**
@@ -161,4 +175,11 @@ public abstract class ClientBase {
         }
     }
 
+    /**
+     * Получение аргументов командной строки
+     * @return
+     */
+    protected String[] getCommandLineArgs(){
+    	return commandLine.getArgs();
+    }
 }

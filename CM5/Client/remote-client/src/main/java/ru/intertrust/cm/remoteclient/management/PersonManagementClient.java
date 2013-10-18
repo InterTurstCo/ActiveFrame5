@@ -29,7 +29,7 @@ public class PersonManagementClient extends ClientBase {
 		CrudService.Remote service = (CrudService.Remote) getService(
 				"CrudServiceImpl", CrudService.Remote.class);
 
-		String command = getCommandLine().getOptionValue("command");
+		String command = getParamerer("command");
 
 		String[] arguments = new String[10];
 
@@ -51,8 +51,8 @@ public class PersonManagementClient extends ClientBase {
 					}
 				} else {
 					// Режим командного файла
-					for (int i = 0; i < getCommandLine().getArgs().length; i++) {
-						arguments[i] = getCommandLine().getArgs()[i];
+					for (int i = 0; i < getCommandLineArgs().length; i++) {
+						arguments[i] = getCommandLineArgs()[i];
 					}
 					exit = true;
 				}
@@ -91,5 +91,7 @@ public class PersonManagementClient extends ClientBase {
 
 		writeLog();
 	}
+
+
 
 }
