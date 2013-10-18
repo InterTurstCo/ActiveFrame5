@@ -159,5 +159,21 @@ public class DomainObjectAccessor implements Serializable {
         ApplicationContext ctx = SpringApplicationContext.getContext();
         return (ConfigurationExplorer) ctx.getBean("configurationExplorer");
     }
+    
+    /**
+     * Установка статуса объекта
+     * @param status
+     */
+    public void setStatus(String status){
+    	set("Status", status);
+    	save();
+    }
+    /**
+     * Получить статус объекта
+     * @return
+     */
+    public String getStatus(){
+    	return (String) get("Status");
+    }
 
 }

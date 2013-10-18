@@ -28,14 +28,14 @@
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decisionOnNegotiation.equals("Reject")}]]></conditionExpression>
     </sequenceFlow>
     <scriptTask id="scripttask1" name="Установка статуса документа Согласование" scriptFormat="javascript" activiti:autoStoreVariables="true">
-      <script>MAIN_ATTACHMENT.set("Status","Negotiation");
+      <script>MAIN_ATTACHMENT.setStatus("Negotiation");
 MAIN_ATTACHMENT.set("Stage",MAIN_ATTACHMENT.get("Stage")+1);
-MAIN_ATTACHMENT.save();</script>
+</script>
     </scriptTask>
     <sequenceFlow id="flow29" sourceRef="scripttask1" targetRef="callNegotiation"></sequenceFlow>
     <scriptTask id="scripttask2" name="Установка статуса документа Доработка" scriptFormat="javascript" activiti:autoStoreVariables="true">
-      <script>MAIN_ATTACHMENT.set("Status","Draft");
-MAIN_ATTACHMENT.save();</script>
+      <script>MAIN_ATTACHMENT.setStatus("Draft");
+</script>
     </scriptTask>
     <sequenceFlow id="flow30" sourceRef="scripttask2" targetRef="toDraft"></sequenceFlow>
     <sequenceFlow id="flow31" sourceRef="toDraft" targetRef="exclusivegateway1"></sequenceFlow>
@@ -43,8 +43,8 @@ MAIN_ATTACHMENT.save();</script>
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decisionOnNegotiation.equals("SignPre")}]]></conditionExpression>
     </sequenceFlow>
     <scriptTask id="scripttask3" name="Установка статуса документа Подписание" scriptFormat="javascript" activiti:autoStoreVariables="true">
-      <script>MAIN_ATTACHMENT.set("Status","Sign");
-MAIN_ATTACHMENT.save();</script>
+      <script>MAIN_ATTACHMENT.setStatus("Sign");
+</script>
     </scriptTask>
     <sequenceFlow id="flow32" sourceRef="scripttask3" targetRef="exclusivegateway4"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway4" name="Exclusive Gateway"></exclusiveGateway>

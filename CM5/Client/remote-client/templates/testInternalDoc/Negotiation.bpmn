@@ -6,14 +6,13 @@
     <startEvent id="startNegotiationEvent" name="Начало процесса согласования"></startEvent>
     <endEvent id="endevent1" name="End"></endEvent>
     <scriptTask id="getNegotiationList" name="Получение списка согласующих" scriptFormat="javascript" activiti:autoStoreVariables="false">
-      <script>var filter = new java.util.Hashtable();
+      <script>var filter = SESSION.createFilter();
 if(typeof NEGOTIATION_CARD_ID !=="undefined"){
-filter.put("byParentNecotiationCard",NEGOTIATION_CARD_ID);
+filter.add("byParentNecotiationCard",NEGOTIATION_CARD_ID);
 }else{
-filter.put("byDoc",MAIN_ATTACHMENT_ID);
-filter.put("onlyTopLevelCard",new java.lang.Object());
+filter.add("onlyTopLevelCardByDoc",MAIN_ATTACHMENT_ID);
 }
-filter.put("byStatus","Draft");
+filter.add("byStatus","Draft");
 var collection = SESSION.find("Negotiation_Card",filter );
 execution.setVariable("negotiationCardIds", collection );</script>
     </scriptTask>
@@ -46,24 +45,22 @@ execution.setVariable("negotiationCardIds", collection );</script>
       <endEvent id="endevent2" name="End"></endEvent>
       <scriptTask id="getNegotiationCard" name="Получение карточки согласования" scriptFormat="javascript" activiti:autoStoreVariables="false">
         <script>var scrNegotioationCard = SESSION.find(negotiationCardId.getId());
-scrNegotioationCard.set("Status", "Negotiation");
-scrNegotioationCard.save();
+scrNegotioationCard.setStatus("Negotiation");
 execution.setVariableLocal("negotioationCard", scrNegotioationCard);
 execution.setVariableLocal("NEGOTIATION_CARD_ID",negotiationCardId.getId());
 </script>
       </scriptTask>
       <sequenceFlow id="flow17" sourceRef="getNegotiationCard" targetRef="exclusivegateway2"></sequenceFlow>
       <scriptTask id="doAgree" name="Согласовано" scriptFormat="javascript" activiti:autoStoreVariables="false">
-        <script>negotioationCard.set("Status", "Agree");
-negotioationCard.save();</script>
+        <script>negotioationCard.setStatus("Agree");</script>
       </scriptTask>
       <scriptTask id="doAdditionalNegotiation" name="Дополнительное согласование" scriptFormat="javascript" activiti:autoStoreVariables="false">
-        <script>negotioationCard.set("Status", "AdditionalNegotiation");
-negotioationCard.save();</script>
+        <script>negotioationCard.setStatus("AdditionalNegotiation");
+</script>
       </scriptTask>
       <scriptTask id="doReject" name="Не согласовано" scriptFormat="javascript" activiti:autoStoreVariables="false">
-        <script>negotioationCard.set("Status", "Reject");
-negotioationCard.save();</script>
+        <script>negotioationCard.setStatus("Reject");
+</script>
       </scriptTask>
       <sequenceFlow id="ifReject" name="Не согласен" sourceRef="exclusivegateway4" targetRef="doReject">
         <conditionExpression xsi:type="tFormalExpression"><![CDATA[${RESULT.equals("REJECT")}]]></conditionExpression>
@@ -109,7 +106,7 @@ negotioationCard.save();</script>
         <conditionExpression xsi:type="tFormalExpression"><![CDATA[${SESSION.find(NEGOTIATION_CARD_ID).get("Status").equals("AdditionalNegotiation")}]]></conditionExpression>
       </sequenceFlow>
       <sequenceFlow id="flow33" sourceRef="askAfterAdditionalNegotiation" targetRef="exclusivegateway3"></sequenceFlow>
-      <sequenceFlow id="flow41" sourceRef="callNegotiation" targetRef="exclusivegateway8"></sequenceFlow>
+      <sequenceFlow id="flow41" sourceRef="callNegotiation" targetRef="exclusivegateway2"></sequenceFlow>
       <exclusiveGateway id="exclusivegateway8" name="Exclusive Gateway"></exclusiveGateway>
       <sequenceFlow id="flow43" sourceRef="exclusivegateway8" targetRef="getNegotiationCard"></sequenceFlow>
       <serviceTask id="notifyTerm" name="Напоминание об истечении срока" activiti:type="mail">
@@ -181,14 +178,13 @@ SESSION.Log("Документ не согласован: "+scrDecisionOnNegotiat
     </scriptTask>
     <sequenceFlow id="flow29" sourceRef="doRejectDoc" targetRef="scripttask4"></sequenceFlow>
     <scriptTask id="analizeNegotiationCards" name="Анализ решений согласования" scriptFormat="javascript" activiti:autoStoreVariables="false">
-      <script>var filter = new java.util.Hashtable();
+      <script>var filter = SESSION.createFilter();
 if(typeof NEGOTIATION_CARD_ID !=="undefined"){
-filter.put("byParentNecotiationCard",NEGOTIATION_CARD_ID);
+filter.add("byParentNecotiationCard",NEGOTIATION_CARD_ID);
 }else{
-filter.put("byDoc",MAIN_ATTACHMENT_ID);
-filter.put("onlyTopLevelCard",new java.lang.Object());
+filter.add("onlyTopLevelCardByDoc",MAIN_ATTACHMENT_ID);
 }
-filter.put("RejectStatus",new java.lang.Object());
+filter.add("byStatus","Reject");
 var collection = SESSION.find("Negotiation_Card",filter );
 execution.setVariable("analizeNegotiationCardIds", collection );</script>
     </scriptTask>
@@ -218,17 +214,7 @@ SESSION.Log("Документ согласован: "+scrDecisionOnNegotiation);
     <sequenceFlow id="flow44" sourceRef="exclusivegateway9" targetRef="getNegotiationList"></sequenceFlow>
     <sequenceFlow id="flow45" sourceRef="scripttask4" targetRef="exclusivegateway7"></sequenceFlow>
     <scriptTask id="scripttask4" name="Установка статуса Черновик у всех карточек согласования, кроме карточек со статусом &quot;Согласован&quot;" scriptFormat="javascript" activiti:autoStoreVariables="false">
-      <script>var length = negotiationCardIds.size();
-element = null;
-for (var i = 0; i &lt; length; i++) {
-    element = negotiationCardIds.get(i);
-    var scrNegotioationCard = SESSION.find(element.getId());
-    var status = scrNegotioationCard.get("Status");
-    if (!status.equals("Agree")){
-        scrNegotioationCard.set("Status", "Draft");
-        scrNegotioationCard.save();
-    }
-}</script>
+      <script>SESSION.setCardsStatus(negotiationCardIds,"Agree","Draft",true);</script>
     </scriptTask>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_Negotiation">
@@ -514,8 +500,10 @@ for (var i = 0; i &lt; length; i++) {
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow41" id="BPMNEdge_flow41">
         <omgdi:waypoint x="447.0" y="191.0"></omgdi:waypoint>
-        <omgdi:waypoint x="490.0" y="192.0"></omgdi:waypoint>
-        <omgdi:waypoint x="490.0" y="85.0"></omgdi:waypoint>
+        <omgdi:waypoint x="578.0" y="191.0"></omgdi:waypoint>
+        <omgdi:waypoint x="578.0" y="16.0"></omgdi:waypoint>
+        <omgdi:waypoint x="143.0" y="16.0"></omgdi:waypoint>
+        <omgdi:waypoint x="144.0" y="45.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow43" id="BPMNEdge_flow43">
         <omgdi:waypoint x="470.0" y="65.0"></omgdi:waypoint>

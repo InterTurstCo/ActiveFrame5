@@ -90,44 +90,9 @@ public class Session implements Serializable {
      * @param o - массив параметров
      * @return
      */
-    public List<IdentifiableObject> find(String collectionName,Hashtable<String, Object> filtersHT) {
+    public List<IdentifiableObject> find(String collectionName,ScriptTaskFilter filters) {
         AccessToken accessToken = getAccessControlService().createSystemAccessToken("Session");
-        //Создаем массив фильтров
-        List<Filter> filters = new ArrayList<>();
-        //Получаем ассоциативный массив фильтров из JavaScript [key]->[value] 
-        //key=Filter name
-        //value=Filter criterian или массив criterian
-        Set<Entry<String, Object>> entrySet = filtersHT.entrySet();
-
-        Iterator<Entry<String, Object>> iterator = entrySet.iterator();
-        while (iterator.hasNext()){
-        	//Создаем новый фильтр
-            Filter filter = new Filter();
-            //Получаем имя фильтра
-            Entry<String, Object> entry = iterator.next();
-        	String key = (String) entry.getKey(); 
-        	//Устанавливаем имя фильтра
-            filter.setFilter(key);     
-            //Получаем значение фильтра
-        	Object value =  entry.getValue();
-        	if (value instanceof Id){
-                //Создаем критерий фильтра
-                ReferenceValue rv = new ReferenceValue((Id)value);
-                filter.addCriterion(0, rv);
-        	}else if (value instanceof String){
-                //Создаем критерий фильтра
-                StringValue sv = new StringValue((String)value);
-                filter.addCriterion(0, sv);
-        	}else if (value instanceof Double){
-                //Создаем критерий фильтра
-                LongValue dv = new LongValue(((Double) value).longValue());
-                filter.addCriterion(0, dv);
-        	}else if (value instanceof List){
-        		//TODO если приходит массив сделать разбор
-        	}
-           filters.add(filter);
-        }
-        IdentifiableObjectCollection collection = getCollectionService().findCollection(collectionName, filters, null, 0, 1000, accessToken);
+        IdentifiableObjectCollection collection = getCollectionService().findCollection(collectionName, filters.getFiltersList(), null, 0, 1000, accessToken);
         // TODO перобразовать коллекцию в коллекцию DomainObjectAccessor, но там
         // неи должно быть save, тоесть нужно создать другой класс для результата коллекции
         // List<DomainObjectAccessor> result = new ArrayList<DomainObjectAccessor>();
@@ -204,8 +169,44 @@ public class Session implements Serializable {
     	return new DomainObjectAccessor(getIdService().createId(strId));
     }
     
+    /**
+     * Выводв лог информации
+     * @param msg - сообщение
+     */
     public void Log(String msg){
         System.out.println(msg);
+    }
+    /**
+     * Изменить статус для всех карточек в коллекции
+     * @param collection - коллекция IdentifiableObject
+     * @param status - новый статус
+     */
+    public void setCardsStatus(ArrayList<IdentifiableObject> collection, String status){
+    	Iterator<IdentifiableObject> iter = collection.iterator();
+    	while (iter.hasNext()){
+    		DomainObjectAccessor card = find(iter.next().getId());
+    		card.setStatus(status);
+    	}
+    }
+    
+    /**
+     * Изменить статус для всех карточек в коллекции, которые имеют определенный статус
+     * @param collection - коллекция IdentifiableObject
+     * @param fromStatus - текущий статус карточки
+     * @param toStatus - новый статус
+     * @param allButOne - флаг. Если true, то поменять статус у всех карточек, статус которых не равен <fromStatus>. Если false, то поменять статус только у карточек со статусом <fromStatus>.
+     */
+    public void setCardsStatus(ArrayList<IdentifiableObject> collection, String fromStatus, String toStatus, Boolean allButOne){
+    	Iterator<IdentifiableObject> iter = collection.iterator();
+    	while (iter.hasNext()){
+    		DomainObjectAccessor card = find(iter.next().getId());
+    		if (allButOne^card.getStatus().equals(fromStatus)){
+    			card.setStatus(toStatus);
+    		}   		
+    	}
+    }
+    public ScriptTaskFilter createFilter(){
+    	return new ScriptTaskFilter();
     }
 
 }

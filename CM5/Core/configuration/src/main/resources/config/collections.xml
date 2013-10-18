@@ -147,17 +147,10 @@
                 ]]>
             </criteria>
         </filter>
-        <filter name="onlyTopLevelCard">
+        <filter name="onlyTopLevelCardByDoc">
             <criteria placeholder="where-clause">
                 <![CDATA[
-                    nc.add_negotiation_card is null
-                ]]>
-            </criteria>
-        </filter>
-        <filter name="RejectStatus">
-            <criteria placeholder="where-clause">
-                <![CDATA[
-                    nc.status = 'Reject'
+                    nc.add_negotiation_card is null and nc.parent_document = {0}
                 ]]>
             </criteria>
         </filter>
