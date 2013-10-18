@@ -35,9 +35,10 @@ public interface AttachmentService {
      * замещает файл вложения для существующего ДО Вложение.
      * @param inputStream обертка для для java.io.InputStream, используется для перемещения файлов в потоке по сети
      * @param attachmentDomainObject доменный объект Вложение
+     * @return сохраненный доменный объект Вложение
      */
     
-    void saveAttachment(RemoteInputStream  inputStream, DomainObject attachmentDomainObject);
+    DomainObject saveAttachment(RemoteInputStream inputStream, DomainObject attachmentDomainObject);
 
     /**
      * Загружает контент для доменного объекта Вложение.

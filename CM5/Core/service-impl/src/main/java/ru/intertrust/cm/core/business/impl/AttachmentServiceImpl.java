@@ -77,9 +77,10 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
 
     @Override
-    public void saveAttachment(RemoteInputStream inputStream, DomainObject attachmentDomainObject) {
+    public DomainObject saveAttachment(RemoteInputStream inputStream, DomainObject attachmentDomainObject) {
         InputStream contentStream = null;
         StringValue newFilePathValue = null;
+        DomainObject savedDoaminObject = null;
         try {
             contentStream = RemoteInputStreamClient.wrap(inputStream);
             String newFilePath = attachmentContentDao.saveContent(contentStream);
@@ -90,14 +91,16 @@ public class AttachmentServiceImpl implements AttachmentService {
             newFilePathValue = new StringValue(newFilePath);
             StringValue oldFilePathValue = (StringValue) attachmentDomainObject.getValue("path");
             attachmentDomainObject.setValue(PATH_NAME, new StringValue(newFilePath));
-            domainObjectDao.save(attachmentDomainObject);
+            savedDoaminObject = domainObjectDao.save(attachmentDomainObject);
+            
             //предыдущий файл удаляем
             if (oldFilePathValue != null && !oldFilePathValue.isEmpty()) {
                 //файл может быть и не удален, в случае если заблокирован
                 attachmentDomainObject.setValue(PATH_NAME, oldFilePathValue);
                 attachmentContentDao.deleteContent(attachmentDomainObject);
             }
-            attachmentDomainObject.setValue("path", newFilePathValue);
+            savedDoaminObject.setValue("path", newFilePathValue);
+            return savedDoaminObject;
         } catch (IOException ex) {
             if (newFilePathValue != null && !newFilePathValue.isEmpty()) {
                 attachmentDomainObject.setValue(PATH_NAME, newFilePathValue);
@@ -112,6 +115,7 @@ public class AttachmentServiceImpl implements AttachmentService {
                     logger.error(e.getMessage());
                 }
             }
+            
         }
     }
 
