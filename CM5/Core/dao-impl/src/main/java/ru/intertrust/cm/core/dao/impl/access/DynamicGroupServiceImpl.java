@@ -282,6 +282,8 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
             if (personValue.getClass().equals(ReferenceValue.class)) {
                 GenericDomainObject groupMemeber = new GenericDomainObject();
                 groupMemeber.setTypeName(GROUP_MEMBER_DOMAIN_OBJECT);
+                groupMemeber.setReference("UserGroup", dynamicGroupId);
+                
                 groupMemeber.setReference("person_id", ((ReferenceValue)personValue).get());
                 groupMembers.add(groupMemeber);
             }
@@ -338,7 +340,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
     }
 
     @Override
-    public void cleanDynamicGroupsFor(Id objectId) {
+    public void notifyDomainObjectDeleted(Id objectId) {
         String status = getStatusFor(objectId);
 
         List<DynamicGroupConfig> dynamicGroups = getDynamicGroupsToRecalculate(objectId, status);

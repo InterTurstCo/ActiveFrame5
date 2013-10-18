@@ -306,6 +306,20 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
 
         return null;
     }
+    
+    @Override
+    public DynamicGroupConfig getDynamicGroupByName(String dynamicGroupName) {
+        Map<String, TopLevelConfig> dynamicGroupMap = topLevelConfigMap.get(DynamicGroupConfig.class);
+
+        for (String roleName : dynamicGroupMap.keySet()) {
+            if (dynamicGroupName.equals(roleName)) {
+                return (DynamicGroupConfig) dynamicGroupMap.get(roleName);
+            }
+        }
+
+        return null;
+    }
+
     private void fillTopLevelConfigMap(TopLevelConfig config) {
         Map<String, TopLevelConfig> typeMap = topLevelConfigMap.get(config.getClass());
         if(typeMap == null) {

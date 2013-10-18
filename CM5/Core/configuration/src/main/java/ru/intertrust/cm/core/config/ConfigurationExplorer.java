@@ -100,4 +100,11 @@ public interface ConfigurationExplorer {
      * @return конфигурация контекстной роли
      */
     ContextRoleConfig getContextRoleByName(String contextRoleName);
+
+    /**
+     * Возвращает конфигурацию динамической группы по имени.
+     * @param dynamicGroupName имя динамической группы
+     * @return конфигурация динамической группы
+     */
+    DynamicGroupConfig getDynamicGroupByName(String dynamicGroupName); 
 }

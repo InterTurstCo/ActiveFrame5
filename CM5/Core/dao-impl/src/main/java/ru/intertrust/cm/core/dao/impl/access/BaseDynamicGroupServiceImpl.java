@@ -62,7 +62,7 @@ public class BaseDynamicGroupServiceImpl {
         if (userGroupId != null) {
             String query = generateDeleteUserGroupQuery();
 
-            Map<String, Object> parameters = initializeProcessUserGroupParameters(groupName, contextObjectId);
+            Map<String, Object> parameters = initializeProcessUserGroupWithContextParameters(groupName, contextObjectId);
             jdbcTemplate.update(query, parameters);
         }
 
@@ -86,17 +86,41 @@ public class BaseDynamicGroupServiceImpl {
      * @return идентификатор группы пользователей
      */
     protected Id getUserGroupByGroupNameAndObjectId(String groupName, Long contextObjectId) {
-        String query = generateGetUserGroupQuery();
+        String query = generateGetUserGroupWithContextQuery();
 
-        Map<String, Object> parameters = initializeProcessUserGroupParameters(groupName, contextObjectId);
+        Map<String, Object> parameters = initializeProcessUserGroupWithContextParameters(groupName, contextObjectId);
         Integer doTypeId = domainObjectTypeIdCache.getId(USER_GROUP_DOMAIN_OBJECT);
         return jdbcTemplate.query(query, parameters, new ObjectIdRowMapper("id", doTypeId));
     }
 
-    private Map<String, Object> initializeProcessUserGroupParameters(String groupName, Long contextObjectId) {
+    private Map<String, Object> initializeProcessUserGroupWithContextParameters(String groupName, Long contextObjectId) {
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("group_name", groupName);
         parameters.put("object_id", contextObjectId);
+        return parameters;
+    }
+
+    private String generateGetUserGroupWithContextQuery() {
+        String tableName = getSqlName(USER_GROUP_DOMAIN_OBJECT);
+        StringBuilder query = new StringBuilder();
+        query.append("select ug.id from ");
+        query.append(tableName).append(" ug");
+        query.append(" where ug.group_name = :group_name and ug.object_id = :object_id");
+
+        return query.toString();
+    }
+
+    protected Id getUserGroupByGroupName(String groupName) {
+        String query = generateGetUserGroupQuery();
+
+        Map<String, Object> parameters = initializeProcessUserGroupParameters(groupName);
+        Integer doTypeId = domainObjectTypeIdCache.getId(USER_GROUP_DOMAIN_OBJECT);
+        return jdbcTemplate.query(query, parameters, new ObjectIdRowMapper("id", doTypeId));
+    }
+
+    private Map<String, Object> initializeProcessUserGroupParameters(String groupName) {
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("group_name", groupName);
         return parameters;
     }
 
@@ -105,8 +129,7 @@ public class BaseDynamicGroupServiceImpl {
         StringBuilder query = new StringBuilder();
         query.append("select ug.id from ");
         query.append(tableName).append(" ug");
-        query.append(" where ug.group_name = :group_name and ug.object_id = :object_id");
-
+        query.append(" where ug.group_name = :group_name");
         return query.toString();
     }
 

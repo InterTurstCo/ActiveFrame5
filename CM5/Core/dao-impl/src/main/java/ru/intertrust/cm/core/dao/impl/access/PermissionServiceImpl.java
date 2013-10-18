@@ -1,7 +1,5 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +17,7 @@ import ru.intertrust.cm.core.config.model.BasePermit;
 import ru.intertrust.cm.core.config.model.ContextRoleConfig;
 import ru.intertrust.cm.core.config.model.CreateChildConfig;
 import ru.intertrust.cm.core.config.model.DeleteConfig;
+import ru.intertrust.cm.core.config.model.DynamicGroupConfig;
 import ru.intertrust.cm.core.config.model.ExecuteActionConfig;
 import ru.intertrust.cm.core.config.model.GroupConfig;
 import ru.intertrust.cm.core.config.model.PermitGroup;
@@ -31,7 +30,6 @@ import ru.intertrust.cm.core.dao.access.CreateChildAccessType;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.access.ExecuteActionAccessType;
 import ru.intertrust.cm.core.dao.access.PermissionService;
-import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 
 /**
  * Реализвация сервиса обновления списков доступа.
@@ -42,22 +40,14 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
     @Autowired
     private ConfigurationExplorer configurationExplorer;
 
-    @Autowired
-    private DomainObjectTypeIdCache domainObjectTypeIdCache;
 
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
         doelResolver.setConfigurationExplorer(configurationExplorer);
     }
 
-    public void setDomainObjectTypeIdCache(DomainObjectTypeIdCache domainObjectTypeIdCache) {
-        this.domainObjectTypeIdCache = domainObjectTypeIdCache;
-    }
-
     @Override
     public void refreshAclFor(Id objectId) {
-        deleteAclFor(objectId);
-
         RdbmsId rdbmsId = (RdbmsId) objectId;
         String domainObjectType = domainObjectTypeIdCache.getName(rdbmsId.getTypeId());
         String status = getStatusFor(objectId);
@@ -68,6 +58,9 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
                 || accessMatrixConfig.getStatus().getPermissions() == null) {
             return;
         }
+
+        cleanAclFor(objectId);
+
         for (BaseOperationPermitConfig operationPermitConfig : accessMatrixConfig.getStatus().getPermissions()) {
             AccessType accessType = getAccessType(operationPermitConfig);
             processOperationPermissions(objectId, operationPermitConfig, accessType);
@@ -129,28 +122,80 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
                     }
                 }
             } else if (permit.getClass().equals(PermitGroup.class)) {
+                String dynamicGroupName = permit.getName();
+                
+                DynamicGroupConfig dynamicGroupConfig = findAndCheckDynamicGroupByName(dynamicGroupName);
+                
+                if (dynamicGroupConfig.getContext() != null
+                        && dynamicGroupConfig.getContext().getDomainObject() != null) {
 
+                    // контекстным объектом являетя текущий объект (для которого пересчитываются списки доступа)
+                    Long contextObjectId = ((RdbmsId) objectId).getId();
+                    processAclForDynamicGroupWithContext(objectId, accessType, dynamicGroupName, contextObjectId);
+
+                } else {
+                    processAclForDynamicGroupWithoutContext(objectId, accessType, dynamicGroupName);
+
+                }
+                                
             }
         }
+    }
+
+    private void processAclForDynamicGroupWithContext(Id objectId, AccessType accessType, String dynamicGroupName,
+            Long contextObjectId) {
+        Id dynamicGroupId = getUserGroupByGroupNameAndObjectId(dynamicGroupName, contextObjectId);
+        insertAclRecord(accessType, objectId, dynamicGroupId);
+    }
+
+    private DynamicGroupConfig findAndCheckDynamicGroupByName(String dynamicGroupName) {
+        DynamicGroupConfig dynamicGroupConfig =
+                configurationExplorer.getDynamicGroupByName(dynamicGroupName);
+        if (dynamicGroupConfig == null) {
+            throw new ConfigurationException("Dynamic Group : " + dynamicGroupName
+                    + " not found in configuaration");
+
+        }
+        return dynamicGroupConfig;
     }
 
     /**
      * Пересчитывает список доступа для динамичсекой группы для переданного доменного объекта.
      * @param objectId идентификатор доменного объекта, для которого пересчитывается список доступа
-     * @param groupConfig конфигурация динамической группы
+     * @param roleGroupConfig конфигурация динамической группы
      * @param accessType тип доступа для динамичской группы
      */
-    private void processAclForDynamicGroup(Id objectId, Object groupConfig, AccessType accessType) {
-        GroupConfig dynamicGroupConfig = (GroupConfig) groupConfig;
-        String dynamicGroupName = dynamicGroupConfig.getName();
-        String doel = dynamicGroupConfig.getBindContext().getDoel();
-        List<Long> contextObjectids = getDynamicGroupContextObject(objectId, doel);
-        for (Long contextObjectid : contextObjectids) {
-            Id dynamicGroupId =
-                    getUserGroupByGroupNameAndObjectId(dynamicGroupName, contextObjectid);
-            insertAclRecord(accessType, objectId, dynamicGroupId);
+    private void processAclForDynamicGroup(Id objectId, Object roleGroupConfig, AccessType accessType) {
+        GroupConfig groupConfig = (GroupConfig) roleGroupConfig;
+        String dynamicGroupName = groupConfig.getName();
+        
+        DynamicGroupConfig dynamicGroupConfig = findAndCheckDynamicGroupByName(dynamicGroupName);
+        
+        if (dynamicGroupConfig.getContext() != null && dynamicGroupConfig.getContext().getDomainObject() != null) {
+        
+            if (groupConfig.getBindContext() != null && groupConfig.getBindContext().getDoel() != null) {
+                String doel = groupConfig.getBindContext().getDoel();
+                List<Long> contextObjectids = getDynamicGroupContextObject(objectId, doel);
+                for (Long contextObjectid : contextObjectids) {
+                    processAclForDynamicGroupWithContext(objectId, accessType, dynamicGroupName, contextObjectid);
+
+                }
+            } else {
+                // если путь к контекстному объекту не указан внутри тега group, то контекстным объектом является
+                // текущий объект
+                Long contextObjectId = ((RdbmsId) objectId).getId();
+                processAclForDynamicGroupWithContext(objectId, accessType, dynamicGroupName, contextObjectId);
+            }
+            
+        } else {
+            processAclForDynamicGroupWithoutContext(objectId, accessType, dynamicGroupName);
 
         }
+    }
+
+    private void processAclForDynamicGroupWithoutContext(Id objectId, AccessType accessType, String dynamicGroupName) {
+        Id dynamicGroupId = getUserGroupByGroupName(dynamicGroupName);
+        insertAclRecord(accessType, objectId, dynamicGroupId);
     }
 
     /**
@@ -254,7 +299,7 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
     }
 
     @Override
-    public void deleteAclFor(Id objectId) {
+    public void cleanAclFor(Id objectId) {
         deleteAclRecords(objectId);
         deleteAclReadRecords(objectId);
     }

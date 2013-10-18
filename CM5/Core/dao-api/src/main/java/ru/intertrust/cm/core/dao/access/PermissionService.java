@@ -19,5 +19,5 @@ public interface PermissionService {
      * Удаляет списки доступа (таблицы Object_ACL, Object_READ) для доменного объекта.
      * @param objectId идентификатор доменного объекта, для которого удаляются списки доступа
      */
-    void deleteAclFor(Id objectId);
+    void cleanAclFor(Id objectId);
 }

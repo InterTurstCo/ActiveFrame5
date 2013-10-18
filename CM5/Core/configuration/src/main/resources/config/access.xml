@@ -38,7 +38,7 @@
         <members>
             <!-- Отслеживаем сохранение/удаление объектов типа "Delegation" 
                 в статусе "active" -->
-            <track-domain-objects type="Delegate"
+            <track-domain-objects type="Delegation"
                 status="active">
                 <!-- Указываем, какую именно группу (с каким контекстом) 
                     менять - берём пользователя из поля "person" -->
@@ -124,6 +124,22 @@
             </create-child>
             <execute-action name="action1">
                 <permit-role name="Автор документа"/>
+            </execute-action>
+        </status>
+    </access-matrix>    
+    <access-matrix type="country">
+        <status name="Active">
+            <read>
+                <permit-group name="Все пользователи"/>
+            </read>
+            <write>
+                <permit-group name="Все пользователи"/>
+            </write>
+            <delete>
+                <permit-group name="Все пользователи"/>
+            </delete>            
+            <execute-action name="action1">
+                <permit-group name="Все пользователи"/>
             </execute-action>
         </status>
     </access-matrix>

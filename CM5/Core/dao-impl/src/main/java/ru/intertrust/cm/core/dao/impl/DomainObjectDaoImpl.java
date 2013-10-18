@@ -34,6 +34,8 @@ import ru.intertrust.cm.core.config.model.GlobalSettingsConfig;
 import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.DynamicGroupService;
+import ru.intertrust.cm.core.dao.access.PermissionService;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
@@ -79,14 +81,19 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private ExtensionService extensionService;
 
     @Autowired
+    private DynamicGroupService dynamicGroupService;
+    
+    @Autowired
+    private PermissionService permissionService;
+    
+    @Autowired
     public void setDomainObjectCacheService(
             DomainObjectCacheServiceImpl domainObjectCacheService) {
         this.domainObjectCacheService = domainObjectCacheService;
     }
-
-    public void setAccessControlService(
-            AccessControlService accessControlService) {
-        this.accessControlService = accessControlService;
+    
+    public void setPermissionService(PermissionService permissionService) {
+        this.permissionService = permissionService;
     }
 
     /**
@@ -123,12 +130,28 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         this.domainObjectTypeIdCache = domainObjectTypeIdCache;
     }
 
+    public void setAccessControlService(
+            AccessControlService accessControlService) {
+        this.accessControlService = accessControlService;
+    }
+    
+    public void setDynamicGroupService(DynamicGroupService dynamicGroupService) {
+        this.dynamicGroupService = dynamicGroupService;
+    }
+
     @Override
     public DomainObject create(DomainObject domainObject) {
         DomainObject createdObject = create(domainObject,
                 domainObjectTypeIdCache.getId(domainObject.getTypeName()));
         domainObjectCacheService.putObjectToCache(createdObject);
+
+        refreshDynamiGroupsAndAclForCreate(createdObject);
         return createdObject;
+    }
+
+    private void refreshDynamiGroupsAndAclForCreate(DomainObject createdObject) {
+        dynamicGroupService.notifyDomainObjectCreated(createdObject.getId());        
+        permissionService.refreshAclFor(createdObject.getId());
     }
 
     @Override
@@ -230,8 +253,16 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         domainObjectCacheService.putObjectToCache(updatedObject);
 
+        refreshDynamiGroupsAndAclForUpdate(domainObject);
+
         return updatedObject;
 
+    }
+
+    private void refreshDynamiGroupsAndAclForUpdate(DomainObject domainObject) {
+        List<String> modifiedFields = getModifiedFieldNames(domainObject);        
+        dynamicGroupService.notifyDomainObjectChanged(domainObject.getId(), modifiedFields);        
+        permissionService.refreshAclFor(domainObject.getId());
     }
 
     private List<String> getModifiedFieldNames(DomainObject domainObject) {
@@ -300,6 +331,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         AfterDeleteExtensionHandler afterDeleteEH =
                 extensionService.getExtentionPoint(AfterDeleteExtensionHandler.class, domainObjectTypeConfig.getName());
         afterDeleteEH.onAfterDelete(deletedObject);
+        
+        refreshDynamiGroupsAndAclForDelete(deletedObject);        
+
+    }
+
+    private void refreshDynamiGroupsAndAclForDelete(DomainObject deletedObject) {
+        dynamicGroupService.notifyDomainObjectDeleted(deletedObject.getId());        
+        permissionService.cleanAclFor(deletedObject.getId());
     }
 
     @Override
