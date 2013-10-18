@@ -127,7 +127,7 @@ public class PostgreSqlQueryHelperTest {
     public void testGenerateAddColumnsQuery() {
         String expectedQuery = "alter table OUTGOING_DOCUMENT " +
                 "add column DESCRIPTION varchar(256), " +
-                "add column EXECUTOR bigint not null, EXECUTOR_TYPE integer not null";
+                "add column EXECUTOR bigint not null, add column EXECUTOR_TYPE integer not null";
 
         List<FieldConfig> newColumns = new ArrayList<>();
 
