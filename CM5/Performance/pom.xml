@@ -15,7 +15,7 @@
 	<modules>
 		<module>dataset-generator</module>
 		<module>dataset-generator-client</module>
-		<module>performance</module>
+		<module>jmeter-tools</module>
 	</modules>
 
 </project>
