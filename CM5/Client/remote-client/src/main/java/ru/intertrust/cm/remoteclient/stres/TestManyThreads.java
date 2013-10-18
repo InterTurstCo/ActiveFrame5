@@ -110,9 +110,9 @@ public class TestManyThreads extends ClientBase {
         private Object getServiceLocal(String serviceName, Class remoteInterfaceClass) throws NamingException {
             if (ctx == null) {
 
-                String address = getCommandLine().getOptionValue("address");
-                String user = getCommandLine().getOptionValue("user");
-                String password = getCommandLine().getOptionValue("password");
+                String address = getParamerer("address");
+                String user = getParamerer("user");
+                String password = getParamerer("password");
 
                 Properties jndiProps = new Properties();
                 jndiProps.put("endpoint.name",

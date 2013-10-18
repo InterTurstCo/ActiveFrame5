@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.tools;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 
 import ru.intertrust.cm.core.business.api.dto.Filter;
@@ -63,23 +64,37 @@ public class ScriptTaskFilter {
 			key = (String)enm.nextElement();
 			value = (Object) filters.get(key);
 			filter.setFilter(key);
-			if (value instanceof Id){
-                //Создаем критерий фильтра
-                ReferenceValue rv = new ReferenceValue((Id)value);
-                filter.addCriterion(0, rv);
-        	}else if (value instanceof String){
-                //Создаем критерий фильтра
-                StringValue sv = new StringValue((String)value);
-                filter.addCriterion(0, sv);
-        	}else if (value instanceof Double){
-                //Создаем критерий фильтра
-                LongValue dv = new LongValue(((Double) value).longValue());
-                filter.addCriterion(0, dv);
-        	}else if (value instanceof List){
-        		//TODO если приходит массив сделать разбор
-        	}
+			addCriterion(filter,value);
 			filtersList.add(filter);		
 		}
 		return filtersList;
+	}
+	
+	/**
+	 * Добавления критерия к фильтру
+	 * @param filter - фильтр
+	 * @param value - значение критерия
+	 */
+	public void addCriterion(Filter filter,Object value){
+		if (value instanceof Id){
+            //Создаем критерий фильтра
+            ReferenceValue rv = new ReferenceValue((Id)value);
+            filter.addCriterion(0, rv);
+    	}else if (value instanceof String){
+            //Создаем критерий фильтра
+            StringValue sv = new StringValue((String)value);
+            filter.addCriterion(0, sv);
+    	}else if (value instanceof Double){
+            //Создаем критерий фильтра
+            LongValue dv = new LongValue(((Double) value).longValue());
+            filter.addCriterion(0, dv);
+    	}else if (value instanceof List){
+    		//Если приходит List, то для каждого элемента List вызываем добавление критерия
+    		Iterator iter =((List)value).iterator();
+    		while(iter.hasNext()){
+    			Object obj = iter.next();
+    			addCriterion(filter, obj);
+    		}
+    	}
 	}
 }
