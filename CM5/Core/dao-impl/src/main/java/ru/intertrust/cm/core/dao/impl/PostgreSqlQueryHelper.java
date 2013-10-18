@@ -455,6 +455,9 @@ public class PostgreSqlQueryHelper {
 
             if (ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
                 query.append(", ");
+                if (isAlterQuery) {
+                    query.append("add column ");
+                }
                 query.append(getReferenceTypeColumnName((ReferenceFieldConfig) fieldConfig)).append(" integer");
                 if (fieldConfig.isNotNull()) {
                     query.append(" not null");
