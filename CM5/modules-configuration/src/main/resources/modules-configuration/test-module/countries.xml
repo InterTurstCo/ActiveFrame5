@@ -123,13 +123,13 @@
                         </tab-group>
                     </single-entry-group>
                 </tab>
-                <tab name="Области">
+                <tab name="Города">
                     <single-entry-group>
                         <tab-group>
                             <table>
                                 <tr>
-                                    <td h-align="right"><widget id="13"/></td>  <!-- label (Области) -->
-                                    <td h-align="left"><widget id="14"/></td>  <!-- linked-domain-objects-table (Описание) -->
+                                    <td h-align="right"><widget id="13"/></td>  <!-- label (Города) -->
+                                    <td h-align="left"><widget id="14"/></td>  <!-- list-box (Города) -->
                                 </tr>
                             </table>
                         </tab-group>
@@ -225,11 +225,12 @@
             </text-area>
 
             <label id="13">
-                <text>Области:</text>
+                <text>Города:</text>
             </label>
-            <label id="14">
-                <text>Тут будут области</text>
-            </label>
+            <list-box id="14"> <!-- в поле City.country надо сохранить Id текущей страны??? -->
+                <field-path value="city^country"/> <!-- редактирует названи-->
+                <pattern value="{name} ({population} чел.)"/>
+            </list-box>
 
         </widget-config>
     </form>

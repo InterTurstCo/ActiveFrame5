@@ -57,7 +57,9 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget {
         this.initialData = state;
     }
 
-    public abstract void setCurrentState(WidgetState state);
+    public abstract void setCurrentState(WidgetState currentState);
+
+    // todo: setNonEditableState, getNonEditableState
 
     /**
      * Возвращает текущее состояние виджета. Если виджет в режиме "только чтение", возвращает null

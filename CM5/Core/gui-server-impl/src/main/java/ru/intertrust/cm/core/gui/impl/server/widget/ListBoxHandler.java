@@ -4,14 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
-import ru.intertrust.cm.core.config.model.gui.form.widget.ComboBoxConfig;
-import ru.intertrust.cm.core.gui.api.server.widget.SingleObjectWidgetHandler;
+import ru.intertrust.cm.core.config.model.gui.form.widget.ListBoxConfig;
+import ru.intertrust.cm.core.gui.api.server.widget.MultiObjectWidgetHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
-import ru.intertrust.cm.core.gui.model.form.widget.ComboBoxState;
+import ru.intertrust.cm.core.gui.model.form.widget.ListBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -19,33 +19,32 @@ import java.util.regex.Pattern;
 
 /**
  * @author Denis Mitavskiy
- *         Date: 26.09.13
- *         Time: 12:41
+ *         Date: 15.10.13
+ *         Time: 16:25
  */
-@ComponentName("combo-box")
-public class ComboBoxHandler extends SingleObjectWidgetHandler {
+@ComponentName("list-box")
+public class ListBoxHandler extends MultiObjectWidgetHandler {
     @Autowired
     protected CrudService crudService;
     @Autowired
     protected ConfigurationService configurationService;
 
     @Override
-    public ComboBoxState getInitialState(WidgetContext context) {
-        ComboBoxConfig widgetConfig = context.getWidgetConfig();
+    public ListBoxState getInitialState(WidgetContext context) {
+        ListBoxConfig widgetConfig = context.getWidgetConfig();
+
         FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
+        ArrayList<DomainObject> objectReferencingField = context.getFormObjects().getObjects(fieldPath.getParent()).getDomainObjects(); // todo we can't find type when DO is empty, thus - fix. we got to push type from outside
+        Id baseObjectId = objectReferencingField.get(0).getId();
 
-        // todo we can't find type when DO is empty, thus - fix. we got to push type from outside
-        DomainObject objectContainingField = context.getFormObjects().getObjects(fieldPath.getParent()).getObject();
         String field = fieldPath.getLastElement();
-        String objectType = objectContainingField.getTypeName();
-        ReferenceFieldConfig fieldConfig = (ReferenceFieldConfig) configurationService.getFieldConfig(objectType, field);
-        // todo: find LINKED: only cities of that country
-        // List<DomainObject> listToDisplay = getCrudService().findLinkedDomainObjects(rootObjectForComboBoxField.getId(), "city", "country");
-        List<DomainObject> listToDisplay = crudService.findAll(fieldConfig.getType());
+        String[] referencingTypeAndField = field.split("\\^");
+        String referencingType = referencingTypeAndField[0];
+        String referencingField = referencingTypeAndField[1];
+        List<DomainObject> listToDisplay = crudService.findAll(referencingType);
         LinkedHashMap<Id, String> idDisplayMapping = new LinkedHashMap<>();
-        idDisplayMapping.put(null, "");
 
-        ComboBoxState result = new ComboBoxState();
+        ListBoxState result = new ListBoxState();
         result.setListValues(idDisplayMapping);
 
         if (listToDisplay == null) {
@@ -59,9 +58,15 @@ public class ComboBoxHandler extends SingleObjectWidgetHandler {
             idDisplayMapping.put(domainObject.getId(), format);
         }
 
-        Id selectedId = context.getFieldPathSinglePlainValue();
+        ArrayList<Id> selectedIds = new ArrayList<>();
+        for (DomainObject domainObject : listToDisplay) {
+            Id referenceToBaseObject = domainObject.getReference(referencingField);
+            if (baseObjectId.equals(referenceToBaseObject)) {
+                selectedIds.add(domainObject.getId());
+            }
+        }
 
-        result.setId(selectedId);
+        result.setSelectedIds(selectedIds);
 
         return result;
     }

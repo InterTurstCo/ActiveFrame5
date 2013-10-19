@@ -492,8 +492,8 @@
             <xs:element type="con:collectionViewerType" name="collection-viewer"
                 xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:sequence>
-        <xs:attribute type="xs:string" name="collection"
-            use="optional" />
+        <xs:attribute type="xs:string" name="collection" use="optional" />
+        <xs:attribute type="xs:string" name="domain-object-type-to-create" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="collectionViewerType">
@@ -855,6 +855,15 @@
         </xs:sequence>
         <xs:attribute type="xs:string" name="id" />
     </xs:complexType>
+    <xs:complexType name="listBoxType">
+        <xs:sequence>
+            <xs:element type="con:fieldPathType" name="field-path"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="con:patternType" name="pattern"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="id" />
+    </xs:complexType>
     <xs:complexType name="linkedDomainObjectHyperlinkType">
         <xs:sequence>
             <xs:element type="con:fieldPathType" name="field-path"
@@ -954,6 +963,8 @@
                 xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:comboBoxType" name="combo-box"
                 xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="con:listBoxType" name="list-box"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:linkedDomainObjectHyperlinkType"
                 name="linked-domain-object-hyperlink" xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:linkedDomainObjectsTableType"

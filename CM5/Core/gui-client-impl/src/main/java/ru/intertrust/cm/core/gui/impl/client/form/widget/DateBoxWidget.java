@@ -27,8 +27,8 @@ public class DateBoxWidget extends BaseWidget {
         return new DateBoxWidget();
     }
 
-    public void setCurrentState(WidgetState state) {
-        Date value = ((DateBoxState) state).getValue();
+    public void setCurrentState(WidgetState currentState) {
+        Date value = ((DateBoxState) currentState).getValue();
         if (isEditable) {
             DateBox dateBox = (DateBox) impl;
             dateBox.setValue(value);

@@ -25,8 +25,8 @@ public class DecimalBoxWidget extends BaseWidget {
         return new DecimalBoxWidget();
     }
 
-    public void setCurrentState(WidgetState state) {
-        BigDecimal value = ((DecimalBoxState) state).getValue();
+    public void setCurrentState(WidgetState currentState) {
+        BigDecimal value = ((DecimalBoxState) currentState).getValue();
         setTrimmedText((HasText) impl, value == null ? "" : value.toString());
     }
 

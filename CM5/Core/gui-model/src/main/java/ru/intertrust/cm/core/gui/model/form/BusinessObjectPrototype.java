@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.model.form;
 
 import ru.intertrust.cm.core.business.api.dto.*;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -159,7 +160,7 @@ public class BusinessObjectPrototype implements Dto {
 
     private LinkedList<String> getPathElements(String path) {
         String[] elements = path.split("\\.");
-        LinkedList<String> result = new LinkedList<>();
+        LinkedList<String> result = new LinkedList<String>();
         Collections.addAll(result, elements);
         return result;
     }
@@ -230,5 +231,6 @@ public class BusinessObjectPrototype implements Dto {
         // Value lastName = user.get("last_name")
         // List<BusinessObject> roles = bo.getCollection("roles") --> roles --> user_role^user.role
         //
+        System.out.println(47.48 == new BigDecimal(47.48).doubleValue());
     }
 }

@@ -457,6 +457,7 @@
                         xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:sequence>
         <xs:attribute type="xs:string" name="collection" use="optional"/>
+        <xs:attribute type="xs:string" name="domain-object-type-to-create" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="collectionViewerType">

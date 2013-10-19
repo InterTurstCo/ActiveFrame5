@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
-import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
+import ru.intertrust.cm.core.gui.api.server.widget.SingleObjectWidgetHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.TextBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
@@ -11,9 +11,9 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
  *         Time: 16:59
  */
 @ComponentName("text-box")
-public class TextBoxHandler extends WidgetHandler {
+public class TextBoxHandler extends SingleObjectWidgetHandler {
     @Override
     public TextBoxState getInitialState(WidgetContext context) {
-        return new TextBoxState(context.<String>getFieldPathPlainValue());
+        return new TextBoxState(context.<String>getFieldPathSinglePlainValue());
     }
 }

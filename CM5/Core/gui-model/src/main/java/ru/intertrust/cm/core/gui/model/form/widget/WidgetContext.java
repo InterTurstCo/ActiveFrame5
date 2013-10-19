@@ -7,6 +7,8 @@ import ru.intertrust.cm.core.config.model.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.FormObjects;
 
+import java.util.ArrayList;
+
 /**
  * @author Denis Mitavskiy
  *         Date: 14.09.13
@@ -49,10 +51,29 @@ public class WidgetContext implements Dto {
         return fieldPath == null ? null : new FieldPath(fieldPath);
     }
 
-    public <T> T getFieldPathPlainValue() {
-        Value fieldPathValue = formObjects.getObjectValue(getFieldPath());
+    public <T> T getFieldPathSinglePlainValue() {
+        ArrayList<Value> objectValues = formObjects.getObjectValues(getFieldPath());
+        if (objectValues == null) {
+            return null;
+        }
+        if (objectValues.isEmpty()) {
+            return null;
+        }
+        Value fieldPathValue = objectValues.get(0);
         return fieldPathValue == null ? null : (T) fieldPathValue.get();
     }
 
-
+    public <T> T[] getFieldPathPlainValues() {
+        ArrayList<Value> fieldPathValue = formObjects.getObjectValues(getFieldPath());
+        if (fieldPathValue == null || fieldPathValue.isEmpty()) {
+            return null;
+        }
+        int size = fieldPathValue.size();
+        T[] result = (T[]) new Object[size];
+        for (int i = 0; i < size; ++i) {
+            Value value = fieldPathValue.get(i);
+            result[i] = (T) value.get();
+        }
+        return result;
+    }
 }

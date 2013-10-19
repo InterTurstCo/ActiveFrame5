@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
-import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
+import ru.intertrust.cm.core.gui.api.server.widget.SingleObjectWidgetHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.TextAreaState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
@@ -11,9 +11,9 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
  *         Time: 14:26
  */
 @ComponentName("text-area")
-public class TextAreaHandler extends WidgetHandler {
+public class TextAreaHandler extends SingleObjectWidgetHandler {
     @Override
     public TextAreaState getInitialState(WidgetContext context) {
-        return new TextAreaState(context.<String>getFieldPathPlainValue());
+        return new TextAreaState(context.<String>getFieldPathSinglePlainValue());
     }
 }

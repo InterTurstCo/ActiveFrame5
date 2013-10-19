@@ -18,7 +18,7 @@ public class Filter implements Dto {
      */
     private String filter;
 
-    private TreeMap<Integer, Object> parameterMap = new TreeMap<>();
+    private TreeMap<Integer, Object> parameterMap = new TreeMap<Integer, Object>();
 
     public void addCriterion(int index, Value value) {
         parameterMap.put(index, value);

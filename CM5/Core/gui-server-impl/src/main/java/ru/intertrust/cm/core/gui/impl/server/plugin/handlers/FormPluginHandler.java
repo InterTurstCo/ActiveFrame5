@@ -18,7 +18,7 @@ import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 @ComponentName("form.plugin")
 public class FormPluginHandler extends PluginHandler {
     @Autowired
-    GuiService guiService;
+    private GuiService guiService;
 
     public PluginData initialize(Dto param) {
         FormPluginConfig config = (FormPluginConfig) param;

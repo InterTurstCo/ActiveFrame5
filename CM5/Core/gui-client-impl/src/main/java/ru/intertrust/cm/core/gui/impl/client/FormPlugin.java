@@ -42,6 +42,6 @@ public class FormPlugin extends Plugin {
     }
 
     public DomainObject getRootDomainObject() {
-        return this.<FormPluginData>getInitialData().getFormDisplayData().getFormState().getObjects().getRootObject();
+        return this.<FormPluginData>getInitialData().getFormDisplayData().getFormState().getObjects().getRootObjects().getObject();
     }
 }

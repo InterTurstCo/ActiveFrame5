@@ -32,7 +32,7 @@ public class SaveAction extends SimpleServerAction {
         DomainObjectSurferPlugin domainObjectSurferPlugin = (DomainObjectSurferPlugin) getPlugin();
         FormState formState = (FormState) domainObjectSurferPlugin.getFormPlugin().getCurrentState();
         SaveActionContext context = new SaveActionContext();
-        context.setRootObjectId(formState.getObjects().getRootObject().getId());
+        context.setRootObjectId(formState.getObjects().getRootObjects().getObject().getId());
         context.setFormState(formState);
         return context;
     }

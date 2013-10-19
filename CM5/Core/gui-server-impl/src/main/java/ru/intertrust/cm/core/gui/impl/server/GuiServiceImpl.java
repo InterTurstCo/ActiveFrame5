@@ -2,11 +2,7 @@ package ru.intertrust.cm.core.gui.impl.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.FieldConfig;
@@ -28,17 +24,13 @@ import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
-import ru.intertrust.cm.core.gui.model.form.FieldPath;
-import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
-import ru.intertrust.cm.core.gui.model.form.FormObjects;
-import ru.intertrust.cm.core.gui.model.form.FormState;
+import ru.intertrust.cm.core.gui.model.form.*;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
-import javax.annotation.Resource;
-import javax.annotation.security.DeclareRoles;
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.*;
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 import java.util.*;
 
@@ -49,32 +41,12 @@ import java.util.*;
  * Time: 16:14
  */
 @Stateless
-@DeclareRoles("cm_user")
-@RolesAllowed("cm_user")
 @Local(GuiService.class)
 @Remote(GuiService.Remote.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
-public class GuiServiceImpl implements GuiService, GuiService.Remote {
+public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService, GuiService.Remote {
 
     private static Logger log = LoggerFactory.getLogger(GuiServiceImpl.class);
-
-    @Autowired
-    private ApplicationContext applicationContext;
-
-    @Resource
-    private SessionContext sessionContext;
-
-    @Autowired
-    private ConfigurationExplorer configurationExplorer;
-
-    @EJB
-    private CrudService crudService;
-
-    @EJB
-    private CrudService.Remote crudServiceRemote;
-
-    @EJB
-    private CollectionsService collectionsService;
 
     @Override
     public NavigationConfig getNavigationConfiguration() {
@@ -117,46 +89,6 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         return buildDomainObjectForm(root);
     }
 
-    public DomainObject saveForm(FormState formState) {
-        FormConfig formConfig = configurationExplorer.getConfig(FormConfig.class, formState.getName());
-        WidgetConfigurationConfig widgetConfigurationConfig = formConfig.getWidgetConfigurationConfig();
-        List<WidgetConfig> widgetConfigs = widgetConfigurationConfig.getWidgetConfigList();
-        FormObjects formObjects = formState.getObjects();
-
-        HashSet<FieldPath> objectsFieldPathsToSave = new HashSet<>();
-        for (WidgetConfig widgetConfig : widgetConfigs) {
-            WidgetState widgetState = formState.getWidgetState(widgetConfig.getId());
-            if (widgetState == null) { // ignore - such data shouldn't be saved
-                continue;
-            }
-            Value newValue = widgetState.toValue();
-            FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
-            Value oldValue = formObjects.getObjectValue(fieldPath);
-            if (!areValuesSemanticallyEqual(newValue, oldValue)) {
-                formObjects.setObjectValue(fieldPath, newValue);
-                objectsFieldPathsToSave.add(fieldPath.createFieldPathWithoutLastElement());
-            }
-        }
-        ArrayList<DomainObject> toSave = new ArrayList<>(objectsFieldPathsToSave.size());
-        // todo sort field paths in such a way that linked objects are saved first?
-        // root DO is save separately as we should return it's identifier in case it's created from scratch
-        boolean saveRoot = false;
-        for (FieldPath fieldPath : objectsFieldPathsToSave) {
-            if (fieldPath.isRoot()) {
-                saveRoot = true;
-                continue;
-            }
-            toSave.add(formObjects.getObject(fieldPath));
-        }
-        crudService.save(toSave);
-        DomainObject rootDomainObject = formObjects.getRootObject();
-        if (saveRoot) {
-            return crudService.save(rootDomainObject);
-        } else {
-            return rootDomainObject;
-        }
-    }
-
     private boolean areValuesSemanticallyEqual(Value newValue, Value oldValue) {
         boolean newValueEmpty = newValue == null || newValue.get() == null;
         boolean oldValueEmpty = oldValue == null || oldValue.get() == null;
@@ -169,19 +101,199 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         return newValue.equals(oldValue);
     }
 
+    private boolean areValuesSemanticallyEqual(ArrayList<Value> newValue, ArrayList<Value> oldValue) {
+        return false;// todo
+    }
+
+    public DomainObject saveForm(FormState formState) {
+        FormConfig formConfig = configurationExplorer.getConfig(FormConfig.class, formState.getName());
+        WidgetConfigurationConfig widgetConfigurationConfig = formConfig.getWidgetConfigurationConfig();
+        List<WidgetConfig> widgetConfigs = widgetConfigurationConfig.getWidgetConfigList();
+        FormObjects formObjects = formState.getObjects();
+
+        ArrayList<FormSaveOperation> linkChangeOperations = new ArrayList<>();
+
+        HashSet<FieldPath> objectsFieldPathsToSave = new HashSet<>();
+        for (WidgetConfig widgetConfig : widgetConfigs) {
+            WidgetState widgetState = formState.getWidgetState(widgetConfig.getId());
+            if (widgetState == null) { // ignore - such data shouldn't be saved
+                continue;
+            }
+            ArrayList<Value> newValue = widgetState.toValues();
+            FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
+            if (fieldPath.isBackReference() && fieldPath.getLastElement().contains("^")) { // todo and field itself is a reference
+                linkChangeOperations.addAll(mergeObjectReferences(fieldPath, formObjects, newValue));
+                continue;
+            }
+
+            ArrayList<Value> oldValue = formObjects.getObjectValues(fieldPath);
+            if (!areValuesSemanticallyEqual(newValue, oldValue)) {
+                formObjects.setObjectValues(fieldPath, newValue);
+                objectsFieldPathsToSave.add(fieldPath.getParent());
+            }
+        }
+
+        for (FormSaveOperation operation : linkChangeOperations) {
+            if (operation.type == FormSaveOperation.Type.Delete) {
+                crudService.delete(operation.domainObject.getId());
+            } else {
+                crudService.save(operation.domainObject);
+            }
+        }
+
+        ArrayList<DomainObject> toSave = new ArrayList<>(objectsFieldPathsToSave.size());
+        // todo sort field paths in such a way that linked objects are saved first?
+        // root DO is save separately as we should return it's identifier in case it's created from scratch
+        boolean saveRoot = false;
+        for (FieldPath fieldPath : objectsFieldPathsToSave) {
+            if (fieldPath.isRoot()) {
+                saveRoot = true;
+                continue;
+            }
+            toSave.addAll(formObjects.getObjects(fieldPath).getDomainObjects());
+        }
+        crudService.save(toSave);
+        DomainObject rootDomainObject = formObjects.getRootObjects().getObject();
+        if (saveRoot) {
+            return crudService.save(rootDomainObject);
+        } else {
+            return rootDomainObject;
+        }
+    }
+
+    private ArrayList<FormSaveOperation> mergeObjectReferences(FieldPath fieldPath, FormObjects formObjects,
+                                                               ArrayList<Value> newValues) {
+        ArrayList<DomainObject> parentObjects = formObjects.getObjects(fieldPath.getParent()).getDomainObjects();
+        if (parentObjects.size() > 1) {
+            throw new GuiException("Back reference is referencing " + parentObjects.size() + " objects");
+        }
+        Id parentObjectId = parentObjects.get(0).getId();
+
+        String lastElement = fieldPath.getLastElement();
+        String[] typeAndField = lastElement.split("\\^");
+        String type = typeAndField[0];
+        String field = typeAndField[1];
+
+        ArrayList<DomainObject> previousState = formObjects.getObjects(fieldPath).getDomainObjects();
+        if (previousState == null) {
+            previousState = new ArrayList<>(0);
+        }
+        HashSet<Value> oldValuesSet = new HashSet<>(previousState.size());
+        for (DomainObject previousStateObject : previousState) {
+            oldValuesSet.add(new ReferenceValue(previousStateObject.getId()));
+        }
+
+        ArrayList<FormSaveOperation> operations = new ArrayList<>(oldValuesSet.size() + newValues.size());
+
+        // links to create
+        for (Value value : newValues) {
+            if (oldValuesSet.contains(value)) {
+                continue; // nothing to update
+            }
+            Id referenceId = ((ReferenceValue) value).get();
+            DomainObject objectToSetLinkIn = crudService.find(referenceId);
+            objectToSetLinkIn.setReference(field, parentObjectId);
+            operations.add(new FormSaveOperation(FormSaveOperation.Type.Create, objectToSetLinkIn));
+        }
+
+        // links to drop
+        oldValuesSet.removeAll(newValues); // leave only those which aren't in new values
+        for (Value value : oldValuesSet) {
+            if (value == null) {
+                continue;
+            }
+            Id referenceId = ((ReferenceValue) value).get();
+            DomainObject objectToDropLinkIn = crudService.find(referenceId);
+            objectToDropLinkIn.setReference(field, (Id) null);
+            operations.add(new FormSaveOperation(FormSaveOperation.Type.Update, objectToDropLinkIn));
+        }
+        return operations;
+    }
+
+    private HashMap<FieldPath, String> getFieldPathWidgetIds(List<WidgetConfig> widgetConfigs) {
+        HashMap<FieldPath, String> result = new HashMap<>(widgetConfigs.size());
+        for (WidgetConfig config : widgetConfigs) {
+            FieldPathConfig fieldPathConfig = config.getFieldPathConfig();
+            if (fieldPathConfig == null || fieldPathConfig.getValue() == null) {
+                continue;
+            }
+            FieldPath fieldPath = new FieldPath(fieldPathConfig.getValue());
+            result.put(fieldPath, config.getId());
+        }
+        return result;
+    }
+
+    private ArrayList<FieldPath> getFieldPathsPlainTree(Collection<FieldPath> widgetPaths) {
+
+        ArrayList<FieldPath> result = new ArrayList<>(widgetPaths.size());
+        for (FieldPath fieldPath : widgetPaths) {
+            for (Iterator<FieldPath> subPathIterator = fieldPath.subPathIterator(); subPathIterator.hasNext(); ) {
+                FieldPath subPath = subPathIterator.next();
+                result.add(subPath);
+            }
+        }
+        return result;
+    }
+
     private FormDisplayData buildDomainObjectForm(DomainObject root) {
         FormConfig formConfig = findFormConfig(root);
         List<WidgetConfig> widgetConfigs = formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
         HashMap<String, WidgetState> widgetStateMap = new HashMap<>(widgetConfigs.size());
         HashMap<String, String> widgetComponents = new HashMap<>(widgetConfigs.size());
-        ProcessedWidgetsDetail processedWidgetsDetail = new ProcessedWidgetsDetail(widgetConfigs);
-        FormObjects formObjects = getFormObjects(root, processedWidgetsDetail);
+        FormObjects formObjects = new FormObjects();
         for (WidgetConfig config : widgetConfigs) {
             String widgetId = config.getId();
-            WidgetHandler componentHandler = obtainHandler(config.getComponentName());
+            FieldPathConfig fieldPathConfig = config.getFieldPathConfig();
+            if (fieldPathConfig == null || fieldPathConfig.getValue() == null) {
+                if (!(config instanceof LabelConfig)) {
+                    throw new GuiException("Widget, id: " + widgetId + " is not configured with Field Path");
+                }
+
+                //todo refactor
+                WidgetContext widgetContext = new WidgetContext(config, formObjects);
+                WidgetHandler componentHandler = obtainHandler(config.getComponentName());
+                WidgetState initialState = componentHandler.getInitialState(widgetContext);
+                widgetStateMap.put(widgetId, initialState);
+                widgetComponents.put(widgetId, config.getComponentName());
+                continue;
+            }
+            FieldPath fieldPath = new FieldPath(fieldPathConfig.getValue());
+
+            ObjectsNode rootNode = new ObjectsNode(root);
+            formObjects.setRootObjects(rootNode);
+
+            String currentRootType = root.getTypeName();
+            for (Iterator<FieldPath> subPathIterator = fieldPath.subPathIterator(); subPathIterator.hasNext(); ) {
+                FieldPath subPath = subPathIterator.next();
+                String linkPath = subPath.getLastElement();
+                if (!subPathIterator.hasNext() && !linkPath.contains("^")) { // it's a field
+                    break;
+                }
+
+
+                if (!linkPath.contains("^")) {
+                    ReferenceFieldConfig fieldConfig = (ReferenceFieldConfig)
+                        configurationExplorer.getFieldConfig(currentRootType, linkPath);
+                    currentRootType = fieldConfig.getType();
+                } else { // it's a back reference
+                    currentRootType = linkPath.split("\\^")[0];
+                }
+
+                if (formObjects.isObjectsSet(subPath)) {
+                    rootNode = formObjects.getObjects(subPath);
+                    continue;
+                }
+                ObjectsNode linkedDo = findLinkedDomainObjects(rootNode, currentRootType, linkPath);
+
+                formObjects.setObjects(subPath, linkedDo);
+                rootNode.setChild(linkPath, linkedDo);
+                rootNode = linkedDo;
+            }
+
             WidgetContext widgetContext = new WidgetContext(config, formObjects);
+            WidgetHandler componentHandler = obtainHandler(config.getComponentName());
             WidgetState initialState = componentHandler.getInitialState(widgetContext);
-            initialState.setEditable(processedWidgetsDetail.isWidgetEditable(config));
+            initialState.setEditable(true);
             widgetStateMap.put(widgetId, initialState);
             widgetComponents.put(widgetId, config.getComponentName());
         }
@@ -189,7 +301,77 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         return new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents, formConfig.getDebug(), true);
     }
 
-    private static FormMappingsCache formMappingsCache; // todo drop this ugly thing
+    private ObjectsNode findLinkedDomainObjects(ObjectsNode domainObjects,
+                                                            String linkedObjectsType, String linkPath) {
+        if (domainObjects == null || domainObjects.isEmpty()) {
+            return new ObjectsNode(0);
+        }
+
+        if (!linkPath.contains("^")) {
+            ObjectsNode result = new ObjectsNode(domainObjects.size());
+            for (DomainObject domainObject : domainObjects) {
+                Id linkedObjectId = domainObject.getReference(linkPath);
+                if (linkedObjectId == null) {
+                    result.add(crudService.createDomainObject(linkedObjectsType));
+                } else {
+                    result.add(crudService.find(linkedObjectId));
+                }
+            }
+            return result;
+        }
+
+        // it's a "back-link" (like country_best_friend^country)
+        String[] domainObjectTypeAndReference = linkPath.split("\\^");
+        if (domainObjectTypeAndReference.length != 2) {
+            throw new GuiException("Invalid reference: " + linkPath);
+        }
+
+        String referenceField = domainObjectTypeAndReference[1];
+
+        // todo after CMFIVE-122 is done - get the first two linked objects, not everything!
+        // todo after cardinality functionality is developed, check cardinality (static-check, not runtime)
+
+        ObjectsNode result = new ObjectsNode(domainObjects.size());
+        for (DomainObject domainObject : domainObjects) {
+            List<DomainObject> linkedDomainObjects;
+            if (domainObject.getId() == null) {
+                linkedDomainObjects = new ArrayList<>();
+                linkedDomainObjects.add(crudService.createDomainObject(linkedObjectsType));
+            } else {
+                linkedDomainObjects = crudService.findLinkedDomainObjects(domainObject.getId(), linkedObjectsType, referenceField);
+            }
+            if (linkedDomainObjects.size() > 1 && domainObjects.size() > 1) {
+                // join 2 multi-references - not supported and usually doesn't make sense
+                throw new GuiException(linkPath + " is resulting into many-on-many join which is not supported");
+            }
+            for (DomainObject linkedDomainObject : linkedDomainObjects) {
+                result.add(linkedDomainObject);
+            }
+        }
+
+        return result;
+    }
+
+    private String getBackReferenceDomainObjectType(String linkPath) {
+        // it's a "back-link" (like country_best_friend^country)
+        String[] domainObjectTypeAndReference = linkPath.split("\\^");
+        if (domainObjectTypeAndReference.length != 2) {
+            throw new GuiException("Invalid reference: " + linkPath);
+        }
+
+        String linkedDomainObjectType = domainObjectTypeAndReference[0];
+        String referenceField = domainObjectTypeAndReference[1];
+        FieldConfig fieldConfig = configurationExplorer.getFieldConfig(linkedDomainObjectType, referenceField);
+        if (fieldConfig == null) {
+            throw new GuiException(linkPath + " is referencing a non-existing type/field");
+        }
+        if (!(fieldConfig instanceof ReferenceFieldConfig)) {
+            throw new GuiException(linkPath + " is not pointing to a reference");
+        }
+        ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
+        return referenceFieldConfig.getType();
+    }
+
     private FormConfig findFormConfig(DomainObject root) {
         // по Id ищется тип доменного объекта
         // далее находится форма для данного контекста, учитывая факт того, переопределена ли форма для пользователя/роли,
@@ -230,106 +412,23 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
         return firstMetForm;
     }
 
-    private List<Pair<FieldPath, WidgetConfig>> findMatchingFieldPaths(List<WidgetConfig> configs) {
-        List<Pair<FieldPath, WidgetConfig>> paths = new ArrayList<>(configs.size());
-        for (WidgetConfig config : configs) {
-            FieldPathConfig fieldPathConfig = config.getFieldPathConfig();
-            if (fieldPathConfig == null || fieldPathConfig.getValue() == null) {
-                if (!(config instanceof LabelConfig)) {
-                    throw new GuiException("Widget, id: " + config.getId() + " is not configured with Field Path");
-                } else {
-                    continue;
-                }
-            }
-            paths.add(new Pair<>(new FieldPath(fieldPathConfig.getValue()), config));
+    private static class FormSaveOperation {
+        public static enum Type {
+            Create,
+            Update,
+            Delete
         }
-        return paths;
+
+        public final Type type;
+        public final DomainObject domainObject;
+
+        private FormSaveOperation(Type type, DomainObject domainObject) {
+            this.type = type;
+            this.domainObject = domainObject;
+        }
     }
 
-    private FormObjects getFormObjects(DomainObject root, ProcessedWidgetsDetail processedWidgetsDetail) {
-        FormObjects formObjects = new FormObjects();
-        formObjects.setRootObject(root);
-        for (WidgetDetail widgetDetail : processedWidgetsDetail.getWidgetDetails()) {
-            DomainObject currentRoot = root;
-            for (Iterator<FieldPath> subPathIterator = widgetDetail.fieldPath.subPathIterator(); subPathIterator.hasNext(); ) {
-                FieldPath subPath = subPathIterator.next();
-                if (!subPathIterator.hasNext()) {
-                    break; // current path is pointing to a Value and will be found in Domain Object, nothing to do else
-                }
-
-                // sub-path points to an object referenced from current root
-                if (formObjects.isObjectSet(subPath)) {
-                    continue;
-                }
-
-                String linkPath = subPath.getLastElement();
-                DomainObject linkedDo = findLinkedDomainObject(currentRoot, linkPath);
-
-                if (linkedDo != null) {
-                    formObjects.setObject(subPath, linkedDo);
-                    currentRoot = linkedDo;
-                } else {
-                    // current root becomes null, thus further iterations don't make sense
-                    break;
-
-                    // todo or create an empty Domain Object?
-                    // if we allow "new" linked objects saving, appropriate infrastructure required
-                    // scenario: country has a capital and form displays only capital's name. when capital isn't defined
-                    // the field is empty. But when this field is filled by user, such capital (city) should be created..
-                }
-            }
-        }
-
-        return formObjects;
-    }
-
-    private DomainObject findLinkedDomainObject(DomainObject domainObject, String linkPath) {
-        if (!linkPath.contains("^")) {
-            Id linkedObjectId = domainObject.getReference(linkPath);
-            return linkedObjectId == null ? null : crudService.find(linkedObjectId);
-        }
-
-        // it's a "back-link" (like country_best_friend^country)
-        String[] domainObjectTypeAndReference = linkPath.split("\\^");
-        if (domainObjectTypeAndReference.length != 2) {
-            throw new GuiException("Invalid reference: " + linkPath);
-        }
-        String linkedDomainObjectType = domainObjectTypeAndReference[0];
-        String referenceField = domainObjectTypeAndReference[1];
-        FieldConfig fieldConfig = configurationExplorer.getFieldConfig(linkedDomainObjectType, referenceField);
-        if (fieldConfig == null) {
-            throw new GuiException(linkPath + " is referencing a non-existing type/field");
-        }
-        if (!(fieldConfig instanceof ReferenceFieldConfig)) {
-            throw new GuiException(linkPath + " is not pointing to a reference");
-        }
-        ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
-        if (!referenceFieldConfig.getType().equals(domainObject.getTypeName())) {
-            throw new GuiException(linkPath + " is not of type: " + domainObject.getTypeName());
-        }
-
-        // todo after CMFIVE-122 is done - get the first two linked objects, not everything!
-        // todo after cardinality functionality is developed, check cardinality (static-check, not runtime)
-        if (domainObject.getId() == null) {
-            return null;
-        }
-        List<DomainObject> linkedDomainObjects =
-                crudService.findLinkedDomainObjects(domainObject.getId(), linkedDomainObjectType, referenceField);
-        if (linkedDomainObjects.size() > 1) {
-            // such situation means that one field of a collection of DOs should be displayed/edited
-            // for example names of country's cities. this is not supported, such behavior is handled by
-            // widgets configured by back-link path
-            throw new GuiException(linkPath + " is pointing to a collection of fields values");
-        }
-
-        return linkedDomainObjects.isEmpty() ? null : linkedDomainObjects.get(0);
-    }
-
-    private <T extends ComponentHandler> T obtainHandler(String componentName) {
-        boolean containsHandler = applicationContext.containsBean(componentName);
-        return containsHandler ? (T) applicationContext.getBean(componentName) : null;
-    }
-
+    private static FormMappingsCache formMappingsCache; // todo drop this ugly thing
     private static class FormMappingsCache {
         private HashMap<String, FormConfig> defaultFormByDomainObjectType = new HashMap<>();
         private HashMap<String, List<FormConfig>> allFormsByDomainObjectType = new HashMap<>();
@@ -442,46 +541,4 @@ public class GuiServiceImpl implements GuiService, GuiService.Remote {
 
     }
 
-    private static class ProcessedWidgetsDetail {
-        private ArrayList<WidgetDetail> widgetDetails;
-        private HashMap<String, FieldPath> fieldPathsByWidgetId;
-
-        public ProcessedWidgetsDetail(List<WidgetConfig> configs) {
-            widgetDetails = new ArrayList<>(configs.size());
-            fieldPathsByWidgetId = new HashMap<>(configs.size());
-            for (WidgetConfig config : configs) {
-                FieldPathConfig fieldPathConfig = config.getFieldPathConfig();
-                if (fieldPathConfig == null || fieldPathConfig.getValue() == null) {
-                    if (!(config instanceof LabelConfig)) {
-                        throw new GuiException("Widget, id: " + config.getId() + " is not configured with Field Path");
-                    } else {
-                        continue;
-                    }
-                }
-                FieldPath fieldPath = new FieldPath(fieldPathConfig.getValue());
-                widgetDetails.add(new WidgetDetail(config, fieldPath));
-                fieldPathsByWidgetId.put(config.getId(), fieldPath);
-            }
-        }
-
-        public ArrayList<WidgetDetail> getWidgetDetails() {
-            return widgetDetails;
-        }
-
-        public boolean isWidgetEditable(WidgetConfig widgetConfig) {
-            // it's editable only if widget is editable by nature and if it's a property of the very root object
-            FieldPath fieldPath = fieldPathsByWidgetId.get(widgetConfig.getId());
-            return fieldPath != null && fieldPath.size() == 1;
-        }
-    }
-
-    private static class WidgetDetail {
-        public final WidgetConfig widgetConfig;
-        public final FieldPath fieldPath;
-
-        private WidgetDetail(WidgetConfig widgetConfig, FieldPath fieldPath) {
-            this.widgetConfig = widgetConfig;
-            this.fieldPath = fieldPath;
-        }
-    }
 }

@@ -59,4 +59,8 @@ public abstract class WidgetConfig implements Dto {
     }
 
     public abstract String getComponentName();
+
+    public boolean handlesMultipleObjects() {
+        return false;
+    }
 }

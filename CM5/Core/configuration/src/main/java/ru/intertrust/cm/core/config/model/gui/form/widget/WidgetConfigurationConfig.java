@@ -31,7 +31,8 @@ public class WidgetConfigurationConfig implements Dto {
             @ElementList(entry = "linked-domain-objects-table",
                     type = LinkedDomainObjectsTableConfig.class, inline = true, required = false),
             @ElementList(entry = "template-based-widget",
-                    type = TemplateBasedWidgetConfig.class, inline = true, required = false)
+                    type = TemplateBasedWidgetConfig.class, inline = true, required = false),
+            @ElementList(entry = "list-box", type = ListBoxConfig.class, inline = true, required = false)
     })
     private List<WidgetConfig> widgetConfigList = new ArrayList<WidgetConfig>();
 

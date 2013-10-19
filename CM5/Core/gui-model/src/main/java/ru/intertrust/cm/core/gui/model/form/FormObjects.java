@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Value;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,49 +14,54 @@ import java.util.Map;
  *         Time: 18:09
  */
 public class FormObjects implements Dto {
-    private Map<FieldPath, DomainObject> fieldPathObjects;
+    private Map<FieldPath, ObjectsNode> fieldPathObjectLists;
 
     public FormObjects() {
-        fieldPathObjects = new HashMap<FieldPath, DomainObject>();
+        fieldPathObjectLists = new HashMap<FieldPath, ObjectsNode>();
     }
 
-    public Map<FieldPath, DomainObject> getFieldPathObjects() {
-        return fieldPathObjects;
+    public boolean isObjectsSet(FieldPath fieldPath) {
+        return fieldPathObjectLists.containsKey(fieldPath);
     }
 
-    public boolean isObjectSet(FieldPath fieldPath) {
-        return fieldPathObjects.containsKey(fieldPath);
+    public void setObjects(FieldPath fieldPath, ObjectsNode domainObjects) {
+        this.fieldPathObjectLists.put(fieldPath, domainObjects);
     }
 
-    public void setObject(FieldPath fieldPath, DomainObject object) {
-        this.fieldPathObjects.put(fieldPath, object);
+    public ObjectsNode getObjects(FieldPath fieldPath) {
+        return fieldPathObjectLists.get(fieldPath);
     }
 
-    public DomainObject getObject(FieldPath fieldPath) {
-        return fieldPathObjects.get(fieldPath);
+    public void setRootObjects(ObjectsNode object) {
+        this.fieldPathObjectLists.put(FieldPath.ROOT, object);
     }
 
-    public void setRootObject(DomainObject object) {
-        this.fieldPathObjects.put(FieldPath.ROOT, object);
+    public ObjectsNode getRootObjects() {
+        return fieldPathObjectLists.get(FieldPath.ROOT);
     }
 
-    public DomainObject getRootObject() {
-        return fieldPathObjects.get(FieldPath.ROOT);
+    public void setObjectValues(FieldPath fieldPath, ArrayList<Value> value) {
+        ArrayList<DomainObject> fieldPathObjects = getObjectsContainingFieldPathValues(fieldPath).getDomainObjects();
+        for (int i = 0; i < fieldPathObjects.size(); ++i) {
+            DomainObject fieldPathObject = fieldPathObjects.get(i);
+            fieldPathObject.setValue(fieldPath.getLastElement(), value.get(i));
+        }
     }
 
-    public DomainObject setObjectValue(FieldPath fieldPath, Value value) {
-        DomainObject fieldPathObject = getObjectContainingFieldPathValue(fieldPath);
-        fieldPathObject.setValue(fieldPath.getLastElement(), value);
-        return fieldPathObject;
+    public <T extends Value> ArrayList<T> getObjectValues(FieldPath fieldPath) {
+        ArrayList<DomainObject> fieldPathObject = getObjectsContainingFieldPathValues(fieldPath).getDomainObjects();
+        if (fieldPathObject == null) {
+            return null;
+        }
+        ArrayList<T> result = new ArrayList<T>(fieldPathObject.size());
+        for (DomainObject domainObject : fieldPathObject) {
+            result.add((T) domainObject.getValue(fieldPath.getLastElement()));
+        }
+        return result;
     }
 
-    public <T extends Value> T getObjectValue(FieldPath fieldPath) {
-        DomainObject fieldPathObject = getObjectContainingFieldPathValue(fieldPath);
-        return fieldPathObject == null ? null : (T) fieldPathObject.getValue(fieldPath.getLastElement());
-    }
-
-    private DomainObject getObjectContainingFieldPathValue(FieldPath fieldPath) {
-        FieldPath objectPath = fieldPath.createFieldPathWithoutLastElement();
-        return fieldPathObjects.get(objectPath);
+    private ObjectsNode getObjectsContainingFieldPathValues(FieldPath fieldPath) {
+        FieldPath objectPath = fieldPath.getParent();
+        return fieldPathObjectLists.get(objectPath);
     }
 }

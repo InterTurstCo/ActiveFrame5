@@ -22,8 +22,8 @@ public class IntegerBoxWidget extends BaseWidget {
         return new IntegerBoxWidget();
     }
 
-    public void setCurrentState(WidgetState state) {
-        Long value = ((IntegerBoxState) state).getValue();
+    public void setCurrentState(WidgetState currentState) {
+        Long value = ((IntegerBoxState) currentState).getValue();
         setTrimmedText((HasText) impl, value == null ? "" : value.toString());
     }
 

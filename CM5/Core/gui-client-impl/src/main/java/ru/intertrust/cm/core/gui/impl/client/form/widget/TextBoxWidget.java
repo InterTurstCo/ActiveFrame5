@@ -21,8 +21,8 @@ public class TextBoxWidget extends BaseWidget {
         return new TextBoxWidget();
     }
 
-    public void setCurrentState(WidgetState state) {
-        setTrimmedText((HasText) impl, ((TextBoxState) state).getText());
+    public void setCurrentState(WidgetState currentState) {
+        setTrimmedText((HasText) impl, ((TextBoxState) currentState).getText());
     }
 
     @Override

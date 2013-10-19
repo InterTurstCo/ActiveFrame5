@@ -6,10 +6,12 @@ import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.form.widget.ComboBoxState;
+import ru.intertrust.cm.core.gui.model.form.widget.ListBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 
 /**
@@ -17,36 +19,31 @@ import java.util.LinkedHashMap;
  *         Date: 15.09.13
  *         Time: 22:40
  */
-@ComponentName("combo-box")
-public class ComboBoxWidget extends BaseWidget {
+@ComponentName("list-box")
+public class ListBoxWidget extends BaseWidget {
     private HashMap<String, Id> idMap;
-    private Id nonEditableId;
 
     @Override
     public Component createNew() {
-        return new ComboBoxWidget();
+        return new ListBoxWidget();
     }
 
     public void setCurrentState(WidgetState currentState) {
-        ComboBoxState comboBoxState = (ComboBoxState) currentState;
-        Id selectedId = comboBoxState.getId();
-        LinkedHashMap<Id,String> listValues = comboBoxState.getListValues();
-        if (!currentState.isEditable()) {
-            if (selectedId != null) {
-                nonEditableId = selectedId;
-                ((Label) impl).setText(listValues.get(selectedId));
-            }
-            return;
-        }
+        ListBoxState state = (ListBoxState) currentState;
+        ArrayList<Id> selectedIds = state.getSelectedIds();
+        HashSet<Id> selectedIdsSet = new HashSet<Id>(selectedIds);
+        LinkedHashMap<Id,String> listValues = state.getListValues();
+
         idMap = new HashMap<String, Id>(listValues.size());
         ListBox listBox = (ListBox) impl;
+        listBox.clear();
         int index = 0;
         for (Id id : listValues.keySet()) {
             String idString = id == null ? "" : id.toStringRepresentation();
             listBox.addItem(listValues.get(id), idString);
             idMap.put(idString, id);
-            if (id == null && selectedId == null || id != null && id.equals(selectedId)) {
-                listBox.setSelectedIndex(index);
+            if (selectedIdsSet.contains(id)) {
+                listBox.setItemSelected(index, true);
             }
             ++index;
         }
@@ -54,22 +51,26 @@ public class ComboBoxWidget extends BaseWidget {
 
     @Override
     public WidgetState getCurrentState() {
-        ComboBoxState state = new ComboBoxState();
-        if (!state.isEditable()) {
-            state.setId(nonEditableId);
-            return state;
-        }
+        ListBoxState state = new ListBoxState();
         ListBox listBox = (ListBox) impl;
-        if (listBox.getItemCount() == 0) {
+        int listSize = listBox.getItemCount();
+        if (listSize == 0) {
             return state;
         }
-        state.setId(idMap.get(listBox.getValue(listBox.getSelectedIndex())));
+
+        ArrayList<Id> selectedIds = new ArrayList<Id>();
+        for (int i = 0; i < listSize; ++i) {
+            if (listBox.isItemSelected(i)) {
+                selectedIds.add(idMap.get(listBox.getValue(i)));
+            }
+        }
+        state.setSelectedIds(selectedIds);
         return state;
     }
 
     @Override
     protected Widget asEditableWidget() {
-        return new ListBox(false);
+        return new ListBox(true);
     }
 
     @Override

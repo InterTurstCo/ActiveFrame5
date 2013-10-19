@@ -7,7 +7,8 @@
             <child-links>
                 <link name="Countries" display-text="Страны">
                     <plugin>
-                        <domain-object-surfer>
+                        <!--domain-object-type-to-create="country" - temp solution - remove later-->
+                        <domain-object-surfer domain-object-type-to-create="country">
                             <collection-viewer>
                                 <collection-ref name="Countries"/>
                                 <sort-criterion field="name" order="asc"/>
@@ -17,7 +18,7 @@
                 </link>
                 <link name="Cities" display-text="Города">
                     <plugin>
-                        <domain-object-surfer>
+                        <domain-object-surfer domain-object-type-to-create="city">
                             <collection-viewer>
                                 <collection-ref name="Cities"/>
                                 <sort-criterion field="name" order="asc"/>

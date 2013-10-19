@@ -11,15 +11,17 @@ import java.util.List;
  *         Date: 22.09.13
  *         Time: 13:47
  */
-public class FieldPath implements Dto {
+public class FieldPath implements Dto, Comparable<FieldPath> {
     public static final FieldPath ROOT = new FieldPath();
 
     private String path;
+    private Boolean isBackReference;
     private transient String[] pathElements;
+    private transient FieldPath parent;
 
     public FieldPath() {
         this.path = "";
-        pathElements = new String[0];
+        isBackReference = Boolean.FALSE;
     }
 
     public FieldPath(String path) {
@@ -30,14 +32,20 @@ public class FieldPath implements Dto {
         this.pathElements = pathElements;
     }
 
-    public FieldPath createFieldPathWithoutLastElement() {
+    public FieldPath getParent() {
+        if (parent != null) {
+            return parent;
+        }
+
         int resultSize = size() - 1;
         if (resultSize == 0) {
-            return ROOT;
+            parent = ROOT;
+            return parent;
         }
         String[] newPathElements = new String[resultSize];
         System.arraycopy(pathElements, 0, newPathElements, 0, resultSize);
-        return new FieldPath(newPathElements);
+        parent = new FieldPath(newPathElements);
+        return parent;
     }
 
     public String getLastElement() {
@@ -91,6 +99,13 @@ public class FieldPath implements Dto {
         return equals(ROOT);
     }
 
+    public boolean isBackReference() {
+        if (isBackReference == null) {
+            isBackReference = getPath().contains("^");
+        }
+        return isBackReference;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -123,6 +138,11 @@ public class FieldPath implements Dto {
         return getPath();
     }
 
+    @Override
+    public int compareTo(FieldPath o) {
+        return getPath().compareTo(o.getPath());
+    }
+
     private class FieldPathIterator implements Iterator<FieldPath> {
         private int position = 0;
 
@@ -153,7 +173,7 @@ public class FieldPath implements Dto {
             System.out.println("Sub path: " + subPath);
         }
 
-        System.out.println(fieldPath.createFieldPathWithoutLastElement().size());
+        System.out.println(fieldPath.getParent().size());
 
     }
 }

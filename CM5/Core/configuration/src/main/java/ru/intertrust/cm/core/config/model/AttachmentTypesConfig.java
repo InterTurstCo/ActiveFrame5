@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class AttachmentTypesConfig {
     @ElementList(entry="attachment-type", type=AttachmentTypeConfig.class, inline=true, required = true)
-    private List<AttachmentTypeConfig> attachmentTypeConfigs = new ArrayList<>();
+    private List<AttachmentTypeConfig> attachmentTypeConfigs = new ArrayList<AttachmentTypeConfig>();
 
     public List<AttachmentTypeConfig> getAttachmentTypeConfigs() {
         return attachmentTypeConfigs;

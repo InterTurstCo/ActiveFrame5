@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
-import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
+import ru.intertrust.cm.core.gui.api.server.widget.SingleObjectWidgetHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
@@ -13,9 +13,9 @@ import java.util.Date;
  *         Time: 12:41
  */
 @ComponentName("date-box")
-public class DateBoxHandler extends WidgetHandler {
+public class DateBoxHandler extends SingleObjectWidgetHandler {
     @Override
     public DateBoxState getInitialState(WidgetContext context) {
-        return new DateBoxState(context.<Date>getFieldPathPlainValue());
+        return new DateBoxState(context.<Date>getFieldPathSinglePlainValue());
     }
 }

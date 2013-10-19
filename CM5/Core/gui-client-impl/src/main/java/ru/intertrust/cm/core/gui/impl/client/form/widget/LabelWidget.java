@@ -21,8 +21,8 @@ public class LabelWidget extends BaseWidget {
     }
 
     @Override
-    public void setCurrentState(WidgetState state) {
-        setTrimmedText((HasText) impl, ((LabelState) state).getLabel());
+    public void setCurrentState(WidgetState currentState) {
+        setTrimmedText((HasText) impl, ((LabelState) currentState).getLabel());
     }
 
     @Override

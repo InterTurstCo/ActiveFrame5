@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
-import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
+import ru.intertrust.cm.core.gui.api.server.widget.SingleObjectWidgetHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.IntegerBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
@@ -11,9 +11,9 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
  *         Time: 17:00
  */
 @ComponentName("integer-box")
-public class IntegerBoxHandler extends WidgetHandler {
+public class IntegerBoxHandler extends SingleObjectWidgetHandler {
     @Override
     public IntegerBoxState getInitialState(WidgetContext context) {
-        return new IntegerBoxState(context.<Long>getFieldPathPlainValue());
+        return new IntegerBoxState(context.<Long>getFieldPathSinglePlainValue());
     }
 }
