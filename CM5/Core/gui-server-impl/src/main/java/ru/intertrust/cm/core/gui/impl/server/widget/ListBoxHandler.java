@@ -58,6 +58,9 @@ public class ListBoxHandler extends MultiObjectWidgetHandler {
             idDisplayMapping.put(domainObject.getId(), format);
         }
 
+        if (baseObjectId == null) {
+            return result;
+        }
         ArrayList<Id> selectedIds = new ArrayList<>();
         for (DomainObject domainObject : listToDisplay) {
             Id referenceToBaseObject = domainObject.getReference(referencingField);

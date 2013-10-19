@@ -121,7 +121,10 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
             }
             ArrayList<Value> newValue = widgetState.toValues();
             FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
-            if (fieldPath.isBackReference() && fieldPath.getLastElement().contains("^")) { // todo and field itself is a reference
+            String parentType = formObjects.getObjects(fieldPath.getParent()).getType();
+            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(parentType, fieldPath.getLastElement());
+            boolean lastElementIsReference = fieldConfig == null || fieldConfig instanceof ReferenceFieldConfig;
+            if (fieldPath.isBackReference() && lastElementIsReference) { // todo and field itself is a reference
                 linkChangeOperations.addAll(mergeObjectReferences(fieldPath, formObjects, newValue));
                 continue;
             }
@@ -241,6 +244,9 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
         HashMap<String, WidgetState> widgetStateMap = new HashMap<>(widgetConfigs.size());
         HashMap<String, String> widgetComponents = new HashMap<>(widgetConfigs.size());
         FormObjects formObjects = new FormObjects();
+
+        ObjectsNode rootNode = new ObjectsNode(root);
+        formObjects.setRootObjects(rootNode);
         for (WidgetConfig config : widgetConfigs) {
             String widgetId = config.getId();
             FieldPathConfig fieldPathConfig = config.getFieldPathConfig();
@@ -259,10 +265,7 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
             }
             FieldPath fieldPath = new FieldPath(fieldPathConfig.getValue());
 
-            ObjectsNode rootNode = new ObjectsNode(root);
-            formObjects.setRootObjects(rootNode);
-
-            String currentRootType = root.getTypeName();
+            rootNode = formObjects.getRootObjects();
             for (Iterator<FieldPath> subPathIterator = fieldPath.subPathIterator(); subPathIterator.hasNext(); ) {
                 FieldPath subPath = subPathIterator.next();
                 String linkPath = subPath.getLastElement();
@@ -270,24 +273,25 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
                     break;
                 }
 
-
-                if (!linkPath.contains("^")) {
+                // it's a reference then
+                String childNodeType;
+                if (!linkPath.contains("^")) { // direct reference
                     ReferenceFieldConfig fieldConfig = (ReferenceFieldConfig)
-                        configurationExplorer.getFieldConfig(currentRootType, linkPath);
-                    currentRootType = fieldConfig.getType();
-                } else { // it's a back reference
-                    currentRootType = linkPath.split("\\^")[0];
+                        configurationExplorer.getFieldConfig(rootNode.getType(), linkPath);
+                    childNodeType = fieldConfig.getType();
+                } else { // back reference
+                    childNodeType = linkPath.split("\\^")[0];
                 }
 
                 if (formObjects.isObjectsSet(subPath)) {
                     rootNode = formObjects.getObjects(subPath);
                     continue;
                 }
-                ObjectsNode linkedDo = findLinkedDomainObjects(rootNode, currentRootType, linkPath);
+                ObjectsNode linkedNode = findLinkedNode(rootNode, childNodeType, linkPath);
 
-                formObjects.setObjects(subPath, linkedDo);
-                rootNode.setChild(linkPath, linkedDo);
-                rootNode = linkedDo;
+                formObjects.setObjects(subPath, linkedNode);
+                rootNode.setChild(linkPath, linkedNode);
+                rootNode = linkedNode;
             }
 
             WidgetContext widgetContext = new WidgetContext(config, formObjects);
@@ -301,20 +305,17 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
         return new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents, formConfig.getDebug(), true);
     }
 
-    private ObjectsNode findLinkedDomainObjects(ObjectsNode domainObjects,
-                                                            String linkedObjectsType, String linkPath) {
-        if (domainObjects == null || domainObjects.isEmpty()) {
-            return new ObjectsNode(0);
+    private ObjectsNode findLinkedNode(ObjectsNode parentNode, String linkedType, String linkPath) {
+        if (parentNode.isEmpty()) {
+            return new ObjectsNode(linkedType, 0);
         }
 
-        if (!linkPath.contains("^")) {
-            ObjectsNode result = new ObjectsNode(domainObjects.size());
-            for (DomainObject domainObject : domainObjects) {
+        if (!linkPath.contains("^")) { // direct link
+            ObjectsNode result = new ObjectsNode(linkedType, parentNode.size());
+            for (DomainObject domainObject : parentNode) {
                 Id linkedObjectId = domainObject.getReference(linkPath);
-                if (linkedObjectId == null) {
-                    result.add(crudService.createDomainObject(linkedObjectsType));
-                } else {
-                    result.add(crudService.find(linkedObjectId));
+                if (linkedObjectId != null) {
+                    result.add(crudService.find(linkedObjectId)); // it can't be null as reference is set
                 }
             }
             return result;
@@ -331,16 +332,12 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
         // todo after CMFIVE-122 is done - get the first two linked objects, not everything!
         // todo after cardinality functionality is developed, check cardinality (static-check, not runtime)
 
-        ObjectsNode result = new ObjectsNode(domainObjects.size());
-        for (DomainObject domainObject : domainObjects) {
-            List<DomainObject> linkedDomainObjects;
-            if (domainObject.getId() == null) {
-                linkedDomainObjects = new ArrayList<>();
-                linkedDomainObjects.add(crudService.createDomainObject(linkedObjectsType));
-            } else {
-                linkedDomainObjects = crudService.findLinkedDomainObjects(domainObject.getId(), linkedObjectsType, referenceField);
-            }
-            if (linkedDomainObjects.size() > 1 && domainObjects.size() > 1) {
+        ObjectsNode result = new ObjectsNode(linkedType, parentNode.size());
+        for (DomainObject domainObject : parentNode) {
+            List<DomainObject> linkedDomainObjects = domainObject.getId() == null
+                    ? new ArrayList<DomainObject>()
+                    : crudService.findLinkedDomainObjects(domainObject.getId(), linkedType, referenceField);
+            if (linkedDomainObjects.size() > 1 && parentNode.size() > 1) {
                 // join 2 multi-references - not supported and usually doesn't make sense
                 throw new GuiException(linkPath + " is resulting into many-on-many join which is not supported");
             }

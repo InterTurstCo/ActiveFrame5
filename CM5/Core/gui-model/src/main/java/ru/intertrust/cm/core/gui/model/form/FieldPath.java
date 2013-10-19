@@ -130,7 +130,7 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
     }
 
     public Iterator<FieldPath> subPathIterator() {
-        return new FieldPathIterator();
+        return new SubPathIterator();
     }
 
     @Override
@@ -143,7 +143,7 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
         return getPath().compareTo(o.getPath());
     }
 
-    private class FieldPathIterator implements Iterator<FieldPath> {
+    private class SubPathIterator implements Iterator<FieldPath> {
         private int position = 0;
 
         @Override

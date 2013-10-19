@@ -31,7 +31,7 @@ public class ListBoxWidget extends BaseWidget {
     public void setCurrentState(WidgetState currentState) {
         ListBoxState state = (ListBoxState) currentState;
         ArrayList<Id> selectedIds = state.getSelectedIds();
-        HashSet<Id> selectedIdsSet = new HashSet<Id>(selectedIds);
+        HashSet<Id> selectedIdsSet = new HashSet<Id>(selectedIds == null ? new ArrayList<Id>(0) : selectedIds);
         LinkedHashMap<Id,String> listValues = state.getListValues();
 
         idMap = new HashMap<String, Id>(listValues.size());

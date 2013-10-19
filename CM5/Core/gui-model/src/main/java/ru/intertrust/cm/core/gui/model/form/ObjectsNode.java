@@ -17,6 +17,7 @@ import java.util.Iterator;
  *         Time: 19:15
  */
 public class ObjectsNode implements Dto, Iterable<DomainObject> {
+    private String type;
     private ObjectsNode parent;
     private ArrayList<DomainObject> domainObjects;
     private HashMap<String, ObjectsNode> children;
@@ -31,10 +32,21 @@ public class ObjectsNode implements Dto, Iterable<DomainObject> {
         children = new HashMap<String, ObjectsNode>();
     }
 
+    public ObjectsNode(String type, int initialSize) {
+        domainObjects = new ArrayList<DomainObject>(initialSize);
+        children = new HashMap<String, ObjectsNode>();
+        this.type = type;
+    }
+
     public ObjectsNode(DomainObject domainObject) {
         domainObjects = new ArrayList<DomainObject>(1);
         domainObjects.add(domainObject);
         children = new HashMap<String, ObjectsNode>();
+        type = domainObject.getTypeName();
+    }
+
+    public String getType() {
+        return type;
     }
 
     public DomainObject getObject() {
