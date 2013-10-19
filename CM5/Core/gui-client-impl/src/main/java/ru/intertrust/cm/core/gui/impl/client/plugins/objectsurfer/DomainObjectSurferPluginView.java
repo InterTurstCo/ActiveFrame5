@@ -64,7 +64,7 @@ public class DomainObjectSurferPluginView extends PluginView {
 //        container.add(w);
         container.add(splitterNew);
 
-        DomainObjectSurferConfig config = (DomainObjectSurferConfig) domainObjectSurferPlugin.getConfig();
+        final DomainObjectSurferConfig config = (DomainObjectSurferConfig) domainObjectSurferPlugin.getConfig();
         if (config != null) {
             log.info("plugin config, collection = " + config.getCollectionViewerConfig().getCollectionRefConfig().getName());
             final PluginPanel formPluginPanel = new PluginPanel(domainObjectSurferPlugin.getEventBus());
@@ -75,19 +75,19 @@ public class DomainObjectSurferPluginView extends PluginView {
                 public void beforePluginOpening() {
                     CollectionPluginData collectionPluginData = collectionViewerPlugin.getInitialData();
                     IdentifiableObjectCollection collection = collectionPluginData.getCollection();
-                    FormPluginConfig config;
+                    FormPluginConfig formPluginConfig;
                     if (collection == null || collection.size() == 0) {
                         // TODO: New approach needed, collection type is no longer available
                         // open empty form for collection domain object type
                         // config = new SomeActivePluginConfig(collectionPluginData.getCollectionConfig()
                         // .getDomainObjectType());
-                        config = new FormPluginConfig("country");
+                        formPluginConfig = new FormPluginConfig(config.getDomainObjectTypeToCreate());
                     } else {
-                        config = new FormPluginConfig(collection.get(0).getId());
+                        formPluginConfig = new FormPluginConfig(collection.get(0).getId());
                     }
                     Plugin plugin = ComponentRegistry.instance.get("form.plugin");
                     domainObjectSurferPlugin.setFormPlugin(plugin);
-                    plugin.setConfig(config);
+                    plugin.setConfig(formPluginConfig);
                     formPluginPanel.open(plugin);
                     splitterNorthPanel.add(this.asWidget());
 

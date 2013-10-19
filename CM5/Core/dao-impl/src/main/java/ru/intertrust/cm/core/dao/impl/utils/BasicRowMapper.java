@@ -284,7 +284,7 @@ public class BasicRowMapper {
     protected Value readReferenceValue(ResultSet rs, String columnName, String typeColumnName) throws SQLException {
         Long longValue = rs.getLong(columnName);
         if (rs.wasNull()) {
-            return new LongValue();
+            return new ReferenceValue();
         } else {
             Integer typeId = rs.getInt(typeColumnName);
             if (!rs.wasNull()) {

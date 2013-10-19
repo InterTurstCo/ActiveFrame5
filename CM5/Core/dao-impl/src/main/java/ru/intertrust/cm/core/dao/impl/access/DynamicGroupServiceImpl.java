@@ -1,35 +1,20 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.RdbmsId;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationException;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.model.BindContextConfig;
-import ru.intertrust.cm.core.config.model.DoelAware;
-import ru.intertrust.cm.core.config.model.DynamicGroupConfig;
-import ru.intertrust.cm.core.config.model.GetPersonConfig;
-import ru.intertrust.cm.core.config.model.TrackDomainObjectsConfig;
+import ru.intertrust.cm.core.config.model.*;
 import ru.intertrust.cm.core.config.model.doel.DoelExpression;
 import ru.intertrust.cm.core.config.model.doel.DoelExpression.Element;
 import ru.intertrust.cm.core.dao.access.DynamicGroupService;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+
+import java.util.*;
+
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 
 /**
  * Реализация сервиса по работе с динамическими группами пользователей
@@ -78,7 +63,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
      */
     @Override
     public void notifyDomainObjectCreated(Id objectId) {
-        String status = getStatusFor(objectId);
+        /*String status = getStatusFor(objectId);
 
         List<DynamicGroupConfig> dynamicGroups = getDynamicGroupsToRecalculate(objectId, status);
         for (DynamicGroupConfig dynamicGroupConfig : dynamicGroups) {
@@ -87,7 +72,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
             List<Value> groupMembres = getAllGroupMembersFor(dynamicGroupConfig, objectId, contextObjectid);
 
             refreshGroupMembers(dynamicGroupId, groupMembres);
-        }
+        }*/
 
     }
 

@@ -37,7 +37,7 @@ public class ComponentRegistryGenerator extends Generator {
 
         final JClassType COMPONENT_TYPE = typeOracle.findType("ru.intertrust.cm.core.gui.api.client.Component");
 
-        HashMap<String, String> componentClassesByName = new HashMap<>(100);
+        HashMap<String, String> componentClassesByName = new HashMap<String, String>(100);
         try {
             for (JClassType currentType : typeOracle.getTypes()) {
                 String componentName = null;
