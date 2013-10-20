@@ -111,57 +111,133 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
         List<WidgetConfig> widgetConfigs = widgetConfigurationConfig.getWidgetConfigList();
         FormObjects formObjects = formState.getObjects();
 
+        HashSet<ObjectCreationOperation> newObjectsCreationOperations = new HashSet<>();
         ArrayList<FormSaveOperation> linkChangeOperations = new ArrayList<>();
 
-        HashSet<FieldPath> objectsFieldPathsToSave = new HashSet<>();
+        HashSet<FieldPath> objectsFieldPathsToUpdate = new HashSet<>();
         for (WidgetConfig widgetConfig : widgetConfigs) {
             WidgetState widgetState = formState.getWidgetState(widgetConfig.getId());
             if (widgetState == null) { // ignore - such data shouldn't be saved
                 continue;
             }
-            ArrayList<Value> newValue = widgetState.toValues();
             FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
-            String parentType = formObjects.getObjects(fieldPath.getParent()).getType();
+            FieldPath parentObjectPath = fieldPath.getParent();
+            String parentType = formObjects.getObjects(parentObjectPath).getType();
             FieldConfig fieldConfig = configurationExplorer.getFieldConfig(parentType, fieldPath.getLastElement());
             boolean lastElementIsReference = fieldConfig == null || fieldConfig instanceof ReferenceFieldConfig;
-            if (fieldPath.isBackReference() && lastElementIsReference) { // todo and field itself is a reference
+            boolean widgetIsChangingRelationships = fieldPath.isBackReference() && lastElementIsReference;
+            if (widgetIsChangingRelationships) {
+                ArrayList<Value> newValue = widgetState.toValues();
                 linkChangeOperations.addAll(mergeObjectReferences(fieldPath, formObjects, newValue));
                 continue;
             }
 
+            ArrayList<Value> newValue = widgetState.toValues();
             ArrayList<Value> oldValue = formObjects.getObjectValues(fieldPath);
             if (!areValuesSemanticallyEqual(newValue, oldValue)) {
+                ArrayList<ObjectCreationOperation> objectCreationOperations = addNewNodeChainIfNotEmpty(parentObjectPath, formObjects);
+                if (!objectCreationOperations.isEmpty()) {
+                    for (ObjectCreationOperation operation : objectCreationOperations) {
+                        objectsFieldPathsToUpdate.add(operation.parentToUpdateReference);
+                    }
+                    newObjectsCreationOperations.addAll(objectCreationOperations);
+                } else { // if object is created separately, no need to update it later
+                    objectsFieldPathsToUpdate.add(parentObjectPath);
+                }
                 formObjects.setObjectValues(fieldPath, newValue);
-                objectsFieldPathsToSave.add(fieldPath.getParent());
             }
         }
+
+        HashMap<Id, DomainObject> savedObjectsMap = new HashMap<>();
+        createNewDirectLinkObjects(newObjectsCreationOperations, formObjects, savedObjectsMap);
 
         for (FormSaveOperation operation : linkChangeOperations) {
             if (operation.type == FormSaveOperation.Type.Delete) {
                 crudService.delete(operation.domainObject.getId());
             } else {
-                crudService.save(operation.domainObject);
+                save(operation.domainObject, savedObjectsMap);
             }
         }
 
-        ArrayList<DomainObject> toSave = new ArrayList<>(objectsFieldPathsToSave.size());
+        ArrayList<DomainObject> toSave = new ArrayList<>(objectsFieldPathsToUpdate.size());
         // todo sort field paths in such a way that linked objects are saved first?
         // root DO is save separately as we should return it's identifier in case it's created from scratch
         boolean saveRoot = false;
-        for (FieldPath fieldPath : objectsFieldPathsToSave) {
+        for (FieldPath fieldPath : objectsFieldPathsToUpdate) {
             if (fieldPath.isRoot()) {
                 saveRoot = true;
                 continue;
             }
             toSave.addAll(formObjects.getObjects(fieldPath).getDomainObjects());
         }
-        crudService.save(toSave);
+        for (DomainObject object : toSave) {
+            save(object, savedObjectsMap);
+        }
         DomainObject rootDomainObject = formObjects.getRootObjects().getObject();
         if (saveRoot) {
-            return crudService.save(rootDomainObject);
+            return save(rootDomainObject, savedObjectsMap);
         } else {
             return rootDomainObject;
         }
+    }
+
+    private void createNewDirectLinkObjects(HashSet<ObjectCreationOperation> newObjectsCreationOperations,
+                                            FormObjects formObjects, HashMap<Id, DomainObject> savedObjectsMap) {
+        ArrayList<ObjectCreationOperation> creationOperations = new ArrayList<>(newObjectsCreationOperations.size());
+        creationOperations.addAll(newObjectsCreationOperations);
+        Collections.sort(creationOperations);
+
+        for (ObjectCreationOperation operation : creationOperations) {
+            DomainObject newObject = save(formObjects.getObjects(operation.path).getObject(), savedObjectsMap);
+            if (operation.parentToUpdateReference != null) {
+                DomainObject parentObject = formObjects.getObjects(operation.parentToUpdateReference).getObject();
+                parentObject.setValue(operation.parentField, new ReferenceValue(newObject.getId()));
+            }
+        }
+    }
+
+    private DomainObject save(DomainObject object, HashMap<Id, DomainObject> savedObjects) {
+        DomainObject earlierSavedObject = savedObjects.get(object.getId());
+        if (earlierSavedObject != null) {
+            // todo merge objects here to avoid optimistic lock exception
+            return earlierSavedObject;
+        }
+        DomainObject savedObject = crudService.save(object);
+        savedObjects.put(savedObject.getId(), savedObject);
+        return savedObject;
+    }
+
+    private ArrayList<ObjectCreationOperation> addNewNodeChainIfNotEmpty(FieldPath objectPath, FormObjects formObjects) {
+        // let's say we are pointing to a.b.c.d (objects, not values)
+        // it means 1:1 relationship
+        // a->b exists, b->c empty, c->d empty
+        // 1) create d and put it into a.b.c.d
+        // 2) create c and put it into a.b.c
+        // 3) as b exists, that's all
+        ObjectsNode node = formObjects.getObjects(objectPath);
+        if (node.size() > 0) {
+            return new ArrayList<>(0);
+        }
+        ArrayList<ObjectCreationOperation> result = new ArrayList<>();
+        DomainObject domainObject = crudService.createDomainObject(node.getType());
+        formObjects.setObjects(objectPath, new ObjectsNode(domainObject));
+        FieldPath parentPath = objectPath.getParent();
+        ObjectsNode parentNode = formObjects.getObjects(parentPath);
+        String linkToThisPathFromParent = objectPath.getLastElement();
+        if (parentNode.isEmpty()) {
+            // parent path doesn't contain objects, so ref to this will have to be updated
+            result.add(new ObjectCreationOperation(objectPath, parentPath, linkToThisPathFromParent));
+        } else {
+            Value value = parentNode.getObject().getValue(linkToThisPathFromParent);
+            if (value == null || value.get() == null) {
+                result.add(new ObjectCreationOperation(objectPath, parentPath, linkToThisPathFromParent));
+            } else {
+                result.add(new ObjectCreationOperation(objectPath, null, null));
+            }
+        }
+        result.addAll(addNewNodeChainIfNotEmpty(parentPath, formObjects));
+
+        return result;
     }
 
     private ArrayList<FormSaveOperation> mergeObjectReferences(FieldPath fieldPath, FormObjects formObjects,
@@ -239,6 +315,11 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     }
 
     private FormDisplayData buildDomainObjectForm(DomainObject root) {
+        // todo validate that constructions like A^B.C.D aren't allowed or A.B^C
+        // allowed are such definitions only:
+        // a.b.c.d - direct links
+        // a^b - link defining 1:N relationship (widgets changing attributes can't have such field path)
+        // a^b.c - link defining N:M relationship (widgets changing attributes can't have such field path)
         FormConfig formConfig = findFormConfig(root);
         List<WidgetConfig> widgetConfigs = formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
         HashMap<String, WidgetState> widgetStateMap = new HashMap<>(widgetConfigs.size());
@@ -422,6 +503,46 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
         private FormSaveOperation(Type type, DomainObject domainObject) {
             this.type = type;
             this.domainObject = domainObject;
+        }
+    }
+
+    private static class ObjectCreationOperation implements Comparable<ObjectCreationOperation> {
+        public final FieldPath path;
+        public final FieldPath parentToUpdateReference;
+        public final String parentField;
+
+        private ObjectCreationOperation(FieldPath path, FieldPath parentPathToUpdateReferenceIn, String parentField) {
+            this.path = path;
+            this.parentToUpdateReference = parentPathToUpdateReferenceIn;
+            this.parentField = parentField;
+        }
+
+        @Override
+        public int compareTo(ObjectCreationOperation o) {
+            return -path.compareTo(o.path);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            ObjectCreationOperation that = (ObjectCreationOperation) o;
+
+            if (!path.equals(that.path)) {
+                return false;
+            }
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            return path.hashCode();
         }
     }
 

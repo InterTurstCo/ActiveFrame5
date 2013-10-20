@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.model.form;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -163,17 +164,25 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
         }
     }
 
-    public static void main(String[] args) {
-        FieldPath emptyPath = new FieldPath("");
-        System.out.println("emptyPath.size() = " + emptyPath.size());
-        FieldPath fieldPath = new FieldPath("a");
-        System.out.println("Original path: " + fieldPath);
-        for (Iterator<FieldPath> iterator = fieldPath.subPathIterator(); iterator.hasNext(); ) {
-            FieldPath subPath = iterator.next();
-            System.out.println("Sub path: " + subPath);
+    private static void testSort(List<FieldPath> paths) {
+        Collections.sort(paths);
+        for (FieldPath path : paths) {
+            System.out.println(path);
         }
+    }
 
-        System.out.println(fieldPath.getParent().size());
-
+    public static void main(String[] args) {
+        ArrayList<FieldPath> paths = new ArrayList<FieldPath>();
+        paths.add(new FieldPath("a.b.c.d.e"));
+        paths.add(new FieldPath("a.b.c.dflal.e"));
+        paths.add(new FieldPath("a.b.c.d.e.f"));
+        paths.add(new FieldPath("a.b.c.dflal.e.f"));
+        paths.add(new FieldPath("a.b.c.s"));
+        paths.add(new FieldPath("a.b.c.t"));
+        paths.add(new FieldPath("a.b.c.d"));
+        paths.add(new FieldPath("a.b.c.dflal"));
+        paths.add(new FieldPath("a.b.c"));
+        paths.add(new FieldPath("a.b"));
+        testSort(paths);
     }
 }

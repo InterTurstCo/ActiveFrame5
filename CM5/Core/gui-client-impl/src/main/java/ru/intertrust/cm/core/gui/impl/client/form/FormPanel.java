@@ -121,6 +121,9 @@ public class FormPanel implements IsWidget {
             for (CellConfig cell : cells) {
                 WidgetDisplayConfig displayConfig = cell.getWidgetDisplayConfig();
                 WidgetState widgetState = formState.getWidgetState(displayConfig.getId());
+                if (widgetState == null) {
+                    continue;
+                }
                 String widgetComponent = formDisplayData.getWidgetComponent(displayConfig.getId());
                 BaseWidget widget = ComponentRegistry.instance.get(widgetComponent);
                 widget.setEditable(formEditable && widgetState.isEditable());
