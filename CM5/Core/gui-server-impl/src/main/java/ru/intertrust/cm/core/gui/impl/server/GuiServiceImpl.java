@@ -102,7 +102,7 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     }
 
     private boolean areValuesSemanticallyEqual(ArrayList<Value> newValue, ArrayList<Value> oldValue) {
-        return false;// todo
+        return false;
     }
 
     public DomainObject saveForm(FormState formState) {
@@ -138,7 +138,9 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
                 ArrayList<ObjectCreationOperation> objectCreationOperations = addNewNodeChainIfNotEmpty(parentObjectPath, formObjects);
                 if (!objectCreationOperations.isEmpty()) {
                     for (ObjectCreationOperation operation : objectCreationOperations) {
-                        objectsFieldPathsToUpdate.add(operation.parentToUpdateReference);
+                        if (operation.parentToUpdateReference != null) {
+                            objectsFieldPathsToUpdate.add(operation.parentToUpdateReference);
+                        }
                     }
                     newObjectsCreationOperations.addAll(objectCreationOperations);
                 } else { // if object is created separately, no need to update it later
@@ -150,14 +152,6 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
 
         HashMap<Id, DomainObject> savedObjectsMap = new HashMap<>();
         createNewDirectLinkObjects(newObjectsCreationOperations, formObjects, savedObjectsMap);
-
-        for (FormSaveOperation operation : linkChangeOperations) {
-            if (operation.type == FormSaveOperation.Type.Delete) {
-                crudService.delete(operation.domainObject.getId());
-            } else {
-                save(operation.domainObject, savedObjectsMap);
-            }
-        }
 
         ArrayList<DomainObject> toSave = new ArrayList<>(objectsFieldPathsToUpdate.size());
         // todo sort field paths in such a way that linked objects are saved first?
@@ -175,10 +169,19 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
         }
         DomainObject rootDomainObject = formObjects.getRootObjects().getObject();
         if (saveRoot) {
-            return save(rootDomainObject, savedObjectsMap);
-        } else {
-            return rootDomainObject;
+            rootDomainObject = save(rootDomainObject, savedObjectsMap);
         }
+        ReferenceValue rootObjectReference = new ReferenceValue(rootDomainObject.getId());
+
+        for (FormSaveOperation operation : linkChangeOperations) {
+            if (operation.type == FormSaveOperation.Type.Delete) {
+                crudService.delete(operation.domainObject.getId());
+            } else {
+                operation.domainObject.setValue(operation.fieldToSetWithRootReference, rootObjectReference);
+                save(operation.domainObject, savedObjectsMap);
+            }
+        }
+        return rootDomainObject;
     }
 
     private void createNewDirectLinkObjects(HashSet<ObjectCreationOperation> newObjectsCreationOperations,
@@ -197,9 +200,11 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     }
 
     private DomainObject save(DomainObject object, HashMap<Id, DomainObject> savedObjects) {
+        // this is required to avoid optimistic lock exceptions when same object is being edited by several widgets,
+        // for example, one widget is editing object's properties while the other edits links
         DomainObject earlierSavedObject = savedObjects.get(object.getId());
         if (earlierSavedObject != null) {
-            // todo merge objects here to avoid optimistic lock exception
+            // todo merge objects here
             return earlierSavedObject;
         }
         DomainObject savedObject = crudService.save(object);
@@ -242,6 +247,19 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
 
     private ArrayList<FormSaveOperation> mergeObjectReferences(FieldPath fieldPath, FormObjects formObjects,
                                                                ArrayList<Value> newValues) {
+        //todo after country_city^country.city is transformed to an Object, but not to a field lots of if-else will go
+        String lastElement = fieldPath.getLastElement();
+        String[] typeAndField = lastElement.split("\\^");
+        boolean oneToMany = typeAndField.length == 2;
+        if (oneToMany) {
+            return mergeOneToMay(fieldPath, formObjects, newValues);
+        } else {
+            return mergeManyToMany(fieldPath, formObjects, newValues);
+        }
+    }
+
+    private ArrayList<FormSaveOperation> mergeOneToMay(FieldPath fieldPath, FormObjects formObjects,
+                                                               ArrayList<Value> newValues) {
         ArrayList<DomainObject> parentObjects = formObjects.getObjects(fieldPath.getParent()).getDomainObjects();
         if (parentObjects.size() > 1) {
             throw new GuiException("Back reference is referencing " + parentObjects.size() + " objects");
@@ -272,7 +290,7 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
             Id referenceId = ((ReferenceValue) value).get();
             DomainObject objectToSetLinkIn = crudService.find(referenceId);
             objectToSetLinkIn.setReference(field, parentObjectId);
-            operations.add(new FormSaveOperation(FormSaveOperation.Type.Create, objectToSetLinkIn));
+            operations.add(new FormSaveOperation(FormSaveOperation.Type.Create, objectToSetLinkIn, field));
         }
 
         // links to drop
@@ -284,7 +302,60 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
             Id referenceId = ((ReferenceValue) value).get();
             DomainObject objectToDropLinkIn = crudService.find(referenceId);
             objectToDropLinkIn.setReference(field, (Id) null);
-            operations.add(new FormSaveOperation(FormSaveOperation.Type.Update, objectToDropLinkIn));
+            operations.add(new FormSaveOperation(FormSaveOperation.Type.Update, objectToDropLinkIn, null));
+        }
+        return operations;
+    }
+
+    private ArrayList<FormSaveOperation> mergeManyToMany(FieldPath fieldPath, FormObjects formObjects,
+                                                         ArrayList<Value> newValues) {
+        String linkField = fieldPath.getLastElement();
+        FieldPath mergedNodePath = fieldPath.getParent();
+        ObjectsNode mergedNode = formObjects.getObjects(mergedNodePath);
+        String linkObjectType = mergedNode.getType();
+        FieldPath parentNodePath = mergedNodePath.getParent();
+        ArrayList<DomainObject> parentObjects = formObjects.getObjects(parentNodePath).getDomainObjects();
+        if (parentObjects.size() > 1) {
+            throw new GuiException("Back reference is referencing " + parentObjects.size() + " objects");
+        }
+
+        String[] typeAndField = mergedNodePath.getLastElement().split("\\^");
+        String rootLinkField = typeAndField[1];
+
+        ArrayList<DomainObject> previousState = mergedNode.getDomainObjects();
+        if (previousState == null) {
+            previousState = new ArrayList<>(0);
+        }
+        HashSet<Value> oldValuesSet = new HashSet<>(previousState.size());
+        HashMap<Value, DomainObject> oldValuesDomainObjects = new HashMap<>(previousState.size());
+        for (DomainObject previousStateObject : previousState) {
+            Value value = previousStateObject.getValue(linkField);
+            oldValuesSet.add(value);
+            oldValuesDomainObjects.put(value, previousStateObject);
+        }
+
+        ReferenceValue parentObjectReference = new ReferenceValue(parentObjects.get(0).getId());
+        ArrayList<FormSaveOperation> operations = new ArrayList<>(oldValuesSet.size() + newValues.size());
+
+        // links to create
+        for (Value value : newValues) {
+            if (oldValuesSet.contains(value)) {
+                continue; // nothing to update
+            }
+            DomainObject newLinkObject = crudService.createDomainObject(linkObjectType);
+            newLinkObject.setValue(rootLinkField, parentObjectReference);
+            newLinkObject.setValue(linkField, value);
+            operations.add(new FormSaveOperation(FormSaveOperation.Type.Create, newLinkObject, rootLinkField));
+        }
+
+        // links to drop
+        oldValuesSet.removeAll(newValues); // leave only those which aren't in new values
+        for (Value value : oldValuesSet) {
+            if (value == null) {
+                continue;
+            }
+            DomainObject objectToDrop = oldValuesDomainObjects.get(value);
+            operations.add(new FormSaveOperation(FormSaveOperation.Type.Delete, objectToDrop, rootLinkField));
         }
         return operations;
     }
@@ -499,10 +570,12 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
 
         public final Type type;
         public final DomainObject domainObject;
+        public final String fieldToSetWithRootReference;
 
-        private FormSaveOperation(Type type, DomainObject domainObject) {
+        private FormSaveOperation(Type type, DomainObject domainObject, String fieldToSetWithRootReference) {
             this.type = type;
             this.domainObject = domainObject;
+            this.fieldToSetWithRootReference = fieldToSetWithRootReference;
         }
     }
 

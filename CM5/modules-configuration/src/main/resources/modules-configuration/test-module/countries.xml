@@ -7,6 +7,7 @@
             <long name="population"/>
             <decimal name="square" precision="15" scale="2"/>
             <reference name="capital" type="city"/>
+            <reference name="most_famous_city" type="city"/>
             <string name="description" length="1024"/>
         </fields>
         <uniqueKey>
@@ -47,6 +48,13 @@
     <domain-object-type name="super_city" extends="city">
         <fields>
             <string name="additional_name" length="128" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="country_city">
+        <fields>
+            <reference name="country" type="country"/>
+            <reference name="city" type="city"/>
         </fields>
     </domain-object-type>
 
@@ -102,6 +110,10 @@
                                 <tr>
                                     <td h-align="right"><widget id="7"/></td>  <!-- label (Столица) -->
                                     <td colspan="3" h-align="left"><widget id="8"/></td>  <!-- suggest-box (Столица) -->
+                                </tr>
+                                <tr>
+                                    <td h-align="right"><widget id="7a"/></td>  <!-- label (Известный город) -->
+                                    <td colspan="3" h-align="left"><widget id="8a"/></td>  <!-- suggest-box (Известный город) -->
                                 </tr>
                                 <tr>
                                     <td h-align="right"><widget id="9"/></td>  <!-- label (День независимости) -->
@@ -189,6 +201,15 @@
                 <pattern value="{name} ({population} чел.)"/>
             </combo-box>-->
 
+            <label id="7a">
+                <text>Известный город:</text>
+            </label>
+            <combo-box id="8a">
+                <field-path value="most_famous_city"/>
+                <!-- а для области столицы: capital . federal_unit_city^city . federal_unit . name -->
+                <pattern value="{name} ({population} чел.)"/>
+            </combo-box>
+
             <!--<label id="best_friend_label">
                 <text>Лучший друг (назв. страны):</text>
             </label>
@@ -216,6 +237,14 @@
             <text-box id="best_friend">
                 <field-path value="capital.name"/>
             </text-box>
+
+            <label id="best_desc_label">
+                <text>Города (N:M)</text>
+            </label>
+            <list-box id="best_friend_desc">
+                <field-path value="country_city^country.city"/>
+                <pattern value="{name} ({population} чел.)"/>
+            </list-box>
 
             <label id="9">
                 <text>День независимости:</text>

@@ -3,7 +3,8 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.model.gui.form.widget.ComboBoxConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.SingleObjectWidgetHandler;
@@ -14,8 +15,6 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author Denis Mitavskiy
@@ -34,10 +33,8 @@ public class ComboBoxHandler extends SingleObjectWidgetHandler {
         ComboBoxConfig widgetConfig = context.getWidgetConfig();
         FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
 
-        // todo we can't find type when DO is empty, thus - fix. we got to push type from outside
-        DomainObject objectContainingField = context.getFormObjects().getObjects(fieldPath.getParent()).getObject();
         String field = fieldPath.getLastElement();
-        String objectType = objectContainingField.getTypeName();
+        String objectType = context.getFormObjects().getObjects(fieldPath.getParent()).getType();
         ReferenceFieldConfig fieldConfig = (ReferenceFieldConfig) configurationService.getFieldConfig(objectType, field);
         // todo: find LINKED: only cities of that country
         // List<DomainObject> listToDisplay = getCrudService().findLinkedDomainObjects(rootObjectForComboBoxField.getId(), "city", "country");
@@ -52,12 +49,7 @@ public class ComboBoxHandler extends SingleObjectWidgetHandler {
             return result;
         }
 
-        Pattern pattern = Pattern.compile("\\{\\w+\\}");
-        Matcher matcher = pattern.matcher(widgetConfig.getPatternConfig().getValue());
-        for (DomainObject domainObject : listToDisplay) {
-            String format = format(domainObject, matcher);
-            idDisplayMapping.put(domainObject.getId(), format);
-        }
+        appendDisplayMappings(listToDisplay, widgetConfig.getPatternConfig().getValue(), idDisplayMapping);
 
         Id selectedId = context.getFieldPathSinglePlainValue();
 
@@ -66,27 +58,4 @@ public class ComboBoxHandler extends SingleObjectWidgetHandler {
         return result;
     }
 
-    private String format(DomainObject domainObject, Matcher matcher) {
-        StringBuffer replacement = new StringBuffer();
-        while (matcher.find()) {
-            String group = matcher.group();
-            String fieldName = group.substring(1, group.length() - 1);
-            Value value = domainObject.getValue(fieldName);
-            String displayValue = "";
-            if (value != null) {
-                Object primitiveValue = value.get();
-                if (primitiveValue == null) {
-                    if (value instanceof LongValue || value instanceof DecimalValue) {
-                        displayValue = "0";
-                    }
-                } else {
-                    displayValue = primitiveValue.toString();
-                }
-            }
-            matcher.appendReplacement(replacement, displayValue);
-        }
-        matcher.appendTail(replacement);
-        matcher.reset();
-        return replacement.toString();
-    }
 }

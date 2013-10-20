@@ -48,4 +48,9 @@ public class ListBoxState extends WidgetState {
         }
         return result;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
 }

@@ -32,4 +32,9 @@ public class DecimalBoxState extends WidgetState {
     public Value toValue() {
         return new DecimalValue(value);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
 }

@@ -13,4 +13,8 @@ public class TextAreaState extends TextBoxState {
         super(text);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
 }

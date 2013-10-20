@@ -31,7 +31,7 @@ public class ComboBoxWidget extends BaseWidget {
         ComboBoxState comboBoxState = (ComboBoxState) currentState;
         Id selectedId = comboBoxState.getId();
         LinkedHashMap<Id,String> listValues = comboBoxState.getListValues();
-        if (!currentState.isEditable()) {
+        if (!isEditable()) {
             if (selectedId != null) {
                 nonEditableId = selectedId;
                 ((Label) impl).setText(listValues.get(selectedId));
@@ -40,6 +40,7 @@ public class ComboBoxWidget extends BaseWidget {
         }
         idMap = new HashMap<String, Id>(listValues.size());
         ListBox listBox = (ListBox) impl;
+        listBox.clear();
         int index = 0;
         for (Id id : listValues.keySet()) {
             String idString = id == null ? "" : id.toStringRepresentation();
@@ -55,7 +56,7 @@ public class ComboBoxWidget extends BaseWidget {
     @Override
     public WidgetState getCurrentState() {
         ComboBoxState state = new ComboBoxState();
-        if (!state.isEditable()) {
+        if (!isEditable()) {
             state.setId(nonEditableId);
             return state;
         }

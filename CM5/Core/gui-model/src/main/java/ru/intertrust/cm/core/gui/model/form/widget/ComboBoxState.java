@@ -46,4 +46,9 @@ public class ComboBoxState extends WidgetState {
     public Value toValue() {
         return new ReferenceValue(id);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
 }

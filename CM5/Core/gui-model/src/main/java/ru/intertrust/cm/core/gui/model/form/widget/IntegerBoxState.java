@@ -34,4 +34,9 @@ public class IntegerBoxState extends WidgetState {
     public Value toValue() {
         return new LongValue(value);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
 }

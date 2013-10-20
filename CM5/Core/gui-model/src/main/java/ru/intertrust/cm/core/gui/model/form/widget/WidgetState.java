@@ -31,4 +31,9 @@ public abstract class WidgetState implements Dto {
     public void setEditable(boolean editable) {
         this.editable = editable;
     }
+
+    @Override
+    public boolean equals(Object obj) { // todo: implement in all widgets!
+        return super.equals(obj);
+    }
 }

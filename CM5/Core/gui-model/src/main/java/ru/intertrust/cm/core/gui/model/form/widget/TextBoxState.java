@@ -30,4 +30,9 @@ public class TextBoxState extends WidgetState {
     public Value toValue() {
         return new StringValue(text);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
 }

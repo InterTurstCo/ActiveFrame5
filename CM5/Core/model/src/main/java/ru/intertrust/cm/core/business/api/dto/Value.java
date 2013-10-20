@@ -43,6 +43,9 @@ public abstract class Value implements Dto {
 
     @Override
     public boolean equals(Object another) {
+        if (this == another) {
+            return true;
+        }
         if (another == null || !(another instanceof Value)) {
             return false;
         }

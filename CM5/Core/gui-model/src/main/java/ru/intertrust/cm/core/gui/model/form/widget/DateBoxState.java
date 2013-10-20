@@ -32,4 +32,9 @@ public class DateBoxState extends WidgetState {
     public Value toValue() {
         return new TimestampValue(value);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
 }
