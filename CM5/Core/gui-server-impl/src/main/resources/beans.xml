@@ -5,7 +5,17 @@
     <bean class="ru.intertrust.cm.core.gui.impl.server.plugin.handlers.loader.PluginHandlerDefinitionsLoader">
         <property name="basePackage" value="ru/intertrust/cm/core/gui/impl/server"/>
     </bean>
+
     <jee:local-slsb id="guiService"
                     jndi-name="java:app/web-app/GuiServiceImpl!ru.intertrust.cm.core.gui.api.server.GuiService"
                     business-interface="ru.intertrust.cm.core.gui.api.server.GuiService"/>
+
+    <bean id="formRetriever" class="ru.intertrust.cm.core.gui.impl.server.form.FormRetriever" scope="prototype">
+        <constructor-arg value=""/>
+    </bean>
+
+    <bean id="formSaver" class="ru.intertrust.cm.core.gui.impl.server.form.FormSaver" scope="prototype"/>
+
+    <bean id="formResolver" class="ru.intertrust.cm.core.gui.impl.server.form.FormResolver" scope="singleton"
+          lazy-init="true"/>
 </beans>
