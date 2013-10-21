@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration>
+    <suggest-box id="1a">
+        <field-path>city^country</field-path>
+
+        <!-- название коллекции, из которой получается выпадающий список -->
+        <collection-ref name="city_collection"/>
+
+        <!-- название фильтра, использующегося при получении описания уже выбранных значений -->
+        <selection-filter name="idsIncluded"/>
+
+        <!-- название фильтра, отсекающего, уже выбранные значения (для того, чтобы они не показывались  списке -->
+        <selection-exclude-filter name="idsExcluded"/>
+
+        <!-- паттерн отображения значений выпадающего списка -->
+        <drop-down-pattern value="{first_name} {last_name} {position}"/>
+
+        <!-- паттерн отображения уже выбранных значений -->
+        <selection-pattern value="{first_name} {last_name}"/>
+
+        <!-- название фильтра по тексту, введённому пользователем -->
+        <input-text-filter name="byText"/>
+
+        <!-- количество элементов, показываемых на одной странице выпадающего списка -->
+        <page-size value="30"/>
+    </suggest-box>
+
+    <file-upload id="1b">
+        <field-path>city_attachment^parent</field-path>
+
+        <!-- Впоследствии будет добавлена поддержка, тогда не обязателен станет field-path. Сейчас добавлять не надо. -->
+        <attachment-type name="city_attachment"/>
+        <scanner enabled="true"/>
+    </file-upload>
+
+    <combo-box id="8a">
+        <field-path value="most_famous_city"/>
+        <!-- а для области столицы: capital . federal_unit_city^city . federal_unit . name -->
+        <pattern value="{name} ({population} чел.)"/>
+    </combo-box>
+</configuration>
