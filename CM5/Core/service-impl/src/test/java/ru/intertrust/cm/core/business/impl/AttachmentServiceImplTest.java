@@ -3,24 +3,18 @@ package ru.intertrust.cm.core.business.impl;
 import com.healthmarketscience.rmiio.RemoteInputStream;
 import com.healthmarketscience.rmiio.RemoteInputStreamClient;
 import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.CrudService;
@@ -45,6 +39,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -56,13 +51,16 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
+//import static org.powermock.api.support.membermodification.MemberMatcher.method;
+//import static org.powermock.api.support.membermodification.MemberModifier.replace;
 
 /**
  * @author Vlad
  */
-@RunWith(PowerMockRunner.class)
+//@RunWith(PowerMockRunner.class)
+@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class)
-@PrepareForTest(ConfigurationExplorerImpl.class)
+//@PrepareForTest({ConfigurationExplorerImpl.class, AttachmentContentDao.class})
 public class AttachmentServiceImplTest {
 
     static private final String TEST_OUT_DIR = System.getProperty("test.cnf.testOutDir");
@@ -74,6 +72,7 @@ public class AttachmentServiceImplTest {
     private static IdService idService = new RdbmsIdServiceImpl();
 
     static private AttachmentServiceRmi stubAttachmentService;
+    static private AttachmentServiceRmiImpl serviceRmi;
 
     @Autowired
     ApplicationContext context;
@@ -109,7 +108,6 @@ public class AttachmentServiceImplTest {
     }
 
     @Configuration
-    @RunWith(MockitoJUnitRunner.class)
     static class ContextConfiguration {
         {
             MockitoAnnotations.initMocks(this);
@@ -230,16 +228,18 @@ public class AttachmentServiceImplTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-
-        ApplicationContext ctx = new AnnotationConfigApplicationContext(ContextConfiguration.class);
-        ctx.getAutowireCapableBeanFactory().autowireBean(this);
         if (stubAttachmentService == null) {
             Registry registry = LocateRegistry.createRegistry(PORT_RMI);
-            AttachmentServiceRmiImpl serviceRmi = new AttachmentServiceRmiImpl();
+            serviceRmi = new AttachmentServiceRmiImpl();
             serviceRmi.setAttachmentService(attachmentService);
-            registry.bind("AttachmentServiceRmi", UnicastRemoteObject.exportObject(serviceRmi, 0));
-            stubAttachmentService = (AttachmentServiceRmi) registry.lookup("AttachmentServiceRmi");
+            registry.rebind("AttachmentServiceRmi", UnicastRemoteObject.exportObject(serviceRmi, 0));
+            stubAttachmentService = (AttachmentServiceRmi) LocateRegistry.getRegistry(PORT_RMI).lookup("AttachmentServiceRmi");
         }
+    }
+
+    @After
+    public void setDown() throws RemoteException, NotBoundException {
+        //UnicastRemoteObject.unexportObject(serviceRmi, true);
     }
 
     @Autowired
@@ -289,7 +289,8 @@ public class AttachmentServiceImplTest {
             ByteArrayInputStream bis = new ByteArrayInputStream(expBytes);
             SimpleRemoteInputStream stream = new SimpleRemoteInputStream(bis);
             DomainObject domainObject = new GenericDomainObjectWrapper();
-            String path = stubAttachmentService.saveAttachment(stream.export(), domainObject);
+            RemoteInputStream remoteInputStream = stream.export();
+            String path = stubAttachmentService.saveAttachment(remoteInputStream, domainObject);
             Assert.assertTrue(path != null);
             ByteArrayOutputStream actBytes = new ByteArrayOutputStream();
             Files.copy(Paths.get(absDirPath, path), actBytes);
@@ -437,6 +438,12 @@ public class AttachmentServiceImplTest {
         when(domainObjectDao.findLinkedDomainObjects(any(Id.class), eq("Person_Attachment"), eq("Person_Attachment"),
                 any(AccessToken.class))).
                 thenReturn(Arrays.asList(new DomainObject[]{domainObject1, domainObject2}));
+        doAnswer(new Answer() {
+            public Object answer(InvocationOnMock invocation) {
+                DomainObject domainObject = (DomainObject) invocation.getArguments()[0];
+                return domainObject;
+            }
+        }).when(domainObjectDao).save(any(DomainObject.class));
         return domainObjectDao;
     }
 
