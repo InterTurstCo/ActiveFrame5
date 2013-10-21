@@ -1,0 +1,53 @@
+
+.gwt-SuggestBox
+{
+    border:1px solid #00FF00 !important;
+    text-align:left !important;
+    width:800px !important;
+    z-index:91;
+	overflow:visible;
+	left: 336px;
+	top: 25px;
+	position:absolute;
+}
+.gwt-SuggestBoxPopup
+{
+    text-align:left !important;
+    cursor:pointer !important;
+    cursor:hand !important;
+    border:1px solid #666 !important;
+    border-top:0 !important;
+    background-color:#fff !important;
+    /*width                       :    800px !important;*/
+}
+.gwt-SuggestBoxPopup .item
+{
+    border:1px solid #f00 !important;
+    width:800px !important;
+}
+.gwt-SuggestBoxPopup .item-selected
+{
+    background-color:#ffc !important;
+}
+
+.gwt-SuggestBoxPopup .suggestPopupBottomRight {
+    background: red !important;
+    height: 5px !important;
+    width: 5px !important;
+}
+.gwt-SuggestBoxPopup .suggestPopupBottomLeft {
+    background: red !important;
+    height: 5px !important;
+    width: 5px !important;
+}
+
+.gwt-SuggestBoxPopup .suggestPopupTopRight {
+    background: red !important;
+    height: 5px !important;
+    width: 5px !important;
+}
+.gwt-SuggestBoxPopup .suggestPopupTopLeft {
+    background: red !important;
+    height: 5px !important;
+    width: 5px !important;
+}
