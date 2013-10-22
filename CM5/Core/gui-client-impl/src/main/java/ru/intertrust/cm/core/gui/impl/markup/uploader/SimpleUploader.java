@@ -9,48 +9,40 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.*;
 
 /**
- * Created with IntelliJ IDEA.
- * User: User
- * Date: 18.10.13
- * Time: 18:13
- * To change this template use File | Settings | File Templates.
+ * @author Yaroslav Bondarchuk
+ *         Date: 21.10.13
+ *         Time: 13:15
  */
 public class SimpleUploader extends Composite {
-    VerticalPanel verticalPanel;
-    Image addFile;
-    int widgetWidth = 0;
-    int partWidth =0;
-    FileUpload file;
+
+    private VerticalPanel verticalPanel;
+    private Image addFile;
+    private FileUpload file;
+    private FormPanel form;
+    private int widgetWidth;
+    private int partWidth;
 
     public SimpleUploader() {
 
     }
 
     public void init() {
+        initSubmitForm();
+        this.initWidget(form);
         verticalPanel = new VerticalPanel();
-        this.initWidget(verticalPanel);
         initFileUpload();
 
-        addFile = new Image("addButton.png");
-        addFile.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                file.getElement().<InputElement>cast().click();
+        initUploadButton();
 
-            }
-        });
         verticalPanel.add(addFile);
         verticalPanel.add(file);
-
-
+        form.add(verticalPanel);
         setWidth("100%");
     }
 
-
-
     private void addRow(String fileName){
         if (widgetWidth == 0) {
-            widgetWidth = verticalPanel.getOffsetWidth();
+            widgetWidth = form.getOffsetWidth();
             partWidth = widgetWidth/2;
         }
         HorizontalPanel horizontalPanel = new HorizontalPanel();
@@ -68,7 +60,7 @@ public class SimpleUploader extends Composite {
 
         fileNameLabel.getElement().getStyle().setOverflow(Style.Overflow.HIDDEN);
         fileNameLabel.setWidth(partWidth + "px");
-      //  fileNameLabel.setHeight("20px");
+
         leftSide.add(fileNameLabel);
         rightSide.add(uploaderProgressBar);
         rightSide.add(deleteImage);
@@ -77,18 +69,6 @@ public class SimpleUploader extends Composite {
         horizontalPanel.add(rightSide);
 
         verticalPanel.add(horizontalPanel);
-
-
-   /*     if  (textSize >  width/2) {
-            int offset = textSize - width;
-            int numberOfChars = fileName.length();
-            System.out.println("works " );
-            String rawText = fileName.substring(0, numberOfChars - offset);
-            String truncatedFilename = rawText + "...";
-            System.out.println(verticalPanel.getWidgetIndex(leftSide));
-            System.out.println ( verticalPanel.getWidget(verticalPanel.getWidgetIndex(leftSide)));
-            System.out.println   (verticalPanel.getWidget(0).asWidget().getClass());
-        }    */
 
     }
     private Image createDeleteButton() {
@@ -123,10 +103,28 @@ public class SimpleUploader extends Composite {
               @Override
               public void onChange(ChangeEvent event) {
                   String filename = file.getFilename();
-                  file.getElement().setPropertyString("value", "");
+
                   addRow(filename);
+                  form.submit();
               }
           });
       }
+     private void initSubmitForm() {
+         form = new FormPanel();
+         form.setAction("http://www.tutorialspoint.com/gwt/myFormHandler");
+         // set form to use the POST method, and multipart MIME encoding.
+         form.setEncoding(FormPanel.ENCODING_MULTIPART);
+         form.setMethod(FormPanel.METHOD_POST);
+     }
 
+    private void initUploadButton() {
+        addFile = new Image("addButton.png");
+        addFile.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                file.getElement().<InputElement>cast().click();
+
+            }
+        });
+    }
 }

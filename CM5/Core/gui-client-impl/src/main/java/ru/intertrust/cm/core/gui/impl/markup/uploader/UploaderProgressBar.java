@@ -1,11 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.markup.uploader;
 
 /**
- * Created with IntelliJ IDEA.
- * User: User
- * Date: 18.10.13
- * Time: 17:52
- * To change this template use File | Settings | File Templates.
+ * @author Yaroslav Bondarchuk
+ *         Date: 21.10.13
+ *         Time: 13:15
  */
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.Panel;
@@ -19,16 +17,12 @@ public final class UploaderProgressBar extends SimplePanel {
     int width = 0;
     public UploaderProgressBar(int width) {
         this.width = width;
-      //  setStyleName("ProgressBar");
-        applyStylesForThisObject();
 
+        applyStylesForThisObject();
         progress = new SimplePanel();
-       // progress.setStyleName("progress");
         applyStylesProgress();
-        progress.setWidth("0px");
 
         add(progress);
-        //setWidth();
     }
 
     public void update(final int percentage) {
@@ -50,6 +44,7 @@ public final class UploaderProgressBar extends SimplePanel {
         style.setMarginRight(2, Style.Unit.PX);
         style.setMarginLeft(2, Style.Unit.PX);
         style.setFontSize(0, Style.Unit.PX);
+        style.setWidth(0, Style.Unit.PX);
     }
 
     private void applyStylesForThisObject() {
@@ -59,8 +54,7 @@ public final class UploaderProgressBar extends SimplePanel {
 
         style.setMarginRight(5, Style.Unit.PX);
         style.setMarginLeft(5, Style.Unit.PX);
-       style.setWidth(width, Style.Unit.PX);
-
+        style.setWidth(width, Style.Unit.PX);
 
     }
 }

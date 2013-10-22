@@ -8,7 +8,6 @@ import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.gui.impl.markup.uploader.SimpleUploader;
 
-
 public class CmjMenuNavigationDownSection extends VerticalPanel {
 
     public CmjMenuNavigationDownSection() {
@@ -68,6 +67,7 @@ public class CmjMenuNavigationDownSection extends VerticalPanel {
         SimpleUploader simpleUploader = new SimpleUploader();
         simpleUploader.init();
         simpleUploader.getElement().getStyle().setPaddingTop(40, Style.Unit.PX);
+        simpleUploader.getElement().getStyle().setBackgroundColor("yellow");
           simpleUploader.setWidth("700px");
         this.add(simpleUploader);
        // simpleUploader.setWidth("100%");
