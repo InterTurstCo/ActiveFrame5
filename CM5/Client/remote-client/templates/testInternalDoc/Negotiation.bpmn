@@ -31,11 +31,11 @@ execution.setVariable("negotiationCardIds", collection );</script>
             <activiti:value id="AGREE" name="Согласен"></activiti:value>
             <activiti:value id="ADDITIONAL_NEGOTIATION" name="Дополнительное согласование"></activiti:value>
           </activiti:formProperty>
-          <activiti:formProperty id="MAIN_ATTACHMENT_ID" type="string" expression="${negotiationCardId.getId().toStringRepresentation()}"></activiti:formProperty>
+          <activiti:formProperty id="MAIN_ATTACHMENT_ID" type="string" expression="${SESSION.getStrId(negotiationCardId)}"></activiti:formProperty>
         </extensionElements>
       </userTask>
       <sequenceFlow id="mainNegotiationTask" sourceRef="exclusivegateway2" targetRef="askNegotiate">
-        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!SESSION.find(NEGOTIATION_CARD_ID).get("Status").equals("AdditionalNegotiation")}]]></conditionExpression>
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!SESSION.find(NEGOTIATION_CARD_ID).getStatus().equals("AdditionalNegotiation")}]]></conditionExpression>
       </sequenceFlow>
       <exclusiveGateway id="exclusivegateway3" name="Exclusive Gateway"></exclusiveGateway>
       <sequenceFlow id="flow11" sourceRef="askNegotiate" targetRef="exclusivegateway3"></sequenceFlow>
@@ -44,10 +44,10 @@ execution.setVariable("negotiationCardIds", collection );</script>
       <sequenceFlow id="flow13" sourceRef="startevent2" targetRef="exclusivegateway8"></sequenceFlow>
       <endEvent id="endevent2" name="End"></endEvent>
       <scriptTask id="getNegotiationCard" name="Получение карточки согласования" scriptFormat="javascript" activiti:autoStoreVariables="false">
-        <script>var scrNegotioationCard = SESSION.find(negotiationCardId.getId());
+        <script>var scrNegotioationCard = SESSION.find(negotiationCardId);
 scrNegotioationCard.setStatus("Negotiation");
 execution.setVariableLocal("negotioationCard", scrNegotioationCard);
-execution.setVariableLocal("NEGOTIATION_CARD_ID",negotiationCardId.getId());
+execution.setVariableLocal("NEGOTIATION_CARD_ID",negotiationCardId);
 </script>
       </scriptTask>
       <sequenceFlow id="flow17" sourceRef="getNegotiationCard" targetRef="exclusivegateway2"></sequenceFlow>
@@ -99,11 +99,11 @@ execution.setVariableLocal("NEGOTIATION_CARD_ID",negotiationCardId.getId());
             <activiti:value id="AGREE" name="Согласен"></activiti:value>
             <activiti:value id="ADDITIONAL_NEGOTIATION" name="Дополнительное согласование"></activiti:value>
           </activiti:formProperty>
-          <activiti:formProperty id="MAIN_ATTACHMENT_ID" type="string" expression="${negotiationCardId.getId().toStringRepresentation()}"></activiti:formProperty>
+          <activiti:formProperty id="MAIN_ATTACHMENT_ID" type="string" expression="${SESSION.getStrId(negotiationCardId)}"></activiti:formProperty>
         </extensionElements>
       </userTask>
       <sequenceFlow id="afterAdditionalNegotiationTask" name="Переходим после доп. согласования" sourceRef="exclusivegateway2" targetRef="askAfterAdditionalNegotiation">
-        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${SESSION.find(NEGOTIATION_CARD_ID).get("Status").equals("AdditionalNegotiation")}]]></conditionExpression>
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${SESSION.find(NEGOTIATION_CARD_ID).getStatus().equals("AdditionalNegotiation")}]]></conditionExpression>
       </sequenceFlow>
       <sequenceFlow id="flow33" sourceRef="askAfterAdditionalNegotiation" targetRef="exclusivegateway3"></sequenceFlow>
       <sequenceFlow id="flow41" sourceRef="callNegotiation" targetRef="exclusivegateway2"></sequenceFlow>

@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="DocExecution" name="Рассмотрение и исполнение" isExecutable="true">
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="doExamine"></sequenceFlow>
+    <scriptTask id="doExamine" name="Установка статуса документа Рассмотрение" scriptFormat="javascript" activiti:autoStoreVariables="false">
+      <script>SESSION.Log("Начало Рассмотрения по документу: "+MAIN_ATTACHMENT.get("Name"));</script>
+    </scriptTask>
+    <sequenceFlow id="flow2" sourceRef="doExamine" targetRef="doExamineForExamineCards"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
+    <userTask id="askExamine" name="Рассмотрение документа" activiti:assignee="${SESSION.getStrId(SESSION.find(examineCardId).get(&quot;Examiner&quot;))}">
+      <documentation>Рассмотрение документа для пользователя "${SESSION.find(examineCardId).get("Examiner.Name")}" - ${SESSION.find(examineCardId).get("Name")}(${examineCardId})</documentation>
+      <extensionElements>
+        <activiti:formProperty id="MAIN_ATTACHMENT_ID" type="string" expression="${SESSION.getStrId(examineCardId)}"></activiti:formProperty>
+      </extensionElements>
+      <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="examineCardIds" activiti:elementVariable="examineCardId"></multiInstanceLoopCharacteristics>
+    </userTask>
+    <sequenceFlow id="ifLeftExaminers" name="Есть ещё рассматривающие" sourceRef="exclusivegateway1" targetRef="askExamine">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${examineCardIds.size()>0}]]></conditionExpression>
+    </sequenceFlow>
+    <inclusiveGateway id="inclusivegateway1" name="Inclusive Gateway"></inclusiveGateway>
+    <inclusiveGateway id="inclusivegateway2" name="Inclusive Gateway"></inclusiveGateway>
+    <sequenceFlow id="ifNoExaminers" name="Нет рассматривающих" sourceRef="exclusivegateway1" targetRef="inclusivegateway2">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${examineCardIds.size()==0}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow5" sourceRef="askExamine" targetRef="inclusivegateway1"></sequenceFlow>
+    <sequenceFlow id="flow6" sourceRef="inclusivegateway1" targetRef="exclusivegateway1"></sequenceFlow>
+    <sequenceFlow id="flow7" sourceRef="inclusivegateway2" targetRef="scripttask3"></sequenceFlow>
+    <scriptTask id="getExamineList" name="Получение списка рассмотрения" scriptFormat="javascript" activiti:autoStoreVariables="false">
+      <script>var filter = SESSION.createFilter();
+filter.add("byDoc",MAIN_ATTACHMENT_ID);
+filter.add("byStatus","Examine");
+var collection = SESSION.find("Examine_Card",filter );
+execution.setVariable("examineCardIds", collection );</script>
+    </scriptTask>
+    <sequenceFlow id="flow8" sourceRef="getExamineList" targetRef="exclusivegateway1"></sequenceFlow>
+    <scriptTask id="doExamineForExamineCards" name="Перевод карточек рассмотрения на Рассмотрение" scriptFormat="javascript" activiti:autoStoreVariables="false">
+      <script>var filter = SESSION.createFilter();
+filter.add("byDoc",MAIN_ATTACHMENT_ID);
+filter.add("byStatus","Draft");
+var collection = SESSION.find("Examine_Card",filter );
+SESSION.setCardsStatus(collection,"Draft","Examine",false);</script>
+    </scriptTask>
+    <sequenceFlow id="flow9" sourceRef="doExamineForExamineCards" targetRef="getExamineList"></sequenceFlow>
+    <scriptTask id="scripttask1" name="Установка статуса документа Исполнение" scriptFormat="javascript" activiti:autoStoreVariables="true">
+      <script>SESSION.Log("Начало Рассмотрения по документу: "+MAIN_ATTACHMENT.get("Name"));</script>
+    </scriptTask>
+    <sequenceFlow id="ifAreCommissions" name="Есть новые поручения" sourceRef="inclusivegateway1" targetRef="scripttask1"></sequenceFlow>
+    <callActivity id="callCommissionExecution" name="Исполнение поручений" calledElement="CommissionExecution">
+      <extensionElements>
+        <activiti:in source="MAIN_ATTACHMENT" target="MAIN_ATTACHMENT"></activiti:in>
+        <activiti:in source="MAIN_ATTACHMENT_ID" target="MAIN_ATTACHMENT_ID"></activiti:in>
+        <activiti:in source="SESSION" target="SESSION"></activiti:in>
+      </extensionElements>
+    </callActivity>
+    <sequenceFlow id="flow11" sourceRef="scripttask1" targetRef="callCommissionExecution"></sequenceFlow>
+    <sequenceFlow id="flow12" sourceRef="callCommissionExecution" targetRef="inclusivegateway2"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway"></exclusiveGateway>
+    <exclusiveGateway id="exclusivegateway3" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="ifNotWatched" name="Документ не контрольный" sourceRef="exclusivegateway2" targetRef="exclusivegateway3">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${inspector==null}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow14" sourceRef="exclusivegateway3" targetRef="scripttask2"></sequenceFlow>
+    <scriptTask id="scripttask2" name="Установка статуса документа Исполнен" scriptFormat="javascript" activiti:autoStoreVariables="true">
+      <script>SESSION.Log("Начало Рассмотрения по документу: "+MAIN_ATTACHMENT.get("Name"));</script>
+    </scriptTask>
+    <sequenceFlow id="flow15" sourceRef="scripttask2" targetRef="endevent1"></sequenceFlow>
+    <userTask id="askStopWatch" name="Снять с контроля" activiti:assignee="${SESSION.getStrId(inspector)}">
+      <documentation>Снятие документа с контроля</documentation>
+    </userTask>
+    <sequenceFlow id="ifWatched" name="Документ на контроле" sourceRef="exclusivegateway2" targetRef="askStopWatch">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${inspector!=null}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow17" sourceRef="askStopWatch" targetRef="exclusivegateway3"></sequenceFlow>
+    <scriptTask id="scripttask3" name="Получение контролёра" scriptFormat="javascript" activiti:autoStoreVariables="true">
+      <script>var scrInspector=MAIN_ATTACHMENT.get("Inspector");
+SESSION.Log("Контролёр по документу: "+scrInspector);
+execution.setVariable("inspector",scrInspector);</script>
+    </scriptTask>
+    <sequenceFlow id="flow18" sourceRef="scripttask3" targetRef="exclusivegateway2"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_DocExecution">
+    <bpmndi:BPMNPlane bpmnElement="DocExecution" id="BPMNPlane_DocExecution">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="370.0" y="30.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="370.0" y="1230.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40.0" width="40.0" x="367.0" y="469.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="inclusivegateway1" id="BPMNShape_inclusivegateway1">
+        <omgdc:Bounds height="40.0" width="40.0" x="712.0" y="580.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="inclusivegateway2" id="BPMNShape_inclusivegateway2">
+        <omgdc:Bounds height="40.0" width="40.0" x="367.0" y="701.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="doExamine" id="BPMNShape_doExamine">
+        <omgdc:Bounds height="71.0" width="105.0" x="335.0" y="91.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="askExamine" id="BPMNShape_askExamine">
+        <omgdc:Bounds height="55.0" width="105.0" x="680.0" y="462.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="getExamineList" id="BPMNShape_getExamineList">
+        <omgdc:Bounds height="55.0" width="105.0" x="335.0" y="332.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="doExamineForExamineCards" id="BPMNShape_doExamineForExamineCards">
+        <omgdc:Bounds height="71.0" width="105.0" x="335.0" y="210.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask1" id="BPMNShape_scripttask1">
+        <omgdc:Bounds height="71.0" width="105.0" x="680.0" y="686.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="callactivity1" id="BPMNShape_callactivity1">
+        <omgdc:Bounds height="55.0" width="105.0" x="490.0" y="678.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="callCommissionExecution" id="BPMNShape_callCommissionExecution">
+        <omgdc:Bounds height="55.0" width="105.0" x="490.0" y="694.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway2" id="BPMNShape_exclusivegateway2">
+        <omgdc:Bounds height="40.0" width="40.0" x="367.0" y="910.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway3" id="BPMNShape_exclusivegateway3">
+        <omgdc:Bounds height="40.0" width="40.0" x="367.0" y="1000.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask2" id="BPMNShape_scripttask2">
+        <omgdc:Bounds height="71.0" width="105.0" x="335.0" y="1100.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="askStopWatch" id="BPMNShape_askStopWatch">
+        <omgdc:Bounds height="55.0" width="105.0" x="680.0" y="903.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask3" id="BPMNShape_scripttask3">
+        <omgdc:Bounds height="55.0" width="105.0" x="335.0" y="790.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="387.0" y="65.0"></omgdi:waypoint>
+        <omgdi:waypoint x="387.0" y="91.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="387.0" y="162.0"></omgdi:waypoint>
+        <omgdi:waypoint x="387.0" y="210.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="407.0" y="489.0"></omgdi:waypoint>
+        <omgdi:waypoint x="680.0" y="489.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="367.0" y="489.0"></omgdi:waypoint>
+        <omgdi:waypoint x="319.0" y="489.0"></omgdi:waypoint>
+        <omgdi:waypoint x="319.0" y="705.0"></omgdi:waypoint>
+        <omgdi:waypoint x="367.0" y="705.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
+        <omgdi:waypoint x="732.0" y="517.0"></omgdi:waypoint>
+        <omgdi:waypoint x="732.0" y="580.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+        <omgdi:waypoint x="712.0" y="600.0"></omgdi:waypoint>
+        <omgdi:waypoint x="387.0" y="600.0"></omgdi:waypoint>
+        <omgdi:waypoint x="387.0" y="509.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+        <omgdi:waypoint x="387.0" y="741.0"></omgdi:waypoint>
+        <omgdi:waypoint x="387.0" y="790.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
+        <omgdi:waypoint x="387.0" y="387.0"></omgdi:waypoint>
+        <omgdi:waypoint x="387.0" y="469.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
+        <omgdi:waypoint x="387.0" y="281.0"></omgdi:waypoint>
+        <omgdi:waypoint x="387.0" y="332.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow10" id="BPMNEdge_flow10">
+        <omgdi:waypoint x="732.0" y="639.0"></omgdi:waypoint>
+        <omgdi:waypoint x="732.0" y="670.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow11" id="BPMNEdge_flow11">
+        <omgdi:waypoint x="680.0" y="721.0"></omgdi:waypoint>
+        <omgdi:waypoint x="595.0" y="721.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow12" id="BPMNEdge_flow12">
+        <omgdi:waypoint x="490.0" y="721.0"></omgdi:waypoint>
+        <omgdi:waypoint x="407.0" y="721.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="ifNotWatched" id="BPMNEdge_ifNotWatched">
+        <omgdi:waypoint x="387.0" y="950.0"></omgdi:waypoint>
+        <omgdi:waypoint x="387.0" y="1000.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="42.0" width="100.0" x="9.0" y="-25.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow14" id="BPMNEdge_flow14">
+        <omgdi:waypoint x="387.0" y="1040.0"></omgdi:waypoint>
+        <omgdi:waypoint x="387.0" y="1100.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow15" id="BPMNEdge_flow15">
+        <omgdi:waypoint x="387.0" y="1171.0"></omgdi:waypoint>
+        <omgdi:waypoint x="387.0" y="1230.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="ifWatched" id="BPMNEdge_ifWatched">
+        <omgdi:waypoint x="407.0" y="930.0"></omgdi:waypoint>
+        <omgdi:waypoint x="680.0" y="930.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="116.0" x="-73.0" y="-20.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow17" id="BPMNEdge_flow17">
+        <omgdi:waypoint x="732.0" y="958.0"></omgdi:waypoint>
+        <omgdi:waypoint x="732.0" y="1020.0"></omgdi:waypoint>
+        <omgdi:waypoint x="407.0" y="1020.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow18" id="BPMNEdge_flow18">
+        <omgdi:waypoint x="387.0" y="845.0"></omgdi:waypoint>
+        <omgdi:waypoint x="387.0" y="910.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="ifLeftExaminers" id="BPMNEdge_ifLeftExaminers">
+        <omgdi:waypoint x="407.0" y="489.0"></omgdi:waypoint>
+        <omgdi:waypoint x="680.0" y="489.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="147.0" x="-123.0" y="-28.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="ifNoExaminers" id="BPMNEdge_ifNoExaminers">
+        <omgdi:waypoint x="367.0" y="489.0"></omgdi:waypoint>
+        <omgdi:waypoint x="240.0" y="489.0"></omgdi:waypoint>
+        <omgdi:waypoint x="240.0" y="597.0"></omgdi:waypoint>
+        <omgdi:waypoint x="240.0" y="720.0"></omgdi:waypoint>
+        <omgdi:waypoint x="367.0" y="721.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="42.0" width="100.0" x="10.0" y="-158.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="ifAreCommissions" id="BPMNEdge_ifAreCommissions">
+        <omgdi:waypoint x="732.0" y="620.0"></omgdi:waypoint>
+        <omgdi:waypoint x="732.0" y="686.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="42.0" width="100.0" x="20.0" y="-23.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="Registration" name="Регистрация" isExecutable="true">
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <userTask id="askRegistration" name="Задача на регистрацию документа" activiti:assignee="${SESSION.getStrId(MAIN_ATTACHMENT.get(&quot;Registrant&quot;))}">
+      <extensionElements>
+        <activiti:formProperty id="MAIN_ATTACHMENT_ID" type="string" expression="${SESSION.getStrId(MAIN_ATTACHMENT_ID)}"></activiti:formProperty>
+      </extensionElements>
+    </userTask>
+    <scriptTask id="checkRegNum" name="Проверка рег. номера" scriptFormat="javascript" activiti:autoStoreVariables="false">
+      <script>var scrRegNum=MAIN_ATTACHMENT.get("RegNum");
+SESSION.Log("Рег. номер: "+scrRegNum);
+execution.setVariable("regNum",scrRegNum);</script>
+    </scriptTask>
+    <sequenceFlow id="flow2" sourceRef="askRegistration" targetRef="checkRegNum"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow3" sourceRef="checkRegNum" targetRef="exclusivegateway1"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow1" sourceRef="exclusivegateway2" targetRef="askRegistration"></sequenceFlow>
+    <sequenceFlow id="flow4" sourceRef="exclusivegateway1" targetRef="scripttask3">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${regNum==null}]]></conditionExpression>
+    </sequenceFlow>
+    <scriptTask id="scripttask1" name="Установка статуса документа Зарегистрирован" scriptFormat="javascript" activiti:autoStoreVariables="false">
+      <script>MAIN_ATTACHMENT.setStatus("Registred");
+SESSION.Log("Догумент зарегистрирован");</script>
+    </scriptTask>
+    <sequenceFlow id="flow5" sourceRef="exclusivegateway1" targetRef="scripttask1">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${regNum!=null}]]></conditionExpression>
+    </sequenceFlow>
+    <scriptTask id="scripttask2" name="Установка статуса документа Регистрация" scriptFormat="javascript" activiti:autoStoreVariables="false">
+      <script>MAIN_ATTACHMENT.setStatus("Registration");</script>
+    </scriptTask>
+    <sequenceFlow id="flow6" sourceRef="scripttask2" targetRef="exclusivegateway2"></sequenceFlow>
+    <sequenceFlow id="flow7" sourceRef="startevent1" targetRef="scripttask2"></sequenceFlow>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <sequenceFlow id="flow8" sourceRef="scripttask1" targetRef="endevent1"></sequenceFlow>
+    <scriptTask id="scripttask3" name="Инфо: документ не заполнен" scriptFormat="javascript" activiti:autoStoreVariables="false">
+      <script>SESSION.Log("Рег. номер не заполнен.");</script>
+    </scriptTask>
+    <sequenceFlow id="flow9" sourceRef="scripttask3" targetRef="exclusivegateway2"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_Registration">
+    <bpmndi:BPMNPlane bpmnElement="Registration" id="BPMNPlane_Registration">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="510.0" y="-50.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="askRegistration" id="BPMNShape_askRegistration">
+        <omgdc:Bounds height="71.0" width="105.0" x="475.0" y="200.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="checkRegNum" id="BPMNShape_checkRegNum">
+        <omgdc:Bounds height="55.0" width="105.0" x="475.0" y="320.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40.0" width="40.0" x="507.0" y="410.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway2" id="BPMNShape_exclusivegateway2">
+        <omgdc:Bounds height="40.0" width="40.0" x="507.0" y="120.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask1" id="BPMNShape_scripttask1">
+        <omgdc:Bounds height="71.0" width="105.0" x="475.0" y="480.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask2" id="BPMNShape_scripttask2">
+        <omgdc:Bounds height="71.0" width="105.0" x="475.0" y="20.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="510.0" y="600.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask3" id="BPMNShape_scripttask3">
+        <omgdc:Bounds height="55.0" width="105.0" x="280.0" y="208.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="527.0" y="160.0"></omgdi:waypoint>
+        <omgdi:waypoint x="527.0" y="200.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="527.0" y="271.0"></omgdi:waypoint>
+        <omgdi:waypoint x="527.0" y="320.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="527.0" y="375.0"></omgdi:waypoint>
+        <omgdi:waypoint x="527.0" y="410.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="507.0" y="430.0"></omgdi:waypoint>
+        <omgdi:waypoint x="408.0" y="429.0"></omgdi:waypoint>
+        <omgdi:waypoint x="332.0" y="429.0"></omgdi:waypoint>
+        <omgdi:waypoint x="332.0" y="381.0"></omgdi:waypoint>
+        <omgdi:waypoint x="332.0" y="263.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
+        <omgdi:waypoint x="527.0" y="450.0"></omgdi:waypoint>
+        <omgdi:waypoint x="527.0" y="480.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+        <omgdi:waypoint x="527.0" y="91.0"></omgdi:waypoint>
+        <omgdi:waypoint x="527.0" y="120.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+        <omgdi:waypoint x="527.0" y="-15.0"></omgdi:waypoint>
+        <omgdi:waypoint x="527.0" y="20.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
+        <omgdi:waypoint x="527.0" y="551.0"></omgdi:waypoint>
+        <omgdi:waypoint x="527.0" y="600.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
+        <omgdi:waypoint x="332.0" y="208.0"></omgdi:waypoint>
+        <omgdi:waypoint x="332.0" y="140.0"></omgdi:waypoint>
+        <omgdi:waypoint x="507.0" y="140.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
