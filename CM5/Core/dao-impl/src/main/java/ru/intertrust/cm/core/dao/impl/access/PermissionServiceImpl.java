@@ -195,6 +195,9 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
 
     private void processAclForDynamicGroupWithoutContext(Id objectId, AccessType accessType, String dynamicGroupName) {
         Id dynamicGroupId = getUserGroupByGroupName(dynamicGroupName);
+        if(dynamicGroupId == null) {
+            dynamicGroupId = createUserGroup(dynamicGroupName, null);
+        }
         insertAclRecord(accessType, objectId, dynamicGroupId);
     }
 

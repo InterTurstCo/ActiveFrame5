@@ -1,14 +1,12 @@
 <?xml version="1.1" encoding="UTF-8" standalone="yes"?>
 <configuration xmlns="https://cm5.intertrust.ru/config">
-
     
-    <domain-object-type name="Outgoing_Document" audit-log="true"> <!-- OUTGOING_DOCUMENT table -->
+    <domain-object-type name="Outgoing_Document" audit-log="true" initial-status="Active"> <!-- OUTGOING_DOCUMENT table -->
         <fields>
             <string name="Registration_Number" length="128" /> <!-- REGISTRATION_NUMBER column -->
             <dateTime name="Registration_Date"/>
             <string name="Name" length="128" />
-            <string name="Status" length="64" />
-            <string name="Description" length="128" />
+            <string name="Description" length="128" />            
             <reference name="Author" type="Employee"/> <!-- ID of employee in fact -->
             <reference name="Negotiator" type="Employee"/> <!-- This means
              Foreign Key to Employee and index are created automatically -->
@@ -20,11 +18,16 @@
             <field name="Registration_Number"/>
         </uniqueKey>
     </domain-object-type>
+
+    <domain-object-type name="Status">
+        <fields>
+            <string name="Name" length="128" not-null="true" />
+        </fields>
+    </domain-object-type>
     
-     <domain-object-type name="Internal_Document"> <!-- Internal_Document table -->
+     <domain-object-type name="Internal_Document" initial-status="Active2"> <!-- Internal_Document table -->
         <fields>
             <string name="Name" length="128" />
-            <string name="Status" length="64" />
             <long name="Stage"/>
             <string name="ReturnOnReject" length="3" />
             <reference name="docAuthor" type="Employee"/>
@@ -34,7 +37,6 @@
     <domain-object-type name="Negotiation_Card"> <!-- Internal_Document table -->
         <fields>
             <string name="Name" length="128" />
-            <string name="Status" length="64" />
             <reference name="Parent_Document" type="Internal_Document"/>
             <reference name="Negotiator" type="Employee"/> <!-- This means Foreign Key to Employee and index are created automatically -->
             <reference name="Add_Negotiation_Card" type="Negotiation_Card"/>
@@ -45,20 +47,18 @@
         <fields>
             <string name="Name" length="128" />
             <string name="Description" length="128" />
-            <string name="Status" length="64" />
             <reference name="Parent_Document" type="Outgoing_Document"/>
             <reference name="Executor" type="Employee"/> <!-- This means
              Foreign Key to Employee and index are created automatically -->
         </fields>
     </domain-object-type>
 
-    <domain-object-type name="Person">
+    <domain-object-type name="Person" initial-status="Active3">
         <fields>
             <string name="Login" length="128" />
             <string name="FirstName" length="128" />
             <string name="LastName" length="128" />
-            <string name="EMail" length="128" />
-            <string name="Status" length="64" />
+            <string name="EMail" length="128" />            
         </fields>
        <uniqueKey> <!-- This key means automatic key + index creation-->
             <field name="Login"/>
@@ -66,10 +66,14 @@
        <uniqueKey> <!-- This key means automatic key + index creation-->
             <field name="EMail"/>
        </uniqueKey>
+       <attachment-types>
+            <attachment-type name="Person_Attachment"></attachment-type>
+        </attachment-types>
+             
     </domain-object-type>
 
     <!-- Системный объект, должен определяться в системной конфигурации -->
-    <domain-object-type name="Authentication_Info">
+    <domain-object-type name="Authentication_Info" initial-status="Active4">
         <fields>
             <string name="User_Uid" length="64" not-null="true" />
             <password name="Password" length="128" />
@@ -89,36 +93,35 @@
        </uniqueKey>
     </domain-object-type>
 
-	<domain-object-type name="Employee" extends="Person" audit-log="true">
+	<domain-object-type name="Employee" extends="Person" audit-log="true" initial-status="Active">
 		<fields>
 			<reference name="Department" type="Department" not-null="true"/>
             <string name="Name" length="64" not-null="true" />
             <string name="Position" length="64" not-null="true" />
             <string name="Phone" length="32" />
             <string name="Certificate" length="4096" />
-            <string name="Fingerprint" length="128" />
+            <string name="Fingerprint" length="128" />            
 		</fields>
 		<uniqueKey> <!-- This key means automatic key + index creation -->
 			<field name="Phone" />
 		</uniqueKey>
 	</domain-object-type>
 
-   <domain-object-type name="Delegation">
+   <domain-object-type name="Delegation" initial-status="Active">
         <fields>
             <reference name="person" type="Employee" not-null="true"/>
             <reference name="delegate" type="Employee" not-null="true"/>
-            <string name="Status" length="64" />
         </fields>
     </domain-object-type>
 
-    <domain-object-type name="Department" audit-log="true">
+    <domain-object-type name="Department" audit-log="true" initial-status="Active">
         <fields>
             <string name="Name" length="128" not-null="true" />
         </fields>
     </domain-object-type>
-
+     
     <!-- Системные объекты, пока просто как предложение -->
-    <domain-object-type name="User_Group">
+    <domain-object-type name="User_Group" initial-status="Active">
         <fields>
             <string name="group_name" length="64" not-null="true" />
             <long name="object_id" />
@@ -126,7 +129,7 @@
         </fields>
     </domain-object-type>
 
-    <domain-object-type name="Group_Member">
+    <domain-object-type name="Group_Member" initial-status = "Active">
         <fields>
             <reference name="UserGroup" type="User_Group" not-null="true"/>
             <reference name="person_id" type="Person" not-null="true"/>

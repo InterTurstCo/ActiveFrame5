@@ -145,8 +145,7 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
     public void createForeignKeyAndUniqueConstraints(String domainObjectConfigName,
                                                      List<ReferenceFieldConfig> fieldConfigList,
                                                      List<UniqueKeyConfig> uniqueKeyConfigList) {
-        if(domainObjectConfigName == null || ((fieldConfigList == null || fieldConfigList.isEmpty()) &&
-                (uniqueKeyConfigList == null || uniqueKeyConfigList.isEmpty()))) {
+        if (domainObjectConfigName == null || fieldConfigList == null || uniqueKeyConfigList == null) {
             throw new IllegalArgumentException("Invalid (null or empty) arguments");
         }
 

@@ -24,6 +24,9 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
     @Attribute(required = true)
     private String name;
 
+    @Attribute(name = "initial-status", required = false)
+    private String initialStatus;
+
     @Attribute(name = "extends", required = false)
     private String extendsAttribute;
     
@@ -80,6 +83,14 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
 
     public void setName(String name) {
         this.name = name;
+    }
+    
+    public String getInitialStatus() {
+        return initialStatus;
+    }
+
+    public void setInitialStatus(String initialStatus) {
+        this.initialStatus = initialStatus;
     }
 
     public String getExtendsAttribute() {
@@ -169,6 +180,9 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
             return false;
         }
         if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (initialStatus != null ? !initialStatus.equals(that.initialStatus) : that.initialStatus != null) {
             return false;
         }
         if (uniqueKeyConfigs != null ? !uniqueKeyConfigs.equals(that.uniqueKeyConfigs) : that.uniqueKeyConfigs != null) {

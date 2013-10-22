@@ -1,8 +1,24 @@
 package ru.intertrust.cm.core.business.impl;
 
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+
 import ru.intertrust.cm.core.business.api.AuthenticationService;
 import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.model.DomainObjectConfig;
+import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 
 /**
  * Класс, предназначенный для загрузки конфигурации доменных объектов
@@ -18,7 +34,20 @@ public class InitialDataLoader {
     @Autowired
     private AuthenticationService authenticationService;
 
+    @Autowired
+    private ConfigurationExplorer configurationExplorer;
+
+    @Autowired
+    private DomainObjectDao domainObjectDao;
+    
+    private NamedParameterJdbcTemplate jdbcTemplate;
+    
     public InitialDataLoader() {
+    }
+
+    @Autowired
+    public void setDataSource(DataSource dataSource) {
+        this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
     /**
@@ -30,14 +59,68 @@ public class InitialDataLoader {
     }
 
     /**
+     * Устанавливает {@link #domainObjectDao}
+     * @param domainObjectDao сервис для базовых операций с доменными объектами
+     */
+    public void setDomainObjectDao(DomainObjectDao domainObjectDao) {
+        this.domainObjectDao = domainObjectDao;
+    }
+    
+    public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
+        this.configurationExplorer = configurationExplorer;
+    }
+
+    /**
      * Загружает конфигурацию доменных объектов, валидирует и создает соответствующие сущности в базе.
      * Добавляет запись администратора (admin/admin) в таблицу authentication_info.
      * @throws Exception
      */
     public void load() throws Exception {
+        // статусы сохраняются до сохранения остальных доменных объектов, т.к. ДО могут использовать статусы при
+        // сохранении
+        saveInitialStatuses();
         if (!authenticationService.existsAuthenticationInfo(ADMIN_LOGIN)) {
             insertAdminAuthenticationInfo();
         }
+    }
+
+    private void saveInitialStatuses() {
+        Set<String> initialStatuses = new HashSet<String>();
+        Collection<DomainObjectTypeConfig> domainObjectTypes =
+                configurationExplorer.getConfigs(DomainObjectTypeConfig.class);
+
+        for (DomainObjectTypeConfig domainObjectType : domainObjectTypes) {
+            String initialStatus = domainObjectType.getInitialStatus();
+            if (initialStatus != null) {
+                initialStatuses.add(initialStatus);
+            }
+        }
+
+        for (String initialStatus : initialStatuses) {
+            if (!existsStatus(initialStatus)) {
+                saveStatus(initialStatus);
+            }
+
+        }
+    }
+
+    private boolean existsStatus(String statusName) {
+        String query = "select count(*) from Status s where s.name=:name";
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("name", statusName);
+        @SuppressWarnings("deprecation")
+        int total = jdbcTemplate.queryForInt(query, paramMap);
+        return total > 0;
+    }
+
+    private void saveStatus(String statusName) {
+        GenericDomainObject statusDO = new GenericDomainObject();
+        statusDO.setTypeName(DomainObjectDao.STATUS_DO);
+        Date currentDate = new Date();
+        statusDO.setCreatedDate(currentDate);
+        statusDO.setModifiedDate(currentDate);
+        statusDO.setString("Name", statusName);
+        domainObjectDao.save(statusDO);
     }
 
     private void insertAdminAuthenticationInfo() {

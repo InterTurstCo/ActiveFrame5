@@ -1,15 +1,7 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.RdbmsId;
-import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
-import ru.intertrust.cm.core.dao.impl.doel.DoelResolver;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 
-import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -17,7 +9,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+import javax.sql.DataSource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.impl.doel.DoelResolver;
 
 /**
  * @author atsvetkov
@@ -34,6 +39,13 @@ public class BaseDynamicGroupServiceImpl {
 
     @Autowired
     protected DomainObjectTypeIdCache domainObjectTypeIdCache;
+
+    @Autowired
+    protected DomainObjectDao domainObjectDao;
+
+    public void setDomainObjectDao(DomainObjectDao domainObjectDao) {
+        this.domainObjectDao = domainObjectDao;
+    }
 
     public void setDomainObjectTypeIdCache(DomainObjectTypeIdCache domainObjectTypeIdCache) {
         this.domainObjectTypeIdCache = domainObjectTypeIdCache;
@@ -142,15 +154,25 @@ public class BaseDynamicGroupServiceImpl {
         String query = generateGetStatusForQuery(objectId);
 
         Map<String, Object> parameters = initializeGetStatusParameters(objectId);
-        return jdbcTemplate.queryForObject(query, parameters, String.class);
+        return jdbcTemplate.query(query, parameters, new ResultSetExtractor<String> (){
+            @Override
+            public String extractData(ResultSet rs) throws SQLException, DataAccessException {
+                String status = null;
+
+                while (rs.next()) {
+                    status = rs.getString(1);
+                }
+                return status;
+            }
+        });
     }
 
     private String generateGetStatusForQuery(Id objectId) {
         RdbmsId id = (RdbmsId) objectId;
         String tableName = getSqlName(domainObjectTypeIdCache.getName(id.getTypeId()));
         StringBuilder query = new StringBuilder();
-        query.append("select o.status from ");
-        query.append(tableName).append(" o");
+        query.append("select s.name from ");
+        query.append(tableName).append(" o inner join status s on s.id = o.status");
         query.append(" where o.id = :object_id");
 
         return query.toString();
@@ -191,6 +213,19 @@ public class BaseDynamicGroupServiceImpl {
             }
             return personIds;
         }
+    }
+
+    protected Id createUserGroup(String dynamicGroupName, Id contextObjectId) {
+        Id userGroupId;
+        GenericDomainObject userGroupDO = new GenericDomainObject();
+        userGroupDO.setTypeName(USER_GROUP_DOMAIN_OBJECT);
+        userGroupDO.setString("group_name", dynamicGroupName);
+        if (contextObjectId != null) {
+            userGroupDO.setLong("object_id", ((RdbmsId) contextObjectId).getId());
+        }
+        DomainObject updatedObject = domainObjectDao.save(userGroupDO);
+        userGroupId = updatedObject.getId();
+        return userGroupId;
     }
 
     /**

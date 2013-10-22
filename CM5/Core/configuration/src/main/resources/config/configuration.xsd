@@ -33,6 +33,8 @@
             use="optional" />
         <xs:attribute type="xs:boolean" name="audit-log"
             use="optional" />
+            <xs:attribute name="initial-status" use="optional" type="xs:string"
+            xmlns:con="https://cm5.intertrust.ru/config" />
     </xs:complexType>
 
     <xs:complexType name="attachmentTypes">

@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.config.model.UniqueKeyConfig;
 import ru.intertrust.cm.core.config.model.base.Configuration;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.model.FatalException;
 
 import java.util.*;
@@ -337,6 +338,29 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
                 dataStructureDao.createForeignKeyAndUniqueConstraints(config.getName(), referenceFieldConfigs,
                         config.getUniqueKeyConfigs());
             }
+
+            
+            if (canHaveStatusColumn(config)) {
+                createStatusForeignKey(config);
+            }
+        }
+
+        private boolean canHaveStatusColumn(DomainObjectTypeConfig config) {
+            return config.getExtendsAttribute() == null
+                    && (!config.isTemplate() && (!config.getName().equalsIgnoreCase(DomainObjectDao.STATUS_DO)));
+        }
+
+        private void createStatusForeignKey(DomainObjectTypeConfig config) {
+            List<ReferenceFieldConfig> referenceFieldConfigs = new ArrayList<>();
+            List<UniqueKeyConfig> uniqueKeyConfigs = new ArrayList<>();
+            ReferenceFieldConfig referenceStatusField = new ReferenceFieldConfig();
+            referenceStatusField.setName(DomainObjectDao.STATUS_COLUMN);
+            referenceStatusField.setType(DomainObjectDao.STATUS_DO);
+
+            referenceFieldConfigs.add(referenceStatusField);
+
+            dataStructureDao.createForeignKeyAndUniqueConstraints(config.getName(), referenceFieldConfigs,
+                    uniqueKeyConfigs);
         }
 
         private void processConfig(DomainObjectTypeConfig domainObjectTypeConfig) {

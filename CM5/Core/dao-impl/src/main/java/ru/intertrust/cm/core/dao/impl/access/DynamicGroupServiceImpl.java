@@ -31,16 +31,9 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
     @Autowired
     private ConfigurationExplorer configurationExplorer;
 
-    @Autowired
-    private DomainObjectDao domainObjectDao;
-
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
         doelResolver.setConfigurationExplorer(configurationExplorer);
-    }
-
-    public void setDomainObjectDao(DomainObjectDao domainObjectDao) {
-        this.domainObjectDao = domainObjectDao;
     }
 
     @Override
@@ -63,7 +56,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
      */
     @Override
     public void notifyDomainObjectCreated(Id objectId) {
-        /*String status = getStatusFor(objectId);
+        String status = getStatusFor(objectId);
 
         List<DynamicGroupConfig> dynamicGroups = getDynamicGroupsToRecalculate(objectId, status);
         for (DynamicGroupConfig dynamicGroupConfig : dynamicGroups) {
@@ -72,7 +65,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
             List<Value> groupMembres = getAllGroupMembersFor(dynamicGroupConfig, objectId, contextObjectid);
 
             refreshGroupMembers(dynamicGroupId, groupMembres);
-        }*/
+        }
 
     }
 
@@ -312,14 +305,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
         Id userGroupId = getUserGroupByGroupNameAndObjectId(dynamicGroupName, ((RdbmsId) contextObjectId).getId());
 
         if (userGroupId == null) {
-            GenericDomainObject userGroupDO = new GenericDomainObject();
-            userGroupDO.setTypeName(USER_GROUP_DOMAIN_OBJECT);
-            userGroupDO.setString("group_name", dynamicGroupName);
-            if (contextObjectId != null) {
-                userGroupDO.setLong("object_id", ((RdbmsId) contextObjectId).getId());
-            }
-            DomainObject updatedObject = domainObjectDao.save(userGroupDO);
-            userGroupId = updatedObject.getId();
+            userGroupId = createUserGroup(dynamicGroupName, contextObjectId);
         }
         return userGroupId;
     }
