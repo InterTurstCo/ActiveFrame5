@@ -5,10 +5,14 @@ import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.*;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.model.FieldConfig;
+import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.exception.CollectionQueryException;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -26,32 +30,31 @@ public class SqlQueryModifier {
     public static final String DOMAIN_OBJECT_TYPE_ALIAS = "TYPE_CONSTANT";
 
     /**
-     * Добавляет поле Тип Объекта идентификатора в SQL запрос получения данных для коллекции. Переданный SQL запрос
+     * Добавляет поля Тип Объекта идентификатора в SQL запрос получения данных для коллекции. Переданный SQL запрос
      * должен быть запросом чтения (SELECT) либо объединением запросов чтения (UNION). После ключевого слова FROM должно
      * идти название таблицы для Доменного Объекта, тип которго будет типом уникального идентификатора возвращаемых
      * записей.
      * @param query первоначальный SQL запрос
      * @return запрос с добавленным полем Тип Объекта идентификатора
      */
-    public String addTypeColumn(String query) {
+    public String addReferenceFieldTypes(String query, ConfigurationExplorer configurationExplorer) {
         String modifiedQuery = null;
         SqlQueryParser sqlParser = new SqlQueryParser(query);
 
         SelectBody selectBody = sqlParser.getSelectBody();
         if (selectBody.getClass().equals(PlainSelect.class)) {
             PlainSelect plainSelect = (PlainSelect) selectBody;
-            addTypeColumnInPlainSelect(plainSelect);
-
+            addReferenceFieldTypeTypeColumnsInPlainSelect(plainSelect, configurationExplorer);
             modifiedQuery = plainSelect.toString();
 
         } else if (selectBody.getClass().equals(Union.class)) {
             Union union = (Union) selectBody;
             List plainSelects = union.getPlainSelects();
             for (Object plainSelect : plainSelects) {
-
-                addTypeColumnInPlainSelect((PlainSelect) plainSelect);
+                addReferenceFieldTypeTypeColumnsInPlainSelect((PlainSelect) plainSelect, configurationExplorer);
             }
             modifiedQuery = union.toString();
+
         } else {
             throw new IllegalArgumentException("Unsupported type of select body: " + selectBody.getClass());
 
@@ -127,6 +130,35 @@ public class SqlQueryModifier {
         plainSelect.getSelectItems().add(objectTypeSelectItem);
     }
 
+    private void addReferenceFieldTypeTypeColumnsInPlainSelect(PlainSelect plainSelect, ConfigurationExplorer configurationExplorer) {
+        String tableAlias = getFromTableAlias(plainSelect);
+        String tableName = ((Table) plainSelect.getFromItem()).getName();
+
+        List<SelectExpressionItem> selectExpressionItemsToAdd = new ArrayList<>();
+
+        for (Object selectItem : plainSelect.getSelectItems()) {
+            if (!(selectItem instanceof SelectExpressionItem)) {
+                continue;
+            }
+
+            SelectExpressionItem selectExpressionItem = (SelectExpressionItem) selectItem;
+            Column expression = (Column) selectExpressionItem.getExpression();
+            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(tableName, expression.getColumnName());
+
+            if (!(fieldConfig instanceof ReferenceFieldConfig)) {
+                continue;
+            }
+
+            if (DomainObjectDao.ID_COLUMN.equalsIgnoreCase(expression.getColumnName())) {
+                selectExpressionItemsToAdd.add(createObjectTypeSelectItem(tableAlias));
+            } else {
+                selectExpressionItemsToAdd.add(createReferenceFieldTypeSelectItem(tableAlias, fieldConfig.getName()));
+            }
+        }
+
+        plainSelect.getSelectItems().addAll(selectExpressionItemsToAdd);
+    }
+
     private String getDomainObjectTypeFromSelect(PlainSelect plainSelect) {
         FromItem fromItem = plainSelect.getFromItem();
         validateFromItem(fromItem);
@@ -150,6 +182,13 @@ public class SqlQueryModifier {
         SelectExpressionItem objectTypeItem = new SelectExpressionItem();
         objectTypeItem.setExpression(new Column(new Table(), fromTableAlias + "." + DomainObjectDao.TYPE_COLUMN));
         return objectTypeItem;
+    }
+
+    private SelectExpressionItem createReferenceFieldTypeSelectItem(String fromTableAlias, String columnName) {
+        SelectExpressionItem referenceFieldTypeItem = new SelectExpressionItem();
+        String typeColumnName = columnName + DomainObjectDao.REFERENCE_TYPE_POSTFIX;
+        referenceFieldTypeItem.setExpression(new Column(new Table(), fromTableAlias + "." + typeColumnName));
+        return referenceFieldTypeItem;
     }
 
 

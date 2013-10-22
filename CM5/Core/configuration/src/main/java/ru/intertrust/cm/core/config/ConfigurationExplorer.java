@@ -15,6 +15,8 @@ import java.util.List;
  */
 public interface ConfigurationExplorer {
 
+    String REFERENCE_TYPE_ANY = "*";
+
     /**
      * Возвращает конфигурацию
      * @return конфигурация
@@ -106,5 +108,5 @@ public interface ConfigurationExplorer {
      * @param dynamicGroupName имя динамической группы
      * @return конфигурация динамической группы
      */
-    DynamicGroupConfig getDynamicGroupByName(String dynamicGroupName); 
+    DynamicGroupConfig getDynamicGroupByName(String dynamicGroupName);
 }

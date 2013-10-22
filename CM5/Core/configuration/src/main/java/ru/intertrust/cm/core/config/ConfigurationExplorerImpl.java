@@ -159,6 +159,10 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     @Override
     public FieldConfig getFieldConfig(String domainObjectConfigName, String fieldConfigName,
                                       boolean returnInheritedConfig) {
+        if (REFERENCE_TYPE_ANY.equals(domainObjectConfigName)) {
+            throw new IllegalArgumentException("'*' is not a valid Domain Object type");
+        }
+
         FieldConfigKey fieldConfigKey = new FieldConfigKey(domainObjectConfigName, fieldConfigName);
         FieldConfig result = fieldConfigMap.get(fieldConfigKey);
 
@@ -306,7 +310,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
 
         return null;
     }
-    
+
     @Override
     public DynamicGroupConfig getDynamicGroupByName(String dynamicGroupName) {
         Map<String, TopLevelConfig> dynamicGroupMap = topLevelConfigMap.get(DynamicGroupConfig.class);
@@ -365,6 +369,10 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     }
 
     private void initConfigurationMapsOfAttachmentDomainObjectTypes(List<DomainObjectTypeConfig> ownerAttachmentDOTs) {
+        if (ownerAttachmentDOTs == null || ownerAttachmentDOTs.isEmpty()) {
+            return;
+        }
+
         try {
             AttachmentPrototypeHelper factory = new AttachmentPrototypeHelper();
             for (DomainObjectTypeConfig domainObjectTypeConfig : ownerAttachmentDOTs) {

@@ -72,7 +72,7 @@ public class CollectionQueryInitializer {
      */
     private String postProcessQuery(CollectionConfig collectionConfig, AccessToken accessToken, String query) {
         SqlQueryModifier sqlQueryModifier = new SqlQueryModifier();
-        query = sqlQueryModifier.addTypeColumn(query);
+        query = sqlQueryModifier.addReferenceFieldTypes(query, configurationExplorer);
 
 /*        if (accessToken.isDeferred()) {
             query = sqlQueryModifier.addAclQuery(query, collectionConfig.getIdField());

@@ -54,23 +54,23 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     @Autowired
     private DynamicGroupService dynamicGroupService;
-    
+
     @Autowired
     private PermissionService permissionService;
-    
+
     @Autowired
     public void setDomainObjectCacheService(
             DomainObjectCacheServiceImpl domainObjectCacheService) {
         this.domainObjectCacheService = domainObjectCacheService;
     }
-    
+
     public void setPermissionService(PermissionService permissionService) {
         this.permissionService = permissionService;
     }
 
     /**
      * Устанавливает источник соединений
-     * 
+     *
      * @param dataSource
      */
     public void setDataSource(DataSource dataSource) {
@@ -79,7 +79,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     /**
      * Устанавливает генератор для создания уникальных идентифиткаторово
-     * 
+     *
      * @param idGenerator
      */
     public void setIdGenerator(IdGenerator idGenerator) {
@@ -88,7 +88,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     /**
      * Устанавливает {@link #configurationExplorer}
-     * 
+     *
      * @param configurationExplorer
      *            {@link #configurationExplorer}
      */
@@ -106,7 +106,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             AccessControlService accessControlService) {
         this.accessControlService = accessControlService;
     }
-    
+
     public void setDynamicGroupService(DynamicGroupService dynamicGroupService) {
         this.dynamicGroupService = dynamicGroupService;
     }
@@ -122,7 +122,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     private void refreshDynamiGroupsAndAclForCreate(DomainObject createdObject) {
-        dynamicGroupService.notifyDomainObjectCreated(createdObject.getId());        
+        dynamicGroupService.notifyDomainObjectCreated(createdObject.getId());
         permissionService.refreshAclFor(createdObject.getId());
     }
 
@@ -232,8 +232,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     private void refreshDynamiGroupsAndAclForUpdate(DomainObject domainObject) {
-        List<String> modifiedFields = getModifiedFieldNames(domainObject);        
-        dynamicGroupService.notifyDomainObjectChanged(domainObject.getId(), modifiedFields);        
+        List<String> modifiedFields = getModifiedFieldNames(domainObject);
+        dynamicGroupService.notifyDomainObjectChanged(domainObject.getId(), modifiedFields);
         permissionService.refreshAclFor(domainObject.getId());
     }
 
@@ -294,7 +294,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         if (parentId != null) {
             delete(parentId);
         }
-        
+
         // Пишем в аудит лог
         createAuditLog(deletedObject, deletedObject.getTypeName(), domainObjectTypeIdCache.getId(deletedObject.getTypeName()),
                 DomainObjectVersion.AuditLogOperation.DELETE);
@@ -303,13 +303,13 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         AfterDeleteExtensionHandler afterDeleteEH =
                 extensionService.getExtentionPoint(AfterDeleteExtensionHandler.class, domainObjectTypeConfig.getName());
         afterDeleteEH.onAfterDelete(deletedObject);
-        
+
         //refreshDynamiGroupsAndAclForDelete(deletedObject);
 
     }
 
     private void refreshDynamiGroupsAndAclForDelete(DomainObject deletedObject) {
-        dynamicGroupService.notifyDomainObjectDeleted(deletedObject.getId());        
+        dynamicGroupService.notifyDomainObjectDeleted(deletedObject.getId());
         permissionService.cleanAclFor(deletedObject.getId());
     }
 
@@ -390,6 +390,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             throw new IllegalArgumentException("Domain Object type can not be null or empty");
         }
 
+        if (ConfigurationExplorer.REFERENCE_TYPE_ANY.equals(domainObjectType)) {
+            throw new IllegalArgumentException("'*' is not a valid Domain Object type");
+        }
+
         String[] cacheKey = new String[] { domainObjectType,String.valueOf(offset),String.valueOf(limit) };
         List<DomainObject> result = domainObjectCacheService.getObjectToCache(cacheKey);
         if (result != null) {
@@ -435,7 +439,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     /**
      * Поиск доменных объектов одного типа.
-     * 
+     *
      * @param ids
      *            идентификаторы доменных объектов
      * @param accessToken
@@ -473,7 +477,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
              * " t inner join " + aclReadTable + " r " +
              * "on t.id = r.object_id inner join group_member gm on r.group_id = gm.usergroup "
              * + "where gm.person_id = :user_id and t.id in (:object_ids) ");
-             * 
+             *
              * aclParameters = getAclParameters(accessToken);
              */
 
@@ -557,7 +561,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     /**
      * Инициализирует параметры для для создания доменного объекта
-     * 
+     *
      * @param domainObject
      *            доменный объект
      * @param domainObjectTypeConfig
@@ -589,7 +593,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     /**
      * Создает SQL запрос для нахождения доменного объекта
-     * 
+     *
      * @param typeName
      *            тип доменного объекта
      * @return SQL запрос для нахождения доменного объекта
@@ -622,7 +626,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     /**
      * Создает SQL запрос для нахождения всех доменных объектов определенного
      * типа
-     * 
+     *
      * @param typeName
      *            тип доменного объекта
      * @return SQL запрос для нахождения доменного объекта
@@ -654,7 +658,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     /**
      * Создает SQL запрос для модификации доменного объекта
-     * 
+     *
      * @param domainObjectTypeConfig
      *            конфигурация доменного объекта
      * @return строку запроса для модиификации доменного объекта с параметрами
@@ -694,7 +698,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     /**
      * Инициализирует параметры для для создания доменного объекта
-     * 
+     *
      * @param domainObject
      *            доменный объект
      * @param domainObjectTypeConfig
@@ -724,7 +728,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     /**
      * Создает SQL запрос для создания доменного объекта
-     * 
+     *
      * @param domainObjectTypeConfig
      *            конфигурация доменного объекта
      * @return строку запроса для создания доменного объекта с параметрами
@@ -813,7 +817,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     /**
      * Создает SQL запрос для удаления доменного объекта
-     * 
+     *
      * @param domainObjectTypeConfig
      *            конфигурация доменного объекта
      * @return строку запроса для удаления доменного объекта с параметрами
@@ -834,7 +838,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     /**
      * Создает SQL запрос для удаления всех доменных объектов
-     * 
+     *
      * @param domainObjectTypeConfig
      *            конфигурация доменного объекта
      * @return строку запроса для удаления всех доменных объектов
@@ -854,7 +858,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     /**
      * Инициализирует параметр c id доменного объекта
-     * 
+     *
      * @param id
      *            идентификатор доменного объекта
      * @return карту объектов содержащую имя параметра и его значение
@@ -868,7 +872,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     /**
      * Создает SQL запрос для проверки существует ли доменный объект
-     * 
+     *
      * @param domainObjectName
      *            название доменного объекта
      * @return строку запроса для удаления доменного объекта с параметрами
@@ -888,7 +892,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     /**
      * Инициализирует параметры для удаления доменного объекта
-     * 
+     *
      * @param id
      *            идентификатор доменных объектов для удаления
      * @return карту объектов содержащую имя параметра и его значение
@@ -904,7 +908,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     /**
      * Инициализация параметров для отложенной провеки доступа.
-     * 
+     *
      * @param accessToken
      * @return
      */

@@ -11,6 +11,7 @@ import java.util.Collection;
  * User: atsvetkov Date: 17.05.13 Time: 13:52
  */
 public class DomainObjectLogicalValidator {
+
     final static Logger logger = LoggerFactory.getLogger(DomainObjectLogicalValidator.class);
 
     private ConfigurationExplorer configurationExplorer;
@@ -71,6 +72,10 @@ public class DomainObjectLogicalValidator {
             }
 
             ReferenceFieldConfig referenceFieldConfig  = (ReferenceFieldConfig) fieldConfig;
+
+            if (ConfigurationExplorer.REFERENCE_TYPE_ANY.equals(referenceFieldConfig.getType())) {
+                continue;
+            }
 
             DomainObjectTypeConfig referencedConfig =
                     configurationExplorer.getConfig(DomainObjectTypeConfig.class, referenceFieldConfig.getType());

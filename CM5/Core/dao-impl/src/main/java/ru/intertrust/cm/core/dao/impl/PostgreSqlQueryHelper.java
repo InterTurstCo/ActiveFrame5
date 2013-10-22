@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.*;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 
@@ -289,6 +290,10 @@ public class PostgreSqlQueryHelper {
 
         boolean commaNeeded = false;
         for (ReferenceFieldConfig fieldConfig : fieldConfigList) {
+            if (ConfigurationExplorer.REFERENCE_TYPE_ANY.equals(fieldConfig.getType())) {
+                continue;
+            }
+
             if (commaNeeded) {
                 query.append(", ");
             } else {
@@ -300,7 +305,7 @@ public class PostgreSqlQueryHelper {
             String typeReferenceColumnName = getReferenceTypeColumnName(fieldConfig);
             String referencedTableName = getSqlName(fieldConfig.getType());
             appendFKConstraint(query, tableName, new String[] { columnName,typeReferenceColumnName },
-                    referencedTableName, new String[] { ID_COLUMN,TYPE_COLUMN });
+                    referencedTableName, new String[] { ID_COLUMN, TYPE_COLUMN });
         }
 
         for (UniqueKeyConfig uniqueKeyConfig : uniqueKeyConfigList) {
