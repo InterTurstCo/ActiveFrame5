@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.config.model.gui.form.*;
 import ru.intertrust.cm.core.config.model.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
+import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
@@ -41,8 +42,12 @@ public class FormPanel implements IsWidget {
     public void update(FormState formState) {
         for (BaseWidget widget : widgets) {
             WidgetState newState = formState.getWidgetState(widget.getDisplayConfig().getId());
-            WidgetState currentState = widget.getCurrentState();
-            if (!newState.equals(currentState)) {
+            try {
+                WidgetState currentState = widget.getCurrentState();
+                if (!newState.equals(currentState)) {
+                    widget.setState(newState);
+                }
+            } catch (GuiException e) { // current state is illegal, thus force update
                 widget.setState(newState);
             }
         }
