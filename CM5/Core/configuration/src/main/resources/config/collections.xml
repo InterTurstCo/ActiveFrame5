@@ -155,6 +155,43 @@
             </criteria>
         </filter>
     </collection>
+    
+    <collection name="Examine_Card" idField="id">
+        <!--todo поддержка конвертации значений, например, в картинки -->
+
+        <prototype>
+            <![CDATA[
+                select
+                    ec.id, ec.name, ec.status,ec.parent_document
+                from
+                    Examine_Card ec
+                     ::from-clause
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+
+        <!-- если запрос-счётчик отсутствует, то в select подставляется count(*)
+            вместо названий колонок -->
+        <counting-prototype>
+            select count(*) from Examine_Card ec
+            ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+        <filter name="byDoc">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    ec.parent_document = {0}
+                ]]>
+            </criteria>
+        </filter>
+                <filter name="byStatus">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    ec.status = {0}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
 
     <collection name="Assignment" idField="id">
         <!--todo поддержка конвертации значений, например, в картинки -->

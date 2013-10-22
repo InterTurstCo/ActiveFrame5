@@ -31,6 +31,9 @@
             <long name="Stage"/>
             <string name="ReturnOnReject" length="3" />
             <reference name="docAuthor" type="Employee"/>
+            <reference name="Registrant" type="Employee"/>
+            <reference name="Inspector" type="Employee"/>
+            <string name="RegNum" length="128" />
         </fields>
     </domain-object-type>
     
@@ -40,6 +43,15 @@
             <reference name="Parent_Document" type="Internal_Document"/>
             <reference name="Negotiator" type="Employee"/> <!-- This means Foreign Key to Employee and index are created automatically -->
             <reference name="Add_Negotiation_Card" type="Negotiation_Card"/>
+        </fields>
+    </domain-object-type>
+    
+        <domain-object-type name="Examine_Card"> <!-- Internal_Document table -->
+        <fields>
+            <string name="Name" length="128" />
+            <string name="Status" length="64" />
+            <reference name="Parent_Document" type="Internal_Document"/>
+            <reference name="Examiner" type="Employee"/>
         </fields>
     </domain-object-type>
 
