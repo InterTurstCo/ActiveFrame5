@@ -1,11 +1,12 @@
 package ru.intertrust.cm.core.gui.impl.markup;
 
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.*;
-
+import ru.intertrust.cm.core.gui.impl.markup.uploader.SimpleUploader;
 
 
 public class CmjMenuNavigationDownSection extends VerticalPanel {
@@ -64,6 +65,11 @@ public class CmjMenuNavigationDownSection extends VerticalPanel {
                 result.removeFromParent();
             }
         });
-
+        SimpleUploader simpleUploader = new SimpleUploader();
+        simpleUploader.init();
+        simpleUploader.getElement().getStyle().setPaddingTop(40, Style.Unit.PX);
+          simpleUploader.setWidth("700px");
+        this.add(simpleUploader);
+       // simpleUploader.setWidth("100%");
 }
 }
