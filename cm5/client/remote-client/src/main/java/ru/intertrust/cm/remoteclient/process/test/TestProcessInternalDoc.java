@@ -49,6 +49,16 @@ public class TestProcessInternalDoc extends ClientBase {
             PersonManagementService.Remote personService =
                     (PersonManagementService.Remote) getService("PersonManagementService", PersonManagementService.Remote.class);
 
+            // Создание документа, который будет прикреплен к процессу
+            DomainObject attachment = crudService
+                    .createDomainObject("Internal_Document");
+            attachment.setString("Name", "Тестовый документ");
+            attachment.setString("Status", "Draft");
+            attachment.setString("ReturnOnReject", "YES");
+            attachment.setLong("Stage", 0L);
+            attachment.setString("RegNum", "InternalDoc111");
+            attachment = crudService.save(attachment);
+            
             // Создаем персону
             Id adminPerson = personService.getPersonId("admin");
             if (adminPerson == null) {
@@ -68,6 +78,32 @@ public class TestProcessInternalDoc extends ClientBase {
                 docAuthor = person.getId();
             }
             
+            // Создаем Регистранта
+            Id registrant = personService.getPersonId("Registrant");
+            if (registrant == null) {
+             	DomainObject person =	createEmployee();
+             	registrant = person.getId();
+            }
+            
+            //Создание карточек рассматривающих
+            for (int i=0;i<=5;i++){
+            	//Создание карточки согласования
+                DomainObject examineCard = crudService
+                        .createDomainObject("Examine_Card");
+                examineCard.setString("Name", "Карточка рассмотрения #"+String.valueOf(i));
+                examineCard.setString("Status", "Draft");
+                examineCard.setReference("Parent_Document", attachment);
+                
+                Id examiner = personService.getPersonId("Examiner"+i);
+                if (examiner == null) {
+                 	DomainObject person =	createEmployee();
+                 	examiner = person.getId();
+                }
+                examineCard.setReference("Examiner", examiner);
+                personIds.put("Examiner" + i, examiner);
+                examineCard =  crudService.save(examineCard);
+            }
+            
 
 
             byte[] processDef = getProcessAsByteArray("templates/testInternalDoc/InternalDoc.bpmn");
@@ -78,14 +114,22 @@ public class TestProcessInternalDoc extends ClientBase {
             defId = service.deployProcess(processDef,
                     "Negotiation.bpmn");
             
-            // Создание документа, который будет прикреплен к процессу
-            DomainObject attachment = crudService
-                    .createDomainObject("Internal_Document");
-            attachment.setString("Name", "Тестовый документ");
-            attachment.setString("Status", "Draft");
-            attachment.setString("ReturnOnReject", "YES");
-            attachment.setLong("Stage", 0L);
-            attachment.setReference("docAuthor", docAuthor); 
+            processDef = getProcessAsByteArray("templates/testInternalDoc/Registration.bpmn");
+            defId = service.deployProcess(processDef,
+                    "Registration.bpmn");
+            
+            processDef = getProcessAsByteArray("templates/testInternalDoc/DocExecution.bpmn");
+            defId = service.deployProcess(processDef,
+                    "DocExecution.bpmn");
+            
+            processDef = getProcessAsByteArray("templates/testInternalDoc/CommissionExecution.bpmn");
+            defId = service.deployProcess(processDef,
+                    "CommissionExecution.bpmn");
+            
+
+
+            attachment.setReference("docAuthor", docAuthor);
+            attachment.setReference("Registrant", registrant);
             attachment = crudService.save(attachment);
             Id personId = null;
             //Создание карточек согласования
@@ -127,7 +171,7 @@ public class TestProcessInternalDoc extends ClientBase {
             
             // Запуск процесса
             service.startProcess("InternalDocument", attachment.getId(), null);
-
+           
             Iterator<Entry<String, Id>> iter = personIds.entrySet().iterator();
         	
             while (iter.hasNext()){
@@ -141,7 +185,7 @@ public class TestProcessInternalDoc extends ClientBase {
                         // Получаем все доступные действия
                         String actions = task.getString("Actions");
                         log("All Actions = " + actions);
-                        service.completeTask(task.getId(), null, "REJECT");
+                        service.completeTask(task.getId(), null, "AGREE");
                         log("Complete " + task.getId());
                     }
                 }
@@ -165,6 +209,19 @@ public class TestProcessInternalDoc extends ClientBase {
                     }
                 }
             }
+            
+            
+        	// Получение всех задач регистратора и регистрация документа
+            List<DomainObject> tasks = service.getUserTasks(registrant);
+            log("Find " + tasks.size() + " tasks for user: " +registrant);
+            for (DomainObject task : tasks) {
+                if ("askRegistration".equals(task.getString("ActivityId"))) {
+                    // Получаем все доступные действия
+                    service.completeTask (task.getId(), null,null);
+                    log("Complete " + task.getId());
+                }
+            }
+            
             
         } finally {
             writeLog();
