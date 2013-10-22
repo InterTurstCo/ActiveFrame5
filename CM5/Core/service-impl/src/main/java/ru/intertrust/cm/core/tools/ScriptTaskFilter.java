@@ -46,7 +46,7 @@ public class ScriptTaskFilter {
 		}
 	}
 
-	public Enumeration<String> getFiltersNames(){
+	private Enumeration<String> getFiltersNames(){
 		return filters.keys();
 	}
 	
@@ -75,7 +75,7 @@ public class ScriptTaskFilter {
 	 * @param filter - фильтр
 	 * @param value - значение критерия
 	 */
-	public void addCriterion(Filter filter,Object value){
+	private void addCriterion(Filter filter,Object value){
 		if (value instanceof Id){
             //Создаем критерий фильтра
             ReferenceValue rv = new ReferenceValue((Id)value);

@@ -3,11 +3,8 @@ package ru.intertrust.cm.core.tools;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import org.springframework.context.ApplicationContext;
 
@@ -19,9 +16,7 @@ import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.LongValue;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
@@ -45,18 +40,18 @@ public class Session implements Serializable {
     }
 
     /**
-     * Получение коллекции
+     * Получение коллекции объектов по имени коллекции в collections.xml
      * @param collectionName
      * @return
      */
-    public IdentifiableObjectCollection find(String collectionName) {
+    public List<Id>  find(String collectionName) {
         AccessToken accessToken = getAccessControlService().createSystemAccessToken("Session");
 
         IdentifiableObjectCollection collection = getCollectionService().findCollection(collectionName, null, null, 0, 1000, accessToken);
         // TODO перобразовать коллекцию в коллекцию DomainObjectAccessor, но там
         // неи должно быть save, тоесть нужно создать другой класс для результата коллекции
         // List<DomainObjectAccessor> result = new ArrayList<DomainObjectAccessor>();
-        return collection;
+        return collectionToList(collection);
     }
     
     /**
@@ -65,7 +60,9 @@ public class Session implements Serializable {
      * @param id - id объекта
      * @param filterName - имя фильтра
      * @return
+     * @deprecated испольуйте {@link find(String collectionName,ScriptTaskFilter filters)} .  
      */
+    @Deprecated
     public IdentifiableObjectCollection find(String collectionName, Id id, String filterName) {
 
         AccessToken accessToken = getAccessControlService().createSystemAccessToken("Session");
@@ -85,23 +82,18 @@ public class Session implements Serializable {
         return collection;
     }
     /**
-     * Получение коллекции c фильтром по id. Фильтр должен быть по id
+     * Получение коллекции c фильтрацией
      * @param collectionName
      * @param o - массив параметров
      * @return
      */
-    public List<IdentifiableObject> find(String collectionName,ScriptTaskFilter filters) {
+    public List<Id> find(String collectionName,ScriptTaskFilter filters) {
         AccessToken accessToken = getAccessControlService().createSystemAccessToken("Session");
         IdentifiableObjectCollection collection = getCollectionService().findCollection(collectionName, filters.getFiltersList(), null, 0, 1000, accessToken);
         // TODO перобразовать коллекцию в коллекцию DomainObjectAccessor, но там
         // неи должно быть save, тоесть нужно создать другой класс для результата коллекции
         // List<DomainObjectAccessor> result = new ArrayList<DomainObjectAccessor>();
-        Iterator<IdentifiableObject> iterator2 = collection.iterator();
-        ArrayList<IdentifiableObject> list = new ArrayList<IdentifiableObject>();
-        while (iterator2.hasNext()){
-        	list.add(iterator2.next());
-        }
-        return list;
+        return collectionToList(collection);
     }
 
     /**
@@ -178,28 +170,29 @@ public class Session implements Serializable {
     }
     /**
      * Изменить статус для всех карточек в коллекции
-     * @param collection - коллекция IdentifiableObject
+     * @param collection - коллекция Id
      * @param status - новый статус
      */
-    public void setCardsStatus(ArrayList<IdentifiableObject> collection, String status){
-    	Iterator<IdentifiableObject> iter = collection.iterator();
+    public void setCardsStatus(ArrayList<Id> collection, String status){
+    	Iterator<Id> iter = collection.iterator();
     	while (iter.hasNext()){
-    		DomainObjectAccessor card = find(iter.next().getId());
+    		DomainObjectAccessor card = find(iter.next());
     		card.setStatus(status);
     	}
     }
     
     /**
      * Изменить статус для всех карточек в коллекции, которые имеют определенный статус
-     * @param collection - коллекция IdentifiableObject
+     * @param collection - коллекция Id
      * @param fromStatus - текущий статус карточки
      * @param toStatus - новый статус
      * @param allButOne - флаг. Если true, то поменять статус у всех карточек, статус которых не равен <fromStatus>. Если false, то поменять статус только у карточек со статусом <fromStatus>.
      */
-    public void setCardsStatus(ArrayList<IdentifiableObject> collection, String fromStatus, String toStatus, Boolean allButOne){
-    	Iterator<IdentifiableObject> iter = collection.iterator();
+    public void setCardsStatus(ArrayList<Id> collection, String fromStatus, String toStatus, Boolean allButOne){
+    	Iterator<Id> iter = collection.iterator();
     	while (iter.hasNext()){
-    		DomainObjectAccessor card = find(iter.next().getId());
+    		DomainObjectAccessor card = find(iter.next());
+    		//Попадаем в условие, когда только 1 из аргументов=true
     		if (allButOne^card.getStatus().equals(fromStatus)){
     			card.setStatus(toStatus);
     		}   		
@@ -213,5 +206,28 @@ public class Session implements Serializable {
     public ScriptTaskFilter createFilter(){
     	return new ScriptTaskFilter();
     }
-
+    
+    /**
+     * Возвращает строковое представление id
+     * @param id
+     * @return
+     */
+    public String getStrId(Id id){
+    	return id.toStringRepresentation();
+    }
+    
+    /**
+     * Преобразование коллекции в список для использование в JavaScript
+     * @param collection
+     * @return
+     */
+    private List<Id> collectionToList(IdentifiableObjectCollection collection){
+        Iterator<IdentifiableObject> iterator2 = collection.iterator();
+        ArrayList<Id> list = new ArrayList<Id>();
+        while (iterator2.hasNext()){
+        	list.add(iterator2.next().getId());
+        }
+        return list;
+    }
+    
 }
