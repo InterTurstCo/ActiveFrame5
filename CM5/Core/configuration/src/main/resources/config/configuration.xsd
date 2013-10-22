@@ -816,7 +816,7 @@
             <xs:element type="con:summaryTableType" name="summary-table"
                 xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:sequence>
-        <xs:attribute type="xs:string" name="id" />
+        <xs:attribute type="xs:string" name="id" use = "required" />
     </xs:complexType>
     <xs:complexType name="summaryTableType">
         <xs:sequence>
@@ -882,7 +882,7 @@
                 xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
         </xs:sequence>
-        <xs:attribute type="xs:string" name="id" />
+        <xs:attribute type="xs:string" name="id" use = "required"/>
     </xs:complexType>
     <xs:complexType name="hidingGroupsType">
         <xs:sequence>
@@ -1056,7 +1056,7 @@
             <xs:element type="con:formTableType" name="form-table"
                 xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:sequence>
-        <xs:attribute type="xs:string" name="id" use="optional" />
+        <xs:attribute type="xs:string" name="id" use="required" />
     </xs:complexType>
     <xs:complexType name="summaryTableColumnType">
         <xs:sequence>
