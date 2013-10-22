@@ -24,10 +24,6 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
 
     final static Logger logger = LoggerFactory.getLogger(DynamicGroupServiceImpl.class);
 
-    private static final String USER_GROUP_DOMAIN_OBJECT = "User_Group";
-
-    private static final String GROUP_MEMBER_DOMAIN_OBJECT = "Group_Member";
-
     @Autowired
     private ConfigurationExplorer configurationExplorer;
 
@@ -317,8 +313,10 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
         List<DynamicGroupConfig> dynamicGroups = getDynamicGroupsToRecalculate(objectId, status);
         for (DynamicGroupConfig dynamicGroupConfig : dynamicGroups) {
             Id contextObjectId = getContextObjectId(dynamicGroupConfig, objectId);
-            Id dynamicGroupId = deleteUserGroupByGroupNameAndObjectId(dynamicGroupConfig.getName(), ((RdbmsId)contextObjectId).getId());
-            cleanGroupMembers(dynamicGroupId);
+            Id userGroupId = getUserGroupByGroupNameAndObjectId(dynamicGroupConfig.getName(), ((RdbmsId)contextObjectId).getId());
+            cleanGroupMembers(userGroupId);
+            //TODO
+            Id dynamicGroupId = deleteUserGroupByGroupNameAndObjectId(userGroupId, dynamicGroupConfig.getName(), ((RdbmsId)contextObjectId).getId());
         }
 
     }

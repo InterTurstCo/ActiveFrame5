@@ -49,7 +49,6 @@
         <domain-object-type name="Examine_Card"> <!-- Internal_Document table -->
         <fields>
             <string name="Name" length="128" />
-            <string name="Status" length="64" />
             <reference name="Parent_Document" type="Internal_Document"/>
             <reference name="Examiner" type="Employee"/>
         </fields>

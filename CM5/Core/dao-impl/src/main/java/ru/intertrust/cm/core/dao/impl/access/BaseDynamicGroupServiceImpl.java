@@ -20,6 +20,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.impl.doel.DoelResolver;
@@ -68,9 +69,7 @@ public class BaseDynamicGroupServiceImpl {
      * @param contextObjectId идентфикатор контекстного объекта
      * @return идентификатор удаленной динамической группы
      */
-    protected Id deleteUserGroupByGroupNameAndObjectId(String groupName, Long contextObjectId) {
-        Id userGroupId = getUserGroupByGroupNameAndObjectId(groupName, contextObjectId);
-
+    protected Id deleteUserGroupByGroupNameAndObjectId(Id userGroupId, String groupName, Long contextObjectId) {
         if (userGroupId != null) {
             String query = generateDeleteUserGroupQuery();
 
@@ -151,20 +150,28 @@ public class BaseDynamicGroupServiceImpl {
      * @return статус доменного объекта
      */
     protected String getStatusFor(Id objectId) {
-        String query = generateGetStatusForQuery(objectId);
-
-        Map<String, Object> parameters = initializeGetStatusParameters(objectId);
-        return jdbcTemplate.query(query, parameters, new ResultSetExtractor<String> (){
-            @Override
-            public String extractData(ResultSet rs) throws SQLException, DataAccessException {
-                String status = null;
-
-                while (rs.next()) {
-                    status = rs.getString(1);
+        String status = null;
+        if (!isStatusDO(objectId)) {
+            String query = generateGetStatusForQuery(objectId);
+            Map<String, Object> parameters = initializeGetStatusParameters(objectId);
+            status = jdbcTemplate.query(query, parameters, new ResultSetExtractor<String>() {
+                @Override
+                public String extractData(ResultSet rs) throws SQLException, DataAccessException {
+                    String status = null;
+                    while (rs.next()) {
+                        status = rs.getString(1);
+                    }
+                    return status;
                 }
-                return status;
-            }
-        });
+            });
+
+        }
+        return status;
+    }
+
+    private boolean isStatusDO(Id objectId) {
+        String domainObjectType = domainObjectTypeIdCache.getName(objectId);
+        return DomainObjectDao.STATUS_DO.equalsIgnoreCase(domainObjectType);
     }
 
     private String generateGetStatusForQuery(Id objectId) {
