@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration xmlns="https://cm5.intertrust.ru/config">
-    <domain-object-type name="country">
+    <domain-object-type name="country" initial-status="Active">
         <fields>
             <string name="name" length="128" />
             <dateTime name="independence_day"/>
@@ -15,7 +15,7 @@
         </uniqueKey>
     </domain-object-type>
 
-    <domain-object-type name="country_best_friend">
+    <domain-object-type name="country_best_friend" initial-status="Active">
         <fields>
             <reference name="country" type="country"/>
             <reference name="best_friend" type="country"/>
@@ -39,7 +39,7 @@
         </fields>
     </domain-object-type>
 
-    <domain-object-type name="super_country" extends="country">
+    <domain-object-type name="super_country" extends="country" initial-status="Active">
         <fields>
             <string name="additional_name" length="128" />
         </fields>
