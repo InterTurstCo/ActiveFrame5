@@ -221,6 +221,10 @@ public class FormSaver {
         if (previousState == null) {
             previousState = new ArrayList<>(0);
         }
+        if (newValues == null) {
+            newValues = new ArrayList<>(0);
+        }
+
         HashSet<Value> oldValuesSet = new HashSet<>(previousState.size());
         for (DomainObject previousStateObject : previousState) {
             oldValuesSet.add(new ReferenceValue(previousStateObject.getId()));
@@ -272,6 +276,10 @@ public class FormSaver {
         if (previousState == null) {
             previousState = new ArrayList<>(0);
         }
+        if (newValues == null) {
+            newValues = new ArrayList<>(0);
+        }
+
         HashSet<Value> oldValuesSet = new HashSet<>(previousState.size());
         HashMap<Value, DomainObject> oldValuesDomainObjects = new HashMap<>(previousState.size());
         for (DomainObject previousStateObject : previousState) {
