@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.config.model;
+package ru.intertrust.cm.core.config.model.gui;
 
 import java.io.Serializable;
 import java.util.List;

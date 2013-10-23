@@ -1,8 +1,8 @@
-package ru.intertrust.cm.core.config.model;
+package ru.intertrust.cm.core.config.model.gui;
 
 import org.simpleframework.xml.Attribute;
 
-public class StartProcessActionConfig implements ActionSettings {
+public class CompleteTaskActionData implements ActionSettings {
 
     @Attribute(required = true)
     private String processName;

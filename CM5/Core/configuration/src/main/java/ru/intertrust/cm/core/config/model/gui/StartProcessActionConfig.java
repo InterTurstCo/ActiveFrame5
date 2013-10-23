@@ -1,8 +1,8 @@
-package ru.intertrust.cm.core.config.model;
+package ru.intertrust.cm.core.config.model.gui;
 
 import org.simpleframework.xml.Attribute;
 
-public class SendProcessEvent implements ActionSettings {
+public class StartProcessActionConfig implements ActionSettings {
 
     @Attribute(required = true)
     private String processName;
@@ -14,4 +14,5 @@ public class SendProcessEvent implements ActionSettings {
     public void setProcessName(String processName) {
         this.processName = processName;
     }
+
 }
