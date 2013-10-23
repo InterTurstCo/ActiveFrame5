@@ -8,11 +8,10 @@ import ru.intertrust.cm.core.gui.model.action.ActionData;
 /**
  * @author Denis Mitavskiy
  *         Date: 23.10.13
- *         Time: 15:10
+ *         Time: 15:19
  */
-@ComponentName("start.process.action")
-public class StartProcessAction extends ActionHandler {
-
+@ComponentName("send.process.event.action")
+public class SendProcessEventActionHandler extends ActionHandler {
     @Override
     public <T extends ActionData> T executeAction(ActionContext context) {
         return null;

@@ -11,7 +11,7 @@ import ru.intertrust.cm.core.gui.model.action.ActionData;
  *         Time: 15:18
  */
 @ComponentName("complete.task.action")
-public class CompleteTaskAction extends ActionHandler {
+public class CompleteTaskActionHandler extends ActionHandler {
 
     @Override
     public <T extends ActionData> T executeAction(ActionContext context) {
