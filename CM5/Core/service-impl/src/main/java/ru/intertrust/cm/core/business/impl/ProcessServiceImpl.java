@@ -310,7 +310,7 @@ public class ProcessServiceImpl implements ProcessService {
         filters.add(filter);
         filter = new Filter();
         filter.setFilter("byAttachment");
-        rv = new StringValue(attachedObjectId.toStringRepresentation());
+        rv = new ReferenceValue(attachedObjectId);
         filter.addCriterion(0, rv);
         filters.add(filter);
 

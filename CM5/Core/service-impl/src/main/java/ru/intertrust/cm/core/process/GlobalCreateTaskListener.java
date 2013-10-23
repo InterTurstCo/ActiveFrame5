@@ -102,7 +102,7 @@ public class GlobalCreateTaskListener extends SpringClient implements
         if (mainAttachmentId == null) {
         	throw new ProcessException("MAIN_ATTACHMENT_ID is requred");  	
         }
-        taskDomainObject.setString("MainAttachment", mainAttachmentId);
+        taskDomainObject.setReference("MainAttachment", idService.createId(mainAttachmentId));
 
         // Сохранение доменного объекта
         taskDomainObject = domainObjectDao.save(taskDomainObject);

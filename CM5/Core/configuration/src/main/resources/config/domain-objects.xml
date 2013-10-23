@@ -165,16 +165,16 @@
 
     <domain-object-type name="Person_Task">
         <fields>
-            <string name="TaskId" length="32" />
-            <string name="ActivityId" length="32" />
-            <string name="Name" length="512" />
+            <string name="TaskId" length="32"  not-null="true"/>
+            <string name="ActivityId" length="32"  not-null="true"/>
+            <string name="Name" length="512"  not-null="true"/>
             <string name="Description" length="1024" />
             <long name="Priority"/>
-            <string name="MainAttachment" length="512"/>
-            <long name="State"/>
+            <reference name="MainAttachment" type="*" not-null="true"/>
             <string name="Actions" length="512"/>
             <string name="Result" length="512"/>
             <string name="ExecutionId" length="32" />
+            <long name="State"/>
         </fields>
         <uniqueKey>
             <field name="TaskId"/>
@@ -183,8 +183,8 @@
 
     <domain-object-type name="Task_Attachment">
         <fields>
-            <reference name="PersonTask" type="Person_Task"/>
-            <string name="AttachmentId" length="512" />
+            <reference name="PersonTask" type="Person_Task" not-null="true"/>
+            <reference name="AttachmentId" type="*" not-null="true"/>
         </fields>
     </domain-object-type>
 

@@ -5,10 +5,16 @@
     <endEvent id="endevent1" name="End"></endEvent>
     <userTask id="usertask1" name="Пользовательская задача 1" activiti:assignee="#{personManagement.getPersonId(&quot;admin&quot;).toStringRepresentation()}" activiti:priority="1">
       <documentation>Выполните первую задачу. Тестирую пользовательские задачи.</documentation>
+      <extensionElements>
+        <activiti:formProperty id="MAIN_ATTACHMENT_ID" type="string" expression="${MAIN_ATTACHMENT_ID.toStringRepresentation()}"></activiti:formProperty>
+      </extensionElements>
     </userTask>
     <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="usertask1"></sequenceFlow>
     <userTask id="usertask2" name="Пользовательская задача 2" activiti:assignee="#{personManagement.getPersonId(&quot;admin&quot;).toStringRepresentation()}">
       <documentation>Выполните вторую задачу. Тестирую задачи по документу</documentation>
+      <extensionElements>
+        <activiti:formProperty id="MAIN_ATTACHMENT_ID" type="string" expression="${MAIN_ATTACHMENT_ID.toStringRepresentation()}"></activiti:formProperty>
+      </extensionElements>
     </userTask>
     <sequenceFlow id="flow2" sourceRef="usertask1" targetRef="usertask2"></sequenceFlow>
     <sequenceFlow id="flow3" sourceRef="usertask2" targetRef="scripttask1"></sequenceFlow>
@@ -36,6 +42,7 @@ newObject.save();</script>
           <activiti:value id="YES" name="Да"></activiti:value>
           <activiti:value id="NO" name="Нет"></activiti:value>
         </activiti:formProperty>
+        <activiti:formProperty id="MAIN_ATTACHMENT_ID" type="string" expression="${MAIN_ATTACHMENT_ID.toStringRepresentation()}"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <sequenceFlow id="flow5" sourceRef="usertask3" targetRef="scripttask4"></sequenceFlow>
@@ -74,7 +81,11 @@ MAIN_ATTACHMENT.save();</script>
     <subProcess id="subprocess1" name="Sub Process">
       <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="${col}" activiti:elementVariable="item"></multiInstanceLoopCharacteristics>
       <startEvent id="startevent2" name="Start"></startEvent>
-      <userTask id="usertask4" name="Проверка завершения всех задач в подпроцессах в случае прерывания подпроцесса" activiti:assignee="#{personManagement.getPersonId(&quot;admin&quot;).toStringRepresentation()}"></userTask>
+      <userTask id="usertask4" name="Проверка завершения всех задач в подпроцессах в случае прерывания подпроцесса" activiti:assignee="#{personManagement.getPersonId(&quot;admin&quot;).toStringRepresentation()}">
+        <extensionElements>
+          <activiti:formProperty id="MAIN_ATTACHMENT_ID" type="string" expression="${MAIN_ATTACHMENT_ID.toStringRepresentation()}"></activiti:formProperty>
+        </extensionElements>
+      </userTask>
       <sequenceFlow id="flow12" sourceRef="startevent2" targetRef="usertask4"></sequenceFlow>
       <endEvent id="errorendevent1" name="ErrorEnd">
         <errorEventDefinition errorRef="error1"></errorEventDefinition>
@@ -89,7 +100,11 @@ col.add("SECOND");
 execution.setVariable("col", col);</script>
     </scriptTask>
     <sequenceFlow id="flow15" sourceRef="exclusivegateway2" targetRef="scripttask5"></sequenceFlow>
-    <userTask id="usertask5" name="Прверка когда выйходим из подпроцесса. После завершения всех задач или нет" activiti:assignee="#{personManagement.getPersonId(&quot;admin&quot;).toStringRepresentation()}"></userTask>
+    <userTask id="usertask5" name="Прверка когда выйходим из подпроцесса. После завершения всех задач или нет" activiti:assignee="#{personManagement.getPersonId(&quot;admin&quot;).toStringRepresentation()}">
+      <extensionElements>
+        <activiti:formProperty id="MAIN_ATTACHMENT_ID" type="string" expression="${MAIN_ATTACHMENT_ID.toStringRepresentation()}"></activiti:formProperty>
+      </extensionElements>
+    </userTask>
     <sequenceFlow id="flow16" sourceRef="usertask5" targetRef="endevent1"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway3" name="Exclusive Gateway"></exclusiveGateway>
     <boundaryEvent id="boundaryerror1" name="ErrorEnd2" attachedToRef="subprocess1">
