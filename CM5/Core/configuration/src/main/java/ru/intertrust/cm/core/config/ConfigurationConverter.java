@@ -51,7 +51,8 @@ public class ConfigurationConverter implements org.simpleframework.xml.convert.C
             return;
         }
 
-        Serializer serializer = new Persister();
+        Strategy strategy = new AnnotationStrategy();
+        Serializer serializer = new Persister(strategy);
 
         for(Object configItem : configuration.getConfigurationList()) {
             serializer.write(configItem, outputNode);
