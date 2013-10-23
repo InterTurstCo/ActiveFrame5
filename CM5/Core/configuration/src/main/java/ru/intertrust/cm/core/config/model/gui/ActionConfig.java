@@ -1,8 +1,9 @@
 package ru.intertrust.cm.core.config.model.gui;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.model.*;
 
-/**
+/** 
  * @author Denis Mitavskiy
  *         Date: 22.08.13
  *         Time: 16:02
@@ -13,6 +14,7 @@ public class ActionConfig implements Dto {
     private String text;
     private String imageUrl;
     private boolean showText;
+    private ActionSettingsConfig ActionSettingsConfig;
 
     public ActionConfig() {
     }
@@ -64,6 +66,14 @@ public class ActionConfig implements Dto {
 
     public void setShowText(boolean showText) {
         this.showText = showText;
+    }
+
+    public ActionSettingsConfig getActionSettingsConfig() {
+        return ActionSettingsConfig;
+    }
+
+    public void setActionSettingsConfig(ActionSettingsConfig actionSettingsConfig) {
+        ActionSettingsConfig = actionSettingsConfig;
     }
 
     @Override

@@ -49,4 +49,13 @@
         </after-execution>
 
     </action>
+
+    <!--action-context name="sign">
+        <domain-object-context>
+            <type name="Outgoing_Document"/>
+            <type name="Internal_Document"/>
+            <Status>OnRegistration</Status>
+        </domain-object-context>
+        <action name="sign.action">
+    </action-context-->
 </configuration>
