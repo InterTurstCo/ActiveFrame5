@@ -13,11 +13,14 @@ import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.model.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.model.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.model.gui.form.widget.WidgetConfigurationConfig;
+import ru.intertrust.cm.core.gui.api.server.widget.MultiObjectWidgetHandler;
+import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.FormObjects;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.ObjectsNode;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.util.*;
@@ -111,7 +114,23 @@ public class FormSaver {
                 save(operation.domainObject, savedObjectsMap);
             }
         }
+        saveNewLinkedObjects(formState, widgetConfigs);
         return rootDomainObject;
+    }
+
+    private void saveNewLinkedObjects(FormState formState, List<WidgetConfig> widgetConfigs) {
+        FormObjects formObjects = formState.getObjects();
+        for (WidgetConfig config : widgetConfigs) {
+            WidgetState widgetState = formState.getWidgetState(config.getId());
+            if (widgetState == null) { // ignore - such data shouldn't be saved
+                continue;
+            }
+            WidgetHandler componentHandler = (WidgetHandler) applicationContext.getBean(config.getComponentName());
+            if (componentHandler instanceof MultiObjectWidgetHandler) {
+                WidgetContext widgetContext = new WidgetContext(config, formObjects);
+                ((MultiObjectWidgetHandler) componentHandler).saveNewObjects(widgetContext, widgetState);
+            }
+        }
     }
 
     private boolean areValuesSemanticallyEqual(Value newValue, Value oldValue) {

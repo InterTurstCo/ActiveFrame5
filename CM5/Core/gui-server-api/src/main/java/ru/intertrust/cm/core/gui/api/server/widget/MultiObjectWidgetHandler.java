@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 /**
  * @author Denis Mitavskiy
@@ -28,5 +29,8 @@ public abstract class MultiObjectWidgetHandler extends WidgetHandler {
             linkType = ((ReferenceFieldConfig) configurationService.getFieldConfig(parentType, backlink)).getType();
         }
         return linkType;
+    }
+
+    public void saveNewObjects(WidgetContext context, WidgetState state) {
     }
 }
