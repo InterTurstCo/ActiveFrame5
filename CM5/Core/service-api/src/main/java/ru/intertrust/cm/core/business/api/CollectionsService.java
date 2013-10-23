@@ -54,6 +54,22 @@ public interface CollectionsService {
     IdentifiableObjectCollection findCollection(String collectionName);
 
     /**
+     * Возвращает коллекцию по запросу
+     * @param query запрос
+     * @param limit максимальное количество возвращаемых доменных объектов
+     * @return коллекцию объектов {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObject}
+     */
+    IdentifiableObjectCollection findCollectionByQuery(String query, int offset, int limit);
+
+
+    /**
+     * Возвращает коллекцию по запросу
+     * @param query запрос
+     * @return коллекцию объектов {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObject}
+     */
+    IdentifiableObjectCollection findCollectionByQuery(String query);
+
+    /**
      * Возвращает количество элементов заданной коллекции, отфильтрованной согласно списку фильтров
      *
      * @param collectionName название коллекции

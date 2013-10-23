@@ -19,7 +19,7 @@ import java.util.*;
 /**
  * Базовй класс для отображения {@link java.sql.ResultSet} на доменные объекты и
  * коллекции.
- * 
+ *
  * @author atsvetkov
  */
 public class BasicRowMapper {
@@ -45,33 +45,9 @@ public class BasicRowMapper {
     }
 
     /**
-     * Отображает типы полей в базе на
-     * {@link ru.intertrust.cm.core.dao.impl.DataType}
-     * 
-     * @param columnTypeName
-     * @return
-     */
-    protected DataType getColumnType(String columnTypeName) {
-        DataType result = null;
-        if (columnTypeName.equals("int8")) {
-            result = DataType.INTEGER;
-        } else if (columnTypeName.equals("timestamp")) {
-            result = DataType.DATETIME;
-        } else if (columnTypeName.equals("varchar") || columnTypeName.equals("unknown")
-                || columnTypeName.equals("text")) {
-            result = DataType.STRING;
-        } else if (columnTypeName.equals("bool")) {
-            result = DataType.BOOLEAN;
-        } else if (columnTypeName.equals("numeric")) {
-            result = DataType.DECIMAL;
-        }
-        return result;
-    }
-
-    /**
      * Отображает типы колонок в конфигурации коллекции на
      * {@link ru.intertrust.cm.core.dao.impl.DataType}.
-     * 
+     *
      * @param columnType
      *            типы колонок в конфигурации
      * @return объект {@link ru.intertrust.cm.core.dao.impl.DataType}
@@ -92,9 +68,26 @@ public class BasicRowMapper {
         return result;
     }
 
+    protected DataType getColumnDataTypeByDbTypeName(String columnTypeName) {
+        DataType result = null;
+        if (columnTypeName.equals("int8")) {
+            result = DataType.INTEGER;
+        } else if (columnTypeName.equals("timestamp")) {
+            result = DataType.DATETIME;
+        } else if (columnTypeName.equals("varchar") || columnTypeName.equals("unknown")
+                || columnTypeName.equals("text")) {
+            result = DataType.STRING;
+        } else if (columnTypeName.equals("bool")) {
+            result = DataType.BOOLEAN;
+        } else if (columnTypeName.equals("numeric")) {
+            result = DataType.DECIMAL;
+        }
+        return result;
+    }
+
     /**
      * Заполняет модель {@see FieldValueModel} из объекта {@see ResultSet}.
-     * 
+     *
      * @param rs
      *            {@see ResultSet}
      * @param valueModel
@@ -165,7 +158,7 @@ public class BasicRowMapper {
     /**
      * Заполняет поля доменного объекта (id, parent или атрибут) из модели
      * {@see FieldValueModel}.
-     * 
+     *
      * @param object
      *            исходный доменного объекта
      * @param valueModel
@@ -245,7 +238,7 @@ public class BasicRowMapper {
         }
         return result;
     }
-    
+
     private void setDomainObjectFields(GenericDomainObjectVersion object, ResultSet rs, String type) throws SQLException {
         if (type != null) {
             DomainObjectTypeConfig doConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, type);
@@ -300,7 +293,7 @@ public class BasicRowMapper {
     /**
      * Обертывает заполненное поле (атрибут), поле parent или поле id в доменном
      * объекте.
-     * 
+     *
      * @author atsvetkov
      */
     protected class FieldValueModel {
@@ -354,7 +347,7 @@ public class BasicRowMapper {
     /**
      * Модель для хранкения названия колонолк и названия колонки-первичного
      * ключа для доменного объекта.
-     * 
+     *
      * @author atsvetkov
      */
     protected class ColumnModel {

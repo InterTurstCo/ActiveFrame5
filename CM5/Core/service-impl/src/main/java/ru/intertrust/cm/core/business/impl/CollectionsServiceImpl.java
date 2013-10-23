@@ -33,7 +33,7 @@ public class CollectionsServiceImpl implements CollectionsService {
 
     @Autowired
     private AccessControlService accessControlService;
-        
+
     public void setAccessControlService(AccessControlService accessControlService) {
         this.accessControlService = accessControlService;
     }
@@ -68,6 +68,21 @@ public class CollectionsServiceImpl implements CollectionsService {
         int userId = 1;
         AccessToken accessToken = accessControlService.createCollectionAccessToken(userId);
         return collectionsDao.findCollectionCount(collectionName, filterValues, accessToken);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public IdentifiableObjectCollection findCollectionByQuery(String query, int offset, int limit) {
+        // TODO get userId from EJB Context
+        int userId = 1;
+        AccessToken accessToken = accessControlService.createCollectionAccessToken(userId);
+        return collectionsDao.findCollectionByQuery(query, offset, limit, accessToken);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public IdentifiableObjectCollection findCollectionByQuery(String query) {
+        return findCollectionByQuery(query, 0, 0);
     }
 
 }

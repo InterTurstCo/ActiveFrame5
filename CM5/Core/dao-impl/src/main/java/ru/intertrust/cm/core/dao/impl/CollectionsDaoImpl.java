@@ -71,7 +71,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
     /*
      * {@see
-     * ru.intertrust.cm.core.dao.api.DomainObjectDao#findCollectionByQuery(ru.intertrust.cm.core.config.model.CollectionNestedConfig,
+     * ru.intertrust.cm.core.dao.api.DomainObjectDao#findCollection(ru.intertrust.cm.core.config.model.CollectionNestedConfig,
      * java.util.List, ru.intertrust.cm.core.business.api.dto.SortOrder, int, int)}
      */
     @Override
@@ -98,6 +98,29 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
         return collection;
     }
+
+    /*
+     * {@inheritDoc}
+     */
+    @Override
+    public IdentifiableObjectCollection findCollectionByQuery(String query, int offset, int limit,
+                                                              AccessToken accessToken) {
+        CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer(configurationExplorer);
+        String collectionQuery = collectionQueryInitializer.initializeQuery(query, offset, limit, accessToken);
+
+        Map<String, Object> parameters = new HashMap<>();
+        if (accessToken.isDeferred()) {
+            fillAclParameters(accessToken, parameters);
+        }
+
+        collectionQuery = adjustParameterNamesForSpring(collectionQuery);
+
+        IdentifiableObjectCollection collection = jdbcTemplate.query(collectionQuery, parameters,
+                new CollectionRowMapper(configurationExplorer, domainObjectTypeIdCache));
+
+        return collection;
+    }
+
 
     private void fillAclParameters(AccessToken accessToken, Map<String, Object> parameters) {
         parameters.put("user_id", ((UserSubject)accessToken.getSubject()).getUserId());

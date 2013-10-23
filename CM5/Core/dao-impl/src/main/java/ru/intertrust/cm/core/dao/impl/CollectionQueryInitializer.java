@@ -63,6 +63,12 @@ public class CollectionQueryInitializer {
 
     }
 
+    public String initializeQuery(String query, int offset, int limit, AccessToken accessToken) {
+        StringBuilder collectionQuery = new StringBuilder(query);
+        applyOffsetAndLimit(collectionQuery, offset, limit);
+        return postProcessQuery(accessToken, query);
+    }
+
     /**
      * Пост обработка запроса после применения фильтров и правил сортировки. Добавляет поле тип идентификатора доменного объекта и ACL фильтр.
      * @param collectionConfig конфигурация коллекции
@@ -76,6 +82,25 @@ public class CollectionQueryInitializer {
 
 /*        if (accessToken.isDeferred()) {
             query = sqlQueryModifier.addAclQuery(query, collectionConfig.getIdField());
+        }
+*/
+        sqlQueryModifier.checkDuplicatedColumns(query);
+
+        return query;
+    }
+
+    /**
+     * Пост обработка запроса после применения фильтров и правил сортировки. Добавляет поле тип идентификатора доменного объекта и ACL фильтр.
+     * @param accessToken маркер доступа. В случае отложенного маркера добавляет ACL фильтр.
+     * @param query первоначальный запрос
+     * @return измененный запрос
+     */
+    private String postProcessQuery(AccessToken accessToken, String query) {
+        SqlQueryModifier sqlQueryModifier = new SqlQueryModifier();
+        query = sqlQueryModifier.addReferenceFieldTypes(query, configurationExplorer);
+
+/*        if (accessToken.isDeferred()) {
+            query = sqlQueryModifier.addAclQuery(query, "id");
         }
 */
         sqlQueryModifier.checkDuplicatedColumns(query);

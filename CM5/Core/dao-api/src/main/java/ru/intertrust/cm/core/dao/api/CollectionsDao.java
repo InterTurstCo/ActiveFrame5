@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.dao.api;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
-import ru.intertrust.cm.core.config.model.base.CollectionFilterConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 
 import java.util.List;
@@ -28,6 +27,16 @@ public interface CollectionsDao {
      */
     IdentifiableObjectCollection findCollection(String collectionName,
                                                 List<Filter> filterValues, SortOrder sortOrder, int offset, int limit, AccessToken accessToken);
+
+    /**
+     * Поиск коллекции доменных объектов, используя запрос
+     * @param query запрос
+     * @param offset смещение
+     * @param limit ограничение количества возвращенных доменных объектов
+     * @return
+     */
+    public IdentifiableObjectCollection findCollectionByQuery(String query, int offset, int limit,
+                                                              AccessToken accessToken);
 
     /**
      * Поиск количества записей в коллекции доменных объектов используя фильтры

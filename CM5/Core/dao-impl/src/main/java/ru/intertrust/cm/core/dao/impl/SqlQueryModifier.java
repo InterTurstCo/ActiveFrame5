@@ -17,6 +17,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TYPE_COLUMN;
+
 /**
  * Модифицирует SQL запросы. Добавляет поле Тип Объекта идентификатора в SQL запрос получения данных для коллекции, добавляет ACL фильтр в
  * SQL получения данных данных для коллекции
@@ -115,7 +118,8 @@ public class SqlQueryModifier {
         Set<String> columns = new HashSet<>();
         for (Object selectItem : plainSelect.getSelectItems()) {
             SelectExpressionItem selectExpressionItem = (SelectExpressionItem) selectItem;
-            String column = selectExpressionItem.getAlias() + ":" + selectExpressionItem.getExpression().toString();
+            String column = selectExpressionItem.getAlias() + ":" +
+                    ((Column) selectExpressionItem.getExpression()).getColumnName();
             column = column.toLowerCase();
             if (!columns.add(column)) {
                 throw new CollectionQueryException("Collection query contains duplicated columns: " +
@@ -124,16 +128,7 @@ public class SqlQueryModifier {
         }
     }
 
-    private void addTypeColumnInPlainSelect(PlainSelect plainSelect) {
-        String tableAlias = getFromTableAlias(plainSelect);
-        SelectExpressionItem objectTypeSelectItem = createObjectTypeSelectItem(tableAlias);
-        plainSelect.getSelectItems().add(objectTypeSelectItem);
-    }
-
     private void addReferenceFieldTypeTypeColumnsInPlainSelect(PlainSelect plainSelect, ConfigurationExplorer configurationExplorer) {
-        String tableAlias = getFromTableAlias(plainSelect);
-        String tableName = ((Table) plainSelect.getFromItem()).getName();
-
         List<SelectExpressionItem> selectExpressionItemsToAdd = new ArrayList<>();
 
         for (Object selectItem : plainSelect.getSelectItems()) {
@@ -142,21 +137,45 @@ public class SqlQueryModifier {
             }
 
             SelectExpressionItem selectExpressionItem = (SelectExpressionItem) selectItem;
-            Column expression = (Column) selectExpressionItem.getExpression();
-            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(tableName, expression.getColumnName());
+            Column column = (Column) selectExpressionItem.getExpression();
+            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(getTableName(plainSelect, column),
+                    column.getColumnName());
 
             if (!(fieldConfig instanceof ReferenceFieldConfig)) {
                 continue;
             }
 
-            if (DomainObjectDao.ID_COLUMN.equalsIgnoreCase(expression.getColumnName())) {
-                selectExpressionItemsToAdd.add(createObjectTypeSelectItem(tableAlias));
+            if (DomainObjectDao.ID_COLUMN.equalsIgnoreCase(column.getColumnName())) {
+                selectExpressionItemsToAdd.add(createObjectTypeSelectItem(selectExpressionItem));
             } else {
-                selectExpressionItemsToAdd.add(createReferenceFieldTypeSelectItem(tableAlias, fieldConfig.getName()));
+                selectExpressionItemsToAdd.add(createReferenceFieldTypeSelectItem(selectExpressionItem));
             }
         }
 
         plainSelect.getSelectItems().addAll(selectExpressionItemsToAdd);
+    }
+
+    private String getTableName(PlainSelect plainSelect, Column column) {
+        Table fromItem = (Table) plainSelect.getFromItem();
+        if (column.getTable().getName().equals(fromItem.getAlias())) {
+            return fromItem.getName();
+        }
+
+        List joinList = plainSelect.getJoins();
+        if (joinList == null || joinList.isEmpty()) {
+            throw new CollectionQueryException("Failed to evaluate table name for column '" +
+                    column.getColumnName() + "'");
+        }
+
+        for (Object joinObject : joinList) {
+            Join join = (Join) joinObject;
+            if (column.getTable().getName().equals(join.getRightItem().getAlias())) {
+                return ((Table) join.getRightItem()).getName();
+            }
+        }
+
+        throw new CollectionQueryException("Failed to evaluate table name for column '" +
+                column.getColumnName() + "'");
     }
 
     private String getDomainObjectTypeFromSelect(PlainSelect plainSelect) {
@@ -178,16 +197,28 @@ public class SqlQueryModifier {
         }
     }
 
-    private SelectExpressionItem createObjectTypeSelectItem(String fromTableAlias) {
+    private SelectExpressionItem createObjectTypeSelectItem(SelectExpressionItem selectExpressionItem) {
+        Column column = (Column) selectExpressionItem.getExpression();
+        StringBuilder expression = new StringBuilder(column.getTable().getName()).append(".").append(TYPE_COLUMN);
+        if (selectExpressionItem.getAlias() != null) {
+            expression.append(" as ").append(selectExpressionItem.getAlias()).append(REFERENCE_TYPE_POSTFIX);
+        }
+
         SelectExpressionItem objectTypeItem = new SelectExpressionItem();
-        objectTypeItem.setExpression(new Column(new Table(), fromTableAlias + "." + DomainObjectDao.TYPE_COLUMN));
+        objectTypeItem.setExpression(new Column(new Table(), expression.toString()));
         return objectTypeItem;
     }
 
-    private SelectExpressionItem createReferenceFieldTypeSelectItem(String fromTableAlias, String columnName) {
+    private SelectExpressionItem createReferenceFieldTypeSelectItem(SelectExpressionItem selectExpressionItem) {
+        Column column = (Column) selectExpressionItem.getExpression();
+        StringBuilder expression = new StringBuilder(column.getTable().getName()).append(".").
+                append(column.getColumnName()).append(REFERENCE_TYPE_POSTFIX);
+        if (selectExpressionItem.getAlias() != null) {
+            expression.append(" as ").append(selectExpressionItem.getAlias()).append(REFERENCE_TYPE_POSTFIX);
+        }
+
         SelectExpressionItem referenceFieldTypeItem = new SelectExpressionItem();
-        String typeColumnName = columnName + DomainObjectDao.REFERENCE_TYPE_POSTFIX;
-        referenceFieldTypeItem.setExpression(new Column(new Table(), fromTableAlias + "." + typeColumnName));
+        referenceFieldTypeItem.setExpression(new Column(new Table(), expression.toString()));
         return referenceFieldTypeItem;
     }
 

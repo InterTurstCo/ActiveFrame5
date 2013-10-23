@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionColumnConfig;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.impl.DataType;
 
@@ -12,9 +13,7 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Отображает {@link java.sql.ResultSet} на {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection}.
@@ -33,14 +32,22 @@ public class CollectionRowMapper extends BasicRowMapper implements
         this.collectionName = collectionName;
     }
 
+    public CollectionRowMapper(ConfigurationExplorer configurationExplorer,
+                               DomainObjectTypeIdCache domainObjectTypeIdCache) {
+        super(null, DomainObjectDao.ID_COLUMN, configurationExplorer, domainObjectTypeIdCache);
+        this.collectionName = null;
+    }
+
     @Override
     public IdentifiableObjectCollection extractData(ResultSet rs) throws SQLException, DataAccessException {
         GenericIdentifiableObjectCollection collection = new GenericIdentifiableObjectCollection();
 
         ColumnModel columnModel = new ColumnModel();
+        Map<String, DataType> columnTypeMap = new HashMap<>();
         for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
             String fieldName = rs.getMetaData().getColumnName(i);
             columnModel.getColumnNames().add(fieldName);
+            columnTypeMap.put(fieldName, getColumnDataTypeByDbTypeName(rs.getMetaData().getColumnTypeName(i)));
         }
 
         List<String> fieldNamesToInsert = collectColumnNamesToInsert(columnModel);
@@ -55,7 +62,7 @@ public class CollectionRowMapper extends BasicRowMapper implements
             FieldValueModel valueModel = new FieldValueModel();
 
             for (String columnName : columnModel.getColumnNames()) {
-                fillValueModel(rs, columnModel, valueModel, columnName);
+                fillValueModel(rs, columnModel, columnTypeMap, valueModel, columnName);
 
                 if (valueModel.getId() != null) {
                     collection.setId(row, valueModel.getId());
@@ -84,27 +91,19 @@ public class CollectionRowMapper extends BasicRowMapper implements
     private List<String> collectColumnNamesToInsert(ColumnModel columnModel) {
         List<String> fieldNamesToInsert = new ArrayList<String>();
         for (String columnName : columnModel.getColumnNames()) {
-            CollectionColumnConfig columnConfig =
-                    configurationExplorer.getCollectionColumnConfig(collectionName, columnName);
             if(idField.equals(columnName)) {
                 continue;
             }
-            if (columnConfig != null) {
+            if (collectionConfigExists(columnName)) {
                 fieldNamesToInsert.add(columnName);
             }
         }
         return fieldNamesToInsert;
     }
 
-    protected void fillValueModel(ResultSet rs, ColumnModel columnModel, FieldValueModel valueModel,
-                                  String columnName) throws SQLException {
-        CollectionColumnConfig columnConfig =
-                configurationExplorer.getCollectionColumnConfig(collectionName, columnName);
-
-        DataType fieldType = null;
-        if (columnConfig != null) {
-            fieldType = getColumnDataType(columnConfig.getType());
-        }
+    protected void fillValueModel(ResultSet rs, ColumnModel columnModel, Map<String, DataType> columnTypeMap,
+                                  FieldValueModel valueModel, String columnName) throws SQLException {
+        DataType fieldType = getType(columnName, columnTypeMap);
         Value value = null;
         Id id = null;
 
@@ -163,6 +162,30 @@ public class CollectionRowMapper extends BasicRowMapper implements
             valueModel.setId(id);
         }
         valueModel.setValue(value);
+    }
+
+    protected DataType getType(String columnName, Map<String, DataType> columnTypeMap) {
+        if (collectionName != null) {
+            CollectionColumnConfig columnConfig =
+                configurationExplorer.getCollectionColumnConfig(collectionName, columnName);
+            if (columnConfig == null) {
+                return null;
+            } else {
+                return getColumnDataType(columnConfig.getType());
+            }
+        } else {
+            return columnTypeMap.get(columnName);
+        }
+    }
+
+    protected boolean collectionConfigExists(String columnName) {
+        if (collectionName != null) {
+            CollectionColumnConfig columnConfig =
+                    configurationExplorer.getCollectionColumnConfig(collectionName, columnName);
+            return columnConfig != null;
+        } else {
+            return true; // Для коллекций, получаемых по запросу без конфигурации возвращаем все колонки
+        }
     }
 
 }
