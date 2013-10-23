@@ -25,6 +25,12 @@
             <artifactId>configuration</artifactId>
             <version>${project.version}</version>
         </dependency>
+        
+        <dependency>
+            <groupId>ru.intertrust.cm-sochi</groupId>
+            <artifactId>dao-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>        
 
     </dependencies>
 

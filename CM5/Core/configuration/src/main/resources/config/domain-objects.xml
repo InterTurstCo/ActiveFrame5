@@ -128,6 +128,15 @@
     <domain-object-type name="Department" audit-log="true" initial-status="Active">
         <fields>
             <string name="Name" length="128" not-null="true" />
+            <reference name="Organization" type="Organization" not-null="true"/>
+            <reference name="Boss" type="Employee"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="Organization" audit-log="true">
+        <fields>
+            <string name="Name" length="128" not-null="true" />
+            <reference name="Boss" type="Employee"/>
         </fields>
     </domain-object-type>
      

@@ -53,7 +53,7 @@
             </track-domain-objects>
         </members>
         <!-- Также включаем всех членов группы "Пользователь" с тем же контекстом -->
-        <include-group name="Пользователь" />
+        <!-- include-group name="Пользователь" /-->
         <!-- Вероятно, по соображениям эффективности выгоднее будет не включать 
             здесь группу "Пользователь", а повторить тег trackObjects из неё -->
     </dynamic-group>
@@ -84,12 +84,12 @@
         </context>
         <!-- Включаем всех членов группы "Сотрудники подразделения" для подразделения, 
             которое... -->
-        <include-group name="Сотрудники подразделения">
+        <!-- include-group name="Сотрудники подразделения"-->
             <!-- ...берём из поля "Department" -->
-            <bind-context>
+            <!-- bind-context>
                 <doel>Department</doel>
             </bind-context>
-        </include-group>
+        </include-group-->
     </dynamic-group>
     
 

@@ -1,16 +1,46 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.intertrust.cm.core.business.api.dto.*;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationException;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.model.*;
+import ru.intertrust.cm.core.config.model.BindContextConfig;
+import ru.intertrust.cm.core.config.model.DoelAware;
+import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.model.DynamicGroupConfig;
+import ru.intertrust.cm.core.config.model.GetPersonConfig;
+import ru.intertrust.cm.core.config.model.TrackDomainObjectsConfig;
+import ru.intertrust.cm.core.config.model.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.model.doel.DoelExpression;
 import ru.intertrust.cm.core.config.model.doel.DoelExpression.Element;
+import ru.intertrust.cm.core.dao.access.DynamicGroupCollector;
 import ru.intertrust.cm.core.dao.access.DynamicGroupService;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
+import ru.intertrust.cm.core.dao.api.extension.OnLoadConfigurationExtensionHandler;
+import ru.intertrust.cm.core.model.PermissionException;
 
 import java.util.*;
 
@@ -20,12 +50,16 @@ import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlNam
  * Реализация сервиса по работе с динамическими группами пользователей
  * @author atsvetkov
  */
-public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl implements DynamicGroupService {
+public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl implements DynamicGroupService, ApplicationContextAware {
 
     final static Logger logger = LoggerFactory.getLogger(DynamicGroupServiceImpl.class);
 
+    private Hashtable<String, List<DynamicGroupCollector>> collectors = new Hashtable<String, List<DynamicGroupCollector>>();
+
     @Autowired
     private ConfigurationExplorer configurationExplorer;
+
+    private ApplicationContext applicationContext;
 
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
@@ -48,7 +82,8 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
     }
 
     /**
-     * Выполняет пересчет всех динамических групп, где созданный объект является отслеживаемым (указан в теге <track-domain-objects>).
+     * Выполняет пересчет всех динамических групп, где созданный объект является
+     * отслеживаемым (указан в теге <track-domain-objects>).
      */
     @Override
     public void notifyDomainObjectCreated(Id objectId) {
@@ -66,10 +101,15 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
     }
 
     /**
-     * Получает список персон динамической группы по дескриптору группы и контекстному объекту.
-     * @param dynamicGroupConfig дескриптор динамической группы
-     * @param objectId отслеживаемй объект динамической группы. Используется для расчета обратного Doel выражения.
-     * @param contextObjectid контекстному объекту динамической группы
+     * Получает список персон динамической группы по дескриптору группы и
+     * контекстному объекту.
+     * @param dynamicGroupConfig
+     *            дескриптор динамической группы
+     * @param objectId
+     *            отслеживаемй объект динамической группы. Используется для
+     *            расчета обратного Doel выражения.
+     * @param contextObjectid
+     *            контекстному объекту динамической группы
      * @return список персон группы
      */
     private List<Value> getAllGroupMembersFor(DynamicGroupConfig dynamicGroupConfig, Id objectId, Id contextObjectid) {
@@ -95,8 +135,11 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
 
     /**
      * Создает обратное Doel выражение.
-     * @param objectId объект, относительно которого вычисляется переданное прямое выражение
-     * @param bindContextExpr прямое Doel выражение.
+     * @param objectId
+     *            объект, относительно которого вычисляется переданное прямое
+     *            выражение
+     * @param bindContextExpr
+     *            прямое Doel выражение.
      * @return обратное Doel выражение
      */
     private DoelExpression createReverseExpression(Id objectId, DoelExpression bindContextExpr) {
@@ -118,11 +161,15 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
     }
 
     /**
-     * Возвращает динамические группы для изменяемого объекта, которые нужно пересчитывать. Поиск динамических группп выполняется по
-     * типу и статусу отслеживаемого объекта, а также по измененным полям.
-     * @param objectId изменяемый доменный объект
-     * @param status статус изменяемого доменног объекта
-     * @param modifiedFieldNames списке измененных полей доменного объекта
+     * Возвращает динамические группы для изменяемого объекта, которые нужно
+     * пересчитывать. Поиск динамических группп выполняется по типу и статусу
+     * отслеживаемого объекта, а также по измененным полям.
+     * @param objectId
+     *            изменяемый доменный объект
+     * @param status
+     *            статус изменяемого доменног объекта
+     * @param modifiedFieldNames
+     *            списке измененных полей доменного объекта
      * @return список конфигураций динамических групп
      */
     private List<DynamicGroupConfig> getDynamicGroupsToRecalculateForUpdate(Id objectId, String status, List<String> modifiedFieldNames) {
@@ -157,10 +204,13 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
     }
 
     /**
-     * Возвращает динамические группы для изменяемого объекта, которые нужно пересчитывать. Поиск динамических группп выполняется по
-     * типу и статусу отслеживаемого объекта
-     * @param objectId изменяемый доменный объект
-     * @param status статус изменяемого доменног объекта
+     * Возвращает динамические группы для изменяемого объекта, которые нужно
+     * пересчитывать. Поиск динамических группп выполняется по типу и статусу
+     * отслеживаемого объекта
+     * @param objectId
+     *            изменяемый доменный объект
+     * @param status
+     *            статус изменяемого доменног объекта
      * @return список конфигураций динамических групп
      */
     private List<DynamicGroupConfig> getDynamicGroupsToRecalculate(Id objectId, String status) {
@@ -171,10 +221,12 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
     }
 
     /**
-     * Проверяет, содержит ли Doel выражение в первом элементе название поля, которое было указано в списке переданных
-     * измененных полей.
-     * @param modifiedFieldNames списке измененных полей.
-     * @param doelAware Doel выражение
+     * Проверяет, содержит ли Doel выражение в первом элементе название поля,
+     * которое было указано в списке переданных измененных полей.
+     * @param modifiedFieldNames
+     *            списке измененных полей.
+     * @param doelAware
+     *            Doel выражение
      * @return true, если содержит, иначе false
      */
     private boolean containsFieldNameInDoel(List<String> modifiedFieldNames, DoelAware doelAware) {
@@ -197,9 +249,12 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
     }
 
     /**
-     * Возвращает контекстный объект для динамической группы и отслеживаемого (изменяемого) доменного объекта
-     * @param dynamicGroupConfig конфигурация динамической группы
-     * @param objectId идентификатор отслеживаемого доменного объекта
+     * Возвращает контекстный объект для динамической группы и отслеживаемого
+     * (изменяемого) доменного объекта
+     * @param dynamicGroupConfig
+     *            конфигурация динамической группы
+     * @param objectId
+     *            идентификатор отслеживаемого доменного объекта
      * @return идентификатор контекстного объекта
      */
     private Id getContextObjectId(DynamicGroupConfig dynamicGroupConfig, Id objectId) {
@@ -220,8 +275,10 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
     }
 
     /**
-     * Конвертирует результат вычисления doel выражения поиска контекстного объекта в идентификатор контекстного объекта.
-     * @param result вычисления doel выражения поиска контекстного объекта
+     * Конвертирует результат вычисления doel выражения поиска контекстного
+     * объекта в идентификатор контекстного объекта.
+     * @param result
+     *            вычисления doel выражения поиска контекстного объекта
      * @return идентификатор контекстного объекта
      */
     private Id convertToId(List<Value> result) {
@@ -240,8 +297,10 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
 
     /**
      * Пересчитывает список персон динамической группы.
-     * @param dynamicGroupId идентификатор динамической группы
-     * @param personIds список персон
+     * @param dynamicGroupId
+     *            идентификатор динамической группы
+     * @param personIds
+     *            список персон
      */
     private void refreshGroupMembers(Id dynamicGroupId, List<Value> personIds) {
         cleanGroupMembers(dynamicGroupId);
@@ -257,8 +316,8 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
                 GenericDomainObject groupMemeber = new GenericDomainObject();
                 groupMemeber.setTypeName(GROUP_MEMBER_DOMAIN_OBJECT);
                 groupMemeber.setReference("UserGroup", dynamicGroupId);
-                
-                groupMemeber.setReference("person_id", ((ReferenceValue)personValue).get());
+
+                groupMemeber.setReference("person_id", ((ReferenceValue) personValue).get());
                 groupMembers.add(groupMemeber);
             }
 
@@ -292,9 +351,12 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
     }
 
     /**
-     * Добавляет группу с данным именем и контекстным объектом, если группы нет в базе данных
-     * @param dynamicGroupName имя динамической группы
-     * @param contextObjectId контекстный объект динамической группы
+     * Добавляет группу с данным именем и контекстным объектом, если группы нет
+     * в базе данных
+     * @param dynamicGroupName
+     *            имя динамической группы
+     * @param contextObjectId
+     *            контекстный объект динамической группы
      * @return обновленную динамическую группу
      */
     private Id refreshUserGroup(String dynamicGroupName, Id contextObjectId) {
@@ -319,6 +381,114 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
             Id dynamicGroupId = deleteUserGroupByGroupNameAndObjectId(userGroupId, dynamicGroupConfig.getName(), ((RdbmsId)contextObjectId).getId());
         }
 
+    }
+
+    /**
+     * Метод вызывается после загрузки конфигурации. Пробегается по конфигурации,
+     * собирает информацию о динамических группах, настраиваемых с помощью
+     * классов и создает экземпляры этих классов, добавляет их в реестр
+     */
+    private void loadCollectors() {
+        try {
+            // Поиск конфигураций динамических групп
+            for (TopLevelConfig topConfig : configurationExplorer.getConfiguration().getConfigurationList()) {
+                if (topConfig instanceof DynamicGroupConfig) {
+                    DynamicGroupConfig config = (DynamicGroupConfig) topConfig;
+                    // Если динамическая группа настраивается классом
+                    // коллектором,
+                    // то создаем го экземпляр, и добавляем в реестр
+                    if (config.getMembers().getCollector() != null) {
+                        Class<?> collectorClass = Class.forName(config.getMembers().getCollector().getClassName());
+                        DynamicGroupCollector collector = (DynamicGroupCollector) applicationContext.getAutowireCapableBeanFactory().createBean(collectorClass,
+                                AutowireCapableBeanFactory.AUTOWIRE_BY_NAME, false);
+                        collector.init(config.getMembers().getCollector().getSettings());
+
+                        // Получение типов, которые отслеживает коллектор
+                        List<String> types = collector.getTrackTypeNames();
+                        // Регистрируем коллектор в реестре, для обработки
+                        // только определенных типов
+                        for (String type : types) {
+                            registerCollector(type, collector);
+                            // Ищем всех наследников и так же регистрируем их в
+                            // реестре с данным коллектором
+                            List<String> subTypes = getSubTypes(type);
+                            for (String subtype : subTypes) {
+                                registerCollector(subtype, collector);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            throw new PermissionException(
+                    "Error on init collector classes", ex);
+        }
+    }
+
+    /**
+     * Регистрация коллектора в реестре колекторов
+     * @param type
+     * @param collector
+     */
+    private void registerCollector(String type, DynamicGroupCollector collector){
+        List<DynamicGroupCollector> typeCollectors = collectors.get(type); 
+        if (typeCollectors == null){
+            typeCollectors = new ArrayList<DynamicGroupCollector>();
+            collectors.put(type, typeCollectors);
+        }
+        typeCollectors.add(collector);
+    }
+    
+    /**
+     * Получение всех дочерних типов переданного типа
+     * @param type
+     * @return
+     */
+    private List<String> getSubTypes(String type) {
+        List<String> result = new ArrayList<String>();
+        // Получение всех конфигураций доменных оьъектов
+        for (TopLevelConfig topConfig : configurationExplorer.getConfiguration().getConfigurationList()) {
+            if (topConfig instanceof DomainObjectTypeConfig) {
+                DomainObjectTypeConfig config = (DomainObjectTypeConfig) topConfig;
+                // Сравнение родительского типа и переданного парамера
+                if (config.getExtendsAttribute() != null && config.getExtendsAttribute().equals(type)) {
+                    // Если нашли наследника добавляем в результат
+                    result.add(config.getName());
+                    // Рекурсивно вызываем для получения всех наследников
+                    // найденного наследника
+                    result.addAll(getSubTypes(config.getName()));
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Установка спринг контекста в экземпляр класса
+     * @param applicationContext
+     * @throws BeansException
+     */
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
+
+    /**
+     * Точка расширения загрузки конфигурации
+     * @author larin
+     * 
+     */
+    @ExtensionPoint
+    public class OnLoadConfigurationExtensionPoint implements OnLoadConfigurationExtensionHandler {
+
+        /**
+         * Метод вызывается после загрузки конфигурации. Вызывает метод
+         * loadCollectors для загрузки классов коллекторов
+         */
+        @Override
+        public void onLoad() {
+            loadCollectors();
+        }
     }
 
 }

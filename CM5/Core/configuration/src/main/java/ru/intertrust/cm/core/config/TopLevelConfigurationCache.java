@@ -83,9 +83,10 @@ public class TopLevelConfigurationCache {
             }
 
             Class clazz = Class.forName(metadataReader.getClassMetadata().getClassName());
-            if (!TopLevelConfig.class.isAssignableFrom(clazz)) {
+            //Понадобилось не только для конфигурации верхнего уровня, поэтому стоит переименовать класс в ConfigurationCache
+            /*if (!TopLevelConfig.class.isAssignableFrom(clazz)) {
                 return;
-            }
+            }*/
 
             Root rootAnnotation =  (Root) clazz.getAnnotation(Root.class);
             if (rootAnnotation != null && rootAnnotation.name() != null && !rootAnnotation.name().isEmpty()) {
