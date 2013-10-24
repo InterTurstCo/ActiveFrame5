@@ -160,6 +160,17 @@ public class AccessControlServiceImpl implements AccessControlService {
 
     @Override
     public void verifySystemAccessToken(AccessToken accessToken) throws AccessException {    
+        
+        AccessTokenBase trustedToken;       
+        try {
+            trustedToken = (AccessTokenBase) accessToken;
+        } catch (ClassCastException e) {
+            throw new AccessException("Fake access token");
+        }
+        
+        if (!trustedToken.isOriginalFor(this)) {
+            throw new AccessException("Fake access token");
+        }
         if (accessToken == null || !accessToken.getClass().equals(UniversalAccessToken.class)) {
             throw new AccessException("Not valid system access token");
         }
