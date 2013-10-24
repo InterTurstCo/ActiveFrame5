@@ -2,8 +2,9 @@ package ru.intertrust.cm.core.dao.access;
 
 import java.util.List;
 
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.model.CollectorSettings;
+import ru.intertrust.cm.core.config.model.DynamicGroupConfig;
 
 /**
  * Интерфейс класса, выполняющего пересчет динамической группы
@@ -48,10 +49,10 @@ public interface DynamicGroupCollector {
      * необходимо пересчитать.
      * @return
      */
-    List<Id> getInvalidDynamicGroups();
+    List<Id> getInvalidDynamicGroups(DomainObject domainObject, List<String> modifiedFieldNames);
     
     /**
      * Инициализация коллектора данными из конфигурационного xml
      */
-    void init(CollectorSettings settings);
+    void init(DynamicGroupConfig config);
 }

@@ -6,7 +6,7 @@
 		</context>
 		<members>
 			<collector
-				class-name="ru.intertrust.cm.test.acess.dynamicgroup.TestDynGroupCollectorSettings">
+				class-name="ru.intertrust.cm.test.acess.dynamicgroup.OrganizationEmployee">
 				<collector-settings>
 					<test-dyn-group-collector-settings test-setting="Test settions value" />
 				</collector-settings>

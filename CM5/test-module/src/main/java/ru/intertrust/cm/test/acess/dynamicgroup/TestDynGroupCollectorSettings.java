@@ -7,7 +7,7 @@ import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.config.model.CollectorSettings;
 
 @Root(name="test-dyn-group-collector-settings")
-@Namespace(reference="https://cm5.intertrust.ru/testDynGroupSettings")
+//@Namespace(reference="https://cm5.intertrust.ru/testDynGroupSettings")
 public class TestDynGroupCollectorSettings implements CollectorSettings{
     
     @Attribute(name="test-setting")

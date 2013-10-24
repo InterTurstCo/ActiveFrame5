@@ -37,20 +37,17 @@ import ru.intertrust.cm.core.config.model.doel.DoelExpression;
 import ru.intertrust.cm.core.config.model.doel.DoelExpression.Element;
 import ru.intertrust.cm.core.dao.access.DynamicGroupCollector;
 import ru.intertrust.cm.core.dao.access.DynamicGroupService;
-import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.dao.api.extension.OnLoadConfigurationExtensionHandler;
 import ru.intertrust.cm.core.model.PermissionException;
-
-import java.util.*;
-
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 
 /**
  * Реализация сервиса по работе с динамическими группами пользователей
  * @author atsvetkov
  */
-public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl implements DynamicGroupService, ApplicationContextAware {
+@ExtensionPoint
+public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl implements DynamicGroupService, ApplicationContextAware,
+        OnLoadConfigurationExtensionHandler {
 
     final static Logger logger = LoggerFactory.getLogger(DynamicGroupServiceImpl.class);
 
@@ -375,20 +372,21 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
         List<DynamicGroupConfig> dynamicGroups = getDynamicGroupsToRecalculate(objectId, status);
         for (DynamicGroupConfig dynamicGroupConfig : dynamicGroups) {
             Id contextObjectId = getContextObjectId(dynamicGroupConfig, objectId);
-            Id userGroupId = getUserGroupByGroupNameAndObjectId(dynamicGroupConfig.getName(), ((RdbmsId)contextObjectId).getId());
+            Id userGroupId = getUserGroupByGroupNameAndObjectId(dynamicGroupConfig.getName(), ((RdbmsId) contextObjectId).getId());
             cleanGroupMembers(userGroupId);
-            //TODO
-            Id dynamicGroupId = deleteUserGroupByGroupNameAndObjectId(userGroupId, dynamicGroupConfig.getName(), ((RdbmsId)contextObjectId).getId());
+            // TODO
+            Id dynamicGroupId = deleteUserGroupByGroupNameAndObjectId(userGroupId, dynamicGroupConfig.getName(), ((RdbmsId) contextObjectId).getId());
         }
 
     }
 
     /**
-     * Метод вызывается после загрузки конфигурации. Пробегается по конфигурации,
-     * собирает информацию о динамических группах, настраиваемых с помощью
-     * классов и создает экземпляры этих классов, добавляет их в реестр
+     * Метод вызывается после загрузки конфигурации. Пробегается по
+     * конфигурации, собирает информацию о динамических группах, настраиваемых с
+     * помощью классов и создает экземпляры этих классов, добавляет их в реестр
      */
-    private void loadCollectors() {
+    @Override
+    public void onLoad() {
         try {
             // Поиск конфигураций динамических групп
             for (TopLevelConfig topConfig : configurationExplorer.getConfiguration().getConfigurationList()) {
@@ -397,23 +395,26 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
                     // Если динамическая группа настраивается классом
                     // коллектором,
                     // то создаем го экземпляр, и добавляем в реестр
-                    if (config.getMembers().getCollector() != null) {
+                    if (config.getMembers() != null && config.getMembers().getCollector() != null) {
                         Class<?> collectorClass = Class.forName(config.getMembers().getCollector().getClassName());
                         DynamicGroupCollector collector = (DynamicGroupCollector) applicationContext.getAutowireCapableBeanFactory().createBean(collectorClass,
                                 AutowireCapableBeanFactory.AUTOWIRE_BY_NAME, false);
-                        collector.init(config.getMembers().getCollector().getSettings());
+                        collector.init(config);
 
                         // Получение типов, которые отслеживает коллектор
                         List<String> types = collector.getTrackTypeNames();
                         // Регистрируем коллектор в реестре, для обработки
                         // только определенных типов
-                        for (String type : types) {
-                            registerCollector(type, collector);
-                            // Ищем всех наследников и так же регистрируем их в
-                            // реестре с данным коллектором
-                            List<String> subTypes = getSubTypes(type);
-                            for (String subtype : subTypes) {
-                                registerCollector(subtype, collector);
+                        if (types != null) {
+                            for (String type : types) {
+                                registerCollector(type, collector);
+                                // Ищем всех наследников и так же регистрируем
+                                // их в
+                                // реестре с данным коллектором
+                                List<String> subTypes = getSubTypes(type);
+                                for (String subtype : subTypes) {
+                                    registerCollector(subtype, collector);
+                                }
                             }
                         }
                     }
@@ -430,15 +431,15 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
      * @param type
      * @param collector
      */
-    private void registerCollector(String type, DynamicGroupCollector collector){
-        List<DynamicGroupCollector> typeCollectors = collectors.get(type); 
-        if (typeCollectors == null){
+    private void registerCollector(String type, DynamicGroupCollector collector) {
+        List<DynamicGroupCollector> typeCollectors = collectors.get(type);
+        if (typeCollectors == null) {
             typeCollectors = new ArrayList<DynamicGroupCollector>();
             collectors.put(type, typeCollectors);
         }
         typeCollectors.add(collector);
     }
-    
+
     /**
      * Получение всех дочерних типов переданного типа
      * @param type
@@ -471,24 +472,6 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl impleme
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
-    }
-
-    /**
-     * Точка расширения загрузки конфигурации
-     * @author larin
-     * 
-     */
-    @ExtensionPoint
-    public class OnLoadConfigurationExtensionPoint implements OnLoadConfigurationExtensionHandler {
-
-        /**
-         * Метод вызывается после загрузки конфигурации. Вызывает метод
-         * loadCollectors для загрузки классов коллекторов
-         */
-        @Override
-        public void onLoad() {
-            loadCollectors();
-        }
     }
 
 }

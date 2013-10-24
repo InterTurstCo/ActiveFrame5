@@ -6,6 +6,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
@@ -35,6 +37,7 @@ import ru.intertrust.cm.core.util.SpringApplicationContext;
  * 
  */
 public class ExtensionServiceImpl implements ExtensionService, ApplicationContextAware {
+    private static final Logger logger = LoggerFactory.getLogger(ExtensionServiceImpl.class);
     /**
      * Реестр точек расширения
      */
@@ -113,21 +116,24 @@ public class ExtensionServiceImpl implements ExtensionService, ApplicationContex
 
                                 // Получаем фильтр из аннотации
                                 String filter = annatation.filter();
-                                // Создаем экзампляр точки расширения
 
-                                /*
-                                 * ExtensionPointHandler extentionPoint =
-                                 * (ExtensionPointHandler) extentionPointClass
-                                 * .newInstance();
-                                 */
-
-                                // Создаем экземпляр точки расширения Добавляем
-                                // класс как спринговый бин с поддержкой
-                                // autowire
                                 if (extentionPoint == null) {
-                                    extentionPoint =
-                                            (ExtensionPointHandler) applicationContext.getAutowireCapableBeanFactory().createBean(extentionPointClass,
-                                                    AutowireCapableBeanFactory.AUTOWIRE_BY_NAME, false);
+                                    // Проверяем есть ли спринг бин этого
+                                    // класса, если есть то используем его
+                                    String[] beanNames = applicationContext.getBeanNamesForType(extentionPointClass);
+                                    if (beanNames.length > 0) {
+                                        extentionPoint = (ExtensionPointHandler) applicationContext.getBean(extentionPointClass);
+                                    } else {
+                                        // Если такого бина нет то создаем
+                                        // экземпляр класса
+                                        // Создаем экземпляр точки расширения
+                                        // Добавляем
+                                        // класс как спринговый бин с поддержкой
+                                        // autowire
+                                        extentionPoint =
+                                                (ExtensionPointHandler) applicationContext.getAutowireCapableBeanFactory().createBean(extentionPointClass,
+                                                        AutowireCapableBeanFactory.AUTOWIRE_BY_NAME, false);
+                                    }
                                 }
 
                                 // Сохраняем точку расширения в реестр
@@ -144,6 +150,7 @@ public class ExtensionServiceImpl implements ExtensionService, ApplicationContex
                                     oneTypeExtensions.put(filter, filteredExtension);
                                 }
                                 filteredExtension.add(extentionPoint);
+                                logger.info("Register extensionPoint " + interfaceClass.getName() + "(" + filter + ") = " + extentionPoint.getClass().getName());
                             }
                         }
                     }
@@ -212,6 +219,9 @@ public class ExtensionServiceImpl implements ExtensionService, ApplicationContex
         this.basePackage = basePackage;
     }
 
+    /**
+     * Установка spring контекста
+     */
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
