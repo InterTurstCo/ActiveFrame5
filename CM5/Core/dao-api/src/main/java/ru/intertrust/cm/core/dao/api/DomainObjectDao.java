@@ -34,22 +34,23 @@ public interface DomainObjectDao {
 
     /**
      * Создает новый доменный объект
-     * @param domainObject
-     *            доменный объект который будет создан
+     * @param domainObject доменный объект который будет создан
+     * @param accessToken маркер доступа
      * @return созданыый доменный объект
      */
-    public DomainObject create(DomainObject domainObject);
+    public DomainObject create(DomainObject domainObject, AccessToken accessToken);
 
     /**
      * Модифицирует переданный доменный объект
      *
      * @param domainObject доменный объект который надо изменить
+     * @param accessToken маркер доступа
      * @return возвращет модифицированный доменный объект
      * @throws InvalidIdException      если идентификатор доменный объекта не корректный (не поддерживается или нулевой)
      * @throws ObjectNotFoundException если не существует объекта с таким идентификатором
      * @throws OptimisticLockException если объект уже был модифицирован другим пользователем
      */
-    public DomainObject update(DomainObject domainObject)
+    public DomainObject update(DomainObject domainObject, AccessToken accessToken)
             throws InvalidIdException, ObjectNotFoundException, OptimisticLockException;
 
     /**
@@ -193,9 +194,10 @@ public interface DomainObjectDao {
     List<DomainObject> findAll(String domainObjectType, int offset, int limit, AccessToken accessToken);
     
     /**
-     * Устанавливает статус доменного объекта
+     * Устанавливает статус доменного объекта.
      * @param objectId идентификатор доменного объекта
      * @param status идентификатор статуса
+     * @param accessToken маркер доступа
      */
-    DomainObject setStatus(Id objectId, Long status);
+    DomainObject setStatus(Id objectId, Long status, AccessToken accessToken);
 }

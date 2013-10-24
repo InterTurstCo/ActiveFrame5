@@ -5,6 +5,8 @@ import ru.intertrust.cm.core.business.api.AuthenticationService;
 import ru.intertrust.cm.core.business.api.MD5Service;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.dao.access.AccessControlService;
+import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.AuthenticationDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 
@@ -26,12 +28,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Autowired
     private ConfigurationExplorer configurationExplorer;
 
+    @Autowired
+    private AccessControlService accessControlService;
+
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
     }
 
     public void setDomainObjectDao(DomainObjectDao domainObjectDao) {
         this.domainObjectDao = domainObjectDao;
+    }
+    
+    public void setAccessControlService(AccessControlService accessControlService) {
+        this.accessControlService = accessControlService;
     }
 
     /**
@@ -54,7 +63,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         authInfo.setValue("Password", password);
         authInfo.setValue("User_Uid", new StringValue(authenticationInfo.getUserUid()));
 
-        DomainObject createdAuthInfo = domainObjectDao.create(authInfo);
+        AccessToken accessToken = accessControlService.createSystemAccessToken("AuthenticationService");
+        DomainObject createdAuthInfo = domainObjectDao.create(authInfo, accessToken);
 
         RdbmsId id  = (RdbmsId)createdAuthInfo.getId();
         GenericDomainObject role = new GenericDomainObject();
@@ -64,7 +74,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         StringValue roleName = new StringValue(authenticationInfo.getRole());
         role.setValue("Role", roleName);
         role.setValue("Authentication_Info", new ReferenceValue(id));
-        domainObjectDao.create(role);
+        domainObjectDao.create(role, accessToken);
     }
 
     /**

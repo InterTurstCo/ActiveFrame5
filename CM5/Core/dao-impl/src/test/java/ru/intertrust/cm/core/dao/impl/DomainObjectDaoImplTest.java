@@ -111,10 +111,11 @@ public class DomainObjectDaoImplTest {
         domainObject.setValue("EMail", new StringValue("testUpdate@test.com"));
         domainObject.setValue("Login", new StringValue("userUpdate"));
         domainObject.setValue("Password", new StringValue("passUpdate"));
-
+        
+        AccessToken accessToken = createMockAccessToken();
         //проверяем что идентификатор не нулевой
         try {
-            domainObjectDaoImpl.update(domainObject);
+            domainObjectDaoImpl.update(domainObject, accessToken);
         } catch (Exception e) {
 
             assertTrue(e instanceof InvalidIdException);
@@ -124,7 +125,7 @@ public class DomainObjectDaoImplTest {
         //проверяем что обрабатываеться неккоректный тип идентификатора
         try {
             domainObject.setId(new TestId());
-            domainObjectDaoImpl.update(domainObject);
+            domainObjectDaoImpl.update(domainObject, accessToken);
         } catch (Exception e) {
 
             assertTrue(e instanceof InvalidIdException);
@@ -149,7 +150,7 @@ public class DomainObjectDaoImplTest {
                 "EMAIL=:email, LOGIN=:login, PASSWORD=:password, BOSS=:boss, " +
                 "BOSS_TYPE=:boss_type where ID=:id and UPDATED_DATE=:updated_date";
 
-        String query = domainObjectDaoImpl.generateUpdateQuery(domainObjectTypeConfig);
+        String query = domainObjectDaoImpl.generateUpdateQuery(domainObjectTypeConfig, true);
         assertEquals(checkUpdateQuery, query);
     }
 

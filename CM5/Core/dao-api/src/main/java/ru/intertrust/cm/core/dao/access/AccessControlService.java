@@ -127,4 +127,12 @@ public interface AccessControlService {
      * @throws AccessException если маркер доступа не соответствует запрошенному доступу
      */
     void verifyAccessToken(AccessToken token, Id objectId, AccessType type) throws AccessException;
+    
+    /**
+     * Проверяет, что переданный маркер является универсальным маркером доступа. Если маркер нулевой (null) или не
+     * является универсальным, выбрасывает исключение {@link AccessException}.
+     * @param accessToken Маркер доступа
+     * @throws AccessException если маркер нулевой или не является универсальным маркером доступа
+     */
+    public void verifySystemAccessToken(AccessToken accessToken) throws AccessException;
 }

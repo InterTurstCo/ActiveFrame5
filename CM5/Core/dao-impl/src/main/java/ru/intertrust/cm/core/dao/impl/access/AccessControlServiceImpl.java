@@ -158,6 +158,13 @@ public class AccessControlServiceImpl implements AccessControlService {
         }
     }
 
+    @Override
+    public void verifySystemAccessToken(AccessToken accessToken) throws AccessException {    
+        if (accessToken == null || !accessToken.getClass().equals(UniversalAccessToken.class)) {
+            throw new AccessException("Not valid system access token");
+        }
+
+    }
     /**
      * Базовый класс для маркеров доступа.
      * Все маркеры доступа, поддерживаемые данной реализацией сервиса контроля доступа,
