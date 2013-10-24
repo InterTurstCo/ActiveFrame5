@@ -65,7 +65,8 @@ public class AccessControlServiceImpl implements AccessControlService {
             throws AccessException {
         
         Integer userId = getUserId(login);
-
+        //TODO database should contain Persons with correct logins
+        userId = 1;
         boolean deferred = false;
         if (DomainObjectAccessType.READ.equals(type)) {
             deferred = true; // Проверка прав на чтение объекта осуществляется при его выборке
@@ -110,6 +111,9 @@ public class AccessControlServiceImpl implements AccessControlService {
             throws AccessException {
         Integer personId = getUserId(login);
 
+        //TODO database should contain Persons with correct logins
+        personId = 1;
+
         // Id[] ids = databaseAgent.checkMultiDomainObjectAccess(userId, objectIds, type);
         // if (requireAll ? ids.length < objectIds.length : ids.length == 0) {
         // throw new AccessException();
@@ -126,7 +130,10 @@ public class AccessControlServiceImpl implements AccessControlService {
             throws AccessException {
 
         Integer personId = getUserId(login);
-        
+
+        //TODO database should contain Persons with correct logins
+        personId = 1;
+
 //        AccessType[] granted = databaseAgent.checkDomainObjectMultiAccess(userId, objectId, types); if (requireAll ?
 //        granted.length < types.length : granted.length == 0) { throw new AccessException(); }
         
