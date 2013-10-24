@@ -1,7 +1,10 @@
 package ru.intertrust.cm.core.config.model.gui;
 
+import org.simpleframework.xml.Element;
+import org.simpleframework.xml.convert.Convert;
+
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.config.model.*;
+import ru.intertrust.cm.core.config.CollectorSettingsConverter;
 
 /** 
  * @author Denis Mitavskiy
@@ -14,7 +17,9 @@ public class ActionConfig implements Dto {
     private String text;
     private String imageUrl;
     private boolean showText;
-    private ActionSettingsConfig ActionSettingsConfig;
+
+    @Element(name="action-settings")
+    private ActionSettingsConfig actionSettingsConfig;
 
     public ActionConfig() {
     }
@@ -69,11 +74,11 @@ public class ActionConfig implements Dto {
     }
 
     public ActionSettingsConfig getActionSettingsConfig() {
-        return ActionSettingsConfig;
+        return actionSettingsConfig;
     }
 
     public void setActionSettingsConfig(ActionSettingsConfig actionSettingsConfig) {
-        ActionSettingsConfig = actionSettingsConfig;
+        this.actionSettingsConfig = actionSettingsConfig;
     }
 
     @Override

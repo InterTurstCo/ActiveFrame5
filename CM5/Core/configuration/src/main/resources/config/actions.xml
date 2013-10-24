@@ -47,15 +47,17 @@
             <!-- Текст-подтверждение после выполнения данного действия -->
             <on-success-message text="Документ подписан"/>
         </after-execution>
-
+        <action-settings>
+            <process-action class-name="start-process"  process-name="execution"/>
+        <action-settings>
     </action>
 
-    <!--action-context name="sign">
+    <action-context name="sign">
         <domain-object-context>
             <type name="Outgoing_Document"/>
             <type name="Internal_Document"/>
             <Status>OnRegistration</Status>
         </domain-object-context>
         <action name="sign.action">
-    </action-context-->
+    </action-context>
 </configuration>
