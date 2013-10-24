@@ -1,6 +1,9 @@
 package ru.intertrust.cm.core.business.impl;
 
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.dao.api.extension.OnLoadConfigurationExtensionHandler;
@@ -9,10 +12,11 @@ import ru.intertrust.cm.core.dao.api.extension.OnLoadConfigurationExtensionHandl
  * Класс, предназначенный для загрузки конфигурации доменных объектов
  * @author vmatsukevich Date: 5/6/13 Time: 9:36 AM
  */
-public class ConfigurationLoader {
+public class ConfigurationLoader implements ApplicationContextAware{
 
     @Autowired
     private ConfigurationControlService configurationControlService;
+    private ApplicationContext context;
 
     /*@Autowired
     private ExtensionService extensionService;*/
@@ -39,9 +43,15 @@ public class ConfigurationLoader {
         configurationControlService.loadConfiguration();
 
         // Вызов точки расширения
-        /*OnLoadConfigurationExtensionHandler extension = extensionService.getExtentionPoint(OnLoadConfigurationExtensionHandler.class, null);
-        extension.onLoad();*/
-
+        ExtensionService extensionService = context.getBean(ExtensionService.class);
+        OnLoadConfigurationExtensionHandler extension = extensionService.getExtentionPoint(OnLoadConfigurationExtensionHandler.class, null);
+        extension.onLoad();
     }
 
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.context = applicationContext;
+        
+    }
+    
 }
