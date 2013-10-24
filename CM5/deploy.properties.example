@@ -4,4 +4,4 @@ datasource.name=CM5
 db.connection.url=jdbc:postgresql://localhost:5432/cm5
 db.user=cm5
 db.password=cm5
-attachment.save.location=C:/temp/attachments
+attachment.save.location=C:/temp/savedAttachments

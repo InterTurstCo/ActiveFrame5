@@ -1017,7 +1017,7 @@
                         xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:scannerType" name="scanner"
                         xmlns:con="https://cm5.intertrust.ru/config" />
-            <xs:element type="con:attachmentTypePrefType" name="attachment-type-pref"
+            <xs:element type="con:attachmentTypeRefType" name="attachment-type-ref"
                         xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:choice>
         <xs:attribute type="xs:string" name="id" use="required" />
@@ -1029,7 +1029,7 @@
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
-    <xs:complexType name="attachmentTypePrefType">
+    <xs:complexType name="attachmentTypeRefType">
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute type="xs:string" name="name" use="required" />

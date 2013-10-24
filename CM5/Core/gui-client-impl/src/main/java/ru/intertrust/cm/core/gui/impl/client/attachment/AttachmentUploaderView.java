@@ -8,10 +8,11 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.gui.model.form.widget.AttachmentModel;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.List;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -26,24 +27,32 @@ public class AttachmentUploaderView extends Composite {
     private FormPanel form;
     private int widgetWidth;
     private int partWidth;
-    private LinkedHashMap<String, Id> fileNameMapServer;
-    private Map<String, String> fileNameMapClient;
+    private LinkedHashMap<Id, AttachmentModel> savedAttachments;
+    private List<AttachmentModel> newAttachments;
 
      public  AttachmentUploaderView() {
 
     }
-    public AttachmentUploaderView(LinkedHashMap<String, Id> fileNameMap) {
-        this.fileNameMapServer = fileNameMap;
-        fileNameMapClient = new HashMap<String, String>();
+    public AttachmentUploaderView(LinkedHashMap<Id, AttachmentModel> attachments) {
+        this.savedAttachments = attachments;
+         newAttachments = new ArrayList<AttachmentModel>();
         init();
     }
 
-    public LinkedHashMap<String, Id> getFileNamesMap() {
-        return fileNameMapServer;
+    public LinkedHashMap<Id, AttachmentModel> getSavedAttachments() {
+        return savedAttachments;
     }
 
-    public void setFileNameMap(LinkedHashMap<String, Id> fileNameMap) {
-        this.fileNameMapServer = fileNameMap;
+    public void setSavedAttachments(LinkedHashMap<Id, AttachmentModel> savedAttachments) {
+        this.savedAttachments = savedAttachments;
+    }
+
+    public List<AttachmentModel> getNewAttachments() {
+        return newAttachments;
+    }
+
+    public void setNewAttachments(List<AttachmentModel> newAttachments) {
+        this.newAttachments = newAttachments;
     }
 
     public void init() {
@@ -61,8 +70,8 @@ public class AttachmentUploaderView extends Composite {
 
     }
     public void showAttachmentNames() {
-        for (String fileName : fileNameMapServer.keySet()) {
-
+        for (AttachmentModel model : savedAttachments.values()) {
+            String fileName = model.getName();
             addRowWithAttachmentFileName(fileName);
         }
     }
@@ -104,7 +113,7 @@ public class AttachmentUploaderView extends Composite {
         verticalPanel.add(horizontalPanel);
 
     }
-    private void addRowWithNewUploadedFileName(String fileNameToDispaly){
+    private void addRowWithNewUploadedFileName(AttachmentModel attachmentModel){
         if (widgetWidth == 0) {
             widgetWidth = form.getOffsetWidth();
             widgetWidth = widgetWidth == 0 ? 700 : widgetWidth;
@@ -120,7 +129,8 @@ public class AttachmentUploaderView extends Composite {
         leftSide.setWidth(partWidth + "px");
         rightSide.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
         rightSide.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-        Label fileNameLabel = new Label(fileNameToDispaly);
+        Label fileNameLabel = new Label(attachmentModel.getName());
+        fileNameLabel.getElement().setId(attachmentModel.getPath());
 
         Image deleteImage = createDeleteButton(fileNameLabel);
         int imageWidth = deleteImage.getOffsetWidth();
@@ -177,8 +187,8 @@ public class AttachmentUploaderView extends Composite {
         form.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
             public void onSubmitComplete(FormPanel.SubmitCompleteEvent event) {
                 String filePath = event.getResults();
-                String fileNameToDisplay = handleFileNameFromServer(filePath);
-                addRowWithNewUploadedFileName(fileNameToDisplay);
+                AttachmentModel model = handleFileNameFromServer(filePath);
+                addRowWithNewUploadedFileName(model);
             }
         });
     }
@@ -193,11 +203,32 @@ public class AttachmentUploaderView extends Composite {
             }
         });
     }
-    private String handleFileNameFromServer(String raw) {
-        String [] split = raw.split("-_-");
-        String nameToDisplay = split[0];
-        fileNameMapClient.put(nameToDisplay, raw);
-        return nameToDisplay;
+
+    private AttachmentModel handleFileNameFromServer(String filePath) {
+        AttachmentModel attachmentModel = new AttachmentModel();
+        String [] splitBySeparatorLinux = filePath.split("/");
+        int length = splitBySeparatorLinux.length;
+
+        if (length != 1) {
+             String rawName = splitBySeparatorLinux[length-1];
+             String [] splitClearName = rawName.split("-_-");
+             String clearName = splitClearName[0];
+
+             attachmentModel.setName(clearName);
+             attachmentModel.setPath(filePath);
+             newAttachments.add(attachmentModel);
+             return  attachmentModel;
+        }
+        String [] splitBySeparatorWindows = filePath.split("\\\\");
+        length = splitBySeparatorWindows.length;
+        String rawName = splitBySeparatorWindows[length-1];
+        String [] splitClearName = rawName.split("-_-");
+        String clearName = splitClearName[0];
+
+        attachmentModel.setName(clearName);
+        attachmentModel.setPath(filePath);
+        newAttachments.add(attachmentModel);
+        return  attachmentModel;
     }
 
     private class DeleteHandler implements ClickHandler {
@@ -209,15 +240,21 @@ public class AttachmentUploaderView extends Composite {
         }
         @Override
         public void onClick(ClickEvent event) {
-            String removedName = label.getText();
+            String removedId = label.getElement().getId();
             verticalPanel.remove(label.getParent().getParent());
-            if(fileNameMapServer.containsKey(removedName)) {
-                fileNameMapServer.remove(removedName);
-                return;
-            }
-            fileNameMapServer.remove(fileNameMapClient.get(removedName));
-            fileNameMapClient.remove(removedName);
 
+            for (AttachmentModel attachmentModel : savedAttachments.values()) {
+                if (removedId.equals(attachmentModel.getPath())) {
+                    savedAttachments.values().remove(attachmentModel);
+                    return;
+                }
+            }
+            for (AttachmentModel attachmentModel : newAttachments) {
+                if (removedId.equals(attachmentModel.getPath())) {
+                    newAttachments.remove(attachmentModel);
+                    return;
+                }
+            }
 
         }
     }

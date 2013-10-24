@@ -9,8 +9,8 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  *         Date: 22.10.13
  *         Time: 19:09
  */
-@Root(name = "attachment-type-pref")
-public class AttachmentTypePrefConfig implements Dto {
+@Root(name = "attachment-type-ref")
+public class AttachmentTypeRefConfig implements Dto {
     @Attribute(name = "name", required = true)
     private String name;
 
@@ -32,7 +32,7 @@ public class AttachmentTypePrefConfig implements Dto {
             return false;
         }
 
-        AttachmentTypePrefConfig that = (AttachmentTypePrefConfig) o;
+        AttachmentTypeRefConfig that = (AttachmentTypeRefConfig) o;
 
         if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;

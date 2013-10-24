@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.business.api.dto.Value;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,37 +16,38 @@ import java.util.LinkedHashMap;
  * To change this template use File | Settings | File Templates.
  */
 public class AttachmentBoxState extends WidgetState {
-    private ArrayList<Id> selectedIds;
-    private LinkedHashMap<String, Id> listValues;
+
+    private List<AttachmentModel> newAttachments;
+    private LinkedHashMap<Id, AttachmentModel> savedAttachments;
 
     @Override
     public Value toValue() {
         return null;
     }
 
-    public ArrayList<Id> getSelectedIds() {
-        return selectedIds;
+    public List<AttachmentModel> getNewAttachments() {
+        return newAttachments;
     }
 
-    public void setSelectedIds(ArrayList<Id> selectedIds) {
-        this.selectedIds = selectedIds;
+    public void setNewAttachments(List<AttachmentModel> newAttachments) {
+        this.newAttachments = newAttachments;
     }
 
-    public LinkedHashMap<String, Id> getListValues() {
-        return listValues;
+    public LinkedHashMap<Id, AttachmentModel> getSavedAttachments() {
+        return savedAttachments;
     }
 
-    public void setListValues(LinkedHashMap<String, Id> listValues) {
-        this.listValues = listValues;
+    public void setSavedAttachments(LinkedHashMap<Id, AttachmentModel> savedAttachments) {
+        this.savedAttachments = savedAttachments;
     }
 
     @Override
     public ArrayList<Value> toValues() {
-        if (selectedIds == null) {
+        if (savedAttachments == null) {
             return null;
         }
-        ArrayList<Value> result = new ArrayList<Value>(selectedIds.size());
-        for (Id id : selectedIds) {
+        ArrayList<Value> result = new ArrayList<Value>();
+        for (Id id : savedAttachments.keySet()) {
             result.add(new ReferenceValue(id));
         }
         return result;

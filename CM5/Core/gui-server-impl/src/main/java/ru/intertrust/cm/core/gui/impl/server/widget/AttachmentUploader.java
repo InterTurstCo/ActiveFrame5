@@ -26,14 +26,15 @@ public class AttachmentUploader {
 
         String fileName = file.getOriginalFilename();
         long time = System.nanoTime();
-        String savedFileName = fileName + "-_-" + time;
+        String pathToSave = "";
+        //String savedFileName = fileName + "-_-" + time;
         try {
             Properties props = PropertiesLoaderUtils.loadAllProperties("deploy.properties");
             String attachmentStorage = props.getProperty("attachment.save.location");
 
             inputStream = file.getInputStream();
-
-            File newFile = new File(attachmentStorage + savedFileName);
+            pathToSave = attachmentStorage + fileName + "-_-" + time;
+            File newFile = new File(pathToSave);
             if (!newFile.exists()) {
                 newFile.createNewFile();
             }
@@ -52,7 +53,7 @@ public class AttachmentUploader {
             close(inputStream);
             close(outputStream);
         }
-         return savedFileName;
+         return pathToSave;
     }
 
     private  void close(Closeable c) {

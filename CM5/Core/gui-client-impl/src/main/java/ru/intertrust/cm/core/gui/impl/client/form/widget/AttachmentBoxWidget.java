@@ -6,9 +6,12 @@ import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.attachment.AttachmentUploaderView;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentBoxState;
+import ru.intertrust.cm.core.gui.model.form.widget.AttachmentModel;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -19,7 +22,8 @@ import java.util.LinkedHashMap;
  */
 @ComponentName("attachment-box")
 public class AttachmentBoxWidget extends BaseWidget {
-   LinkedHashMap<String, Id> fileNameMaps = new  LinkedHashMap<String, Id>();
+    LinkedHashMap<Id, AttachmentModel> savedAttachments = new  LinkedHashMap<Id, AttachmentModel>();
+    List<AttachmentModel> newAttachments = new ArrayList<AttachmentModel>();
     @Override
     public Component createNew() {
         return new AttachmentBoxWidget();
@@ -28,12 +32,11 @@ public class AttachmentBoxWidget extends BaseWidget {
     public void setCurrentState(WidgetState currentState) {
         AttachmentBoxState state = (AttachmentBoxState) currentState;
 
-        LinkedHashMap<String, Id> fileNameMaps = state.getListValues();
+        savedAttachments = state.getSavedAttachments();
 
         AttachmentUploaderView attachmentUploaderView = (AttachmentUploaderView) impl;
-        attachmentUploaderView.setFileNameMap(fileNameMaps);
+        attachmentUploaderView.setSavedAttachments(savedAttachments);
         attachmentUploaderView.showAttachmentNames();
-
 
     }
 
@@ -41,19 +44,21 @@ public class AttachmentBoxWidget extends BaseWidget {
     public WidgetState getCurrentState() {
         AttachmentBoxState state = new AttachmentBoxState();
         AttachmentUploaderView attachmentUploaderView = (AttachmentUploaderView) impl;
-        LinkedHashMap<String, Id> fileNameMaps = attachmentUploaderView.getFileNamesMap();
-        state.setListValues(fileNameMaps);
+        savedAttachments   = attachmentUploaderView.getSavedAttachments();
+        newAttachments = attachmentUploaderView.getNewAttachments();
+        state.setSavedAttachments(savedAttachments);
+        state.setNewAttachments(newAttachments);
 
         return state;
     }
 
     @Override
     protected Widget asEditableWidget() {
-        return new AttachmentUploaderView(fileNameMaps);
+        return new AttachmentUploaderView(savedAttachments);
     }
 
     @Override
     protected Widget asNonEditableWidget() {
-        return new AttachmentUploaderView(fileNameMaps);
+        return new AttachmentUploaderView(savedAttachments);
     }
 }

@@ -24,6 +24,9 @@
         <uniqueKey>
             <field name="country"/>
         </uniqueKey>
+        <attachment-types>
+            <attachment-type name="country_attachment"/>
+        </attachment-types>
     </domain-object-type>
 
     <domain-object-type name="c_best_friend_desc">
@@ -83,6 +86,13 @@
         <fields>
             <reference name="federal_unit" type="federal_unit"/>
             <reference name="city" type="city"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="country_attachment">
+        <fields>
+            <string name="Name" length="128" />
+            <string name="Description" length="128" />
         </fields>
     </domain-object-type>
 
@@ -162,6 +172,17 @@
                                 <tr>
                                     <td><widget id="best_desc_back_label"/></td>
                                     <td h-align="left"><widget id="best_friend_desc_back"/></td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+                <tab name="Attachments">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td><widget id="15"/></td>
                                 </tr>
                             </table>
                         </tab-group>
@@ -267,7 +288,13 @@
                 <field-path value="city^country"/> <!-- редактирует названи-->
                 <pattern value="{name} ({population} чел.)"/>
             </list-box>
+            <attachment-box id="15">
+                <field-path value = "country_attachment^country"/>
 
+                <!-- Впоследствии будет добавлена поддержка, тогда не обязателен станет field-path. Сейчас добавлять не надо. -->
+                <attachment-type-ref name="city_attachment"/>
+                <scanner enabled="true"/>
+            </attachment-box>
         </widget-config>
     </form>
     <form name="city_form" domain-object-type="city" is-default="true">

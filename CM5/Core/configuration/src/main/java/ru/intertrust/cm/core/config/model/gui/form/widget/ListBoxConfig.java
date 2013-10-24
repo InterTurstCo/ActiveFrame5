@@ -24,12 +24,29 @@ public class ListBoxConfig extends WidgetConfig implements Dto {
 
     @Override
     public boolean equals(Object o) {
-       return super.equals(o);
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+
+        ListBoxConfig that = (ListBoxConfig) o;
+
+        if (patternConfig != null ? !patternConfig.equals(that.patternConfig) : that.patternConfig != null)  {
+            return false;
+        }
+        return true;
     }
 
     @Override
     public int hashCode() {
-       return  super.hashCode();
+       int result =  super.hashCode();
+       result = 31 * result + (patternConfig != null ? patternConfig.hashCode() : 0);
+       return result;
     }
 
     @Override

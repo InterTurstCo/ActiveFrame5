@@ -11,17 +11,17 @@ import org.simpleframework.xml.Root;
 @Root(name = "attachment-box")
 public class AttachmentBoxConfig extends WidgetConfig  {
 
-    @Element(name = "attachment-type-pref")
-    private AttachmentTypePrefConfig attachmentType;
+    @Element(name = "attachment-type-ref")
+    private AttachmentTypeRefConfig attachmentType;
 
     @Element(name = "scanner")
     private ScannerConfig scanner;
 
-    public AttachmentTypePrefConfig getAttachmentType() {
+    public AttachmentTypeRefConfig getAttachmentType() {
         return attachmentType;
     }
 
-    public void setAttachmentType(AttachmentTypePrefConfig attachmentType) {
+    public void setAttachmentType(AttachmentTypeRefConfig attachmentType) {
         this.attachmentType = attachmentType;
     }
 

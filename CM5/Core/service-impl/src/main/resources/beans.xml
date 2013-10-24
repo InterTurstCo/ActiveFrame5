@@ -33,6 +33,9 @@
     <jee:local-slsb id="crudService"
                     jndi-name="java:app/web-app/CrudServiceImpl!ru.intertrust.cm.core.business.api.CrudService"
                     business-interface="ru.intertrust.cm.core.business.api.CrudService"/>
+    <jee:local-slsb id="attachmentService"
+                    jndi-name="java:app/web-app/AttachmentServiceImpl!ru.intertrust.cm.core.business.api.AttachmentService"
+                    business-interface="ru.intertrust.cm.core.business.api.AttachmentService"/>
 
     <bean id="authenticationService"
           class="ru.intertrust.cm.core.business.impl.AuthenticationServiceImpl"
