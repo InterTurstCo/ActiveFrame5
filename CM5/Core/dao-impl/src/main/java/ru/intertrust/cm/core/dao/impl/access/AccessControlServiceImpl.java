@@ -98,6 +98,8 @@ public class AccessControlServiceImpl implements AccessControlService {
         boolean deferred = true;
 
         Integer personId = getUserId(login);
+        //TODO database should contain Persons with correct logins
+        personId = 1;
         AccessToken token =
                 new SimpleAccessToken(new UserSubject(personId), null, DomainObjectAccessType.READ, deferred);
         return token;
