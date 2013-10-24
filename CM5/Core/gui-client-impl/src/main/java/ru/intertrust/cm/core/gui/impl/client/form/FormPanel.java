@@ -60,7 +60,7 @@ public class FormPanel implements IsWidget {
         IsWidget headerTable = buildTable(header.getTableLayout());
 
         final TabLayoutPanel bodyTabPanel = new TabLayoutPanel(30, Style.Unit.PX);
-        bodyTabPanel.setSize("500px", "200px"); // todo - something else
+        bodyTabPanel.setSize("800px", "200px"); // todo - something else
         BodyConfig body = markup.getBody();
         List<TabConfig> tabs = body.getTabs();
         for (TabConfig tab : tabs) {
@@ -69,7 +69,7 @@ public class FormPanel implements IsWidget {
         bodyTabPanel.selectTab(0);
 
         VerticalPanel verticalPanel = new VerticalPanel();
-        verticalPanel.setSize("500px", "100%");
+        verticalPanel.setSize("800px", "100%");
         verticalPanel.add(headerTable);
         verticalPanel.add(bodyTabPanel);
         bodyTabPanel.getTabWidget(0).getElement().getStyle().setProperty("backgroundColor", "white");
@@ -97,7 +97,7 @@ public class FormPanel implements IsWidget {
     }
     private IsWidget buildTabContent(TabConfig tabConfig) {
         SimpleLayoutPanel panel = new SimpleLayoutPanel();
-        panel.setSize("500px", "100%");
+        panel.setSize("1200px", "100%");
         TabGroupListConfig groupList = tabConfig.getGroupList();
         if (groupList instanceof SingleEntryGroupListConfig) {
             panel.add(buildTable(((SingleEntryGroupListConfig) groupList).getTabGroupConfig().getLayout()));

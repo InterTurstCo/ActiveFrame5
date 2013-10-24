@@ -990,6 +990,8 @@
                 xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:listBoxType" name="list-box"
                         xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="con:attachmentBoxType" name="attachment-box"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:linkedDomainObjectHyperlinkType"
                 name="linked-domain-object-hyperlink" xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:linkedDomainObjectsTableType"
@@ -1008,11 +1010,37 @@
         <xs:attribute type="xs:string" name="id" use="optional" />
         <xs:attribute type="xs:string" name="template-name" />
     </xs:complexType>
+    <!-- Attachment box definitions -->
+    <xs:complexType name="attachmentBoxType">
+        <xs:choice maxOccurs="unbounded" minOccurs="0">
+            <xs:element type="con:fieldPathType" name="field-path"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="con:scannerType" name="scanner"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="con:attachmentTypePrefType" name="attachment-type-pref"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
+        </xs:choice>
+        <xs:attribute type="xs:string" name="id" use="required" />
+    </xs:complexType>
+    <xs:complexType name="scannerType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:boolean" name="enabled" use="required" />
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="attachmentTypePrefType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="name" use="required" />
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
     <xs:complexType name="widgetType">
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute type="xs:string" name="id"
-                    use="optional" />
+                    use="required" />
                 <xs:attribute type="xs:string" name="width"
                     use="optional" />
                 <xs:attribute type="xs:string" name="height"

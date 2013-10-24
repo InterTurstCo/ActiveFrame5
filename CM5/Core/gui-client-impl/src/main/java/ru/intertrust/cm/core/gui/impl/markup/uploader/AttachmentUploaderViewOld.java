@@ -7,13 +7,16 @@ import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.*;
+import ru.intertrust.cm.core.business.api.dto.Id;
+
+import java.util.LinkedHashMap;
 
 /**
  * @author Yaroslav Bondarchuk
  *         Date: 21.10.13
  *         Time: 13:15
  */
-public class SimpleUploader extends Composite {
+public class AttachmentUploaderViewOld extends Composite {
 
     private VerticalPanel verticalPanel;
     private Image addFile;
@@ -21,9 +24,21 @@ public class SimpleUploader extends Composite {
     private FormPanel form;
     private int widgetWidth;
     private int partWidth;
+    private LinkedHashMap<String, Id> fileNameMap;
 
-    public SimpleUploader() {
+    public AttachmentUploaderViewOld() {
 
+    }
+    public AttachmentUploaderViewOld(LinkedHashMap<String, Id> fileNameMap) {
+        this.fileNameMap = fileNameMap;
+    }
+
+    public LinkedHashMap<String, Id> getFileNamesMap() {
+        return fileNameMap;
+    }
+
+    public void setFileNameMap(LinkedHashMap<String, Id> fileNameMap) {
+        this.fileNameMap = fileNameMap;
     }
 
     public void init() {
@@ -38,6 +53,7 @@ public class SimpleUploader extends Composite {
         verticalPanel.add(file);
         form.add(verticalPanel);
         setWidth("100%");
+
     }
 
     private void addRow(String fileName){
@@ -45,6 +61,7 @@ public class SimpleUploader extends Composite {
             widgetWidth = form.getOffsetWidth();
             partWidth = widgetWidth/2;
         }
+
         HorizontalPanel horizontalPanel = new HorizontalPanel();
         HorizontalPanel rightSide = new HorizontalPanel();
         HorizontalPanel leftSide = new HorizontalPanel();
@@ -53,9 +70,10 @@ public class SimpleUploader extends Composite {
         rightSide.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
 
         Label fileNameLabel = new Label(fileName);
-        Image deleteImage = createDeleteButton();
+
+        Image deleteImage = createDeleteButton(fileNameLabel);
         int imageWidth = deleteImage.getOffsetWidth();
-        UploaderProgressBar uploaderProgressBar = new UploaderProgressBar((int) (partWidth - 1.1 * imageWidth));
+        UploaderProgressBarOld uploaderProgressBar = new UploaderProgressBarOld((int) (partWidth - 1.1 * imageWidth));
         uploaderProgressBar.update(100);
 
         fileNameLabel.getElement().getStyle().setOverflow(Style.Overflow.HIDDEN);
@@ -71,23 +89,26 @@ public class SimpleUploader extends Composite {
         verticalPanel.add(horizontalPanel);
 
     }
-    private Image createDeleteButton() {
+    private Image createDeleteButton(Label label) {
 
         Image delete = new Image();
         delete.setUrl("cancel.png");
-        DeleteHandler deleteHandler = new DeleteHandler(delete);
+        DeleteHandler deleteHandler = new DeleteHandler(label);
         delete.addClickHandler(deleteHandler);
         return delete;
     }
     private class DeleteHandler implements ClickHandler {
-        Image delete;
-        public DeleteHandler(Image delete) {
-        this.delete = delete;
+
+        Label label;
+        public DeleteHandler(Label label) {
+        this.label = label;
 
        }
         @Override
         public void onClick(ClickEvent event) {
-          verticalPanel.remove(delete.getParent().getParent());
+           String removedName = label.getText();
+           fileNameMap.remove(removedName);
+           verticalPanel.remove(label.getParent().getParent());
 
         }
     }
@@ -102,19 +123,23 @@ public class SimpleUploader extends Composite {
           file.addChangeHandler(new ChangeHandler() {
               @Override
               public void onChange(ChangeEvent event) {
-                  String filename = file.getFilename();
-
-                  addRow(filename);
                   form.submit();
               }
           });
       }
      private void initSubmitForm() {
          form = new FormPanel();
-         form.setAction("http://www.tutorialspoint.com/gwt/myFormHandler");
+
+         form.setAction("http://127.0.0.1:8080/cm-sochi/attachment-upload");
          // set form to use the POST method, and multipart MIME encoding.
          form.setEncoding(FormPanel.ENCODING_MULTIPART);
          form.setMethod(FormPanel.METHOD_POST);
+         form.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
+             public void onSubmitComplete(FormPanel.SubmitCompleteEvent event) {
+                String filePath = event.getResults();
+                addRow(filePath);
+             }
+         });
      }
 
     private void initUploadButton() {
@@ -127,4 +152,5 @@ public class SimpleUploader extends Composite {
             }
         });
     }
+
 }

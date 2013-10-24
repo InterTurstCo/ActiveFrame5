@@ -9,13 +9,13 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.SimplePanel;
 
-public final class UploaderProgressBar extends SimplePanel {
+public final class UploaderProgressBarOld extends SimplePanel {
 
     private static final double COMPLETE_PERECENTAGE = 100d;
     private static final double START_PERECENTAGE = 0d;
     private Panel progress;
     int width = 0;
-    public UploaderProgressBar(int width) {
+    public UploaderProgressBarOld(int width) {
         this.width = width;
 
         applyStylesForThisObject();
