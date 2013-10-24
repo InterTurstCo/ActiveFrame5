@@ -8,4 +8,5 @@ package ru.intertrust.cm.core.gui.model.plugin;
  *         Time: 12:04
  */
 public interface IsActive {
+    //public List<ActionContext> getActionContexts
 }

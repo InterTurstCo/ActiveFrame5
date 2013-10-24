@@ -5,6 +5,8 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.IsActive;
+import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
 
 import java.util.Map;
 
@@ -14,7 +16,7 @@ import java.util.Map;
  *         Time: 15:28
  */
 @ComponentName("form.plugin")
-public class FormPlugin extends Plugin {
+public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor {
     @Override
     public PluginView createView() {
         FormPluginData initialData = getInitialData();
@@ -27,13 +29,20 @@ public class FormPlugin extends Plugin {
     }
 
     public void update(FormState formState) {
-        ((FormPluginView) getView()).update(formState);
-        FormPluginData initialData = getInitialData();
-        initialData.getFormDisplayData().setFormState(formState);
+        setFormState(formState);
     }
 
     @Override
     public FormState getCurrentState() {
+        return getFormState();
+    }
+
+    public DomainObject getRootDomainObject() {
+        return this.<FormPluginData>getInitialData().getFormDisplayData().getFormState().getObjects().getRootObjects().getObject();
+    }
+
+    @Override
+    public FormState getFormState() {
         FormState initialFormState = this.<FormPluginData>getInitialData().getFormDisplayData().getFormState();
         FormPluginView view = (FormPluginView) getView();
         Map<String, WidgetState> widgetsState = view.getWidgetsState();
@@ -41,7 +50,10 @@ public class FormPlugin extends Plugin {
         return new FormState(initialFormState.getName(), widgetsState, initialFormState.getObjects());
     }
 
-    public DomainObject getRootDomainObject() {
-        return this.<FormPluginData>getInitialData().getFormDisplayData().getFormState().getObjects().getRootObjects().getObject();
+    @Override
+    public void setFormState(FormState formState) {
+        ((FormPluginView) getView()).update(formState);
+        FormPluginData initialData = getInitialData();
+        initialData.getFormDisplayData().setFormState(formState);
     }
 }

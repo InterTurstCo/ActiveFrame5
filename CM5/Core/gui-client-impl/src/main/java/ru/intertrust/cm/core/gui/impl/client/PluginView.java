@@ -24,6 +24,7 @@ public abstract class PluginView implements IsWidget {
     protected Plugin plugin;
     protected static Logger log = Logger.getLogger("PluginView console logger");
 
+    private HorizontalPanel actionToolBar;
 
     /**
      * Основной конструктор
@@ -39,17 +40,18 @@ public abstract class PluginView implements IsWidget {
      *
      * @return возвращает виджет, отображающий "Панель действий"
      */
-    protected IsWidget getActionToolBar() {
+    protected HorizontalPanel createActionToolBar() {
         // todo: do this only if plugin is Active
         ActivePluginData initialData = plugin.getInitialData();
         if (initialData == null) {
-            return new Label("This is an empty tool bar for now");
+            return null;//new Label("This is an empty tool bar for now");
+            // return nu
             // todo return null;
         }
         List<ActionContext> actionContexts = initialData.getActionContexts();
         HorizontalPanel actionPanel = new HorizontalPanel();
         if (actionContexts == null) {
-            return new Label("Empty panel - fix later");
+            return null;//new Label("Empty panel - fix later");
         }
         for (final ActionContext actionContext : actionContexts) {
             final ActionConfig actionConfig = actionContext.getActionConfig();
@@ -85,7 +87,7 @@ public abstract class PluginView implements IsWidget {
     public Widget asWidget() {
         VerticalPanel panel = new VerticalPanel();
         if (plugin instanceof IsActive) {
-            IsWidget actionToolBar = getActionToolBar();
+            actionToolBar = createActionToolBar();
             if (actionToolBar != null) {
                 panel.add(actionToolBar);
             }
@@ -93,6 +95,4 @@ public abstract class PluginView implements IsWidget {
         panel.add(getViewWidget());
         return panel;
     }
-
-
 }
