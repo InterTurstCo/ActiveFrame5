@@ -145,7 +145,7 @@ public class DomainObjectDaoImplTest {
         domainObject.setCreatedDate(currentDate);
         domainObject.setModifiedDate(currentDate);
 
-        String checkUpdateQuery = "update PERSON set UPDATED_DATE=:current_date, " +
+        String checkUpdateQuery = "update PERSON set UPDATED_DATE=:current_date, STATUS=:status, " +
                 "EMAIL=:email, LOGIN=:login, PASSWORD=:password, BOSS=:boss, " +
                 "BOSS_TYPE=:boss_type where ID=:id and UPDATED_DATE=:updated_date";
 

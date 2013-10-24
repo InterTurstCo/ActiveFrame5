@@ -59,9 +59,10 @@ public interface DomainObjectDao {
      * возвращённом объекте.
      *
      * @param domainObject
+     * @param accessToken маркер доступа
      * @return сохраненный доменный объект
      */
-    DomainObject save(DomainObject domainObject);
+    DomainObject save(DomainObject domainObject, AccessToken accessToken);
 
     /**
      * Сохраняет список доменных объектов. Если какой-то объект не существует в системе, создаёт его и заполняет
@@ -190,4 +191,11 @@ public interface DomainObjectDao {
      * @return {@link ru.intertrust.cm.core.business.api.dto.DomainObject}
      */
     List<DomainObject> findAll(String domainObjectType, int offset, int limit, AccessToken accessToken);
+    
+    /**
+     * Устанавливает статус доменного объекта
+     * @param objectId идентификатор доменного объекта
+     * @param status идентификатор статуса
+     */
+    DomainObject setStatus(Id objectId, Long status);
 }

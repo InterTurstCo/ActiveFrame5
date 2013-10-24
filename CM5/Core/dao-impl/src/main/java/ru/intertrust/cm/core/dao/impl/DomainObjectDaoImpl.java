@@ -115,6 +115,13 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         this.extensionService = extensionService;
     }
 
+    public DomainObject setStatus(Id objectId, Long status) {       
+        AccessToken accessToken = createSystemAccessToken();
+        DomainObject domainObject = find(objectId, accessToken);
+        ((GenericDomainObject)domainObject).setStatus(status);
+        return update(domainObject);
+    }
+    
     @Override
     public DomainObject create(DomainObject domainObject) {
         DomainObject createdObject = create(domainObject,
@@ -131,10 +138,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     @Override
-    public DomainObject save(DomainObject domainObject)
+    public DomainObject save(DomainObject domainObject, AccessToken accessToken)
             throws InvalidIdException, ObjectNotFoundException,
             OptimisticLockException {
 
+        accessControlService.verifyAccessToken(accessToken, domainObject.getId(),  DomainObjectAccessType.WRITE);
+        
         DomainObject result = null;
         // Вызов точки расширения до сохранения
         BeforeSaveExtensionHandler beforeSaveExtension = extensionService
@@ -174,12 +183,25 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         for (DomainObject domainObject : domainObjects) {
             DomainObject newDomainObject;
-            newDomainObject = save(domainObject);
+            AccessToken accessToken = null;
+            if (!domainObject.isNew()) {
+                String user = "admin";
+                Id objectId = ((GenericDomainObject) domainObject).getId();
+                accessToken = accessControlService.createAccessToken(user, objectId, DomainObjectAccessType.WRITE);
+            } else {
+                accessToken = createSystemAccessToken();
+            }
+
+            newDomainObject = save(domainObject, accessToken);
             result.add(newDomainObject);
         }
 
         return result;
 
+    }
+
+    private AccessToken createSystemAccessToken() {
+        return accessControlService.createSystemAccessToken("DomainObjectDao");
     }
 
     @Override
@@ -229,7 +251,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         domainObjectCacheService.putObjectToCache(updatedObject);
 
-        //refreshDynamiGroupsAndAclForUpdate(domainObject);
+//        refreshDynamiGroupsAndAclForUpdate(domainObject);
 
         return updatedObject;
 
@@ -251,12 +273,23 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         for (String fieldName : domainObject.getFields()) {
             Value originalValue = originalDomainObject.getValue(fieldName);
             Value newValue = domainObject.getValue(fieldName);
-            if (!originalValue.equals(newValue)) {
+            if (isValueChanged(originalValue, newValue)) {
                 modifiedFieldNames.add(fieldName);
             }
 
         }
         return modifiedFieldNames;
+    }
+
+    private boolean isValueChanged(Value originalValue, Value newValue) {
+        if (newValue == null && originalValue == null) {
+            return false;
+        }
+
+        if (newValue != null && originalValue == null) {
+            return true;
+        }
+        return originalValue != null && !originalValue.equals(newValue);
     }
 
     @Override
@@ -275,6 +308,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 .createSystemAccessToken("DomainObjectDaoImpl");
 
         DomainObject deletedObject = find(id, accessToken);
+
+        // удаление списков доступа и динамических групп должно проходить до удаления самих объектов
+//        refreshDynamiGroupsAndAclForDelete(deletedObject);
 
         // Точка расширения до удаления
         BeforeDeleteExtensionHandler beforeDeleteEH =
@@ -307,14 +343,13 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         AfterDeleteExtensionHandler afterDeleteEH =
                 extensionService.getExtentionPoint(AfterDeleteExtensionHandler.class, domainObjectTypeConfig.getName());
         afterDeleteEH.onAfterDelete(deletedObject);
-
-        //refreshDynamiGroupsAndAclForDelete(deletedObject);
-
     }
 
     private void refreshDynamiGroupsAndAclForDelete(DomainObject deletedObject) {
-        dynamicGroupService.notifyDomainObjectDeleted(deletedObject.getId());
-        permissionService.cleanAclFor(deletedObject.getId());
+        if (deletedObject != null) {
+            dynamicGroupService.notifyDomainObjectDeleted(deletedObject.getId());
+            permissionService.cleanAclFor(deletedObject.getId());
+        }
     }
 
     @Override
@@ -691,6 +726,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         if (!isDerived(domainObjectTypeConfig)) {
             query.append(UPDATED_DATE_COLUMN).append("=:current_date, ");
+            query.append(STATUS_COLUMN).append("=:status");
+            if(fieldsWithparams != null && fieldsWithparams.length() > 0){
+                query.append(", ");    
+            }
+            
         }
 
         query.append(fieldsWithparams);
@@ -725,6 +765,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         parameters.put("id", rdbmsId.getId());
         parameters.put("current_date", getGMTDate(currentDate));
         parameters.put("updated_date", getGMTDate(domainObject.getModifiedDate()));
+        parameters.put("status", domainObject.getStatus());
 
         List<FieldConfig> fieldConfigs = domainObjectTypeConfig
                 .getDomainObjectFieldsConfig().getFieldConfigs();

@@ -18,6 +18,8 @@ import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.DomainObjectConfig;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.dao.access.AccessControlService;
+import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 
 /**
@@ -39,6 +41,9 @@ public class InitialDataLoader {
 
     @Autowired
     private DomainObjectDao domainObjectDao;
+    
+    @Autowired
+    private AccessControlService accessControlService;
     
     private NamedParameterJdbcTemplate jdbcTemplate;
     
@@ -65,7 +70,11 @@ public class InitialDataLoader {
     public void setDomainObjectDao(DomainObjectDao domainObjectDao) {
         this.domainObjectDao = domainObjectDao;
     }
-    
+        
+    public void setAccessControlService(AccessControlService accessControlService) {
+        this.accessControlService = accessControlService;
+    }
+
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
     }
@@ -120,7 +129,8 @@ public class InitialDataLoader {
         statusDO.setCreatedDate(currentDate);
         statusDO.setModifiedDate(currentDate);
         statusDO.setString("Name", statusName);
-        domainObjectDao.save(statusDO);
+        AccessToken accessToken = accessControlService.createSystemAccessToken("InitialDataLoader");
+        domainObjectDao.save(statusDO, accessToken);
     }
 
     private void insertAdminAuthenticationInfo() {

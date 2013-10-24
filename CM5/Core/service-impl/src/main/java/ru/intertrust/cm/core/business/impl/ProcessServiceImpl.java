@@ -206,7 +206,7 @@ public class ProcessServiceImpl implements ProcessService {
         DomainObject taskDomainObject = domainObjectDao.find(
                 taskDomainObjectId, accessToken);
         taskDomainObject.setLong("State", ProcessService.TASK_STATE_COMPLETE);
-        domainObjectDao.save(taskDomainObject);
+        domainObjectDao.save(taskDomainObject, accessToken);
 
         String taskId = taskDomainObject.getString("TaskId");
 

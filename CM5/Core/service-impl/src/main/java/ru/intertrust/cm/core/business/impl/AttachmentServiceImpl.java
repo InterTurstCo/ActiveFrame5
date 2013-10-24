@@ -91,7 +91,8 @@ public class AttachmentServiceImpl implements AttachmentService {
             newFilePathValue = new StringValue(newFilePath);
             StringValue oldFilePathValue = (StringValue) attachmentDomainObject.getValue("path");
             attachmentDomainObject.setValue(PATH_NAME, new StringValue(newFilePath));
-            savedDoaminObject = domainObjectDao.save(attachmentDomainObject);
+            AccessToken accessToken = accessControlService.createSystemAccessToken("AttachmentService");
+            savedDoaminObject = domainObjectDao.save(attachmentDomainObject, accessToken);
             
             //предыдущий файл удаляем
             if (oldFilePathValue != null && !oldFilePathValue.isEmpty()) {
@@ -162,8 +163,8 @@ public class AttachmentServiceImpl implements AttachmentService {
             DomainObjectTypeConfig attachDomainObjectTypeConfig =
                     configurationExplorer.getConfig(DomainObjectTypeConfig.class, attachmentTypeConfig.getName());
             //TODO get userId from EJB Context
-            int userId = 1;
-            AccessToken accessToken = accessControlService.createAccessToken(userId, domainObject.getId(), DomainObjectAccessType.READ);
+            String user = "admin";
+            AccessToken accessToken = accessControlService.createAccessToken(user, domainObject.getId(), DomainObjectAccessType.READ);
             String attachmentType = attachDomainObjectTypeConfig.getName();
             attachmentDomainObjects.addAll(
                     domainObjectDao.findLinkedDomainObjects(domainObject.getId(), attachmentType, attachmentType,

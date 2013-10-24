@@ -1,11 +1,15 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.dao.access.*;
+import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.dao.exception.AccessException;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +28,11 @@ public class AccessControlServiceImpl implements AccessControlService {
     @Autowired
     private DatabaseAccessAgent databaseAgent;
 
+    @Autowired    
+    private PersonManagementServiceDao personManagementService;
+    
+    Map<String, Id> userIdCache = new HashMap<String, Id>();
+    
     /**
      * Устанавливает программный агент, которому делегируются функции физической проверки прав доступа
      * через запросы в БД. 
@@ -32,6 +41,10 @@ public class AccessControlServiceImpl implements AccessControlService {
      */
     public void setDatabaseAgent(DatabaseAccessAgent databaseAgent) {
         this.databaseAgent = databaseAgent;
+    }    
+
+    public void setPersonManagementService(PersonManagementServiceDao personManagementService) {
+        this.personManagementService = personManagementService;
     }
 
     @Override
@@ -41,58 +54,81 @@ public class AccessControlServiceImpl implements AccessControlService {
     }
 
     @Override
-    public AccessToken createAdminAccessToken(int userId) throws AccessException {
-        // TODO Auto-generated method stub
+    public AccessToken createAdminAccessToken(String login) throws AccessException {
+        Integer personId = getUserId(login);
+        // TODO Implement
         return null;
     }
 
     @Override
-    public AccessToken createAccessToken(int userId, Id objectId, AccessType type)
+    public AccessToken createAccessToken(String login, Id objectId, AccessType type)
             throws AccessException {
+        
+        Integer userId = getUserId(login);
+
         boolean deferred = false;
         if (DomainObjectAccessType.READ.equals(type)) {
-            deferred = true;    // Проверка прав на чтение объекта осуществляется при его выборке
-        } else {    // Для всех других типов доступа к доменному объекту производим запрос в БД
-              //TODO Uncomment when access control will be restored
-//            if (!databaseAgent.checkDomainObjectAccess(userId, objectId, type)) {
-//                throw new AccessException();
-//            }
+            deferred = true; // Проверка прав на чтение объекта осуществляется при его выборке
+        } else { // Для всех других типов доступа к доменному объекту производим запрос в БД
+            // TODO Uncomment when access control will be restored
+            // if (!databaseAgent.checkDomainObjectAccess(userId, objectId, type)) {
+            // throw new AccessException();
+            // }
         }
         AccessToken token = new SimpleAccessToken(new UserSubject(userId), objectId, type, deferred);
         return token;
     }
 
-
-    @Override
-    public AccessToken createCollectionAccessToken(int userId) throws AccessException {
-        boolean deferred = true;
-        AccessToken token = new SimpleAccessToken(new UserSubject(userId), null, DomainObjectAccessType.READ, deferred);
-        return token;
-    }
-
-    @Override
-    public AccessToken createAccessToken(int userId, Id[] objectIds, AccessType type, boolean requireAll)
-            throws AccessException {
-        
-//        Id[] ids = databaseAgent.checkMultiDomainObjectAccess(userId, objectIds, type);
-//        if (requireAll ? ids.length < objectIds.length : ids.length == 0) {
-//            throw new AccessException();
-//        }
-//        AccessToken token = new MultiObjectAccessToken(new UserSubject(userId), ids, type);
-        //TODO Uncomment when access control will be restored
-        AccessToken token = new MultiObjectAccessToken(new UserSubject(userId), objectIds, type);
-        
-        return token;
-    }
-
-    @Override
-    public AccessToken createAccessToken(int userId, Id objectId, AccessType[] types, boolean requireAll)
-            throws AccessException {
-        AccessType[] granted = databaseAgent.checkDomainObjectMultiAccess(userId, objectId, types);
-        if (requireAll ? granted.length < types.length : granted.length == 0) {
-            throw new AccessException();
+    private Integer getUserId(String login) {
+        Id personId = null;
+        if (userIdCache.get(login) != null) {
+            personId = userIdCache.get(login);
+        } else {
+            personId = personManagementService.getPersonId(login);
+            userIdCache.put(login, personId);
         }
-        AccessToken token = new MultiTypeAccessToken(new UserSubject(userId), objectId, types);
+        if (personId != null) {
+            return (int) ((RdbmsId) personId).getId();
+        }
+        return null;
+    }
+
+    @Override
+    public AccessToken createCollectionAccessToken(String login) throws AccessException {
+        boolean deferred = true;
+
+        Integer personId = getUserId(login);
+        AccessToken token =
+                new SimpleAccessToken(new UserSubject(personId), null, DomainObjectAccessType.READ, deferred);
+        return token;
+    }
+
+    @Override
+    public AccessToken createAccessToken(String login, Id[] objectIds, AccessType type, boolean requireAll)
+            throws AccessException {
+        Integer personId = getUserId(login);
+
+        // Id[] ids = databaseAgent.checkMultiDomainObjectAccess(userId, objectIds, type);
+        // if (requireAll ? ids.length < objectIds.length : ids.length == 0) {
+        // throw new AccessException();
+        // }
+        // AccessToken token = new MultiObjectAccessToken(new UserSubject(userId), ids, type);
+        // TODO Uncomment when access control will be restored
+        AccessToken token = new MultiObjectAccessToken(new UserSubject(personId), objectIds, type);
+
+        return token;
+    }
+
+    @Override
+    public AccessToken createAccessToken(String login, Id objectId, AccessType[] types, boolean requireAll)
+            throws AccessException {
+
+        Integer personId = getUserId(login);
+        
+//        AccessType[] granted = databaseAgent.checkDomainObjectMultiAccess(userId, objectId, types); if (requireAll ?
+//        granted.length < types.length : granted.length == 0) { throw new AccessException(); }
+        
+        AccessToken token = new MultiTypeAccessToken(new UserSubject(personId), objectId, types);
         return token;
     }
 

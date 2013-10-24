@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.dao.access.AccessControlService;
+import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.performance.dataset.DatasetGenerationServiceImpl;
 import ru.intertrust.cm.performance.dataset.xmltypes.ChildrenType;
@@ -27,6 +29,10 @@ public class GenerateChildrenField {
 
     @Autowired
     private DomainObjectDao domainObjectDao;
+
+    @Autowired
+    private AccessControlService accessControlService;
+
 
     public void generateField(DomainObject domainObject, List<TemplateType> templateList, ObjectType objectType, DatasetGenerationServiceImpl dgsi) throws IOException {
 
@@ -73,7 +79,8 @@ public class GenerateChildrenField {
                     }
 
                     // сохраним изменения в родительском объекте изменения
-                    domainObjectDao.save(domainObject);
+                    AccessToken accessToken = accessControlService.createSystemAccessToken("GenerateChildrenField");
+                    domainObjectDao.save(domainObject, accessToken);
                 }
             }
         }

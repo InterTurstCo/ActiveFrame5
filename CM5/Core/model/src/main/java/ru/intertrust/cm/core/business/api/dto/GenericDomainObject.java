@@ -15,6 +15,8 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
     private Date createdDate;
     private Date modifiedDate;
 
+    public String STATUS_COLUMN = "STATUS";    
+
 
     /**
      * Создаёт доменный объект
@@ -35,6 +37,7 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
         typeName = source.getTypeName();
         createdDate = source.getCreatedDate();
         modifiedDate = source.getModifiedDate();
+        setStatus(source.getStatus());
     }
 
     //@Override
@@ -67,6 +70,15 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
         this.modifiedDate = modifiedDate;
     }
 
+    @Override
+    public Long getStatus() {
+     return getLong(STATUS_COLUMN);   
+    }
+
+    public void setStatus(Long status) {
+        setLong(STATUS_COLUMN, status);
+    }
+    
     @Override
     public boolean isNew() {
         return (getId() == null);

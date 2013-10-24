@@ -37,7 +37,7 @@ public interface AccessControlService {
      * @return Сформированный маркер доступа
      * @throws AccessException если пользователь не имеет права на доступ к запрошенному объекту
      */
-    AccessToken createAccessToken(int userId, Id objectId, AccessType type)
+    AccessToken createAccessToken(String login, Id objectId, AccessType type)
             throws AccessException;
 
     /**
@@ -49,7 +49,7 @@ public interface AccessControlService {
      * @return Сформированный маркер доступа
      * @throws AccessException
      */
-    AccessToken createCollectionAccessToken(int userId) throws AccessException;
+    AccessToken createCollectionAccessToken(String login) throws AccessException;
 
     /**
      * Формирует маркер доступа к группе объектов для заданного пользователя.
@@ -68,7 +68,7 @@ public interface AccessControlService {
      * @throws AccessException если пользователь не имеет права на доступ к некоторым или всем запрошенным объектам,
      *          в зависимости от параметра requireAll
      */
-    AccessToken createAccessToken(int userId, Id[] objectIds, AccessType type, boolean requireAll)
+    AccessToken createAccessToken(String login, Id[] objectIds, AccessType type, boolean requireAll)
             throws AccessException;
 
     /**
@@ -88,7 +88,7 @@ public interface AccessControlService {
      * @throws AccessException если пользователь не имеет права на несколько или все типы доступа из запрошенных,
      *          в зависимости от параметра requireAll
      */
-    AccessToken createAccessToken(int userId, Id objectId, AccessType[] types, boolean requireAll)
+    AccessToken createAccessToken(String login, Id objectId, AccessType[] types, boolean requireAll)
             throws AccessException;
 
     /**
@@ -99,7 +99,7 @@ public interface AccessControlService {
      * @return Сформированный маркер доступа
      * @throws AccessException если пользователь не включён в группу "Администраторы"
      */
-    AccessToken createAdminAccessToken(int userId) throws AccessException;
+    AccessToken createAdminAccessToken(String login) throws AccessException;
 
     /**
      * Формирует универсальный маркер доступа, позволяющий выполнять любые операции от имени системы.

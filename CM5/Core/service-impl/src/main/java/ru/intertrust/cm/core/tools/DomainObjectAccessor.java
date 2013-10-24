@@ -127,7 +127,8 @@ public class DomainObjectAccessor implements Serializable {
      * Сохраняет обьект
      */
     public void save() {
-        domainObject = getDomainObjectDao().save(domainObject);
+        AccessToken accessToken = getAccessControlService().createSystemAccessToken("DomainObjectAccessor");
+        domainObject = getDomainObjectDao().save(domainObject, accessToken);
     }
 
     /**

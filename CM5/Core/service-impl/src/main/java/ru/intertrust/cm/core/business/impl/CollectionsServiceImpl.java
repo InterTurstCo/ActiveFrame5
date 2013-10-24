@@ -42,8 +42,8 @@ public class CollectionsServiceImpl implements CollectionsService {
     public IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder, List<Filter> filterValues,
                                                        int offset, int limit) {
         // TODO get userId from EJB Context
-        int userId = 1;
-        AccessToken accessToken = accessControlService.createCollectionAccessToken(userId);
+        String user = "admin";
+        AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
         return collectionsDao.findCollection(collectionName, filterValues, sortOrder, offset, limit, accessToken);
     }
 
@@ -65,8 +65,9 @@ public class CollectionsServiceImpl implements CollectionsService {
     @Override
     public int findCollectionCount(String collectionName, List<Filter> filterValues) {
         // TODO get userId from EJB Context
-        int userId = 1;
-        AccessToken accessToken = accessControlService.createCollectionAccessToken(userId);
+        String user = "admin";
+
+        AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
         return collectionsDao.findCollectionCount(collectionName, filterValues, accessToken);
     }
 
@@ -74,8 +75,8 @@ public class CollectionsServiceImpl implements CollectionsService {
     @Override
     public IdentifiableObjectCollection findCollectionByQuery(String query, int offset, int limit) {
         // TODO get userId from EJB Context
-        int userId = 1;
-        AccessToken accessToken = accessControlService.createCollectionAccessToken(userId);
+        String user = "admin";
+        AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
         return collectionsDao.findCollectionByQuery(query, offset, limit, accessToken);
     }
 

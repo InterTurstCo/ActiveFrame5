@@ -48,7 +48,8 @@ public class OnSaveUserGroupExtensionPoint implements AfterSaveExtensionHandler,
             DomainObject groupGroup = createDomainObject("group_group");
             groupGroup.setReference("parent_group_id", domainObject.getId());
             groupGroup.setReference("child_group_id", domainObject.getId());
-            domainObjectDao.save(groupGroup);
+            AccessToken accessToken = accessControlService.createSystemAccessToken("OnSaveUserGroupExtensionPoint");
+            domainObjectDao.save(groupGroup, accessToken);
         }
     }
 

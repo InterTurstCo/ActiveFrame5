@@ -93,7 +93,8 @@ public class OnChangeGroupGroupSettingsExtensionPointHandler implements AfterSav
             DomainObject domainObject = createDomainObject("group_group");
             domainObject.setReference("parent_group_id", parent);
             domainObject.setReference("child_group_id", group);
-            domainObjectDao.save(domainObject);
+            AccessToken accessToken = accessControlService.createSystemAccessToken("OnChangeGroupGroupSettingsExtensionPointHandler");
+            domainObjectDao.save(domainObject, accessToken);
         }
         // Непосредственно удаляем элементы
         for (Id group : delList) {

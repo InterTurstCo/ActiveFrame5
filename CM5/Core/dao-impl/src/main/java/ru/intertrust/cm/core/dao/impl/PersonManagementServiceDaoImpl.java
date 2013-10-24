@@ -37,6 +37,10 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
 
     @Autowired
     private AccessControlService accessControlService;
+    
+    public void setAccessControlService(AccessControlService accessControlService) {
+        this.accessControlService = accessControlService;
+    }
 
     /**
      * Получение идентификатора персоны по логину
@@ -315,7 +319,8 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
     public void addPersonToGroup(Id group, Id person) {
         DomainObject groupMembers = createDomainObject("Group_Member", group);
         groupMembers.setReference("person_id", person);
-        domainObjectDao.save(groupMembers);
+        AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagmentService");
+        domainObjectDao.save(groupMembers, accessToken);
     }
 
     @Override
@@ -323,7 +328,8 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
         DomainObject groupGroup = createDomainObject("group_group_settings", null);
         groupGroup.setReference("parent_group_id", parent);
         groupGroup.setReference("child_group_id", child);
-        domainObjectDao.save(groupGroup);
+        AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagmentService");
+        domainObjectDao.save(groupGroup, accessToken);
     }
 
     @Override

@@ -20,7 +20,8 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
-import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.dao.access.AccessControlService;
+import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.impl.doel.DoelResolver;
@@ -44,6 +45,9 @@ public class BaseDynamicGroupServiceImpl {
     @Autowired
     protected DomainObjectDao domainObjectDao;
 
+    @Autowired
+    private AccessControlService accessControlService;
+
     public void setDomainObjectDao(DomainObjectDao domainObjectDao) {
         this.domainObjectDao = domainObjectDao;
     }
@@ -51,6 +55,11 @@ public class BaseDynamicGroupServiceImpl {
     public void setDomainObjectTypeIdCache(DomainObjectTypeIdCache domainObjectTypeIdCache) {
         this.domainObjectTypeIdCache = domainObjectTypeIdCache;
         doelResolver.setDomainObjectTypeIdCache(domainObjectTypeIdCache);
+    }
+
+    
+    public void setAccessControlService(AccessControlService accessControlService) {
+        this.accessControlService = accessControlService;
     }
 
     /**
@@ -230,7 +239,8 @@ public class BaseDynamicGroupServiceImpl {
         if (contextObjectId != null) {
             userGroupDO.setLong("object_id", ((RdbmsId) contextObjectId).getId());
         }
-        DomainObject updatedObject = domainObjectDao.save(userGroupDO);
+        AccessToken accessToken = accessControlService.createSystemAccessToken("BaseDynamicGroupService");
+        DomainObject updatedObject = domainObjectDao.save(userGroupDO, accessToken);
         userGroupId = updatedObject.getId();
         return userGroupId;
     }

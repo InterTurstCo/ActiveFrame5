@@ -65,4 +65,10 @@ public interface DomainObject extends IdentifiableObject {
      */
     boolean isNew();
 
+    /**
+     * Возвращает идентификатор статуса доменного объекта
+     * @return идентификатор статуса
+     */
+    Long getStatus();
+
 }

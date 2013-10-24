@@ -43,6 +43,7 @@ import ru.intertrust.cm.core.config.model.StringFieldConfig;
 import ru.intertrust.cm.core.config.model.UniqueKeyConfig;
 import ru.intertrust.cm.core.config.model.UniqueKeyFieldConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
+import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 import ru.intertrust.cm.performance.dataset.generatefields.GenerateChildrenField;
@@ -198,7 +199,8 @@ public class DatasetGenerationServiceImpl implements DatasetGenerationService, D
 
                     // сохраняем экземпляр доменного объекта для возможности
                     // получения его идентификатора
-                    newDomainObject = domainObjectDao.save(newDomainObject);
+                    AccessToken accessToken = accessControlService.createSystemAccessToken("DatasetGenerationService");
+                    newDomainObject = domainObjectDao.save(newDomainObject, accessToken);
 
                     // инициализируем класс анализа и создания доменных объектов
                     // из поля children

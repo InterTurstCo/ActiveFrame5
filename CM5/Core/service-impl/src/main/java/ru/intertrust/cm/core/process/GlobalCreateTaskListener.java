@@ -104,11 +104,11 @@ public class GlobalCreateTaskListener extends SpringClient implements
         }
         taskDomainObject.setReference("MainAttachment", idService.createId(mainAttachmentId));
 
-        // Сохранение доменного объекта
-        taskDomainObject = domainObjectDao.save(taskDomainObject);
-        Id assigneeId = idService.createId(delegateTask.getAssignee());
         AccessToken accessToken = accessControlService
                 .createSystemAccessToken("GlobalCreateTaskListener");
+        // Сохранение доменного объекта
+        taskDomainObject = domainObjectDao.save(taskDomainObject, accessToken);
+        Id assigneeId = idService.createId(delegateTask.getAssignee());
         DomainObject assignee = domainObjectDao.find(assigneeId, accessToken);
 
         // Создание связанного AssigneePerson или AssigneeGroup
@@ -120,7 +120,7 @@ public class GlobalCreateTaskListener extends SpringClient implements
             assigneePersonDomainObject.setReference("UserGroup",
                     idService.createId(delegateTask.getAssignee()));
 
-            domainObjectDao.save(assigneePersonDomainObject);
+            domainObjectDao.save(assigneePersonDomainObject, accessToken);
         } else {
             DomainObject assigneePersonDomainObject = createDomainObject("Assignee_Person");
 
@@ -129,7 +129,7 @@ public class GlobalCreateTaskListener extends SpringClient implements
             assigneePersonDomainObject.setReference("Person",
                     idService.createId(delegateTask.getAssignee()));
 
-            domainObjectDao.save(assigneePersonDomainObject);
+            domainObjectDao.save(assigneePersonDomainObject, accessToken);
         }
 
         // Отправка почтовых сообщений
@@ -161,7 +161,10 @@ public class GlobalCreateTaskListener extends SpringClient implements
 
         for (DomainObject domainObjectTask : tasks) {
             domainObjectTask.setLong("State", ProcessService.TASK_STATE_PRETERMIT);
-            domainObjectDao.save(domainObjectTask);
+
+            AccessToken accessToken = accessControlService.createSystemAccessToken("GlobalCreateTaskListener");
+
+            domainObjectDao.save(domainObjectTask, accessToken);
         }
     }
 

@@ -74,11 +74,13 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         AccessToken accessToken = null;
         if (!domainObject.isNew()) {
             // TODO get userId from EJB Context
-            int userId = 1;
+            String user = "admin";
             Id objectId = ((GenericDomainObject) domainObject).getId();
-            accessToken = accessControlService.createAccessToken(userId, objectId, DomainObjectAccessType.WRITE);
+            accessToken = accessControlService.createAccessToken(user, objectId, DomainObjectAccessType.WRITE);
+        } else {
+            accessToken = accessControlService.createSystemAccessToken("CrudService");              
         }
-        return domainObjectDao.save(domainObject);
+        return domainObjectDao.save(domainObject, accessToken);
     }
 
     @Override
@@ -94,8 +96,8 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
     @Override
     public DomainObject find(Id id) {
         // TODO get userId from EJB Context
-        int userId = 1;
-        AccessToken accessToken = accessControlService.createAccessToken(userId, id, DomainObjectAccessType.READ);
+        String user = "admin";
+        AccessToken accessToken = accessControlService.createAccessToken(user, id, DomainObjectAccessType.READ);
         return domainObjectDao.find(id, accessToken);
     }
 
@@ -106,9 +108,9 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         }
         Id[] idsArray = ids.toArray(new Id[ids.size()]);
         // TODO get user from EJB Context
-        int userId = 1;
+        String user= "admin";
         AccessToken accessToken =
-                accessControlService.createAccessToken(userId, idsArray, DomainObjectAccessType.READ, false);
+                accessControlService.createAccessToken(user, idsArray, DomainObjectAccessType.READ, false);
 
         return domainObjectDao.find(ids, accessToken);
     }
@@ -119,9 +121,9 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
             throw new IllegalArgumentException("Domain Object type can not be null or empty");
         }
         // TODO get user from EJB Context
-        int userId = 1;
+        String user = "admin";
         AccessToken accessToken =
-                accessControlService.createAccessToken(userId, null, DomainObjectAccessType.READ);
+                accessControlService.createAccessToken(user, null, DomainObjectAccessType.READ);
 
         return domainObjectDao.findAll(domainObjectType, accessToken);
     }
@@ -142,24 +144,25 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         }
         Id[] idsArray = ids.toArray(new Id[ids.size()]);
         // TODO get userId from EJB Context
-        int userId = 1;
-        accessControlService.createAccessToken(userId, idsArray, DomainObjectAccessType.DELETE, false);
+        String user= "admin";
+        accessControlService.createAccessToken(user, idsArray, DomainObjectAccessType.DELETE, false);
         return domainObjectDao.delete(ids);
     }
 
     @Override
     public List<DomainObject> findLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField) {
         // TODO get userId from EJB Context
-        int userId = 1;
-        AccessToken accessToken = accessControlService.createCollectionAccessToken(userId);
+        String user = "admin";
+        AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
         return domainObjectDao.findLinkedDomainObjects(domainObjectId, linkedType, linkedField, accessToken);
     }
 
     @Override
     public List<Id> findLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField) {
         // TODO get userId from EJB Context
-        int userId = 1;
-        AccessToken accessToken = accessControlService.createCollectionAccessToken(userId);
+        String user = "admin";
+
+        AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
         return domainObjectDao.findLinkedDomainObjectsIds(domainObjectId, linkedType, linkedField, accessToken);
     }
 }
