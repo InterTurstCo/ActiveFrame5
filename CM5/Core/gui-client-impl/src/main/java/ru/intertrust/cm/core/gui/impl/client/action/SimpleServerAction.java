@@ -32,14 +32,14 @@ public abstract class SimpleServerAction extends Action {
             }
         };
         try {
-            Command command = new Command("executeAction", this.getName(), getContext());
+            Command command = new Command("executeAction", this.getName(), getCurrentContext());
             BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, callback);
         } catch (GuiException e) {
             Window.alert(e.getMessage());
         }
     }
 
-    protected ActionContext getContext() {
+    protected ActionContext getCurrentContext() {
         return null;
     }
 

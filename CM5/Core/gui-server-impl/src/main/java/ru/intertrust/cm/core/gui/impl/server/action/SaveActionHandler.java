@@ -1,9 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.server.action;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.impl.server.plugin.handlers.FormPluginHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -21,12 +18,6 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
  */
 @ComponentName("save.action")
 public class SaveActionHandler extends ActionHandler {
-
-    @Autowired
-    ApplicationContext applicationContext;
-    @Autowired
-    GuiService guiService;
-
     @Override
     public <T extends ActionData> T executeAction(ActionContext context) {
         DomainObject rootDomainObject = guiService.saveForm(((SaveActionContext) context).getFormState());

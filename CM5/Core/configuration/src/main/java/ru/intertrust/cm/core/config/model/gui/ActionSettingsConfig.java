@@ -2,8 +2,9 @@ package ru.intertrust.cm.core.config.model.gui;
 
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.convert.Convert;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
-public class ActionSettingsConfig {
+public class ActionSettingsConfig implements Dto {
 
 
     /**

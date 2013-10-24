@@ -29,7 +29,7 @@ public class FormPluginData extends ActivePluginData {
     public String toString() {
         return "SomeActivePluginData {" +
                 "form=" + formDisplayData +
-                "actions=" + getActionConfigs() +
+                "actions=" + getActionContexts() +
                 '}';
     }
 }

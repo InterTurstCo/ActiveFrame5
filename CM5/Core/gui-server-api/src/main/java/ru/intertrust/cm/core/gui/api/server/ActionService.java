@@ -1,15 +1,17 @@
 package ru.intertrust.cm.core.gui.api.server;
 
-import java.util.List;
-
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
+
+import java.util.List;
 
 /**
  * Данный сервис отдает доступные действия для текущего контекста (типа доменного объекта и 
  * его статуса). 
  */
 public interface ActionService {
+    public interface Remote extends ActionService {
+    }
 
     /**
      * Возвращает действия для переданного доменного объекта.

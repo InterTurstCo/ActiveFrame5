@@ -6,6 +6,7 @@ import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.config.model.gui.ActionConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
+import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.plugin.ActivePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.IsActive;
 
@@ -45,12 +46,16 @@ public abstract class PluginView implements IsWidget {
             return new Label("This is an empty tool bar for now");
             // todo return null;
         }
-        List<ActionConfig> actionConfigs = initialData.getActionConfigs();
+        List<ActionContext> actionContexts = initialData.getActionContexts();
         HorizontalPanel actionPanel = new HorizontalPanel();
-        if (actionConfigs == null) {
+        if (actionContexts == null) {
             return new Label("Empty panel - fix later");
         }
-        for (final ActionConfig actionConfig : actionConfigs) {
+        for (final ActionContext actionContext : actionContexts) {
+            final ActionConfig actionConfig = actionContext.getActionConfig();
+            if (actionConfig == null) {
+                continue;
+            }
             actionPanel.add(new Button(actionConfig.getText(), new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
@@ -59,7 +64,7 @@ public abstract class PluginView implements IsWidget {
                         component = "generic.workflow.action";
                     }
                     Action action = ComponentRegistry.instance.get(component);
-                    action.setConfig(actionConfig);
+                    action.setInitialContext(actionContext);
                     action.setPlugin(plugin);
                     action.execute();
                 }

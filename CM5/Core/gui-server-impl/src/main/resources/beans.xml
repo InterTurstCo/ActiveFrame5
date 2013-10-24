@@ -10,6 +10,10 @@
                     jndi-name="java:app/web-app/GuiServiceImpl!ru.intertrust.cm.core.gui.api.server.GuiService"
                     business-interface="ru.intertrust.cm.core.gui.api.server.GuiService"/>
 
+    <jee:local-slsb id="actionService"
+                    jndi-name="java:app/web-app/ActionServiceImpl!ru.intertrust.cm.core.gui.api.server.ActionService"
+                    business-interface="ru.intertrust.cm.core.gui.api.server.ActionService"/>
+
     <bean id="formRetriever" class="ru.intertrust.cm.core.gui.impl.server.form.FormRetriever" scope="prototype">
         <constructor-arg value=""/>
     </bean>
