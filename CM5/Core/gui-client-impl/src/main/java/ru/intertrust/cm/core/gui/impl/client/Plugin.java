@@ -164,8 +164,17 @@ public abstract class Plugin extends BaseComponent {
      *
      * @param initialData первичные данные данного плагина
      */
-    void setInitialData(PluginData initialData) {
+    public void setInitialData(PluginData initialData) {
+        PluginData original = this.initialData;
+        boolean initialDataChanged = original != null && initialData != original;
         this.initialData = initialData;
+        if (initialDataChanged) {
+            getView().updateActionToolBar();
+            afterInitialDataChange(original, initialData);
+        }
+    }
+
+    protected void afterInitialDataChange(PluginData oldData, PluginData newData) {
     }
 
     /**

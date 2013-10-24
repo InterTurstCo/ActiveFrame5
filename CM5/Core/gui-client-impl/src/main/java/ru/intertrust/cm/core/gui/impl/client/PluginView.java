@@ -40,25 +40,26 @@ public abstract class PluginView implements IsWidget {
      *
      * @return возвращает виджет, отображающий "Панель действий"
      */
-    protected HorizontalPanel createActionToolBar() {
-        // todo: do this only if plugin is Active
+    protected void initializeActionToolBar() {
+        actionToolBar = new HorizontalPanel();
+    }
+
+    protected void updateActionToolBar() {
+        actionToolBar.clear();
         ActivePluginData initialData = plugin.getInitialData();
         if (initialData == null) {
-            return null;//new Label("This is an empty tool bar for now");
-            // return nu
-            // todo return null;
+            return;
         }
         List<ActionContext> actionContexts = initialData.getActionContexts();
-        HorizontalPanel actionPanel = new HorizontalPanel();
         if (actionContexts == null) {
-            return null;//new Label("Empty panel - fix later");
+            return;
         }
         for (final ActionContext actionContext : actionContexts) {
             final ActionConfig actionConfig = actionContext.getActionConfig();
             if (actionConfig == null) {
                 continue;
             }
-            actionPanel.add(new Button(actionConfig.getText(), new ClickHandler() {
+            actionToolBar.add(new Button(actionConfig.getText(), new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
                     String component = actionConfig.getComponent();
@@ -72,8 +73,6 @@ public abstract class PluginView implements IsWidget {
                 }
             }));
         }
-
-        return actionPanel;
     }
 
     /**
@@ -87,8 +86,9 @@ public abstract class PluginView implements IsWidget {
     public Widget asWidget() {
         VerticalPanel panel = new VerticalPanel();
         if (plugin instanceof IsActive) {
-            actionToolBar = createActionToolBar();
-            if (actionToolBar != null) {
+            initializeActionToolBar();
+            updateActionToolBar();
+            if (actionToolBar.getWidgetCount() > 0) {
                 panel.add(actionToolBar);
             }
         }

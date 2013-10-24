@@ -103,6 +103,9 @@ public class FormSaver {
         DomainObject rootDomainObject = formObjects.getRootObjects().getObject();
         if (saveRoot) {
             rootDomainObject = save(rootDomainObject, savedObjectsMap);
+
+            // todo: do this for all saved objects to keep new objects IDs up to date
+            formObjects.getRootObjects().setObject(rootDomainObject);
         }
         ReferenceValue rootObjectReference = new ReferenceValue(rootDomainObject.getId());
 
@@ -217,14 +220,14 @@ public class FormSaver {
         String[] typeAndField = lastElement.split("\\^");
         boolean oneToMany = typeAndField.length == 2;
         if (oneToMany) {
-            return mergeOneToMay(fieldPath, formObjects, newValues);
+            return mergeOneToMany(fieldPath, formObjects, newValues);
         } else {
             return mergeManyToMany(fieldPath, formObjects, newValues);
         }
     }
 
-    private ArrayList<FormSaveOperation> mergeOneToMay(FieldPath fieldPath, FormObjects formObjects,
-                                                       ArrayList<Value> newValues) {
+    private ArrayList<FormSaveOperation> mergeOneToMany(FieldPath fieldPath, FormObjects formObjects,
+                                                        ArrayList<Value> newValues) {
         ArrayList<DomainObject> parentObjects = formObjects.getObjects(fieldPath.getParent()).getDomainObjects();
         if (parentObjects.size() > 1) {
             throw new GuiException("Back reference is referencing " + parentObjects.size() + " objects");

@@ -6,8 +6,8 @@ import ru.intertrust.cm.core.gui.impl.server.plugin.handlers.FormPluginHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
-import ru.intertrust.cm.core.gui.model.action.SaveActionData;
 import ru.intertrust.cm.core.gui.model.action.StartProcessActionContext;
+import ru.intertrust.cm.core.gui.model.action.StartProcessActionData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 
@@ -29,7 +29,7 @@ public class StartProcessActionHandler extends ActionHandler {
         // get new form after process start
         FormPluginHandler handler = (FormPluginHandler) applicationContext.getBean("form.plugin");
         FormPluginConfig config = new FormPluginConfig(domainObjectId);
-        SaveActionData result = new SaveActionData();
+        StartProcessActionData result = new StartProcessActionData();
         result.setFormPluginData((FormPluginData) handler.initialize(config));
         return (T) result;
     }

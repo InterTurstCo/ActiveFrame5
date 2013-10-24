@@ -78,7 +78,7 @@ public class DomainObjectSurferPlugin extends Plugin implements
 
     @Override
     public void setFormState(FormState formState) {
-        ((FormPlugin) getFormPlugin()).update(formState);
+        ((FormPlugin) getFormPlugin()).setFormState(formState);
     }
 
     @Override

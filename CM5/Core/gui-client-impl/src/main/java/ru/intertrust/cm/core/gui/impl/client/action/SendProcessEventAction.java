@@ -7,6 +7,7 @@ import ru.intertrust.cm.core.gui.model.action.ActionData;
 import ru.intertrust.cm.core.gui.model.action.SaveActionData;
 import ru.intertrust.cm.core.gui.model.action.SendProcessEventActionContext;
 import ru.intertrust.cm.core.gui.model.form.FormState;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
 
 /**
@@ -31,8 +32,8 @@ public class SendProcessEventAction extends SimpleServerAction {
 
     @Override
     protected void onSuccess(ActionData result) {
-        FormState formState = ((SaveActionData) result).getFormPluginData().getFormDisplayData().getFormState();
-        ((IsDomainObjectEditor) getPlugin()).setFormState(formState);
+        FormPluginData formPluginData = ((SaveActionData) result).getFormPluginData();
+        getPlugin().setInitialData(formPluginData);
         Window.alert("Process Started!!!");
     }
 }

@@ -4,9 +4,10 @@ import com.google.gwt.user.client.Window;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
-import ru.intertrust.cm.core.gui.model.action.SaveActionData;
 import ru.intertrust.cm.core.gui.model.action.StartProcessActionContext;
+import ru.intertrust.cm.core.gui.model.action.StartProcessActionData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
 
 /**
@@ -31,8 +32,8 @@ public class StartProcessAction extends SimpleServerAction {
 
     @Override
     protected void onSuccess(ActionData result) {
-        FormState formState = ((SaveActionData) result).getFormPluginData().getFormDisplayData().getFormState();
-        ((IsDomainObjectEditor) getPlugin()).setFormState(formState);
+        FormPluginData formPluginData = ((StartProcessActionData) result).getFormPluginData();
+        getPlugin().setInitialData(formPluginData);
         Window.alert("Process Started!!!");
     }
 }

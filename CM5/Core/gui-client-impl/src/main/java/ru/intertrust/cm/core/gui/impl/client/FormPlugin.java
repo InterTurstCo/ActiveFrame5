@@ -7,6 +7,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.IsActive;
 import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
+import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 
 import java.util.Map;
 
@@ -28,13 +29,15 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
         return new FormPlugin();
     }
 
-    public void update(FormState formState) {
-        setFormState(formState);
-    }
-
     @Override
     public FormState getCurrentState() {
         return getFormState();
+    }
+
+    @Override
+    protected void afterInitialDataChange(PluginData oldData, PluginData newData) {
+        super.afterInitialDataChange(oldData, newData);
+        ((FormPluginView) getView()).update(((FormPluginData) newData).getFormDisplayData().getFormState());
     }
 
     public DomainObject getRootDomainObject() {

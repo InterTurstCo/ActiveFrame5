@@ -3,15 +3,12 @@ package ru.intertrust.cm.core.gui.impl.client.action;
 import com.google.gwt.user.client.Window;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.action.SaveActionData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
-
-import java.util.List;
 
 /**
  * @author Denis Mitavskiy
@@ -42,9 +39,7 @@ public class SaveAction extends SimpleServerAction {
     @Override
     protected void onSuccess(ActionData result) {
         FormPluginData formPluginData = ((SaveActionData) result).getFormPluginData();
-        FormState formState = formPluginData.getFormDisplayData().getFormState();
-        List<ActionContext> actionContexts = formPluginData.getActionContexts();
-        ((IsDomainObjectEditor) getPlugin()).setFormState(formState);
+        getPlugin().setInitialData(formPluginData);
         Window.alert("Saved!!!");
     }
 }
