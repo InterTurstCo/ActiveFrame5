@@ -1,11 +1,10 @@
 package ru.intertrust.cm.core.config.model.gui;
 
 import org.simpleframework.xml.Root;
-
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
 @Root(name="process-action")
-public interface ActionSettings extends Dto{
+public interface ActionSettings extends Dto {
 
     /**
      * Возвращает название процесса

@@ -1,8 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
-import ru.intertrust.cm.core.config.model.gui.ActionConfig;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
+import ru.intertrust.cm.core.gui.model.action.ActionContext;
 
 /**
  * <p>
@@ -26,7 +26,7 @@ public abstract class Action extends BaseComponent {
     /**
      * Конфигурация данного действия
      */
-    protected ActionConfig config;
+    protected ActionContext initialContext;
 
     /**
      * Возвращает плагин, инициирующий данное действие
@@ -48,16 +48,16 @@ public abstract class Action extends BaseComponent {
      * Возвращает конфигурацию данного действия
      * @return конфигурация данного действия
      */
-    public ActionConfig getConfig() {
-        return config;
+    public ActionContext getInitialContext() {
+        return initialContext;
     }
 
     /**
      * Устанавливает конфигурацию данного действия
-     * @param config конфигурация данного действия
+     * @param initialContext конфигурация данного действия
      */
-    public void setConfig(ActionConfig config) {
-        this.config = config;
+    public void setInitialContext(ActionContext initialContext) {
+        this.initialContext = initialContext;
     }
 
     public abstract void execute();

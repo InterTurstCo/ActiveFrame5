@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.gui.model.plugin;
 
-import ru.intertrust.cm.core.config.model.gui.ActionConfig;
+import ru.intertrust.cm.core.gui.model.action.ActionContext;
 
 import java.util.List;
 
@@ -12,21 +12,21 @@ import java.util.List;
  *         Time: 16:14
  */
 public abstract class ActivePluginData extends PluginData {
-    private List<ActionConfig> actionConfigs;
+    private List<ActionContext> actionContexts;
 
     /**
      * Возвращает список конфигураций действий, отображаемых в "Панели действий"
      * @return список конфигураций действий, отображаемых в "Панели действий"
      */
-    public List<ActionConfig> getActionConfigs() {
-        return actionConfigs;
+    public List<ActionContext> getActionContexts() {
+        return actionContexts;
     }
 
     /**
      * Устанавливает список конфигураций действий, отображаемых в "Панели действий"
-     * @param actionConfigs список конфигураций действий, отображаемых в "Панели действий"
+     * @param actionContexts список конфигураций действий, отображаемых в "Панели действий"
      */
-    public void setActionConfigs(List<ActionConfig> actionConfigs) {
-        this.actionConfigs = actionConfigs;
+    public void setActionContexts(List<ActionContext> actionContexts) {
+        this.actionContexts = actionContexts;
     }
 }

@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer;
 
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
@@ -11,13 +12,20 @@ import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEventHan
 import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEventHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.IsActive;
+import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
+import ru.intertrust.cm.core.gui.model.plugin.IsIdentifiableObjectList;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 @ComponentName("domain.object.surfer.plugin")
-public class DomainObjectSurferPlugin extends Plugin implements IsActive, NavigationTreeItemSelectedEventHandler, CollectionRowSelectedEventHandler {
+public class DomainObjectSurferPlugin extends Plugin implements
+        IsActive, NavigationTreeItemSelectedEventHandler, CollectionRowSelectedEventHandler,
+        IsDomainObjectEditor, IsIdentifiableObjectList {
 
     private Plugin formPlugin;
 
@@ -61,5 +69,24 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Naviga
         newFormPlugin.setConfig(new FormPluginConfig(event.getId()));
         formPluginPanel.open(newFormPlugin);
         this.formPlugin = newFormPlugin;
+    }
+
+    @Override
+    public FormState getFormState() {
+        return (FormState) getFormPlugin().getCurrentState();
+    }
+
+    @Override
+    public void setFormState(FormState formState) {
+        ((FormPlugin) getFormPlugin()).update(formState);
+    }
+
+    @Override
+    public List<Id> getSelectedIds() {
+        // todo: quick impl, which is not correct in general
+        ArrayList<Id> result = new ArrayList<Id>(1);
+        result.add(
+                ((FormState) getFormPlugin().getCurrentState()).getObjects().getRootObjects().getObject().getId());
+        return result;
     }
 }
