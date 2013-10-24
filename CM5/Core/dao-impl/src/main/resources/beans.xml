@@ -21,8 +21,6 @@
     <bean id="transactionManager"
         class="org.springframework.transaction.jta.JtaTransactionManager" />
 
-    <context:property-placeholder location="classpath:deploy.properties" />
-
     <bean id="dataStructureDao"
         class="ru.intertrust.cm.core.dao.impl.PostgreSqlDataStructureDaoImpl"
         p:dataSource-ref="dataSource" />
