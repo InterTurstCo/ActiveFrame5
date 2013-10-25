@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +19,8 @@ import java.util.Properties;
  */
 @Controller
 public class AttachmentUploader {
+    private static Logger log = LoggerFactory.getLogger(AttachmentUploader.class);
+
     @ResponseBody
     @RequestMapping("/attachment-upload")
     public String upload(@RequestParam(value = "fileUpload") MultipartFile file) {
@@ -47,7 +51,7 @@ public class AttachmentUploader {
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Error while uploading: " + e);
             return "";
         } finally {
             close(inputStream);
@@ -61,7 +65,7 @@ public class AttachmentUploader {
         try {
             c.close();
         } catch (IOException e) {
-
+            log.error("Error while uploading: " + e);
         }
     }
 }
