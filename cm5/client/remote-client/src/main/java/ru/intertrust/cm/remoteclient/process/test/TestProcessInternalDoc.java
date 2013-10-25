@@ -28,6 +28,9 @@ import ru.intertrust.cm.remoteclient.ClientBase;
 public class TestProcessInternalDoc extends ClientBase {
     private Hashtable<String, Id> personIds = new Hashtable<String, Id>();
     private Hashtable<String, Id> additionalPersonIds = new Hashtable<String, Id>();
+    private Hashtable<String, Id> examinePersonIds = new Hashtable<String, Id>();
+    private Hashtable<String, Id> executorPersonIds = new Hashtable<String, Id>();
+    private Hashtable<Integer, DomainObject> resolutionCards = new Hashtable<Integer, DomainObject>();
     public static void main(String[] args) {
         try {
             TestProcessInternalDoc test = new TestProcessInternalDoc();
@@ -49,14 +52,33 @@ public class TestProcessInternalDoc extends ClientBase {
             PersonManagementService.Remote personService =
                     (PersonManagementService.Remote) getService("PersonManagementService", PersonManagementService.Remote.class);
 
+            //Создание статуса черновик
+           /* List<DomainObject> allStatuses = crudService.findAll("Status");
+            Iterator<DomainObject> iter = allStatuses.iterator();
+            DomainObject status = null;
+            DomainObject draftStatus = null;
+            while (iter.hasNext()){
+            	status = iter.next();
+            	if ((status.getString("Name").equals("Draft"))){
+            		draftStatus = status;
+            	}
+            }
+            if (draftStatus ==null){
+        		draftStatus = crudService
+                        .createDomainObject("Status");
+        		draftStatus.setString("Name", "Draft");
+        		draftStatus = crudService.save(draftStatus);
+            }*/
+           
             // Создание документа, который будет прикреплен к процессу
             DomainObject attachment = crudService
                     .createDomainObject("Internal_Document");
             attachment.setString("Name", "Тестовый документ");
-            attachment.setString("Status", "Draft");
+           // attachment.setReference("Status", draftStatus);
             attachment.setString("ReturnOnReject", "YES");
             attachment.setLong("Stage", 0L);
             attachment.setString("RegNum", "InternalDoc111");
+            attachment.setString("State", "Draft");
             attachment = crudService.save(attachment);
             
             // Создаем персону
@@ -86,12 +108,13 @@ public class TestProcessInternalDoc extends ClientBase {
             }
             
             //Создание карточек рассматривающих
-            for (int i=0;i<=5;i++){
+            for (int i=1;i<=5;i++){
             	//Создание карточки согласования
                 DomainObject examineCard = crudService
                         .createDomainObject("Examine_Card");
                 examineCard.setString("Name", "Карточка рассмотрения #"+String.valueOf(i));
-                examineCard.setString("Status", "Draft");
+               // examineCard.setReference("Status", draftStatus);
+                examineCard.setString("State", "Draft");
                 examineCard.setReference("Parent_Document", attachment);
                 
                 Id examiner = personService.getPersonId("Examiner"+i);
@@ -100,10 +123,30 @@ public class TestProcessInternalDoc extends ClientBase {
                  	examiner = person.getId();
                 }
                 examineCard.setReference("Examiner", examiner);
-                personIds.put("Examiner" + i, examiner);
+                examinePersonIds.put("Examiner" + i, examiner);
                 examineCard =  crudService.save(examineCard);
             }
             
+            //Создание карточек поручений
+            for (int i=1;i<=5;i++){
+            	//Создание карточки согласования
+                DomainObject resolutionCard = crudService
+                        .createDomainObject("Resolution_Card");
+                resolutionCard.setString("Name", "Карточка поручения #"+String.valueOf(i));
+               // examineCard.setReference("Status", draftStatus);
+                resolutionCard.setString("State", "Execution");
+                resolutionCard.setReference("Parent_Document", attachment);
+                
+                Id executor = personService.getPersonId("Executor"+i);
+                if (executor == null) {
+                 	DomainObject person =	createEmployee();
+                 	executor = person.getId();
+                }
+                resolutionCard.setReference("Executor", executor);
+                executorPersonIds.put("Executor" + i, executor);
+                resolutionCard =  crudService.save(resolutionCard);
+                resolutionCards.put(i, resolutionCard);
+            }
 
 
             byte[] processDef = getProcessAsByteArray("templates/testInternalDoc/InternalDoc.bpmn");
@@ -133,14 +176,16 @@ public class TestProcessInternalDoc extends ClientBase {
             attachment = crudService.save(attachment);
             Id personId = null;
             //Создание карточек согласования
-            for (int i=1;i<10;i++){
+            for (int i=1;i<=10;i++){
 
             	//Создание карточки согласования
                 DomainObject negotiationCard = crudService
                         .createDomainObject("Negotiation_Card");
                 negotiationCard.setString("Name", "Карточка согласования #"+String.valueOf(i));
-                negotiationCard.setString("Status", "Draft");
+                //negotiationCard.setReference("Status", draftStatus);
+                negotiationCard.setString("State", "Draft");
                 negotiationCard.setReference("Parent_Document", attachment);
+                
                 
                 personId = personService.getPersonId("Negotiator" + i);
                 if (personId == null) {
@@ -150,11 +195,13 @@ public class TestProcessInternalDoc extends ClientBase {
                 personIds.put("Negotiator" + i, personId);
                 negotiationCard.setReference("Negotiator",personId );
                 negotiationCard =  crudService.save(negotiationCard);
+                negotiationCard.setReference("Add_Negotiation_Card", negotiationCard);
                 for (int j=1;j<4;j++){
                 	 DomainObject negotiationCardChild = crudService
                              .createDomainObject("Negotiation_Card");
                 	 negotiationCardChild.setString("Name", "Дочерняя карточка согласования #"+String.valueOf(i));
-                	 negotiationCardChild.setString("Status", "Draft");
+                	 //negotiationCardChild.setReference("Status", draftStatus);
+                	 negotiationCardChild.setString("State", "Draft");
                 	 negotiationCardChild.setReference("Parent_Document", attachment);
                 	 negotiationCardChild.setReference("Add_Negotiation_Card", negotiationCard);
                 	 personId = personService.getPersonId(i+"SubNegatiator" + j);
@@ -167,18 +214,20 @@ public class TestProcessInternalDoc extends ClientBase {
                      negotiationCardChild =  crudService.save(negotiationCardChild);
                 	
                 }
+                negotiationCard =  crudService.save(negotiationCard);
             }
             
             // Запуск процесса
             service.startProcess("InternalDocument", attachment.getId(), null);
            
-            Iterator<Entry<String, Id>> iter = personIds.entrySet().iterator();
+            List<DomainObject> tasks = null;
+            Iterator<Entry<String, Id>> iter2 = personIds.entrySet().iterator();
         	
-            while (iter.hasNext()){
-            	Entry<String, Id> entry = iter.next();
+            while (iter2.hasNext()){
+            	Entry<String, Id> entry = iter2.next();
             	personId = entry.getValue();
             	// Получение всех задач пользователя и их завершение
-                List<DomainObject> tasks = service.getUserTasks(personId);
+                tasks = service.getUserTasks(personId);
                 log("Find " + tasks.size() + " tasks for user: " +entry.getKey());
                 for (DomainObject task : tasks) {
                     if ("askNegotiate".equals(task.getString("ActivityId"))) {
@@ -186,18 +235,18 @@ public class TestProcessInternalDoc extends ClientBase {
                         String actions = task.getString("Actions");
                         log("All Actions = " + actions);
                         service.completeTask(task.getId(), null, "AGREE");
-                        log("Complete " + task.getId());
+                        log("Complete askNegotiate task: " + task.getId());
                     }
                 }
             }
             
-            iter = additionalPersonIds.entrySet().iterator();
+            iter2 = additionalPersonIds.entrySet().iterator();
         	
-            while (iter.hasNext()){
-            	Entry<String, Id> entry = iter.next();
+            while (iter2.hasNext()){
+            	Entry<String, Id> entry = iter2.next();
             	personId = entry.getValue();
             	// Получение всех задач пользователя и их завершение
-                List<DomainObject> tasks = service.getUserTasks(personId);
+                tasks = service.getUserTasks(personId);
                 log("Find " + tasks.size() + " tasks for user: " +entry.getKey());
                 for (DomainObject task : tasks) {
                     if ("askNegotiate".equals(task.getString("ActivityId"))) {
@@ -205,22 +254,45 @@ public class TestProcessInternalDoc extends ClientBase {
                         String actions = task.getString("Actions");
                         log("All Actions = " + actions);
                         service.completeTask(task.getId(), null, "AGREE");
-                        log("Complete " + task.getId());
+                        log("Complete askAdditionalNegotiate task: " + task.getId());
                     }
                 }
             }
-            
+                     
             
         	// Получение всех задач регистратора и регистрация документа
-            List<DomainObject> tasks = service.getUserTasks(registrant);
+            tasks = service.getUserTasks(registrant);
             log("Find " + tasks.size() + " tasks for user: " +registrant);
             for (DomainObject task : tasks) {
                 if ("askRegistration".equals(task.getString("ActivityId"))) {
                     // Получаем все доступные действия
                     service.completeTask (task.getId(), null,null);
-                    log("Complete " + task.getId());
+                    log("Complete askRegistration " + task.getId());
                 }
             }
+            
+            iter2 = examinePersonIds.entrySet().iterator();
+        	int count = 1;
+            while (iter2.hasNext()){
+            	Entry<String, Id> entry = iter2.next();
+            	personId = entry.getValue();
+            	// Получение всех задач пользователя и их завершение
+                tasks = service.getUserTasks(personId);
+                log("Find " + tasks.size() + " tasks for user: " +entry.getKey());
+                for (DomainObject task : tasks) {
+                    if ("askExamine".equals(task.getString("ActivityId"))) {
+                        // Получаем все доступные действия
+                        //String actions = task.getString("Actions");
+                       // log("All Actions = " + actions);
+                    	service.startProcess("CommissionExecution", resolutionCards.get(count).getId(), null);
+                        service.completeTask(task.getId(), null, null);
+                        log("Complete askExamine task: " + task.getId());
+                        count++;
+                    }
+                }
+            }
+            // Запуск процесса
+            //service.startProcess("CommissionExecution", attachment.getId(), null);
             
             
         } finally {
@@ -249,15 +321,13 @@ public class TestProcessInternalDoc extends ClientBase {
     }
     private DomainObject createEmployee() throws NamingException{
     	CrudService crudService = getCrudService();
-    	Date date= new java.util.Date();
-    	String unicStr = String.valueOf(date.getTime());
     	//Создание согласующего
         DomainObject employee = crudService
                 .createDomainObject("Employee");
         employee.setReference("Department", createDepartment());
-        employee.setString("Name", "Согласующий #"+unicStr);
-        employee.setString("Position", "Должность #"+unicStr);
-        employee.setString("Phone",unicStr);
+        employee.setString("Name", "Согласующий #"+getStrTime());
+        employee.setString("Position", "Должность #"+getStrTime());
+        employee.setString("Phone",getStrTime());
         employee =  crudService.save(employee); 
         return employee;
     }
@@ -272,8 +342,25 @@ public class TestProcessInternalDoc extends ClientBase {
         //Создаем департамент
     	CrudService crudService = getCrudService();
         DomainObject department = crudService.createDomainObject("Department");
-        department.setString("Name", "Test department");
+        department.setString("Name", "Test department #" + getStrTime());
+        department.setReference("Organization", createOrganization());
         department = crudService.save(department);
         return department;
     }
+    
+    private DomainObject createOrganization() throws NamingException{
+        //Создаем организацию
+    	CrudService crudService = getCrudService();
+        DomainObject organization = crudService.createDomainObject("Organization");
+        organization.setString("Name", "Test organization #" + getStrTime());
+        organization = crudService.save(organization);
+        return organization;
+    }
+    
+    private String getStrTime(){
+    	Date date= new java.util.Date();
+    	String unicStr = String.valueOf(date.getTime());
+    	return unicStr;
+    }
+    
 }
