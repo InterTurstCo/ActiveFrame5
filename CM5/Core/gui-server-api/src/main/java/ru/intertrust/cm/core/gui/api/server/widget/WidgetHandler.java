@@ -29,12 +29,16 @@ public abstract class WidgetHandler implements ComponentHandler {
         return displayValues;
     }
 
-    private String format(DomainObject domainObject, Matcher matcher) {
+    protected String format(DomainObject domainObject, Matcher matcher) {
+        return format((IdentifiableObject) domainObject, matcher);
+    }
+
+    protected String format(IdentifiableObject identifiableObject, Matcher matcher) {
         StringBuffer replacement = new StringBuffer();
         while (matcher.find()) {
             String group = matcher.group();
             String fieldName = group.substring(1, group.length() - 1);
-            Value value = domainObject.getValue(fieldName);
+            Value value = identifiableObject.getValue(fieldName);
             String displayValue = "";
             if (value != null) {
                 Object primitiveValue = value.get();

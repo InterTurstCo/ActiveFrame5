@@ -774,6 +774,7 @@
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
+
     <xs:complexType name="tdType">
         <xs:sequence>
             <xs:element type="con:widgetType" name="widget"
@@ -889,6 +890,37 @@
         </xs:sequence>
         <xs:attribute type="xs:string" name="id" />
     </xs:complexType>
+
+    <xs:complexType name="selectionFilterReferenceType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="name" />
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="suggestBoxType">
+        <xs:sequence>
+            <xs:element type="con:fieldPathType" name="field-path"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="con:patternType" name="pattern"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="con:collectionRefType" name="collection-ref"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="con:selectionFilterReferenceType" name="selection-filter"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="con:selectionFilterReferenceType" name="selection-exclude-filter"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="con:patternType" name="drop-down-pattern"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="con:patternType" name="selection-pattern"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="con:selectionFilterReferenceType" name="input-text-filter"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="xs:integer" name="page-size" nillable="false"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="id" />
+    </xs:complexType>
     <xs:complexType name="linkedDomainObjectHyperlinkType">
         <xs:sequence>
             <xs:element type="con:fieldPathType" name="field-path"
@@ -989,6 +1021,8 @@
             <xs:element type="con:comboBoxType" name="combo-box"
                 xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:listBoxType" name="list-box"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="con:suggestBoxType" name="suggest-box"
                         xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:attachmentBoxType" name="attachment-box"
                         xmlns:con="https://cm5.intertrust.ru/config" />

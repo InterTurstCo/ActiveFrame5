@@ -33,6 +33,7 @@ public class WidgetConfigurationConfig implements Dto {
             @ElementList(entry = "template-based-widget",
                     type = TemplateBasedWidgetConfig.class, inline = true, required = false),
             @ElementList(entry = "list-box", type = ListBoxConfig.class, inline = true, required = false),
+            @ElementList(entry = "suggest-box", type = SuggestBoxConfig.class, inline = true, required = false),
             @ElementList(entry = "attachment-box", type = AttachmentBoxConfig.class, inline = true, required = false)
     })
     private List<WidgetConfig> widgetConfigList = new ArrayList<WidgetConfig>();
@@ -67,8 +68,8 @@ public class WidgetConfigurationConfig implements Dto {
 
     @Override
     public int hashCode() {
-      int result = widgetConfigList != null ? widgetConfigList.hashCode() : 0;
+        int result = widgetConfigList != null ? widgetConfigList.hashCode() : 0;
 
-      return result;
+        return result;
     }
 }

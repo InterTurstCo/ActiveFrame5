@@ -68,7 +68,7 @@
                         </link>
                     </child-links>
                 </link>
-                <link name="Countries" display-text="Страны">
+                <link name="Countries" display-text="Страны23">
                     <plugin> <!---->
                         <!--<custom name="Beautiful City Viewer">
                             <attribute name="display-pics" value="true"/>

@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  */
 @Root(name = "list-box")
 public class ListBoxConfig extends WidgetConfig implements Dto {
+
     @Element(name = "pattern")
     private PatternConfig patternConfig;
 
