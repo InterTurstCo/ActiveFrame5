@@ -14,6 +14,7 @@ filter.add("onlyTopLevelCardByDoc",MAIN_ATTACHMENT_ID);
 }
 filter.add("byStatus","Draft");
 var collection = SESSION.find("Negotiation_Card",filter );
+SESSION.Log("Найдено " +collection.size() + " карточек согласования")
 execution.setVariable("negotiationCardIds", collection );</script>
     </scriptTask>
     <sequenceFlow id="flow4" sourceRef="startNegotiationEvent" targetRef="exclusivegateway9"></sequenceFlow>

@@ -3,11 +3,17 @@ package ru.intertrust.cm.core.tools;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 import org.springframework.context.ApplicationContext;
 
+import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.IdService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.DateTimeFieldConfig;
@@ -130,7 +136,8 @@ public class DomainObjectAccessor implements Serializable {
         AccessToken accessToken = getAccessControlService().createSystemAccessToken("DomainObjectAccessor");
         domainObject = getDomainObjectDao().save(domainObject, accessToken);
     }
-
+    
+    
     /**
      * Получение сервиса DomainObjectDao
      * 
@@ -164,16 +171,63 @@ public class DomainObjectAccessor implements Serializable {
      * Установка статуса объекта
      * @param status
      */
-    public void setStatus(String status){
-    	set("Status", status);
-    	save();
+    public void setStatus(String statusName){
+
+    	CrudService crudService = getCrudService();
+    	//Создание статуса черновик
+        List<DomainObject> allStatuses = crudService.findAll("Status");
+        Iterator<DomainObject> iter = allStatuses.iterator();
+        DomainObject status = null;
+        DomainObject newStatus = null;
+       //TODO  Создать статусы заранее
+        while (iter.hasNext()){
+        	status = iter.next();
+        	if ((status.getString("Name").equals(statusName))){
+        		newStatus = status;
+        	}
+        }
+        if (newStatus ==null){
+        	newStatus = createStatus(statusName);
+        }
+        
+        AccessToken accessToken = getAccessControlService().createSystemAccessToken("DomainObjectAccessor");
+        domainObject = getDomainObjectDao().setStatus(domainObject.getId(), ((RdbmsId) newStatus.getId()).getId() , accessToken);
+
     }
     /**
      * Получить статус объекта
      * @return
      */
     public String getStatus(){
-    	return (String) get("Status");
+    	//TODO Разобрать почему в domainObject.getReference("status") ).getTypeId() не обновляется статус
+    	RdbmsId statusId = new RdbmsId( ((RdbmsId) domainObject.getReference("status") ).getTypeId(), domainObject.getLong("STATUS"));
+    	CrudService crudService = getCrudService();
+    	DomainObject status = crudService.find(statusId);
+    	return status.getString("Name");
     }
+    
+    /**
+     * Получение сервиса CrudService
+     * @return
+     */
+    private CrudService getCrudService() {
+        ApplicationContext ctx = SpringApplicationContext.getContext();
+        return ctx.getBean(CrudService.class);
+    }
+    
+    private  DomainObject createStatus(String statusName) {
+        GenericDomainObject statusDO = new GenericDomainObject();
+        statusDO.setTypeName(DomainObjectDao.STATUS_DO);
+        Date currentDate = new Date();
+        statusDO.setCreatedDate(currentDate);
+        statusDO.setModifiedDate(currentDate);
+        statusDO.setString("Name", statusName);
+        AccessToken accessToken = getAccessControlService().createSystemAccessToken("InitialDataLoader");
+        return getDomainObjectDao().save(statusDO, accessToken);
+    }
+    
+
+    
+    
 
 }

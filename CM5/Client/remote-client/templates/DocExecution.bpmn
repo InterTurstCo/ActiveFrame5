@@ -80,6 +80,7 @@
       <endEvent id="endevent2" name="End"></endEvent>
       <sequenceFlow id="flow13" sourceRef="doWatchFolder" targetRef="endevent2"></sequenceFlow>
     </subProcess>
+    <receiveTask id="receivetask1" name="Receive Task"></receiveTask>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_DocExecution">
     <bpmndi:BPMNPlane bpmnElement="DocExecution" id="BPMNPlane_DocExecution">
@@ -134,13 +135,12 @@
       <bpmndi:BPMNShape bpmnElement="endevent2" id="BPMNShape_endevent2">
         <omgdc:Bounds height="35.0" width="35.0" x="85.0" y="740.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="receivetask1" id="BPMNShape_receivetask1">
+        <omgdc:Bounds height="55.0" width="105.0" x="225.0" y="303.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
         <omgdi:waypoint x="277.0" y="62.0"></omgdi:waypoint>
         <omgdi:waypoint x="277.0" y="97.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
-        <omgdi:waypoint x="507.0" y="155.0"></omgdi:waypoint>
-        <omgdi:waypoint x="507.0" y="200.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="ifLeftExaminers" id="BPMNEdge_ifLeftExaminers">
         <omgdi:waypoint x="297.0" y="207.0"></omgdi:waypoint>

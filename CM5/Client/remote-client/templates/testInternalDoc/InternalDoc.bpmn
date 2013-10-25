@@ -74,15 +74,7 @@ SESSION.Log("Документ подписан")</script>
         <activiti:in source="MAIN_ATTACHMENT_ID" target="MAIN_ATTACHMENT_ID"></activiti:in>
       </extensionElements>
     </callActivity>
-    <sequenceFlow id="flow40" sourceRef="callRegistration" targetRef="callExecution"></sequenceFlow>
-    <callActivity id="callExecution" name="Рассмотрение и исполнение" calledElement="DocExecution">
-      <extensionElements>
-        <activiti:in source="MAIN_ATTACHMENT" target="MAIN_ATTACHMENT"></activiti:in>
-        <activiti:in source="MAIN_ATTACHMENT_ID" target="MAIN_ATTACHMENT_ID"></activiti:in>
-        <activiti:in source="SESSION" target="SESSION"></activiti:in>
-      </extensionElements>
-    </callActivity>
-    <sequenceFlow id="flow41" sourceRef="callExecution" targetRef="endevent4"></sequenceFlow>
+    <sequenceFlow id="flow40" sourceRef="callRegistration" targetRef="endevent4"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_InternalDocument">
     <bpmndi:BPMNPlane bpmnElement="InternalDocument" id="BPMNPlane_InternalDocument">
@@ -127,9 +119,6 @@ SESSION.Log("Документ подписан")</script>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="callRegistration" id="BPMNShape_callRegistration">
         <omgdc:Bounds height="55.0" width="105.0" x="84.0" y="720.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="callExecution" id="BPMNShape_callExecution">
-        <omgdc:Bounds height="55.0" width="105.0" x="86.0" y="805.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow20" id="BPMNEdge_flow20">
         <omgdi:waypoint x="138.0" y="-25.0"></omgdi:waypoint>
@@ -212,10 +201,6 @@ SESSION.Log("Документ подписан")</script>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow40" id="BPMNEdge_flow40">
         <omgdi:waypoint x="136.0" y="775.0"></omgdi:waypoint>
-        <omgdi:waypoint x="138.0" y="805.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow41" id="BPMNEdge_flow41">
-        <omgdi:waypoint x="138.0" y="860.0"></omgdi:waypoint>
         <omgdi:waypoint x="138.0" y="890.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>

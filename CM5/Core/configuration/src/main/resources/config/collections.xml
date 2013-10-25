@@ -111,7 +111,7 @@
         <prototype>
             <![CDATA[
                 select
-                    nc.id, nc.name, nc.status,nc.parent_document,nc.add_negotiation_card
+                    nc.id, nc.name, nc.status,nc.parent_document,nc.add_negotiation_card,nc.state
                 from
                     Negotiation_Card nc
                      ::from-clause
@@ -133,24 +133,29 @@
                 ]]>
             </criteria>
         </filter>
-                <filter name="byStatus">
+         <filter name="byStatus">
+            <reference placeholder="from-clause">
+                 <![CDATA[
+                    inner join status s on nc.status = s.id
+                ]]>
+            </reference>
             <criteria placeholder="where-clause">
                 <![CDATA[
-                    nc.status = {0}
+                    s.name = {0}
                 ]]>
             </criteria>
         </filter>
                 <filter name="byParentNecotiationCard">
             <criteria placeholder="where-clause">
                 <![CDATA[
-                    nc.add_negotiation_card= {0}
+                    nc.add_negotiation_card= {0} and nc.add_negotiation_card <> nc.id
                 ]]>
             </criteria>
         </filter>
         <filter name="onlyTopLevelCardByDoc">
             <criteria placeholder="where-clause">
                 <![CDATA[
-                    nc.add_negotiation_card is null and nc.parent_document = {0}
+                    nc.add_negotiation_card = nc.id and nc.parent_document = {0}
                 ]]>
             </criteria>
         </filter>
@@ -162,7 +167,7 @@
         <prototype>
             <![CDATA[
                 select
-                    ec.id, ec.name, ec.status,ec.parent_document
+                    ec.id, ec.name, ec.status,ec.parent_document,ec.state
                 from
                     Examine_Card ec
                      ::from-clause
@@ -184,10 +189,57 @@
                 ]]>
             </criteria>
         </filter>
-                <filter name="byStatus">
+        <filter name="byStatus">
+            <reference placeholder="from-clause">
+                 <![CDATA[
+                    inner join status s on ec.status = s.id
+                ]]>
+            </reference>
             <criteria placeholder="where-clause">
                 <![CDATA[
-                    ec.status = {0}
+                    s.name = {0}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+    
+    <collection name="Resolution_Card" idField="id">
+        <!--todo поддержка конвертации значений, например, в картинки -->
+
+        <prototype>
+            <![CDATA[
+                select
+                    rc.id, rc.name, rc.status,rc.parent_document,rc.state
+                from
+                    Resolution_Card rc
+                     ::from-clause
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+
+        <!-- если запрос-счётчик отсутствует, то в select подставляется count(*)
+            вместо названий колонок -->
+        <counting-prototype>
+            select count(*) from Resolution_Card rc
+            ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+        <filter name="byDoc">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    rc.parent_document = {0}
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byStatus">
+            <reference placeholder="from-clause">
+                 <![CDATA[
+                    inner join status s on rc.status = s.id
+                ]]>
+            </reference>
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    s.name = {0}
                 ]]>
             </criteria>
         </filter>

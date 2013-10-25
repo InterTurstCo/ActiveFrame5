@@ -25,7 +25,7 @@
         </fields>
     </domain-object-type>
     
-     <domain-object-type name="Internal_Document" initial-status="Active2"> <!-- Internal_Document table -->
+     <domain-object-type name="Internal_Document" initial-status="Draft"> <!-- Internal_Document table -->
         <fields>
             <string name="Name" length="128" />
             <long name="Stage"/>
@@ -34,23 +34,35 @@
             <reference name="Registrant" type="Employee"/>
             <reference name="Inspector" type="Employee"/>
             <string name="RegNum" length="128" />
+            <string name="State" length="128" />
         </fields>
     </domain-object-type>
     
-    <domain-object-type name="Negotiation_Card"> <!-- Internal_Document table -->
+    <domain-object-type name="Negotiation_Card"  initial-status="Draft"> <!-- Negotiation_Card table -->
         <fields>
             <string name="Name" length="128" />
             <reference name="Parent_Document" type="Internal_Document"/>
-            <reference name="Negotiator" type="Employee"/> <!-- This means Foreign Key to Employee and index are created automatically -->
+            <reference name="Negotiator" type="Employee"/>
             <reference name="Add_Negotiation_Card" type="Negotiation_Card"/>
+            <string name="State" length="128" />
         </fields>
     </domain-object-type>
     
-        <domain-object-type name="Examine_Card"> <!-- Internal_Document table -->
+     <domain-object-type name="Examine_Card"  initial-status="Draft"> <!-- Internal_Document table -->
         <fields>
             <string name="Name" length="128" />
             <reference name="Parent_Document" type="Internal_Document"/>
             <reference name="Examiner" type="Employee"/>
+            <string name="State" length="128" />
+        </fields>
+    </domain-object-type>
+    
+    <domain-object-type name="Resolution_Card"  initial-status="Draft"> <!-- Internal_Document table -->
+        <fields>
+            <string name="Name" length="128" />
+            <reference name="Parent_Document" type="Internal_Document"/>
+            <reference name="Executor" type="Employee"/>
+            <string name="State" length="128" />
         </fields>
     </domain-object-type>
 
