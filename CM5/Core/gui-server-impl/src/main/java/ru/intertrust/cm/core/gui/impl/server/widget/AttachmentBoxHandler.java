@@ -29,6 +29,9 @@ import java.util.Properties;
  */
 @ComponentName("attachment-box")
 public class AttachmentBoxHandler  extends MultiObjectWidgetHandler {
+    private static final String ATTACHMENT_NAME = "Name";
+    private static final String ATTACHMENT_DESCRIPTION = "Description";
+
     @Autowired
     AttachmentService attachmentService;
     @Override
@@ -44,10 +47,10 @@ public class AttachmentBoxHandler  extends MultiObjectWidgetHandler {
             DomainObject temp = iterator.next();
             AttachmentModel attachmentModel = new AttachmentModel();
            for (String field : temp.getFields()) {
-                if ("Name".equalsIgnoreCase(field)){
+                if (ATTACHMENT_NAME.equalsIgnoreCase(field)){
                     attachmentModel.setName(temp.getValue(field).toString());
                 }
-               if ("Description".equalsIgnoreCase(field)){
+               if (ATTACHMENT_DESCRIPTION.equalsIgnoreCase(field)){
                    attachmentModel.setDescription(temp.getValue(field).toString());
                }
                attachmentModel.setId(temp.getId());
@@ -83,9 +86,11 @@ public class AttachmentBoxHandler  extends MultiObjectWidgetHandler {
                 String attachmentStorage = props.getProperty("attachment.save.location");
                 fileData = new FileInputStream(attachmentStorage + attachmentModel.getTemporaryName());
                 remoteFileData = new SimpleRemoteInputStream(fileData);
-                DomainObject attachmentDomainObject = attachmentService.createAttachmentDomainObjectFor(domainObject.getId(),attachmentType);
-                attachmentDomainObject.setValue("Name", new StringValue(attachmentModel.getName()));
-                attachmentDomainObject.setValue("Description", new StringValue(attachmentModel.getDescription()));
+                DomainObject attachmentDomainObject = attachmentService.
+                        createAttachmentDomainObjectFor(domainObject.getId(),attachmentType);
+                attachmentDomainObject.setValue(ATTACHMENT_NAME, new StringValue(attachmentModel.getName()));
+                attachmentDomainObject.setValue(ATTACHMENT_DESCRIPTION, new StringValue(attachmentModel.
+                        getDescription()));
 
                 attachmentDomainObject.setReference(parentLinkFieldName, domainObject );
                 attachmentService.saveAttachment(remoteFileData,attachmentDomainObject);
