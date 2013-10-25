@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer;
 
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
@@ -73,20 +74,31 @@ public class DomainObjectSurferPlugin extends Plugin implements
 
     @Override
     public FormState getFormState() {
-        return (FormState) getFormPlugin().getCurrentState();
+        return ((IsDomainObjectEditor) getFormPlugin()).getFormState();
     }
 
     @Override
     public void setFormState(FormState formState) {
-        ((FormPlugin) getFormPlugin()).setFormState(formState);
+        ((IsDomainObjectEditor) getFormPlugin()).setFormState(formState);
+    }
+
+    @Override
+    public DomainObject getRootDomainObject() {
+        return ((IsDomainObjectEditor) getFormPlugin()).getRootDomainObject();
+    }
+
+    @Override
+    public void replaceForm(FormPluginConfig formPluginConfig) {
+        FormPlugin newPlugin = ComponentRegistry.instance.get("form.plugin");
+        newPlugin.setConfig(formPluginConfig);
+        ((Plugin) formPlugin).getOwner().open(newPlugin);
     }
 
     @Override
     public List<Id> getSelectedIds() {
         // todo: quick impl, which is not correct in general
         ArrayList<Id> result = new ArrayList<Id>(1);
-        result.add(
-                ((FormState) getFormPlugin().getCurrentState()).getObjects().getRootObjects().getObject().getId());
+        result.add(((IsDomainObjectEditor) getFormPlugin()).getFormState().getObjects().getRootObjects().getObject().getId());
         return result;
     }
 }

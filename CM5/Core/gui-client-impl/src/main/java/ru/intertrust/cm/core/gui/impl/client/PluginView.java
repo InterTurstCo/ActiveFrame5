@@ -45,6 +45,10 @@ public abstract class PluginView implements IsWidget {
     }
 
     protected void updateActionToolBar() {
+        if (!(plugin instanceof IsActive)) {
+            return;
+        }
+
         actionToolBar.clear();
         ActivePluginData initialData = plugin.getInitialData();
         if (initialData == null) {

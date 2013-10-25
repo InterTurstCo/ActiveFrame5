@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.model.plugin;
 
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 
 /**
@@ -11,4 +12,8 @@ public interface IsDomainObjectEditor {
     FormState getFormState();
 
     void setFormState(FormState formState);
+
+    DomainObject getRootDomainObject();
+
+    void replaceForm(FormPluginConfig formPluginConfig);
 }

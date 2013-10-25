@@ -1,13 +1,11 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
-import ru.intertrust.cm.core.gui.model.plugin.IsActive;
-import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
-import ru.intertrust.cm.core.gui.model.plugin.PluginData;
+import ru.intertrust.cm.core.gui.model.plugin.*;
 
 import java.util.Map;
 
@@ -42,6 +40,13 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
 
     public DomainObject getRootDomainObject() {
         return this.<FormPluginData>getInitialData().getFormDisplayData().getFormState().getObjects().getRootObjects().getObject();
+    }
+
+    @Override
+    public void replaceForm(FormPluginConfig formPluginConfig) {
+        FormPlugin newPlugin = ComponentRegistry.instance.get("form.plugin");
+        newPlugin.setConfig(formPluginConfig);
+        getOwner().open(newPlugin);
     }
 
     @Override
