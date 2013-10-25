@@ -13,6 +13,9 @@
         <uniqueKey>
             <field name="name"/>
         </uniqueKey>
+        <attachment-types>
+            <attachment-type name="country_attachment"/>
+        </attachment-types>
     </domain-object-type>
 
     <domain-object-type name="country_best_friend" initial-status="Active">
@@ -24,9 +27,7 @@
         <uniqueKey>
             <field name="country"/>
         </uniqueKey>
-        <attachment-types>
-            <attachment-type name="country_attachment"/>
-        </attachment-types>
+
     </domain-object-type>
 
     <domain-object-type name="c_best_friend_desc">
@@ -89,12 +90,7 @@
         </fields>
     </domain-object-type>
 
-    <domain-object-type name="country_attachment">
-        <fields>
-            <string name="Name" length="128" />
-            <string name="Description" length="128" />
-        </fields>
-    </domain-object-type>
+
 
     <form name="country_form" domain-object-type="country" is-default="true" debug = "false">
         <markup>
@@ -182,7 +178,7 @@
                         <tab-group>
                             <table>
                                 <tr>
-                                    <td><widget id="15"/></td>
+                                    <td><widget id = "15" width = "700px"/></td>
                                 </tr>
                             </table>
                         </tab-group>
@@ -292,7 +288,7 @@
                 <field-path value = "country_attachment^country"/>
 
                 <!-- Впоследствии будет добавлена поддержка, тогда не обязателен станет field-path. Сейчас добавлять не надо. -->
-                <attachment-type-ref name="city_attachment"/>
+                <attachment-type-ref name="country_attachment"/>
                 <scanner enabled="true"/>
             </attachment-box>
         </widget-config>

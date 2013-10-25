@@ -1,19 +1,27 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Id;
 
 /**
- * Created with IntelliJ IDEA.
- * User: User
- * Date: 24.10.13
- * Time: 14:07
- * To change this template use File | Settings | File Templates.
+ * @author Yaroslav Bondarchuk
+ *         Date: 24.10.13
+ *         Time: 13:15
  */
 public class AttachmentModel implements Dto {
+
     private String name;
-    private String path;
-    private String mimeType;
+    private String temporaryName;
     private String description;
+    private Id id;
+
+    public Id getId() {
+        return id;
+    }
+
+    public void setId(Id id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;
@@ -23,20 +31,12 @@ public class AttachmentModel implements Dto {
         this.name = name;
     }
 
-    public String getPath() {
-        return path;
+    public String getTemporaryName() {
+        return temporaryName;
     }
 
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    public String getMimeType() {
-        return mimeType;
-    }
-
-    public void setMimeType(String mimeType) {
-        this.mimeType = mimeType;
+    public void setTemporaryName(String temporaryName) {
+        this.temporaryName = temporaryName;
     }
 
     public String getDescription() {
@@ -61,13 +61,13 @@ public class AttachmentModel implements Dto {
         if (description != null ? !description.equals(that.description) : that.description != null) {
             return false;
         }
-        if (mimeType != null ? !mimeType.equals(that.mimeType) : that.mimeType != null) {
+        if (id != null ? !id.equals(that.id) : that.id != null) {
             return false;
         }
         if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
         }
-        if (path != null ? !path.equals(that.path) : that.path != null) {
+        if (temporaryName != null ? !temporaryName.equals(that.temporaryName) : that.temporaryName != null) {
             return false;
         }
 
@@ -77,9 +77,9 @@ public class AttachmentModel implements Dto {
     @Override
     public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (path != null ? path.hashCode() : 0);
-        result = 31 * result + (mimeType != null ? mimeType.hashCode() : 0);
+        result = 31 * result + (temporaryName != null ? temporaryName.hashCode() : 0);
         result = 31 * result + (description != null ? description.hashCode() : 0);
+        result = 31 * result + (id != null ? id.hashCode() : 0);
         return result;
     }
 }

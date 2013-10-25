@@ -14,23 +14,19 @@ public final class UploaderProgressBar extends SimplePanel {
     private static final double COMPLETE_PERECENTAGE = 100d;
     private static final double START_PERECENTAGE = 0d;
     private Panel progress;
-    int width = 0;
-    public UploaderProgressBar(int width) {
-        this.width = width;
-
+    int progressBarWidth = 0;
+    public UploaderProgressBar(int progressBarWidth) {
+        this.progressBarWidth = progressBarWidth;
         applyStylesForThisObject();
         progress = new SimplePanel();
         applyStylesProgress();
-
         add(progress);
-
     }
 
     public void update(final int percentage) {
         if (percentage < START_PERECENTAGE || percentage > COMPLETE_PERECENTAGE) {
             throw new IllegalArgumentException("invalid value for percentage");
         }
-
         int decorationWidth = getAbsoluteLeft() - getAbsoluteLeft();
 
         int barWidth = this.getOffsetWidth();
@@ -41,11 +37,7 @@ public final class UploaderProgressBar extends SimplePanel {
     private  void applyStylesProgress(){
         Style style =  progress.getElement().getStyle();
         style.setHeight(10 , Style.Unit.PX);
-      //  style.setVerticalAlign(Style.VerticalAlign.MIDDLE);
         style.setBackgroundColor("blue");
-
-      //  style.setMarginRight(2, Style.Unit.PX);
-      //  style.setMarginLeft(2, Style.Unit.PX);
         style.setFontSize(0, Style.Unit.PX);
         style.setWidth(0, Style.Unit.PX);
     }
@@ -54,10 +46,9 @@ public final class UploaderProgressBar extends SimplePanel {
       Style style =  this.getElement().getStyle();
         style.setBorderWidth(1, Style.Unit.PX);
         style.setBackgroundColor("lightgrey");
-       // style.setVerticalAlign(Style.VerticalAlign.MIDDLE);
         style.setMarginRight(5, Style.Unit.PX);
         style.setMarginLeft(5, Style.Unit.PX);
-        style.setWidth(width, Style.Unit.PX);
+        style.setWidth(progressBarWidth, Style.Unit.PX);
 
     }
 }

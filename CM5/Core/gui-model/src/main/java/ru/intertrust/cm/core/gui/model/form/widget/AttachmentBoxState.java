@@ -5,50 +5,42 @@ import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
- * User: User
- * Date: 22.10.13
- * Time: 18:48
- * To change this template use File | Settings | File Templates.
+ * @author Yaroslav Bondarchuk
+ *         Date: 23.10.13
+ *         Time: 13:15
  */
 public class AttachmentBoxState extends WidgetState {
 
-    private List<AttachmentModel> newAttachments;
-    private LinkedHashMap<Id, AttachmentModel> savedAttachments;
+    private List<AttachmentModel> attachments;
 
     @Override
     public Value toValue() {
         return null;
     }
 
-    public List<AttachmentModel> getNewAttachments() {
-        return newAttachments;
+    public List<AttachmentModel> getAttachments() {
+        return attachments;
     }
 
-    public void setNewAttachments(List<AttachmentModel> newAttachments) {
-        this.newAttachments = newAttachments;
-    }
-
-    public LinkedHashMap<Id, AttachmentModel> getSavedAttachments() {
-        return savedAttachments;
-    }
-
-    public void setSavedAttachments(LinkedHashMap<Id, AttachmentModel> savedAttachments) {
-        this.savedAttachments = savedAttachments;
+    public void setAttachments(List<AttachmentModel> attachments) {
+        this.attachments = attachments;
     }
 
     @Override
     public ArrayList<Value> toValues() {
-        if (savedAttachments == null) {
+        if (attachments == null) {
             return null;
         }
         ArrayList<Value> result = new ArrayList<Value>();
-        for (Id id : savedAttachments.keySet()) {
-            result.add(new ReferenceValue(id));
+        for (AttachmentModel attachmentModel: attachments) {
+            Id id = attachmentModel.getId();
+            if (id != null)  {
+                result.add(new ReferenceValue(id));
+            }
+
         }
         return result;
     }

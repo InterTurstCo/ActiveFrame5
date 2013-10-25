@@ -5,6 +5,7 @@ import com.healthmarketscience.rmiio.RemoteInputStreamClient;
 import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.*;
@@ -22,6 +23,7 @@ import ru.intertrust.cm.core.dao.exception.DaoException;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
 import java.io.IOException;
 import java.io.InputStream;
 import java.rmi.RemoteException;
@@ -35,6 +37,7 @@ import java.util.List;
 @Stateless
 @Local(AttachmentService.class)
 @Remote(AttachmentService.Remote.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class AttachmentServiceImpl implements AttachmentService {
 
     final static org.slf4j.Logger logger = LoggerFactory.getLogger(AttachmentServiceImpl.class);
@@ -92,6 +95,7 @@ public class AttachmentServiceImpl implements AttachmentService {
             StringValue oldFilePathValue = (StringValue) attachmentDomainObject.getValue("path");
             attachmentDomainObject.setValue(PATH_NAME, new StringValue(newFilePath));
             AccessToken accessToken = accessControlService.createSystemAccessToken("AttachmentService");
+
             savedDoaminObject = domainObjectDao.save(attachmentDomainObject, accessToken);
             
             //предыдущий файл удаляем

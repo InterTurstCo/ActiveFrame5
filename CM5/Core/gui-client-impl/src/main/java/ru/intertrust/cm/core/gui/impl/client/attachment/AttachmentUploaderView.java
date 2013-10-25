@@ -7,11 +7,8 @@ import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.*;
-import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentModel;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -21,156 +18,131 @@ import java.util.List;
  */
 public class AttachmentUploaderView extends Composite {
 
-    private VerticalPanel verticalPanel;
+    private VerticalPanel attachmentsPanel;
     private Image addFile;
-    private FileUpload file;
+    private FileUpload fileUpload;
     private FormPanel form;
     private int widgetWidth;
     private int partWidth;
-    private LinkedHashMap<Id, AttachmentModel> savedAttachments;
-    private List<AttachmentModel> newAttachments;
 
+    private List<AttachmentModel> attachments;
+    private VerticalPanel root;
      public  AttachmentUploaderView() {
-
+         init();
     }
-    public AttachmentUploaderView(LinkedHashMap<Id, AttachmentModel> attachments) {
-        this.savedAttachments = attachments;
-         newAttachments = new ArrayList<AttachmentModel>();
+    public AttachmentUploaderView(List<AttachmentModel> attachments) {
+        this.attachments = attachments;
+
         init();
     }
 
-    public LinkedHashMap<Id, AttachmentModel> getSavedAttachments() {
-        return savedAttachments;
+    public int getWidgetWidth() {
+        return widgetWidth;
     }
 
-    public void setSavedAttachments(LinkedHashMap<Id, AttachmentModel> savedAttachments) {
-        this.savedAttachments = savedAttachments;
+    public void setWidgetWidth(int widgetWidth) {
+        this.widgetWidth = widgetWidth;
     }
 
-    public List<AttachmentModel> getNewAttachments() {
-        return newAttachments;
+    public List<AttachmentModel> getAttachments() {
+        return attachments;
     }
 
-    public void setNewAttachments(List<AttachmentModel> newAttachments) {
-        this.newAttachments = newAttachments;
+    public void setAttachments(List<AttachmentModel> attachments) {
+        this.attachments = attachments;
     }
 
     public void init() {
+        root = new VerticalPanel();
+
+        this.initWidget(root);
+
+        attachmentsPanel = new VerticalPanel();
         initSubmitForm();
-        this.initWidget(form);
-        verticalPanel = new VerticalPanel();
         initFileUpload();
 
         initUploadButton();
+        root.add(addFile);
+        form.add(fileUpload);
+        root.add(form);
 
-        verticalPanel.add(addFile);
-        verticalPanel.add(file);
-        form.add(verticalPanel);
-
+        root.add(attachmentsPanel);
 
     }
+
     public void showAttachmentNames() {
-        for (AttachmentModel model : savedAttachments.values()) {
-            String fileName = model.getName();
-            addRowWithAttachmentFileName(fileName);
+
+        attachmentsPanel.clear();
+        for (AttachmentModel model : attachments) {
+            addRowWithAttachment(model);
         }
     }
 
-    private void addRowWithAttachmentFileName(String fileName){
-        if (widgetWidth == 0) {
-            widgetWidth = form.getOffsetWidth();
-            widgetWidth = widgetWidth == 0 ? 700 : widgetWidth;
-            partWidth = widgetWidth/2;
-            System.out.println("widget width " + widgetWidth);
-            System.out.println("part width " + partWidth);
-        }
+
+    private void addRowWithAttachment(AttachmentModel model){
 
         HorizontalPanel horizontalPanel = new HorizontalPanel();
         HorizontalPanel rightSide = new HorizontalPanel();
         HorizontalPanel leftSide = new HorizontalPanel();
-        rightSide.setWidth(partWidth + "px");
-        leftSide.setWidth(partWidth + "px");
+        partWidth = widgetWidth/2;
         rightSide.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
         rightSide.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-        Label fileNameLabel = new Label(fileName);
+        rightSide.setWidth(partWidth + "px");
+        Label  fileNameLabel = initLabel(model);
 
-        Image deleteImage = createDeleteButton(fileNameLabel);
-        int imageWidth = deleteImage.getOffsetWidth();
-        UploaderProgressBar uploaderProgressBar = new UploaderProgressBar((int) (partWidth - 1.1 * imageWidth));
-        //uploaderProgressBar.getElement().getStyle().setVerticalAlign(Style.VerticalAlign.MIDDLE);
 
-        fileNameLabel.getElement().getStyle().setOverflow(Style.Overflow.HIDDEN);
-        fileNameLabel.setWidth(partWidth + "px");
+
+        Image deleteImage = null;
 
         leftSide.add(fileNameLabel);
-        rightSide.add(uploaderProgressBar);
-        rightSide.add(deleteImage);
+        if (model.getId() == null) {
+            deleteImage =createDeleteNewAttachmentButton(fileNameLabel);
+            int imageWidth = deleteImage.getWidth();
+            UploaderProgressBar uploaderProgressBar = new UploaderProgressBar((int) (partWidth - imageWidth - 10));
+            rightSide.add(uploaderProgressBar);
+        }  else {
+            deleteImage = createDeleteAttachedAttachmentButton(fileNameLabel);
 
-        horizontalPanel.add(leftSide);
-        horizontalPanel.add(rightSide);
-
-        uploaderProgressBar.getElement().getStyle().setVisibility(Style.Visibility.HIDDEN);
-        verticalPanel.add(horizontalPanel);
-
-    }
-    private void addRowWithNewUploadedFileName(AttachmentModel attachmentModel){
-        if (widgetWidth == 0) {
-            widgetWidth = form.getOffsetWidth();
-            widgetWidth = widgetWidth == 0 ? 700 : widgetWidth;
-            partWidth = widgetWidth/2;
-            System.out.println("widget width " + widgetWidth);
-            System.out.println("part width " + partWidth);
         }
 
-        HorizontalPanel horizontalPanel = new HorizontalPanel();
-        HorizontalPanel rightSide = new HorizontalPanel();
-        HorizontalPanel leftSide = new HorizontalPanel();
-        rightSide.setWidth(partWidth + "px");
-        leftSide.setWidth(partWidth + "px");
-        rightSide.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
-        rightSide.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-        Label fileNameLabel = new Label(attachmentModel.getName());
-        fileNameLabel.getElement().setId(attachmentModel.getPath());
 
-        Image deleteImage = createDeleteButton(fileNameLabel);
-        int imageWidth = deleteImage.getOffsetWidth();
-        UploaderProgressBar uploaderProgressBar = new UploaderProgressBar((int) (partWidth - 1.1 * imageWidth));
-        //uploaderProgressBar.getElement().getStyle().setVerticalAlign(Style.VerticalAlign.MIDDLE);
-
-        fileNameLabel.getElement().getStyle().setOverflow(Style.Overflow.HIDDEN);
-        fileNameLabel.setWidth(partWidth + "px");
-
-        leftSide.add(fileNameLabel);
-        rightSide.add(uploaderProgressBar);
         rightSide.add(deleteImage);
 
         horizontalPanel.add(leftSide);
         horizontalPanel.add(rightSide);
-
-        uploaderProgressBar.update(50);
-        verticalPanel.add(horizontalPanel);
+        attachmentsPanel.add(horizontalPanel);
 
     }
-    private Image createDeleteButton(Label label) {
+    private Image createDeleteNewAttachmentButton(Label label) {
 
         Image delete = new Image();
         delete.setUrl("cancel.png");
         delete.getElement().getStyle().setVerticalAlign(Style.VerticalAlign.MIDDLE);
 
-        DeleteHandler deleteHandler = new DeleteHandler(label);
+        DeleteNewAttachmentsHandler deleteHandler = new DeleteNewAttachmentsHandler(label);
+        delete.addClickHandler(deleteHandler);
+        return delete;
+    }
+    private Image createDeleteAttachedAttachmentButton(Label label) {
+
+        Image delete = new Image();
+        delete.setUrl("cancel.png");
+        delete.getElement().getStyle().setVerticalAlign(Style.VerticalAlign.MIDDLE);
+
+        DeleteAttachedAttachmentsHandler deleteHandler = new DeleteAttachedAttachmentsHandler(label);
         delete.addClickHandler(deleteHandler);
         return delete;
     }
 
     private void initFileUpload() {
-        file = new FileUpload();
-        Style style = file.getElement().getStyle();
-        file.setName("file");
+        fileUpload = new FileUpload();
+        Style style = fileUpload.getElement().getStyle();
+        fileUpload.setName("fileUpload");
 
         style.setPosition(Style.Position.ABSOLUTE);
         style.setTop(-1000, Style.Unit.PX);
         style.setLeft(-1000, Style.Unit.PX);
-        file.addChangeHandler(new ChangeHandler() {
+        fileUpload.addChangeHandler(new ChangeHandler() {
             @Override
             public void onChange(ChangeEvent event) {
                 form.submit();
@@ -188,7 +160,7 @@ public class AttachmentUploaderView extends Composite {
             public void onSubmitComplete(FormPanel.SubmitCompleteEvent event) {
                 String filePath = event.getResults();
                 AttachmentModel model = handleFileNameFromServer(filePath);
-                addRowWithNewUploadedFileName(model);
+                addRowWithAttachment(model);
             }
         });
     }
@@ -198,7 +170,7 @@ public class AttachmentUploaderView extends Composite {
         addFile.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                file.getElement().<InputElement>cast().click();
+                fileUpload.getElement().<InputElement>cast().click();
 
             }
         });
@@ -206,56 +178,70 @@ public class AttachmentUploaderView extends Composite {
 
     private AttachmentModel handleFileNameFromServer(String filePath) {
         AttachmentModel attachmentModel = new AttachmentModel();
-        String [] splitBySeparatorLinux = filePath.split("/");
-        int length = splitBySeparatorLinux.length;
-
-        if (length != 1) {
-             String rawName = splitBySeparatorLinux[length-1];
-             String [] splitClearName = rawName.split("-_-");
-             String clearName = splitClearName[0];
-
-             attachmentModel.setName(clearName);
-             attachmentModel.setPath(filePath);
-             newAttachments.add(attachmentModel);
-             return  attachmentModel;
-        }
-        String [] splitBySeparatorWindows = filePath.split("\\\\");
-        length = splitBySeparatorWindows.length;
-        String rawName = splitBySeparatorWindows[length-1];
-        String [] splitClearName = rawName.split("-_-");
+        String [] splitClearName = filePath.split("-_-");
         String clearName = splitClearName[0];
-
+        attachmentModel.setTemporaryName(filePath);
         attachmentModel.setName(clearName);
-        attachmentModel.setPath(filePath);
-        newAttachments.add(attachmentModel);
+        attachments.add(attachmentModel);
+
         return  attachmentModel;
+
     }
 
-    private class DeleteHandler implements ClickHandler {
+    private class DeleteNewAttachmentsHandler implements ClickHandler {
 
         Label label;
-        public DeleteHandler(Label label) {
+        public DeleteNewAttachmentsHandler(Label label) {
             this.label = label;
 
         }
         @Override
         public void onClick(ClickEvent event) {
             String removedId = label.getElement().getId();
-            verticalPanel.remove(label.getParent().getParent());
+            attachmentsPanel.remove(label.getParent().getParent());
 
-            for (AttachmentModel attachmentModel : savedAttachments.values()) {
-                if (removedId.equals(attachmentModel.getPath())) {
-                    savedAttachments.values().remove(attachmentModel);
-                    return;
-                }
-            }
-            for (AttachmentModel attachmentModel : newAttachments) {
-                if (removedId.equals(attachmentModel.getPath())) {
-                    newAttachments.remove(attachmentModel);
+            for (AttachmentModel attachmentModel : attachments) {
+                if (removedId.equals(attachmentModel.getTemporaryName())) {
+                    attachments.remove(attachmentModel);
                     return;
                 }
             }
 
         }
+    }
+    private class DeleteAttachedAttachmentsHandler implements ClickHandler {
+
+        Label label;
+        public DeleteAttachedAttachmentsHandler(Label label) {
+            this.label = label;
+
+        }
+        @Override
+        public void onClick(ClickEvent event) {
+            String removedId = label.getElement().getId();
+            attachmentsPanel.remove(label.getParent().getParent());
+
+            for (AttachmentModel attachmentModel : attachments) {
+                if (removedId.equals(attachmentModel.getId().toStringRepresentation())) {
+                    attachments.remove(attachmentModel);
+                    return;
+                }
+            }
+
+        }
+    }
+    private Label initLabel(AttachmentModel model) {
+
+        Label fileNameLabel = new Label(model.getName());
+        if (model.getId() == null) {
+            fileNameLabel.getElement().setId(model.getTemporaryName());
+        } else {
+            fileNameLabel.getElement().setId(model.getId().toStringRepresentation());
+        }
+
+        fileNameLabel.getElement().getStyle().setOverflow(Style.Overflow.HIDDEN);
+        fileNameLabel.setWidth(partWidth + "px");
+
+        return fileNameLabel;
     }
 }

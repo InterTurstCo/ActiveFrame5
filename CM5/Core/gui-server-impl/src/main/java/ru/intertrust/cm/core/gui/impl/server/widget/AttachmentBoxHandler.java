@@ -3,8 +3,10 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 import com.healthmarketscience.rmiio.RemoteInputStreamServer;
 import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
 import ru.intertrust.cm.core.business.api.AttachmentService;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.config.model.gui.form.widget.AttachmentBoxConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.MultiObjectWidgetHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -15,14 +17,11 @@ import ru.intertrust.cm.core.gui.model.form.widget.AttachmentModel;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-
-
+import java.util.Properties;
 /**
  * @author Yaroslav Bondarchuk
  *         Date: 23.10.13
@@ -30,14 +29,14 @@ import java.util.List;
  */
 @ComponentName("attachment-box")
 public class AttachmentBoxHandler  extends MultiObjectWidgetHandler {
-     @Autowired
+    @Autowired
     AttachmentService attachmentService;
     @Override
     public AttachmentBoxState getInitialState(WidgetContext context) {
         AttachmentBoxConfig widgetConfig = context.getWidgetConfig();
         FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
 
-        LinkedHashMap<Id, AttachmentModel> savedAttachments = new LinkedHashMap<Id, AttachmentModel>();
+        List<AttachmentModel> savedAttachments = new ArrayList<AttachmentModel>();
 
         ObjectsNode node = context.getFormObjects().getObjects(fieldPath);
         Iterator<DomainObject> iterator = node.iterator();
@@ -45,64 +44,71 @@ public class AttachmentBoxHandler  extends MultiObjectWidgetHandler {
             DomainObject temp = iterator.next();
             AttachmentModel attachmentModel = new AttachmentModel();
            for (String field : temp.getFields()) {
-
                 if ("Name".equalsIgnoreCase(field)){
                     attachmentModel.setName(temp.getValue(field).toString());
                 }
-               if ("Path".equalsIgnoreCase(field)){
-                   attachmentModel.setPath(temp.getValue(field).toString());
-               }
-               if ("MimeType".equalsIgnoreCase(field)){
-                   attachmentModel.setMimeType(temp.getValue(field).toString());
-               }
                if ("Description".equalsIgnoreCase(field)){
                    attachmentModel.setDescription(temp.getValue(field).toString());
                }
+               attachmentModel.setId(temp.getId());
+
             }
-            savedAttachments.put(temp.getId(), attachmentModel);
+            savedAttachments.add(attachmentModel);
         }
-        AttachmentModel attachmentModel1 = new AttachmentModel();
-        attachmentModel1.setName("Some file");
-        attachmentModel1.setPath("C:\\attachments\\some_file.pdf");
-        AttachmentModel attachmentModel2 = new AttachmentModel();
-        attachmentModel2.setName("Other file");
-        attachmentModel2.setPath("C:\\attachments\\some_file1.pdf");
 
-        savedAttachments.put(new RdbmsId("1111111111111111"), attachmentModel1);
-        savedAttachments.put(new RdbmsId("1111111111111112"), attachmentModel2);
         AttachmentBoxState result = new AttachmentBoxState();
-        result.setSavedAttachments(savedAttachments);
+        result.setAttachments(savedAttachments);
 
-      /*  List<AttachmentModel> list = new ArrayList<AttachmentModel>();
-        list.add(attachmentModel1);
-        list.add(attachmentModel2);
-        result.setNewAttachments(list);
-        saveNewObjects(context, result); */
         return result;
     }
     public void saveNewObjects(WidgetContext context, WidgetState state) {
         AttachmentBoxState attachmentBoxState = (AttachmentBoxState) state;
-        List<AttachmentModel> attachmentModels = attachmentBoxState.getNewAttachments();
+        List<AttachmentModel> attachmentModels = attachmentBoxState.getAttachments();
         DomainObject domainObject = context.getFormObjects().getRootObjects().getObject();
 
-        for (AttachmentModel attachmentModel : attachmentModels) {
         AttachmentBoxConfig widgetConfig = context.getWidgetConfig();
+        String attachmentType = widgetConfig.getAttachmentType().getName();
         FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
         String parentLinkFieldName  =  fieldPath.getLastElement().split("\\^")[1];
-            System.out.println("----------------parent link " + parentLinkFieldName);
-        DomainObject attachmentDomainObject = new GenericDomainObject();
-        attachmentDomainObject.setValue("Name", new StringValue(attachmentModel.getName()));
-        //attachmentDomainObject.setValue("Path", new StringValue(attachmentModel.getPath()));
-        attachmentDomainObject.setValue("MimeType", new StringValue(attachmentModel.getMimeType()));
-        attachmentDomainObject.setValue("Description", new StringValue(attachmentModel.getDescription()));
-            attachmentDomainObject.setReference(parentLinkFieldName, domainObject );
+
+        for (AttachmentModel attachmentModel : attachmentModels) {
+            if ( attachmentModel.getId() != null) {
+                continue;
+            }
+
+            InputStream fileData = null;
+            RemoteInputStreamServer remoteFileData = null;
             try {
-                InputStream fileData = new FileInputStream(attachmentModel.getPath());
-                RemoteInputStreamServer remoteFileData = new SimpleRemoteInputStream(fileData);
-                attachmentService.saveAttachment(remoteFileData, domainObject);
+                Properties props = PropertiesLoaderUtils.loadAllProperties("deploy.properties");
+                String attachmentStorage = props.getProperty("attachment.save.location");
+                fileData = new FileInputStream(attachmentStorage + attachmentModel.getTemporaryName());
+                remoteFileData = new SimpleRemoteInputStream(fileData);
+                DomainObject attachmentDomainObject = attachmentService.createAttachmentDomainObjectFor(domainObject.getId(),attachmentType);
+                attachmentDomainObject.setValue("Name", new StringValue(attachmentModel.getName()));
+                attachmentDomainObject.setValue("Description", new StringValue(attachmentModel.getDescription()));
+
+                attachmentDomainObject.setReference(parentLinkFieldName, domainObject );
+                attachmentService.saveAttachment(remoteFileData,attachmentDomainObject);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            } catch (IOException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }  finally {
+                close(remoteFileData);
+
             }
+
+        }
+    }
+    private  void close(Closeable c) {
+        if (c == null) return;
+        try {
+            c.close();
+        } catch (IOException e) {
+
+        }
+        catch (Exception e) {
+
         }
     }
 }
