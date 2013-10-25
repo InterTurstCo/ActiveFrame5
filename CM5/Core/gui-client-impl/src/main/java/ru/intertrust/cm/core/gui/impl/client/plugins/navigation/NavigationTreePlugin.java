@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.navigation;
 
+import com.google.gwt.event.shared.GwtEvent;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
@@ -16,6 +17,11 @@ public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEven
     @Override
     public Component createNew() {
         return new NavigationTreePlugin();
+    }
+
+    @Override
+    protected GwtEvent.Type[] getEventTypesToHandle() {
+        return new GwtEvent.Type[]{RootLinkSelectedEvent.TYPE};
     }
 
     @Override

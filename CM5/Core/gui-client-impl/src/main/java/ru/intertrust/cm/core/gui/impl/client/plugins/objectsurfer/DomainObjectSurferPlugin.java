@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer;
 
+import com.google.gwt.event.shared.GwtEvent;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Component;
@@ -10,14 +11,9 @@ import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEventHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FormState;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
-import ru.intertrust.cm.core.gui.model.plugin.IsActive;
-import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
-import ru.intertrust.cm.core.gui.model.plugin.IsIdentifiableObjectList;
+import ru.intertrust.cm.core.gui.model.plugin.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,9 +21,9 @@ import java.util.logging.Logger;
 
 @ComponentName("domain.object.surfer.plugin")
 public class DomainObjectSurferPlugin extends Plugin implements
-        IsActive, NavigationTreeItemSelectedEventHandler, CollectionRowSelectedEventHandler,
-        IsDomainObjectEditor, IsIdentifiableObjectList {
+        IsActive, CollectionRowSelectedEventHandler, IsDomainObjectEditor, IsIdentifiableObjectList {
 
+    private Plugin collectionPlugin;
     private Plugin formPlugin;
 
     static Logger log = Logger.getLogger("domain.object.surfer.plugin");
@@ -39,18 +35,21 @@ public class DomainObjectSurferPlugin extends Plugin implements
     }
 
     @Override
+    protected GwtEvent.Type[] getEventTypesToHandle() {
+        return new GwtEvent.Type[]{CollectionRowSelectedEvent.TYPE};
+    }
+
+    @Override
     public Component createNew() {
         return new DomainObjectSurferPlugin();
     }
 
-    @Override
-    public void onNavigationTreeItemSelected(NavigationTreeItemSelectedEvent event) {
-        log.info("domain object surfer plugin reloaded");
-        getOwner().closeCurrentPlugin();
-        DomainObjectSurferPlugin domainObjectSurfer = ComponentRegistry.instance.get("domain.object.surfer.plugin");
-        domainObjectSurfer.setConfig(event.getPluginConfig());
-        getOwner().open(domainObjectSurfer);
-        domainObjectSurfer.addHandler(CollectionRowSelectedEvent.TYPE, domainObjectSurfer);
+    public Plugin getCollectionPlugin() {
+        return collectionPlugin;
+    }
+
+    public void setCollectionPlugin(Plugin collectionPlugin) {
+        this.collectionPlugin = collectionPlugin;
     }
 
     public Plugin getFormPlugin() {
@@ -100,5 +99,22 @@ public class DomainObjectSurferPlugin extends Plugin implements
         ArrayList<Id> result = new ArrayList<Id>(1);
         result.add(((IsDomainObjectEditor) getFormPlugin()).getFormState().getObjects().getRootObjects().getObject().getId());
         return result;
+    }
+
+    @Override
+    public void setInitialData(PluginData inData) {
+        super.setInitialData(inData);
+        DomainObjectSurferPluginData initialData = (DomainObjectSurferPluginData) inData;
+
+        if (this.collectionPlugin == null) {
+            this.collectionPlugin = ComponentRegistry.instance.get("collection.plugin");
+        }
+        this.collectionPlugin.setInitialData(initialData.getCollectionPluginData());
+
+        if (this.formPlugin == null) {
+            this.formPlugin = ComponentRegistry.instance.get("form.plugin");
+            this.formPlugin.setDisplayActionToolBar(false);
+        }
+        this.formPlugin.setInitialData(initialData.getFormPluginData());
     }
 }

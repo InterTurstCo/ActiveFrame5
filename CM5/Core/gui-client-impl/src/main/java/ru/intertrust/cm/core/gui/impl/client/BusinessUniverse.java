@@ -16,9 +16,9 @@ import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.panel.HeaderContainer;
 import ru.intertrust.cm.core.gui.impl.client.plugins.navigation.NavigationTreePlugin;
-import ru.intertrust.cm.core.gui.impl.client.plugins.navigation.RootLinkSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -32,9 +32,10 @@ import java.util.logging.Logger;
  *         Time: 16:22
  */
 @ComponentName("business.universe")
-public class BusinessUniverse extends BaseComponent implements EntryPoint {
+public class BusinessUniverse extends BaseComponent implements EntryPoint, NavigationTreeItemSelectedEventHandler {
     static Logger logger = Logger.getLogger("Business universe");
     private EventBus eventBus = GWT.create(SimpleEventBus.class);
+    private PluginPanel centralPluginPanel;
 
     public void onModuleLoad() {
         AsyncCallback<BusinessUniverseInitialization> callback = new AsyncCallback<BusinessUniverseInitialization>() {
@@ -51,18 +52,15 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
                 // todo мы должны просто класть туда панель - пустую, а nav tree plugin уже будет открывать в ней что нужно
 
                 NavigationTreePlugin navigationTreePlugin = ComponentRegistry.instance.get("navigation.tree");
-                DomainObjectSurferPlugin domainObjectSurferPlugin = ComponentRegistry.instance.get("domain.object.surfer.plugin");
 
-                PluginPanel domainObjectSurferPanel = new PluginPanel(eventBus);
-                domainObjectSurferPanel.open(domainObjectSurferPlugin);
+                centralPluginPanel = new PluginPanel(eventBus);
 
-                eventBus.addHandlerToSource(NavigationTreeItemSelectedEvent.TYPE, navigationTreePlugin, domainObjectSurferPlugin);
+                eventBus.addHandler(NavigationTreeItemSelectedEvent.TYPE, BusinessUniverse.this);
 
                 navigationTreePanel.open(navigationTreePlugin);
 
-                eventBus.addHandlerToSource(RootLinkSelectedEvent.TYPE, navigationTreePlugin, navigationTreePlugin);
                 bodyPanel.add(navigationTreePanel);
-                bodyPanel.add(domainObjectSurferPanel);
+                bodyPanel.add(centralPluginPanel);
                 rootPanel.add(bodyPanel);
 
                 addResizeHandlerToWindow(headerPanel);
@@ -75,6 +73,15 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint {
             }
         };
         BusinessUniverseServiceAsync.Impl.getInstance().getBusinessUniverseInitialization(callback);
+    }
+
+    @Override
+    public void onNavigationTreeItemSelected(NavigationTreeItemSelectedEvent event) {
+        centralPluginPanel.closeCurrentPlugin();
+        DomainObjectSurferPlugin domainObjectSurfer = ComponentRegistry.instance.get("domain.object.surfer.plugin");
+        domainObjectSurfer.setConfig(event.getPluginConfig());
+        domainObjectSurfer.setDisplayActionToolBar(true);
+        centralPluginPanel.open(domainObjectSurfer);
     }
 
     private FlowPanel createHeaderPanel() {

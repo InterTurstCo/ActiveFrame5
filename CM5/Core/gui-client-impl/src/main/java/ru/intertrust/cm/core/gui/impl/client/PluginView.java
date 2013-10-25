@@ -92,7 +92,7 @@ public abstract class PluginView implements IsWidget {
         if (plugin instanceof IsActive) {
             initializeActionToolBar();
             updateActionToolBar();
-            if (actionToolBar.getWidgetCount() > 0) {
+            if (plugin.displayActionToolBar() && actionToolBar.getWidgetCount() > 0) {
                 panel.add(actionToolBar);
             }
         }

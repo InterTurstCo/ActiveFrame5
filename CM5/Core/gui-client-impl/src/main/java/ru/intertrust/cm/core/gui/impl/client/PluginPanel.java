@@ -1,13 +1,10 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventHandler;
 
 /**
  * Панель плагинов. Имеет возможность отображать плагины (как самостоятельные, так и дочерние), поддерживая порядок их
@@ -17,12 +14,11 @@ import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventHandler
  *         Date: 20.08.13
  *         Time: 16:53
  */
-public class PluginPanel implements IsWidget, PluginViewCreatedEventHandler {
+public class PluginPanel implements IsWidget {
 
 
     private SimplePanel impl = new SimplePanel();
     private EventBus eventBus;
-    private HandlerRegistration viewCreatedHandlerRegistration;
     private Plugin currentPlugin;
 
     public PluginPanel(EventBus eventBus) {
@@ -42,7 +38,6 @@ public class PluginPanel implements IsWidget, PluginViewCreatedEventHandler {
     }
 
     public void open(Plugin plugin, Dto initParams) {
-        viewCreatedHandlerRegistration = eventBus.addHandlerToSource(PluginViewCreatedEvent.TYPE, plugin, this);
         plugin.setEventBus(eventBus);
         plugin.setOwner(this);
         plugin.setUp();
@@ -65,6 +60,9 @@ public class PluginPanel implements IsWidget, PluginViewCreatedEventHandler {
      * Закрывает текущий плагин. Если у него есть родитель, то он будет показан по закрытию текущего.
      */
     public void closeCurrentPlugin() {
+        if (currentPlugin == null) {
+            return;
+        }
         currentPlugin.clearHandlers();
         impl.remove(asWidget());
     }
@@ -80,12 +78,10 @@ public class PluginPanel implements IsWidget, PluginViewCreatedEventHandler {
         // noop
     }
 
-    @Override
-    public void onPluginViewCreated(PluginViewCreatedEvent event) {
-        viewCreatedHandlerRegistration.removeHandler();
-        this.currentPlugin = event.getPlugin();
+    public void onPluginViewCreated(Plugin plugin) {
+        this.currentPlugin = plugin;
         beforePluginOpening();
-        impl.setWidget(event.getPlugin().getView());
+        impl.setWidget(this.currentPlugin.getView());
         impl.setSize("100%", "100%");
     }
 

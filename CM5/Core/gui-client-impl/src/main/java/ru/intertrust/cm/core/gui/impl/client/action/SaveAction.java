@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.action;
 
 import com.google.gwt.user.client.Window;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
@@ -39,7 +40,9 @@ public class SaveAction extends SimpleServerAction {
     @Override
     protected void onSuccess(ActionData result) {
         FormPluginData formPluginData = ((SaveActionData) result).getFormPluginData();
-        getPlugin().setInitialData(formPluginData);
+        Plugin plugin = getPlugin();
+        ((IsDomainObjectEditor) plugin).setFormState(formPluginData.getFormDisplayData().getFormState());
+        plugin.setActionContexts(formPluginData.getActionContexts());
         Window.alert("Saved!!!");
     }
 }

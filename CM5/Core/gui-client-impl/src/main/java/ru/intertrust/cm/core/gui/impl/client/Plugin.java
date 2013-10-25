@@ -1,17 +1,17 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
-import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.model.gui.navigation.PluginConfig;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
 import ru.intertrust.cm.core.gui.model.Command;
+import ru.intertrust.cm.core.gui.model.action.ActionContext;
+import ru.intertrust.cm.core.gui.model.plugin.ActivePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
@@ -37,7 +37,9 @@ public abstract class Plugin extends BaseComponent {
     private PluginPanel owner;
     private EventBus eventBus;
     private PluginConfig config;
+    private boolean displayActionToolBar;
     private PluginData initialData;
+    private boolean initialDataAssigned;
     private PluginView view;
     private List<HandlerRegistration> handlerRegistrations = new ArrayList<HandlerRegistration>();
 
@@ -68,7 +70,8 @@ public abstract class Plugin extends BaseComponent {
      * производится соответствующим обработчиком плагина в методе {@link PluginHandler#initialize(Dto)}
      */
     protected void setUp() {
-        if (!isInitializable()) {
+        registerEventsHandling(getEventTypesToHandle());
+        if (!shouldBeInitialized()) {
             postSetUp();
             return;
         }
@@ -89,14 +92,24 @@ public abstract class Plugin extends BaseComponent {
         BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, callback);
     }
 
+    protected GwtEvent.Type[] getEventTypesToHandle() {
+        return null;
+    }
+
+    private void registerEventsHandling(GwtEvent.Type[] events) {
+        if (events == null) {
+            return;
+        }
+        for (GwtEvent.Type eventType : events) {
+            HandlerRegistration handlerRegistration = eventBus.addHandler(eventType, this);
+            handlerRegistrations.add(handlerRegistration);
+        }
+    }
+
     public void reinit(PluginData initData) {
         getOwner().closeCurrentPlugin();
         Plugin.this.setInitialData(initData);
         postSetUp();
-    }
-
-    protected <H extends EventHandler> void addHandler(GwtEvent.Type<H> type, H handler) {
-        handlerRegistrations.add(eventBus.addHandler(type, handler));
     }
 
     void clearHandlers() {
@@ -168,10 +181,16 @@ public abstract class Plugin extends BaseComponent {
         PluginData original = this.initialData;
         boolean initialDataChanged = original != null && initialData != original;
         this.initialData = initialData;
+        this.initialDataAssigned = true;
         if (initialDataChanged) {
             getView().updateActionToolBar();
             afterInitialDataChange(original, initialData);
         }
+    }
+
+    public void setActionContexts(List<ActionContext> actionContexts) {
+        ((ActivePluginData) this.initialData).setActionContexts(actionContexts);
+        getView().updateActionToolBar();
     }
 
     protected void afterInitialDataChange(PluginData oldData, PluginData newData) {
@@ -183,14 +202,13 @@ public abstract class Plugin extends BaseComponent {
      *
      * @return true, если плагин требует инициализации и false - в противном случае
      */
-    protected boolean isInitializable() {
-        return true;
+    protected boolean shouldBeInitialized() {
+        return !initialDataAssigned;
     }
 
     private void postSetUp() {
         view = createView();
-        PluginViewCreatedEvent viewCreatedEvent = new PluginViewCreatedEvent(this);
-        eventBus.fireEventFromSource(viewCreatedEvent, this);
+        owner.onPluginViewCreated(this);
     }
 
     public PluginPanel getOwner() {
@@ -201,9 +219,11 @@ public abstract class Plugin extends BaseComponent {
         return eventBus;
     }
 
-    public void registerEventHandlingFromExternalSource(GwtEvent.Type eventType, Object externalEventSource, Object handler) {
-        getEventBus().addHandlerToSource(eventType, externalEventSource, handler);
+    public boolean displayActionToolBar() {
+        return displayActionToolBar;
     }
 
-
+    public void setDisplayActionToolBar(boolean displayActionToolBar) {
+        this.displayActionToolBar = displayActionToolBar;
+    }
 }

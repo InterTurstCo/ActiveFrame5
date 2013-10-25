@@ -9,7 +9,6 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
-import ru.intertrust.cm.core.gui.model.plugin.ActivePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 
@@ -26,7 +25,7 @@ public class FormPluginHandler extends ActivePluginHandler {
     @Autowired
     private GuiService guiService;
 
-    public ActivePluginData initialize(Dto initialData) {
+    public FormPluginData initialize(Dto initialData) {
         FormPluginConfig config = (FormPluginConfig) initialData;
         String domainObjectToCreate = config.getDomainObjectTypeToCreate();
         FormDisplayData form = domainObjectToCreate != null ? guiService.getForm(domainObjectToCreate)
