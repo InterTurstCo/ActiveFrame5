@@ -47,7 +47,10 @@ public class MainView implements EntryPoint {
         // mf.addElementInNavigation(new Button("navigation"));
         // mf.addElementInTree(treeBtn);
         mf.addElementInSticker(stickerBtn);
+
+
         RootLayoutPanel rp = RootLayoutPanel.get();
         rp.add(mf);
+
     }
 }
