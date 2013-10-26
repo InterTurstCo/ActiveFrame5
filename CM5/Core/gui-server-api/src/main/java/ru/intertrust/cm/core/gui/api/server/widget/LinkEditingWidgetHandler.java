@@ -12,14 +12,14 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
  *         Date: 14.10.13
  *         Time: 14:58
  */
-public abstract class MultiObjectWidgetHandler extends WidgetHandler {
+public abstract class LinkEditingWidgetHandler extends WidgetHandler {
     @Autowired
     protected ConfigurationService configurationService;
 
     protected String getLinkedObjectType(WidgetContext context, FieldPath fieldPath) {
         FieldPath.Element lastElement = fieldPath.getLastElement();
         if (lastElement instanceof FieldPath.Field) {
-            String parentType = context.getFormObjects().getObjects(fieldPath.getParentPath()).getType();
+            String parentType = context.getFormObjects().getNode(fieldPath.getParentPath()).getType();
             return ((ReferenceFieldConfig) configurationService.getFieldConfig(parentType, lastElement.getName())).getType();
         }
 

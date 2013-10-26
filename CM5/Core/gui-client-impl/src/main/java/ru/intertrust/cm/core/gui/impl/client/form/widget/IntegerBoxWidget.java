@@ -23,7 +23,7 @@ public class IntegerBoxWidget extends BaseWidget {
     }
 
     public void setCurrentState(WidgetState currentState) {
-        Long value = ((IntegerBoxState) currentState).getValue();
+        Long value = ((IntegerBoxState) currentState).getNumber();
         setTrimmedText((HasText) impl, value == null ? "" : value.toString());
     }
 
@@ -55,7 +55,7 @@ public class IntegerBoxWidget extends BaseWidget {
     }
 
     private String getText() {
-        Long value = this.<IntegerBoxState>getInitialData().getValue();
+        Long value = this.<IntegerBoxState>getInitialData().getNumber();
         return value == null ? "" : value.toString();
     }
 }

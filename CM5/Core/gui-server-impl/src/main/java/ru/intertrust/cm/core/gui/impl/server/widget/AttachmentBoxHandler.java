@@ -8,7 +8,7 @@ import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.config.model.gui.form.widget.AttachmentBoxConfig;
-import ru.intertrust.cm.core.gui.api.server.widget.MultiObjectWidgetHandler;
+import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.ObjectsNode;
@@ -19,7 +19,6 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 /**
@@ -28,7 +27,7 @@ import java.util.Properties;
  *         Time: 10:25
  */
 @ComponentName("attachment-box")
-public class AttachmentBoxHandler  extends MultiObjectWidgetHandler {
+public class AttachmentBoxHandler  extends LinkEditingWidgetHandler {
     private static final String ATTACHMENT_NAME = "Name";
     private static final String ATTACHMENT_DESCRIPTION = "Description";
 
@@ -41,19 +40,17 @@ public class AttachmentBoxHandler  extends MultiObjectWidgetHandler {
 
         List<AttachmentModel> savedAttachments = new ArrayList<AttachmentModel>();
 
-        ObjectsNode node = context.getFormObjects().getObjects(fieldPath);
-        Iterator<DomainObject> iterator = node.iterator();
-        while (iterator.hasNext()) {
-            DomainObject temp = iterator.next();
+        ObjectsNode node = context.getFormObjects().getNode(fieldPath);
+        for (DomainObject object : node) {
             AttachmentModel attachmentModel = new AttachmentModel();
-           for (String field : temp.getFields()) {
-                if (ATTACHMENT_NAME.equalsIgnoreCase(field)){
-                    attachmentModel.setName(temp.getValue(field).toString());
+            for (String field : object.getFields()) {
+                if (ATTACHMENT_NAME.equalsIgnoreCase(field)) {
+                    attachmentModel.setName(object.getValue(field).toString());
                 }
-               if (ATTACHMENT_DESCRIPTION.equalsIgnoreCase(field)){
-                   attachmentModel.setDescription(temp.getValue(field).toString());
-               }
-               attachmentModel.setId(temp.getId());
+                if (ATTACHMENT_DESCRIPTION.equalsIgnoreCase(field)) {
+                    attachmentModel.setDescription(object.getValue(field).toString());
+                }
+                attachmentModel.setId(object.getId());
 
             }
             savedAttachments.add(attachmentModel);
@@ -67,7 +64,7 @@ public class AttachmentBoxHandler  extends MultiObjectWidgetHandler {
     public void saveNewObjects(WidgetContext context, WidgetState state) {
         AttachmentBoxState attachmentBoxState = (AttachmentBoxState) state;
         List<AttachmentModel> attachmentModels = attachmentBoxState.getAttachments();
-        DomainObject domainObject = context.getFormObjects().getRootObjects().getObject();
+        DomainObject domainObject = context.getFormObjects().getRootNode().getObject();
 
         AttachmentBoxConfig widgetConfig = context.getWidgetConfig();
         String attachmentType = widgetConfig.getAttachmentType().getName();

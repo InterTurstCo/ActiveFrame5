@@ -8,31 +8,31 @@ import ru.intertrust.cm.core.business.api.dto.Value;
  *         Date: 14.09.13
  *         Time: 15:09
  */
-public class IntegerBoxState extends WidgetState {
-    private Long value;
+public class IntegerBoxState extends ValueEditingWidgetState {
+    private Long number;
 
     public IntegerBoxState() {
     }
 
-    public IntegerBoxState(Long value) {
-        this.value = value;
+    public IntegerBoxState(Long number) {
+        this.number = number;
     }
 
-    public Long getValue() {
-        return value;
+    public Long getNumber() {
+        return number;
     }
 
-    public void setValue(Integer value) {
-        this.value = value == null ? null : (long) value;
+    public void setNumber(Integer number) {
+        this.number = number == null ? null : (long) number;
     }
 
     public void setValue(Long value) {
-        this.value = value;
+        this.number = value;
     }
 
     @Override
-    public Value toValue() {
-        return new LongValue(value);
+    public Value getValue() {
+        return new LongValue(number);
     }
 
     @Override

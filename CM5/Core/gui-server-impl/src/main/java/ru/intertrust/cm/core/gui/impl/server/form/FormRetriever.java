@@ -74,7 +74,7 @@ public class FormRetriever {
         FormObjects formObjects = new FormObjects();
 
         ObjectsNode rootNode = new ObjectsNode(root);
-        formObjects.setRootObjects(rootNode);
+        formObjects.setRootNode(rootNode);
         for (WidgetConfig config : widgetConfigs) {
             String widgetId = config.getId();
             FieldPathConfig fieldPathConfig = config.getFieldPathConfig();
@@ -93,7 +93,7 @@ public class FormRetriever {
             }
             FieldPath fieldPath = new FieldPath(fieldPathConfig.getValue());
 
-            rootNode = formObjects.getRootObjects();
+            rootNode = formObjects.getRootNode();
             for (Iterator<FieldPath> childrenIterator = fieldPath.childrenIterator(); childrenIterator.hasNext(); ) {
                 FieldPath childPath = childrenIterator.next();
                 FieldPath.Element lastElement = childPath.getLastElement();
@@ -101,15 +101,15 @@ public class FormRetriever {
                     break;
                 }
 
-                if (formObjects.isObjectsSet(childPath)) {
-                    rootNode = formObjects.getObjects(childPath);
+                if (formObjects.containsNode(childPath)) {
+                    rootNode = formObjects.getNode(childPath);
                     continue;
                 }
 
                 // it's a reference then
                 ObjectsNode linkedNode = findLinkedNode(rootNode, lastElement);
 
-                formObjects.setObjects(childPath, linkedNode);
+                formObjects.setNode(childPath, linkedNode);
                 rootNode.setChild(lastElement.getName(), linkedNode);
                 rootNode = linkedNode;
             }

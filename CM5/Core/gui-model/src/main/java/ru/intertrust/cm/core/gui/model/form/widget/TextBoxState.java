@@ -8,7 +8,7 @@ import ru.intertrust.cm.core.business.api.dto.Value;
  *         Date: 14.09.13
  *         Time: 11:42
  */
-public class TextBoxState extends WidgetState {
+public class TextBoxState extends ValueEditingWidgetState {
     private String text;
 
     public TextBoxState() {
@@ -27,7 +27,7 @@ public class TextBoxState extends WidgetState {
     }
 
     @Override
-    public Value toValue() {
+    public Value getValue() {
         return new StringValue(text);
     }
 

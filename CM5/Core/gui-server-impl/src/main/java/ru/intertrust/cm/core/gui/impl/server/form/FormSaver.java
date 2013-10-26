@@ -8,18 +8,18 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.model.FieldConfig;
-import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.model.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.model.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.model.gui.form.widget.WidgetConfigurationConfig;
-import ru.intertrust.cm.core.gui.api.server.widget.MultiObjectWidgetHandler;
+import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.FormObjects;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.ObjectsNode;
+import ru.intertrust.cm.core.gui.model.form.widget.LinkEditingWidgetState;
+import ru.intertrust.cm.core.gui.model.form.widget.ValueEditingWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
@@ -55,18 +55,14 @@ public class FormSaver {
             }
             FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
             FieldPath parentObjectPath = fieldPath.getParentPath();
-            String parentType = formObjects.getObjects(parentObjectPath).getType();
-            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(parentType, fieldPath.getLastElement().getName());
-            boolean lastElementIsReference = fieldConfig == null || fieldConfig instanceof ReferenceFieldConfig;
-            boolean widgetIsChangingRelationships = fieldPath.isBackReference() && lastElementIsReference;
-            if (widgetIsChangingRelationships) {
-                ArrayList<Value> newValue = widgetState.toValues();
-                linkChangeOperations.addAll(mergeObjectReferences(fieldPath, formObjects, newValue));
+            if (fieldPath.getLastElement() instanceof FieldPath.BackReference) {
+                ArrayList<Id> newIds = ((LinkEditingWidgetState) widgetState).getIds();
+                linkChangeOperations.addAll(mergeObjectReferences(fieldPath, formObjects, newIds));
                 continue;
             }
 
-            ArrayList<Value> newValue = widgetState.toValues();
-            ArrayList<Value> oldValue = formObjects.getObjectValues(fieldPath);
+            Value newValue = ((ValueEditingWidgetState) widgetState).getValue();
+            Value oldValue = formObjects.getObjectValue(fieldPath);
             if (!areValuesSemanticallyEqual(newValue, oldValue)) {
                 ArrayList<ObjectCreationOperation> objectCreationOperations = addNewNodeChainIfNotEmpty(parentObjectPath, formObjects);
                 if (!objectCreationOperations.isEmpty()) {
@@ -79,15 +75,13 @@ public class FormSaver {
                 } else { // if object is created separately, no need to update it later
                     objectsFieldPathsToUpdate.add(parentObjectPath);
                 }
-                formObjects.setObjectValues(fieldPath, newValue);
+                formObjects.setObjectValue(fieldPath, newValue);
             }
         }
 
         HashMap<Id, DomainObject> savedObjectsMap = new HashMap<>();
         createNewDirectLinkObjects(newObjectsCreationOperations, formObjects, savedObjectsMap);
 
-        ArrayList<DomainObject> toSave = new ArrayList<>(objectsFieldPathsToUpdate.size());
-        // todo sort field paths in such a way that linked objects are saved first?
         // root DO is save separately as we should return it's identifier in case it's created from scratch
         boolean saveRoot = false;
         for (FieldPath fieldPath : objectsFieldPathsToUpdate) {
@@ -95,17 +89,17 @@ public class FormSaver {
                 saveRoot = true;
                 continue;
             }
-            toSave.addAll(formObjects.getObjects(fieldPath).getDomainObjects());
+            // todo: why domain objects? it's the only one most likely
+            ArrayList<DomainObject> domainObjects = formObjects.getNode(fieldPath).getDomainObjects();
+            save(domainObjects, savedObjectsMap);
+            formObjects.getNode(fieldPath).setDomainObjects(domainObjects);
         }
-        for (DomainObject object : toSave) {
-            save(object, savedObjectsMap);
-        }
-        DomainObject rootDomainObject = formObjects.getRootObjects().getObject();
+        DomainObject rootDomainObject = formObjects.getRootNode().getObject();
         if (saveRoot) {
             rootDomainObject = save(rootDomainObject, savedObjectsMap);
 
             // todo: do this for all saved objects to keep new objects IDs up to date
-            formObjects.getRootObjects().setObject(rootDomainObject);
+            formObjects.getRootNode().setObject(rootDomainObject);
         }
         ReferenceValue rootObjectReference = new ReferenceValue(rootDomainObject.getId());
 
@@ -129,9 +123,9 @@ public class FormSaver {
                 continue;
             }
             WidgetHandler componentHandler = (WidgetHandler) applicationContext.getBean(config.getComponentName());
-            if (componentHandler instanceof MultiObjectWidgetHandler) {
+            if (componentHandler instanceof LinkEditingWidgetHandler) {
                 WidgetContext widgetContext = new WidgetContext(config, formObjects);
-                ((MultiObjectWidgetHandler) componentHandler).saveNewObjects(widgetContext, widgetState);
+                ((LinkEditingWidgetHandler) componentHandler).saveNewObjects(widgetContext, widgetState);
             }
         }
     }
@@ -148,10 +142,6 @@ public class FormSaver {
         return newValue.equals(oldValue);
     }
 
-    private boolean areValuesSemanticallyEqual(ArrayList<Value> newValue, ArrayList<Value> oldValue) {
-        return false;
-    }
-
     private void createNewDirectLinkObjects(HashSet<ObjectCreationOperation> newObjectsCreationOperations,
                                             FormObjects formObjects, HashMap<Id, DomainObject> savedObjectsMap) {
         ArrayList<ObjectCreationOperation> creationOperations = new ArrayList<>(newObjectsCreationOperations.size());
@@ -159,12 +149,21 @@ public class FormSaver {
         Collections.sort(creationOperations);
 
         for (ObjectCreationOperation operation : creationOperations) {
-            DomainObject newObject = save(formObjects.getObjects(operation.path).getObject(), savedObjectsMap);
+            DomainObject newObject = save(formObjects.getNode(operation.path).getObject(), savedObjectsMap);
             if (operation.parentToUpdateReference != null) {
-                DomainObject parentObject = formObjects.getObjects(operation.parentToUpdateReference).getObject();
+                DomainObject parentObject = formObjects.getNode(operation.parentToUpdateReference).getObject();
                 parentObject.setValue(operation.parentField, new ReferenceValue(newObject.getId()));
             }
         }
+    }
+
+    private ArrayList<DomainObject> save(ArrayList<DomainObject> domainObjects, HashMap<Id, DomainObject> savedObjects) {
+        for (int i = 0; i < domainObjects.size(); ++i) {
+            DomainObject domainObject = domainObjects.get(i);
+            DomainObject savedObject = save(domainObject, savedObjects);
+            domainObjects.set(i, savedObject);
+        }
+        return domainObjects;
     }
 
     private DomainObject save(DomainObject object, HashMap<Id, DomainObject> savedObjects) {
@@ -187,15 +186,15 @@ public class FormSaver {
         // 1) create d and put it into a.b.c.d
         // 2) create c and put it into a.b.c
         // 3) as b exists, that's all
-        ObjectsNode node = formObjects.getObjects(objectPath);
+        ObjectsNode node = formObjects.getNode(objectPath);
         if (node.size() > 0) {
             return new ArrayList<>(0);
         }
         ArrayList<ObjectCreationOperation> result = new ArrayList<>();
         DomainObject domainObject = crudService.createDomainObject(node.getType());
-        formObjects.setObjects(objectPath, new ObjectsNode(domainObject));
+        formObjects.setNode(objectPath, new ObjectsNode(domainObject));
         FieldPath parentPath = objectPath.getParentPath();
-        ObjectsNode parentNode = formObjects.getObjects(parentPath);
+        ObjectsNode parentNode = formObjects.getNode(parentPath);
         String linkToThisPathFromParent = objectPath.getLastElement().getName();
         if (parentNode.isEmpty()) {
             // parent path doesn't contain objects, so ref to this will have to be updated
@@ -214,18 +213,18 @@ public class FormSaver {
     }
 
     private ArrayList<FormSaveOperation> mergeObjectReferences(FieldPath fieldPath, FormObjects formObjects,
-                                                               ArrayList<Value> newValues) {
+                                                               ArrayList<Id> newIds) {
         FieldPath.Element lastElement = fieldPath.getLastElement();
         if (lastElement instanceof FieldPath.OneToManyBackReference) {
-            return mergeOneToMany(fieldPath, formObjects, newValues);
+            return mergeOneToMany(fieldPath, formObjects, newIds);
         } else {
-            return mergeManyToMany(fieldPath, formObjects, newValues);
+            return mergeManyToMany(fieldPath, formObjects, newIds);
         }
     }
 
     private ArrayList<FormSaveOperation> mergeOneToMany(FieldPath fieldPath, FormObjects formObjects,
-                                                        ArrayList<Value> newValues) {
-        ArrayList<DomainObject> parentObjects = formObjects.getObjects(fieldPath.getParentPath()).getDomainObjects();
+                                                        ArrayList<Id> newIds) {
+        ArrayList<DomainObject> parentObjects = formObjects.getNode(fieldPath.getParentPath()).getDomainObjects();
         if (parentObjects.size() > 1) {
             throw new GuiException("Back reference is referencing " + parentObjects.size() + " objects");
         }
@@ -234,40 +233,38 @@ public class FormSaver {
         FieldPath.Element lastElement = fieldPath.getLastElement();
         String linkToParentName = ((FieldPath.OneToManyBackReference) lastElement).getLinkToParentName();
 
-        ArrayList<DomainObject> previousState = formObjects.getObjects(fieldPath).getDomainObjects();
+        ArrayList<DomainObject> previousState = formObjects.getNode(fieldPath).getDomainObjects();
         if (previousState == null) {
             previousState = new ArrayList<>(0);
         }
-        if (newValues == null) {
-            newValues = new ArrayList<>(0);
+        if (newIds == null) {
+            newIds = new ArrayList<>(0);
         }
 
-        HashSet<Value> oldValuesSet = new HashSet<>(previousState.size());
+        HashSet<Id> previousIds = new HashSet<>(previousState.size());
         for (DomainObject previousStateObject : previousState) {
-            oldValuesSet.add(new ReferenceValue(previousStateObject.getId()));
+            previousIds.add(previousStateObject.getId());
         }
 
-        ArrayList<FormSaveOperation> operations = new ArrayList<>(oldValuesSet.size() + newValues.size());
+        ArrayList<FormSaveOperation> operations = new ArrayList<>(previousIds.size() + newIds.size());
 
         // links to create
-        for (Value value : newValues) {
-            if (oldValuesSet.contains(value)) {
+        for (Id id : newIds) {
+            if (previousIds.contains(id)) {
                 continue; // nothing to update
             }
-            Id referenceId = ((ReferenceValue) value).get();
-            DomainObject objectToSetLinkIn = crudService.find(referenceId);
+            DomainObject objectToSetLinkIn = crudService.find(id);
             objectToSetLinkIn.setReference(linkToParentName, parentObjectId);
             operations.add(new FormSaveOperation(FormSaveOperation.Type.Create, objectToSetLinkIn, linkToParentName));
         }
 
         // links to drop
-        oldValuesSet.removeAll(newValues); // leave only those which aren't in new values
-        for (Value value : oldValuesSet) {
-            if (value == null) {
+        previousIds.removeAll(newIds); // leave only those which aren't in new IDs
+        for (Id id : previousIds) {
+            if (id == null) {
                 continue;
             }
-            Id referenceId = ((ReferenceValue) value).get();
-            DomainObject objectToDropLinkIn = crudService.find(referenceId);
+            DomainObject objectToDropLinkIn = crudService.find(id);
             objectToDropLinkIn.setReference(linkToParentName, (Id) null);
             operations.add(new FormSaveOperation(FormSaveOperation.Type.Update, objectToDropLinkIn, null));
         }
@@ -275,11 +272,11 @@ public class FormSaver {
     }
 
     private ArrayList<FormSaveOperation> mergeManyToMany(FieldPath fieldPath, FormObjects formObjects,
-                                                         ArrayList<Value> newValues) {
-        ObjectsNode mergedNode = formObjects.getObjects(fieldPath);
+                                                         ArrayList<Id> newIds) {
+        ObjectsNode mergedNode = formObjects.getNode(fieldPath);
         String linkObjectType = mergedNode.getType();
         FieldPath parentNodePath = fieldPath.getParentPath();
-        ArrayList<DomainObject> parentObjects = formObjects.getObjects(parentNodePath).getDomainObjects();
+        ArrayList<DomainObject> parentObjects = formObjects.getNode(parentNodePath).getDomainObjects();
         if (parentObjects.size() > 1) {
             throw new GuiException("Back reference is referencing " + parentObjects.size() + " objects");
         }
@@ -291,40 +288,40 @@ public class FormSaver {
         if (previousState == null) {
             previousState = new ArrayList<>(0);
         }
-        if (newValues == null) {
-            newValues = new ArrayList<>(0);
+        if (newIds == null) {
+            newIds = new ArrayList<>(0);
         }
 
-        HashSet<Value> oldValuesSet = new HashSet<>(previousState.size());
-        HashMap<Value, DomainObject> oldValuesDomainObjects = new HashMap<>(previousState.size());
+        HashSet<Id> previousIds = new HashSet<>(previousState.size());
+        HashMap<Id, DomainObject> previousDomainObjectsById = new HashMap<>(previousState.size());
         String linkToChildrenName = lastElement.getLinkToChildrenName();
         for (DomainObject previousStateObject : previousState) {
-            Value value = previousStateObject.getValue(linkToChildrenName);
-            oldValuesSet.add(value);
-            oldValuesDomainObjects.put(value, previousStateObject);
+            Id id = previousStateObject.getReference(linkToChildrenName);
+            previousIds.add(id);
+            previousDomainObjectsById.put(id, previousStateObject);
         }
 
-        ReferenceValue parentObjectReference = new ReferenceValue(parentObjects.get(0).getId());
-        ArrayList<FormSaveOperation> operations = new ArrayList<>(oldValuesSet.size() + newValues.size());
+        Id parentObjectId = parentObjects.get(0).getId();
+        ArrayList<FormSaveOperation> operations = new ArrayList<>(previousIds.size() + newIds.size());
 
         // links to create
-        for (Value value : newValues) {
-            if (oldValuesSet.contains(value)) {
+        for (Id id : newIds) {
+            if (previousIds.contains(id)) {
                 continue; // nothing to update
             }
             DomainObject newLinkObject = crudService.createDomainObject(linkObjectType);
-            newLinkObject.setValue(rootLinkField, parentObjectReference);
-            newLinkObject.setValue(linkToChildrenName, value);
+            newLinkObject.setReference(rootLinkField, parentObjectId);
+            newLinkObject.setReference(linkToChildrenName, id);
             operations.add(new FormSaveOperation(FormSaveOperation.Type.Create, newLinkObject, rootLinkField));
         }
 
         // links to drop
-        oldValuesSet.removeAll(newValues); // leave only those which aren't in new values
-        for (Value value : oldValuesSet) {
-            if (value == null) {
+        previousIds.removeAll(newIds); // leave only those which aren't in new values
+        for (Id id : previousIds) {
+            if (id == null) {
                 continue;
             }
-            DomainObject objectToDrop = oldValuesDomainObjects.get(value);
+            DomainObject objectToDrop = previousDomainObjectsById.get(id);
             operations.add(new FormSaveOperation(FormSaveOperation.Type.Delete, objectToDrop, rootLinkField));
         }
         return operations;

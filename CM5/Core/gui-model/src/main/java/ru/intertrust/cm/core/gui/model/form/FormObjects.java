@@ -21,24 +21,32 @@ public class FormObjects implements Dto {
         fieldPathNodes = new HashMap<FieldPath, ObjectsNode>();
     }
 
-    public boolean isObjectsSet(FieldPath fieldPath) {
+    public boolean containsNode(FieldPath fieldPath) {
         return fieldPathNodes.containsKey(fieldPath);
     }
 
-    public void setObjects(FieldPath fieldPath, ObjectsNode domainObjects) {
-        this.fieldPathNodes.put(fieldPath, domainObjects);
+    public void setNode(FieldPath fieldPath, ObjectsNode node) {
+        this.fieldPathNodes.put(fieldPath, node);
     }
 
-    public ObjectsNode getObjects(FieldPath fieldPath) {
+    public ObjectsNode getNode(FieldPath fieldPath) {
         return fieldPathNodes.get(fieldPath);
     }
 
-    public void setRootObjects(ObjectsNode object) {
-        this.fieldPathNodes.put(FieldPath.ROOT, object);
+    public void setRootNode(ObjectsNode node) {
+        this.fieldPathNodes.put(FieldPath.ROOT, node);
     }
 
-    public ObjectsNode getRootObjects() {
+    public ObjectsNode getRootNode() {
         return fieldPathNodes.get(FieldPath.ROOT);
+    }
+
+    public void setObjectValue(FieldPath fieldPath, Value value) {
+        getFieldNode(fieldPath).getObject().setValue(fieldPath.getLastElement().getName(), value);
+    }
+
+    public Value getObjectValue(FieldPath fieldPath) {
+        return getFieldNode(fieldPath).getObject().getValue(fieldPath.getLastElement().getName());
     }
 
     public void setObjectValues(FieldPath fieldPath, ArrayList<Value> value) {

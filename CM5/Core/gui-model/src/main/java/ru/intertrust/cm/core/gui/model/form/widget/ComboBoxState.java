@@ -11,7 +11,7 @@ import java.util.LinkedHashMap;
  *         Date: 26.09.13
  *         Time: 12:29
  */
-public class ComboBoxState extends WidgetState {
+public class ComboBoxState extends ValueEditingWidgetState {
     private Id id;
     private LinkedHashMap<Id, String> listValues;
 
@@ -43,7 +43,7 @@ public class ComboBoxState extends WidgetState {
     }
 
     @Override
-    public Value toValue() {
+    public Value getValue() {
         return new ReferenceValue(id);
     }
 

@@ -10,27 +10,27 @@ import java.math.BigDecimal;
  *         Date: 26.09.13
  *         Time: 11:40
  */
-public class DecimalBoxState extends WidgetState {
-    private BigDecimal value;
+public class DecimalBoxState extends ValueEditingWidgetState {
+    private BigDecimal number;
 
     public DecimalBoxState() {
     }
 
-    public DecimalBoxState(BigDecimal value) {
-        this.value = value;
+    public DecimalBoxState(BigDecimal number) {
+        this.number = number;
     }
 
-    public BigDecimal getValue() {
-        return value;
+    public BigDecimal getNumber() {
+        return number;
     }
 
-    public void setValue(BigDecimal value) {
-        this.value = value;
+    public void setNumber(BigDecimal number) {
+        this.number = number;
     }
 
     @Override
-    public Value toValue() {
-        return new DecimalValue(value);
+    public Value getValue() {
+        return new DecimalValue(number);
     }
 
     @Override

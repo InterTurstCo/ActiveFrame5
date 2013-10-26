@@ -1,8 +1,6 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,14 +10,9 @@ import java.util.List;
  *         Date: 23.10.13
  *         Time: 13:15
  */
-public class AttachmentBoxState extends WidgetState {
+public class AttachmentBoxState extends LinkEditingWidgetState {
 
     private List<AttachmentModel> attachments;
-
-    @Override
-    public Value toValue() {
-        return null;
-    }
 
     public List<AttachmentModel> getAttachments() {
         return attachments;
@@ -30,15 +23,15 @@ public class AttachmentBoxState extends WidgetState {
     }
 
     @Override
-    public ArrayList<Value> toValues() {
+    public ArrayList<Id> getIds() {
         if (attachments == null) {
             return null;
         }
-        ArrayList<Value> result = new ArrayList<Value>();
+        ArrayList<Id> result = new ArrayList<Id>();
         for (AttachmentModel attachmentModel: attachments) {
             Id id = attachmentModel.getId();
             if (id != null)  {
-                result.add(new ReferenceValue(id));
+                result.add(id);
             }
 
         }

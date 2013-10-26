@@ -27,7 +27,7 @@ public class StartProcessAction extends SimpleServerAction {
     protected StartProcessActionContext getCurrentContext() {
         FormState formState = ((IsDomainObjectEditor) getPlugin()).getFormState();
         StartProcessActionContext context = new StartProcessActionContext();
-        context.setRootObjectId(formState.getObjects().getRootObjects().getObject().getId());
+        context.setRootObjectId(formState.getObjects().getRootNode().getObject().getId());
         return context;
     }
 

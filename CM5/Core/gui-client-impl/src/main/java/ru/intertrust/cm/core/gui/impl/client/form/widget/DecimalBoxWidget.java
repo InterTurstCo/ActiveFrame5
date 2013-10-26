@@ -26,7 +26,7 @@ public class DecimalBoxWidget extends BaseWidget {
     }
 
     public void setCurrentState(WidgetState currentState) {
-        BigDecimal value = ((DecimalBoxState) currentState).getValue();
+        BigDecimal value = ((DecimalBoxState) currentState).getNumber();
         setTrimmedText((HasText) impl, value == null ? "" : value.toString());
     }
 
@@ -40,7 +40,7 @@ public class DecimalBoxWidget extends BaseWidget {
         BigDecimal value;
         try {
             value = new BigDecimal(text);
-            data.setValue(value);
+            data.setNumber(value);
             return data;
         } catch (NumberFormatException e) {
             throw new GuiException("Некорректный формат числа");
@@ -58,7 +58,7 @@ public class DecimalBoxWidget extends BaseWidget {
     }
 
     private String getText() {
-        Long value = this.<IntegerBoxState>getInitialData().getValue();
+        Long value = this.<IntegerBoxState>getInitialData().getNumber();
         return value == null ? "" : value.toString();
     }
 }

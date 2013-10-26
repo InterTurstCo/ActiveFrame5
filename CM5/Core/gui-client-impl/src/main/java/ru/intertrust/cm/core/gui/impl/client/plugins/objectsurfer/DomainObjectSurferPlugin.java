@@ -98,7 +98,7 @@ public class DomainObjectSurferPlugin extends Plugin implements
     public List<Id> getSelectedIds() {
         // todo: quick impl, which is not correct in general
         ArrayList<Id> result = new ArrayList<Id>(1);
-        result.add(((IsDomainObjectEditor) getFormPlugin()).getFormState().getObjects().getRootObjects().getObject().getId());
+        result.add(((IsDomainObjectEditor) getFormPlugin()).getFormState().getObjects().getRootNode().getObject().getId());
         return result;
     }
 

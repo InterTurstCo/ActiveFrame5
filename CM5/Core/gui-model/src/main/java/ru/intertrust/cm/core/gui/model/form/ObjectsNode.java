@@ -81,6 +81,7 @@ public class ObjectsNode implements Dto, Iterable<DomainObject> {
         child.parent = this;
     }
 
+    // todo get rid
     @Deprecated
     public ArrayList<DomainObject> getDomainObjects() {
         return domainObjects;

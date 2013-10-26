@@ -1,7 +1,5 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
-import ru.intertrust.cm.core.business.api.dto.Value;
-
 /**
  * @author Denis Mitavskiy
  *         Date: 14.09.13
@@ -23,11 +21,6 @@ public class LabelState extends WidgetState {
 
     public void setLabel(String label) {
         this.label = label;
-    }
-
-    @Override
-    public Value toValue() {
-        return null;
     }
 
     @Override

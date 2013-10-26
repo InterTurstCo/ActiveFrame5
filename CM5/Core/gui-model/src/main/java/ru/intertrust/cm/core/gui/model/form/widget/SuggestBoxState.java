@@ -1,7 +1,9 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.model.gui.form.widget.SuggestBoxConfig;
+
+import java.util.ArrayList;
 
 /**
  * Created with IntelliJ IDEA.
@@ -10,13 +12,13 @@ import ru.intertrust.cm.core.config.model.gui.form.widget.SuggestBoxConfig;
  * Time: 16:22
  * To change this template use File | Settings | File Templates.
  */
-public class SuggestBoxState extends ListBoxState {
+public class SuggestBoxState extends LinkEditingWidgetState {
 
     private SuggestBoxConfig suggestBoxConfig;
 
     @Override
-    public Value toValue() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    public ArrayList<Id> getIds() {
+        return null;
     }
 
     public SuggestBoxConfig getSuggestBoxConfig() {

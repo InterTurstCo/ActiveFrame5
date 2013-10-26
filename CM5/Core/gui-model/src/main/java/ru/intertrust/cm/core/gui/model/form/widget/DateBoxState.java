@@ -10,27 +10,27 @@ import java.util.Date;
  *         Date: 26.09.13
  *         Time: 12:29
  */
-public class DateBoxState extends WidgetState {
-    private Date value;
+public class DateBoxState extends ValueEditingWidgetState {
+    private Date date;
 
     public DateBoxState() {
     }
 
-    public DateBoxState(Date value) {
-        this.value = value;
+    public DateBoxState(Date date) {
+        this.date = date;
     }
 
-    public Date getValue() {
-        return value;
+    public Date getDate() {
+        return date;
     }
 
-    public void setValue(Date value) {
-        this.value = value;
+    public void setDate(Date date) {
+        this.date = date;
     }
 
     @Override
-    public Value toValue() {
-        return new TimestampValue(value);
+    public Value getValue() {
+        return new TimestampValue(date);
     }
 
     @Override

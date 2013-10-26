@@ -5,7 +5,7 @@ import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.model.gui.form.widget.ListBoxConfig;
-import ru.intertrust.cm.core.gui.api.server.widget.MultiObjectWidgetHandler;
+import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.widget.ListBoxState;
@@ -21,7 +21,7 @@ import java.util.List;
  *         Time: 16:25
  */
 @ComponentName("list-box")
-public class ListBoxHandler extends MultiObjectWidgetHandler {
+public class ListBoxHandler extends LinkEditingWidgetHandler {
     @Autowired
     protected CrudService crudService;
 

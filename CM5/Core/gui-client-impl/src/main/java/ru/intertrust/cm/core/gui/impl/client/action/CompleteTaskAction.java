@@ -27,7 +27,7 @@ public class CompleteTaskAction extends SimpleServerAction {
     protected SaveActionContext getCurrentContext() {
         FormState formState = ((IsDomainObjectEditor) getPlugin()).getFormState();
         SaveActionContext context = new SaveActionContext();
-        context.setRootObjectId(formState.getObjects().getRootObjects().getObject().getId());
+        context.setRootObjectId(formState.getObjects().getRootNode().getObject().getId());
         context.setFormState(formState);
         return context;
     }

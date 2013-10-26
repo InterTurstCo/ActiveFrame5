@@ -5,7 +5,7 @@ import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.model.gui.form.widget.SuggestBoxConfig;
-import ru.intertrust.cm.core.gui.api.server.widget.MultiObjectWidgetHandler;
+import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 
@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
  * To change this template use File | Settings | File Templates.
  */
 @ComponentName("suggest-box")
-public class SuggestBoxHandler extends MultiObjectWidgetHandler {
+public class SuggestBoxHandler extends LinkEditingWidgetHandler {
 
     @Autowired
     CrudService crudService;

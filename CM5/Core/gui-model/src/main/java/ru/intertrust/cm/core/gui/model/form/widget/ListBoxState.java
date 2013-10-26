@@ -1,8 +1,6 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -12,14 +10,9 @@ import java.util.LinkedHashMap;
  *         Date: 15.10.13
  *         Time: 19:48
  */
-public class ListBoxState extends WidgetState {
+public class ListBoxState extends LinkEditingWidgetState {
     private ArrayList<Id> selectedIds;
     private LinkedHashMap<Id, String> listValues;
-
-    @Override
-    public Value toValue() {
-        return null;
-    }
 
     public ArrayList<Id> getSelectedIds() {
         return selectedIds;
@@ -38,15 +31,8 @@ public class ListBoxState extends WidgetState {
     }
 
     @Override
-    public ArrayList<Value> toValues() {
-        if (selectedIds == null) {
-            return null;
-        }
-        ArrayList<Value> result = new ArrayList<Value>(selectedIds.size());
-        for (Id id : selectedIds) {
-            result.add(new ReferenceValue(id));
-        }
-        return result;
+    public ArrayList<Id> getIds() {
+        return selectedIds;
     }
 
     @Override
