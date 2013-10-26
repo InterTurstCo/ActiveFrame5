@@ -54,9 +54,9 @@ public class FormSaver {
                 continue;
             }
             FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
-            FieldPath parentObjectPath = fieldPath.getParent();
+            FieldPath parentObjectPath = fieldPath.getParentPath();
             String parentType = formObjects.getObjects(parentObjectPath).getType();
-            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(parentType, fieldPath.getLastElement());
+            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(parentType, fieldPath.getLastElement().getName());
             boolean lastElementIsReference = fieldConfig == null || fieldConfig instanceof ReferenceFieldConfig;
             boolean widgetIsChangingRelationships = fieldPath.isBackReference() && lastElementIsReference;
             if (widgetIsChangingRelationships) {
@@ -194,9 +194,9 @@ public class FormSaver {
         ArrayList<ObjectCreationOperation> result = new ArrayList<>();
         DomainObject domainObject = crudService.createDomainObject(node.getType());
         formObjects.setObjects(objectPath, new ObjectsNode(domainObject));
-        FieldPath parentPath = objectPath.getParent();
+        FieldPath parentPath = objectPath.getParentPath();
         ObjectsNode parentNode = formObjects.getObjects(parentPath);
-        String linkToThisPathFromParent = objectPath.getLastElement();
+        String linkToThisPathFromParent = objectPath.getLastElement().getName();
         if (parentNode.isEmpty()) {
             // parent path doesn't contain objects, so ref to this will have to be updated
             result.add(new ObjectCreationOperation(objectPath, parentPath, linkToThisPathFromParent));
@@ -216,7 +216,7 @@ public class FormSaver {
     private ArrayList<FormSaveOperation> mergeObjectReferences(FieldPath fieldPath, FormObjects formObjects,
                                                                ArrayList<Value> newValues) {
         //todo after country_city^country.city is transformed to an Object, but not to a field lots of if-else will go
-        String lastElement = fieldPath.getLastElement();
+        String lastElement = fieldPath.getLastElement().getName();
         String[] typeAndField = lastElement.split("\\^");
         boolean oneToMany = typeAndField.length == 2;
         if (oneToMany) {
@@ -228,13 +228,13 @@ public class FormSaver {
 
     private ArrayList<FormSaveOperation> mergeOneToMany(FieldPath fieldPath, FormObjects formObjects,
                                                         ArrayList<Value> newValues) {
-        ArrayList<DomainObject> parentObjects = formObjects.getObjects(fieldPath.getParent()).getDomainObjects();
+        ArrayList<DomainObject> parentObjects = formObjects.getObjects(fieldPath.getParentPath()).getDomainObjects();
         if (parentObjects.size() > 1) {
             throw new GuiException("Back reference is referencing " + parentObjects.size() + " objects");
         }
         Id parentObjectId = parentObjects.get(0).getId();
 
-        String lastElement = fieldPath.getLastElement();
+        String lastElement = fieldPath.getLastElement().getName();
         String[] typeAndField = lastElement.split("\\^");
         String type = typeAndField[0];
         String field = typeAndField[1];
@@ -281,17 +281,17 @@ public class FormSaver {
 
     private ArrayList<FormSaveOperation> mergeManyToMany(FieldPath fieldPath, FormObjects formObjects,
                                                          ArrayList<Value> newValues) {
-        String linkField = fieldPath.getLastElement();
-        FieldPath mergedNodePath = fieldPath.getParent();
+        String linkField = fieldPath.getLastElement().getName();
+        FieldPath mergedNodePath = fieldPath.getParentPath();
         ObjectsNode mergedNode = formObjects.getObjects(mergedNodePath);
         String linkObjectType = mergedNode.getType();
-        FieldPath parentNodePath = mergedNodePath.getParent();
+        FieldPath parentNodePath = mergedNodePath.getParentPath();
         ArrayList<DomainObject> parentObjects = formObjects.getObjects(parentNodePath).getDomainObjects();
         if (parentObjects.size() > 1) {
             throw new GuiException("Back reference is referencing " + parentObjects.size() + " objects");
         }
 
-        String[] typeAndField = mergedNodePath.getLastElement().split("\\^");
+        String[] typeAndField = mergedNodePath.getLastElement().getName().split("\\^");
         String rootLinkField = typeAndField[1];
 
         ArrayList<DomainObject> previousState = mergedNode.getDomainObjects();

@@ -45,7 +45,7 @@ public class FormObjects implements Dto {
         ArrayList<DomainObject> fieldPathObjects = getFieldNode(fieldPath).getDomainObjects();
         for (int i = 0; i < fieldPathObjects.size(); ++i) {
             DomainObject fieldPathObject = fieldPathObjects.get(i);
-            fieldPathObject.setValue(fieldPath.getLastElement(), value.get(i));
+            fieldPathObject.setValue(fieldPath.getLastElement().getName(), value.get(i));
         }
     }
 
@@ -56,7 +56,7 @@ public class FormObjects implements Dto {
         }
         ArrayList<T> result = new ArrayList<T>(fieldPathObject.size());
         for (DomainObject domainObject : fieldPathObject) {
-            result.add((T) domainObject.getValue(fieldPath.getLastElement()));
+            result.add((T) domainObject.getValue(fieldPath.getLastElement().getName()));
         }
         return result;
     }
@@ -70,20 +70,20 @@ public class FormObjects implements Dto {
             }
             return result;
         }
-        FieldPath parentPath = fieldPath.getParent();
+        FieldPath parentPath = fieldPath.getParentPath();
         fieldPathNode = fieldPathNodes.get(parentPath);
         if (fieldPathNode == null) {
             return null;
         }
         ArrayList<Id> result = new ArrayList<Id>(fieldPathNode.size());
         for (DomainObject domainObject : fieldPathNode) {
-            result.add(domainObject.getReference(fieldPath.getLastElement()));
+            result.add(domainObject.getReference(fieldPath.getLastElement().getName()));
         }
         return result;
     }
 
     private ObjectsNode getFieldNode(FieldPath fieldPath) {
-        FieldPath objectPath = fieldPath.getParent();
+        FieldPath objectPath = fieldPath.getParentPath();
         return fieldPathNodes.get(objectPath);
     }
 }

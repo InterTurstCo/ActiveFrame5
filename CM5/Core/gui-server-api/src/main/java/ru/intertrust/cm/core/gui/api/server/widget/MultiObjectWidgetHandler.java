@@ -18,14 +18,14 @@ public abstract class MultiObjectWidgetHandler extends WidgetHandler {
 
     protected String getLinkedObjectType(WidgetContext context, FieldPath fieldPath) {
         //todo after country_city^country.city is transformed to an Object, but not to a field lots of if-else will go
-        String backlink = fieldPath.getLastElement();
+        String backlink = fieldPath.getLastElement().getName();
         String[] backlinkTypeAndField = backlink.split("\\^");
         boolean oneToMany = backlinkTypeAndField.length == 2;
         String linkType;
         if (oneToMany) {
             linkType = backlinkTypeAndField[0];
         } else { // many-to-many
-            String parentType = context.getFormObjects().getObjects(fieldPath.getParent()).getType();
+            String parentType = context.getFormObjects().getObjects(fieldPath.getParentPath()).getType();
             linkType = ((ReferenceFieldConfig) configurationService.getFieldConfig(parentType, backlink)).getType();
         }
         return linkType;

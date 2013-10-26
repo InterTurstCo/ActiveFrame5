@@ -94,9 +94,9 @@ public class FormRetriever {
             FieldPath fieldPath = new FieldPath(fieldPathConfig.getValue());
 
             rootNode = formObjects.getRootObjects();
-            for (Iterator<FieldPath> subPathIterator = fieldPath.subPathIterator(); subPathIterator.hasNext(); ) {
+            for (Iterator<FieldPath> subPathIterator = fieldPath.childPathIterator(); subPathIterator.hasNext(); ) {
                 FieldPath subPath = subPathIterator.next();
-                String linkPath = subPath.getLastElement();
+                String linkPath = subPath.getLastElement().getName();
                 if (!subPathIterator.hasNext() && !linkPath.contains("^")) { // it's a field
                     break;
                 }

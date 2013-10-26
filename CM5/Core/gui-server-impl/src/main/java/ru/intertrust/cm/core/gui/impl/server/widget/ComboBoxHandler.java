@@ -33,8 +33,8 @@ public class ComboBoxHandler extends SingleObjectWidgetHandler {
         ComboBoxConfig widgetConfig = context.getWidgetConfig();
         FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
 
-        String field = fieldPath.getLastElement();
-        String objectType = context.getFormObjects().getObjects(fieldPath.getParent()).getType();
+        String field = fieldPath.getLastElement().getName();
+        String objectType = context.getFormObjects().getObjects(fieldPath.getParentPath()).getType();
         ReferenceFieldConfig fieldConfig = (ReferenceFieldConfig) configurationService.getFieldConfig(objectType, field);
         // todo: find LINKED: only cities of that country
         // List<DomainObject> listToDisplay = getCrudService().findLinkedDomainObjects(rootObjectForComboBoxField.getId(), "city", "country");
