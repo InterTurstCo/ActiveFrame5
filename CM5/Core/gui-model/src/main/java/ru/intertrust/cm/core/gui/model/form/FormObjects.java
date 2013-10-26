@@ -63,23 +63,28 @@ public class FormObjects implements Dto {
 
     public ArrayList<Id> getObjectIds(FieldPath fieldPath) {
         ObjectsNode fieldPathNode = fieldPathNodes.get(fieldPath);
-        if (fieldPathNode != null) { // node is a list of objects. it's values are Ids
+        FieldPath.Element lastElement = fieldPath.getLastElement();
+        if (lastElement instanceof FieldPath.OneToManyBackReference) {
             ArrayList<Id> result = new ArrayList<Id>(fieldPathNode.size());
             for (DomainObject domainObject : fieldPathNode) {
                 result.add(domainObject.getId());
             }
             return result;
+        } else if (lastElement instanceof FieldPath.ManyToManyReference) {
+            String linkToChildrenName = ((FieldPath.ManyToManyReference) lastElement).getLinkToChildrenName();
+            ArrayList<Id> result = new ArrayList<Id>(fieldPathNode.size());
+            for (DomainObject domainObject : fieldPathNode) {
+                result.add(domainObject.getReference(linkToChildrenName));
+            }
+            return result;
+        } else { // it's a reference
+            String fieldName = lastElement.getName();
+            ArrayList<Id> result = new ArrayList<Id>(fieldPathNode.size());
+            for (DomainObject domainObject : fieldPathNode) {
+                result.add(domainObject.getReference(fieldName));
+            }
+            return result;
         }
-        FieldPath parentPath = fieldPath.getParentPath();
-        fieldPathNode = fieldPathNodes.get(parentPath);
-        if (fieldPathNode == null) {
-            return null;
-        }
-        ArrayList<Id> result = new ArrayList<Id>(fieldPathNode.size());
-        for (DomainObject domainObject : fieldPathNode) {
-            result.add(domainObject.getReference(fieldPath.getLastElement().getName()));
-        }
-        return result;
     }
 
     private ObjectsNode getFieldNode(FieldPath fieldPath) {

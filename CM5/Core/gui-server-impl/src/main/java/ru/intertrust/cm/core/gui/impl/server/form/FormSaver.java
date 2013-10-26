@@ -215,11 +215,8 @@ public class FormSaver {
 
     private ArrayList<FormSaveOperation> mergeObjectReferences(FieldPath fieldPath, FormObjects formObjects,
                                                                ArrayList<Value> newValues) {
-        //todo after country_city^country.city is transformed to an Object, but not to a field lots of if-else will go
-        String lastElement = fieldPath.getLastElement().getName();
-        String[] typeAndField = lastElement.split("\\^");
-        boolean oneToMany = typeAndField.length == 2;
-        if (oneToMany) {
+        FieldPath.Element lastElement = fieldPath.getLastElement();
+        if (lastElement instanceof FieldPath.OneToManyBackReference) {
             return mergeOneToMany(fieldPath, formObjects, newValues);
         } else {
             return mergeManyToMany(fieldPath, formObjects, newValues);
@@ -234,10 +231,8 @@ public class FormSaver {
         }
         Id parentObjectId = parentObjects.get(0).getId();
 
-        String lastElement = fieldPath.getLastElement().getName();
-        String[] typeAndField = lastElement.split("\\^");
-        String type = typeAndField[0];
-        String field = typeAndField[1];
+        FieldPath.Element lastElement = fieldPath.getLastElement();
+        String linkToParentName = ((FieldPath.OneToManyBackReference) lastElement).getLinkToParentName();
 
         ArrayList<DomainObject> previousState = formObjects.getObjects(fieldPath).getDomainObjects();
         if (previousState == null) {
@@ -261,8 +256,8 @@ public class FormSaver {
             }
             Id referenceId = ((ReferenceValue) value).get();
             DomainObject objectToSetLinkIn = crudService.find(referenceId);
-            objectToSetLinkIn.setReference(field, parentObjectId);
-            operations.add(new FormSaveOperation(FormSaveOperation.Type.Create, objectToSetLinkIn, field));
+            objectToSetLinkIn.setReference(linkToParentName, parentObjectId);
+            operations.add(new FormSaveOperation(FormSaveOperation.Type.Create, objectToSetLinkIn, linkToParentName));
         }
 
         // links to drop
@@ -273,7 +268,7 @@ public class FormSaver {
             }
             Id referenceId = ((ReferenceValue) value).get();
             DomainObject objectToDropLinkIn = crudService.find(referenceId);
-            objectToDropLinkIn.setReference(field, (Id) null);
+            objectToDropLinkIn.setReference(linkToParentName, (Id) null);
             operations.add(new FormSaveOperation(FormSaveOperation.Type.Update, objectToDropLinkIn, null));
         }
         return operations;
@@ -281,18 +276,16 @@ public class FormSaver {
 
     private ArrayList<FormSaveOperation> mergeManyToMany(FieldPath fieldPath, FormObjects formObjects,
                                                          ArrayList<Value> newValues) {
-        String linkField = fieldPath.getLastElement().getName();
-        FieldPath mergedNodePath = fieldPath.getParentPath();
-        ObjectsNode mergedNode = formObjects.getObjects(mergedNodePath);
+        ObjectsNode mergedNode = formObjects.getObjects(fieldPath);
         String linkObjectType = mergedNode.getType();
-        FieldPath parentNodePath = mergedNodePath.getParentPath();
+        FieldPath parentNodePath = fieldPath.getParentPath();
         ArrayList<DomainObject> parentObjects = formObjects.getObjects(parentNodePath).getDomainObjects();
         if (parentObjects.size() > 1) {
             throw new GuiException("Back reference is referencing " + parentObjects.size() + " objects");
         }
 
-        String[] typeAndField = mergedNodePath.getLastElement().getName().split("\\^");
-        String rootLinkField = typeAndField[1];
+        FieldPath.ManyToManyReference lastElement = (FieldPath.ManyToManyReference) fieldPath.getLastElement();
+        String rootLinkField = lastElement.getLinkToParentName();
 
         ArrayList<DomainObject> previousState = mergedNode.getDomainObjects();
         if (previousState == null) {
@@ -304,8 +297,9 @@ public class FormSaver {
 
         HashSet<Value> oldValuesSet = new HashSet<>(previousState.size());
         HashMap<Value, DomainObject> oldValuesDomainObjects = new HashMap<>(previousState.size());
+        String linkToChildrenName = lastElement.getLinkToChildrenName();
         for (DomainObject previousStateObject : previousState) {
-            Value value = previousStateObject.getValue(linkField);
+            Value value = previousStateObject.getValue(linkToChildrenName);
             oldValuesSet.add(value);
             oldValuesDomainObjects.put(value, previousStateObject);
         }
@@ -320,7 +314,7 @@ public class FormSaver {
             }
             DomainObject newLinkObject = crudService.createDomainObject(linkObjectType);
             newLinkObject.setValue(rootLinkField, parentObjectReference);
-            newLinkObject.setValue(linkField, value);
+            newLinkObject.setValue(linkToChildrenName, value);
             operations.add(new FormSaveOperation(FormSaveOperation.Type.Create, newLinkObject, rootLinkField));
         }
 

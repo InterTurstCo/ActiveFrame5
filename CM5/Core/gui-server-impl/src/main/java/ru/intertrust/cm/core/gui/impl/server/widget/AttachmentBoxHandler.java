@@ -72,7 +72,7 @@ public class AttachmentBoxHandler  extends MultiObjectWidgetHandler {
         AttachmentBoxConfig widgetConfig = context.getWidgetConfig();
         String attachmentType = widgetConfig.getAttachmentType().getName();
         FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
-        String parentLinkFieldName  =  fieldPath.getLastElement().getName().split("\\^")[1];
+        String parentLinkFieldName = ((FieldPath.OneToManyBackReference) fieldPath.getLastElement()).getLinkToParentName();
 
         for (AttachmentModel attachmentModel : attachmentModels) {
             if ( attachmentModel.getId() != null) {

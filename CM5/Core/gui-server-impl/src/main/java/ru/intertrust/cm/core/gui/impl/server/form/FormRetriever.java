@@ -94,31 +94,23 @@ public class FormRetriever {
             FieldPath fieldPath = new FieldPath(fieldPathConfig.getValue());
 
             rootNode = formObjects.getRootObjects();
-            for (Iterator<FieldPath> subPathIterator = fieldPath.childPathIterator(); subPathIterator.hasNext(); ) {
-                FieldPath subPath = subPathIterator.next();
-                String linkPath = subPath.getLastElement().getName();
-                if (!subPathIterator.hasNext() && !linkPath.contains("^")) { // it's a field
+            for (Iterator<FieldPath> childrenIterator = fieldPath.childrenIterator(); childrenIterator.hasNext(); ) {
+                FieldPath childPath = childrenIterator.next();
+                FieldPath.Element lastElement = childPath.getLastElement();
+                if (!childrenIterator.hasNext() && !(lastElement instanceof FieldPath.BackReference)) {
                     break;
                 }
 
-                // it's a reference then
-                String childNodeType;
-                if (!linkPath.contains("^")) { // direct reference
-                    ReferenceFieldConfig fieldConfig = (ReferenceFieldConfig)
-                            configurationExplorer.getFieldConfig(rootNode.getType(), linkPath);
-                    childNodeType = fieldConfig.getType();
-                } else { // back reference
-                    childNodeType = linkPath.split("\\^")[0];
-                }
-
-                if (formObjects.isObjectsSet(subPath)) {
-                    rootNode = formObjects.getObjects(subPath);
+                if (formObjects.isObjectsSet(childPath)) {
+                    rootNode = formObjects.getObjects(childPath);
                     continue;
                 }
-                ObjectsNode linkedNode = findLinkedNode(rootNode, childNodeType, linkPath);
 
-                formObjects.setObjects(subPath, linkedNode);
-                rootNode.setChild(linkPath, linkedNode);
+                // it's a reference then
+                ObjectsNode linkedNode = findLinkedNode(rootNode, lastElement);
+
+                formObjects.setObjects(childPath, linkedNode);
+                rootNode.setChild(lastElement.getName(), linkedNode);
                 rootNode = linkedNode;
             }
 
@@ -133,31 +125,40 @@ public class FormRetriever {
         return new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents, formConfig.getDebug(), true);
     }
 
-    private ObjectsNode findLinkedNode(ObjectsNode parentNode, String linkedType, String linkPath) {
+    private ObjectsNode findLinkedNode(ObjectsNode parentNode, FieldPath.Element lastElement) {
+        if (lastElement instanceof FieldPath.OneToOneReference) { // direct reference
+            return findOneToOneLinkedNode(parentNode, lastElement);
+        } else { // back reference
+            return findBackReferenceLinkedNode(parentNode, lastElement);
+        }
+    }
+
+    private ObjectsNode findOneToOneLinkedNode(ObjectsNode parentNode, FieldPath.Element lastElement) {
+        ReferenceFieldConfig fieldConfig = (ReferenceFieldConfig)
+                configurationExplorer.getFieldConfig(parentNode.getType(), lastElement.getName());
+        String linkedType = fieldConfig.getType();
         if (parentNode.isEmpty()) {
             return new ObjectsNode(linkedType, 0);
         }
 
-        if (!linkPath.contains("^")) { // direct link
-            ObjectsNode result = new ObjectsNode(linkedType, parentNode.size());
-            for (DomainObject domainObject : parentNode) {
-                Id linkedObjectId = domainObject.getReference(linkPath);
-                if (linkedObjectId != null) {
-                    result.add(crudService.find(linkedObjectId)); // it can't be null as reference is set
-                }
+        ObjectsNode result = new ObjectsNode(linkedType, parentNode.size());
+        for (DomainObject domainObject : parentNode) {
+            Id linkedObjectId = domainObject.getReference(lastElement.getName());
+            if (linkedObjectId != null) {
+                result.add(crudService.find(linkedObjectId)); // it can't be null as reference is set
             }
-            return result;
+        }
+        return result;
+    }
+
+    private ObjectsNode findBackReferenceLinkedNode(ObjectsNode parentNode, FieldPath.Element lastElement) {
+        String linkedType = ((FieldPath.BackReference) lastElement).getReferenceType();
+        if (parentNode.isEmpty()) {
+            return new ObjectsNode(linkedType, 0);
         }
 
-        // it's a "back-link" (like country_best_friend^country)
-        String[] domainObjectTypeAndReference = linkPath.split("\\^");
-        if (domainObjectTypeAndReference.length != 2) {
-            throw new GuiException("Invalid reference: " + linkPath);
-        }
+        String referenceField = ((FieldPath.BackReference) lastElement).getLinkToParentName();
 
-        String referenceField = domainObjectTypeAndReference[1];
-
-        // todo after CMFIVE-122 is done - get the first two linked objects, not everything!
         // todo after cardinality functionality is developed, check cardinality (static-check, not runtime)
 
         ObjectsNode result = new ObjectsNode(linkedType, parentNode.size());
@@ -167,7 +168,7 @@ public class FormRetriever {
                     : crudService.findLinkedDomainObjects(domainObject.getId(), linkedType, referenceField);
             if (linkedDomainObjects.size() > 1 && parentNode.size() > 1) {
                 // join 2 multi-references - not supported and usually doesn't make sense
-                throw new GuiException(linkPath + " is resulting into many-on-many join which is not supported");
+                throw new GuiException(lastElement + " is resulting into many-on-many join which is not supported");
             }
             for (DomainObject linkedDomainObject : linkedDomainObjects) {
                 result.add(linkedDomainObject);
