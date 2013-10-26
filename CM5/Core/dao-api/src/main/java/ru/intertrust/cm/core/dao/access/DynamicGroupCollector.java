@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.dao.access;
 import java.util.List;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.model.DynamicGroupConfig;
 
@@ -49,8 +50,8 @@ public interface DynamicGroupCollector {
      * необходимо пересчитать.
      * @return
      */
-    List<Id> getInvalidDynamicGroups(DomainObject domainObject, List<String> modifiedFieldNames);
-    
+    List<Id> getInvalidDynamicGroups(DomainObject domainObject, List<FieldModification> modifiedFields);
+
     /**
      * Инициализация коллектора данными из конфигурационного xml
      */

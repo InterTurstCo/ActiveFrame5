@@ -74,8 +74,10 @@ public class BaseDynamicGroupServiceImpl {
 
     /**
      * Удаляет динамическую группу по названию и контекстному объекту.
-     * @param groupName название динамической группы
-     * @param contextObjectId идентфикатор контекстного объекта
+     * @param groupName
+     *            название динамической группы
+     * @param contextObjectId
+     *            идентфикатор контекстного объекта
      * @return идентификатор удаленной динамической группы
      */
     protected Id deleteUserGroupByGroupNameAndObjectId(Id userGroupId, String groupName, Long contextObjectId) {
@@ -100,9 +102,12 @@ public class BaseDynamicGroupServiceImpl {
     }
 
     /**
-     * Возвращает идентификатор группы пользователей по имени группы и идентификатору контекстного объекта
-     * @param groupName имя динамической группы
-     * @param contextObjectId идентификатор контекстного объекта
+     * Возвращает идентификатор группы пользователей по имени группы и
+     * идентификатору контекстного объекта
+     * @param groupName
+     *            имя динамической группы
+     * @param contextObjectId
+     *            идентификатор контекстного объекта
      * @return идентификатор группы пользователей
      */
     protected Id getUserGroupByGroupNameAndObjectId(String groupName, Long contextObjectId) {
@@ -155,7 +160,8 @@ public class BaseDynamicGroupServiceImpl {
 
     /**
      * Возвращает статус доменного объекта
-     * @param objectId идентификатор доменного объекта
+     * @param objectId
+     *            идентификатор доменного объекта
      * @return статус доменного объекта
      */
     protected String getStatusFor(Id objectId) {
@@ -176,6 +182,15 @@ public class BaseDynamicGroupServiceImpl {
 
         }
         return status;
+    }
+
+    /**
+     * Получение имени типа документа
+     * @param objectId
+     * @return
+     */
+    protected String getTypeName(Id objectId) {
+        return domainObjectTypeIdCache.getName(objectId);
     }
 
     private boolean isStatusDO(Id objectId) {
@@ -202,7 +217,8 @@ public class BaseDynamicGroupServiceImpl {
     }
 
     /**
-     * Отображает {@link java.sql.ResultSet} на список идентификаторов доменных объектов {@link Id}
+     * Отображает {@link java.sql.ResultSet} на список идентификаторов доменных
+     * объектов {@link Id}
      * @author atsvetkov
      */
     protected class ListObjectIdRowMapper implements ResultSetExtractor<List<Id>> {
@@ -246,7 +262,8 @@ public class BaseDynamicGroupServiceImpl {
     }
 
     /**
-     * Отображает {@link java.sql.ResultSet} на идентификатор доменного объекта {@link Id}
+     * Отображает {@link java.sql.ResultSet} на идентификатор доменного объекта
+     * {@link Id}
      * @author atsvetkov
      */
     protected class ObjectIdRowMapper implements ResultSetExtractor<Id> {

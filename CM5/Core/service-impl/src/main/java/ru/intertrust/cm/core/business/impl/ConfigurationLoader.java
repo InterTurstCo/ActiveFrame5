@@ -10,26 +10,30 @@ import ru.intertrust.cm.core.dao.api.extension.OnLoadConfigurationExtensionHandl
 
 /**
  * Класс, предназначенный для загрузки конфигурации доменных объектов
+ * 
  * @author vmatsukevich Date: 5/6/13 Time: 9:36 AM
  */
-public class ConfigurationLoader implements ApplicationContextAware{
+public class ConfigurationLoader implements ApplicationContextAware {
 
     @Autowired
     private ConfigurationControlService configurationControlService;
     private ApplicationContext context;
 
-    /*@Autowired
-    private ExtensionService extensionService;*/
+    /*
+     * @Autowired private ExtensionService extensionService;
+     */
 
     public ConfigurationLoader() {
     }
 
     /**
      * Устанавливает {@link #configurationControlService}
+     * 
      * @param configurationControlService
      *            сервис для работы с конфигурацией доменных объектов
      */
-    public void setConfigurationControlService(ConfigurationControlService configurationControlService) {
+    public void setConfigurationControlService(
+            ConfigurationControlService configurationControlService) {
         this.configurationControlService = configurationControlService;
     }
 
@@ -37,21 +41,27 @@ public class ConfigurationLoader implements ApplicationContextAware{
      * Загружает конфигурацию доменных объектов, валидирует и создает
      * соответствующие сущности в базе. Добавляет запись администратора
      * (admin/admin) в таблицу authentication_info.
+     * 
      * @throws Exception
      */
     public void load() throws Exception {
         configurationControlService.loadConfiguration();
 
         // Вызов точки расширения
-        ExtensionService extensionService = context.getBean(ExtensionService.class);
-        OnLoadConfigurationExtensionHandler extension = extensionService.getExtentionPoint(OnLoadConfigurationExtensionHandler.class, null);
-        extension.onLoad();
+        if (context != null) {
+            ExtensionService extensionService = context
+                    .getBean(ExtensionService.class);
+            OnLoadConfigurationExtensionHandler extension = extensionService.getExtentionPoint(
+                    OnLoadConfigurationExtensionHandler.class, null);
+            extension.onLoad();
+        }
     }
 
     @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    public void setApplicationContext(ApplicationContext applicationContext)
+            throws BeansException {
         this.context = applicationContext;
-        
+
     }
-    
+
 }
