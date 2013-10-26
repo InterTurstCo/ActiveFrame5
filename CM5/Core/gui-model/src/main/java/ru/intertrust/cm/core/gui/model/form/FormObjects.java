@@ -62,22 +62,9 @@ public class FormObjects implements Dto {
     }
 
     public ArrayList<Id> getObjectIds(FieldPath fieldPath) {
-        ObjectsNode fieldPathNode = fieldPathNodes.get(fieldPath);
         FieldPath.Element lastElement = fieldPath.getLastElement();
-        if (lastElement instanceof FieldPath.OneToManyBackReference) {
-            ArrayList<Id> result = new ArrayList<Id>(fieldPathNode.size());
-            for (DomainObject domainObject : fieldPathNode) {
-                result.add(domainObject.getId());
-            }
-            return result;
-        } else if (lastElement instanceof FieldPath.ManyToManyReference) {
-            String linkToChildrenName = ((FieldPath.ManyToManyReference) lastElement).getLinkToChildrenName();
-            ArrayList<Id> result = new ArrayList<Id>(fieldPathNode.size());
-            for (DomainObject domainObject : fieldPathNode) {
-                result.add(domainObject.getReference(linkToChildrenName));
-            }
-            return result;
-        } else { // it's a reference
+        if (lastElement instanceof FieldPath.Field) {
+            ObjectsNode fieldPathNode = fieldPathNodes.get(fieldPath.getParentPath());
             String fieldName = lastElement.getName();
             ArrayList<Id> result = new ArrayList<Id>(fieldPathNode.size());
             for (DomainObject domainObject : fieldPathNode) {
@@ -85,6 +72,30 @@ public class FormObjects implements Dto {
             }
             return result;
         }
+
+        ObjectsNode fieldPathNode = fieldPathNodes.get(fieldPath);
+        if (lastElement instanceof FieldPath.OneToManyBackReference) {
+            ArrayList<Id> result = new ArrayList<Id>(fieldPathNode.size());
+            for (DomainObject domainObject : fieldPathNode) {
+                result.add(domainObject.getId());
+            }
+            return result;
+        }
+        if (lastElement instanceof FieldPath.ManyToManyReference) {
+            String linkToChildrenName = ((FieldPath.ManyToManyReference) lastElement).getLinkToChildrenName();
+            ArrayList<Id> result = new ArrayList<Id>(fieldPathNode.size());
+            for (DomainObject domainObject : fieldPathNode) {
+                result.add(domainObject.getReference(linkToChildrenName));
+            }
+            return result;
+        }
+        // it's a one to one reference
+        String fieldName = lastElement.getName();
+        ArrayList<Id> result = new ArrayList<Id>(fieldPathNode.size());
+        for (DomainObject domainObject : fieldPathNode) {
+            result.add(domainObject.getReference(fieldName));
+        }
+        return result;
     }
 
     private ObjectsNode getFieldNode(FieldPath fieldPath) {

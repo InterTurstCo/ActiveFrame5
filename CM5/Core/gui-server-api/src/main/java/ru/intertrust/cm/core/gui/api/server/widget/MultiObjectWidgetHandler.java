@@ -18,6 +18,11 @@ public abstract class MultiObjectWidgetHandler extends WidgetHandler {
 
     protected String getLinkedObjectType(WidgetContext context, FieldPath fieldPath) {
         FieldPath.Element lastElement = fieldPath.getLastElement();
+        if (lastElement instanceof FieldPath.Field) {
+            String parentType = context.getFormObjects().getObjects(fieldPath.getParentPath()).getType();
+            return ((ReferenceFieldConfig) configurationService.getFieldConfig(parentType, lastElement.getName())).getType();
+        }
+
         String referenceType = ((FieldPath.BackReference) lastElement).getReferenceType();
         if (lastElement instanceof FieldPath.OneToManyBackReference) {
             return referenceType;
@@ -25,20 +30,6 @@ public abstract class MultiObjectWidgetHandler extends WidgetHandler {
             String linkToChildrenName = ((FieldPath.ManyToManyReference) lastElement).getLinkToChildrenName();
             return ((ReferenceFieldConfig) configurationService.getFieldConfig(referenceType, linkToChildrenName)).getType();
         }
-        /*
-        //todo after country_city^country.city is transformed to an Object, but not to a field lots of if-else will go
-        String backlink = fieldPath.getLastElement().getName();
-        String[] backlinkTypeAndField = backlink.split("\\^");
-        boolean oneToMany = backlinkTypeAndField.length == 2;
-        String linkType;
-        if (oneToMany) {
-            linkType = backlinkTypeAndField[0];
-        } else { // many-to-many
-            String parentType = context.getFormObjects().getObjects(fieldPath.getParentPath()).getType();
-            linkType = ((ReferenceFieldConfig) configurationService.getFieldConfig(parentType, backlink)).getType();
-            // country_city^country.city
-        }
-        return linkType;*/
     }
 
     public void saveNewObjects(WidgetContext context, WidgetState state) {

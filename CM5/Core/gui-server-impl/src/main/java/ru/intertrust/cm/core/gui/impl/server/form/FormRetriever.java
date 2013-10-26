@@ -97,7 +97,7 @@ public class FormRetriever {
             for (Iterator<FieldPath> childrenIterator = fieldPath.childrenIterator(); childrenIterator.hasNext(); ) {
                 FieldPath childPath = childrenIterator.next();
                 FieldPath.Element lastElement = childPath.getLastElement();
-                if (!childrenIterator.hasNext() && !(lastElement instanceof FieldPath.BackReference)) {
+                if (lastElement instanceof FieldPath.Field) {
                     break;
                 }
 
