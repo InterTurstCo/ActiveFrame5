@@ -91,6 +91,7 @@ public class DomainObjectSurferPlugin extends Plugin implements
         FormPlugin newPlugin = ComponentRegistry.instance.get("form.plugin");
         newPlugin.setConfig(formPluginConfig);
         ((Plugin) formPlugin).getOwner().open(newPlugin);
+        formPlugin = newPlugin;
     }
 
     @Override
