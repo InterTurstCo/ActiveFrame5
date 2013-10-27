@@ -33,6 +33,11 @@ public class FormObjects implements Dto {
         return fieldPathNodes.get(fieldPath);
     }
 
+    public ObjectsNode getParentNode(FieldPath fieldPath) {
+        FieldPath objectPath = fieldPath.getParentPath();
+        return fieldPathNodes.get(objectPath);
+    }
+
     public void setRootNode(ObjectsNode node) {
         this.fieldPathNodes.put(FieldPath.ROOT, node);
     }
@@ -41,39 +46,18 @@ public class FormObjects implements Dto {
         return fieldPathNodes.get(FieldPath.ROOT);
     }
 
-    public void setObjectValue(FieldPath fieldPath, Value value) {
-        getFieldNode(fieldPath).getObject().setValue(fieldPath.getLastElement().getName(), value);
+    public void setFieldValue(FieldPath fieldPath, Value value) {
+        getParentNode(fieldPath).getObject().setValue(fieldPath.getFieldName(), value);
     }
 
-    public Value getObjectValue(FieldPath fieldPath) {
-        return getFieldNode(fieldPath).getObject().getValue(fieldPath.getLastElement().getName());
-    }
-
-    public void setObjectValues(FieldPath fieldPath, ArrayList<Value> value) {
-        ArrayList<DomainObject> fieldPathObjects = getFieldNode(fieldPath).getDomainObjects();
-        for (int i = 0; i < fieldPathObjects.size(); ++i) {
-            DomainObject fieldPathObject = fieldPathObjects.get(i);
-            fieldPathObject.setValue(fieldPath.getLastElement().getName(), value.get(i));
-        }
-    }
-
-    public <T extends Value> ArrayList<T> getObjectValues(FieldPath fieldPath) {
-        ArrayList<DomainObject> fieldPathObject = getFieldNode(fieldPath).getDomainObjects();
-        if (fieldPathObject == null) {
-            return null;
-        }
-        ArrayList<T> result = new ArrayList<T>(fieldPathObject.size());
-        for (DomainObject domainObject : fieldPathObject) {
-            result.add((T) domainObject.getValue(fieldPath.getLastElement().getName()));
-        }
-        return result;
+    public Value getFieldValue(FieldPath fieldPath) {
+        return getParentNode(fieldPath).getObject().getValue(fieldPath.getFieldName());
     }
 
     public ArrayList<Id> getObjectIds(FieldPath fieldPath) {
-        FieldPath.Element lastElement = fieldPath.getLastElement();
-        if (lastElement instanceof FieldPath.Field) {
-            ObjectsNode fieldPathNode = fieldPathNodes.get(fieldPath.getParentPath());
-            String fieldName = lastElement.getName();
+        if (fieldPath.isField()) {
+            ObjectsNode fieldPathNode = getParentNode(fieldPath);
+            String fieldName = fieldPath.getFieldName();
             ArrayList<Id> result = new ArrayList<Id>(fieldPathNode.size());
             for (DomainObject domainObject : fieldPathNode) {
                 result.add(domainObject.getReference(fieldName));
@@ -82,15 +66,15 @@ public class FormObjects implements Dto {
         }
 
         ObjectsNode fieldPathNode = fieldPathNodes.get(fieldPath);
-        if (lastElement instanceof FieldPath.OneToManyBackReference) {
+        if (fieldPath.isOneToManyReference()) {
             ArrayList<Id> result = new ArrayList<Id>(fieldPathNode.size());
             for (DomainObject domainObject : fieldPathNode) {
                 result.add(domainObject.getId());
             }
             return result;
         }
-        if (lastElement instanceof FieldPath.ManyToManyReference) {
-            String linkToChildrenName = ((FieldPath.ManyToManyReference) lastElement).getLinkToChildrenName();
+        if (fieldPath.isManyToManyReference()) {
+            String linkToChildrenName = fieldPath.getLinkToChildrenName();
             ArrayList<Id> result = new ArrayList<Id>(fieldPathNode.size());
             for (DomainObject domainObject : fieldPathNode) {
                 result.add(domainObject.getReference(linkToChildrenName));
@@ -98,16 +82,11 @@ public class FormObjects implements Dto {
             return result;
         }
         // it's a one to one reference
-        String fieldName = lastElement.getName();
+        String fieldName = fieldPath.getOneToOneReferenceName();
         ArrayList<Id> result = new ArrayList<Id>(fieldPathNode.size());
         for (DomainObject domainObject : fieldPathNode) {
             result.add(domainObject.getReference(fieldName));
         }
         return result;
-    }
-
-    private ObjectsNode getFieldNode(FieldPath fieldPath) {
-        FieldPath objectPath = fieldPath.getParentPath();
-        return fieldPathNodes.get(objectPath);
     }
 }

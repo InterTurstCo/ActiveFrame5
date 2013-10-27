@@ -17,18 +17,17 @@ public abstract class LinkEditingWidgetHandler extends WidgetHandler {
     protected ConfigurationService configurationService;
 
     protected String getLinkedObjectType(WidgetContext context, FieldPath fieldPath) {
-        FieldPath.Element lastElement = fieldPath.getLastElement();
-        if (lastElement instanceof FieldPath.Field) {
-            String parentType = context.getFormObjects().getNode(fieldPath.getParentPath()).getType();
-            return ((ReferenceFieldConfig) configurationService.getFieldConfig(parentType, lastElement.getName())).getType();
+        if (fieldPath.isField()) {
+            // such situation happens when link-editing widget is assigned to a field which is actually a reference
+            String parentType = context.getFormObjects().getParentNode(fieldPath).getType();
+            return ((ReferenceFieldConfig) configurationService.getFieldConfig(parentType, fieldPath.getFieldName())).getType();
         }
 
-        String referenceType = ((FieldPath.BackReference) lastElement).getReferenceType();
-        if (lastElement instanceof FieldPath.OneToManyBackReference) {
-            return referenceType;
+        if (fieldPath.isOneToManyReference()) {
+            return fieldPath.getReferenceType();
         } else { // many-to-many
-            String linkToChildrenName = ((FieldPath.ManyToManyReference) lastElement).getLinkToChildrenName();
-            return ((ReferenceFieldConfig) configurationService.getFieldConfig(referenceType, linkToChildrenName)).getType();
+            return ((ReferenceFieldConfig) configurationService.getFieldConfig(
+                    fieldPath.getReferenceType(), fieldPath.getLinkToChildrenName())).getType();
         }
     }
 

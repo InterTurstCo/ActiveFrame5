@@ -55,14 +55,14 @@ public class FormSaver {
             }
             FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
             FieldPath parentObjectPath = fieldPath.getParentPath();
-            if (fieldPath.getLastElement() instanceof FieldPath.BackReference) {
+            if (fieldPath.isBackReference()) {
                 ArrayList<Id> newIds = ((LinkEditingWidgetState) widgetState).getIds();
                 linkChangeOperations.addAll(mergeObjectReferences(fieldPath, formObjects, newIds));
                 continue;
             }
 
             Value newValue = ((ValueEditingWidgetState) widgetState).getValue();
-            Value oldValue = formObjects.getObjectValue(fieldPath);
+            Value oldValue = formObjects.getFieldValue(fieldPath);
             if (!areValuesSemanticallyEqual(newValue, oldValue)) {
                 ArrayList<ObjectCreationOperation> objectCreationOperations = addNewNodeChainIfNotEmpty(parentObjectPath, formObjects);
                 if (!objectCreationOperations.isEmpty()) {
@@ -72,10 +72,10 @@ public class FormSaver {
                         }
                     }
                     newObjectsCreationOperations.addAll(objectCreationOperations);
-                } else { // if object is created separately, no need to update it later
+                } else { // value is changed -> add field's object to be updated
                     objectsFieldPathsToUpdate.add(parentObjectPath);
                 }
-                formObjects.setObjectValue(fieldPath, newValue);
+                formObjects.setFieldValue(fieldPath, newValue);
             }
         }
 
@@ -195,14 +195,14 @@ public class FormSaver {
         formObjects.setNode(objectPath, new ObjectsNode(domainObject));
         FieldPath parentPath = objectPath.getParentPath();
         ObjectsNode parentNode = formObjects.getNode(parentPath);
-        String linkToThisPathFromParent = objectPath.getLastElement().getName();
+        String fieldNameInParent = objectPath.getFieldName();
         if (parentNode.isEmpty()) {
             // parent path doesn't contain objects, so ref to this will have to be updated
-            result.add(new ObjectCreationOperation(objectPath, parentPath, linkToThisPathFromParent));
+            result.add(new ObjectCreationOperation(objectPath, parentPath, fieldNameInParent));
         } else {
-            Value value = parentNode.getObject().getValue(linkToThisPathFromParent);
+            Value value = parentNode.getObject().getValue(fieldNameInParent);
             if (value == null || value.get() == null) {
-                result.add(new ObjectCreationOperation(objectPath, parentPath, linkToThisPathFromParent));
+                result.add(new ObjectCreationOperation(objectPath, parentPath, fieldNameInParent));
             } else {
                 result.add(new ObjectCreationOperation(objectPath, null, null));
             }
@@ -214,8 +214,7 @@ public class FormSaver {
 
     private ArrayList<FormSaveOperation> mergeObjectReferences(FieldPath fieldPath, FormObjects formObjects,
                                                                ArrayList<Id> newIds) {
-        FieldPath.Element lastElement = fieldPath.getLastElement();
-        if (lastElement instanceof FieldPath.OneToManyBackReference) {
+        if (fieldPath.isOneToManyReference()) {
             return mergeOneToMany(fieldPath, formObjects, newIds);
         } else {
             return mergeManyToMany(fieldPath, formObjects, newIds);
@@ -230,8 +229,7 @@ public class FormSaver {
         }
         Id parentObjectId = parentObjects.get(0).getId();
 
-        FieldPath.Element lastElement = fieldPath.getLastElement();
-        String linkToParentName = ((FieldPath.OneToManyBackReference) lastElement).getLinkToParentName();
+        String linkToParentName = fieldPath.getLinkToParentName();
 
         ArrayList<DomainObject> previousState = formObjects.getNode(fieldPath).getDomainObjects();
         if (previousState == null) {
@@ -281,8 +279,7 @@ public class FormSaver {
             throw new GuiException("Back reference is referencing " + parentObjects.size() + " objects");
         }
 
-        FieldPath.ManyToManyReference lastElement = (FieldPath.ManyToManyReference) fieldPath.getLastElement();
-        String rootLinkField = lastElement.getLinkToParentName();
+        String rootLinkField = fieldPath.getLinkToParentName();
 
         ArrayList<DomainObject> previousState = mergedNode.getDomainObjects();
         if (previousState == null) {
@@ -294,7 +291,7 @@ public class FormSaver {
 
         HashSet<Id> previousIds = new HashSet<>(previousState.size());
         HashMap<Id, DomainObject> previousDomainObjectsById = new HashMap<>(previousState.size());
-        String linkToChildrenName = lastElement.getLinkToChildrenName();
+        String linkToChildrenName = fieldPath.getLinkToChildrenName();
         for (DomainObject previousStateObject : previousState) {
             Id id = previousStateObject.getReference(linkToChildrenName);
             previousIds.add(id);

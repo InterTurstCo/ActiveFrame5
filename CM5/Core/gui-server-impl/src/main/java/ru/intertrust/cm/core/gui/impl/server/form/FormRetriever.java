@@ -96,8 +96,7 @@ public class FormRetriever {
             rootNode = formObjects.getRootNode();
             for (Iterator<FieldPath> childrenIterator = fieldPath.childrenIterator(); childrenIterator.hasNext(); ) {
                 FieldPath childPath = childrenIterator.next();
-                FieldPath.Element lastElement = childPath.getLastElement();
-                if (lastElement instanceof FieldPath.Field) {
+                if (childPath.isField()) {
                     break;
                 }
 
@@ -107,10 +106,9 @@ public class FormRetriever {
                 }
 
                 // it's a reference then
-                ObjectsNode linkedNode = findLinkedNode(rootNode, lastElement);
+                ObjectsNode linkedNode = findLinkedNode(rootNode, childPath);
 
                 formObjects.setNode(childPath, linkedNode);
-                rootNode.setChild(lastElement.getName(), linkedNode);
                 rootNode = linkedNode;
             }
 
@@ -125,17 +123,18 @@ public class FormRetriever {
         return new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents, formConfig.getDebug(), true);
     }
 
-    private ObjectsNode findLinkedNode(ObjectsNode parentNode, FieldPath.Element lastElement) {
-        if (lastElement instanceof FieldPath.OneToOneReference) { // direct reference
-            return findOneToOneLinkedNode(parentNode, lastElement);
+    private ObjectsNode findLinkedNode(ObjectsNode parentNode, FieldPath childPath) {
+        if (childPath.isOneToOneReference()) { // direct reference
+            return findOneToOneLinkedNode(parentNode, childPath);
         } else { // back reference
-            return findBackReferenceLinkedNode(parentNode, lastElement);
+            return findBackReferenceLinkedNode(parentNode, childPath);
         }
     }
 
-    private ObjectsNode findOneToOneLinkedNode(ObjectsNode parentNode, FieldPath.Element lastElement) {
+    private ObjectsNode findOneToOneLinkedNode(ObjectsNode parentNode, FieldPath childPath) {
+        String referenceFieldName = childPath.getOneToOneReferenceName();
         ReferenceFieldConfig fieldConfig = (ReferenceFieldConfig)
-                configurationExplorer.getFieldConfig(parentNode.getType(), lastElement.getName());
+                configurationExplorer.getFieldConfig(parentNode.getType(), referenceFieldName);
         String linkedType = fieldConfig.getType();
         if (parentNode.isEmpty()) {
             return new ObjectsNode(linkedType, 0);
@@ -143,7 +142,7 @@ public class FormRetriever {
 
         ObjectsNode result = new ObjectsNode(linkedType, parentNode.size());
         for (DomainObject domainObject : parentNode) {
-            Id linkedObjectId = domainObject.getReference(lastElement.getName());
+            Id linkedObjectId = domainObject.getReference(referenceFieldName);
             if (linkedObjectId != null) {
                 result.add(crudService.find(linkedObjectId)); // it can't be null as reference is set
             }
@@ -151,13 +150,13 @@ public class FormRetriever {
         return result;
     }
 
-    private ObjectsNode findBackReferenceLinkedNode(ObjectsNode parentNode, FieldPath.Element lastElement) {
-        String linkedType = ((FieldPath.BackReference) lastElement).getReferenceType();
+    private ObjectsNode findBackReferenceLinkedNode(ObjectsNode parentNode, FieldPath childPath) {
+        String linkedType = childPath.getReferenceType();
         if (parentNode.isEmpty()) {
             return new ObjectsNode(linkedType, 0);
         }
 
-        String referenceField = ((FieldPath.BackReference) lastElement).getLinkToParentName();
+        String referenceField = childPath.getLinkToParentName();
 
         // todo after cardinality functionality is developed, check cardinality (static-check, not runtime)
 
@@ -168,7 +167,7 @@ public class FormRetriever {
                     : crudService.findLinkedDomainObjects(domainObject.getId(), linkedType, referenceField);
             if (linkedDomainObjects.size() > 1 && parentNode.size() > 1) {
                 // join 2 multi-references - not supported and usually doesn't make sense
-                throw new GuiException(lastElement + " is resulting into many-on-many join which is not supported");
+                throw new GuiException(childPath + " is resulting into many-on-many join which is not supported");
             }
             for (DomainObject linkedDomainObject : linkedDomainObjects) {
                 result.add(linkedDomainObject);

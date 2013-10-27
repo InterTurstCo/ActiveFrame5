@@ -13,13 +13,11 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
     public static final FieldPath ROOT = new FieldPath();
 
     private String path;
-    private Boolean isBackReference;
     private transient Element[] elements;
     private transient FieldPath parentPath;
 
     public FieldPath() {
         this.path = "";
-        isBackReference = Boolean.FALSE;
     }
 
     public FieldPath(String path) {
@@ -46,76 +44,56 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
         return parentPath;
     }
 
-    public Element getLastElement() {
-        Element[] pathElements = getElements();
-        return pathElements[pathElements.length - 1];
-    }
-
-    public int getElementCount() {
-        return getElements().length;
-    }
-
-    public Element[] getElements() {
-        if (elements != null) {
-            return elements;
-        }
-        String[] primitiveElements = path.split("\\.");
-        int size = primitiveElements.length;
-        int lastElementIndex = size - 1;
-        ArrayList<Element> elements = new ArrayList<Element>(size);
-        for (int i = 0; i < size; i++) {
-            String elt = primitiveElements[i];
-            if (elt.contains("^")) {
-                if (i == lastElementIndex) {
-                    elements.add(new OneToManyBackReference(elt));
-                } else {
-                    StringBuilder name = new StringBuilder(size);
-                    for (int j = i; j < size; ++j) {
-                        name.append(primitiveElements[j]);
-                        if (j != lastElementIndex) {
-                            name.append('.');
-                        }
-                    }
-                    elements.add(new ManyToManyReference(name.toString()));
-                }
-                break;
-            }
-            if (i == lastElementIndex) {
-                elements.add(new Field(elt));
-            } else {
-                elements.add(new OneToOneReference(elt));
-            }
-        }
-        this.elements = elements.toArray(new Element[elements.size()]);
-        return this.elements;
-    }
-
-    public String getPath() {
-        if (this.path != null) {
-            return this.path;
-        }
-        StringBuilder result = new StringBuilder(elements.length * 5); // hard to find fields less than 4 symbols + dot
-        boolean notFirst = false;
-        for (Element elt : elements) {
-            if (notFirst) {
-                result.append('.');
-            }
-            result.append(elt.getName());
-            notFirst = true;
-        }
-        this.path = result.toString();
-        return this.path;
-    }
-
     public boolean isRoot() {
         return equals(ROOT);
     }
 
+    public boolean isField() {
+        return getLastElement() instanceof Field;
+    }
+
+    public boolean isOneToOneReference() {
+        return getLastElement() instanceof OneToOneReference;
+    }
+
+    public boolean isOneToManyReference() {
+        return getLastElement() instanceof OneToManyReference;
+    }
+
+    public boolean isManyToManyReference() {
+        return getLastElement() instanceof ManyToManyReference;
+    }
+
     public boolean isBackReference() {
-        if (isBackReference == null) {
-            isBackReference = getPath().contains("^");
-        }
-        return isBackReference;
+        return getLastElement() instanceof BackReference;
+    }
+
+    public String getFieldName() {
+        return getLastElement().getName();
+    }
+
+    public String getOneToOneReferenceName() {
+        return getLastElement().getName();
+    }
+
+    public String getReferenceType() {
+        return ((BackReference) getLastElement()).getReferenceType();
+    }
+
+    public String getLinkToParentName() {
+        return ((BackReference) getLastElement()).getLinkToParentName();
+    }
+
+    public String getLinkedObjectType() {
+        return ((OneToManyReference) getLastElement()).getLinkedObjectType();
+    }
+
+    public String getLinkingObjectType() {
+        return ((ManyToManyReference) getLastElement()).getLinkingObjectType();
+    }
+
+    public String getLinkToChildrenName() {
+        return ((ManyToManyReference) getLastElement()).getLinkToChildrenName();
     }
 
     @Override
@@ -153,6 +131,67 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
     @Override
     public int compareTo(FieldPath o) {
         return getPath().compareTo(o.getPath());
+    }
+
+    private int getElementCount() {
+        return getElements().length;
+    }
+
+    private String getPath() {
+        if (this.path != null) {
+            return this.path;
+        }
+        StringBuilder result = new StringBuilder(elements.length * 5); // hard to find fields less than 4 symbols + dot
+        boolean notFirst = false;
+        for (Element elt : elements) {
+            if (notFirst) {
+                result.append('.');
+            }
+            result.append(elt.getName());
+            notFirst = true;
+        }
+        this.path = result.toString();
+        return this.path;
+    }
+
+    private Element[] getElements() {
+        if (elements != null) {
+            return elements;
+        }
+        String[] primitiveElements = path.split("\\.");
+        int size = primitiveElements.length;
+        int lastElementIndex = size - 1;
+        ArrayList<Element> elements = new ArrayList<Element>(size);
+        for (int i = 0; i < size; i++) {
+            String elt = primitiveElements[i];
+            if (elt.contains("^")) {
+                if (i == lastElementIndex) {
+                    elements.add(new OneToManyReference(elt));
+                } else {
+                    StringBuilder name = new StringBuilder(size);
+                    for (int j = i; j < size; ++j) {
+                        name.append(primitiveElements[j]);
+                        if (j != lastElementIndex) {
+                            name.append('.');
+                        }
+                    }
+                    elements.add(new ManyToManyReference(name.toString()));
+                }
+                break;
+            }
+            if (i == lastElementIndex) {
+                elements.add(new Field(elt));
+            } else {
+                elements.add(new OneToOneReference(elt));
+            }
+        }
+        this.elements = elements.toArray(new Element[elements.size()]);
+        return this.elements;
+    }
+
+    private Element getLastElement() {
+        Element[] pathElements = getElements();
+        return pathElements[pathElements.length - 1];
     }
 
     private FieldPath pathToChild(int childIndex) {
@@ -237,13 +276,13 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
         public abstract String getLinkToParentName();
     }
 
-    public static class OneToManyBackReference extends BackReference {
+    public static class OneToManyReference extends BackReference {
         private String linkedObjectType;
 
-        public OneToManyBackReference() {
+        public OneToManyReference() {
         }
 
-        public OneToManyBackReference(String name) {
+        public OneToManyReference(String name) {
             super(name);
         }
 
