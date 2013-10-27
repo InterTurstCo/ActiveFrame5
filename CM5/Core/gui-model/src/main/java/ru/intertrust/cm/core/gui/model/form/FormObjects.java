@@ -42,30 +42,31 @@ public class FormObjects implements Dto {
         this.fieldPathNodes.put(FieldPath.ROOT, node);
     }
 
-    public ObjectsNode getRootNode() {
-        return fieldPathNodes.get(FieldPath.ROOT);
+    public SingleObjectNode getRootNode() {
+        return (SingleObjectNode) fieldPathNodes.get(FieldPath.ROOT);
     }
 
     public void setFieldValue(FieldPath fieldPath, Value value) {
-        getParentNode(fieldPath).getObject().setValue(fieldPath.getFieldName(), value);
+        ((SingleObjectNode) getParentNode(fieldPath)).getDomainObject().setValue(fieldPath.getFieldName(), value);
     }
 
     public Value getFieldValue(FieldPath fieldPath) {
-        return getParentNode(fieldPath).getObject().getValue(fieldPath.getFieldName());
+        DomainObject domainObject = ((SingleObjectNode) getParentNode(fieldPath)).getDomainObject();
+        return domainObject == null ? null : domainObject.getValue(fieldPath.getFieldName());
     }
 
     public ArrayList<Id> getObjectIds(FieldPath fieldPath) {
-        if (fieldPath.isField()) {
-            ObjectsNode fieldPathNode = getParentNode(fieldPath);
-            String fieldName = fieldPath.getFieldName();
-            ArrayList<Id> result = new ArrayList<Id>(fieldPathNode.size());
-            for (DomainObject domainObject : fieldPathNode) {
-                result.add(domainObject.getReference(fieldName));
-            }
+        boolean isField = fieldPath.isField();
+        boolean isOneToOneReference = fieldPath.isOneToOneReference();
+        if (isField || isOneToOneReference) {
+            String fieldName = isField ? fieldPath.getFieldName() : fieldPath.getOneToOneReferenceName();
+            SingleObjectNode fieldPathNode = (SingleObjectNode) getParentNode(fieldPath);
+            ArrayList<Id> result = new ArrayList<Id>(1);
+            result.add(fieldPathNode.getDomainObject().getReference(fieldName));
             return result;
         }
 
-        ObjectsNode fieldPathNode = fieldPathNodes.get(fieldPath);
+        MultiObjectNode fieldPathNode = (MultiObjectNode) fieldPathNodes.get(fieldPath);
         if (fieldPath.isOneToManyReference()) {
             ArrayList<Id> result = new ArrayList<Id>(fieldPathNode.size());
             for (DomainObject domainObject : fieldPathNode) {
@@ -73,19 +74,12 @@ public class FormObjects implements Dto {
             }
             return result;
         }
-        if (fieldPath.isManyToManyReference()) {
-            String linkToChildrenName = fieldPath.getLinkToChildrenName();
-            ArrayList<Id> result = new ArrayList<Id>(fieldPathNode.size());
-            for (DomainObject domainObject : fieldPathNode) {
-                result.add(domainObject.getReference(linkToChildrenName));
-            }
-            return result;
-        }
-        // it's a one to one reference
-        String fieldName = fieldPath.getOneToOneReferenceName();
+
+        // it's many-to-many
+        String linkToChildrenName = fieldPath.getLinkToChildrenName();
         ArrayList<Id> result = new ArrayList<Id>(fieldPathNode.size());
         for (DomainObject domainObject : fieldPathNode) {
-            result.add(domainObject.getReference(fieldName));
+            result.add(domainObject.getReference(linkToChildrenName));
         }
         return result;
     }

@@ -6,8 +6,12 @@ import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.model.gui.form.widget.SuggestBoxConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
+import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.form.widget.*;
+import ru.intertrust.cm.core.gui.model.form.widget.SuggestBoxState;
+import ru.intertrust.cm.core.gui.model.form.widget.SuggestionItem;
+import ru.intertrust.cm.core.gui.model.form.widget.SuggestionList;
+import ru.intertrust.cm.core.gui.model.form.widget.SuggestionRequest;
 
 import java.util.ArrayList;
 import java.util.List;

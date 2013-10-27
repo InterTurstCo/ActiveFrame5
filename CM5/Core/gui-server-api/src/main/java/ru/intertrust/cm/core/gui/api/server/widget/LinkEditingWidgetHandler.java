@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 /**

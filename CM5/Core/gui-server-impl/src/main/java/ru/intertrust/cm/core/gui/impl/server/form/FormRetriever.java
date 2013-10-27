@@ -13,10 +13,10 @@ import ru.intertrust.cm.core.config.model.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.model.gui.form.widget.FieldPathConfig;
 import ru.intertrust.cm.core.config.model.gui.form.widget.LabelConfig;
 import ru.intertrust.cm.core.config.model.gui.form.widget.WidgetConfig;
+import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.*;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.util.ArrayList;
@@ -73,7 +73,7 @@ public class FormRetriever {
         HashMap<String, String> widgetComponents = new HashMap<>(widgetConfigs.size());
         FormObjects formObjects = new FormObjects();
 
-        ObjectsNode rootNode = new ObjectsNode(root);
+        ObjectsNode rootNode = new SingleObjectNode(root);
         formObjects.setRootNode(rootNode);
         for (WidgetConfig config : widgetConfigs) {
             String widgetId = config.getId();
@@ -105,8 +105,9 @@ public class FormRetriever {
                     continue;
                 }
 
-                // it's a reference then
-                ObjectsNode linkedNode = findLinkedNode(rootNode, childPath);
+                // it's a reference. linked objects can exist only for Single-Object Nodes. class-cast exception will
+                // raise if that's not true
+                ObjectsNode linkedNode = findLinkedNode((SingleObjectNode) rootNode, childPath);
 
                 formObjects.setNode(childPath, linkedNode);
                 rootNode = linkedNode;
@@ -123,7 +124,7 @@ public class FormRetriever {
         return new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents, formConfig.getDebug(), true);
     }
 
-    private ObjectsNode findLinkedNode(ObjectsNode parentNode, FieldPath childPath) {
+    private ObjectsNode findLinkedNode(SingleObjectNode parentNode, FieldPath childPath) {
         if (childPath.isOneToOneReference()) { // direct reference
             return findOneToOneLinkedNode(parentNode, childPath);
         } else { // back reference
@@ -131,49 +132,37 @@ public class FormRetriever {
         }
     }
 
-    private ObjectsNode findOneToOneLinkedNode(ObjectsNode parentNode, FieldPath childPath) {
+    private SingleObjectNode findOneToOneLinkedNode(SingleObjectNode parentNode, FieldPath childPath) {
         String referenceFieldName = childPath.getOneToOneReferenceName();
         ReferenceFieldConfig fieldConfig = (ReferenceFieldConfig)
                 configurationExplorer.getFieldConfig(parentNode.getType(), referenceFieldName);
         String linkedType = fieldConfig.getType();
         if (parentNode.isEmpty()) {
-            return new ObjectsNode(linkedType, 0);
+            return new SingleObjectNode(linkedType);
         }
 
-        ObjectsNode result = new ObjectsNode(linkedType, parentNode.size());
-        for (DomainObject domainObject : parentNode) {
-            Id linkedObjectId = domainObject.getReference(referenceFieldName);
-            if (linkedObjectId != null) {
-                result.add(crudService.find(linkedObjectId)); // it can't be null as reference is set
-            }
+        Id linkedObjectId = parentNode.getDomainObject().getReference(referenceFieldName);
+        if (linkedObjectId == null) {
+            return new SingleObjectNode(linkedType);
+        } else {
+            return new SingleObjectNode(crudService.find(linkedObjectId));
         }
-        return result;
     }
 
-    private ObjectsNode findBackReferenceLinkedNode(ObjectsNode parentNode, FieldPath childPath) {
+    private MultiObjectNode findBackReferenceLinkedNode(SingleObjectNode parentNode, FieldPath childPath) {
         String linkedType = childPath.getReferenceType();
         if (parentNode.isEmpty()) {
-            return new ObjectsNode(linkedType, 0);
+            return new MultiObjectNode(linkedType);
         }
 
         String referenceField = childPath.getLinkToParentName();
 
         // todo after cardinality functionality is developed, check cardinality (static-check, not runtime)
 
-        ObjectsNode result = new ObjectsNode(linkedType, parentNode.size());
-        for (DomainObject domainObject : parentNode) {
-            List<DomainObject> linkedDomainObjects = domainObject.getId() == null
-                    ? new ArrayList<DomainObject>()
-                    : crudService.findLinkedDomainObjects(domainObject.getId(), linkedType, referenceField);
-            if (linkedDomainObjects.size() > 1 && parentNode.size() > 1) {
-                // join 2 multi-references - not supported and usually doesn't make sense
-                throw new GuiException(childPath + " is resulting into many-on-many join which is not supported");
-            }
-            for (DomainObject linkedDomainObject : linkedDomainObjects) {
-                result.add(linkedDomainObject);
-            }
-        }
-
-        return result;
+        DomainObject parentDomainObject = parentNode.getDomainObject();
+        List<DomainObject> linkedDomainObjects = parentDomainObject.getId() == null
+                ? new ArrayList<DomainObject>()
+                : crudService.findLinkedDomainObjects(parentDomainObject.getId(), linkedType, referenceField);
+        return new MultiObjectNode(linkedType, linkedDomainObjects);
     }
 }

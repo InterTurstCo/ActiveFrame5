@@ -6,10 +6,9 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.model.gui.form.widget.ListBoxConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
+import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.widget.ListBoxState;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -29,8 +28,7 @@ public class ListBoxHandler extends LinkEditingWidgetHandler {
     public ListBoxState getInitialState(WidgetContext context) {
         ListBoxConfig widgetConfig = context.getWidgetConfig();
 
-        FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
-        String linkType = getLinkedObjectType(context, fieldPath);
+        String linkType = getLinkedObjectType(context, context.getFieldPath());
 
         List<DomainObject> listToDisplay = crudService.findAll(linkType);
         LinkedHashMap<Id, String> idDisplayMapping = new LinkedHashMap<>();
@@ -45,7 +43,7 @@ public class ListBoxHandler extends LinkEditingWidgetHandler {
         String displayPattern = widgetConfig.getPatternConfig().getValue();
         appendDisplayMappings(listToDisplay, displayPattern, idDisplayMapping);
 
-        ArrayList<Id> selectedIds = context.getFormObjects().getObjectIds(fieldPath);
+        ArrayList<Id> selectedIds = context.getObjectIds();
         result.setSelectedIds(selectedIds);
 
         return result;

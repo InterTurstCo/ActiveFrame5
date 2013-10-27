@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.model.Command;
+import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 
@@ -31,7 +32,7 @@ public interface GuiService {
      * @param command команда плагина
      * @return результат выполнения команды
      */
-    Dto executeCommand(Command command);
+    Dto executeCommand(Command command) throws GuiException;
 
     FormDisplayData getForm(String domainObjectType);
 

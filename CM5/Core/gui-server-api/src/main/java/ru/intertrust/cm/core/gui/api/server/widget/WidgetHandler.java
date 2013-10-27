@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.gui.api.server.widget;
 
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.util.ArrayList;

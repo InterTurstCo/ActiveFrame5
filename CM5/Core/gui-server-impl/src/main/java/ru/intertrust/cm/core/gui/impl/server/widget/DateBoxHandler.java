@@ -1,9 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import ru.intertrust.cm.core.gui.api.server.widget.SingleObjectWidgetHandler;
+import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 
 import java.util.Date;
 
@@ -16,6 +16,6 @@ import java.util.Date;
 public class DateBoxHandler extends SingleObjectWidgetHandler {
     @Override
     public DateBoxState getInitialState(WidgetContext context) {
-        return new DateBoxState(context.<Date>getFieldPathSinglePlainValue());
+        return new DateBoxState(context.<Date>getFieldPlainValue());
     }
 }

@@ -33,6 +33,9 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
             return parentPath;
         }
 
+        if (this == ROOT) {
+            return null;
+        }
         int resultSize = getElementCount() - 1;
         if (resultSize == 0) {
             parentPath = ROOT;

@@ -27,7 +27,7 @@ public class SendProcessEventAction extends SimpleServerAction {
     protected SendProcessEventActionContext getCurrentContext() {
         FormState formState = ((IsDomainObjectEditor) getPlugin()).getFormState();
         SendProcessEventActionContext context = new SendProcessEventActionContext();
-        context.setRootObjectId(formState.getObjects().getRootNode().getObject().getId());
+        context.setRootObjectId(formState.getObjects().getRootNode().getDomainObject().getId());
         return context;
     }
 

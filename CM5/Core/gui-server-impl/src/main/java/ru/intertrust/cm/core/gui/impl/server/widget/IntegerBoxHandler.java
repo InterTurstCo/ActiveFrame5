@@ -1,9 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import ru.intertrust.cm.core.gui.api.server.widget.SingleObjectWidgetHandler;
+import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.IntegerBoxState;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 
 /**
  * @author Denis Mitavskiy
@@ -14,6 +14,6 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 public class IntegerBoxHandler extends SingleObjectWidgetHandler {
     @Override
     public IntegerBoxState getInitialState(WidgetContext context) {
-        return new IntegerBoxState(context.<Long>getFieldPathSinglePlainValue());
+        return new IntegerBoxState(context.<Long>getFieldPlainValue());
     }
 }

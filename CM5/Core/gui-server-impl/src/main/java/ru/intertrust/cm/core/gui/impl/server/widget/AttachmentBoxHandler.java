@@ -9,12 +9,12 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.config.model.gui.form.widget.AttachmentBoxConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
+import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
-import ru.intertrust.cm.core.gui.model.form.ObjectsNode;
+import ru.intertrust.cm.core.gui.model.form.MultiObjectNode;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentModel;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.io.*;
@@ -40,9 +40,11 @@ public class AttachmentBoxHandler  extends LinkEditingWidgetHandler {
 
         List<AttachmentModel> savedAttachments = new ArrayList<AttachmentModel>();
 
-        ObjectsNode node = context.getFormObjects().getNode(fieldPath);
+        MultiObjectNode node = (MultiObjectNode) context.getFormObjects().getNode(fieldPath);
         for (DomainObject object : node) {
             AttachmentModel attachmentModel = new AttachmentModel();
+
+            // todo: в объекте вложения всегда есть поля name и description - не надо их искать, из них просто можно получить значение
             for (String field : object.getFields()) {
                 if (ATTACHMENT_NAME.equalsIgnoreCase(field)) {
                     attachmentModel.setName(object.getValue(field).toString());
@@ -64,7 +66,7 @@ public class AttachmentBoxHandler  extends LinkEditingWidgetHandler {
     public void saveNewObjects(WidgetContext context, WidgetState state) {
         AttachmentBoxState attachmentBoxState = (AttachmentBoxState) state;
         List<AttachmentModel> attachmentModels = attachmentBoxState.getAttachments();
-        DomainObject domainObject = context.getFormObjects().getRootNode().getObject();
+        DomainObject domainObject = context.getFormObjects().getRootNode().getDomainObject();
 
         AttachmentBoxConfig widgetConfig = context.getWidgetConfig();
         String attachmentType = widgetConfig.getAttachmentType().getName();
@@ -77,6 +79,8 @@ public class AttachmentBoxHandler  extends LinkEditingWidgetHandler {
             }
 
             InputStream fileData = null;
+
+            // todo Auto-close (Java 7)
             RemoteInputStreamServer remoteFileData = null;
             try {
                 Properties props = PropertiesLoaderUtils.loadAllProperties("deploy.properties");

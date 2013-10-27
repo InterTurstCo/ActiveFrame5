@@ -8,10 +8,10 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.model.gui.form.widget.ComboBoxConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.SingleObjectWidgetHandler;
+import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.widget.ComboBoxState;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -51,7 +51,7 @@ public class ComboBoxHandler extends SingleObjectWidgetHandler {
 
         appendDisplayMappings(listToDisplay, widgetConfig.getPatternConfig().getValue(), idDisplayMapping);
 
-        Id selectedId = context.getFieldPathSinglePlainValue();
+        Id selectedId = context.getFieldPlainValue();
 
         result.setId(selectedId);
 

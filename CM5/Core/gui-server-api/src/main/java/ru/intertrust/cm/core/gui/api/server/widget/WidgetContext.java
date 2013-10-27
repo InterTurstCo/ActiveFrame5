@@ -1,10 +1,14 @@
-package ru.intertrust.cm.core.gui.model.form.widget;
+package ru.intertrust.cm.core.gui.api.server.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.model.gui.form.widget.FieldPathConfig;
 import ru.intertrust.cm.core.config.model.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.FormObjects;
+
+import java.util.ArrayList;
 
 /**
  * @author Denis Mitavskiy
@@ -12,8 +16,11 @@ import ru.intertrust.cm.core.gui.model.form.FormObjects;
  *         Time: 17:54
  */
 public class WidgetContext implements Dto {
+    private static final FieldPath NOT_INITIALIZED_FIELD_PATH = new FieldPath("+");
+
     private WidgetConfig widgetConfig;
     private FormObjects formObjects;
+    private transient FieldPath fieldPath = NOT_INITIALIZED_FIELD_PATH;
 
     public WidgetContext() {
     }
@@ -40,15 +47,29 @@ public class WidgetContext implements Dto {
     }
 
     public FieldPath getFieldPath() {
+        if (fieldPath != NOT_INITIALIZED_FIELD_PATH) {
+            return fieldPath;
+        }
         FieldPathConfig fieldPathConfig = widgetConfig.getFieldPathConfig();
         if (fieldPathConfig == null) {
+            fieldPath = null;
             return null;
         }
-        String fieldPath = fieldPathConfig.getValue();
-        return fieldPath == null ? null : new FieldPath(fieldPath);
+        String fieldPathConfigValue = fieldPathConfig.getValue();
+        fieldPath = fieldPathConfigValue == null ? null : new FieldPath(fieldPathConfigValue);
+        return fieldPath;
     }
 
-    public <T> T getFieldPathSinglePlainValue() {
-        return (T) formObjects.getFieldValue(getFieldPath()).get();
+    public <T extends Value> T getValue() {
+        return (T) formObjects.getFieldValue(getFieldPath());
+    }
+
+    public <T> T getFieldPlainValue() {
+        Value fieldValue = getValue();
+        return fieldValue == null ? null : (T) fieldValue.get();
+    }
+
+    public ArrayList<Id> getObjectIds() {
+        return formObjects.getObjectIds(getFieldPath());
     }
 }

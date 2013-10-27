@@ -39,7 +39,7 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
     }
 
     public DomainObject getRootDomainObject() {
-        return this.<FormPluginData>getInitialData().getFormDisplayData().getFormState().getObjects().getRootNode().getObject();
+        return this.<FormPluginData>getInitialData().getFormDisplayData().getFormState().getObjects().getRootNode().getDomainObject();
     }
 
     @Override

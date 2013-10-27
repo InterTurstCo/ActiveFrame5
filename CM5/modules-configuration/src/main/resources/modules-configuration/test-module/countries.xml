@@ -271,14 +271,14 @@
                 <field-path value="square"/>
             </label>
 
-            <!--<label id="7">
+            <label id="7">
                 <text>Столица:</text>
-            </label>-->
-            <combo-box id="8a">
+            </label>
+            <list-box id="8a">
                 <field-path value="capital"/>
                 <!--а для области столицы: capital . federal_unit_city^city . federal_unit . name &ndash;&gt;  -->
                 <pattern value="{name} ({population} чел.)"/>
-            </combo-box>
+            </list-box>
             <!--
             <label id="7a">
                 <text>Известный город:</text>

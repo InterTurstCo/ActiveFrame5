@@ -2,10 +2,10 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import ru.intertrust.cm.core.config.model.gui.form.widget.LabelConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.SingleObjectWidgetHandler;
+import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.widget.LabelState;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetContext;
 
 /**
  * @author Denis Mitavskiy
@@ -18,7 +18,7 @@ public class LabelHandler extends SingleObjectWidgetHandler {
     public LabelState getInitialState(WidgetContext context) {
         FieldPath fieldPath = context.getFieldPath();
         if (fieldPath != null) {
-            String plainValue = context.getFieldPathSinglePlainValue();
+            String plainValue = context.getFieldPlainValue();
             return new LabelState(plainValue == null || plainValue.isEmpty() ? "" : plainValue);
         } else {
             LabelConfig widgetConfig = context.getWidgetConfig();

@@ -20,6 +20,7 @@ import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Базовая реализация сервиса GUI
@@ -43,7 +44,7 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     }
 
     @Override
-    public Dto executeCommand(Command command) {
+    public Dto executeCommand(Command command) throws GuiException {
         ComponentHandler componentHandler = obtainHandler(command.getComponentName());
         if (componentHandler == null) {
             log.warn("handler for component '{}' not found", command.getComponentName());
@@ -55,6 +56,12 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
         } catch (NoSuchMethodException e) {
             log.error(e.getMessage(), e);
             throw new GuiException("No command + " + command.getName() + " implemented");
+        } catch (InvocationTargetException e) {
+            if (e.getCause() instanceof GuiException) {
+                throw (GuiException) e.getCause();
+            } else {
+                throw new GuiException("Command can't be executed: " + command.getName());
+            }
         } catch (Throwable e) {
             e.printStackTrace();
             throw new GuiException("Command can't be executed: " + command.getName());
@@ -75,7 +82,7 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     }
 
     public DomainObject saveForm(FormState formState) {
-        FormSaver formSaver = (FormSaver) applicationContext.getBean("formSaver");
-        return formSaver.saveForm(formState);
+        FormSaver formSaver = (FormSaver) applicationContext.getBean("formSaver", formState);
+        return formSaver.saveForm();
     }
 }
