@@ -2,10 +2,8 @@ package ru.intertrust.cm.core.gui.impl.server;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import ru.intertrust.cm.core.business.api.ProcessService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.ActionContextConfig;
 import ru.intertrust.cm.core.config.model.DomainObjTypeConfig;
@@ -14,14 +12,14 @@ import ru.intertrust.cm.core.config.model.gui.ActionConfig;
 import ru.intertrust.cm.core.gui.api.server.ActionService;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 
+import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
-
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
+import java.util.Collections;
 import java.util.List;
 
 @Stateless
@@ -33,7 +31,7 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
     @Autowired
     private ConfigurationExplorer configurationExplorer;
     
-    @Autowired
+    @EJB
     private ProcessService processService;
 
     @Override
@@ -57,6 +55,10 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
                 
             }
             
+        }
+
+        if (domainObject == null) {
+            return Collections.EMPTY_LIST;
         }
         List<DomainObject> tasks =  processService.getUserDomainObjectTasks(domainObject.getId());
         for  (DomainObject task:tasks) {
