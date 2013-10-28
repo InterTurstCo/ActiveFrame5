@@ -78,7 +78,7 @@
                 <text>Название:</text>
             </label>
             <text-box id="2">
-                <field-path value="name"/>
+                <field-path value="Name"/>
             </text-box>
 
             <label id="3">
