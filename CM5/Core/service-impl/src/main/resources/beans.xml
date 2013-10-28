@@ -14,7 +14,7 @@
 
     <aop:aspectj-autoproxy/>
 
-    <bean id="configurationLoader" class="ru.intertrust.cm.core.business.impl.ConfigurationLoader" init-method="load"/>
+    <bean id="configurationLoader" class="ru.intertrust.cm.core.business.impl.ConfigurationLoader" init-method="load" depends-on="springApplicationContext"/>
 
     <bean id="initialDataLoader" class="ru.intertrust.cm.core.business.impl.InitialDataLoader" init-method="load"
           depends-on="configurationLoader" p:dataSource-ref= "dataSource"/>

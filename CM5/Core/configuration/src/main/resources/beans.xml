@@ -5,7 +5,7 @@
        http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
 
-    <bean class="ru.intertrust.cm.core.util.SpringApplicationContext"/>
+    <bean id="springApplicationContext" class="ru.intertrust.cm.core.util.SpringApplicationContext"/>
 
     <bean id="configurationSerializer" depends-on="topLevelConfigurationCacheInitializer"
           class="ru.intertrust.cm.core.config.ConfigurationSerializer"
@@ -27,7 +27,7 @@
 
     <bean id="configurationExplorer"
           class="ru.intertrust.cm.core.config.ConfigurationExplorerImpl"
-          init-method="validateGui" >
+          init-method="validateGui">
         <constructor-arg>
             <bean class="ru.intertrust.cm.core.config.model.base.Configuration"
                   factory-bean="configurationSerializer" factory-method="deserializeConfiguration"/>
@@ -38,10 +38,10 @@
           class="ru.intertrust.cm.core.config.TopLevelConfigurationCacheInitializer" init-method="init"/>
 
     <bean id="formLogicalValidator"
-          class="ru.intertrust.cm.core.config.FormLogicalValidator" />
+          class="ru.intertrust.cm.core.config.FormLogicalValidator"/>
 
     <bean id="navigationPanelLogicalValidator"
-          class="ru.intertrust.cm.core.config.NavigationPanelLogicalValidator" />
+          class="ru.intertrust.cm.core.config.NavigationPanelLogicalValidator"/>
 
 
 </beans>
