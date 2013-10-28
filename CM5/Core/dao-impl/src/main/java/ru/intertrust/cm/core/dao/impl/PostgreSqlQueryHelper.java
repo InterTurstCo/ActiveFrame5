@@ -438,7 +438,7 @@ public class PostgreSqlQueryHelper {
                 query.append("STATUS bigint, ");
                 query.append("STATUS_TYPE integer, ");
             }
-            
+
         }
 
         query.append(TYPE_COLUMN + " integer");
@@ -472,6 +472,16 @@ public class PostgreSqlQueryHelper {
                 if (fieldConfig.isNotNull()) {
                     query.append(" not null");
                 }
+            } else if (DateTimeWithTimeZoneFieldConfig.class.equals(fieldConfig.getClass())) {
+                query.append(", ");
+                if (isAlterQuery) {
+                    query.append("add column ");
+                }
+                query.append(getTimeZoneIdColumnName((DateTimeWithTimeZoneFieldConfig) fieldConfig)).append(" ").
+                        append(getTimeZoneIdSqlType());
+                if (fieldConfig.isNotNull()) {
+                    query.append(" not null");
+                }
             }
         }
     }
@@ -495,6 +505,10 @@ public class PostgreSqlQueryHelper {
             if (ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
                 query.append(", ");
                 query.append(getReferenceTypeColumnName((ReferenceFieldConfig) fieldConfig)).append(" integer");
+            } else if (DateTimeWithTimeZoneFieldConfig.class.equals(fieldConfig.getClass())) {
+                query.append(", ");
+                query.append(getTimeZoneIdColumnName((DateTimeWithTimeZoneFieldConfig) fieldConfig)).
+                        append(" ").append(getTimeZoneIdSqlType());
             }
         }
     }
@@ -504,8 +518,16 @@ public class PostgreSqlQueryHelper {
                 append(fieldsList).append(")");
     }
 
+    private static String getTimeZoneIdSqlType() {
+        return "varchar(50)";
+    }
+
     private static String getSqlType(FieldConfig fieldConfig) {
         if (DateTimeFieldConfig.class.equals(fieldConfig.getClass())) {
+            return "timestamp";
+        }
+
+        if (DateTimeWithTimeZoneFieldConfig.class.equals(fieldConfig.getClass())) {
             return "timestamp";
         }
 

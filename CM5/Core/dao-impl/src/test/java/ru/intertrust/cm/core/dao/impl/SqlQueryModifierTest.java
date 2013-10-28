@@ -47,11 +47,11 @@ public class SqlQueryModifierTest {
     public void testAddTypeColumn() {
         ConfigurationExplorer configurationExplorer = new ConfigurationExplorerImpl(new Configuration());
         SqlQueryModifier collectionQueryModifier = new SqlQueryModifier();
-        String modifiedQuery = collectionQueryModifier.addReferenceFieldTypes(PLAIN_SELECT_QUERY, configurationExplorer);
+        String modifiedQuery = collectionQueryModifier.addServiceColumns(PLAIN_SELECT_QUERY, configurationExplorer);
 
         assertEquals(PLAIN_SELECT_QUERY_WITH_TYPE, modifiedQuery);
 
-        modifiedQuery = collectionQueryModifier.addReferenceFieldTypes(UNION_QUERY, configurationExplorer);
+        modifiedQuery = collectionQueryModifier.addServiceColumns(UNION_QUERY, configurationExplorer);
 
         assertEquals(UNION_QUERY_WITH_TYPE, modifiedQuery);
     }

@@ -12,8 +12,12 @@ import ru.intertrust.cm.core.dao.impl.DataType;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getServiceColumnName;
 
 /**
  * Отображает {@link java.sql.ResultSet} на {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection}.
@@ -110,27 +114,23 @@ public class CollectionRowMapper extends BasicRowMapper implements
         if (idField.equalsIgnoreCase(columnName)) {
             id = readId(rs, columnName);
         } else if (DataType.INTEGER.equals(fieldType)) {
-            String typeColumnName = columnName + REFERENCE_TYPE_POSTFIX;
+            String typeColumnName = getServiceColumnName(columnName, REFERENCE_TYPE_POSTFIX).toLowerCase();
             if (columnModel.getColumnNames().contains(typeColumnName)) {
                 // Это id поле
                 value = readReferenceValue(rs, columnName, typeColumnName);
             } else {
                 // Это просто целочисленное поле
-                Long longValue = rs.getLong(columnName);
-                if (!rs.wasNull()) {
-                    value = new LongValue(longValue);
-                } else {
-                    value = new LongValue();
-                }
+                value = readLongValue(rs, columnName);
             }
 
         } else if (DataType.DATETIME.equals(fieldType)) {
-            Timestamp timestamp = rs.getTimestamp(columnName);
-            if (!rs.wasNull()) {
-                Date date = new Date(timestamp.getTime());
-                value = new TimestampValue(date);
+            String timezoneIdColumnName = getServiceColumnName(columnName, TIME_ZONE_ID_POSTFIX).toLowerCase();
+            if (columnModel.getColumnNames().contains(timezoneIdColumnName)) {
+                // Это поле с таймзоной
+                value = readDateTimeWithTimeZoneValue(rs, columnName, timezoneIdColumnName);
             } else {
-                value = new TimestampValue();
+                // Это просто поле с датой
+                value = readTimestampValue(rs, valueModel, columnName);
             }
 
         } else if (DataType.STRING.equals(fieldType)) {

@@ -16,6 +16,9 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.*;
 
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getTimeZoneIdColumnName;
+
 /**
  * Базовй класс для отображения {@link java.sql.ResultSet} на доменные объекты и
  * коллекции.
@@ -26,6 +29,7 @@ public class BasicRowMapper {
 
     protected static final String TYPE_ID_COLUMN = DomainObjectDao.TYPE_COLUMN.toLowerCase();
     protected static final String REFERENCE_TYPE_POSTFIX = DomainObjectDao.REFERENCE_TYPE_POSTFIX.toLowerCase();
+    protected static final String TIME_ZONE_ID_POSTFIX = DomainObjectDao.TIME_ID_ZONE_POSTFIX.toLowerCase();
 
     protected final String domainObjectType;
     protected final String idField;
@@ -111,12 +115,7 @@ public class BasicRowMapper {
                 value = new StringValue();
             }
         } else if (fieldConfig != null && LongFieldConfig.class.equals(fieldConfig.getClass())) {
-            Long longValue = rs.getLong(columnName);
-            if (!rs.wasNull()) {
-                value = new LongValue(longValue);
-            } else {
-                value = new LongValue();
-            }
+            value = readLongValue(rs, columnName);
         } else if (fieldConfig != null && DecimalFieldConfig.class.equals(fieldConfig.getClass())) {
             BigDecimal fieldValue = rs.getBigDecimal(columnName);
             if (!rs.wasNull()) {
@@ -125,24 +124,14 @@ public class BasicRowMapper {
                 value = new DecimalValue();
             }
         } else if (fieldConfig != null && ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
-            String typeColumnName = columnName + REFERENCE_TYPE_POSTFIX;
+            String typeColumnName = getReferenceTypeColumnName((ReferenceFieldConfig) fieldConfig).toLowerCase();
             value = readReferenceValue(rs, columnName, typeColumnName);
         } else if (fieldConfig != null && DateTimeFieldConfig.class.equals(fieldConfig.getClass())) {
-            Calendar gmtCalendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-            Timestamp timestamp = rs.getTimestamp(columnName, gmtCalendar);
-            if (!rs.wasNull()) {
-                Date date = new Date(timestamp.getTime());
-                value = new TimestampValue(date);
-
-                if (DomainObjectDao.CREATED_DATE_COLUMN.equalsIgnoreCase(columnName)) {
-                    valueModel.setCreatedDate(date);
-                } else if (DomainObjectDao.UPDATED_DATE_COLUMN.equalsIgnoreCase(columnName)) {
-                    valueModel.setModifiedDate(date);
-                }
-            } else {
-                value = new TimestampValue();
-            }
-
+            value = readTimestampValue(rs, valueModel, columnName);
+        } else if (fieldConfig != null && DateTimeWithTimeZoneFieldConfig.class.equals(fieldConfig.getClass())) {
+            String timeZoneIdColumnName =
+                    getTimeZoneIdColumnName((DateTimeWithTimeZoneFieldConfig) fieldConfig).toLowerCase();
+            value = readDateTimeWithTimeZoneValue(rs, columnName, timeZoneIdColumnName);
         }
 
         if (id != null) {
@@ -260,6 +249,15 @@ public class BasicRowMapper {
         return domainObjectCacheService;
     }
 
+    protected LongValue readLongValue (ResultSet rs, String columnName) throws SQLException {
+        Long longValue = rs.getLong(columnName);
+        if (!rs.wasNull()) {
+            return new LongValue(longValue);
+        } else {
+            return new LongValue();
+        }
+    }
+
     protected RdbmsId readId(ResultSet rs, String columnName) throws SQLException {
         Long longValue = rs.getLong(columnName);
         if (rs.wasNull()) {
@@ -286,6 +284,76 @@ public class BasicRowMapper {
                 throw new FatalException("Reference type field can not be null for object " + domainObjectType);
             }
         }
+    }
+
+    protected Value readTimestampValue(ResultSet rs, FieldValueModel valueModel, String columnName)
+            throws SQLException {
+        Calendar gmtCalendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        Timestamp timestamp = rs.getTimestamp(columnName, gmtCalendar);
+
+        TimestampValue value;
+        if (!rs.wasNull()) {
+            Date date = new Date(timestamp.getTime());
+            value = new TimestampValue(date);
+
+            if (DomainObjectDao.CREATED_DATE_COLUMN.equalsIgnoreCase(columnName)) {
+                valueModel.setCreatedDate(date);
+            } else if (DomainObjectDao.UPDATED_DATE_COLUMN.equalsIgnoreCase(columnName)) {
+                valueModel.setModifiedDate(date);
+            }
+        } else {
+            value = new TimestampValue();
+        }
+
+        return value;
+    }
+
+    protected Value readDateTimeWithTimeZoneValue(ResultSet rs, String columnName, String timeZoneIdColumnName)
+            throws SQLException {
+        Calendar gmtCalendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        Timestamp timestamp = rs.getTimestamp(columnName, gmtCalendar);
+
+        DateTimeWithTimeZoneValue value;
+        if (!rs.wasNull()) {
+            String timeZoneId = rs.getString(timeZoneIdColumnName);
+            if (!rs.wasNull()) {
+                DateTimeWithTimeZone dateTimeWithTimeZone = getDateTimeWithTimeZone(timestamp, timeZoneId);
+                value = new DateTimeWithTimeZoneValue(dateTimeWithTimeZone);
+            } else {
+                throw new FatalException("TimeZone id field can not be null for object " + domainObjectType);
+            }
+        } else {
+            value = new DateTimeWithTimeZoneValue();
+        }
+
+        return value;
+    }
+
+    private DateTimeWithTimeZone.DateContext getDateTimeWithTimeZoneContext(String timeZoneId) {
+        if (timeZoneId.startsWith("GMT")) {
+            long offset = Long.parseLong(timeZoneId.substring(4))*3600000;
+            return new DateTimeWithTimeZone.UtcOffsetContext(offset);
+        } else {
+            return new DateTimeWithTimeZone.TimeZoneContext(timeZoneId);
+        }
+    }
+
+    private DateTimeWithTimeZone getDateTimeWithTimeZone(Timestamp timestamp, String timeZoneId) {
+        DateTimeWithTimeZone dateTimeWithTimeZone = new DateTimeWithTimeZone();
+        dateTimeWithTimeZone.setContext(getDateTimeWithTimeZoneContext(timeZoneId));
+
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(timeZoneId));
+        calendar.setTime(timestamp);
+
+        dateTimeWithTimeZone.setYear(calendar.get(Calendar.YEAR));
+        dateTimeWithTimeZone.setMonth(calendar.get(Calendar.MONTH));
+        dateTimeWithTimeZone.setDayOfMonth(calendar.get(Calendar.DAY_OF_MONTH));
+        dateTimeWithTimeZone.setHour(calendar.get(Calendar.HOUR_OF_DAY));
+        dateTimeWithTimeZone.setMinute(calendar.get(Calendar.MINUTE));
+        dateTimeWithTimeZone.setSecond(calendar.get(Calendar.SECOND));
+        dateTimeWithTimeZone.setMillisecond(calendar.get(Calendar.MILLISECOND));
+
+        return dateTimeWithTimeZone;
     }
 
     // protected void fillValueModelWithSystemFields(SystemField systemFields,)

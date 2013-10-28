@@ -21,10 +21,11 @@ public interface DomainObjectDao {
     String TYPE_COLUMN = "TYPE_ID";
     String CREATED_DATE_COLUMN = "CREATED_DATE";
     String UPDATED_DATE_COLUMN = "UPDATED_DATE";
-    String STATUS_COLUMN = "STATUS";    
+    String STATUS_COLUMN = "STATUS";
     String REFERENCE_TYPE_POSTFIX = "_TYPE";
+    String TIME_ID_ZONE_POSTFIX = "_TZ";
     String STATUS_TYPE_COLUMN = STATUS_COLUMN  + REFERENCE_TYPE_POSTFIX;
-    String STATUS_DO = "Status";    
+    String STATUS_DO = "Status";
 
     String DOMAIN_OBJECT_ID = "DOMAIN_OBJECT_ID";
     String COMPONENT = "COMPONENT";

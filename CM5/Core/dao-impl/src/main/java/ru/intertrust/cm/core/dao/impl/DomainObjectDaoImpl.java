@@ -27,6 +27,9 @@ import java.util.*;
 
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
 import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.generateParameter;
+import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getGMTDate;
+import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getGMTDate;
+import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getTimeZoneId;
 
 /**
  * @author atsvetkov
@@ -111,7 +114,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     public void setDynamicGroupService(DynamicGroupService dynamicGroupService) {
         this.dynamicGroupService = dynamicGroupService;
     }
-    
+
     public void setExtensionService(ExtensionService extensionService) {
         this.extensionService = extensionService;
     }
@@ -637,7 +640,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 parameters.put("status", domainObject.getLong(STATUS_COLUMN));
                 parameters.put("status_type", domainObject.getLong(STATUS_TYPE_COLUMN));
             }
-            
+
         }
         parameters.put("type_id", type);
 
@@ -1020,11 +1023,13 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             String parameterName = generateParameter(columnName);
 
             if (value == null || value.get() == null) {
+                parameters.put(parameterName, null);
                 if (ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
-                    parameters.put(parameterName, null);
                     parameterName = generateParameter(getReferenceTypeColumnName((ReferenceFieldConfig) fieldConfig));
                     parameters.put(parameterName, null);
-                } else {
+                } else if (DateTimeWithTimeZoneFieldConfig.class.equals(fieldConfig.getClass())) {
+                    parameterName =
+                            generateParameter(getTimeZoneIdColumnName((DateTimeWithTimeZoneFieldConfig) fieldConfig));
                     parameters.put(parameterName, null);
                 }
                 continue;
@@ -1037,6 +1042,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 parameters.put(parameterName, rdbmsId.getTypeId());
             } else if (DateTimeFieldConfig.class.equals(fieldConfig.getClass())) {
                 parameters.put(parameterName, getGMTDate((Date) value.get()));
+            } else if (DateTimeWithTimeZoneFieldConfig.class.equals(fieldConfig.getClass())) {
+                parameters.put(parameterName, getGMTDate((DateTimeWithTimeZone) value.get()));
+                parameterName = generateParameter(getTimeZoneIdColumnName((DateTimeWithTimeZoneFieldConfig) fieldConfig));
+                parameters.put(parameterName, getTimeZoneId((DateTimeWithTimeZone) value.get()));
             } else {
                 parameters.put(parameterName, value.get());
             }
@@ -1089,7 +1098,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                         domainObject.getTypeName());
         GenericDomainObject updatedObject = new GenericDomainObject(domainObject);
 
-        
+
         DomainObject parentDo = createParentDO(domainObject,
                 domainObjectTypeConfig, type);
 
@@ -1101,11 +1110,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             Date currentDate = new Date();
             updatedObject.setCreatedDate(currentDate);
             updatedObject.setModifiedDate(currentDate);
-            
+
         }
 
         setInitialStatus(domainObjectTypeConfig, updatedObject);
-        
+
         String query = generateCreateQuery(domainObjectTypeConfig);
 
         Object id;
@@ -1353,11 +1362,5 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         return result;
-    }
-
-    private Calendar getGMTDate(Date date) {
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        calendar.setTime(date);
-        return calendar;
     }
 }

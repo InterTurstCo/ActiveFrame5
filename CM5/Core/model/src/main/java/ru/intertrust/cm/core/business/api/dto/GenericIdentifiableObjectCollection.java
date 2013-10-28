@@ -283,6 +283,26 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         }
 
         @Override
+        public void setDateTimeWithTimeZone(String field, DateTimeWithTimeZone value) {
+            fieldValues.set(collection.getFieldIndex(field), new DateTimeWithTimeZoneValue(value));
+            dirty = true;
+        }
+
+        public void setDateTimeWithTimeZone(int index, DateTimeWithTimeZone value) {
+            fieldValues.set(index, new DateTimeWithTimeZoneValue(value));
+            dirty = true;
+        }
+
+        @Override
+        public DateTimeWithTimeZone getDateTimeWithTimeZone(String field) {
+            return this.<DateTimeWithTimeZoneValue>getValue(field).get();
+        }
+
+        public DateTimeWithTimeZone getDateTimeWithTimeZone(int index) {
+            return this.<DateTimeWithTimeZoneValue>getValue(index).get();
+        }
+
+        @Override
         public void setReference(String field, DomainObject domainObject) {
             fieldValues.set(collection.getFieldIndex(field), new ReferenceValue(domainObject.getId()));
             dirty = true;

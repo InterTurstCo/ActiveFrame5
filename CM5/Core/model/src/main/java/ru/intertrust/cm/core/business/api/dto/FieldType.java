@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.business.api.dto;
 
 /**
  * Перечисление типов полей доменных объектов, реализованных в системе.
- * 
+ *
  * @author apirozhkov
  */
 public enum FieldType {
@@ -10,6 +10,7 @@ public enum FieldType {
     STRING(StringValue.class),
     LONG(LongValue.class),
     DECIMAL(DecimalValue.class),
+    DATETIMEWITHTIMEZONE(DateTimeWithTimeZoneValue.class),
     DATETIME(TimestampValue.class),
     REFERENCE(ReferenceValue.class),
     PASSWORD(StringValue.class);
@@ -22,7 +23,7 @@ public enum FieldType {
 
     /**
      * Возвращает класс, предназначенный для хранения значений поля данного типа.
-     * 
+     *
      * @return Класс &mdash; потомок {@link Value}
      */
     public Class<? extends Value> getValueClass() {
@@ -31,7 +32,7 @@ public enum FieldType {
 
     /**
      * Определяет тип поля по классу, предназначенному для хранения значений поля.
-     * 
+     *
      * @param clazz Класс &mdash; потомок {@link Value}
      * @return константа, определяющая тип поля
      * @throws IllegalArgumentException если для заданного класса не определена константа типа поля

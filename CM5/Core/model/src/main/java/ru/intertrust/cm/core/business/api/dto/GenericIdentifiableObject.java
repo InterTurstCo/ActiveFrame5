@@ -154,6 +154,22 @@ public class GenericIdentifiableObject implements IdentifiableObject {
     }
 
     @Override
+    public void setDateTimeWithTimeZone(String field, DateTimeWithTimeZone value) {
+        if (value != null) {
+            fieldValues.put(field, new DateTimeWithTimeZoneValue(value));
+        } else {
+            fieldValues.remove(field);
+        }
+        dirty = true;
+    }
+
+    @Override
+    public DateTimeWithTimeZone getDateTimeWithTimeZone(String field) {
+        DateTimeWithTimeZoneValue value = getValue(field);
+        return value == null ? null : value.get();
+    }
+
+    @Override
     public void setReference(String field, DomainObject domainObject) {
         if (domainObject != null) {
             Id id = domainObject.getId();

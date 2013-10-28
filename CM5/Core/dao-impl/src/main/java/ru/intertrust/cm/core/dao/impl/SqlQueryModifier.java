@@ -6,6 +6,7 @@ import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.model.DateTimeWithTimeZoneFieldConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
@@ -18,7 +19,9 @@ import java.util.List;
 import java.util.Set;
 
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TIME_ID_ZONE_POSTFIX;
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TYPE_COLUMN;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getServiceColumnName;
 
 /**
  * Модифицирует SQL запросы. Добавляет поле Тип Объекта идентификатора в SQL запрос получения данных для коллекции, добавляет ACL фильтр в
@@ -30,31 +33,29 @@ public class SqlQueryModifier {
     private static final String USER_ID_PARAM = "USER_ID_PARAM";
     private static final String USER_ID_VALUE = ":user_id";
 
-    public static final String DOMAIN_OBJECT_TYPE_ALIAS = "TYPE_CONSTANT";
-
     /**
-     * Добавляет поля Тип Объекта идентификатора в SQL запрос получения данных для коллекции. Переданный SQL запрос
-     * должен быть запросом чтения (SELECT) либо объединением запросов чтения (UNION). После ключевого слова FROM должно
-     * идти название таблицы для Доменного Объекта, тип которго будет типом уникального идентификатора возвращаемых
-     * записей.
+     * Добавляет сервисные поля (Тип Объекта идентификатора, идентификатор таймзоны и т.п.) в SQL запрос получения
+     * данных для коллекции. Переданный SQL запрос должен быть запросом чтения (SELECT) либо объединением запросов
+     * чтения (UNION). После ключевого слова FROM должно идти название таблицы для Доменного Объекта,
+     * тип которго будет типом уникального идентификатора возвращаемых записей.
      * @param query первоначальный SQL запрос
      * @return запрос с добавленным полем Тип Объекта идентификатора
      */
-    public String addReferenceFieldTypes(String query, ConfigurationExplorer configurationExplorer) {
+    public String addServiceColumns(String query, ConfigurationExplorer configurationExplorer) {
         String modifiedQuery = null;
         SqlQueryParser sqlParser = new SqlQueryParser(query);
 
         SelectBody selectBody = sqlParser.getSelectBody();
         if (selectBody.getClass().equals(PlainSelect.class)) {
             PlainSelect plainSelect = (PlainSelect) selectBody;
-            addReferenceFieldTypeTypeColumnsInPlainSelect(plainSelect, configurationExplorer);
+            addServiceColumnsInPlainSelect(plainSelect, configurationExplorer);
             modifiedQuery = plainSelect.toString();
 
         } else if (selectBody.getClass().equals(Union.class)) {
             Union union = (Union) selectBody;
             List plainSelects = union.getPlainSelects();
             for (Object plainSelect : plainSelects) {
-                addReferenceFieldTypeTypeColumnsInPlainSelect((PlainSelect) plainSelect, configurationExplorer);
+                addServiceColumnsInPlainSelect((PlainSelect) plainSelect, configurationExplorer);
             }
             modifiedQuery = union.toString();
 
@@ -128,7 +129,7 @@ public class SqlQueryModifier {
         }
     }
 
-    private void addReferenceFieldTypeTypeColumnsInPlainSelect(PlainSelect plainSelect, ConfigurationExplorer configurationExplorer) {
+    private void addServiceColumnsInPlainSelect(PlainSelect plainSelect, ConfigurationExplorer configurationExplorer) {
         List<SelectExpressionItem> selectExpressionItemsToAdd = new ArrayList<>();
 
         for (Object selectItem : plainSelect.getSelectItems()) {
@@ -141,14 +142,14 @@ public class SqlQueryModifier {
             FieldConfig fieldConfig = configurationExplorer.getFieldConfig(getTableName(plainSelect, column),
                     column.getColumnName());
 
-            if (!(fieldConfig instanceof ReferenceFieldConfig)) {
-                continue;
-            }
-
-            if (DomainObjectDao.ID_COLUMN.equalsIgnoreCase(column.getColumnName())) {
-                selectExpressionItemsToAdd.add(createObjectTypeSelectItem(selectExpressionItem));
-            } else {
-                selectExpressionItemsToAdd.add(createReferenceFieldTypeSelectItem(selectExpressionItem));
+            if (fieldConfig instanceof ReferenceFieldConfig) {
+                if (DomainObjectDao.ID_COLUMN.equalsIgnoreCase(column.getColumnName())) {
+                    selectExpressionItemsToAdd.add(createObjectTypeSelectItem(selectExpressionItem));
+                } else {
+                    selectExpressionItemsToAdd.add(createReferenceFieldTypeSelectItem(selectExpressionItem));
+                }
+            } else if (fieldConfig instanceof DateTimeWithTimeZoneFieldConfig) {
+                selectExpressionItemsToAdd.add(createTimeZoneIdSelectItem(selectExpressionItem));
             }
         }
 
@@ -210,11 +211,20 @@ public class SqlQueryModifier {
     }
 
     private SelectExpressionItem createReferenceFieldTypeSelectItem(SelectExpressionItem selectExpressionItem) {
+        return generateServiceColumnExpression(selectExpressionItem, REFERENCE_TYPE_POSTFIX);
+    }
+
+    private SelectExpressionItem createTimeZoneIdSelectItem(SelectExpressionItem selectExpressionItem) {
+        return generateServiceColumnExpression(selectExpressionItem, TIME_ID_ZONE_POSTFIX);
+    }
+
+    private SelectExpressionItem generateServiceColumnExpression(SelectExpressionItem selectExpressionItem, String postfix) {
         Column column = (Column) selectExpressionItem.getExpression();
         StringBuilder expression = new StringBuilder(column.getTable().getName()).append(".").
-                append(column.getColumnName()).append(REFERENCE_TYPE_POSTFIX);
+                append(getServiceColumnName(column.getColumnName(), postfix));
+
         if (selectExpressionItem.getAlias() != null) {
-            expression.append(" as ").append(selectExpressionItem.getAlias()).append(REFERENCE_TYPE_POSTFIX);
+            expression.append(" as ").append(getServiceColumnName(selectExpressionItem.getAlias(), postfix));
         }
 
         SelectExpressionItem referenceFieldTypeItem = new SelectExpressionItem();

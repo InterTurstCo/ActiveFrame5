@@ -73,6 +73,9 @@
             <xs:element type="con:dateTimeType" name="dateTime"
                 xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
+            <xs:element type="con:dateTimeWithTimeZoneType" name="dateTimeWithTimeZone"
+                        xmlns:con="https://cm5.intertrust.ru/config">
+            </xs:element>
             <xs:element type="con:referenceType" name="reference"
                 xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
@@ -107,8 +110,15 @@
             <xs:extension base="xs:string">
                 <xs:attribute name="name" use="required"
                     type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config" />
-                <xs:attribute type="xs:string" name="length"
-                    use="optional" />
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="dateTimeWithTimeZoneType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="name" use="required"
+                              type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config" />
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>

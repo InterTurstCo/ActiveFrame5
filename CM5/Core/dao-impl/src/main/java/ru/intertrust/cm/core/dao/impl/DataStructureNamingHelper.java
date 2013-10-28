@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import ru.intertrust.cm.core.config.model.DateTimeWithTimeZoneFieldConfig;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
@@ -46,7 +47,7 @@ public class DataStructureNamingHelper {
 
         return convertToSqlFormat(domainObjectTypeConfig.getName()) + "_LOG_SEQ";
     }
-    
+
 
     /**
      * Возвращает имя поля доменного объекта в sql-виде
@@ -69,6 +70,8 @@ public class DataStructureNamingHelper {
             columnNames.add(getSqlName(fieldConfig));
             if (fieldConfig instanceof ReferenceFieldConfig) {
                 columnNames.add(getReferenceTypeColumnName((ReferenceFieldConfig) fieldConfig));
+            } else if (fieldConfig instanceof DateTimeWithTimeZoneFieldConfig) {
+                columnNames.add(getTimeZoneIdColumnName((DateTimeWithTimeZoneFieldConfig) fieldConfig));
             }
         }
 
@@ -85,14 +88,19 @@ public class DataStructureNamingHelper {
     }
 
     public static String getReferenceTypeColumnName(ReferenceFieldConfig fieldConfig) {
-        String name = fieldConfig.getName();
+        return getServiceColumnName(fieldConfig.getName(), DomainObjectDao.REFERENCE_TYPE_POSTFIX);
+    }
 
-        final String postfix = DomainObjectDao.REFERENCE_TYPE_POSTFIX;
+    public static String getTimeZoneIdColumnName(DateTimeWithTimeZoneFieldConfig fieldConfig) {
+        return getServiceColumnName(fieldConfig.getName(), DomainObjectDao.TIME_ID_ZONE_POSTFIX);
+    }
+
+    public static String getServiceColumnName(String columnName, String postfix) {
         String resultName;
-        if (name.length() + postfix.length() > MAX_NAME_LENGTH) {
-            resultName = name.substring(0, MAX_NAME_LENGTH - postfix.length() - 1) + postfix;
+        if (columnName.length() + postfix.length() > MAX_NAME_LENGTH) {
+            resultName = columnName.substring(0, MAX_NAME_LENGTH - postfix.length() - 1) + postfix;
         } else {
-            resultName = name + postfix;
+            resultName = columnName + postfix;
         }
 
         return getSqlName(resultName);

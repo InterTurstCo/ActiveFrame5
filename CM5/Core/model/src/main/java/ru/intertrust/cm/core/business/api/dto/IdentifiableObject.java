@@ -132,6 +132,22 @@ public interface IdentifiableObject extends Dto {
     Date getTimestamp(String field);
 
     /**
+     * Устанавливает значения поля с типом {@link DateTimeWithTimeZone}
+     *
+     * @param field название поля
+     * @param value значение поля
+     */
+    void setDateTimeWithTimeZone(String field, DateTimeWithTimeZone value);
+
+    /**
+     * Возвращает значение поля c типом {@link DateTimeWithTimeZone}
+     *
+     * @param field название поля
+     * @return значение поля
+     */
+    DateTimeWithTimeZone getDateTimeWithTimeZone(String field);
+
+    /**
      * Устанавливает значения поля с типом {@link ru.intertrust.cm.core.business.api.dto.DomainObject}
      *
      * @param field        название поля
@@ -157,7 +173,7 @@ public interface IdentifiableObject extends Dto {
 
     /**
      * Возвращает признак наличия несохранённых изменений в объекте
-     * 
+     *
      * @return true, если объект был изменён, но не сохранён
      */
     boolean isDirty();

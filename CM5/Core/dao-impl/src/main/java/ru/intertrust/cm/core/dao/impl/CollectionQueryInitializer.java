@@ -78,7 +78,7 @@ public class CollectionQueryInitializer {
      */
     private String postProcessQuery(CollectionConfig collectionConfig, AccessToken accessToken, String query) {
         SqlQueryModifier sqlQueryModifier = new SqlQueryModifier();
-        query = sqlQueryModifier.addReferenceFieldTypes(query, configurationExplorer);
+        query = sqlQueryModifier.addServiceColumns(query, configurationExplorer);
 
 /*        if (accessToken.isDeferred()) {
             query = sqlQueryModifier.addAclQuery(query, collectionConfig.getIdField());
@@ -97,7 +97,7 @@ public class CollectionQueryInitializer {
      */
     private String postProcessQuery(AccessToken accessToken, String query) {
         SqlQueryModifier sqlQueryModifier = new SqlQueryModifier();
-        query = sqlQueryModifier.addReferenceFieldTypes(query, configurationExplorer);
+        query = sqlQueryModifier.addServiceColumns(query, configurationExplorer);
 
 /*        if (accessToken.isDeferred()) {
             query = sqlQueryModifier.addAclQuery(query, "id");
