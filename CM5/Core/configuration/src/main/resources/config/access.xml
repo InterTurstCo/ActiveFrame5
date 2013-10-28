@@ -99,11 +99,11 @@
             <domain-object type="Outgoing_Document"  />
         </context>
         <groups>
-            <group name="Пользователь и его заместители">
-                <bind-context>
+            <track-domain-objects>
+                <get-group name="Пользователь и его заместители">
                     <doel>Author</doel>
-                </bind-context>
-            </group>
+                </get-group>
+            </track-domain-objects>
         </groups>
     </context-role>
 

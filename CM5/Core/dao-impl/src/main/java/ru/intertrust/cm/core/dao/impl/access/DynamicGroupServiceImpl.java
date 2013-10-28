@@ -32,6 +32,7 @@ import ru.intertrust.cm.core.config.model.BindContextConfig;
 import ru.intertrust.cm.core.config.model.DoelAware;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.DynamicGroupConfig;
+import ru.intertrust.cm.core.config.model.DynamicGroupTrackDomainObjectsConfig;
 import ru.intertrust.cm.core.config.model.GetPersonConfig;
 import ru.intertrust.cm.core.config.model.TrackDomainObjectsConfig;
 import ru.intertrust.cm.core.config.model.base.TopLevelConfig;
@@ -58,7 +59,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
     final static Logger logger = LoggerFactory
             .getLogger(DynamicGroupServiceImpl.class);
 
-    private Hashtable<String, List<DynamicGroupCollector>> collectors = new Hashtable<String, List<DynamicGroupCollector>>();
+    private Hashtable<String, List<DynamicGroupRegisterItem>> collectors = new Hashtable<String, List<DynamicGroupRegisterItem>>();
 
     @Autowired
     private ConfigurationExplorer configurationExplorer;
@@ -79,35 +80,34 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
             List<FieldModification> modifiedFieldNames) {
         String typeName = domainObject.getTypeName();
 
-        List<DynamicGroupCollector> typeCollectors = collectors.get(typeName);
-        // Формируем мапу динамических грпп, требующих пересчета и их
+        List<DynamicGroupRegisterItem> typeCollectors = collectors.get(typeName);
+        // Формируем мапу динамических групп, требующих пересчета и их
         // коллекторов, исключая дублирование
         Map<Id, DynamicGroupCollector> invalidGroups = new Hashtable<Id, DynamicGroupCollector>();
-        for (DynamicGroupCollector dynamicGroupCollector : typeCollectors) {
+        for (DynamicGroupRegisterItem dynamicGroupCollector : typeCollectors) {
+            // Поучаем невалидные контексты для
+            List<Id> invalidContexts = dynamicGroupCollector.getCollector().getInvalidContexts(domainObject, modifiedFieldNames);
 
-            List<Id> collectorInvalidGroups = dynamicGroupCollector
-                    .getInvalidDynamicGroups(domainObject,
-                            modifiedFieldNames);
-            // Добавляем в массив групп, исключая дублирование
-            for (Id id : collectorInvalidGroups) {
-                invalidGroups.put(id, dynamicGroupCollector);
+            for (Id invalidContext : invalidContexts) {
+                Id dynamicGroupId = refreshUserGroup(dynamicGroupCollector.getConfig().getName(), invalidContext);
+                invalidGroups.put(dynamicGroupId, dynamicGroupCollector.getCollector());
             }
         }
 
-        // Непосредственно формирование состава, должно выхыватся в конце
+        // Непосредственно формирование состава, должно вызываться в конце
         // транзакции
         // TODO надо перенести на конец транзакции
-        for (Id droupId : invalidGroups.keySet()) {
-            DynamicGroupCollector collector = invalidGroups.get(droupId);
+        for (Id groupId : invalidGroups.keySet()) {
+            DynamicGroupCollector collector = invalidGroups.get(groupId);
             // Получаем группу
             AccessToken accessToken = accessControlService
                     .createSystemAccessToken(this.getClass().getName());
-            DomainObject dynGroup = domainObjectDao.find(droupId, accessToken);
+            DomainObject dynGroup = domainObjectDao.find(groupId, accessToken);
 
             // Выполняю пересчет
-            List<Id> groupMembres = collector.getPersons(dynGroup
-                    .getReference("object_id"));
-            refreshGroupMembers(droupId, groupMembres);
+            List<Id> groupMembres = collector.getPersons(domainObject.getId(), dynGroup.getReference("object_id"));
+            List<Id> groupMembresGroups = collector.getGroups(domainObject.getId(), dynGroup.getReference("object_id"));
+            refreshGroupMembers(groupId, groupMembres, groupMembresGroups);
         }
 
         /*
@@ -135,18 +135,17 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
 
         String typeName = domainObject.getTypeName();
 
-        List<DynamicGroupCollector> typeCollectors = collectors.get(typeName);
-        // Формируем мапу динамических грпп, требующих пересчета и их
+        List<DynamicGroupRegisterItem> typeCollectors = collectors.get(typeName);
+        // Формируем мапу динамических групп, требующих пересчета и их
         // коллекторов, исключая дублирование
         Map<Id, DynamicGroupCollector> invalidGroups = new Hashtable<Id, DynamicGroupCollector>();
-        for (DynamicGroupCollector dynamicGroupCollector : typeCollectors) {
+        for (DynamicGroupRegisterItem dynamicGroupCollector : typeCollectors) {
+            // Поучаем невалидные контексты для
+            List<Id> invalidContexts = dynamicGroupCollector.getCollector().getInvalidContexts(domainObject, getNewObjectModificationList(domainObject));
 
-            List<Id> collectorInvalidGroups = dynamicGroupCollector
-                    .getInvalidDynamicGroups(domainObject,
-                            getNewObjectModificationList(domainObject));
-            // Добавляем в массив групп, исключая дублирование
-            for (Id id : collectorInvalidGroups) {
-                invalidGroups.put(id, dynamicGroupCollector);
+            for (Id invalidContext : invalidContexts) {
+                Id dynamicGroupId = refreshUserGroup(dynamicGroupCollector.getConfig().getName(), invalidContext);
+                invalidGroups.put(dynamicGroupId, dynamicGroupCollector.getCollector());
             }
         }
 
@@ -161,9 +160,9 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
             DomainObject dynGroup = domainObjectDao.find(droupId, accessToken);
 
             // Выполняю пересчет
-            List<Id> groupMembres = collector.getPersons(dynGroup
-                    .getReference("object_id"));
-            refreshGroupMembers(droupId, groupMembres);
+            List<Id> groupMembres = collector.getPersons(domainObject.getId(), dynGroup.getReference("object_id"));
+            List<Id> groupMembresGroups = collector.getGroups(domainObject.getId(), dynGroup.getReference("object_id"));
+            refreshGroupMembers(droupId, groupMembres, groupMembresGroups);
         }
 
         /*
@@ -180,30 +179,6 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
          * 
          * refreshGroupMembers(dynamicGroupId, groupMembres); }
          */
-    }
-
-    private List<FieldModification> getNewObjectModificationList(
-            DomainObject domainObject) {
-        List<FieldModification> result = new ArrayList<FieldModification>();
-
-        for (String fieldName : domainObject.getFields()) {
-            result.add(new FieldModificationImpl(fieldName, null, domainObject
-                    .getValue(fieldName)));
-        }
-
-        return result;
-    }
-
-    private List<FieldModification> getDeletedModificationList(
-            DomainObject domainObject) {
-        List<FieldModification> result = new ArrayList<FieldModification>();
-
-        for (String fieldName : domainObject.getFields()) {
-            result.add(new FieldModificationImpl(fieldName, domainObject
-                    .getValue(fieldName), null));
-        }
-
-        return result;
     }
 
     /**
@@ -223,7 +198,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
             DynamicGroupConfig dynamicGroupConfig, Id objectId,
             Id contextObjectid) {
         List<Value> result = null;
-        TrackDomainObjectsConfig trackDomainObjects = dynamicGroupConfig
+        DynamicGroupTrackDomainObjectsConfig trackDomainObjects = dynamicGroupConfig
                 .getMembers().getTrackDomainObjects();
         if (trackDomainObjects != null
                 && trackDomainObjects.getBindContext() != null) {
@@ -312,7 +287,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
 
             if (dynamicGroup.getMembers() != null
                     && dynamicGroup.getMembers().getTrackDomainObjects() != null) {
-                TrackDomainObjectsConfig trackDomainObjectsConfig = dynamicGroup
+                DynamicGroupTrackDomainObjectsConfig trackDomainObjectsConfig = dynamicGroup
                         .getMembers().getTrackDomainObjects();
 
                 BindContextConfig bindContext = trackDomainObjectsConfig
@@ -465,10 +440,22 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
      * @param personIds
      *            список персон
      */
-    private void refreshGroupMembers(Id dynamicGroupId, List<Id> personIds) {
+    private void refreshGroupMembers(Id dynamicGroupId, List<Id> personIds, List<Id> groupIds) {
         cleanGroupMembers(dynamicGroupId);
-
         insertGroupMembers(dynamicGroupId, personIds);
+
+        cleanGroupMembersGroups(dynamicGroupId);
+        insertGroupMembersGroups(dynamicGroupId, groupIds);
+    }
+
+    private void insertGroupMembersGroups(Id dynamicGroupId, List<Id> personIds) {
+        // TODO Auto-generated method stub
+
+    }
+
+    private void cleanGroupMembersGroups(Id dynamicGroupId) {
+        // TODO Auto-generated method stub
+
     }
 
     // TODO Optimize performance
@@ -490,6 +477,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
     }
 
     private void cleanGroupMembers(Id dynamicGroupId) {
+        // TODO Удалять надо с помощью domainObjectDao
         String query = generateDeleteGroupMembersQuery();
 
         Map<String, Object> parameters = initializeDeleteGroupMembersParameters(dynamicGroupId);
@@ -537,21 +525,21 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
 
     @Override
     public void notifyDomainObjectDeleted(DomainObject domainObject) {
-        List<DynamicGroupCollector> typeCollectors = collectors.get(domainObject.getTypeName());
-        // Формируем мапу динамических грпп, требующих пересчета и их
+        String typeName = domainObject.getTypeName();
+
+        List<DynamicGroupRegisterItem> typeCollectors = collectors.get(typeName);
+        // Формируем мапу динамических групп, требующих пересчета и их
         // коллекторов, исключая дублирование
         Map<Id, DynamicGroupCollector> invalidGroups = new Hashtable<Id, DynamicGroupCollector>();
-        for (DynamicGroupCollector dynamicGroupCollector : typeCollectors) {
+        for (DynamicGroupRegisterItem dynamicGroupCollector : typeCollectors) {
+            // Поучаем невалидные контексты для
+            List<Id> invalidContexts = dynamicGroupCollector.getCollector().getInvalidContexts(domainObject, getDeletedModificationList(domainObject));
 
-            List<Id> collectorInvalidGroups = dynamicGroupCollector
-                    .getInvalidDynamicGroups(domainObject,
-                            getDeletedModificationList(domainObject));
-            // Добавляем в массив групп, исключая дублирование
-            for (Id id : collectorInvalidGroups) {
-                invalidGroups.put(id, dynamicGroupCollector);
+            for (Id invalidContext : invalidContexts) {
+                Id dynamicGroupId = refreshUserGroup(dynamicGroupCollector.getConfig().getName(), invalidContext);
+                invalidGroups.put(dynamicGroupId, dynamicGroupCollector.getCollector());
             }
         }
-
         // Непосредственно формирование состава, должно выхыватся в конце
         // транзакции
         // TODO надо перенести на конец транзакции
@@ -563,9 +551,9 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
             DomainObject dynGroup = domainObjectDao.find(droupId, accessToken);
 
             // Выполняю пересчет
-            List<Id> groupMembres = collector.getPersons(dynGroup
-                    .getReference("object_id"));
-            refreshGroupMembers(droupId, groupMembres);
+            List<Id> groupMembres = collector.getPersons(domainObject.getId(), dynGroup.getReference("object_id"));
+            List<Id> groupMembresGroups = collector.getGroups(domainObject.getId(), dynGroup.getReference("object_id"));
+            refreshGroupMembers(droupId, groupMembres, groupMembresGroups);
         }
 
         /*
@@ -623,6 +611,9 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
                                         TrackDomainObjectCollector.class,
                                         AutowireCapableBeanFactory.AUTOWIRE_BY_NAME,
                                         false);
+                        // TODO Я конечно против использования базы напрямую, но
+                        // так сделано изначально, пока не переделываем
+                        ((TrackDomainObjectCollector) collector).setJdbcTemplate(jdbcTemplate);
 
                     }
                     collector.init(config);
@@ -633,13 +624,13 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
                     // только определенных типов
                     if (types != null) {
                         for (String type : types) {
-                            registerCollector(type, collector);
+                            registerCollector(type, collector, config);
                             // Ищем всех наследников и так же регистрируем
                             // их в
                             // реестре с данным коллектором
                             List<String> subTypes = getSubTypes(type);
                             for (String subtype : subTypes) {
-                                registerCollector(subtype, collector);
+                                registerCollector(subtype, collector, config);
                             }
                         }
                     }
@@ -657,13 +648,13 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
      * @param type
      * @param collector
      */
-    private void registerCollector(String type, DynamicGroupCollector collector) {
-        List<DynamicGroupCollector> typeCollectors = collectors.get(type);
+    private void registerCollector(String type, DynamicGroupCollector collector, DynamicGroupConfig config) {
+        List<DynamicGroupRegisterItem> typeCollectors = collectors.get(type);
         if (typeCollectors == null) {
-            typeCollectors = new ArrayList<DynamicGroupCollector>();
+            typeCollectors = new ArrayList<DynamicGroupRegisterItem>();
             collectors.put(type, typeCollectors);
         }
-        typeCollectors.add(collector);
+        typeCollectors.add(new DynamicGroupRegisterItem(config, collector));
     }
 
     /**
@@ -703,6 +694,29 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
     public void setApplicationContext(ApplicationContext applicationContext)
             throws BeansException {
         this.applicationContext = applicationContext;
+    }
+
+    /**
+     * Клаксс для описания элемента реестра динамических групп
+     * @author larin
+     * 
+     */
+    private class DynamicGroupRegisterItem {
+        private DynamicGroupCollector collector;
+        private DynamicGroupConfig config;
+
+        private DynamicGroupRegisterItem(DynamicGroupConfig config, DynamicGroupCollector collector) {
+            this.collector = collector;
+            this.config = config;
+        }
+
+        public DynamicGroupCollector getCollector() {
+            return collector;
+        }
+
+        public DynamicGroupConfig getConfig() {
+            return config;
+        }
     }
 
 }

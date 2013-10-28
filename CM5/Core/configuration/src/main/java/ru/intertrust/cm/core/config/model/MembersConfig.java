@@ -16,7 +16,7 @@ public class MembersConfig implements Serializable {
     private CollectorConfig collector;
     
     @Element(name ="track-domain-objects", required = false)
-    private TrackDomainObjectsConfig trackDomainObjects;
+    private DynamicGroupTrackDomainObjectsConfig trackDomainObjects;
 
     public CollectorConfig getCollector() {
         return collector;
@@ -26,11 +26,11 @@ public class MembersConfig implements Serializable {
         this.collector = collector;
     }
 
-    public TrackDomainObjectsConfig getTrackDomainObjects() {
+    public DynamicGroupTrackDomainObjectsConfig getTrackDomainObjects() {
         return trackDomainObjects;
     }
 
-    public void setTrackDomainObjects(TrackDomainObjectsConfig trackDomainObjects) {
+    public void setTrackDomainObjects(DynamicGroupTrackDomainObjectsConfig trackDomainObjects) {
         this.trackDomainObjects = trackDomainObjects;
     }
     

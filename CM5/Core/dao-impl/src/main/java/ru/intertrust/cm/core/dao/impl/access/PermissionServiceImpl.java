@@ -2,11 +2,18 @@ package ru.intertrust.cm.core.dao.impl.access;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationException;
@@ -14,9 +21,11 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.AccessMatrixConfig;
 import ru.intertrust.cm.core.config.model.BaseOperationPermitConfig;
 import ru.intertrust.cm.core.config.model.BasePermit;
+import ru.intertrust.cm.core.config.model.CollectorConfig;
 import ru.intertrust.cm.core.config.model.ContextRoleConfig;
 import ru.intertrust.cm.core.config.model.CreateChildConfig;
 import ru.intertrust.cm.core.config.model.DeleteConfig;
+import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.DynamicGroupConfig;
 import ru.intertrust.cm.core.config.model.ExecuteActionConfig;
 import ru.intertrust.cm.core.config.model.GroupConfig;
@@ -24,22 +33,32 @@ import ru.intertrust.cm.core.config.model.PermitGroup;
 import ru.intertrust.cm.core.config.model.PermitRole;
 import ru.intertrust.cm.core.config.model.ReadConfig;
 import ru.intertrust.cm.core.config.model.WriteConfig;
+import ru.intertrust.cm.core.config.model.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.model.doel.DoelExpression;
 import ru.intertrust.cm.core.dao.access.AccessType;
+import ru.intertrust.cm.core.dao.access.ContextRoleCollector;
 import ru.intertrust.cm.core.dao.access.CreateChildAccessType;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.access.ExecuteActionAccessType;
 import ru.intertrust.cm.core.dao.access.PermissionService;
+import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
+import ru.intertrust.cm.core.dao.api.extension.OnLoadConfigurationExtensionHandler;
+import ru.intertrust.cm.core.model.PermissionException;
 
 /**
- * Реализвация сервиса обновления списков доступа.
+ * Реализация сервиса обновления списков доступа.
  * @author atsvetkov
  */
-public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implements PermissionService {
+@ExtensionPoint
+public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implements PermissionService, ApplicationContextAware,
+        OnLoadConfigurationExtensionHandler {
 
     @Autowired
     private ConfigurationExplorer configurationExplorer;
 
+    private ApplicationContext applicationContext;
+
+    private Hashtable<String, List<ContextRoleRegisterItem>> collectors = new Hashtable<String, List<ContextRoleRegisterItem>>();
 
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
@@ -47,7 +66,42 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
     }
 
     @Override
-    public void refreshAclFor(Id objectId) {
+    public void notifyDomainObjectDeleted(DomainObject domainObject) {
+        notifyDomainObjectChangedInternal(domainObject, getDeletedModificationList(domainObject));
+        cleanAclFor(domainObject.getId());
+    }
+
+    @Override
+    public void notifyDomainObjectChanged(DomainObject domainObject, List<FieldModification> modifiedFieldNames) {
+        notifyDomainObjectChangedInternal(domainObject, modifiedFieldNames);
+    }
+
+    @Override
+    public void notifyDomainObjectCreated(DomainObject domainObject) {
+        notifyDomainObjectChangedInternal(domainObject, getNewObjectModificationList(domainObject));
+    }
+
+    private void notifyDomainObjectChangedInternal(DomainObject domainObject, List<FieldModification> modifiedFieldNames) {
+        String typeName = domainObject.getTypeName();
+
+        List<ContextRoleRegisterItem> typeCollectors = collectors.get(typeName);
+        // Формируем мапу динамических групп, требующих пересчета и их
+        // коллекторов, исключая дублирование
+        List<Id> invalidContexts = null;
+        for (ContextRoleRegisterItem dynamicGroupCollector : typeCollectors) {
+            // Поучаем невалидные контексты для
+            invalidContexts = dynamicGroupCollector.getCollector().getInvalidContexts(domainObject, modifiedFieldNames);
+        }
+
+        // Непосредственно формирование состава, должно вызываться в конце
+        // транзакции
+        // TODO надо перенести на конец транзакции
+        for (Id contextId : invalidContexts) {
+            refreshAclFor(contextId);
+        }
+    }
+
+    private void refreshAclFor(Id objectId) {
         RdbmsId rdbmsId = (RdbmsId) objectId;
         String domainObjectType = domainObjectTypeIdCache.getName(rdbmsId.getTypeId());
         String status = getStatusFor(objectId);
@@ -70,7 +124,8 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
 
     /**
      * Определяет тип операции {@link AccessType} по конфигурации операции.
-     * @param operationPermitConfig конфигурации операции
+     * @param operationPermitConfig
+     *            конфигурации операции
      * @return тип операции
      */
     private AccessType getAccessType(BaseOperationPermitConfig operationPermitConfig) {
@@ -94,9 +149,13 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
 
     /**
      * Обрабатывает все разрешения на выполнение переданной операции.
-     * @param objectId идентификатор доменного объекта, для которого расчитывается список доступа
-     * @param operationPermitConfig конфигурация разрешений для операции
-     * @param accessType тип операции
+     * @param objectId
+     *            идентификатор доменного объекта, для которого расчитывается
+     *            список доступа
+     * @param operationPermitConfig
+     *            конфигурация разрешений для операции
+     * @param accessType
+     *            тип операции
      */
     private void processOperationPermissions(Id objectId, BaseOperationPermitConfig operationPermitConfig,
             AccessType accessType) {
@@ -123,13 +182,14 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
                 }
             } else if (permit.getClass().equals(PermitGroup.class)) {
                 String dynamicGroupName = permit.getName();
-                
+
                 DynamicGroupConfig dynamicGroupConfig = findAndCheckDynamicGroupByName(dynamicGroupName);
-                
+
                 if (dynamicGroupConfig.getContext() != null
                         && dynamicGroupConfig.getContext().getDomainObject() != null) {
 
-                    // контекстным объектом являетя текущий объект (для которого пересчитываются списки доступа)
+                    // контекстным объектом являетя текущий объект (для которого
+                    // пересчитываются списки доступа)
                     Long contextObjectId = ((RdbmsId) objectId).getId();
                     processAclForDynamicGroupWithContext(objectId, accessType, dynamicGroupName, contextObjectId);
 
@@ -137,7 +197,7 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
                     processAclForDynamicGroupWithoutContext(objectId, accessType, dynamicGroupName);
 
                 }
-                                
+
             }
         }
     }
@@ -160,19 +220,24 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
     }
 
     /**
-     * Пересчитывает список доступа для динамичсекой группы для переданного доменного объекта.
-     * @param objectId идентификатор доменного объекта, для которого пересчитывается список доступа
-     * @param roleGroupConfig конфигурация динамической группы
-     * @param accessType тип доступа для динамичской группы
+     * Пересчитывает список доступа для динамичсекой группы для переданного
+     * доменного объекта.
+     * @param objectId
+     *            идентификатор доменного объекта, для которого пересчитывается
+     *            список доступа
+     * @param roleGroupConfig
+     *            конфигурация динамической группы
+     * @param accessType
+     *            тип доступа для динамичской группы
      */
     private void processAclForDynamicGroup(Id objectId, Object roleGroupConfig, AccessType accessType) {
         GroupConfig groupConfig = (GroupConfig) roleGroupConfig;
         String dynamicGroupName = groupConfig.getName();
-        
+
         DynamicGroupConfig dynamicGroupConfig = findAndCheckDynamicGroupByName(dynamicGroupName);
-        
+
         if (dynamicGroupConfig.getContext() != null && dynamicGroupConfig.getContext().getDomainObject() != null) {
-        
+
             if (groupConfig.getBindContext() != null && groupConfig.getBindContext().getDoel() != null) {
                 String doel = groupConfig.getBindContext().getDoel();
                 List<Long> contextObjectids = getDynamicGroupContextObject(objectId, doel);
@@ -181,12 +246,13 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
 
                 }
             } else {
-                // если путь к контекстному объекту не указан внутри тега group, то контекстным объектом является
+                // если путь к контекстному объекту не указан внутри тега group,
+                // то контекстным объектом является
                 // текущий объект
                 Long contextObjectId = ((RdbmsId) objectId).getId();
                 processAclForDynamicGroupWithContext(objectId, accessType, dynamicGroupName, contextObjectId);
             }
-            
+
         } else {
             processAclForDynamicGroupWithoutContext(objectId, accessType, dynamicGroupName);
 
@@ -195,7 +261,7 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
 
     private void processAclForDynamicGroupWithoutContext(Id objectId, AccessType accessType, String dynamicGroupName) {
         Id dynamicGroupId = getUserGroupByGroupName(dynamicGroupName);
-        if(dynamicGroupId == null) {
+        if (dynamicGroupId == null) {
             dynamicGroupId = createUserGroup(dynamicGroupName, null);
         }
         insertAclRecord(accessType, objectId, dynamicGroupId);
@@ -203,9 +269,12 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
 
     /**
      * Добавляет запись в _ACl (_READ) таблицу.
-     * @param accessType тип доступа
-     * @param objectId идентификатор доменного объекта
-     * @param dynamicGroupId идентификатор группы пользователей
+     * @param accessType
+     *            тип доступа
+     * @param objectId
+     *            идентификатор доменного объекта
+     * @param dynamicGroupId
+     *            идентификатор группы пользователей
      */
     private void insertAclRecord(AccessType accessType, Id objectId, Id dynamicGroupId) {
         RdbmsId rdbmsObjectId = (RdbmsId) objectId;
@@ -265,10 +334,12 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
     }
 
     /**
-     * Выполняет поиск контекстного объекта динамической группы по отслеживаемому объекту матрицы доступа и doel
-     * выражению.
-     * @param objectId отслеживаемый объект матрицы
-     * @param doel выражение внутри тега <bind-context>
+     * Выполняет поиск контекстного объекта динамической группы по
+     * отслеживаемому объекту матрицы доступа и doel выражению.
+     * @param objectId
+     *            отслеживаемый объект матрицы
+     * @param doel
+     *            выражение внутри тега <bind-context>
      * @return
      */
     private List<Long> getDynamicGroupContextObject(Id objectId, String doel) {
@@ -345,6 +416,138 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
         parameters.put("object_id", objectId.getId());
 
         return parameters;
+    }
+
+    @Override
+    public void onLoad() {
+        try {
+            // Поиск конфигураций динамических групп
+            for (TopLevelConfig topConfig : configurationExplorer
+                    .getConfiguration().getConfigurationList()) {
+
+                if (topConfig instanceof ContextRoleConfig) {
+                    ContextRoleConfig config = (ContextRoleConfig) topConfig;
+                    ContextRoleCollector collector = null;
+                    // Если контекстная роль настраивается классом коллектором,
+                    // то создаем его экземпляр, и добавляем в реестр
+
+                    if (config.getGroups() != null
+                            && config.getGroups().getGroups() != null && config.getGroups().getGroups() instanceof CollectorConfig) {
+                        Class<?> collectorClass = Class.forName(((CollectorConfig) config.getGroups().getGroups()).getClassName());
+                        collector = (ContextRoleCollector) applicationContext
+                                .getAutowireCapableBeanFactory()
+                                .createBean(
+                                        collectorClass,
+                                        AutowireCapableBeanFactory.AUTOWIRE_BY_NAME,
+                                        false);
+                    } else {
+                        // Специфичный коллектор не указан используем коллектор
+                        // по умолчанию
+                        collector = (ContextRoleCollector) applicationContext
+                                .getAutowireCapableBeanFactory()
+                                .createBean(
+                                        ContextRoleTrackDomainObjectCollector.class,
+                                        AutowireCapableBeanFactory.AUTOWIRE_BY_NAME,
+                                        false);
+                        // TODO Я конечно против использования базы напрямую, но
+                        // так сделано изначально, пока не переделываем
+                        ((ContextRoleTrackDomainObjectCollector) collector).setJdbcTemplate(jdbcTemplate);
+
+                    }
+                    collector.init(config);
+
+                    // Получение типов, которые отслеживает коллектор
+                    List<String> types = collector.getTrackTypeNames();
+                    // Регистрируем коллектор в реестре, для обработки
+                    // только определенных типов
+                    if (types != null) {
+                        for (String type : types) {
+                            registerCollector(type, collector, config);
+                            // Ищем всех наследников и так же регистрируем
+                            // их в
+                            // реестре с данным коллектором
+                            List<String> subTypes = getSubTypes(type);
+                            for (String subtype : subTypes) {
+                                registerCollector(subtype, collector, config);
+                            }
+                        }
+                    }
+
+                }
+            }
+        } catch (Exception ex) {
+            throw new PermissionException("Error on init collector classes", ex);
+        }
+    }
+
+    /**
+     * Регистрация коллектора в реестре колекторов
+     * 
+     * @param type
+     * @param collector
+     */
+    private void registerCollector(String type, ContextRoleCollector collector, ContextRoleConfig config) {
+        List<ContextRoleRegisterItem> typeCollectors = collectors.get(type);
+        if (typeCollectors == null) {
+            typeCollectors = new ArrayList<ContextRoleRegisterItem>();
+            collectors.put(type, typeCollectors);
+        }
+        typeCollectors.add(new ContextRoleRegisterItem(config, collector));
+    }
+
+    /**
+     * Получение всех дочерних типов переданного типа
+     * 
+     * @param type
+     * @return
+     */
+    private List<String> getSubTypes(String type) {
+        List<String> result = new ArrayList<String>();
+        // Получение всех конфигураций доменных оьъектов
+        for (TopLevelConfig topConfig : configurationExplorer
+                .getConfiguration().getConfigurationList()) {
+            if (topConfig instanceof DomainObjectTypeConfig) {
+                DomainObjectTypeConfig config = (DomainObjectTypeConfig) topConfig;
+                // Сравнение родительского типа и переданного парамера
+                if (config.getExtendsAttribute() != null
+                        && config.getExtendsAttribute().equals(type)) {
+                    // Если нашли наследника добавляем в результат
+                    result.add(config.getName());
+                    // Рекурсивно вызываем для получения всех наследников
+                    // найденного наследника
+                    result.addAll(getSubTypes(config.getName()));
+                }
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
+
+    /**
+     * Клаксс для описания элемента реестра контекстных ролей
+     * @author larin
+     * 
+     */
+    private class ContextRoleRegisterItem {
+        private ContextRoleCollector collector;
+        private ContextRoleConfig config;
+
+        private ContextRoleRegisterItem(ContextRoleConfig config, ContextRoleCollector collector) {
+            this.collector = collector;
+            this.config = config;
+        }
+
+        public ContextRoleCollector getCollector() {
+            return collector;
+        }
+
+        public ContextRoleConfig getConfig() {
+            return config;
+        }
     }
 
 }

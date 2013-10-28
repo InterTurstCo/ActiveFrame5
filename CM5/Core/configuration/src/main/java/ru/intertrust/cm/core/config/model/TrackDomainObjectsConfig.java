@@ -1,30 +1,38 @@
 package ru.intertrust.cm.core.config.model;
 
-import java.io.Serializable;
-
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
+import ru.intertrust.cm.core.business.api.dto.Dto;
+
 /**
- * Специальная реализация, основанная на отслеживании создания, изменения и удаления доменных объектов заданного типа и статуса.
+ * Класс конфигурации коллектора контекстной роли
  * @author atsvetkov
  *
  */
 @Root
-public class TrackDomainObjectsConfig implements Serializable {
+public class TrackDomainObjectsConfig implements Dto{
 
-    @Attribute(name = "type", required = true)
+    @Attribute(name = "type", required = false)
     private String type;
 
-    @Attribute(name = "status")
+    @Attribute(name = "status", required = false)
     private String status;
 
     @Element(name ="bind-context", required = false)    
     private BindContextConfig bindContext;
     
-    @Element(name ="get-person", required = false)    
-    private GetPersonConfig getPerson;
+    @Element(name = "get-group", required = false)
+    private GetGroupConfig getGroup;
+
+    public GetGroupConfig getGetGroup() {
+        return getGroup;
+    }
+
+    public void setGetGroup(GetGroupConfig getGroup) {
+        this.getGroup = getGroup;
+    }
     
     public String getType() {
         return type;
@@ -50,14 +58,6 @@ public class TrackDomainObjectsConfig implements Serializable {
         this.bindContext = bindContext;
     }
 
-    public GetPersonConfig getGetPerson() {
-        return getPerson;
-    }
-
-    public void setGetPerson(GetPersonConfig getPerson) {
-        this.getPerson = getPerson;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -75,7 +75,7 @@ public class TrackDomainObjectsConfig implements Serializable {
         if (status != null ? !status.equals(that.status) : that.status != null) {
             return false;
         }
-        if (getPerson != null ? !getPerson.equals(that.getPerson) : that.getPerson != null) {
+        if (getGroup != null ? !getGroup.equals(that.getGroup) : that.getGroup != null) {
             return false;
         }
         if (bindContext != null ? !bindContext.equals(that.bindContext) : that.bindContext != null) {

@@ -184,11 +184,15 @@ public class ConfigurationSerializer {
      * @throws Exception
      */
    public Configuration deserializeConfiguration(String configurationFilePath) throws Exception {
+       try{
         ConfigurationSchemaValidator schemaValidator = new ConfigurationSchemaValidator(configurationFilePath,
                 coreConfigurationSchemaFilePath);
         schemaValidator.validate();
 
         return createSerializerInstance().read(Configuration.class, FileUtils.getFileInputStream(configurationFilePath));
+       }catch(Exception ex){
+           throw new ConfigurationException("Error load " + configurationFilePath, ex);
+       }
     }
 
     private Configuration deserializeModuleConfiguration(ModuleConfig moduleConfig) throws Exception {

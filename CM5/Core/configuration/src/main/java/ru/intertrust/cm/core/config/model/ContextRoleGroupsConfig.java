@@ -14,7 +14,7 @@ import org.simpleframework.xml.ElementListUnion;
 public class ContextRoleGroupsConfig {
 
     @ElementListUnion({
-            @ElementList(entry = "group", type = GroupConfig.class, inline = true),
+            @ElementList(entry = "track-domain-objects", type = TrackDomainObjectsConfig.class, inline = true),
             @ElementList(entry = "collector", type = CollectorConfig.class, inline = true)
     })
     private List<Object> groups = new ArrayList<>();

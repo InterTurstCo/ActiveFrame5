@@ -36,7 +36,7 @@ public class OrganizationEmployee implements DynamicGroupCollector {
     private AccessControlService accessControlService;
 
     @Override
-    public List<Id> getPersons(Id contextId) {
+    public List<Id> getPersons(Id domainObjectId, Id contextId) {
         String query = "select e.id from ";
         query += "employee e ";
         query += "department d on (e.department = d.id) ";
@@ -47,7 +47,7 @@ public class OrganizationEmployee implements DynamicGroupCollector {
     }
 
     @Override
-    public List<Id> getGroups(Id contextId) {
+    public List<Id> getGroups(Id domainObjectId, Id contextId) {
         return null;
     }
 
@@ -60,9 +60,9 @@ public class OrganizationEmployee implements DynamicGroupCollector {
     }
 
     @Override
-    public List<Id> getInvalidDynamicGroups(DomainObject domainObject,
+    public List<Id> getInvalidContexts(DomainObject domainObject,
             List<FieldModification> modifiedFieldNames) {
-        List<Id> result = null;
+        List<Id> result = new ArrayList<Id>();
         // Если изменилось подразделение и сменилась ссылка на организацию то
         // получаем
         // группу у организации
@@ -71,36 +71,26 @@ public class OrganizationEmployee implements DynamicGroupCollector {
 
             FieldModification fieldModification = getFieldModification(modifiedFieldNames, "Organization");
 
-            // Формируем запрос на получение невалидных динамических групп
-            String query = "select ug.id from ";
-            query += "user_group ug ";
-            query += "where ug.object_id in (";
 
             if (fieldModification.getBaseValue() != null && fieldModification.getComparedValue() != null) {
                 // В случае изменения
-                query +=
-                        ((RdbmsId) ((ReferenceValue) fieldModification.getBaseValue()).get()).getId() + ", "
-                                + ((RdbmsId) ((ReferenceValue) fieldModification.getComparedValue()).get()).getId();
+                result.add((Id)fieldModification.getBaseValue().get());
+                result.add((Id)fieldModification.getComparedValue().get());
             } else if (fieldModification.getBaseValue() == null && fieldModification.getComparedValue() != null) {
                 // В случае создания
-                query += ((RdbmsId) ((ReferenceValue) fieldModification.getComparedValue()).get()).getId();
+                result.add((Id)fieldModification.getComparedValue().get());
             } else if (fieldModification.getBaseValue() != null && fieldModification.getComparedValue() == null) {
                 // В случае удаления
-                query += ((RdbmsId) ((ReferenceValue) fieldModification.getBaseValue()).get()).getId();
+                result.add((Id)fieldModification.getBaseValue().get());
             }
-            query += ") and ug.group_name = '" + config.getName() + "'";
-
-            result = getIdsByQuery(query);
-
         } else if (domainObject.getTypeName().equals("Employee")
                 && (modifiedFieldNames == null || containsModifiedField(
                         modifiedFieldNames, "Department"))) {
             // Если изменилась ссылка на подразделение у сотрудника
             FieldModification fieldModification = getFieldModification(modifiedFieldNames, "Department");
 
-            String query = "select ug.id from department d ";
-            query += "inner join user_group ug on (d.organization = ug.object_id) ";
-            query += "where d.id in ";
+            String query = "select d.organisation from department d ";
+            query += "where d.id in ( ";
 
             if (fieldModification.getBaseValue() != null && fieldModification.getComparedValue() != null) {
                 // В случае изменения
@@ -115,7 +105,7 @@ public class OrganizationEmployee implements DynamicGroupCollector {
                 query += ((RdbmsId) ((ReferenceValue) fieldModification.getBaseValue()).get()).getId();
             }
 
-            query += ") and ug.group_name = '" + config.getName() + "'";
+            query += " ) and ug.group_name = '" + config.getName() + "'";
 
             result = getIdsByQuery(query);
 

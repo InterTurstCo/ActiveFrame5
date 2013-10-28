@@ -21,11 +21,12 @@ public interface DynamicGroupCollector {
      * контекстных групп. Возвращает список идентификаторов пользователей,
      * входящих в группу
      * @param contextId
-     *            Идентификатор доменного объекта, в контексте которого
-     *            создается динамическая группа
+     *            идентификатор доменного объекта контекста динамической группы
+     * @param domainObjectId
+     *            идентификатор доменного объекта который отслеживался
      * @return
      */
-    List<Id> getPersons(Id contextId);
+    List<Id> getPersons(Id domainObjectId, Id contextId);
 
     /**
      * Вычисляет группы, входящие в состав динамической группы. Вызывается при
@@ -34,9 +35,12 @@ public interface DynamicGroupCollector {
      * контекстных групп. Возвращает список идентификаторов групп, входящих в
      * группу.
      * @param contextId
+     *            идентификатор доменного объекта контекста динамической группы
+     * @param domainObjectId
+     *            идентификатор доменного объекта который отслеживался
      * @return
      */
-    List<Id> getGroups(Id contextId);
+    List<Id> getGroups(Id domainObjectId, Id contextId);
 
     /**
      * Возвращает список типов, изменение которых влечет за собой изменение
@@ -50,7 +54,7 @@ public interface DynamicGroupCollector {
      * необходимо пересчитать.
      * @return
      */
-    List<Id> getInvalidDynamicGroups(DomainObject domainObject, List<FieldModification> modifiedFields);
+    List<Id> getInvalidContexts(DomainObject domainObject, List<FieldModification> modifiedFields);
 
     /**
      * Инициализация коллектора данными из конфигурационного xml

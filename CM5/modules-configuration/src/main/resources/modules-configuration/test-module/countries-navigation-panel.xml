@@ -51,5 +51,33 @@
                 </link>
             </child-links>
         </link>
+        <link name="Documents" display-text="Документы" image="images/inbox.png" child-to-open="Internal_Document">
+            <child-links>
+                <link name="Internal_Document" display-text="Внутренние документы">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="Internal_Document">
+                            <collection-viewer>
+                                <collection-ref name="Internal_Document"/>
+                                <sort-criterion field="name" order="asc"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+            </child-links>
+        </link>
+        <link name="Inbox" display-text="Входящие" image="images/inbox.png" child-to-open="Tasks">
+            <child-links>
+                <link name="Tasks" display-text="Задачи">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="Internal_Document">
+                            <collection-viewer>
+                                <collection-ref name="Tasks"/>
+                                <sort-criterion field="name" order="asc"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+            </child-links>
+        </link>
     </navigation>
 </configuration>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema attributeFormDefault="unqualified"
     elementFormDefault="qualified" targetNamespace="https://cm5.intertrust.ru/config"
-    xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    xmlns:con="https://cm5.intertrust.ru/config" xmlns:xs="http://www.w3.org/2001/XMLSchema">
     <xs:element name="configuration" type="con:configurationType"
         xmlns:con="https://cm5.intertrust.ru/config" />
 
@@ -33,8 +33,8 @@
             use="optional" />
         <xs:attribute type="xs:boolean" name="audit-log"
             use="optional" />
-            <xs:attribute name="initial-status" use="optional" type="xs:string"
-            xmlns:con="https://cm5.intertrust.ru/config" />
+        <xs:attribute name="initial-status" use="optional"
+            type="xs:string" xmlns:con="https://cm5.intertrust.ru/config" />
     </xs:complexType>
 
     <xs:complexType name="attachmentTypes">
@@ -58,7 +58,7 @@
         </xs:restriction>
     </xs:simpleType>
 
-    <xs:simpleType name="typeNameType" >
+    <xs:simpleType name="typeNameType">
         <xs:restriction base="xs:string">
             <xs:maxLength value="25" />
             <xs:pattern value="[a-zA-Z0-9_]*|\*">
@@ -344,8 +344,11 @@
             <xs:element name="get-person" type="con:domainObjectAlgorithmType"
                 maxOccurs="1" minOccurs="0"
                 xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element name="get-group"
+                type="con:getGroupDomainObjectAlgorithmType" maxOccurs="1"
+                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:sequence>
-        <xs:attribute name="type" type="xs:string" use="required"></xs:attribute>
+        <xs:attribute name="type" type="xs:string" use="optional"></xs:attribute>
         <xs:attribute name="status" type="xs:string" use="optional"></xs:attribute>
     </xs:complexType>
 
@@ -397,6 +400,15 @@
         </xs:choice>
     </xs:complexType>
 
+    <xs:complexType name="getGroupDomainObjectAlgorithmType">
+        <xs:complexContent>
+            <xs:extension base="con:domainObjectAlgorithmType">
+                <xs:attribute name="name" type="xs:string"
+                    use="optional" />
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
     <xs:complexType name="contextRoleType">
         <xs:sequence>
             <xs:element name="context" type="con:contextType"
@@ -411,8 +423,7 @@
 
     <xs:complexType name="groupsType">
         <xs:choice>
-            <xs:element name="group" type="con:groupType"
-                maxOccurs="unbounded" minOccurs="0"
+            <xs:element name="track-domain-objects" type="con:trackObjectsType"
                 xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element name="collector" type="con:algorithmType"
                 maxOccurs="1" minOccurs="0"
@@ -527,8 +538,10 @@
             <xs:element type="con:collectionViewerType" name="collection-viewer"
                 xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:sequence>
-        <xs:attribute type="xs:string" name="collection" use="optional" />
-        <xs:attribute type="xs:string" name="domain-object-type-to-create" use="optional"/>
+        <xs:attribute type="xs:string" name="collection"
+            use="optional" />
+        <xs:attribute type="xs:string" name="domain-object-type-to-create"
+            use="optional" />
     </xs:complexType>
 
     <xs:complexType name="collectionViewerType">
@@ -844,7 +857,7 @@
             <xs:element type="con:summaryTableType" name="summary-table"
                 xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:sequence>
-        <xs:attribute type="xs:string" name="id" use = "required" />
+        <xs:attribute type="xs:string" name="id" use="required" />
     </xs:complexType>
     <xs:complexType name="summaryTableType">
         <xs:sequence>
@@ -894,9 +907,9 @@
     <xs:complexType name="listBoxType">
         <xs:sequence>
             <xs:element type="con:fieldPathType" name="field-path"
-                        xmlns:con="https://cm5.intertrust.ru/config" />
+                xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:patternType" name="pattern"
-                        xmlns:con="https://cm5.intertrust.ru/config" />
+                xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:sequence>
         <xs:attribute type="xs:string" name="id" />
     </xs:complexType>
@@ -911,23 +924,23 @@
     <xs:complexType name="suggestBoxType">
         <xs:sequence>
             <xs:element type="con:fieldPathType" name="field-path"
-                        xmlns:con="https://cm5.intertrust.ru/config" />
+                xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:patternType" name="pattern"
-                        xmlns:con="https://cm5.intertrust.ru/config" />
+                xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:collectionRefType" name="collection-ref"
-                        xmlns:con="https://cm5.intertrust.ru/config" />
-            <xs:element type="con:selectionFilterReferenceType" name="selection-filter"
-                        xmlns:con="https://cm5.intertrust.ru/config" />
-            <xs:element type="con:selectionFilterReferenceType" name="selection-exclude-filter"
-                        xmlns:con="https://cm5.intertrust.ru/config" />
+                xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="con:selectionFilterReferenceType"
+                name="selection-filter" xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="con:selectionFilterReferenceType"
+                name="selection-exclude-filter" xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:patternType" name="drop-down-pattern"
-                        xmlns:con="https://cm5.intertrust.ru/config" />
+                xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:patternType" name="selection-pattern"
-                        xmlns:con="https://cm5.intertrust.ru/config" />
-            <xs:element type="con:selectionFilterReferenceType" name="input-text-filter"
-                        xmlns:con="https://cm5.intertrust.ru/config" />
-            <xs:element type="xs:integer" name="page-size" nillable="false"
-                        xmlns:con="https://cm5.intertrust.ru/config" />
+                xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="con:selectionFilterReferenceType"
+                name="input-text-filter" xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="xs:integer" name="page-size"
+                nillable="false" xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:sequence>
         <xs:attribute type="xs:string" name="id" />
     </xs:complexType>
@@ -941,7 +954,7 @@
                 xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
         </xs:sequence>
-        <xs:attribute type="xs:string" name="id" use = "required"/>
+        <xs:attribute type="xs:string" name="id" use="required" />
     </xs:complexType>
     <xs:complexType name="hidingGroupsType">
         <xs:sequence>
@@ -1031,11 +1044,11 @@
             <xs:element type="con:comboBoxType" name="combo-box"
                 xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:listBoxType" name="list-box"
-                        xmlns:con="https://cm5.intertrust.ru/config" />
+                xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:suggestBoxType" name="suggest-box"
-                        xmlns:con="https://cm5.intertrust.ru/config" />
+                xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:attachmentBoxType" name="attachment-box"
-                        xmlns:con="https://cm5.intertrust.ru/config" />
+                xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:linkedDomainObjectHyperlinkType"
                 name="linked-domain-object-hyperlink" xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:linkedDomainObjectsTableType"
@@ -1058,25 +1071,27 @@
     <xs:complexType name="attachmentBoxType">
         <xs:choice maxOccurs="unbounded" minOccurs="0">
             <xs:element type="con:fieldPathType" name="field-path"
-                        xmlns:con="https://cm5.intertrust.ru/config" />
+                xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:scannerType" name="scanner"
-                        xmlns:con="https://cm5.intertrust.ru/config" />
-            <xs:element type="con:attachmentTypeRefType" name="attachment-type-ref"
-                        xmlns:con="https://cm5.intertrust.ru/config" />
+                xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="con:attachmentTypeRefType"
+                name="attachment-type-ref" xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:choice>
         <xs:attribute type="xs:string" name="id" use="required" />
     </xs:complexType>
     <xs:complexType name="scannerType">
         <xs:simpleContent>
             <xs:extension base="xs:string">
-                <xs:attribute type="xs:boolean" name="enabled" use="required" />
+                <xs:attribute type="xs:boolean" name="enabled"
+                    use="required" />
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
     <xs:complexType name="attachmentTypeRefType">
         <xs:simpleContent>
             <xs:extension base="xs:string">
-                <xs:attribute type="xs:string" name="name" use="required" />
+                <xs:attribute type="xs:string" name="name"
+                    use="required" />
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>

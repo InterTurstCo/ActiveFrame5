@@ -26,4 +26,9 @@
         <schema-path>/test-module/custom-configuration.xsd</schema-path>
     </module-configuration>
 
+    <module-configuration>
+        <path>/test-module/workflow.xml</path>
+        <schema-path>/test-module/custom-configuration.xsd</schema-path>
+    </module-configuration>
+
 </modules-configuration>

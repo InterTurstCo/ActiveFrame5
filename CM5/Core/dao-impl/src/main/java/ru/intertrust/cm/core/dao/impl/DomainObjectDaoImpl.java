@@ -178,7 +178,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     private void refreshDynamiGroupsAndAclForCreate(DomainObject createdObject) {
         dynamicGroupService.notifyDomainObjectCreated(createdObject);
-        permissionService.refreshAclFor(createdObject.getId());
+        permissionService.notifyDomainObjectCreated(createdObject);
     }
 
     @Override
@@ -317,7 +317,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         List<FieldModification> modifiedFields = getModifiedFieldNames(domainObject);
         dynamicGroupService.notifyDomainObjectChanged(domainObject,
                 modifiedFields);
-        permissionService.refreshAclFor(domainObject.getId());
+        permissionService.notifyDomainObjectChanged(domainObject, modifiedFields);
     }
 
     private List<FieldModification> getModifiedFieldNames(
@@ -414,7 +414,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private void refreshDynamiGroupsAndAclForDelete(DomainObject deletedObject) {
         if (deletedObject != null) {
             dynamicGroupService.notifyDomainObjectDeleted(deletedObject);
-            permissionService.cleanAclFor(deletedObject.getId());
+            permissionService.notifyDomainObjectDeleted(deletedObject);
         }
     }
 

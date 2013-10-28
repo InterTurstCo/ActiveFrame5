@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+    
+    <collection name="Tasks" idField="MainAttachment">
+        <prototype>
+            <![CDATA[
+                select
+                    t.mainattachment, t.name, t.description, p.login
+                from
+                    Person_Task t 
+                    inner join Assignee_Person ap on (t.id = ap.persontask)
+                    inner join Person p on (ap.person = p.id)
+                where
+                    t.state in (1,2)
+            ]]>
+        </prototype>
+
+    </collection>
+    
+    <collection-view name="task-view" collection="Tasks" is-default="true">
+        <!--todo поддержка конвертации значений, например, в картинки -->
+        <display>
+            <column field="mainattachment" name="id" type="integer" hidden="true" sortable="false" />
+            <column field="name" name="Название" type="string" editable="false" hidden="false" sortable="false" />
+            <column field="description" name="Описание" editable="false" type="string" sortable="true" />
+            <column field="login" name="Адресат" editable="false" type="string" sortable="true" />
+        </display>
+    </collection-view>    
+    
+    <collection-view name="Internal-Document-view" collection="Internal_Document" is-default="true">
+        <!--todo поддержка конвертации значений, например, в картинки -->
+        <display>
+            <column field="id" name="id" type="integer" hidden="true" sortable="false" />
+            <column field="name" name="Название" type="string" editable="false" hidden="false" sortable="false" />
+        </display>
+    </collection-view>    
+    
+    <form name="Internal_Document_form" domain-object-type="Internal_Document" is-default="true" debug = "false">
+        <markup>
+            <header>
+                <table width="800px" height="200px">
+                    <tr>
+                        <td width="100px" h-align="right">
+                            <widget id="1"/>
+                        </td>
+                        <!-- label (Название) -->
+                        <td width="100%" h-align="left">
+                            <widget id="2"/>
+                        </td>
+                        <!-- text-box (Название) -->
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false"> <!-- в теле - только закладки -->
+                <tab name="Согласование"> <!-- закладка состоит из групп с разметкой -->
+                    <single-entry-group> <!-- наследник от TabGroupsConfig -->
+                        <tab-group> <!-- вхождение в группу уже может содержать разметку -->
+                            <table>
+                                <tr>
+                                    <td h-align="center" v-align="center">
+                                        <widget id="3"/>
+                                    </td>
+                                    <!-- label (Согласующие) -->
+                                    <!-- td h-align="left">
+                                        <widget id="4"/>
+                                    </td-->
+                                    <!-- integer-box (Согласующие) -->
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="1">
+                <field-path/>
+                <text>Название:</text>
+            </label>
+            <text-box id="2">
+                <field-path value="name"/>
+            </text-box>
+
+            <label id="3">
+                <text>Согласующие:</text>
+            </label>
+        </widget-config>
+    </form>
+    
+</configuration>

@@ -17,6 +17,8 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.FieldModification;
+import ru.intertrust.cm.core.business.api.dto.FieldModificationImpl;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
@@ -290,4 +292,38 @@ public class BaseDynamicGroupServiceImpl {
         }
     }
 
+    /**
+     * Установка соединения
+     * @param jdbcTemplate
+     */
+    public void setJdbcTemplate(NamedParameterJdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+        
+    }
+
+    protected List<FieldModification> getNewObjectModificationList(
+            DomainObject domainObject) {
+        List<FieldModification> result = new ArrayList<FieldModification>();
+
+        for (String fieldName : domainObject.getFields()) {
+            result.add(new FieldModificationImpl(fieldName, null, domainObject
+                    .getValue(fieldName)));
+        }
+
+        return result;
+    }
+
+    protected List<FieldModification> getDeletedModificationList(
+            DomainObject domainObject) {
+        List<FieldModification> result = new ArrayList<FieldModification>();
+
+        for (String fieldName : domainObject.getFields()) {
+            result.add(new FieldModificationImpl(fieldName, domainObject
+                    .getValue(fieldName), null));
+        }
+
+        return result;
+    }
+    
+    
 }

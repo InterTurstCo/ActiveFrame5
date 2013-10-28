@@ -49,7 +49,7 @@
         </after-execution>
         <action-settings>
             <process-action class-name="start-process"  process-name="execution"/>
-        <action-settings>
+        </action-settings>
     </action>
 
     <action-context name="sign">
@@ -58,6 +58,6 @@
             <type name="Internal_Document"/>
             <Status>OnRegistration</Status>
         </domain-object-context>
-        <action name="sign.action">
+        <action name="sign.action"/>
     </action-context>
 </configuration>
