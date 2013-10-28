@@ -51,10 +51,6 @@
                 </get-person>
             </track-domain-objects>
         </members>
-        <!-- Также включаем всех членов группы "Пользователь" с тем же контекстом -->
-        <include-group name="Пользователь" />
-        <!-- Вероятно, по соображениям эффективности выгоднее будет не включать 
-            здесь группу "Пользователь", а повторить тег trackObjects из неё -->
     </dynamic-group>
 
     <dynamic-group name="Сотрудники подразделения">
@@ -81,14 +77,6 @@
         <context>
             <domain-object type="Employee" />
         </context>
-        <!-- Включаем всех членов группы "Сотрудники подразделения" для подразделения, 
-            которое... -->
-        <include-group name="Сотрудники подразделения">
-            <!-- ...берём из поля "Department" -->
-            <bind-context>
-                <doel>Department</doel>
-            </bind-context>
-        </include-group>
     </dynamic-group>
 
     <!-- <dynamic-group name="Исполнители Поручений">
@@ -183,14 +171,14 @@
     <!-- Контекстные роли -->
     <context-role name="Автор документа">
         <context>
-            <domain-object type="Outgoing_Document" />
+            <domain-object type="Outgoing_Document"  />
         </context>
         <groups>
-            <group name="Пользователь">
-                <bind-context>
+            <track-domain-objects>
+                <get-group name="Пользователь и его заместители">
                     <doel>Author</doel>
-                </bind-context>
-            </group>
+                </get-group>
+            </track-domain-objects>
         </groups>
     </context-role>
 
