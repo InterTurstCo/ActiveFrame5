@@ -26,6 +26,7 @@ public class AttachmentUploaderView extends Composite {
     private int partWidth;
 
     private List<AttachmentModel> attachments;
+
     private VerticalPanel root;
      public  AttachmentUploaderView() {
          init();
@@ -71,7 +72,6 @@ public class AttachmentUploaderView extends Composite {
     }
 
     public void showAttachmentNames() {
-
         attachmentsPanel.clear();
         for (AttachmentModel model : attachments) {
             addRowWithAttachment(model);
@@ -82,6 +82,7 @@ public class AttachmentUploaderView extends Composite {
     private void addRowWithAttachment(AttachmentModel model){
 
         HorizontalPanel horizontalPanel = new HorizontalPanel();
+
         HorizontalPanel rightSide = new HorizontalPanel();
         HorizontalPanel leftSide = new HorizontalPanel();
         partWidth = widgetWidth/2;
@@ -89,47 +90,30 @@ public class AttachmentUploaderView extends Composite {
         rightSide.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
         rightSide.setWidth(partWidth + "px");
         Label  fileNameLabel = initLabel(model);
-
-
-
         Image deleteImage = null;
-
         leftSide.add(fileNameLabel);
+        deleteImage = createDeleteAttachmentButton(model, horizontalPanel);
         if (model.getId() == null) {
-            deleteImage =createDeleteNewAttachmentButton(fileNameLabel);
+
             int imageWidth = deleteImage.getWidth();
             UploaderProgressBar uploaderProgressBar = new UploaderProgressBar((int) (partWidth - imageWidth - 10));
             rightSide.add(uploaderProgressBar);
-        }  else {
-            deleteImage = createDeleteAttachedAttachmentButton(fileNameLabel);
-
         }
 
-
         rightSide.add(deleteImage);
-
         horizontalPanel.add(leftSide);
         horizontalPanel.add(rightSide);
         attachmentsPanel.add(horizontalPanel);
 
     }
-    private Image createDeleteNewAttachmentButton(Label label) {
+
+    private Image createDeleteAttachmentButton(AttachmentModel model, HorizontalPanel panelToRemove) {
 
         Image delete = new Image();
         delete.setUrl("cancel.png");
         delete.getElement().getStyle().setVerticalAlign(Style.VerticalAlign.MIDDLE);
 
-        DeleteNewAttachmentsHandler deleteHandler = new DeleteNewAttachmentsHandler(label);
-        delete.addClickHandler(deleteHandler);
-        return delete;
-    }
-    private Image createDeleteAttachedAttachmentButton(Label label) {
-
-        Image delete = new Image();
-        delete.setUrl("cancel.png");
-        delete.getElement().getStyle().setVerticalAlign(Style.VerticalAlign.MIDDLE);
-
-        DeleteAttachedAttachmentsHandler deleteHandler = new DeleteAttachedAttachmentsHandler(label);
+        DeleteAttachmentsHandler deleteHandler = new DeleteAttachmentsHandler(model, panelToRemove);
         delete.addClickHandler(deleteHandler);
         return delete;
     }
@@ -188,45 +172,20 @@ public class AttachmentUploaderView extends Composite {
 
     }
 
-    private class DeleteNewAttachmentsHandler implements ClickHandler {
+    private class DeleteAttachmentsHandler implements ClickHandler {
 
-        Label label;
-        public DeleteNewAttachmentsHandler(Label label) {
-            this.label = label;
-
-        }
-        @Override
-        public void onClick(ClickEvent event) {
-            String removedId = label.getElement().getId();
-            attachmentsPanel.remove(label.getParent().getParent());
-
-            for (AttachmentModel attachmentModel : attachments) {
-                if (removedId.equals(attachmentModel.getTemporaryName())) {
-                    attachments.remove(attachmentModel);
-                    return;
-                }
-            }
-
-        }
-    }
-    private class DeleteAttachedAttachmentsHandler implements ClickHandler {
-
-        Label label;
-        public DeleteAttachedAttachmentsHandler(Label label) {
-            this.label = label;
+        AttachmentModel model;
+        HorizontalPanel panelForRemoving;
+        public DeleteAttachmentsHandler(AttachmentModel model, HorizontalPanel panelForRemoving) {
+            this.model = model;
+            this.panelForRemoving = panelForRemoving;
 
         }
         @Override
         public void onClick(ClickEvent event) {
-            String removedId = label.getElement().getId();
-            attachmentsPanel.remove(label.getParent().getParent());
 
-            for (AttachmentModel attachmentModel : attachments) {
-                if (removedId.equals(attachmentModel.getId().toStringRepresentation())) {
-                    attachments.remove(attachmentModel);
-                    return;
-                }
-            }
+            panelForRemoving.removeFromParent();
+            attachments.remove(model);
 
         }
     }
