@@ -8,7 +8,6 @@ import ru.intertrust.cm.core.config.model.gui.form.*;
 import ru.intertrust.cm.core.config.model.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
-import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
@@ -42,12 +41,8 @@ public class FormPanel implements IsWidget {
     public void update(FormState formState) {
         for (BaseWidget widget : widgets) {
             WidgetState newState = formState.getWidgetState(widget.getDisplayConfig().getId());
-            try {
-                WidgetState currentState = widget.getCurrentState();
-                if (!newState.equals(currentState)) {
-                    widget.setState(newState);
-                }
-            } catch (GuiException e) { // current state is illegal, thus force update
+            WidgetState currentState = widget.getCurrentState();
+            if (!newState.equals(currentState)) {
                 widget.setState(newState);
             }
         }
@@ -60,7 +55,7 @@ public class FormPanel implements IsWidget {
         IsWidget headerTable = buildTable(header.getTableLayout());
 
         final TabLayoutPanel bodyTabPanel = new TabLayoutPanel(30, Style.Unit.PX);
-        bodyTabPanel.setSize("800px", "200px"); // todo - something else
+        bodyTabPanel.setSize("500px", "200px"); // todo - something else
         BodyConfig body = markup.getBody();
         List<TabConfig> tabs = body.getTabs();
         for (TabConfig tab : tabs) {
@@ -69,7 +64,7 @@ public class FormPanel implements IsWidget {
         bodyTabPanel.selectTab(0);
 
         VerticalPanel verticalPanel = new VerticalPanel();
-        verticalPanel.setSize("800px", "100%");
+        verticalPanel.setSize("500px", "100%");
         verticalPanel.add(headerTable);
         verticalPanel.add(bodyTabPanel);
         bodyTabPanel.getTabWidget(0).getElement().getStyle().setProperty("backgroundColor", "white");
@@ -97,7 +92,7 @@ public class FormPanel implements IsWidget {
     }
     private IsWidget buildTabContent(TabConfig tabConfig) {
         SimpleLayoutPanel panel = new SimpleLayoutPanel();
-        panel.setSize("1200px", "100%");
+        panel.setSize("500px", "100%");
         TabGroupListConfig groupList = tabConfig.getGroupList();
         if (groupList instanceof SingleEntryGroupListConfig) {
             panel.add(buildTable(((SingleEntryGroupListConfig) groupList).getTabGroupConfig().getLayout()));

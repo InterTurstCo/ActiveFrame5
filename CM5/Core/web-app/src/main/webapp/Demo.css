@@ -433,8 +433,8 @@ h1 {
 .gwt-SplitLayoutPanel-HDragger {
     background: url("css/images/mover-bg-vert.gif")
         /* tpa=http://intertrust/f/icons/mover-bg-hor.gif */
-    top left repeat-y;
-    cursor: col-resize;
+    top left repeat-y !important;
+    cursor: col-resize !important;
 }
 
 .docs-ctg-listContainerHeader {
