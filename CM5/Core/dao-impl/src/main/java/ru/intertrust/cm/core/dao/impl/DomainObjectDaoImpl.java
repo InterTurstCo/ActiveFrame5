@@ -3,16 +3,17 @@ package ru.intertrust.cm.core.dao.impl;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlAlias;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getTimeZoneIdColumnName;
+import static ru.intertrust.cm.core.dao.impl.DateUtils.getGMTDate;
+import static ru.intertrust.cm.core.dao.impl.DateUtils.getTimeZoneId;
 import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.generateParameter;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
 import javax.sql.DataSource;
 
@@ -20,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.util.StringUtils;
 
+import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectVersion;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
@@ -30,6 +32,7 @@ import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.DateTimeFieldConfig;
+import ru.intertrust.cm.core.config.model.DateTimeWithTimeZoneFieldConfig;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.config.model.GlobalSettingsConfig;
@@ -58,20 +61,11 @@ import ru.intertrust.cm.core.dao.impl.utils.MultipleIdRowMapper;
 import ru.intertrust.cm.core.dao.impl.utils.MultipleObjectRowMapper;
 import ru.intertrust.cm.core.dao.impl.utils.SingleObjectRowMapper;
 
-import javax.sql.DataSource;
-
-import java.util.*;
-
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.generateParameter;
-import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getGMTDate;
-import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getGMTDate;
-import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getTimeZoneId;
-
 /**
+ * Класс реализации работы с доменным объектом
  * @author atsvetkov
+ * 
  */
-
 public class DomainObjectDaoImpl implements DomainObjectDao {
 
     private NamedParameterJdbcTemplate jdbcTemplate;
@@ -162,7 +156,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         ((GenericDomainObject) domainObject).setStatus(status);
         return update(domainObject, true);
     }
-    
+
     @Override
     public DomainObject create(DomainObject domainObject, AccessToken accessToken) {
 
@@ -186,8 +180,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             throws InvalidIdException, ObjectNotFoundException,
             OptimisticLockException {
 
-        accessControlService.verifyAccessToken(accessToken, domainObject.getId(),  DomainObjectAccessType.WRITE);
-        
+        accessControlService.verifyAccessToken(accessToken, domainObject.getId(), DomainObjectAccessType.WRITE);
+
         DomainObject result = null;
         // Вызов точки расширения до сохранения
         BeforeSaveExtensionHandler beforeSaveExtension = extensionService
@@ -253,11 +247,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     public DomainObject update(DomainObject domainObject, AccessToken accessToken)
             throws InvalidIdException, ObjectNotFoundException,
             OptimisticLockException {
-        
-        accessControlService.verifyAccessToken(accessToken, domainObject.getId(),  DomainObjectAccessType.WRITE);
+
+        accessControlService.verifyAccessToken(accessToken, domainObject.getId(), DomainObjectAccessType.WRITE);
 
         boolean isUpdateStatus = false;
-        
+
         GenericDomainObject updatedObject = update(domainObject, isUpdateStatus);
 
         return updatedObject;
@@ -267,7 +261,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private GenericDomainObject update(DomainObject domainObject, boolean isUpdateStatus) {
         GenericDomainObject updatedObject = new GenericDomainObject(
                 domainObject);
-                
+
         DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
                 .getConfig(DomainObjectTypeConfig.class,
                         updatedObject.getTypeName());
@@ -368,8 +362,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         DomainObject deletedObject = find(id, accessToken);
 
-        // удаление списков доступа и динамических групп должно проходить до удаления самих объектов
-//        refreshDynamiGroupsAndAclForDelete(deletedObject);
+        // удаление списков доступа и динамических групп должно проходить до
+        // удаления самих объектов
+        // refreshDynamiGroupsAndAclForDelete(deletedObject);
 
         // Точка расширения до удаления
         BeforeDeleteExtensionHandler beforeDeleteEH = extensionService
@@ -1182,7 +1177,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                         domainObject.getTypeName());
         GenericDomainObject updatedObject = new GenericDomainObject(
                 domainObject);
-
 
         DomainObject parentDo = createParentDO(domainObject,
                 domainObjectTypeConfig, type);
