@@ -62,20 +62,19 @@ public class CollectionRowMapper extends BasicRowMapper implements
         while (rs.next()) {
 
             int index = 0;
-            int columnIndex = 0;
-            FieldValueModel valueModel = new FieldValueModel();
 
             for (String columnName : columnModel.getColumnNames()) {
+                FieldValueModel valueModel = new FieldValueModel();
+
                 fillValueModel(rs, columnModel, columnTypeMap, valueModel, columnName);
 
                 if (valueModel.getId() != null) {
                     collection.setId(row, valueModel.getId());
-                    columnIndex = index == 0 ? 0 : index - 1;
+                } else if (valueModel.getValue() != null && collectionConfigExists(columnName)) {
+                    collection.set(index, row, valueModel.getValue());
+                    // инкремент индекса только при заполнении полей коллекции (id каждой записи заполняется отдельно)
+                    index++;
                 }
-                if (valueModel.getValue() != null) {
-                    collection.set(columnIndex, row, valueModel.getValue());
-                }
-                index++;
             }
 
             collection.resetDirty(row);

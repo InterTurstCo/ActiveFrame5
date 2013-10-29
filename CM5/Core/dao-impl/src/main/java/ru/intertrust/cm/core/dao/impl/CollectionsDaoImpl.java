@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.exception.CollectionConfigurationException;
 import ru.intertrust.cm.core.dao.impl.utils.CollectionRowMapper;
 
 import javax.sql.DataSource;
@@ -71,6 +72,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
     public IdentifiableObjectCollection findCollection(String collectionName,
                                                        List<Filter> filterValues,
                                                        SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
+
         CollectionConfig collectionConfig = configurationExplorer.getConfig(CollectionConfig.class, collectionName);
         List<CollectionFilterConfig> filledFilterConfigs = findFilledFilterConfigs(filterValues, collectionConfig);
         String collectionQuery =
@@ -200,15 +202,58 @@ public class CollectionsDaoImpl implements CollectionsDao {
             for (Filter filter : filterValues) {
                 for (Integer key : filter.getCriterionKeys()) {
                     String parameterName = filter.getFilter() + key;
-                    Value value = filter.getCriterion(key);
-                    if (value instanceof ReferenceValue){
-                    	parameters.put(parameterName, ((RdbmsId)value.get()).getId());
-                    }else{
-                    	parameters.put(parameterName, value.get());
+                    
+                    Object criterion = getFilterCriterion(filter, key);
+                    
+                    if(criterion == null){
+                        throw new CollectionConfigurationException("Not Criterion nor MultiCriterion is defined for filter");
+                    }
+                    if (criterion instanceof Value) {
+                        Value value = (Value) criterion;
+                        Object parameterValue = getParameterValue(value);
+
+                        parameters.put(parameterName, parameterValue);
+
+                    } else if (criterion instanceof List) {
+                        List<Value> valuesList = (List) criterion;                        
+                        List<Object> parameterValues = getParameterValues(valuesList);
+                        parameters.put(parameterName, parameterValues);
                     }
                 }
             }
         }
+    }
+
+
+    private List<Object> getParameterValues(List<Value> valuesList) {
+        List<Object> parameterValues = new ArrayList<Object>();
+        
+        for (Value value : valuesList) {
+            Object parameterValue = getParameterValue(value);
+            parameterValues.add(parameterValue);                            
+
+        }
+        return parameterValues;
+    }
+
+
+    private Object getFilterCriterion(Filter filter, Integer key) {
+        Object criterion = filter.getCriterion(key);        
+        if(criterion == null){
+            criterion = filter.getMultiCriterion(key);                        
+        }
+        return criterion;
+    }
+
+
+    private Object getParameterValue(Value value) {
+        Object parametrValue = null;
+        if (value instanceof ReferenceValue) {
+            parametrValue = ((RdbmsId) value.get()).getId();
+        } else {
+            parametrValue = value.get();
+        }
+        return parametrValue;
     }
 
     /**
