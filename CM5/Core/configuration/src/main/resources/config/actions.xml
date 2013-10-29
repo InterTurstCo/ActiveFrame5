@@ -27,25 +27,25 @@
 
     show-text определяет, показывать ли текст действия, или достаточно только иконки
     -->
-    <action name="sign.action" component="specific.sign.action" text="Подписать" image="sign.png" show-text="false">
+    <action name="start.process.action" component="start.process.action" text="Отправить на согласование" image="sign.png" show-text="false">
         <before-execution>
             <!-- Текст-подтверждение перед выполнением данного действия -->
-            <confirmation-message text="Подписать документ?"/>
+            <confirmation-message text="Отправить на согласование?"/>
 
             <!-- Доменный объект, который требуется создать перед выполнением данного действия. При этом перед выполнением
             открывается форма редактирования этого доменного объекта
             form-name - параметр не обязательный, но позволяет выбрать форму, отличную от "по умолчанию"
             -->
-            <domain-object-to-create type="doc_sign" form-name="sign_default_form"/>
+            <!-- domain-object-to-create type="doc_sign" form-name="sign_default_form"/-->
 
             <!--Не обязательный атрибут, по умолчанию "true" - определяет, требуется ли сохранять доменный объект
             контекста действия (открытый доменный объект) перед выполнением -->
-            <save-context value="false"/>
+            <!-- save-context value="false"/-->
         </before-execution>
 
         <after-execution>
             <!-- Текст-подтверждение после выполнения данного действия -->
-            <on-success-message text="Документ подписан"/>
+            <on-success-message text="Документ отправлен на согласование"/>
         </after-execution>
         <action-settings>
             <process-action class-name="start-process"  process-name="execution"/>

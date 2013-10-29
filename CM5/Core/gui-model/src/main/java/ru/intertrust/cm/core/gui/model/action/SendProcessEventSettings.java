@@ -1,6 +1,8 @@
-package ru.intertrust.cm.core.config.model.gui;
+package ru.intertrust.cm.core.gui.model.action;
 
 import org.simpleframework.xml.Attribute;
+
+import ru.intertrust.cm.core.config.model.gui.ActionSettings;
 
 public class SendProcessEventSettings implements ActionSettings {
 
@@ -30,5 +32,10 @@ public class SendProcessEventSettings implements ActionSettings {
 
     public void setProcessName(String processName) {
         this.processName = processName;
+    }
+
+    @Override
+    public Class<?> getActionContextClass() {        
+        return SendProcessEventActionContext.class;
     }
 }

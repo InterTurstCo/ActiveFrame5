@@ -200,5 +200,5 @@ public interface DomainObjectDao {
      * @param status идентификатор статуса
      * @param accessToken маркер доступа
      */
-    DomainObject setStatus(Id objectId, Long status, AccessToken accessToken);
+    DomainObject setStatus(Id objectId, Id status, AccessToken accessToken);
 }

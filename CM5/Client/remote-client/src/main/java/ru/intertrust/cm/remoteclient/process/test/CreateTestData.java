@@ -1,0 +1,151 @@
+package ru.intertrust.cm.remoteclient.process.test;
+
+import ru.intertrust.cm.core.business.api.CollectionsService;
+import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.remoteclient.ClientBase;
+
+public class CreateTestData
+        extends ClientBase {
+    private CrudService.Remote crudService;
+    private CollectionsService.Remote collectionService;
+
+    public static void main(String[] args) {
+        try {
+            CreateTestData test = new CreateTestData();
+            test.execute(args);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void execute(String[] args) throws Exception {
+        try {
+            super.execute(args);
+
+            crudService = (CrudService.Remote) getService(
+                    "CrudServiceImpl", CrudService.Remote.class);
+
+            collectionService = (CollectionsService.Remote) getService(
+                    "CollectionsServiceImpl", CollectionsService.Remote.class);
+
+            String[] statuses = new String[] { "Active","Draft","Active4","Active3","Negotiation","Agree","Sign","Registration","Registred" };
+            for (String status : statuses) {
+                createStatus(status);
+            }
+            
+            createPerson("admin");
+
+            DomainObject organization = createOrganization("Organization-1");
+            DomainObject department = createDepartment("Department-1", organization);
+
+            for (int i = 1; i < 11; i++) {
+                createEmployee("Employee-" + i, "user" + i, department);
+            }
+
+        } finally {
+            writeLog();
+        }
+    }
+
+    private DomainObject createStatus(String statusName) {
+        DomainObject status = findDomainObject("Status", "Name", statusName);
+        if (status == null) {
+            status = crudService
+                    .createDomainObject("Status");
+            status.setString("Name", statusName);
+            status = crudService.save(status);
+            log("Создан объект " + status.getTypeName() + " " + status.getId());
+        }
+        return status;
+    }
+
+    private DomainObject createEmployee(String name, String login, DomainObject department) {
+        DomainObject employee = findDomainObject("Employee", "Name", name);
+        if (employee == null) {
+            employee = crudService
+                    .createDomainObject("Employee");
+            employee.setReference("Department", department);
+            employee.setString("Name", name);
+            employee.setString("Position", "Должность 1");
+            employee.setString("Phone", "+7-" + System.nanoTime());
+            employee.setString("Login", login);
+            employee = crudService.save(employee);
+            log("Создан объект " + employee.getTypeName() + " " + employee.getId());
+        }
+
+        DomainObject authInfo = findDomainObject("Authentication_Info", "User_Uid", login);
+        if (authInfo == null) {
+            authInfo = crudService
+                    .createDomainObject("Authentication_Info");
+            authInfo.setString("User_Uid", login);
+            authInfo.setString("Password", "21232f297a57a5a743894a0e4a801fc3");
+            authInfo = crudService.save(authInfo);
+            log("Создан объект " + authInfo.getTypeName() + " " + authInfo.getId());
+        }
+
+        return employee;
+    }
+
+    private DomainObject createPerson(String login) {
+        DomainObject person = findDomainObject("Person", "Login", login);
+        if (person == null) {
+            person = crudService
+                    .createDomainObject("Person");
+            person.setString("Login", login);
+            person = crudService.save(person);
+            log("Создан объект " + person.getTypeName() + " " + person.getId());
+        }
+
+        DomainObject authInfo = findDomainObject("Authentication_Info", "User_Uid", login);
+        if (authInfo == null) {
+            authInfo = crudService
+                    .createDomainObject("Authentication_Info");
+            authInfo.setString("User_Uid", login);
+            authInfo.setString("Password", "21232f297a57a5a743894a0e4a801fc3");
+            authInfo = crudService.save(authInfo);
+            log("Создан объект " + authInfo.getTypeName() + " " + authInfo.getId());
+        }
+
+        return person;
+    }
+    
+    
+    private DomainObject findDomainObject(String type, String field, String fieldValue) {
+        String query = "select t.id from " + type + " t where t." + field + "='" + fieldValue + "'";
+
+        IdentifiableObjectCollection collection = collectionService.findCollectionByQuery(query);
+        DomainObject result = null;
+        if (collection.size() > 0) {
+            result = crudService.find(collection.get(0).getId());
+            log("Найден объект " + result.getTypeName() + " " + result.getId());
+        }
+        return result;
+    }
+
+    private DomainObject createDepartment(String name, DomainObject organization) {
+        DomainObject department = findDomainObject("Department", "Name", name);
+        if (department == null) {
+            department = crudService
+                    .createDomainObject("Department");
+            department.setString("Name", name);
+            department.setReference("Organization", organization);
+            department = crudService.save(department);
+            log("Создан объект " + department.getTypeName() + " " + department.getId());
+        }
+        return department;
+    }
+
+    private DomainObject createOrganization(String name) {
+        DomainObject organization = findDomainObject("Organization", "Name", name);
+        if (organization == null) {
+            organization = crudService
+                    .createDomainObject("Organization");
+            organization.setString("Name", name);
+            organization = crudService.save(organization);
+            log("Создан объект " + organization.getTypeName() + " " + organization.getId());
+        }
+        return organization;
+    }
+}

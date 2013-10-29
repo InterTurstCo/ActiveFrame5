@@ -1,25 +1,12 @@
 package ru.intertrust.cm.core.config.model.gui;
 
-import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
-@Root(name="process-action")
 public interface ActionSettings extends Dto {
-
+    
     /**
-     * Возвращает название процесса
-     * @return название процесса
+     * Возвращает класс который нужно создать в ActionSerevice.getActions() для передачи гуи. Если метод возвращает NULL то создастся класс ActionContext
+     * @return
      */
-    String getProcessName();
-
-    public void setProcessName(String processName) ;
-
-    /**
-     * Возвращает имя класса экшена
-     * @return имя класса экшена
-     */
-    public String getClassName();
-
-    public void setClassName(String className);
-
+    Class<?> getActionContextClass();
 }

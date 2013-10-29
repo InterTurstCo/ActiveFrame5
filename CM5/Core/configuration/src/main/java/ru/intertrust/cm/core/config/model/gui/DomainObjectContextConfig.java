@@ -1,23 +1,25 @@
-package ru.intertrust.cm.core.config.model;
+package ru.intertrust.cm.core.config.model.gui;
 
 import java.util.List;
 
 import org.simpleframework.xml.ElementList;
 
-public class DomainObjectContextConfig {
+import ru.intertrust.cm.core.business.api.dto.Dto;
+
+public class DomainObjectContextConfig implements Dto{
 
     @ElementList (entry = "type", inline = true)
-    private List<DomainObjTypeConfig> domainObjectType;
+    private List<String> type;
 
     @ElementList (entry = "status", inline = true)
     private List<String> status;
 
-    public List<DomainObjTypeConfig> getDomainObjectType() {
-        return domainObjectType;
+    public List<String> getDomainObjectType() {
+        return type;
     }
 
-    public void setDomainObjectType(List<DomainObjTypeConfig> domainObjectType) {
-        this.domainObjectType = domainObjectType;
+    public void setDomainObjectType(List<String> type) {
+        this.type = type;
     }
 
     public List<String> getStatus() {

@@ -191,8 +191,7 @@ public class DomainObjectAccessor implements Serializable {
         }
         
         AccessToken accessToken = getAccessControlService().createSystemAccessToken("DomainObjectAccessor");
-        domainObject = getDomainObjectDao().setStatus(domainObject.getId(), ((RdbmsId) newStatus.getId()).getId() , accessToken);
-
+        domainObject = getDomainObjectDao().setStatus(domainObject.getId(), newStatus.getId(), accessToken);
     }
     /**
      * Получить статус объекта
@@ -200,9 +199,9 @@ public class DomainObjectAccessor implements Serializable {
      */
     public String getStatus(){
     	//TODO Разобрать почему в domainObject.getReference("status") ).getTypeId() не обновляется статус
-    	RdbmsId statusId = new RdbmsId( ((RdbmsId) domainObject.getReference("status") ).getTypeId(), domainObject.getLong("STATUS"));
+    	
     	CrudService crudService = getCrudService();
-    	DomainObject status = crudService.find(statusId);
+    	DomainObject status = crudService.find(domainObject.getStatus());
     	return status.getString("Name");
     }
     

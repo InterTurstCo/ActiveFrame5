@@ -73,8 +73,8 @@
             <xs:element type="con:dateTimeType" name="dateTime"
                 xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
-            <xs:element type="con:dateTimeWithTimeZoneType" name="dateTimeWithTimeZone"
-                        xmlns:con="https://cm5.intertrust.ru/config">
+            <xs:element type="con:dateTimeWithTimeZoneType"
+                name="dateTimeWithTimeZone" xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
             <xs:element type="con:referenceType" name="reference"
                 xmlns:con="https://cm5.intertrust.ru/config">
@@ -118,7 +118,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute name="name" use="required"
-                              type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config" />
+                    type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config" />
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -167,9 +167,77 @@
                 <xs:element name="collection-mappings" type="con:collectionMappingsType"
                     maxOccurs="unbounded" minOccurs="0"
                     xmlns:con="https://cm5.intertrust.ru/config" />
+                <xs:element name="action" type="con:actionType"
+                    maxOccurs="unbounded" minOccurs="0"
+                    xmlns:con="https://cm5.intertrust.ru/config" />
+                <xs:element name="action-context" type="con:actionСontextType"
+                    maxOccurs="unbounded" minOccurs="0"
+                    xmlns:con="https://cm5.intertrust.ru/config" />
             </xs:choice>
         </xs:choice>
     </xs:complexType>
+
+    <xs:complexType name="actionType">
+        <xs:sequence>
+            <xs:element name="before-execution">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="confirmation-message">
+                            <xs:complexType>
+                                <xs:attribute name="text"
+                                    type="xs:string" use="required" />
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="after-execution">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="on-success-message">
+                            <xs:complexType>
+                                <xs:attribute name="text"
+                                    type="xs:string" use="required" />
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="action-settings">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:any minOccurs="1" maxOccurs="1" processContents="skip"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="name" use="required" type="xs:string" />
+        <xs:attribute name="component" use="required" type="xs:string" />
+        <xs:attribute name="text" use="required" type="xs:string" />
+        <xs:attribute name="image" use="required" type="xs:string" />
+        <xs:attribute name="show-text" use="required" type="xs:boolean" />        
+    </xs:complexType>
+
+    <xs:complexType name="actionСontextType">
+        <xs:sequence>
+            <xs:element name="domain-object-context">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="type" type="xs:string" />
+                        <xs:element name="status" type="xs:string" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="action">
+                <xs:complexType>
+                    <xs:attribute name="name" use="required"
+                        type="xs:string" />
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="name" use="required" type="xs:string" />
+    </xs:complexType>
+
 
     <xs:complexType name="globalCongfigType">
         <xs:sequence>

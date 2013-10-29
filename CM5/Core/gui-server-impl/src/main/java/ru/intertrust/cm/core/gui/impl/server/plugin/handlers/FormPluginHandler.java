@@ -33,11 +33,11 @@ public class FormPluginHandler extends ActivePluginHandler {
 
         FormPluginData pluginData = new FormPluginData();
         pluginData.setFormDisplayData(form);
-        pluginData.setActionContexts(getActions(initialData));
+        pluginData.setActionContexts(getActions(config));
         return pluginData;
     }
 
-    public List<ActionContext> getActions(Dto initialData)  {
+    public List<ActionContext> getActions(FormPluginConfig config)  {
         ActionConfig saveActionConfig = new ActionConfig("save.action", "save.action");
         saveActionConfig.setText("Сохранить");
         ActionContext saveActionContext = new SaveActionContext();
@@ -51,7 +51,12 @@ public class FormPluginHandler extends ActivePluginHandler {
         ArrayList<ActionContext> actions = new ArrayList<>();
         actions.add(saveActionContext);
         actions.add(createNewActionContext);
-        List<ActionContext> otherActions = actionService.getActions(null);
+        List<ActionContext> otherActions = null;
+        if (config.getDomainObjectId() != null){
+            otherActions = actionService.getActions(config.getDomainObjectId());
+        }else{
+            otherActions = actionService.getActions(config.getDomainObjectTypeToCreate());
+        }
         if (otherActions != null) {
             actions.addAll(otherActions);
         }

@@ -14,11 +14,11 @@ import ru.intertrust.cm.core.config.model.CollectorSettings;
 public class ActionSettingsConverter implements Converter<ActionSettings> {
 
     @Override
-    public ActionSettings read(InputNode customSettings) throws Exception {
+    public ActionSettings read(InputNode node) throws Exception {
         Strategy strategy = new AnnotationStrategy();
         Serializer serializer = new Persister(strategy);
         TopLevelConfigurationCache topLevelConfigurationCache = TopLevelConfigurationCache.getInstance();
-        //InputNode customSettings = node.getNext();
+        InputNode customSettings = node.getNext();
         Class actionSettingsClass = topLevelConfigurationCache.getClassByTagName(customSettings.getName());
         return (ActionSettings) serializer.read(actionSettingsClass, customSettings);
     }

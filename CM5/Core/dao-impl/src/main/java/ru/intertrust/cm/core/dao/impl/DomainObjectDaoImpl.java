@@ -150,7 +150,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         this.extensionService = extensionService;
     }
 
-    public DomainObject setStatus(Id objectId, Long status, AccessToken accessToken) {
+    public DomainObject setStatus(Id objectId, Id status, AccessToken accessToken) {
         accessControlService.verifySystemAccessToken(accessToken);
         DomainObject domainObject = find(objectId, accessToken);
         ((GenericDomainObject) domainObject).setStatus(status);

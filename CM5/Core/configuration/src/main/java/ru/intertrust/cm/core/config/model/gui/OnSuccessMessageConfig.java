@@ -1,0 +1,18 @@
+package ru.intertrust.cm.core.config.model.gui;
+
+import org.simpleframework.xml.Attribute;
+
+import ru.intertrust.cm.core.business.api.dto.Dto;
+
+public class OnSuccessMessageConfig implements Dto{
+    @Attribute
+    private String text;
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    } 
+}

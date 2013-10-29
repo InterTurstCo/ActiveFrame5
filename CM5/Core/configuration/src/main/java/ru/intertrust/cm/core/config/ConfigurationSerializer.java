@@ -13,9 +13,7 @@ import java.util.Set;
 
 /**
  * Предоставляет функциональность для сериализации/десериализации конфигурации
- * @author vmatsukevich
- *         Date: 6/12/13
- *         Time: 5:36 PM
+ * @author vmatsukevich Date: 6/12/13 Time: 5:36 PM
  */
 public class ConfigurationSerializer {
 
@@ -36,7 +34,8 @@ public class ConfigurationSerializer {
 
     /**
      * Сериализует конфигурацию в строку
-     * @param configuration конфигурация
+     * @param configuration
+     *            конфигурация
      * @return сериализованная в строку конфигурация
      */
     public static String serializeConfiguration(Configuration configuration) {
@@ -53,7 +52,8 @@ public class ConfigurationSerializer {
 
     /**
      * Устанавливает путь к схеме конфигурации ядра
-     * @param coreConfigurationSchemaFilePath путь к схеме конфигурации
+     * @param coreConfigurationSchemaFilePath
+     *            путь к схеме конфигурации
      */
     public void setCoreConfigurationSchemaFilePath(String coreConfigurationSchemaFilePath) {
         this.coreConfigurationSchemaFilePath = coreConfigurationSchemaFilePath;
@@ -61,7 +61,8 @@ public class ConfigurationSerializer {
 
     /**
      * Устаннавливает пути к конфигурационным файлам ядра
-     * @param coreConfigurationFilePaths пути к конфигурационным файлам
+     * @param coreConfigurationFilePaths
+     *            пути к конфигурационным файлам
      */
     public void setCoreConfigurationFilePaths(Set<String> coreConfigurationFilePaths) {
         this.coreConfigurationFilePaths = coreConfigurationFilePaths;
@@ -69,7 +70,8 @@ public class ConfigurationSerializer {
 
     /**
      * Устанавливает путь к конфигурации конфигураций модулей
-     * @param modulesConfigurationPath путь к конфигурации конфигураций модулей
+     * @param modulesConfigurationPath
+     *            путь к конфигурации конфигураций модулей
      */
     public void setModulesConfigurationPath(String modulesConfigurationPath) {
         this.modulesConfigurationPath = modulesConfigurationPath;
@@ -77,7 +79,8 @@ public class ConfigurationSerializer {
 
     /**
      * Устанавливает путь к схеме конфигруции конфигураций модулей
-     * @param modulesConfigurationSchemaPath уть к схеме конфигруции конфигураций модулей
+     * @param modulesConfigurationSchemaPath
+     *            уть к схеме конфигруции конфигураций модулей
      */
     public void setModulesConfigurationSchemaPath(String modulesConfigurationSchemaPath) {
         this.modulesConfigurationSchemaPath = modulesConfigurationSchemaPath;
@@ -92,11 +95,15 @@ public class ConfigurationSerializer {
     }
 
     /**
-     * Десериализует строку в конфигурацию без выполнения валидации на соответствие схеме конфигурации.
-     * Данный метод предназначен для десериализации строк, представляющих собой ранее сериализованную конфигурацию
-     * @param configurationString строка, содержащая конфигурацию
+     * Десериализует строку в конфигурацию без выполнения валидации на
+     * соответствие схеме конфигурации. Данный метод предназначен для
+     * десериализации строк, представляющих собой ранее сериализованную
+     * конфигурацию
+     * @param configurationString
+     *            строка, содержащая конфигурацию
      * @return конфигурация
-     * @throws ConfigurationException в случае ошибки десериализации
+     * @throws ConfigurationException
+     *             в случае ошибки десериализации
      */
     public Configuration deserializeTrustedConfiguration(String configurationString) throws
             ConfigurationException {
@@ -108,8 +115,9 @@ public class ConfigurationSerializer {
     }
 
     /**
-     * Десериализует конфигурационные файлы в общий объект конфигруации, предварительно валидируя конфигурационные
-     * файлы на соответствие схеме конфигурации
+     * Десериализует конфигурационные файлы в общий объект конфигруации,
+     * предварительно валидируя конфигурационные файлы на соответствие схеме
+     * конфигурации
      * @return конфигурация, содержащая информацию всех конфигурационных файлов
      * @throws Exception
      */
@@ -128,7 +136,7 @@ public class ConfigurationSerializer {
 
         Configuration combinedConfiguration = new Configuration();
 
-        for(String configurationFilePath : coreConfigurationFilePaths) {
+        for (String configurationFilePath : coreConfigurationFilePaths) {
             Configuration partialConfiguration = deserializeConfiguration(configurationFilePath);
             combineConfigurations(partialConfiguration, combinedConfiguration);
         }
@@ -142,11 +150,11 @@ public class ConfigurationSerializer {
     }
 
     private ModulesConfiguration deserializeModulesConfiguration() throws Exception {
-        if(modulesConfigurationPath == null || modulesConfigurationPath.isEmpty()) {
+        if (modulesConfigurationPath == null || modulesConfigurationPath.isEmpty()) {
             throw new FatalException("ModulesConfiguration path isn't specified");
         }
 
-        if(modulesConfigurationSchemaPath == null || modulesConfigurationSchemaPath.isEmpty()) {
+        if (modulesConfigurationSchemaPath == null || modulesConfigurationSchemaPath.isEmpty()) {
             throw new FatalException("ModulesConfiguration schema path isn't specified");
         }
 
@@ -166,11 +174,11 @@ public class ConfigurationSerializer {
     }
 
     private Configuration combineConfigurations(Configuration source, Configuration destination) {
-        if(destination == null) {
+        if (destination == null) {
             throw new IllegalArgumentException("Destination Configuration cannot be null");
         }
 
-        if(source != null) {
+        if (source != null) {
             destination.getConfigurationList().addAll(source.getConfigurationList());
         }
 
@@ -179,33 +187,38 @@ public class ConfigurationSerializer {
 
     /**
      * Десериализация конфигурации в Java класс.
-     * @param configurationFilePath путь к файлу конфигурации
+     * @param configurationFilePath
+     *            путь к файлу конфигурации
      * @return {@link ru.intertrust.cm.core.config.model.base.Configuration}
      * @throws Exception
      */
-   public Configuration deserializeConfiguration(String configurationFilePath) throws Exception {
-       try{
-        ConfigurationSchemaValidator schemaValidator = new ConfigurationSchemaValidator(configurationFilePath,
-                coreConfigurationSchemaFilePath);
-        schemaValidator.validate();
+    public Configuration deserializeConfiguration(String configurationFilePath) throws Exception {
+        try {
+            ConfigurationSchemaValidator schemaValidator = new ConfigurationSchemaValidator(configurationFilePath,
+                    coreConfigurationSchemaFilePath);
+            schemaValidator.validate();
 
-        return createSerializerInstance().read(Configuration.class, FileUtils.getFileInputStream(configurationFilePath));
-       }catch(Exception ex){
-           throw new ConfigurationException("Error load " + configurationFilePath, ex);
-       }
+            return createSerializerInstance().read(Configuration.class, FileUtils.getFileInputStream(configurationFilePath));
+        } catch (Exception ex) {
+            throw new ConfigurationException("Error load " + configurationFilePath, ex);
+        }
     }
 
     private Configuration deserializeModuleConfiguration(ModuleConfig moduleConfig) throws Exception {
-        String moduleConfigurationFullPath = modulesConfigurationFolder + moduleConfig.getPath();
-        InputStream configInputStream = FileUtils.getFileInputStream(moduleConfigurationFullPath);
+        try {
+            String moduleConfigurationFullPath = modulesConfigurationFolder + moduleConfig.getPath();
+            InputStream configInputStream = FileUtils.getFileInputStream(moduleConfigurationFullPath);
 
-        ConfigurationSchemaValidator schemaValidator =
-                new ConfigurationSchemaValidator(configInputStream, getModuleSchemaInputStreams(moduleConfig));
+            ConfigurationSchemaValidator schemaValidator =
+                    new ConfigurationSchemaValidator(configInputStream, getModuleSchemaInputStreams(moduleConfig));
 
-        schemaValidator.validate();
+            schemaValidator.validate();
 
-        configInputStream = FileUtils.getFileInputStream(moduleConfigurationFullPath);
-        return createSerializerInstance().read(Configuration.class, configInputStream);
+            configInputStream = FileUtils.getFileInputStream(moduleConfigurationFullPath);
+            return createSerializerInstance().read(Configuration.class, configInputStream);
+        } catch (Exception ex) {
+            throw new ConfigurationException("Error on deserialize module configuration file " + moduleConfig.getPath(), ex);
+        }
     }
 
     private InputStream[] getModuleSchemaInputStreams(ModuleConfig moduleConfig) {
@@ -215,9 +228,9 @@ public class ConfigurationSerializer {
         if (moduleConfig.getSchemaPath() != null) {
             String schemaFullPath = modulesConfigurationFolder + moduleConfig.getSchemaPath();
             InputStream schemaInputStream = FileUtils.getFileInputStream(schemaFullPath);
-            schemaInputStreams = new InputStream[] {coreSchemaInputStream, schemaInputStream};
+            schemaInputStreams = new InputStream[] { coreSchemaInputStream,schemaInputStream };
         } else {
-            schemaInputStreams = new InputStream[] {coreSchemaInputStream};
+            schemaInputStreams = new InputStream[] { coreSchemaInputStream };
         }
 
         return schemaInputStreams;

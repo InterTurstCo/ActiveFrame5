@@ -1,11 +1,15 @@
-package ru.intertrust.cm.core.config.model;
+package ru.intertrust.cm.core.config.model.gui;
 
 import java.util.List;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
+import org.simpleframework.xml.Root;
 
-public class ActionContextConfig {
+import ru.intertrust.cm.core.config.model.base.TopLevelConfig;
+
+@Root(name="action-context")
+public class ActionContextConfig implements TopLevelConfig{
 
     @Attribute(required = true)
     private String name;
@@ -14,8 +18,9 @@ public class ActionContextConfig {
     private List<DomainObjectContextConfig> domainObjectContext;
 
     @ElementList (entry = "action", inline = true)
-    private List<ActionConfig> action;
+    private List<ActionContextActionConfig> action;
 
+    @Override
     public String getName() {
         return name;
     }
@@ -33,11 +38,11 @@ public class ActionContextConfig {
         this.name = name;
     }
 
-    public List<ActionConfig> getAction() {
+    public List<ActionContextActionConfig> getAction() {
         return action;
     }
 
-    public void setAction(List<ActionConfig> action) {
+    public void setAction(List<ActionContextActionConfig> action) {
         this.action = action;
     }
 

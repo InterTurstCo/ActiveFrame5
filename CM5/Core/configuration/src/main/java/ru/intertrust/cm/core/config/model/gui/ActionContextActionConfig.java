@@ -1,8 +1,10 @@
-package ru.intertrust.cm.core.config.model;
+package ru.intertrust.cm.core.config.model.gui;
 
 import org.simpleframework.xml.Attribute;
 
-public class ActionConfig {
+import ru.intertrust.cm.core.business.api.dto.Dto;
+
+public class ActionContextActionConfig implements Dto{
 
     @Attribute(required = true)
     private String name;

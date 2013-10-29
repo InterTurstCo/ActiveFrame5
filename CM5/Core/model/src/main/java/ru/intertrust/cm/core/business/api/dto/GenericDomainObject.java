@@ -15,7 +15,7 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
     private Date createdDate;
     private Date modifiedDate;
 
-    public String STATUS_COLUMN = "STATUS";    
+    public String STATUS_COLUMN = "status";    
 
 
     /**
@@ -71,12 +71,12 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
     }
 
     @Override
-    public Long getStatus() {
-     return getLong(STATUS_COLUMN);   
+    public Id getStatus() {
+     return getReference(STATUS_COLUMN);   
     }
 
-    public void setStatus(Long status) {
-        setLong(STATUS_COLUMN, status);
+    public void setStatus(Id status) {
+        setReference(STATUS_COLUMN, status);
     }
     
     @Override

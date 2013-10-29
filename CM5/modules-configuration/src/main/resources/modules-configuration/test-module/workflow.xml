@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <configuration xmlns="https://cm5.intertrust.ru/config">
-    
+
     <collection name="Tasks" idField="MainAttachment">
         <prototype>
             <![CDATA[
@@ -16,36 +16,45 @@
         </prototype>
 
     </collection>
-    
-    <collection-view name="task-view" collection="Tasks" is-default="true">
+
+    <collection-view name="task-view" collection="Tasks"
+        is-default="true">
         <!--todo поддержка конвертации значений, например, в картинки -->
         <display>
-            <column field="mainattachment" name="id" type="integer" hidden="true" sortable="false" />
-            <column field="name" name="Название" type="string" editable="false" hidden="false" sortable="false" />
-            <column field="description" name="Описание" editable="false" type="string" sortable="true" />
-            <column field="login" name="Адресат" editable="false" type="string" sortable="true" />
+            <column field="mainattachment" name="id" type="integer"
+                hidden="true" sortable="false" />
+            <column field="name" name="Название" type="string"
+                editable="false" hidden="false" sortable="false" />
+            <column field="description" name="Описание" editable="false"
+                type="string" sortable="true" />
+            <column field="login" name="Адресат" editable="false"
+                type="string" sortable="true" />
         </display>
-    </collection-view>    
-    
-    <collection-view name="Internal-Document-view" collection="Internal_Document" is-default="true">
+    </collection-view>
+
+    <collection-view name="Internal-Document-view"
+        collection="Internal_Document" is-default="true">
         <!--todo поддержка конвертации значений, например, в картинки -->
         <display>
-            <column field="id" name="id" type="integer" hidden="true" sortable="false" />
-            <column field="name" name="Название" type="string" editable="false" hidden="false" sortable="false" />
+            <column field="id" name="id" type="integer" hidden="true"
+                sortable="false" />
+            <column field="name" name="Название" type="string"
+                editable="false" hidden="false" sortable="false" />
         </display>
-    </collection-view>    
-    
-    <form name="Internal_Document_form" domain-object-type="Internal_Document" is-default="true" debug = "false">
+    </collection-view>
+
+    <form name="Internal_Document_form" domain-object-type="Internal_Document"
+        is-default="true" debug="false">
         <markup>
             <header>
                 <table width="800px" height="200px">
                     <tr>
                         <td width="100px" h-align="right">
-                            <widget id="1"/>
+                            <widget id="1" />
                         </td>
                         <!-- label (Название) -->
                         <td width="100%" h-align="left">
-                            <widget id="2"/>
+                            <widget id="2" />
                         </td>
                         <!-- text-box (Название) -->
                     </tr>
@@ -58,12 +67,12 @@
                             <table>
                                 <tr>
                                     <td h-align="center" v-align="center">
-                                        <widget id="3"/>
+                                        <widget id="3" />
                                     </td>
                                     <!-- label (Согласующие) -->
-                                    <!-- td h-align="left">
-                                        <widget id="4"/>
-                                    </td-->
+                                    <td h-align="left">
+                                        <widget id="4" />
+                                    </td>
                                     <!-- integer-box (Согласующие) -->
                                 </tr>
                             </table>
@@ -74,17 +83,59 @@
         </markup>
         <widget-config>
             <label id="1">
-                <field-path/>
+                <field-path />
                 <text>Название:</text>
             </label>
             <text-box id="2">
-                <field-path value="Name"/>
+                <field-path value="Name" />
             </text-box>
 
             <label id="3">
                 <text>Согласующие:</text>
             </label>
+
+            <list-box id="4">
+                <field-path
+                    value="Negotiation_Card^Parent_Document.Negotiator" />
+                <pattern value="{Login}" />
+            </list-box>
         </widget-config>
     </form>
     
+    <action name="start-internal-document-process" component="specific.sign.action"
+        text="Отправить на согласование" image="sign.png" show-text="false">
+        <before-execution>
+            <!-- Текст-подтверждение перед выполнением данного действия -->
+            <confirmation-message text="Отправить на согласование?" />
+
+            <!-- Доменный объект, который требуется создать перед выполнением 
+                данного действия. При этом перед выполнением открывается форма редактирования 
+                этого доменного объекта form-name - параметр не обязательный, но позволяет 
+                выбрать форму, отличную от "по умолчанию" -->
+            <!-- domain-object-to-create type="doc_sign"
+                form-name="sign_default_form" /-->
+
+            <!--Не обязательный атрибут, по умолчанию "true" - определяет, 
+                требуется ли сохранять доменный объект контекста действия (открытый доменный 
+                объект) перед выполнением -->
+            <!-- save-context value="false" /-->
+        </before-execution>
+
+        <after-execution>
+            <!-- Текст-подтверждение после выполнения данного действия -->
+            <on-success-message text="Документ подписан" />
+        </after-execution>
+        <action-settings>
+            <start-process-action-settings process-name="InternalDocument" />
+        </action-settings>
+    </action>
+
+    <action-context name="start-internal-document-process-context">
+        <domain-object-context>
+            <type>Internal_Document</type>
+            <status>Draft</status>
+        </domain-object-context>
+        <action name="start-internal-document-process" />
+    </action-context>
+
 </configuration>

@@ -2,7 +2,9 @@ package ru.intertrust.cm.core.config.model;
 
 import org.simpleframework.xml.Attribute;
 
-public class DomainObjTypeConfig {
+import ru.intertrust.cm.core.business.api.dto.Dto;
+
+public class DomainObjTypeConfig implements Dto{
 
     @Attribute(required = true)
     private String name;

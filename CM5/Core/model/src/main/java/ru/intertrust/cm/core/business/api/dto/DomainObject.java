@@ -69,6 +69,6 @@ public interface DomainObject extends IdentifiableObject {
      * Возвращает идентификатор статуса доменного объекта
      * @return идентификатор статуса
      */
-    Long getStatus();
+    Id getStatus();
 
 }
