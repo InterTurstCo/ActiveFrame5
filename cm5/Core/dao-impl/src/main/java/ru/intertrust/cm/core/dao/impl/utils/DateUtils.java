@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.dao.impl;
+package ru.intertrust.cm.core.dao.impl.utils;
 
 import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
 

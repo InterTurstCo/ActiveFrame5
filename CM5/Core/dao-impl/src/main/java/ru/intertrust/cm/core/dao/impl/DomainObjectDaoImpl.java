@@ -4,8 +4,8 @@ import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getRefere
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlAlias;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getTimeZoneIdColumnName;
-import static ru.intertrust.cm.core.dao.impl.DateUtils.getGMTDate;
-import static ru.intertrust.cm.core.dao.impl.DateUtils.getTimeZoneId;
+import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getGMTDate;
+import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getTimeZoneId;
 import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.generateParameter;
 
 import java.util.ArrayList;
