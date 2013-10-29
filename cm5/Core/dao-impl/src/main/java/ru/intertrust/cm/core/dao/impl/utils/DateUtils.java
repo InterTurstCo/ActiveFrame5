@@ -26,10 +26,10 @@ public class DateUtils {
         calendar.set(Calendar.YEAR, dateTimeWithTimeZone.getYear());
         calendar.set(Calendar.MONTH, dateTimeWithTimeZone.getMonth());
         calendar.set(Calendar.DAY_OF_MONTH, dateTimeWithTimeZone.getDayOfMonth());
-        calendar.set(Calendar.HOUR_OF_DAY, dateTimeWithTimeZone.getHour());
-        calendar.set(Calendar.MINUTE, dateTimeWithTimeZone.getMinute());
-        calendar.set(Calendar.SECOND, dateTimeWithTimeZone.getSecond());
-        calendar.set(Calendar.MILLISECOND, dateTimeWithTimeZone.getMillisecond());
+        calendar.set(Calendar.HOUR_OF_DAY, dateTimeWithTimeZone.getHours());
+        calendar.set(Calendar.MINUTE, dateTimeWithTimeZone.getMinutes());
+        calendar.set(Calendar.SECOND, dateTimeWithTimeZone.getSeconds());
+        calendar.set(Calendar.MILLISECOND, dateTimeWithTimeZone.getMilliseconds());
 
         Calendar gmtCalendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         gmtCalendar.setTime(calendar.getTime());

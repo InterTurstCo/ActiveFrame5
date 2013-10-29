@@ -348,10 +348,10 @@ public class BasicRowMapper {
         dateTimeWithTimeZone.setYear(calendar.get(Calendar.YEAR));
         dateTimeWithTimeZone.setMonth(calendar.get(Calendar.MONTH));
         dateTimeWithTimeZone.setDayOfMonth(calendar.get(Calendar.DAY_OF_MONTH));
-        dateTimeWithTimeZone.setHour(calendar.get(Calendar.HOUR_OF_DAY));
-        dateTimeWithTimeZone.setMinute(calendar.get(Calendar.MINUTE));
-        dateTimeWithTimeZone.setSecond(calendar.get(Calendar.SECOND));
-        dateTimeWithTimeZone.setMillisecond(calendar.get(Calendar.MILLISECOND));
+        dateTimeWithTimeZone.setHours(calendar.get(Calendar.HOUR_OF_DAY));
+        dateTimeWithTimeZone.setMinutes(calendar.get(Calendar.MINUTE));
+        dateTimeWithTimeZone.setSeconds(calendar.get(Calendar.SECOND));
+        dateTimeWithTimeZone.setMilliseconds(calendar.get(Calendar.MILLISECOND));
 
         return dateTimeWithTimeZone;
     }
