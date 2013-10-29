@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.config.model.base;
 
-import java.io.Serializable;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
  * Интерфейс конфигурации верхнего уровня. Каждый класс конфигурации верхнего уровня должен реализовывать данный
@@ -10,7 +10,7 @@ import java.io.Serializable;
  *         Date: 7/10/13
  *         Time: 11:33 AM
  */
-public interface TopLevelConfig extends Serializable {
+public interface TopLevelConfig extends Dto {
 
     /**
      * Возвращает название конфигурации

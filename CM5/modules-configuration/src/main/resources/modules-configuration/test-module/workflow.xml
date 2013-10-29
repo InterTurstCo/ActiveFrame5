@@ -102,7 +102,7 @@
         </widget-config>
     </form>
     
-    <action name="start-internal-document-process" component="specific.sign.action"
+    <action name="start-internal-document-process" component="start.process.action"
         text="Отправить на согласование" image="sign.png" show-text="false">
         <before-execution>
             <!-- Текст-подтверждение перед выполнением данного действия -->

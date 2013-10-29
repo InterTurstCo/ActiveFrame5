@@ -177,7 +177,9 @@ public class ProcessServiceImpl implements ProcessService {
         List<DomainObject> result = new ArrayList<DomainObject>();
         String personLogin = context.getCallerPrincipal().getName();
         Id personId = personManagerService.getPersonId(personLogin);
-        result = getUserDomainObjectTasks(attachedObjectId, personId);
+        if (personId != null){
+            result = getUserDomainObjectTasks(attachedObjectId, personId);
+        }
 		return result;     
     }
 
