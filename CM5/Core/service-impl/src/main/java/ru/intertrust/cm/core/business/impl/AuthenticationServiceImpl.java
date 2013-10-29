@@ -75,6 +75,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         role.setValue("Role", roleName);
         role.setValue("Authentication_Info", new ReferenceValue(id));
         domainObjectDao.create(role, accessToken);
+        
+        //Создание персоны администратора
+        GenericDomainObject person = new GenericDomainObject();
+        person.setTypeName("Person");
+        person.setCreatedDate(currentDate);
+        person.setModifiedDate(currentDate);
+        person.setString("Login", authenticationInfo.getUserUid());
+        person.setString("FirstName", authenticationInfo.getUserUid());
+        person.setString("Login", authenticationInfo.getUserUid());
+        person.setString("EMail", authenticationInfo.getUserUid() + "@localhost.com");
+        domainObjectDao.create(person, accessToken);
     }
 
     /**
