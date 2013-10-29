@@ -14,6 +14,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -21,10 +25,11 @@ import java.io.OutputStream;
  *         Time: 13:15
  */
 @Controller
-public class AttachmentUploader implements ServletConfigAware{
+public class AttachmentUploader implements ServletConfigAware {
     private static Logger log = LoggerFactory.getLogger(AttachmentUploader.class);
     private String pathForTempFilesStore;
     private ServletConfig servletConfig;
+
     @ResponseBody
     @RequestMapping("/attachment-upload")
     public String upload(@RequestParam(value = "fileUpload") MultipartFile file) {
@@ -37,20 +42,28 @@ public class AttachmentUploader implements ServletConfigAware{
         pathToSave = pathForTempFilesStore + savedFileName;
         try (
             InputStream inputStream = file.getInputStream();
-            OutputStream outputStream = new FileOutputStream(pathToSave); )
-        {
-            int read = 0;
-            byte[] bytes = new byte[1024];
-
-            while ((read = inputStream.read(bytes)) != -1) {
-                outputStream.write(bytes, 0, read);
-            }
-
+            OutputStream outputStream = new FileOutputStream(pathToSave);) {
+            stream(inputStream, outputStream);
         } catch (IOException e) {
             log.error("Error while uploading: " + e);
             return "";
         }
-         return savedFileName;
+        return savedFileName;
+    }
+
+    private void stream(InputStream input, OutputStream output) throws IOException {
+
+        try (
+            ReadableByteChannel inputChannel = Channels.newChannel(input);
+            WritableByteChannel outputChannel = Channels.newChannel(output);) {
+            ByteBuffer buffer = ByteBuffer.allocate(10240);
+            while (inputChannel.read(buffer) != -1) {
+                buffer.flip();
+                outputChannel.write(buffer);
+                buffer.clear();
+            }
+        }
+
     }
 
     @Override

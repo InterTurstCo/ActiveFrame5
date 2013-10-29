@@ -60,21 +60,18 @@ public class AttachmentDownloader {
 
         }
 
-    private long stream(InputStream input, OutputStream output) throws IOException {
+    private void stream(InputStream input, OutputStream output) throws IOException {
 
         try (
             ReadableByteChannel inputChannel = Channels.newChannel(input);
             WritableByteChannel outputChannel = Channels.newChannel(output);)
             {
                 ByteBuffer buffer = ByteBuffer.allocate(10240);
-                long size = 0;
                 while (inputChannel.read(buffer) != -1) {
                     buffer.flip();
-                    size += outputChannel.write(buffer);
+                    outputChannel.write(buffer);
                     buffer.clear();
                 }
-
-            return size;
         }
 
     }

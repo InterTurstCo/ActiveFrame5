@@ -54,6 +54,14 @@ public class AttachmentUploaderView extends Composite {
         this.attachments = attachments;
     }
 
+    public VerticalPanel getAttachmentsPanel() {
+        return attachmentsPanel;
+    }
+
+    public void setAttachmentsPanel(VerticalPanel attachmentsPanel) {
+        this.attachmentsPanel = attachmentsPanel;
+    }
+
     public HandlerRegistration addFormSubmitCompleteHandler(FormPanel.SubmitCompleteHandler submitCompleteHandler){
         return form.addSubmitCompleteHandler(submitCompleteHandler);
     }

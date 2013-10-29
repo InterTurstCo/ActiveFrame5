@@ -42,7 +42,8 @@ public class AttachmentBoxWidget extends BaseWidget {
         AttachmentUploaderView attachmentUploaderView = (AttachmentUploaderView) impl;
         attachmentUploaderView.setAttachments(attachments);
         attachmentUploaderView.setWidgetWidth(width);
-        attachmentUploaderView.addFormSubmitCompleteHandler(new FormSubmitCompleteHandler());
+
+        attachmentUploaderView.getAttachmentsPanel().clear();
         for (AttachmentModel attachmentModel : attachments) {
             Image deleteRow = createDeleteAttachmentButton(attachmentModel);
             Anchor anchor = createAnchor(attachmentModel, partWidth);
@@ -63,13 +64,16 @@ public class AttachmentBoxWidget extends BaseWidget {
 
     @Override
     protected Widget asEditableWidget() {
-
-        return new AttachmentUploaderView();
+        AttachmentUploaderView attachmentUploaderView = new AttachmentUploaderView();
+        attachmentUploaderView.addFormSubmitCompleteHandler(new FormSubmitCompleteHandler());
+        return attachmentUploaderView;
     }
 
     @Override
     protected Widget asNonEditableWidget() {
-        return new AttachmentUploaderView();
+        AttachmentUploaderView attachmentUploaderView = new AttachmentUploaderView();
+        attachmentUploaderView.addFormSubmitCompleteHandler(new FormSubmitCompleteHandler());
+        return attachmentUploaderView;
     }
 
     private AttachmentModel handleFileNameFromServer(String filePath) {
@@ -81,7 +85,6 @@ public class AttachmentBoxWidget extends BaseWidget {
         ((AttachmentUploaderView) impl).getAttachments().add(attachmentModel);
 
         return  attachmentModel;
-
     }
 
     private Image createDeleteAttachmentButton(AttachmentModel model) {
