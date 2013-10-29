@@ -17,7 +17,10 @@ import ru.intertrust.cm.core.gui.model.form.widget.AttachmentBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentModel;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -45,17 +48,10 @@ public class AttachmentBoxHandler  extends LinkEditingWidgetHandler {
             AttachmentModel attachmentModel = new AttachmentModel();
 
             // todo: в объекте вложения всегда есть поля name и description - не надо их искать, из них просто можно получить значение
-            for (String field : object.getFields()) {
-                if (ATTACHMENT_NAME.equalsIgnoreCase(field)) {
-                    attachmentModel.setName(object.getValue(field).toString());
-                }
-                if (ATTACHMENT_DESCRIPTION.equalsIgnoreCase(field)) {
-                    attachmentModel.setDescription(object.getValue(field).toString());
-                }
-                attachmentModel.setId(object.getId());
-
-            }
-            savedAttachments.add(attachmentModel);
+             attachmentModel.setName(object.getString(ATTACHMENT_NAME));
+             attachmentModel.setDescription(object.getString(ATTACHMENT_DESCRIPTION));
+             attachmentModel.setId(object.getId());
+             savedAttachments.add(attachmentModel);
         }
 
         AttachmentBoxState result = new AttachmentBoxState();
@@ -99,22 +95,9 @@ public class AttachmentBoxHandler  extends LinkEditingWidgetHandler {
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             } catch (IOException e) {
                 e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }  finally {
-                close(remoteFileData);
-
             }
 
         }
     }
-    private  void close(Closeable c) {
-        if (c == null) return;
-        try {
-            c.close();
-        } catch (IOException e) {
 
-        }
-        catch (Exception e) {
-
-        }
-    }
 }

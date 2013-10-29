@@ -6,6 +6,7 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentModel;
 
@@ -53,6 +54,9 @@ public class AttachmentUploaderView extends Composite {
         this.attachments = attachments;
     }
 
+    public HandlerRegistration addFormSubmitCompleteHandler(FormPanel.SubmitCompleteHandler submitCompleteHandler){
+        return form.addSubmitCompleteHandler(submitCompleteHandler);
+    }
     public void init() {
         root = new VerticalPanel();
 
@@ -71,15 +75,7 @@ public class AttachmentUploaderView extends Composite {
 
     }
 
-    public void showAttachmentNames() {
-        attachmentsPanel.clear();
-        for (AttachmentModel model : attachments) {
-            addRowWithAttachment(model);
-        }
-    }
-
-
-    private void addRowWithAttachment(AttachmentModel model){
+    public void addRowWithAttachment(AttachmentModel model,Image deleteAttachment, Anchor anchor){
 
         HorizontalPanel horizontalPanel = new HorizontalPanel();
 
@@ -89,33 +85,23 @@ public class AttachmentUploaderView extends Composite {
         rightSide.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
         rightSide.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
         rightSide.setWidth(partWidth + "px");
-        Label  fileNameLabel = initLabel(model);
-        Image deleteImage = null;
-        leftSide.add(fileNameLabel);
-        deleteImage = createDeleteAttachmentButton(model, horizontalPanel);
+        leftSide.setWidth(partWidth + "px");
         if (model.getId() == null) {
-
-            int imageWidth = deleteImage.getWidth();
-            UploaderProgressBar uploaderProgressBar = new UploaderProgressBar((int) (partWidth - imageWidth - 10));
+            Label  fileNameLabel = initLabel(model);
+            leftSide.add(fileNameLabel);
+            int imageWidth = deleteAttachment.getWidth();
+            UploaderProgressBar uploaderProgressBar = new UploaderProgressBar(partWidth - imageWidth - 10);
             rightSide.add(uploaderProgressBar);
+        } else {
+            leftSide.add(anchor);
+            leftSide.getElement().getStyle().setMarginLeft(20, Style.Unit.PX);
         }
 
-        rightSide.add(deleteImage);
+        rightSide.add(deleteAttachment);
         horizontalPanel.add(leftSide);
         horizontalPanel.add(rightSide);
         attachmentsPanel.add(horizontalPanel);
 
-    }
-
-    private Image createDeleteAttachmentButton(AttachmentModel model, HorizontalPanel panelToRemove) {
-
-        Image delete = new Image();
-        delete.setUrl("cancel.png");
-        delete.getElement().getStyle().setVerticalAlign(Style.VerticalAlign.MIDDLE);
-
-        DeleteAttachmentsHandler deleteHandler = new DeleteAttachmentsHandler(model, panelToRemove);
-        delete.addClickHandler(deleteHandler);
-        return delete;
     }
 
     private void initFileUpload() {
@@ -133,6 +119,7 @@ public class AttachmentUploaderView extends Composite {
             }
         });
     }
+
     private void initSubmitForm() {
         form = new FormPanel();
 
@@ -140,17 +127,14 @@ public class AttachmentUploaderView extends Composite {
         // set form to use the POST method, and multipart MIME encoding.
         form.setEncoding(FormPanel.ENCODING_MULTIPART);
         form.setMethod(FormPanel.METHOD_POST);
-        form.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
-            public void onSubmitComplete(FormPanel.SubmitCompleteEvent event) {
-                String filePath = event.getResults();
-                AttachmentModel model = handleFileNameFromServer(filePath);
-                addRowWithAttachment(model);
-            }
-        });
+
     }
 
     private void initUploadButton() {
-        addFile = new Image("addButton.png");
+        addFile = new Image("add-button.png");
+        Style style = addFile.getElement().getStyle();
+        style.setMarginBottom(10, Style.Unit.PX);
+
         addFile.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -160,45 +144,12 @@ public class AttachmentUploaderView extends Composite {
         });
     }
 
-    private AttachmentModel handleFileNameFromServer(String filePath) {
-        AttachmentModel attachmentModel = new AttachmentModel();
-        String [] splitClearName = filePath.split("-_-");
-        String clearName = splitClearName[0];
-        attachmentModel.setTemporaryName(filePath);
-        attachmentModel.setName(clearName);
-        attachments.add(attachmentModel);
-
-        return  attachmentModel;
-
-    }
-
-    private class DeleteAttachmentsHandler implements ClickHandler {
-
-        AttachmentModel model;
-        HorizontalPanel panelForRemoving;
-        public DeleteAttachmentsHandler(AttachmentModel model, HorizontalPanel panelForRemoving) {
-            this.model = model;
-            this.panelForRemoving = panelForRemoving;
-
-        }
-        @Override
-        public void onClick(ClickEvent event) {
-
-            panelForRemoving.removeFromParent();
-            attachments.remove(model);
-
-        }
-    }
     private Label initLabel(AttachmentModel model) {
 
         Label fileNameLabel = new Label(model.getName());
-        if (model.getId() == null) {
-            fileNameLabel.getElement().setId(model.getTemporaryName());
-        } else {
-            fileNameLabel.getElement().setId(model.getId().toStringRepresentation());
-        }
-
-        fileNameLabel.getElement().getStyle().setOverflow(Style.Overflow.HIDDEN);
+        Style style = fileNameLabel.getElement().getStyle();
+        style.setOverflow(Style.Overflow.HIDDEN);
+        style.setFontSize(98, Style.Unit.PCT);
         fileNameLabel.setWidth(partWidth + "px");
 
         return fileNameLabel;

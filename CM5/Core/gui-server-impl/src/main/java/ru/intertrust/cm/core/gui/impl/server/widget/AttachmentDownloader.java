@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
-import com.healthmarketscience.rmiio.RemoteInputStreamServer;
-import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
+import com.healthmarketscience.rmiio.RemoteInputStream;
+import com.healthmarketscience.rmiio.RemoteInputStreamClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,15 +9,21 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.IdService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -26,73 +32,51 @@ import java.io.InputStream;
  */
 @Controller
 public class AttachmentDownloader {
-    private static final Logger log = LoggerFactory.getLogger(AttachmentUploader.class);
+    private static final Logger log = LoggerFactory.getLogger(AttachmentDownloader.class);
     @Autowired
     protected CrudService crudService;
-
     @Autowired
     protected IdService idService;
+    @Autowired
+    protected AttachmentService attachmentService;
 
-  /*  @Controller
-    @RequestMapping(value = "/somewhere/new")
-    public class SomewhereController {
-
-        @RequestMapping(method = RequestMethod.POST)
-        public String post(
-                @ModelAttribute("newObject") NewObject newObject) {
-            // ...
-        }       */
-        @RequestMapping(value = "/attachments/{id}", method = RequestMethod.GET)
+        @RequestMapping(value = "{id}", method = RequestMethod.GET)
         public void getFile(@PathVariable("id") String id, HttpServletResponse response) {
-            try {
-                Id rdmsId = idService.createId(id);
-                DomainObject domainObject = crudService.find(rdmsId);
-                String filePath = domainObject.getString("Path");
+          try {
+              Id rdmsId = idService.createId(id);
+              DomainObject domainObject = crudService.find(rdmsId);
+              RemoteInputStream remoteFileData = attachmentService.loadAttachment(domainObject);
+              InputStream fileData = RemoteInputStreamClient.wrap(remoteFileData);
 
-                    InputStream is = new FileInputStream(filePath);
-                    RemoteInputStreamServer remoteFileData = new SimpleRemoteInputStream(is);
+              response.setHeader("Content-Disposition", "attachment; filename=" + domainObject.getString("Name"));
+              response.setContentType("application/download");
+              stream (fileData, response.getOutputStream());
 
                 } catch (FileNotFoundException e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                }
+                    log.error(e.getMessage());
+                } catch (IOException e) {
+                    log.error(e.getMessage());
+          }
 
-        /*        // get MIME type of the file
-              String mimeType = domainObject.getString("");
-                if (mimeType == null) {
-                    // set to binary type if MIME mapping not found
-                    mimeType = "application/octet-stream";
-                }
-                System.out.println("MIME type: " + mimeType);
+        }
 
-                // set content attributes for the response
-                response.setContentType(mimeType);
-                response.setContentLength((int) downloadFile.length());
+    private long stream(InputStream input, OutputStream output) throws IOException {
 
-                // set headers for the response
-                String headerKey = "Content-Disposition";
-                String headerValue = String.format("attachment; filename=\"%s\"",
-                        downloadFile.getName());
-                response.setHeader(headerKey, headerValue);
+        try (
+            ReadableByteChannel inputChannel = Channels.newChannel(input);
+            WritableByteChannel outputChannel = Channels.newChannel(output);)
+        {ByteBuffer buffer = ByteBuffer.allocate(10240);
+            long size = 0;
 
-                // get output stream of the response
-                OutputStream outStream = response.getOutputStream();
-
-                byte[] buffer = new byte[BUFFER_SIZE];
-                int bytesRead = -1;
-
-                // write bytes read from the input stream into the output stream
-                while ((bytesRead = inputStream.read(buffer)) != -1) {
-                    outStream.write(buffer, 0, bytesRead);
-                }
-
-                inputStream.close();
-                outStream.close();
-
-
-            } catch (IOException ex) {
-                log.info("Error writing file to output stream. File with '" + id + "'");
-                throw new RuntimeException("IOError writing file to output stream");
+            while (inputChannel.read(buffer) != -1) {
+                buffer.flip();
+                size += outputChannel.write(buffer);
+                buffer.clear();
             }
-                */
-        }  }
+
+            return size;
+        }
+
+    }
+}
 
