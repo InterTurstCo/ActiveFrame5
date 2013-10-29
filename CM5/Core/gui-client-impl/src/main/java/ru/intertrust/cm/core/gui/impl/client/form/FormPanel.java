@@ -91,8 +91,8 @@ public class FormPanel implements IsWidget {
         formDisplayData.getMarkup().getHeader().getTableLayout().getHeight();
         formDisplayData.getMarkup().getHeader().getTableLayout().getWidth();
 
-        if(Integer.parseInt(formDisplayData.getMarkup().getHeader().getTableLayout().getWidth()) > (Window.getClientWidth() - 230)){
-          verticalPanel.setWidth(formDisplayData.getMarkup().getHeader().getTableLayout().getWidth());
+        if(getNumberFromSizeString(formDisplayData.getMarkup().getHeader().getTableLayout().getWidth()) > (Window.getClientWidth() - 230)){
+          verticalPanel.setWidth(formDisplayData.getMarkup().getHeader().getTableLayout().getWidth()+"px");
           verticalPanel.setHeight("100%");
         }
         else{
@@ -230,5 +230,9 @@ public class FormPanel implements IsWidget {
     }
     private int getSpan(String configValue) {
         return configValue == null || configValue.isEmpty() ? 1 : Integer.parseInt(configValue);
+    }
+
+    int getNumberFromSizeString(String string) {
+        return Integer.parseInt(string.split("px")[0]);
     }
 }
