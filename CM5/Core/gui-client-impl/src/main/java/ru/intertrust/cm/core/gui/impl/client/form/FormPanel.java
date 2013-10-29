@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client.form;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.config.model.gui.form.*;
 import ru.intertrust.cm.core.config.model.gui.form.widget.WidgetDisplayConfig;
@@ -49,34 +50,86 @@ public class FormPanel implements IsWidget {
         this.formDisplayData.setFormState(formState);
     }
 
-    private VerticalPanel build() {
+    private ScrollPanel build() {
         MarkupConfig markup = formDisplayData.getMarkup();
         HeaderConfig header = markup.getHeader();
         IsWidget headerTable = buildTable(header.getTableLayout());
 
-        final TabLayoutPanel bodyTabPanel = new TabLayoutPanel(30, Style.Unit.PX);
-        bodyTabPanel.setSize("500px", "200px"); // todo - something else
+        final TabLayoutPanel bodyTabPanel = new TabLayoutPanel(35, Style.Unit.PX);
+        if(header.getTableLayout().getHeight()!= null){
+            //bodyTabPanel.setSize("500px", "200px"); // todo - something else
+            bodyTabPanel.setHeight(header.getTableLayout().getHeight());
+        }
+        else{
+            bodyTabPanel.setHeight("200px");
+        }
+        if(header.getTableLayout().getWidth()!= null){
+            bodyTabPanel.setWidth((Window.getClientWidth() - 260) + "px");
+        }
+        else{
+            bodyTabPanel.setWidth("500px");
+        }
+
         BodyConfig body = markup.getBody();
         List<TabConfig> tabs = body.getTabs();
         for (TabConfig tab : tabs) {
             bodyTabPanel.add(buildTabContent(tab), tab.getName());
         }
         bodyTabPanel.selectTab(0);
-
-        VerticalPanel verticalPanel = new VerticalPanel();
-        verticalPanel.setSize("500px", "100%");
-        verticalPanel.add(headerTable);
-        verticalPanel.add(bodyTabPanel);
-        bodyTabPanel.getTabWidget(0).getElement().getStyle().setProperty("backgroundColor", "white");
         bodyTabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
             @Override
             public void onSelection(SelectionEvent<Integer> event) {
                 setStyleForAllTabs(event.getSelectedItem(), bodyTabPanel);
             }
         });
+        ScrollPanel scrollPanel = getScrollPanel(headerTable, bodyTabPanel, formDisplayData);
+        return scrollPanel;
+    }
 
+    ScrollPanel getScrollPanel(IsWidget headerTable, TabLayoutPanel bodyTabPanel,FormDisplayData formDisplayData){
+        VerticalPanel verticalPanel = new VerticalPanel();
+        formDisplayData.getMarkup().getHeader().getTableLayout().getHeight();
+        formDisplayData.getMarkup().getHeader().getTableLayout().getWidth();
 
-        return verticalPanel;
+        if(Integer.parseInt(formDisplayData.getMarkup().getHeader().getTableLayout().getWidth()) > (Window.getClientWidth() - 230)){
+          verticalPanel.setWidth(formDisplayData.getMarkup().getHeader().getTableLayout().getWidth());
+          verticalPanel.setHeight("100%");
+        }
+        else{
+            verticalPanel.setHeight((Window.getClientHeight()/2) + "px");
+            verticalPanel.setWidth((Window.getClientWidth() - 230) + "px");
+        }
+        ScrollPanel scrollPanel = new ScrollPanel();
+        scrollPanel.add(verticalPanel);
+        verticalPanel.add(headerTable);
+        verticalPanel.add(bodyTabPanel);
+        scrollPanel.getElement().getStyle().setProperty("overflowY", "hidden");
+        scrollPanel.getElement().getStyle().setProperty("overflowX", "hidden");
+        scrollPanel.setHeight(Window.getClientHeight()/2 + "px");
+        scrollPanel.setWidth((Window.getClientWidth() - 230) + "px");
+        scrollPanel.getElement().getStyle().setProperty("overflowY", "hidden");
+
+        if (scrollPanel.getOffsetWidth() != verticalPanel.getOffsetWidth() && scrollPanel.getOffsetWidth() < verticalPanel.getOffsetWidth()){
+            scrollPanel.getElement().getStyle().setProperty("overflowX", "visible");
+        }
+
+        if (scrollPanel.getOffsetHeight() != verticalPanel.getOffsetHeight() && scrollPanel.getOffsetHeight() < verticalPanel.getOffsetHeight()){
+            scrollPanel.getElement().getStyle().setProperty("overflowY", "visible");
+        }
+
+        if (scrollPanel.getOffsetHeight() > verticalPanel.getOffsetHeight()){
+            scrollPanel.getElement().getStyle().setProperty("overflowX", "hidden");
+        }
+
+        if (scrollPanel.getOffsetHeight() == verticalPanel.getOffsetHeight()){
+            scrollPanel.getElement().getStyle().setProperty("overflowY", "visible");
+        }
+
+        verticalPanel.add(headerTable);
+        verticalPanel.add(bodyTabPanel);
+        bodyTabPanel.getTabWidget(0).getElement().getStyle().setProperty("backgroundColor", "white");
+        //bodyTabPanel.addStyleName("tab-style-content");
+        return scrollPanel;
     }
     void setStyleForAllTabs(Integer activeTab, TabLayoutPanel bodyTabPanel) {
         for (int i = 0; i < bodyTabPanel.getWidgetCount(); i++) {
@@ -86,13 +139,11 @@ public class FormPanel implements IsWidget {
             else {
                 bodyTabPanel.getTabWidget(i).getElement().getStyle().setProperty("backgroundColor", "#c2e7f0");
             }
-
         }
-
     }
     private IsWidget buildTabContent(TabConfig tabConfig) {
         SimpleLayoutPanel panel = new SimpleLayoutPanel();
-        panel.setSize("500px", "100%");
+        panel.setSize((Window.getClientWidth() - 260) + "px", "100%");
         TabGroupListConfig groupList = tabConfig.getGroupList();
         if (groupList instanceof SingleEntryGroupListConfig) {
             panel.add(buildTable(((SingleEntryGroupListConfig) groupList).getTabGroupConfig().getLayout()));
