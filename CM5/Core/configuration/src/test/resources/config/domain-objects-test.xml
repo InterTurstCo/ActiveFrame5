@@ -58,13 +58,39 @@
         </fields>
     </domain-object-type>
 
-   <domain-object-type name="Delegation">
+    <domain-object-type name="Delegation">
         <fields>
-            <reference name="person" type="Employee" not-null="true"/>
-            <reference name="delegate" type="Employee" not-null="true"/>
-            <string name="Status" length="64" />
+            <reference name="person" type="Employee" not-null="true" />
+            <reference name="delegate" type="Employee" not-null="true" />
         </fields>
     </domain-object-type>
+    <!--
+    <domain-object-type name="Status">
+        <fields>
+            <string name="Name" length="128" not-null="true" />
+        </fields>
+    </domain-object-type>
+    
+     <domain-object-type name="Internal_Document" initial-status="Active2"> Internal_Document table
+        <fields>
+            <string name="Name" length="128" />
+            <long name="Stage"/>
+            <string name="ReturnOnReject" length="3" />
+            <string name="RegNum" length="128" />
+            <reference name="docAuthor" type="Employee"/>
+            <reference name="Registrant" type="Employee"/>
+            <reference name="Inspector" type="Employee"/>
+        </fields>
+    </domain-object-type>
+    
+    <domain-object-type name="Negotiation_Card" initial-status="Active2"> Internal_Document table
+        <fields>
+            <string name="Name" length="128" />
+            <reference name="Parent_Document" type="Internal_Document"/>
+            <reference name="Negotiator" type="Employee"/> This means Foreign Key to Employee and index are created automatically
+            <reference name="Add_Negotiation_Card" type="Negotiation_Card"/>
+        </fields>
+    </domain-object-type> -->
 
     <!-- Системный объект, должен определяться в системной конфигурации -->
     <domain-object-type name="Authentication_Info">

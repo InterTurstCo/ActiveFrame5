@@ -359,7 +359,7 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
                 .findCollection(collectionName, filters, null, 0, 0, accessToken);
         // Удаление в цикле всех записей
         for (IdentifiableObject identifiableObject : collection) {
-            domainObjectDao.delete(identifiableObject.getId());
+            domainObjectDao.delete(identifiableObject.getId(), accessToken);
         }
     }
 
@@ -390,7 +390,7 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
                 .findCollection(collectionName, filters, null, 0, 0, accessToken);
         // Удаление в цикле всех записей
         for (IdentifiableObject identifiableObject : collection) {
-            domainObjectDao.delete(identifiableObject.getId());
+            domainObjectDao.delete(identifiableObject.getId(), accessToken);
         }
     }
 

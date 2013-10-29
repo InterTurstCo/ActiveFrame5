@@ -74,7 +74,8 @@ public class OnSaveUserGroupExtensionPoint implements AfterSaveExtensionHandler,
     @Override
     public void onBeforeDelete(DomainObject deletedDomainObject) {
         Id groupGroupId = getGroupGroupId(deletedDomainObject.getId(), deletedDomainObject.getId());
-        domainObjectDao.delete(groupGroupId);
+        AccessToken accessToken = accessControlService.createSystemAccessToken("OnSaveUserGroupExtensionPoint");
+        domainObjectDao.delete(groupGroupId, accessToken);
     }
 
     /**

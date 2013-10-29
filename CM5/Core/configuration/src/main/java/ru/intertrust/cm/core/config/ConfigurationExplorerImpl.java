@@ -3,6 +3,8 @@ package ru.intertrust.cm.core.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.config.model.*;
 import ru.intertrust.cm.core.config.model.base.Configuration;
 import ru.intertrust.cm.core.config.model.base.TopLevelConfig;
@@ -343,6 +345,10 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         for (FieldConfig fieldConfig : domainObjectTypeConfig.getSystemFieldConfigs()) {
             FieldConfigKey fieldConfigKey =
                     new FieldConfigKey(domainObjectTypeConfig.getName(), fieldConfig.getName());
+            if (GenericDomainObject.STATUS_DO.equals(domainObjectTypeConfig.getName())
+                    && GenericDomainObject.STATUS_COLUMN.equals(fieldConfig.getName())) {
+                continue;
+            }
             fieldConfigMap.put(fieldConfigKey, fieldConfig);
         }
     }

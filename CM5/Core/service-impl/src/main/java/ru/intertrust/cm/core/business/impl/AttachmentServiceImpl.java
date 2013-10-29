@@ -94,7 +94,7 @@ public class AttachmentServiceImpl implements AttachmentService {
             newFilePathValue = new StringValue(newFilePath);
             StringValue oldFilePathValue = (StringValue) attachmentDomainObject.getValue("path");
             attachmentDomainObject.setValue(PATH_NAME, new StringValue(newFilePath));
-            AccessToken accessToken = accessControlService.createSystemAccessToken("AttachmentService");
+            AccessToken accessToken = createSystemAccessToken();
 
             savedDoaminObject = domainObjectDao.save(attachmentDomainObject, accessToken);
             
@@ -124,6 +124,10 @@ public class AttachmentServiceImpl implements AttachmentService {
         }
     }
 
+    private AccessToken createSystemAccessToken() {
+        return accessControlService.createSystemAccessToken("AttachmentService");
+    }
+
     @Override
     public RemoteInputStream loadAttachment(DomainObject attachmentDomainObject) {
         InputStream inFile = null;
@@ -151,7 +155,8 @@ public class AttachmentServiceImpl implements AttachmentService {
     public void deleteAttachment(DomainObject attachmentDomainObject) {
         attachmentContentDao.deleteContent(attachmentDomainObject);
         //файл может быть и не удален
-        domainObjectDao.delete(attachmentDomainObject.getId());
+        AccessToken accessToken = createSystemAccessToken();
+        domainObjectDao.delete(attachmentDomainObject.getId(), accessToken);
     }
 
     @Override

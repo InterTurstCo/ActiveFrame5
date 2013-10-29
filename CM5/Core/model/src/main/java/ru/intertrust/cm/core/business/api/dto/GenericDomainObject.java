@@ -15,8 +15,8 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
     private Date createdDate;
     private Date modifiedDate;
 
-    public String STATUS_COLUMN = "status";    
-
+    public static String STATUS_COLUMN = "status";    
+    public static String STATUS_DO = "Status";
 
     /**
      * Создаёт доменный объект

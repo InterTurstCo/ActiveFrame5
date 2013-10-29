@@ -302,6 +302,15 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         domainObjectCacheService.putObjectToCache(updatedObject);
 
+        if (isUpdateStatus) {
+            Long statusValue = updatedObject.getLong(STATUS_COLUMN);
+            if (statusValue != null) {
+                updatedObject.setReference(STATUS_COLUMN,
+                        new RdbmsId(domainObjectTypeIdCache.getId(STATUS_DO), statusValue));
+                updatedObject.setLong(STATUS_COLUMN, null);
+            }
+
+        }
         // refreshDynamiGroupsAndAclForUpdate(domainObject);
 
         return updatedObject;
@@ -346,7 +355,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     @Override
-    public void delete(Id id) throws InvalidIdException,
+    public void delete(Id id, AccessToken accessToken) throws InvalidIdException,
             ObjectNotFoundException {
         validateIdType(id);
 
@@ -357,10 +366,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                         getDOTypeName(rdbmsId.getTypeId()));
 
         // Получаем удаляемый доменный объект для нужд точек расширения
-        AccessToken accessToken = accessControlService
+        AccessToken systemAccessToken = accessControlService
                 .createSystemAccessToken("DomainObjectDaoImpl");
 
-        DomainObject deletedObject = find(id, accessToken);
+        DomainObject deletedObject = find(id, systemAccessToken);
 
         // удаление списков доступа и динамических групп должно проходить до
         // удаления самих объектов
@@ -388,7 +397,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         // объекта для того чтобы не ругались foreign key
         Id parentId = getParentId(rdbmsId, domainObjectTypeConfig);
         if (parentId != null) {
-            delete(parentId);
+            delete(parentId, systemAccessToken);
         }
 
         // Пишем в аудит лог
@@ -418,10 +427,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         // todo: in a batch
         // TODO как обрабатывать ошибки при удалении каждого доменного
         // объекта...
+        AccessToken accessToken = accessControlService.createSystemAccessToken("DomainObjectDaoImpl");
         int count = 0;
         for (Id id : ids) {
             try {
-                delete(id);
+                delete(id, accessToken);
 
                 count++;
             } catch (ObjectNotFoundException e) {

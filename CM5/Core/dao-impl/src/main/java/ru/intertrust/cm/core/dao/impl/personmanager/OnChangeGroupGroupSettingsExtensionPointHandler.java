@@ -88,18 +88,19 @@ public class OnChangeGroupGroupSettingsExtensionPointHandler implements AfterSav
                 delList.add(group);
             }
         }
+        AccessToken accessToken = accessControlService.createSystemAccessToken("OnChangeGroupGroupSettingsExtensionPointHandler");
+        
         // Непосредственно добавляем элементы
         for (Id group : addList) {
             DomainObject domainObject = createDomainObject("group_group");
             domainObject.setReference("parent_group_id", parent);
             domainObject.setReference("child_group_id", group);
-            AccessToken accessToken = accessControlService.createSystemAccessToken("OnChangeGroupGroupSettingsExtensionPointHandler");
             domainObjectDao.save(domainObject, accessToken);
         }
         // Непосредственно удаляем элементы
         for (Id group : delList) {
             Id groupGroupId = getGroupGroupId(parent, group);
-            domainObjectDao.delete(groupGroupId);
+            domainObjectDao.delete(groupGroupId, accessToken);
         }
     }
 

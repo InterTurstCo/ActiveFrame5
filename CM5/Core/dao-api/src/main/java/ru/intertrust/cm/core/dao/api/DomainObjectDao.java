@@ -84,7 +84,7 @@ public interface DomainObjectDao {
      * @throws InvalidIdException      если идентификатор доменного объекта не корректный (не поддерживается или нулевой)
      * @throws ObjectNotFoundException если не существует объекта с таким идентификатором
      */
-    public void delete(Id id) throws InvalidIdException, ObjectNotFoundException;
+    public void delete(Id id, AccessToken accessToken) throws InvalidIdException, ObjectNotFoundException;
 
     /**
      * Удаляет доменные объекты по их уникальным идентификаторам. Не осуществляет никаких действий, если какой-либо объект
