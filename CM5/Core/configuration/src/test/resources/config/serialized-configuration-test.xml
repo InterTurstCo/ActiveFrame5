@@ -54,7 +54,6 @@
       <fields>
          <reference name="person" not-null="true" type="Employee"/>
          <reference name="delegate" not-null="true" type="Employee"/>
-         <string name="Status" not-null="false" length="64"/>
       </fields>
    </domain-object-type>
    <domain-object-type name="Authentication_Info">
@@ -89,7 +88,7 @@
       <prototype><![CDATA[
             
                 select
-                    e.id, e.name, e.position
+                    e.id, e.type_id, e.name, e.position
                 from
                     employee e
                      ::from-clause
@@ -109,6 +108,18 @@
          <criteria placeholder="where-clause"><![CDATA[
                 
                     d.name = {0}
+                
+            ]]></criteria>
+      </filter>
+      <filter name="byDepartmentNames">
+         <reference placeholder="from-clause"><![CDATA[
+                 
+                    inner join department d on e.department = d.id
+                
+            ]]></reference>
+         <criteria placeholder="where-clause"><![CDATA[
+                
+                    d.name in ({0})
                 
             ]]></criteria>
       </filter>
