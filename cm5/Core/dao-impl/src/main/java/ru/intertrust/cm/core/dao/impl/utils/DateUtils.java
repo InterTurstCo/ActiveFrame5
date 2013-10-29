@@ -1,6 +1,9 @@
 package ru.intertrust.cm.core.dao.impl.utils;
 
+import ru.intertrust.cm.core.business.api.dto.DateContext;
 import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
+import ru.intertrust.cm.core.business.api.dto.TimeZoneContext;
+import ru.intertrust.cm.core.business.api.dto.UtcOffsetContext;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -38,10 +41,10 @@ public class DateUtils {
 
     public static String getTimeZoneId(DateTimeWithTimeZone dateTimeWithTimeZone) {
         String timeZoneId = null;
-        DateTimeWithTimeZone.DateContext context = dateTimeWithTimeZone.getContext();
+        DateContext context = dateTimeWithTimeZone.getContext();
 
-        if (context instanceof DateTimeWithTimeZone.UtcOffsetContext) {
-            long timeZoneOffset = ((DateTimeWithTimeZone.UtcOffsetContext) context).getOffset();
+        if (context instanceof UtcOffsetContext) {
+            long timeZoneOffset = ((UtcOffsetContext) context).getOffset();
             if (timeZoneOffset == 0) {
                 timeZoneId = "GMT";
             } else {
@@ -52,8 +55,8 @@ public class DateUtils {
                     timeZoneId = "GMT-" + timeZoneOffsetInHours;
                 }
             }
-        } else if (context instanceof DateTimeWithTimeZone.TimeZoneContext) {
-            timeZoneId = ((DateTimeWithTimeZone.TimeZoneContext) context).getTimeZoneId();
+        } else if (context instanceof TimeZoneContext) {
+            timeZoneId = ((TimeZoneContext) context).getTimeZoneId();
         }
 
         return timeZoneId;

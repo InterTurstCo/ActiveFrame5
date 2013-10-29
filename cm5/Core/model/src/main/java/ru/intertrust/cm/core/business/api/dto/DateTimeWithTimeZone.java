@@ -160,31 +160,4 @@ public class DateTimeWithTimeZone implements Serializable {
         return result;
     }
 
-    public static abstract class DateContext implements Serializable {
-    }
-
-    public static class TimeZoneContext extends DateContext {
-        private String timeZoneId;
-
-        public TimeZoneContext(String timeZoneId) {
-            this.timeZoneId = timeZoneId;
-        }
-
-        public String getTimeZoneId() {
-            return timeZoneId;
-        }
-    }
-
-    public static class UtcOffsetContext extends DateContext {
-        private long offset;
-
-        public UtcOffsetContext(long offset) {
-            this.offset = offset;
-        }
-
-        public long getOffset() {
-            return offset;
-        }
-    }
-
 }

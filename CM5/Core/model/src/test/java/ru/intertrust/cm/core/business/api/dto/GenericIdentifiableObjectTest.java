@@ -60,7 +60,7 @@ public class GenericIdentifiableObjectTest {
     @Test
     public void testSetAndGetDateTimeWithTimeZone() throws Exception {
         DateTimeWithTimeZone dateTimeWithTimeZone = new DateTimeWithTimeZone(2012, 3, 15, 14, 31, 66, 195);
-        dateTimeWithTimeZone.setContext(new DateTimeWithTimeZone.UtcOffsetContext(7200000));
+        dateTimeWithTimeZone.setContext(new UtcOffsetContext(7200000));
 
         object.setDateTimeWithTimeZone("field", dateTimeWithTimeZone);
         Assert.assertEquals(dateTimeWithTimeZone, object.getDateTimeWithTimeZone("field"));

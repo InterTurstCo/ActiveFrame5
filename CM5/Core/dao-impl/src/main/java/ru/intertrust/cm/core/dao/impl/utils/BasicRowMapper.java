@@ -329,12 +329,12 @@ public class BasicRowMapper {
         return value;
     }
 
-    private DateTimeWithTimeZone.DateContext getDateTimeWithTimeZoneContext(String timeZoneId) {
+    private DateContext getDateTimeWithTimeZoneContext(String timeZoneId) {
         if (timeZoneId.startsWith("GMT")) {
             long offset = Long.parseLong(timeZoneId.substring(4))*3600000;
-            return new DateTimeWithTimeZone.UtcOffsetContext(offset);
+            return new UtcOffsetContext(offset);
         } else {
-            return new DateTimeWithTimeZone.TimeZoneContext(timeZoneId);
+            return new TimeZoneContext(timeZoneId);
         }
     }
 
