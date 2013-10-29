@@ -9,6 +9,8 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.model.gui.navigation.PluginConfig;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.plugin.ActivePluginData;
@@ -42,6 +44,7 @@ public abstract class Plugin extends BaseComponent {
     private boolean initialDataAssigned;
     private PluginView view;
     private List<HandlerRegistration> handlerRegistrations = new ArrayList<HandlerRegistration>();
+    private List<PluginViewCreatedEventListener> viewCreatedEventListeners = new ArrayList<PluginViewCreatedEventListener>(1);
 
     static Logger logger = Logger.getLogger("plugin logger");
 
@@ -51,6 +54,10 @@ public abstract class Plugin extends BaseComponent {
      * @return представление данного плагина
      */
     public abstract PluginView createView();
+
+    public void addViewCreatedListener(PluginViewCreatedEventListener listener) {
+        viewCreatedEventListeners.add(listener);
+    }
 
     public void onDataLoadFailure() {
         Window.alert("Ошибка инициализации плагина " + this.getName());
@@ -208,6 +215,14 @@ public abstract class Plugin extends BaseComponent {
 
     private void postSetUp() {
         view = createView();
+        PluginViewCreatedEvent event = new PluginViewCreatedEvent(this);
+        for (PluginViewCreatedEventListener listener : viewCreatedEventListeners) {
+            listener.onViewCreation(event);
+        }
+        // just in case, make sure to produce NPE if view is "created" again. and free memory of course
+        viewCreatedEventListeners = null;
+
+        // owner is not implemented as PluginViewCreatedListener as we want it to be notified after all
         owner.onPluginViewCreated(this);
     }
 

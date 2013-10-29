@@ -32,8 +32,7 @@ public abstract class SimpleServerAction extends Action {
             }
         };
         try {
-            ActionContext currentContext = getCurrentContext();
-            currentContext.setActionConfig(initialContext.getActionConfig());
+            ActionContext currentContext = appendCurrentContext(initialContext);
             Command command = new Command("executeAction", this.getName(), currentContext);
             BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, callback);
         } catch (GuiException e) {
@@ -41,8 +40,8 @@ public abstract class SimpleServerAction extends Action {
         }
     }
 
-    protected ActionContext getCurrentContext() {
-        return null;
+    protected ActionContext appendCurrentContext(ActionContext initialContext) {
+        return initialContext;
     }
 
     protected void onSuccess(ActionData result) {

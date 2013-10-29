@@ -4,8 +4,9 @@ import com.google.gwt.user.client.Window;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
-import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
+import ru.intertrust.cm.core.gui.model.action.CompleteTaskActionContext;
 import ru.intertrust.cm.core.gui.model.action.SaveActionData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
@@ -24,11 +25,10 @@ public class CompleteTaskAction extends SimpleServerAction {
     }
 
     @Override
-    protected SaveActionContext getCurrentContext() {
+    protected CompleteTaskActionContext appendCurrentContext(ActionContext initialContext) {
         FormState formState = ((IsDomainObjectEditor) getPlugin()).getFormState();
-        SaveActionContext context = new SaveActionContext();
+        CompleteTaskActionContext context = (CompleteTaskActionContext) initialContext;
         context.setRootObjectId(formState.getObjects().getRootNode().getDomainObject().getId());
-        context.setFormState(formState);
         return context;
     }
 

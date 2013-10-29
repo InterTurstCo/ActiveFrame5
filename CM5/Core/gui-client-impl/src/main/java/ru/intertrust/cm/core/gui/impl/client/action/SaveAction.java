@@ -4,6 +4,7 @@ import com.google.gwt.user.client.Window;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.action.SaveActionData;
@@ -29,9 +30,9 @@ public class SaveAction extends SimpleServerAction {
     }
 
     @Override
-    protected SaveActionContext getCurrentContext() {
+    protected SaveActionContext appendCurrentContext(ActionContext initialContext) {
         FormState formState = ((IsDomainObjectEditor) getPlugin()).getFormState();
-        SaveActionContext context = new SaveActionContext();
+        SaveActionContext context = (SaveActionContext) initialContext;
         context.setRootObjectId(formState.getObjects().getRootNode().getDomainObject().getId());
         context.setFormState(formState);
         return context;

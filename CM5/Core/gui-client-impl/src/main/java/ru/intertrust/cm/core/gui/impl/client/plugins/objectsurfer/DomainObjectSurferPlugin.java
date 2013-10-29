@@ -11,7 +11,10 @@ import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.plugin.*;
 
@@ -62,11 +65,17 @@ public class DomainObjectSurferPlugin extends Plugin implements
 
     @Override
     public void onCollectionRowSelect(CollectionRowSelectedEvent event) {
-        // todo 2 times!!!
         PluginPanel formPluginPanel = formPlugin.getOwner();
         formPluginPanel.closeCurrentPlugin();
-        FormPlugin newFormPlugin = ComponentRegistry.instance.get("form.plugin");
+        final FormPlugin newFormPlugin = ComponentRegistry.instance.get("form.plugin");
         newFormPlugin.setConfig(new FormPluginConfig(event.getId()));
+        newFormPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {
+            @Override
+            public void onViewCreation(PluginViewCreatedEvent source) {
+                List<ActionContext> actions = ((FormPluginData) newFormPlugin.getInitialData()).getActionContexts();
+                DomainObjectSurferPlugin.this.setActionContexts(actions);
+            }
+        });
         formPluginPanel.open(newFormPlugin);
         this.formPlugin = newFormPlugin;
     }

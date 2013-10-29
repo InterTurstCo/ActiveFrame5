@@ -4,6 +4,7 @@ import com.google.gwt.user.client.Window;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
 import ru.intertrust.cm.core.gui.model.action.SaveActionData;
 import ru.intertrust.cm.core.gui.model.action.SendProcessEventActionContext;
@@ -24,9 +25,9 @@ public class SendProcessEventAction extends SimpleServerAction {
     }
 
     @Override
-    protected SendProcessEventActionContext getCurrentContext() {
+    protected SendProcessEventActionContext appendCurrentContext(ActionContext initialContext) {
         FormState formState = ((IsDomainObjectEditor) getPlugin()).getFormState();
-        SendProcessEventActionContext context = new SendProcessEventActionContext();
+        SendProcessEventActionContext context = (SendProcessEventActionContext) initialContext;
         context.setRootObjectId(formState.getObjects().getRootNode().getDomainObject().getId());
         return context;
     }

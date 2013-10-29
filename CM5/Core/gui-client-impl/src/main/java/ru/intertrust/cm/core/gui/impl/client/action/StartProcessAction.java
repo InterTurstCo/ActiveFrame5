@@ -4,6 +4,7 @@ import com.google.gwt.user.client.Window;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
 import ru.intertrust.cm.core.gui.model.action.StartProcessActionContext;
 import ru.intertrust.cm.core.gui.model.action.StartProcessActionData;
@@ -24,9 +25,9 @@ public class StartProcessAction extends SimpleServerAction {
     }
 
     @Override
-    protected StartProcessActionContext getCurrentContext() {
+    protected StartProcessActionContext appendCurrentContext(ActionContext initialContext) {
         FormState formState = ((IsDomainObjectEditor) getPlugin()).getFormState();
-        StartProcessActionContext context = new StartProcessActionContext();
+        StartProcessActionContext context = (StartProcessActionContext) initialContext;
         context.setRootObjectId(formState.getObjects().getRootNode().getDomainObject().getId());
         return context;
     }
