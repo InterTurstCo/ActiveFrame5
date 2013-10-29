@@ -869,7 +869,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         parameters.put("updated_date",
                 getGMTDate(domainObject.getModifiedDate()));
         if (isUpdateStatus) {
-            parameters.put("status", domainObject.getStatus());
+            parameters.put("status", ((RdbmsId)domainObject.getStatus()).getId());
+            parameters.put("status_type", ((RdbmsId)domainObject.getStatus()).getTypeId());
         }
         List<FieldConfig> fieldConfigs = domainObjectTypeConfig
                 .getDomainObjectFieldsConfig().getFieldConfigs();
