@@ -195,7 +195,7 @@ public class TestProcessInternalDoc extends ClientBase {
                 personIds.put("Negotiator" + i, personId);
                 negotiationCard.setReference("Negotiator",personId );
                 negotiationCard =  crudService.save(negotiationCard);
-                negotiationCard.setReference("Add_Negotiation_Card", negotiationCard);
+                //negotiationCard.setReference("Add_Negotiation_Card", negotiationCard);
                 for (int j=1;j<4;j++){
                 	 DomainObject negotiationCardChild = crudService
                              .createDomainObject("Negotiation_Card");
