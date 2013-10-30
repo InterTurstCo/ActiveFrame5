@@ -36,7 +36,7 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public void logout(HttpServletRequest request) {
         try {
-            request.getSession().removeAttribute(USER_CREDENTIALS_SESSION_ATTRIBUTE);
+            request.getSession().invalidate();
             request.logout();
         } catch (ServletException e) {
             e.printStackTrace();
