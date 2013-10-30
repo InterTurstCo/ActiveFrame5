@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.model.gui.form.widget.SelectionPatternConfig;
 import ru.intertrust.cm.core.config.model.gui.form.widget.SuggestBoxConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
@@ -13,8 +14,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.SuggestionItem;
 import ru.intertrust.cm.core.gui.model.form.widget.SuggestionList;
 import ru.intertrust.cm.core.gui.model.form.widget.SuggestionRequest;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,7 +27,6 @@ import java.util.regex.Pattern;
  */
 @ComponentName("suggest-box")
 public class SuggestBoxHandler extends LinkEditingWidgetHandler {
-
     @Autowired
     CrudService crudService;
     @Autowired
@@ -35,30 +34,46 @@ public class SuggestBoxHandler extends LinkEditingWidgetHandler {
 
     @Override
     public SuggestBoxState getInitialState(WidgetContext context) {
+        SuggestBoxState state = new SuggestBoxState();
         SuggestBoxConfig widgetConfig = context.getWidgetConfig();
-        SuggestBoxState result = new SuggestBoxState();
-        result.setSuggestBoxConfig(widgetConfig);
-        return result;
+        state.setSuggestBoxConfig(widgetConfig);
+        ArrayList<Id> selectedIds = context.getObjectIds();
+        List<DomainObject> domainObjects;
+        if (!selectedIds.isEmpty()) {
+            domainObjects = crudService.find(selectedIds);
+        } else {
+            domainObjects = Collections.emptyList();
+        }
+        LinkedHashMap<Id, String> objects = new LinkedHashMap<Id, String>();
+        SelectionPatternConfig selectionPatternConfig = widgetConfig.getSelectionPatternConfig();
+        Pattern pattern = Pattern.compile("\\{\\w+\\}");
+        Matcher matcher = pattern.matcher(selectionPatternConfig.getValue());
+        for (DomainObject domainObject : domainObjects) {
+            objects.put(domainObject.getId(), format(domainObject, matcher));
+        }
+        state.setObjects(objects);
+        return state;
     }
 
     public SuggestionList obtainSuggestions(Dto inputParams) {
         SuggestionRequest suggestionRequest = (SuggestionRequest) inputParams;
         List<Filter> filters = new ArrayList<>();
 
-        // TODO uncomment when multicriterion filtering will be resolvable
-        // filters.add(prepareExcludeIdsFilter(suggestionRequest.getExcludeIds()));
-
+        if (!suggestionRequest.getExcludeIds().isEmpty()) {
+            filters.add(prepareExcludeIdsFilter(suggestionRequest.getExcludeIds()));
+        }
         filters.add(prepareInputTextFilter(suggestionRequest.getText()));
 
         IdentifiableObjectCollection collection = collectionsService.findCollection(suggestionRequest.getCollectionName(), null, filters);
         Pattern pattern = Pattern.compile("\\{\\w+\\}");
-        Matcher matcher = pattern.matcher(suggestionRequest.getPattern());
+        Matcher dropDownMatcher = pattern.matcher(suggestionRequest.getDropdownPattern());
+        Matcher selectionMatcher = pattern.matcher(suggestionRequest.getSelectionPattern());
 
         ArrayList<SuggestionItem> suggestionItems = new ArrayList<>();
 
         for (IdentifiableObject identifiableObject : collection) {
-            SuggestionItem suggestionItem = new SuggestionItem(Long.valueOf(identifiableObject.getId().toStringRepresentation()),
-                    format(identifiableObject, matcher));
+            SuggestionItem suggestionItem = new SuggestionItem(identifiableObject.getId(),
+                    format(identifiableObject, dropDownMatcher), format(identifiableObject, selectionMatcher));
             suggestionItems.add(suggestionItem);
         }
         SuggestionList suggestionList = new SuggestionList();
@@ -69,16 +84,16 @@ public class SuggestBoxHandler extends LinkEditingWidgetHandler {
     private Filter prepareInputTextFilter(String text) {
         Filter textFilter = new Filter();
         textFilter.setFilter("byText");
-        textFilter.addCriterion(0, new StringValue(text+"%"));
+        textFilter.addCriterion(0, new StringValue(text + "%"));
         return textFilter;
     }
 
-    private Filter prepareExcludeIdsFilter(ArrayList<Long> excludeIds) {
+    private Filter prepareExcludeIdsFilter(Set<Id> excludeIds) {
         Filter exludeIdsFilter = new Filter();
 
         List<Value> excludeIdsCriterion = new ArrayList<>();
-        for (Long id : excludeIds) {
-            excludeIdsCriterion.add(new LongValue(id));
+        for (Id id : excludeIds) {
+            excludeIdsCriterion.add(new ReferenceValue(id));
         }
         exludeIdsFilter.addMultiCriterion(0, excludeIdsCriterion);
         exludeIdsFilter.setFilter("idsExcluded");

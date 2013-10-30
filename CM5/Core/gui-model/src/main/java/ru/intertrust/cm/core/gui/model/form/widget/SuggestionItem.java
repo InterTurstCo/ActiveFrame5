@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
+import ru.intertrust.cm.core.business.api.dto.Id;
+
 import java.io.Serializable;
 
 /**
@@ -11,22 +13,29 @@ import java.io.Serializable;
  */
 public class SuggestionItem implements Serializable {
 
-    private Long id;
-    private String suggestionText;
+    private Id id;
+    private String displayText;
+    private String replacementText;
 
-    public SuggestionItem(Long id, String suggestionText) {
+    public SuggestionItem(Id id, String displayText, String replacementText) {
         this.id = id;
-        this.suggestionText = suggestionText;
+        this.displayText = displayText;
+        this.replacementText = replacementText;
     }
 
     public SuggestionItem() {
     }
 
-    public Long getId() {
+    public Id getId() {
         return id;
     }
 
-    public String getSuggestionText() {
-        return suggestionText;
+    public String getDisplayText() {
+        return displayText;
     }
+
+    public String getReplacementText() {
+        return replacementText;
+    }
+
 }

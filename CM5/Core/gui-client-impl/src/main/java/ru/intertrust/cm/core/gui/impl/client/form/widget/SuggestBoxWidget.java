@@ -8,37 +8,95 @@ import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.model.gui.form.widget.SuggestBoxConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.support.MultiWordIdentifiableSuggestion;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 
 @ComponentName("suggest-box")
 public class SuggestBoxWidget extends BaseWidget {
 
     SuggestBoxState currentState;
-    HashMap<String, Long> allSuggestions = new HashMap<String, Long>();
-    HashMap<String, Long> selectedSuggestions = new HashMap<String, Long>();
+    HashMap<Id, String> allSuggestions = new HashMap<Id, String>();
+    HashMap<Id, String> selectedSuggestions = new HashMap<Id, String>();
+    private VerticalPanel selectedRecords;
 
     @Override
     public void setCurrentState(WidgetState currentState) {
-        this.currentState = (SuggestBoxState) currentState;
+        selectedRecords.clear();
+        SuggestBoxState suggestBoxState = (SuggestBoxState) currentState;
+        this.currentState = suggestBoxState;
+        LinkedHashMap<Id, String> listValues = suggestBoxState.getObjects();
+        for (final Map.Entry<Id, String> listEntry : listValues.entrySet()) {
+            final HorizontalPanel recordContainer = new HorizontalPanel();
+            recordContainer.add(new Label(listEntry.getValue()));
+            Button closeButton = new Button("X");
+            closeButton.getElement().setId(listEntry.getKey().toStringRepresentation());
+            closeButton.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    recordContainer.removeFromParent();
+                    selectedSuggestions.remove(listEntry.getKey());
+                }
+            });
+            recordContainer.add(closeButton);
+            selectedRecords.add(recordContainer);
+            selectedSuggestions.put(listEntry.getKey(), listEntry.getValue());
+        }
     }
 
     @Override
-    public WidgetState getCurrentState() {
-        return currentState;
+    public SuggestBoxState getCurrentState() {
+        SuggestBoxState state = new SuggestBoxState();
+        state.setSelectedIds(new ArrayList<Id>(selectedSuggestions.keySet()));
+        return state;
     }
 
     @Override
     protected Widget asEditableWidget() {
+        MultiWordSuggestOracle oracle = buildDynamicMultiWordOracle();
+        final SuggestBox suggestBox = new SuggestBox(oracle);
+        selectedRecords = new VerticalPanel();
+
         VerticalPanel container = new VerticalPanel();
-        MultiWordSuggestOracle oracle = new MultiWordSuggestOracle() {
+        container.add(suggestBox);
+        container.add(selectedRecords);
+
+        suggestBox.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
+            public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
+                final MultiWordIdentifiableSuggestion selectedItem = (MultiWordIdentifiableSuggestion) event.getSelectedItem();
+                final String replacementString = selectedItem.getReplacementString();
+                selectedSuggestions.put(selectedItem.getId(), selectedItem.getReplacementString());
+                final HorizontalPanel record = new HorizontalPanel();
+                record.add(new Label(replacementString));
+                final Button closeButton = new Button("X");
+                closeButton.getElement().setId(selectedItem.getId().toStringRepresentation());
+                closeButton.addClickHandler(new ClickHandler() {
+                    @Override
+                    public void onClick(ClickEvent event) {
+                        record.removeFromParent();
+                        selectedSuggestions.remove(selectedItem.getId());
+                    }
+                });
+                record.add(closeButton);
+                selectedRecords.add(record);
+                SuggestBox sourceObject = (SuggestBox) event.getSource();
+
+                //clear suggest input filling
+                sourceObject.setText("");
+            }
+        });
+        return container;
+    }
+
+    private MultiWordSuggestOracle buildDynamicMultiWordOracle() {
+        return new MultiWordSuggestOracle() {
             @Override
             public void requestSuggestions(final Request request, final Callback callback) {
                 SuggestionRequest suggestionRequest = new SuggestionRequest();
@@ -46,11 +104,12 @@ public class SuggestBoxWidget extends BaseWidget {
                 SuggestBoxConfig suggestBoxConfig = currentState.getSuggestBoxConfig();
                 String name = suggestBoxConfig.getCollectionRefConfig().getName();
                 suggestionRequest.setCollectionName(name);
-                String value = suggestBoxConfig.getPatternConfig().getValue();
+                String dropDownPatternConfig = suggestBoxConfig.getDropdownPatternConfig().getValue();
 
-                suggestionRequest.setPattern(value);
+                suggestionRequest.setDropdownPattern(dropDownPatternConfig);
+                suggestionRequest.setSelectionPattern(suggestBoxConfig.getSelectionPatternConfig().getValue());
                 suggestionRequest.setText(request.getQuery());
-                suggestionRequest.setExcludeIds(new ArrayList<Long>(selectedSuggestions.values()));
+                suggestionRequest.setExcludeIds(new LinkedHashSet<Id>(selectedSuggestions.keySet()));
 
                 Command command = new Command("obtainSuggestions", SuggestBoxWidget.this.getName(), suggestionRequest);
                 BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, new AsyncCallback<Dto>() {
@@ -60,8 +119,8 @@ public class SuggestBoxWidget extends BaseWidget {
                         ArrayList<Suggestion> suggestions = new ArrayList<Suggestion>();
                         allSuggestions.clear();
                         for (SuggestionItem suggestionItem : list.getSuggestions()) {
-                            suggestions.add(new MultiWordSuggestion(suggestionItem.getSuggestionText(), suggestionItem.getSuggestionText()));
-                            allSuggestions.put(suggestionItem.getSuggestionText(), suggestionItem.getId());
+                            suggestions.add(new MultiWordIdentifiableSuggestion(suggestionItem.getId(), suggestionItem.getReplacementText(), suggestionItem.getDisplayText()));
+                            allSuggestions.put(suggestionItem.getId(), suggestionItem.getDisplayText());
                         }
                         Response response = new Response();
                         response.setSuggestions(suggestions);
@@ -70,38 +129,12 @@ public class SuggestBoxWidget extends BaseWidget {
 
                     @Override
                     public void onFailure(Throwable caught) {
-                        GWT.log("something going wrong while obtaining suggestions for '" + request.getQuery() + "'");
+                        GWT.log("something was going wrong while obtaining suggestions for '" + request.getQuery() + "'");
                     }
                 });
                 GWT.log("suggestion requested " + request.getQuery());
             }
         };
-        final SuggestBox suggestBox = new SuggestBox(oracle);
-        final HorizontalPanel selectedRecords = new HorizontalPanel();
-
-        container.add(suggestBox);
-        container.add(selectedRecords);
-
-        suggestBox.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
-            public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
-                final String value = event.getSelectedItem().getReplacementString();
-                selectedSuggestions.put(value, allSuggestions.get(value));
-                final HorizontalPanel record = new HorizontalPanel();
-                record.add(new Label(value));
-                final Button closeButton = new Button("X");
-                closeButton.getElement().setId(allSuggestions.get(value).toString());
-                closeButton.addClickHandler(new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        record.removeFromParent();
-                        selectedSuggestions.remove(value);
-                    }
-                });
-                record.add(closeButton);
-                selectedRecords.add(record);
-            }
-        });
-        return container;
     }
 
     @Override

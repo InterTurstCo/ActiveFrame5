@@ -1,8 +1,9 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Id;
 
-import java.util.ArrayList;
+import java.util.LinkedHashSet;
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,8 +16,9 @@ public class SuggestionRequest implements Dto {
 
     private String text;
     private String collectionName;
-    private String pattern;
-    private ArrayList<Long> excludeIds = new ArrayList<Long>();
+    private String dropdownPattern;
+    private String selectionPattern;
+    private LinkedHashSet<Id> excludeIds = new LinkedHashSet<Id>();
 
     public String getText() {
         return text;
@@ -34,19 +36,27 @@ public class SuggestionRequest implements Dto {
         this.collectionName = collectionName;
     }
 
-    public String getPattern() {
-        return pattern;
+    public String getDropdownPattern() {
+        return dropdownPattern;
     }
 
-    public void setPattern(String pattern) {
-        this.pattern = pattern;
+    public void setDropdownPattern(String pattern) {
+        this.dropdownPattern = pattern;
     }
 
-    public ArrayList<Long> getExcludeIds() {
+    public LinkedHashSet<Id> getExcludeIds() {
         return excludeIds;
     }
 
-    public void setExcludeIds(ArrayList<Long> excludeIds) {
+    public void setExcludeIds(LinkedHashSet<Id> excludeIds) {
         this.excludeIds = excludeIds;
+    }
+
+    public String getSelectionPattern() {
+        return selectionPattern;
+    }
+
+    public void setSelectionPattern(String selectionPattern) {
+        this.selectionPattern = selectionPattern;
     }
 }

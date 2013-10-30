@@ -61,6 +61,12 @@
             <reference name="city" type="city"/>
         </fields>
     </domain-object-type>
+    <domain-object-type name="country_most_famous_city">
+        <fields>
+            <reference name="country" type="country"/>
+            <reference name="city" type="city"/>
+        </fields>
+    </domain-object-type>
 
     <domain-object-type name="city">
         <fields>
@@ -274,41 +280,41 @@
             <label id="7">
                 <text>Столица:</text>
             </label>
-            <list-box id="8a">
+         <!--   <list-box id="8a">
                 <field-path value="capital"/>
-                <!--а для области столицы: capital . federal_unit_city^city . federal_unit . name &ndash;&gt;  -->
+                &lt;!&ndash;а для области столицы: capital . federal_unit_city^city . federal_unit . name &ndash;&gt;  &ndash;&gt;
                 <pattern value="{name} ({population} чел.)"/>
-            </list-box>
-            <!--
+            </list-box>-->
+
             <label id="7a">
                 <text>Известный город:</text>
-            </label>       -->
-           <!-- <suggest-box id="8a">
-                <field-path value="most_famous_city"/>
-                &lt;!&ndash; а для области столицы: capital . federal_unit_city^city . federal_unit . name &ndash;&gt;
-
+            </label>
+            <suggest-box id="8a">
+                <field-path value="country_most_famous_city^country.city"/>
+               <!-- <field-path value="most_famous_city"/>-->
+                <!-- а для области столицы: capital . federal_unit_city^city . federal_unit . name -->
                 <pattern value="{name} ({population} чел.)"/>
 
                 <collection-ref name="Cities"/>
 
-                &lt;!&ndash; название фильтра, использующегося при получении описания уже выбранных значений &ndash;&gt;
+                <!--TODO не реализовано. название фильтра, использующегося при получении описания уже выбранных значений -->
                 <selection-filter name="idsIncluded"/>
 
-                &lt;!&ndash; название фильтра, отсекающего, уже выбранные значения (для того, чтобы они не показывались  списке &ndash;&gt;
+                <!-- название фильтра, отсекающего, уже выбранные значения (для того, чтобы они не показывались  списке -->
                 <selection-exclude-filter name="idsExcluded"/>
 
-                &lt;!&ndash; паттерн отображения значений выпадающего списка &ndash;&gt;
-                <drop-down-pattern value="{first_name} {last_name} {position}"/>
+                <!-- паттерн отображения значений выпадающего списка -->
+                <drop-down-pattern value="{name} {population}"/>
 
-                &lt;!&ndash; паттерн отображения уже выбранных значений &ndash;&gt;
-                <selection-pattern value="{first_name} {last_name}"/>
+                <!-- паттерн отображения уже выбранных значений -->
+                <selection-pattern value="{name} {population} {year_of_foundation}"/>
 
-                &lt;!&ndash; название фильтра по тексту, введённому пользователем &ndash;&gt;
+                <!-- название фильтра по тексту, введённому пользователем -->
                 <input-text-filter name="byText"/>
 
-                &lt;!&ndash; количество элементов, показываемых на одной странице выпадающего списка &ndash;&gt;
+                <!-- количество элементов, показываемых на одной странице выпадающего списка -->
                 <page-size>30</page-size>
-            </suggest-box>-->
+            </suggest-box>
 
             <!--<label id="best_friend_label">
                 <text>Лучший друг (назв. страны):</text>
@@ -341,10 +347,10 @@
             <label id="best_desc_label">
                 <text>Города (N:M)</text>
             </label>
-            <list-box id="best_friend_desc">
+           <!-- <list-box id="best_friend_desc">
                 <field-path value="country_city^country.city"/>
                 <pattern value="{name} ({population} чел.)"/>
-            </list-box>
+            </list-box>-->
 
             <label id="9">
                 <text>День независимости:</text>
