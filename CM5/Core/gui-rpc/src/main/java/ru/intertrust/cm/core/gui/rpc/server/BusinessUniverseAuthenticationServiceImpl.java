@@ -25,7 +25,5 @@ public class BusinessUniverseAuthenticationServiceImpl extends BaseService
     public void logout() {
         LoginService guiService = new LoginServiceImpl();
         guiService.logout(getThreadLocalRequest());
-        //("/cm-sochi/Exit.html");
-        System.out.println("Выход пресс");
     }
 }
