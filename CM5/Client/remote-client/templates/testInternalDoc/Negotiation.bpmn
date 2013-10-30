@@ -144,15 +144,15 @@ execution.setVariableLocal("NEGOTIATION_CARD_ID",negotiationCardId);
       <sequenceFlow id="flow49" sourceRef="boundarytimer2" targetRef="exclusivegateway10"></sequenceFlow>
       <exclusiveGateway id="exclusivegateway11" name="Exclusive Gateway"></exclusiveGateway>
       <sequenceFlow id="flow52" sourceRef="exclusivegateway11" targetRef="exclusivegateway5">
-        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!SESSION.find(NEGOTIATION_CARD_ID).get("Status").equals("AdditionalNegotiation")}]]></conditionExpression>
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!SESSION.find(NEGOTIATION_CARD_ID).getStatus().equals("AdditionalNegotiation")}]]></conditionExpression>
       </sequenceFlow>
       <sequenceFlow id="flow53" name="При доп. согласовании" sourceRef="exclusivegateway11" targetRef="endevent2">
-        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${SESSION.find(NEGOTIATION_CARD_ID).get("Status").equals("AdditionalNegotiation")}]]></conditionExpression>
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${SESSION.find(NEGOTIATION_CARD_ID).getStatus().equals("AdditionalNegotiation")}]]></conditionExpression>
       </sequenceFlow>
       <sequenceFlow id="flow54" sourceRef="exclusivegateway10" targetRef="notifyTerm"></sequenceFlow>
     </subProcess>
-    <sequenceFlow id="flow15" sourceRef="eachNegotiator" targetRef="exclusivegateway9"></sequenceFlow>
-    <sequenceFlow id="ifNoMoreNegotiators" name="Все согласовали" sourceRef="exclusivegateway1" targetRef="analizeNegotiationCards">
+    <sequenceFlow id="flow15" sourceRef="eachNegotiator" targetRef="exclusivegateway13"></sequenceFlow>
+    <sequenceFlow id="ifNoMoreNegotiators" name="Все согласовали" sourceRef="exclusivegateway1" targetRef="exclusivegateway13">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${negotiationCardIds.size()==0}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="ifLeftNegotiators" name="Остались согласующие" sourceRef="exclusivegateway1" targetRef="eachNegotiator">
@@ -171,13 +171,6 @@ SESSION.Log("Документ Подписан: "+scrDecisionOnNegotiation);</sc
     </scriptTask>
     <sequenceFlow id="flow21" sourceRef="onSigned" targetRef="doSigned"></sequenceFlow>
     <sequenceFlow id="flow22" sourceRef="doSigned" targetRef="exclusivegateway7"></sequenceFlow>
-    <sequenceFlow id="flow27" sourceRef="onCancel" targetRef="doRejectDoc"></sequenceFlow>
-    <scriptTask id="doRejectDoc" name="Решение - Не согласован" scriptFormat="javascript" activiti:autoStoreVariables="false">
-      <script>var scrDecisionOnNegotiation ="Reject";
-execution.setVariable("decisionOnNegotiation", scrDecisionOnNegotiation);
-SESSION.Log("Документ не согласован: "+scrDecisionOnNegotiation);</script>
-    </scriptTask>
-    <sequenceFlow id="flow29" sourceRef="doRejectDoc" targetRef="scripttask4"></sequenceFlow>
     <scriptTask id="analizeNegotiationCards" name="Анализ решений согласования" scriptFormat="javascript" activiti:autoStoreVariables="false">
       <script>var filter = SESSION.createFilter();
 if(typeof NEGOTIATION_CARD_ID !=="undefined"){
@@ -206,7 +199,7 @@ SESSION.Log("Документ согласован: "+scrDecisionOnNegotiation);
     </sequenceFlow>
     <exclusiveGateway id="exclusivegateway7" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow38" sourceRef="scripttask2" targetRef="exclusivegateway7"></sequenceFlow>
-    <sequenceFlow id="flow39" sourceRef="scripttask1" targetRef="exclusivegateway7"></sequenceFlow>
+    <sequenceFlow id="flow39" sourceRef="scripttask1" targetRef="scripttask4"></sequenceFlow>
     <sequenceFlow id="flow40" sourceRef="exclusivegateway7" targetRef="endevent1"></sequenceFlow>
     <sequenceFlow id="ifNoReject" name="Если нет &quot;Не согласован&quot;" sourceRef="exclusivegateway6" targetRef="scripttask2">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${analizeNegotiationCardIds.size()==0}]]></conditionExpression>
@@ -217,6 +210,9 @@ SESSION.Log("Документ согласован: "+scrDecisionOnNegotiation);
     <scriptTask id="scripttask4" name="Установка статуса Черновик у всех карточек согласования, кроме карточек со статусом &quot;Согласован&quot;" scriptFormat="javascript" activiti:autoStoreVariables="false">
       <script>SESSION.setCardsStatus(negotiationCardIds,"Agree","Draft",true);</script>
     </scriptTask>
+    <sequenceFlow id="flow55" sourceRef="onCancel" targetRef="exclusivegateway13"></sequenceFlow>
+    <sequenceFlow id="flow56" sourceRef="exclusivegateway13" targetRef="analizeNegotiationCards"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway13" name="Exclusive Gateway"></exclusiveGateway>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_Negotiation">
     <bpmndi:BPMNPlane bpmnElement="Negotiation" id="BPMNPlane_Negotiation">
@@ -280,17 +276,14 @@ SESSION.Log("Документ согласован: "+scrDecisionOnNegotiation);
       <bpmndi:BPMNShape bpmnElement="doSigned" id="BPMNShape_doSigned">
         <omgdc:Bounds height="55.0" width="105.0" x="-50.0" y="669.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="doRejectDoc" id="BPMNShape_doRejectDoc">
-        <omgdc:Bounds height="55.0" width="105.0" x="64.0" y="669.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="askAfterAdditionalNegotiation" id="BPMNShape_askAfterAdditionalNegotiation">
         <omgdc:Bounds height="55.0" width="105.0" x="-50.0" y="120.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="analizeNegotiationCards" id="BPMNShape_analizeNegotiationCards">
-        <omgdc:Bounds height="55.0" width="105.0" x="933.0" y="423.0"></omgdc:Bounds>
+        <omgdc:Bounds height="55.0" width="105.0" x="933.0" y="440.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask1" id="BPMNShape_scripttask1">
-        <omgdc:Bounds height="55.0" width="105.0" x="804.0" y="630.0"></omgdc:Bounds>
+        <omgdc:Bounds height="55.0" width="105.0" x="799.0" y="557.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask2" id="BPMNShape_scripttask2">
         <omgdc:Bounds height="55.0" width="105.0" x="1070.0" y="630.0"></omgdc:Bounds>
@@ -323,10 +316,13 @@ SESSION.Log("Документ согласован: "+scrDecisionOnNegotiation);
         <omgdc:Bounds height="40.0" width="40.0" x="-68.0" y="400.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask4" id="BPMNShape_scripttask4">
-        <omgdc:Bounds height="101.0" width="143.0" x="444.0" y="722.0"></omgdc:Bounds>
+        <omgdc:Bounds height="101.0" width="143.0" x="780.0" y="646.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="startNegotiationEvent" id="BPMNShape_startNegotiationEvent">
         <omgdc:Bounds height="35.0" width="35.0" x="735.0" y="0.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway13" id="BPMNShape_exclusivegateway13">
+        <omgdc:Bounds height="40.0" width="40.0" x="732.0" y="447.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
         <omgdi:waypoint x="752.0" y="35.0"></omgdi:waypoint>
@@ -350,22 +346,13 @@ SESSION.Log("Документ согласован: "+scrDecisionOnNegotiation);
         <omgdi:waypoint x="510.0" y="65.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow15" id="BPMNEdge_flow15">
-        <omgdi:waypoint x="242.0" y="591.0"></omgdi:waypoint>
-        <omgdi:waypoint x="-96.0" y="613.0"></omgdi:waypoint>
-        <omgdi:waypoint x="-96.0" y="613.0"></omgdi:waypoint>
-        <omgdi:waypoint x="-96.0" y="613.0"></omgdi:waypoint>
-        <omgdi:waypoint x="-96.0" y="898.0"></omgdi:waypoint>
-        <omgdi:waypoint x="224.0" y="898.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1205.0" y="898.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1205.0" y="654.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1205.0" y="100.0"></omgdi:waypoint>
-        <omgdi:waypoint x="772.0" y="100.0"></omgdi:waypoint>
+        <omgdi:waypoint x="602.0" y="295.0"></omgdi:waypoint>
+        <omgdi:waypoint x="658.0" y="466.0"></omgdi:waypoint>
+        <omgdi:waypoint x="732.0" y="467.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="ifNoMoreNegotiators" id="BPMNEdge_ifNoMoreNegotiators">
-        <omgdi:waypoint x="772.0" y="295.0"></omgdi:waypoint>
-        <omgdi:waypoint x="984.0" y="299.0"></omgdi:waypoint>
-        <omgdi:waypoint x="984.0" y="386.0"></omgdi:waypoint>
-        <omgdi:waypoint x="985.0" y="423.0"></omgdi:waypoint>
+        <omgdi:waypoint x="752.0" y="315.0"></omgdi:waypoint>
+        <omgdi:waypoint x="752.0" y="447.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
           <omgdc:Bounds height="14.0" width="87.0" x="-99.0" y="-21.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
@@ -429,21 +416,8 @@ SESSION.Log("Документ согласован: "+scrDecisionOnNegotiation);
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow22" id="BPMNEdge_flow22">
         <omgdi:waypoint x="2.0" y="724.0"></omgdi:waypoint>
-        <omgdi:waypoint x="2.0" y="867.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1154.0" y="867.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1154.0" y="773.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1015.0" y="773.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow27" id="BPMNEdge_flow27">
-        <omgdi:waypoint x="117.0" y="612.0"></omgdi:waypoint>
-        <omgdi:waypoint x="116.0" y="624.0"></omgdi:waypoint>
-        <omgdi:waypoint x="116.0" y="669.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow29" id="BPMNEdge_flow29">
-        <omgdi:waypoint x="116.0" y="724.0"></omgdi:waypoint>
-        <omgdi:waypoint x="116.0" y="773.0"></omgdi:waypoint>
-        <omgdi:waypoint x="290.0" y="773.0"></omgdi:waypoint>
-        <omgdi:waypoint x="444.0" y="772.0"></omgdi:waypoint>
+        <omgdi:waypoint x="2.0" y="772.0"></omgdi:waypoint>
+        <omgdi:waypoint x="975.0" y="773.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="ifNotReturn" id="BPMNEdge_ifNotReturn">
         <omgdi:waypoint x="-48.0" y="519.0"></omgdi:waypoint>
@@ -470,14 +444,14 @@ SESSION.Log("Документ согласован: "+scrDecisionOnNegotiation);
         <omgdi:waypoint x="124.0" y="284.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow35" id="BPMNEdge_flow35">
-        <omgdi:waypoint x="985.0" y="478.0"></omgdi:waypoint>
+        <omgdi:waypoint x="985.0" y="495.0"></omgdi:waypoint>
         <omgdi:waypoint x="985.0" y="524.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="ifAtLeastOneReject" id="BPMNEdge_ifAtLeastOneReject">
-        <omgdi:waypoint x="985.0" y="564.0"></omgdi:waypoint>
-        <omgdi:waypoint x="856.0" y="630.0"></omgdi:waypoint>
+        <omgdi:waypoint x="965.0" y="544.0"></omgdi:waypoint>
+        <omgdi:waypoint x="851.0" y="557.0"></omgdi:waypoint>
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds height="56.0" width="100.0" x="-119.0" y="-46.0"></omgdc:Bounds>
+          <omgdc:Bounds height="56.0" width="100.0" x="-104.0" y="-65.0"></omgdc:Bounds>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow38" id="BPMNEdge_flow38">
@@ -485,8 +459,8 @@ SESSION.Log("Документ согласован: "+scrDecisionOnNegotiation);
         <omgdi:waypoint x="995.0" y="753.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow39" id="BPMNEdge_flow39">
-        <omgdi:waypoint x="856.0" y="685.0"></omgdi:waypoint>
-        <omgdi:waypoint x="995.0" y="753.0"></omgdi:waypoint>
+        <omgdi:waypoint x="851.0" y="612.0"></omgdi:waypoint>
+        <omgdi:waypoint x="851.0" y="646.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow40" id="BPMNEdge_flow40">
         <omgdi:waypoint x="995.0" y="793.0"></omgdi:waypoint>
@@ -515,9 +489,8 @@ SESSION.Log("Документ согласован: "+scrDecisionOnNegotiation);
         <omgdi:waypoint x="752.0" y="140.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow45" id="BPMNEdge_flow45">
-        <omgdi:waypoint x="587.0" y="772.0"></omgdi:waypoint>
-        <omgdi:waypoint x="716.0" y="772.0"></omgdi:waypoint>
-        <omgdi:waypoint x="975.0" y="773.0"></omgdi:waypoint>
+        <omgdi:waypoint x="923.0" y="696.0"></omgdi:waypoint>
+        <omgdi:waypoint x="995.0" y="753.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow48" id="BPMNEdge_flow48">
         <omgdi:waypoint x="210.0" y="148.0"></omgdi:waypoint>
@@ -546,6 +519,16 @@ SESSION.Log("Документ согласован: "+scrDecisionOnNegotiation);
       <bpmndi:BPMNEdge bpmnElement="flow54" id="BPMNEdge_flow54">
         <omgdi:waypoint x="144.0" y="167.0"></omgdi:waypoint>
         <omgdi:waypoint x="144.0" y="190.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow55" id="BPMNEdge_flow55">
+        <omgdi:waypoint x="117.0" y="612.0"></omgdi:waypoint>
+        <omgdi:waypoint x="116.0" y="643.0"></omgdi:waypoint>
+        <omgdi:waypoint x="752.0" y="643.0"></omgdi:waypoint>
+        <omgdi:waypoint x="752.0" y="487.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow56" id="BPMNEdge_flow56">
+        <omgdi:waypoint x="772.0" y="467.0"></omgdi:waypoint>
+        <omgdi:waypoint x="933.0" y="467.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

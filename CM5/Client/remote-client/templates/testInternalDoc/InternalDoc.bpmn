@@ -19,7 +19,7 @@
     <sequenceFlow id="ifAgreed" name="Согласовано" sourceRef="exclusivegateway2" targetRef="callactivity1">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${decisionOnNegotiation.equals("Agree")}]]></conditionExpression>
     </sequenceFlow>
-    <userTask id="toDraft" name="Возврат на доработку" activiti:assignee="${MAIN_ATTACHMENT.get(&quot;docAuthor&quot;).toStringRepresentation()}">
+    <userTask id="toDraft" name="Доработать документ" activiti:assignee="${MAIN_ATTACHMENT.get(&quot;docAuthor&quot;).toStringRepresentation()}">
       <extensionElements>
         <activiti:formProperty id="MAIN_ATTACHMENT_ID" type="string" expression="${MAIN_ATTACHMENT_ID.toStringRepresentation()}"></activiti:formProperty>
       </extensionElements>
@@ -34,7 +34,7 @@ MAIN_ATTACHMENT.set("Stage",MAIN_ATTACHMENT.get("Stage")+1);
     </scriptTask>
     <sequenceFlow id="flow29" sourceRef="scripttask1" targetRef="callSign"></sequenceFlow>
     <scriptTask id="scripttask2" name="Установка статуса документа Доработка" scriptFormat="javascript" activiti:autoStoreVariables="true">
-      <script>MAIN_ATTACHMENT.setStatus("Draft");
+      <script>MAIN_ATTACHMENT.setStatus("OnRevision");
 </script>
     </scriptTask>
     <sequenceFlow id="flow30" sourceRef="scripttask2" targetRef="toDraft"></sequenceFlow>

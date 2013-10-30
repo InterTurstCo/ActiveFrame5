@@ -40,6 +40,9 @@
                 sortable="false" />
             <column field="name" name="Название" type="string"
                 editable="false" hidden="false" sortable="false" />
+            <column field="status_name" name="Статус" type="string"
+                editable="false" hidden="false" sortable="false" />
+                
         </display>
     </collection-view>
 
@@ -47,16 +50,32 @@
         is-default="true" debug="false">
         <markup>
             <header>
-                <table width="800px" height="200px">
+                <table width="800px" height="400px">
                     <tr>
+                        <!-- label (Название) -->
                         <td width="100px" h-align="right">
                             <widget id="1" />
                         </td>
-                        <!-- label (Название) -->
+                        <!-- text-box (Название) -->
                         <td width="100%" h-align="left">
                             <widget id="2" />
                         </td>
-                        <!-- text-box (Название) -->
+                        <!-- label (RegNum) -->
+                        <td width="100px" h-align="right">
+                            <widget id="regNumLabel" />
+                        </td>
+                        <!-- text-box (RegNum) -->
+                        <td width="100%" h-align="left">
+                            <widget id="regNum" />
+                        </td>
+                        <!-- label (Автор) -->
+                        <td width="100px" h-align="right">
+                            <widget id="docAuthorLabel" />
+                        </td>
+                        <!-- text-box (Автор) -->
+                        <td width="100%" h-align="left">
+                            <widget id="docAuthor" />
+                        </td>
                     </tr>
                 </table>
             </header>
@@ -64,7 +83,17 @@
                 <tab name="Согласование"> <!-- закладка состоит из групп с разметкой -->
                     <single-entry-group> <!-- наследник от TabGroupsConfig -->
                         <tab-group> <!-- вхождение в группу уже может содержать разметку -->
-                            <table>
+                            <table>                            
+                                <tr>
+                                    <td h-align="center" v-align="center">
+                                        <widget id="ReturnOnRejectLabel" />
+                                    </td>
+                                    <!-- label (Возвращать при первом несогласовании) -->
+                                    <td h-align="left">
+                                        <widget id="ReturnOnReject" />
+                                    </td>
+                                    <!-- integer-box (Возвращать при первом несогласовании) -->
+                                </tr>
                                 <tr>
                                     <td h-align="center" v-align="center">
                                         <widget id="3" />
@@ -84,6 +113,100 @@
                                         <widget id="6" />
                                     </td>
                                     <!-- combobox-box (Регистратор) -->
+                                </tr>                                
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="1">
+                <field-path />
+                <text>Название:</text>
+            </label>
+            <text-box id="2">
+                <field-path value="Name" />
+            </text-box>
+
+            <label id="regNumLabel">
+                <field-path />
+                <text>Регистрационный номер:</text>
+            </label>
+            <text-box id="regNum">
+                <field-path value="RegNum" />
+            </text-box>
+
+            <label id="ReturnOnRejectLabel">
+                <field-path />
+                <text>Возвращать при первой отрицательной визе:</text>
+            </label>
+            <text-box id="ReturnOnReject">
+                <field-path value="ReturnOnReject" />
+            </text-box>
+
+            <label id="3">
+                <text>Согласующие:</text>
+            </label>
+            <list-box id="4">
+                <field-path
+                    value="Negotiation_Card^Parent_Document.Negotiator" />
+                <pattern value="{Login}" />
+            </list-box>
+
+            <label id="5">
+                <text>Регистратор:</text>
+            </label>            
+            <list-box id="6"> 
+                <field-path value="Registrant"/>
+                <!-- редактирует названи-->
+                <pattern value="{Login}"/>
+            </list-box>
+
+            <label id="docAuthorLabel">
+                <text>Автор:</text>
+            </label>            
+            <list-box id="docAuthor"> 
+                <field-path value="docAuthor"/>
+                <!-- редактирует названи-->
+                <pattern value="{Login}"/>
+            </list-box>
+            
+        </widget-config>
+    </form>
+
+
+    <form name="Negotiation_Card_form" domain-object-type="Negotiation_Card"
+        is-default="true" debug="false">
+        <markup>
+            <header>
+                <table width="800px" height="200px">
+                    <tr>
+                        <!-- label (Название) -->
+                        <td width="100px" h-align="right">
+                            <widget id="1" />
+                        </td>
+                        <!-- text-box (Название) -->
+                        <td width="100%" h-align="left">
+                            <widget id="2" />
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false"> <!-- в теле - только закладки -->
+                <tab name="Дополнительное согласование"> <!-- закладка состоит из групп с разметкой -->
+                    <single-entry-group> <!-- наследник от TabGroupsConfig -->
+                        <tab-group> <!-- вхождение в группу уже может содержать разметку -->
+                            <table>
+                                <tr>
+                                    <td h-align="center" v-align="center">
+                                        <widget id="3" />
+                                    </td>
+                                    <!-- label (Согласующие) -->
+                                    <td h-align="left">
+                                        <widget id="4" />
+                                    </td>
+                                    <!-- integer-box (Согласующие) -->
                                 </tr>
                             </table>
                         </tab-group>
@@ -101,27 +224,18 @@
             </text-box>
 
             <label id="3">
-                <text>Согласующие:</text>
+                <text>Доп Согласующие:</text>
             </label>
 
             <list-box id="4">
                 <field-path
-                    value="Negotiation_Card^Parent_Document.Negotiator" />
+                    value="Negotiation_Card^Add_Negotiation_Card.Negotiator" />
                 <pattern value="{Login}" />
-            </list-box>
-
-            <label id="5">
-                <text>Регистратор:</text>
-            </label>            
-            
-            <list-box id="6"> 
-                <field-path value="Registrant"/>
-                <!-- редактирует названи-->
-                <pattern value="{Login}"/>
             </list-box>
             
         </widget-config>
     </form>
+
     
     <action name="start-internal-document-process" component="start.process.action"
         text="Отправить на согласование" image="sign.png" show-text="false">

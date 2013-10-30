@@ -43,7 +43,7 @@
             <string name="Name" length="128" />
             <reference name="Parent_Document" type="Internal_Document"/>
             <reference name="Negotiator" type="Employee"/>
-            <reference name="Add_Negotiation_Card" type="Negotiation_Card"/>
+            <reference name="Add_Negotiation_Card" type="Negotiation_Card" not-null="false"/>
             <string name="State" length="128" />
         </fields>
     </domain-object-type>

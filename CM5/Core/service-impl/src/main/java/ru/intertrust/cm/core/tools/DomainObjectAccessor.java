@@ -47,13 +47,17 @@ public class DomainObjectAccessor implements Serializable {
      * @param id
      */
     public DomainObjectAccessor(Id id) {
+        load(id);
+    }
+
+    private void load(Id id){
         // TODO как сделается нормальная работа с токенами заменить токен на
         // токен для конкретного пользователя
         AccessToken accessToken = getAccessControlService()
                 .createSystemAccessToken("DomainObjectAccessor");
-        domainObject = getDomainObjectDao().find(id, accessToken);
+        domainObject = getDomainObjectDao().find(id, accessToken);        
     }
-
+    
     public DomainObjectAccessor(DomainObject domainObject) {
         this.domainObject = domainObject;
     }
@@ -66,6 +70,9 @@ public class DomainObjectAccessor implements Serializable {
      */
     public Object get(String fieldName) {
     	Object result = null;
+    	//Обновляем доменный объект
+    	load(domainObject.getId());
+    	
     	//Если fieldName - простое
     	if (fieldName.indexOf(".")==-1){
             Value value = domainObject.getValue(fieldName);

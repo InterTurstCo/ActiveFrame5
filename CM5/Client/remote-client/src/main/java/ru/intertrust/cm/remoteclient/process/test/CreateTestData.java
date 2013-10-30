@@ -38,7 +38,8 @@ public class CreateTestData
             ProcessService.Remote processService = (ProcessService.Remote) getService(
                     "ProcessService", ProcessService.Remote.class);            
 
-            String[] statuses = new String[] { "Active","Draft","Active4","Active3","Negotiation","Agree","Sign","Registration","Registred" };
+            String[] statuses = new String[] { "Active","Draft","Active4","Active3","Negotiation","Agree","Sign","Registration","Registred", "AdditionalNegotiation", "OnRevision" };
+            
             for (String status : statuses) {
                 createStatus(status);
             }
@@ -108,7 +109,7 @@ public class CreateTestData
             authInfo = crudService
                     .createDomainObject("Authentication_Info");
             authInfo.setString("User_Uid", login);
-            authInfo.setString("Password", "21232f297a57a5a743894a0e4a801fc3");
+            authInfo.setString("Password", "c4ca4238a0b923820dcc509a6f75849b");
             authInfo = crudService.save(authInfo);
             log("Создан объект " + authInfo.getTypeName() + " " + authInfo.getId());
         }
