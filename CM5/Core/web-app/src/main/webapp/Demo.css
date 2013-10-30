@@ -561,10 +561,16 @@ h1 {
 */
 
 div.gwt-Label{
-    margin-left: 20px;
+    margin-left: 20px ;
     font-size: 120%;
     text-align: left;
 }
+
+.tree-label{
+    margin-left: -20px !important;
+}
+
+
 
 
 

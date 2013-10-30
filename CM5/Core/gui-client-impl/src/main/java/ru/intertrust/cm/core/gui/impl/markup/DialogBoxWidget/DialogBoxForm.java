@@ -142,7 +142,6 @@ public class DialogBoxForm {
                     public void onClick(ClickEvent event) {
                         if (vpResult.getWidgetIndex(hor)< vpResult.getWidgetCount()-1){
                             int index = vpResult.getWidgetIndex(hor);
-                            System.out.println("!!!!!!!!!!!! ");
                             vpResult.remove(index);
                             vpResult.insert(hor, index+1);
 

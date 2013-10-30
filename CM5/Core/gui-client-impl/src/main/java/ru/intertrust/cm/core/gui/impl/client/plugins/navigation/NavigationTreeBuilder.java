@@ -53,7 +53,9 @@ class NavigationTreeBuilder {
     }
 
     private TreeItem composeTreeItem(String treeItemName, String displayText, LinkPluginDefinition pluginDefinition) {
-        TreeItem firstLevelTreeItem = new TreeItem(new Label(displayText));
+        Label label = new Label(displayText);
+        label.addStyleName("tree-label");
+        TreeItem firstLevelTreeItem = new TreeItem(label);
 
         Map<String, Object> treeUserObjects = new HashMap<String, Object>();
         treeUserObjects.put("name", treeItemName);
@@ -78,6 +80,7 @@ class NavigationTreeBuilder {
         Tree firstLevelTree = new Tree(images);
         firstLevelTree.setAnimationEnabled(true);
         firstLevelTree.setStyleName("folder-list");
+        firstLevelTree.setWidth("100px");
         return firstLevelTree;
     }
 

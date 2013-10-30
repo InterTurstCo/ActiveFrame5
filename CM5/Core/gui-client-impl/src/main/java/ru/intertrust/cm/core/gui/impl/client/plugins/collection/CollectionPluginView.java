@@ -18,6 +18,8 @@ import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionDisplayC
 import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
+import ru.intertrust.cm.core.gui.impl.client.event.SplitterInnerScrollEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.SplitterInnerScrollEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CellTableEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CheckedSelectionModel;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.SystemColumns;
@@ -40,12 +42,12 @@ import java.util.List;
 public class CollectionPluginView extends PluginView {
     CellTable<CollectionData> tableHeader;
     CellTable<CollectionData> tableBody;
-/*    SplitLayoutPanel splitterSize;*/
+    ScrollPanel scrollTableBody = new ScrollPanel();
     TableController tableController;
     List<String> columnNames;
     List<String> columnFields;
-    ScrollPanel scrollPanelHeader = new ScrollPanel();
-    ScrollPanel scrollPanelBody = new ScrollPanel();
+
+
 
 
 
@@ -60,14 +62,20 @@ public class CollectionPluginView extends PluginView {
      */
     private final DGCellTableResourceAdapter adapter;
 
-    protected CollectionPluginView(Plugin plugin/*, SplitLayoutPanel splitterSize*/) {
+    protected CollectionPluginView(Plugin plugin) {
         super(plugin);
-     /*   this.splitterSize = splitterSize;*/
         adapter = new DGCellTableResourceAdapter(CellTableResourcesEx.I);
         tableHeader = new CellTable<CollectionData>(999,  adapter.getResources());
         tableBody = new CellTable<CollectionData>(999, adapter.getResources());
         tableController = new TableController(tableHeader, tableBody);
 
+        plugin.getEventBus().addHandler(SplitterInnerScrollEvent.TYPE, new SplitterInnerScrollEventHandler() {
+            @Override
+            public void setScrollPanelHeight(SplitterInnerScrollEvent event) {
+                //To change body of implemented methods use File | Settings | File Templates.
+                scrollTableBody.setHeight((event.getUpperPanelHeight()-headerPanel.getOffsetHeight())+"px");
+            }
+        });
 
 
     }
@@ -106,13 +114,17 @@ public class CollectionPluginView extends PluginView {
             @Override
             public void onResize(ResizeEvent event) {
                 int width = (Window.getClientWidth() - 230) / tableHeader.getColumnCount();
-                if (width < 100){
+                if (width < 100) {
                     width = 100;
                 }
                 tableController.columnWindowResize(width);
+                scrollTableBody.setHeight(((Window.getClientHeight() - 300) / 2) + "px");
 
             }
         });
+
+
+
 
     }
     private void addHandlers(){
@@ -137,7 +149,13 @@ public class CollectionPluginView extends PluginView {
         headerPanel.add(tableHeader);
         bodyPanel.add(tableBody);
         verticalPanel.add(headerPanel);
-        verticalPanel.add(bodyPanel);
+
+
+        scrollTableBody.getElement().getStyle().setOverflowX(Style.Overflow.HIDDEN);
+        scrollTableBody.setHeight(((Window.getClientHeight()-300) / 2)+"px");
+        scrollTableBody.add(bodyPanel);
+        verticalPanel.add(scrollTableBody);
+
         verticalPanel.setSize("100%","100%");
         root.add(verticalPanel);
 
@@ -260,5 +278,8 @@ public class CollectionPluginView extends PluginView {
 
     }
 
+    public ScrollPanel getScrollTableBody() {
+        return scrollTableBody;
+    }
 }
 
