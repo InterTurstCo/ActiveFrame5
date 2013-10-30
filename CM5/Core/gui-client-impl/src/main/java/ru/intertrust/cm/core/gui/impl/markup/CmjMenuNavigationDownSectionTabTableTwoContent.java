@@ -10,7 +10,7 @@ public class CmjMenuNavigationDownSectionTabTableTwoContent extends HorizontalPa
 
         VerticalPanel verticalPanelForTab = new VerticalPanel();
         VerticalPanel verticalPanelTable = new VerticalPanel();
-        verticalPanelForTab.setWidth("230px");
+        verticalPanelForTab.setWidth("235px");
         Label tabLabelFirst = new Label("Согласование");
         Label tabLabelSecond = new Label("Подписание");
         Label tabLabelThird = new Label("Регистрация");

@@ -96,8 +96,8 @@ public class FormPanel implements IsWidget {
           verticalPanel.setHeight("100%");
         }
         else{
-            verticalPanel.setHeight((Window.getClientHeight()/2) + "px");
-            verticalPanel.setWidth((Window.getClientWidth() - 230) + "px");
+            verticalPanel.setHeight(((Window.getClientHeight()-98) /2) + "px");
+            verticalPanel.setWidth((Window.getClientWidth() - 235) + "px");
         }
         ScrollPanel scrollPanel = new ScrollPanel();
         scrollPanel.add(verticalPanel);
@@ -105,8 +105,8 @@ public class FormPanel implements IsWidget {
         verticalPanel.add(bodyTabPanel);
         scrollPanel.getElement().getStyle().setProperty("overflowY", "hidden");
         scrollPanel.getElement().getStyle().setProperty("overflowX", "hidden");
-        scrollPanel.setHeight(Window.getClientHeight()/2 + "px");
-        scrollPanel.setWidth((Window.getClientWidth() - 230) + "px");
+        scrollPanel.setHeight((Window.getClientHeight()-98)/2 + "px");
+        scrollPanel.setWidth((Window.getClientWidth() - 235) + "px");
         scrollPanel.getElement().getStyle().setProperty("overflowY", "hidden");
 
         if (scrollPanel.getOffsetWidth() != verticalPanel.getOffsetWidth() && scrollPanel.getOffsetWidth() < verticalPanel.getOffsetWidth()){

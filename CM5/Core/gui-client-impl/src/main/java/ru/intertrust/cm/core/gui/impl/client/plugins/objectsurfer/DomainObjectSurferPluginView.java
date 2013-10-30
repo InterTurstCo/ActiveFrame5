@@ -48,10 +48,10 @@ public class DomainObjectSurferPluginView extends PluginView {
 
     protected void splitterSetSize(){
         splitterNew.clear();
-        int width = Window.getClientWidth() - 230;
+        int width = Window.getClientWidth() - 235;
         int heigt = Window.getClientHeight() - 98;
         splitterNew.setSize(width + "px", heigt + "px");
-        splitterNew.addNorth(splitterScroll, (Window.getClientHeight()-230) / 2);
+        splitterNew.addNorth(splitterScroll, (Window.getClientHeight()-235) / 2);
         splitterNew.add(formFlowPanel);
     }
 

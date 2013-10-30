@@ -113,7 +113,7 @@ public class CollectionPluginView extends PluginView {
         Window.addResizeHandler(new ResizeHandler() {
             @Override
             public void onResize(ResizeEvent event) {
-                int width = (Window.getClientWidth() - 230) / tableHeader.getColumnCount();
+                int width = (Window.getClientWidth() - 235) / tableHeader.getColumnCount();
                 if (width < 100) {
                     width = 100;
                 }
@@ -163,7 +163,7 @@ public class CollectionPluginView extends PluginView {
 
     private void buildColumnsOfTables(List<String> columnNames, List<String> columnFields){
         int count =columnNames.size();
-        int columnSize = ((Window.getClientWidth() - 230) / count);
+        int columnSize = ((Window.getClientWidth() - 235) / count);
         for( int i = 0; i <columnNames.size(); i++ ) {
             Column<CollectionData, String> column = buildNameColumn(columnFields.get(i));
             String nameOfColumn = columnNames.get(i);

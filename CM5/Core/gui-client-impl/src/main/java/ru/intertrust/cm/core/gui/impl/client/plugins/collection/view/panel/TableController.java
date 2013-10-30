@@ -204,7 +204,7 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
                 if (move > COLUMN_MIN_WIDTH) {
                     if (colIdx == header.getColumnCount()-1){
                         if (header.getOffsetWidth() > header.getOffsetWidth() - move){
-                            columnWindowResize((Window.getClientWidth() - 230) / header.getColumnCount());
+                            columnWindowResize((Window.getClientWidth() - 235) / header.getColumnCount());
 
                         }
                     }
