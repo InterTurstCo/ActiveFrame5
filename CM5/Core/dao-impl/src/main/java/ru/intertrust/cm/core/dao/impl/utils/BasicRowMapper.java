@@ -17,6 +17,7 @@ import java.sql.Timestamp;
 import java.util.*;
 
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getServiceColumnName;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getTimeZoneIdColumnName;
 
 /**
@@ -264,7 +265,12 @@ public class BasicRowMapper {
             throw new FatalException("Id field can not be null for object " + domainObjectType);
         }
 
-        Integer idType = rs.getInt(TYPE_ID_COLUMN);
+        Integer idType = null;
+        if (columnName.equals(DomainObjectDao.ID_COLUMN.toLowerCase())){
+            idType = rs.getInt(TYPE_ID_COLUMN);
+        }else{
+            idType = rs.getInt(getServiceColumnName(columnName, REFERENCE_TYPE_POSTFIX).toLowerCase());
+        }
         if (rs.wasNull()) {
             throw new FatalException("Id type field can not be null for object " + domainObjectType);
         }

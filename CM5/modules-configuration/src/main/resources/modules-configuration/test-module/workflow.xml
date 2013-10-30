@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <configuration xmlns="https://cm5.intertrust.ru/config">
 
-    <collection name="Tasks" idField="MainAttachment">
+    <collection name="Tasks" idField="mainattachment">
         <prototype>
             <![CDATA[
                 select
@@ -75,6 +75,16 @@
                                     </td>
                                     <!-- integer-box (Согласующие) -->
                                 </tr>
+                                <tr>
+                                    <td h-align="center" v-align="center">
+                                        <widget id="5" />
+                                    </td>
+                                    <!-- label (Регистратор) -->
+                                    <td h-align="left">
+                                        <widget id="6" />
+                                    </td>
+                                    <!-- combobox-box (Регистратор) -->
+                                </tr>
                             </table>
                         </tab-group>
                     </single-entry-group>
@@ -99,6 +109,17 @@
                     value="Negotiation_Card^Parent_Document.Negotiator" />
                 <pattern value="{Login}" />
             </list-box>
+
+            <label id="5">
+                <text>Регистратор:</text>
+            </label>            
+            
+            <list-box id="6"> 
+                <field-path value="Registrant"/>
+                <!-- редактирует названи-->
+                <pattern value="{Login}"/>
+            </list-box>
+            
         </widget-config>
     </form>
     

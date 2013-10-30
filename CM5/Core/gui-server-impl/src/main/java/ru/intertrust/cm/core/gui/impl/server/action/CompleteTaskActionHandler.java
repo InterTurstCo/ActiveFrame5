@@ -1,9 +1,15 @@
 package ru.intertrust.cm.core.gui.impl.server.action;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
+import ru.intertrust.cm.core.business.api.ProcessService;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
+import ru.intertrust.cm.core.gui.model.action.CompleteTaskActionContext;
 
 /**
  * @author Denis Mitavskiy
@@ -13,8 +19,21 @@ import ru.intertrust.cm.core.gui.model.action.ActionData;
 @ComponentName("complete.task.action")
 public class CompleteTaskActionHandler extends ActionHandler {
 
+    @Autowired
+    private ProcessService processservice;    
+    
     @Override
     public <T extends ActionData> T executeAction(ActionContext context) {
+        CompleteTaskActionContext completeTaskActionContext = (CompleteTaskActionContext) context;
+        Id domainObjectId = completeTaskActionContext.getRootObjectId();
+        if (domainObjectId == null) {
+            throw new GuiException("Объект ещё не сохранён");
+        }
+
+        // todo: do some action with this domain object or with new domain
+        // object
+        processservice.completeTask(completeTaskActionContext.getTaskId(), null, completeTaskActionContext.getTaskAction());
+        
         return null;
     }
 }

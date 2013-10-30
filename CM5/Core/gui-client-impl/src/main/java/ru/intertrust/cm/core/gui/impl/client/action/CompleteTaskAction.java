@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
-import com.google.gwt.user.client.Window;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -11,6 +10,8 @@ import ru.intertrust.cm.core.gui.model.action.SaveActionData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
+
+import com.google.gwt.user.client.Window;
 
 /**
  * @author Denis Mitavskiy
