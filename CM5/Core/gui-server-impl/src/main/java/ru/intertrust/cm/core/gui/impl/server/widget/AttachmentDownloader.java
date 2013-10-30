@@ -42,20 +42,23 @@ public class AttachmentDownloader {
 
         @RequestMapping(value = "{id}", method = RequestMethod.GET)
         public void getFile(@PathVariable("id") String id, HttpServletResponse response) {
+            Id rdmsId = idService.createId(id);
+            DomainObject domainObject = crudService.find(rdmsId);
+            String mimeType = domainObject.getString("MimeType");
+            RemoteInputStream remoteFileData = null;
           try {
-              Id rdmsId = idService.createId(id);
-              DomainObject domainObject = crudService.find(rdmsId);
-              RemoteInputStream remoteFileData = attachmentService.loadAttachment(domainObject);
+              remoteFileData = attachmentService.loadAttachment(domainObject);
               InputStream fileData = RemoteInputStreamClient.wrap(remoteFileData);
-
               response.setHeader("Content-Disposition", "attachment; filename=" + domainObject.getString("Name"));
-              response.setContentType("application/download");
+              response.setContentType(mimeType);
               stream (fileData, response.getOutputStream());
 
                 } catch (FileNotFoundException e) {
                     log.error(e.getMessage());
                 } catch (IOException e) {
                     log.error(e.getMessage());
+          } finally {
+              close(remoteFileData);
           }
 
         }
@@ -64,7 +67,7 @@ public class AttachmentDownloader {
 
         try (
             ReadableByteChannel inputChannel = Channels.newChannel(input);
-            WritableByteChannel outputChannel = Channels.newChannel(output);)
+            WritableByteChannel outputChannel = Channels.newChannel(output))
             {
                 ByteBuffer buffer = ByteBuffer.allocate(10240);
                 while (inputChannel.read(buffer) != -1) {
@@ -74,6 +77,17 @@ public class AttachmentDownloader {
                 }
         }
 
+    }
+    private  void close(RemoteInputStream stream) {
+        if (stream == null) return;
+        try {
+            stream.close(true);
+        } catch (IOException e) {
+
+        }
+        catch (Exception e) {
+
+        }
     }
 }
 

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration xmlns="https://cm5.intertrust.ru/config">
-    <global-config>
+    <global-settings>
         <audit-log enable="false" />
-    </global-config>
+        <attachment-storage path="c:\attachments\"/>
+        <attachment-upload-temp-storage path="c:\savedAttachments\"/>
+    </global-settings>
 </configuration>

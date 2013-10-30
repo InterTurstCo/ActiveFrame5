@@ -79,7 +79,7 @@ public class AttachmentBoxWidget extends BaseWidget {
     private AttachmentModel handleFileNameFromServer(String filePath) {
         AttachmentModel attachmentModel = new AttachmentModel();
         String [] splitClearName = filePath.split("-_-");
-        String clearName = splitClearName[0];
+        String clearName = splitClearName[1];
         attachmentModel.setTemporaryName(filePath);
         attachmentModel.setName(clearName);
         ((AttachmentUploaderView) impl).getAttachments().add(attachmentModel);

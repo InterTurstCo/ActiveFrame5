@@ -1,12 +1,9 @@
 package ru.intertrust.cm.core.config.model.base;
 
-import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.convert.Convert;
-
 import ru.intertrust.cm.core.config.ConfigurationConverter;
-import ru.intertrust.cm.core.config.model.GlobalSettingsConfig;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -22,9 +19,6 @@ import java.util.List;
 public class Configuration implements Serializable {
     @ElementList(type=TopLevelConfig.class, inline=true)
     private List<TopLevelConfig> configurationList = new ArrayList<>();
-
-    @Element(name="global-settings", required=false)
-    private GlobalSettingsConfig globalSettings;    
     
     public List<TopLevelConfig> getConfigurationList() {
         return configurationList;
@@ -36,10 +30,6 @@ public class Configuration implements Serializable {
         } else {
             this.configurationList.clear();
         }
-    }
-    
-    public GlobalSettingsConfig getGlobalSettings(){
-        return globalSettings;
     }
 
     @Override
@@ -53,14 +43,11 @@ public class Configuration implements Serializable {
 
         Configuration that = (Configuration) o;
 
-        if (configurationList != null ? !configurationList.equals(that.configurationList) : that.configurationList != null) {
+        if (configurationList != null ? !configurationList.equals(that.configurationList) : that.
+                configurationList != null) {
             return false;
         }
-        
-        if (globalSettings != null ? !globalSettings.equals(that.globalSettings) : that.globalSettings != null) {
-            return false;
-        }
-        
+
 
         return true;
     }
@@ -69,7 +56,7 @@ public class Configuration implements Serializable {
     public int hashCode() {
         int result = 17;
         result = 37 * result + ( configurationList != null ? configurationList.hashCode() : 0 );
-        result = 37 * result + ( globalSettings != null ? globalSettings.hashCode() : 0 );
+
         return result;
     }
 }

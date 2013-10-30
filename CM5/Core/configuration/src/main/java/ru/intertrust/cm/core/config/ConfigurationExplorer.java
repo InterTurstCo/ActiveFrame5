@@ -24,6 +24,12 @@ public interface ConfigurationExplorer {
     Configuration getConfiguration();
 
     /**
+     * Возвращает глобальные настройки конфигурации
+     * @return конфигурация
+     */
+    GlobalSettingsConfig getGlobalSettings();
+
+    /**
      * Возвращает конфигурацию верхнего уровня
      * @param type класс конфигурации верхнего уровня
      * @param name имя конфигурации верхнего уровня

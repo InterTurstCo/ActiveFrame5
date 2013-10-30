@@ -102,7 +102,8 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
     }
 
     private String toRelativeFromAbsPathFile(String absFilePath) {
-        if (absFilePath.startsWith(attachmentSaveLocation)) {
+
+        if (Paths.get(absFilePath).startsWith(Paths.get(attachmentSaveLocation))) {
             return absFilePath.substring(attachmentSaveLocation.length() + 1);
         } else {
             return absFilePath;
@@ -110,6 +111,6 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
     }
 
     private String toAbsFromRelativePathFile(String relFilePath) {
-        return Paths.get(relFilePath).toAbsolutePath().toString();
+        return Paths.get(attachmentSaveLocation, relFilePath).toAbsolutePath().toString();
     }
 }

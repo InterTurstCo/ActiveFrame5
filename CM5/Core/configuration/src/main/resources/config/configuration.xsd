@@ -125,12 +125,10 @@
 
     <xs:complexType name="configurationType">
         <xs:choice minOccurs="0" maxOccurs="1">
-            <xs:sequence>
-                <xs:element type="con:globalCongfigType"
-                    name="global-config" maxOccurs="1" minOccurs="0"
-                    xmlns:con="https://cm5.intertrust.ru/config" />
-            </xs:sequence>
             <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element type="con:globalConfigType"
+                            name="global-settings" maxOccurs="1" minOccurs="1"
+                            xmlns:con="https://cm5.intertrust.ru/config" />
                 <xs:element type="con:domainObjectType" name="domain-object-type"
                     maxOccurs="unbounded" minOccurs="0"
                     xmlns:con="https://cm5.intertrust.ru/config" />
@@ -237,14 +235,25 @@
         </xs:sequence>
         <xs:attribute name="name" use="required" type="xs:string" />
     </xs:complexType>
-
-
-    <xs:complexType name="globalCongfigType">
+    <!-- Global Config-->
+    <xs:complexType name="globalConfigType">
         <xs:sequence>
             <xs:element name="audit-log">
                 <xs:complexType>
                     <xs:attribute name="enable" use="optional"
                         type="xs:boolean" />
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="attachment-storage">
+                <xs:complexType>
+                    <xs:attribute name="path" use="required"
+                                  type="xs:string" />
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="attachment-upload-temp-storage">
+                <xs:complexType>
+                    <xs:attribute name="path" use="optional"
+                                  type="xs:string" />
                 </xs:complexType>
             </xs:element>
         </xs:sequence>
@@ -437,8 +446,6 @@
                 xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:choice>
     </xs:complexType>
-
-
 
     <xs:simpleType name="doelType">
         <xs:restriction base="xs:string">

@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.config.model.gui.collection.view;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
-import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.model.base.TopLevelConfig;
 
 /**
@@ -12,7 +11,7 @@ import ru.intertrust.cm.core.config.model.base.TopLevelConfig;
  *         Time: 12:05 PM
  */
 @Root(name = "collection-view")
-public class CollectionViewConfig implements TopLevelConfig, Dto {
+public class CollectionViewConfig implements TopLevelConfig {
     @Attribute(name = "name")
     private String name;
 

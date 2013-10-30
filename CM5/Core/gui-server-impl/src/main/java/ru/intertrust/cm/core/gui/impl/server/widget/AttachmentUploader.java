@@ -2,14 +2,16 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.context.ServletConfigAware;
 import org.springframework.web.multipart.MultipartFile;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.model.GlobalSettingsConfig;
+import ru.intertrust.cm.core.config.model.global.AttachmentUploadTempStorageConfig;
 
-import javax.servlet.ServletConfig;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,11 +27,11 @@ import java.nio.channels.WritableByteChannel;
  *         Time: 13:15
  */
 @Controller
-public class AttachmentUploader implements ServletConfigAware {
+public class AttachmentUploader {
     private static Logger log = LoggerFactory.getLogger(AttachmentUploader.class);
-    private String pathForTempFilesStore;
-    private ServletConfig servletConfig;
 
+    @Autowired
+    private ConfigurationExplorer configurationExplorer;
     @ResponseBody
     @RequestMapping("/attachment-upload")
     public String upload(@RequestParam(value = "fileUpload") MultipartFile file) {
@@ -37,12 +39,15 @@ public class AttachmentUploader implements ServletConfigAware {
         String fileName = file.getOriginalFilename();
         long time = System.nanoTime();
         String pathToSave = "";
-        String savedFileName = fileName + "-_-" + time;
-        pathForTempFilesStore = servletConfig.getInitParameter("pathForTempFilesStore");
+        String savedFileName = time + "-_-" + fileName;
+        GlobalSettingsConfig globalSettingsConfig = configurationExplorer.getGlobalSettings();
+        AttachmentUploadTempStorageConfig attachmentUploadTempStorageConfig= globalSettingsConfig.
+                getAttachmentUploadTempStorageConfig();
+        String pathForTempFilesStore = attachmentUploadTempStorageConfig.getPath();
         pathToSave = pathForTempFilesStore + savedFileName;
         try (
             InputStream inputStream = file.getInputStream();
-            OutputStream outputStream = new FileOutputStream(pathToSave);) {
+            OutputStream outputStream = new FileOutputStream(pathToSave)) {
             stream(inputStream, outputStream);
         } catch (IOException e) {
             log.error("Error while uploading: " + e);
@@ -55,7 +60,7 @@ public class AttachmentUploader implements ServletConfigAware {
 
         try (
             ReadableByteChannel inputChannel = Channels.newChannel(input);
-            WritableByteChannel outputChannel = Channels.newChannel(output);) {
+            WritableByteChannel outputChannel = Channels.newChannel(output)) {
             ByteBuffer buffer = ByteBuffer.allocate(10240);
             while (inputChannel.read(buffer) != -1) {
                 buffer.flip();
@@ -66,8 +71,4 @@ public class AttachmentUploader implements ServletConfigAware {
 
     }
 
-    @Override
-    public void setServletConfig(ServletConfig servletConfig) {
-        this.servletConfig = servletConfig;
-    }
 }

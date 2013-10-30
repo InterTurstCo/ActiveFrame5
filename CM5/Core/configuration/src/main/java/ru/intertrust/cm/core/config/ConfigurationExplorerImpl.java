@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.config.model.*;
 import ru.intertrust.cm.core.config.model.base.Configuration;
@@ -26,14 +25,14 @@ import java.util.*;
  */
 public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     private final static Logger logger = LoggerFactory.getLogger(ConfigurationExplorerImpl.class);
-
+    private final static String GLOBAL_SETTINGS_CLASS_NAME = "ru.intertrust.cm.core.config.model.GlobalSettingsConfig";
     private Configuration configuration;
 
     private Map<Class<?>, Map<String, TopLevelConfig>> topLevelConfigMap = new HashMap<>();
     private Map<FieldConfigKey, FieldConfig> fieldConfigMap = new HashMap<>();
     private Map<FieldConfigKey, CollectionColumnConfig> collectionColumnConfigMap = new HashMap<>();
     private Map<String, LinkConfig> linkConfigMap = new HashMap<>();
-
+    private GlobalSettingsConfig globalSettings;
     @Autowired
     FormLogicalValidator formLogicalValidator;
 
@@ -63,6 +62,10 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      */
     public void setConfiguration(Configuration configuration) {
         this.configuration = configuration;
+    }
+
+    public GlobalSettingsConfig getGlobalSettings() {
+        return globalSettings;
     }
 
     /**
@@ -204,9 +207,12 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
 
         topLevelConfigMap.clear();
         fieldConfigMap.clear();
-
         List<DomainObjectTypeConfig> attachmentOwnerDots = new ArrayList<>();
         for (TopLevelConfig config : configuration.getConfigurationList()) {
+
+            if (GLOBAL_SETTINGS_CLASS_NAME.equalsIgnoreCase(config.getClass().getCanonicalName())) {
+                globalSettings = (GlobalSettingsConfig)config;
+            }
             fillTopLevelConfigMap(config);
 
             if (DomainObjectTypeConfig.class.equals(config.getClass())) {
