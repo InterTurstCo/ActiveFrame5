@@ -10,4 +10,5 @@ import ru.intertrust.cm.core.business.api.dto.UserCredentials;
  */
 public interface BusinessUniverseAuthenticationService extends RemoteService {
     void login(UserCredentials userCredentials);
+    void logout();
 }

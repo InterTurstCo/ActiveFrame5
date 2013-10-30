@@ -51,6 +51,7 @@ public class FormPanel implements IsWidget {
     }
 
     private ScrollPanel build() {
+        ScrollPanel scrollPanel;
         MarkupConfig markup = formDisplayData.getMarkup();
         HeaderConfig header = markup.getHeader();
         IsWidget headerTable = buildTable(header.getTableLayout());
@@ -82,10 +83,27 @@ public class FormPanel implements IsWidget {
                 setStyleForAllTabs(event.getSelectedItem(), bodyTabPanel);
             }
         });
-        ScrollPanel scrollPanel = getScrollPanel(headerTable, bodyTabPanel, formDisplayData);
+        //section for single tab
+        body.setDisplaySingleTab(false);
+        if (body.isDisplaySingleTab()){
+            scrollPanel = getScrollPanelForSingleTab(headerTable, buildTabContent(tabs.get(0)), formDisplayData);
+        }
+        else{
+            scrollPanel = getScrollPanel(headerTable, bodyTabPanel, formDisplayData);
+        }
         return scrollPanel;
     }
-
+    ScrollPanel getScrollPanelForSingleTab(IsWidget headerTable, IsWidget singleTabContent,FormDisplayData formDisplayData){
+        VerticalPanel verticalPanel = new VerticalPanel();
+        verticalPanel.setHeight("200px");
+        verticalPanel.setWidth("500px");
+        ScrollPanel scrollPanel = new ScrollPanel();
+        scrollPanel.add(verticalPanel);
+        verticalPanel.add(headerTable);
+        verticalPanel.add(singleTabContent);
+           System.out.println(singleTabContent);
+        return scrollPanel;
+    }
     ScrollPanel getScrollPanel(IsWidget headerTable, TabLayoutPanel bodyTabPanel,FormDisplayData formDisplayData){
         VerticalPanel verticalPanel = new VerticalPanel();
         formDisplayData.getMarkup().getHeader().getTableLayout().getHeight();
@@ -233,6 +251,7 @@ public class FormPanel implements IsWidget {
     }
 
     int getNumberFromSizeString(String string) {
-        return Integer.parseInt(string.split("px")[0]);
+        int UnitPx = 2;
+        return Integer.parseInt(string.substring(0, string.length() - UnitPx));
     }
 }

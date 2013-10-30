@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.business.api.dto.UserCredentials;
  */
 public interface BusinessUniverseAuthenticationServiceAsync {
     void login(UserCredentials userCredentials, AsyncCallback<Void> async);
+    void logout(AsyncCallback<Void> async);
 
     public static class Impl {
         private static final BusinessUniverseAuthenticationServiceAsync instance;

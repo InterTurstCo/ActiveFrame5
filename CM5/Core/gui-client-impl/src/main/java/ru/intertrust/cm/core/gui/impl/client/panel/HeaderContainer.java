@@ -1,7 +1,12 @@
 package ru.intertrust.cm.core.gui.impl.client.panel;
 
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
+import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationServiceAsync;
 
 /**
  * Entry point classes define <code>createHeader()</code>
@@ -44,13 +49,31 @@ public class HeaderContainer extends SimplePanel {
 
         headTable.setWidget(FIRST_ROW, 3, linksPanel);
         headTable.getCellFormatter().setStyleName(FIRST_ROW, 3, "H_td_links");
+        Hyperlink logoutLink = new Hyperlink("Выход", "logout");
+        headTable.setWidget(FIRST_ROW, 4, logoutLink);
 
-        headTable.setWidget(FIRST_ROW, 4, new Hyperlink("Exit", "Exit"));
+        logoutLink.addClickHandler(new ClickHandler() {
+            public void onClick(ClickEvent event) {
+               logout();
+            }
+        });
         headTable.getCellFormatter().setStyleName(FIRST_ROW, 4, "H_td_logout");
         head.add(headTable);
-
     }
 
+    private void logout(){
+        AsyncCallback<Void> callback = new AsyncCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                Window.Location.assign("/cm-sochi/Login.html"+ Window.Location.getQueryString());
+            }
+            @Override
+            public void onFailure(Throwable caught) {
+                Window.alert("Error logout!");
+            }
+        };
+        BusinessUniverseAuthenticationServiceAsync.Impl.getInstance().logout(callback);
+    }
     private FlexTable createHeadTable() {
         FlexTable headTable = new FlexTable();
         headTable.addStyleName("HeadTable");
