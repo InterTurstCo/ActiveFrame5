@@ -13,6 +13,7 @@ public class AttachmentModel implements Dto {
     private String name;
     private String temporaryName;
     private String description;
+    private String contentLength;
     private Id id;
 
     public Id getId() {
@@ -47,6 +48,14 @@ public class AttachmentModel implements Dto {
         this.description = description;
     }
 
+    public String getContentLength() {
+        return contentLength;
+    }
+
+    public void setContentLength(String contentLength) {
+        this.contentLength = contentLength;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -70,6 +79,9 @@ public class AttachmentModel implements Dto {
         if (temporaryName != null ? !temporaryName.equals(that.temporaryName) : that.temporaryName != null) {
             return false;
         }
+        if (contentLength != null ? !contentLength.equals(that.contentLength) : that.contentLength != null) {
+            return false;
+        }
 
         return true;
     }
@@ -80,6 +92,7 @@ public class AttachmentModel implements Dto {
         result = 31 * result + (temporaryName != null ? temporaryName.hashCode() : 0);
         result = 31 * result + (description != null ? description.hashCode() : 0);
         result = 31 * result + (id != null ? id.hashCode() : 0);
+        result = 31 * result + (contentLength != null ? contentLength.hashCode() : 0);
         return result;
     }
 }

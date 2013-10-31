@@ -5,6 +5,7 @@ import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.LongValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.GlobalSettingsConfig;
@@ -19,10 +20,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.AttachmentBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentModel;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -37,6 +35,7 @@ public class AttachmentBoxHandler  extends LinkEditingWidgetHandler {
     private static final String ATTACHMENT_NAME = "Name";
     private static final String ATTACHMENT_DESCRIPTION = "Description";
     private static final String ATTACHMENT_MIME_TYPE = "MimeType";
+    private static final String ATTACHMENT_CONTENT_LENGTH = "ContentLength";
 
     @Autowired
     private AttachmentService attachmentService;
@@ -55,6 +54,9 @@ public class AttachmentBoxHandler  extends LinkEditingWidgetHandler {
             // todo: в объекте вложения всегда есть поля name и description - не надо их искать, из них просто можно получить значение
              attachmentModel.setName(object.getString(ATTACHMENT_NAME));
              attachmentModel.setDescription(object.getString(ATTACHMENT_DESCRIPTION));
+             Long contentLength = object.getLong(ATTACHMENT_CONTENT_LENGTH);
+             String humanReadableContentLegth = humanReadableByteCount(contentLength, true);
+             attachmentModel.setContentLength(humanReadableContentLegth);
              attachmentModel.setId(object.getId());
              savedAttachments.add(attachmentModel);
         }
@@ -84,8 +86,10 @@ public class AttachmentBoxHandler  extends LinkEditingWidgetHandler {
                     getAttachmentUploadTempStorageConfig();
             String pathForTempFilesStore = attachmentUploadTempStorageConfig.getPath();
             String filePath = pathForTempFilesStore + attachmentModel.getTemporaryName();
+            File fileToSave = new File(filePath);
+            long contentLength = fileToSave.length();
             try
-                (InputStream fileData = new FileInputStream(filePath);
+                (InputStream fileData = new FileInputStream(fileToSave);
                 RemoteInputStreamServer remoteFileData = new SimpleRemoteInputStream(fileData)) {
                 DomainObject attachmentDomainObject = attachmentService.
                         createAttachmentDomainObjectFor(domainObject.getId(),attachmentType);
@@ -96,6 +100,7 @@ public class AttachmentBoxHandler  extends LinkEditingWidgetHandler {
                 mimeType = mimeType == null ? "undefined" : mimeType;
                 attachmentDomainObject.setValue(ATTACHMENT_MIME_TYPE, new StringValue(mimeType));
 
+                attachmentDomainObject.setValue(ATTACHMENT_CONTENT_LENGTH, new LongValue(contentLength));
                 attachmentDomainObject.setReference(parentLinkFieldName, domainObject);
                 attachmentService.saveAttachment(remoteFileData,attachmentDomainObject);
             } catch (FileNotFoundException e) {
@@ -106,5 +111,11 @@ public class AttachmentBoxHandler  extends LinkEditingWidgetHandler {
 
         }
     }
-
+    private String humanReadableByteCount(long bytes, boolean si) {
+        int unit = si ? 1000 : 1024;
+        if (bytes < unit) return bytes + " B";
+        int exp = (int) (Math.log(bytes) / Math.log(unit));
+        String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp-1) + (si ? "" : "i");
+        return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
+    }
 }

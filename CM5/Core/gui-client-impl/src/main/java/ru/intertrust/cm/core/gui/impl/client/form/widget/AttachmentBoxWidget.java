@@ -47,7 +47,8 @@ public class AttachmentBoxWidget extends BaseWidget {
         for (AttachmentModel attachmentModel : attachments) {
             Image deleteRow = createDeleteAttachmentButton(attachmentModel);
             Anchor anchor = createAnchor(attachmentModel, partWidth);
-            attachmentUploaderView.addRowWithAttachment(attachmentModel, deleteRow, anchor);
+            String contentLength = attachmentModel.getContentLength();
+            attachmentUploaderView.addRowWithAttachment(attachmentModel, deleteRow, anchor, contentLength);
         }
 
     }
@@ -109,6 +110,7 @@ public class AttachmentBoxWidget extends BaseWidget {
         return fileNameAnchor;
     }
 
+
     private class DownloadAttachmentHandler implements ClickHandler {
 
         AttachmentModel model;
@@ -132,7 +134,7 @@ public class AttachmentBoxWidget extends BaseWidget {
 
             Image deleteAttachment = createDeleteAttachmentButton(model);
 
-            ((AttachmentUploaderView) impl).addRowWithAttachment(model, deleteAttachment, null);
+            ((AttachmentUploaderView) impl).addRowWithAttachment(model, deleteAttachment, null, null);
         }
     }
 

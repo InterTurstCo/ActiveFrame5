@@ -83,7 +83,7 @@ public class AttachmentUploaderView extends Composite {
 
     }
 
-    public void addRowWithAttachment(AttachmentModel model,Image deleteAttachment, Anchor anchor){
+    public void addRowWithAttachment(AttachmentModel model,Image deleteAttachment, Anchor anchor, String contentLength){
 
         HorizontalPanel horizontalPanel = new HorizontalPanel();
 
@@ -102,6 +102,9 @@ public class AttachmentUploaderView extends Composite {
             rightSide.add(uploaderProgressBar);
         } else {
             leftSide.add(anchor);
+            Label contentLengthLabel = new Label(contentLength);
+            contentLengthLabel.getElement().getStyle().setFloat(Style.Float.RIGHT);
+            leftSide.add(contentLengthLabel);
             leftSide.getElement().getStyle().setMarginLeft(20, Style.Unit.PX);
         }
 
@@ -158,8 +161,8 @@ public class AttachmentUploaderView extends Composite {
         Style style = fileNameLabel.getElement().getStyle();
         style.setOverflow(Style.Overflow.HIDDEN);
         style.setFontSize(98, Style.Unit.PCT);
-        fileNameLabel.setWidth(partWidth + "px");
 
         return fileNameLabel;
     }
+
 }
