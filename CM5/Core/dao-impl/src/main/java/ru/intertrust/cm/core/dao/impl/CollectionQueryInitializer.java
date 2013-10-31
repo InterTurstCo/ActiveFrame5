@@ -56,11 +56,21 @@ public class CollectionQueryInitializer {
         String filledQuery =  fillPrototypeQuery(collectionConfig, filledFilterConfigs, sortOrder, offset, limit,
                 accessToken,
                 prototypeQuery);
+        
+        filledQuery = processPersonParameter(filledQuery);
 
         filledQuery = postProcessQuery(collectionConfig, accessToken, filledQuery);
 
         return filledQuery;
 
+    }
+
+    private String processPersonParameter(String filledQuery) {
+        if (filledQuery.indexOf(CollectionsDaoImpl.CURRENT_PERSON_PARAM) > 0) {
+            String parameterPrefix = CollectionsDaoImpl.PARAM_NAME_PREFIX;
+            filledQuery = CollectionsDaoImpl.adjustParameterNames(filledQuery, parameterPrefix);
+        }
+        return filledQuery;
     }
 
     public String initializeQuery(String query, int offset, int limit, AccessToken accessToken) {
@@ -132,6 +142,8 @@ public class CollectionQueryInitializer {
         String prototypeQuery = collectionConfig.getCountingPrototype();
         String filledQuery = fillPrototypeQuery(collectionConfig, filledFilterConfigs, null, 0, 0, accessToken,
                 prototypeQuery);
+
+        filledQuery = processPersonParameter(filledQuery);
 
         filledQuery = postProcessQuery(collectionConfig, accessToken, filledQuery);
 

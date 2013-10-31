@@ -82,5 +82,8 @@
 
     <bean id="permissionService" class="ru.intertrust.cm.core.dao.impl.access.PermissionServiceImpl"
         p:dataSource-ref="dataSource" />
+        
+    <bean id="currentUserAccessor" 
+        class="ru.intertrust.cm.core.dao.impl.CurrentUserAccessorImpl"/>        
 
 </beans>

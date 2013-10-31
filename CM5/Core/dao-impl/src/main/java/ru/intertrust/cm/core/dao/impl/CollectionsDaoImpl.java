@@ -1,8 +1,25 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.ejb.SessionContext;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import ru.intertrust.cm.core.business.api.dto.*;
+
+import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.base.CollectionConfig;
 import ru.intertrust.cm.core.config.model.base.CollectionFilterConfig;
@@ -11,15 +28,10 @@ import ru.intertrust.cm.core.config.model.base.CollectionFilterReferenceConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.exception.CollectionConfigurationException;
 import ru.intertrust.cm.core.dao.impl.utils.CollectionRowMapper;
-
-import javax.sql.DataSource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author vmatsukevich
@@ -28,10 +40,12 @@ import java.util.Map;
  */
 public class CollectionsDaoImpl implements CollectionsDao {
 
-    private static final String PARAM_NAME_PREFIX = "_PARAM_NAME_";
+    public static final String PARAM_NAME_PREFIX = "_PARAM_NAME_";
+    public static final String CURRENT_PERSON_PARAM = "CURRENT_PERSON";
+    
 
     private static final String PARAM_NAME_PREFIX_SPRING = ":";
-
+    
     private NamedParameterJdbcTemplate jdbcTemplate;
 
     @Autowired
@@ -40,6 +54,9 @@ public class CollectionsDaoImpl implements CollectionsDao {
     @Autowired
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
 
+    @Autowired    
+    private CurrentUserAccessor currentUserAccessor; 
+    
     /**
      * Устанавливает источник соединений
      *
@@ -47,8 +64,12 @@ public class CollectionsDaoImpl implements CollectionsDao {
      */
     public void setDataSource(DataSource dataSource) {
         this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+        
     }
 
+    public void setCurrentUserAccessor(CurrentUserAccessor currentUserAccessor) {
+        this.currentUserAccessor = currentUserAccessor;
+    }
 
     public void setDomainObjectTypeIdCache(DomainObjectTypeIdCache domainObjectTypeIdCache) {
         this.domainObjectTypeIdCache = domainObjectTypeIdCache;
@@ -75,6 +96,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
         CollectionConfig collectionConfig = configurationExplorer.getConfig(CollectionConfig.class, collectionName);
         List<CollectionFilterConfig> filledFilterConfigs = findFilledFilterConfigs(filterValues, collectionConfig);
+
         String collectionQuery =
                 getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, offset, limit, accessToken);
 
@@ -85,12 +107,25 @@ public class CollectionsDaoImpl implements CollectionsDao {
             fillAclParameters(accessToken, parameters);
         }
 
+        addCurrentPersonParameter(collectionQuery, parameters);
+        
         collectionQuery = adjustParameterNamesForSpring(collectionQuery);
         IdentifiableObjectCollection collection = jdbcTemplate.query(collectionQuery, parameters,
                 new CollectionRowMapper(collectionName, collectionConfig.getIdField(), configurationExplorer,
                         domainObjectTypeIdCache));
 
         return collection;
+    }
+
+    private void addCurrentPersonParameter(String collectionQuery, Map<String, Object> parameters) {
+        if (collectionQuery.indexOf(CURRENT_PERSON_PARAM) > 0) {
+            Id personId = getCurrentUserId();
+            parameters.put(CURRENT_PERSON_PARAM, ((RdbmsId)personId).getId());
+        }
+    }
+
+    private Id getCurrentUserId() {        
+        return currentUserAccessor.getCurrentUserId();        
     }
 
     /*
@@ -287,7 +322,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
     }
 
     /**
-     * Заменяет названия параметров в конфигурации фильтра по схеме {0} - > ":filterName" + 0.
+     * Заменяет названия параметров в конфигурации фильтра по схеме {0} - > ":filterName_0".
      * @param filterConfig
      * @param filterValue
      * @return
@@ -296,11 +331,19 @@ public class CollectionsDaoImpl implements CollectionsDao {
         CollectionFilterConfig clonedFilterConfig = cloneFilterConfig(filterConfig);
 
         String criteria = clonedFilterConfig.getFilterCriteria().getValue();
-        String parameterPrefix = PARAM_NAME_PREFIX + filterValue.getFilter();
-        String newFilterCriteria = criteria.replaceAll("[{]", parameterPrefix);
-        newFilterCriteria = newFilterCriteria.replaceAll("[}]", "");
+        String filterName = filterValue.getFilter();
+               
+        String parameterPrefix = PARAM_NAME_PREFIX + filterName;
+        String newFilterCriteria = adjustParameterNames(criteria, parameterPrefix);
+
         clonedFilterConfig.getFilterCriteria().setValue(newFilterCriteria);
         return clonedFilterConfig;
+    }
+
+    public static String adjustParameterNames(String subQuery, String parameterPrefix) {
+        String newFilterCriteria = subQuery.replaceAll("[{]", parameterPrefix);
+        newFilterCriteria = newFilterCriteria.replaceAll("[}]", "");
+        return newFilterCriteria;
     }
 
     /**
