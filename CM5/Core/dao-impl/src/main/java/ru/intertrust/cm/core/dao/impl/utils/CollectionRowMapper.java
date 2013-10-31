@@ -155,10 +155,16 @@ public class CollectionRowMapper extends BasicRowMapper implements
             } else {
                 value = new DecimalValue();
             }
-        }
+        }  else if (DataType.LONG.equals(fieldType)) {
+            Long fieldValue = rs.getLong(columnName);
+            if (!rs.wasNull()) {
+                value = new LongValue(fieldValue);
+            } else {
+                value = new LongValue();
+            }
 
-        if (id != null) {
-            valueModel.setId(id);
+        }  if (id != null) {
+              valueModel.setId(id);
         }
         valueModel.setValue(value);
     }

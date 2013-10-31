@@ -77,6 +77,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
 
     @Override
     public int getFieldIndex(String field) {
+
         return fieldIndexes.get(field);
     }
 

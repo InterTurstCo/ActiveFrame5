@@ -26,10 +26,6 @@
              <param-name>contextConfigLocation</param-name>
              <param-value>/WEB-INF/applicationContext.xml</param-value>
          </init-param>
-         <init-param>
-         <param-name>pathForTempFilesStore</param-name>
-         <param-value>C:/savedAttachments/</param-value>
-         </init-param>
          <load-on-startup>1</load-on-startup>
      </servlet>
      <servlet-mapping>
@@ -50,7 +46,7 @@
         <servlet-name>Attachment Downloader</servlet-name>
         <url-pattern>/attachment-download/*</url-pattern>
     </servlet-mapping>
-    <!-- -->
+
     <security-constraint>
         <display-name>Constraint</display-name>
         <web-resource-collection>
@@ -58,6 +54,8 @@
             <description>Protect everything in our applications</description>
             <url-pattern>/*/BusinessUniverseService</url-pattern>
             <url-pattern>/cm-sochi/*</url-pattern>
+            <url-pattern>/*/attachment-download/*</url-pattern>
+            <url-pattern>/*/attachment-upload</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <description>
@@ -76,5 +74,12 @@
         <filter-name>LoginFilter</filter-name>
         <url-pattern>/remote/*</url-pattern>
     </filter-mapping>
-
+    <filter-mapping>
+        <filter-name>LoginFilter</filter-name>
+        <url-pattern>/attachment-download/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>LoginFilter</filter-name>
+        <url-pattern>/attachment-upload</url-pattern>
+    </filter-mapping>
 </web-app>

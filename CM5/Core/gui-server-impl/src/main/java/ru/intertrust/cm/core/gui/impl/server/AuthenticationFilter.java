@@ -26,7 +26,6 @@ public class AuthenticationFilter implements Filter {
         throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpSession session = request.getSession();
-
         String requestURI = request.getRequestURI();
         if (isLoginPageRequest(requestURI)) { // происходит авторизация. разрешить этот запрос
             filterChain.doFilter(servletRequest, servletResponse);

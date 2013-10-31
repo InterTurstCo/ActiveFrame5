@@ -6,7 +6,8 @@ package ru.intertrust.cm.core.dao.impl;
  * @author atsvetkov
  */
 public enum DataType {
-    STRING("string"), INTEGER("int"), DECIMAL("decimal"), DATETIME("datetime"), BOOLEAN("boolean"), ID("id");
+    STRING("string"), INTEGER("int"), DECIMAL("decimal"), DATETIME("datetime"),
+    BOOLEAN("boolean"), ID("id"), LONG("long");
     private final String value;
 
     DataType(String value) {

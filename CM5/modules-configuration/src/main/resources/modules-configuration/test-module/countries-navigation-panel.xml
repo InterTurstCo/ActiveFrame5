@@ -29,6 +29,7 @@
                         <collection-counter/>
                     </decorations>
                 </link>
+
             </child-links>
         </link>
         <link name="Administration" display-text="Администрирование" image="images/inbox.png" child-to-open="Employee">

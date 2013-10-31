@@ -5,6 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.model.GlobalSettingsConfig;
+import ru.intertrust.cm.core.config.model.global.AttachmentStorageConfig;
 import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 
@@ -28,14 +31,19 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
     private static SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
     final static private String PATH_NAME = "Path";
     private String attachmentSaveLocation;
-
+    @Autowired
+    ConfigurationExplorer configurationExplorer;
     @Autowired
     private UserTransactionServiceImpl userTransactionService;
 
     public void setAttachmentSaveLocation(String attachmentSaveLocation) {
         this.attachmentSaveLocation = attachmentSaveLocation;
     }
-
+    private void init() {
+        GlobalSettingsConfig globalSettings = configurationExplorer.getGlobalSettings();
+        AttachmentStorageConfig storageConfig = globalSettings.getAttachmentStorageConfig();
+        attachmentSaveLocation = storageConfig.getPath();
+    }
     @Override
     public String saveContent(InputStream inputStream) {
         String absDirPath = getAbsoluteDirPath();

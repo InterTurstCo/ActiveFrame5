@@ -16,9 +16,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.*;
 
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getServiceColumnName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getTimeZoneIdColumnName;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
 
 /**
  * Базовй класс для отображения {@link java.sql.ResultSet} на доменные объекты и
@@ -69,7 +67,10 @@ public class BasicRowMapper {
             result = DataType.BOOLEAN;
         } else if (columnType.equals("decimal")) {
             result = DataType.DECIMAL;
+        }  else if (columnType.equals("long")) {
+            result = DataType.LONG;
         }
+
         return result;
     }
 
@@ -86,6 +87,8 @@ public class BasicRowMapper {
             result = DataType.BOOLEAN;
         } else if (columnTypeName.equals("numeric")) {
             result = DataType.DECIMAL;
+        } else if (columnTypeName.equals("bigint")) {
+            result = DataType.LONG;
         }
         return result;
     }

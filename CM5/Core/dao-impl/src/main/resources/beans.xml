@@ -54,7 +54,7 @@
 
     <bean id="attachmentContentDao"
         class="ru.intertrust.cm.core.dao.impl.FileSystemAttachmentContentDaoImpl"
-        p:attachmentSaveLocation="c:/attachemnts" />
+        init-method="init" />
 
     <bean id="userTransactionService"
         class="ru.intertrust.cm.core.dao.impl.UserTransactionServiceImpl" />
