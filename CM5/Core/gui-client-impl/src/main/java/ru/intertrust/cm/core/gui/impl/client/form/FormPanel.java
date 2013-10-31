@@ -56,7 +56,34 @@ public class FormPanel implements IsWidget {
         HeaderConfig header = markup.getHeader();
         IsWidget headerTable = buildTable(header.getTableLayout());
 
-        final TabLayoutPanel bodyTabPanel = new TabLayoutPanel(35, Style.Unit.PX);
+        final TabLayoutPanel bodyTabPanel;
+
+        BodyConfig body = markup.getBody();
+        List<TabConfig> tabs = body.getTabs();
+
+        //body.setDisplaySingleTab(true);
+        if (body.isDisplaySingleTab() == true && tabs.size() == 1){
+
+            bodyTabPanel = new TabLayoutPanel(0, Style.Unit.PX);
+            bodyTabPanel.add(buildTabContent(tabs.get(0)));
+        }
+        else{
+
+            bodyTabPanel = new TabLayoutPanel(35, Style.Unit.PX);
+
+            for (TabConfig tab : tabs) {
+                bodyTabPanel.add(buildTabContent(tab), tab.getName());
+        }
+            }
+
+            bodyTabPanel.selectTab(0);
+            bodyTabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
+                @Override
+                public void onSelection(SelectionEvent<Integer> event) {
+                    setStyleForAllTabs(event.getSelectedItem(), bodyTabPanel);
+                }
+            });
+
         if(header.getTableLayout().getHeight()!= null){
             //bodyTabPanel.setSize("500px", "200px"); // todo - something else
             bodyTabPanel.setHeight(header.getTableLayout().getHeight());
@@ -70,41 +97,12 @@ public class FormPanel implements IsWidget {
         else{
             bodyTabPanel.setWidth("500px");
         }
-
-        BodyConfig body = markup.getBody();
-        List<TabConfig> tabs = body.getTabs();
-        for (TabConfig tab : tabs) {
-            bodyTabPanel.add(buildTabContent(tab), tab.getName());
-        }
-        bodyTabPanel.selectTab(0);
-        bodyTabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
-            @Override
-            public void onSelection(SelectionEvent<Integer> event) {
-                setStyleForAllTabs(event.getSelectedItem(), bodyTabPanel);
-            }
-        });
-        //section for single tab
-        body.setDisplaySingleTab(false);
-        if (body.isDisplaySingleTab()){
-            scrollPanel = getScrollPanelForSingleTab(headerTable, buildTabContent(tabs.get(0)), formDisplayData);
-        }
-        else{
             scrollPanel = getScrollPanel(headerTable, bodyTabPanel, formDisplayData);
-        }
+
         return scrollPanel;
     }
-    ScrollPanel getScrollPanelForSingleTab(IsWidget headerTable, IsWidget singleTabContent,FormDisplayData formDisplayData){
-        VerticalPanel verticalPanel = new VerticalPanel();
-        verticalPanel.setHeight("200px");
-        verticalPanel.setWidth("500px");
-        ScrollPanel scrollPanel = new ScrollPanel();
-        scrollPanel.add(verticalPanel);
-        verticalPanel.add(headerTable);
-        verticalPanel.add(singleTabContent);
-           System.out.println(singleTabContent);
-        return scrollPanel;
-    }
-    ScrollPanel getScrollPanel(IsWidget headerTable, TabLayoutPanel bodyTabPanel,FormDisplayData formDisplayData){
+
+    private ScrollPanel getScrollPanel(IsWidget headerTable, TabLayoutPanel bodyTabPanel,FormDisplayData formDisplayData){
         VerticalPanel verticalPanel = new VerticalPanel();
         formDisplayData.getMarkup().getHeader().getTableLayout().getHeight();
         formDisplayData.getMarkup().getHeader().getTableLayout().getWidth();
@@ -149,7 +147,7 @@ public class FormPanel implements IsWidget {
         //bodyTabPanel.addStyleName("tab-style-content");
         return scrollPanel;
     }
-    void setStyleForAllTabs(Integer activeTab, TabLayoutPanel bodyTabPanel) {
+    private void setStyleForAllTabs(Integer activeTab, TabLayoutPanel bodyTabPanel) {
         for (int i = 0; i < bodyTabPanel.getWidgetCount(); i++) {
             if (activeTab == i) {
                 bodyTabPanel.getTabWidget(i).getElement().getStyle().setProperty("backgroundColor", "white");
@@ -250,7 +248,7 @@ public class FormPanel implements IsWidget {
         return configValue == null || configValue.isEmpty() ? 1 : Integer.parseInt(configValue);
     }
 
-    int getNumberFromSizeString(String string) {
+    private int getNumberFromSizeString(String string) {
         int UnitPx = 2;
         return Integer.parseInt(string.substring(0, string.length() - UnitPx));
     }

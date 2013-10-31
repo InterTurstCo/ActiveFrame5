@@ -1,13 +1,13 @@
 
 .gwt-SuggestBox
 {
-    border:1px solid #00FF00 !important;
+    border:1px solid #eeeeee !important;
     text-align:left !important;
-    width:800px !important;
+    /*width:800px !important;*/
     z-index:91;
 	overflow:visible;
-	left: 336px;
-	top: 25px;
+	/*left: 336px;*/
+	/*top: 25px;*/
 	position:absolute;
 }
 .gwt-SuggestBoxPopup
@@ -18,7 +18,7 @@
     border:1px solid #666 !important;
     border-top:0 !important;
     background-color:#fff !important;
-    /*width                       :    800px !important;*/
+    /*width:800px !important;*/
 }
 .gwt-SuggestBoxPopup .item
 {
