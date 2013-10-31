@@ -82,6 +82,8 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      *
      */
     private void validate() {
+        GlobalSettingsLogicalValidator globalSettingsLogicalValidator = new GlobalSettingsLogicalValidator(configuration);
+        globalSettingsLogicalValidator.validate();
         DomainObjectLogicalValidator domainObjectLogicalValidator = new DomainObjectLogicalValidator(this);
         domainObjectLogicalValidator.validate();
 
@@ -91,20 +93,20 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
             navigationPanelLogicalValidator.setConfigurationExplorer(this);
             navigationPanelLogicalValidator.validate();
         } catch (ConfigurationException e) {
-
+           logger.error(e.getMessage());
         }
         try {
             formLogicalValidator.setConfigurationExplorer(this);
             formLogicalValidator.validate();
         } catch (ConfigurationException e) {
-
+            logger.error(e.getMessage());
         }
 
         try {
             CollectionViewLogicalValidator collectionLogicalValidator = new CollectionViewLogicalValidator(this);
             collectionLogicalValidator.validate();
         } catch (ConfigurationException e) {
-
+            logger.error(e.getMessage());
         }
     }
     /**

@@ -16,6 +16,8 @@ import ru.intertrust.cm.core.config.ConfigurationSerializer;
 import ru.intertrust.cm.core.config.TopLevelConfigurationCache;
 import ru.intertrust.cm.core.config.model.*;
 import ru.intertrust.cm.core.config.model.base.Configuration;
+import ru.intertrust.cm.core.config.model.global.AttachmentStorageConfig;
+import ru.intertrust.cm.core.config.model.global.AttachmentUploadTempStorageConfig;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 
@@ -170,8 +172,18 @@ public class ConfigurationControlServiceImplTest {
 
     private Configuration createConfiguration() {
         Configuration configuration = new Configuration();
+        GlobalSettingsConfig globalSettings = new GlobalSettingsConfig();
+        AuditLog auditLog = new AuditLog();
+        AttachmentStorageConfig storageConfig = new AttachmentStorageConfig();
+        storageConfig.setPath("");
+        AttachmentUploadTempStorageConfig attachmentUploadTempStorageConfig = new AttachmentUploadTempStorageConfig();
+        attachmentUploadTempStorageConfig.setPath("");
+        globalSettings.setAttachmentStorageConfig(storageConfig);
+        globalSettings.setAttachmentUploadTempStorageConfig(attachmentUploadTempStorageConfig);
+        globalSettings.setAuditLog(auditLog);
         configuration.getConfigurationList().add(createOutgoingDocument());
         configuration.getConfigurationList().add(createEmployee());
+        configuration.getConfigurationList().add(globalSettings);
 
         return configuration;
     }

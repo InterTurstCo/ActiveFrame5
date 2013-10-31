@@ -136,6 +136,11 @@
       <filter name="byDepartment"/>
       <renderer className="ru.intertrust.cm.core.business.impl.EmployeesCollectionRenderer"/>
    </collection>
+   <global-settings>
+      <audit-log enable="false"/>
+      <attachment-storage path="c:\attachments\"/>
+      <attachment-upload-temp-storage path="c:\savedAttachments\"/>
+   </global-settings>
    <domain-object-type name="Incoming_Document">
       <fields>
          <string name="Registration_Number" not-null="false" length="128"/>

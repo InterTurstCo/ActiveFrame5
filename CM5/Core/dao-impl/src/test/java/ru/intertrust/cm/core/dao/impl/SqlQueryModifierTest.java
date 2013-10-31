@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.dao.impl;
 import org.junit.Test;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
+import ru.intertrust.cm.core.config.model.GlobalSettingsConfig;
 import ru.intertrust.cm.core.config.model.base.Configuration;
 
 import static org.junit.Assert.assertEquals;
@@ -45,7 +46,10 @@ public class SqlQueryModifierTest {
 
     @Test
     public void testAddTypeColumn() {
-        ConfigurationExplorer configurationExplorer = new ConfigurationExplorerImpl(new Configuration());
+        Configuration configuration = new Configuration();
+        GlobalSettingsConfig globalSettings = new GlobalSettingsConfig();
+        configuration.getConfigurationList().add(globalSettings);
+        ConfigurationExplorer configurationExplorer = new ConfigurationExplorerImpl(configuration);
         SqlQueryModifier collectionQueryModifier = new SqlQueryModifier();
         String modifiedQuery = collectionQueryModifier.addServiceColumns(PLAIN_SELECT_QUERY, configurationExplorer);
 

@@ -124,7 +124,6 @@
     </xs:complexType>
 
     <xs:complexType name="configurationType">
-        <xs:choice minOccurs="0" maxOccurs="1">
             <xs:choice minOccurs="0" maxOccurs="unbounded">
                 <xs:element type="con:globalConfigType"
                             name="global-settings" maxOccurs="1" minOccurs="1"
@@ -172,7 +171,7 @@
                     maxOccurs="unbounded" minOccurs="0"
                     xmlns:con="https://cm5.intertrust.ru/config" />
             </xs:choice>
-        </xs:choice>
+
     </xs:complexType>
 
     <xs:complexType name="actionType">

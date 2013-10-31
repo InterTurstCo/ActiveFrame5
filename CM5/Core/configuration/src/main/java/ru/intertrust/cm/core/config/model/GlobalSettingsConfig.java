@@ -28,6 +28,10 @@ public class GlobalSettingsConfig implements TopLevelConfig {
         return auditLog;
     }
 
+    public void setAuditLog(AuditLog auditLog) {
+        this.auditLog = auditLog;
+    }
+
     public AttachmentStorageConfig getAttachmentStorageConfig() {
         return attachmentStorageConfig;
     }

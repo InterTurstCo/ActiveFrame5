@@ -19,6 +19,7 @@ public class CollectionViewLogicalValidatorTest {
     private static final String COLLECTION_VIEW_XML_PATH = "config/collection-view-test.xml";
     private static final String INVALID_COLLECTION_VIEW_XML_PATH = "config/collection-view-with-errors.xml";
     private static final String COLLECTION_XML_PATH = "config/collections-test.xml";
+    private static final String GLOBAL_XML_PATH = "config/global-test.xml";
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -55,7 +56,7 @@ public class CollectionViewLogicalValidatorTest {
         ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
 
         Set<String> configPaths = new HashSet<>(Arrays.
-                asList(configPath, DOMAIN_OBJECTS_CONFIG_PATH, COLLECTION_XML_PATH));
+                asList(configPath, DOMAIN_OBJECTS_CONFIG_PATH, COLLECTION_XML_PATH, GLOBAL_XML_PATH));
 
         configurationSerializer.setCoreConfigurationFilePaths(configPaths);
         configurationSerializer.setCoreConfigurationSchemaFilePath(CONFIGURATION_SCHEMA_PATH);

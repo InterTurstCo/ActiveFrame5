@@ -24,11 +24,11 @@ import static ru.intertrust.cm.core.config.Constants.*;
 @PrepareForTest(NavigationPanelLogicalValidator.class)
 public class NavigationPanelLogicalValidatorTest {
 
-    private static final String NAVIGATION_PANEL_XML_PATH =
-            "config/navigation-panel-test.xml";
-
+    private static final String NAVIGATION_PANEL_XML_PATH = "config/navigation-panel-test.xml";
     private static final String NAVIGATION_PANEL_INVALID_CHILD_TO_OPEN_XML_PATH =
             "config/navigation-panel-with-errors.xml";
+
+    private static final String GLOBAL_XML_PATH = "config/global-test.xml";
     /**
      * Вызов метода validatePluginHandlers исключается на время тестов
      * Для корректной работы validatePluginHandlers требуется спринг контекст
@@ -71,7 +71,7 @@ public class NavigationPanelLogicalValidatorTest {
         TopLevelConfigurationCache.getInstance().build(); 
         ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
 
-        Set<String> configPaths = new HashSet<>(Arrays.asList(configPath, DOMAIN_OBJECTS_CONFIG_PATH));
+        Set<String> configPaths = new HashSet<>(Arrays.asList(configPath, DOMAIN_OBJECTS_CONFIG_PATH, GLOBAL_XML_PATH));
 
         configurationSerializer.setCoreConfigurationFilePaths(configPaths);
         configurationSerializer.setCoreConfigurationSchemaFilePath(CONFIGURATION_SCHEMA_PATH);

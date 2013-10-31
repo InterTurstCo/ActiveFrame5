@@ -28,6 +28,7 @@ public class ConfigurationExplorerImplTest {
     private static final String PERSON_CONFIG_NAME = "Person";
     private static final String EMPLOYEES_CONFIG_NAME = "Employees";
     private static final String E_MAIL_CONFIG_NAME = "EMail";
+    private static final String GLOBAL_XML_PATH = "config/global-test.xml";
 
     private Configuration config;
 

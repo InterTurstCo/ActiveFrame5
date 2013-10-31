@@ -214,7 +214,7 @@ public class DomainObjectDaoImplTest {
          * /> </fields> <uniqueKey> <!-- This key means automatic key + index
          * creation--> <field name="EMail"/> </uniqueKey> </domain-object>
          */
-
+        GlobalSettingsConfig globalSettings = new GlobalSettingsConfig();
         domainObjectTypeConfig = new DomainObjectTypeConfig();
         domainObjectTypeConfig.setName("Person");
         StringFieldConfig email = new StringFieldConfig();
@@ -256,6 +256,7 @@ public class DomainObjectDaoImplTest {
         configuration.getConfigurationList().add(domainObjectTypeConfig);
         configuration.getConfigurationList().add(internalEmployee);
         configuration.getConfigurationList().add(externalEmployee);
+        configuration.getConfigurationList().add(globalSettings);
 
         configurationExplorer = new ConfigurationExplorerImpl(configuration);
         domainObjectDaoImpl.setConfigurationExplorer(configurationExplorer);
@@ -264,6 +265,7 @@ public class DomainObjectDaoImplTest {
     @Test
     public void testGetAttachmentDomainObjectsFor() throws Exception {
         Configuration configuration = new Configuration();
+        GlobalSettingsConfig globalSettings = new GlobalSettingsConfig();
         DomainObjectTypeConfig dot = new DomainObjectTypeConfig();
         dot.setName("Person");
         AttachmentTypesConfig attachmentTypesConfig = new AttachmentTypesConfig();
@@ -281,6 +283,7 @@ public class DomainObjectDaoImplTest {
         dot.setName("Attachment");
         dot.setTemplate(true);
         configuration.getConfigurationList().add(dot);
+        configuration.getConfigurationList().add(globalSettings);
 
         ConfigurationExplorer configurationExplorer = new ConfigurationExplorerImpl(configuration);
 

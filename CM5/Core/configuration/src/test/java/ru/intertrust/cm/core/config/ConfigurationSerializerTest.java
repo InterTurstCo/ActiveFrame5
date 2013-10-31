@@ -29,6 +29,7 @@ public class ConfigurationSerializerTest {
     private static final String SERIALIZED_CONFIGURATION_PATH = "config/serialized-configuration-test.xml";
     private static final String INVALID_SERIALIZED_CONFIGURATION_PATH =
             "config/serialized-configuration-invalid-test.xml";
+    private static final String GLOBAL_XML_PATH = "config/global-test.xml";
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -85,7 +86,7 @@ public class ConfigurationSerializerTest {
 
         List configurationList = configuration.getConfigurationList();
         assertNotNull(configurationList);
-        assertEquals(14, configurationList.size());
+        assertEquals(15, configurationList.size());
 
         List<String> configurationNames = new ArrayList<>();
         configurationNames.addAll(Arrays.asList("Employees", "Employees_2", "Outgoing_Document", "Person",
@@ -93,6 +94,9 @@ public class ConfigurationSerializerTest {
                 "Authentication_Info", "User_Group", "Group_Member", "Group_Admin", "Delegation"));
 
         for (Object configurationItem : configurationList) {
+            if (configurationItem.getClass().equals(GlobalSettingsConfig.class)) {
+                continue;
+            }
             String name = DomainObjectTypeConfig.class.equals(configurationItem.getClass()) ?
                     ((DomainObjectTypeConfig) configurationItem).getName() :
                     ((CollectionConfig) configurationItem).getName();
@@ -130,7 +134,7 @@ public class ConfigurationSerializerTest {
 
         ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
         Set<String> configPaths =
-                new HashSet<>(Arrays.asList(configPath, COLLECTIONS_CONFIG_PATH));
+                new HashSet<>(Arrays.asList(configPath, COLLECTIONS_CONFIG_PATH, GLOBAL_XML_PATH));
 
         configurationSerializer.setCoreConfigurationFilePaths(configPaths);
         configurationSerializer.setCoreConfigurationSchemaFilePath(CONFIGURATION_SCHEMA_PATH);

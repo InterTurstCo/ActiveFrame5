@@ -26,6 +26,7 @@ public class FormLogicalValidatorTest {
 
     private static final String FORM_XML_PATH = "config/forms-test.xml";
     private static final String INVALID_FORM_XML_PATH = "config/form-with-errors.xml";
+    private static final String GLOBAL_XML_PATH = "config/global-test.xml";
     /**
      * Вызов метода validateWidgetsHandlers исключается на время тестов
      * Для корректной работы validateWidgetsHandlers требуется спринг контекст
@@ -70,7 +71,7 @@ public class FormLogicalValidatorTest {
         TopLevelConfigurationCache.getInstance().build();
         ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
 
-        Set<String> configPaths = new HashSet<>(Arrays.asList(configPath, DOMAIN_OBJECTS_CONFIG_PATH));
+        Set<String> configPaths = new HashSet<>(Arrays.asList(configPath, DOMAIN_OBJECTS_CONFIG_PATH, GLOBAL_XML_PATH));
 
         configurationSerializer.setCoreConfigurationFilePaths(configPaths);
         configurationSerializer.setCoreConfigurationSchemaFilePath(CONFIGURATION_SCHEMA_PATH);
