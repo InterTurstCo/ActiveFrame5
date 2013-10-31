@@ -20,7 +20,6 @@ import org.springframework.context.ApplicationContextAware;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
-import ru.intertrust.cm.core.business.api.dto.FieldModificationImpl;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
@@ -29,6 +28,7 @@ import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationException;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.BindContextConfig;
+import ru.intertrust.cm.core.config.model.CollectorConfig;
 import ru.intertrust.cm.core.config.model.DoelAware;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.DynamicGroupConfig;
@@ -127,8 +127,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
     }
 
     /**
-     * Выполняет пересчет всех динамических групп, где созданный объект является
-     * отслеживаемым (указан в теге <track-domain-objects>).
+     * Выполняет пересчет всех динамических групп, где созданный объект является отслеживаемым (указан в теге <track-domain-objects>).
      */
     @Override
     public void notifyDomainObjectCreated(DomainObject domainObject) {
@@ -182,14 +181,12 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
     }
 
     /**
-     * Получает список персон динамической группы по дескриптору группы и
-     * контекстному объекту.
+     * Получает список персон динамической группы по дескриптору группы и контекстному объекту.
      * 
      * @param dynamicGroupConfig
      *            дескриптор динамической группы
      * @param objectId
-     *            отслеживаемй объект динамической группы. Используется для
-     *            расчета обратного Doel выражения.
+     *            отслеживаемй объект динамической группы. Используется для расчета обратного Doel выражения.
      * @param contextObjectid
      *            контекстному объекту динамической группы
      * @return список персон группы
@@ -197,31 +194,28 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
     private List<Value> getAllGroupMembersFor(
             DynamicGroupConfig dynamicGroupConfig, Id objectId,
             Id contextObjectid) {
-        List<Value> result = null;
-        DynamicGroupTrackDomainObjectsConfig trackDomainObjects = dynamicGroupConfig
-                .getMembers().getTrackDomainObjects();
-        if (trackDomainObjects != null
-                && trackDomainObjects.getBindContext() != null) {
-            String bindContextDoel = trackDomainObjects.getBindContext()
-                    .getDoel();
-            DoelExpression bindContextExpr = DoelExpression
-                    .parse(bindContextDoel);
-            DoelExpression reverseBindContextExpr = createReverseExpression(
-                    objectId, bindContextExpr);
+        List<Value> result = new ArrayList<Value>();
+        List<DynamicGroupTrackDomainObjectsConfig> trackDomainObjectConfigs = dynamicGroupConfig.getMembers().getTrackDomainObjects();
 
-            String getPersonDoel = null;
-            if (trackDomainObjects.getGetPerson() != null
-                    && trackDomainObjects.getGetPerson().getDoel() != null) {
-                getPersonDoel = trackDomainObjects.getGetPerson().getDoel();
+        for (DynamicGroupTrackDomainObjectsConfig trackDomainObjects : trackDomainObjectConfigs) {
+
+            if (trackDomainObjects != null
+                    && trackDomainObjects.getBindContext() != null) {
+                String bindContextDoel = trackDomainObjects.getBindContext().getDoel();
+                DoelExpression bindContextExpr = DoelExpression.parse(bindContextDoel);
+                DoelExpression reverseBindContextExpr = createReverseExpression(objectId, bindContextExpr);
+
+                String getPersonDoel = null;
+                if (trackDomainObjects.getGetPerson() != null
+                        && trackDomainObjects.getGetPerson().getDoel() != null) {
+                    getPersonDoel = trackDomainObjects.getGetPerson().getDoel();
+                }
+
+                String getGroupPersonsDoel = createRetrieveGroupPersonsDoel(reverseBindContextExpr, getPersonDoel);
+                DoelExpression reverseGetPersonExpr = DoelExpression
+                        .parse(getGroupPersonsDoel);
+                result.addAll(doelResolver.evaluate(reverseGetPersonExpr, contextObjectid));
             }
-
-            String getGroupPersonsDoel = createRetrieveGroupPersonsDoel(
-                    reverseBindContextExpr, getPersonDoel);
-            DoelExpression reverseGetPersonExpr = DoelExpression
-                    .parse(getGroupPersonsDoel);
-            result = doelResolver.evaluate(reverseGetPersonExpr,
-                    contextObjectid);
-
         }
         return result;
     }
@@ -230,8 +224,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
      * Создает обратное Doel выражение.
      * 
      * @param objectId
-     *            объект, относительно которого вычисляется переданное прямое
-     *            выражение
+     *            объект, относительно которого вычисляется переданное прямое выражение
      * @param bindContextExpr
      *            прямое Doel выражение.
      * @return обратное Doel выражение
@@ -260,8 +253,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
     }
 
     /**
-     * Возвращает динамические группы для изменяемого объекта, которые нужно
-     * пересчитывать. Поиск динамических группп выполняется по типу и статусу
+     * Возвращает динамические группы для изменяемого объекта, которые нужно пересчитывать. Поиск динамических группп выполняется по типу и статусу
      * отслеживаемого объекта, а также по измененным полям.
      * 
      * @param objectId
@@ -287,21 +279,22 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
 
             if (dynamicGroup.getMembers() != null
                     && dynamicGroup.getMembers().getTrackDomainObjects() != null) {
-                DynamicGroupTrackDomainObjectsConfig trackDomainObjectsConfig = dynamicGroup
-                        .getMembers().getTrackDomainObjects();
 
-                BindContextConfig bindContext = trackDomainObjectsConfig
-                        .getBindContext();
+                List<DynamicGroupTrackDomainObjectsConfig> trackDomainObjectConfigs = dynamicGroup.getMembers().getTrackDomainObjects();
 
-                if (containsFieldNameInDoel(modifiedFieldNames, bindContext)) {
-                    filteredDynamicGroups.add(dynamicGroup);
-                }
+                for (DynamicGroupTrackDomainObjectsConfig trackDomainObjects : trackDomainObjectConfigs) {
 
-                GetPersonConfig getPerson = trackDomainObjectsConfig
-                        .getGetPerson();
+                    BindContextConfig bindContext = trackDomainObjects.getBindContext();
 
-                if (containsFieldNameInDoel(modifiedFieldNames, getPerson)) {
-                    filteredDynamicGroups.add(dynamicGroup);
+                    if (containsFieldNameInDoel(modifiedFieldNames, bindContext)) {
+                        filteredDynamicGroups.add(dynamicGroup);
+                    }
+
+                    GetPersonConfig getPerson = trackDomainObjects.getGetPerson();
+
+                    if (containsFieldNameInDoel(modifiedFieldNames, getPerson)) {
+                        filteredDynamicGroups.add(dynamicGroup);
+                    }
                 }
             }
         }
@@ -310,8 +303,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
     }
 
     /**
-     * Возвращает динамические группы для изменяемого объекта, которые нужно
-     * пересчитывать. Поиск динамических группп выполняется по типу и статусу
+     * Возвращает динамические группы для изменяемого объекта, которые нужно пересчитывать. Поиск динамических группп выполняется по типу и статусу
      * отслеживаемого объекта
      * 
      * @param objectId
@@ -329,8 +321,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
     }
 
     /**
-     * Проверяет, содержит ли Doel выражение в первом элементе название поля,
-     * которое было указано в списке переданных измененных полей.
+     * Проверяет, содержит ли Doel выражение в первом элементе название поля, которое было указано в списке переданных измененных полей.
      * 
      * @param modifiedFieldNames
      *            списке измененных полей.
@@ -379,8 +370,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
     }
 
     /**
-     * Возвращает контекстный объект для динамической группы и отслеживаемого
-     * (изменяемого) доменного объекта
+     * Возвращает контекстный объект для динамической группы и отслеживаемого (изменяемого) доменного объекта
      * 
      * @param dynamicGroupConfig
      *            конфигурация динамической группы
@@ -388,7 +378,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
      *            идентификатор отслеживаемого доменного объекта
      * @return идентификатор контекстного объекта
      */
-    private Id getContextObjectId(DynamicGroupConfig dynamicGroupConfig,
+    /*private Id getContextObjectId(DynamicGroupConfig dynamicGroupConfig,
             Id objectId) {
         TrackDomainObjectsConfig trackDomainObjects = dynamicGroupConfig
                 .getMembers().getTrackDomainObjects();
@@ -407,11 +397,10 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
         }
 
         return contextObjectid;
-    }
+    }*/
 
     /**
-     * Конвертирует результат вычисления doel выражения поиска контекстного
-     * объекта в идентификатор контекстного объекта.
+     * Конвертирует результат вычисления doel выражения поиска контекстного объекта в идентификатор контекстного объекта.
      * 
      * @param result
      *            вычисления doel выражения поиска контекстного объекта
@@ -504,8 +493,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
     }
 
     /**
-     * Добавляет группу с данным именем и контекстным объектом, если группы нет
-     * в базе данных
+     * Добавляет группу с данным именем и контекстным объектом, если группы нет в базе данных
      * 
      * @param dynamicGroupName
      *            имя динамической группы
@@ -575,9 +563,8 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
     }
 
     /**
-     * Метод вызывается после загрузки конфигурации. Пробегается по
-     * конфигурации, собирает информацию о динамических группах, настраиваемых с
-     * помощью классов и создает экземпляры этих классов, добавляет их в реестр
+     * Метод вызывается после загрузки конфигурации. Пробегается по конфигурации, собирает информацию о динамических группах, настраиваемых с помощью классов и
+     * создает экземпляры этих классов, добавляет их в реестр
      */
     @Override
     public void onLoad() {
@@ -588,57 +575,65 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
 
                 if (topConfig instanceof DynamicGroupConfig) {
                     DynamicGroupConfig config = (DynamicGroupConfig) topConfig;
-                    DynamicGroupCollector collector = null;
                     // Если динамическая группа настраивается классом
                     // коллектором,
                     // то создаем его экземпляр, и добавляем в реестр
                     if (config.getMembers() != null
                             && config.getMembers().getCollector() != null) {
-                        Class<?> collectorClass = Class.forName(config
-                                .getMembers().getCollector().getClassName());
-                        collector = (DynamicGroupCollector) applicationContext
-                                .getAutowireCapableBeanFactory()
-                                .createBean(
-                                        collectorClass,
-                                        AutowireCapableBeanFactory.AUTOWIRE_BY_NAME,
-                                        false);
+
+                        for (CollectorConfig collectorConfig : config.getMembers().getCollector()) {
+                            Class<?> collectorClass = Class.forName(collectorConfig.getClassName());
+                            DynamicGroupCollector collector = (DynamicGroupCollector) applicationContext
+                                    .getAutowireCapableBeanFactory()
+                                    .createBean(
+                                            collectorClass,
+                                            AutowireCapableBeanFactory.AUTOWIRE_BY_NAME,
+                                            false);
+                            collector.init(config, collectorConfig.getSettings());
+                            registerCollector(collector, config);
+
+                        }
                     } else {
-                        // Специфичный коллектор не указан используем коллектор
-                        // по умолчанию
-                        collector = (DynamicGroupCollector) applicationContext
-                                .getAutowireCapableBeanFactory()
-                                .createBean(
-                                        TrackDomainObjectCollector.class,
-                                        AutowireCapableBeanFactory.AUTOWIRE_BY_NAME,
-                                        false);
-                        // TODO Я конечно против использования базы напрямую, но
-                        // так сделано изначально, пока не переделываем
-                        ((TrackDomainObjectCollector) collector).setJdbcTemplate(jdbcTemplate);
 
-                    }
-                    collector.init(config);
-
-                    // Получение типов, которые отслеживает коллектор
-                    List<String> types = collector.getTrackTypeNames();
-                    // Регистрируем коллектор в реестре, для обработки
-                    // только определенных типов
-                    if (types != null) {
-                        for (String type : types) {
-                            registerCollector(type, collector, config);
-                            // Ищем всех наследников и так же регистрируем
-                            // их в
-                            // реестре с данным коллектором
-                            List<String> subTypes = getSubTypes(type);
-                            for (String subtype : subTypes) {
-                                registerCollector(subtype, collector, config);
-                            }
+                        for (DynamicGroupTrackDomainObjectsConfig collectorConfig : config.getMembers().getTrackDomainObjects()) {
+                            // Специфичный коллектор не указан используем коллектор
+                            // по умолчанию
+                            DynamicGroupCollector collector = (DynamicGroupCollector) applicationContext
+                                    .getAutowireCapableBeanFactory()
+                                    .createBean(
+                                            TrackDomainObjectCollector.class,
+                                            AutowireCapableBeanFactory.AUTOWIRE_BY_NAME,
+                                            false);
+                            // TODO Я конечно против использования базы напрямую, но
+                            // так сделано изначально, пока не переделываем
+                            ((TrackDomainObjectCollector) collector).setJdbcTemplate(jdbcTemplate);
+                            collector.init(config, collectorConfig);
+                            registerCollector(collector, config);
                         }
                     }
-
                 }
             }
         } catch (Exception ex) {
             throw new PermissionException("Error on init collector classes", ex);
+        }
+    }
+
+    private void registerCollector(DynamicGroupCollector collector, DynamicGroupConfig config) {
+        // Получение типов, которые отслеживает коллектор
+        List<String> types = collector.getTrackTypeNames();
+        // Регистрируем коллектор в реестре, для обработки
+        // только определенных типов
+        if (types != null) {
+            for (String type : types) {
+                registerCollector(type, collector, config);
+                // Ищем всех наследников и так же регистрируем
+                // их в
+                // реестре с данным коллектором
+                List<String> subTypes = getSubTypes(type);
+                for (String subtype : subTypes) {
+                    registerCollector(subtype, collector, config);
+                }
+            }
         }
     }
 

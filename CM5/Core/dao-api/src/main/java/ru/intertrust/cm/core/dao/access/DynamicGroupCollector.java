@@ -5,6 +5,7 @@ import java.util.List;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.model.CollectorSettings;
 import ru.intertrust.cm.core.config.model.DynamicGroupConfig;
 
 /**
@@ -37,7 +38,7 @@ public interface DynamicGroupCollector {
      * @param contextId
      *            идентификатор доменного объекта контекста динамической группы
      * @param domainObjectId
-     *            идентификатор доменного объекта который отслеживался
+     *            идентификатор доменного объекта который отслеживался трекером
      * @return
      */
     List<Id> getGroups(Id domainObjectId, Id contextId);
@@ -59,5 +60,5 @@ public interface DynamicGroupCollector {
     /**
      * Инициализация коллектора данными из конфигурационного xml
      */
-    void init(DynamicGroupConfig config);
+    void init(DynamicGroupConfig config, CollectorSettings setings);
 }

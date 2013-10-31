@@ -22,6 +22,7 @@ import ru.intertrust.cm.core.business.api.dto.FieldModificationImpl;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
@@ -48,8 +49,12 @@ public class BaseDynamicGroupServiceImpl {
     protected DomainObjectDao domainObjectDao;
 
     @Autowired
-    private AccessControlService accessControlService;
+    protected AccessControlService accessControlService;
 
+    @Autowired
+    protected ConfigurationExplorer configurationExplorer;
+
+    
     public void setDomainObjectDao(DomainObjectDao domainObjectDao) {
         this.domainObjectDao = domainObjectDao;
     }

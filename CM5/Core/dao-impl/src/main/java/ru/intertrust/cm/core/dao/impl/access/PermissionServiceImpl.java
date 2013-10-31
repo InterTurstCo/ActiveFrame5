@@ -28,7 +28,6 @@ import ru.intertrust.cm.core.config.model.DeleteConfig;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.DynamicGroupConfig;
 import ru.intertrust.cm.core.config.model.ExecuteActionConfig;
-import ru.intertrust.cm.core.config.model.GroupConfig;
 import ru.intertrust.cm.core.config.model.PermitGroup;
 import ru.intertrust.cm.core.config.model.PermitRole;
 import ru.intertrust.cm.core.config.model.ReadConfig;
@@ -58,7 +57,11 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
 
     private ApplicationContext applicationContext;
 
+    //Реестр коллекторов по отслеживаемому типу
     private Hashtable<String, List<ContextRoleRegisterItem>> collectors = new Hashtable<String, List<ContextRoleRegisterItem>>();
+    
+    //Реестр коллекторов по имени контекстной роли
+    private Hashtable<String, List<ContextRoleCollector>> collectorsByContextRoleNames = new Hashtable<String, List<ContextRoleCollector>>();
 
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
@@ -97,14 +100,14 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
         // транзакции
         // TODO надо перенести на конец транзакции
         for (Id contextId : invalidContexts) {
-            refreshAclFor(contextId);
+            refreshAclFor(domainObject, contextId);
         }
     }
 
-    private void refreshAclFor(Id objectId) {
-        RdbmsId rdbmsId = (RdbmsId) objectId;
+    private void refreshAclFor(DomainObject changedObject, Id invalidContextId) {
+        RdbmsId rdbmsId = (RdbmsId) invalidContextId;
         String domainObjectType = domainObjectTypeIdCache.getName(rdbmsId.getTypeId());
-        String status = getStatusFor(objectId);
+        String status = getStatusFor(invalidContextId);
         AccessMatrixConfig accessMatrixConfig =
                 configurationExplorer.getAccessMatrixByObjectTypeAndStatus(domainObjectType, status);
 
@@ -113,11 +116,11 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
             return;
         }
 
-        cleanAclFor(objectId);
+        cleanAclFor(invalidContextId);
 
         for (BaseOperationPermitConfig operationPermitConfig : accessMatrixConfig.getStatus().getPermissions()) {
             AccessType accessType = getAccessType(operationPermitConfig);
-            processOperationPermissions(objectId, operationPermitConfig, accessType);
+            processOperationPermissions(changedObject, invalidContextId, operationPermitConfig, accessType);
         }
 
     }
@@ -157,9 +160,9 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
      * @param accessType
      *            тип операции
      */
-    private void processOperationPermissions(Id objectId, BaseOperationPermitConfig operationPermitConfig,
+    private void processOperationPermissions(DomainObject changedObject, Id invalidContextId, BaseOperationPermitConfig operationPermitConfig,
             AccessType accessType) {
-        RdbmsId rdbmsId = (RdbmsId) objectId;
+        RdbmsId rdbmsId = (RdbmsId) invalidContextId;
         String domainObjectType = domainObjectTypeIdCache.getName(rdbmsId.getTypeId());
 
         for (BasePermit permit : operationPermitConfig.getPermitConfigs()) {
@@ -174,11 +177,10 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
                 }
                 validateRoleContextType(domainObjectType, contextRoleConfig);
 
-                for (Object groupConfig : contextRoleConfig.getGroups().getGroups()) {
-                    if (groupConfig.getClass().equals(GroupConfig.class)) {
-                        processAclForDynamicGroup(objectId, groupConfig, accessType);
-
-                    }
+                List<ContextRoleCollector> collectors = collectorsByContextRoleNames.get(contextRoleConfig.getName());
+                
+                for (ContextRoleCollector collector : collectors) {
+                    processAclForCollector(changedObject, invalidContextId, collector, accessType);
                 }
             } else if (permit.getClass().equals(PermitGroup.class)) {
                 String dynamicGroupName = permit.getName();
@@ -190,12 +192,11 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
 
                     // контекстным объектом являетя текущий объект (для которого
                     // пересчитываются списки доступа)
-                    Long contextObjectId = ((RdbmsId) objectId).getId();
-                    processAclForDynamicGroupWithContext(objectId, accessType, dynamicGroupName, contextObjectId);
+                    Long contextObjectId = ((RdbmsId) invalidContextId).getId();
+                    processAclForDynamicGroupWithContext(invalidContextId, accessType, dynamicGroupName, contextObjectId);
 
                 } else {
-                    processAclForDynamicGroupWithoutContext(objectId, accessType, dynamicGroupName);
-
+                    processAclForDynamicGroupWithoutContext(invalidContextId, accessType, dynamicGroupName);
                 }
 
             }
@@ -219,46 +220,13 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
         return dynamicGroupConfig;
     }
 
-    /**
-     * Пересчитывает список доступа для динамичсекой группы для переданного
-     * доменного объекта.
-     * @param objectId
-     *            идентификатор доменного объекта, для которого пересчитывается
-     *            список доступа
-     * @param roleGroupConfig
-     *            конфигурация динамической группы
-     * @param accessType
-     *            тип доступа для динамичской группы
-     */
-    private void processAclForDynamicGroup(Id objectId, Object roleGroupConfig, AccessType accessType) {
-        GroupConfig groupConfig = (GroupConfig) roleGroupConfig;
-        String dynamicGroupName = groupConfig.getName();
 
-        DynamicGroupConfig dynamicGroupConfig = findAndCheckDynamicGroupByName(dynamicGroupName);
-
-        if (dynamicGroupConfig.getContext() != null && dynamicGroupConfig.getContext().getDomainObject() != null) {
-
-            if (groupConfig.getBindContext() != null && groupConfig.getBindContext().getDoel() != null) {
-                String doel = groupConfig.getBindContext().getDoel();
-                List<Long> contextObjectids = getDynamicGroupContextObject(objectId, doel);
-                for (Long contextObjectid : contextObjectids) {
-                    processAclForDynamicGroupWithContext(objectId, accessType, dynamicGroupName, contextObjectid);
-
-                }
-            } else {
-                // если путь к контекстному объекту не указан внутри тега group,
-                // то контекстным объектом является
-                // текущий объект
-                Long contextObjectId = ((RdbmsId) objectId).getId();
-                processAclForDynamicGroupWithContext(objectId, accessType, dynamicGroupName, contextObjectId);
-            }
-
-        } else {
-            processAclForDynamicGroupWithoutContext(objectId, accessType, dynamicGroupName);
-
+    private void processAclForCollector(DomainObject changedObject, Id invalidContextId, ContextRoleCollector collector, AccessType accessType) {
+        for (Id groupId : collector.getMembers(changedObject.getId(), invalidContextId)) {
+            insertAclRecord(accessType, invalidContextId, groupId);
         }
-    }
-
+    }    
+    
     private void processAclForDynamicGroupWithoutContext(Id objectId, AccessType accessType, String dynamicGroupName) {
         Id dynamicGroupId = getUserGroupByGroupName(dynamicGroupName);
         if (dynamicGroupId == null) {
@@ -454,7 +422,7 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
                         ((ContextRoleTrackDomainObjectCollector) collector).setJdbcTemplate(jdbcTemplate);
 
                     }
-                    collector.init(config);
+                    collector.init(config, null);
 
                     // Получение типов, которые отслеживает коллектор
                     List<String> types = collector.getTrackTypeNames();

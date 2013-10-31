@@ -5,6 +5,7 @@ import java.util.List;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.model.CollectorSettings;
 import ru.intertrust.cm.core.config.model.ContextRoleConfig;
 
 /**
@@ -47,5 +48,5 @@ public interface ContextRoleCollector {
      * Инициализация коллектора.
      * @param config
      */
-    void init(ContextRoleConfig config);
+    void init(ContextRoleConfig config, CollectorSettings collectorSettings);
 }

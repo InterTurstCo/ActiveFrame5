@@ -17,11 +17,9 @@ import java.io.*;
 import java.util.*;
 
 /**
- * Предоставляет быстрый доступ к элементам конфигурации.
- * После создания объекта данного класса требуется выполнить инициализацию через вызов метода {@link #build()}.
- * @author vmatsukevich
- *         Date: 6/12/13
- *         Time: 5:21 PM
+ * Предоставляет быстрый доступ к элементам конфигурации. После создания объекта данного класса требуется выполнить инициализацию через вызов метода
+ * {@link #build()}.
+ * @author vmatsukevich Date: 6/12/13 Time: 5:21 PM
  */
 public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     private final static Logger logger = LoggerFactory.getLogger(ConfigurationExplorerImpl.class);
@@ -58,7 +56,8 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
 
     /**
      * Устанавливает конфигурацию
-     * @param configuration конфигурация
+     * @param configuration
+     *            конфигурация
      */
     public void setConfiguration(Configuration configuration) {
         this.configuration = configuration;
@@ -76,10 +75,9 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     }
 
     /**
-     * Каждый логический валидатор находится в блоке try/catch
-     * для отображения всех ошибок, возникнувших в результате
-     * валидации, а не только первого бросившего exception
-     *
+     * Каждый логический валидатор находится в блоке try/catch для отображения всех ошибок, возникнувших в результате валидации, а не только первого бросившего
+     * exception
+     * 
      */
     private void validate() {
         GlobalSettingsLogicalValidator globalSettingsLogicalValidator = new GlobalSettingsLogicalValidator(configuration);
@@ -88,6 +86,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         domainObjectLogicalValidator.validate();
 
     }
+
     public void validateGui() {
         try {
             navigationPanelLogicalValidator.setConfigurationExplorer(this);
@@ -109,6 +108,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
             logger.error(e.getMessage());
         }
     }
+
     /**
      * {@inheritDoc}
      */
@@ -116,7 +116,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     @SuppressWarnings("unchecked")
     public <T> T getConfig(Class<T> type, String name) {
         Map<String, TopLevelConfig> typeMap = topLevelConfigMap.get(type);
-        if(typeMap == null) {
+        if (typeMap == null) {
             return null;
         }
 
@@ -130,7 +130,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     @SuppressWarnings("unchecked")
     public <T> Collection<T> getConfigs(Class<T> type) {
         Map<String, TopLevelConfig> typeMap = topLevelConfigMap.get(type);
-        if(typeMap == null) {
+        if (typeMap == null) {
             return Collections.EMPTY_LIST;
         }
 
@@ -165,7 +165,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      */
     @Override
     public FieldConfig getFieldConfig(String domainObjectConfigName, String fieldConfigName,
-                                      boolean returnInheritedConfig) {
+            boolean returnInheritedConfig) {
         if (REFERENCE_TYPE_ANY.equals(domainObjectConfigName)) {
             throw new IllegalArgumentException("'*' is not a valid Domain Object type");
         }
@@ -200,9 +200,8 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         return collectionColumnConfigMap.get(collectionColumnConfigKey);
     }
 
-
     private void initConfigurationMaps() {
-        if(configuration == null) {
+        if (configuration == null) {
             throw new FatalException("Failed to initialize ConfigurationExplorerImpl because " +
                     "Configuration is null");
         }
@@ -270,17 +269,17 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
             DynamicGroupConfig dynamicGroup = (DynamicGroupConfig) dynamicGroupMap.get(groupName);
 
             if (dynamicGroup.getMembers() != null && dynamicGroup.getMembers().getTrackDomainObjects() != null) {
-                TrackDomainObjectsConfig trackDomainObjectsConfig = dynamicGroup.getMembers().getTrackDomainObjects();
+                List<DynamicGroupTrackDomainObjectsConfig> trackDomainObjectConfigs = dynamicGroup.getMembers().getTrackDomainObjects();
+                for (DynamicGroupTrackDomainObjectsConfig trackDomainObjectConfig : trackDomainObjectConfigs) {
+                    String configuredStatus = trackDomainObjectConfig.getStatus();
+                    String configuredType = trackDomainObjectConfig.getType();
+                    if (trackDOTypeName.equalsIgnoreCase(configuredType)) {
 
-                String configuredStatus = trackDomainObjectsConfig.getStatus();
-                String configuredType = trackDomainObjectsConfig.getType();
-                if (trackDOTypeName.equalsIgnoreCase(configuredType)) {
-
-                    if (configuredStatus == null || configuredStatus.equals(status)) {
-                        dynamicGroups.add(dynamicGroup);
+                        if (configuredStatus == null || configuredStatus.equals(status)) {
+                            dynamicGroups.add(dynamicGroup);
+                        }
                     }
                 }
-
             }
         }
         return dynamicGroups;
@@ -300,7 +299,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
                 accessMatrixStatus = accessMatrixConfig.getStatus().getName();
             }
 
-            if(status!= null && status.equals(accessMatrixStatus) && accessMatrixObjectType.equals(domainObjectType)){
+            if (status != null && status.equals(accessMatrixStatus) && accessMatrixObjectType.equals(domainObjectType)) {
                 return accessMatrixConfig;
             }
         }
@@ -313,8 +312,8 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         Map<String, TopLevelConfig> contextRoleMap = topLevelConfigMap.get(ContextRoleConfig.class);
 
         for (String roleName : contextRoleMap.keySet()) {
-            if(contextRoleName.equals(roleName)){
-                return (ContextRoleConfig)contextRoleMap.get(roleName);
+            if (contextRoleName.equals(roleName)) {
+                return (ContextRoleConfig) contextRoleMap.get(roleName);
             }
         }
 
@@ -336,7 +335,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
 
     private void fillTopLevelConfigMap(TopLevelConfig config) {
         Map<String, TopLevelConfig> typeMap = topLevelConfigMap.get(config.getClass());
-        if(typeMap == null) {
+        if (typeMap == null) {
             typeMap = new HashMap<>();
             topLevelConfigMap.put(config.getClass(), typeMap);
         }
@@ -362,10 +361,10 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     }
 
     private void fillCollectionColumnConfigMap(CollectionViewConfig collectionViewConfig) {
-     if (collectionViewConfig.getCollectionDisplayConfig() != null) {
+        if (collectionViewConfig.getCollectionDisplayConfig() != null) {
             for (CollectionColumnConfig columnConfig : collectionViewConfig.getCollectionDisplayConfig().
                     getColumnConfig()) {
-                        FieldConfigKey fieldConfigKey =
+                FieldConfigKey fieldConfigKey =
                         new FieldConfigKey(collectionViewConfig.getCollection(), columnConfig.getField());
                 collectionColumnConfigMap.put(fieldConfigKey, columnConfig);
 

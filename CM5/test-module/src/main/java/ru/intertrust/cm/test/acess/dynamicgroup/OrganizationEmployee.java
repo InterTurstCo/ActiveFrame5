@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.config.model.CollectorSettings;
 import ru.intertrust.cm.core.config.model.DynamicGroupConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
@@ -132,10 +133,9 @@ public class OrganizationEmployee implements DynamicGroupCollector {
     }
 
     @Override
-    public void init(DynamicGroupConfig config) {
+    public void init(DynamicGroupConfig config, CollectorSettings settings) {
         this.config = config;
-        this.settings = (TestDynGroupCollectorSettings) config.getMembers()
-                .getCollector().getSettings();
+        this.settings = (TestDynGroupCollectorSettings) settings;
     }
 
     private boolean containsModifiedField(

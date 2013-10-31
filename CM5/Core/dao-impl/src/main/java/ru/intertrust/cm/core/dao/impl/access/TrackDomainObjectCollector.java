@@ -13,9 +13,9 @@ import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationException;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.model.CollectorSettings;
 import ru.intertrust.cm.core.config.model.DynamicGroupConfig;
 import ru.intertrust.cm.core.config.model.DynamicGroupTrackDomainObjectsConfig;
-import ru.intertrust.cm.core.config.model.TrackDomainObjectsConfig;
 import ru.intertrust.cm.core.config.model.doel.DoelExpression;
 import ru.intertrust.cm.core.dao.access.DynamicGroupCollector;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
@@ -23,7 +23,7 @@ import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 public class TrackDomainObjectCollector extends BaseDynamicGroupServiceImpl implements DynamicGroupCollector {
 
     private DynamicGroupConfig config;
-    private TrackDomainObjectsConfig settings;
+    private DynamicGroupTrackDomainObjectsConfig trackDomainObjects;
 
     @Autowired
     protected DomainObjectTypeIdCache domainObjectTypeIdCache;
@@ -56,12 +56,12 @@ public class TrackDomainObjectCollector extends BaseDynamicGroupServiceImpl impl
     public List<String> getTrackTypeNames() {
         List<String> result = new ArrayList<String>();
         // Не указан TrackDomainObjects, следим только за текущим типом
-        if (settings == null) {
+        if (trackDomainObjects == null) {
             result.add(config.getContext().getDomainObject().getType());
         } else {
-            result.add(settings.getType());
+            result.add(trackDomainObjects.getType());
         }
-        return null;
+        return result;
     }
 
     @Override
@@ -79,10 +79,10 @@ public class TrackDomainObjectCollector extends BaseDynamicGroupServiceImpl impl
     }
 
     @Override
-    public void init(DynamicGroupConfig config) {
+    public void init(DynamicGroupConfig config, CollectorSettings setings) {
         this.config = config;
         if (config.getMembers() != null) {
-            this.settings = config.getMembers().getTrackDomainObjects();
+            this.trackDomainObjects = (DynamicGroupTrackDomainObjectsConfig) setings;
         }
     }
 
@@ -121,7 +121,6 @@ public class TrackDomainObjectCollector extends BaseDynamicGroupServiceImpl impl
      */
     private List<Id> getGroupMembers(Id objectId, Id contextObjectid, boolean groups) {
         List<Id> result = new ArrayList<Id>();
-        DynamicGroupTrackDomainObjectsConfig trackDomainObjects = config.getMembers().getTrackDomainObjects();
         if (trackDomainObjects != null
                 && trackDomainObjects.getBindContext() != null) {
             String bindContextDoel = trackDomainObjects.getBindContext()
@@ -201,12 +200,9 @@ public class TrackDomainObjectCollector extends BaseDynamicGroupServiceImpl impl
      *            идентификатор отслеживаемого доменного объекта
      * @return идентификатор контекстного объекта
      */
-    private List<Id> getContextObjectId(DynamicGroupConfig dynamicGroupConfig,
-            Id objectId) {
+    private List<Id> getContextObjectId(DynamicGroupConfig dynamicGroupConfig, Id objectId) {
 
         List<Id> result = new ArrayList<>();
-        TrackDomainObjectsConfig trackDomainObjects = dynamicGroupConfig
-                .getMembers().getTrackDomainObjects();
 
         if (trackDomainObjects != null
                 && trackDomainObjects.getBindContext() != null) {

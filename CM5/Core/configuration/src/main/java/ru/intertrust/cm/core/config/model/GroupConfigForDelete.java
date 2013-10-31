@@ -12,7 +12,7 @@ import java.io.Serializable;
  *
  */
 @Root(name = "group")
-public class GroupConfig implements Serializable {
+public class GroupConfigForDelete implements Serializable {
 
     @Attribute(required = true)
     private String name;
@@ -45,7 +45,7 @@ public class GroupConfig implements Serializable {
             return false;
         }
 
-        GroupConfig that = (GroupConfig) o;
+        GroupConfigForDelete that = (GroupConfigForDelete) o;
 
         if (bindContext != null ? !bindContext.equals(that.bindContext) : that.bindContext != null) {
             return false;

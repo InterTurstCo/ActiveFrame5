@@ -1,8 +1,10 @@
 package ru.intertrust.cm.core.config.model;
 
 import java.io.Serializable;
+import java.util.List;
 
 import org.simpleframework.xml.Element;
+import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 
 /**
@@ -12,25 +14,25 @@ import org.simpleframework.xml.Root;
 @Root(name = "members")
 public class MembersConfig implements Serializable {
 
-    @Element(name ="collector", required = false)
-    private CollectorConfig collector;
+    @ElementList(name ="collector", required = false)
+    private List<CollectorConfig> collector;
     
-    @Element(name ="track-domain-objects", required = false)
-    private DynamicGroupTrackDomainObjectsConfig trackDomainObjects;
+    @ElementList(name ="track-domain-objects", required = false)
+    private List<DynamicGroupTrackDomainObjectsConfig> trackDomainObjects;
 
-    public CollectorConfig getCollector() {
+    public List<CollectorConfig> getCollector() {
         return collector;
     }
 
-    public void setCollector(CollectorConfig collector) {
+    public void setCollector(List<CollectorConfig> collector) {
         this.collector = collector;
     }
 
-    public DynamicGroupTrackDomainObjectsConfig getTrackDomainObjects() {
+    public List<DynamicGroupTrackDomainObjectsConfig> getTrackDomainObjects() {
         return trackDomainObjects;
     }
 
-    public void setTrackDomainObjects(DynamicGroupTrackDomainObjectsConfig trackDomainObjects) {
+    public void setTrackDomainObjects(List<DynamicGroupTrackDomainObjectsConfig> trackDomainObjects) {
         this.trackDomainObjects = trackDomainObjects;
     }
     

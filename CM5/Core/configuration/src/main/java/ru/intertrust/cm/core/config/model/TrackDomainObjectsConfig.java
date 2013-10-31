@@ -4,15 +4,13 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
-import ru.intertrust.cm.core.business.api.dto.Dto;
-
 /**
  * Класс конфигурации коллектора контекстной роли
  * @author atsvetkov
  *
  */
 @Root
-public class TrackDomainObjectsConfig implements Dto{
+public class TrackDomainObjectsConfig implements CollectorSettings{
 
     @Attribute(name = "type", required = false)
     private String type;
