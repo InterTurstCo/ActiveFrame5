@@ -687,9 +687,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             parameters.put("updated_date",
                     getGMTDate(domainObject.getModifiedDate()));
             if (!isStatusDO(domainObjectTypeConfig)) {
-                parameters.put("status", ((RdbmsId)domainObject.getStatus()).getId());
-                parameters.put("status_type",
-                        ((RdbmsId)domainObject.getStatus()).getTypeId());
+                Long statusId = domainObject.getStatus() != null ? ((RdbmsId) domainObject.getStatus()).getId() : null;
+                Integer statusTypeId =
+                        domainObject.getStatus() != null ? ((RdbmsId) domainObject.getStatus()).getTypeId() : null;
+
+                parameters.put("status", statusId);
+                parameters.put("status_type", statusTypeId);
             }
 
         }
@@ -1198,10 +1201,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         String initialStatus = domainObjectTypeConfig.getInitialStatus();
         if (!isStatusDO(domainObjectTypeConfig) && initialStatus != null) {
             DomainObject status = getStatusByName(initialStatus);
-            Long statusId = ((RdbmsId) status.getId()).getId();
-            updatedObject.setLong(STATUS_COLUMN, statusId);
-            updatedObject.setLong(STATUS_TYPE_COLUMN,
-                    Long.valueOf(domainObjectTypeIdCache.getId(STATUS_DO)));
+            Id statusId = status.getId();            
+            updatedObject.setStatus(statusId);
         }
     }
 
