@@ -271,11 +271,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         domainObjectCacheService.putObjectToCache(updatedObject);
 
         if (isUpdateStatus) {
-            Long statusValue = updatedObject.getLong(STATUS_COLUMN);
+            Long statusValue = updatedObject.getLong(GenericDomainObject.STATUS_COLUMN);
             if (statusValue != null) {
-                updatedObject.setReference(STATUS_COLUMN,
-                        new RdbmsId(domainObjectTypeIdCache.getId(STATUS_DO), statusValue));
-                updatedObject.setLong(STATUS_COLUMN, null);
+                updatedObject.setReference(GenericDomainObject.STATUS_COLUMN,
+                        new RdbmsId(domainObjectTypeIdCache.getId(GenericDomainObject.STATUS_DO), statusValue));
+                updatedObject.setLong(GenericDomainObject.STATUS_COLUMN, null);
             }
 
         }
@@ -801,7 +801,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             query.append(UPDATED_DATE_COLUMN).append("=:current_date");
             if (isUpdateStatus) {
                 query.append(", ");
-                query.append(STATUS_COLUMN).append("=:status");
+                query.append(GenericDomainObject.STATUS_COLUMN).append("=:status");
             }
 
         }
@@ -880,7 +880,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             query.append(CREATED_DATE_COLUMN).append(", ")
                     .append(UPDATED_DATE_COLUMN).append(", ");
             if (!isStatusDO(domainObjectTypeConfig)) {
-                query.append(STATUS_COLUMN).append(", ")
+                query.append(GenericDomainObject.STATUS_COLUMN).append(", ")
                         .append(STATUS_TYPE_COLUMN).append(", ");
 
             }
@@ -906,7 +906,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     private boolean isStatusDO(DomainObjectTypeConfig domainObjectTypeConfig) {
-        return domainObjectTypeConfig.getName().equalsIgnoreCase(STATUS_DO);
+//        return false;
+        return domainObjectTypeConfig.getName().equalsIgnoreCase(GenericDomainObject.STATUS_DO);
     }
 
     /**
@@ -1207,11 +1208,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     private DomainObject getStatusByName(String statusName) {
-        String query = "select s.* from Status s where s.name=:name";
+        String query = "select s.* from " + GenericDomainObject.STATUS_DO + " s where s.name=:name";
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("name", statusName);
         DomainObject statusDO = jdbcTemplate.query(query, paramMap,
-                new SingleObjectRowMapper(STATUS_DO, configurationExplorer,
+                new SingleObjectRowMapper(GenericDomainObject.STATUS_DO, configurationExplorer,
                         domainObjectTypeIdCache));
         if (statusDO == null) {
             throw new IllegalArgumentException("Status not found: "
@@ -1398,7 +1399,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             query.append(", ").append(CREATED_DATE_COLUMN);
             query.append(", ").append(UPDATED_DATE_COLUMN);
             if (!isStatusDO(config)) {
-                query.append(", ").append(STATUS_COLUMN);
+                query.append(", ").append(GenericDomainObject.STATUS_COLUMN);
                 query.append(", ").append(STATUS_TYPE_COLUMN);
             }
         }

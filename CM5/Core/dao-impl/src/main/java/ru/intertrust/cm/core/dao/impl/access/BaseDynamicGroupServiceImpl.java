@@ -197,7 +197,7 @@ public class BaseDynamicGroupServiceImpl {
 
     private boolean isStatusDO(Id objectId) {
         String domainObjectType = domainObjectTypeIdCache.getName(objectId);
-        return DomainObjectDao.STATUS_DO.equalsIgnoreCase(domainObjectType);
+        return GenericDomainObject.STATUS_DO.equalsIgnoreCase(domainObjectType);
     }
 
     private String generateGetStatusForQuery(Id objectId) {
@@ -205,7 +205,9 @@ public class BaseDynamicGroupServiceImpl {
         String tableName = getSqlName(domainObjectTypeIdCache.getName(id.getTypeId()));
         StringBuilder query = new StringBuilder();
         query.append("select s.name from ");
-        query.append(tableName).append(" o inner join status s on s.id = o.status");
+        query.append(tableName).append(
+                " o inner join " + GenericDomainObject.STATUS_DO + " s on s.id = o."
+                        + GenericDomainObject.STATUS_COLUMN);
         query.append(" where o.id = :object_id");
 
         return query.toString();

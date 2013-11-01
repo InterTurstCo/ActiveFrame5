@@ -18,6 +18,7 @@ import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.ProcessService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
@@ -114,7 +115,7 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
     }
 
     private List<Id> getStatusNames(List<String> statuses) {
-        String query = "select t.id, t.type_id from status t where t.name in (";
+        String query = "select t.id, t.type_id from " + GenericDomainObject.STATUS_DO + " t where t.name in (";
 
         boolean first = true;
         for (String statusName : statuses) {

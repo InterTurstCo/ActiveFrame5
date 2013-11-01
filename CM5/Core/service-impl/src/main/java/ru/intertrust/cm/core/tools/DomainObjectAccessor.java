@@ -223,7 +223,7 @@ public class DomainObjectAccessor implements Serializable {
     
     private  DomainObject createStatus(String statusName) {
         GenericDomainObject statusDO = new GenericDomainObject();
-        statusDO.setTypeName(DomainObjectDao.STATUS_DO);
+        statusDO.setTypeName(GenericDomainObject.STATUS_DO);
         Date currentDate = new Date();
         statusDO.setCreatedDate(currentDate);
         statusDO.setModifiedDate(currentDate);

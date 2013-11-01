@@ -37,6 +37,10 @@ public class CollectionsServiceImpl implements CollectionsService {
     public void setAccessControlService(AccessControlService accessControlService) {
         this.accessControlService = accessControlService;
     }
+    
+    public void setCollectionsDao(CollectionsDao collectionsDao) {
+        this.collectionsDao = collectionsDao;
+    }
 
     @Override
     public IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder, List<Filter> filterValues,

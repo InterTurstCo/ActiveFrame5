@@ -114,7 +114,7 @@ public class InitialDataLoader {
     }
 
     private boolean existsStatus(String statusName) {
-        String query = "select count(*) from Status s where s.name=:name";
+        String query = "select count(*) from " + GenericDomainObject.STATUS_DO + " s where s.name=:name";
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("name", statusName);
         @SuppressWarnings("deprecation")
@@ -124,7 +124,7 @@ public class InitialDataLoader {
 
     private void saveStatus(String statusName) {
         GenericDomainObject statusDO = new GenericDomainObject();
-        statusDO.setTypeName(DomainObjectDao.STATUS_DO);
+        statusDO.setTypeName(GenericDomainObject.STATUS_DO);
         Date currentDate = new Date();
         statusDO.setCreatedDate(currentDate);
         statusDO.setModifiedDate(currentDate);

@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.*;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
@@ -434,9 +435,9 @@ public class PostgreSqlQueryHelper {
         if (config.getExtendsAttribute() == null) {
             query.append("CREATED_DATE timestamp not null, ");
             query.append("UPDATED_DATE timestamp not null, ");
-            if (!config.getName().equalsIgnoreCase(DomainObjectDao.STATUS_DO)) {
-                query.append("STATUS bigint, ");
-                query.append("STATUS_TYPE integer, ");
+            if (!config.getName().equalsIgnoreCase(GenericDomainObject.STATUS_DO)) {
+                query.append(GenericDomainObject.STATUS_COLUMN + " bigint, ");
+                query.append( DomainObjectDao.STATUS_TYPE_COLUMN + " integer, ");
             }
 
         }

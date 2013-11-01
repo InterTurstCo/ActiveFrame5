@@ -18,12 +18,6 @@
             <field name="Registration_Number"/>
         </uniqueKey>
     </domain-object-type>
-
-    <domain-object-type name="Status">
-        <fields>
-            <string name="Name" length="128" not-null="true" />
-        </fields>
-    </domain-object-type>
     
      <domain-object-type name="Internal_Document" initial-status="Draft"> <!-- Internal_Document table -->
         <fields>

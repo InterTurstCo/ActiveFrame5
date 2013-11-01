@@ -30,6 +30,14 @@ public class TrackDomainObjectCollector extends BaseDynamicGroupServiceImpl impl
 
     @Autowired
     private ConfigurationExplorer configurationExplorer;
+    
+    public void setDomainObjectTypeIdCache(DomainObjectTypeIdCache domainObjectTypeIdCache) {
+        this.domainObjectTypeIdCache = domainObjectTypeIdCache;
+    }
+
+    public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
+        this.configurationExplorer = configurationExplorer;
+    }
 
     @Override
     public List<Id> getPersons(Id domainObjectId, Id contextId) {

@@ -1,6 +1,8 @@
 package ru.intertrust.cm.core.business.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.config.ConfigurationException;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
@@ -347,15 +349,15 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
 
         private boolean canHaveStatusColumn(DomainObjectTypeConfig config) {
             return config.getExtendsAttribute() == null
-                    && (!config.isTemplate() && (!config.getName().equalsIgnoreCase(DomainObjectDao.STATUS_DO)));
+                    && (!config.isTemplate() && (!config.getName().equalsIgnoreCase(GenericDomainObject.STATUS_DO)));
         }
 
         private void createStatusForeignKey(DomainObjectTypeConfig config) {
             List<ReferenceFieldConfig> referenceFieldConfigs = new ArrayList<>();
             List<UniqueKeyConfig> uniqueKeyConfigs = new ArrayList<>();
             ReferenceFieldConfig referenceStatusField = new ReferenceFieldConfig();
-            referenceStatusField.setName(DomainObjectDao.STATUS_COLUMN);
-            referenceStatusField.setType(DomainObjectDao.STATUS_DO);
+            referenceStatusField.setName(GenericDomainObject.STATUS_COLUMN);
+            referenceStatusField.setType(GenericDomainObject.STATUS_DO);
 
             referenceFieldConfigs.add(referenceStatusField);
 
