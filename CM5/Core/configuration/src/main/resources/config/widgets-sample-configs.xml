@@ -33,9 +33,9 @@
         <scanner enabled="true"/>
     </attachment-box>
 
-    <suggest-box id="8a">
+   <!-- <suggest-box id="8a">
         <field-path value="most_famous_city"/>
-        <!-- а для области столицы: capital . federal_unit_city^city . federal_unit . name -->
+        &lt;!&ndash; а для области столицы: capital . federal_unit_city^city . federal_unit . name &ndash;&gt;
         <pattern value="{name} ({population} чел.)"/>
-    </suggest-box>
+    </suggest-box>-->
 </configuration>

@@ -13,9 +13,6 @@ import ru.intertrust.cm.core.config.model.gui.navigation.CollectionRefConfig;
  */
 public class SuggestBoxConfig extends WidgetConfig implements Dto {
 
-    @Element(name = "pattern")
-    private PatternConfig patternConfig;
-
     @Element(name = "collection-ref", required = false)
     CollectionRefConfig collectionRefConfig;
 
@@ -36,15 +33,6 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
 
     @Element(name = "page-size",required = false)
     Integer pageSize;
-
-
-    public PatternConfig getPatternConfig() {
-        return patternConfig;
-    }
-
-    public void setPatternConfig(PatternConfig patternConfig) {
-        this.patternConfig = patternConfig;
-    }
 
     @Override
     public boolean equals(Object o) {

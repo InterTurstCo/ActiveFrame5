@@ -46,7 +46,7 @@ public class SuggestBoxHandler extends LinkEditingWidgetHandler {
         }
         LinkedHashMap<Id, String> objects = new LinkedHashMap<Id, String>();
         SelectionPatternConfig selectionPatternConfig = widgetConfig.getSelectionPatternConfig();
-        Pattern pattern = Pattern.compile("\\{\\w+\\}");
+        Pattern pattern = createDefaultRegexPattern();
         Matcher matcher = pattern.matcher(selectionPatternConfig.getValue());
         for (DomainObject domainObject : domainObjects) {
             objects.put(domainObject.getId(), format(domainObject, matcher));
@@ -60,12 +60,12 @@ public class SuggestBoxHandler extends LinkEditingWidgetHandler {
         List<Filter> filters = new ArrayList<>();
 
         if (!suggestionRequest.getExcludeIds().isEmpty()) {
-            filters.add(prepareExcludeIdsFilter(suggestionRequest.getExcludeIds()));
+            filters.add(prepareExcludeIdsFilter(suggestionRequest.getExcludeIds(), suggestionRequest.getIdsExclusionFilterName()));
         }
-        filters.add(prepareInputTextFilter(suggestionRequest.getText()));
+        filters.add(prepareInputTextFilter(suggestionRequest.getText(), suggestionRequest.getInputTextFilterName()));
 
         IdentifiableObjectCollection collection = collectionsService.findCollection(suggestionRequest.getCollectionName(), null, filters);
-        Pattern pattern = Pattern.compile("\\{\\w+\\}");
+        Pattern pattern = createDefaultRegexPattern();
         Matcher dropDownMatcher = pattern.matcher(suggestionRequest.getDropdownPattern());
         Matcher selectionMatcher = pattern.matcher(suggestionRequest.getSelectionPattern());
 
@@ -81,14 +81,14 @@ public class SuggestBoxHandler extends LinkEditingWidgetHandler {
         return suggestionList;
     }
 
-    private Filter prepareInputTextFilter(String text) {
+    private Filter prepareInputTextFilter(String text, String inputTextFilterName) {
         Filter textFilter = new Filter();
-        textFilter.setFilter("byText");
+        textFilter.setFilter(inputTextFilterName);
         textFilter.addCriterion(0, new StringValue(text + "%"));
         return textFilter;
     }
 
-    private Filter prepareExcludeIdsFilter(Set<Id> excludeIds) {
+    private Filter prepareExcludeIdsFilter(Set<Id> excludeIds, String idsExclusionFilterName) {
         Filter exludeIdsFilter = new Filter();
 
         List<Value> excludeIdsCriterion = new ArrayList<>();
@@ -96,8 +96,12 @@ public class SuggestBoxHandler extends LinkEditingWidgetHandler {
             excludeIdsCriterion.add(new ReferenceValue(id));
         }
         exludeIdsFilter.addMultiCriterion(0, excludeIdsCriterion);
-        exludeIdsFilter.setFilter("idsExcluded");
+        exludeIdsFilter.setFilter(idsExclusionFilterName);
         return exludeIdsFilter;
+    }
+
+    private Pattern createDefaultRegexPattern() {
+        return Pattern.compile("\\{\\w+\\}");
     }
 
 

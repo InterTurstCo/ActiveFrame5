@@ -110,6 +110,8 @@ public class SuggestBoxWidget extends BaseWidget {
                 suggestionRequest.setSelectionPattern(suggestBoxConfig.getSelectionPatternConfig().getValue());
                 suggestionRequest.setText(request.getQuery());
                 suggestionRequest.setExcludeIds(new LinkedHashSet<Id>(selectedSuggestions.keySet()));
+                suggestionRequest.setInputTextFilterName(suggestBoxConfig.getInputTextFilterConfig().getName());
+                suggestionRequest.setIdsExclusionFilterName(suggestBoxConfig.getSelectionExcludeFilterConfig().getName());
 
                 Command command = new Command("obtainSuggestions", SuggestBoxWidget.this.getName(), suggestionRequest);
                 BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, new AsyncCallback<Dto>() {

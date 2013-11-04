@@ -999,8 +999,6 @@
         <xs:sequence>
             <xs:element type="con:fieldPathType" name="field-path"
                 xmlns:con="https://cm5.intertrust.ru/config" />
-            <xs:element type="con:patternType" name="pattern"
-                xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:collectionRefType" name="collection-ref"
                 xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:selectionFilterReferenceType"

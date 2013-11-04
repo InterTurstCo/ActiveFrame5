@@ -293,8 +293,6 @@
                 <field-path value="country_most_famous_city^country.city"/>
                <!-- <field-path value="most_famous_city"/>-->
                 <!-- а для области столицы: capital . federal_unit_city^city . federal_unit . name -->
-                <pattern value="{name} ({population} чел.)"/>
-
                 <collection-ref name="Cities"/>
 
                 <!--TODO не реализовано. название фильтра, использующегося при получении описания уже выбранных значений -->

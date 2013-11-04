@@ -18,6 +18,8 @@ public class SuggestionRequest implements Dto {
     private String collectionName;
     private String dropdownPattern;
     private String selectionPattern;
+    private String inputTextFilterName;
+    private String idsExclusionFilterName;
     private LinkedHashSet<Id> excludeIds = new LinkedHashSet<Id>();
 
     public String getText() {
@@ -58,5 +60,21 @@ public class SuggestionRequest implements Dto {
 
     public void setSelectionPattern(String selectionPattern) {
         this.selectionPattern = selectionPattern;
+    }
+
+    public String getInputTextFilterName() {
+        return inputTextFilterName;
+    }
+
+    public void setInputTextFilterName(String inputTextFilterName) {
+        this.inputTextFilterName = inputTextFilterName;
+    }
+
+    public String getIdsExclusionFilterName() {
+        return idsExclusionFilterName;
+    }
+
+    public void setIdsExclusionFilterName(String idsExclusionFilterName) {
+        this.idsExclusionFilterName = idsExclusionFilterName;
     }
 }
