@@ -136,6 +136,8 @@ public class BasicRowMapper {
             String timeZoneIdColumnName =
                     getTimeZoneIdColumnName((DateTimeWithTimeZoneFieldConfig) fieldConfig).toLowerCase();
             value = readDateTimeWithTimeZoneValue(rs, columnName, timeZoneIdColumnName);
+        } else if (fieldConfig != null && TimelessDateFieldConfig.class.equals(fieldConfig.getClass())) {
+            value = readTimelessDateValue(rs, columnName);
         } else if (fieldConfig != null && BooleanFieldConfig.class.equals(fieldConfig.getClass())) {
             Integer booleanInt = rs.getInt(columnName);
             if (!rs.wasNull()) {
@@ -319,6 +321,28 @@ public class BasicRowMapper {
             }
         } else {
             value = new TimestampValue();
+        }
+
+        return value;
+    }
+
+    protected Value readTimelessDateValue(ResultSet rs, String columnName)
+            throws SQLException {
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        Timestamp timestamp = rs.getTimestamp(columnName, calendar);
+
+        TimelessDateValue value;
+        if (!rs.wasNull()) {
+            calendar.setTime(timestamp);
+
+            TimelessDate timelessDate = new TimelessDate();
+            timelessDate.setYear(calendar.get(Calendar.YEAR));
+            timelessDate.setMonth(calendar.get(Calendar.MONTH));
+            timelessDate.setDayOfMonth(calendar.get(Calendar.DAY_OF_MONTH));
+
+            value = new TimelessDateValue(timelessDate);
+        } else {
+            value = new TimelessDateValue();
         }
 
         return value;

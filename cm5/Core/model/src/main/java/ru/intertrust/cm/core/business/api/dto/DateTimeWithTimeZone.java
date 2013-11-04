@@ -1,7 +1,5 @@
 package ru.intertrust.cm.core.business.api.dto;
 
-import java.io.Serializable;
-
 /**
  * Класс представляет дату и время в виде календаря (год, месяц, день месяца, часы, минуты, секунды,
  * миллисекунды) с часовым поясом (или временнЫм смещением).
@@ -12,7 +10,7 @@ import java.io.Serializable;
  *         Date: 10/24/13
  *         Time: 1:43 PM
  */
-public class DateTimeWithTimeZone implements Serializable {
+public class DateTimeWithTimeZone implements Dto {
 
     private int year;
     private int month; // нумерация начинается с 0 (0 - январь)

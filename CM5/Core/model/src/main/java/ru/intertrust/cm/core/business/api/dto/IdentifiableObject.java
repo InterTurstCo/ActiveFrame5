@@ -132,6 +132,23 @@ public interface IdentifiableObject extends Dto {
     Date getTimestamp(String field);
 
     /**
+     * Устанавливает значения поля с типом {@link TimelessDate}
+     *
+     * @param field название поля
+     * @param value значение поля
+     */
+    void setTimelessDate(String field, TimelessDate value);
+
+    /**
+     * Возвращает значение поля c типом {@link TimelessDate}
+     *
+     * @param field название поля
+     * @return значение поля
+     */
+    TimelessDate getTimelessDate(String field);
+
+
+    /**
      * Устанавливает значения поля с типом {@link DateTimeWithTimeZone}
      *
      * @param field название поля

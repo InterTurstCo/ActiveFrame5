@@ -154,6 +154,22 @@ public class GenericIdentifiableObject implements IdentifiableObject {
     }
 
     @Override
+    public void setTimelessDate(String field, TimelessDate value) {
+        if (value != null) {
+            fieldValues.put(field, new TimelessDateValue(value));
+        } else {
+            fieldValues.remove(field);
+        }
+        dirty = true;
+    }
+
+    @Override
+    public TimelessDate getTimelessDate(String field) {
+        TimelessDateValue value = getValue(field);
+        return value == null ? null : value.get();
+    }
+
+    @Override
     public void setDateTimeWithTimeZone(String field, DateTimeWithTimeZone value) {
         if (value != null) {
             fieldValues.put(field, new DateTimeWithTimeZoneValue(value));

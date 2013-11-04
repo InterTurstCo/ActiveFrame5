@@ -518,11 +518,9 @@ public class PostgreSqlQueryHelper {
     }
 
     private static String getSqlType(FieldConfig fieldConfig) {
-        if (DateTimeFieldConfig.class.equals(fieldConfig.getClass())) {
-            return "timestamp";
-        }
-
-        if (DateTimeWithTimeZoneFieldConfig.class.equals(fieldConfig.getClass())) {
+        if (DateTimeFieldConfig.class.equals(fieldConfig.getClass()) ||
+                DateTimeWithTimeZoneFieldConfig.class.equals(fieldConfig.getClass()) ||
+                TimelessDateFieldConfig.class.equals(fieldConfig.getClass())) {
             return "timestamp";
         }
 

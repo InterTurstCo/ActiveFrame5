@@ -13,6 +13,7 @@ public enum FieldType {
     DECIMAL(DecimalValue.class),
     DATETIMEWITHTIMEZONE(DateTimeWithTimeZoneValue.class),
     DATETIME(TimestampValue.class),
+    TIMELESSDATE(TimelessDateValue.class),
     REFERENCE(ReferenceValue.class),
     PASSWORD(StringValue.class);
 

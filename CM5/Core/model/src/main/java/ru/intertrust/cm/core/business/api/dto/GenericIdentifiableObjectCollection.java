@@ -279,6 +279,22 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
             return this.<TimestampValue>getValue(field).get();
         }
 
+        @Override
+        public void setTimelessDate(String field, TimelessDate value) {
+            fieldValues.set(collection.getFieldIndex(field), new TimelessDateValue(value));
+            dirty = true;
+        }
+
+        public void setTimelessDate(int index, TimelessDate value) {
+            fieldValues.set(index, new TimelessDateValue(value));
+            dirty = true;
+        }
+
+        @Override
+        public TimelessDate getTimelessDate(String field) {
+            return this.<TimelessDateValue>getValue(field).get();
+        }
+
         public Date getTimestamp(int index) {
             return this.<TimestampValue>getValue(index).get();
         }

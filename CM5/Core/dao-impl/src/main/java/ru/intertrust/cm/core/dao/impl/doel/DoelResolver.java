@@ -14,10 +14,7 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DoelResolver {
 
@@ -259,6 +256,22 @@ public class DoelResolver {
                         value = new TimestampValue(date);
                     } else {
                         value = new TimestampValue();
+                    }
+                } else if (fieldConfig != null && TimelessDateFieldConfig.class.equals(fieldConfig.getClass())) {
+                    Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+                    Timestamp timestamp = rs.getTimestamp(columnName, calendar);
+
+                    if (!rs.wasNull()) {
+                        calendar.setTime(timestamp);
+
+                        TimelessDate timelessDate = new TimelessDate();
+                        timelessDate.setYear(calendar.get(Calendar.YEAR));
+                        timelessDate.setMonth(calendar.get(Calendar.MONTH));
+                        timelessDate.setDayOfMonth(calendar.get(Calendar.DAY_OF_MONTH));
+
+                        value = new TimelessDateValue(timelessDate);
+                    } else {
+                        value = new TimelessDateValue();
                     }
                 } else if (fieldConfig != null && BooleanFieldConfig.class.equals(fieldConfig.getClass())) {
                     Integer booleanInt = rs.getInt(columnName);

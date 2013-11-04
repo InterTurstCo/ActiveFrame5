@@ -1,9 +1,6 @@
 package ru.intertrust.cm.core.dao.impl.utils;
 
-import ru.intertrust.cm.core.business.api.dto.DateContext;
-import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
-import ru.intertrust.cm.core.business.api.dto.TimeZoneContext;
-import ru.intertrust.cm.core.business.api.dto.UtcOffsetContext;
+import ru.intertrust.cm.core.business.api.dto.*;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -37,6 +34,15 @@ public class DateUtils {
         Calendar gmtCalendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         gmtCalendar.setTime(calendar.getTime());
         return gmtCalendar;
+    }
+
+    public static Calendar getGMTDate(TimelessDate timelessDate) {
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        calendar.set(Calendar.YEAR, timelessDate.getYear());
+        calendar.set(Calendar.MONTH, timelessDate.getMonth());
+        calendar.set(Calendar.DAY_OF_MONTH, timelessDate.getDayOfMonth());
+
+        return calendar;
     }
 
     public static String getTimeZoneId(DateTimeWithTimeZone dateTimeWithTimeZone) {
