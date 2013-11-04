@@ -798,10 +798,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         query.append("update ").append(tableName).append(" set ");
 
         if (!isDerived(domainObjectTypeConfig)) {
-            query.append(UPDATED_DATE_COLUMN).append("=:current_date");
+            query.append(UPDATED_DATE_COLUMN).append("=:current_date, ");
             if (isUpdateStatus) {
-                query.append(", ");
-                query.append(GenericDomainObject.STATUS_COLUMN).append("=:status");
+                query.append(STATUS_COLUMN).append("=:status, ");
             }
 
         }
@@ -1205,7 +1204,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         String initialStatus = domainObjectTypeConfig.getInitialStatus();
         if (!isStatusDO(domainObjectTypeConfig) && initialStatus != null) {
             DomainObject status = getStatusByName(initialStatus);
-            Id statusId = status.getId();            
+            Id statusId = status.getId();
             updatedObject.setStatus(statusId);
         }
     }

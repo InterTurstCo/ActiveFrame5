@@ -60,8 +60,7 @@ public class DaoUtils {
         }
 
         StringBuilder builder = new StringBuilder();
-        builder.append(", ");
-        
+
         String firstColumn = columns.iterator().next();
         for (String column : columns) {
             if (!firstColumn.equals(column)) {
