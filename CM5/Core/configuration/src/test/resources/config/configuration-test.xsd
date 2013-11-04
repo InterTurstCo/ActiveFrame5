@@ -68,6 +68,8 @@
 
     <xs:complexType name="fieldsType">
         <xs:choice maxOccurs="unbounded" minOccurs="0">
+            <xs:element type="con:booleanType" name="boolean"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:stringType" name="string"
                         xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:dateTimeType" name="dateTime"
@@ -300,6 +302,15 @@
         </xs:simpleContent>
     </xs:complexType>
 
+    <xs:complexType name="booleanType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="name" use="required"
+                              type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config" />
+                <xs:attribute type="xs:string" name="not-null" use="optional" />
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
 
     <!-- Collections schema -->
 

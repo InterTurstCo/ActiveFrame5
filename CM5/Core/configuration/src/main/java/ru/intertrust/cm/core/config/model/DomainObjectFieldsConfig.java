@@ -14,6 +14,7 @@ import java.util.List;
  */
 public class DomainObjectFieldsConfig implements Serializable {
     @ElementListUnion({
+            @ElementList(entry="boolean", type=BooleanFieldConfig.class, inline=true),
             @ElementList(entry="long", type=LongFieldConfig.class, inline=true),
             @ElementList(entry="decimal", type=DecimalFieldConfig.class, inline=true),
             @ElementList(entry="dateTime", type=DateTimeFieldConfig.class, inline=true),

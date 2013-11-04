@@ -3,10 +3,7 @@ package ru.intertrust.cm.core.gui.impl.server.form;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.model.gui.form.widget.WidgetConfig;
@@ -167,6 +164,11 @@ public class FormSaver {
     }
 
     private DomainObject save(DomainObject object) {
+        DomainObject empl = crudService.find(new RdbmsId(14, 1));
+        empl.setBoolean("HasChildren", true);
+        crudService.save(empl);
+
+
         // this is required to avoid optimistic lock exceptions when same object is being edited by several widgets,
         // for example, one widget is editing object's properties while the other edits links
         DomainObject earlierSavedObject = savedObjectsById.get(object.getId());

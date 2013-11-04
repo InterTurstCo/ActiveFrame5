@@ -13,14 +13,9 @@ import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.exception.CollectionQueryException;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TIME_ID_ZONE_POSTFIX;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TYPE_COLUMN;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.*;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getServiceColumnName;
 
 /**
@@ -65,6 +60,42 @@ public class SqlQueryModifier {
         }
 
         return modifiedQuery;
+    }
+
+    public Map<String, FieldConfig> buildColumnToConfigMap(String query, ConfigurationExplorer configurationExplorer) {
+        Map<String, FieldConfig> columnToTableMapping = new HashMap<>();
+
+        SqlQueryParser sqlParser = new SqlQueryParser(query);
+        SelectBody selectBody = sqlParser.getSelectBody();
+
+        PlainSelect plainSelect = null;
+        if (selectBody.getClass().equals(PlainSelect.class)) {
+            plainSelect = (PlainSelect) selectBody;
+        } else if (selectBody.getClass().equals(Union.class)) {
+            Union union = (Union) selectBody;
+            plainSelect = (PlainSelect) union.getPlainSelects().get(0);
+        } else {
+            throw new IllegalArgumentException("Unsupported type of select body: " + selectBody.getClass());
+        }
+
+        for (Object selectItem : plainSelect.getSelectItems()) {
+            if (!(selectItem instanceof SelectExpressionItem)) {
+                continue;
+            }
+
+            SelectExpressionItem selectExpressionItem = (SelectExpressionItem) selectItem;
+            Column column = (Column) selectExpressionItem.getExpression();
+            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(getTableName(plainSelect, column),
+                    column.getColumnName());
+
+            if (selectExpressionItem.getAlias() != null) {
+                columnToTableMapping.put(selectExpressionItem.getAlias(), fieldConfig);
+            } else {
+                columnToTableMapping.put(column.getColumnName(), fieldConfig);
+            }
+        }
+
+        return columnToTableMapping;
     }
 
     /**

@@ -10,12 +10,7 @@ import java.util.List;
 
 import static ru.intertrust.cm.core.dao.api.ConfigurationDao.CONFIGURATION_TABLE;
 import static ru.intertrust.cm.core.dao.api.DataStructureDao.AUTHENTICATION_INFO_TABLE;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.ID_COLUMN;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TYPE_COLUMN;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.COMPONENT;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.INFO;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.DOMAIN_OBJECT_ID;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.IP_ADDRESS;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.*;
 import static ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao.DOMAIN_OBJECT_TYPE_ID_TABLE;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
 
@@ -560,6 +555,10 @@ public class PostgreSqlQueryHelper {
 
         if (PasswordFieldConfig.class.equals(fieldConfig.getClass())) {
             return "varchar(" + ((PasswordFieldConfig) fieldConfig).getLength() + ")";
+        }
+
+        if (BooleanFieldConfig.class.equals(fieldConfig.getClass())) {
+            return "smallint check (" + getSqlName(fieldConfig) + " in (0, 1))";
         }
 
         throw new IllegalArgumentException("Invalid field type");

@@ -21,6 +21,7 @@ import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.config.model.base.CollectionConfig;
 import ru.intertrust.cm.core.config.model.base.CollectionFilterConfig;
 import ru.intertrust.cm.core.config.model.base.CollectionFilterCriteriaConfig;
@@ -144,8 +145,11 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
         collectionQuery = adjustParameterNamesForSpring(collectionQuery);
 
+        Map<String, FieldConfig> columnToConfigMap =
+                new SqlQueryModifier().buildColumnToConfigMap(collectionQuery, configurationExplorer);
+
         IdentifiableObjectCollection collection = jdbcTemplate.query(collectionQuery, parameters,
-                new CollectionRowMapper(configurationExplorer, domainObjectTypeIdCache));
+                new CollectionRowMapper(columnToConfigMap, configurationExplorer, domainObjectTypeIdCache));
 
         return collection;
     }

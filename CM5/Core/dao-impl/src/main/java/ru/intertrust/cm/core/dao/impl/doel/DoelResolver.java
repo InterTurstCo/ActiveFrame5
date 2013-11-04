@@ -194,6 +194,8 @@ public class DoelResolver {
             return LongValue.class;
         } else if (DecimalFieldConfig.class.equals(fieldClass)) {
             return DecimalValue.class;
+        } else if (BooleanFieldConfig.class.equals(fieldClass)) {
+            return BooleanValue.class;
         }
         throw new IllegalArgumentException("Unknown field type: " + fieldClass.getName());
     }
@@ -257,6 +259,13 @@ public class DoelResolver {
                         value = new TimestampValue(date);
                     } else {
                         value = new TimestampValue();
+                    }
+                } else if (fieldConfig != null && BooleanFieldConfig.class.equals(fieldConfig.getClass())) {
+                    Integer booleanInt = rs.getInt(columnName);
+                    if (!rs.wasNull()) {
+                        value = new BooleanValue(booleanInt == 1);
+                    } else {
+                        value = new BooleanValue();
                     }
                 }
 

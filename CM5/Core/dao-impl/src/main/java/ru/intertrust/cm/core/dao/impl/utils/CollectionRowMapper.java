@@ -4,6 +4,8 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.model.BooleanFieldConfig;
+import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
@@ -29,17 +31,20 @@ public class CollectionRowMapper extends BasicRowMapper implements
         ResultSetExtractor<IdentifiableObjectCollection> {
 
     protected final String collectionName;
+    protected final Map<String, FieldConfig> columnToConfigMap;
 
     public CollectionRowMapper(String collectionName, String idField, ConfigurationExplorer configurationExplorer,
                                DomainObjectTypeIdCache domainObjectTypeIdCache) {
         super(null, idField, configurationExplorer, domainObjectTypeIdCache);
         this.collectionName = collectionName;
+        this.columnToConfigMap = null;
     }
 
-    public CollectionRowMapper(ConfigurationExplorer configurationExplorer,
+    public CollectionRowMapper(Map<String, FieldConfig> columnToConfigMap, ConfigurationExplorer configurationExplorer,
                                DomainObjectTypeIdCache domainObjectTypeIdCache) {
         super(null, DomainObjectDao.ID_COLUMN, configurationExplorer, domainObjectTypeIdCache);
         this.collectionName = null;
+        this.columnToConfigMap = columnToConfigMap;
     }
 
     @Override
@@ -179,7 +184,12 @@ public class CollectionRowMapper extends BasicRowMapper implements
                 return getColumnDataType(columnConfig.getType());
             }
         } else {
-            return columnTypeMap.get(columnName);
+            FieldConfig fieldConfig = columnToConfigMap.get(columnName);
+            if (fieldConfig != null && BooleanFieldConfig.class.equals(fieldConfig.getClass())) {
+                return DataType.BOOLEAN;
+            } else {
+                return columnTypeMap.get(columnName);
+            }
         }
     }
 

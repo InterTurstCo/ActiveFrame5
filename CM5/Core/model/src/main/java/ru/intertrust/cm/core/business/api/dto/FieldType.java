@@ -9,6 +9,7 @@ public enum FieldType {
 
     STRING(StringValue.class),
     LONG(LongValue.class),
+    BOOLEAN(BooleanValue.class),
     DECIMAL(DecimalValue.class),
     DATETIMEWITHTIMEZONE(DateTimeWithTimeZoneValue.class),
     DATETIME(TimestampValue.class),

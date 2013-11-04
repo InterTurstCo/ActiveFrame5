@@ -136,6 +136,13 @@ public class BasicRowMapper {
             String timeZoneIdColumnName =
                     getTimeZoneIdColumnName((DateTimeWithTimeZoneFieldConfig) fieldConfig).toLowerCase();
             value = readDateTimeWithTimeZoneValue(rs, columnName, timeZoneIdColumnName);
+        } else if (fieldConfig != null && BooleanFieldConfig.class.equals(fieldConfig.getClass())) {
+            Integer booleanInt = rs.getInt(columnName);
+            if (!rs.wasNull()) {
+                value = new BooleanValue(booleanInt == 1);
+            } else {
+                value = new BooleanValue();
+            }
         }
 
         if (id != null) {
@@ -336,6 +343,15 @@ public class BasicRowMapper {
         }
 
         return value;
+    }
+
+    protected Value readBooleanValue(ResultSet rs, String columnName) throws SQLException {
+        Integer booleanInt = rs.getInt(columnName);
+        if (!rs.wasNull()) {
+            return new BooleanValue(booleanInt == 1);
+        } else {
+            return new BooleanValue();
+        }
     }
 
     private DateContext getDateTimeWithTimeZoneContext(String timeZoneId) {

@@ -49,6 +49,7 @@ public class CollectionPluginHandler extends PluginHandler {
     }
 
     private IdentifiableObjectCollection getData(String collectionName) {
+        IdentifiableObjectCollection c = collectionsService.findCollectionByQuery("select e.id, e.name, e.position, e.haschildren from Tst_Employee e where 1=1");
         return collectionsService.findCollection(collectionName);
     }
 
