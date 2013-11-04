@@ -1,27 +1,11 @@
 package ru.intertrust.cm.core.gui.impl.server;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
-import javax.ejb.EJB;
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.interceptor.Interceptors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.ProcessService;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.gui.ActionConfig;
 import ru.intertrust.cm.core.config.model.gui.ActionContextActionConfig;
@@ -31,6 +15,15 @@ import ru.intertrust.cm.core.gui.api.server.ActionService;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.CompleteTaskActionContext;
 import ru.intertrust.cm.core.model.ActionServiceException;
+
+import javax.ejb.EJB;
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @Stateless
 @Local(ActionService.class)
@@ -115,7 +108,7 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
     }
 
     private List<Id> getStatusNames(List<String> statuses) {
-        String query = "select t.id, t.type_id from " + GenericDomainObject.STATUS_DO + " t where t.name in (";
+        String query = "select t.id from " + GenericDomainObject.STATUS_DO + " t where t.name in (";
 
         boolean first = true;
         for (String statusName : statuses) {
