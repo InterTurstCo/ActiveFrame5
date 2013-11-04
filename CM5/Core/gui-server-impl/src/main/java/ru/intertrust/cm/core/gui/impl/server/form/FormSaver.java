@@ -164,11 +164,6 @@ public class FormSaver {
     }
 
     private DomainObject save(DomainObject object) {
-        DomainObject empl = crudService.find(new RdbmsId(14, 1));
-        empl.setBoolean("HasChildren", true);
-        crudService.save(empl);
-
-
         // this is required to avoid optimistic lock exceptions when same object is being edited by several widgets,
         // for example, one widget is editing object's properties while the other edits links
         DomainObject earlierSavedObject = savedObjectsById.get(object.getId());
