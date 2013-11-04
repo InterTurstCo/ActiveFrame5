@@ -13,6 +13,7 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
@@ -44,6 +45,13 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
     @Autowired
     private AccessControlService accessControlService;
 
+    @Autowired    
+    private CurrentUserAccessor currentUserAccessor; 
+    
+    public void setCurrentUserAccessor(CurrentUserAccessor currentUserAccessor) {
+        this.currentUserAccessor = currentUserAccessor;
+    }
+
     public void setDomainObjectDao(DomainObjectDao domainObjectDao) {
         this.domainObjectDao = domainObjectDao;
     }
@@ -73,8 +81,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
     public DomainObject save(DomainObject domainObject) {
         AccessToken accessToken = null;
         if (!domainObject.isNew()) {
-            // TODO get userId from EJB Context
-            String user = "admin";
+            String user = currentUserAccessor.getCurrentUser();
             Id objectId = ((GenericDomainObject) domainObject).getId();
             accessToken = accessControlService.createAccessToken(user, objectId, DomainObjectAccessType.WRITE);
         } else {
@@ -95,8 +102,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     @Override
     public DomainObject find(Id id) {
-        // TODO get userId from EJB Context
-        String user = "admin";
+        String user = currentUserAccessor.getCurrentUser();
         AccessToken accessToken = accessControlService.createAccessToken(user, id, DomainObjectAccessType.READ);
         return domainObjectDao.find(id, accessToken);
     }
@@ -107,8 +113,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
             throw new IllegalArgumentException("Ids list can not be empty");
         }
         Id[] idsArray = ids.toArray(new Id[ids.size()]);
-        // TODO get user from EJB Context
-        String user= "admin";
+        String user = currentUserAccessor.getCurrentUser();
         AccessToken accessToken =
                 accessControlService.createAccessToken(user, idsArray, DomainObjectAccessType.READ, false);
 
@@ -120,8 +125,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         if (domainObjectType == null || domainObjectType.trim().isEmpty()) {
             throw new IllegalArgumentException("Domain Object type can not be null or empty");
         }
-        // TODO get user from EJB Context
-        String user = "admin";
+        String user = currentUserAccessor.getCurrentUser();
         AccessToken accessToken =
                 accessControlService.createAccessToken(user, null, DomainObjectAccessType.READ);
 
@@ -130,11 +134,9 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     @Override
     public void delete(Id id) {
-        //TODO get userId from EJB Context
-        int userId = 1;
+        String user = currentUserAccessor.getCurrentUser();
         AccessToken accessToken = null;
-        //TODO закомментировал использование AcessToken до его работоспособности
-        //accessToken = accessControlService.createAccessToken(userId, id, DomainObjectAccessType.DELETE);
+        accessToken = accessControlService.createAccessToken(user, id, DomainObjectAccessType.DELETE);
         domainObjectDao.delete(id, accessToken);
     }
 
@@ -144,25 +146,21 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
             throw new IllegalArgumentException("Ids list can not be empty");
         }
         Id[] idsArray = ids.toArray(new Id[ids.size()]);
-        // TODO get userId from EJB Context
-        String user= "admin";
-        accessControlService.createAccessToken(user, idsArray, DomainObjectAccessType.DELETE, false);
-        return domainObjectDao.delete(ids);
+        String user = currentUserAccessor.getCurrentUser();
+        AccessToken accessToken = accessControlService.createAccessToken(user, idsArray, DomainObjectAccessType.DELETE, false);
+        return domainObjectDao.delete(ids, accessToken);
     }
 
     @Override
     public List<DomainObject> findLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField) {
-        // TODO get userId from EJB Context
-        String user = "admin";
+        String user = currentUserAccessor.getCurrentUser();
         AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
         return domainObjectDao.findLinkedDomainObjects(domainObjectId, linkedType, linkedField, accessToken);
     }
 
     @Override
     public List<Id> findLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField) {
-        // TODO get userId from EJB Context
-        String user = "admin";
-
+        String user = currentUserAccessor.getCurrentUser();
         AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
         return domainObjectDao.findLinkedDomainObjectsIds(domainObjectId, linkedType, linkedField, accessToken);
     }

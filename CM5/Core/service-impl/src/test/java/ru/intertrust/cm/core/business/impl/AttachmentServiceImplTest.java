@@ -32,6 +32,7 @@ import ru.intertrust.cm.core.config.model.GlobalSettingsConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 
@@ -124,6 +125,9 @@ public class AttachmentServiceImplTest {
         private AccessControlService accessControlService;
 
         @Mock
+        private CurrentUserAccessor currentUserAccessor;
+
+        @Mock
         AccessToken accessToken;
 
         @Mock
@@ -167,6 +171,10 @@ public class AttachmentServiceImplTest {
             return domainObjectTypeIdCache;
         }
 
+        @Bean
+        public CurrentUserAccessor getCurrentUserAccessor() {
+            return currentUserAccessor;
+        }
         @Bean
         public AttachmentContentDao attachmentContentDao() {
             doAnswer(new Answer() {

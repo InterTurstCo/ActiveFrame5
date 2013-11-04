@@ -16,6 +16,7 @@ import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.exception.DaoException;
@@ -61,6 +62,13 @@ public class AttachmentServiceImpl implements AttachmentService {
 
     @Autowired
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
+
+    @Autowired    
+    private CurrentUserAccessor currentUserAccessor; 
+    
+    public void setCurrentUserAccessor(CurrentUserAccessor currentUserAccessor) {
+        this.currentUserAccessor = currentUserAccessor;
+    }
 
     @Override
     public DomainObject createAttachmentDomainObjectFor(Id objectId, String attachmentType) {
@@ -171,8 +179,7 @@ public class AttachmentServiceImpl implements AttachmentService {
                 domainObjectTypeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs()) {
             DomainObjectTypeConfig attachDomainObjectTypeConfig =
                     configurationExplorer.getConfig(DomainObjectTypeConfig.class, attachmentTypeConfig.getName());
-            //TODO get userId from EJB Context
-            String user = "admin";
+            String user = currentUserAccessor.getCurrentUser();
             AccessToken accessToken = accessControlService.createAccessToken(user, domainObject.getId(), DomainObjectAccessType.READ);
             String attachmentType = attachDomainObjectTypeConfig.getName();
             attachmentDomainObjects.addAll(

@@ -148,8 +148,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             throws InvalidIdException, ObjectNotFoundException,
             OptimisticLockException {
 
-        accessControlService.verifyAccessToken(accessToken, domainObject.getId(), DomainObjectAccessType.WRITE);
-
         DomainObject result = null;
         // Вызов точки расширения до сохранения
         BeforeSaveExtensionHandler beforeSaveExtension = extensionService
@@ -328,7 +326,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         validateIdType(id);
 
         RdbmsId rdbmsId = (RdbmsId) id;
-
+        accessControlService.verifyAccessToken(accessToken, id, DomainObjectAccessType.DELETE);
+        
         DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
                 .getConfig(DomainObjectTypeConfig.class,
                         getDOTypeName(rdbmsId.getTypeId()));
@@ -379,8 +378,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                         domainObjectTypeConfig.getName());
         afterDeleteEH.onAfterDelete(deletedObject);
 
-        // refreshDynamiGroupsAndAclForDelete(deletedObject);
-
     }
 
     private void refreshDynamiGroupsAndAclForDelete(DomainObject deletedObject) {
@@ -391,11 +388,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     @Override
-    public int delete(Collection<Id> ids) {
+    public int delete(Collection<Id> ids, AccessToken accessToken) {
         // todo: in a batch
         // TODO как обрабатывать ошибки при удалении каждого доменного
         // объекта...
-        AccessToken accessToken = accessControlService.createSystemAccessToken("DomainObjectDaoImpl");
         int count = 0;
         for (Id id : ids) {
             try {
@@ -436,6 +432,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         if (id == null) {
             throw new IllegalArgumentException("Object id can not be null");
         }
+
+        accessControlService.verifyAccessToken(accessToken, id, DomainObjectAccessType.READ);
 
         DomainObject domainObject = domainObjectCacheService
                 .getObjectToCache(id);

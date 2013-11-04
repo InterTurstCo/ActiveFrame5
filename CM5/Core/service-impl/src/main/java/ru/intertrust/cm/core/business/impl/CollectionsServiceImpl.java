@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -34,6 +35,13 @@ public class CollectionsServiceImpl implements CollectionsService {
     @Autowired
     private AccessControlService accessControlService;
 
+    @Autowired    
+    private CurrentUserAccessor currentUserAccessor; 
+    
+    public void setCurrentUserAccessor(CurrentUserAccessor currentUserAccessor) {
+        this.currentUserAccessor = currentUserAccessor;
+    }
+
     public void setAccessControlService(AccessControlService accessControlService) {
         this.accessControlService = accessControlService;
     }
@@ -45,8 +53,8 @@ public class CollectionsServiceImpl implements CollectionsService {
     @Override
     public IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder, List<Filter> filterValues,
                                                        int offset, int limit) {
-        // TODO get userId from EJB Context
-        String user = "admin";
+        String user = currentUserAccessor.getCurrentUser();
+
         AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
         return collectionsDao.findCollection(collectionName, filterValues, sortOrder, offset, limit, accessToken);
     }
@@ -68,9 +76,7 @@ public class CollectionsServiceImpl implements CollectionsService {
 
     @Override
     public int findCollectionCount(String collectionName, List<Filter> filterValues) {
-        // TODO get userId from EJB Context
-        String user = "admin";
-
+        String user = currentUserAccessor.getCurrentUser();
         AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
         return collectionsDao.findCollectionCount(collectionName, filterValues, accessToken);
     }
@@ -78,8 +84,7 @@ public class CollectionsServiceImpl implements CollectionsService {
     /** {@inheritDoc} */
     @Override
     public IdentifiableObjectCollection findCollectionByQuery(String query, int offset, int limit) {
-        // TODO get userId from EJB Context
-        String user = "admin";
+        String user = currentUserAccessor.getCurrentUser();
         AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
         return collectionsDao.findCollectionByQuery(query, offset, limit, accessToken);
     }
