@@ -430,10 +430,9 @@ public class PostgreSqlQueryHelper {
         if (config.getExtendsAttribute() == null) {
             query.append("CREATED_DATE timestamp not null, ");
             query.append("UPDATED_DATE timestamp not null, ");
-            if (!config.getName().equalsIgnoreCase(GenericDomainObject.STATUS_DO)) {
-                query.append(GenericDomainObject.STATUS_COLUMN + " bigint, ");
-                query.append( DomainObjectDao.STATUS_TYPE_COLUMN + " integer, ");
-            }
+
+            query.append(GenericDomainObject.STATUS_COLUMN + " bigint, ");
+            query.append(DomainObjectDao.STATUS_TYPE_COLUMN + " integer, ");
 
         }
 

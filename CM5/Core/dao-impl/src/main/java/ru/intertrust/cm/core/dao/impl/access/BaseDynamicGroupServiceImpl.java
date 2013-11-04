@@ -168,21 +168,19 @@ public class BaseDynamicGroupServiceImpl {
      */
     protected String getStatusFor(Id objectId) {
         String status = null;
-        if (!isStatusDO(objectId)) {
-            String query = generateGetStatusForQuery(objectId);
-            Map<String, Object> parameters = initializeGetStatusParameters(objectId);
-            status = jdbcTemplate.query(query, parameters, new ResultSetExtractor<String>() {
-                @Override
-                public String extractData(ResultSet rs) throws SQLException, DataAccessException {
-                    String status = null;
-                    while (rs.next()) {
-                        status = rs.getString(1);
-                    }
-                    return status;
+        String query = generateGetStatusForQuery(objectId);
+        Map<String, Object> parameters = initializeGetStatusParameters(objectId);
+        status = jdbcTemplate.query(query, parameters, new ResultSetExtractor<String>() {
+            @Override
+            public String extractData(ResultSet rs) throws SQLException, DataAccessException {
+                String status = null;
+                while (rs.next()) {
+                    status = rs.getString(1);
                 }
-            });
+                return status;
+            }
+        });
 
-        }
         return status;
     }
 
@@ -193,11 +191,6 @@ public class BaseDynamicGroupServiceImpl {
      */
     protected String getTypeName(Id objectId) {
         return domainObjectTypeIdCache.getName(objectId);
-    }
-
-    private boolean isStatusDO(Id objectId) {
-        String domainObjectType = domainObjectTypeIdCache.getName(objectId);
-        return GenericDomainObject.STATUS_DO.equalsIgnoreCase(domainObjectType);
     }
 
     private String generateGetStatusForQuery(Id objectId) {

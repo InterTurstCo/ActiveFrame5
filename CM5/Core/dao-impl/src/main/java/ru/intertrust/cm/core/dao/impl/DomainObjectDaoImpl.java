@@ -686,14 +686,13 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                     getGMTDate(domainObject.getCreatedDate()));
             parameters.put("updated_date",
                     getGMTDate(domainObject.getModifiedDate()));
-            if (!isStatusDO(domainObjectTypeConfig)) {
-                Long statusId = domainObject.getStatus() != null ? ((RdbmsId) domainObject.getStatus()).getId() : null;
-                Integer statusTypeId =
-                        domainObject.getStatus() != null ? ((RdbmsId) domainObject.getStatus()).getTypeId() : null;
 
-                parameters.put("status", statusId);
-                parameters.put("status_type", statusTypeId);
-            }
+            Long statusId = domainObject.getStatus() != null ? ((RdbmsId) domainObject.getStatus()).getId() : null;
+            Integer statusTypeId =
+                    domainObject.getStatus() != null ? ((RdbmsId) domainObject.getStatus()).getTypeId() : null;
+
+            parameters.put("status", statusId);
+            parameters.put("status_type", statusTypeId);
 
         }
         parameters.put("type_id", type);
@@ -878,11 +877,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         if (!isDerived(domainObjectTypeConfig)) {
             query.append(CREATED_DATE_COLUMN).append(", ")
                     .append(UPDATED_DATE_COLUMN).append(", ");
-            if (!isStatusDO(domainObjectTypeConfig)) {
-                query.append(GenericDomainObject.STATUS_COLUMN).append(", ")
-                        .append(STATUS_TYPE_COLUMN).append(", ");
 
-            }
+            query.append(GenericDomainObject.STATUS_COLUMN).append(", ")
+                    .append(STATUS_TYPE_COLUMN).append(", ");
+
         }
         query.append(TYPE_COLUMN).append(", ");
 
@@ -891,9 +889,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         if (!isDerived(domainObjectTypeConfig)) {
             query.append(":created_date, :updated_date, ");
-            if (!isStatusDO(domainObjectTypeConfig)) {
-                query.append(":status, :status_type, ");
-            }
+            query.append(":status, :status_type, ");
         }
         query.append(":type_id, ");
 
@@ -902,11 +898,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         return query.toString();
 
-    }
-
-    private boolean isStatusDO(DomainObjectTypeConfig domainObjectTypeConfig) {
-//        return false;
-        return domainObjectTypeConfig.getName().equalsIgnoreCase(GenericDomainObject.STATUS_DO);
     }
 
     /**
@@ -1162,7 +1153,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                         domainObject.getTypeName());
         GenericDomainObject updatedObject = new GenericDomainObject(
                 domainObject);
-
         DomainObject parentDo = createParentDO(domainObject,
                 domainObjectTypeConfig, type);
 
@@ -1202,7 +1192,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             DomainObjectTypeConfig domainObjectTypeConfig,
             GenericDomainObject updatedObject) {
         String initialStatus = domainObjectTypeConfig.getInitialStatus();
-        if (!isStatusDO(domainObjectTypeConfig) && initialStatus != null) {
+        if (initialStatus != null) {
             DomainObject status = getStatusByName(initialStatus);
             Id statusId = status.getId();
             updatedObject.setStatus(statusId);
@@ -1400,10 +1390,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         } else {
             query.append(", ").append(CREATED_DATE_COLUMN);
             query.append(", ").append(UPDATED_DATE_COLUMN);
-            if (!isStatusDO(config)) {
-                query.append(", ").append(GenericDomainObject.STATUS_COLUMN);
-                query.append(", ").append(STATUS_TYPE_COLUMN);
-            }
+            query.append(", ").append(GenericDomainObject.STATUS_COLUMN);
+            query.append(", ").append(STATUS_TYPE_COLUMN);
         }
     }
 

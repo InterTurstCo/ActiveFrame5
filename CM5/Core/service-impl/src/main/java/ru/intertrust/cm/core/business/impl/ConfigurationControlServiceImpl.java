@@ -349,7 +349,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
 
         private boolean canHaveStatusColumn(DomainObjectTypeConfig config) {
             return config.getExtendsAttribute() == null
-                    && (!config.isTemplate() && (!config.getName().equalsIgnoreCase(GenericDomainObject.STATUS_DO)));
+                    && (!config.isTemplate());
         }
 
         private void createStatusForeignKey(DomainObjectTypeConfig config) {
