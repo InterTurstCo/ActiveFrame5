@@ -800,7 +800,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         if (!isDerived(domainObjectTypeConfig)) {
             query.append(UPDATED_DATE_COLUMN).append("=:current_date, ");
             if (isUpdateStatus) {
-                query.append(STATUS_COLUMN).append("=:status, ");
+                query.append(GenericDomainObject.STATUS_COLUMN).append("=:status, ");
             }
 
         }
