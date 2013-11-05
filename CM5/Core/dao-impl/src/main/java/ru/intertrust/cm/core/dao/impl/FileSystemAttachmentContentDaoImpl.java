@@ -59,6 +59,7 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
         } catch (IOException ex) {
             throw new DaoException(ex);
         }
+
         return toRelativeFromAbsPathFile(absFilePath);
     }
 
@@ -112,7 +113,7 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
     private String toRelativeFromAbsPathFile(String absFilePath) {
 
         if (Paths.get(absFilePath).startsWith(Paths.get(attachmentSaveLocation))) {
-            return absFilePath.substring(attachmentSaveLocation.length() + 1);
+            return absFilePath.substring(attachmentSaveLocation.length());
         } else {
             return absFilePath;
         }

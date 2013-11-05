@@ -25,7 +25,7 @@ import javax.servlet.http.HttpSession;
 @WebServlet(name = "BusinessUniverseService",
         urlPatterns = "/remote/BusinessUniverseService")
 public class BusinessUniverseServiceImpl extends BaseService implements BusinessUniverseService {
-
+    private static  final String SESSION_ATTRIBUTE_UPLOAD_PROGRESS = "uploadIsCanceled";
     private static final Logger LOGGER = LoggerFactory.getLogger(BusinessUniverseServiceImpl.class);
     @EJB
     private GuiService guiService;
@@ -58,8 +58,10 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     }
 
     @Override
-    public AttachmentUploadPercentage getAttachmentUploadPercentage() {
+    public AttachmentUploadPercentage getAttachmentUploadPercentage(boolean isCanceled) {
+
         HttpSession session = getThreadLocalRequest().getSession();
+        session.setAttribute(SESSION_ATTRIBUTE_UPLOAD_PROGRESS, isCanceled);
         AttachmentUploadPercentage uploadProgress = AttachmentUploader.getUploadProgress(session);
 
         return uploadProgress;

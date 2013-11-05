@@ -105,6 +105,7 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
                 attachmentDomainObject.setValue(ATTACHMENT_CONTENT_LENGTH, new LongValue(contentLength));
                 attachmentDomainObject.setReference(parentLinkFieldName, domainObject);
                 attachmentService.saveAttachment(remoteFileData, attachmentDomainObject);
+                fileToSave.delete();
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {

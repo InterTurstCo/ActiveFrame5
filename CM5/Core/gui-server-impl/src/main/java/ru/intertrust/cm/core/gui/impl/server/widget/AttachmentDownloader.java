@@ -42,15 +42,12 @@ public class AttachmentDownloader {
         Id rdmsId = idService.createId(id);
         DomainObject domainObject = crudService.find(rdmsId);
         String mimeType = domainObject.getString("MimeType");
-        RemoteInputStream remoteFileData = null;
-        try {
-            remoteFileData = attachmentService.loadAttachment(domainObject);
-            InputStream fileData = RemoteInputStreamClient.wrap(remoteFileData);
+        RemoteInputStream remoteFileData = attachmentService.loadAttachment(domainObject);
+        try (
+                InputStream fileData = RemoteInputStreamClient.wrap(remoteFileData);) {
             response.setHeader("Content-Disposition", "attachment; filename=" + domainObject.getString("Name"));
             response.setContentType(mimeType);
             stream(fileData, response.getOutputStream());
-        } finally {
-            close(remoteFileData);
         }
 
     }
@@ -68,14 +65,6 @@ public class AttachmentDownloader {
             }
         }
 
-    }
-
-    private void close(RemoteInputStream stream) throws IOException {
-        if (stream == null) {
-            return;
-        }
-
-        stream.close(true);
     }
 
 }

@@ -22,7 +22,7 @@ public interface BusinessUniverseServiceAsync {
 
     void getForm(Id domainObjectId, AsyncCallback<FormDisplayData> async);
 
-    void getAttachmentUploadPercentage(AsyncCallback<AttachmentUploadPercentage> async);
+    void getAttachmentUploadPercentage(boolean isCanceled, AsyncCallback<AttachmentUploadPercentage> async);
 
     public static class Impl {
         private static final BusinessUniverseServiceAsync instance;

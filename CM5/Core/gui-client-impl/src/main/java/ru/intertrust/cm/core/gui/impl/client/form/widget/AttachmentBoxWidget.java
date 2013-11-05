@@ -31,7 +31,8 @@ import java.util.List;
 public class AttachmentBoxWidget extends BaseWidget {
     protected static final BusinessUniverseServiceAsync SERVICE =
             BusinessUniverseServiceAsync.Impl.getInstance();
-    Timer elapsedTimer;
+    private Timer elapsedTimer;
+    private boolean dontShowNewRow;
 
     @Override
     public Component createNew() {
@@ -118,9 +119,9 @@ public class AttachmentBoxWidget extends BaseWidget {
         }
     }
 
-    private void setUpProgressOfUpload() {
+    private void setUpProgressOfUpload(final boolean isUploadCanceled) {
 
-        SERVICE.getAttachmentUploadPercentage(new AsyncCallback<AttachmentUploadPercentage>() {
+        SERVICE.getAttachmentUploadPercentage(isUploadCanceled, new AsyncCallback<AttachmentUploadPercentage>() {
 
             @Override
             public void onFailure(final Throwable t) {
@@ -129,8 +130,11 @@ public class AttachmentBoxWidget extends BaseWidget {
 
             @Override
             public void onSuccess(AttachmentUploadPercentage percentage) {
-
+                 if (isUploadCanceled) {
+                     return;
+                 }
                 Integer percentageValue = percentage.getPercentage();
+                System.out.println("percentage " + percentageValue);
                 ((AttachmentUploaderView) impl).getUploaderProgressBar().update(percentageValue);
             }
         });
@@ -167,7 +171,7 @@ public class AttachmentBoxWidget extends BaseWidget {
             view.addRowWithAttachment(model, deleteAttachment, null);
             elapsedTimer = new Timer() {
                 public void run() {
-                    setUpProgressOfUpload();
+                    setUpProgressOfUpload(false);
                 }
             };
             elapsedTimer.scheduleRepeating(1000);
@@ -178,6 +182,11 @@ public class AttachmentBoxWidget extends BaseWidget {
     private class FormSubmitCompleteHandler implements FormPanel.SubmitCompleteHandler {
 
         public void onSubmitComplete(FormPanel.SubmitCompleteEvent event) {
+
+            if (dontShowNewRow) {
+                dontShowNewRow = false;
+                return;
+            }
             String filePath = event.getResults();
             AttachmentModel model = handleFileNameFromServer(filePath);
             Image deleteAttachment = createDeleteAttachmentButton(model);
@@ -207,7 +216,8 @@ public class AttachmentBoxWidget extends BaseWidget {
             view.getAttachments().remove(model);
 
             if (model.getTemporaryName() == null && model.getId() == null) {
-                view.getSubmitForm().reset();
+                dontShowNewRow = true;
+                setUpProgressOfUpload(true);
                 cancelTimer();
 
             }

@@ -26,7 +26,6 @@ public class AttachmentUploaderView extends Composite {
     private int partWidth;
     private UploaderProgressBar uploaderProgressBar;
     private List<AttachmentModel> attachments;
-
     private VerticalPanel root;
 
     public AttachmentUploaderView() {
@@ -164,6 +163,7 @@ public class AttachmentUploaderView extends Composite {
         // set form to use the POST method, and multipart MIME encoding.
         submitForm.setEncoding(FormPanel.ENCODING_MULTIPART);
         submitForm.setMethod(FormPanel.METHOD_POST);
+
 
     }
 

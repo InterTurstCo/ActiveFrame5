@@ -1,7 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,10 +28,10 @@ import java.nio.channels.WritableByteChannel;
  */
 @Controller
 public class AttachmentUploader {
-    private static Logger log = LoggerFactory.getLogger(AttachmentUploader.class);
-    private static final String SESSION_KEY = "uploadProgress";
-    private static final double COMPLETE_PERECENTAGE = 100d;
 
+    private static final String SESSION_ATTRIBUTE_UPLOAD_PROGRESS = "uploadProgress";
+    private static final double COMPLETE_PERECENTAGE = 100d;
+    private static  final String SESSION_ATTRIBUTE_UPLOAD_IS_CANCELED = "uploadIsCanceled";
     @Autowired
     private ConfigurationExplorer configurationExplorer;
 
@@ -71,22 +69,35 @@ public class AttachmentUploader {
             ByteBuffer buffer = ByteBuffer.allocate(10240);
             long bytesRead = 0;
             while (inputChannel.read(buffer) != -1) {
+                Object isUploadCanceled = session.getAttribute(SESSION_ATTRIBUTE_UPLOAD_IS_CANCELED);
+                if (isUploadCanceled != null && (Boolean)isUploadCanceled){
+                    session.setAttribute(SESSION_ATTRIBUTE_UPLOAD_IS_CANCELED, false);
+                    uploadProgress = new AttachmentUploadPercentage();
+                    session.setAttribute(SESSION_ATTRIBUTE_UPLOAD_PROGRESS, uploadProgress);
+                    return ;
+                }
                 buffer.flip();
                 outputChannel.write(buffer);
                 bytesRead += buffer.capacity();
                 updateUploadProgress(bytesRead, bytesTotal, uploadProgress);
+                System.out.println("rrr");
                 buffer.clear();
-
+                try {
+                    Thread.sleep(100) ;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
             }
+
         }
 
     }
 
     public static AttachmentUploadPercentage getUploadProgress(HttpSession session) {
-        Object attribute = session.getAttribute(SESSION_KEY);
+        Object attribute = session.getAttribute(SESSION_ATTRIBUTE_UPLOAD_PROGRESS);
         if (null == attribute) {
             attribute = new AttachmentUploadPercentage();
-            session.setAttribute(SESSION_KEY, attribute);
+            session.setAttribute(SESSION_ATTRIBUTE_UPLOAD_PROGRESS, attribute);
         }
 
         return null == attribute ? null : (AttachmentUploadPercentage) attribute;
