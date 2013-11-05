@@ -22,11 +22,14 @@ import ru.intertrust.cm.core.business.api.dto.FieldModificationImpl;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.dao.impl.doel.DoelResolver;
 
 /**
@@ -40,7 +43,8 @@ public class BaseDynamicGroupServiceImpl {
 
     protected NamedParameterJdbcTemplate jdbcTemplate;
 
-    protected DoelResolver doelResolver = new DoelResolver();
+    @Autowired
+    protected DoelResolver doelResolver;
 
     @Autowired
     protected DomainObjectTypeIdCache domainObjectTypeIdCache;
@@ -54,6 +58,12 @@ public class BaseDynamicGroupServiceImpl {
     @Autowired
     protected ConfigurationExplorer configurationExplorer;
 
+    @Autowired
+    protected PersonManagementServiceDao personManagementService;
+    
+    /*public BaseDynamicGroupServiceImpl(){
+        doelResolver.setConfigurationExplorer(configurationExplorer);
+    }*/
     
     public void setDomainObjectDao(DomainObjectDao domainObjectDao) {
         this.domainObjectDao = domainObjectDao;
@@ -61,7 +71,7 @@ public class BaseDynamicGroupServiceImpl {
 
     public void setDomainObjectTypeIdCache(DomainObjectTypeIdCache domainObjectTypeIdCache) {
         this.domainObjectTypeIdCache = domainObjectTypeIdCache;
-        doelResolver.setDomainObjectTypeIdCache(domainObjectTypeIdCache);
+        //doelResolver.setDomainObjectTypeIdCache(domainObjectTypeIdCache);
     }
 
     
@@ -75,7 +85,7 @@ public class BaseDynamicGroupServiceImpl {
      */
     public void setDataSource(DataSource dataSource) {
         this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-        doelResolver.setDataSource(dataSource);
+        //doelResolver.setDataSource(dataSource);
 
     }
 
@@ -200,7 +210,14 @@ public class BaseDynamicGroupServiceImpl {
 
     private String generateGetStatusForQuery(Id objectId) {
         RdbmsId id = (RdbmsId) objectId;
-        String tableName = getSqlName(domainObjectTypeIdCache.getName(id.getTypeId()));
+        
+        //Получение типа верхнего уровня
+        DomainObjectTypeConfig typeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObjectTypeIdCache.getName(id.getTypeId()));
+        while(typeConfig.getExtendsAttribute() != null){
+            typeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, typeConfig.getExtendsAttribute());
+        }
+        
+        String tableName = getSqlName(typeConfig.getName());
         StringBuilder query = new StringBuilder();
         query.append("select s.name from ");
         query.append(tableName).append(
@@ -255,7 +272,7 @@ public class BaseDynamicGroupServiceImpl {
         userGroupDO.setTypeName(USER_GROUP_DOMAIN_OBJECT);
         userGroupDO.setString("group_name", dynamicGroupName);
         if (contextObjectId != null) {
-            userGroupDO.setLong("object_id", ((RdbmsId) contextObjectId).getId());
+            userGroupDO.setReference("object_id", contextObjectId);
         }
         AccessToken accessToken = accessControlService.createSystemAccessToken("BaseDynamicGroupService");
         DomainObject updatedObject = domainObjectDao.save(userGroupDO, accessToken);
@@ -324,6 +341,21 @@ public class BaseDynamicGroupServiceImpl {
 
         return result;
     }
-    
+
+    /**
+     * Преобразование списка Value в список Id
+     * @param valueList
+     * @return
+     */
+    protected List<Id> getIdList(List<Value> valueList) {
+        List<Id> result = new ArrayList<Id>();
+        for (Value value : valueList) {
+            if (value.get() != null){
+                result.add((Id) value.get());
+            }
+        }
+        return result;
+    }
+
     
 }

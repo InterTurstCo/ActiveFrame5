@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,16 +26,6 @@ public class TrackDomainObjectCollector extends BaseDynamicGroupServiceImpl impl
     private DynamicGroupConfig config;
     private DynamicGroupTrackDomainObjectsConfig trackDomainObjects;
 
-    @Autowired
-    protected DomainObjectTypeIdCache domainObjectTypeIdCache;
-
-    @Autowired
-    private ConfigurationExplorer configurationExplorer;
-    
-    public void setDomainObjectTypeIdCache(DomainObjectTypeIdCache domainObjectTypeIdCache) {
-        this.domainObjectTypeIdCache = domainObjectTypeIdCache;
-    }
-
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
     }
@@ -55,8 +46,8 @@ public class TrackDomainObjectCollector extends BaseDynamicGroupServiceImpl impl
     @Override
     public List<String> getTrackTypeNames() {
         List<String> result = new ArrayList<String>();
-        // Не указан TrackDomainObjects, следим только за текущим типом
-        if (trackDomainObjects == null) {
+        // Не указан TrackDomainObjects или не указан тип, следим только за текущим типом
+        if (trackDomainObjects == null || trackDomainObjects.getType() == null) {
             result.add(config.getContext().getDomainObject().getType());
         } else {
             result.add(trackDomainObjects.getType());
@@ -87,8 +78,7 @@ public class TrackDomainObjectCollector extends BaseDynamicGroupServiceImpl impl
     }
 
     /**
-     * Возвращает динамические группы для изменяемого объекта, которые нужно
-     * пересчитывать. Поиск динамических групп выполняется по типу и статусу
+     * Возвращает динамические группы для изменяемого объекта, которые нужно пересчитывать. Поиск динамических групп выполняется по типу и статусу
      * отслеживаемого объекта
      * 
      * @param objectId
@@ -106,17 +96,14 @@ public class TrackDomainObjectCollector extends BaseDynamicGroupServiceImpl impl
     }
 
     /**
-     * Получает список персон динамической группы по дескриптору группы и
-     * контекстному объекту.
+     * Получает список персон динамической группы по дескриптору группы и контекстному объекту.
      * 
      * @param objectId
-     *            отслеживаемый объект динамической группы. Используется для
-     *            расчета обратного Doel выражения.
+     *            отслеживаемый объект динамической группы. Используется для расчета обратного Doel выражения.
      * @param contextObjectid
      *            контекстному объекту динамической группы
      * @param groups
-     *            флаг указывающий какой doel использовать. Для получения групп
-     *            или для получения пользователей
+     *            флаг указывающий какой doel использовать. Для получения групп или для получения пользователей
      * @return список персон группы
      */
     private List<Id> getGroupMembers(Id objectId, Id contextObjectid, boolean groups) {
@@ -132,27 +119,47 @@ public class TrackDomainObjectCollector extends BaseDynamicGroupServiceImpl impl
 
             // В зависимости от флага получаем или группы или персоны
             String doel = null;
-            if (trackDomainObjects.getGetPerson() != null) {
-                if (groups) {
-                    if (trackDomainObjects.getGetPerson().getDoel() != null) {
-                        doel = trackDomainObjects.getGetGroup().getDoel();
-                    }
-                } else {
-                    if (trackDomainObjects.getGetPerson().getDoel() != null) {
-                        doel = trackDomainObjects.getGetPerson().getDoel();
-                    }
+            if (groups) {
+                if (trackDomainObjects.getGetGroup() != null) {
+                    doel = trackDomainObjects.getGetGroup().getDoel();
+                }
+            } else {
+                if (trackDomainObjects.getGetPerson() != null) {
+                    doel = trackDomainObjects.getGetPerson().getDoel();
                 }
             }
 
-            String getGroupPersonsDoel = createRetrieveGroupPersonsDoel(
-                    reverseBindContextExpr, doel);
-            DoelExpression reverseGetPersonExpr = DoelExpression
-                    .parse(getGroupPersonsDoel);
-            List<Value> valueList = doelResolver.evaluate(reverseGetPersonExpr,
-                    contextObjectid);
-            for (Value value : valueList) {
-                result.add((Id) value.get());
+            if (doel != null) {
+                /*String getGroupPersonsDoel = createRetrieveGroupPersonsDoel(
+                        reverseBindContextExpr, doel);
+                DoelExpression reverseGetPersonExpr = DoelExpression
+                        .parse(getGroupPersonsDoel);*/
+                DoelExpression getMemberExpr = DoelExpression
+                        .parse(doel);
+                List<Value> valueList = doelResolver.evaluate(getMemberExpr,
+                        contextObjectid);
+                result.addAll(getIdList(valueList));
+                
+                if (groups){
+                    result = getDynGroups(result, trackDomainObjects.getGetGroup().getGroupName());
+                }                
             }
+        }
+        return result;
+    }
+
+    private List<Id> getDynGroups(List<Id> groupOwners, String groupName) {
+        List<Id> result = new ArrayList<Id>();
+        
+        if (groupName != null && groupName.length() > 0){
+            for (Id groupOwner : groupOwners) {
+                DomainObject dynGroup = personManagementService.findDynamicGroup(groupName, groupOwner);
+                if (dynGroup != null){
+                    result.add(dynGroup.getId());
+                }
+            }
+        }else{
+            result = groupOwners;
         }
         return result;
     }
@@ -161,8 +168,7 @@ public class TrackDomainObjectCollector extends BaseDynamicGroupServiceImpl impl
      * Создает обратное Doel выражение.
      * 
      * @param objectId
-     *            объект, относительно которого вычисляется переданное прямое
-     *            выражение
+     *            объект, относительно которого вычисляется переданное прямое выражение
      * @param bindContextExpr
      *            прямое Doel выражение.
      * @return обратное Doel выражение
@@ -191,8 +197,7 @@ public class TrackDomainObjectCollector extends BaseDynamicGroupServiceImpl impl
     }
 
     /**
-     * Возвращает контекстный объект для динамической группы и отслеживаемого
-     * (изменяемого) доменного объекта
+     * Возвращает контекстный объект для динамической группы и отслеживаемого (изменяемого) доменного объекта
      * 
      * @param dynamicGroupConfig
      *            конфигурация динамической группы
@@ -222,8 +227,7 @@ public class TrackDomainObjectCollector extends BaseDynamicGroupServiceImpl impl
     }
 
     /**
-     * Добавляет группу с данным именем и контекстным объектом, если группы нет
-     * в базе данных
+     * Добавляет группу с данным именем и контекстным объектом, если группы нет в базе данных
      * 
      * @param dynamicGroupName
      *            имя динамической группы
@@ -242,8 +246,7 @@ public class TrackDomainObjectCollector extends BaseDynamicGroupServiceImpl impl
     }
 
     /**
-     * Конвертирует результат вычисления doel выражения поиска контекстного
-     * объекта в идентификатор контекстного объекта.
+     * Конвертирует результат вычисления doel выражения поиска контекстного объекта в идентификатор контекстного объекта.
      * 
      * @param result
      *            вычисления doel выражения поиска контекстного объекта

@@ -134,13 +134,13 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 domainObjectTypeIdCache.getId(domainObject.getTypeName()));
         domainObjectCacheService.putObjectToCache(createdObject);
 
-        // refreshDynamiGroupsAndAclForCreate(createdObject);
+        refreshDynamiGroupsAndAclForCreate(createdObject);
         return createdObject;
     }
 
     private void refreshDynamiGroupsAndAclForCreate(DomainObject createdObject) {
         dynamicGroupService.notifyDomainObjectCreated(createdObject);
-        permissionService.notifyDomainObjectCreated(createdObject);
+        //permissionService.notifyDomainObjectCreated(createdObject);
     }
 
     @Override
@@ -277,16 +277,15 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             }
 
         }
-        // refreshDynamiGroupsAndAclForUpdate(domainObject);
+        refreshDynamiGroupsAndAclForUpdate(domainObject);
 
         return updatedObject;
     }
 
     private void refreshDynamiGroupsAndAclForUpdate(DomainObject domainObject) {
         List<FieldModification> modifiedFields = getModifiedFieldNames(domainObject);
-        dynamicGroupService.notifyDomainObjectChanged(domainObject,
-                modifiedFields);
-        permissionService.notifyDomainObjectChanged(domainObject, modifiedFields);
+        dynamicGroupService.notifyDomainObjectChanged(domainObject, modifiedFields);
+        //permissionService.notifyDomainObjectChanged(domainObject, modifiedFields);
     }
 
     private List<FieldModification> getModifiedFieldNames(
@@ -378,12 +377,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                         domainObjectTypeConfig.getName());
         afterDeleteEH.onAfterDelete(deletedObject);
 
+        refreshDynamiGroupsAndAclForDelete(deletedObject);
+
     }
 
     private void refreshDynamiGroupsAndAclForDelete(DomainObject deletedObject) {
         if (deletedObject != null) {
             dynamicGroupService.notifyDomainObjectDeleted(deletedObject);
-            permissionService.notifyDomainObjectDeleted(deletedObject);
+            //permissionService.notifyDomainObjectDeleted(deletedObject);
         }
     }
 

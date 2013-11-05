@@ -8,21 +8,22 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 /**
  * Сервис работы с пользователями и группами
  * @author larin
- *
+ * 
  */
 public interface PersonManagementService {
-    
+
     public interface Remote extends PersonManagementService {
     }
+
     /**
      * Получение идентификатора персоны по его логину
      * @param login
      * @return
      */
     Id getPersonId(String login);
-    
+
     /**
-     * Получение идентификатора группы по имени 
+     * Получение идентификатора группы по имени
      * @param groupName
      * @return
      */
@@ -41,14 +42,14 @@ public interface PersonManagementService {
      * @return
      */
     List<DomainObject> getAllPersonsInGroup(Id groupId);
-    
+
     /**
      * Проверка входит ли персона в группу с учетом вхождения группы в группу
      * @param groupId
      * @return
      */
     boolean isPersonInGroup(Id groupId, Id personId);
-    
+
     /**
      * Получения списка групп, в которые входит персона с учетом наследования
      * @param personId
@@ -60,7 +61,8 @@ public interface PersonManagementService {
      * Проверка вхождения группы в группу.
      * @param parent
      * @param child
-     * @param recursive учитывать вхождение группы в группу
+     * @param recursive
+     *            учитывать вхождение группы в группу
      * @return
      */
     boolean isGroupInGroup(Id parent, Id child, boolean recursive);
@@ -71,47 +73,56 @@ public interface PersonManagementService {
      * @return
      */
     List<DomainObject> getAllParentGroup(Id child);
-    
+
     /**
      * Получение групп, непосредственно входящие в группу
      * @param parent
      * @return
      */
     List<DomainObject> getChildGroups(Id parent);
-    
+
     /**
      * Получение групп входящих в группу с учетом вхождения группы в группу
      * @param parent
      * @return
      */
     List<DomainObject> getAllChildGroups(Id parent);
-    
+
     /**
      * Добавление персоны в группу
      * @param group
      * @param person
      */
     void addPersonToGroup(Id group, Id person);
-    
+
     /**
      * Добавление группы в группу
      * @param parent
      * @param child
      */
     void addGroupToGroup(Id parent, Id child);
-    
+
     /**
      * Удаление персоны из группы
      * @param group
      * @param person
      */
     void remotePersonFromGroup(Id group, Id person);
-    
+
     /**
      * Удаление группы из группы
      * @param parent
      * @param child
      */
-    void remoteGroupFromGroup(Id parent, Id child);    
+    void remoteGroupFromGroup(Id parent, Id child);
 
+    /**
+     * Получение динамической группу
+     * @param name
+     *            имя динамической группы
+     * @param contectId
+     *            идентификатор контекста динамической группы
+     * @return
+     */
+    DomainObject findDynamicGroup(String name, Id contectId);
 }

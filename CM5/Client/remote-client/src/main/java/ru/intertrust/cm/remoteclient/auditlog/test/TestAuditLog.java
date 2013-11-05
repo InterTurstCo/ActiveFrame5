@@ -131,17 +131,4 @@ public class TestAuditLog extends ClientBase {
         }
     }
 
-    private void assertTrue(String message, boolean param) throws Exception {
-        if (!param) {
-            throw new Exception(message);
-        }
-        System.out.println(message + ": OK");
-    }
-
-    private void assertFalse(String message, boolean param) throws Exception {
-        if (param) {
-            throw new Exception(message);
-        }
-        System.out.println(message + ": OK");
-    }
 }

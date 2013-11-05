@@ -1,16 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <configuration xmlns="https://cm5.intertrust.ru/config">
-	<dynamic-group name="OrganizationEmployees">
-		<context>
-			<domain-object type="Organization" />
-		</context>
-		<members>
-			<collector
-				class-name="ru.intertrust.cm.test.acess.dynamicgroup.OrganizationEmployee">
-				<collector-settings>
-					<test-dyn-group-collector-settings test-setting="Test settions value" />
-				</collector-settings>
-			</collector>
-		</members>
-	</dynamic-group>
+
+    <dynamic-group name="ManagementChain">
+        <context>
+            <domain-object type="Department" />
+        </context>
+        <members>
+            <collector class-name="ru.intertrust.cm.test.acess.dynamicgroup.ManagementChain" />
+        </members>
+    </dynamic-group>
+
+    <dynamic-group name="EmployeeBosses">
+        <context>
+            <domain-object type="Employee" />
+        </context>
+        <members>
+            <collector class-name="ru.intertrust.cm.test.acess.dynamicgroup.EmployeeBosses" />
+        </members>
+    </dynamic-group>
+
 </configuration>

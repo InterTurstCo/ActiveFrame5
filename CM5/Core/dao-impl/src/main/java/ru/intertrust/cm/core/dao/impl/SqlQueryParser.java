@@ -29,7 +29,7 @@ public class SqlQueryParser {
             }
             this.selectStatement = (Select) statement;
         } catch (JSQLParserException e) {
-            throw new FatalException("Sql query is not valid: " + sqlSelectQuery);
+            throw new FatalException("Sql query is not valid: " + sqlSelectQuery, e);
         }
 
     }

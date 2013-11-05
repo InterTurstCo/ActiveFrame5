@@ -52,8 +52,6 @@ import ru.intertrust.cm.core.model.PermissionException;
 public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implements PermissionService, ApplicationContextAware,
         OnLoadConfigurationExtensionHandler {
 
-    @Autowired
-    private ConfigurationExplorer configurationExplorer;
 
     private ApplicationContext applicationContext;
 
@@ -63,10 +61,10 @@ public class PermissionServiceImpl extends BaseDynamicGroupServiceImpl implement
     //Реестр коллекторов по имени контекстной роли
     private Hashtable<String, List<ContextRoleCollector>> collectorsByContextRoleNames = new Hashtable<String, List<ContextRoleCollector>>();
 
-    public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
+    /*public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
         doelResolver.setConfigurationExplorer(configurationExplorer);
-    }
+    }*/
 
     @Override
     public void notifyDomainObjectDeleted(DomainObject domainObject) {

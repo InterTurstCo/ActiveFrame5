@@ -26,8 +26,7 @@ public interface PersonManagementServiceDao {
     List<DomainObject> getPersonsInGroup(Id groupId);
 
     /**
-     * Получение списка персон входящих в группу, с учетом вхождения группы в
-     * группу
+     * Получение списка персон входящих в группу, с учетом вхождения группы в группу
      * @param groupId
      * @return
      */
@@ -58,8 +57,7 @@ public interface PersonManagementServiceDao {
     boolean isGroupInGroup(Id parent, Id child, boolean recursive);
 
     /**
-     * Получение всех родительских групп для группы, с учетом вхождения группы в
-     * группу
+     * Получение всех родительских групп для группы, с учетом вхождения группы в группу
      * @param parent
      * @return
      */
@@ -112,5 +110,21 @@ public interface PersonManagementServiceDao {
      * @param groupName
      */
     Id getGroupId(String groupName);
+
+    /**
+     * Очистка состава группы. Удаляет как персоны члены группы так и группы члены группы
+     * @param groupName
+     */
+    void removeGroupMembers(Id groupId);
+
+    /**
+     * Получение динамической группы
+     * @param name
+     *            имя динамической группы
+     * @param contectId
+     *            контекст динамической группы
+     * @return
+     */
+    DomainObject findDynamicGroup(String name, Id contectId);
 
 }

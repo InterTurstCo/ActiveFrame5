@@ -1,26 +1,42 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.generateAddColumnsQuery;
+import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.generateAuditSequenceQuery;
+import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.generateCountTablesQuery;
+import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.generateCreateAclReadTableQuery;
+import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.generateCreateAclTableQuery;
+import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.generateCreateAuditLogIndexesQuery;
+import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.generateCreateAuditTableQuery;
+import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.generateCreateConfigurationTableQuery;
+import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.generateCreateDomainObjectTableQuery;
+import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.generateCreateForeignKeyAndUniqueConstraintsQuery;
+import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.generateCreateIndexesQuery;
+import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.generateCreateTableQuery;
+import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.generateSequenceQuery;
+
+import java.util.List;
+
+import javax.sql.DataSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.model.*;
+import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.model.FieldConfig;
+import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.model.UniqueKeyConfig;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 
-import javax.sql.DataSource;
-
-import java.util.List;
-
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.*;
-
 /**
  * Реализация {@link ru.intertrust.cm.core.dao.api.DataStructureDao} для PostgreSQL
- * @author vmatsukevich
- *         Date: 5/15/13
- *         Time: 4:27 PM
+ * @author vmatsukevich Date: 5/15/13 Time: 4:27 PM
  */
 public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
+    private static final Logger logger = LoggerFactory.getLogger(PostgreSqlDataStructureDaoImpl.class);
 
     protected static final String DOES_TABLE_EXISTS_QUERY =
             "select count(*) FROM information_schema.tables WHERE table_schema = 'public' and table_name = ?";
@@ -29,13 +45,14 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
     private DomainObjectTypeIdDao domainObjectTypeIdDao;
 
     @Autowired
-    private ConfigurationExplorer configurationExplorer;    
-    
+    private ConfigurationExplorer configurationExplorer;
+
     private JdbcTemplate jdbcTemplate;
 
     /**
      * Устанавливает {@link #jdbcTemplate}
-     * @param dataSource DataSource для инициализации {@link #jdbcTemplate}
+     * @param dataSource
+     *            DataSource для инициализации {@link #jdbcTemplate}
      */
     public void setDataSource(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
@@ -43,7 +60,8 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
 
     /**
      * Устанавливает {@link #jdbcTemplate}. Необходим для тестов.
-     * @param jdbcTemplate {@link #jdbcTemplate}
+     * @param jdbcTemplate
+     *            {@link #jdbcTemplate}
      */
     public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -73,13 +91,12 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
         }
 
         String createAuditSequenceQuery = generateAuditSequenceQuery(config);
-        jdbcTemplate.update(createAuditSequenceQuery);    
+        jdbcTemplate.update(createAuditSequenceQuery);
     }
-    
-    
+
     /**
-     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#createTable(ru.intertrust.cm.core.config.model.DomainObjectTypeConfig)}
-     * Dot шаблон (с isTemplate = true) не отображается в базе данных
+     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#createTable(ru.intertrust.cm.core.config.model.DomainObjectTypeConfig)} Dot шаблон (с
+     * isTemplate = true) не отображается в базе данных
      */
     @Override
     public void createTable(DomainObjectTypeConfig config) {
@@ -89,14 +106,14 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
         jdbcTemplate.update(generateCreateTableQuery(config));
 
         String createIndexesQuery = generateCreateIndexesQuery(config);
-        if(createIndexesQuery != null) {
+        if (createIndexesQuery != null) {
             jdbcTemplate.update(createIndexesQuery);
         }
 
         Integer id = domainObjectTypeIdDao.insert(config.getName());
         config.setId(new Long(id));
     }
-    
+
     /**
      * Создание таблицы для хранения информации AuditLog
      */
@@ -108,15 +125,14 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
         jdbcTemplate.update(generateCreateAuditTableQuery(config));
 
         String createIndexesQuery = generateCreateAuditLogIndexesQuery(config);
-        if(createIndexesQuery != null) {
+        if (createIndexesQuery != null) {
             jdbcTemplate.update(createIndexesQuery);
         }
     }
-    
 
     /**
-     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#createAclTables(DomainObjectTypeConfig)}
-     * Dot шаблон (с isTemplate = true) не отображается в базе данных
+     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#createAclTables(DomainObjectTypeConfig)} Dot шаблон (с isTemplate = true) не отображается в
+     * базе данных
      */
     public void createAclTables(DomainObjectTypeConfig config) {
         if (!config.isTemplate()) {
@@ -127,7 +143,7 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
 
     @Override
     public void updateTableStructure(String domainObjectConfigName, List<FieldConfig> fieldConfigList) {
-        if(domainObjectConfigName == null || ((fieldConfigList == null || fieldConfigList.isEmpty()))) {
+        if (domainObjectConfigName == null || ((fieldConfigList == null || fieldConfigList.isEmpty()))) {
             throw new IllegalArgumentException("Invalid (null or empty) arguments");
         }
 
@@ -136,7 +152,7 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
         jdbcTemplate.update(query);
 
         String createIndexesQuery = generateCreateIndexesQuery(domainObjectConfigName, fieldConfigList);
-        if(createIndexesQuery != null) {
+        if (createIndexesQuery != null) {
             jdbcTemplate.update(createIndexesQuery);
         }
     }
@@ -151,7 +167,9 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
 
         String query = generateCreateForeignKeyAndUniqueConstraintsQuery(domainObjectConfigName, fieldConfigList,
                 uniqueKeyConfigList);
-        jdbcTemplate.update(query);
+        if (query.length() > 0){        
+            jdbcTemplate.update(query);
+        }
     }
 
     /**

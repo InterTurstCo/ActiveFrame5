@@ -9,7 +9,7 @@ import org.simpleframework.xml.Root;
  * @author atsvetkov
  *
  */
-@Root
+@Root(name ="track-domain-objects")
 public class TrackDomainObjectsConfig implements CollectorSettings{
 
     @Attribute(name = "type", required = false)

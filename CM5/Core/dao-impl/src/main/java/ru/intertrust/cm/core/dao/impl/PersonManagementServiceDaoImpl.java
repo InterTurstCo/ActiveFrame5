@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
@@ -19,13 +20,12 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
-import ru.intertrust.cm.core.model.ExtensionPointException;
 
 /**
  * Реализация сервиса вхождения управления пользователями и группами
- *
+ * 
  * @author larin
- *
+ * 
  */
 public class PersonManagementServiceDaoImpl implements PersonManagementServiceDao {
 
@@ -37,7 +37,7 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
 
     @Autowired
     private AccessControlService accessControlService;
-    
+
     public void setAccessControlService(AccessControlService accessControlService) {
         this.accessControlService = accessControlService;
     }
@@ -173,9 +173,7 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
     }
 
     /**
-     * Проверка вхождения одной группы в другую. Проверка возможна как с учетом
-     * наследования так и без учета наследования, в зависимости от параметра
-     * recursive
+     * Проверка вхождения одной группы в другую. Проверка возможна как с учетом наследования так и без учета наследования, в зависимости от параметра recursive
      * @param parent
      *            родительская группа
      * @param child
@@ -317,15 +315,16 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
 
     @Override
     public void addPersonToGroup(Id group, Id person) {
-        DomainObject groupMembers = createDomainObject("Group_Member", group);
+        DomainObject groupMembers = createDomainObject("Group_Member");
         groupMembers.setReference("person_id", person);
+        groupMembers.setReference("UserGroup", group);
         AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagmentService");
         domainObjectDao.save(groupMembers, accessToken);
     }
 
     @Override
     public void addGroupToGroup(Id parent, Id child) {
-        DomainObject groupGroup = createDomainObject("group_group_settings", null);
+        DomainObject groupGroup = createDomainObject("group_group_settings");
         groupGroup.setReference("parent_group_id", parent);
         groupGroup.setReference("child_group_id", child);
         AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagmentService");
@@ -396,11 +395,11 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
 
     /**
      * Создание нового доменного обьекта переданного типа
-     *
+     * 
      * @param type
      * @return
      */
-    private DomainObject createDomainObject(String type, Id parent) {
+    private DomainObject createDomainObject(String type) {
         GenericDomainObject domainObject = new GenericDomainObject();
         domainObject.setTypeName(type);
         Date currentDate = new Date();
@@ -428,6 +427,34 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
         if (collection.size() > 0) {
             IdentifiableObject io = collection.get(0);
             result = io.getId();
+        }
+        return result;
+    }
+
+    @Override
+    public void removeGroupMembers(Id groupId) {
+        List<DomainObject> persons = getPersonsInGroup(groupId);
+
+        for (DomainObject person : persons) {
+            remotePersonFromGroup(groupId, person.getId());
+        }
+
+        List<DomainObject> groups = getChildGroups(groupId);
+
+        for (DomainObject group : groups) {
+            remoteGroupFromGroup(groupId, group.getId());
+        }
+    }
+
+    @Override
+    public DomainObject findDynamicGroup(String name, Id contectId) {
+        AccessToken accessToken = accessControlService
+                .createSystemAccessToken("PersonManagementService");
+        String query = "select t.id from User_Group t where group_name = '" + name + "' and object_id = '" + ((RdbmsId) contectId).getId() + "'";
+        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, 0, 1000, accessToken);
+        DomainObject result = null;
+        if (collection.size() > 0) {
+            result = domainObjectDao.find(collection.getId(0), accessToken);
         }
         return result;
     }

@@ -11,19 +11,19 @@ import ru.intertrust.cm.core.config.CollectorSettingsConverter;
  * Подключение алгоритма с интерфейсом ContextRoleCollector.
  * @author atsvetkov
  */
-@Root
+@Root(name = "collector")
 public class CollectorConfig {
-    
+
     /**
      * имя класса коллектора
      */
-    @Attribute(required=true, name="class-name")
+    @Attribute(required = true, name = "class-name")
     private String className;
-    
+
     /**
      * Конфигурация коллектора
      */
-    @Element(name="collector-settings")
+    @Element(name = "collector-settings", required = false)
     @Convert(CollectorSettingsConverter.class)
     private CollectorSettings settings;
 

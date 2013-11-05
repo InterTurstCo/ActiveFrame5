@@ -363,7 +363,7 @@
         <filter name="byGroup">
             <criteria placeholder="where-clause">
                 <![CDATA[
-                    gm.master = {0}
+                    gm.usergroup = {0}
                 ]]>
             </criteria>
         </filter>
@@ -376,7 +376,7 @@
                 select p.id
                 from Person p
                 inner join group_member gm on (gm.person_id = p.id)
-                inner join group_group gg on (gg.child_group_id = gm.master)
+                inner join group_group gg on (gg.child_group_id = gm.usergroup)
                 where 1=1 ::where-clause
             ]]>
         </prototype>
@@ -396,7 +396,7 @@
             <![CDATA[
                 select gg.id
                 from group_group gg
-                inner join group_member gm on (gg.child_group_id = gm.master)
+                inner join group_member gm on (gg.child_group_id = gm.usergroup)
                 where 1=1 ::where-clause
             ]]>
         </prototype>
@@ -417,7 +417,7 @@
                 select ug.id
                 from User_Group ug
                 inner join group_group gg on (gg.parent_group_id = ug.id)
-                inner join group_member gm on (gg.child_group_id = gm.master)
+                inner join group_member gm on (gg.child_group_id = gm.usergroup)
                 where 1=1 ::where-clause
             ]]>
         </prototype>
@@ -699,7 +699,7 @@
         <filter name="byMember">
             <criteria placeholder="where-clause">
                 <![CDATA[
-                    g.master = {0} and g.person_id = {1}
+                    g.usergroup = {0} and g.person_id = {1}
                 ]]>
             </criteria>
         </filter>

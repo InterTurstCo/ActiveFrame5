@@ -1,18 +1,17 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.model.CollectorSettings;
 import ru.intertrust.cm.core.config.model.ContextRoleConfig;
-import ru.intertrust.cm.core.config.model.DynamicGroupConfig;
 import ru.intertrust.cm.core.config.model.TrackDomainObjectsConfig;
-import ru.intertrust.cm.core.dao.access.AccessType;
+import ru.intertrust.cm.core.config.model.doel.DoelExpression;
 import ru.intertrust.cm.core.dao.access.ContextRoleCollector;
 
 public class ContextRoleTrackDomainObjectCollector extends BaseDynamicGroupServiceImpl implements ContextRoleCollector {
@@ -22,8 +21,27 @@ public class ContextRoleTrackDomainObjectCollector extends BaseDynamicGroupServi
 
     @Override
     public List<Id> getMembers(Id domainObjectId, Id contextId) {
-        // TODO Auto-generated method stub
-        return null;
+        //Получаем доменные объекты, которые являются контекстами для динамических групп
+        List<Id> contextGroupOwner = new ArrayList<Id>();
+        if (trackDomainObjects.getGetGroup().getDoel() != null) {
+            DoelExpression expr = DoelExpression.parse(trackDomainObjects.getBindContext().getDoel());
+            List<Value> contextIds = doelResolver.evaluate(expr, contextId);
+            contextGroupOwner.addAll(getIdList(contextIds));
+        } else {
+            contextGroupOwner.add(contextId);
+        }
+
+        List<Id> result = new ArrayList<Id>();
+        //Проверяем указана ли имя динамической группы. Если указана то берем динамическую группу с контекстом доменного объекта и именем из конфигурации
+        if (trackDomainObjects.getGetGroup().getGroupName() != null) {
+            for (Id id : contextGroupOwner) {
+                result.add(getUserGroupByGroupNameAndObjectId(trackDomainObjects.getGetGroup().getGroupName(), ((RdbmsId) id).getId()));
+            }
+        } else {
+            //имя не указано, полученные доменные объекты и ест контекстные группы
+            result = contextGroupOwner;
+        }
+        return result;
     }
 
     @Override
@@ -40,12 +58,27 @@ public class ContextRoleTrackDomainObjectCollector extends BaseDynamicGroupServi
 
     @Override
     public List<Id> getInvalidContexts(DomainObject domainObject, List<FieldModification> modifiedFields) {
-        String status = getStatusFor(domainObject.getId());
-
         List<Id> result = new ArrayList<Id>();
+        //Получение всех контекстов, которые зависят от текущего измененного обьекта
+        if (trackDomainObjects.getBindContext() != null && trackDomainObjects.getBindContext().getDoel() != null) {
+            //Указан doel на зависимые объекты
+            DoelExpression expr = DoelExpression.parse(trackDomainObjects.getBindContext().getDoel());
+            List<Value> contextIds = doelResolver.evaluate(expr, domainObject.getId());
+            result.addAll(getIdList(contextIds));
 
+        } else {
+            //зависимые объекты не указаны, значит контекстом является текущий объект
+            //поверяем его статус
+            if (trackDomainObjects.getStatus() != null && trackDomainObjects.getStatus().length() > 0) {
+                String status = getStatusFor(domainObject.getId());
+                if (trackDomainObjects.getStatus().equals(status)) {
+                    result.add(domainObject.getId());
+                }
+            } else {
+                result.add(domainObject.getId());
+            }
+        }
         return result;
-
     }
 
     @Override

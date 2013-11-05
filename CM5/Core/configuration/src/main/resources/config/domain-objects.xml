@@ -151,6 +151,7 @@
             <string name="Name" length="128" not-null="true" />
             <reference name="Organization" type="Organization" not-null="true"/>
             <reference name="Boss" type="Employee"/>
+            <reference name="ParentDepartment" type="Department" not-null="false"/>
         </fields>
     </domain-object-type>
 
@@ -165,8 +166,7 @@
     <domain-object-type name="User_Group" initial-status="Active">
         <fields>
             <string name="group_name" length="64" not-null="true" />
-            <long name="object_id" />
-            <long name="is_static" />
+            <reference name="object_id" type="*" not-null="false"/>
         </fields>
     </domain-object-type>
 

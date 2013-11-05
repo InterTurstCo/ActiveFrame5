@@ -76,7 +76,7 @@ public class PersonManagementServiceImpl implements PersonManagementService {
 
     @Override
     public void addGroupToGroup(Id parent, Id child) {
-        personManagementServiceDao.addGroupToGroup(parent, child);    
+        personManagementServiceDao.addGroupToGroup(parent, child);
     }
 
     @Override
@@ -92,6 +92,11 @@ public class PersonManagementServiceImpl implements PersonManagementService {
     @Override
     public Id getGroupId(String groupName) {
         return personManagementServiceDao.getGroupId(groupName);
+    }
+
+    @Override
+    public DomainObject findDynamicGroup(String name, Id contectId) {
+        return personManagementServiceDao.findDynamicGroup(name, contectId);
     }
 
 }

@@ -1,7 +1,5 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,14 +32,13 @@ import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.DynamicGroupConfig;
 import ru.intertrust.cm.core.config.model.DynamicGroupTrackDomainObjectsConfig;
 import ru.intertrust.cm.core.config.model.GetPersonConfig;
-import ru.intertrust.cm.core.config.model.TrackDomainObjectsConfig;
 import ru.intertrust.cm.core.config.model.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.model.doel.DoelExpression;
 import ru.intertrust.cm.core.config.model.doel.DoelExpression.Element;
-import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.DynamicGroupCollector;
 import ru.intertrust.cm.core.dao.access.DynamicGroupService;
+import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.dao.api.extension.OnLoadConfigurationExtensionHandler;
 import ru.intertrust.cm.core.model.PermissionException;
@@ -60,20 +57,19 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
             .getLogger(DynamicGroupServiceImpl.class);
 
     private Hashtable<String, List<DynamicGroupRegisterItem>> collectors = new Hashtable<String, List<DynamicGroupRegisterItem>>();
+    private Hashtable<String, List<DynamicGroupConfig>> configsByContextType = new Hashtable<String, List<DynamicGroupConfig>>();
 
     @Autowired
-    private ConfigurationExplorer configurationExplorer;
-
-    @Autowired
-    private AccessControlService accessControlService;
+    private PersonManagementServiceDao personManagementService;
 
     private ApplicationContext applicationContext;
 
+    /*
     public void setConfigurationExplorer(
             ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
         doelResolver.setConfigurationExplorer(configurationExplorer);
-    }
+    }*/
 
     @Override
     public void notifyDomainObjectChanged(DomainObject domainObject,
@@ -134,17 +130,22 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
 
         String typeName = domainObject.getTypeName();
 
+        //При создание объекта получаем все его динамические группы и создаем их, пока пустыми
+        createAllDynamicGroups(domainObject);
+
         List<DynamicGroupRegisterItem> typeCollectors = collectors.get(typeName);
         // Формируем мапу динамических групп, требующих пересчета и их
         // коллекторов, исключая дублирование
         Map<Id, DynamicGroupCollector> invalidGroups = new Hashtable<Id, DynamicGroupCollector>();
-        for (DynamicGroupRegisterItem dynamicGroupCollector : typeCollectors) {
-            // Поучаем невалидные контексты для
-            List<Id> invalidContexts = dynamicGroupCollector.getCollector().getInvalidContexts(domainObject, getNewObjectModificationList(domainObject));
+        if (typeCollectors != null) {
+            for (DynamicGroupRegisterItem dynamicGroupCollector : typeCollectors) {
+                // Поучаем невалидные контексты для
+                List<Id> invalidContexts = dynamicGroupCollector.getCollector().getInvalidContexts(domainObject, getNewObjectModificationList(domainObject));
 
-            for (Id invalidContext : invalidContexts) {
-                Id dynamicGroupId = refreshUserGroup(dynamicGroupCollector.getConfig().getName(), invalidContext);
-                invalidGroups.put(dynamicGroupId, dynamicGroupCollector.getCollector());
+                for (Id invalidContext : invalidContexts) {
+                    Id dynamicGroupId = refreshUserGroup(dynamicGroupCollector.getConfig().getName(), invalidContext);
+                    invalidGroups.put(dynamicGroupId, dynamicGroupCollector.getCollector());
+                }
             }
         }
 
@@ -178,6 +179,15 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
          * 
          * refreshGroupMembers(dynamicGroupId, groupMembres); }
          */
+    }
+
+    private void createAllDynamicGroups(DomainObject domainObject) {
+        List<DynamicGroupConfig> configs = configsByContextType.get(domainObject.getTypeName());
+        if (configs != null) {
+            for (DynamicGroupConfig dynamicGroupConfig : configs) {
+                createUserGroup(dynamicGroupConfig.getName(), domainObject.getId());
+            }
+        }
     }
 
     /**
@@ -430,58 +440,41 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
      *            список персон
      */
     private void refreshGroupMembers(Id dynamicGroupId, List<Id> personIds, List<Id> groupIds) {
-        cleanGroupMembers(dynamicGroupId);
+        personManagementService.removeGroupMembers(dynamicGroupId);
         insertGroupMembers(dynamicGroupId, personIds);
-
-        cleanGroupMembersGroups(dynamicGroupId);
         insertGroupMembersGroups(dynamicGroupId, groupIds);
     }
 
-    private void insertGroupMembersGroups(Id dynamicGroupId, List<Id> personIds) {
-        // TODO Auto-generated method stub
-
-    }
-
-    private void cleanGroupMembersGroups(Id dynamicGroupId) {
-        // TODO Auto-generated method stub
-
+    /**
+     * Добавление в динамическую группу другие группы
+     * @param dynamicGroupId
+     * @param groupIds
+     */
+    private void insertGroupMembersGroups(Id dynamicGroupId, List<Id> groupIds) {
+        if (groupIds != null) {
+            for (Id id : groupIds) {
+                personManagementService.addGroupToGroup(dynamicGroupId, id);
+            }
+        }
     }
 
     // TODO Optimize performance
     private void insertGroupMembers(Id dynamicGroupId, List<Id> personIds) {
-        List<DomainObject> groupMembers = new ArrayList<DomainObject>();
-        for (Id personValue : personIds) {
-            if (personValue.getClass().equals(ReferenceValue.class)) {
-                GenericDomainObject groupMemeber = new GenericDomainObject();
-                groupMemeber.setTypeName(GROUP_MEMBER_DOMAIN_OBJECT);
-                groupMemeber.setReference("UserGroup", dynamicGroupId);
+        if (personIds != null) {
+            List<DomainObject> groupMembers = new ArrayList<DomainObject>();
+            for (Id personValue : personIds) {
+                if (personValue.getClass().equals(ReferenceValue.class)) {
+                    GenericDomainObject groupMemeber = new GenericDomainObject();
+                    groupMemeber.setTypeName(GROUP_MEMBER_DOMAIN_OBJECT);
+                    groupMemeber.setReference("UserGroup", dynamicGroupId);
 
-                groupMemeber.setReference("person_id", personValue);
-                groupMembers.add(groupMemeber);
+                    groupMemeber.setReference("person_id", personValue);
+                    groupMembers.add(groupMemeber);
+                }
+
             }
-
+            List<DomainObject> savedGroupMembers = domainObjectDao.save(groupMembers);
         }
-        List<DomainObject> savedGroupMembers = domainObjectDao
-                .save(groupMembers);
-    }
-
-    private void cleanGroupMembers(Id dynamicGroupId) {
-        // TODO Удалять надо с помощью domainObjectDao
-        String query = generateDeleteGroupMembersQuery();
-
-        Map<String, Object> parameters = initializeDeleteGroupMembersParameters(dynamicGroupId);
-        int count = jdbcTemplate.update(query, parameters);
-    }
-
-    private String generateDeleteGroupMembersQuery() {
-        String tableName = getSqlName(GROUP_MEMBER_DOMAIN_OBJECT);
-        StringBuilder query = new StringBuilder();
-        query.append("delete from ");
-        query.append(tableName);
-        query.append(" where usergroup=:usergroup");
-
-        return query.toString();
-
     }
 
     protected Map<String, Object> initializeDeleteGroupMembersParameters(
@@ -575,40 +568,46 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
 
                 if (topConfig instanceof DynamicGroupConfig) {
                     DynamicGroupConfig config = (DynamicGroupConfig) topConfig;
-                    // Если динамическая группа настраивается классом
-                    // коллектором,
-                    // то создаем его экземпляр, и добавляем в реестр
-                    if (config.getMembers() != null
-                            && config.getMembers().getCollector() != null) {
 
-                        for (CollectorConfig collectorConfig : config.getMembers().getCollector()) {
-                            Class<?> collectorClass = Class.forName(collectorConfig.getClassName());
-                            DynamicGroupCollector collector = (DynamicGroupCollector) applicationContext
-                                    .getAutowireCapableBeanFactory()
-                                    .createBean(
-                                            collectorClass,
-                                            AutowireCapableBeanFactory.AUTOWIRE_BY_NAME,
-                                            false);
-                            collector.init(config, collectorConfig.getSettings());
-                            registerCollector(collector, config);
+                    //Регистрации конфигурации для типов контекстов с учетом иерархии типов
+                    if (config.getContext() != null){
+                        registerConfig(config.getContext().getDomainObject().getType(), config);
+                    }
 
-                        }
-                    } else {
+                    if (config.getMembers() != null) {
+                        // Если динамическая группа настраивается классом
+                        // коллектором,
+                        // то создаем его экземпляр, и добавляем в реестр
+                        if (config.getMembers().getCollector() != null) {
 
-                        for (DynamicGroupTrackDomainObjectsConfig collectorConfig : config.getMembers().getTrackDomainObjects()) {
-                            // Специфичный коллектор не указан используем коллектор
-                            // по умолчанию
-                            DynamicGroupCollector collector = (DynamicGroupCollector) applicationContext
-                                    .getAutowireCapableBeanFactory()
-                                    .createBean(
-                                            TrackDomainObjectCollector.class,
-                                            AutowireCapableBeanFactory.AUTOWIRE_BY_NAME,
-                                            false);
-                            // TODO Я конечно против использования базы напрямую, но
-                            // так сделано изначально, пока не переделываем
-                            ((TrackDomainObjectCollector) collector).setJdbcTemplate(jdbcTemplate);
-                            collector.init(config, collectorConfig);
-                            registerCollector(collector, config);
+                            for (CollectorConfig collectorConfig : config.getMembers().getCollector()) {
+                                Class<?> collectorClass = Class.forName(collectorConfig.getClassName());
+                                DynamicGroupCollector collector = (DynamicGroupCollector) applicationContext
+                                        .getAutowireCapableBeanFactory()
+                                        .createBean(
+                                                collectorClass,
+                                                AutowireCapableBeanFactory.AUTOWIRE_BY_NAME,
+                                                false);
+                                collector.init(config, collectorConfig.getSettings());
+                                registerCollector(collector, config);
+
+                            }
+                        } else {
+
+                            for (DynamicGroupTrackDomainObjectsConfig collectorConfig : config.getMembers().getTrackDomainObjects()) {
+                                // Специфичный коллектор не указан используем коллектор
+                                // по умолчанию
+                                DynamicGroupCollector collector = (DynamicGroupCollector) applicationContext
+                                        .getAutowireCapableBeanFactory()
+                                        .createBean(
+                                                TrackDomainObjectCollector.class,
+                                                AutowireCapableBeanFactory.AUTOWIRE_BY_NAME,
+                                                false);
+                                // TODO Я конечно против использования базы напрямую, но так сделано изначально, пока не переделываем
+                                ((TrackDomainObjectCollector) collector).setJdbcTemplate(jdbcTemplate);
+                                collector.init(config, collectorConfig);
+                                registerCollector(collector, config);
+                            }
                         }
                     }
                 }
@@ -618,6 +617,38 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
         }
     }
 
+    /**
+     * Создание реестра конфигураций по типам контекстов, с учетом наследования
+     * @param contextType
+     * @param config
+     */
+    private void registerConfig(String contextType, DynamicGroupConfig config) {
+        registerOneTypeConfig(contextType, config);
+        List<String> subTypes = getSubTypes(contextType);
+        for (String subtype : subTypes) {
+            registerOneTypeConfig(subtype, config);
+        }
+    }
+
+    /**
+     * Регистрация конфигурации для типа контекста в реестре
+     * @param type
+     * @param config
+     */
+    private void registerOneTypeConfig(String type, DynamicGroupConfig config) {
+        List<DynamicGroupConfig> typeCollectors = configsByContextType.get(type);
+        if (typeCollectors == null) {
+            typeCollectors = new ArrayList<DynamicGroupConfig>();
+            configsByContextType.put(type, typeCollectors);
+        }
+        typeCollectors.add(config);
+    }
+
+    /**
+     * Регистрация коллектора для отслеживаемого типа доменного объекта
+     * @param collector
+     * @param config
+     */
     private void registerCollector(DynamicGroupCollector collector, DynamicGroupConfig config) {
         // Получение типов, которые отслеживает коллектор
         List<String> types = collector.getTrackTypeNames();

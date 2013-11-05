@@ -20,10 +20,8 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 /**
- * Базовый класс для удаленного клиента. Содержит методы для парсинга командной
- * строки, получения удаленных сервисов и вывода в лог. Для использования
- * необходимо отнаследоватся и в методе main наследника вызвать метод execute. В
- * переопределенном методе Execute необходимо вызвать базовый метод.
+ * Базовый класс для удаленного клиента. Содержит методы для парсинга командной строки, получения удаленных сервисов и вывода в лог. Для использования
+ * необходимо отнаследоватся и в методе main наследника вызвать метод execute. В переопределенном методе Execute необходимо вызвать базовый метод.
  * @author larin
  * 
  */
@@ -36,9 +34,8 @@ public abstract class ClientBase {
     private String password;
     private String logPath;
     /**
-     * Контекст должен быть обязательно членам класса, и жить все время пока
-     * живет процесс. Инициализируется при получение первого сервиса и
-     * используется все время только один экземпляр
+     * Контекст должен быть обязательно членам класса, и жить все время пока живет процесс. Инициализируется при получение первого сервиса и используется все
+     * время только один экземпляр
      */
     private InitialContext ctx;
 
@@ -66,12 +63,12 @@ public abstract class ClientBase {
      * @return
      */
     protected String getParamerer(String name) {
-    	String result = null;
-    	if (properties.getProperty(name) != null){
-    		result = properties.getProperty(name);
-    	}else{
-    		result = commandLine.getOptionValue(name);
-    	}
+        String result = null;
+        if (properties.getProperty(name) != null) {
+            result = properties.getProperty(name);
+        } else {
+            result = commandLine.getOptionValue(name);
+        }
         return result;
     }
 
@@ -85,8 +82,7 @@ public abstract class ClientBase {
     }
 
     /**
-     * Метод вызывается из метода main наследников. Производит парсинг командной
-     * строки
+     * Метод вызывается из метода main наследников. Производит парсинг командной строки
      * @param args
      * @throws Exception
      */
@@ -95,8 +91,7 @@ public abstract class ClientBase {
     }
 
     /**
-     * Метод вызывается из метода main наследников. Производит парсинг командной
-     * строки
+     * Метод вызывается из метода main наследников. Производит парсинг командной строки
      * @param args
      * @param optionNames
      * @throws Exception
@@ -115,12 +110,12 @@ public abstract class ClientBase {
         }
 
         parseArguments(args, optionNamesList.toArray(new String[optionNamesList.size()]));
-        
+
         File propFile = new File("client.properties");
-        if (propFile.exists()){
-        	properties.load(new FileInputStream(propFile));
+        if (propFile.exists()) {
+            properties.load(new FileInputStream(propFile));
         }
-        
+
         address = properties.getProperty("address") != null ? properties.getProperty("address") : commandLine.getOptionValue("address");
         user = properties.getProperty("user") != null ? properties.getProperty("user") : commandLine.getOptionValue("user");
         password = properties.getProperty("password") != null ? properties.getProperty("password") : commandLine.getOptionValue("password");
@@ -157,8 +152,7 @@ public abstract class ClientBase {
     }
 
     /**
-     * Запись лог файла. Необходимо вызывать в finally блоке переопределенного
-     * метода execute
+     * Запись лог файла. Необходимо вызывать в finally блоке переопределенного метода execute
      * @throws IOException
      */
     protected void writeLog() throws IOException {
@@ -179,7 +173,22 @@ public abstract class ClientBase {
      * Получение аргументов командной строки
      * @return
      */
-    protected String[] getCommandLineArgs(){
-    	return commandLine.getArgs();
+    protected String[] getCommandLineArgs() {
+        return commandLine.getArgs();
     }
+
+    protected void assertTrue(String message, boolean param) throws Exception {
+        if (!param) {
+            throw new Exception(message);
+        }
+        log(message + ": OK");
+    }
+
+    protected void assertFalse(String message, boolean param) throws Exception {
+        if (param) {
+            throw new Exception(message);
+        }
+        log(message + ": OK");
+    }
+
 }

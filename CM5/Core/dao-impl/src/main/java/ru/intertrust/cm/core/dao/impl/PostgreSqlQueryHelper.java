@@ -285,6 +285,7 @@ public class PostgreSqlQueryHelper {
         StringBuilder query = new StringBuilder("alter table ").append(tableName).append(" ");
 
         boolean commaNeeded = false;
+        boolean existsConstraints = false;
         for (ReferenceFieldConfig fieldConfig : fieldConfigList) {
             if (ConfigurationExplorer.REFERENCE_TYPE_ANY.equals(fieldConfig.getType())) {
                 continue;
@@ -302,6 +303,7 @@ public class PostgreSqlQueryHelper {
             String referencedTableName = getSqlName(fieldConfig.getType());
             appendFKConstraint(query, tableName, new String[] { columnName,typeReferenceColumnName },
                     referencedTableName, new String[] { ID_COLUMN, TYPE_COLUMN });
+            existsConstraints = true;
         }
 
         for (UniqueKeyConfig uniqueKeyConfig : uniqueKeyConfigList) {
@@ -329,8 +331,14 @@ public class PostgreSqlQueryHelper {
 
             query.append("add ");
             appendUniqueConstraint(query, constraintName, fieldsList);
+            existsConstraints = true;
         }
-
+        
+        //Если нет констраинтов то возвращаем пустую строку
+        if (!existsConstraints){
+            query = new StringBuilder();
+        }
+        
         return query.toString();
     }
 

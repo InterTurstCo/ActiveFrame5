@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.config.model;
 
 import org.simpleframework.xml.Element;
+import org.simpleframework.xml.Root;
 
 /**
  * Класс конфигурации коллектора динамической группы

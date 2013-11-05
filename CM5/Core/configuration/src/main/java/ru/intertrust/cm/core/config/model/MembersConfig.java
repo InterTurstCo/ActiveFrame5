@@ -14,10 +14,10 @@ import org.simpleframework.xml.Root;
 @Root(name = "members")
 public class MembersConfig implements Serializable {
 
-    @ElementList(name ="collector", required = false)
+    @ElementList(required = false, inline=true)
     private List<CollectorConfig> collector;
     
-    @ElementList(name ="track-domain-objects", required = false)
+    @ElementList(required = false, inline=true)
     private List<DynamicGroupTrackDomainObjectsConfig> trackDomainObjects;
 
     public List<CollectorConfig> getCollector() {

@@ -86,4 +86,7 @@
     <bean id="currentUserAccessor" 
         class="ru.intertrust.cm.core.dao.impl.CurrentUserAccessorImpl"/>        
 
+    <bean id="doelResolver" class="ru.intertrust.cm.core.dao.impl.doel.DoelResolver"
+        p:dataSource-ref="dataSource" />
+
 </beans>
