@@ -9,8 +9,16 @@ import ru.intertrust.cm.core.business.api.dto.Id;
  */
 public interface CurrentUserAccessor {
 
+    /**
+     * Возвращает логин текущего пользователя.
+     * @return логин текущего пользователя
+     */
     String getCurrentUser();
     
+    /**
+     * Возвращает идентификатор текущего пользователя.
+     * @return идентификатор текущего пользователя.
+     */
     Id getCurrentUserId();
 
 }
