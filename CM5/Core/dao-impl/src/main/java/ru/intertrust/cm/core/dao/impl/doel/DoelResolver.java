@@ -8,13 +8,14 @@ import ru.intertrust.cm.core.config.model.*;
 import ru.intertrust.cm.core.config.model.doel.DoelExpression;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper;
+import ru.intertrust.cm.core.dao.impl.utils.ValueReader;
 
 import javax.sql.DataSource;
-import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DoelResolver {
 
@@ -210,81 +211,7 @@ public class DoelResolver {
         final FieldConfig fieldConfig = evaluationQueryResult.getResultFieldConfig();
         final String columnName = evaluationQueryResult.getFieldName();
 
-        return jdbcTemplate.query(query, params, new RowMapper<Value>() {
-            @Override
-            public Value mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return createFieldValueFromFieldConfig(rs, fieldConfig, columnName);
-            }
-
-            private Value createFieldValueFromFieldConfig(ResultSet rs, final FieldConfig fieldConfig,
-                    final String columnName) throws SQLException {
-                Value value = null;
-                if (fieldConfig != null && StringFieldConfig.class.equals(fieldConfig.getClass())) {
-                    String fieldValue = rs.getString(columnName);
-                    if (!rs.wasNull()) {
-                        value = new StringValue(fieldValue);
-                    } else {
-                        value = new StringValue();
-                    }
-                } else if (fieldConfig != null && LongFieldConfig.class.equals(fieldConfig.getClass())) {
-                    Long longValue = rs.getLong(columnName);
-                    if (!rs.wasNull()) {
-                        value = new LongValue(longValue);
-                    } else {
-                        value = new LongValue();
-                    }
-                } else if (fieldConfig != null && DecimalFieldConfig.class.equals(fieldConfig.getClass())) {
-                    BigDecimal fieldValue = rs.getBigDecimal(columnName);
-                    if (!rs.wasNull()) {
-                        value = new DecimalValue(fieldValue);
-                    } else {
-                        value = new DecimalValue();
-                    }
-                } else if (fieldConfig != null && ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
-                    if (!rs.wasNull()) {
-                        String referenceType = ((ReferenceFieldConfig) fieldConfig).getType();
-                        Long longValue = rs.getLong(columnName);
-
-                        value = new ReferenceValue(new RdbmsId(domainObjectTypeIdCache.getId(referenceType), longValue));
-                    } else {
-                        value = new ReferenceValue();
-                    }
-                } else if (fieldConfig != null && DateTimeFieldConfig.class.equals(fieldConfig.getClass())) {
-                    Timestamp timestamp = rs.getTimestamp(columnName);
-                    if (!rs.wasNull()) {
-                        Date date = new Date(timestamp.getTime());
-                        value = new TimestampValue(date);
-                    } else {
-                        value = new TimestampValue();
-                    }
-                } else if (fieldConfig != null && TimelessDateFieldConfig.class.equals(fieldConfig.getClass())) {
-                    Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-                    Timestamp timestamp = rs.getTimestamp(columnName, calendar);
-
-                    if (!rs.wasNull()) {
-                        calendar.setTime(timestamp);
-
-                        TimelessDate timelessDate = new TimelessDate();
-                        timelessDate.setYear(calendar.get(Calendar.YEAR));
-                        timelessDate.setMonth(calendar.get(Calendar.MONTH));
-                        timelessDate.setDayOfMonth(calendar.get(Calendar.DAY_OF_MONTH));
-
-                        value = new TimelessDateValue(timelessDate);
-                    } else {
-                        value = new TimelessDateValue();
-                    }
-                } else if (fieldConfig != null && BooleanFieldConfig.class.equals(fieldConfig.getClass())) {
-                    Integer booleanInt = rs.getInt(columnName);
-                    if (!rs.wasNull()) {
-                        value = new BooleanValue(booleanInt == 1);
-                    } else {
-                        value = new BooleanValue();
-                    }
-                }
-
-                return value;
-            }
-        });
+        return jdbcTemplate.query(query, params, new DoelResolverRowMapper(columnName, fieldConfig));
     }
 
     public DoelExpression createReverseExpression(DoelExpression expr, String sourceType) {
@@ -318,5 +245,21 @@ public class DoelResolver {
 
     public DoelExpression createReverseExpression(DoelExpression expr, int count, String sourceType) {
         return createReverseExpression(expr.cutByCount(count), sourceType);
+    }
+
+    private class DoelResolverRowMapper extends ValueReader implements RowMapper<Value> {
+
+        private String columnName;
+        private FieldConfig fieldConfig;
+
+        private DoelResolverRowMapper(String columnName, FieldConfig fieldConfig) {
+            this.columnName = columnName;
+            this.fieldConfig = fieldConfig;
+        }
+
+        @Override
+        public Value mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return readValue(rs, columnName, fieldConfig);
+        }
     }
 }

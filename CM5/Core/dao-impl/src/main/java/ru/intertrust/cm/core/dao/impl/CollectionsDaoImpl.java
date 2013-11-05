@@ -43,10 +43,10 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
     public static final String PARAM_NAME_PREFIX = "_PARAM_NAME_";
     public static final String CURRENT_PERSON_PARAM = "CURRENT_PERSON";
-    
+
 
     private static final String PARAM_NAME_PREFIX_SPRING = ":";
-    
+
     private NamedParameterJdbcTemplate jdbcTemplate;
 
     @Autowired
@@ -55,9 +55,9 @@ public class CollectionsDaoImpl implements CollectionsDao {
     @Autowired
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
 
-    @Autowired    
-    private CurrentUserAccessor currentUserAccessor; 
-    
+    @Autowired
+    private CurrentUserAccessor currentUserAccessor;
+
     /**
      * Устанавливает источник соединений
      *
@@ -65,7 +65,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
      */
     public void setDataSource(DataSource dataSource) {
         this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-        
+
     }
 
     public void setCurrentUserAccessor(CurrentUserAccessor currentUserAccessor) {
@@ -101,6 +101,9 @@ public class CollectionsDaoImpl implements CollectionsDao {
         String collectionQuery =
                 getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, offset, limit, accessToken);
 
+        Map<String, FieldConfig> columnToConfigMap =
+                new SqlQueryModifier().buildColumnToConfigMap(collectionQuery, configurationExplorer);
+
         Map<String, Object> parameters = new HashMap<>();
         fillFilterParameters(filterValues, parameters);
 
@@ -109,11 +112,12 @@ public class CollectionsDaoImpl implements CollectionsDao {
         }
 
         addCurrentPersonParameter(collectionQuery, parameters);
-        
         collectionQuery = adjustParameterNamesForSpring(collectionQuery);
+
+
         IdentifiableObjectCollection collection = jdbcTemplate.query(collectionQuery, parameters,
-                new CollectionRowMapper(collectionName, collectionConfig.getIdField(), configurationExplorer,
-                        domainObjectTypeIdCache));
+                new CollectionRowMapper(collectionName, columnToConfigMap, collectionConfig.getIdField(),
+                        configurationExplorer, domainObjectTypeIdCache));
 
         return collection;
     }
@@ -125,8 +129,8 @@ public class CollectionsDaoImpl implements CollectionsDao {
         }
     }
 
-    private Id getCurrentUserId() {        
-        return currentUserAccessor.getCurrentUserId();        
+    private Id getCurrentUserId() {
+        return currentUserAccessor.getCurrentUserId();
     }
 
     /*
@@ -241,9 +245,9 @@ public class CollectionsDaoImpl implements CollectionsDao {
             for (Filter filter : filterValues) {
                 for (Integer key : filter.getCriterionKeys()) {
                     String parameterName = filter.getFilter() + key;
-                    
+
                     Object criterion = getFilterCriterion(filter, key);
-                    
+
                     if(criterion == null){
                         throw new CollectionConfigurationException("Not Criterion nor MultiCriterion is defined for filter");
                     }
@@ -254,7 +258,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
                         parameters.put(parameterName, parameterValue);
 
                     } else if (criterion instanceof List) {
-                        List<Value> valuesList = (List) criterion;                        
+                        List<Value> valuesList = (List) criterion;
                         List<Object> parameterValues = getParameterValues(valuesList);
                         parameters.put(parameterName, parameterValues);
                     }
@@ -266,10 +270,10 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
     private List<Object> getParameterValues(List<Value> valuesList) {
         List<Object> parameterValues = new ArrayList<Object>();
-        
+
         for (Value value : valuesList) {
             Object parameterValue = getParameterValue(value);
-            parameterValues.add(parameterValue);                            
+            parameterValues.add(parameterValue);
 
         }
         return parameterValues;
@@ -277,9 +281,9 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
 
     private Object getFilterCriterion(Filter filter, Integer key) {
-        Object criterion = filter.getCriterion(key);        
+        Object criterion = filter.getCriterion(key);
         if(criterion == null){
-            criterion = filter.getMultiCriterion(key);                        
+            criterion = filter.getMultiCriterion(key);
         }
         return criterion;
     }
@@ -336,7 +340,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
         String criteria = clonedFilterConfig.getFilterCriteria().getValue();
         String filterName = filterValue.getFilter();
-               
+
         String parameterPrefix = PARAM_NAME_PREFIX + filterName;
         String newFilterCriteria = adjustParameterNames(criteria, parameterPrefix);
 

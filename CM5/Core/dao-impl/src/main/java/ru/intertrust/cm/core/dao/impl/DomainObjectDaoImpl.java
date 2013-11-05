@@ -1075,11 +1075,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             if (value == null || value.get() == null) {
                 parameters.put(parameterName, null);
                 if (ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
-                    parameterName = generateParameter(getReferenceTypeColumnName((ReferenceFieldConfig) fieldConfig));
+                    parameterName = generateParameter(getReferenceTypeColumnName(fieldConfig.getName()));
                     parameters.put(parameterName, null);
                 } else if (DateTimeWithTimeZoneFieldConfig.class.equals(fieldConfig.getClass())) {
                     parameterName =
-                            generateParameter(getTimeZoneIdColumnName((DateTimeWithTimeZoneFieldConfig) fieldConfig));
+                            generateParameter(getTimeZoneIdColumnName(fieldConfig.getName()));
                     parameters.put(parameterName, null);
                 }
                 continue;
@@ -1088,13 +1088,13 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             if (ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
                 RdbmsId rdbmsId = (RdbmsId) value.get();
                 parameters.put(parameterName, rdbmsId.getId());
-                parameterName = generateParameter(getReferenceTypeColumnName((ReferenceFieldConfig) fieldConfig));
+                parameterName = generateParameter(getReferenceTypeColumnName(fieldConfig.getName()));
                 parameters.put(parameterName, rdbmsId.getTypeId());
             } else if (DateTimeFieldConfig.class.equals(fieldConfig.getClass())) {
                 parameters.put(parameterName, getGMTDate((Date) value.get()));
             } else if (DateTimeWithTimeZoneFieldConfig.class.equals(fieldConfig.getClass())) {
                 parameters.put(parameterName, getGMTDate((DateTimeWithTimeZone) value.get()));
-                parameterName = generateParameter(getTimeZoneIdColumnName((DateTimeWithTimeZoneFieldConfig) fieldConfig));
+                parameterName = generateParameter(getTimeZoneIdColumnName(fieldConfig.getName()));
                 parameters.put(parameterName, getTimeZoneId((DateTimeWithTimeZone) value.get()));
             } else if (TimelessDateFieldConfig.class.equals(fieldConfig.getClass())) {
                 parameters.put(parameterName, getGMTDate((TimelessDate) value.get()));

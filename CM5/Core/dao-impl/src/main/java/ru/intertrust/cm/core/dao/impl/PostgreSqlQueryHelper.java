@@ -298,7 +298,7 @@ public class PostgreSqlQueryHelper {
             query.append("add ");
 
             String columnName = getSqlName(fieldConfig);
-            String typeReferenceColumnName = getReferenceTypeColumnName(fieldConfig);
+            String typeReferenceColumnName = getReferenceTypeColumnName(fieldConfig.getName());
             String referencedTableName = getSqlName(fieldConfig.getType());
             appendFKConstraint(query, tableName, new String[] { columnName,typeReferenceColumnName },
                     referencedTableName, new String[] { ID_COLUMN, TYPE_COLUMN });
@@ -463,7 +463,7 @@ public class PostgreSqlQueryHelper {
                 if (isAlterQuery) {
                     query.append("add column ");
                 }
-                query.append(getReferenceTypeColumnName((ReferenceFieldConfig) fieldConfig)).append(" integer");
+                query.append(getReferenceTypeColumnName(fieldConfig.getName())).append(" integer");
                 if (fieldConfig.isNotNull()) {
                     query.append(" not null");
                 }
@@ -472,7 +472,7 @@ public class PostgreSqlQueryHelper {
                 if (isAlterQuery) {
                     query.append("add column ");
                 }
-                query.append(getTimeZoneIdColumnName((DateTimeWithTimeZoneFieldConfig) fieldConfig)).append(" ").
+                query.append(getTimeZoneIdColumnName(fieldConfig.getName())).append(" ").
                         append(getTimeZoneIdSqlType());
                 if (fieldConfig.isNotNull()) {
                     query.append(" not null");
@@ -499,10 +499,10 @@ public class PostgreSqlQueryHelper {
 
             if (ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
                 query.append(", ");
-                query.append(getReferenceTypeColumnName((ReferenceFieldConfig) fieldConfig)).append(" integer");
+                query.append(getReferenceTypeColumnName(fieldConfig.getName())).append(" integer");
             } else if (DateTimeWithTimeZoneFieldConfig.class.equals(fieldConfig.getClass())) {
                 query.append(", ");
-                query.append(getTimeZoneIdColumnName((DateTimeWithTimeZoneFieldConfig) fieldConfig)).
+                query.append(getTimeZoneIdColumnName(fieldConfig.getName())).
                         append(" ").append(getTimeZoneIdSqlType());
             }
         }

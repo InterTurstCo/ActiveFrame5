@@ -69,9 +69,9 @@ public class DataStructureNamingHelper {
         for (FieldConfig fieldConfig : fieldConfigs) {
             columnNames.add(getSqlName(fieldConfig));
             if (fieldConfig instanceof ReferenceFieldConfig) {
-                columnNames.add(getReferenceTypeColumnName((ReferenceFieldConfig) fieldConfig));
+                columnNames.add(getReferenceTypeColumnName(fieldConfig.getName()));
             } else if (fieldConfig instanceof DateTimeWithTimeZoneFieldConfig) {
-                columnNames.add(getTimeZoneIdColumnName((DateTimeWithTimeZoneFieldConfig) fieldConfig));
+                columnNames.add(getTimeZoneIdColumnName(fieldConfig.getName()));
             }
         }
 
@@ -87,12 +87,12 @@ public class DataStructureNamingHelper {
         return convertToSqlFormat(name);
     }
 
-    public static String getReferenceTypeColumnName(ReferenceFieldConfig fieldConfig) {
-        return getServiceColumnName(fieldConfig.getName(), DomainObjectDao.REFERENCE_TYPE_POSTFIX);
+    public static String getReferenceTypeColumnName(String columnName) {
+        return getServiceColumnName(columnName, DomainObjectDao.REFERENCE_TYPE_POSTFIX);
     }
 
-    public static String getTimeZoneIdColumnName(DateTimeWithTimeZoneFieldConfig fieldConfig) {
-        return getServiceColumnName(fieldConfig.getName(), DomainObjectDao.TIME_ID_ZONE_POSTFIX);
+    public static String getTimeZoneIdColumnName(String columnName) {
+        return getServiceColumnName(columnName, DomainObjectDao.TIME_ID_ZONE_POSTFIX);
     }
 
     public static String getServiceColumnName(String columnName, String postfix) {
