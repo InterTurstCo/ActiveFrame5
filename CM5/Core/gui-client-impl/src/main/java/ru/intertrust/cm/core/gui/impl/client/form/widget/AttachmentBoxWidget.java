@@ -32,6 +32,7 @@ public class AttachmentBoxWidget extends BaseWidget {
     protected static final BusinessUniverseServiceAsync SERVICE =
             BusinessUniverseServiceAsync.Impl.getInstance();
     Timer elapsedTimer;
+
     @Override
     public Component createNew() {
         return new AttachmentBoxWidget();
@@ -42,7 +43,7 @@ public class AttachmentBoxWidget extends BaseWidget {
 
         List<AttachmentModel> attachments = state.getAttachments();
         String widthString = displayConfig.getWidth();
-        int width = Integer.parseInt(widthString.replaceAll("\\D+",""));
+        int width = Integer.parseInt(widthString.replaceAll("\\D+", ""));
         AttachmentUploaderView view = (AttachmentUploaderView) impl;
         view.setAttachments(attachments);
         view.adjustWidgetSizes(width);
@@ -60,7 +61,7 @@ public class AttachmentBoxWidget extends BaseWidget {
     public WidgetState getCurrentState() {
         AttachmentBoxState state = new AttachmentBoxState();
         AttachmentUploaderView attachmentUploaderView = (AttachmentUploaderView) impl;
-        List<AttachmentModel> attachments  = attachmentUploaderView.getAttachments();
+        List<AttachmentModel> attachments = attachmentUploaderView.getAttachments();
         state.setAttachments(attachments);
 
         return state;
@@ -84,13 +85,13 @@ public class AttachmentBoxWidget extends BaseWidget {
 
     private AttachmentModel handleFileNameFromServer(String filePath) {
         AttachmentModel attachmentModel = new AttachmentModel();
-        String [] splitClearName = filePath.split("-_-");
+        String[] splitClearName = filePath.split("-_-");
         String clearName = splitClearName[1];
         attachmentModel.setTemporaryName(filePath);
         attachmentModel.setName(clearName);
         ((AttachmentUploaderView) impl).getAttachments().add(attachmentModel);
 
-        return  attachmentModel;
+        return attachmentModel;
     }
 
     private Image createDeleteAttachmentButton(AttachmentModel model) {
@@ -106,7 +107,7 @@ public class AttachmentBoxWidget extends BaseWidget {
     private Anchor createAnchor(AttachmentModel model) {
         String anchorTitle = model.getName() + " (" + model.getContentLength() + ")";
         Anchor fileNameAnchor = new Anchor(anchorTitle);
-        fileNameAnchor.addClickHandler(new DownloadAttachmentHandler (model));
+        fileNameAnchor.addClickHandler(new DownloadAttachmentHandler(model));
         return fileNameAnchor;
     }
 
@@ -117,7 +118,7 @@ public class AttachmentBoxWidget extends BaseWidget {
         }
     }
 
-   private void setUpProgressOfUpload() {
+    private void setUpProgressOfUpload() {
 
         SERVICE.getAttachmentUploadPercentage(new AsyncCallback<AttachmentUploadPercentage>() {
 
@@ -130,18 +131,19 @@ public class AttachmentBoxWidget extends BaseWidget {
             public void onSuccess(AttachmentUploadPercentage percentage) {
 
                 Integer percentageValue = percentage.getPercentage();
-                System.out.println("uploaded " + percentageValue);
                 ((AttachmentUploaderView) impl).getUploaderProgressBar().update(percentageValue);
-                }
+            }
         });
     }
 
     private class DownloadAttachmentHandler implements ClickHandler {
 
         AttachmentModel model;
-        public DownloadAttachmentHandler (AttachmentModel model) {
+
+        public DownloadAttachmentHandler(AttachmentModel model) {
             this.model = model;
         }
+
         @Override
         public void onClick(ClickEvent event) {
             Id id = model.getId();
@@ -150,6 +152,7 @@ public class AttachmentBoxWidget extends BaseWidget {
         }
 
     }
+
     private class FormSubmitHandler implements FormPanel.SubmitHandler {
 
         @Override
@@ -162,7 +165,7 @@ public class AttachmentBoxWidget extends BaseWidget {
             Image deleteAttachment = createDeleteAttachmentButton(model);
 
             view.addRowWithAttachment(model, deleteAttachment, null);
-            elapsedTimer = new Timer () {
+            elapsedTimer = new Timer() {
                 public void run() {
                     setUpProgressOfUpload();
                 }
@@ -171,6 +174,7 @@ public class AttachmentBoxWidget extends BaseWidget {
 
         }
     }
+
     private class FormSubmitCompleteHandler implements FormPanel.SubmitCompleteHandler {
 
         public void onSubmitComplete(FormPanel.SubmitCompleteEvent event) {
@@ -194,14 +198,15 @@ public class AttachmentBoxWidget extends BaseWidget {
             this.model = model;
 
         }
+
         @Override
         public void onClick(ClickEvent event) {
-            Image delete = (Image)event.getSource();
+            Image delete = (Image) event.getSource();
             delete.getParent().getParent().removeFromParent();
             AttachmentUploaderView view = ((AttachmentUploaderView) impl);
             view.getAttachments().remove(model);
 
-            if(model.getTemporaryName() == null && model.getId() == null) {
+            if (model.getTemporaryName() == null && model.getId() == null) {
                 view.getSubmitForm().reset();
                 cancelTimer();
 
