@@ -39,7 +39,8 @@ public class AttachmentUploader {
 
     @ResponseBody
     @RequestMapping("/attachment-upload")
-    public String upload(@RequestParam(value = "fileUpload") MultipartFile file, HttpSession session) {
+    public String upload(@RequestParam(value = "fileUpload") MultipartFile file, HttpSession session)
+            throws IOException {
 
         String fileName = file.getOriginalFilename();
         long time = System.nanoTime();
@@ -57,9 +58,6 @@ public class AttachmentUploader {
                 InputStream inputStream = file.getInputStream();
                 OutputStream outputStream = new FileOutputStream(pathToSave)) {
             stream(inputStream, outputStream, session, contentLength);
-        } catch (IOException e) {
-            log.error("Error while uploading: " + e);
-            return "";
         }
         return savedFileName;
     }

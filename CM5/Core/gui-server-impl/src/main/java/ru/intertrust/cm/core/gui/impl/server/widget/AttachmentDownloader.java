@@ -2,8 +2,6 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import com.healthmarketscience.rmiio.RemoteInputStream;
 import com.healthmarketscience.rmiio.RemoteInputStreamClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,7 +14,6 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -32,7 +29,7 @@ import java.nio.channels.WritableByteChannel;
  */
 @Controller
 public class AttachmentDownloader {
-    private static final Logger log = LoggerFactory.getLogger(AttachmentDownloader.class);
+
     @Autowired
     protected CrudService crudService;
     @Autowired
@@ -41,7 +38,7 @@ public class AttachmentDownloader {
     protected AttachmentService attachmentService;
 
     @RequestMapping(value = "{id}", method = RequestMethod.GET)
-    public void getFile(@PathVariable("id") String id, HttpServletResponse response) {
+    public void getFile(@PathVariable("id") String id, HttpServletResponse response) throws IOException {
         Id rdmsId = idService.createId(id);
         DomainObject domainObject = crudService.find(rdmsId);
         String mimeType = domainObject.getString("MimeType");
@@ -52,11 +49,6 @@ public class AttachmentDownloader {
             response.setHeader("Content-Disposition", "attachment; filename=" + domainObject.getString("Name"));
             response.setContentType(mimeType);
             stream(fileData, response.getOutputStream());
-
-        } catch (FileNotFoundException e) {
-            log.error(e.getMessage());
-        } catch (IOException e) {
-            log.error(e.getMessage());
         } finally {
             close(remoteFileData);
         }
@@ -78,15 +70,13 @@ public class AttachmentDownloader {
 
     }
 
-    private void close(RemoteInputStream stream) {
-        if (stream == null) return;
-        try {
-            stream.close(true);
-        } catch (IOException e) {
-
-        } catch (Exception e) {
-
+    private void close(RemoteInputStream stream) throws IOException {
+        if (stream == null) {
+            return;
         }
+
+        stream.close(true);
     }
+
 }
 
