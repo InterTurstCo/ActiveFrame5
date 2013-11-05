@@ -1,8 +1,12 @@
 package ru.intertrust.cm.core.gui.rpc.server;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ru.intertrust.cm.core.business.api.dto.AttachmentUploadPercentage;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
+import ru.intertrust.cm.core.gui.impl.server.widget.AttachmentUploader;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
@@ -11,6 +15,7 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseService;
 
 import javax.ejb.EJB;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpSession;
 
 /**
  * @author Denis Mitavskiy
@@ -20,6 +25,8 @@ import javax.servlet.annotation.WebServlet;
 @WebServlet(name = "BusinessUniverseService",
         urlPatterns = "/remote/BusinessUniverseService")
 public class BusinessUniverseServiceImpl extends BaseService implements BusinessUniverseService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BusinessUniverseServiceImpl.class);
     @EJB
     private GuiService guiService;
 
@@ -40,7 +47,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
 
     private GuiException handleEjbException(Command command, RuntimeException e) {
         if (e.getCause() instanceof GuiException) {
-            return  (GuiException) e.getCause();
+            return (GuiException) e.getCause();
         }
         return new GuiException("Command can't be executed: " + command.getName());
     }
@@ -48,5 +55,13 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     @Override
     public FormDisplayData getForm(Id domainObjectId) {
         return guiService.getForm(domainObjectId);
+    }
+
+    @Override
+    public AttachmentUploadPercentage getAttachmentUploadPercentage() {
+        HttpSession session = getThreadLocalRequest().getSession();
+        AttachmentUploadPercentage uploadProgress = AttachmentUploader.getUploadProgress(session);
+
+        return uploadProgress;
     }
 }

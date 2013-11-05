@@ -40,52 +40,51 @@ public class AttachmentDownloader {
     @Autowired
     protected AttachmentService attachmentService;
 
-        @RequestMapping(value = "{id}", method = RequestMethod.GET)
-        public void getFile(@PathVariable("id") String id, HttpServletResponse response) {
-            Id rdmsId = idService.createId(id);
-            DomainObject domainObject = crudService.find(rdmsId);
-            String mimeType = domainObject.getString("MimeType");
-            RemoteInputStream remoteFileData = null;
-          try {
-              remoteFileData = attachmentService.loadAttachment(domainObject);
-              InputStream fileData = RemoteInputStreamClient.wrap(remoteFileData);
-              response.setHeader("Content-Disposition", "attachment; filename=" + domainObject.getString("Name"));
-              response.setContentType(mimeType);
-              stream (fileData, response.getOutputStream());
+    @RequestMapping(value = "{id}", method = RequestMethod.GET)
+    public void getFile(@PathVariable("id") String id, HttpServletResponse response) {
+        Id rdmsId = idService.createId(id);
+        DomainObject domainObject = crudService.find(rdmsId);
+        String mimeType = domainObject.getString("MimeType");
+        RemoteInputStream remoteFileData = null;
+        try {
+            remoteFileData = attachmentService.loadAttachment(domainObject);
+            InputStream fileData = RemoteInputStreamClient.wrap(remoteFileData);
+            response.setHeader("Content-Disposition", "attachment; filename=" + domainObject.getString("Name"));
+            response.setContentType(mimeType);
+            stream(fileData, response.getOutputStream());
 
-                } catch (FileNotFoundException e) {
-                    log.error(e.getMessage());
-                } catch (IOException e) {
-                    log.error(e.getMessage());
-          } finally {
-              close(remoteFileData);
-          }
-
+        } catch (FileNotFoundException e) {
+            log.error(e.getMessage());
+        } catch (IOException e) {
+            log.error(e.getMessage());
+        } finally {
+            close(remoteFileData);
         }
+
+    }
 
     private void stream(InputStream input, OutputStream output) throws IOException {
 
         try (
-            ReadableByteChannel inputChannel = Channels.newChannel(input);
-            WritableByteChannel outputChannel = Channels.newChannel(output))
-            {
-                ByteBuffer buffer = ByteBuffer.allocate(10240);
-                while (inputChannel.read(buffer) != -1) {
-                    buffer.flip();
-                    outputChannel.write(buffer);
-                    buffer.clear();
-                }
+                ReadableByteChannel inputChannel = Channels.newChannel(input);
+                WritableByteChannel outputChannel = Channels.newChannel(output)) {
+            ByteBuffer buffer = ByteBuffer.allocate(10240);
+            while (inputChannel.read(buffer) != -1) {
+                buffer.flip();
+                outputChannel.write(buffer);
+                buffer.clear();
+            }
         }
 
     }
-    private  void close(RemoteInputStream stream) {
+
+    private void close(RemoteInputStream stream) {
         if (stream == null) return;
         try {
             stream.close(true);
         } catch (IOException e) {
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
 
         }
     }

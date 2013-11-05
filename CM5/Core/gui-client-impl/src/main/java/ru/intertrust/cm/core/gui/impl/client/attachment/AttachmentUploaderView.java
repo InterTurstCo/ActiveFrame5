@@ -6,7 +6,6 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentModel;
 
@@ -22,28 +21,44 @@ public class AttachmentUploaderView extends Composite {
     private VerticalPanel attachmentsPanel;
     private Image addFile;
     private FileUpload fileUpload;
-    private FormPanel form;
+    private FormPanel submitForm;
     private int widgetWidth;
     private int partWidth;
-
+    private UploaderProgressBar uploaderProgressBar;
     private List<AttachmentModel> attachments;
 
     private VerticalPanel root;
-     public  AttachmentUploaderView() {
-         init();
-    }
-    public AttachmentUploaderView(List<AttachmentModel> attachments) {
-        this.attachments = attachments;
 
+    public AttachmentUploaderView() {
         init();
     }
 
-    public int getWidgetWidth() {
-        return widgetWidth;
+    /**
+     * Возвращает сохраненные и несохраненные прикрепления
+     *
+     * @param attachments
+     */
+    public AttachmentUploaderView(List<AttachmentModel> attachments) {
+        this.attachments = attachments;
+        init();
     }
 
-    public void setWidgetWidth(int widgetWidth) {
+    public UploaderProgressBar getUploaderProgressBar() {
+        return uploaderProgressBar;
+    }
+
+
+    public FormPanel getSubmitForm() {
+        return submitForm;
+    }
+
+    public void adjustWidgetSizes(int widgetWidth) {
         this.widgetWidth = widgetWidth;
+        partWidth = widgetWidth / 2;
+    }
+
+    public FileUpload getFileUpload() {
+        return fileUpload;
     }
 
     public List<AttachmentModel> getAttachments() {
@@ -54,21 +69,19 @@ public class AttachmentUploaderView extends Composite {
         this.attachments = attachments;
     }
 
-    public VerticalPanel getAttachmentsPanel() {
-        return attachmentsPanel;
+    public void addFormSubmitCompleteHandler(FormPanel.SubmitCompleteHandler submitCompleteHandler) {
+        submitForm.addSubmitCompleteHandler(submitCompleteHandler);
     }
 
-    public void setAttachmentsPanel(VerticalPanel attachmentsPanel) {
-        this.attachmentsPanel = attachmentsPanel;
+    public void addFormSubmitHandler(FormPanel.SubmitHandler submitHandler) {
+        submitForm.addSubmitHandler(submitHandler);
     }
 
-    public HandlerRegistration addFormSubmitCompleteHandler(FormPanel.SubmitCompleteHandler submitCompleteHandler){
-        return form.addSubmitCompleteHandler(submitCompleteHandler);
-    }
-    public void init() {
+    /**
+     * Инициализация частей составного виджета
+     */
+    private void init() {
         root = new VerticalPanel();
-
-        this.initWidget(root);
 
         attachmentsPanel = new VerticalPanel();
         initSubmitForm();
@@ -76,43 +89,56 @@ public class AttachmentUploaderView extends Composite {
 
         initUploadButton();
         root.add(addFile);
-        form.add(fileUpload);
-        root.add(form);
+        submitForm.add(fileUpload);
 
+        root.add(submitForm);
         root.add(attachmentsPanel);
-
+        initWidget(root);
     }
 
-    public void addRowWithAttachment(AttachmentModel model,Image deleteAttachment, Anchor anchor, String contentLength){
+    /**
+     * Cоздает строку-отображение состояния выгрузки прикрекпления
+     *
+     * @param model        модель прикрепления
+     * @param deleteButton кнопка для удаления отображения и отмены выгрузки
+     * @param anchor       линк для скачивания прикрепления, в случаи еще не сохраненного прикрепления - null
+     */
+    public void addRowWithAttachment(AttachmentModel model, Image deleteButton, Anchor anchor) {
 
         HorizontalPanel horizontalPanel = new HorizontalPanel();
 
         HorizontalPanel rightSide = new HorizontalPanel();
         HorizontalPanel leftSide = new HorizontalPanel();
-        partWidth = widgetWidth/2;
+
         rightSide.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
         rightSide.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
         rightSide.setWidth(partWidth + "px");
         leftSide.setWidth(partWidth + "px");
+        Image stylizedDeleteButton = stylizeDeleteButton(deleteButton);
         if (model.getId() == null) {
-            Label  fileNameLabel = initLabel(model);
+            Label fileNameLabel = initLabel(model);
             leftSide.add(fileNameLabel);
-            int imageWidth = deleteAttachment.getWidth();
-            UploaderProgressBar uploaderProgressBar = new UploaderProgressBar(partWidth - imageWidth - 10);
+            int imageWidth = stylizedDeleteButton.getWidth();
+            uploaderProgressBar = new UploaderProgressBar(partWidth - imageWidth - 10);
             rightSide.add(uploaderProgressBar);
+
         } else {
-            leftSide.add(anchor);
-            Label contentLengthLabel = new Label(contentLength);
-            contentLengthLabel.getElement().getStyle().setFloat(Style.Float.RIGHT);
-            leftSide.add(contentLengthLabel);
-            leftSide.getElement().getStyle().setMarginLeft(20, Style.Unit.PX);
+
+            leftSide.add(stylizeAnchor(anchor));
         }
 
-        rightSide.add(deleteAttachment);
+        rightSide.add(stylizedDeleteButton);
         horizontalPanel.add(leftSide);
         horizontalPanel.add(rightSide);
         attachmentsPanel.add(horizontalPanel);
 
+    }
+
+    /**
+     * Удаляет все прикрепления из отображения
+     */
+    public void cleanUp() {
+        attachmentsPanel.clear();
     }
 
     private void initFileUpload() {
@@ -126,18 +152,18 @@ public class AttachmentUploaderView extends Composite {
         fileUpload.addChangeHandler(new ChangeHandler() {
             @Override
             public void onChange(ChangeEvent event) {
-                form.submit();
+                submitForm.submit();
             }
         });
     }
 
     private void initSubmitForm() {
-        form = new FormPanel();
+        submitForm = new FormPanel();
 
-        form.setAction("http://127.0.0.1:8080/cm-sochi/attachment-upload");
+        submitForm.setAction("http://127.0.0.1:8080/cm-sochi/attachment-upload");
         // set form to use the POST method, and multipart MIME encoding.
-        form.setEncoding(FormPanel.ENCODING_MULTIPART);
-        form.setMethod(FormPanel.METHOD_POST);
+        submitForm.setEncoding(FormPanel.ENCODING_MULTIPART);
+        submitForm.setMethod(FormPanel.METHOD_POST);
 
     }
 
@@ -163,6 +189,23 @@ public class AttachmentUploaderView extends Composite {
         style.setFontSize(98, Style.Unit.PCT);
 
         return fileNameLabel;
+    }
+
+    private Anchor stylizeAnchor(Anchor fileNameAnchor) {
+
+        Style style = fileNameAnchor.getElement().getStyle();
+        style.setOverflow(Style.Overflow.HIDDEN);
+        style.setMarginLeft(20, Style.Unit.PX);
+        fileNameAnchor.setWidth(partWidth + "px");
+
+        return fileNameAnchor;
+    }
+
+    private Image stylizeDeleteButton(Image deleteButton) {
+        deleteButton.setUrl("button_cancel.png");
+        deleteButton.getElement().getStyle().setVerticalAlign(Style.VerticalAlign.MIDDLE);
+
+        return deleteButton;
     }
 
 }

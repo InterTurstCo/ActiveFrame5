@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.rpc.api;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
+import ru.intertrust.cm.core.business.api.dto.AttachmentUploadPercentage;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
@@ -20,6 +21,8 @@ public interface BusinessUniverseServiceAsync {
     void executeCommand(Command command, AsyncCallback<? extends Dto> async);
 
     void getForm(Id domainObjectId, AsyncCallback<FormDisplayData> async);
+
+    void getAttachmentUploadPercentage(AsyncCallback<AttachmentUploadPercentage> async);
 
     public static class Impl {
         private static final BusinessUniverseServiceAsync instance;

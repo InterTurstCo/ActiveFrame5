@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.model.AuthenticationException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
+
 /**
  * @author Denis Mitavskiy
  *         Date: 01.08.13

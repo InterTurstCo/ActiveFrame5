@@ -55,7 +55,7 @@
             <url-pattern>/*/BusinessUniverseService</url-pattern>
             <url-pattern>/cm-sochi/*</url-pattern>
             <url-pattern>/*/attachment-download/*</url-pattern>
-            <url-pattern>/*/attachment-upload</url-pattern>
+            <!--<url-pattern>/*/attachment-upload</url-pattern> -->
         </web-resource-collection>
         <auth-constraint>
             <description>
