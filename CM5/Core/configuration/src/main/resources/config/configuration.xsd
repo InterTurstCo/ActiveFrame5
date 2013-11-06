@@ -72,6 +72,9 @@
                         xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:stringType" name="string"
                 xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="con:textType"
+                        name="text" xmlns:con="https://cm5.intertrust.ru/config">
+            </xs:element>
             <xs:element type="con:dateTimeType" name="dateTime"
                 xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
@@ -310,6 +313,17 @@
                     use="optional" />
                 <xs:attribute type="xs:string" name="not-null"
                     use="optional" />
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="textType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="name" use="required"
+                              type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config" />
+                <xs:attribute type="xs:string" name="not-null"
+                              use="optional" />
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>

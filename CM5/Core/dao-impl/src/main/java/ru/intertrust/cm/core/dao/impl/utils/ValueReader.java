@@ -29,7 +29,9 @@ public class ValueReader {
     protected Value readValue(ResultSet rs, String columnName, FieldConfig fieldConfig) throws SQLException {
         Value value = null;
 
-        if (fieldConfig != null && StringFieldConfig.class.equals(fieldConfig.getClass())) {
+        if (fieldConfig != null &&
+                (StringFieldConfig.class.equals(fieldConfig.getClass()) ||
+                        TextFieldConfig.class.equals(fieldConfig.getClass()))) {
             value = readStringValue(rs, columnName);
         } else if (fieldConfig != null && LongFieldConfig.class.equals(fieldConfig.getClass())) {
             value = readLongValue(rs, columnName);

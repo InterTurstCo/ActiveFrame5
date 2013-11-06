@@ -8,6 +8,7 @@ package ru.intertrust.cm.core.business.api.dto;
 public enum FieldType {
 
     STRING(StringValue.class),
+    TEXT(StringValue.class),
     LONG(LongValue.class),
     BOOLEAN(BooleanValue.class),
     DECIMAL(DecimalValue.class),

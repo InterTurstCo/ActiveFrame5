@@ -96,30 +96,6 @@ public class BasicRowMapper extends ValueReader {
         }
     }
 
-    protected Value readValue(ResultSet rs, String columnName, FieldConfig fieldConfig) throws SQLException {
-        Value value = null;
-
-        if (fieldConfig != null && StringFieldConfig.class.equals(fieldConfig.getClass())) {
-            value = readStringValue(rs, columnName);
-        } else if (fieldConfig != null && LongFieldConfig.class.equals(fieldConfig.getClass())) {
-            value = readLongValue(rs, columnName);
-        } else if (fieldConfig != null && DecimalFieldConfig.class.equals(fieldConfig.getClass())) {
-            value = readDecimalValue(rs, columnName);
-        } else if (fieldConfig != null && ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
-            value = readReferenceValue(rs, columnName, (ReferenceFieldConfig) fieldConfig);
-        } else if (fieldConfig != null && DateTimeFieldConfig.class.equals(fieldConfig.getClass())) {
-            value = readTimestampValue(rs, columnName);
-        } else if (fieldConfig != null && DateTimeWithTimeZoneFieldConfig.class.equals(fieldConfig.getClass())) {
-            value = readDateTimeWithTimeZoneValue(rs, columnName, (DateTimeWithTimeZoneFieldConfig) fieldConfig);
-        } else if (fieldConfig != null && TimelessDateFieldConfig.class.equals(fieldConfig.getClass())) {
-            value = readTimelessDateValue(rs, columnName);
-        } else if (fieldConfig != null && BooleanFieldConfig.class.equals(fieldConfig.getClass())) {
-            value = readBooleanValue(rs, columnName);
-        }
-
-        return value;
-    }
-
     /**
      * Заполняет поля доменного объекта (id, parent или атрибут) из модели
      * {@see FieldValueModel}.

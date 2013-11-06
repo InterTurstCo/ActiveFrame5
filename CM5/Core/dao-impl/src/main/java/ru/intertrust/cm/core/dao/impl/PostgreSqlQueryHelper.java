@@ -550,6 +550,10 @@ public class PostgreSqlQueryHelper {
             return "varchar(" + ((StringFieldConfig) fieldConfig).getLength() + ")";
         }
 
+        if (TextFieldConfig.class.equals(fieldConfig.getClass())) {
+            return "text";
+        }
+
         if (PasswordFieldConfig.class.equals(fieldConfig.getClass())) {
             return "varchar(" + ((PasswordFieldConfig) fieldConfig).getLength() + ")";
         }
