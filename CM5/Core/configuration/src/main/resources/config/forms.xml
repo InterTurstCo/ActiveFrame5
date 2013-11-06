@@ -114,7 +114,7 @@
                     </hiding-groups>
                 </tab>
                 <tab name="Жизненный цикл">
-                    <bookmarks> <!-- наследник от TabGroupsConfig -->
+                    <bookmarks > <!-- наследник от TabGroupsConfig -->
                         <tab-group name="Регистрация"> <!-- либо таб, либо разметка, вместе - нельзя -->
                             <table>
                                 <tr>

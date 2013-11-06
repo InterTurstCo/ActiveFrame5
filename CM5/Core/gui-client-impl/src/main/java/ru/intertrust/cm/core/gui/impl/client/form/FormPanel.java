@@ -62,7 +62,8 @@ public class FormPanel implements IsWidget {
         List<TabConfig> tabs = body.getTabs();
 
         //body.setDisplaySingleTab(true);
-        if (body.isDisplaySingleTab() == true && tabs.size() == 1){
+        int countTab = 1;
+        if (body.isDisplaySingleTab() == true && tabs.size() == countTab){
 
             bodyTabPanel = new TabLayoutPanel(0, Style.Unit.PX);
             bodyTabPanel.add(buildTabContent(tabs.get(0)));
@@ -158,12 +159,44 @@ public class FormPanel implements IsWidget {
         }
     }
     private IsWidget buildTabContent(TabConfig tabConfig) {
-        SimpleLayoutPanel panel = new SimpleLayoutPanel();
-        panel.setSize((Window.getClientWidth() - 260) + "px", "100%");
+        FlowPanel panel = new FlowPanel();
+        //panel.setSize((Window.getClientWidth() - 260) + "px", "100%");
         TabGroupListConfig groupList = tabConfig.getGroupList();
         if (groupList instanceof SingleEntryGroupListConfig) {
             panel.add(buildTable(((SingleEntryGroupListConfig) groupList).getTabGroupConfig().getLayout()));
         }
+        if (groupList instanceof BookmarkListConfig) {
+            final BookmarksTabPanel bodyTabPanel = new BookmarksTabPanel();
+            List<TabGroupConfig> bookmarkTabs = ((BookmarkListConfig) groupList).getTabGroupConfigs();
+            for (TabGroupConfig tab : bookmarkTabs) {
+                bodyTabPanel.add(tab.getName(), buildBookmarksTabContent(tab));
+            }
+            panel.add(bodyTabPanel);
+            bodyTabPanel.selectedIndex(0);
+        }
+
+        if (groupList instanceof HidingGroupListConfig) {
+            HidingGroupListTabPanel bodyTabPanel = new HidingGroupListTabPanel();
+            List<TabGroupConfig> bookmarkTabs = ((HidingGroupListConfig) groupList).getTabGroupConfigs();
+            for (TabGroupConfig tab : bookmarkTabs) {
+                bodyTabPanel.add(tab.getName(), hidingGroupListTabContent(tab));
+            }
+            panel.add(bodyTabPanel);
+        }
+        return panel;
+    }
+
+    private IsWidget hidingGroupListTabContent(TabGroupConfig tabGroupConfig) {
+        FlowPanel panel = new FlowPanel();
+        //panel.setSize((Window.getClientWidth() - 360) + "px", "100px");
+        panel.add(buildTable(tabGroupConfig.getLayout()));
+        return panel;
+    }
+
+    private IsWidget buildBookmarksTabContent(TabGroupConfig tabGroupConfig) {
+        FlowPanel panel = new FlowPanel();
+        //panel.setSize((Window.getClientWidth() - 260) + "px", "100%");
+        panel.add(buildTable(tabGroupConfig.getLayout()));
         return panel;
     }
 

@@ -115,9 +115,9 @@
                 </table>
             </header>
             <body display-single-tab="false"> <!-- в теле - только закладки -->
-                <tab name="Главная"> <!-- закладка состоит из групп с разметкой -->
-                    <single-entry-group> <!-- наследник от TabGroupsConfig -->
-                        <tab-group> <!-- вхождение в группу уже может содержать разметку -->
+                <tab name="Закладки">
+                    <bookmarks> <!-- наследник от TabGroupsConfig -->
+                        <tab-group name="Главная"> <!-- либо таб, либо разметка, вместе - нельзя -->
                             <table>
                                 <tr>
                                     <td h-align="center" v-align="center">
@@ -169,11 +169,7 @@
                                 </tr>
                             </table>
                         </tab-group>
-                    </single-entry-group>
-                </tab>
-                <tab name="Описание">
-                    <single-entry-group>
-                        <tab-group>
+                        <tab-group name="Описание"> <!-- либо таб, либо разметка, вместе - нельзя -->
                             <table>
                                 <tr>
                                     <td h-align="right">
@@ -187,29 +183,11 @@
                                 </tr>
                             </table>
                         </tab-group>
-                    </single-entry-group>
+                    </bookmarks>
                 </tab>
-                <tab name="Города">
-                    <single-entry-group>
-                        <tab-group>
-                            <table>
-                                <tr>
-                                    <td h-align="right">
-                                        <widget id="13"/>
-                                    </td>
-                                    <!-- label (Города) -->
-                                    <td h-align="left">
-                                        <widget id="14"/>
-                                    </td>
-                                    <!-- list-box (Города) -->
-                                </tr>
-                            </table>
-                        </tab-group>
-                    </single-entry-group>
-                </tab>
-                <tab name="Friends">
-                    <single-entry-group>
-                        <tab-group>
+                <tab name="Города и Друзья">
+                    <hiding-groups>
+                        <tab-group name="Друзья">
                             <table>
                                 <tr>
                                     <td>
@@ -239,7 +217,15 @@
                                 </tr>
                             </table>
                         </tab-group>
-                    </single-entry-group>
+                        <tab-group name="Города">
+                            <table>
+                                <tr>
+                                    <td h-align="right"> <widget id="13"/> </td>
+                                    <td h-align="left"> <widget id="14"/> </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </hiding-groups>
                 </tab>
                 <tab name="Attachments">
                     <single-entry-group>
