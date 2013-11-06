@@ -53,9 +53,10 @@ public class FormLogicalValidatorTest {
                 + "name 'city_form' was validated with errors.Count: 2 Content:\n"
                 + "Could not find field 'city'  in path 'country^federal_unit.city.population'\n"
                 + "Path part 'year_of_foundation' in  'year_of_foundation.date' isn't a reference type\n"
-                + "Configuration of form with name 'country_form' was validated with errors.Count: 2 Content:\n"
+                + "Configuration of form with name 'country_form' was validated with errors.Count: 3 Content:\n"
                 + "h-align 'righ' is incorrect\n"
-                + "v-align 'middle' is incorrect\n");
+                + "v-align 'middle' is incorrect\n"
+                + "Field 'is_old' in  domain object 'country' isn't a boolean type\n");
        ConfigurationExplorer configurationExplorer = createConfigurationExplorer(INVALID_FORM_XML_PATH);
 
        FormLogicalValidator formValidator = new FormLogicalValidator();

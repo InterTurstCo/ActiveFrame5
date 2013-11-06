@@ -9,6 +9,7 @@
             <reference name="capital" type="city"/>
             <reference name="federal_unit" type="federal_unit"/>
             <string name="description" length="1024"/>
+            <boolean name = "is_country_rich"/>
         </fields>
         <uniqueKey>
             <field name="name"/>
@@ -166,7 +167,9 @@
             <label id="14">
                 <text>Тут будут области</text>
             </label>
-
+            <check-box id = "16">
+                <field-path value="is_country_rich"/>
+            </check-box>
         </widget-config>
     </form>
     <form name="city_form" domain-object-type="city" is-default="true">

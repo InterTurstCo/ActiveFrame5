@@ -1015,6 +1015,13 @@
         </xs:sequence>
         <xs:attribute type="xs:string" name="id" />
     </xs:complexType>
+    <xs:complexType name="checkBoxType">
+        <xs:sequence>
+            <xs:element type="con:fieldPathType" name="field-path"
+                      maxOccurs="1"  xmlns:con="https://cm5.intertrust.ru/config" />
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="id" />
+    </xs:complexType>
     <xs:complexType name="listBoxType">
         <xs:sequence>
             <xs:element type="con:fieldPathType" name="field-path"
@@ -1152,6 +1159,8 @@
                 xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:comboBoxType" name="combo-box"
                 xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="con:checkBoxType" name="check-box"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:listBoxType" name="list-box"
                 xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:suggestBoxType" name="suggest-box"

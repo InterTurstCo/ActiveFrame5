@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionViewConf
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
 /**
  * @author Yaroslav Bondacrhuk
  *         Date: 04/10/13
@@ -39,17 +40,17 @@ public class CollectionViewLogicalValidator {
             logger.error("Collection config couldn't be resolved");
             LogicalErrors logicalErrors = LogicalErrors.getInstance("Default", "collection");
             logicalErrors.addError("Collection config couldn't be resolved");
-            return;
-        }
-        for (CollectionViewConfig collectionViewConfig : collectionViewConfigList) {
-            String name = collectionViewConfig.getName();
-            LogicalErrors logicalErrors = LogicalErrors.getInstance(name, "collection-view");
-            validateCollectionViewConfig(collectionViewConfig, collectionConfigList, logicalErrors);
-            validationLogicalErrors.add(logicalErrors);
+        } else {
+            for (CollectionViewConfig collectionViewConfig : collectionViewConfigList) {
+                String name = collectionViewConfig.getName();
+                LogicalErrors logicalErrors = LogicalErrors.getInstance(name, "collection-view");
+                validateCollectionViewConfig(collectionViewConfig, collectionConfigList, logicalErrors);
+                validationLogicalErrors.add(logicalErrors);
+            }
         }
         StringBuilder errorLogBuilder = new StringBuilder();
         for (LogicalErrors errors : validationLogicalErrors) {
-            if(errors.getErrorCount() != 0) {
+            if (errors.getErrorCount() != 0) {
                 errorLogBuilder.append(errors.toString());
                 errorLogBuilder.append("\n");
             }
@@ -64,12 +65,12 @@ public class CollectionViewLogicalValidator {
     }
 
     private void validateCollectionViewConfig(CollectionViewConfig collectionViewConfig,
-                                          Collection<CollectionConfig> collectionConfigs, LogicalErrors logicalErrors) {
+                                              Collection<CollectionConfig> collectionConfigs, LogicalErrors logicalErrors) {
         if (collectionViewConfig == null) {
             return;
         }
 
-        String collectionName  = collectionViewConfig.getCollection();
+        String collectionName = collectionViewConfig.getCollection();
 
         if (collectionName == null) {
             return;
@@ -86,14 +87,14 @@ public class CollectionViewLogicalValidator {
         }
 
         validateSqlForRequiredFields(collection, collectionDisplayConfig, logicalErrors);
-        }
+    }
 
     private CollectionConfig findRequiredCollectionByName(Collection<CollectionConfig> collectionConfigs,
-                                                          String collection, LogicalErrors logicalErrors)  {
+                                                          String collection, LogicalErrors logicalErrors) {
 
         for (CollectionConfig collectionConfig : collectionConfigs) {
 
-            if(collection.equalsIgnoreCase(collectionConfig.getName())) {
+            if (collection.equalsIgnoreCase(collectionConfig.getName())) {
                 return collectionConfig;
             }
         }
@@ -106,19 +107,19 @@ public class CollectionViewLogicalValidator {
 
     private void validateSqlForRequiredFields(CollectionConfig colConf,
                                               CollectionDisplayConfig colDisplayConf, LogicalErrors logicalErrors) {
-       List<CollectionColumnConfig> columns = colDisplayConf.getColumnConfig();
-       String sqlQuery = colConf.getPrototype();
+        List<CollectionColumnConfig> columns = colDisplayConf.getColumnConfig();
+        String sqlQuery = colConf.getPrototype();
         for (CollectionColumnConfig column : columns) {
-          if (column !=null) {
-          String field = column.getField();
-          if (!sqlQuery.contains(field)) {
-              String collectionName = colConf.getName();
-              String error = String.format("Couldn't find field '%s' in sql query for collection with name '%s'",
-                      field, collectionName);
-              logger.error(error);
-              logicalErrors.addError(error);
-          }
-        }
+            if (column != null) {
+                String field = column.getField();
+                if (!sqlQuery.contains(field)) {
+                    String collectionName = colConf.getName();
+                    String error = String.format("Couldn't find field '%s' in sql query for collection with name '%s'",
+                            field, collectionName);
+                    logger.error(error);
+                    logicalErrors.addError(error);
+                }
+            }
         }
     }
 

@@ -72,8 +72,9 @@
                         xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:stringType" name="string"
                         xmlns:con="https://cm5.intertrust.ru/config" />
-            <xs:element type="con:textType" name="text"
-                        xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="con:textType"
+                        name="text" xmlns:con="https://cm5.intertrust.ru/config">
+            </xs:element>
             <xs:element type="con:dateTimeType" name="dateTime"
                         xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
@@ -321,7 +322,8 @@
             <xs:extension base="xs:string">
                 <xs:attribute name="name" use="required"
                               type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config" />
-                <xs:attribute type="xs:string" name="not-null" use="optional" />
+                <xs:attribute type="xs:string" name="not-null"
+                              use="optional" />
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -1013,6 +1015,13 @@
         </xs:sequence>
         <xs:attribute type="xs:string" name="id" />
     </xs:complexType>
+    <xs:complexType name="checkBoxType">
+        <xs:sequence>
+            <xs:element type="con:fieldPathType" name="field-path"
+                        maxOccurs="1"  xmlns:con="https://cm5.intertrust.ru/config" />
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="id" />
+    </xs:complexType>
     <xs:complexType name="listBoxType">
         <xs:sequence>
             <xs:element type="con:fieldPathType" name="field-path"
@@ -1033,9 +1042,7 @@
     <xs:complexType name="suggestBoxType">
         <xs:sequence>
             <xs:element type="con:fieldPathType" name="field-path"
-                xmlns:con="https://cm5.intertrust.ru/config" />
-            <xs:element type="con:patternType" name="pattern"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:collectionRefType" name="collection-ref"
                         xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:selectionFilterReferenceType"
@@ -1152,6 +1159,8 @@
                         xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:comboBoxType" name="combo-box"
                         xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="con:checkBoxType" name="check-box"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:listBoxType" name="list-box"
                         xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:suggestBoxType" name="suggest-box"

@@ -5,6 +5,7 @@
             <string name="name" length="128"/>
             <dateTime name="independence_day"/>
             <long name="population"/>
+            <boolean name = "is_country_rich"/>
             <decimal name="square" precision="15" scale="2"/>
             <reference name="capital" type="city"/>
             <reference name="most_famous_city" type="city"/>
@@ -214,6 +215,9 @@
                                     <td h-align="left">
                                         <widget id="best_friend_desc_back"/>
                                     </td>
+                                    <td h-align="left">
+                                        <widget id="16"/>
+                                    </td>
                                 </tr>
                             </table>
                         </tab-group>
@@ -365,6 +369,10 @@
                 <attachment-type-ref name="country_attachment"/>
                 <scanner enabled="true"/>
             </attachment-box>
+            <check-box id = "16">
+                <field-path value="is_country_rich"/>
+            </check-box>
+
         </widget-config>
     </form>
     <form name="city_form" domain-object-type="city" is-default="true">

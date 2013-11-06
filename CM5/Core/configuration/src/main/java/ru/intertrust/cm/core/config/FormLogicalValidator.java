@@ -29,6 +29,9 @@ public class FormLogicalValidator {
     private static final String ALIGN_LEFT = "left";
     private static final String ALIGN_RIGHT = "right";
 
+    private static final String FIELD_TYPE_BOOLEAN = "BOOLEAN";
+    private static final String COMPONENT_CHECK_BOX = "check-box";
+
     private static final String WIDGET_HANDLER_FULL_QUALIFIED_NAME =
             "ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler";
     private static final String REFERENCE_FIELD_CONFIG_FULL_QUALIFIED_NAME =
@@ -45,6 +48,7 @@ public class FormLogicalValidator {
     public FormLogicalValidator() {
         validationLogicalErrors = new ArrayList<LogicalErrors>();
     }
+
     public FormLogicalValidator(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
         validationLogicalErrors = new ArrayList<LogicalErrors>();
@@ -53,6 +57,7 @@ public class FormLogicalValidator {
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
     }
+
     /**
      * Выполняет логическую валидацию конфигурации форм
      */
@@ -71,7 +76,7 @@ public class FormLogicalValidator {
         }
         StringBuilder errorLogBuilder = new StringBuilder();
         for (LogicalErrors errors : validationLogicalErrors) {
-            if(errors.getErrorCount() != 0) {
+            if (errors.getErrorCount() != 0) {
                 errorLogBuilder.append(errors.toString());
                 errorLogBuilder.append("\n");
             }
@@ -84,16 +89,17 @@ public class FormLogicalValidator {
         logger.info("Form's configuration has passed logical validation without errors");
 
     }
+
     private void validateFormConfig(FormConfig formConfig, LogicalErrors logicalErrors) {
-       String formName = formConfig.getName();
-       String domainObjectType = formConfig.getDomainObjectType();
-       logger.info("Validating '{}' form", formName);
-       MarkupConfig markup = formConfig.getMarkup();
-        if (markup == null )  {
+        String formName = formConfig.getName();
+        String domainObjectType = formConfig.getDomainObjectType();
+        logger.info("Validating '{}' form", formName);
+        MarkupConfig markup = formConfig.getMarkup();
+        if (markup == null) {
             return;
         }
         WidgetConfigurationConfig widgetConfiguration = formConfig.getWidgetConfigurationConfig();
-        if(widgetConfiguration == null )  {
+        if (widgetConfiguration == null) {
             return;
         }
 
@@ -106,8 +112,8 @@ public class FormLogicalValidator {
 
     private void validateHeader(MarkupConfig markup, WidgetConfigurationConfig widgetConfiguration,
                                 LogicalErrors logicalErrors) {
-       HeaderConfig header = markup.getHeader();
-        if (header == null )  {
+        HeaderConfig header = markup.getHeader();
+        if (header == null) {
             return;
         }
         TableLayoutConfig table = header.getTableLayout();
@@ -118,7 +124,7 @@ public class FormLogicalValidator {
     private void validateBody(MarkupConfig markup, WidgetConfigurationConfig widgetConfiguration,
                               LogicalErrors logicalErrors) {
         BodyConfig body = markup.getBody();
-        if (body == null )  {
+        if (body == null) {
             return;
         }
         List<TabConfig> tabs = body.getTabs();
@@ -134,8 +140,8 @@ public class FormLogicalValidator {
                 validateWidgetsInTable(table, widgetConfiguration, logicalErrors);
                 validateTableAlignAndDimensions(table, logicalErrors);
 
-            } else if (tabGroupListConfig instanceof HidingGroupListConfig){
-                HidingGroupListConfig hidingGroupListConfig = (HidingGroupListConfig)tabGroupListConfig;
+            } else if (tabGroupListConfig instanceof HidingGroupListConfig) {
+                HidingGroupListConfig hidingGroupListConfig = (HidingGroupListConfig) tabGroupListConfig;
                 List<TabGroupConfig> tabGroupConfigList = hidingGroupListConfig.getTabGroupConfigs();
                 for (TabGroupConfig tabGroupConfig : tabGroupConfigList) {
                     TableLayoutConfig table = tabGroupConfig.getLayout();
@@ -144,8 +150,8 @@ public class FormLogicalValidator {
                     validateTableAlignAndDimensions(table, logicalErrors);
                 }
 
-            } else if (tabGroupListConfig instanceof BookmarkListConfig){
-                BookmarkListConfig hidingGroupListConfig = (BookmarkListConfig)tabGroupListConfig;
+            } else if (tabGroupListConfig instanceof BookmarkListConfig) {
+                BookmarkListConfig hidingGroupListConfig = (BookmarkListConfig) tabGroupListConfig;
                 List<TabGroupConfig> tabGroupConfigList = hidingGroupListConfig.getTabGroupConfigs();
                 for (TabGroupConfig tabGroupConfig : tabGroupConfigList) {
                     TableLayoutConfig table = tabGroupConfig.getLayout();
@@ -156,37 +162,39 @@ public class FormLogicalValidator {
 
             }
 
-            }
-                    }
+        }
+    }
 
-     private void validateWidgetsInTable(TableLayoutConfig table,
-                                         WidgetConfigurationConfig widgetConfiguration, LogicalErrors logicalErrors) {
-         if (table == null) {
-             return;
-         }
-         List<RowConfig> rows = table.getRows();
-         List<String> widgetsIds = findWidgetsInRows(rows);
-         for (String widgetId: widgetsIds) {
-             findWidgetById(widgetConfiguration, widgetId, logicalErrors);
-         }
-     }
+    private void validateWidgetsInTable(TableLayoutConfig table,
+                                        WidgetConfigurationConfig widgetConfiguration, LogicalErrors logicalErrors) {
+        if (table == null) {
+            return;
+        }
+        List<RowConfig> rows = table.getRows();
+        List<String> widgetsIds = findWidgetsInRows(rows);
+        for (String widgetId : widgetsIds) {
+            findWidgetById(widgetConfiguration, widgetId, logicalErrors);
+        }
+    }
 
-     private List<String> findWidgetsInRows(List<RowConfig> rows) {
-         List<String> widgetsIds = new ArrayList<String>();
-         for(RowConfig row : rows)   {
-             List<CellConfig> cells = row.getCells();
-             findWidgetsInCell(cells, widgetsIds);
-         }
-         return  widgetsIds;
-     }
-    private void findWidgetsInCell(List<CellConfig> cells,  List<String> widgetsIds)  {
+    private List<String> findWidgetsInRows(List<RowConfig> rows) {
+        List<String> widgetsIds = new ArrayList<String>();
+        for (RowConfig row : rows) {
+            List<CellConfig> cells = row.getCells();
+            findWidgetsInCell(cells, widgetsIds);
+        }
+        return widgetsIds;
+    }
+
+    private void findWidgetsInCell(List<CellConfig> cells, List<String> widgetsIds) {
         for (CellConfig cell : cells) {
             WidgetDisplayConfig widget = cell.getWidgetDisplayConfig();
             String id = widget.getId();
-                    widgetsIds.add(id);
+            widgetsIds.add(id);
         }
 
     }
+
     private void findWidgetById(WidgetConfigurationConfig widgetConfiguration,
                                 String widgetId, LogicalErrors logicalErrors) {
         List<WidgetConfig> widgetConfigs = widgetConfiguration.getWidgetConfigList();
@@ -197,7 +205,7 @@ public class FormLogicalValidator {
             return;
         }
         for (WidgetConfig widgetConfig : widgetConfigs) {
-            if (widgetConfig == null )  {
+            if (widgetConfig == null) {
                 continue;
             }
             String id = widgetConfig.getId();
@@ -220,24 +228,24 @@ public class FormLogicalValidator {
 
         }
         String tableWidth = table.getHeight();
-        if (tableWidth != null)  {
+        if (tableWidth != null) {
             validateWidthAndHeight(tableWidth, logicalErrors);
         }
         String rowHeight = table.getRowHeight();
-        if (rowHeight != null)  {
+        if (rowHeight != null) {
             validateWidthAndHeight(rowHeight, logicalErrors);
         }
         String hAlign = table.getHAlign();
-        if (hAlign != null)  {
+        if (hAlign != null) {
             validateHAlign(hAlign, logicalErrors);
         }
-        String  vAlign= table.getVAlign();
-        if (vAlign != null)  {
+        String vAlign = table.getVAlign();
+        if (vAlign != null) {
             validateVAlign(vAlign, logicalErrors);
         }
         List<RowConfig> rows = table.getRows();
 
-        for (RowConfig row: rows) {
+        for (RowConfig row : rows) {
             validateRowAlignAndDimensions(row, logicalErrors);
             List<CellConfig> cells = row.getCells();
             for (CellConfig cell : cells) {
@@ -254,6 +262,7 @@ public class FormLogicalValidator {
 
         }
     }
+
     private void validateVAlign(String align, LogicalErrors logicalErrors) {
         if (!ALIGN_BOTTOM.equalsIgnoreCase(align) && !ALIGN_CENTER.equalsIgnoreCase(align)
                 && !ALIGN_TOP.equalsIgnoreCase(align)) {
@@ -275,29 +284,30 @@ public class FormLogicalValidator {
 
     private void validateRowAlignAndDimensions(RowConfig row, LogicalErrors logicalErrors) {
         String height = row.getHeight();
-        if (height != null)  {
+        if (height != null) {
             validateWidthAndHeight(height, logicalErrors);
         }
         String vAlign = row.getDefaultVerticalAlignment();
-        if (vAlign != null)  {
+        if (vAlign != null) {
             validateVAlign(vAlign, logicalErrors);
         }
     }
 
     private void validateCellAlignAndDimensions(CellConfig cell, LogicalErrors logicalErrors) {
         String width = cell.getWidth();
-        if (width != null)  {
+        if (width != null) {
             validateWidthAndHeight(width, logicalErrors);
         }
         String vAlign = cell.getVerticalAlignment();
-        if (vAlign != null)  {
+        if (vAlign != null) {
             validateVAlign(vAlign, logicalErrors);
         }
         String hAlign = cell.getHorizontalAlignment();
-        if (hAlign != null)  {
+        if (hAlign != null) {
             validateHAlign(hAlign, logicalErrors);
         }
     }
+
     private void validateWidgetsHandlers(WidgetConfigurationConfig widgetConfiguration, LogicalErrors logicalErrors) {
         List<WidgetConfig> widgetConfigs = widgetConfiguration.getWidgetConfigList();
         if (widgetConfigs.isEmpty()) {
@@ -307,13 +317,13 @@ public class FormLogicalValidator {
             return;
         }
         for (WidgetConfig widgetConfig : widgetConfigs) {
-            if (widgetConfig == null )  {
+            if (widgetConfig == null) {
                 continue;
             }
             String componentName = widgetConfig.getComponentName();
 
             Object bean = null;
-            try{
+            try {
                 bean = context.getBean(componentName);
             } catch (BeansException exception) {
                 String error = String.format("Could not find widget handler for widget with name '%s'", componentName);
@@ -327,22 +337,23 @@ public class FormLogicalValidator {
 
         }
     }
+
     private void validateWidgetHandlerExtending(Class clazz, String componentName, LogicalErrors logicalErrors) {
-        Class  parentClass = clazz.getSuperclass();
+        Class parentClass = clazz.getSuperclass();
 
-             if (parentClass == null) {
-                 String error = String.format("Could not find widget handler for widget with name '%s'", componentName);
-                 logger.error(error);
-                 logicalErrors.addError(error);
-                 return;
-             }
+        if (parentClass == null) {
+            String error = String.format("Could not find widget handler for widget with name '%s'", componentName);
+            logger.error(error);
+            logicalErrors.addError(error);
+            return;
+        }
 
-            String parentClassFullName = parentClass.getCanonicalName();
-             if (WIDGET_HANDLER_FULL_QUALIFIED_NAME.equalsIgnoreCase(parentClassFullName)) {
-                      return;
-                  }
+        String parentClassFullName = parentClass.getCanonicalName();
+        if (WIDGET_HANDLER_FULL_QUALIFIED_NAME.equalsIgnoreCase(parentClassFullName)) {
+            return;
+        }
 
-             validateWidgetHandlerExtending(parentClass,componentName, logicalErrors);
+        validateWidgetHandlerExtending(parentClass, componentName, logicalErrors);
 
     }
 
@@ -355,71 +366,91 @@ public class FormLogicalValidator {
             FieldPathConfig fieldPath = widgetConfig.getFieldPathConfig();
 
             if (fieldPath == null) {
-            continue;
+                continue;
             }
             String fieldPathValue = fieldPath.getValue();
 
             if (fieldPathValue == null) {
-            continue;
+                continue;
             }
-            parseAndValidateFieldPath(domainObjectType, fieldPathValue, logicalErrors);
-            }
+            String componentName = widgetConfig.getComponentName();
+            parseAndValidateFieldPath(domainObjectType, fieldPathValue, componentName, logicalErrors);
+        }
     }
 
-       private boolean validateFieldPath (String domainObjectType,String fieldPathPart,
-                                        String fullFieldPathValue, int numberOfParts, LogicalErrors logicalErrors) {
+    private boolean validateFieldPath(String domainObjectType, String fieldPathPart,
+                                      String fullFieldPathValue, int numberOfParts, String componentName, LogicalErrors logicalErrors) {
 
-           FieldConfig fieldConfig = configurationExplorer.getFieldConfig(domainObjectType, fieldPathPart);
+        FieldConfig fieldConfig = configurationExplorer.getFieldConfig(domainObjectType, fieldPathPart);
 
-           if (fieldConfig == null) {
-               String error = String.format("Could not find field '%s'  in path '%s'",
-                       fieldPathPart, fullFieldPathValue);
-               logger.error(error);
-               logicalErrors.addError(error);
-               return false;
-           }
+        if (fieldConfig == null) {
+            String error = String.format("Could not find field '%s'  in path '%s'",
+                    fieldPathPart, fullFieldPathValue);
+            logger.error(error);
+            logicalErrors.addError(error);
+            return false;
+        }
 
-           if (numberOfParts == 0) {
-               return true;
-           }
+        validateComponentsFields(domainObjectType, fieldConfig, componentName, logicalErrors);
+        if (numberOfParts == 0) {
+            return true;
+        }
 
-           if (REFERENCE_FIELD_CONFIG_FULL_QUALIFIED_NAME.equalsIgnoreCase(fieldConfig.getClass().getCanonicalName())){
-               return true;
-           }
-           String error = String.format("Path part '%s' in  '%s' isn't a reference type",
-                   fieldPathPart, fullFieldPathValue);
-           logger.error(error);
-           logicalErrors.addError(error);
-           return false;
-       }
+        if (REFERENCE_FIELD_CONFIG_FULL_QUALIFIED_NAME.equalsIgnoreCase(fieldConfig.getClass().getCanonicalName())) {
+            return true;
+        }
+        String error = String.format("Path part '%s' in  '%s' isn't a reference type",
+                fieldPathPart, fullFieldPathValue);
+        logger.error(error);
+        logicalErrors.addError(error);
+        return false;
+    }
 
-       private void parseAndValidateFieldPath(String domainObjectType,
-                                   String fieldPathValue, LogicalErrors logicalErrors) {
-           String [] pathParts = fieldPathValue.split("\\.");
-           int numberOfParts = pathParts.length;
+    private void parseAndValidateFieldPath(String domainObjectType,
+                                           String fieldPathValue, String componentName, LogicalErrors logicalErrors) {
+        String[] pathParts = fieldPathValue.split("\\.");
+        int numberOfParts = pathParts.length;
 
-           String lastReference = "";
-           for (String pathPart : pathParts)  {
-                 numberOfParts--;
-               if(lastReference.equalsIgnoreCase("")) {
-                   lastReference = domainObjectType;
-               }
-               if (pathPart.contains("^")) {
-                   String [] backReferenceAndField = pathPart.split("\\^");
-                   String backReference = backReferenceAndField[0];
-                   String field = backReferenceAndField[1];
+        String lastReference = "";
+        for (String pathPart : pathParts) {
+            numberOfParts--;
+            if (lastReference.equalsIgnoreCase("")) {
+                lastReference = domainObjectType;
+            }
+            if (pathPart.contains("^")) {
+                String[] backReferenceAndField = pathPart.split("\\^");
+                String backReference = backReferenceAndField[0];
+                String field = backReferenceAndField[1];
 
-                      if (!validateFieldPath(backReference, field, fieldPathValue, numberOfParts, logicalErrors)) {
-                          break;
-                      }
-                   lastReference = field;
-               } else {
-                     if  (!validateFieldPath(lastReference, pathPart, fieldPathValue, numberOfParts, logicalErrors)) {
-                         break;
-                     }
-                   lastReference = pathPart;
-               }
-           }
+                if (!validateFieldPath(backReference, field, fieldPathValue, numberOfParts, componentName, logicalErrors)) {
+                    break;
+                }
+                lastReference = field;
+            } else {
+                if (!validateFieldPath(lastReference, pathPart, fieldPathValue, numberOfParts, componentName, logicalErrors)) {
+                    break;
+                }
+                lastReference = pathPart;
+            }
+        }
 
-       }
+    }
+
+    private void validateComponentsFields(String domainObjectType,
+                                          FieldConfig fieldConfig, String componentName, LogicalErrors logicalErrors) {
+        if (COMPONENT_CHECK_BOX.equalsIgnoreCase(componentName)) {
+            validateCheckBoxWidget(domainObjectType, fieldConfig, logicalErrors);
+        }
+    }
+
+    private void validateCheckBoxWidget(String domainObjectType, FieldConfig fieldConfig, LogicalErrors logicalErrors) {
+        String fieldType = fieldConfig.getFieldType().name();
+        if (FIELD_TYPE_BOOLEAN.equalsIgnoreCase(fieldType)) {
+            return;
+        }
+        String error = String.format("Field '%s' in  domain object '%s' isn't a boolean type",
+                fieldConfig.getName(), domainObjectType);
+        logger.error(error);
+        logicalErrors.addError(error);
+    }
 }
