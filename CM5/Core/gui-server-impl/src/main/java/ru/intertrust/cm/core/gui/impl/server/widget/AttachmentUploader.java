@@ -80,13 +80,8 @@ public class AttachmentUploader {
                 outputChannel.write(buffer);
                 bytesRead += buffer.capacity();
                 updateUploadProgress(bytesRead, bytesTotal, uploadProgress);
-                System.out.println("rrr");
                 buffer.clear();
-                try {
-                    Thread.sleep(100) ;
-                } catch (InterruptedException e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                }
+
             }
 
         }
