@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.dao.impl.access;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,14 +32,14 @@ public class TrackDomainObjectCollector extends BaseDynamicGroupServiceImpl impl
     }
 
     @Override
-    public List<Id> getPersons(Id domainObjectId, Id contextId) {
-        List<Id> groupMembres = getGroupMembers(domainObjectId, contextId, false);
+    public List<Id> getPersons(Id contextId) {
+        List<Id> groupMembres = getGroupMembers(contextId, false);
         return groupMembres;
     }
 
     @Override
-    public List<Id> getGroups(Id domainObjectId, Id contextId) {
-        List<Id> groupMembres = getGroupMembers(domainObjectId, contextId, true);
+    public List<Id> getGroups(Id contextId) {
+        List<Id> groupMembres = getGroupMembers(contextId, true);
         return groupMembres;
     }
 
@@ -58,12 +59,23 @@ public class TrackDomainObjectCollector extends BaseDynamicGroupServiceImpl impl
     @Override
     public List<Id> getInvalidContexts(DomainObject domainObject,
             List<FieldModification> modifiedFields) {
-        String status = getStatusFor(domainObject.getId());
 
         List<Id> result = new ArrayList<Id>();
-        List<DynamicGroupConfig> dynamicGroups = getDynamicGroupsToRecalculate(domainObject.getId(), status);
-        for (DynamicGroupConfig dynamicGroupConfig : dynamicGroups) {
-            result = getContextObjectId(dynamicGroupConfig, domainObject.getId());
+
+        if (trackDomainObjects.getBindContext() != null && trackDomainObjects.getBindContext().getDoel() != null) {
+            DoelExpression expression = DoelExpression.parse(trackDomainObjects.getBindContext().getDoel());
+            List<Value> invalidContexts = doelResolver.evaluate(expression, domainObject.getId());
+            //Проверяем статус
+            if (trackDomainObjects.getStatus() != null) {
+                String status = getStatusFor(domainObject.getId());
+                if (trackDomainObjects.getStatus().equals(status)) {
+                    result = getIdList(invalidContexts);
+                }
+            } else {
+                result = getIdList(invalidContexts);
+            }
+        } else {
+            result.add(domainObject.getId());
         }
 
         return result;
@@ -98,51 +110,36 @@ public class TrackDomainObjectCollector extends BaseDynamicGroupServiceImpl impl
     /**
      * Получает список персон динамической группы по дескриптору группы и контекстному объекту.
      * 
-     * @param objectId
-     *            отслеживаемый объект динамической группы. Используется для расчета обратного Doel выражения.
      * @param contextObjectid
      *            контекстному объекту динамической группы
      * @param groups
      *            флаг указывающий какой doel использовать. Для получения групп или для получения пользователей
      * @return список персон группы
      */
-    private List<Id> getGroupMembers(Id objectId, Id contextObjectid, boolean groups) {
+    private List<Id> getGroupMembers(Id contextObjectid, boolean groups) {
         List<Id> result = new ArrayList<Id>();
-        if (trackDomainObjects != null
-                && trackDomainObjects.getBindContext() != null) {
-            String bindContextDoel = trackDomainObjects.getBindContext()
-                    .getDoel();
-            DoelExpression bindContextExpr = DoelExpression
-                    .parse(bindContextDoel);
-            DoelExpression reverseBindContextExpr = createReverseExpression(
-                    objectId, bindContextExpr);
 
-            // В зависимости от флага получаем или группы или персоны
-            String doel = null;
-            if (groups) {
-                if (trackDomainObjects.getGetGroup() != null) {
-                    doel = trackDomainObjects.getGetGroup().getDoel();
-                }
-            } else {
-                if (trackDomainObjects.getGetPerson() != null) {
-                    doel = trackDomainObjects.getGetPerson().getDoel();
-                }
+        // В зависимости от флага получаем или группы или персоны
+        String doel = null;
+        if (groups) {
+            if (trackDomainObjects.getGetGroup() != null) {
+                doel = trackDomainObjects.getGetGroup().getDoel();
             }
+        } else {
+            if (trackDomainObjects.getGetPerson() != null) {
+                doel = trackDomainObjects.getGetPerson().getDoel();
+            }
+        }
 
-            if (doel != null) {
-                /*String getGroupPersonsDoel = createRetrieveGroupPersonsDoel(
-                        reverseBindContextExpr, doel);
-                DoelExpression reverseGetPersonExpr = DoelExpression
-                        .parse(getGroupPersonsDoel);*/
-                DoelExpression getMemberExpr = DoelExpression
-                        .parse(doel);
-                List<Value> valueList = doelResolver.evaluate(getMemberExpr,
-                        contextObjectid);
-                result.addAll(getIdList(valueList));
-                
-                if (groups){
-                    result = getDynGroups(result, trackDomainObjects.getGetGroup().getGroupName());
-                }                
+        if (doel != null) {
+            DoelExpression getMemberExpr = DoelExpression
+                    .parse(doel);
+            List<Value> valueList = doelResolver.evaluate(getMemberExpr,
+                    contextObjectid);
+            result.addAll(getIdList(valueList));
+
+            if (groups) {
+                result = getDynGroups(result, trackDomainObjects.getGetGroup().getGroupName());
             }
         }
         return result;
@@ -150,15 +147,15 @@ public class TrackDomainObjectCollector extends BaseDynamicGroupServiceImpl impl
 
     private List<Id> getDynGroups(List<Id> groupOwners, String groupName) {
         List<Id> result = new ArrayList<Id>();
-        
-        if (groupName != null && groupName.length() > 0){
+
+        if (groupName != null && groupName.length() > 0) {
             for (Id groupOwner : groupOwners) {
                 DomainObject dynGroup = personManagementService.findDynamicGroup(groupName, groupOwner);
-                if (dynGroup != null){
+                if (dynGroup != null) {
                     result.add(dynGroup.getId());
                 }
             }
-        }else{
+        } else {
             result = groupOwners;
         }
         return result;

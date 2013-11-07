@@ -27,7 +27,7 @@ public interface DynamicGroupCollector {
      *            идентификатор доменного объекта который отслеживался
      * @return
      */
-    List<Id> getPersons(Id domainObjectId, Id contextId);
+    List<Id> getPersons(Id contextId);
 
     /**
      * Вычисляет группы, входящие в состав динамической группы. Вызывается при
@@ -41,7 +41,7 @@ public interface DynamicGroupCollector {
      *            идентификатор доменного объекта который отслеживался трекером
      * @return
      */
-    List<Id> getGroups(Id domainObjectId, Id contextId);
+    List<Id> getGroups(Id contextId);
 
     /**
      * Возвращает список типов, изменение которых влечет за собой изменение

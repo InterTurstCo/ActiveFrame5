@@ -60,8 +60,7 @@ public class OnChangeGroupGroupSettingsExtensionPointHandler implements AfterSav
         // Получаем роли, которые включают родительскую роль с учетом иерархии
         List<DomainObject> roles = personManagementService.getAllParentGroup(parent);
 
-        // Вызываем пересчет состава ролей всех этих ролей и самой изменяемой
-        // роли
+        // Вызываем пересчет состава ролей всех этих ролей и самой изменяемой роли
         refreshRoleRoles(parent);
         for (DomainObject role : roles) {
             refreshRoleRoles(role.getId());
@@ -194,13 +193,11 @@ public class OnChangeGroupGroupSettingsExtensionPointHandler implements AfterSav
     public void onAfterDelete(DomainObject domainObject) {
                 
         Id parent = domainObject.getReference("parent_group_id");
-        Id child = domainObject.getReference("child_group_id");
 
         // Получаем роли, которые включают родительскую роль с учетом иерархии
         List<DomainObject> roles = personManagementService.getAllParentGroup(parent);
 
-        // Вызываем пересчет состава ролей всех этих ролей и самой изменяемой
-        // роли
+        // Вызываем пересчет состава ролей всех этих ролей и самой изменяемой роли
         refreshRoleRoles(parent);
         for (DomainObject role : roles) {
             refreshRoleRoles(role.getId());

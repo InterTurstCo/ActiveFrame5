@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.dao.impl.utils;
 
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.model.*;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.model.FatalException;
 
 import java.math.BigDecimal;
@@ -85,7 +86,12 @@ public class ValueReader {
         if (rs.wasNull()) {
             return new ReferenceValue();
         } else {
-            String typeColumnName = getReferenceTypeColumnName(fieldConfig.getName()).toLowerCase();
+            String typeColumnName = null;
+            if (fieldConfig.getName().equalsIgnoreCase(DomainObjectDao.ID_COLUMN)){
+                typeColumnName = DomainObjectDao.TYPE_COLUMN;
+            }else{
+                typeColumnName = getReferenceTypeColumnName(fieldConfig.getName()).toLowerCase();
+            }
             Integer typeId = rs.getInt(typeColumnName);
             if (!rs.wasNull()) {
                 return new ReferenceValue(new RdbmsId(typeId, longValue));

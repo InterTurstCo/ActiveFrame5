@@ -25,8 +25,10 @@ import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionDisplayConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
@@ -60,10 +62,9 @@ public class BaseDynamicGroupServiceImpl {
 
     @Autowired
     protected PersonManagementServiceDao personManagementService;
-    
-    /*public BaseDynamicGroupServiceImpl(){
-        doelResolver.setConfigurationExplorer(configurationExplorer);
-    }*/
+
+    @Autowired
+    protected CollectionsDao collectionsService;
     
     public void setDomainObjectDao(DomainObjectDao domainObjectDao) {
         this.domainObjectDao = domainObjectDao;

@@ -31,9 +31,15 @@ public class TestAuditLog extends ClientBase {
             AuditService.Remote auditService = (AuditService.Remote) getService(
                     "AuditService", AuditService.Remote.class);
 
+            //Создание организации
+            DomainObject organization = crudService.createDomainObject("Organization");
+            organization.setString("Name", "Organization_" + System.currentTimeMillis());
+            organization = crudService.save(organization);
+            
             // Создание подразделения
             DomainObject department = crudService.createDomainObject("Department");
             department.setString("Name", "Department_" + System.currentTimeMillis());
+            department.setReference("Organization", organization.getId());
             department = crudService.save(department);
             //Получение всех версий
             List<DomainObjectVersion> versions = auditService.findAllVersions(department.getId());

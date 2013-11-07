@@ -32,20 +32,22 @@ public class ManagementChain extends DynamicGroupCollectorBase implements Dynami
     private DynamicGroupConfig config;
 
     @Override
-    public List<Id> getPersons(Id domainObjectId, Id contextId) {
+    public List<Id> getPersons(Id contextId) {
         List<Id> result = new ArrayList<Id>();
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
         Id rootDepartmentId = getRootDepartment(contextId);
-        DomainObject rootDepartment = domainObjectDao.find(rootDepartmentId, accessToken);
-        if (rootDepartment.getReference("Boss") != null) {
-            result.add(rootDepartment.getReference("Boss"));
+        if (rootDepartmentId != null) {
+            DomainObject rootDepartment = domainObjectDao.find(rootDepartmentId, accessToken);
+            if (rootDepartment.getReference("Boss") != null) {
+                result.add(rootDepartment.getReference("Boss"));
+            }
+            result.addAll(getChildDepartmentBosses(rootDepartmentId));
         }
-        result.addAll(getChildDepartmentBosses(rootDepartmentId));
         return result;
     }
 
     @Override
-    public List<Id> getGroups(Id domainObjectId, Id contextId) {
+    public List<Id> getGroups(Id contextId) {
         return null;
     }
 
@@ -62,10 +64,10 @@ public class ManagementChain extends DynamicGroupCollectorBase implements Dynami
         List<Id> result = new ArrayList<Id>();
         if (containsModifiedField(modifiedFieldNames, "ParentDepartment")) {
             FieldModification fieldModification = getFieldModification(modifiedFieldNames, "ParentDepartment");
-            if (fieldModification.getBaseValue() != null){
+            if (fieldModification.getBaseValue() != null) {
                 result.addAll(getDepartmentChain(((ReferenceValue) fieldModification.getBaseValue()).get()));
             }
-            if (fieldModification.getComparedValue() != null){
+            if (fieldModification.getComparedValue() != null) {
                 result.addAll(getDepartmentChain(((ReferenceValue) fieldModification.getComparedValue()).get()));
             }
         } else if (containsModifiedField(modifiedFieldNames, "Boss")) {
@@ -89,14 +91,17 @@ public class ManagementChain extends DynamicGroupCollectorBase implements Dynami
         AccessToken accessToken = accessControlService
                 .createSystemAccessToken(this.getClass().getName());
 
+        Id parentDepartmentId = null;
         DomainObject department = domainObjectDao.find(departmentId, accessToken);
-        Id parentDepartmentId = department.getId();
-        while (department != null) {
-            if (department.getReference("ParentDepartment") != null) {
-                parentDepartmentId = department.getReference("ParentDepartment");
-                department = domainObjectDao.find(parentDepartmentId, accessToken);
-            } else {
-                department = null;
+        if (department != null) {
+            parentDepartmentId = department.getId();
+            while (department != null) {
+                if (department.getReference("ParentDepartment") != null) {
+                    parentDepartmentId = department.getReference("ParentDepartment");
+                    department = domainObjectDao.find(parentDepartmentId, accessToken);
+                } else {
+                    department = null;
+                }
             }
         }
         return parentDepartmentId;
@@ -128,19 +133,25 @@ public class ManagementChain extends DynamicGroupCollectorBase implements Dynami
         List<Id> childDepartments = getChildDepartments(parentDepartmentId);
         for (Id id : childDepartments) {
             DomainObject department = domainObjectDao.find(id, accessToken);
-            result.add(department.getReference("Boss"));
+            if (department.getReference("Boss") != null) {
+                result.add(department.getReference("Boss"));
+            }
             result.addAll(getChildDepartmentBosses(id));
         }
         return result;
     }
 
     private List<Id> getChildDepartments(Id parentDepartmentId) {
-        String query = "select id from ";
-        query += "department d ";
+        String query = "select d.id from ";
+        query += "Department d ";
         query += "where d.parentdepartment = " + ((RdbmsId) parentDepartmentId).getId();
-        List<Id> result = getIdsByQuery(query);
+        List<Id> childIds = getIdsByQuery(query);
+        List<Id> result = new ArrayList<>();
+        result.addAll(childIds);
+        for (Id id : childIds) {
+            result.addAll(getChildDepartments(id));
+        }
 
         return result;
-
     }
 }

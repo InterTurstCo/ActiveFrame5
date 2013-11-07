@@ -136,20 +136,24 @@ public class TestDynamicGroup extends ClientBase {
 
     private void deleteBossInfo() {
         Hashtable<String, Object> attributes = new Hashtable<String, Object>();
-        attributes.put("boss_id", new NullId());
+        attributes.put("Boss", new NullId());
         IdentifiableObjectCollection collection = collectionService.findCollectionByQuery("select t.id from Department t");
         for (IdentifiableObject row : collection) {
-            setDomainObjectAttribute(row.getId(), attributes);
+            if (createdObjects.contains(row.getId())){
+                setDomainObjectAttribute(row.getId(), attributes);
+            }
         }
         collection = collectionService.findCollectionByQuery("select t.id from Organization t");
         for (IdentifiableObject row : collection) {
-            setDomainObjectAttribute(row.getId(), attributes);
+            if (createdObjects.contains(row.getId())){
+                setDomainObjectAttribute(row.getId(), attributes);
+            }
         }
     }
 
     private void deleteParentDepartmentInfo() {
         Hashtable<String, Object> attributes = new Hashtable<String, Object>();
-        attributes.put("parent_department_id", new NullId());
+        attributes.put("ParentDepartment", new NullId());
         IdentifiableObjectCollection collection = collectionService.findCollectionByQuery("select t.id from Department t");
         for (IdentifiableObject row : collection) {
             setDomainObjectAttribute(row.getId(), attributes);
@@ -210,7 +214,7 @@ public class TestDynamicGroup extends ClientBase {
                     attributes.put("Name", "Department" + firstArg);
                     attributes.put("Organization", ids.get("O" + secondArg));
                     if (therdArg > -1) {
-                        attributes.put("ParentDepartmentId", ids.get("D" + therdArg));
+                        attributes.put("ParentDepartment", ids.get("D" + therdArg));
                     }
                     id = createDomainObject("Department", attributes);
                 } else if (firstArgType.equals("E")) {
@@ -233,41 +237,36 @@ public class TestDynamicGroup extends ClientBase {
                 if (firstArgType.equals("B")) {
                     if (secondArgType.equals("D")) {
                         // Установка руководителя для подразделения
-                        attributes.put("boss_id", ids.get("E" + firstArg));
+                        attributes.put("Boss", ids.get("E" + firstArg));
                         setDomainObjectAttribute(ids.get("D" + secondArg), attributes);
                     } else if (secondArgType.equals("O")) {
                         // Установка руководителя для организации
-                        attributes.put("boss_id", ids.get("E" + firstArg));
+                        attributes.put("Boss", ids.get("E" + firstArg));
                         setDomainObjectAttribute(ids.get("O" + secondArg), attributes);
                     }
                 } else if (firstArgType.equals("D")) {
                     if (secondArgType.equals("O")) {
                         // Установка организации у подразделения
-                        attributes.put("organization_id", ids.get("O" + secondArg));
+                        attributes.put("Organization", ids.get("O" + secondArg));
                         setDomainObjectAttribute(ids.get("D" + firstArg), attributes);
                     }
                     if (secondArgType.equals("D")) {
                         // Установка вышестоящего подразделения у подразделения
-                        attributes.put("parent_department_id", ids.get("D" + secondArg));
+                        attributes.put("ParentDepartment", ids.get("D" + secondArg));
                         setDomainObjectAttribute(ids.get("D" + firstArg), attributes);
                     }
                 } else if (firstArgType.equals("E")) {
                     if (secondArgType.equals("D")) {
                         // Изменение подразделения у сотрудника
-                        attributes.put("department_id", ids.get("D" + secondArg));
+                        attributes.put("Department", ids.get("D" + secondArg));
                         setDomainObjectAttribute(ids.get("E" + firstArg), attributes);
-                    }
-                } else if (firstArgType.equals("P")) {
-                    if (secondArgType.equals("E")) {
-                        // Изменение персоны у сотрудника
-                        attributes.put("person_id", ids.get("P" + firstArg));
-                        setDomainObjectAttribute(ids.get("E" + secondArg), attributes);
                     }
                 }
             } else if (command.equals("D")) {
                 if (firstArgType.equals("D")) {
                     // Удаление подразделения
                     crudService.delete(ids.get("D" + firstArg));
+                    createdObjects.remove(ids.get("D" + firstArg));
                 }
             }
 
@@ -347,9 +346,9 @@ public class TestDynamicGroup extends ClientBase {
             // В случае если роль существует то получаем ее состав
             if (baseRole != null) {
                 // Получение из базы состав пользователей в роли
-                baseRoleUsers = prsonService.getAllPersonsInGroup(baseRole.getId());
+                baseRoleUsers = prsonService.getPersonsInGroup(baseRole.getId());
                 // Получение из базы состав ролей в роле
-                baseRoleRoles = prsonService.getAllChildGroups(baseRole.getId());
+                baseRoleRoles = prsonService.getChildGroups(baseRole.getId());
             }
 
             // Сравнение результатов
@@ -362,7 +361,7 @@ public class TestDynamicGroup extends ClientBase {
 
     private void compareUsers(String command, String etalonUsers, List<DomainObject> baseRoleUsers, Hashtable<String, Id> ids) throws Exception {
         List<Id> userIds = getIdList(baseRoleUsers);
-        compareList(command, "P", userIds, etalonUsers, ids);
+        compareList(command, "E", userIds, etalonUsers, ids);
     }
 
     private void compareRoles(String command, String etalonRoles, List<DomainObject> baseRoleRoles, Hashtable<String, Id> ids) throws Exception {

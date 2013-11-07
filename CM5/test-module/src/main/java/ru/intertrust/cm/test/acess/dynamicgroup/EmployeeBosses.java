@@ -15,17 +15,17 @@ import ru.intertrust.cm.core.dao.access.DynamicGroupCollector;
 public class EmployeeBosses extends DynamicGroupCollectorBase implements DynamicGroupCollector {
 
     @Override
-    public List<Id> getPersons(Id domainObjectId, Id contextId) {
-        String query = "select d.boss from employee e ";
-        query += "inner join department d on (e.department = d.id) ";
-        query += "where d.boss != null ";
-        query += "and e.id =" + ((RdbmsId) contextId).getId();
+    public List<Id> getPersons(Id contextId) {
+        String query = "select d.boss from Employee e ";
+        query += "inner join Department d on (e.department = d.id) ";
+        query += "where d.boss is not null ";
+        query += "and e.id = " + ((RdbmsId) contextId).getId();
 
-        return getIdsByQuery(query);
+        return getIdsByQuery(query, "boss");
     }
 
     @Override
-    public List<Id> getGroups(Id domainObjectId, Id contextId) {
+    public List<Id> getGroups(Id contextId) {
         AccessToken accessToken = accessControlService
                 .createSystemAccessToken(this.getClass().getName());
 
@@ -65,7 +65,7 @@ public class EmployeeBosses extends DynamicGroupCollectorBase implements Dynamic
                 (containsModifiedField(modifiedFields, "Boss") ||
                         containsModifiedField(modifiedFields, "ParentDepartment") ||
                 containsModifiedField(modifiedFields, "Organization"))) {
-            result.addAll(getIdsByQuery("select e.id from employee e where e.department = "
+            result.addAll(getIdsByQuery("select e.id from Employee e where e.department = "
                     + ((RdbmsId) domainObject.getId()).getId()));
         } else if (domainObject.getTypeName().equals("Employee") &&
                 (containsModifiedField(modifiedFields, "Department"))) {

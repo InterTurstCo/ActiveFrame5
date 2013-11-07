@@ -141,6 +141,7 @@ public class TestPersonManagementService extends ClientBase {
                 crudService.delete(personIds.get("person" + i));
             }
 
+            log("Test complete");
         } finally {
             writeLog();
         }
