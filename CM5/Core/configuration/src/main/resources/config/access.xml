@@ -88,7 +88,7 @@
                 <get-group name="DepartmentEmployees">
                     <!-- doel>Department^Organization.Employee^Department</doel-->
                     <!-- Врепенное решение пока не починится DOEL -->
-                    <doel>Department^Organization.id</doel>
+                    <doel>Department^Organization</doel>
                 </get-group>
             </track-domain-objects>
             <track-domain-objects type="Department">
@@ -98,7 +98,7 @@
                 <get-group name="DepartmentEmployees">
                     <!-- doel>Department^Organization.Employee^Department</doel-->
                     <!-- Врепенное решение пока не починится DOEL -->
-                    <doel>Department^Organization.id</doel>
+                    <doel>Department^Organization</doel>
                 </get-group>
             </track-domain-objects>
         </members>
