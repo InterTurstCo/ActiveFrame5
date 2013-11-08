@@ -22,11 +22,18 @@ import java.util.Arrays;
  * 
  * <p><code>Commission^Document.Assignee^Commission.Name</code>
  * 
- * Планируется также добавление возможности добавлять условия выборки доменных объектов по связям (не реализовано):
+ * <p>Планируется также добавление возможности задавать условия выборки доменных объектов по связям (не реализовано):
  * 
- * <p><code>Commission^Document(onControl=true).Job^Commission(status='executing').Assignee</code>
+ * <p><code>Commission^Document[onControl=true].Job^Commission[status='executing'].Assignee</code>
  * 
- * Корректность DOEL-выражения (существование указанных типов объектов и полей в соответстующих типах) проверяется
+ * <p>Звёздочка, указанная после имени поля, означает повторный переход по связи, причём он может выполняться
+ * неограниченное число раз. Остальная часть выражения будет вычисляться для всех объектов, полученных на каждом
+ * шаге такого перехода. Например, если у поручения могут быть дочерние поручения, образующие иерархию неизвестной
+ * глубины, исполнители всех дочерних поручений могут быть получены таким выражением:
+ * 
+ * <p><code>Commission^Parent*.Assignee^Commission.Name</code>
+ * 
+ * <p>Корректность DOEL-выражения (существование указанных типов объектов и полей в соответстующих типах) проверяется
  * в момент загрузки конфигурации. Его вычисление никогда не может привести к ошибке. Если на каком-либо этапе
  * связанные доменные объекты отсутствуют, то результатом вычисления становится пустой набор объектов.
  * 
@@ -46,12 +53,16 @@ public class DoelExpression {
         String[] parts = expression.trim().split("\\.");
         doel.elements = new Element[parts.length];
         for (int i = 0; i < parts.length; i++) {
-            String part = parts[i];
+            String part = parts[i].trim();
+            boolean repeated = part.matches(".+\\*$");
+            if (repeated) {
+                part = part.split("\\*")[0].trim();
+            }
             if (part.matches(".+\\^.*")) {
                 String[] names = part.split("\\^");
-                doel.elements[i] = new Children(names[0], names[1]);
+                doel.elements[i] = new Children(names[0].trim(), names[1].trim(), repeated);
             } else {
-                doel.elements[i] = new Field(part);
+                doel.elements[i] = new Field(part, repeated);
             }
         }
         return doel;
@@ -61,13 +72,31 @@ public class DoelExpression {
 
     public enum ElementType {
         FIELD,
-        CHILDREN
+        CHILDREN,
+        SUBEXPRESSION
     }
 
     /**
      * Базовый класс для хранения частей DOEL-выражения.
      */
     public abstract static class Element {
+        boolean repeated = false;
+
+        public boolean isRepeated() {
+            return repeated;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) {
+                return true;
+            }
+            if (obj == null || !getClass().equals(obj.getClass())) {
+                return false;
+            }
+            return ((Element) obj).repeated == repeated;
+        }
+
         public abstract ElementType getElementType();
     }
 
@@ -77,8 +106,9 @@ public class DoelExpression {
     public static class Field extends Element {
         String name;
         
-        Field(String name) {
+        Field(String name, boolean repeated) {
             this.name = name;
+            this.repeated = repeated;
         }
 
         public String getName() {
@@ -92,15 +122,16 @@ public class DoelExpression {
 
         @Override
         public boolean equals(Object obj) {
-            if (obj == null || !Field.class.equals(obj.getClass())) {
-                return false;
-            }
-            return name.equals(((Field) obj).name);
+            return super.equals(obj) && name.equals(((Field) obj).name);
         }
 
         @Override
         public String toString() {
-            return name;
+            StringBuilder expr = new StringBuilder(name);
+            if (repeated) {
+                expr.append("*");
+            }
+            return expr.toString();
         }
 
         @Override
@@ -116,9 +147,10 @@ public class DoelExpression {
         String childType;
         String parentLink;
         
-        Children(String childType, String parentLink) {
+        Children(String childType, String parentLink, boolean repeated) {
             this.childType = childType;
             this.parentLink = parentLink;
+            this.repeated = repeated;
         }
 
         public String getChildType() {
@@ -136,7 +168,7 @@ public class DoelExpression {
 
         @Override
         public boolean equals(Object obj) {
-            if (obj == null || !Children.class.equals(obj.getClass())) {
+            if (!super.equals(obj)) {
                 return false;
             }
             Children other = (Children) obj;
@@ -145,13 +177,51 @@ public class DoelExpression {
 
         @Override
         public String toString() {
-            return new StringBuilder().append(childType).append("^").append(parentLink).toString();
+            StringBuilder expr = new StringBuilder().append(childType).append("^").append(parentLink);
+            if (repeated) {
+                expr.append("*");
+            }
+            return expr.toString();
         }
 
         @Override
         public int hashCode() {
             return childType.hashCode() ^ parentLink.hashCode();
         }
+    }
+
+    public static class Subexpression extends Element {
+        DoelExpression subExpression;
+
+        public Subexpression(DoelExpression subExpr, boolean repeated) {
+            this.subExpression = subExpr;
+            this.repeated = repeated;
+        }
+
+        @Override
+        public ElementType getElementType() {
+            return ElementType.SUBEXPRESSION;
+        }
+
+        @Override
+        public int hashCode() {
+            return subExpression.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return super.equals(obj) && ((Subexpression) obj).subExpression.equals(subExpression);
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder expr = new StringBuilder().append("(").append(subExpression.toString()).append(")");
+            if (repeated) {
+                expr.append("*");
+            }
+            return expr.toString();
+        }
+
     }
 
     private Element[] elements;
@@ -190,15 +260,15 @@ public class DoelExpression {
             return false;
         }
         DoelExpression other = (DoelExpression) obj;
-        if (elements.length != other.elements.length) {
+        /*if (elements.length != other.elements.length) {
             return false;
         }
         for (int i = 0; i < elements.length; i++) {
             if (!elements[i].equals(other.elements[i])) {
                 return false;
             }
-        }
-        return true;
+        }*/
+        return elements.length == other.elements.length && elements.length == countCommonBeginning(other);
     }
 
     @Override
@@ -217,6 +287,7 @@ public class DoelExpression {
     public int hashCode() {
         int hash = 0;
         for (Element link : elements) {
+            hash *= 31;
             hash ^= link.hashCode();
         }
         return hash;

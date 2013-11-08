@@ -10,6 +10,8 @@ import ru.intertrust.cm.core.business.api.dto.FieldType;
  */
 public class ReferenceFieldConfig extends FieldConfig {
 
+    public static final String ANY_TYPE = "*";
+
     @Attribute(name = "type")
     private String type;
 

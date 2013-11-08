@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.config.model.doel;
 
 import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
 import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
@@ -169,23 +170,43 @@ public class DoelValidator {
             FieldConfig fieldConfig;
             List<String> nextTypes = Collections.emptyList();
 
-            if (exprElem instanceof DoelExpression.Field) {
+            if (DoelExpression.ElementType.FIELD == exprElem.getElementType()) {
                 DoelExpression.Field fieldElem = (DoelExpression.Field) exprElem;
                 fieldConfig = config.getFieldConfig(currentType.type, fieldElem.getName());
                 if (fieldConfig != null && fieldConfig instanceof ReferenceFieldConfig) {
                     ReferenceFieldConfig refFieldConfig = (ReferenceFieldConfig) fieldConfig;
-                    nextTypes = Collections.singletonList(refFieldConfig.getType());
+                    if (ReferenceFieldConfig.ANY_TYPE.equals(refFieldConfig.getType()) &&
+                            step < expression.getElements().length - 1) {
+                        DoelExpression.Element nextElem = expression.getElements()[step + 1];
+                        if (DoelExpression.ElementType.FIELD == nextElem.getElementType()) {
+                            nextTypes = findAllTypesHavingField(((DoelExpression.Field) nextElem).getName());
+                        } else if (DoelExpression.ElementType.CHILDREN == nextElem.getElementType()) {
+                            DoelExpression.Children nextLink = (DoelExpression.Children) nextElem;
+                            FieldConfig nextLinkConfig =
+                                    config.getFieldConfig(nextLink.childType, nextLink.parentLink);
+                            if (nextLinkConfig == null || !(nextLinkConfig instanceof ReferenceFieldConfig)) {
+                                //TODO: Неправильная связь на следующем шаге
+                            } else {
+                                nextTypes = Collections.singletonList(
+                                        ((ReferenceFieldConfig) nextLinkConfig).getType());
+                            }
+                        }
+                    } else {
+                        nextTypes = Collections.singletonList(refFieldConfig.getType());
+                    }
                 }
-            } else if (exprElem instanceof DoelExpression.Children) {
+            } else if (DoelExpression.ElementType.CHILDREN == exprElem.getElementType()) {
                 DoelExpression.Children chilrenElem = (DoelExpression.Children) exprElem;
                 fieldConfig = config.getFieldConfig(chilrenElem.getChildType(), chilrenElem.getParentLink());
-                if (fieldConfig != null && !(fieldConfig instanceof ReferenceFieldConfig &&
-                        ((ReferenceFieldConfig) fieldConfig).getType().equals(currentType.getType()))) {
+                if (fieldConfig != null && (fieldConfig instanceof ReferenceFieldConfig) &&
+                        !(((ReferenceFieldConfig) fieldConfig).getType().equals(currentType.getType()) ||
+                        ReferenceFieldConfig.ANY_TYPE.equals(((ReferenceFieldConfig) fieldConfig).getType()))) {
                     //TODO: Несвязанная ссылка: тип и поле правильные, но не ссылается на предыдущий объект
+                    result.brokenPaths = true;
                 } else {
                     result.singleResult = false;
+                    nextTypes = Collections.singletonList(chilrenElem.getChildType());
                 }
-                nextTypes = Collections.singletonList(chilrenElem.getChildType());
             } else {
                 throw new IllegalStateException("Unknown DOEL expression element type: " +
                         exprElem.getClass().getName());
@@ -217,6 +238,16 @@ public class DoelValidator {
                 //TODO: Поле не является ссылкой
                 result.brokenPaths = true;
             }
+        }
+
+        private List<String> findAllTypesHavingField(String fieldName) {
+            ArrayList<String> types = new ArrayList<>();
+            for (DomainObjectTypeConfig type : config.getConfigs(DomainObjectTypeConfig.class)) {
+                if (config.getFieldConfig(type.getName(), fieldName) != null) {
+                    types.add(type.getName());
+                }
+            }
+            return types;
         }
     }
 
