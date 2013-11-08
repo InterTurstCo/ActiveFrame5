@@ -32,12 +32,19 @@
         </dependency>
 
         <dependency>
+            <groupId>postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>9.0-801.jdbc3</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>net.sf.jsqlparser</groupId>
+            <groupId>com.github.jsqlparser</groupId>
             <artifactId>jsqlparser</artifactId>
         </dependency>
 
@@ -49,4 +56,48 @@
         </dependency>
 
     </dependencies>
+    
+    <build>
+    <plugins>
+
+         <!-- <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+
+            <artifactId>maven-resources-plugin</artifactId>
+            <executions>
+                <execution>
+                    <phase>test-compile</phase>
+                    <goals>
+                        <goal>copy-resources</goal>
+                    </goals>
+                    <configuration>
+
+                        <outputDirectory>
+                            ${project.build.directory}
+                        </outputDirectory>
+                            <resources>
+                                <resource>
+
+                                    <directory>${basedir}/../configuration/target</directory>
+
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin> -->
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>2.16</version>
+            <configuration>
+                <excludes>
+                    <exclude>**/*DaoTest.java</exclude>
+                </excludes>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+    
 </project>

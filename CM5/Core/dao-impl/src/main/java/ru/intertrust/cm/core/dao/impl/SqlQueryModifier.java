@@ -1,10 +1,33 @@
 package ru.intertrust.cm.core.dao.impl;
 
+/*import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
+import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.schema.Table;
+import net.sf.jsqlparser.statement.select.*;*/
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TIME_ID_ZONE_POSTFIX;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TYPE_COLUMN;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getServiceColumnName;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
-import net.sf.jsqlparser.statement.select.*;
+import net.sf.jsqlparser.statement.select.FromItem;
+import net.sf.jsqlparser.statement.select.Join;
+import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.SelectBody;
+import net.sf.jsqlparser.statement.select.SelectExpressionItem;
+import net.sf.jsqlparser.statement.select.SetOperationList;
+import net.sf.jsqlparser.statement.select.UnionOp;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.DateTimeWithTimeZoneFieldConfig;
 import ru.intertrust.cm.core.config.model.FieldConfig;
@@ -13,10 +36,6 @@ import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.exception.CollectionQueryException;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
 
-import java.util.*;
-
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.*;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getServiceColumnName;
 
 /**
  * Модифицирует SQL запросы. Добавляет поле Тип Объекта идентификатора в SQL запрос получения данных для коллекции, добавляет ACL фильтр в
@@ -46,8 +65,8 @@ public class SqlQueryModifier {
             addServiceColumnsInPlainSelect(plainSelect, configurationExplorer);
             modifiedQuery = plainSelect.toString();
 
-        } else if (selectBody.getClass().equals(Union.class)) {
-            Union union = (Union) selectBody;
+        } else if (selectBody.getClass().equals(SetOperationList.class)) {
+            SetOperationList union = (SetOperationList) selectBody;
             List plainSelects = union.getPlainSelects();
             for (Object plainSelect : plainSelects) {
                 addServiceColumnsInPlainSelect((PlainSelect) plainSelect, configurationExplorer);
@@ -71,8 +90,8 @@ public class SqlQueryModifier {
         PlainSelect plainSelect = null;
         if (selectBody.getClass().equals(PlainSelect.class)) {
             plainSelect = (PlainSelect) selectBody;
-        } else if (selectBody.getClass().equals(Union.class)) {
-            Union union = (Union) selectBody;
+        } else if (selectBody.getClass().equals(SetOperationList.class)) {
+            SetOperationList union = (SetOperationList) selectBody;
             plainSelect = (PlainSelect) union.getPlainSelects().get(0);
         } else {
             throw new IllegalArgumentException("Unsupported type of select body: " + selectBody.getClass());
@@ -114,8 +133,8 @@ public class SqlQueryModifier {
             PlainSelect plainSelect = (PlainSelect) selectBody;
             applyAclFilterExpression(idField, plainSelect);
 
-        } else if (selectBody.getClass().equals(Union.class)) {
-            Union union = (Union) selectBody;
+        } else if (selectBody.getClass().equals(SetOperationList.class)) {
+            SetOperationList union = (SetOperationList) selectBody;
             List plainSelects = union.getPlainSelects();
             for (Object plainSelect : plainSelects) {
                 applyAclFilterExpression(idField, (PlainSelect) plainSelect);
@@ -135,8 +154,8 @@ public class SqlQueryModifier {
         if (selectBody.getClass().equals(PlainSelect.class)) {
             PlainSelect plainSelect = (PlainSelect) selectBody;
             checkDuplicatedColumnsInPlainSelect(plainSelect);
-        } else if (selectBody.getClass().equals(Union.class)) {
-            Union union = (Union) selectBody;
+        } else if (selectBody.getClass().equals(SetOperationList.class)) {
+            SetOperationList union = (SetOperationList) selectBody;
             List plainSelects = union.getPlainSelects();
             for (Object plainSelect : plainSelects) {
                 checkDuplicatedColumnsInPlainSelect((PlainSelect) plainSelect);
@@ -149,6 +168,9 @@ public class SqlQueryModifier {
     private void checkDuplicatedColumnsInPlainSelect(PlainSelect plainSelect) {
         Set<String> columns = new HashSet<>();
         for (Object selectItem : plainSelect.getSelectItems()) {
+            if (!(selectItem instanceof SelectExpressionItem)) {
+                continue;
+            }
             SelectExpressionItem selectExpressionItem = (SelectExpressionItem) selectItem;
             String column = selectExpressionItem.getAlias() + ":" +
                     ((Column) selectExpressionItem.getExpression()).getColumnName();
