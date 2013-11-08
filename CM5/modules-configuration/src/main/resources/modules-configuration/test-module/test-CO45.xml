@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+    <!-- TODO Имена ролей надо переименовать , чтобы не содержали латиницы -->
+
+    <dynamic-group name="PostHead">
+        <context>
+            <domain-object type="SO_PostHead" />
+        </context>
+        <members>
+            <track-domain-objects type="SO_AppointmentHead">
+                <bind-context>
+                    <doel>Post</doel>
+                </bind-context>
+                <get-person>
+                    <doel>Person.PlatformPerson</doel>
+                </get-person>
+            </track-domain-objects>
+        </members>
+    </dynamic-group>
+
+    <dynamic-group name="PostPlain">
+        <context>
+            <domain-object type="SO_PostPlain" />
+        </context>
+        <members>
+            <track-domain-objects type="SO_AppointmentPlain">
+                <bind-context>
+                    <doel>Post</doel>
+                </bind-context>
+                <get-person>
+                    <doel>Person.PlatformPerson</doel>
+                </get-person>
+            </track-domain-objects>
+        </members>
+    </dynamic-group>
+
+    <dynamic-group name="Post">
+        <include-group name="PostHead" />
+        <include-group name="PostPlain" />
+    </dynamic-group>
+
+
+
+    <dynamic-group name="Заместители и Аудиторы StructureUnit">
+        <context>
+            <domain-object type="SO_StructureUnit" />
+        </context>
+        <members>
+            <track-domain-objects type="SO_Substitute_Unit">
+                <bind-context>
+                    <doel>Substituted</doel>
+                </bind-context>
+                <get-group>
+                    <doel>Substitute</doel>
+                </get-group>
+            </track-domain-objects>
+            <track-domain-objects type="SO_Auditor_Unit">
+                <bind-context>
+                    <doel>Audited</doel>
+                </bind-context>
+                <get-group>
+                    <doel>Audit</doel>
+                </get-group>
+            </track-domain-objects>
+            <track-domain-objects type="SO_Substitute_Group">
+                <bind-context>
+                    <doel>Substituted</doel>
+                </bind-context>
+                <get-group name="Заместители SO_Group">
+                    <doel>Substitute</doel>
+                </get-group>
+            </track-domain-objects>
+        </members>
+    </dynamic-group>
+
+    <dynamic-group name="Заместители SO_Group">
+        <context>
+            <domain-object type="SO_Group" />
+        </context>
+        <members>
+            <track-domain-objects type="SO_GroupMember_Unit">
+                <bind-context>
+                    <doel>Group</doel>
+                </bind-context>
+                <get-group>
+                    <doel>Member</doel>
+                </get-group>
+            </track-domain-objects>
+            <track-domain-objects type="SO_GroupMember_Group">
+                <bind-context>
+                    <doel>Group</doel>
+                </bind-context>
+                <get-group>
+                    <doel>Member</doel>
+                </get-group>
+            </track-domain-objects>
+        </members>
+    </dynamic-group>
+
+    <dynamic-group name="Заместители и Аудиторы Post">
+        <context>
+            <domain-object type="SO_Post" />
+        </context>
+        <members>
+            <track-domain-objects type="SO_Substitute_Unit">
+                <bind-context>
+                    <doel>Substituted</doel>
+                </bind-context>
+                <get-person>
+                    <doel>Substitute</doel>
+                </get-person>
+            </track-domain-objects>
+            <track-domain-objects type="SO_Auditor_Unit">
+                <bind-context>
+                    <doel>Audited</doel>
+                </bind-context>
+                <get-person>
+                    <doel>Audit</doel>
+                </get-person>
+            </track-domain-objects>
+            <track-domain-objects type="SO_Substitute_Group">
+                <bind-context>
+                    <doel>Substituted</doel>
+                </bind-context>
+                <get-group name="Заместители SO_Group">
+                    <doel>Substitute</doel>
+                </get-group>
+            </track-domain-objects>
+        </members>
+    </dynamic-group>
+
+    <dynamic-group name="Заместители и Аудиторы Post">
+        <context>
+            <domain-object type="SO_Post" />
+        </context>
+        <members>
+            <track-domain-objects type="SO_Substitute_Unit">
+                <bind-context>
+                    <doel>Substituted</doel>
+                </bind-context>
+                <get-person>
+                    <doel>Substitute</doel>
+                </get-person>
+            </track-domain-objects>
+            <track-domain-objects type="SO_Auditor_Unit">
+                <bind-context>
+                    <doel>Audited</doel>
+                </bind-context>
+                <get-person>
+                    <doel>Audit</doel>
+                </get-person>
+            </track-domain-objects>
+            <track-domain-objects type="SO_Substitute_Group">
+                <bind-context>
+                    <doel>Substituted</doel>
+                </bind-context>
+                <get-group name="Заместители SO_Group">
+                    <doel>Substitute</doel>
+                </get-group>
+            </track-domain-objects>
+        </members>
+    </dynamic-group>
+
+    <dynamic-group name="ManagementChain">
+        <context>
+            <domain-object type="Department" />
+        </context>
+        <members>
+            <collector
+                class-name="ru.intertrust.cm.test.acess.dynamicgroup.PersonAssistantAuditor" />
+        </members>
+    </dynamic-group>
+
+</configuration>

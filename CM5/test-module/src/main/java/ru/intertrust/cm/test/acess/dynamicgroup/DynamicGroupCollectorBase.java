@@ -25,9 +25,9 @@ public class DynamicGroupCollectorBase {
 
     @Autowired
     protected DomainObjectDao domainObjectDao;
-    
+
     @Autowired
-    protected PersonManagementServiceDao personManagementServiceDao; 
+    protected PersonManagementServiceDao personManagementServiceDao;
 
     /**
      * Получение коллекций идентификаторов по переданному запросу
@@ -37,23 +37,31 @@ public class DynamicGroupCollectorBase {
      */
     protected List<Id> getIdsByQuery(String query) {
         return getIdsByQuery(query, null);
-    }    
+    }
 
     protected List<Id> getIdsByQuery(String query, String fieldName) {
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
         IdentifiableObjectCollection collection = collections.findCollectionByQuery(query, 0, 0, accessToken);
         List<Id> result = new ArrayList<Id>();
         for (IdentifiableObject identifiableObject : collection) {
-            if (fieldName == null){
+            if (fieldName == null) {
                 result.add(identifiableObject.getId());
-            }else{
+            } else {
                 result.add(identifiableObject.getReference(fieldName));
             }
         }
         return result;
-    }    
-    
-    
+    }
+
+    protected Id getIdByQuery(String query) {
+        List<Id> result = getIdsByQuery(query);
+        if (result.size() > 0) {
+            return result.get(0);
+        } else{
+            return null;
+        }
+    }
+
     protected boolean containsModifiedField(
             List<FieldModification> modifiedFieldNames, String fieldName) {
         if (modifiedFieldNames != null) {
