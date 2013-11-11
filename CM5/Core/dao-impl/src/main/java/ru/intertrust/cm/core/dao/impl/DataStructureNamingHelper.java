@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class DataStructureNamingHelper {
 
-    public static final int MAX_NAME_LENGTH = 25;
+    public static final int MAX_NAME_LENGTH = 26;
 
     /**
      * Возвращает имя доменного объекта в sql-виде

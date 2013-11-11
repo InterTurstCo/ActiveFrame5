@@ -17,7 +17,7 @@
 
     <xs:complexType name="domainObjectType">
         <xs:sequence>
-            <xs:element type="con:fieldsType" name="fields"
+            <xs:element name="fields" minOccurs="0" maxOccurs="1" type="con:fieldsType"
                         xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
             <xs:element type="con:uniqueKeyType" name="uniqueKey"
@@ -53,7 +53,7 @@
 
     <xs:simpleType name="nameType">
         <xs:restriction base="xs:string">
-            <xs:maxLength value="25" />
+            <xs:maxLength value="26" />
             <xs:pattern value="[a-zA-Z0-9_]*">
             </xs:pattern>
         </xs:restriction>
@@ -61,7 +61,7 @@
 
     <xs:simpleType name="typeNameType">
         <xs:restriction base="xs:string">
-            <xs:maxLength value="25" />
+            <xs:maxLength value="26" />
             <xs:pattern value="[a-zA-Z0-9_]*|\*">
             </xs:pattern>
         </xs:restriction>
@@ -291,7 +291,7 @@
             <xs:extension base="xs:string">
                 <xs:attribute name="name" use="required"
                               type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config" />
-                <xs:attribute name="length" use="optional" type="xs:string"/>
+                <xs:attribute name="length" use="required" type="xs:string"/>
                 <xs:attribute name="not-null" use="optional" type="xs:string"/>
             </xs:extension>
         </xs:simpleContent>
@@ -302,8 +302,8 @@
             <xs:extension base="xs:string">
                 <xs:attribute name="name" use="required"
                               type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config" />
-                <xs:attribute type="xs:string" name="precision" />
-                <xs:attribute type="xs:string" name="scale" />
+                <xs:attribute name="precision" use="optional" type="xs:string" />
+                <xs:attribute name="scale" use="optional" type="xs:string" />
                 <xs:attribute name="not-null" use="optional" type="xs:string"/>
             </xs:extension>
         </xs:simpleContent>
@@ -314,7 +314,7 @@
             <xs:extension base="xs:string">
                 <xs:attribute name="name" use="required"
                               type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config" />
-                <xs:attribute name="length" use="optional" type="xs:string"/>
+                <xs:attribute name="length" use="required" type="xs:string"/>
                 <xs:attribute name="not-null" use="optional" type="xs:string"/>
             </xs:extension>
         </xs:simpleContent>

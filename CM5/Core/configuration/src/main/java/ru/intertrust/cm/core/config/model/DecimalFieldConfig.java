@@ -10,10 +10,10 @@ import ru.intertrust.cm.core.business.api.dto.FieldType;
  *         Time: 11:12 AM
  */
 public class DecimalFieldConfig extends FieldConfig {
-    @Attribute
+    @Attribute(required = false)
     private Integer precision; // total number of digits, for instance 12.34567 - precision is 7, scale is 5
 
-    @Attribute
+    @Attribute(required = false)
     private Integer scale;
 
     public DecimalFieldConfig() {

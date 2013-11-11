@@ -29,7 +29,7 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
 
     @Attribute(name = "extends", required = false)
     private String extendsAttribute;
-    
+
     @Attribute(name = "audit-log", required = false)
     private Boolean auditLog;
 
@@ -52,7 +52,7 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
 //    private String template;
 
     // we can't use a list here directly, as elements inside are different, that's why such a "trick"
-    @Element(name = "fields")
+    @Element(name = "fields", required = false)
     private DomainObjectFieldsConfig domainObjectFieldsConfig = new DomainObjectFieldsConfig();
 
     @ElementList(entry="uniqueKey", type=UniqueKeyConfig.class, inline=true, required = false)
@@ -84,7 +84,7 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
     public void setName(String name) {
         this.name = name;
     }
-    
+
     public String getInitialStatus() {
         return initialStatus;
     }
