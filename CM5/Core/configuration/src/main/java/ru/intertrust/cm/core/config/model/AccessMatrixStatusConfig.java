@@ -6,12 +6,14 @@ import java.util.List;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.ElementListUnion;
+import org.simpleframework.xml.Root;
 
 /**
  * Конфигурация матрицы доступа.
  * @author atsvetkov
  *
  */
+@Root(name="status")
 public class AccessMatrixStatusConfig {
 
     @Attribute(required = true)

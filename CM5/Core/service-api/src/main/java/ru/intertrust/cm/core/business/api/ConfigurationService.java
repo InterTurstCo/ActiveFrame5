@@ -95,7 +95,7 @@ public interface ConfigurationService {
      * @param status статус доменного объекта
      * @return конфигурация матрицы доступа
      */
-    AccessMatrixConfig getAccessMatrixByObjectTypeAndStatus(String domainObjectType, String status);
+    AccessMatrixStatusConfig getAccessMatrixByObjectTypeAndStatus(String domainObjectType, String status);
 
     /**
      * Возвращает конфигурацию контекстной роли по имени.

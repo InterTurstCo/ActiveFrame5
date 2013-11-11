@@ -24,7 +24,7 @@ public class ContextRoleTrackDomainObjectCollector extends BaseDynamicGroupServi
         //Получаем доменные объекты, которые являются контекстами для динамических групп
         List<Id> contextGroupOwner = new ArrayList<Id>();
         if (trackDomainObjects.getGetGroup().getDoel() != null) {
-            DoelExpression expr = DoelExpression.parse(trackDomainObjects.getBindContext().getDoel());
+            DoelExpression expr = DoelExpression.parse(trackDomainObjects.getGetGroup().getDoel());
             List<Value> contextIds = doelResolver.evaluate(expr, contextId);
             contextGroupOwner.addAll(getIdList(contextIds));
         } else {
@@ -48,10 +48,10 @@ public class ContextRoleTrackDomainObjectCollector extends BaseDynamicGroupServi
     public List<String> getTrackTypeNames() {
         List<String> result = new ArrayList<String>();
         // Не указан TrackDomainObjects, следим только за текущим типом
-        if (trackDomainObjects == null) {
-            result.add(config.getContext().getDomainObject().getType());
-        } else {
+        if (trackDomainObjects != null && trackDomainObjects.getType() != null) {
             result.add(trackDomainObjects.getType());
+        } else {
+            result.add(config.getContext().getDomainObject().getType());
         }
         return result;
     }

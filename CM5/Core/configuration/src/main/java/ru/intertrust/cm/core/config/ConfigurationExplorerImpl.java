@@ -17,8 +17,8 @@ import java.io.*;
 import java.util.*;
 
 /**
- * Предоставляет быстрый доступ к элементам конфигурации. После создания объекта данного класса требуется выполнить инициализацию через вызов метода
- * {@link #build()}.
+ * Предоставляет быстрый доступ к элементам конфигурации. После создания объекта данного класса требуется выполнить
+ * инициализацию через вызов метода {@link #build()}.
  * @author vmatsukevich Date: 6/12/13 Time: 5:21 PM
  */
 public class ConfigurationExplorerImpl implements ConfigurationExplorer {
@@ -75,12 +75,13 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     }
 
     /**
-     * Каждый логический валидатор находится в блоке try/catch для отображения всех ошибок, возникнувших в результате валидации, а не только первого бросившего
-     * exception
+     * Каждый логический валидатор находится в блоке try/catch для отображения всех ошибок, возникнувших в результате
+     * валидации, а не только первого бросившего exception
      * 
      */
     private void validate() {
-        GlobalSettingsLogicalValidator globalSettingsLogicalValidator = new GlobalSettingsLogicalValidator(configuration);
+        GlobalSettingsLogicalValidator globalSettingsLogicalValidator =
+                new GlobalSettingsLogicalValidator(configuration);
         globalSettingsLogicalValidator.validate();
         DomainObjectLogicalValidator domainObjectLogicalValidator = new DomainObjectLogicalValidator(this);
         domainObjectLogicalValidator.validate();
@@ -92,7 +93,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
             navigationPanelLogicalValidator.setConfigurationExplorer(this);
             navigationPanelLogicalValidator.validate();
         } catch (ConfigurationException e) {
-           logger.error(e.getMessage());
+            logger.error(e.getMessage());
         }
         try {
             formLogicalValidator.setConfigurationExplorer(this);
@@ -212,7 +213,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         for (TopLevelConfig config : configuration.getConfigurationList()) {
 
             if (GLOBAL_SETTINGS_CLASS_NAME.equalsIgnoreCase(config.getClass().getCanonicalName())) {
-                globalSettings = (GlobalSettingsConfig)config;
+                globalSettings = (GlobalSettingsConfig) config;
             }
             fillTopLevelConfigMap(config);
 
@@ -269,7 +270,8 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
             DynamicGroupConfig dynamicGroup = (DynamicGroupConfig) dynamicGroupMap.get(groupName);
 
             if (dynamicGroup.getMembers() != null && dynamicGroup.getMembers().getTrackDomainObjects() != null) {
-                List<DynamicGroupTrackDomainObjectsConfig> trackDomainObjectConfigs = dynamicGroup.getMembers().getTrackDomainObjects();
+                List<DynamicGroupTrackDomainObjectsConfig> trackDomainObjectConfigs =
+                        dynamicGroup.getMembers().getTrackDomainObjects();
                 for (DynamicGroupTrackDomainObjectsConfig trackDomainObjectConfig : trackDomainObjectConfigs) {
                     String configuredStatus = trackDomainObjectConfig.getStatus();
                     String configuredType = trackDomainObjectConfig.getType();
@@ -289,22 +291,28 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      * {@inheritDoc}
      */
     @Override
-    public AccessMatrixConfig getAccessMatrixByObjectTypeAndStatus(String domainObjectType, String status) {
+    public AccessMatrixStatusConfig getAccessMatrixByObjectTypeAndStatus(String domainObjectType, String status) {
         Map<String, TopLevelConfig> accessMatrixMap = topLevelConfigMap.get(AccessMatrixConfig.class);
 
-        for (String accessMatrixObjectType : accessMatrixMap.keySet()) {
-            AccessMatrixConfig accessMatrixConfig = (AccessMatrixConfig) accessMatrixMap.get(accessMatrixObjectType);
-            String accessMatrixStatus = null;
-            if (accessMatrixConfig.getStatus() != null && accessMatrixConfig.getStatus().getName() != null) {
-                accessMatrixStatus = accessMatrixConfig.getStatus().getName();
-            }
+        AccessMatrixStatusConfig result = null;
 
-            if (status != null && status.equals(accessMatrixStatus) && accessMatrixObjectType.equals(domainObjectType)) {
-                return accessMatrixConfig;
+        for (String accessMatrixObjectType : accessMatrixMap.keySet()) {
+            //Проверка типа
+            if (accessMatrixObjectType.equals(domainObjectType)) {
+                //Получение конфигурации матрицы
+                AccessMatrixConfig accessMatrixConfig =
+                        (AccessMatrixConfig) accessMatrixMap.get(accessMatrixObjectType);
+                //Получаем все статусы
+                for (AccessMatrixStatusConfig acessStatusConfig : accessMatrixConfig.getStatus()) {
+                    if (status != null && status.equals(acessStatusConfig.getName())) {
+                        result  = acessStatusConfig;
+                        break;
+                    }
+                }
+                break;
             }
         }
-
-        return null;
+        return result;
     }
 
     @Override

@@ -90,7 +90,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     @Override
-    public AccessMatrixConfig getAccessMatrixByObjectTypeAndStatus(String domainObjectType, String status) {
+    public AccessMatrixStatusConfig getAccessMatrixByObjectTypeAndStatus(String domainObjectType, String status) {
         return configurationExplorer.getAccessMatrixByObjectTypeAndStatus(domainObjectType, status);
     }
 

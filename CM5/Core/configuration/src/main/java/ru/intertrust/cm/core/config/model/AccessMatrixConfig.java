@@ -1,14 +1,17 @@
 package ru.intertrust.cm.core.config.model;
 
+import java.util.List;
+
 import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
+import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
+
 import ru.intertrust.cm.core.config.model.base.TopLevelConfig;
 
 /**
  * Конфигурация матрицы доступа.
  * @author atsvetkov
- *
+ * 
  */
 @Root(name = "access-matrix")
 public class AccessMatrixConfig implements TopLevelConfig {
@@ -16,8 +19,8 @@ public class AccessMatrixConfig implements TopLevelConfig {
     @Attribute(required = true)
     private String type;
 
-    @Element(name = "status")
-    private AccessMatrixStatusConfig status;
+    @ElementList(inline = true)
+    private List<AccessMatrixStatusConfig> status;
 
     public String getType() {
         return type;
@@ -27,11 +30,11 @@ public class AccessMatrixConfig implements TopLevelConfig {
         this.type = type;
     }
 
-    public AccessMatrixStatusConfig getStatus() {
+    public List<AccessMatrixStatusConfig> getStatus() {
         return status;
     }
 
-    public void setStatus(AccessMatrixStatusConfig status) {
+    public void setStatus(List<AccessMatrixStatusConfig> status) {
         this.status = status;
     }
 
@@ -63,6 +66,7 @@ public class AccessMatrixConfig implements TopLevelConfig {
         result = 31 * result + (status != null ? status.hashCode() : 0);
         return result;
     }
+
     @Override
     public String getName() {
         return type;

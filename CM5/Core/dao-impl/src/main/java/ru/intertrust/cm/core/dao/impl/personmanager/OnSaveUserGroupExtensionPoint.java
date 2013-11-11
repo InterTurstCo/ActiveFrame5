@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -43,7 +44,7 @@ public class OnSaveUserGroupExtensionPoint implements AfterSaveExtensionHandler,
     private CollectionsDao collectionsDao;
 
     @Override
-    public void onAfterSave(DomainObject domainObject) {
+    public void onAfterSave(DomainObject domainObject, List<FieldModification> changedFields) {
         if (!personManagementService.isGroupInGroup(domainObject.getId(), domainObject.getId(), true)) {
             DomainObject groupGroup = createDomainObject("group_group");
             groupGroup.setReference("parent_group_id", domainObject.getId());

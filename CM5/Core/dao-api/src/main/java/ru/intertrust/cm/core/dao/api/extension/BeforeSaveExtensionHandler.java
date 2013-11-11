@@ -1,6 +1,9 @@
 package ru.intertrust.cm.core.dao.api.extension;
 
+import java.util.List;
+
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.FieldModification;
 
 /**
  * Интерфейс точки расширения, вызывающейся до сохранения доменного объекта в
@@ -17,5 +20,5 @@ public interface BeforeSaveExtensionHandler extends ExtensionPointHandler {
      * 
      * @param domainObject
      */
-    void onBeforeSave(DomainObject domainObject);
+    void onBeforeSave(DomainObject domainObject, List<FieldModification> changedFields);
 }

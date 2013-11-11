@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.dao.access;
 import java.util.List;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
 
@@ -10,7 +11,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
  * Сервис обновления списков доступа.
  * @author atsvetkov
  */
-public interface PermissionService {
+public interface PermissionServiceDao {
 
     /**
      * Пересчет динамических групп при удалении доменного объекта.
@@ -50,4 +51,19 @@ public interface PermissionService {
      *            доступа
      */
     void cleanAclFor(Id objectId);
+
+    /**
+     * Получение прав переданного пользователя для переданного доменного объекта
+     * @param domainObjectId
+     * @param userId
+     * @return
+     */
+    DomainObjectPermission getObjectPermission(Id domainObjectId, Id userId);
+
+    /**
+     * Получение прав всех пользователей на переданный доменный объект
+     * @param domainObjectId
+     * @return
+     */
+    List<DomainObjectPermission> getObjectPermissions(Id domainObjectId);
 }

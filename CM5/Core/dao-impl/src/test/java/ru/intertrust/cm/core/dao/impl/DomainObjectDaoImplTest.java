@@ -103,8 +103,8 @@ public class DomainObjectDaoImplTest {
         Assert.assertEquals(expectedQuery, domainObjectDaoImpl.generateFindQuery("Person", accessToken));
     }
 
-    @Test
-    public void testUpdateThrowsInvalidIdException() {
+    //@Test Метод update удален, так как непонятно чем он отличается от save
+    /*public void testUpdateThrowsInvalidIdException() {
         GenericDomainObject domainObject = new GenericDomainObject();
         domainObject.setId(null);
         domainObject.setTypeName(domainObjectTypeConfig.getName());
@@ -131,7 +131,7 @@ public class DomainObjectDaoImplTest {
             assertTrue(e instanceof InvalidIdException);
 
         }
-    }
+    }*/
 
     @Test
     public void testGenerateUpdateQuery() throws Exception {

@@ -82,7 +82,10 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
                 }
             }
         }
-        invalidGroups.addAll(beforeSaveInvalidGroups);
+        
+        if (beforeSaveInvalidGroups != null){
+            invalidGroups.addAll(beforeSaveInvalidGroups);
+        }
 
         // Непосредственно формирование состава, должно вызываться в конце транзакции
         regRecalcInvalidGroups(invalidGroups);
@@ -117,21 +120,6 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
 
         // Выполняю пересчет
         refreshGroupMembers(groupId, groupMembres, groupMembresGroups);
-    }
-
-    /**
-     * Добавление элементов коллекции без дублирования
-     * @param targetCollection
-     * @param sourceCollection
-     */
-    private void addAllWithoutDuplicate(List<Id> targetCollection, List<Id> sourceCollection) {
-        if (sourceCollection != null) {
-            for (Id id : sourceCollection) {
-                if (!targetCollection.contains(id)) {
-                    targetCollection.add(id);
-                }
-            }
-        }
     }
 
     /**
@@ -335,11 +323,11 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
                                 DynamicGroupCollector collector = (DynamicGroupCollector) applicationContext
                                         .getAutowireCapableBeanFactory()
                                         .createBean(
-                                                TrackDomainObjectCollector.class,
+                                                DynamicGroupTrackDomainObjectCollector.class,
                                                 AutowireCapableBeanFactory.AUTOWIRE_BY_NAME,
                                                 false);
                                 // TODO Я конечно против использования базы напрямую, но так сделано изначально, пока не переделываем
-                                ((TrackDomainObjectCollector) collector).setJdbcTemplate(jdbcTemplate);
+                                ((DynamicGroupTrackDomainObjectCollector) collector).setJdbcTemplate(jdbcTemplate);
                                 collector.init(config, collectorConfig);
                                 registerCollector(collector, config);
                             }

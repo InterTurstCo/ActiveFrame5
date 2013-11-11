@@ -41,6 +41,7 @@ public interface DomainObjectDao {
     public DomainObject create(DomainObject domainObject, AccessToken accessToken);
 
     /**
+     * Larin удалить метод update, так как непонятно чем он отличается от save, и при этом не вызываются точки расширения и не пишется аудит
      * Модифицирует переданный доменный объект. Маркер доступа должен иметь тип доступа - изменение.
      *
      * @param domainObject доменный объект который надо изменить
@@ -50,8 +51,8 @@ public interface DomainObjectDao {
      * @throws ObjectNotFoundException если не существует объекта с таким идентификатором
      * @throws OptimisticLockException если объект уже был модифицирован другим пользователем
      */
-    public DomainObject update(DomainObject domainObject, AccessToken accessToken)
-            throws InvalidIdException, ObjectNotFoundException, OptimisticLockException;
+    /*public DomainObject update(DomainObject domainObject, AccessToken accessToken)
+            throws InvalidIdException, ObjectNotFoundException, OptimisticLockException;*/
 
     /**
      * Сохраняет доменный объект. Если объект не существует в системе, создаёт его и заполняет отсутствующие атрибуты

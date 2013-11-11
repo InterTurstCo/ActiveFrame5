@@ -61,7 +61,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private DynamicGroupService dynamicGroupService;
 
     @Autowired
-    private PermissionService permissionService;
+    private PermissionServiceDao permissionService;
 
     @Autowired
     public void setDomainObjectCacheService(
@@ -69,7 +69,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         this.domainObjectCacheService = domainObjectCacheService;
     }
 
-    public void setPermissionService(PermissionService permissionService) {
+    public void setPermissionService(PermissionServiceDao permissionService) {
         this.permissionService = permissionService;
     }
 
@@ -124,7 +124,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         accessControlService.verifySystemAccessToken(accessToken);
         DomainObject domainObject = find(objectId, accessToken);
         ((GenericDomainObject) domainObject).setStatus(status);
-        return update(domainObject, true);
+        DomainObject result = update(domainObject, true, null);
+
+        refreshDynamiGroupsAndAclForUpdate(result, null, null);
+
+        return result;
     }
 
     @Override
@@ -142,7 +146,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     private void refreshDynamiGroupsAndAclForCreate(DomainObject createdObject) {
         dynamicGroupService.notifyDomainObjectCreated(createdObject);
-        //permissionService.notifyDomainObjectCreated(createdObject);
+        permissionService.notifyDomainObjectCreated(createdObject);
     }
 
     @Override
@@ -151,12 +155,16 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             OptimisticLockException {
 
         DomainObject result = null;
+
+        //Получение измененных полей
+        List<FieldModification> changedFields = getModifiedFieldNames(domainObject);
+
         // Вызов точки расширения до сохранения
         List<String> parentTypes = getAllParentTypes(domainObject.getTypeName());
         for (String typeName : parentTypes) {
             BeforeSaveExtensionHandler beforeSaveExtension = extensionService
                     .getExtentionPoint(BeforeSaveExtensionHandler.class, typeName);
-            beforeSaveExtension.onBeforeSave(domainObject);
+            beforeSaveExtension.onBeforeSave(domainObject, changedFields);
         }
 
         DomainObjectVersion.AuditLogOperation operation = null;
@@ -166,7 +174,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             result = create(domainObject, accessToken);
             operation = DomainObjectVersion.AuditLogOperation.CREATE;
         } else {
-            result = update(domainObject, accessToken);
+            result = update(domainObject, accessToken, changedFields);
             operation = DomainObjectVersion.AuditLogOperation.UPDATE;
         }
 
@@ -179,7 +187,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         for (String typeName : parentTypes) {
             AfterSaveExtensionHandler afterSaveExtension = extensionService
                     .getExtentionPoint(AfterSaveExtensionHandler.class, typeName);
-            afterSaveExtension.onAfterSave(result);
+            afterSaveExtension.onAfterSave(result, changedFields);
         }
 
         return result;
@@ -214,22 +222,24 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         return accessControlService.createSystemAccessToken("DomainObjectDao");
     }
 
-    @Override
-    public DomainObject update(DomainObject domainObject, AccessToken accessToken)
-            throws InvalidIdException, ObjectNotFoundException,
-            OptimisticLockException {
+    //@Override
+    public DomainObject
+            update(DomainObject domainObject, AccessToken accessToken, List<FieldModification> changedFields)
+                    throws InvalidIdException, ObjectNotFoundException,
+                    OptimisticLockException {
 
         accessControlService.verifyAccessToken(accessToken, domainObject.getId(), DomainObjectAccessType.WRITE);
 
         boolean isUpdateStatus = false;
 
-        GenericDomainObject updatedObject = update(domainObject, isUpdateStatus);
+        GenericDomainObject updatedObject = update(domainObject, isUpdateStatus, changedFields);
 
         return updatedObject;
 
     }
 
-    private GenericDomainObject update(DomainObject domainObject, boolean isUpdateStatus) {
+    private GenericDomainObject update(DomainObject domainObject, boolean isUpdateStatus,
+            List<FieldModification> changedFields) {
         GenericDomainObject updatedObject = new GenericDomainObject(
                 domainObject);
 
@@ -239,11 +249,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         validateIdType(updatedObject.getId());
 
-        //Получение измененных полей
-        List<FieldModification> changedFields = getModifiedFieldNames(domainObject);
-        List<Id> beforeChangeInvalidGroups = dynamicGroupService.getInvalidGroupsBeforeChange(domainObject, changedFields);
+        List<Id> beforeChangeInvalidGroups =
+                dynamicGroupService.getInvalidGroupsBeforeChange(domainObject, changedFields);
 
-        DomainObject parentDO = updateParentDO(domainObjectTypeConfig, domainObject, isUpdateStatus);
+        DomainObject parentDO = updateParentDO(domainObjectTypeConfig, domainObject, isUpdateStatus, changedFields);
 
         String query = generateUpdateQuery(domainObjectTypeConfig, isUpdateStatus);
 
@@ -290,27 +299,40 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         return updatedObject;
     }
 
-    private void refreshDynamiGroupsAndAclForUpdate(DomainObject domainObject, List<FieldModification> modifiedFields, List<Id> beforeChangeInvalicContexts) {
+    private void refreshDynamiGroupsAndAclForUpdate(DomainObject domainObject, List<FieldModification> modifiedFields,
+            List<Id> beforeChangeInvalicContexts) {
         dynamicGroupService.notifyDomainObjectChanged(domainObject, modifiedFields, beforeChangeInvalicContexts);
-        //permissionService.notifyDomainObjectChanged(domainObject, modifiedFields);
+        permissionService.notifyDomainObjectChanged(domainObject, modifiedFields);
     }
 
     private List<FieldModification> getModifiedFieldNames(
             DomainObject domainObject) {
-        AccessToken accessToken = accessControlService
-                .createSystemAccessToken("DomainObjectDaoImpl");
-        DomainObject originalDomainObject = find(domainObject.getId(),
-                accessToken);
 
         List<FieldModification> modifiedFieldNames = new ArrayList<FieldModification>();
-        for (String fieldName : domainObject.getFields()) {
-            Value originalValue = originalDomainObject.getValue(fieldName);
-            Value newValue = domainObject.getValue(fieldName);
-            if (isValueChanged(originalValue, newValue)) {
-                modifiedFieldNames.add(new FieldModificationImpl(fieldName,
-                        originalValue, newValue));
-            }
 
+        //Для нового объекта все поля попадают в список измененных
+        if (domainObject.isNew()) {
+            for (String fieldName : domainObject.getFields()) {
+                Value newValue = domainObject.getValue(fieldName);
+                modifiedFieldNames.add(new FieldModificationImpl(fieldName,
+                        null, newValue));
+            }
+        } else {
+            //для ранее созданного объекта получаем объект не сохраненный из хранилища и вычисляем измененные поля
+            AccessToken accessToken = accessControlService
+                    .createSystemAccessToken("DomainObjectDaoImpl");
+            DomainObject originalDomainObject = find(domainObject.getId(),
+                    accessToken);
+
+            for (String fieldName : domainObject.getFields()) {
+                Value originalValue = originalDomainObject.getValue(fieldName);
+                Value newValue = domainObject.getValue(fieldName);
+                if (isValueChanged(originalValue, newValue)) {
+                    modifiedFieldNames.add(new FieldModificationImpl(fieldName,
+                            originalValue, newValue));
+                }
+
+            }
         }
         return modifiedFieldNames;
     }
@@ -424,7 +446,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private void refreshDynamiGroupsAndAclForDelete(DomainObject deletedObject, List<Id> beforeChangeInvalicContexts) {
         if (deletedObject != null) {
             dynamicGroupService.notifyDomainObjectDeleted(deletedObject, beforeChangeInvalicContexts);
-            //permissionService.notifyDomainObjectDeleted(deletedObject);
+            permissionService.notifyDomainObjectDeleted(deletedObject);
         }
     }
 
@@ -1357,7 +1379,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     private DomainObject updateParentDO(DomainObjectTypeConfig domainObjectTypeConfig, DomainObject domainObject,
-            boolean isUpdateStatus) {
+            boolean isUpdateStatus, List<FieldModification> changedFields) {
         RdbmsId parentId = getParentId((RdbmsId) domainObject.getId(), domainObjectTypeConfig);
         if (parentId == null) {
             return null;
@@ -1367,7 +1389,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         parentObject.setId(parentId);
         parentObject.setTypeName(domainObjectTypeConfig.getExtendsAttribute());
 
-        return update(parentObject, isUpdateStatus);
+        return update(parentObject, isUpdateStatus, changedFields);
     }
 
     private void appendTableNameQueryPart(StringBuilder query, String typeName) {

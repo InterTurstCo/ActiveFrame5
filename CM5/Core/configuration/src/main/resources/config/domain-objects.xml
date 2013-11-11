@@ -28,7 +28,7 @@
             <reference name="Registrant" type="Employee"/>
             <reference name="Inspector" type="Employee"/>
             <string name="RegNum" length="128" />
-            <string name="State" length="128" />
+            <string name="State" length="128" /> <!-- Не удалять строковой статус. Требуется для тестирования -->
         </fields>
     </domain-object-type>
 

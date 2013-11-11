@@ -1,8 +1,11 @@
 package ru.intertrust.cm.test.negotiation;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
@@ -33,7 +36,7 @@ public class OnSaveNegotiationCargHandler implements AfterSaveExtensionHandler {
      * null
      */
     @Override
-    public void onAfterSave(DomainObject domainObject) {
+    public void onAfterSave(DomainObject domainObject, List<FieldModification> changedFields) {
         AccessToken token = accessControlService.createSystemAccessToken(this.getClass().getName());
 
         //Id parentNegotiation = domainObject.getReference("Add_Negotiation_Card");
