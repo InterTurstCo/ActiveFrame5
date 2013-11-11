@@ -25,7 +25,6 @@ import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionDisplayConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
@@ -33,6 +32,7 @@ import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.dao.impl.doel.DoelResolver;
+import ru.intertrust.cm.core.dao.impl.utils.ObjectIdRowMapper;
 
 /**
  * @author atsvetkov
@@ -65,14 +65,22 @@ public class BaseDynamicGroupServiceImpl {
 
     @Autowired
     protected CollectionsDao collectionsService;
-    
+        
+    public void setDoelResolver(DoelResolver doelResolver) {
+        this.doelResolver = doelResolver;
+        doelResolver.setDomainObjectTypeIdCache(domainObjectTypeIdCache);
+    }
+
     public void setDomainObjectDao(DomainObjectDao domainObjectDao) {
         this.domainObjectDao = domainObjectDao;
     }
 
+    public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
+        this.configurationExplorer = configurationExplorer;
+    }
+
     public void setDomainObjectTypeIdCache(DomainObjectTypeIdCache domainObjectTypeIdCache) {
         this.domainObjectTypeIdCache = domainObjectTypeIdCache;
-        //doelResolver.setDomainObjectTypeIdCache(domainObjectTypeIdCache);
     }
 
     
@@ -86,7 +94,7 @@ public class BaseDynamicGroupServiceImpl {
      */
     public void setDataSource(DataSource dataSource) {
         this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-        //doelResolver.setDataSource(dataSource);
+//        doelResolver.setDataSource(dataSource);
 
     }
 
@@ -281,34 +289,6 @@ public class BaseDynamicGroupServiceImpl {
         return userGroupId;
     }
 
-    /**
-     * Отображает {@link java.sql.ResultSet} на идентификатор доменного объекта
-     * {@link Id}
-     * @author atsvetkov
-     */
-    protected class ObjectIdRowMapper implements ResultSetExtractor<Id> {
-
-        private String idField;
-
-        private Integer domainObjectType;
-
-        public ObjectIdRowMapper(String idField, Integer domainObjectType) {
-            this.idField = idField;
-            this.domainObjectType = domainObjectType;
-        }
-
-        @Override
-        public Id extractData(ResultSet rs) throws SQLException, DataAccessException {
-            Id id = null;
-            while (rs.next()) {
-                Long longValue = rs.getLong(idField);
-
-                id = new RdbmsId(domainObjectType, longValue);
-
-            }
-            return id;
-        }
-    }
 
     /**
      * Установка соединения
