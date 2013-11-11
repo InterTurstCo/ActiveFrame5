@@ -10,6 +10,7 @@ import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
+import net.sf.jsqlparser.statement.select.SelectItem;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
@@ -458,7 +459,7 @@ public class DoelResolver {
         select.setJoins(joins);
         FieldConfig fieldConfig = configurationExplorer.getFieldConfig(branch.getType(), linkField);
         List<String> columns = getColumnNames(Collections.singletonList(fieldConfig));
-        ArrayList<SelectExpressionItem> fields = new ArrayList<>(columns.size());
+        ArrayList<SelectItem> fields = new ArrayList<>(columns.size());
         for (String column : columns) {
             SelectExpressionItem item = new SelectExpressionItem();
             item.setExpression(new Column(new Table(null, "t" + (tableNum - 1)), column));
