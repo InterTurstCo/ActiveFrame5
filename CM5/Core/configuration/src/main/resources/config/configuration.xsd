@@ -68,8 +68,7 @@
 
     <xs:complexType name="fieldsType">
         <xs:choice maxOccurs="unbounded" minOccurs="0">
-            <xs:element type="con:booleanType" name="boolean"
-                        xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="con:booleanType" name="boolean" xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:stringType" name="string"
                 xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:textType"
@@ -110,7 +109,7 @@
             xmlns:con="https://cm5.intertrust.ru/config" />
         <xs:attribute name="type" use="required" type="con:typeNameType"
             xmlns:con="https://cm5.intertrust.ru/config" />
-        <xs:attribute type="xs:string" name="not-null" use="optional" />
+        <xs:attribute name="not-null" use="optional" type="xs:string"/>
     </xs:complexType>
 
     <xs:complexType name="dateTimeType">
@@ -288,7 +287,7 @@
             <xs:extension base="xs:string">
                 <xs:attribute name="name" use="required"
                     type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config" />
-                <xs:attribute type="xs:string" name="length" />
+                <xs:attribute name="length" use="optional" type="xs:string"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -309,10 +308,8 @@
             <xs:extension base="xs:string">
                 <xs:attribute name="name" use="required"
                     type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config" />
-                <xs:attribute type="xs:string" name="length"
-                    use="optional" />
-                <xs:attribute type="xs:string" name="not-null"
-                    use="optional" />
+                <xs:attribute name="length" use="optional" type="xs:string"/>
+                <xs:attribute name="not-null" use="optional" type="xs:string"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -322,8 +319,7 @@
             <xs:extension base="xs:string">
                 <xs:attribute name="name" use="required"
                               type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config" />
-                <xs:attribute type="xs:string" name="not-null"
-                              use="optional" />
+                <xs:attribute name="not-null" use="optional" type="xs:string"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -333,7 +329,7 @@
             <xs:extension base="xs:string">
                 <xs:attribute name="name" use="required"
                               type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config" />
-                <xs:attribute type="xs:string" name="not-null" use="optional" />
+                <xs:attribute name="not-null" use="optional" type="xs:string"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
