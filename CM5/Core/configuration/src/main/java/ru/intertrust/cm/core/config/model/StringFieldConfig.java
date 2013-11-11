@@ -14,7 +14,7 @@ public class StringFieldConfig extends FieldConfig {
     private int length;
 
     @Attribute(required = false)
-    private int encrypted;
+    private String encrypted;
 
     public StringFieldConfig() {
     }
@@ -26,12 +26,12 @@ public class StringFieldConfig extends FieldConfig {
     public void setLength(int length) {
         this.length = length;
     }
-    
-    public int getEncrypted() {
+
+    public String getEncrypted() {
         return encrypted;
     }
 
-    public void setEncrypted(int encrypted) {
+    public void setEncrypted(String encrypted) {
         this.encrypted = encrypted;
     }
 
