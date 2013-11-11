@@ -316,6 +316,7 @@
                     type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config" />
                 <xs:attribute name="length" use="required" type="xs:string"/>
                 <xs:attribute name="not-null" use="optional" type="xs:string"/>
+                <xs:attribute name="encrypted" use="optional" type="xs:string"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
