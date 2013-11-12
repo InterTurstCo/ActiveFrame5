@@ -26,7 +26,6 @@
       <fields>
          <string name="EMail" not-null="false" length="128"/>
          <string name="Login" not-null="true" length="64"/>
-         <string name="Password" not-null="false" length="128"/>
       </fields>
       <uniqueKey>
          <field name="EMail"/>
@@ -59,7 +58,7 @@
    <domain-object-type name="Authentication_Info">
       <fields>
          <string name="User_Uid" not-null="true" length="64"/>
-         <string name="Password" not-null="false" length="128"/>
+         <string name="Password" not-null="false" length="128" encrypted="true"/>
       </fields>
       <uniqueKey>
          <field name="User_Uid"/>

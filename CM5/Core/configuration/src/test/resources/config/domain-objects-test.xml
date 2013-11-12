@@ -30,8 +30,7 @@
     <domain-object-type name="Person">
         <fields>
             <string name="EMail" length="128" />
-            <string name="Login" length="64" not-null="true" />
-            <password name="Password" length="128" />
+            <string name="Login" length="64" not-null="true" />            
         </fields>
        <uniqueKey> <!-- This key means automatic key + index creation-->
             <field name="EMail"/>
@@ -96,7 +95,7 @@
     <domain-object-type name="Authentication_Info">
         <fields>
             <string name="User_Uid" length="64" not-null="true" />
-            <password name="Password" length="128" />
+            <string name="Password" length="128" encrypted="true" />
         </fields>
        <uniqueKey> <!-- This key means automatic key + index creation-->
             <field name="User_Uid"/>
