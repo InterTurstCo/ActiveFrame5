@@ -3,11 +3,11 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.SelectionChangeEvent;
-import ru.intertrust.cm.core.gui.model.plugin.CollectionData;
+import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 
 import java.util.Set;
 
-public class CheckedSelectionModel<T extends CollectionData> extends MultiSelectionModel<T> {
+public class CheckedSelectionModel<T extends CollectionRowItem> extends MultiSelectionModel<T> {
   private static final int         SELECTION_DELAY   = 500;
 
   private MultiSelectionModelEx<T> outerModel;
@@ -41,7 +41,7 @@ public class CheckedSelectionModel<T extends CollectionData> extends MultiSelect
 
   }
 
-  private class MultiSelectionModelEx<T1 extends CollectionData> extends MultiSelectionModel<T1> implements
+  private class MultiSelectionModelEx<T1 extends CollectionRowItem> extends MultiSelectionModel<T1> implements
       SelectionChangeEvent.Handler {
     private Timer selectionTimer = new SelectionTimer();
 

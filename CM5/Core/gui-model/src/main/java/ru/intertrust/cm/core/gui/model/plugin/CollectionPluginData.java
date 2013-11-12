@@ -1,8 +1,7 @@
 package ru.intertrust.cm.core.gui.model.plugin;
 
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.config.model.base.CollectionConfig;
-import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionViewConfig;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -11,48 +10,27 @@ import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionViewConf
  */
 public class CollectionPluginData extends PluginData {
 
-    private String collectionName;
+    private ArrayList<CollectionRowItem> items;
 
-    private CollectionConfig collectionConfig;
-
-    private CollectionViewConfig collectionViewConfig;
-
-    private IdentifiableObjectCollection identifiableObjects;
+    private LinkedHashMap<String, String> domainObjectFieldOnColumnNameMap;
 
     public CollectionPluginData() {
 
     }
 
-    public IdentifiableObjectCollection getCollection() {
-        return identifiableObjects;
+    public ArrayList<CollectionRowItem> getItems() {
+        return items;
     }
 
-    public void setCollection(IdentifiableObjectCollection identifiableObjects) {
-        this.identifiableObjects = identifiableObjects;
+    public void setItems(ArrayList<CollectionRowItem> items) {
+        this.items = items;
     }
 
-    public String getCollectionName() {
-        return collectionName;
+    public LinkedHashMap<String, String> getDomainObjectFieldOnColumnNameMap() {
+        return domainObjectFieldOnColumnNameMap;
     }
 
-    public void setCollectionName(String collectionName) {
-        this.collectionName = collectionName;
+    public void setDomainObjectFieldOnColumnNameMap(LinkedHashMap<String, String> domainObjectFieldOnColumnNameMap) {
+        this.domainObjectFieldOnColumnNameMap = domainObjectFieldOnColumnNameMap;
     }
-
-    public CollectionConfig getCollectionConfig() {
-        return collectionConfig;
-    }
-
-    public void setCollectionConfig(CollectionConfig collectionConfig) {
-        this.collectionConfig = collectionConfig;
-    }
-
-    public CollectionViewConfig getCollectionViewConfig() {
-        return collectionViewConfig;
-    }
-
-    public void setCollectionViewConfig(CollectionViewConfig collectionViewConfig) {
-        this.collectionViewConfig = collectionViewConfig;
-    }
-
 }

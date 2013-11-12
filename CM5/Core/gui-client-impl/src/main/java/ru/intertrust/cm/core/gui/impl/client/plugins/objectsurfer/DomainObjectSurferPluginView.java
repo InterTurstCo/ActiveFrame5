@@ -5,7 +5,6 @@ import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.config.model.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
@@ -14,8 +13,10 @@ import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterInnerScrollEvent;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
 public class DomainObjectSurferPluginView extends PluginView {
@@ -91,16 +92,16 @@ public class DomainObjectSurferPluginView extends PluginView {
                 @Override
                 public void beforePluginOpening() {
                     CollectionPluginData collectionPluginData = collectionViewerPlugin.getInitialData();
-                    IdentifiableObjectCollection collection = collectionPluginData.getCollection();
+                    ArrayList<CollectionRowItem> items = collectionPluginData.getItems();
                     FormPluginConfig formPluginConfig;
-                    if (collection == null || collection.size() == 0) {
+                    if (items == null || items.size() == 0) {
                         // TODO: New approach needed, collection type is no longer available
                         // open empty form for collection domain object type
                         // config = new SomeActivePluginConfig(collectionPluginData.getCollectionConfig()
                         // .getDomainObjectType());
                         formPluginConfig = new FormPluginConfig(config.getDomainObjectTypeToCreate());
                     } else {
-                        formPluginConfig = new FormPluginConfig(collection.get(0).getId());
+                        formPluginConfig = new FormPluginConfig(items.get(0).getId());
                     }
                     Plugin plugin = ComponentRegistry.instance.get("form.plugin");
                     domainObjectSurferPlugin.setFormPlugin(plugin);

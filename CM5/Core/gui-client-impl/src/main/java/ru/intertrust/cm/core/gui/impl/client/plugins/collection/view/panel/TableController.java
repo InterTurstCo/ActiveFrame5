@@ -11,7 +11,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlowPanel;
-import ru.intertrust.cm.core.gui.model.plugin.CollectionData;
+import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 
 /**
  * Created with IntelliJ IDEA.
@@ -38,10 +38,10 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
     private static Style.Cursor RESIZE_CURSOR    = Style.Cursor.COL_RESIZE;
     private static Style.Cursor DEFAULT_CURSOR   = Style.Cursor.DEFAULT;
 
-    CellTable<CollectionData> header;
-    CellTable<CollectionData> body;
+    CellTable<CollectionRowItem> header;
+    CellTable<CollectionRowItem> body;
 
-    public TableController(CellTable<CollectionData> header, CellTable<CollectionData> body) {
+    public TableController(CellTable<CollectionRowItem> header, CellTable<CollectionRowItem> body) {
         this.header = header;
         this.body = body;
 

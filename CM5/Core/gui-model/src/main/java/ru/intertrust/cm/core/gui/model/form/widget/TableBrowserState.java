@@ -5,7 +5,6 @@ import ru.intertrust.cm.core.config.model.gui.form.widget.TableBrowserConfig;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -14,8 +13,8 @@ import java.util.List;
  */
 public class TableBrowserState extends LinkEditingWidgetState {
     private String collectionName;
-    private List<TableBrowserRowItem> selectedRows;
-    private LinkedHashMap<String, String> columnNamesAndDoFieldsMap;
+    private ArrayList<TableBrowserRowItem> selectedItems;
+    private LinkedHashMap<String, String> domainFieldOnColumnNameMap;
     private TableBrowserConfig tableBrowserConfig;
 
     public String getCollectionName() {
@@ -26,12 +25,12 @@ public class TableBrowserState extends LinkEditingWidgetState {
         this.collectionName = collectionName;
     }
 
-    public List<TableBrowserRowItem> getSelectedRows() {
-        return selectedRows;
+    public ArrayList<TableBrowserRowItem> getSelectedItems() {
+        return selectedItems;
     }
 
-    public void setSelectedRows(List<TableBrowserRowItem> selectedRows) {
-        this.selectedRows = selectedRows;
+    public void setSelectedItems(ArrayList<TableBrowserRowItem> selectedItems) {
+        this.selectedItems = selectedItems;
     }
 
     public TableBrowserConfig getTableBrowserConfig() {
@@ -42,18 +41,18 @@ public class TableBrowserState extends LinkEditingWidgetState {
         this.tableBrowserConfig = tableBrowserConfig;
     }
 
-    public LinkedHashMap<String, String> getColumnNamesAndDoFieldsMap() {
-        return columnNamesAndDoFieldsMap;
+    public LinkedHashMap<String, String> getDomainFieldOnColumnNameMap() {
+        return domainFieldOnColumnNameMap;
     }
 
-    public void setColumnNamesAndDoFieldsMap(LinkedHashMap<String, String> columnNamesAndDoFieldsMap) {
-        this.columnNamesAndDoFieldsMap = columnNamesAndDoFieldsMap;
+    public void setDomainFieldOnColumnNameMap(LinkedHashMap<String, String> domainFieldOnColumnNameMap) {
+        this.domainFieldOnColumnNameMap = domainFieldOnColumnNameMap;
     }
 
     @Override
     public ArrayList<Id> getIds() {
         ArrayList<Id> selectedIds = new ArrayList<Id>();
-        for (TableBrowserRowItem model : selectedRows) {
+        for (TableBrowserRowItem model : selectedItems) {
             selectedIds.add(model.getId());
         }
 

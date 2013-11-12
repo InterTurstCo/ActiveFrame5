@@ -55,7 +55,7 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
         } else {
             domainObjects = Collections.emptyList();
         }
-        List<TableBrowserRowItem> items = new ArrayList<TableBrowserRowItem>();
+        ArrayList<TableBrowserRowItem> items = new ArrayList<TableBrowserRowItem>();
         SelectionPatternConfig selectionPatternConfig = widgetConfig.getSelectionPatternConfig();
         Pattern pattern = createDefaultRegexPattern();
         Matcher matcher = pattern.matcher(selectionPatternConfig.getValue());
@@ -68,8 +68,8 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
             items.add(item);
         }
         state.setCollectionName(collectionName);
-        state.setColumnNamesAndDoFieldsMap(map);
-        state.setSelectedRows(items);
+        state.setDomainFieldOnColumnNameMap(map);
+        state.setSelectedItems(items);
         return state;
     }
 

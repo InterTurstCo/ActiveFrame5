@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.config.model.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -24,13 +23,13 @@ public class DomainObjectSurferHandler extends ActivePluginHandler {
         CollectionPluginHandler collectionPluginHandler =
                 (CollectionPluginHandler) applicationContext.getBean("collection.plugin");
         CollectionPluginData collectionPluginData = collectionPluginHandler.initialize(config.getCollectionViewerConfig());
-        IdentifiableObjectCollection collection = collectionPluginData.getCollection();
+        ArrayList<CollectionRowItem> items = collectionPluginData.getItems();
 
         FormPluginConfig formPluginConfig;
-        if (collection == null || collection.size() == 0) {
+        if (items == null || items.size() == 0) {
             formPluginConfig = new FormPluginConfig(config.getDomainObjectTypeToCreate());
         } else {
-            formPluginConfig = new FormPluginConfig(collection.get(0).getId());
+            formPluginConfig = new FormPluginConfig(items.get(0).getId());
         }
         FormPluginHandler formPluginHandler = (FormPluginHandler) applicationContext.getBean("form.plugin");
         FormPluginData formPluginData = formPluginHandler.initialize(formPluginConfig);

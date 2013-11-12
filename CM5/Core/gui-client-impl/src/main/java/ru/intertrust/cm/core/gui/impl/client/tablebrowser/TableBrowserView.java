@@ -32,10 +32,10 @@ public class TableBrowserView extends Composite {
     private Button cancelButton;
     private DialogBox dialogBox;
     private CellTable<TableBrowserRowItem> table;
-    private List<TableBrowserRowItem> selectedItems = new ArrayList<TableBrowserRowItem>();
+    private ArrayList<TableBrowserRowItem> selectedItems = new ArrayList<TableBrowserRowItem>();
     private List<TableBrowserRowItem> proposedItems = new ArrayList<TableBrowserRowItem>();
     private List<TableBrowserRowItem> temporaryItems = new ArrayList<TableBrowserRowItem>();
-    private LinkedHashMap<String, String> domainObjectFieldsOnColumnNamesMap = new LinkedHashMap<String, String>();
+    private LinkedHashMap<String, String> domainObjectFieldOnColumnNameMap = new LinkedHashMap<String, String>();
     private TableBrowserRowItem newSelectedItem; //the object selected by selectionModel
     private HorizontalPanel buttonsContainer;
     private FlowPanel dialogBoxContent;
@@ -47,7 +47,7 @@ public class TableBrowserView extends Composite {
     }
 
     public TableBrowserView(LinkedHashMap<String, String> columnNamesAndDoFieldsMap) {
-        this.domainObjectFieldsOnColumnNamesMap = columnNamesAndDoFieldsMap;
+        this.domainObjectFieldOnColumnNameMap = columnNamesAndDoFieldsMap;
         init();
 
     }
@@ -60,11 +60,11 @@ public class TableBrowserView extends Composite {
         isSingleChoice = singleChoice;
     }
 
-    public List<TableBrowserRowItem> getSelectedItems() {
+    public ArrayList<TableBrowserRowItem> getSelectedItems() {
         return selectedItems;
     }
 
-    public void setSelectedItems(List<TableBrowserRowItem> selectedItems) {
+    public void setSelectedItems(ArrayList<TableBrowserRowItem> selectedItems) {
         this.selectedItems = selectedItems;
     }
 
@@ -80,12 +80,12 @@ public class TableBrowserView extends Composite {
         return openDialogButton;
     }
 
-    public LinkedHashMap<String, String> getDomainObjectFieldsOnColumnNamesMap() {
-        return domainObjectFieldsOnColumnNamesMap;
+    public LinkedHashMap<String, String> getDomainObjectFieldOnColumnNameMap() {
+        return domainObjectFieldOnColumnNameMap;
     }
 
-    public void setDomainObjectFieldsOnColumnNamesMap(LinkedHashMap<String, String> domainObjectFieldsOnColumnNamesMap) {
-        this.domainObjectFieldsOnColumnNamesMap = domainObjectFieldsOnColumnNamesMap;
+    public void setDomainObjectFieldOnColumnNameMap(LinkedHashMap<String, String> domainObjectFieldOnColumnNameMap) {
+        this.domainObjectFieldOnColumnNameMap = domainObjectFieldOnColumnNameMap;
     }
 
     public TextBox getFilterEditor() {
@@ -111,10 +111,10 @@ public class TableBrowserView extends Composite {
 
     public void buildTable() {
         if (isSingleChoice) {
-            createTableWithoutCheckBoxes(domainObjectFieldsOnColumnNamesMap);
+            createTableWithoutCheckBoxes(domainObjectFieldOnColumnNameMap);
             addClickHandlersForSingleChoice();
         } else {
-            createTableWithCheckBoxes(domainObjectFieldsOnColumnNamesMap);
+            createTableWithCheckBoxes(domainObjectFieldOnColumnNameMap);
             addClickHandlersForMultiplyChoice();
         }
         drawSelectedRows();

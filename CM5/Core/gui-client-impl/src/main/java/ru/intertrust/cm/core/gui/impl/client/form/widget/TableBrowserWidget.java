@@ -15,6 +15,7 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -35,14 +36,14 @@ public class TableBrowserWidget extends BaseWidget {
         tableBrowserConfig = tableBrowserState.getTableBrowserConfig();
         String widthString = displayConfig.getWidth();
         int width = Integer.parseInt(widthString.replaceAll("\\D+", ""));
-        List<TableBrowserRowItem> items = tableBrowserState.getSelectedRows();
-        LinkedHashMap<String, String> map = tableBrowserState.getColumnNamesAndDoFieldsMap();
+        ArrayList<TableBrowserRowItem> items = tableBrowserState.getSelectedItems();
+        LinkedHashMap<String, String> map = tableBrowserState.getDomainFieldOnColumnNameMap();
 
         TableBrowserView view = (TableBrowserView) impl;
         view.setSingleChoice(false);
         view.setWidgetWidth(width);
         view.setSelectedItems(items);
-        view.setDomainObjectFieldsOnColumnNamesMap(map);
+        view.setDomainObjectFieldOnColumnNameMap(map);
         view.buildTable();
         view.cleanUpSelectedRows();
         view.drawSelectedRows();
@@ -53,7 +54,7 @@ public class TableBrowserWidget extends BaseWidget {
     public TableBrowserState getCurrentState() {
         TableBrowserState state = new TableBrowserState();
         TableBrowserView view = (TableBrowserView) impl;
-        state.setSelectedRows(view.getSelectedItems());
+        state.setSelectedItems(view.getSelectedItems());
 
         return state;
     }
@@ -74,7 +75,7 @@ public class TableBrowserWidget extends BaseWidget {
         filteredRowsRequest.setCollectionName(name);
         TableBrowserView view = (TableBrowserView) impl;
         TableBrowserState tableBrowserState = getCurrentState();
-        filteredRowsRequest.setColumnFields(view.getDomainObjectFieldsOnColumnNamesMap());
+        filteredRowsRequest.setColumnFields(view.getDomainObjectFieldOnColumnNameMap());
         filteredRowsRequest.setSelectionPattern(tableBrowserConfig.getSelectionPatternConfig().getValue());
         filteredRowsRequest.setText(text);
         filteredRowsRequest.setExcludeIds(tableBrowserState.getIds());
