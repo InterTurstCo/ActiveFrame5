@@ -111,4 +111,9 @@ public class StatusDaoImpl implements StatusDao {
         return statusDO.getString("Name");
     }
 
+    @Override
+    public void resetCache() {
+        idToStatusName.clear();
+        statusNameToId.clear();
+    }
 }
