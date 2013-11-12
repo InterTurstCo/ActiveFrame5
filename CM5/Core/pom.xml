@@ -29,6 +29,7 @@
         <module>gui-server-impl</module>
         <module>web-app</module>
         <module>bootstrap</module>
+        <module>jdbc</module>
     </modules>
 
     <properties>
