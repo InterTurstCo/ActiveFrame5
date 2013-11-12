@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.Calendar;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
@@ -49,25 +50,40 @@ public class TestJdbc extends ClientBase {
         query += "from Outgoing_Document t ";
         //query += "where creation_date between ? and ? and Name = ? and Author = ? and Long_Field = ?";
 
-        PreparedStatement statement =
+        PreparedStatement prepareStatement =
                 connection.prepareStatement(query);
 
         Calendar fromDate = Calendar.getInstance();
         fromDate.set(2000, 1, 1);
-        statement.setDate(0, new java.sql.Date(fromDate.getTime().getTime()));
-        statement.setDate(1, new java.sql.Date(System.currentTimeMillis()));
-        statement.setString(2, "Outgoing_Document");
-        statement.setLong(3, ((RdbmsId) outgoingDocument.getReference("Author")).getId());
-        statement.setLong(4, 10);
-        ResultSet resultset = statement.executeQuery();
+        prepareStatement.setDate(0, new java.sql.Date(fromDate.getTime().getTime()));
+        prepareStatement.setDate(1, new java.sql.Date(System.currentTimeMillis()));
+        prepareStatement.setString(2, "Outgoing_Document");
+        prepareStatement.setLong(3, ((RdbmsId) outgoingDocument.getReference("Author")).getId());
+        prepareStatement.setLong(4, 10);
+        ResultSet resultset = prepareStatement.executeQuery();
 
         int rowCount = 0;
         while (resultset.next()) {
-            System.out.println(rowCount + "\t" + resultset.getString(0) + "\t" + resultset.getDate(1) + "\t" + resultset.getLong(2) + "\t" + resultset.getLong(3));
+            System.out.println(rowCount + "\t" + resultset.getString(1) + "\t" + resultset.getDate(2) + "\t" + resultset.getLong(3) + "\t" + resultset.getLong(4));
             rowCount++;
         }
         resultset.close();
-        statement.close();
+        prepareStatement.close();
+        
+        Statement statement = connection.createStatement();
+        if (statement.execute(query)){
+            resultset = statement.getResultSet();
+
+            rowCount = 0;
+            while (resultset.next()) {
+                System.out.println(rowCount + "\t" + resultset.getString(1) + "\t" + resultset.getDate(2) + "\t" + resultset.getLong(3) + "\t" + resultset.getLong(4));
+                rowCount++;
+            }
+            resultset.close();
+            statement.close();
+        
+        }
+        
         connection.close();
         
     }

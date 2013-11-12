@@ -31,6 +31,7 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     private String query;
     
     public JdbcPreparedStatement(CollectionsService collectionService, String query){
+        super(collectionService);
         this.collectionService = collectionService;
         this.query = query;
     }

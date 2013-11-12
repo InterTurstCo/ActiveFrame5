@@ -6,10 +6,20 @@ import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
 
+import ru.intertrust.cm.core.business.api.CollectionsService;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+
 public class JdbcStatement implements Statement {
-
+    private CollectionsService collectionService;
+    
     private boolean closed = false;
+    private int maxRows;
+    private JdbcResultSet resultSet;
 
+    public JdbcStatement(CollectionsService collectionService){
+        this.collectionService = collectionService;
+    }
+    
     @Override
     public <T> T unwrap(Class<T> iface) throws SQLException {
         throw new UnsupportedOperationException();
@@ -53,14 +63,12 @@ public class JdbcStatement implements Statement {
 
     @Override
     public int getMaxRows() throws SQLException {
-        throw new UnsupportedOperationException();
-
+        return maxRows;    
     }
 
     @Override
     public void setMaxRows(int max) throws SQLException {
-        throw new UnsupportedOperationException();
-
+        this.maxRows = max;
     }
 
     @Override
@@ -89,14 +97,12 @@ public class JdbcStatement implements Statement {
 
     @Override
     public SQLWarning getWarnings() throws SQLException {
-        throw new UnsupportedOperationException();
+        return null;
 
     }
 
     @Override
     public void clearWarnings() throws SQLException {
-        throw new UnsupportedOperationException();
-
     }
 
     @Override
@@ -107,26 +113,30 @@ public class JdbcStatement implements Statement {
 
     @Override
     public boolean execute(String sql) throws SQLException {
-        throw new UnsupportedOperationException();
-
+        try{
+        IdentifiableObjectCollection collection = collectionService.findCollectionByQuery(sql);   
+        this.resultSet = new JdbcResultSet(collection);
+        return true;
+        }catch(Exception ex){
+            ex.printStackTrace();
+            throw new SQLException(ex);
+        }
     }
 
     @Override
     public ResultSet getResultSet() throws SQLException {
-        throw new UnsupportedOperationException();
+        return this.resultSet;
 
     }
 
     @Override
     public int getUpdateCount() throws SQLException {
-        throw new UnsupportedOperationException();
-
+        return 0;
     }
 
     @Override
     public boolean getMoreResults() throws SQLException {
         throw new UnsupportedOperationException();
-
     }
 
     @Override

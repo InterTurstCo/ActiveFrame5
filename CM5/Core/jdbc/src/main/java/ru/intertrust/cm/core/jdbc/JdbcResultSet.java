@@ -27,6 +27,7 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.LongValue;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.TimestampValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 
 public class JdbcResultSet implements ResultSet {
@@ -59,23 +60,28 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public void close() throws SQLException {
-        this.closed  = true;
+        this.closed = true;
     }
 
     @Override
     public boolean wasNull() throws SQLException {
-        throw new UnsupportedOperationException();
-
+        return false;
     }
 
     @Override
     public String getString(int columnIndex) throws SQLException {
-        return collection.get(index).getString(getFieldName(columnIndex));
+        String result = null;
+        Value value = collection.get(index).getValue(getFieldName(columnIndex));
+        if (value != null && value.get() != null) {
+            result = value.get().toString();
+        }
+
+        return result;
     }
 
     private String getFieldName(int columnIndex) {
-        List<String> fields = collection.get(index).getFields();
-        return fields.get(columnIndex);
+        List<String> fields = collection.getFields();
+        return fields.get(columnIndex - 1);
     }
 
     @Override
@@ -106,11 +112,11 @@ public class JdbcResultSet implements ResultSet {
     public long getLong(int columnIndex) throws SQLException {
         Value value = collection.get(index).getValue(getFieldName(columnIndex));
         long result = 0;
-        if (value instanceof LongValue){
-            result = ((LongValue)value).get(); 
-        }else if (value instanceof ReferenceValue){
-            result = ((RdbmsId)((ReferenceValue)value).get()).getId(); 
-        }else{
+        if (value instanceof LongValue) {
+            result = ((LongValue) value).get();
+        } else if (value instanceof ReferenceValue) {
+            result = ((RdbmsId) ((ReferenceValue) value).get()).getId();
+        } else {
             throw new SQLException("Value of column " + columnIndex + " is not long type");
         }
         return result;
@@ -143,11 +149,11 @@ public class JdbcResultSet implements ResultSet {
     @Override
     public Date getDate(int columnIndex) throws SQLException {
         java.util.Date result = collection.get(index).getTimestamp(getFieldName(columnIndex));
-        
-        if (result != null){
-            return new Date(result.getTime()); 
-        }else
-            return null; 
+
+        if (result != null) {
+            return new Date(result.getTime());
+        } else
+            return null;
     }
 
     @Override
@@ -158,8 +164,12 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public Timestamp getTimestamp(int columnIndex) throws SQLException {
-        throw new UnsupportedOperationException();
+        java.util.Date result = collection.get(index).getTimestamp(getFieldName(columnIndex));
 
+        if (result != null) {
+            return new Timestamp(result.getTime());
+        } else
+            return null;
     }
 
     @Override
@@ -278,8 +288,7 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public SQLWarning getWarnings() throws SQLException {
-        throw new UnsupportedOperationException();
-
+        return null;
     }
 
     @Override
@@ -296,14 +305,21 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public ResultSetMetaData getMetaData() throws SQLException {
-        throw new UnsupportedOperationException();
-
+        return new JdbcResultSetMetaData(collection);
     }
 
     @Override
     public Object getObject(int columnIndex) throws SQLException {
-        throw new UnsupportedOperationException();
-
+        Value value = collection.get(index).getValue(getFieldName(columnIndex));
+        Object result = null;
+        if (value instanceof LongValue) {
+            result = ((LongValue) value).get();
+        } else if (value instanceof ReferenceValue) {
+            result = ((RdbmsId) ((ReferenceValue) value).get()).getId();
+        } else if (value instanceof TimestampValue) {
+            result =  ((TimestampValue) value).get();
+        }
+        return result;
     }
 
     @Override

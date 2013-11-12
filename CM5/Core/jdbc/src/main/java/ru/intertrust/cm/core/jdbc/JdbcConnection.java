@@ -57,7 +57,7 @@ public class JdbcConnection implements Connection {
 
     @Override
     public Statement createStatement() throws SQLException {
-        throw new UnsupportedOperationException();
+        return new JdbcStatement(collectionService);
     }
 
     @Override
@@ -82,7 +82,7 @@ public class JdbcConnection implements Connection {
 
     @Override
     public boolean getAutoCommit() throws SQLException {
-        throw new UnsupportedOperationException();
+        return true;
     }
 
     @Override
@@ -114,7 +114,7 @@ public class JdbcConnection implements Connection {
 
     @Override
     public DatabaseMetaData getMetaData() throws SQLException {
-        throw new UnsupportedOperationException();
+        return new JdbcDatabaseMetaData();
     }
 
     @Override
@@ -134,7 +134,7 @@ public class JdbcConnection implements Connection {
 
     @Override
     public String getCatalog() throws SQLException {
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     @Override
@@ -144,17 +144,17 @@ public class JdbcConnection implements Connection {
 
     @Override
     public int getTransactionIsolation() throws SQLException {
-        throw new UnsupportedOperationException();
+        return Connection.TRANSACTION_READ_COMMITTED;
     }
 
     @Override
     public SQLWarning getWarnings() throws SQLException {
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     @Override
     public void clearWarnings() throws SQLException {
-        throw new UnsupportedOperationException();
+        
     }
 
     @Override
