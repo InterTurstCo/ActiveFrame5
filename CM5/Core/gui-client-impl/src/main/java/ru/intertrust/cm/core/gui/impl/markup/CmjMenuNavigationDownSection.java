@@ -1,13 +1,10 @@
 package ru.intertrust.cm.core.gui.impl.markup;
 
-import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.*;
-import ru.intertrust.cm.core.gui.impl.markup.DialogBoxWidget.DialogBoxForm;
-import ru.intertrust.cm.core.gui.impl.markup.uploader.AttachmentUploaderViewOld;
 
 public class CmjMenuNavigationDownSection extends VerticalPanel {
 
@@ -66,15 +63,11 @@ public class CmjMenuNavigationDownSection extends VerticalPanel {
             }
         });
 
-        AttachmentUploaderViewOld simpleUploader = new AttachmentUploaderViewOld();
-        simpleUploader.init();
-        simpleUploader.getElement().getStyle().setPaddingTop(40, Style.Unit.PX);
-        simpleUploader.getElement().getStyle().setBackgroundColor("yellow");
-          simpleUploader.setWidth("700px");
-        this.add(simpleUploader);
 
-        DialogBoxForm dialogBoxForm = new DialogBoxForm();
-        this.add(dialogBoxForm.getContainer());
+
+        /*DialogBoxForm dialogBoxForm = new DialogBoxForm();
+        this.add(dialogBoxForm.getContainer());  */
+
        // simpleUploader.setWidth("100%");
 }
 }

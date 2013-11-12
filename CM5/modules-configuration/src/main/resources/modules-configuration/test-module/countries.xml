@@ -245,6 +245,17 @@
                         </tab-group>
                     </single-entry-group>
                 </tab>
+                <tab name="Table Browser">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td><widget id = "17a" width="1600px" /></td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
             </body>
         </markup>
         <widget-config>
@@ -375,6 +386,29 @@
             <check-box id = "16">
                 <field-path value="is_country_rich"/>
             </check-box>
+            <table-browser id="17a">
+                <field-path value="city^country"/>
+
+                <collection-ref name="Cities"/>
+
+                <collection-view-ref name="cities_default_view"/>
+
+                <!-- название фильтра, использующегося при получении описания уже выбранных значений -->
+                <selection-filter name="idsIncluded"/>
+
+                <!-- название фильтра, отсекающего, уже выбранные значения (для того, чтобы они не показывались в списке -->
+                <selection-exclude-filter name="idsExcluded"/>
+
+                <!-- паттерн отображения уже выбранных значений -->
+                <selection-pattern value="{name} {population} {year_of_foundation}"/>
+
+                <!-- название фильтра по тексту, введённому пользователем -->
+                <input-text-filter name="byText"/>
+
+                <!-- количество элементов, показываемых на одной странице выпадающего списка. в правом нижнем углу
+                под таблицей указатель страниц (за пример нужно взять страницы поиска в Яндексе) -->
+                <page-size>30</page-size>
+            </table-browser>
 
         </widget-config>
     </form>

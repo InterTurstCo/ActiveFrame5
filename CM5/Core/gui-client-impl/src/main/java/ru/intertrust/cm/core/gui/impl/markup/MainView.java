@@ -3,9 +3,8 @@ package ru.intertrust.cm.core.gui.impl.markup;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.RootLayoutPanel;
 
 /**
  * @author Denis Mitavskiy Date: 24.07.13 Time: 13:52
@@ -13,7 +12,7 @@ import com.google.gwt.user.client.ui.*;
 public class MainView implements EntryPoint {
     @Override
     public void onModuleLoad() {
-      /*  // Window.alert("Hello");
+
 
         final Mainform mf = new Mainform();
 
@@ -49,10 +48,10 @@ public class MainView implements EntryPoint {
         // mf.addElementInTree(treeBtn);
         mf.addElementInSticker(stickerBtn);
         RootLayoutPanel rp = RootLayoutPanel.get();
-        rp.add(mf);*/
+        rp.add(mf);
+    }
 
-
-        final ChooseAddresserDialog addresserDialog = new ChooseAddresserDialog();
+    /*    final ChooseAddresserDialog addresserDialog = new ChooseAddresserDialog();
         addresserDialog.setAnimationEnabled(true);
         Tree addresserTree = new Tree();
         VerticalPanel dialogContent = new VerticalPanel();
@@ -164,5 +163,5 @@ public class MainView implements EntryPoint {
         TreeItem getTreeItem() {
             return treeItem;
         }
-    }
+    }    */
 }

@@ -46,17 +46,12 @@ public class CollectionPluginView extends PluginView {
     TableController tableController;
     List<String> columnNames;
     List<String> columnFields;
-
-
-
-
-
     FlowPanel headerPanel = new FlowPanel();
     FlowPanel bodyPanel = new FlowPanel();
     VerticalPanel verticalPanel = new VerticalPanel();
     FlowPanel root = new FlowPanel();
 
-    private List<CollectionData> tableContent =new ArrayList<CollectionData>();
+    private List<CollectionData> tableContent = new ArrayList<CollectionData>();
     /**
      * Создание стилей для ящеек таблицы
      */
@@ -65,7 +60,7 @@ public class CollectionPluginView extends PluginView {
     protected CollectionPluginView(Plugin plugin) {
         super(plugin);
         adapter = new DGCellTableResourceAdapter(CellTableResourcesEx.I);
-        tableHeader = new CellTable<CollectionData>(999,  adapter.getResources());
+        tableHeader = new CellTable<CollectionData>(999, adapter.getResources());
         tableBody = new CellTable<CollectionData>(999, adapter.getResources());
         tableController = new TableController(tableHeader, tableBody);
 
@@ -73,7 +68,7 @@ public class CollectionPluginView extends PluginView {
             @Override
             public void setScrollPanelHeight(SplitterInnerScrollEvent event) {
                 //To change body of implemented methods use File | Settings | File Templates.
-                scrollTableBody.setHeight((event.getUpperPanelHeight()-headerPanel.getOffsetHeight())+"px");
+                scrollTableBody.setHeight((event.getUpperPanelHeight() - headerPanel.getOffsetHeight()) + "px");
             }
         });
 
@@ -83,7 +78,7 @@ public class CollectionPluginView extends PluginView {
     @Override
     protected IsWidget getViewWidget() {
 
-        CollectionPluginData collectionPluginData =  plugin.getInitialData();
+        CollectionPluginData collectionPluginData = plugin.getInitialData();
 
         IdentifiableObjectCollection collection = collectionPluginData.getCollection();
         CollectionViewConfig collectionViewConfig = collectionPluginData.getCollectionViewConfig();
@@ -96,7 +91,7 @@ public class CollectionPluginView extends PluginView {
 
     }
 
-    public void init(List<String> columnNames, IdentifiableObjectCollection collection, List<String> columnFields){
+    public void init(List<String> columnNames, IdentifiableObjectCollection collection, List<String> columnFields) {
         buildPanel();
         buildColumnsOfTables(columnNames, columnFields);
         settingStyles();
@@ -106,9 +101,7 @@ public class CollectionPluginView extends PluginView {
 
     }
 
-
-
-    private void addResizeHandler(){
+    private void addResizeHandler() {
 
         Window.addResizeHandler(new ResizeHandler() {
             @Override
@@ -123,20 +116,17 @@ public class CollectionPluginView extends PluginView {
             }
         });
 
-
-
-
     }
-    private void addHandlers(){
+
+    private void addHandlers() {
         addResizeHandler();
         tableBody.addCellPreviewHandler(new CellTableEventHandler<CollectionData>(tableBody, plugin));
     }
 
 
+    private TextColumn<CollectionData> buildNameColumn(final String s) {
 
-    private TextColumn<CollectionData> buildNameColumn(final String s){
-
-        return new TextColumn<CollectionData>()  {
+        return new TextColumn<CollectionData>() {
             @Override
             public String getValue(CollectionData object) {
                 return object.getValueByKey(s, String.class);
@@ -145,33 +135,33 @@ public class CollectionPluginView extends PluginView {
     }
 
 
-    private void buildPanel(){
+    private void buildPanel() {
         headerPanel.add(tableHeader);
         bodyPanel.add(tableBody);
         verticalPanel.add(headerPanel);
 
 
         scrollTableBody.getElement().getStyle().setOverflowX(Style.Overflow.HIDDEN);
-        scrollTableBody.setHeight(((Window.getClientHeight()-300) / 2)+"px");
+        scrollTableBody.setHeight(((Window.getClientHeight() - 300) / 2) + "px");
         scrollTableBody.add(bodyPanel);
         verticalPanel.add(scrollTableBody);
 
-        verticalPanel.setSize("100%","100%");
+        verticalPanel.setSize("100%", "100%");
         root.add(verticalPanel);
 
     }
 
-    private void buildColumnsOfTables(List<String> columnNames, List<String> columnFields){
-        int count =columnNames.size();
+    private void buildColumnsOfTables(List<String> columnNames, List<String> columnFields) {
+        int count = columnNames.size();
         int columnSize = ((Window.getClientWidth() - 235) / count);
-        for( int i = 0; i <columnNames.size(); i++ ) {
+        for (int i = 0; i < columnNames.size(); i++) {
             Column<CollectionData, String> column = buildNameColumn(columnFields.get(i));
             String nameOfColumn = columnNames.get(i);
             tableHeader.addColumn(column, nameOfColumn);
-            tableHeader.setColumnWidth(column, columnSize+"px");
+            tableHeader.setColumnWidth(column, columnSize + "px");
             column.setDataStoreName(nameOfColumn);
             tableBody.addColumn(column);
-            tableBody.setColumnWidth(column, columnSize+"px");
+            tableBody.setColumnWidth(column, columnSize + "px");
         }
 
         tableBody.setRowCount(tableContent.size());
@@ -190,12 +180,12 @@ public class CollectionPluginView extends PluginView {
     }
 
     private void setStyleOfHeaderTable() {
-          tableHeader.setStyleName(adapter.getResources().cellTableStyle().docsCommonCelltableHeader());
-          tableHeader.setTableLayoutFixed(true);
-          headerPanel.setStyleName(adapter.getResources().cellTableStyle().docsCommonCelltableHeaderPanel());
+        tableHeader.setStyleName(adapter.getResources().cellTableStyle().docsCommonCelltableHeader());
+        tableHeader.setTableLayoutFixed(true);
+        headerPanel.setStyleName(adapter.getResources().cellTableStyle().docsCommonCelltableHeaderPanel());
 
-          tableBody.setStyleName(adapter.getResources().cellTableStyle().docsCommonCelltableBody());
-     }
+        tableBody.setStyleName(adapter.getResources().cellTableStyle().docsCommonCelltableBody());
+    }
 
     private void setStyleOfBodyTable() {
         final CheckedSelectionModel<CollectionData> selectionModel = new CheckedSelectionModel<CollectionData>();
@@ -222,16 +212,16 @@ public class CollectionPluginView extends PluginView {
         tableBody.setSelectionModel(selectionModel);
         tableBody.setTableLayoutFixed(true);
 
-}
+    }
 
     private void preparingTableContent
             (IdentifiableObjectCollection identifiableObjectCollection, List<String> columnFields) {
 
-        for( int i = 0; i < identifiableObjectCollection.size(); i++){
-            HashMap<String, Object> values = new HashMap<String,Object>();
+        for (int i = 0; i < identifiableObjectCollection.size(); i++) {
+            HashMap<String, Object> values = new HashMap<String, Object>();
             IdentifiableObject identifiableObject = identifiableObjectCollection.get(i);
 
-            for(String field: columnFields){
+            for (String field : columnFields) {
                 String fieldValue;
                 if ("id".equalsIgnoreCase(field)) {
                     fieldValue = identifiableObject.getId().toStringRepresentation();
@@ -247,7 +237,8 @@ public class CollectionPluginView extends PluginView {
         }
 
     }
-    private List<String> getColumnFields(CollectionViewConfig collectionViewConfig){
+
+    private List<String> getColumnFields(CollectionViewConfig collectionViewConfig) {
         List<String> columnFields = new ArrayList<String>();
         CollectionDisplayConfig collectionDisplay = collectionViewConfig.getCollectionDisplayConfig();
         List<CollectionColumnConfig> columnConfigs = collectionDisplay.getColumnConfig();
@@ -258,12 +249,13 @@ public class CollectionPluginView extends PluginView {
             String columnName = collectionColumnConfig.getField();
             columnFields.add(columnName);
         }
-        return  columnFields;
+        return columnFields;
     }
-    private List<String> getColumnNames(CollectionViewConfig collectionViewConfig){
+
+    private List<String> getColumnNames(CollectionViewConfig collectionViewConfig) {
         List<String> columnNames = new ArrayList<String>();
         CollectionDisplayConfig collectionDisplay = collectionViewConfig.getCollectionDisplayConfig();
-        if(collectionDisplay != null) {
+        if (collectionDisplay != null) {
             List<CollectionColumnConfig> columnConfigs = collectionDisplay.getColumnConfig();
             for (CollectionColumnConfig collectionColumnConfig : columnConfigs) {
                 if (collectionColumnConfig.isHidden()) {
@@ -272,9 +264,9 @@ public class CollectionPluginView extends PluginView {
                 String columnName = collectionColumnConfig.getName();
                 columnNames.add(columnName);
             }
-            return  columnNames;
+            return columnNames;
 
-        } else throw  new GuiException("Collection view config has no display tags configured ");
+        } else throw new GuiException("Collection view config has no display tags configured ");
 
     }
 

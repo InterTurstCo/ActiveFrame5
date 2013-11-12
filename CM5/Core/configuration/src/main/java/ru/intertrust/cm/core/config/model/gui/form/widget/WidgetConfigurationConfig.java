@@ -35,6 +35,7 @@ public class WidgetConfigurationConfig implements Dto {
             @ElementList(entry = "list-box", type = ListBoxConfig.class, inline = true, required = false),
             @ElementList(entry = "suggest-box", type = SuggestBoxConfig.class, inline = true, required = false),
             @ElementList(entry = "check-box", type = CheckBoxConfig.class, inline = true, required = false),
+            @ElementList(entry = "table-browser", type = TableBrowserConfig.class, inline = true, required = false),
             @ElementList(entry = "attachment-box", type = AttachmentBoxConfig.class, inline = true, required = false)
     })
     private List<WidgetConfig> widgetConfigList = new ArrayList<WidgetConfig>();

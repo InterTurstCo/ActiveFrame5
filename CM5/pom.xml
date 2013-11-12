@@ -446,8 +446,8 @@
                     <!-- For JIRA-report -->
                     <runOnlyAtExecutionRoot>true</runOnlyAtExecutionRoot>
                     <generateJiraAnnouncement>true</generateJiraAnnouncement>
-                    <columnNames>Type,Key,Summary,Assignee,Status,Resolution,Fix
-                        Version</columnNames>
+                    <columnFields>Type,Key,Summary,Assignee,Status,Resolution,Fix
+                        Version</columnFields>
                     <onlyCurrentVersion>true</onlyCurrentVersion>
                     <resolutionIds>Fixed</resolutionIds>
                     <statusIds>6,5</statusIds>
