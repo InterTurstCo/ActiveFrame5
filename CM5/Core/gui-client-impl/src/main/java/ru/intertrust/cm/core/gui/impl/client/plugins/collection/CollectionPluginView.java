@@ -70,7 +70,6 @@ public class CollectionPluginView extends PluginView {
         columnNamesOnDoFieldsMap = collectionPluginData.getDomainObjectFieldOnColumnNameMap();
         items = collectionPluginData.getItems();
         init();
-
         return root;
 
     }
@@ -95,10 +94,8 @@ public class CollectionPluginView extends PluginView {
                 }
                 tableController.columnWindowResize(width);
                 scrollTableBody.setHeight(((Window.getClientHeight() - 300) / 2) + "px");
-
             }
         });
-
     }
 
     private void addHandlers() {
@@ -117,7 +114,6 @@ public class CollectionPluginView extends PluginView {
         };
     }
 
-
     private void buildPanel() {
         headerPanel.add(tableHeader);
         bodyPanel.add(tableBody);
@@ -126,7 +122,6 @@ public class CollectionPluginView extends PluginView {
         scrollTableBody.setHeight(((Window.getClientHeight() - 300) / 2) + "px");
         scrollTableBody.add(bodyPanel);
         verticalPanel.add(scrollTableBody);
-
         verticalPanel.setSize("100%", "100%");
         root.add(verticalPanel);
 
@@ -135,7 +130,6 @@ public class CollectionPluginView extends PluginView {
     private void buildTableColumns(LinkedHashMap<String, String> domainObjectFieldsOnColumnNamesMap) {
         int count = domainObjectFieldsOnColumnNamesMap.keySet().size();
         int columnWidth = ((Window.getClientWidth() - 235) / count);
-
         for (String field : domainObjectFieldsOnColumnNamesMap.keySet()) {
             Column<CollectionRowItem, String> column = buildNameColumn(field);
             String columnName = domainObjectFieldsOnColumnNamesMap.get(field);
@@ -147,7 +141,6 @@ public class CollectionPluginView extends PluginView {
         }
 
     }
-
 
     private void insertRows(List<CollectionRowItem> items) {
         tableBody.setRowData(items);
@@ -186,7 +179,6 @@ public class CollectionPluginView extends PluginView {
         tableBody.setTableLayoutFixed(true);
 
     }
-
 
     public ScrollPanel getScrollTableBody() {
         return scrollTableBody;

@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.config.model.base.CollectionConfig;
 import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionDisplayConfig;
 import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionViewConfig;
@@ -45,12 +44,6 @@ public class CollectionPluginHandler extends PluginHandler {
         pluginData.setItems(items);
 
         return pluginData;
-    }
-
-    private CollectionConfig getCollectionConfig(String collectionName) {
-        CollectionConfig collectionConfig = configurationService.getConfig(CollectionConfig.class, collectionName);
-
-        return collectionConfig;
     }
 
     private Collection<CollectionViewConfig> getCollectionOfViewConfigs() {
