@@ -53,7 +53,11 @@ public class StringFieldConfig extends FieldConfig {
             return false;
         }
 
-        if (encrypted != that.encrypted) {
+        if (encrypted == null && that.encrypted != null) {
+            return false;
+        }
+        
+        if (encrypted != null && !encrypted.equals(that.encrypted)) {
             return false;
         }
 
