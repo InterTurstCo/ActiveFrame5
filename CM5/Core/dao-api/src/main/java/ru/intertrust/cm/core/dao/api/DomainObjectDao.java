@@ -6,7 +6,6 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
-import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
 
 import java.util.Collection;
 import java.util.List;
@@ -34,14 +33,15 @@ public interface DomainObjectDao {
 
     /**
      * Создает новый доменный объект. Метод вызывается только с системным маркером доступа.
+     * 
      * @param domainObject доменный объект который будет создан
      * @param accessToken маркер доступа
      * @return созданыый доменный объект
      */
     public DomainObject create(DomainObject domainObject, AccessToken accessToken);
 
+    //TODO Larin удалить метод update, так как непонятно чем он отличается от save, и при этом не вызываются точки расширения и не пишется аудит
     /**
-     * Larin удалить метод update, так как непонятно чем он отличается от save, и при этом не вызываются точки расширения и не пишется аудит
      * Модифицирует переданный доменный объект. Маркер доступа должен иметь тип доступа - изменение.
      *
      * @param domainObject доменный объект который надо изменить
@@ -58,7 +58,8 @@ public interface DomainObjectDao {
      * Сохраняет доменный объект. Если объект не существует в системе, создаёт его и заполняет отсутствующие атрибуты
      * значениями, сгенерированными согласно правилам, определённым для данного объекта (например, будет сгенерирован и
      * заполнен идентификатор объекта). Оригинальный Java-объект измененям не подвергается, изменения отражены в
-     * возвращённом объекте. Маркер доступа должен иметь тип доступа на изменение.
+     * возвращённом объекте. Маркер доступа должен позволять изменение для сущесвующего объекта и быть системным
+     * для нового.
      *
      * @param domainObject
      * @param accessToken маркер доступа
@@ -66,6 +67,7 @@ public interface DomainObjectDao {
      */
     DomainObject save(DomainObject domainObject, AccessToken accessToken);
 
+    //TODO А.П. Сохранение списка объектов без проверки доступа категорически недопустимо!!!
     /**
      * Сохраняет список доменных объектов. Если какой-то объект не существует в системе, создаёт его и заполняет
      * отсутствующие атрибуты значениями, сгенерированными согласно правилам, определённым для данного объекта
@@ -73,22 +75,22 @@ public interface DomainObjectDao {
      * не подвергаются, изменения отражены в возвращённых объектах. 
      *
      * @param domainObjects доменные объекты для сохранения
-     * @return список сохраненных доменныъ лбъектов
+     * @return список сохраненных доменных объектов
      */
     List<DomainObject> save(List<DomainObject> domainObjects);
 
     /**
-     * Удаляет доменный объект по уникальному идентифткатору
+     * Удаляет доменный объект по уникальному идентифткатору.
      *
      * @param id уникальный идентификатор объекта который надо удалить
-     * @throws InvalidIdException      если идентификатор доменного объекта не корректный (не поддерживается или нулевой)
+     * @throws InvalidIdException если идентификатор доменного объекта не корректный (не поддерживается или нулевой)
      * @throws ObjectNotFoundException если не существует объекта с таким идентификатором
      */
     public void delete(Id id, AccessToken accessToken) throws InvalidIdException, ObjectNotFoundException;
 
     /**
-     * Удаляет доменные объекты по их уникальным идентификаторам. Не осуществляет никаких действий, если какой-либо объект
-     * не существует
+     * Удаляет доменные объекты по их уникальным идентификаторам. Не осуществляет никаких действий, если
+     * какой-либо объект не существует.
      *
      * @param ids идентификаторы доменных объектов для удаления
      * @return количество удаленных объектов
@@ -96,8 +98,7 @@ public interface DomainObjectDao {
     int delete(Collection<Id> ids, AccessToken accessToken);
 
     /**
-     * Проверяет существует ли доменный объект с переданным уникальным
-     * идентификатором
+     * Проверяет существует ли доменный объект с переданным уникальным идентификатором.
      *
      * @param id идентификатор доменного объекта
      * @return true если объект существует иначе возвращает false
@@ -114,7 +115,8 @@ public interface DomainObjectDao {
     DomainObject find(Id id, AccessToken accessToken);
 
     /**
-     * Поиск списка доменных объектов по уникальным идентификаторам в системе. Причем идентификаторы могут быть разных типов доменных объектов.
+     * Поиск списка доменных объектов по уникальным идентификаторам в системе.
+     * Идентификаторы могут быть разных типов доменных объектов.
      *
      * @param ids уникальные идентификаторы
      * @return {@link List< ru.intertrust.cm.core.business.api.dto.DomainObject >}
@@ -130,7 +132,8 @@ public interface DomainObjectDao {
      * @param linkedField    название поля, которым связаны объекты
      * @return список связанных доменных объектов
      */
-    List<DomainObject> findLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField, AccessToken accessToken);
+    List<DomainObject> findLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField,
+            AccessToken accessToken);
 
     /**
      * Поиск списка связанных доменных объектов по уникальному идентификатору владельца в системе, типу дочернего
@@ -157,13 +160,13 @@ public interface DomainObjectDao {
      * @param linkedField    название поля, которым связаны объекты
      * @return список идентификаторов связанных доменных объектов
      */
-    List<Id> findLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField, AccessToken accessToken);
+    List<Id> findLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField,
+            AccessToken accessToken);
 
     /**
      * Поиск списка идентификаторов связанных доменных объектов по уникальному идентификатору владельца в системе,
-     * типу дочернего
-     * (запрашиваемого) доменного объекта и указанному полю с указанием максимального количества возвращаемых объектов и
-     * отступа
+     * типу дочернего (запрашиваемого) доменного объекта и указанному полю с указанием максимального количества
+     * возвращаемых объектов и отступа.
      *
      * @param domainObjectId идентификатор доменного объекта, владельца вложений
      * @param linkedType     тип связанного (дочернего) доменного объекта
@@ -185,7 +188,7 @@ public interface DomainObjectDao {
 
     /**
      * Поиск доменных объектов указанного типа в системе с указанием максимального количества возвращаемых объектов и
-     * отступа
+     * отступа.
      *
      * @param domainObjectType тип доменного объекта
      * @param offset отступ
@@ -196,6 +199,7 @@ public interface DomainObjectDao {
     
     /**
      * Устанавливает статус доменного объекта. Метод может быть вызван только с системным маркером доступа.
+     * 
      * @param objectId идентификатор доменного объекта
      * @param status идентификатор статуса
      * @param accessToken маркер доступа
