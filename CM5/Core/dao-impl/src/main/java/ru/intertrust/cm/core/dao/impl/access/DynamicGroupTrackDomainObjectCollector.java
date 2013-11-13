@@ -14,7 +14,8 @@ import ru.intertrust.cm.core.config.model.DynamicGroupTrackDomainObjectsConfig;
 import ru.intertrust.cm.core.config.model.doel.DoelExpression;
 import ru.intertrust.cm.core.dao.access.DynamicGroupCollector;
 
-public class DynamicGroupTrackDomainObjectCollector extends BaseDynamicGroupServiceImpl implements DynamicGroupCollector {
+public class DynamicGroupTrackDomainObjectCollector extends BaseDynamicGroupServiceImpl implements
+        DynamicGroupCollector {
 
     private DynamicGroupConfig config;
     private DynamicGroupTrackDomainObjectsConfig trackDomainObjects;
@@ -56,18 +57,29 @@ public class DynamicGroupTrackDomainObjectCollector extends BaseDynamicGroupServ
 
         if (trackDomainObjects.getBindContext() != null && trackDomainObjects.getBindContext().getDoel() != null) {
             DoelExpression expression = DoelExpression.parse(trackDomainObjects.getBindContext().getDoel());
-            List<Value> invalidContexts = doelResolver.evaluate(expression, domainObject.getId());
             //Проверяем статус
             if (trackDomainObjects.getStatus() != null) {
                 String status = getStatusFor(domainObject.getId());
                 if (trackDomainObjects.getStatus().equals(status)) {
+                    List<Value> invalidContexts = doelResolver.evaluate(expression, domainObject.getId());
                     result = getIdList(invalidContexts);
                 }
             } else {
+                List<Value> invalidContexts = doelResolver.evaluate(expression, domainObject.getId());
                 result = getIdList(invalidContexts);
             }
         } else {
-            result.add(domainObject.getId());
+            //bind контекст не указан, значит отслеживаемый объект и является контекстом
+            //Если указан статус то проверяем его, если нет то сразу добавляем текущий объект
+            if (trackDomainObjects.getStatus() != null) {
+                String status = getStatusFor(domainObject.getId());
+                if (trackDomainObjects.getStatus().equals(status)) {
+                    result.add(domainObject.getId());
+                }
+
+            } else {
+                result.add(domainObject.getId());
+            }
         }
 
         return result;

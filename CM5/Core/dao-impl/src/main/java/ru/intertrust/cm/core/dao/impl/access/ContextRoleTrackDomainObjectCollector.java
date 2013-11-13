@@ -35,7 +35,8 @@ public class ContextRoleTrackDomainObjectCollector extends BaseDynamicGroupServi
         //Проверяем указана ли имя динамической группы. Если указана то берем динамическую группу с контекстом доменного объекта и именем из конфигурации
         if (trackDomainObjects.getGetGroup().getGroupName() != null) {
             for (Id id : contextGroupOwner) {
-                result.add(getUserGroupByGroupNameAndObjectId(trackDomainObjects.getGetGroup().getGroupName(), ((RdbmsId) id).getId()));
+                result.add(getUserGroupByGroupNameAndObjectId(trackDomainObjects.getGetGroup().getGroupName(),
+                        ((RdbmsId) id).getId()));
             }
         } else {
             //имя не указано, полученные доменные объекты и ест контекстные группы
@@ -63,8 +64,17 @@ public class ContextRoleTrackDomainObjectCollector extends BaseDynamicGroupServi
         if (trackDomainObjects.getBindContext() != null && trackDomainObjects.getBindContext().getDoel() != null) {
             //Указан doel на зависимые объекты
             DoelExpression expr = DoelExpression.parse(trackDomainObjects.getBindContext().getDoel());
-            List<Value> contextIds = doelResolver.evaluate(expr, domainObject.getId());
-            result.addAll(getIdList(contextIds));
+
+            if (trackDomainObjects.getStatus() != null && trackDomainObjects.getStatus().length() > 0) {
+                String status = getStatusFor(domainObject.getId());
+                if (trackDomainObjects.getStatus().equals(status)) {
+                    List<Value> contextIds = doelResolver.evaluate(expr, domainObject.getId());
+                    result.addAll(getIdList(contextIds));
+                }
+            } else {
+                List<Value> contextIds = doelResolver.evaluate(expr, domainObject.getId());
+                result.addAll(getIdList(contextIds));
+            }
 
         } else {
             //зависимые объекты не указаны, значит контекстом является текущий объект
