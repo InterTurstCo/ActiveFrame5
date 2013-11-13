@@ -20,7 +20,7 @@ public class ContextRoleTrackDomainObjectCollector extends BaseDynamicGroupServi
     private TrackDomainObjectsConfig trackDomainObjects;
 
     @Override
-    public List<Id> getMembers(Id domainObjectId, Id contextId) {
+    public List<Id> getMembers(Id contextId) {
         //Получаем доменные объекты, которые являются контекстами для динамических групп
         List<Id> contextGroupOwner = new ArrayList<Id>();
         if (trackDomainObjects.getGetGroup().getDoel() != null) {

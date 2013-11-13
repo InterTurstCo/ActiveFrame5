@@ -174,6 +174,9 @@ public class TestDynamicGroup extends ClientBase {
     private void doOneLine(String line, Hashtable<String, Id> ids, String[] owners, String[] roles, String[] entries) throws Exception {
         String etalonResult = null;
         try {
+            
+            long start = System.currentTimeMillis();
+            
             String[] arguments = line.split(";");
             String commandString = arguments[0];
             etalonResult = arguments[2];
@@ -271,7 +274,7 @@ public class TestDynamicGroup extends ClientBase {
             }
 
             validateOneLine(commandString, arguments, ids, owners, roles, entries);
-            log("Validate line complete [" + line + "]");
+            log("Validate line complete [" + line + "] at " + (System.currentTimeMillis() - start));
         } catch (Exception ex) {
             if (etalonResult != null && etalonResult.length() > 0) {
                 int result = Integer.parseInt(etalonResult);

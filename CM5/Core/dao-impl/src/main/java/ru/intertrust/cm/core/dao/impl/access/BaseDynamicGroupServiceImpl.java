@@ -65,7 +65,7 @@ public class BaseDynamicGroupServiceImpl {
 
     @Autowired
     protected CollectionsDao collectionsService;
-        
+
     public void setDoelResolver(DoelResolver doelResolver) {
         this.doelResolver = doelResolver;
         doelResolver.setDomainObjectTypeIdCache(domainObjectTypeIdCache);
@@ -83,7 +83,6 @@ public class BaseDynamicGroupServiceImpl {
         this.domainObjectTypeIdCache = domainObjectTypeIdCache;
     }
 
-    
     public void setAccessControlService(AccessControlService accessControlService) {
         this.accessControlService = accessControlService;
     }
@@ -94,7 +93,7 @@ public class BaseDynamicGroupServiceImpl {
      */
     public void setDataSource(DataSource dataSource) {
         this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-//        doelResolver.setDataSource(dataSource);
+        //        doelResolver.setDataSource(dataSource);
 
     }
 
@@ -110,7 +109,8 @@ public class BaseDynamicGroupServiceImpl {
         if (userGroupId != null) {
             String query = generateDeleteUserGroupQuery();
 
-            Map<String, Object> parameters = initializeProcessUserGroupWithContextParameters(groupName, contextObjectId);
+            Map<String, Object> parameters =
+                    initializeProcessUserGroupWithContextParameters(groupName, contextObjectId);
             jdbcTemplate.update(query, parameters);
         }
 
@@ -128,8 +128,7 @@ public class BaseDynamicGroupServiceImpl {
     }
 
     /**
-     * Возвращает идентификатор группы пользователей по имени группы и
-     * идентификатору контекстного объекта
+     * Возвращает идентификатор группы пользователей по имени группы и идентификатору контекстного объекта
      * @param groupName
      *            имя динамической группы
      * @param contextObjectId
@@ -219,13 +218,16 @@ public class BaseDynamicGroupServiceImpl {
 
     private String generateGetStatusForQuery(Id objectId) {
         RdbmsId id = (RdbmsId) objectId;
-        
+
         //Получение типа верхнего уровня
-        DomainObjectTypeConfig typeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObjectTypeIdCache.getName(id.getTypeId()));
-        while(typeConfig.getExtendsAttribute() != null){
-            typeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, typeConfig.getExtendsAttribute());
+        DomainObjectTypeConfig typeConfig =
+                configurationExplorer.getConfig(DomainObjectTypeConfig.class,
+                        domainObjectTypeIdCache.getName(id.getTypeId()));
+        while (typeConfig.getExtendsAttribute() != null) {
+            typeConfig =
+                    configurationExplorer.getConfig(DomainObjectTypeConfig.class, typeConfig.getExtendsAttribute());
         }
-        
+
         String tableName = getSqlName(typeConfig.getName());
         StringBuilder query = new StringBuilder();
         query.append("select s.name from ");
@@ -245,8 +247,7 @@ public class BaseDynamicGroupServiceImpl {
     }
 
     /**
-     * Отображает {@link java.sql.ResultSet} на список идентификаторов доменных
-     * объектов {@link Id}
+     * Отображает {@link java.sql.ResultSet} на список идентификаторов доменных объектов {@link Id}
      * @author atsvetkov
      */
     protected class ListObjectIdRowMapper implements ResultSetExtractor<List<Id>> {
@@ -289,14 +290,13 @@ public class BaseDynamicGroupServiceImpl {
         return userGroupId;
     }
 
-
     /**
      * Установка соединения
      * @param jdbcTemplate
      */
     public void setJdbcTemplate(NamedParameterJdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        
+
     }
 
     protected List<FieldModification> getNewObjectModificationList(
@@ -331,8 +331,18 @@ public class BaseDynamicGroupServiceImpl {
     protected List<Id> getIdList(List<Value> valueList) {
         List<Id> result = new ArrayList<Id>();
         for (Value value : valueList) {
-            if (value.get() != null){
+            if (value.get() != null) {
                 result.add((Id) value.get());
+            }
+        }
+        return result;
+    }
+
+    protected List<Id> getIdListFromDomainObjectList(List<DomainObject> domainObjectList) {
+        List<Id> result = new ArrayList<Id>();
+        if (domainObjectList != null) {
+            for (DomainObject value : domainObjectList) {
+                result.add(value.getId());
             }
         }
         return result;
@@ -353,5 +363,4 @@ public class BaseDynamicGroupServiceImpl {
         }
     }
 
-    
 }

@@ -23,7 +23,7 @@ public interface ContextRoleCollector {
      *            идентификатор контекста для контекстной роли
      * @return возвращает список групп, которые входят в состав контектной роли
      */
-    List<Id> getMembers(Id domainObjectId, Id contextId);
+    List<Id> getMembers(Id contextId);
 
     /**
      * Возвращает список типов, которые могут повлиять на состав контекстной

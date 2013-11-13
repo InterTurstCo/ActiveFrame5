@@ -79,6 +79,7 @@ public abstract class ClientBase {
     protected void log(String message) {
         System.out.println(message);
         log.append(message);
+        log.append("\n");
     }
 
     /**
@@ -160,7 +161,9 @@ public abstract class ClientBase {
         try {
             if (logPath != null) {
                 File logFile = new File(logPath);
-                logFile.deleteOnExit();
+                if (logFile.exists()){
+                    logFile.delete();
+                }
                 out = new FileOutputStream(logFile);
                 out.write(log.toString().getBytes());
             }
