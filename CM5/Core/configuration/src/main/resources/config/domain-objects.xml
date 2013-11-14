@@ -186,7 +186,7 @@
         </fields>
     </domain-object-type>
 
-    <domain-object-type name="Person_Task">
+    <domain-object-type name="Person_Task" initial-status="Send">
         <fields>
             <string name="TaskId" length="32"  not-null="true"/>
             <string name="ActivityId" length="32"  not-null="true"/>
@@ -197,7 +197,7 @@
             <string name="Actions" length="512"/>
             <string name="Result" length="512"/>
             <string name="ExecutionId" length="32" />
-            <long name="State"/>
+            <!-- long name="State"/-->
         </fields>
         <uniqueKey>
             <field name="TaskId"/>

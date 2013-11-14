@@ -42,6 +42,7 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
+import ru.intertrust.cm.core.dao.api.StatusDao;
 import ru.intertrust.cm.core.model.ProcessException;
 import ru.intertrust.cm.core.tools.DomainObjectAccessor;
 import ru.intertrust.cm.core.tools.Session;
@@ -81,6 +82,9 @@ public class ProcessServiceImpl implements ProcessService {
 
     @Autowired
     FormService formService;
+    
+    @Autowired
+    private StatusDao statusDao;    
 
     /*
      * @PostConstruct public void init() throws JAXBException, SAXException,
@@ -207,8 +211,10 @@ public class ProcessServiceImpl implements ProcessService {
 
         DomainObject taskDomainObject = domainObjectDao.find(
                 taskDomainObjectId, accessToken);
-        taskDomainObject.setLong("State", ProcessService.TASK_STATE_COMPLETE);
-        domainObjectDao.save(taskDomainObject, accessToken);
+        //taskDomainObject.setLong("State", ProcessService.TASK_STATE_COMPLETE);
+        //domainObjectDao.save(taskDomainObject, accessToken);
+        taskDomainObject = domainObjectDao.setStatus(taskDomainObject.getId(),
+                statusDao.getStatusIdByName(ProcessService.TASK_STATE_COMPLETE), accessToken);
 
         String taskId = taskDomainObject.getString("TaskId");
 

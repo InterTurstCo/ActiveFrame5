@@ -56,9 +56,10 @@ public class OnAfterSaveInternalDocument implements AfterSaveExtensionHandler {
             AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
 
             //Получаем старое значение поля State
-            String oldStatus = ((StringValue)fieldModification.getBaseValue()).get();
-            String newStatus = ((StringValue)fieldModification.getComparedValue()).get();
+            String oldStatus = fieldModification.getBaseValue() != null ? ((StringValue)fieldModification.getBaseValue()).get() : null;
+            String newStatus = fieldModification.getComparedValue() != null ? ((StringValue)fieldModification.getComparedValue()).get() : null;
 
+            //Если статус изменился то выполняем его установку через domainObjectDao
             if (newStatus != null && !newStatus.equals(oldStatus) || (newStatus == null && oldStatus != null)) {
                 domainObjectDao.setStatus(domainObject.getId(), getStatus(newStatus, accessToken), accessToken);
             }

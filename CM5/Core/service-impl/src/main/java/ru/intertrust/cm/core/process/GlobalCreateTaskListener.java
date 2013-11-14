@@ -27,12 +27,13 @@ import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.StatusDao;
 import ru.intertrust.cm.core.model.ProcessException;
 import ru.intertrust.cm.core.tools.SpringClient;
 
 /**
- * Глобальный слушатель создания UserTask. Создает соответствующий доменный
- * объект и выполняет отсылку по электронной почте
+ * Глобальный слушатель создания UserTask. Создает соответствующий доменный объект и выполняет отсылку по электронной
+ * почте
  */
 public class GlobalCreateTaskListener extends SpringClient implements
         TaskListener, ExecutionListener {
@@ -52,6 +53,9 @@ public class GlobalCreateTaskListener extends SpringClient implements
     @Autowired
     private CollectionsDao collectionsDao;
 
+    @Autowired
+    private StatusDao statusDao;
+
     /**
      * Входная точка слушителя. вызывается при создание пользовательской задачи
      */
@@ -66,18 +70,14 @@ public class GlobalCreateTaskListener extends SpringClient implements
                 .setString("Description", delegateTask.getDescription());
         taskDomainObject.setLong("Priority", (long) delegateTask.getPriority());
         taskDomainObject.setString("ExecutionId", delegateTask.getExecutionId());
-
-        // TODO установка статуса отправлено. Временно сделано через просто
-        // поле в дальнейшем надо
-        // переделать на системное поле state доменного объекта
-        taskDomainObject.setLong("State", ProcessService.TASK_STATE_SEND);
+        // У нового объекта автоматом установится статус Send
 
         // Получение полей формы задачи ACTIONS и сохранение его в обьект
         // задача
         TaskFormData taskData = formService.getTaskFormData(delegateTask.getId());
         List<FormProperty> formProperties = taskData.getFormProperties();
         String mainAttachmentId = null;
-		for (FormProperty formProperty : formProperties) {
+        for (FormProperty formProperty : formProperties) {
             if (formProperty.getId().equals("ACTIONS")) {
                 Map<String, String> values = (Map<String, String>) formProperty.getType().getInformation("values");
                 StringBuilder actions = new StringBuilder();
@@ -95,12 +95,12 @@ public class GlobalCreateTaskListener extends SpringClient implements
                 taskDomainObject.setString("Actions", actions.toString());
             }
             else if (formProperty.getId().equals("MAIN_ATTACHMENT_ID")) {
-            	mainAttachmentId  = formProperty.getValue();
+                mainAttachmentId = formProperty.getValue();
             }
         }
         //Id mainAttachmentId = ((Id) delegateTask.getVariable("MAIN_ATTACHMENT_ID"));
         if (mainAttachmentId == null) {
-        	throw new ProcessException("MAIN_ATTACHMENT_ID is requred");  	
+            throw new ProcessException("MAIN_ATTACHMENT_ID is requred");
         }
         taskDomainObject.setReference("MainAttachment", idService.createId(mainAttachmentId));
 
@@ -152,19 +152,18 @@ public class GlobalCreateTaskListener extends SpringClient implements
     }
 
     /**
-     * Точка входа при выходе из задачи. переопределяется чтобы установить
-     * статус у задач, которые были завершены с помощью event
+     * Точка входа при выходе из задачи. переопределяется чтобы установить статус у задач, которые были завершены с
+     * помощью event
      */
     @Override
     public void notify(DelegateExecution execution) throws Exception {
         List<DomainObject> tasks = getNotCompleteTasks(execution.getId(), execution.getCurrentActivityId());
-
+        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
         for (DomainObject domainObjectTask : tasks) {
-            domainObjectTask.setLong("State", ProcessService.TASK_STATE_PRETERMIT);
-
-            AccessToken accessToken = accessControlService.createSystemAccessToken("GlobalCreateTaskListener");
-
-            domainObjectDao.save(domainObjectTask, accessToken);
+            //domainObjectTask.setLong("State", ProcessService.TASK_STATE_PRETERMIT);
+            domainObjectDao.setStatus(domainObjectTask.getId(),
+                    statusDao.getStatusIdByName(ProcessService.TASK_STATE_PRETERMIT), accessToken);
+            //domainObjectDao.save(domainObjectTask, accessToken);
         }
     }
 

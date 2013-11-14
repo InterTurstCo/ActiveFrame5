@@ -438,10 +438,12 @@
                 select
                     t.id
                 from
-                    Person_Task t inner join Assignee_Person ap on (t.id = ap.persontask)
+                    Person_Task t 
+                    inner join Assignee_Person ap on (t.id = ap.persontask)
+                    inner join Status s on (t.status = s.id)
                      ::from-clause
                 where
-                    t.state in (1,2) ::where-clause
+                    s.name in ('Send', 'Acquired') ::where-clause
             ]]>
         </prototype>
 
@@ -468,10 +470,12 @@
                 select
                     t.id
                 from
-                    Person_Task t 
+                    Person_Task t
+                    inner join Status s on (t.status = s.id)
+                     
                      ::from-clause
                 where
-                    t.state in (1,2) ::where-clause
+                    s.name in ('Send', 'Acquired') ::where-clause
             ]]>
         </prototype>
 
@@ -495,9 +499,10 @@
                     Person_Task t
                     inner join assignee_group ag on (t.id = ag.persontask)
                     inner join group_member gm on (ag.usergroup = gm.usergroup)
+                    inner join Status s on (t.status = s.id)
                      ::from-clause
                 where
-                     t.state in (1,2) ::where-clause
+                     s.name in ('Send', 'Acquired')  ::where-clause
             ]]>
         </prototype>
 

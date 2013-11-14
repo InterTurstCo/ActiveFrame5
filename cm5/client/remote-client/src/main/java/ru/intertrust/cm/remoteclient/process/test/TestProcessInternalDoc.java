@@ -78,8 +78,9 @@ public class TestProcessInternalDoc extends ClientBase {
             attachment.setString("ReturnOnReject", "YES");
             attachment.setLong("Stage", 0L);
             attachment.setString("RegNum", "InternalDoc111");
-            attachment.setString("State", "Draft");
+            //attachment.setString("State", "Draft");
             attachment = crudService.save(attachment);
+            
             
             // Создаем персону
             Id adminPerson = personService.getPersonId("admin");
