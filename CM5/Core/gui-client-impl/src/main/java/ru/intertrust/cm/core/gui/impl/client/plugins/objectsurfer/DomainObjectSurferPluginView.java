@@ -3,6 +3,8 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
+import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.config.model.gui.navigation.DomainObjectSurferConfig;
@@ -11,7 +13,10 @@ import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterInnerScrollEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
+import ru.intertrust.cm.core.gui.impl.client.splitter.SplitterEx;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
@@ -21,12 +26,12 @@ import java.util.logging.Logger;
 
 public class DomainObjectSurferPluginView extends PluginView {
 
-
+    EventBus eventBus = new SimpleEventBus();
     FlowPanel formFlowPanel = new FlowPanel();
     SimplePanel splitterNorthPanel = new SimplePanel();
     ScrollPanel splitterScroll = new ScrollPanel();
     private DomainObjectSurferPlugin domainObjectSurferPlugin;
-    SplitLayoutPanel splitterNew = new SplitLayoutPanel(8){
+    final SplitterEx splitterPanel = new SplitterEx(9, eventBus){
         @Override
         public void onResize() {
             super.onResize();
@@ -44,16 +49,30 @@ public class DomainObjectSurferPluginView extends PluginView {
         splitterSetSize();
         addWindowResizeListeners();
 
+        eventBus.addHandler(SplitterWidgetResizerEvent.TYPE, new SplitterWidgetResizerEventHandler() {
+            @Override
+            public void setWidgetSize(SplitterWidgetResizerEvent event) {
+                if (event.isType()){
+                    splitterPanel.remove(0);
+                    splitterPanel.insertWest(splitterScroll, event.getFirstWidgetWidth(), splitterPanel.getWidget(0));
+                } else {
+                    splitterPanel.remove(0);
+                    splitterPanel.insertNorth(splitterScroll, event.getFirstWidgetHeight(), splitterPanel.getWidget(0));
+
+                }
+            }
+        });
+
 
     }
 
     protected void splitterSetSize(){
-        splitterNew.clear();
+        splitterPanel.clear();
         int width = Window.getClientWidth() - 235;
         int heigt = Window.getClientHeight() - 98;
-        splitterNew.setSize(width + "px", heigt + "px");
-        splitterNew.addNorth(splitterScroll, (Window.getClientHeight()-235) / 2);
-        splitterNew.add(formFlowPanel);
+        splitterPanel.setSize(width + "px", heigt + "px");
+        splitterPanel.addNorth(splitterScroll, (Window.getClientHeight() - 235) / 2);
+        splitterPanel.add(formFlowPanel);
     }
 
     private void addWindowResizeListeners(){
@@ -80,7 +99,7 @@ public class DomainObjectSurferPluginView extends PluginView {
 //        w.setHeight("40px");
 //        w.setWidth("100%");
 //        container.add(w);
-        container.add(splitterNew);
+        container.add(splitterPanel);
 
         final DomainObjectSurferConfig config = (DomainObjectSurferConfig) domainObjectSurferPlugin.getConfig();
         if (config != null) {
