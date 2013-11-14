@@ -9,7 +9,7 @@ public class DomainObjectPermission implements Dto{
         None,
         Read,
         Write,
-        Delate
+        Delete
     }
     
     private Permission permission = Permission.None;

@@ -353,9 +353,9 @@ public class BaseDynamicGroupServiceImpl {
      * @param targetCollection
      * @param sourceCollection
      */
-    protected void addAllWithoutDuplicate(List<Id> targetCollection, List<Id> sourceCollection) {
+    protected void addAllWithoutDuplicate(List targetCollection, List sourceCollection) {
         if (sourceCollection != null) {
-            for (Id id : sourceCollection) {
+            for (Object id : sourceCollection) {
                 if (!targetCollection.contains(id)) {
                     targetCollection.add(id);
                 }

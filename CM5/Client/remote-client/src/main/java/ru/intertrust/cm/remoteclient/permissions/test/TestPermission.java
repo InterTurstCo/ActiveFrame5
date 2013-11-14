@@ -58,7 +58,7 @@ public class TestPermission extends ClientBase {
 
             //Проверка прав
             EtalonPermissions etalon = new EtalonPermissions();
-            etalon.addPermission(getEmployeeId("Employee-1"), Permission.Delate);
+            etalon.addPermission(getEmployeeId("Employee-1"), Permission.Delete);
             etalon.addActionPermission(getEmployeeId("Employee-1"), "StartProcessAction");
             etalon.addActionPermission(getEmployeeId("Employee-1"), "ChangeStatusAction");
             checkPermissions(internalDocument.getId(), etalon, "Status Draft");

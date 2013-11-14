@@ -44,7 +44,6 @@ import ru.intertrust.cm.core.config.model.ReadConfig;
 import ru.intertrust.cm.core.config.model.TrackDomainObjectsConfig;
 import ru.intertrust.cm.core.config.model.WriteConfig;
 import ru.intertrust.cm.core.config.model.base.TopLevelConfig;
-import ru.intertrust.cm.core.config.model.doel.DoelExpression;
 import ru.intertrust.cm.core.dao.access.AccessType;
 import ru.intertrust.cm.core.dao.access.ContextRoleCollector;
 import ru.intertrust.cm.core.dao.access.CreateChildAccessType;
@@ -133,13 +132,102 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             return;
         }
 
-        cleanAclFor(invalidContextId);
+        //Переделываем формирование acl. Вместо полного удаления и создания формируем точечные изменения, приводящие acl в актуальное состояниеы        
+        /*cleanAclFor(invalidContextId);
 
         for (BaseOperationPermitConfig operationPermitConfig : accessMatrixConfig.getPermissions()) {
             AccessType accessType = getAccessType(operationPermitConfig);
             processOperationPermissions(invalidContextId, operationPermitConfig, accessType);
         }
+        */
 
+        //Получение необходимого состава acl
+        List<AclInfo> newAclInfos = new ArrayList<AclInfo>();
+        for (BaseOperationPermitConfig operationPermitConfig : accessMatrixConfig.getPermissions()) {
+            AccessType accessType = getAccessType(operationPermitConfig);
+            //Добавляем без дублирования
+            addAllWithoutDuplicate(newAclInfos, processOperationPermissions(invalidContextId, operationPermitConfig, accessType));
+        }
+
+        //Получение текущего состава acl из базы
+        List<AclInfo> oldAclInfos = getCurrentAclInfo(invalidContextId);
+        
+        //Получение разницы в составе acl
+        //Получаем новые элементы в acl
+        List<AclInfo> addAclInfo = new ArrayList<AclInfo>();
+        for (AclInfo aclInfo : newAclInfos) {
+            if (!oldAclInfos.contains(aclInfo)){
+                addAclInfo.add(aclInfo);
+            }
+        }
+        
+        //Получаем те элементы acl которые надо удалить
+        List<AclInfo> deleteAclInfo = new ArrayList<AclInfo>();
+        for (AclInfo aclInfo : oldAclInfos) {
+            if (!newAclInfos.contains(aclInfo)){
+                deleteAclInfo.add(aclInfo);
+            }
+        }
+        
+        //Непосредственно удаление или добавление в базу
+        for (AclInfo aclInfo : deleteAclInfo) {
+            deleteAclRecord(aclInfo.getAccessType(), invalidContextId, aclInfo.getGroupId());
+        }
+        for (AclInfo aclInfo : addAclInfo) {
+            insertAclRecord(aclInfo.getAccessType(), invalidContextId, aclInfo.getGroupId());
+        }
+    }
+
+    /**
+     * Получение состава acl из базы
+     * @param invalidContextId
+     * @return
+     */
+    private List<AclInfo> getCurrentAclInfo(Id invalidContextId) {
+
+        RdbmsId rdbmsObjectId = (RdbmsId) invalidContextId;
+
+        String tableNameRead =
+                AccessControlUtility.getAclReadTableName(domainObjectTypeIdCache.getName(rdbmsObjectId.getTypeId()));
+        String tableNameAcl =
+                AccessControlUtility.getAclTableName(domainObjectTypeIdCache.getName(rdbmsObjectId.getTypeId()));
+
+        String query = "select 'R' as operation, r.group_id from " + tableNameRead + " r ";
+        query += "where r.object_id = :object_id ";
+        query += "union ";
+        query += "select a.operation, a.group_id from " + tableNameAcl + " a ";
+        query += "where a.object_id = :object_id ";
+
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("object_id", rdbmsObjectId.getId());
+
+        return jdbcTemplate.query(query, parameters, new ResultSetExtractor<List<AclInfo>>() {
+
+            @Override
+            public List<AclInfo> extractData(ResultSet rs) throws SQLException, DataAccessException {
+                List<AclInfo> result = new ArrayList<AclInfo>();
+                while (rs.next()) {
+                    AccessType accessType = null;
+                    String operstion = rs.getString("operation");
+                    if (operstion.equals("R")) {
+                        accessType = DomainObjectAccessType.READ;
+                    } else if (operstion.equals("W")) {
+                        accessType = DomainObjectAccessType.WRITE;
+                    } else if (operstion.equals("D")) {
+                        accessType = DomainObjectAccessType.DELETE;
+                    } else if (operstion.startsWith("E")) {
+                        accessType = new ExecuteActionAccessType(operstion.substring(2));
+                    }
+
+                    if (accessType != null) {
+                        AclInfo info =
+                                new AclInfo(accessType, new RdbmsId(domainObjectTypeIdCache.getId("User_Group"), rs.getLong("group_id")));
+                        result.add(info);
+                    }
+                }
+                return result;
+            }
+        });
     }
 
     /**
@@ -176,12 +264,12 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
      * @param accessType
      *            тип операции
      */
-    private void processOperationPermissions(Id invalidContextId,
+    private List<AclInfo> processOperationPermissions(Id invalidContextId,
             BaseOperationPermitConfig operationPermitConfig,
             AccessType accessType) {
         RdbmsId rdbmsId = (RdbmsId) invalidContextId;
         String domainObjectType = domainObjectTypeIdCache.getName(rdbmsId.getTypeId());
-
+        List<AclInfo> result = new ArrayList<AclInfo>();
         for (BasePermit permit : operationPermitConfig.getPermitConfigs()) {
             if (permit.getClass().equals(PermitRole.class)) {
                 String contextRoleName = permit.getName();
@@ -199,8 +287,8 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
                 if (collectors != null) {
                     for (ContextRoleRegisterItem collectorItem : collectors) {
-                        processAclForCollector(invalidContextId, collectorItem.getCollector(),
-                                accessType);
+                        result.addAll(processAclForCollector(invalidContextId, collectorItem.getCollector(),
+                                accessType));
                     }
                 }
             } else if (permit.getClass().equals(PermitGroup.class)) {
@@ -215,47 +303,42 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                     // контекстным объектом является текущий объект (для которого
                     // пересчитываются списки доступа)
                     Long contextObjectId = ((RdbmsId) invalidContextId).getId();
-                    processAclForDynamicGroupWithContext(invalidContextId, accessType, dynamicGroupName,
-                            contextObjectId);
+                    result.add(processAclForDynamicGroupWithContext(invalidContextId, accessType, dynamicGroupName,
+                            contextObjectId));
 
                 } else {
-                    processAclForDynamicGroupWithoutContext(invalidContextId, accessType, dynamicGroupName);
+                    result.add(processAclForDynamicGroupWithoutContext(invalidContextId, accessType, dynamicGroupName));
                 }
-
             }
         }
+        return result;
     }
 
-    private void processAclForDynamicGroupWithContext(Id objectId, AccessType accessType, String dynamicGroupName,
+    private AclInfo processAclForDynamicGroupWithContext(Id objectId, AccessType accessType, String dynamicGroupName,
             Long contextObjectId) {
         Id dynamicGroupId = getUserGroupByGroupNameAndObjectId(dynamicGroupName, contextObjectId);
-        insertAclRecord(accessType, objectId, dynamicGroupId);
+        return new AclInfo(accessType, dynamicGroupId);
+        //insertAclRecord(accessType, objectId, dynamicGroupId);
     }
 
-    private DynamicGroupConfig findAndCheckDynamicGroupByName(String dynamicGroupName) {
-        DynamicGroupConfig dynamicGroupConfig =
-                configurationExplorer.getDynamicGroupByName(dynamicGroupName);
-        if (dynamicGroupConfig == null) {
-            throw new ConfigurationException("Dynamic Group : " + dynamicGroupName
-                    + " not found in configuaration");
-
-        }
-        return dynamicGroupConfig;
-    }
-
-    private void processAclForCollector(Id invalidContextId,
+    private List<AclInfo> processAclForCollector(Id invalidContextId,
             ContextRoleCollector collector, AccessType accessType) {
+        List<AclInfo> result = new ArrayList<AclInfo>();
         for (Id groupId : collector.getMembers(invalidContextId)) {
-            insertAclRecord(accessType, invalidContextId, groupId);
+            result.add(new AclInfo(accessType, groupId));
+            //insertAclRecord(accessType, invalidContextId, groupId);
         }
+        return result;
     }
 
-    private void processAclForDynamicGroupWithoutContext(Id objectId, AccessType accessType, String dynamicGroupName) {
+    private AclInfo
+            processAclForDynamicGroupWithoutContext(Id objectId, AccessType accessType, String dynamicGroupName) {
         Id dynamicGroupId = getUserGroupByGroupName(dynamicGroupName);
         if (dynamicGroupId == null) {
             dynamicGroupId = createUserGroup(dynamicGroupName, null);
         }
-        insertAclRecord(accessType, objectId, dynamicGroupId);
+        //insertAclRecord(accessType, objectId, dynamicGroupId);
+        return new AclInfo(accessType, dynamicGroupId);
     }
 
     /**
@@ -285,6 +368,37 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
     }
 
+    
+    private void deleteAclRecord(AccessType accessType, Id objectId, Id dynamicGroupId) {
+        RdbmsId rdbmsObjectId = (RdbmsId) objectId;
+        RdbmsId rdbmsDynamicGroupId = (RdbmsId) dynamicGroupId;
+
+        String query = null;
+        if (accessType == DomainObjectAccessType.READ) {
+            query = generateDeleteAclReadRecordQuery(rdbmsObjectId);
+        } else {
+            query = generateDeleteAclRecordQuery(rdbmsObjectId);
+
+        }
+
+        Map<String, Object> parameters =
+                initializeDeleteAclRecordParameters(accessType, rdbmsObjectId, rdbmsDynamicGroupId);
+        jdbcTemplate.update(query, parameters);
+
+    }    
+    
+    private String generateDeleteAclReadRecordQuery(RdbmsId objectId) {
+        String tableName = null;
+        tableName = AccessControlUtility.getAclReadTableName(domainObjectTypeIdCache.getName(objectId.getTypeId()));
+
+        StringBuilder query = new StringBuilder();
+        query.append("delete from ");
+        query.append(tableName).append(" where object_id = :object_id ");
+        query.append("and group_id = :group_id");
+
+        return query.toString();
+    }
+    
     private String generateInsertAclReadRecordQuery(RdbmsId objectId) {
         String tableName = null;
         tableName = AccessControlUtility.getAclReadTableName(domainObjectTypeIdCache.getName(objectId.getTypeId()));
@@ -297,6 +411,19 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         return query.toString();
     }
 
+    private String generateDeleteAclRecordQuery(RdbmsId objectId) {
+        String tableName = null;
+        tableName = AccessControlUtility.getAclTableName(domainObjectTypeIdCache.getName(objectId.getTypeId()));
+
+        StringBuilder query = new StringBuilder();
+        query.append("delete from ");
+        query.append(tableName).append(" where operation=:operation and object_id=:object_id ");
+        query.append("and group_id=:group_id");
+
+        return query.toString();
+    }
+    
+    
     private String generateInsertAclRecordQuery(RdbmsId objectId) {
         String tableName = null;
         tableName = AccessControlUtility.getAclTableName(domainObjectTypeIdCache.getName(objectId.getTypeId()));
@@ -309,6 +436,21 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         return query.toString();
     }
 
+    private Map<String, Object> initializeDeleteAclRecordParameters(AccessType accessType, RdbmsId rdbmsObjectId,
+            RdbmsId rdbmsDynamicGroupId) {
+
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        if (!(accessType == DomainObjectAccessType.READ)) {
+            String accessTypeCode = PostgresDatabaseAccessAgent.makeAccessTypeCode(accessType);
+            parameters.put("operation", accessTypeCode);
+        }
+
+        parameters.put("object_id", rdbmsObjectId.getId());
+        parameters.put("group_id", rdbmsDynamicGroupId.getId());
+
+        return parameters;
+    }    
+    
     private Map<String, Object> initializeInsertAclRecordParameters(AccessType accessType, RdbmsId rdbmsObjectId,
             RdbmsId rdbmsDynamicGroupId) {
 
@@ -322,32 +464,6 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         parameters.put("group_id", rdbmsDynamicGroupId.getId());
 
         return parameters;
-    }
-
-    /**
-     * Выполняет поиск контекстного объекта динамической группы по отслеживаемому объекту матрицы доступа и doel
-     * выражению.
-     * @param objectId
-     *            отслеживаемый объект матрицы
-     * @param doel
-     *            выражение внутри тега <bind-context>
-     * @return
-     */
-    private List<Long> getDynamicGroupContextObject(Id objectId, String doel) {
-        DoelExpression expr = DoelExpression.parse(doel);
-        List<?> result = doelResolver.evaluate(expr, objectId);
-
-        List<Map<String, Object>> contextObjects = (List<Map<String, Object>>) result;
-        List<Long> contextObjectIds = new ArrayList<Long>();
-
-        if (contextObjects != null && contextObjects.size() > 0) {
-            for (Map<String, Object> contextObject : contextObjects) {
-                if (contextObject.values() != null && contextObject.values().size() > 0) {
-                    contextObjectIds.add((Long) contextObject.values().iterator().next());
-                }
-            }
-        }
-        return contextObjectIds;
     }
 
     private void validateRoleContextType(String domainObjectType, ContextRoleConfig contextRoleConfig) {
@@ -491,7 +607,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             typeCollectors = new ArrayList<ContextRoleRegisterItem>();
             collectors.put(type, typeCollectors);
         }
-        typeCollectors.add(new ContextRoleRegisterItem(config, collector));
+        typeCollectors.add(new ContextRoleRegisterItem(collector));
     }
 
     /**
@@ -533,7 +649,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             groupCollectors = new ArrayList<ContextRoleRegisterItem>();
             collectorsByContextRoleNames.put(roleName, groupCollectors);
         }
-        groupCollectors.add(new ContextRoleRegisterItem(config, collector));
+        groupCollectors.add(new ContextRoleRegisterItem(collector));
     }
 
     /**
@@ -543,19 +659,13 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
      */
     private class ContextRoleRegisterItem {
         private ContextRoleCollector collector;
-        private ContextRoleConfig config;
 
-        private ContextRoleRegisterItem(ContextRoleConfig config, ContextRoleCollector collector) {
+        private ContextRoleRegisterItem(ContextRoleCollector collector) {
             this.collector = collector;
-            this.config = config;
         }
 
         public ContextRoleCollector getCollector() {
             return collector;
-        }
-
-        public ContextRoleConfig getConfig() {
-            return config;
         }
     }
 
@@ -633,7 +743,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                             (personPermission.getPermission().equals(Permission.None)
                                     || personPermission.getPermission().equals(Permission.Read) || personPermission
                                     .getPermission().equals(Permission.Write))) {
-                        personPermission.setPermission(Permission.Delate);
+                        personPermission.setPermission(Permission.Delete);
                     } else if (operation.startsWith("E_")) {
                         String action = operation.substring(2);
                         personPermission.getActions().add(action);
@@ -697,4 +807,60 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         }
     }
 
+    private class AclInfo {
+        private AccessType accessType;
+        private Id groupId;
+
+        public AclInfo(AccessType accessType, Id groupId) {
+            this.accessType = accessType;
+            this.groupId = groupId;
+        }
+
+        public AccessType getAccessType() {
+            return accessType;
+        }
+
+        public Id getGroupId() {
+            return groupId;
+        }
+
+        private PermissionServiceDaoImpl getOuterType() {
+            return PermissionServiceDaoImpl.this;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + getOuterType().hashCode();
+            result = prime * result + ((accessType == null) ? 0 : accessType.hashCode());
+            result = prime * result + ((groupId == null) ? 0 : groupId.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            AclInfo other = (AclInfo) obj;
+            if (!getOuterType().equals(other.getOuterType()))
+                return false;
+            if (accessType == null) {
+                if (other.accessType != null)
+                    return false;
+            } else if (!accessType.equals(other.accessType))
+                return false;
+            if (groupId == null) {
+                if (other.groupId != null)
+                    return false;
+            } else if (!groupId.equals(other.groupId))
+                return false;
+            return true;
+        }
+    
+    }
 }
