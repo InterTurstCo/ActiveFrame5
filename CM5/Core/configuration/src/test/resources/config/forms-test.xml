@@ -236,7 +236,7 @@
                 <text>Население:</text>
             </label>
             <integer-box id="4">
-                <field-path value="country^federal_unit.country.population"/>
+                <field-path value="federal_unit^country.population"/>
             </integer-box>
 
             <label id="5">

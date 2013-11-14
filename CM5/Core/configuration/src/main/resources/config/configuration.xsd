@@ -15,7 +15,7 @@
         </xs:simpleContent>
     </xs:complexType>
 
-    <xs:complexType name="domainObjectType">
+    <xs:complexType name="domainObjectTypeToValidate">
         <xs:sequence>
             <xs:element name="fields" minOccurs="0" maxOccurs="1" type="con:fieldsType"
                 xmlns:con="https://cm5.intertrust.ru/config">
@@ -148,7 +148,7 @@
                 <xs:element type="con:globalConfigType"
                             name="global-settings" maxOccurs="1" minOccurs="1"
                             xmlns:con="https://cm5.intertrust.ru/config" />
-                <xs:element type="con:domainObjectType" name="domain-object-type"
+                <xs:element type="con:domainObjectTypeToValidate" name="domain-object-type"
                     maxOccurs="unbounded" minOccurs="0"
                     xmlns:con="https://cm5.intertrust.ru/config" />
                 <xs:element type="con:collectionType" name="collection"

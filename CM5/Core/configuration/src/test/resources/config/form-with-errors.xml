@@ -170,6 +170,53 @@
             <check-box id = "17">
                 <field-path value="is_old"/>
             </check-box>
+            <table-browser id="17a">
+                <field-path value="city^country"/>
+
+                <collection-ref name="Streets"/>
+
+                <collection-view-ref name="cities_default"/>
+
+                <!-- название фильтра, использующегося при получении описания уже выбранных значений -->
+                <selection-filter name="idsIncluded"/>
+
+                <!-- название фильтра, отсекающего, уже выбранные значения (для того, чтобы они не показывались в списке -->
+                <selection-exclude-filter name="idsExcluded"/>
+
+                <!-- паттерн отображения уже выбранных значений -->
+                <selection-pattern value="{name} {population} {year_of_foundation} "/>
+
+                <!-- название фильтра по тексту, введённому пользователем -->
+                <input-text-filter name="byText"/>
+
+                <!-- количество элементов, показываемых на одной странице выпадающего списка. в правом нижнем углу
+                под таблицей указатель страниц (за пример нужно взять страницы поиска в Яндексе) -->
+                <page-size>30</page-size>
+            </table-browser>
+            <suggest-box id="8a">
+                <field-path value="federal_unit^country"/>
+                <!-- <field-path value="most_famous_city"/>-->
+                <!-- а для области столицы: capital . federal_unit_city^city . federal_unit . name -->
+                <collection-ref name="cities"/>
+
+                <!--TODO не реализовано. название фильтра, использующегося при получении описания уже выбранных значений -->
+                <selection-filter name="idsIncluded"/>
+
+                <!-- название фильтра, отсекающего, уже выбранные значения (для того, чтобы они не показывались  списке -->
+                <selection-exclude-filter name="idsExcluded"/>
+
+                <!-- паттерн отображения значений выпадающего списка -->
+                <drop-down-pattern value="{name} {populationn}"/>
+
+                <!-- паттерн отображения уже выбранных значений -->
+                <selection-pattern value="{name} {population} {year_of_foundation}"/>
+
+                <!-- название фильтра по тексту, введённому пользователем -->
+                <input-text-filter name="byText"/>
+
+                <!-- количество элементов, показываемых на одной странице выпадающего списка -->
+                <page-size>30</page-size>
+            </suggest-box>
         </widget-config>
     </form>
     <form name="city_form" domain-object-type="city" is-default="true">

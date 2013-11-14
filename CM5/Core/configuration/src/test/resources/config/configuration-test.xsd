@@ -15,7 +15,7 @@
         </xs:simpleContent>
     </xs:complexType>
 
-    <xs:complexType name="domainObjectType">
+    <xs:complexType name="domainObjectTypeToValidate">
         <xs:sequence>
             <xs:element name="fields" minOccurs="0" maxOccurs="1" type="con:fieldsType"
                         xmlns:con="https://cm5.intertrust.ru/config">
@@ -148,7 +148,7 @@
             <xs:element type="con:globalConfigType"
                         name="global-settings" maxOccurs="1" minOccurs="1"
                         xmlns:con="https://cm5.intertrust.ru/config" />
-            <xs:element type="con:domainObjectType" name="domain-object-type"
+            <xs:element type="con:domainObjectTypeToValidate" name="domain-object-type"
                         maxOccurs="unbounded" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:collectionType" name="collection"
@@ -316,7 +316,7 @@
                               type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config" />
                 <xs:attribute name="length" use="required" type="xs:string"/>
                 <xs:attribute name="not-null" use="optional" type="xs:string"/>
-                <xs:attribute name="encrypted" use="optional" type="xs:string"/>            
+                <xs:attribute name="encrypted" use="optional" type="xs:string"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -418,7 +418,7 @@
     <xs:complexType name="dynamicGroupType">
         <xs:sequence>
             <xs:element name="context" type="con:contextType"
-                        maxOccurs="1" minOccurs="0"
+                        maxOccurs="1" minOccurs="1"
                         xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element name="members" type="con:membersType"
                         maxOccurs="1" minOccurs="0"
@@ -490,7 +490,7 @@
         <xs:restriction base="xs:string">
             <xs:whiteSpace value="collapse"></xs:whiteSpace>
             <xs:pattern
-                    value="([A-Za-z0-9\s]+(\^[A-Za-z0-9\s]*)?\.)*[A-Za-z0-9\s]+(\^[A-Za-z0-9\s]*)?">
+                    value="([A-Za-z0-9\s_]+(\^[A-Za-z0-9\s_]*)?\.)*[A-Za-z0-9\s_]+(\^[A-Za-z0-9\s_]*)?">
             </xs:pattern>
         </xs:restriction>
     </xs:simpleType>
@@ -1025,6 +1025,27 @@
         </xs:sequence>
         <xs:attribute type="xs:string" name="id" />
     </xs:complexType>
+    <xs:complexType name="tableBrowserType">
+        <xs:sequence>
+            <xs:element type="con:fieldPathType" name="field-path"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="con:collectionRefType" name="collection-ref"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="con:collectionViewRefType" name="collection-view-ref"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="con:selectionFilterReferenceType"
+                        name="selection-filter" xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="con:selectionFilterReferenceType"
+                        name="selection-exclude-filter" xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="con:patternType" name="selection-pattern"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="con:selectionFilterReferenceType"
+                        name="input-text-filter" xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="xs:integer" name="page-size"
+                        nillable="false" xmlns:con="https://cm5.intertrust.ru/config" />
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="id" />
+    </xs:complexType>
     <xs:complexType name="listBoxType">
         <xs:sequence>
             <xs:element type="con:fieldPathType" name="field-path"
@@ -1163,6 +1184,8 @@
             <xs:element type="con:comboBoxType" name="combo-box"
                         xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:checkBoxType" name="check-box"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:tableBrowserType" name="table-browser"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:listBoxType" name="list-box"
                         xmlns:con="https://cm5.intertrust.ru/config" />
