@@ -15,30 +15,30 @@ import ru.intertrust.cm.core.dao.impl.ExtensionServiceImpl;
  * 
  */
 public class ExtentionInvocationHandler implements InvocationHandler {
-	private ExtensionServiceImpl extensionService;
-	private String filter;
+    private ExtensionServiceImpl extensionService;
+    private String filter;
 
-	public ExtentionInvocationHandler(ExtensionServiceImpl extentionService,
-			String filter) {
-		this.extensionService = extentionService;
-		this.filter = filter;
-	}
+    public ExtentionInvocationHandler(ExtensionServiceImpl extentionService,
+            String filter) {
+        this.extensionService = extentionService;
+        this.filter = filter;
+    }
 
-	/**
-	 * Обработчик вызова точки расширения. Получает список обработчиков и вызывает их в цикле
-	 */
-	@Override
-	public Object invoke(Object proxy, Method method, Object[] args)
-			throws Throwable {
-		List<ExtensionPointHandler> interfaceClass = extensionService
-				.getExtentionPointList(
-						(Class<? extends ExtensionPointHandler>) proxy
-								.getClass().getInterfaces()[0], filter);
-		
-		for (ExtensionPointHandler extentionPointBase : interfaceClass) {
-			method.invoke(extentionPointBase, args);
-		}
-		return null;
-	}
+    /**
+     * Обработчик вызова точки расширения. Получает список обработчиков и
+     * вызывает их в цикле
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public Object invoke(Object proxy, Method method, Object[] args)
+            throws Throwable {
+        List<ExtensionPointHandler> interfaceClass = extensionService.getExtentionPointList(
+                (Class<? extends ExtensionPointHandler>) proxy.getClass().getInterfaces()[0], filter);
+
+        for (ExtensionPointHandler extentionPointBase : interfaceClass) {
+            method.invoke(extentionPointBase, args);
+        }
+        return null;
+    }
 
 }

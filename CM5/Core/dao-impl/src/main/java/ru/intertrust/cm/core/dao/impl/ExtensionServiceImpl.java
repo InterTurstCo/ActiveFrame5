@@ -9,26 +9,18 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 
-import ru.intertrust.cm.core.dao.api.CollectionsDao;
-import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
-import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPointHandler;
 import ru.intertrust.cm.core.dao.impl.extension.ExtentionInvocationHandler;
 import ru.intertrust.cm.core.model.ExtensionPointException;
-import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 /**
  * Имплементация сервиса точек расширения.
@@ -62,6 +54,7 @@ public class ExtensionServiceImpl implements ExtensionService, ApplicationContex
      * расширения для переданного интерфейса
      */
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T getExtentionPoint(
             Class<T> extentionPointInterface,
             String filter) {
@@ -72,9 +65,8 @@ public class ExtensionServiceImpl implements ExtensionService, ApplicationContex
 
         ExtentionInvocationHandler handler = new ExtentionInvocationHandler(
                 this, filter);
-        T proxy = (T) Proxy
-                .newProxyInstance(extentionPointInterface.getClassLoader(),
-                        new Class<?>[] { extentionPointInterface }, handler);
+        T proxy = (T) Proxy.newProxyInstance(extentionPointInterface.getClassLoader(),
+                new Class<?>[] { extentionPointInterface }, handler);
         return proxy;
     }
 
@@ -82,19 +74,19 @@ public class ExtensionServiceImpl implements ExtensionService, ApplicationContex
      * Инициализация точек расширения, путем сканирования всех классов,
      * аннотированых ExtensionPoint аннотацией и заполнение реестра
      */
+    @SuppressWarnings("unchecked")
     private void init() {
         try {
             if (!isInit) {
-                reestr = new Hashtable<Class<? extends ExtentionInvocationHandler>, Hashtable<String, List<ExtensionPointHandler>>>();
+                reestr = new Hashtable<Class<? extends ExtentionInvocationHandler>,
+                        Hashtable<String, List<ExtensionPointHandler>>>();
 
                 // Сканирование класспаса
-                ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(
-                        true);
-                scanner.addIncludeFilter(new AnnotationTypeFilter(
-                        ExtensionPoint.class));
+                ClassPathScanningCandidateComponentProvider scanner =
+                        new ClassPathScanningCandidateComponentProvider(true);
+                scanner.addIncludeFilter(new AnnotationTypeFilter(ExtensionPoint.class));
                 // Цикл по найденным классам
-                for (BeanDefinition bd : scanner
-                        .findCandidateComponents(basePackage)) {
+                for (BeanDefinition bd : scanner.findCandidateComponents(basePackage)) {
                     String className = bd.getBeanClassName();
                     // Получение найденного класса
                     Class<?> extentionPointClass = Class.forName(className);
@@ -108,10 +100,10 @@ public class ExtensionServiceImpl implements ExtensionService, ApplicationContex
                         // Получение интерфейса, который имплементит точка
                         // расширения, интерфейс должен быть наследником
                         // ExtensionPointHandler
-                        Class[] interfaces = extentionPointClass.getInterfaces();
-                        List<Class> interfaceClasses = new ArrayList<Class>();
+                        Class<?>[] interfaces = extentionPointClass.getInterfaces();
+                        //List<Class> interfaceClasses = new ArrayList<Class>();
                         ExtensionPointHandler extentionPoint = null;
-                        for (Class interfaceClass : interfaces) {
+                        for (Class<?> interfaceClass : interfaces) {
                             if (ExtensionPointHandler.class.isAssignableFrom(interfaceClass)) {
 
                                 // Получаем фильтр из аннотации
@@ -122,7 +114,8 @@ public class ExtensionServiceImpl implements ExtensionService, ApplicationContex
                                     // класса, если есть то используем его
                                     String[] beanNames = applicationContext.getBeanNamesForType(extentionPointClass);
                                     if (beanNames.length > 0) {
-                                        extentionPoint = (ExtensionPointHandler) applicationContext.getBean(extentionPointClass);
+                                        extentionPoint = (ExtensionPointHandler) applicationContext
+                                                .getBean(extentionPointClass);
                                     } else {
                                         // Если такого бина нет то создаем
                                         // экземпляр класса
@@ -130,8 +123,8 @@ public class ExtensionServiceImpl implements ExtensionService, ApplicationContex
                                         // Добавляем
                                         // класс как спринговый бин с поддержкой
                                         // autowire
-                                        extentionPoint =
-                                                (ExtensionPointHandler) applicationContext.getAutowireCapableBeanFactory().createBean(extentionPointClass,
+                                        extentionPoint = (ExtensionPointHandler) applicationContext
+                                                .getAutowireCapableBeanFactory().createBean(extentionPointClass,
                                                         AutowireCapableBeanFactory.AUTOWIRE_BY_NAME, false);
                                     }
                                 }
@@ -141,7 +134,8 @@ public class ExtensionServiceImpl implements ExtensionService, ApplicationContex
                                         .get(interfaceClass);
                                 if (oneTypeExtensions == null) {
                                     oneTypeExtensions = new Hashtable<String, List<ExtensionPointHandler>>();
-                                    reestr.put(interfaceClass, oneTypeExtensions);
+                                    reestr.put((Class<? extends ExtentionInvocationHandler>) interfaceClass,
+                                            oneTypeExtensions);
                                 }
                                 List<ExtensionPointHandler> filteredExtension = oneTypeExtensions
                                         .get(filter);
@@ -150,7 +144,8 @@ public class ExtensionServiceImpl implements ExtensionService, ApplicationContex
                                     oneTypeExtensions.put(filter, filteredExtension);
                                 }
                                 filteredExtension.add(extentionPoint);
-                                logger.info("Register extensionPoint " + interfaceClass.getName() + "(" + filter + ") = " + extentionPoint.getClass().getName());
+                                logger.info("Register extensionPoint " + interfaceClass.getName()
+                                        + "(" + filter + ") = " + extentionPoint.getClass().getName());
                             }
                         }
                     }

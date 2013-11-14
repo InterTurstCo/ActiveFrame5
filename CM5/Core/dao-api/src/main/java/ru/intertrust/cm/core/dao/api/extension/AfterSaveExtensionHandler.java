@@ -15,10 +15,10 @@ import ru.intertrust.cm.core.business.api.dto.FieldModification;
  */
 public interface AfterSaveExtensionHandler extends ExtensionPointHandler {
 
-	/**
-	 * Входной метод точки расширения
-	 * 
-	 * @param domainObject
-	 */
-	void onAfterSave(DomainObject domainObject,  List<FieldModification> changedFields);
+    /**
+     * Входной метод точки расширения
+     * 
+     * @param domainObject
+     */
+    void onAfterSave(DomainObject domainObject, List<FieldModification> changedFields);
 }
