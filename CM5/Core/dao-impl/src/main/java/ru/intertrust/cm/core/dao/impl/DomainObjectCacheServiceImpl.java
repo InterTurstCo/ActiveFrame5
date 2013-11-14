@@ -189,7 +189,7 @@ public class DomainObjectCacheServiceImpl {
      * @return список идентификаторов кешируемых доменных объектов
      */
     public List<Id> putObjectToCache(List<DomainObject> dobjs) {
-        if (getTxReg().getTransactionKey() == null) {
+        if (getTxReg().getTransactionKey() == null || dobjs == null) {
             return null;
         }
         List<Id> ids = new ArrayList<>();
