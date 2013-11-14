@@ -2,6 +2,8 @@ package ru.intertrust.cm.core.gui.rpc.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.PersonManagementService;
 import ru.intertrust.cm.core.business.api.dto.AttachmentUploadPercentage;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -30,10 +32,27 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     @EJB
     private GuiService guiService;
 
+    @EJB
+    CrudService crudServiceImpl;
+
+    @EJB
+    PersonManagementService personManagementService;
+
     @Override
     public BusinessUniverseInitialization getBusinessUniverseInitialization() {
+        BusinessUniverseInitialization initialization = new BusinessUniverseInitialization();
+        addInformationToInitializationObject(initialization);
+        return initialization;
+    }
 
-        return new BusinessUniverseInitialization();
+    public BusinessUniverseInitialization addInformationToInitializationObject(BusinessUniverseInitialization businessUniverseInitialization){
+        String currentLogin = guiService.getSessionContext().getCallerPrincipal().getName();
+        Id personId = personManagementService.getPersonId(currentLogin);
+        businessUniverseInitialization.setCurrentLogin(currentLogin);
+        businessUniverseInitialization.setFirstName(crudServiceImpl.find(personId).getString("FirstName"));
+        businessUniverseInitialization.setLastName(crudServiceImpl.find(personId).getString("LastName"));
+        businessUniverseInitialization.seteMail(crudServiceImpl.find(personId).getString("EMail"));
+        return businessUniverseInitialization;
     }
 
     @Override

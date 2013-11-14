@@ -18,6 +18,7 @@ import ru.intertrust.cm.core.gui.model.form.FormState;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
+import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 import java.lang.reflect.InvocationTargetException;
@@ -85,4 +86,9 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
         FormSaver formSaver = (FormSaver) applicationContext.getBean("formSaver", formState);
         return formSaver.saveForm();
     }
+
+    public SessionContext getSessionContext(){
+            return sessionContext;
+    }
+
 }

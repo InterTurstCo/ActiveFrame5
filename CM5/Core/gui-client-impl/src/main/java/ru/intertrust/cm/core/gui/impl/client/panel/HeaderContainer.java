@@ -6,6 +6,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
+import ru.intertrust.cm.core.gui.impl.client.CurrentUserInfo;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationServiceAsync;
 
 /**
@@ -14,8 +15,10 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationServiceAs
 public class HeaderContainer extends SimplePanel {
 
     public static final int FIRST_ROW = 0;
+    InformationDialogBox dialogBox;
 
-    public HeaderContainer() {
+    public HeaderContainer(CurrentUserInfo currentUserInfo) {
+        addUserInfoToDialog(currentUserInfo);
 
         this.getElement().setId("container");
         this.getElement().getStyle().setProperty("position", "relative");
@@ -29,8 +32,17 @@ public class HeaderContainer extends SimplePanel {
         headTable.setWidget(FIRST_ROW, 1, suggestBox);
         headTable.getFlexCellFormatter().setStyleName(FIRST_ROW, 1, "H_td_notes");
 
-        InlineLabel userName = new InlineLabel("Sergey Borisov");
-        userName.addStyleName("HeadUserName");
+        //userName = new InlineLabel("Василий пупкин");
+        //userName.addStyleName("HeadUserName");
+
+        Hyperlink userName = new Hyperlink(currentUserInfo.getFirstName() + " " + currentUserInfo.getLastName(), "login");
+        userName.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                 dialogBox.show();
+            }
+        });
+
         InlineLabel userPosition = new InlineLabel("Head of department");
         userPosition.addStyleName("HeadUserPost");
 
@@ -74,6 +86,7 @@ public class HeaderContainer extends SimplePanel {
         };
         BusinessUniverseAuthenticationServiceAsync.Impl.getInstance().logout(callback);
     }
+
     private FlexTable createHeadTable() {
         FlexTable headTable = new FlexTable();
         headTable.addStyleName("HeadTable");
@@ -89,5 +102,8 @@ public class HeaderContainer extends SimplePanel {
         return head;
     }
 
+    public void addUserInfoToDialog(CurrentUserInfo currentUserInfo){
+        dialogBox = new InformationDialogBox(currentUserInfo.getCurrentLogin(), currentUserInfo.getFirstName(), currentUserInfo.getLastName(), currentUserInfo.getMail());
+    }
 
 }

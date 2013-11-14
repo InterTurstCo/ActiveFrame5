@@ -37,6 +37,11 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     private EventBus eventBus = GWT.create(SimpleEventBus.class);
     private PluginPanel centralPluginPanel;
 
+
+    CurrentUserInfo getUserInfo(BusinessUniverseInitialization result){
+        return new CurrentUserInfo(result.getCurrentLogin(), result.getFirstName(), result.getLastName() , result.geteMail());
+    }
+
     public void onModuleLoad() {
         AsyncCallback<BusinessUniverseInitialization> callback = new AsyncCallback<BusinessUniverseInitialization>() {
             @Override
@@ -44,8 +49,9 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 FlowPanel rootPanel = createRootPanel();
                 FlowPanel headerPanel = createHeaderPanel();
                 HorizontalPanel bodyPanel = new HorizontalPanel();
+                HeaderContainer headerContainer = new HeaderContainer(getUserInfo(result));
 
-                rootPanel.add(new HeaderContainer());
+                rootPanel.add(headerContainer);
 
 
                 PluginPanel navigationTreePanel = new PluginPanel(eventBus);

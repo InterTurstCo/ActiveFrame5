@@ -8,6 +8,8 @@ import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 
+import javax.ejb.SessionContext;
+
 /**
  * Данный класс-служба содержит операции, относящиеся к клиентскому приложению. Клиентское приложение может быть
  * сконфигурировано по-разному для различных ролей или конечных пользователей. Все методы данной службы учитывают
@@ -39,4 +41,7 @@ public interface GuiService {
     FormDisplayData getForm(Id domainObjectId);
 
     DomainObject saveForm(FormState formState);
+
+    public SessionContext getSessionContext();
+
 }
