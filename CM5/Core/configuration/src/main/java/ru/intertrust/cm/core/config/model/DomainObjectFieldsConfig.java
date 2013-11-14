@@ -21,7 +21,7 @@ public class DomainObjectFieldsConfig implements Serializable {
             @ElementList(entry="dateTimeWithTimeZone", type=DateTimeWithTimeZoneFieldConfig.class, inline=true),
             @ElementList(entry="timelessDate", type=TimelessDateFieldConfig.class, inline=true),
             @ElementList(entry="string", type=StringFieldConfig.class, inline=true),
-            @ElementList(entry = "text", type = TextFieldConfig.class, inline = true),
+            @ElementList(entry="text", type=TextFieldConfig.class, inline=true),            
             @ElementList(entry="reference", type=ReferenceFieldConfig.class, inline=true)
     })
     private List<FieldConfig> fieldConfigs = new ArrayList<>();
