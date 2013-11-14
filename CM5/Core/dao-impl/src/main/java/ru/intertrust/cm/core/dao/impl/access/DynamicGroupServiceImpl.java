@@ -261,6 +261,8 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
     // TODO Optimize performance
     private void insertGroupMembers(Id dynamicGroupId, List<Id> personIds) {
         if (personIds != null) {
+            AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+
             List<DomainObject> groupMembers = new ArrayList<DomainObject>();
             for (Id personValue : personIds) {
                 GenericDomainObject groupMemeber = new GenericDomainObject();
@@ -269,7 +271,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
                 groupMemeber.setReference("person_id", personValue);
                 groupMembers.add(groupMemeber);
             }
-            domainObjectDao.save(groupMembers);
+            domainObjectDao.save(groupMembers, accessToken);
         }
     }
 

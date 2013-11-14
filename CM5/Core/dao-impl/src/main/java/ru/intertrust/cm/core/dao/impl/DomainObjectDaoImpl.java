@@ -136,12 +136,42 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         accessControlService.verifySystemAccessToken(accessToken);
 
+        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
+                .getConfig(DomainObjectTypeConfig.class,
+                        domainObject.getTypeName());
+
+        String initialStatus = domainObjectTypeConfig.getInitialStatus();
+
+        if (initialStatus == null) {
+            initialStatus = getParentInitialStatus(domainObjectTypeConfig);
+        }
+         
         DomainObject createdObject = create(domainObject,
-                domainObjectTypeIdCache.getId(domainObject.getTypeName()));
+                domainObjectTypeIdCache.getId(domainObject.getTypeName()), initialStatus);
         domainObjectCacheService.putObjectToCache(createdObject);
 
         refreshDynamiGroupsAndAclForCreate(createdObject);
         return createdObject;
+    }
+
+    private String getParentInitialStatus(DomainObjectTypeConfig domainObjectTypeConfig) {
+
+        String parentObjectType = domainObjectTypeConfig.getExtendsAttribute();
+
+        if (parentObjectType != null) {
+
+            DomainObjectTypeConfig parentObjectTypeConfig = configurationExplorer
+                    .getConfig(DomainObjectTypeConfig.class,
+                            parentObjectType);
+
+            if (parentObjectTypeConfig.getInitialStatus() != null) {
+                return parentObjectTypeConfig.getInitialStatus();
+            } else {
+                return getParentInitialStatus(parentObjectTypeConfig);
+
+            }
+        }
+        return null;
     }
 
     private void refreshDynamiGroupsAndAclForCreate(DomainObject createdObject) {
@@ -194,36 +224,20 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     @Override
-    public List<DomainObject> save(List<DomainObject> domainObjects) {
+    public List<DomainObject> save(List<DomainObject> domainObjects, AccessToken accessToken) {
         // todo this can be optimized with batches
 
         List<DomainObject> result = new ArrayList<>();
 
         for (DomainObject domainObject : domainObjects) {
-            DomainObject newDomainObject;
-            AccessToken accessToken = null;
-            if (!domainObject.isNew()) {
-                String user = "admin";
-                Id objectId = ((GenericDomainObject) domainObject).getId();
-                accessToken = accessControlService.createAccessToken(user, objectId, DomainObjectAccessType.WRITE);
-            } else {
-                accessToken = createSystemAccessToken();
-            }
-
-            newDomainObject = save(domainObject, accessToken);
+            DomainObject newDomainObject = save(domainObject, accessToken);
             result.add(newDomainObject);
         }
-
         return result;
 
     }
 
-    private AccessToken createSystemAccessToken() {
-        return accessControlService.createSystemAccessToken("DomainObjectDao");
-    }
-
-    //@Override
-    public DomainObject
+    private DomainObject
             update(DomainObject domainObject, AccessToken accessToken, List<FieldModification> changedFields)
                     throws InvalidIdException, ObjectNotFoundException,
                     OptimisticLockException {
@@ -1209,14 +1223,15 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 + ".object_id = t.id)");
     }
 
-    private DomainObject create(DomainObject domainObject, Integer type) {
+    private DomainObject create(DomainObject domainObject, Integer type, String initialStatus) {
         DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
                 .getConfig(DomainObjectTypeConfig.class,
                         domainObject.getTypeName());
+        
         GenericDomainObject updatedObject = new GenericDomainObject(
                 domainObject);
         DomainObject parentDo = createParentDO(domainObject,
-                domainObjectTypeConfig, type);
+                domainObjectTypeConfig, type, initialStatus);
 
         if (parentDo != null) {
             updatedObject.setCreatedDate(parentDo.getCreatedDate());
@@ -1368,14 +1383,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     private DomainObject createParentDO(DomainObject domainObject,
-            DomainObjectTypeConfig domainObjectTypeConfig, Integer type) {
+            DomainObjectTypeConfig domainObjectTypeConfig, Integer type, String initialStatus) {
         if (!isDerived(domainObjectTypeConfig)) {
             return null;
         }
 
         GenericDomainObject parentDO = new GenericDomainObject(domainObject);
         parentDO.setTypeName(domainObjectTypeConfig.getExtendsAttribute());
-        return create(parentDO, type);
+        return create(parentDO, type, initialStatus);
     }
 
     private DomainObject updateParentDO(DomainObjectTypeConfig domainObjectTypeConfig, DomainObject domainObject,

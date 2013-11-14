@@ -68,8 +68,10 @@ public class GenerateChildrenField {
                         domainObjects.add(newDomainObject);
                     }
 
+                    AccessToken accessToken = accessControlService.createSystemAccessToken("GenerateChildrenField");
+                    
                     // сохраним дочение доменные объекты
-                    savedDomainObjects = domainObjectDao.save(domainObjects);
+                    savedDomainObjects = domainObjectDao.save(domainObjects, accessToken);
 
                     // пройдемся по сохраненным объектам в цикле и добавим
                     // ссылки
@@ -79,7 +81,7 @@ public class GenerateChildrenField {
                     }
 
                     // сохраним изменения в родительском объекте изменения
-                    AccessToken accessToken = accessControlService.createSystemAccessToken("GenerateChildrenField");
+                   
                     domainObjectDao.save(domainObject, accessToken);
                 }
             }

@@ -40,20 +40,6 @@ public interface DomainObjectDao {
      */
     public DomainObject create(DomainObject domainObject, AccessToken accessToken);
 
-    //TODO Larin удалить метод update, так как непонятно чем он отличается от save, и при этом не вызываются точки расширения и не пишется аудит
-    /**
-     * Модифицирует переданный доменный объект. Маркер доступа должен иметь тип доступа - изменение.
-     *
-     * @param domainObject доменный объект который надо изменить
-     * @param accessToken маркер доступа
-     * @return возвращет модифицированный доменный объект
-     * @throws InvalidIdException      если идентификатор доменный объекта не корректный (не поддерживается или нулевой)
-     * @throws ObjectNotFoundException если не существует объекта с таким идентификатором
-     * @throws OptimisticLockException если объект уже был модифицирован другим пользователем
-     */
-    /*public DomainObject update(DomainObject domainObject, AccessToken accessToken)
-            throws InvalidIdException, ObjectNotFoundException, OptimisticLockException;*/
-
     /**
      * Сохраняет доменный объект. Если объект не существует в системе, создаёт его и заполняет отсутствующие атрибуты
      * значениями, сгенерированными согласно правилам, определённым для данного объекта (например, будет сгенерирован и
@@ -67,7 +53,6 @@ public interface DomainObjectDao {
      */
     DomainObject save(DomainObject domainObject, AccessToken accessToken);
 
-    //TODO А.П. Сохранение списка объектов без проверки доступа категорически недопустимо!!!
     /**
      * Сохраняет список доменных объектов. Если какой-то объект не существует в системе, создаёт его и заполняет
      * отсутствующие атрибуты значениями, сгенерированными согласно правилам, определённым для данного объекта
@@ -77,7 +62,7 @@ public interface DomainObjectDao {
      * @param domainObjects доменные объекты для сохранения
      * @return список сохраненных доменных объектов
      */
-    List<DomainObject> save(List<DomainObject> domainObjects);
+    List<DomainObject> save(List<DomainObject> domainObjects, AccessToken accessToken);
 
     /**
      * Удаляет доменный объект по уникальному идентифткатору.

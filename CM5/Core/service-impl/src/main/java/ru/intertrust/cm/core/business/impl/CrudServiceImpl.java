@@ -15,15 +15,12 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
-import ru.intertrust.cm.core.util.SpringApplicationContext;
 
-import javax.annotation.PostConstruct;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
-import javax.xml.bind.JAXBException;
+
 import javax.interceptor.Interceptors;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -85,14 +82,20 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
             Id objectId = ((GenericDomainObject) domainObject).getId();
             accessToken = accessControlService.createAccessToken(user, objectId, DomainObjectAccessType.WRITE);
         } else {
-            accessToken = accessControlService.createSystemAccessToken("CrudService");              
+            accessToken = createSystemAccessToken();              
         }
         return domainObjectDao.save(domainObject, accessToken);
     }
 
     @Override
     public List<DomainObject> save(List<DomainObject> domainObjects) {
-        return domainObjectDao.save(domainObjects);
+        AccessToken accessToken = createSystemAccessToken();
+
+        return domainObjectDao.save(domainObjects, accessToken);
+    }
+
+    private AccessToken createSystemAccessToken() {
+        return accessControlService.createSystemAccessToken("CrudService");
     }
 
     @Override
