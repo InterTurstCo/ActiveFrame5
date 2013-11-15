@@ -3,8 +3,6 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
-import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.config.model.gui.navigation.DomainObjectSurferConfig;
@@ -26,44 +24,52 @@ import java.util.logging.Logger;
 
 public class DomainObjectSurferPluginView extends PluginView {
 
-    EventBus eventBus = new SimpleEventBus();
+
     FlowPanel formFlowPanel = new FlowPanel();
-    SimplePanel splitterNorthPanel = new SimplePanel();
+    SimplePanel splitterFirstWidget = new SimplePanel();
     ScrollPanel splitterScroll = new ScrollPanel();
     private DomainObjectSurferPlugin domainObjectSurferPlugin;
-    final SplitterEx splitterPanel = new SplitterEx(9, eventBus){
-        @Override
-        public void onResize() {
-            super.onResize();
-            domainObjectSurferPlugin.getEventBus()
-                    .fireEvent(new SplitterInnerScrollEvent(splitterScroll.getOffsetHeight(),
-                            formFlowPanel.getOffsetHeight()));
-        }
-    };
+    SplitterEx splitterPanel;
     static Logger log = Logger.getLogger("DomainObjectSurfer");
 
     public DomainObjectSurferPluginView(DomainObjectSurferPlugin domainObjectSurferPlugin) {
         super(domainObjectSurferPlugin);
         this.domainObjectSurferPlugin = domainObjectSurferPlugin;
         splitterScroll.getElement().getStyle().setOverflowY(Style.Overflow.HIDDEN);
+        initSplitter();
         splitterSetSize();
         addWindowResizeListeners();
 
-        eventBus.addHandler(SplitterWidgetResizerEvent.TYPE, new SplitterWidgetResizerEventHandler() {
+
+        domainObjectSurferPlugin.getEventBus().addHandler(SplitterWidgetResizerEvent.TYPE, new SplitterWidgetResizerEventHandler() {
             @Override
             public void setWidgetSize(SplitterWidgetResizerEvent event) {
+
                 if (event.isType()){
                     splitterPanel.remove(0);
                     splitterPanel.insertWest(splitterScroll, event.getFirstWidgetWidth(), splitterPanel.getWidget(0));
                 } else {
                     splitterPanel.remove(0);
                     splitterPanel.insertNorth(splitterScroll, event.getFirstWidgetHeight(), splitterPanel.getWidget(0));
-
                 }
             }
         });
 
 
+    }
+
+    void initSplitter(){
+        splitterPanel = new SplitterEx(9, domainObjectSurferPlugin.getEventBus()){
+            @Override
+            public void onResize() {
+                super.onResize();
+                domainObjectSurferPlugin.getEventBus()
+                        .fireEvent(new SplitterInnerScrollEvent(splitterScroll.getOffsetHeight(),
+                                splitterScroll.getOffsetWidth(), formFlowPanel.getOffsetHeight(),
+                                formFlowPanel.getOffsetWidth()));
+
+            }
+        };
     }
 
     protected void splitterSetSize(){
@@ -91,14 +97,8 @@ public class DomainObjectSurferPluginView extends PluginView {
         flowPanel.setStyleName("centerTopBottomDividerRoot");
         final VerticalPanel container = new VerticalPanel();
         flowPanel.add(container);
-        splitterScroll.add(splitterNorthPanel);
+        splitterScroll.add(splitterFirstWidget);
 
-
-
-//        VerticalPanel w = new VerticalPanel();
-//        w.setHeight("40px");
-//        w.setWidth("100%");
-//        container.add(w);
         container.add(splitterPanel);
 
         final DomainObjectSurferConfig config = (DomainObjectSurferConfig) domainObjectSurferPlugin.getConfig();
@@ -126,7 +126,7 @@ public class DomainObjectSurferPluginView extends PluginView {
                     domainObjectSurferPlugin.setFormPlugin(plugin);
                     plugin.setConfig(formPluginConfig);
                     formPluginPanel.open(plugin);
-                    splitterNorthPanel.add(this.asWidget());
+                    splitterFirstWidget.add(this.asWidget());
 
 
 

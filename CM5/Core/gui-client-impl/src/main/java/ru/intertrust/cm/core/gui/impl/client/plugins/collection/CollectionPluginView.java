@@ -13,6 +13,8 @@ import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterInnerScrollEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterInnerScrollEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CellTableEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CheckedSelectionModel;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.TableController;
@@ -59,6 +61,34 @@ public class CollectionPluginView extends PluginView {
             public void setScrollPanelHeight(SplitterInnerScrollEvent event) {
 
                 scrollTableBody.setHeight((event.getUpperPanelHeight() - headerPanel.getOffsetHeight()) + "px");
+                tableController.columnWindowResize(columnMinWidth(event.getUpperPanelWidth()/tableBody.getColumnCount()));
+            }
+        });
+
+        plugin.getEventBus().addHandler(SplitterWidgetResizerEvent.TYPE, new SplitterWidgetResizerEventHandler() {
+
+            @Override
+            public void setWidgetSize(SplitterWidgetResizerEvent event) {
+                if (event.isType()){
+                    if ((event.getFirstWidgetHeight() * 2) < Window.getClientHeight()) {
+                        scrollTableBody.setHeight(((event.getFirstWidgetHeight()*2) - headerPanel.getOffsetHeight()) + "px");
+                    }  else {
+                        scrollTableBody.setHeight((event.getFirstWidgetHeight() - headerPanel.getOffsetHeight()) + "px");
+                    }
+                }
+                else
+                {
+                    scrollTableBody.setHeight((event.getFirstWidgetHeight() - headerPanel.getOffsetHeight()) + "px");
+                }
+                tableController.columnWindowResize(columnMinWidth(event.getFirstWidgetWidth()/tableBody.getColumnCount()));
+            }
+        });
+
+        plugin.getEventBus().addHandler(SplitterInnerScrollEvent.TYPE, new SplitterInnerScrollEventHandler() {
+            @Override
+            public void setScrollPanelHeight(SplitterInnerScrollEvent event) {
+                scrollTableBody.setHeight((event.getUpperPanelHeight()-headerPanel.getOffsetHeight())+"px");
+
             }
         });
     }
@@ -88,14 +118,18 @@ public class CollectionPluginView extends PluginView {
         Window.addResizeHandler(new ResizeHandler() {
             @Override
             public void onResize(ResizeEvent event) {
-                int width = (Window.getClientWidth() - 235) / tableHeader.getColumnCount();
-                if (width < 100) {
-                    width = 100;
-                }
-                tableController.columnWindowResize(width);
+
+                tableController.columnWindowResize(columnMinWidth(Window.getClientWidth() - 235) / tableHeader.getColumnCount());
                 scrollTableBody.setHeight(((Window.getClientHeight() - 300) / 2) + "px");
             }
         });
+    }
+
+    private int columnMinWidth(int width){
+        if (width < 100){
+            width = 100;
+        }
+        return width;
     }
 
     private void addHandlers() {
@@ -104,12 +138,12 @@ public class CollectionPluginView extends PluginView {
     }
 
 
-    private TextColumn<CollectionRowItem> buildNameColumn(final String s) {
+    private TextColumn<CollectionRowItem> buildNameColumn(final String string) {
 
         return new TextColumn<CollectionRowItem>() {
             @Override
             public String getValue(CollectionRowItem object) {
-                return object.getStringValue(s);
+                return object.getStringValue(string);
             }
         };
     }

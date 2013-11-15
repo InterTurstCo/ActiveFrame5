@@ -9,7 +9,6 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlowPanel;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 
@@ -204,7 +203,7 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
                 if (move > COLUMN_MIN_WIDTH) {
                     if (colIdx == header.getColumnCount()-1){
                         if (header.getOffsetWidth() > header.getOffsetWidth() - move){
-                            columnWindowResize((Window.getClientWidth() - 235) / header.getColumnCount());
+                            columnWindowResize(body.getParent().getParent().getParent().getParent().getParent().getParent().getParent().getOffsetWidth() / header.getColumnCount());
 
                         }
                     }

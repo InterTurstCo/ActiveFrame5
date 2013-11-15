@@ -663,4 +663,8 @@ public class SplitterEx extends DockLayoutPanel {
 
         super.insert(splitter, layout.direction, splitterSize, before);
     }
+
+    public boolean isSplitType() {
+        return splitType;
+    }
 }
