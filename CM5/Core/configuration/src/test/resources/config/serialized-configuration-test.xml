@@ -22,7 +22,7 @@
          <string name="Description" not-null="false" length="128"/>
       </fields>
    </domain-object-type>
-   <domain-object-type name="Person">
+   <domain-object-type name="Person" initial-status="Active_Person">
       <fields>
          <string name="EMail" not-null="false" length="128"/>
          <string name="Login" not-null="true" length="64"/>
@@ -31,7 +31,7 @@
          <field name="EMail"/>
       </uniqueKey>
    </domain-object-type>
-   <domain-object-type name="Employee" extends="Person">
+   <domain-object-type name="Employee" initial-status="Active_Employee" extends="Person">
       <fields>
          <reference name="Department" not-null="true" type="Employee"/>
          <string name="Name" not-null="true" length="64"/>
@@ -44,12 +44,7 @@
          <field name="Phone"/>
       </uniqueKey>
    </domain-object-type>
-   <domain-object-type name="Department">
-      <fields>
-         <string name="Name" not-null="true" length="128"/>
-      </fields>
-   </domain-object-type>
-   <domain-object-type name="Delegation">
+   <domain-object-type name="Delegation" initial-status="Active_Employee">
       <fields>
          <reference name="person" not-null="true" type="Employee"/>
          <reference name="delegate" not-null="true" type="Employee"/>
@@ -63,6 +58,20 @@
       <uniqueKey>
          <field name="User_Uid"/>
       </uniqueKey>
+   </domain-object-type>
+   <domain-object-type name="Department" initial-status="Active" audit-log="true">
+      <fields>
+         <string name="Name" not-null="true" length="128"/>
+         <reference name="Organization" not-null="true" type="Organization"/>
+         <reference name="Boss" not-null="false" type="Employee"/>
+         <reference name="ParentDepartment" not-null="false" type="Department"/>
+      </fields>
+   </domain-object-type>
+   <domain-object-type name="Organization" audit-log="true">
+      <fields>
+         <string name="Name" not-null="true" length="128"/>
+         <reference name="Boss" not-null="false" type="Employee"/>
+      </fields>
    </domain-object-type>
    <domain-object-type name="User_Group">
       <fields>

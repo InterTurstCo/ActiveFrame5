@@ -69,15 +69,16 @@ public class ConfigurationExplorerImplTest {
                 configExplorer.getConfigs(DomainObjectTypeConfig.class);
 
         assertNotNull(domainObjectTypeConfigs);
-        assertEquals(12, domainObjectTypeConfigs.size());
+        assertEquals(13, domainObjectTypeConfigs.size());
 
         List<String> domainObjectNames = new ArrayList<>();
         domainObjectNames.addAll(Arrays.asList("Outgoing_Document", PERSON_CONFIG_NAME, "Employee", "Department",
                 "Assignment", "Incoming_Document", "Incoming_Document2", "Attachment", "Person_Attachment",
-                "Authentication_Info", "User_Group", "Group_Member", "Group_Admin", "Delegation", "Negotiation_Card", "Internal_Document", "Delegation"));
+                "Authentication_Info", "User_Group", "Group_Member", "Group_Admin", "Delegation", "Negotiation_Card", "Organization",
+                "Internal_Document", "Delegation", "Status"));
 
         for (DomainObjectTypeConfig domainObjectTypeConfig : domainObjectTypeConfigs) {
-            String name = domainObjectTypeConfig.getName();
+            String name = domainObjectTypeConfig.getName();            
             assertTrue(domainObjectNames.contains(name));
             domainObjectNames.remove(name);
         }

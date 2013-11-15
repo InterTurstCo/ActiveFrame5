@@ -86,12 +86,12 @@ public class ConfigurationSerializerTest {
 
         List configurationList = configuration.getConfigurationList();
         assertNotNull(configurationList);
-        assertEquals(15, configurationList.size());
+        assertEquals(16, configurationList.size());
 
         List<String> configurationNames = new ArrayList<>();
         configurationNames.addAll(Arrays.asList("Employees", "Employees_2", "Outgoing_Document", "Person",
                 "Assignment", "Employee", "Department", "Incoming_Document", "Incoming_Document2", 
-                "Authentication_Info", "User_Group", "Group_Member", "Group_Admin", "Delegation"));
+                "Authentication_Info", "User_Group", "Group_Member", "Group_Admin", "Delegation", "Organization"));
 
         for (Object configurationItem : configurationList) {
             if (configurationItem.getClass().equals(GlobalSettingsConfig.class)) {

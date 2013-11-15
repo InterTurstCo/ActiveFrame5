@@ -27,7 +27,7 @@
         </fields>
     </domain-object-type>
 
-    <domain-object-type name="Person">
+    <domain-object-type name="Person" initial-status="Active_Person">
         <fields>
             <string name="EMail" length="128" />
             <string name="Login" length="64" not-null="true" />            
@@ -37,7 +37,7 @@
        </uniqueKey>
     </domain-object-type>
 
-	<domain-object-type name="Employee" extends="Person">
+	<domain-object-type name="Employee" extends="Person" initial-status="Active_Employee">
 		<fields>
 			<reference name="Department" type="Employee" not-null="true"/>
 			<string name="Name" length="64" not-null="true" />
@@ -51,13 +51,7 @@
 		</uniqueKey>
 	</domain-object-type>
 
-    <domain-object-type name="Department">
-        <fields>
-            <string name="Name" length="128" not-null="true" />
-        </fields>
-    </domain-object-type>
-
-    <domain-object-type name="Delegation">
+    <domain-object-type name="Delegation" initial-status="Active_Employee">
         <fields>
             <reference name="person" type="Employee" not-null="true" />
             <reference name="delegate" type="Employee" not-null="true" />
@@ -102,6 +96,22 @@
        </uniqueKey>
     </domain-object-type>
 
+    <domain-object-type name="Department" audit-log="true" initial-status="Active">
+        <fields>
+            <string name="Name" length="128" not-null="true" />
+            <reference name="Organization" type="Organization" not-null="true"/>
+            <reference name="Boss" type="Employee"/>
+            <reference name="ParentDepartment" type="Department" not-null="false"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="Organization" audit-log="true">
+        <fields>
+            <string name="Name" length="128" not-null="true" />
+            <reference name="Boss" type="Employee"/>
+        </fields>
+    </domain-object-type>
+    
     <!-- Системные объекты, пока просто как предложение -->
     <domain-object-type name="User_Group">
         <fields>
