@@ -136,15 +136,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         accessControlService.verifySystemAccessToken(accessToken);
 
-        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
-                .getConfig(DomainObjectTypeConfig.class,
-                        domainObject.getTypeName());
-
-        String initialStatus = domainObjectTypeConfig.getInitialStatus();
-
-        if (initialStatus == null) {
-            initialStatus = getParentInitialStatus(domainObjectTypeConfig);
-        }
+        String initialStatus = getInitialStatus(domainObject);
          
         DomainObject createdObject = create(domainObject,
                 domainObjectTypeIdCache.getId(domainObject.getTypeName()), initialStatus);
@@ -152,6 +144,22 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         refreshDynamiGroupsAndAclForCreate(createdObject);
         return createdObject;
+    }
+
+    private String getInitialStatus(DomainObject domainObject) {
+        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
+                .getConfig(DomainObjectTypeConfig.class,
+                        domainObject.getTypeName());
+
+        String initialStatus = null;
+        if (domainObjectTypeConfig != null) {
+            initialStatus = domainObjectTypeConfig.getInitialStatus();
+
+            if (initialStatus == null) {
+                initialStatus = getParentInitialStatus(domainObjectTypeConfig);
+            }
+        }
+        return initialStatus;
     }
 
     private String getParentInitialStatus(DomainObjectTypeConfig domainObjectTypeConfig) {
@@ -1244,7 +1252,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         }
 
-        setInitialStatus(domainObjectTypeConfig, updatedObject);
+        setInitialStatus(initialStatus, updatedObject);
 
         String query = generateCreateQuery(domainObjectTypeConfig);
 
@@ -1265,11 +1273,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         return updatedObject;
     }
 
-    private void setInitialStatus(
-            DomainObjectTypeConfig domainObjectTypeConfig,
-            GenericDomainObject updatedObject) {
-        String initialStatus = domainObjectTypeConfig.getInitialStatus();
-        if (initialStatus != null) {
+    /**
+     * Устанавливает начальный статус, если у доменного объекта поле статус не выставлено.
+     * Если начальный статус не указан в конфигурации доменного объекта, то используется начальный статус родительского объекта (рекурсивно)
+     * @param initialStatus
+     * @param updatedObject
+     */
+    private void setInitialStatus(String initialStatus, GenericDomainObject updatedObject) {
+        if (updatedObject.getStatus() == null && initialStatus != null) {
             DomainObject status = getStatusByName(initialStatus);
             Id statusId = status.getId();
             updatedObject.setStatus(statusId);
