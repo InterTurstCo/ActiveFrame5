@@ -13,8 +13,17 @@ public class SplitterInnerScrollEvent extends GwtEvent<SplitterInnerScrollEventH
     public static final Type<SplitterInnerScrollEventHandler> TYPE = new Type<SplitterInnerScrollEventHandler>();
 
     private int upperPanelHeight;
+    private int upperPanelWidth;
     private int downPanelHeight;
+    private int downPanelWidth;
 
+
+    public SplitterInnerScrollEvent(int upperPanelHeight, int upperPanelWidth, int downPanelHeight, int downPanelWidth) {
+        this.upperPanelHeight = upperPanelHeight;
+        this.upperPanelWidth = upperPanelWidth;
+        this.downPanelHeight = downPanelHeight;
+        this.downPanelWidth = downPanelWidth;
+    }
 
     public SplitterInnerScrollEvent(int upperPanelHeight, int downPanelHeight) {
         this.upperPanelHeight = upperPanelHeight;
@@ -28,6 +37,14 @@ public class SplitterInnerScrollEvent extends GwtEvent<SplitterInnerScrollEventH
 
     public int getDownPanelHeight() {
         return downPanelHeight;
+    }
+
+    public int getUpperPanelWidth() {
+        return upperPanelWidth;
+    }
+
+    public int getDownPanelWidth() {
+        return downPanelWidth;
     }
 
     @Override
