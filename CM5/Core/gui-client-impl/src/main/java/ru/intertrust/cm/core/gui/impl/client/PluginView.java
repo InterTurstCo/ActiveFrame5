@@ -33,6 +33,7 @@ public abstract class PluginView implements IsWidget {
      */
     protected PluginView(Plugin plugin) {
         this.plugin = plugin;
+
     }
 
     /**

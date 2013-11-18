@@ -24,7 +24,7 @@ public class FormPluginView extends PluginView {
 
     protected FormPluginView(Plugin plugin, FormDisplayData formDisplayData) {
         super(plugin);
-        formPanel = new FormPanel(formDisplayData);
+        formPanel = new FormPanel(formDisplayData, plugin.getEventBus());
     }
 
     @Override

@@ -84,13 +84,7 @@ public class CollectionPluginView extends PluginView {
             }
         });
 
-        plugin.getEventBus().addHandler(SplitterInnerScrollEvent.TYPE, new SplitterInnerScrollEventHandler() {
-            @Override
-            public void setScrollPanelHeight(SplitterInnerScrollEvent event) {
-                scrollTableBody.setHeight((event.getUpperPanelHeight()-headerPanel.getOffsetHeight())+"px");
 
-            }
-        });
     }
 
     @Override

@@ -3,11 +3,16 @@ package ru.intertrust.cm.core.gui.impl.client.form;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.config.model.gui.form.*;
 import ru.intertrust.cm.core.config.model.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.impl.client.event.SplitterInnerScrollEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.SplitterInnerScrollEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
@@ -24,10 +29,47 @@ import java.util.List;
 public class FormPanel implements IsWidget {
     private FormDisplayData formDisplayData;
     private List<BaseWidget> widgets;
+    ScrollPanel scrollPanel ;
+    EventBus eventBus;
 
-    public FormPanel(FormDisplayData formDisplayData) {
+    public FormPanel(FormDisplayData formDisplayData, EventBus eventBus) {
         this.formDisplayData = formDisplayData;
         widgets = new ArrayList<BaseWidget>(formDisplayData.getFormState().getFullWidgetsState().size());
+        scrollPanel = new ScrollPanel();
+        this.eventBus = eventBus;
+
+        eventBus.addHandler(SplitterInnerScrollEvent.TYPE, new SplitterInnerScrollEventHandler() {
+            @Override
+            public void setScrollPanelHeight(SplitterInnerScrollEvent event) {
+
+                scrollPanel.setHeight(event.getDownPanelHeight() + "px");
+                scrollPanel.setWidth(scrollPanel.getParent().getParent().getOffsetWidth()+"px");
+
+            }
+        });
+
+        eventBus.addHandler(SplitterWidgetResizerEvent.TYPE, new SplitterWidgetResizerEventHandler() {
+
+            @Override
+            public void setWidgetSize(SplitterWidgetResizerEvent event) {
+                if (event.isType()){
+                    if ((event.getFirstWidgetHeight() * 2) < Window.getClientHeight()) {
+                        scrollPanel.setHeight(((event.getFirstWidgetHeight()*2) ) + "px");
+                    }  else {
+                        scrollPanel.setHeight((event.getFirstWidgetHeight()) + "px");
+                    }
+                }
+                else
+                {
+                    scrollPanel.setHeight((event.getFirstWidgetHeight() ) + "px");
+                }
+
+                scrollPanel.setWidth(event.getFirstWidgetWidth()+"px");
+
+            }
+        });
+
+
     }
 
     @Override
@@ -51,7 +93,7 @@ public class FormPanel implements IsWidget {
     }
 
     private ScrollPanel build() {
-        ScrollPanel scrollPanel;
+
         MarkupConfig markup = formDisplayData.getMarkup();
         HeaderConfig header = markup.getHeader();
         IsWidget headerTable = buildTable(header.getTableLayout());
@@ -116,31 +158,31 @@ public class FormPanel implements IsWidget {
             verticalPanel.setHeight(((Window.getClientHeight()-98) /2) + "px");
             verticalPanel.setWidth((Window.getClientWidth() - 235) + "px");
         }
-        ScrollPanel scrollPanel = new ScrollPanel();
+//        ScrollPanel scrollPanel = new ScrollPanel();
         scrollPanel.add(verticalPanel);
         verticalPanel.add(headerTable);
         verticalPanel.add(bodyTabPanel);
-        scrollPanel.getElement().getStyle().setProperty("overflowY", "hidden");
-        scrollPanel.getElement().getStyle().setProperty("overflowX", "hidden");
+//        scrollPanel.getElement().getStyle().setProperty("overflowY", "hidden");
+//        scrollPanel.getElement().getStyle().setProperty("overflowX", "hidden");
         scrollPanel.setHeight((Window.getClientHeight()-98)/2 + "px");
         scrollPanel.setWidth((Window.getClientWidth() - 235) + "px");
-        scrollPanel.getElement().getStyle().setProperty("overflowY", "hidden");
-
-        if (scrollPanel.getOffsetWidth() != verticalPanel.getOffsetWidth() && scrollPanel.getOffsetWidth() < verticalPanel.getOffsetWidth()){
-            scrollPanel.getElement().getStyle().setProperty("overflowX", "visible");
-        }
-
-        if (scrollPanel.getOffsetHeight() != verticalPanel.getOffsetHeight() && scrollPanel.getOffsetHeight() < verticalPanel.getOffsetHeight()){
-            scrollPanel.getElement().getStyle().setProperty("overflowY", "visible");
-        }
-
-        if (scrollPanel.getOffsetHeight() > verticalPanel.getOffsetHeight()){
-            scrollPanel.getElement().getStyle().setProperty("overflowX", "hidden");
-        }
-
-        if (scrollPanel.getOffsetHeight() == verticalPanel.getOffsetHeight()){
-            scrollPanel.getElement().getStyle().setProperty("overflowY", "visible");
-        }
+//        scrollPanel.getElement().getStyle().setProperty("overflowY", "hidden");
+//
+//        if (scrollPanel.getOffsetWidth() != verticalPanel.getOffsetWidth() && scrollPanel.getOffsetWidth() < verticalPanel.getOffsetWidth()){
+//            scrollPanel.getElement().getStyle().setProperty("overflowX", "visible");
+//        }
+//
+//        if (scrollPanel.getOffsetHeight() != verticalPanel.getOffsetHeight() && scrollPanel.getOffsetHeight() < verticalPanel.getOffsetHeight()){
+//            scrollPanel.getElement().getStyle().setProperty("overflowY", "visible");
+//        }
+//
+//        if (scrollPanel.getOffsetHeight() > verticalPanel.getOffsetHeight()){
+//            scrollPanel.getElement().getStyle().setProperty("overflowX", "hidden");
+//        }
+//
+//        if (scrollPanel.getOffsetHeight() == verticalPanel.getOffsetHeight()){
+//            scrollPanel.getElement().getStyle().setProperty("overflowY", "visible");
+//        }
 
         verticalPanel.add(headerTable);
         verticalPanel.add(bodyTabPanel);
