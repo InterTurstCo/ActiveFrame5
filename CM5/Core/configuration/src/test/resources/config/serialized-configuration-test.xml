@@ -148,6 +148,7 @@
       <audit-log enable="false"/>
       <attachment-storage path="c:\attachments\"/>
       <attachment-upload-temp-storage path="c:\savedAttachments\"/>
+      <sql-trace enable="true" resolveParameters="true"/>
    </global-settings>
    <domain-object-type name="Incoming_Document">
       <fields>

@@ -1,10 +1,9 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcOperations;
 import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.api.IdGenerator;
-
-import javax.sql.DataSource;
 
 /**
  * Создает(генерирует) уникальный идентификатор используя последовательность(сиквенс)  в базе данных
@@ -13,19 +12,8 @@ import javax.sql.DataSource;
  */
 public class SequenceIdGenerator implements IdGenerator {
 
-
-    private  JdbcTemplate jdbcTemplate;
-
-
-
-    /**
-     * Устанавливает источник соединений
-     *
-     * @param dataSource
-     */
-    public void setDataSource(DataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
-    }
+    @Autowired
+    private JdbcOperations jdbcTemplate;
 
 
     @Override
@@ -51,6 +39,6 @@ public class SequenceIdGenerator implements IdGenerator {
         query.append("')");
         return jdbcTemplate.queryForObject(query.toString(), Long.class);
     }
-    
-    
+
+
 }

@@ -42,7 +42,7 @@ import ru.intertrust.cm.core.model.PermissionException;
 
 /**
  * Реализация сервиса по работе с динамическими группами пользователей
- * 
+ *
  * @author atsvetkov
  */
 @ExtensionPoint(filter = "Person")
@@ -87,7 +87,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
             }
         }
 
-        if (beforeSaveInvalidGroups != null) {
+        if (beforeSaveInvalidGroups != null){
             invalidGroups.addAll(beforeSaveInvalidGroups);
         }
 
@@ -173,7 +173,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
 
     /**
      * Пересчитывает список персон динамической группы.
-     * 
+     *
      * @param dynamicGroupId
      *            идентификатор динамической группы
      * @param personIds
@@ -285,7 +285,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
 
     /**
      * Добавляет группу с данным именем и контекстным объектом, если группы нет в базе данных
-     * 
+     *
      * @param dynamicGroupName
      *            имя динамической группы
      * @param contextObjectId
@@ -402,7 +402,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
                                                 AutowireCapableBeanFactory.AUTOWIRE_BY_NAME,
                                                 false);
                                 // TODO Я конечно против использования базы напрямую, но так сделано изначально, пока не переделываем
-                                ((DynamicGroupTrackDomainObjectCollector) collector).setJdbcTemplate(jdbcTemplate);
+                                ((DynamicGroupTrackDomainObjectCollector) collector).setNamedParameterJdbcTemplate(namedParameterJdbcTemplate);
                                 collector.init(config, collectorConfig);
                                 registerCollector(collector, config);
                             }
@@ -469,7 +469,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
 
     /**
      * Регистрация коллектора в реестре колекторов для дмнамической группы
-     * 
+     *
      * @param type
      * @param collector
      */
@@ -485,7 +485,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
 
     /**
      * Регистрация коллектора в реестре колекторов
-     * 
+     *
      * @param type
      * @param collector
      */
@@ -500,7 +500,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
 
     /**
      * Получение всех дочерних типов переданного типа
-     * 
+     *
      * @param type
      * @return
      */
@@ -527,7 +527,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
 
     /**
      * Установка спринг контекста в экземпляр класса
-     * 
+     *
      * @param applicationContext
      * @throws BeansException
      */
@@ -540,7 +540,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
     /**
      * Клаксс для описания элемента реестра динамических групп
      * @author larin
-     * 
+     *
      */
     private class DynamicGroupRegisterItem {
         private DynamicGroupCollector collector;

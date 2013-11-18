@@ -181,6 +181,12 @@ public class ConfigurationControlServiceImplTest {
         globalSettings.setAttachmentStorageConfig(storageConfig);
         globalSettings.setAttachmentUploadTempStorageConfig(attachmentUploadTempStorageConfig);
         globalSettings.setAuditLog(auditLog);
+
+        SqlTrace sqlTrace = new SqlTrace();
+        sqlTrace.setEnable(true);
+        sqlTrace.setResolveParameters(true);
+        globalSettings.setSqlTrace(sqlTrace);
+
         configuration.getConfigurationList().add(createOutgoingDocument());
         configuration.getConfigurationList().add(createEmployee());
         configuration.getConfigurationList().add(globalSettings);

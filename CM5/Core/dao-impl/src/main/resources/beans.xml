@@ -1,93 +1,100 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
-    xmlns:jee="http://www.springframework.org/schema/jee" xmlns:context="http://www.springframework.org/schema/context"
-    xsi:schemaLocation="
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:c="http://www.springframework.org/schema/c"
+       xmlns:jee="http://www.springframework.org/schema/jee"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="
      http://www.springframework.org/schema/beans
      http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
      http://www.springframework.org/schema/jee
      http://www.springframework.org/schema/jee/spring-jee-3.2.xsd
      http://www.springframework.org/schema/context
-     http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+     http://www.springframework.org/schema/context/spring-context-3.2.xsd
+     http://www.springframework.org/schema/aop
+     http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <aop:aspectj-autoproxy/>
 
     <context:annotation-config />
 
+    <jee:jndi-lookup id="transactionSynchronizationRegistry"
+                     jndi-name="java:comp/TransactionSynchronizationRegistry"
+                     expected-type="javax.transaction.TransactionSynchronizationRegistry" />
+
     <jee:jndi-lookup id="dataSource" jndi-name="java:jboss/datasources/CM5" />
 
-    <jee:jndi-lookup id="transactionSynchronizationRegistry"
-        jndi-name="java:comp/TransactionSynchronizationRegistry"
-        expected-type="javax.transaction.TransactionSynchronizationRegistry" />
-
     <bean id="transactionManager"
-        class="org.springframework.transaction.jta.JtaTransactionManager" />
+          class="org.springframework.transaction.jta.JtaTransactionManager" />
+
+    <bean id="sqlLogger"
+          class="ru.intertrust.cm.core.dao.impl.SqlLogger" />
+
+    <bean id="jdbcTemplate"  class="org.springframework.jdbc.core.JdbcTemplate"
+          c:dataSource-ref="dataSource"/>
+
+    <bean id="namedParameterJdbcTemplate"  class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate"
+          c:dataSource-ref="dataSource"/>
 
     <bean id="dataStructureDao"
-        class="ru.intertrust.cm.core.dao.impl.PostgreSqlDataStructureDaoImpl"
-        p:dataSource-ref="dataSource" />
+          class="ru.intertrust.cm.core.dao.impl.PostgreSqlDataStructureDaoImpl"/>
 
-    <bean id="configurationDao" class="ru.intertrust.cm.core.dao.impl.ConfigurationDaoImpl"
-        p:dataSource-ref="dataSource" />
+    <bean id="configurationDao" class="ru.intertrust.cm.core.dao.impl.ConfigurationDaoImpl"/>
 
     <bean id="domainObjectTypeIdDao"
-        class="ru.intertrust.cm.core.dao.impl.DomainObjectTypeIdDaoImpl"
-        p:dataSource-ref="dataSource" />
+          class="ru.intertrust.cm.core.dao.impl.DomainObjectTypeIdDaoImpl"/>
 
-    <bean id="authenticationDao" class="ru.intertrust.cm.core.dao.impl.AuthenticationDaoImpl"
-        p:dataSource-ref="dataSource" />
+    <bean id="authenticationDao" class="ru.intertrust.cm.core.dao.impl.AuthenticationDaoImpl"/>
 
-    <bean id="sequenceIdGenerator" class="ru.intertrust.cm.core.dao.impl.SequenceIdGenerator"
-        p:dataSource-ref="dataSource" />
+    <bean id="sequenceIdGenerator" class="ru.intertrust.cm.core.dao.impl.SequenceIdGenerator"/>
 
-    <bean id="domainObjectDao" class="ru.intertrust.cm.core.dao.impl.DomainObjectDaoImpl"
-        p:dataSource-ref="dataSource" />
+    <bean id="domainObjectDao" class="ru.intertrust.cm.core.dao.impl.DomainObjectDaoImpl"/>
 
-    <bean id="collectionsDao" class="ru.intertrust.cm.core.dao.impl.CollectionsDaoImpl"
-        p:dataSource-ref="dataSource" />
+    <bean id="collectionsDao" class="ru.intertrust.cm.core.dao.impl.CollectionsDaoImpl"/>
 
     <bean id="databaseAccessAgent"
-        class="ru.intertrust.cm.core.dao.impl.access.PostgresDatabaseAccessAgent"
-        p:dataSource-ref="dataSource" />
+          class="ru.intertrust.cm.core.dao.impl.access.PostgresDatabaseAccessAgent"
+          p:dataSource-ref="dataSource" />
 
     <bean id="accessControlService"
-        class="ru.intertrust.cm.core.dao.impl.access.AccessControlServiceImpl"
-        p:databaseAgent-ref="databaseAccessAgent" />
+          class="ru.intertrust.cm.core.dao.impl.access.AccessControlServiceImpl"
+          p:databaseAgent-ref="databaseAccessAgent" />
 
     <bean id="attachmentContentDao"
-        class="ru.intertrust.cm.core.dao.impl.FileSystemAttachmentContentDaoImpl"
-        init-method="init" />
+          class="ru.intertrust.cm.core.dao.impl.FileSystemAttachmentContentDaoImpl"
+          init-method="init" />
 
     <bean id="userTransactionService"
-        class="ru.intertrust.cm.core.dao.impl.UserTransactionServiceImpl" />
+          class="ru.intertrust.cm.core.dao.impl.UserTransactionServiceImpl" />
 
     <bean id="domainObjectTypeIdCache"
-        class="ru.intertrust.cm.core.dao.impl.DomainObjectTypeIdCacheImpl"
-        init-method="build" depends-on="configurationLoader" />
+          class="ru.intertrust.cm.core.dao.impl.DomainObjectTypeIdCacheImpl"
+          init-method="build" depends-on="configurationLoader" />
 
     <bean id="domainObjectCacheService"
-        class="ru.intertrust.cm.core.dao.impl.DomainObjectCacheServiceImpl" />
+          class="ru.intertrust.cm.core.dao.impl.DomainObjectCacheServiceImpl" />
 
     <bean id="personManagement"
-        class="ru.intertrust.cm.core.dao.impl.PersonManagementServiceDaoImpl" />
+          class="ru.intertrust.cm.core.dao.impl.PersonManagementServiceDaoImpl" />
 
     <bean id="extensionService" class="ru.intertrust.cm.core.dao.impl.ExtensionServiceImpl">
         <property name="basePackage" value="ru/intertrust/cm" />
     </bean>
 
     <bean id="auditService"
-        class="ru.intertrust.cm.core.dao.impl.AuditLogServiceDaoImpl"
-        p:dataSource-ref="dataSource" />
+          class="ru.intertrust.cm.core.dao.impl.AuditLogServiceDaoImpl"/>
 
-    <bean id="dynamicGroupService" class="ru.intertrust.cm.core.dao.impl.access.DynamicGroupServiceImpl"
-        p:dataSource-ref="dataSource" />
+    <bean id="dynamicGroupService" class="ru.intertrust.cm.core.dao.impl.access.DynamicGroupServiceImpl"/>
 
-    <bean id="permissionService" class="ru.intertrust.cm.core.dao.impl.access.PermissionServiceDaoImpl"
-        p:dataSource-ref="dataSource" />
-        
-    <bean id="currentUserAccessor" 
-        class="ru.intertrust.cm.core.dao.impl.CurrentUserAccessorImpl"/>        
+    <bean id="permissionService" class="ru.intertrust.cm.core.dao.impl.access.PermissionServiceDaoImpl"/>
+
+    <bean id="currentUserAccessor"
+          class="ru.intertrust.cm.core.dao.impl.CurrentUserAccessorImpl"/>
 
     <bean id="doelResolver" class="ru.intertrust.cm.core.dao.impl.doel.DoelResolver"
-        p:dataSource-ref="dataSource" />
+          p:dataSource-ref="dataSource" />
 
     <bean id="statusDao" class="ru.intertrust.cm.core.dao.impl.StatusDaoImpl" 
         p:dataSource-ref="dataSource"/>

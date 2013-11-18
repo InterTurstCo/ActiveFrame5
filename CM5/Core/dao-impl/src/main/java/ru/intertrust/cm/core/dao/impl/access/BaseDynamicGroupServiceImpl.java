@@ -9,12 +9,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.sql.DataSource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
@@ -43,7 +41,8 @@ public class BaseDynamicGroupServiceImpl {
 
     public static final String GROUP_MEMBER_DOMAIN_OBJECT = "Group_Member";
 
-    protected NamedParameterJdbcTemplate jdbcTemplate;
+    @Autowired
+    protected NamedParameterJdbcOperations namedParameterJdbcTemplate;
 
     @Autowired
     protected DoelResolver doelResolver;
@@ -66,6 +65,10 @@ public class BaseDynamicGroupServiceImpl {
     @Autowired
     protected CollectionsDao collectionsService;
 
+    public void setNamedParameterJdbcTemplate(NamedParameterJdbcOperations namedParameterJdbcTemplate) {
+        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
+    }
+
     public void setDoelResolver(DoelResolver doelResolver) {
         this.doelResolver = doelResolver;
         doelResolver.setDomainObjectTypeIdCache(domainObjectTypeIdCache);
@@ -83,18 +86,9 @@ public class BaseDynamicGroupServiceImpl {
         this.domainObjectTypeIdCache = domainObjectTypeIdCache;
     }
 
+
     public void setAccessControlService(AccessControlService accessControlService) {
         this.accessControlService = accessControlService;
-    }
-
-    /**
-     * Устанавливает источник соединений
-     * @param dataSource
-     */
-    public void setDataSource(DataSource dataSource) {
-        this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-        //        doelResolver.setDataSource(dataSource);
-
     }
 
     /**
@@ -109,9 +103,8 @@ public class BaseDynamicGroupServiceImpl {
         if (userGroupId != null) {
             String query = generateDeleteUserGroupQuery();
 
-            Map<String, Object> parameters =
-                    initializeProcessUserGroupWithContextParameters(groupName, contextObjectId);
-            jdbcTemplate.update(query, parameters);
+            Map<String, Object> parameters = initializeProcessUserGroupWithContextParameters(groupName, contextObjectId);
+            namedParameterJdbcTemplate.update(query, parameters);
         }
 
         return userGroupId;
@@ -140,7 +133,7 @@ public class BaseDynamicGroupServiceImpl {
 
         Map<String, Object> parameters = initializeProcessUserGroupWithContextParameters(groupName, contextObjectId);
         Integer doTypeId = domainObjectTypeIdCache.getId(USER_GROUP_DOMAIN_OBJECT);
-        return jdbcTemplate.query(query, parameters, new ObjectIdRowMapper("id", doTypeId));
+        return namedParameterJdbcTemplate.query(query, parameters, new ObjectIdRowMapper("id", doTypeId));
     }
 
     private Map<String, Object> initializeProcessUserGroupWithContextParameters(String groupName, Long contextObjectId) {
@@ -165,7 +158,7 @@ public class BaseDynamicGroupServiceImpl {
 
         Map<String, Object> parameters = initializeProcessUserGroupParameters(groupName);
         Integer doTypeId = domainObjectTypeIdCache.getId(USER_GROUP_DOMAIN_OBJECT);
-        return jdbcTemplate.query(query, parameters, new ObjectIdRowMapper("id", doTypeId));
+        return namedParameterJdbcTemplate.query(query, parameters, new ObjectIdRowMapper("id", doTypeId));
     }
 
     private Map<String, Object> initializeProcessUserGroupParameters(String groupName) {
@@ -193,7 +186,7 @@ public class BaseDynamicGroupServiceImpl {
         String status = null;
         String query = generateGetStatusForQuery(objectId);
         Map<String, Object> parameters = initializeGetStatusParameters(objectId);
-        status = jdbcTemplate.query(query, parameters, new ResultSetExtractor<String>() {
+        status = namedParameterJdbcTemplate.query(query, parameters, new ResultSetExtractor<String>() {
             @Override
             public String extractData(ResultSet rs) throws SQLException, DataAccessException {
                 String status = null;
@@ -290,15 +283,6 @@ public class BaseDynamicGroupServiceImpl {
         return userGroupId;
     }
 
-    /**
-     * Установка соединения
-     * @param jdbcTemplate
-     */
-    public void setJdbcTemplate(NamedParameterJdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-
-    }
-
     protected List<FieldModification> getNewObjectModificationList(
             DomainObject domainObject) {
         List<FieldModification> result = new ArrayList<FieldModification>();
@@ -362,5 +346,6 @@ public class BaseDynamicGroupServiceImpl {
             }
         }
     }
+
 
 }

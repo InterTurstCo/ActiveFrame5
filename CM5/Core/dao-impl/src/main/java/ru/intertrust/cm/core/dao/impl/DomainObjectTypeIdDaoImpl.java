@@ -1,11 +1,11 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.RowMapper;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectTypeId;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 
-import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -24,14 +24,8 @@ public class DomainObjectTypeIdDaoImpl implements DomainObjectTypeIdDao {
     protected static final String SELECT_DOMAIN_OBJECT_TYPE_ID_BY_NAME_QUERY =
             "select " + ID_COLUMN + " from " + DOMAIN_OBJECT_TYPE_ID_TABLE + " where " + NAME_COLUMN + " = ?";
 
-    private JdbcTemplate jdbcTemplate;
-
-    /**
-     * Создает и устанавливает {@link #jdbcTemplate}
-     */
-    public void setDataSource(DataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
-    }
+    @Autowired
+    private JdbcOperations jdbcTemplate;
 
     /**
      * {@inheritDoc}

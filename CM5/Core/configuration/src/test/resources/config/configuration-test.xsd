@@ -275,6 +275,14 @@
                                   type="xs:string" />
                 </xs:complexType>
             </xs:element>
+            <xs:element name="sql-trace">
+                <xs:complexType>
+                    <xs:attribute name="enable" use="required"
+                                  type="xs:boolean" />
+                    <xs:attribute name="resolveParameters" use="required"
+                                  type="xs:boolean" />
+                </xs:complexType>
+            </xs:element>
         </xs:sequence>
     </xs:complexType>
 

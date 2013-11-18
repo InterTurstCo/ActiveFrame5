@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -25,8 +26,9 @@ public class StatusDaoImpl implements StatusDao {
 
     private Map<Id, String> idToStatusName = new HashMap<Id, String>();
     private Map<String, Id> statusNameToId = new HashMap<String, Id>();
-    
-    private NamedParameterJdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private NamedParameterJdbcOperations jdbcTemplate;
 
     @Autowired
     private ConfigurationExplorer configurationExplorer;
@@ -34,16 +36,6 @@ public class StatusDaoImpl implements StatusDao {
     @Autowired
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
 
-    /**
-     * Устанавливает источник соединений
-     * 
-     * @param dataSource
-     */
-    public void setDataSource(DataSource dataSource) {
-        this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-    }
-
-    
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
     }

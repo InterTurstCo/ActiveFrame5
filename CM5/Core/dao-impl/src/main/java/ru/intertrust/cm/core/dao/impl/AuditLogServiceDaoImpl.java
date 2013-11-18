@@ -7,9 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.sql.DataSource;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObjectVersion;
@@ -28,22 +27,14 @@ import ru.intertrust.cm.core.dao.impl.utils.SingleVersionRowMapper;
 
 public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
 
-    private NamedParameterJdbcTemplate jdbcTemplate;
+    @Autowired
+    private NamedParameterJdbcOperations jdbcTemplate;
 
     @Autowired
     private ConfigurationExplorer configurationExplorer;
 
     @Autowired
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
-
-    /**
-     * Устанавливает источник соединений
-     * 
-     * @param dataSource
-     */
-    public void setDataSource(DataSource dataSource) {
-        this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-    }
 
     /**
      * Получение всех версий доменного объекта
@@ -136,7 +127,7 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
 
     /**
      * Инициализирует параметр c id доменного объекта
-     * 
+     *
      * @param id
      *            идентификатор доменного объекта
      * @return карту объектов содержащую имя параметра и его значение

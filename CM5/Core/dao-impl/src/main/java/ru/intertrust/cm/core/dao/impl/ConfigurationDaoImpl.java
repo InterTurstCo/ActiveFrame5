@@ -1,10 +1,10 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
 
-import javax.sql.DataSource;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -25,15 +25,8 @@ public class ConfigurationDaoImpl implements ConfigurationDao {
             "select CONTENT from " + CONFIGURATION_TABLE +
             " where id = (select max(id) from " + CONFIGURATION_TABLE + ")";
 
-    private NamedParameterJdbcTemplate jdbcTemplate;
-
-    /**
-     * Создает {@link #jdbcTemplate}
-     * @param dataSource
-     */
-    public void setDataSource(DataSource dataSource) {
-        this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-    }
+    @Autowired
+    private NamedParameterJdbcOperations jdbcTemplate;
 
     /**
      * Смотри {@link ru.intertrust.cm.core.dao.api.ConfigurationDao#save(String)}

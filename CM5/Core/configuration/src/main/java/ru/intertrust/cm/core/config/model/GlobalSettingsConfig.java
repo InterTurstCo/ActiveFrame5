@@ -9,7 +9,7 @@ import ru.intertrust.cm.core.config.model.global.AttachmentUploadTempStorageConf
 @Root(name = "global-settings")
 public class GlobalSettingsConfig implements TopLevelConfig {
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -8166587368979922484L;
     public static final String NAME = "global-settings";
@@ -22,6 +22,9 @@ public class GlobalSettingsConfig implements TopLevelConfig {
 
     @Element(name = "attachment-upload-temp-storage")
     private AttachmentUploadTempStorageConfig attachmentUploadTempStorageConfig;
+
+    @Element(name = "sql-trace", required = true)
+    private SqlTrace sqlTrace;
 
 
     public AuditLog getAuditLog() {
@@ -49,6 +52,14 @@ public class GlobalSettingsConfig implements TopLevelConfig {
         this.attachmentUploadTempStorageConfig = attachmentUploadTempStorageConfig;
     }
 
+    public SqlTrace getSqlTrace() {
+        return sqlTrace;
+    }
+
+    public void setSqlTrace(SqlTrace sqlTrace) {
+        this.sqlTrace = sqlTrace;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -60,15 +71,16 @@ public class GlobalSettingsConfig implements TopLevelConfig {
 
         GlobalSettingsConfig that = (GlobalSettingsConfig) o;
 
-        if (attachmentStorageConfig != null ? !attachmentStorageConfig.equals(that.
-                attachmentStorageConfig) : that.attachmentStorageConfig != null) {
+        if (attachmentStorageConfig != null ? !attachmentStorageConfig.equals(that.attachmentStorageConfig) : that.attachmentStorageConfig != null) {
             return false;
         }
-        if (attachmentUploadTempStorageConfig != null ? !attachmentUploadTempStorageConfig.
-                equals(that.attachmentUploadTempStorageConfig) : that.attachmentUploadTempStorageConfig != null) {
+        if (attachmentUploadTempStorageConfig != null ? !attachmentUploadTempStorageConfig.equals(that.attachmentUploadTempStorageConfig) : that.attachmentUploadTempStorageConfig != null) {
             return false;
         }
         if (auditLog != null ? !auditLog.equals(that.auditLog) : that.auditLog != null) {
+            return false;
+        }
+        if (sqlTrace != null ? !sqlTrace.equals(that.sqlTrace) : that.sqlTrace != null) {
             return false;
         }
 
@@ -79,11 +91,10 @@ public class GlobalSettingsConfig implements TopLevelConfig {
     public int hashCode() {
         int result = auditLog != null ? auditLog.hashCode() : 0;
         result = 31 * result + (attachmentStorageConfig != null ? attachmentStorageConfig.hashCode() : 0);
-        result = 31 * result + (attachmentUploadTempStorageConfig != null ? attachmentUploadTempStorageConfig.
-                hashCode() : 0);
+        result = 31 * result + (attachmentUploadTempStorageConfig != null ? attachmentUploadTempStorageConfig.hashCode() : 0);
+        result = 31 * result + (sqlTrace != null ? sqlTrace.hashCode() : 0);
         return result;
     }
-
 
     @Override
     public String getName() {

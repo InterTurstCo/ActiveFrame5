@@ -107,7 +107,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         List<Id> invalidContexts = new ArrayList<Id>();
         if (typeCollectors != null) {
             for (ContextRoleRegisterItem dynamicGroupCollector : typeCollectors) {
-                // Поучаем невалидные контексты и добавляем их в итоговый массив без дублирования                
+                // Поучаем невалидные контексты и добавляем их в итоговый массив без дублирования
                 addAllWithoutDuplicate(invalidContexts,
                         dynamicGroupCollector.getCollector().getInvalidContexts(domainObject,
                                 modifiedFieldNames));
@@ -132,7 +132,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             return;
         }
 
-        //Переделываем формирование acl. Вместо полного удаления и создания формируем точечные изменения, приводящие acl в актуальное состояниеы        
+        //Переделываем формирование acl. Вместо полного удаления и создания формируем точечные изменения, приводящие acl в актуальное состояниеы
         /*cleanAclFor(invalidContextId);
 
         for (BaseOperationPermitConfig operationPermitConfig : accessMatrixConfig.getPermissions()) {
@@ -151,7 +151,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         //Получение текущего состава acl из базы
         List<AclInfo> oldAclInfos = getCurrentAclInfo(invalidContextId);
-        
+
         //Получение разницы в составе acl
         //Получаем новые элементы в acl
         List<AclInfo> addAclInfo = new ArrayList<AclInfo>();
@@ -160,7 +160,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                 addAclInfo.add(aclInfo);
             }
         }
-        
+
         //Получаем те элементы acl которые надо удалить
         List<AclInfo> deleteAclInfo = new ArrayList<AclInfo>();
         for (AclInfo aclInfo : oldAclInfos) {
@@ -168,7 +168,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                 deleteAclInfo.add(aclInfo);
             }
         }
-        
+
         //Непосредственно удаление или добавление в базу
         for (AclInfo aclInfo : deleteAclInfo) {
             deleteAclRecord(aclInfo.getAccessType(), invalidContextId, aclInfo.getGroupId());
@@ -364,11 +364,11 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         Map<String, Object> parameters =
                 initializeInsertAclRecordParameters(accessType, rdbmsObjectId, rdbmsDynamicGroupId);
-        jdbcTemplate.update(query, parameters);
+        namedParameterJdbcTemplate.update(query, parameters);
 
     }
 
-    
+
     private void deleteAclRecord(AccessType accessType, Id objectId, Id dynamicGroupId) {
         RdbmsId rdbmsObjectId = (RdbmsId) objectId;
         RdbmsId rdbmsDynamicGroupId = (RdbmsId) dynamicGroupId;
@@ -385,8 +385,8 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                 initializeDeleteAclRecordParameters(accessType, rdbmsObjectId, rdbmsDynamicGroupId);
         jdbcTemplate.update(query, parameters);
 
-    }    
-    
+    }
+
     private String generateDeleteAclReadRecordQuery(RdbmsId objectId) {
         String tableName = null;
         tableName = AccessControlUtility.getAclReadTableName(domainObjectTypeIdCache.getName(objectId.getTypeId()));
@@ -398,7 +398,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         return query.toString();
     }
-    
+
     private String generateInsertAclReadRecordQuery(RdbmsId objectId) {
         String tableName = null;
         tableName = AccessControlUtility.getAclReadTableName(domainObjectTypeIdCache.getName(objectId.getTypeId()));
@@ -422,8 +422,8 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         return query.toString();
     }
-    
-    
+
+
     private String generateInsertAclRecordQuery(RdbmsId objectId) {
         String tableName = null;
         tableName = AccessControlUtility.getAclTableName(domainObjectTypeIdCache.getName(objectId.getTypeId()));
@@ -449,8 +449,8 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         parameters.put("group_id", rdbmsDynamicGroupId.getId());
 
         return parameters;
-    }    
-    
+    }
+
     private Map<String, Object> initializeInsertAclRecordParameters(AccessType accessType, RdbmsId rdbmsObjectId,
             RdbmsId rdbmsDynamicGroupId) {
 
@@ -497,7 +497,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         RdbmsId rdbmsObjectId = (RdbmsId) objectId;
         String query = generateDeleteAclQuery(rdbmsObjectId, isAclReadTable);
         Map<String, Object> parameters = initializeDeleteAclParameters(rdbmsObjectId);
-        jdbcTemplate.update(query, parameters);
+        namedParameterJdbcTemplate.update(query, parameters);
 
     }
 
@@ -597,7 +597,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
     /**
      * Регистрация коллектора в реестре коллекторов
-     * 
+     *
      * @param type
      * @param collector
      */
@@ -612,7 +612,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
     /**
      * Получение всех дочерних типов переданного типа
-     * 
+     *
      * @param type
      * @return
      */
@@ -655,7 +655,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
     /**
      * Клаксс для описания элемента реестра контекстных ролей
      * @author larin
-     * 
+     *
      */
     private class ContextRoleRegisterItem {
         private ContextRoleCollector collector;
@@ -682,6 +682,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
     public List<DomainObjectPermission> getObjectPermissions(Id domainObjectId) {
         return getObjectPermissions(domainObjectId, null);
     }
+
 
     private List<DomainObjectPermission> getObjectPermissions(Id domainObjectId, Id personId) {
         RdbmsId rdbmsObjectId = (RdbmsId) domainObjectId;
@@ -713,7 +714,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             parameters.put("person_id", ((RdbmsId) personId).getId());
         }
 
-        return jdbcTemplate.query(query, parameters, new ResultSetExtractor<List<DomainObjectPermission>>() {
+        return namedParameterJdbcTemplate.query(query, parameters, new ResultSetExtractor<List<DomainObjectPermission>>() {
 
             @Override
             public List<DomainObjectPermission> extractData(ResultSet rs) throws SQLException, DataAccessException {
@@ -861,6 +862,6 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                 return false;
             return true;
         }
-    
+
     }
 }

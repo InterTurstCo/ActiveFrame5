@@ -21,6 +21,7 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
@@ -47,25 +48,8 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
     @Autowired
     private ConfigurationExplorer configurationExplorer;
 
-    private JdbcTemplate jdbcTemplate;
-
-    /**
-     * Устанавливает {@link #jdbcTemplate}
-     * @param dataSource
-     *            DataSource для инициализации {@link #jdbcTemplate}
-     */
-    public void setDataSource(DataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
-    }
-
-    /**
-     * Устанавливает {@link #jdbcTemplate}. Необходим для тестов.
-     * @param jdbcTemplate
-     *            {@link #jdbcTemplate}
-     */
-    public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
+    @Autowired
+    private JdbcOperations jdbcTemplate;
 
     public void setDomainObjectTypeIdDao(DomainObjectTypeIdDao domainObjectTypeIdDao) {
         this.domainObjectTypeIdDao = domainObjectTypeIdDao;
@@ -167,7 +151,7 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
 
         String query = generateCreateForeignKeyAndUniqueConstraintsQuery(domainObjectConfigName, fieldConfigList,
                 uniqueKeyConfigList);
-        if (query.length() > 0){        
+        if (query.length() > 0){
             jdbcTemplate.update(query);
         }
     }

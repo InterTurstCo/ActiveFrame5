@@ -1,10 +1,10 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
 import ru.intertrust.cm.core.dao.api.AuthenticationDao;
 
-import javax.sql.DataSource;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,15 +16,8 @@ import java.util.Map;
  */
 public class AuthenticationDaoImpl implements AuthenticationDao {
 
-    private NamedParameterJdbcTemplate jdbcTemplate;
-
-    /**
-     * Устанавливает источник соединений
-     * @param dataSource
-     */
-    public void setDataSource(DataSource dataSource) {
-        this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-    }
+    @Autowired
+    private NamedParameterJdbcOperations jdbcTemplate;
 
     /**
      * Смотри @see ru.intertrust.cm.core.dao.api.AuthenticationDao#insertAuthenticationInfo(ru.intertrust.cm.core.business.api.dto.AuthenticationInfo)

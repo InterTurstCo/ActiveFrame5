@@ -5,12 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.ejb.SessionContext;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.sql.DataSource;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import ru.intertrust.cm.core.business.api.dto.Filter;
@@ -47,7 +43,8 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
     private static final String PARAM_NAME_PREFIX_SPRING = ":";
 
-    private NamedParameterJdbcTemplate jdbcTemplate;
+    @Autowired
+    private NamedParameterJdbcOperations jdbcTemplate;
 
     @Autowired
     private ConfigurationExplorer configurationExplorer;
@@ -57,16 +54,6 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
     @Autowired
     private CurrentUserAccessor currentUserAccessor;
-
-    /**
-     * Устанавливает источник соединений
-     *
-     * @param dataSource
-     */
-    public void setDataSource(DataSource dataSource) {
-        this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-
-    }
 
     public void setCurrentUserAccessor(CurrentUserAccessor currentUserAccessor) {
         this.currentUserAccessor = currentUserAccessor;

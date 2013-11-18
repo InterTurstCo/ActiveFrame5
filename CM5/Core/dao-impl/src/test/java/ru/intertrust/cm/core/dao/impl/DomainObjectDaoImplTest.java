@@ -19,7 +19,6 @@ import ru.intertrust.cm.core.config.model.base.Configuration;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserSubject;
-import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.impl.utils.MultipleObjectRowMapper;
 
 import java.util.ArrayList;
@@ -28,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -111,7 +109,7 @@ public class DomainObjectDaoImplTest {
         domainObject.setValue("EMail", new StringValue("testUpdate@test.com"));
         domainObject.setValue("Login", new StringValue("userUpdate"));
         domainObject.setValue("Password", new StringValue("passUpdate"));
-        
+
         AccessToken accessToken = createMockAccessToken();
         //проверяем что идентификатор не нулевой
         try {
