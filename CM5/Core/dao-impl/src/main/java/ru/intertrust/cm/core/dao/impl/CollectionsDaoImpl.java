@@ -55,6 +55,10 @@ public class CollectionsDaoImpl implements CollectionsDao {
     @Autowired
     private CurrentUserAccessor currentUserAccessor;
 
+    public void setJdbcTemplate(NamedParameterJdbcOperations jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
     public void setCurrentUserAccessor(CurrentUserAccessor currentUserAccessor) {
         this.currentUserAccessor = currentUserAccessor;
     }

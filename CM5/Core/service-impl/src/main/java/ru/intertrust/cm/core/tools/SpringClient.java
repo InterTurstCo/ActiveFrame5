@@ -20,7 +20,8 @@ public class SpringClient {
     public SpringClient() {
 
         ApplicationContext ctx = SpringApplicationContext.getContext();
-        ctx.getAutowireCapableBeanFactory().autowireBeanProperties(this, AutowireCapableBeanFactory.AUTOWIRE_BY_NAME, false);
+        ctx.getAutowireCapableBeanFactory().autowireBeanProperties(this, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE,
+                false);
 
     }
 

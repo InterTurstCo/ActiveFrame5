@@ -15,6 +15,9 @@ public class SequenceIdGenerator implements IdGenerator {
     @Autowired
     private JdbcOperations jdbcTemplate;
 
+    public void setJdbcTemplate(JdbcOperations jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     @Override
     public Object generatetId(DomainObjectTypeConfig domainObjectTypeConfig) {

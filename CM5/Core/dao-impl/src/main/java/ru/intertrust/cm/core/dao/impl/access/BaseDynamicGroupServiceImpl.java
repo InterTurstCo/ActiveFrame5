@@ -42,7 +42,7 @@ public class BaseDynamicGroupServiceImpl {
     public static final String GROUP_MEMBER_DOMAIN_OBJECT = "Group_Member";
 
     @Autowired
-    protected NamedParameterJdbcOperations namedParameterJdbcTemplate;
+    protected NamedParameterJdbcOperations jdbcTemplate;
 
     @Autowired
     protected DoelResolver doelResolver;
@@ -65,8 +65,8 @@ public class BaseDynamicGroupServiceImpl {
     @Autowired
     protected CollectionsDao collectionsService;
 
-    public void setNamedParameterJdbcTemplate(NamedParameterJdbcOperations namedParameterJdbcTemplate) {
-        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
+    public void setJdbcTemplate(NamedParameterJdbcOperations jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     public void setDoelResolver(DoelResolver doelResolver) {
@@ -104,7 +104,7 @@ public class BaseDynamicGroupServiceImpl {
             String query = generateDeleteUserGroupQuery();
 
             Map<String, Object> parameters = initializeProcessUserGroupWithContextParameters(groupName, contextObjectId);
-            namedParameterJdbcTemplate.update(query, parameters);
+            jdbcTemplate.update(query, parameters);
         }
 
         return userGroupId;
@@ -133,7 +133,7 @@ public class BaseDynamicGroupServiceImpl {
 
         Map<String, Object> parameters = initializeProcessUserGroupWithContextParameters(groupName, contextObjectId);
         Integer doTypeId = domainObjectTypeIdCache.getId(USER_GROUP_DOMAIN_OBJECT);
-        return namedParameterJdbcTemplate.query(query, parameters, new ObjectIdRowMapper("id", doTypeId));
+        return jdbcTemplate.query(query, parameters, new ObjectIdRowMapper("id", doTypeId));
     }
 
     private Map<String, Object> initializeProcessUserGroupWithContextParameters(String groupName, Long contextObjectId) {
@@ -158,7 +158,7 @@ public class BaseDynamicGroupServiceImpl {
 
         Map<String, Object> parameters = initializeProcessUserGroupParameters(groupName);
         Integer doTypeId = domainObjectTypeIdCache.getId(USER_GROUP_DOMAIN_OBJECT);
-        return namedParameterJdbcTemplate.query(query, parameters, new ObjectIdRowMapper("id", doTypeId));
+        return jdbcTemplate.query(query, parameters, new ObjectIdRowMapper("id", doTypeId));
     }
 
     private Map<String, Object> initializeProcessUserGroupParameters(String groupName) {
@@ -186,7 +186,7 @@ public class BaseDynamicGroupServiceImpl {
         String status = null;
         String query = generateGetStatusForQuery(objectId);
         Map<String, Object> parameters = initializeGetStatusParameters(objectId);
-        status = namedParameterJdbcTemplate.query(query, parameters, new ResultSetExtractor<String>() {
+        status = jdbcTemplate.query(query, parameters, new ResultSetExtractor<String>() {
             @Override
             public String extractData(ResultSet rs) throws SQLException, DataAccessException {
                 String status = null;

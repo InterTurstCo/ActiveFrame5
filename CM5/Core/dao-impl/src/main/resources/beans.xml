@@ -96,7 +96,6 @@
     <bean id="doelResolver" class="ru.intertrust.cm.core.dao.impl.doel.DoelResolver"
           p:dataSource-ref="dataSource" />
 
-    <bean id="statusDao" class="ru.intertrust.cm.core.dao.impl.StatusDaoImpl" 
-        p:dataSource-ref="dataSource"/>
+    <bean id="statusDao" class="ru.intertrust.cm.core.dao.impl.StatusDaoImpl"/>
 
 </beans>

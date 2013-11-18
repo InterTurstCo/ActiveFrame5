@@ -75,6 +75,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         this.permissionService = permissionService;
     }
 
+    public void setJdbcTemplate(NamedParameterJdbcOperations jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
     /**
      * Устанавливает генератор для создания уникальных идентифиткаторово
      *
@@ -130,7 +134,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         accessControlService.verifySystemAccessToken(accessToken);
 
         String initialStatus = getInitialStatus(domainObject);
-         
+
         DomainObject createdObject = create(domainObject,
                 domainObjectTypeIdCache.getId(domainObject.getTypeName()), initialStatus);
         domainObjectCacheService.putObjectToCache(createdObject);
@@ -1228,7 +1232,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
                 .getConfig(DomainObjectTypeConfig.class,
                         domainObject.getTypeName());
-        
+
         GenericDomainObject updatedObject = new GenericDomainObject(
                 domainObject);
         DomainObject parentDo = createParentDO(domainObject,

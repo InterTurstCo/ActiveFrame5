@@ -1,17 +1,5 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Properties;
-import java.util.Set;
-
-import javax.transaction.TransactionSynchronizationRegistry;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -19,29 +7,29 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.jdbc.core.JdbcOperations;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
-import ru.intertrust.cm.core.config.ConfigurationSerializer;
-import ru.intertrust.cm.core.config.FileUtils;
-import ru.intertrust.cm.core.config.TopLevelConfigurationCache;
+import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.model.base.Configuration;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
-import ru.intertrust.cm.core.dao.impl.CollectionsDaoImpl;
-import ru.intertrust.cm.core.dao.impl.DomainObjectCacheServiceImpl;
-import ru.intertrust.cm.core.dao.impl.DomainObjectDaoImpl;
-import ru.intertrust.cm.core.dao.impl.DomainObjectTypeIdCacheImpl;
-import ru.intertrust.cm.core.dao.impl.DomainObjectTypeIdDaoImpl;
-import ru.intertrust.cm.core.dao.impl.SequenceIdGenerator;
-import ru.intertrust.cm.core.dao.impl.StatusDaoImpl;
+import ru.intertrust.cm.core.dao.impl.*;
 import ru.intertrust.cm.core.dao.impl.doel.DoelResolver;
+
+import javax.transaction.TransactionSynchronizationRegistry;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+
+import static org.mockito.Mockito.when;
 
 /**
  * Базовый класс для всех DAO тестов. Загружает тестовую конфигурацию, инициализирует базовые DAO сервисы (DomainObjectDao, CollectionsDao), наполняет
@@ -52,13 +40,13 @@ import ru.intertrust.cm.core.dao.impl.doel.DoelResolver;
 public class BaseDaoTest {
 
     private static String CONFIGURATION_SCHEMA_PATH = "config/configuration-test.xsd";
-    private static String DOMAIN_OBJECTS_CONFIG_PATH = "config/domain-objects-test.xml";   
+    private static String DOMAIN_OBJECTS_CONFIG_PATH = "config/domain-objects-test.xml";
     private static String COLLECTIONS_CONFIG_PATH = "config/collections-test.xml";
     private static String ACCESS_CONFIG_PATH = "config/access-test.xml";
     private static String COLLECTIONS_VIEW_PATH = "config/collection-view-test.xml";
 
     private static String SYSTEM_DOMAIN_OBJECTS_CONFIG_PATH = "config/system-domain-objects-test.xml";
-    
+
     private static String MODULES_CONFIG_FOLDER = "modules-configuration";
     private static String MODULES_CONFIG_PATH = "/modules-configuration-test.xml";
     private static String MODULES_CONFIG_SCHEMA_PATH = "config/modules-configuration-test.xsd";
@@ -66,19 +54,21 @@ public class BaseDaoTest {
 
     protected static PermissionServiceDaoImpl permissionService;
     protected static DynamicGroupServiceImpl dynamicGroupService;
+    protected static NamedParameterJdbcOperations namedParameterJdbcOperations;
+    protected static JdbcOperations jdbcOperations;
     protected static DriverManagerDataSource dataSource;
     protected static DomainObjectTypeIdCacheImpl domainObjectTypeIdCache;
     protected static AccessControlService  accessControlService;
     protected static ConfigurationExplorer configurationExplorer;
-    
+
     protected static DomainObjectDaoImpl domainObjectDao;
-    protected static CollectionsDaoImpl collectionsDao;    
+    protected static CollectionsDaoImpl collectionsDao;
     protected static AccessToken accessToken;
-    
+
     protected static StatusDaoImpl statusDao;
-    
+
     private static DomainObject savedOrganizationObject;
-    
+
     private static DomainObject savedDepartmentObject;
 
     private static DomainObject savedPersonObject;
@@ -86,12 +76,12 @@ public class BaseDaoTest {
     private static DomainObject savedEmployeeObject;
 
     private static DomainObject savedEmployeeDelegateObject;
-    
+
     private static DomainObject savedDelegationObject;
-    
+
     private static DomainObject savedActiveStatus;
-    
-    private static DomainObject savedDraftStatus;    
+
+    private static DomainObject savedDraftStatus;
 
     @Mock
     private static DomainObjectCacheServiceImpl cacheServiceImpl = Mockito.mock(DomainObjectCacheServiceImpl.class);
@@ -101,7 +91,7 @@ public class BaseDaoTest {
 
     @Mock
     private static TransactionSynchronizationRegistry transactionSynchronizationRegistry = Mockito.mock(TransactionSynchronizationRegistry.class);
-    
+
     protected static ConfigurationSerializer createConfigurationSerializer(String configPath) throws Exception {
         TopLevelConfigurationCache.getInstance().build();
         ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
@@ -125,13 +115,15 @@ public class BaseDaoTest {
         ConfigurationExplorer configurationExplorer = new ConfigurationExplorerImpl(configuration);
         return configurationExplorer;
     }
-   
+
     @BeforeClass
     public static void setUp() throws Exception {
 
         when(transactionSynchronizationRegistry.getTransactionKey()).thenReturn(null);
 
         dataSource = createDataSource();
+        jdbcOperations = new JdbcTemplate(dataSource);
+        namedParameterJdbcOperations = new NamedParameterJdbcTemplate(dataSource);
 
         domainObjectTypeIdCache = createDomainObjectTypeIdCache(dataSource);
 
@@ -144,14 +136,14 @@ public class BaseDaoTest {
         permissionService = new PermissionServiceDaoImpl();
         permissionService.setDoelResolver(new DoelResolver());
         permissionService.setConfigurationExplorer(configurationExplorer);
-        permissionService.setDataSource(dataSource);
+        permissionService.setJdbcTemplate(namedParameterJdbcOperations);
         permissionService.setDomainObjectTypeIdCache(domainObjectTypeIdCache);
 
         domainObjectDao = new DomainObjectDaoImpl();
-        domainObjectDao.setDataSource(dataSource);
+        domainObjectDao.setJdbcTemplate(namedParameterJdbcOperations);
 
         SequenceIdGenerator idGenerator = new SequenceIdGenerator();
-        idGenerator.setDataSource(dataSource);
+        idGenerator.setJdbcTemplate(jdbcOperations);
 
         domainObjectDao.setIdGenerator(idGenerator);
         domainObjectDao.setDomainObjectCacheService(cacheServiceImpl);
@@ -164,7 +156,7 @@ public class BaseDaoTest {
                         new DynamicGroupTrackDomainObjectCollector();
                 trackDomainObjectCollector.setConfigurationExplorer(configurationExplorer);
                 trackDomainObjectCollector.setAccessControlService(accessControlService);
-                trackDomainObjectCollector.setDataSource(dataSource);
+                trackDomainObjectCollector.setJdbcTemplate(namedParameterJdbcOperations);
                 trackDomainObjectCollector.setDomainObjectDao(domainObjectDao);
                 trackDomainObjectCollector.setDomainObjectTypeIdCache(domainObjectTypeIdCache);
                 return trackDomainObjectCollector;
@@ -177,7 +169,7 @@ public class BaseDaoTest {
         };
         dynamicGroupService.setConfigurationExplorer(configurationExplorer);
         dynamicGroupService.setDomainObjectDao(domainObjectDao);
-        dynamicGroupService.setDataSource(dataSource);
+        dynamicGroupService.setJdbcTemplate(namedParameterJdbcOperations);
         dynamicGroupService.setDomainObjectTypeIdCache(domainObjectTypeIdCache);
         // dynamicGroupService.onLoad();
 
@@ -186,7 +178,7 @@ public class BaseDaoTest {
         domainObjectDao.setAccessControlService(accessControlService);
 
         collectionsDao = new CollectionsDaoImpl();
-        collectionsDao.setDataSource(dataSource);
+        collectionsDao.setJdbcTemplate(namedParameterJdbcOperations);
         collectionsDao.setConfigurationExplorer(configurationExplorer);
         collectionsDao.setDomainObjectTypeIdCache(domainObjectTypeIdCache);
         collectionsDao.setCurrentUserAccessor(currentUserAccessor);
@@ -197,7 +189,7 @@ public class BaseDaoTest {
         prepareInitialData();
 
     }
-    
+
     private static Properties getTestProperties() {
         Properties properties = new Properties();
         InputStream stream = FileUtils.class.getClassLoader().getResourceAsStream("config/test.properties");
@@ -208,7 +200,7 @@ public class BaseDaoTest {
         }
         return properties;
     }
-    
+
     @AfterClass
     public static void tearDown() throws Exception {
         domainObjectDao.delete(savedDelegationObject.getId(), accessToken);
@@ -223,8 +215,8 @@ public class BaseDaoTest {
         domainObjectDao.delete(savedOrganizationObject.getId(), accessToken);
         domainObjectDao.delete(savedActiveStatus.getId(), accessToken);
         domainObjectDao.delete(savedDraftStatus.getId(), accessToken);
-        
-        
+
+
     }
 
     private static void prepareInitialData() {
@@ -234,7 +226,7 @@ public class BaseDaoTest {
 
         savedPersonObject = domainObjectDao.save(personDomainObject, accessToken);
 //        System.out.println("Saved object : " + savedPersonObject);
- 
+
         GenericDomainObject organizationDomainObject = createOrganizationDomainObject(statusId);
 
         savedOrganizationObject = domainObjectDao.save(organizationDomainObject, accessToken);
@@ -259,16 +251,16 @@ public class BaseDaoTest {
                 createDelegateDomainObject(savedEmployeeObject, savedEmployeeDelegateObject, statusId);
 
         savedDelegationObject = domainObjectDao.save(delegationDomainObject, accessToken);
-        
+
         GenericDomainObject statusActiveObject = createStatusDomainObject("Active");
-        
+
         savedActiveStatus = domainObjectDao.save(statusActiveObject, accessToken);
 //        System.out.println("Saved status : " + savedActiveStatus);
 
         GenericDomainObject statusDraftObject = createStatusDomainObject("Draft");
-        
+
         savedDraftStatus = domainObjectDao.save(statusDraftObject, accessToken);
-        
+
 //        System.out.println("Saved status : " + savedDraftStatus);
 
 
@@ -288,25 +280,25 @@ public class BaseDaoTest {
       delegationDomainObject.setStatus(statusId);
       return delegationDomainObject;
   }
-  
+
   @Test
   public void testDraft() {
   }
-  
+
   private static GenericDomainObject createEmployeeDomainObject(Id statusId, DomainObject savedDepartmentDomainObject) {
-      GenericDomainObject employeeDomainObject = new GenericDomainObject();        
+      GenericDomainObject employeeDomainObject = new GenericDomainObject();
       employeeDomainObject.setCreatedDate(new Date());
       employeeDomainObject.setModifiedDate(new Date());
       employeeDomainObject.setTypeName("Employee");
       employeeDomainObject.setString("Name", "Employee " + new Date());
-      employeeDomainObject.setString("Position", "Position");        
+      employeeDomainObject.setString("Position", "Position");
       employeeDomainObject.setStatus(statusId);
       employeeDomainObject.setReference("Department", savedDepartmentDomainObject.getId());
       return employeeDomainObject;
   }
 
   private static GenericDomainObject createDepartmentDomainObject(Id statusId, DomainObject savedOrganizationObject) {
-      GenericDomainObject departmentDomainObject = new GenericDomainObject();        
+      GenericDomainObject departmentDomainObject = new GenericDomainObject();
       departmentDomainObject.setCreatedDate(new Date());
       departmentDomainObject.setModifiedDate(new Date());
       departmentDomainObject.setTypeName("Department");
@@ -336,7 +328,7 @@ public class BaseDaoTest {
   }
 
   private static GenericDomainObject createOrganizationDomainObject(Id statusId) {
-      GenericDomainObject organizationDomainObject = new GenericDomainObject();        
+      GenericDomainObject organizationDomainObject = new GenericDomainObject();
       organizationDomainObject.setCreatedDate(new Date());
       organizationDomainObject.setModifiedDate(new Date());
       organizationDomainObject.setTypeName("Organization");
@@ -345,11 +337,11 @@ public class BaseDaoTest {
       return organizationDomainObject;
   }
 
-  
+
   private static DriverManagerDataSource createDataSource() {
-      
-      Properties properties = getTestProperties();      
-      
+
+      Properties properties = getTestProperties();
+
       DriverManagerDataSource dataSource = new DriverManagerDataSource();
       dataSource.setDriverClassName(properties.getProperty("driver.name"));
       dataSource.setUrl(properties.getProperty("database.url"));
@@ -357,13 +349,13 @@ public class BaseDaoTest {
       dataSource.setPassword(properties.getProperty("database.password"));
       return dataSource;
   }
-  
+
   private static DomainObjectTypeIdCacheImpl createDomainObjectTypeIdCache(DriverManagerDataSource dataSource) {
       DomainObjectTypeIdDaoImpl domainObjectTypeIdDao = new DomainObjectTypeIdDaoImpl();
-      domainObjectTypeIdDao.setDataSource(dataSource);
-      
+      domainObjectTypeIdDao.setJdbcTemplate(jdbcOperations);
+
       DomainObjectTypeIdCacheImpl domainObjectTypeIdCache = new DomainObjectTypeIdCacheImpl();
-      domainObjectTypeIdCache.setDomainObjectTypeIdDao(domainObjectTypeIdDao);        
+      domainObjectTypeIdCache.setDomainObjectTypeIdDao(domainObjectTypeIdDao);
       domainObjectTypeIdCache.build();
       return domainObjectTypeIdCache;
   }

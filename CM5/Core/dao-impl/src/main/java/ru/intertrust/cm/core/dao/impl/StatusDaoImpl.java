@@ -36,6 +36,10 @@ public class StatusDaoImpl implements StatusDao {
     @Autowired
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
 
+    public void setJdbcTemplate(NamedParameterJdbcOperations jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
     }

@@ -27,6 +27,10 @@ public class DomainObjectTypeIdDaoImpl implements DomainObjectTypeIdDao {
     @Autowired
     private JdbcOperations jdbcTemplate;
 
+    public void setJdbcTemplate(JdbcOperations jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
     /**
      * {@inheritDoc}
      */

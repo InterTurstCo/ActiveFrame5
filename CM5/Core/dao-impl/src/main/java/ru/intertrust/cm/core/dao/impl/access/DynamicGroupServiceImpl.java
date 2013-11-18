@@ -383,7 +383,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
                                         .getAutowireCapableBeanFactory()
                                         .createBean(
                                                 collectorClass,
-                                                AutowireCapableBeanFactory.AUTOWIRE_BY_NAME,
+                                                AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE,
                                                 false);
                                 collector.init(config, collectorConfig.getSettings());
                                 registerCollector(collector, config);
@@ -399,10 +399,10 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
                                         .getAutowireCapableBeanFactory()
                                         .createBean(
                                                 DynamicGroupTrackDomainObjectCollector.class,
-                                                AutowireCapableBeanFactory.AUTOWIRE_BY_NAME,
+                                                AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE,
                                                 false);
                                 // TODO Я конечно против использования базы напрямую, но так сделано изначально, пока не переделываем
-                                ((DynamicGroupTrackDomainObjectCollector) collector).setNamedParameterJdbcTemplate(namedParameterJdbcTemplate);
+                                ((DynamicGroupTrackDomainObjectCollector) collector).setJdbcTemplate(jdbcTemplate);
                                 collector.init(config, collectorConfig);
                                 registerCollector(collector, config);
                             }

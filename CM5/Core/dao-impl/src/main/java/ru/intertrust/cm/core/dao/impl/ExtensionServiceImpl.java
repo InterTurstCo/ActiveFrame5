@@ -1,11 +1,5 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -15,18 +9,23 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
-
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPointHandler;
 import ru.intertrust.cm.core.dao.impl.extension.ExtentionInvocationHandler;
 import ru.intertrust.cm.core.model.ExtensionPointException;
 
+import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+
 /**
  * Имплементация сервиса точек расширения.
- * 
+ *
  * @author larin
- * 
+ *
  */
 public class ExtensionServiceImpl implements ExtensionService, ApplicationContextAware {
     private static final Logger logger = LoggerFactory.getLogger(ExtensionServiceImpl.class);
@@ -125,7 +124,7 @@ public class ExtensionServiceImpl implements ExtensionService, ApplicationContex
                                         // autowire
                                         extentionPoint = (ExtensionPointHandler) applicationContext
                                                 .getAutowireCapableBeanFactory().createBean(extentionPointClass,
-                                                        AutowireCapableBeanFactory.AUTOWIRE_BY_NAME, false);
+                                                        AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, false);
                                     }
                                 }
 
@@ -207,7 +206,7 @@ public class ExtensionServiceImpl implements ExtensionService, ApplicationContex
     /**
      * Установка базовового пакета, в котором производится поиск точек
      * расширения
-     * 
+     *
      * @param basePackage
      */
     public void setBasePackage(String basePackage) {
