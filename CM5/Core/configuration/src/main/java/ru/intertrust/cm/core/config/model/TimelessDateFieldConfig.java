@@ -5,7 +5,7 @@ import ru.intertrust.cm.core.business.api.dto.FieldType;
 /**
  * @author Denis Mitavskiy
  *         Date: 5/2/13
- *         Time: 11:13 AM
+ *         Time: 11:12 AM
  */
 public class TimelessDateFieldConfig extends FieldConfig {
 
