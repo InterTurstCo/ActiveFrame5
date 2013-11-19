@@ -1,15 +1,14 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ru.intertrust.cm-sochi</groupId>
 	<artifactId>jmeter-tools</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>0.5</version>
 	<name>jmeter-tools</name>
 
 	<parent>
 		<groupId>ru.intertrust.cm-sochi</groupId>
 		<artifactId>performance</artifactId>
-		<version>1.0-SNAPSHOT</version>
+		<version>0.5</version>
 	</parent>
 
 	<build>
@@ -50,7 +49,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										<ignore />
 									</action>
 								</pluginExecution>
 								<pluginExecution>
@@ -67,7 +66,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										<ignore />
 									</action>
 								</pluginExecution>
 							</pluginExecutions>
@@ -86,22 +85,22 @@
 		<dependency>
 			<groupId>ru.intertrust.cm-sochi</groupId>
 			<artifactId>model</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>0.5</version>
 		</dependency>
 		<dependency>
 			<groupId>ru.intertrust.cm-sochi</groupId>
 			<artifactId>service-api</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>0.5</version>
 		</dependency>
 		<dependency>
 			<groupId>ru.intertrust.cm-sochi</groupId>
 			<artifactId>dao-api</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>0.5</version>
 		</dependency>
 		<dependency>
 			<groupId>ru.intertrust.cm-sochi</groupId>
 			<artifactId>dao-api</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>0.5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.as</groupId>
@@ -163,9 +162,7 @@
 								<phase>install</phase>
 								<configuration>
 									<tasks>
-										<copy
-											file="${project.build.directory}/${project.build.finalName}.jar"
-											tofile="${jmeter.dir}/lib/ext/${project.build.finalName}.jar" />
+										<copy file="${project.build.directory}/${project.build.finalName}.jar" tofile="${jmeter.dir}/lib/ext/${project.build.finalName}.jar" />
 									</tasks>
 								</configuration>
 								<goals>
