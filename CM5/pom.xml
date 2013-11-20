@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -510,11 +510,11 @@
     <distributionManagement>
         <repository>
             <id>intertrust.releases.cm-sochi</id>
-            <url>http://sup.inttrust.ru:8081/nexus/content/repositories/cm5-releases/</url>
+            <url>https://nexus.inttrust.ru/nexus/content/repositories/cm5-releases/</url>
         </repository>
         <snapshotRepository>
             <id>intertrust.snapshots.cm-sochi</id>
-            <url>http://sup.inttrust.ru:8081/nexus/content/repositories/cm5-snapshots/</url>
+            <url>https://nexus.inttrust.ru/nexus/content/repositories/cm5-snapshots/</url>
             <uniqueVersion>false</uniqueVersion>
         </snapshotRepository>
         <site>
