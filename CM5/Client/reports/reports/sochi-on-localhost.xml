@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<jdbcDataAdapter class="net.sf.jasperreports.data.jdbc.JdbcDataAdapterImpl"><name>Sochi JDBC on localhost</name><driver>ru.intertrust.cm.core.jdbc.JdbcDriver</driver><username>admin</username><password>e5b36b9e-693a-416f-9ed8-1a3d77f229d2</password><savePassword>true</savePassword><url>jdbc:sochi:remoting://localhost:4447</url><database></database><serverAddress></serverAddress></jdbcDataAdapter>
