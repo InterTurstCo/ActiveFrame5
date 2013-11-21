@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <search-area name="Входящие документы">
+        <domain-objects type="Outgoing_Document">
+            <indexed-fields>
+                <field name="Registration_Number"/>
+                <field name="Name"/>
+                <field name="Description"/>
+                <field name="Author">
+                    <doel>Author.Name</doel>
+                </field>
+                <field name="Signer">
+                    <doel>Signer.Name</doel>
+                </field>
+            </indexed-fields>
+        </domain-objects>
+        <domain-objects type="Assignment">
+            <indexed-fields>
+                
+            </indexed-fields>
+        </domain-objects>
+    </search-area>
+</configuration>
