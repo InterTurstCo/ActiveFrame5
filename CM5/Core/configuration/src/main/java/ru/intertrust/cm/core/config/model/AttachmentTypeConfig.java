@@ -3,10 +3,12 @@ package ru.intertrust.cm.core.config.model;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 
+import ru.intertrust.cm.core.business.api.dto.Dto;
+
 /**
  * User: vlad
  */
-public class AttachmentTypeConfig {
+public class AttachmentTypeConfig implements Dto{
     @Attribute(name = "name", required = true)
     private String name;
 

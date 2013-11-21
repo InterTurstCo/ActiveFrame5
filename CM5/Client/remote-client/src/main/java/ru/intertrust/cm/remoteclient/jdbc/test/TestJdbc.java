@@ -6,12 +6,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Calendar;
+import java.util.Collection;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
+import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.jdbc.JdbcDriver;
 import ru.intertrust.cm.remoteclient.ClientBase;
 
@@ -19,6 +22,7 @@ public class TestJdbc extends ClientBase {
 
     private CrudService.Remote crudService;
     private CollectionsService.Remote collectionService;
+    private ConfigurationService configService;
 
     public static void main(String[] args) {
         try {
@@ -38,6 +42,11 @@ public class TestJdbc extends ClientBase {
         collectionService = (CollectionsService.Remote) getService(
                 "CollectionsServiceImpl", CollectionsService.Remote.class);
 
+        configService = (ConfigurationService) getService(
+                "ConfigurationServiceImpl", ConfigurationService.Remote.class);
+        
+        Collection<DomainObjectTypeConfig> configs = configService.getConfigs(DomainObjectTypeConfig.class);
+        
         //Создаем тестовый доменный объект
         DomainObject outgoingDocument = greateOutgoingDocument();
 

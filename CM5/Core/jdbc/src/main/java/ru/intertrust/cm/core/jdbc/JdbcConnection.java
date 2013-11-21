@@ -24,11 +24,13 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
+import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.jdbc.JdbcDriver.ConnectMode;
 
 public class JdbcConnection implements Connection {
     private InitialContext ctx;
     private CollectionsService collectionService;
+    private ConfigurationService configurationService;
     private boolean closed = false;
 
     public JdbcConnection(ConnectMode mode, String address, String login, String password) throws SQLException {
@@ -37,6 +39,9 @@ public class JdbcConnection implements Connection {
                 collectionService =
                         (CollectionsService) getRemoteService("CollectionsServiceImpl", address, login, password,
                                 CollectionsService.Remote.class);
+                configurationService =
+                        (ConfigurationService) getRemoteService("ConfigurationServiceImpl", address, login, password,
+                                ConfigurationService.Remote.class);
             } else {
                 //TODO реализовать получение локальных интерфейсов
             }
@@ -114,7 +119,7 @@ public class JdbcConnection implements Connection {
 
     @Override
     public DatabaseMetaData getMetaData() throws SQLException {
-        return new JdbcDatabaseMetaData();
+        return new JdbcDatabaseMetaData(configurationService);
     }
 
     @Override
@@ -134,7 +139,7 @@ public class JdbcConnection implements Connection {
 
     @Override
     public String getCatalog() throws SQLException {
-        return null;
+        return "";
     }
 
     @Override
@@ -154,7 +159,7 @@ public class JdbcConnection implements Connection {
 
     @Override
     public void clearWarnings() throws SQLException {
-        
+
     }
 
     @Override
@@ -308,7 +313,7 @@ public class JdbcConnection implements Connection {
 
     @Override
     public String getSchema() throws SQLException {
-        throw new UnsupportedOperationException();
+        return "";
     }
 
     @Override
@@ -327,7 +332,8 @@ public class JdbcConnection implements Connection {
     }
 
     private Object getRemoteService(String serviceName, String address, String login, String password,
-            Class remoteInterfaceClass) throws NamingException {
+            Class<?> remoteInterfaceClass) throws Exception {
+
         if (ctx == null) {
             Properties jndiProps = new Properties();
             jndiProps.put(Context.INITIAL_CONTEXT_FACTORY,
@@ -345,6 +351,7 @@ public class JdbcConnection implements Connection {
         }
 
         Object service = ctx.lookup("ejb:cm-sochi/web-app//" + serviceName + "!" + remoteInterfaceClass.getName());
+
         return service;
     }
 }

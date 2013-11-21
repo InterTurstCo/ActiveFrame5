@@ -2,13 +2,15 @@ package ru.intertrust.cm.core.config.model;
 
 import org.simpleframework.xml.ElementList;
 
+import ru.intertrust.cm.core.business.api.dto.Dto;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * User: vlad
  */
-public class AttachmentTypesConfig {
+public class AttachmentTypesConfig implements Dto  {
     @ElementList(entry="attachment-type", type=AttachmentTypeConfig.class, inline=true, required = true)
     private List<AttachmentTypeConfig> attachmentTypeConfigs = new ArrayList<AttachmentTypeConfig>();
 

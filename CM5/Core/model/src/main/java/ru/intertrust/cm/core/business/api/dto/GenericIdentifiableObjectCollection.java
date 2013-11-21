@@ -57,6 +57,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
 
     @Override
     public void set(String field, int row, Value value) {
+        addRowsIfNeeded(row);
         list.get(row).setValue(field, value);
     }
 

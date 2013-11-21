@@ -135,7 +135,11 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
             return Collections.EMPTY_LIST;
         }
 
-        return (Collection<T>) typeMap.values();
+        //Перекладываем в другой контейнер, для возможности сериализации
+        List<T> result = new ArrayList<T>();
+        result.addAll((Collection<T>)typeMap.values());
+        
+        return (Collection<T>) result;
     }
 
     @Override

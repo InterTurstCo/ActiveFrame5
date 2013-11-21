@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.jdbc;
 
+import java.io.FileOutputStream;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
@@ -31,7 +32,8 @@ public class JdbcDriver implements Driver {
         try {
             DriverManager.registerDriver(new JdbcDriver());
         } catch (SQLException exception) {
-            exception.printStackTrace();
+            //exception.printStackTrace();
+            throw new RuntimeException("Error init driver", exception);
         }
     }
 

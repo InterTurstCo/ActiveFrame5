@@ -5,16 +5,27 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.RowIdLifetime;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.GenericIdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.LongValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.config.model.DateTimeFieldConfig;
+import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.model.FieldConfig;
+import ru.intertrust.cm.core.config.model.LongFieldConfig;
+import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
 
 public class JdbcDatabaseMetaData implements DatabaseMetaData {
 
-    public JdbcDatabaseMetaData() {
+    private ConfigurationService configService;
 
+    public JdbcDatabaseMetaData(ConfigurationService configService) {
+        this.configService = configService;
     }
 
     @Override
@@ -743,14 +754,46 @@ public class JdbcDatabaseMetaData implements DatabaseMetaData {
     @Override
     public ResultSet getTables(String catalog, String schemaPattern, String tableNamePattern, String[] types)
             throws SQLException {
-        throw new UnsupportedOperationException();
 
+        GenericIdentifiableObjectCollection collection = new GenericIdentifiableObjectCollection();
+        List<String> fields = new ArrayList<String>();
+        fields.add("TABLE_CAT");
+        fields.add("TABLE_SCHEM");
+        fields.add("TABLE_NAME");
+        fields.add("TABLE_TYPE");
+        fields.add("REMARKS");
+        fields.add("TYPE_CAT");
+        fields.add("TYPE_SCHEM");
+        fields.add("SELF_REFERENCING_COL_NAME");
+        fields.add("REF_GENERATION");
+        collection.setFields(fields);
+
+        Collection<DomainObjectTypeConfig> typeConfigs = configService.getConfigs(DomainObjectTypeConfig.class);
+        int row = 0;
+        for (DomainObjectTypeConfig domainObjectTypeConfig : typeConfigs) {
+            //collection.set("TABLE_CAT", 0, new StringValue(""));
+            //collection.set("TABLE_SCHEM", 0, new StringValue(""));
+            collection.set("TABLE_TYPE", row, new StringValue("TABLE"));
+            collection.set("TABLE_NAME", row, new StringValue(domainObjectTypeConfig.getName()));
+            row++;
+        }
+
+        JdbcResultSet result = new JdbcResultSet(collection);
+        return result;
     }
 
     @Override
     public ResultSet getSchemas() throws SQLException {
-        throw new UnsupportedOperationException();
+        GenericIdentifiableObjectCollection collection = new GenericIdentifiableObjectCollection();
+        List<String> fields = new ArrayList<String>();
+        fields.add("TABLE_SCHEM");
+        fields.add("TABLE_CATALOG");
+        collection.setFields(fields);
+        collection.set("TABLE_SCHEM", 0, new StringValue(""));
+        collection.set("TABLE_CATALOG", 0, new StringValue(""));
 
+        JdbcResultSet result = new JdbcResultSet(collection);
+        return result;
     }
 
     @Override
@@ -761,7 +804,7 @@ public class JdbcDatabaseMetaData implements DatabaseMetaData {
 
     @Override
     public ResultSet getTableTypes() throws SQLException {
-        GenericIdentifiableObjectCollection collection = new GenericIdentifiableObjectCollection(); 
+        GenericIdentifiableObjectCollection collection = new GenericIdentifiableObjectCollection();
         List<String> fields = new ArrayList<String>();
         fields.add("TABLE_TYPE");
         collection.setFields(fields);
@@ -775,8 +818,72 @@ public class JdbcDatabaseMetaData implements DatabaseMetaData {
     public ResultSet
             getColumns(String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern)
                     throws SQLException {
-        throw new UnsupportedOperationException();
+        GenericIdentifiableObjectCollection collection = new GenericIdentifiableObjectCollection();
 
+        List<String> fields = new ArrayList<String>();
+        fields.add("TABLE_CAT");
+        fields.add("TABLE_SCHEM");
+        fields.add("TABLE_NAME");
+        fields.add("COLUMN_NAME");
+        fields.add("DATA_TYPE");
+        fields.add("TYPE_NAME");
+        fields.add("COLUMN_SIZE");
+        fields.add("BUFFER_LENGTH");
+        fields.add("DECIMAL_DIGITS");
+        fields.add("NUM_PREC_RADIX");
+        fields.add("NULLABLE");
+        fields.add("REMARKS");
+        fields.add("COLUMN_DEF");
+        fields.add("SQL_DATA_TYPE");
+        fields.add("SQL_DATETIME_SUB");
+        fields.add("CHAR_OCTET_LENGTH");
+        fields.add("ORDINAL_POSITION");
+        fields.add("IS_NULLABLE");
+        fields.add("SCOPE_CATALOG");
+        fields.add("SCOPE_SCHEMA");
+        fields.add("SCOPE_TABLE");
+        fields.add("SOURCE_DATA_TYPE");
+        fields.add("IS_AUTOINCREMENT");
+        fields.add("IS_GENERATEDCOLUMN");
+        collection.setFields(fields);
+
+        if (tableNamePattern != null && tableNamePattern.length() > 0) {
+
+            DomainObjectTypeConfig typeConfig = configService.getConfig(DomainObjectTypeConfig.class, tableNamePattern);
+
+            //Добавляем системные атрибуты
+            // id
+            collection.set("TABLE_NAME", 0, new StringValue(typeConfig.getName()));
+            collection.set("COLUMN_NAME", 0, new StringValue("id"));
+            collection.set("COLUMN_SIZE", 0, new LongValue(0));
+            collection.set("DECIMAL_DIGITS", 0, new LongValue(0));
+            collection.set("NUM_PREC_RADIX", 0, new LongValue(0));
+            collection.set("NULLABLE", 0, new LongValue(1));
+            collection.set("DATA_TYPE", 0, new LongValue(Types.NUMERIC));
+
+            int row = 0;
+            for (FieldConfig fieldConfig : typeConfig.getFieldConfigs()) {
+                collection.set("TABLE_NAME", row, new StringValue(typeConfig.getName()));
+                collection.set("COLUMN_NAME", row, new StringValue(fieldConfig.getName()));
+                collection.set("COLUMN_SIZE", row, new LongValue(0));
+                collection.set("DECIMAL_DIGITS", row, new LongValue(0));
+                collection.set("NUM_PREC_RADIX", row, new LongValue(0));
+                collection.set("NULLABLE", row, new LongValue(1));
+                if (fieldConfig instanceof ReferenceFieldConfig) {
+                    collection.set("DATA_TYPE", row, new LongValue(Types.NUMERIC));
+                } else if (fieldConfig instanceof LongFieldConfig) {
+                    collection.set("DATA_TYPE", row, new LongValue(Types.NUMERIC));
+                } else if (fieldConfig instanceof DateTimeFieldConfig) {
+                    collection.set("DATA_TYPE", row, new LongValue(Types.TIMESTAMP));
+                } else {
+                    collection.set("DATA_TYPE", row, new LongValue(Types.VARCHAR));
+                }
+                row++;
+            }
+        }
+
+        JdbcResultSet result = new JdbcResultSet(collection);
+        return result;
     }
 
     @Override
@@ -808,14 +915,48 @@ public class JdbcDatabaseMetaData implements DatabaseMetaData {
 
     @Override
     public ResultSet getPrimaryKeys(String catalog, String schema, String table) throws SQLException {
-        throw new UnsupportedOperationException();
+        GenericIdentifiableObjectCollection collection = new GenericIdentifiableObjectCollection();
 
+        List<String> fields = new ArrayList<String>();
+        fields.add("TABLE_CAT");
+        fields.add("TABLE_SCHEM");
+        fields.add("TABLE_NAME");
+        fields.add("COLUMN_NAME");
+        fields.add("KEY_SEQ");
+        fields.add("PK_NAME");
+        collection.setFields(fields);
+
+        collection.set("TABLE_NAME", 0, new StringValue(table));
+        collection.set("COLUMN_NAME", 0, new StringValue("id"));
+
+        JdbcResultSet result = new JdbcResultSet(collection);
+        return result;
     }
 
     @Override
     public ResultSet getImportedKeys(String catalog, String schema, String table) throws SQLException {
-        throw new UnsupportedOperationException();
+        GenericIdentifiableObjectCollection collection = new GenericIdentifiableObjectCollection();
 
+        List<String> fields = new ArrayList<String>();
+        fields.add("PKTABLE_CAT");
+        fields.add("PKTABLE_SCHEM");
+        fields.add("PKTABLE_NAME");
+        fields.add("PKCOLUMN_NAME");
+        fields.add("FKTABLE_CAT");
+        fields.add("FKTABLE_SCHEM");
+        fields.add("FKTABLE_NAME");
+        fields.add("FKCOLUMN_NAME");
+        fields.add("KEY_SEQ");
+        fields.add("UPDATE_RULE");
+        fields.add("DELETE_RULE");
+        fields.add("FK_NAME");
+        fields.add("PK_NAME");
+        fields.add("DEFERRABILITY");
+        collection.setFields(fields);
+
+        //TODO сформировать список forenkey
+        JdbcResultSet result = new JdbcResultSet(collection);
+        return result;
     }
 
     @Override

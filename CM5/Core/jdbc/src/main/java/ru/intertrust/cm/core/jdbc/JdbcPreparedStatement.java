@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.jdbc;
 
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -38,10 +39,27 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
 
     @Override
     public ResultSet executeQuery() throws SQLException {
-        IdentifiableObjectCollection collection = collectionService.findCollectionByQuery(query);   
+        log("executeQuery " + collectionService  + " cl " + collectionService.getClass().getClassLoader());
+        Object result = collectionService.findCollectionByQuery(query);
+        
+        log("Result " + result + " cl " + result.getClass().getClassLoader() + " orig " + IdentifiableObjectCollection.class.getClassLoader());
+        
+        IdentifiableObjectCollection collection = (IdentifiableObjectCollection)result;   
         return new JdbcResultSet(collection);
     }
 
+    private void log(String message) {
+        try {
+            FileOutputStream stream = new FileOutputStream("C:/temp/jdbc.log", true);
+            stream.write(message.getBytes());
+            stream.write("\n".getBytes());
+            stream.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    
     @Override
     public int executeUpdate() throws SQLException {
         throw new UnsupportedOperationException();

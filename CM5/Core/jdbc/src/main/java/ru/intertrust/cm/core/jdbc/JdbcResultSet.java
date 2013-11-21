@@ -70,13 +70,7 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public String getString(int columnIndex) throws SQLException {
-        String result = null;
-        Value value = collection.get(index).getValue(getFieldName(columnIndex));
-        if (value != null && value.get() != null) {
-            result = value.get().toString();
-        }
-
-        return result;
+        return getString(getFieldName(columnIndex));
     }
 
     private String getFieldName(int columnIndex) {
@@ -104,8 +98,7 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public int getInt(int columnIndex) throws SQLException {
-        throw new UnsupportedOperationException();
-
+        return getInt(getFieldName(columnIndex));
     }
 
     @Override
@@ -192,8 +185,13 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public String getString(String columnLabel) throws SQLException {
-        throw new UnsupportedOperationException();
+        String result = null;
+        Value value = collection.get(index).getValue(columnLabel);
+        if (value != null && value.get() != null) {
+            result = value.get().toString();
+        }
 
+        return result;
     }
 
     @Override
@@ -216,9 +214,19 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public int getInt(String columnLabel) throws SQLException {
-        throw new UnsupportedOperationException();
+        Integer result = null;
+        Value value = collection.get(index).getValue(columnLabel);
+        if (value != null && value.get() != null) {
+            if (value instanceof LongValue){
+                result = ((LongValue)value).get().intValue();
+            }else if(value instanceof ReferenceValue){
+                RdbmsId id = (RdbmsId)((ReferenceValue)value).get();
+                result = Long.valueOf(id.getId()).intValue();                
+            }            
+        }
 
-    }
+        return result;
+   }
 
     @Override
     public long getLong(String columnLabel) throws SQLException {
