@@ -14,27 +14,35 @@
 
     <aop:aspectj-autoproxy/>
 
-    <bean id="configurationLoader" class="ru.intertrust.cm.core.business.impl.ConfigurationLoader" init-method="load" depends-on="springApplicationContext"/>
+    <bean id="configurationLoader" class="ru.intertrust.cm.core.business.impl.ConfigurationLoader" init-method="load"
+          depends-on="springApplicationContext"/>
 
     <bean id="initialDataLoader" class="ru.intertrust.cm.core.business.impl.InitialDataLoader" init-method="load"
-          depends-on="configurationLoader" p:dataSource-ref= "dataSource"/>
+          depends-on="configurationLoader" p:dataSource-ref="dataSource"/>
 
     <bean id="configurationControlService"
           class="ru.intertrust.cm.core.business.impl.ConfigurationControlServiceImpl"/>
 
-    <jee:local-slsb id="configurationService"
-                    jndi-name="java:app/web-app/ConfigurationServiceImpl!ru.intertrust.cm.core.business.api.ConfigurationService"
-                    business-interface="ru.intertrust.cm.core.business.api.ConfigurationService"/>
-
-    <jee:local-slsb id="collectionsService"
-                    jndi-name="java:app/web-app/CollectionsServiceImpl!ru.intertrust.cm.core.business.api.CollectionsService"
-                    business-interface="ru.intertrust.cm.core.business.api.CollectionsService"/>
-
     <jee:local-slsb id="crudService"
-                    jndi-name="java:app/web-app/CrudServiceImpl!ru.intertrust.cm.core.business.api.CrudService"
+                    jndi-name="java:module/CrudServiceImpl!ru.intertrust.cm.core.business.api.CrudService$Remote"
                     business-interface="ru.intertrust.cm.core.business.api.CrudService"/>
+    <jee:local-slsb id="auditService"
+                    jndi-name="java:module/AuditService!ru.intertrust.cm.core.business.api.AuditService$Remote"
+                    business-interface="ru.intertrust.cm.core.business.api.AuditService"/>
+    <jee:local-slsb id="personManagementService"
+                    jndi-name="java:module/PersonManagementService!ru.intertrust.cm.core.business.api.PersonManagementService"
+                    business-interface="ru.intertrust.cm.core.business.api.PersonManagementService"/>
+    <jee:local-slsb id="collectionsService"
+                    jndi-name="java:module/CollectionsServiceImpl!ru.intertrust.cm.core.business.api.CollectionsService"
+                    business-interface="ru.intertrust.cm.core.business.api.CollectionsService"/>
+    <jee:local-slsb id="processService"
+                    jndi-name="java:module/ProcessService!ru.intertrust.cm.core.business.api.ProcessService"
+                    business-interface="ru.intertrust.cm.core.business.api.ProcessService"/>
+    <jee:local-slsb id="configurationService"
+                    jndi-name="java:module/ConfigurationServiceImpl!ru.intertrust.cm.core.business.api.ConfigurationService"
+                    business-interface="ru.intertrust.cm.core.business.api.ConfigurationService"/>
     <jee:local-slsb id="attachmentService"
-                    jndi-name="java:app/web-app/AttachmentServiceImpl!ru.intertrust.cm.core.business.api.AttachmentService"
+                    jndi-name="java:module/AttachmentServiceImpl!ru.intertrust.cm.core.business.api.AttachmentService"
                     business-interface="ru.intertrust.cm.core.business.api.AttachmentService"/>
 
     <bean id="authenticationService"
