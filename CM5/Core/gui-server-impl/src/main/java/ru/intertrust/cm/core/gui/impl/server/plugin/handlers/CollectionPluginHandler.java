@@ -12,8 +12,10 @@ import ru.intertrust.cm.core.config.model.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
+import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowItemList;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
+import ru.intertrust.cm.core.gui.model.plugin.CollectionRowsRequest;
 
 import java.util.*;
 
@@ -39,9 +41,10 @@ public class CollectionPluginHandler extends PluginHandler {
         CollectionViewConfig collectionViewConfig = findRequiredCollectionView(collectionName);
 
         LinkedHashMap<String, String> map = getDomainObjectFieldOnColumnNameMap(collectionViewConfig);
-        ArrayList<CollectionRowItem> items = generateCollectionRowItems(collectionName, map.keySet());
+        ArrayList<CollectionRowItem> items = generateCollectionRowItems(collectionName, map.keySet(), 0, 70);
         pluginData.setDomainObjectFieldOnColumnNameMap(map);
         pluginData.setItems(items);
+        pluginData.setCollectionName(collectionName);
 
         return pluginData;
     }
@@ -119,5 +122,27 @@ public class CollectionPluginHandler extends PluginHandler {
             items.add(generateCollectionRowItem(identifiableObject, fields));
         }
         return items;
+    }
+
+    public ArrayList<CollectionRowItem> generateCollectionRowItems(String collectionName, Set<String> fields, int offset, int count) {
+        ArrayList<CollectionRowItem> items = new ArrayList<CollectionRowItem>();
+        IdentifiableObjectCollection collection = collectionsService.findCollection(collectionName, null, null , offset, count);
+        for (IdentifiableObject identifiableObject : collection) {
+            items.add(generateCollectionRowItem(identifiableObject, fields));
+        }
+        return items;
+    }
+
+    public Dto generateCollectionRowItems(Dto dto){
+        CollectionRowsRequest collectionRowsRequest = (CollectionRowsRequest) dto;
+        ArrayList<CollectionRowItem> list = generateCollectionRowItems(collectionRowsRequest.getCollectionName(),
+                collectionRowsRequest.getFields().keySet(), collectionRowsRequest.getOffset(),
+                    collectionRowsRequest.getLimit());
+
+        System.out.println("DTO "+list.size());
+
+        CollectionRowItemList collectionRowItemList = new CollectionRowItemList();
+        collectionRowItemList.setCollectionRows(list);
+        return collectionRowItemList;
     }
 }

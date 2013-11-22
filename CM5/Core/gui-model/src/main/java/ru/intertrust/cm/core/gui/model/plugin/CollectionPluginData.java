@@ -10,6 +10,8 @@ import java.util.LinkedHashMap;
  */
 public class CollectionPluginData extends PluginData {
 
+
+    private String collectionName;
     private ArrayList<CollectionRowItem> items;
 
     private LinkedHashMap<String, String> domainObjectFieldOnColumnNameMap;
@@ -32,5 +34,13 @@ public class CollectionPluginData extends PluginData {
 
     public void setDomainObjectFieldOnColumnNameMap(LinkedHashMap<String, String> domainObjectFieldOnColumnNameMap) {
         this.domainObjectFieldOnColumnNameMap = domainObjectFieldOnColumnNameMap;
+    }
+
+    public String getCollectionName() {
+        return collectionName;
+    }
+
+    public void setCollectionName(String collectionName) {
+        this.collectionName = collectionName;
     }
 }

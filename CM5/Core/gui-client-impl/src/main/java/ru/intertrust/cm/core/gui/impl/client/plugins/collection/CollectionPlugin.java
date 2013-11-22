@@ -28,4 +28,6 @@ public class CollectionPlugin extends Plugin {
     protected GwtEvent.Type[] getEventTypesToHandle() {
         return new GwtEvent.Type[]{CollectionRowSelectedEvent.TYPE};
     }
+
+
 }

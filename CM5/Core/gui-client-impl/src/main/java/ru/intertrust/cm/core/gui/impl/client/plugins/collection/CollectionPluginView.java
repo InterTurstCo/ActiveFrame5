@@ -1,6 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.dom.client.ScrollEvent;
+import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.user.cellview.client.CellTable;
@@ -8,7 +11,9 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.RowStyles;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterInnerScrollEvent;
@@ -20,8 +25,12 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.Check
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.TableController;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.resources.CellTableResourcesEx;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.resources.DGCellTableResourceAdapter;
+import ru.intertrust.cm.core.gui.model.Command;
+import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowItemList;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
+import ru.intertrust.cm.core.gui.model.plugin.CollectionRowsRequest;
+import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -43,6 +52,10 @@ public class CollectionPluginView extends PluginView {
     private FlowPanel bodyPanel = new FlowPanel();
     private VerticalPanel verticalPanel = new VerticalPanel();
     private FlowPanel root = new FlowPanel();
+    private String collectionName;
+    private int scrollStart = 0;
+    private int listCount = 0;
+
 
     /**
      * Создание стилей для ящеек таблицы
@@ -85,12 +98,49 @@ public class CollectionPluginView extends PluginView {
         });
 
 
+
+        scrollTableBody.addScrollHandler(new ScrollHandler() {
+            @Override
+            public void onScroll(ScrollEvent event) {
+                //To change body of implemented methods use File | Settings | File Templates.
+                if (scrollStart +25 < scrollTableBody.getVerticalScrollPosition() || scrollStart == scrollTableBody.getMaximumVerticalScrollPosition() ){
+                createCollectionData();
+                    scrollStart=scrollTableBody.getVerticalScrollPosition();
+                    listCount+= 15;
+                }
+
+            }
+        });
+
+
+    }
+
+    private void createCollectionData(){
+        CollectionRowsRequest collectionRowsRequest = new CollectionRowsRequest( listCount , 15, collectionName, columnNamesOnDoFieldsMap);
+        Command command = new Command("generateCollectionRowItems", "collection.plugin", collectionRowsRequest);
+        
+        BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, new AsyncCallback<Dto>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                GWT.log("something was going wrong while obtaining generateCollectionRowItems for ''");
+                caught.printStackTrace();
+            }
+
+            @Override
+            public void onSuccess(Dto result) {
+                CollectionRowItemList collectionRowItemList = (CollectionRowItemList) result;
+                List<CollectionRowItem> collectionRowItems = collectionRowItemList.getCollectionRows();
+                insertMoreRows(collectionRowItems);
+
+            }
+        });
     }
 
     @Override
     protected IsWidget getViewWidget() {
 
         CollectionPluginData collectionPluginData = plugin.getInitialData();
+        collectionName = collectionPluginData.getCollectionName();
         columnNamesOnDoFieldsMap = collectionPluginData.getDomainObjectFieldOnColumnNameMap();
         items = collectionPluginData.getItems();
         init();
@@ -170,7 +220,15 @@ public class CollectionPluginView extends PluginView {
 
     }
 
-    private void insertRows(List<CollectionRowItem> items) {
+    private void insertRows(List<CollectionRowItem> list) {
+        tableBody.setRowData(items);
+        listCount = items.size();
+        System.out.println("!!!!!"+listCount);
+    }
+
+    private void insertMoreRows(List<CollectionRowItem> list) {
+        //items.clear();
+        items.addAll(list);
         tableBody.setRowData(items);
     }
 

@@ -66,6 +66,7 @@ public class FormPanel implements IsWidget {
 
                 scrollPanel.setWidth(event.getFirstWidgetWidth()+"px");
 
+
             }
         });
 
