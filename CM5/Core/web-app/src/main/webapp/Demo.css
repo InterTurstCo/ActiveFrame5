@@ -331,7 +331,7 @@ h1 {
 }
     /*this*/
 #sidebar {
-    position: absolute; overflow: hidden; left: 0px; top: 60px; right: 0px; bottom: 0px;
+    position: absolute; overflow: hidden; left: 0px; top: 0px; right: 0px; bottom: 0px;
     width: 129px;
     /* 	position: relative; */
     float: left;

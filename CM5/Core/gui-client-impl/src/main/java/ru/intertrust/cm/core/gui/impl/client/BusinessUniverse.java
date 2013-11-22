@@ -2,8 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.logical.shared.ResizeEvent;
-import com.google.gwt.event.logical.shared.ResizeHandler;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.Window;
@@ -11,12 +10,11 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.RootLayoutPanel;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
-import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.panel.HeaderContainer;
 import ru.intertrust.cm.core.gui.impl.client.plugins.navigation.NavigationTreePlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
@@ -34,9 +32,11 @@ import java.util.logging.Logger;
 @ComponentName("business.universe")
 public class BusinessUniverse extends BaseComponent implements EntryPoint, NavigationTreeItemSelectedEventHandler {
     static Logger logger = Logger.getLogger("Business universe");
-    private EventBus eventBus = GWT.create(SimpleEventBus.class);
+    final private EventBus eventBus = GWT.create(SimpleEventBus.class);
     private PluginPanel centralPluginPanel;
-
+    NavigationTreePlugin navigationTreePlugin;
+    PluginPanel navigationTreePanel;
+    FlowPanel headerPanel;
 
     CurrentUserInfo getUserInfo(BusinessUniverseInitialization result){
         return new CurrentUserInfo(result.getCurrentLogin(), result.getFirstName(), result.getLastName() , result.geteMail());
@@ -46,31 +46,26 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         AsyncCallback<BusinessUniverseInitialization> callback = new AsyncCallback<BusinessUniverseInitialization>() {
             @Override
             public void onSuccess(BusinessUniverseInitialization result) {
-                FlowPanel rootPanel = createRootPanel();
-                FlowPanel headerPanel = createHeaderPanel();
-                HorizontalPanel bodyPanel = new HorizontalPanel();
-                HeaderContainer headerContainer = new HeaderContainer(getUserInfo(result));
+                DockLayoutPanel rootPanel = createRootPanel();
+                headerPanel = createHeaderPanel();
 
-                rootPanel.add(headerContainer);
-
-
-                PluginPanel navigationTreePanel = new PluginPanel(eventBus);
+                navigationTreePanel = new PluginPanel(eventBus);
                 // todo мы должны просто класть туда панель - пустую, а nav tree plugin уже будет открывать в ней что нужно
 
-                NavigationTreePlugin navigationTreePlugin = ComponentRegistry.instance.get("navigation.tree");
+                navigationTreePlugin = ComponentRegistry.instance.get("navigation.tree");
 
                 centralPluginPanel = new PluginPanel(eventBus);
 
                 eventBus.addHandler(NavigationTreeItemSelectedEvent.TYPE, BusinessUniverse.this);
 
                 navigationTreePanel.open(navigationTreePlugin);
+                rootPanel.addNorth(new HeaderContainer(getUserInfo(result)), 70);
 
-                bodyPanel.add(navigationTreePanel);
-                bodyPanel.add(centralPluginPanel);
-                rootPanel.add(bodyPanel);
+                rootPanel.addWest(navigationTreePanel, 200);
+                rootPanel.add(centralPluginPanel);
 
-                addResizeHandlerToWindow(headerPanel);
-                RootPanel.get().add(rootPanel);
+                RootLayoutPanel.get().add(rootPanel);
+
             }
 
             @Override
@@ -84,15 +79,27 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     @Override
     public void onNavigationTreeItemSelected(NavigationTreeItemSelectedEvent event) {
         centralPluginPanel.closeCurrentPlugin();
-        DomainObjectSurferPlugin domainObjectSurfer = ComponentRegistry.instance.get("domain.object.surfer.plugin");
+        final DomainObjectSurferPlugin domainObjectSurfer = ComponentRegistry.instance.get("domain.object.surfer.plugin");
         domainObjectSurfer.setConfig(event.getPluginConfig());
         domainObjectSurfer.setDisplayActionToolBar(true);
+
         centralPluginPanel.open(domainObjectSurfer);
+        float windowWidth = Window.getClientWidth();
+        float windowHeight = Window.getClientHeight();
+        final float widthRatio = centralPluginPanel.asWidget().getOffsetWidth() / windowWidth ;
+        final float heightRatio = centralPluginPanel.asWidget().getOffsetHeight() / windowHeight;
+        domainObjectSurfer.addViewCreatedListener(new PluginViewCreatedEventListener() {
+            @Override
+            public void onViewCreation(PluginViewCreatedEvent source) {
+
+                domainObjectSurfer.getEventBus().fireEvent(new PluginViewCreatedSubEvent(widthRatio, heightRatio));
+            }
+        });
     }
 
     private FlowPanel createHeaderPanel() {
         FlowPanel headerPanel = new FlowPanel();
-        headerPanel.setWidth(Window.getClientWidth() - 360 + "px");
+        headerPanel.setWidth("100%");
         return headerPanel;
     }
 
@@ -103,22 +110,11 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         return toolPanel;
     }
 
-    private FlowPanel createRootPanel() {
-        FlowPanel rootPanel = new FlowPanel();
+    private DockLayoutPanel createRootPanel() {
+        DockLayoutPanel rootPanel = new DockLayoutPanel(Style.Unit.PX);
         rootPanel.setStyleName("content");
-        rootPanel.setSize("100%", "100%");
+
         return rootPanel;
-    }
-
-    public void addResizeHandlerToWindow(final FlowPanel headerPanel) {
-        Window.addResizeHandler(new ResizeHandler() {
-            @Override
-            public void onResize(ResizeEvent event) {
-                int width = Window.getClientWidth() - 360;
-                headerPanel.setWidth(width + "px");
-            }
-        });
-
     }
 
     private void addStickerPanel(DockLayoutPanel mainLayoutPanel) {
