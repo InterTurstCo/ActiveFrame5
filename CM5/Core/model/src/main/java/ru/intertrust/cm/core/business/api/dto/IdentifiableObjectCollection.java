@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.business.api.dto;
 
+import ru.intertrust.cm.core.config.FieldConfig;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +11,10 @@ import java.util.List;
  * Time: 13:44
  */
 public interface IdentifiableObjectCollection extends Iterable<IdentifiableObject>, Dto {
+    @Deprecated // todo: drop in next release
     void setFields(List<String> fields);
+
+    void setFieldsConfiguration(List<FieldConfig> fieldConfigs);
 
     Id getId(int row);
 
@@ -39,6 +44,8 @@ public interface IdentifiableObjectCollection extends Iterable<IdentifiableObjec
     int getFieldIndex(String field);
 
     ArrayList<String> getFields();
+
+    ArrayList<FieldConfig> getFieldsConfiguration();
 
     int size();
 }

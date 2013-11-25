@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.business.api.dto;
 
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
+import ru.intertrust.cm.core.config.FieldConfig;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -17,6 +18,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
     private ArrayList<IdentifiableObject> list = new ArrayList<IdentifiableObject>();
     private HashMap<String, Integer> fieldIndexes = new HashMap<String, Integer>();
     private ArrayList<String> fields;
+    private ArrayList<FieldConfig> fieldConfigs;
 
     public GenericIdentifiableObjectCollection() {
     }
@@ -34,6 +36,23 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         int fieldIndex = 0;
         for (String field : this.fields) {
             fieldIndexes.put(field, fieldIndex);
+            ++fieldIndex;
+        }
+    }
+
+    @Override
+    public void setFieldsConfiguration(List<FieldConfig> fieldConfigs) {
+        if (this.fieldConfigs != null) {
+            throw new IllegalArgumentException("Collection fields are already set");
+        }
+        if (fieldConfigs == null) {
+            this.fieldConfigs = new ArrayList<FieldConfig>(0);
+        } else {
+            this.fieldConfigs = new ArrayList<FieldConfig>(fieldConfigs);
+        }
+        int fieldIndex = 0;
+        for (FieldConfig field : this.fieldConfigs) {
+            fieldIndexes.put(field.getName(), fieldIndex);
             ++fieldIndex;
         }
     }
@@ -84,7 +103,12 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
 
     @Override
     public ArrayList<String> getFields() {
-        return fields == null ? new ArrayList<String>() : new ArrayList<String>(fields);
+        return fields == null ? new ArrayList<String>(0) : new ArrayList<String>(fields);
+    }
+
+    @Override
+    public ArrayList<FieldConfig> getFieldsConfiguration() {
+        return fieldConfigs == null ? new ArrayList<FieldConfig>(0) : new ArrayList<>(fieldConfigs);
     }
 
     @Override
