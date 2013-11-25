@@ -17,7 +17,7 @@ public class Application {
     /*
      * Шина событий приложения
      */
-    private static EventBus APP_EVENT_BUS = null;
+    private EventBus APP_EVENT_BUS = null;
 
     /*
      * Метод получения экземпляра класса
@@ -26,6 +26,9 @@ public class Application {
         if(ourInstance == null) {
             ourInstance = new Application();
         }
+
+
+
         return ourInstance;
     }
 
@@ -33,9 +36,11 @@ public class Application {
      * Метод получения "глобальной" шины событий
      */
     public EventBus getAppEventBus( ) {
-        return APP_EVENT_BUS = GWT.create(SimpleEventBus.class);
+        return APP_EVENT_BUS;
     }
 
     private Application() {
+        // создаем шину сообщений
+        APP_EVENT_BUS = GWT.create(SimpleEventBus.class);
     }
 }
