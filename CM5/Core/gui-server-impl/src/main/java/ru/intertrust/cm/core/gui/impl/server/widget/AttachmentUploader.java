@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import ru.intertrust.cm.core.business.api.dto.AttachmentUploadPercentage;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.model.GlobalSettingsConfig;
-import ru.intertrust.cm.core.config.model.global.AttachmentUploadTempStorageConfig;
+import ru.intertrust.cm.core.config.GlobalSettingsConfig;
+import ru.intertrust.cm.core.config.global.AttachmentUploadTempStorageConfig;
 
 import javax.servlet.http.HttpSession;
 import java.io.FileOutputStream;

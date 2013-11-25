@@ -1,6 +1,9 @@
 package ru.intertrust.cm.core.dao.api;
 
-import ru.intertrust.cm.core.config.model.*;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.UniqueKeyConfig;
 
 import java.util.List;
 

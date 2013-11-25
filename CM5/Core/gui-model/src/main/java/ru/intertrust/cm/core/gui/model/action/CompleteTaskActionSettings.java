@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.gui.model.action;
 
 import org.simpleframework.xml.Attribute;
 
-import ru.intertrust.cm.core.config.model.gui.ActionSettings;
+import ru.intertrust.cm.core.config.gui.ActionSettings;
 
 public class CompleteTaskActionSettings implements ActionSettings {
 
@@ -11,7 +11,7 @@ public class CompleteTaskActionSettings implements ActionSettings {
      */
     @Attribute(required=true, name="class-name")
     private String className;
-    
+
     /**
      * имя процесса
      */
@@ -35,7 +35,7 @@ public class CompleteTaskActionSettings implements ActionSettings {
     }
 
     @Override
-    public Class<?> getActionContextClass() {        
+    public Class<?> getActionContextClass() {
         return CompleteTaskActionContext.class;
     }
 

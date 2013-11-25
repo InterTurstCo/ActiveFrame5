@@ -2,8 +2,6 @@ package ru.intertrust.cm.core.config.doel;
 
 import org.junit.Test;
 
-import ru.intertrust.cm.core.config.model.doel.DoelExpression;
-
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
 

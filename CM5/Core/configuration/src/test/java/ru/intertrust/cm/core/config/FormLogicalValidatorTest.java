@@ -5,7 +5,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import ru.intertrust.cm.core.config.model.base.Configuration;
+import ru.intertrust.cm.core.config.base.Configuration;
+import ru.intertrust.cm.core.config.converter.TopLevelConfigurationCache;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -65,10 +66,10 @@ public class FormLogicalValidatorTest {
        FormLogicalValidator formValidator = new FormLogicalValidator();
        formValidator.setConfigurationExplorer(configurationExplorer);
        try {
-       formValidator.validate();
+           formValidator.validate();
        } catch(ConfigurationException e) {
-        assertEquals(exceptedMessage, e.getMessage());
-    }
+            assertEquals(exceptedMessage, e.getMessage());
+        }
     }
 
     private ConfigurationExplorer createConfigurationExplorer(String configPath) throws Exception {

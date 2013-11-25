@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import ru.intertrust.cm.core.config.model.gui.navigation.*;
+import ru.intertrust.cm.core.config.gui.navigation.*;
 
 import java.util.ArrayList;
 import java.util.Collection;

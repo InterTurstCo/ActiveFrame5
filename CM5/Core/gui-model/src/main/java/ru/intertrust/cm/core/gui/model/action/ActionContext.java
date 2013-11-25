@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.gui.model.action;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.model.gui.ActionConfig;
+import ru.intertrust.cm.core.config.gui.ActionConfig;
 
 /**
  * @author Denis Mitavskiy

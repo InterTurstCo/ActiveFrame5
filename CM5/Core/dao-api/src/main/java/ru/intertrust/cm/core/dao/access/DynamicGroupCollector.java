@@ -5,13 +5,13 @@ import java.util.List;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.model.CollectorSettings;
-import ru.intertrust.cm.core.config.model.DynamicGroupConfig;
+import ru.intertrust.cm.core.config.CollectorSettings;
+import ru.intertrust.cm.core.config.DynamicGroupConfig;
 
 /**
  * Интерфейс класса, выполняющего пересчет динамической группы
  * @author larin
- * 
+ *
  */
 public interface DynamicGroupCollector {
 

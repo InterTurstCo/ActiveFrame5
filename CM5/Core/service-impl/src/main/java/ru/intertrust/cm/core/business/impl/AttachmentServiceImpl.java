@@ -10,8 +10,8 @@ import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.model.AttachmentTypeConfig;
-import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.AttachmentTypeConfig;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
@@ -63,9 +63,9 @@ public class AttachmentServiceImpl implements AttachmentService {
     @Autowired
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
 
-    @Autowired    
-    private CurrentUserAccessor currentUserAccessor; 
-    
+    @Autowired
+    private CurrentUserAccessor currentUserAccessor;
+
     public void setCurrentUserAccessor(CurrentUserAccessor currentUserAccessor) {
         this.currentUserAccessor = currentUserAccessor;
     }
@@ -105,7 +105,7 @@ public class AttachmentServiceImpl implements AttachmentService {
             AccessToken accessToken = createSystemAccessToken();
 
             savedDoaminObject = domainObjectDao.save(attachmentDomainObject, accessToken);
-            
+
             //предыдущий файл удаляем
             if (oldFilePathValue != null && !oldFilePathValue.isEmpty()) {
                 //файл может быть и не удален, в случае если заблокирован
@@ -128,7 +128,7 @@ public class AttachmentServiceImpl implements AttachmentService {
                     logger.error(e.getMessage());
                 }
             }
-            
+
         }
     }
 

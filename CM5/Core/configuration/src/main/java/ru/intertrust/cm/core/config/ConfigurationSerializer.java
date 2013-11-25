@@ -4,7 +4,7 @@ import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.convert.AnnotationStrategy;
 import org.simpleframework.xml.core.Persister;
 import org.simpleframework.xml.strategy.Strategy;
-import ru.intertrust.cm.core.config.model.base.Configuration;
+import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.model.FatalException;
 
 import java.io.InputStream;
@@ -189,7 +189,7 @@ public class ConfigurationSerializer {
      * Десериализация конфигурации в Java класс.
      * @param configurationFilePath
      *            путь к файлу конфигурации
-     * @return {@link ru.intertrust.cm.core.config.model.base.Configuration}
+     * @return {@link ru.intertrust.cm.core.config.base.Configuration}
      * @throws Exception
      */
     public Configuration deserializeConfiguration(String configurationFilePath) throws Exception {

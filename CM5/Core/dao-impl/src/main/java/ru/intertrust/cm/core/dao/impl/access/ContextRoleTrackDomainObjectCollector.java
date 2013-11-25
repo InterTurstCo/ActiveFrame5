@@ -8,10 +8,10 @@ import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.config.model.CollectorSettings;
-import ru.intertrust.cm.core.config.model.ContextRoleConfig;
-import ru.intertrust.cm.core.config.model.TrackDomainObjectsConfig;
-import ru.intertrust.cm.core.config.model.doel.DoelExpression;
+import ru.intertrust.cm.core.config.CollectorSettings;
+import ru.intertrust.cm.core.config.ContextRoleConfig;
+import ru.intertrust.cm.core.config.TrackDomainObjectsConfig;
+import ru.intertrust.cm.core.config.doel.DoelExpression;
 import ru.intertrust.cm.core.dao.access.ContextRoleCollector;
 
 public class ContextRoleTrackDomainObjectCollector extends BaseDynamicGroupServiceImpl implements ContextRoleCollector {

@@ -4,8 +4,8 @@ import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion.Order;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.model.base.CollectionConfig;
-import ru.intertrust.cm.core.config.model.base.CollectionFilterConfig;
+import ru.intertrust.cm.core.config.base.CollectionConfig;
+import ru.intertrust.cm.core.config.base.CollectionFilterConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.model.FatalException;
 
@@ -56,7 +56,7 @@ public class CollectionQueryInitializer {
         String filledQuery =  fillPrototypeQuery(collectionConfig, filledFilterConfigs, sortOrder, offset, limit,
                 accessToken,
                 prototypeQuery);
-        
+
         filledQuery = processPersonParameter(filledQuery);
 
         filledQuery = postProcessQuery(collectionConfig, accessToken, filledQuery);

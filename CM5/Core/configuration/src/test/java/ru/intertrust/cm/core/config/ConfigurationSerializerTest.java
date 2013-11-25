@@ -3,9 +3,9 @@ package ru.intertrust.cm.core.config;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import ru.intertrust.cm.core.config.model.*;
-import ru.intertrust.cm.core.config.model.base.CollectionConfig;
-import ru.intertrust.cm.core.config.model.base.Configuration;
+import ru.intertrust.cm.core.config.base.CollectionConfig;
+import ru.intertrust.cm.core.config.base.Configuration;
+import ru.intertrust.cm.core.config.converter.TopLevelConfigurationCache;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -90,7 +90,7 @@ public class ConfigurationSerializerTest {
 
         List<String> configurationNames = new ArrayList<>();
         configurationNames.addAll(Arrays.asList("Employees", "Employees_2", "Outgoing_Document", "Person",
-                "Assignment", "Employee", "Department", "Incoming_Document", "Incoming_Document2", 
+                "Assignment", "Employee", "Department", "Incoming_Document", "Incoming_Document2",
                 "Authentication_Info", "User_Group", "Group_Member", "Group_Admin", "Delegation", "Organization"));
 
         for (Object configurationItem : configurationList) {
@@ -107,7 +107,7 @@ public class ConfigurationSerializerTest {
 
 
     //@Test
-    //TODO восстановить тест после окончания изменения конфигурации прав 
+    //TODO восстановить тест после окончания изменения конфигурации прав
     public void testDeserializeAccessConfiguration() throws Exception {
         ConfigurationSerializer configurationSerializer = createConfigurationSerializer(ACCESS_CONFIG_PATH);
 
@@ -129,7 +129,7 @@ public class ConfigurationSerializerTest {
 
         }
     }
-    
+
     static ConfigurationSerializer createConfigurationSerializer(String configPath) throws Exception {
         TopLevelConfigurationCache.getInstance().build(); // Инициализируем кэш конфигурации тэг-класс
 

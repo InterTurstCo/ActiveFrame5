@@ -2,9 +2,8 @@ package ru.intertrust.cm.core.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.intertrust.cm.core.config.model.GlobalSettingsConfig;
-import ru.intertrust.cm.core.config.model.base.Configuration;
-import ru.intertrust.cm.core.config.model.base.TopLevelConfig;
+import ru.intertrust.cm.core.config.base.Configuration;
+import ru.intertrust.cm.core.config.base.TopLevelConfig;
 
 import java.util.List;
 

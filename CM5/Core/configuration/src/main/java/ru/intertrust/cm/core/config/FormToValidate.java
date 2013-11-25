@@ -1,8 +1,7 @@
 package ru.intertrust.cm.core.config;
 
-import ru.intertrust.cm.core.config.model.FieldConfig;
-import ru.intertrust.cm.core.config.model.gui.form.MarkupConfig;
-import ru.intertrust.cm.core.config.model.gui.form.widget.WidgetConfig;
+import ru.intertrust.cm.core.config.gui.form.MarkupConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 
 import java.util.List;
 

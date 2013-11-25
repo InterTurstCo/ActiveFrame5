@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.intertrust.cm.core.config.model.*;
 
 import java.util.Collection;
 

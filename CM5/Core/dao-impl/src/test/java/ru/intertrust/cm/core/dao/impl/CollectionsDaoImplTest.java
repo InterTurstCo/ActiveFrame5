@@ -6,9 +6,8 @@ import org.mockito.Mock;
 import org.springframework.jdbc.core.JdbcTemplate;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
-import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
-import ru.intertrust.cm.core.config.model.*;
-import ru.intertrust.cm.core.config.model.base.*;
+import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.base.*;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 

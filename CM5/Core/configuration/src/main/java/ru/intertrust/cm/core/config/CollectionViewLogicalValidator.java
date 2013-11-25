@@ -2,10 +2,10 @@ package ru.intertrust.cm.core.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.intertrust.cm.core.config.model.base.CollectionConfig;
-import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionColumnConfig;
-import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionDisplayConfig;
-import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionViewConfig;
+import ru.intertrust.cm.core.config.base.CollectionConfig;
+import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
+import ru.intertrust.cm.core.config.gui.collection.view.CollectionDisplayConfig;
+import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.api.server;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
@@ -27,7 +28,7 @@ public interface GuiService {
      * Возвращает конфигурацию панели навигации.
      * @return конфигурацию панели навигации
      */
-    ru.intertrust.cm.core.config.model.gui.navigation.NavigationConfig getNavigationConfiguration();
+    NavigationConfig getNavigationConfiguration();
 
     /**
      * Выполняет команду компонента GUI (например, плагина или виджета) и возвращает результат

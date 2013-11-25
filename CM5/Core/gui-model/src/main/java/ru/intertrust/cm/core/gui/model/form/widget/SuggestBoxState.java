@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.model.gui.form.widget.SuggestBoxConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.SuggestBoxConfig;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

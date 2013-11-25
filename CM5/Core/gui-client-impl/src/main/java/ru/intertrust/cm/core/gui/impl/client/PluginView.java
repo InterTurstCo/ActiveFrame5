@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.*;
-import ru.intertrust.cm.core.config.model.gui.ActionConfig;
+import ru.intertrust.cm.core.config.gui.ActionConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;

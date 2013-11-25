@@ -1,9 +1,9 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import org.junit.Test;
-import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.model.FieldConfig;
-import ru.intertrust.cm.core.config.model.StringFieldConfig;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.StringFieldConfig;
 
 import static org.junit.Assert.assertEquals;
 

@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.dao.api;
 
 
-import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 
 /**
  * Создает уникальные идентификаторы(ID) для доменного объекта

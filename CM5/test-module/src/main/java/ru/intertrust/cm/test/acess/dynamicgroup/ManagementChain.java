@@ -3,28 +3,21 @@ package ru.intertrust.cm.test.acess.dynamicgroup;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.config.model.CollectorSettings;
-import ru.intertrust.cm.core.config.model.DynamicGroupConfig;
-import ru.intertrust.cm.core.dao.access.AccessControlService;
+import ru.intertrust.cm.core.config.CollectorSettings;
+import ru.intertrust.cm.core.config.DynamicGroupConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.DynamicGroupCollector;
-import ru.intertrust.cm.core.dao.api.CollectionsDao;
-import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 
 /**
  * Реализатора коллектора все цепочка руководства подразделения
- * 
+ *
  * @author larin
- * 
+ *
  */
 public class ManagementChain extends DynamicGroupCollectorBase implements DynamicGroupCollector {
 

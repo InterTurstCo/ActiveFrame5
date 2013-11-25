@@ -5,9 +5,9 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeImages;
 import com.google.gwt.user.client.ui.TreeItem;
-import ru.intertrust.cm.core.config.model.gui.navigation.ChildLinksConfig;
-import ru.intertrust.cm.core.config.model.gui.navigation.LinkConfig;
-import ru.intertrust.cm.core.config.model.gui.navigation.LinkPluginDefinition;
+import ru.intertrust.cm.core.config.gui.navigation.ChildLinksConfig;
+import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
+import ru.intertrust.cm.core.config.gui.navigation.LinkPluginDefinition;
 
 import java.util.*;
 

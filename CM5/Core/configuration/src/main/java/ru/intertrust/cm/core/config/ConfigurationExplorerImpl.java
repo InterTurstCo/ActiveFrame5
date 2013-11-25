@@ -4,13 +4,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.config.model.*;
-import ru.intertrust.cm.core.config.model.base.Configuration;
-import ru.intertrust.cm.core.config.model.base.TopLevelConfig;
-import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionColumnConfig;
-import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionViewConfig;
-import ru.intertrust.cm.core.config.model.gui.navigation.LinkConfig;
-import ru.intertrust.cm.core.config.model.gui.navigation.NavigationConfig;
+import ru.intertrust.cm.core.config.base.Configuration;
+import ru.intertrust.cm.core.config.base.TopLevelConfig;
+import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
+import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
+import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
+import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.model.FatalException;
 
 import java.io.*;
@@ -23,7 +22,7 @@ import java.util.*;
  */
 public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     private final static Logger logger = LoggerFactory.getLogger(ConfigurationExplorerImpl.class);
-    private final static String GLOBAL_SETTINGS_CLASS_NAME = "ru.intertrust.cm.core.config.model.GlobalSettingsConfig";
+    private final static String GLOBAL_SETTINGS_CLASS_NAME = "ru.intertrust.cm.core.config.GlobalSettingsConfig";
     private Configuration configuration;
 
     private Map<Class<?>, Map<String, TopLevelConfig>> topLevelConfigMap = new HashMap<>();
@@ -77,7 +76,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     /**
      * Каждый логический валидатор находится в блоке try/catch для отображения всех ошибок, возникнувших в результате
      * валидации, а не только первого бросившего exception
-     * 
+     *
      */
     private void validate() {
         GlobalSettingsLogicalValidator globalSettingsLogicalValidator =
@@ -138,7 +137,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         //Перекладываем в другой контейнер, для возможности сериализации
         List<T> result = new ArrayList<T>();
         result.addAll((Collection<T>)typeMap.values());
-        
+
         return (Collection<T>) result;
     }
 

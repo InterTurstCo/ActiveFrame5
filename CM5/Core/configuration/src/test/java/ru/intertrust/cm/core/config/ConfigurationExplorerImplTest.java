@@ -3,10 +3,8 @@ package ru.intertrust.cm.core.config;
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.model.FieldConfig;
-import ru.intertrust.cm.core.config.model.base.CollectionConfig;
-import ru.intertrust.cm.core.config.model.base.Configuration;
+import ru.intertrust.cm.core.config.base.CollectionConfig;
+import ru.intertrust.cm.core.config.base.Configuration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -78,7 +76,7 @@ public class ConfigurationExplorerImplTest {
                 "Internal_Document", "Delegation", "Status"));
 
         for (DomainObjectTypeConfig domainObjectTypeConfig : domainObjectTypeConfigs) {
-            String name = domainObjectTypeConfig.getName();            
+            String name = domainObjectTypeConfig.getName();
             assertTrue(domainObjectNames.contains(name));
             domainObjectNames.remove(name);
         }

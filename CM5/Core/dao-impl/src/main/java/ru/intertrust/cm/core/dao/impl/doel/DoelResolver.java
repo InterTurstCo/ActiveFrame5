@@ -18,10 +18,12 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.model.*;
-import ru.intertrust.cm.core.config.model.doel.DoelExpression;
-import ru.intertrust.cm.core.config.model.doel.DoelValidator;
-import ru.intertrust.cm.core.config.model.doel.DoelValidator.DoelTypes;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.doel.DoelExpression;
+import ru.intertrust.cm.core.config.doel.DoelValidator;
+import ru.intertrust.cm.core.config.doel.DoelValidator.DoelTypes;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.impl.utils.ValueReader;
@@ -275,7 +277,7 @@ public class DoelResolver {
      * используется поле, объявленное в их общем родительском типе.
      * При вычислении используется кэш транзакции, пока это возможно. Для дальнейшего вычисления формируются
      * запросы к БД.
-     * 
+     *
      * @param expr
      *            Частичное выражение, соответствующее ветке дерева типов
      * @param branch

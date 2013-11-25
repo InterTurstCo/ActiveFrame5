@@ -24,7 +24,7 @@
         <constructor-arg ref="configuration"/>
 
     </bean>
-    <bean id = "configuration" class = "ru.intertrust.cm.core.config.model.base.Configuration">
+    <bean id = "configuration" class = "ru.intertrust.cm.core.config.base.Configuration">
         <property name="configurationList">
             <list>
                 <ref bean="globalSettings"/>
@@ -33,5 +33,5 @@
     </bean>
     <bean id = "formLogicalValidator" class = "ru.intertrust.cm.core.config.FormLogicalValidator"/>
     <bean id = "navigationPanelLogicalValidator" class = "ru.intertrust.cm.core.config.NavigationPanelLogicalValidator"/>
-    <bean name = "globalSettings" class="ru.intertrust.cm.core.config.model.GlobalSettingsConfig"/>
+    <bean name = "globalSettings" class="ru.intertrust.cm.core.config.GlobalSettingsConfig"/>
 </beans>

@@ -7,14 +7,14 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
-import ru.intertrust.cm.core.config.model.CollectorSettings;
-import ru.intertrust.cm.core.config.model.DynamicGroupConfig;
+import ru.intertrust.cm.core.config.CollectorSettings;
+import ru.intertrust.cm.core.config.DynamicGroupConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.DynamicGroupCollector;
 
 /**
  * TODO Коментарии Ларина М.
- * 1. Класс реализует логику замещения между штатными единицами. Надо дореализовывать если замещаются роли или организации или подразделения 
+ * 1. Класс реализует логику замещения между штатными единицами. Надо дореализовывать если замещаются роли или организации или подразделения
  * 2. Некорректно делать одну роль для аудиторов и заместителей, так как им раздаются разные права. Нкжно делать две роли
  *
  */
@@ -43,7 +43,7 @@ public class PersonAssistantAuditor extends DynamicGroupCollectorBase implements
 
         //Ищем всех замов
         result.addAll(getSubstitute(postId));
-        
+
         //Ищем всех аудиторов
         result.addAll(getAuditor(postId));
 

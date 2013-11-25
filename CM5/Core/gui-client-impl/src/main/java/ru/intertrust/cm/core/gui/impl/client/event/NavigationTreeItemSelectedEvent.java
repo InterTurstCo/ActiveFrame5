@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.event;
 
 import com.google.gwt.event.shared.GwtEvent;
-import ru.intertrust.cm.core.config.model.gui.navigation.PluginConfig;
+import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
 
 public class NavigationTreeItemSelectedEvent extends GwtEvent<NavigationTreeItemSelectedEventHandler> {
 

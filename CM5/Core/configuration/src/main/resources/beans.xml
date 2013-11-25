@@ -30,7 +30,7 @@
           class="ru.intertrust.cm.core.config.ConfigurationExplorerImpl"
           init-method="validateGui">
         <constructor-arg>
-            <bean class="ru.intertrust.cm.core.config.model.base.Configuration"
+            <bean class="ru.intertrust.cm.core.config.base.Configuration"
                   factory-bean="configurationSerializer" factory-method="deserializeConfiguration"/>
         </constructor-arg>
     </bean>

@@ -1,8 +1,7 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.model.*;
+import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 
 import java.util.Arrays;
@@ -333,12 +332,12 @@ public class PostgreSqlQueryHelper {
             appendUniqueConstraint(query, constraintName, fieldsList);
             existsConstraints = true;
         }
-        
+
         //Если нет констраинтов то возвращаем пустую строку
         if (!existsConstraints){
             query = new StringBuilder();
         }
-        
+
         return query.toString();
     }
 

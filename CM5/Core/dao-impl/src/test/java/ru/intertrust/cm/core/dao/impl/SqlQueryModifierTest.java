@@ -3,8 +3,8 @@ package ru.intertrust.cm.core.dao.impl;
 import org.junit.Test;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
-import ru.intertrust.cm.core.config.model.GlobalSettingsConfig;
-import ru.intertrust.cm.core.config.model.base.Configuration;
+import ru.intertrust.cm.core.config.GlobalSettingsConfig;
+import ru.intertrust.cm.core.config.base.Configuration;
 
 import static org.junit.Assert.assertEquals;
 

@@ -25,10 +25,10 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.config.FormLogicalValidator;
 import ru.intertrust.cm.core.config.NavigationPanelLogicalValidator;
-import ru.intertrust.cm.core.config.model.AttachmentTypeConfig;
-import ru.intertrust.cm.core.config.model.AttachmentTypesConfig;
-import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.model.GlobalSettingsConfig;
+import ru.intertrust.cm.core.config.AttachmentTypeConfig;
+import ru.intertrust.cm.core.config.AttachmentTypesConfig;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.GlobalSettingsConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
@@ -401,8 +401,8 @@ public class AttachmentServiceImplTest {
     }
 
     static private ConfigurationExplorer getConfigurationExplorer() throws Exception {
-        ru.intertrust.cm.core.config.model.base.Configuration configuration =
-                new ru.intertrust.cm.core.config.model.base.Configuration();
+        ru.intertrust.cm.core.config.base.Configuration configuration =
+                new ru.intertrust.cm.core.config.base.Configuration();
         GlobalSettingsConfig globalSettings = new GlobalSettingsConfig();
         DomainObjectTypeConfig dot = new DomainObjectTypeConfig();
         dot.setName("Person");

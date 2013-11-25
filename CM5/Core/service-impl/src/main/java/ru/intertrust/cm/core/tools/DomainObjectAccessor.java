@@ -9,18 +9,16 @@ import java.util.List;
 import org.springframework.context.ApplicationContext;
 
 import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.IdService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.model.DateTimeFieldConfig;
-import ru.intertrust.cm.core.config.model.DecimalFieldConfig;
-import ru.intertrust.cm.core.config.model.FieldConfig;
-import ru.intertrust.cm.core.config.model.LongFieldConfig;
-import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.DateTimeFieldConfig;
+import ru.intertrust.cm.core.config.DecimalFieldConfig;
+import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.LongFieldConfig;
+import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
@@ -30,20 +28,20 @@ import ru.intertrust.cm.core.util.SpringApplicationContext;
  * Класс обертка над сервисом domainObjectDao для более удобной работы с объектм
  * Внутри класса нельзя использовать @Autowired, так как обязательно обьект
  * должен серелиазоватся
- * 
+ *
  * @author larin
- * 
+ *
  */
 public class DomainObjectAccessor implements Serializable {
     /**
-	 * 
+	 *
 	 */
     private static final long serialVersionUID = -8436920175908035925L;
     private DomainObject domainObject = null;
 
     /**
      * Конструктор. Инициализирует доменный обьект
-     * 
+     *
      * @param id
      */
     public DomainObjectAccessor(Id id) {
@@ -55,16 +53,16 @@ public class DomainObjectAccessor implements Serializable {
         // токен для конкретного пользователя
         AccessToken accessToken = getAccessControlService()
                 .createSystemAccessToken("DomainObjectAccessor");
-        domainObject = getDomainObjectDao().find(id, accessToken);        
+        domainObject = getDomainObjectDao().find(id, accessToken);
     }
-    
+
     public DomainObjectAccessor(DomainObject domainObject) {
         this.domainObject = domainObject;
     }
 
     /**
      * Получает поле объекта
-     * 
+     *
      * @param fieldName - имя поля. Может быть составным Negotiator.Employee.Name - вернет значение поля "Name" объекта Employee, ссылка на который хранится в поле Negotiator объекта domainObject
      * @return
      */
@@ -72,7 +70,7 @@ public class DomainObjectAccessor implements Serializable {
     	Object result = null;
     	//Обновляем доменный объект
     	load(domainObject.getId());
-    	
+
     	//Если fieldName - простое
     	if (fieldName.indexOf(".")==-1){
             Value value = domainObject.getValue(fieldName);
@@ -87,7 +85,7 @@ public class DomainObjectAccessor implements Serializable {
     		String other = fieldName.substring(fieldName.indexOf(".")+1);
     		//Получаем дочерний объект по имени поля (пример: Negotiator)
     		DomainObjectAccessor doa = new DomainObjectAccessor(domainObject.getReference(value));
-    		//Получаем у дочернего объекта значение поля (пример: Employee.Name) 
+    		//Получаем у дочернего объекта значение поля (пример: Employee.Name)
     		result = doa.get(other);
     	}
 
@@ -96,7 +94,7 @@ public class DomainObjectAccessor implements Serializable {
 
     /**
      * Устанавливает поле объекта
-     * 
+     *
      * @param fieldName
      * @param value
      */
@@ -143,11 +141,11 @@ public class DomainObjectAccessor implements Serializable {
         AccessToken accessToken = getAccessControlService().createSystemAccessToken("DomainObjectAccessor");
         domainObject = getDomainObjectDao().save(domainObject, accessToken);
     }
-    
-    
+
+
     /**
      * Получение сервиса DomainObjectDao
-     * 
+     *
      * @return
      */
     private DomainObjectDao getDomainObjectDao() {
@@ -157,7 +155,7 @@ public class DomainObjectAccessor implements Serializable {
 
     /**
      * Получение сервиса AccessControlService
-     * 
+     *
      * @return
      */
     private AccessControlService getAccessControlService() {
@@ -173,7 +171,7 @@ public class DomainObjectAccessor implements Serializable {
         ApplicationContext ctx = SpringApplicationContext.getContext();
         return (ConfigurationExplorer) ctx.getBean("configurationExplorer");
     }
-    
+
     /**
      * Установка статуса объекта
      * @param status
@@ -196,7 +194,7 @@ public class DomainObjectAccessor implements Serializable {
         if (newStatus ==null){
         	newStatus = createStatus(statusName);
         }
-        
+
         AccessToken accessToken = getAccessControlService().createSystemAccessToken("DomainObjectAccessor");
         domainObject = getDomainObjectDao().setStatus(domainObject.getId(), newStatus.getId(), accessToken);
     }
@@ -206,12 +204,12 @@ public class DomainObjectAccessor implements Serializable {
      */
     public String getStatus(){
     	//TODO Разобрать почему в domainObject.getReference("status") ).getTypeId() не обновляется статус
-    	
+
     	CrudService crudService = getCrudService();
     	DomainObject status = crudService.find(domainObject.getStatus());
     	return status.getString("Name");
     }
-    
+
     /**
      * Получение сервиса CrudService
      * @return
@@ -220,7 +218,7 @@ public class DomainObjectAccessor implements Serializable {
         ApplicationContext ctx = SpringApplicationContext.getContext();
         return ctx.getBean(CrudService.class);
     }
-    
+
     private  DomainObject createStatus(String statusName) {
         GenericDomainObject statusDO = new GenericDomainObject();
         statusDO.setTypeName(GenericDomainObject.STATUS_DO);
@@ -231,9 +229,9 @@ public class DomainObjectAccessor implements Serializable {
         AccessToken accessToken = getAccessControlService().createSystemAccessToken("InitialDataLoader");
         return getDomainObjectDao().save(statusDO, accessToken);
     }
-    
 
-    
-    
+
+
+
 
 }

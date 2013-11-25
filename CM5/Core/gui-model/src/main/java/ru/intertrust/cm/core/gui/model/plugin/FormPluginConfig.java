@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.gui.model.plugin;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.model.gui.navigation.PluginConfig;
+import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
 
 /**
  * @author Denis Mitavskiy

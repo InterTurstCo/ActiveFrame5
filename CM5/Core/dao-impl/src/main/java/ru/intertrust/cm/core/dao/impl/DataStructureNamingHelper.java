@@ -1,9 +1,9 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import ru.intertrust.cm.core.config.model.DateTimeWithTimeZoneFieldConfig;
-import ru.intertrust.cm.core.config.model.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.model.FieldConfig;
-import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.DateTimeWithTimeZoneFieldConfig;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 
 import java.util.ArrayList;
@@ -72,7 +72,7 @@ public class DataStructureNamingHelper {
                 if (fieldConfig.getName().equalsIgnoreCase(DomainObjectDao.ID_COLUMN)){
                     columnNames.add(DomainObjectDao.TYPE_COLUMN);
                 }else{
-                    columnNames.add(getReferenceTypeColumnName(fieldConfig.getName()));                    
+                    columnNames.add(getReferenceTypeColumnName(fieldConfig.getName()));
                 }
             } else if (fieldConfig instanceof DateTimeWithTimeZoneFieldConfig) {
                 columnNames.add(getTimeZoneIdColumnName(fieldConfig.getName()));

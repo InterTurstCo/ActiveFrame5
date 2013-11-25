@@ -6,13 +6,12 @@ import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.PersonManagementService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.model.GetPersonConfig;
 import ru.intertrust.cm.remoteclient.ClientBase;
 
 /**
  * Класс для тестирования сервиса управления пользователями и группами
  * @author larin
- * 
+ *
  */
 public class TestPersonManagementService extends ClientBase {
     private PersonManagementService.Remote personService;
@@ -150,7 +149,7 @@ public class TestPersonManagementService extends ClientBase {
     private void addGroupToGroup(String parent, String child){
         if (!personService.isGroupInGroup(groupIds.get(parent), groupIds.get(child), false)){
             personService.addGroupToGroup(groupIds.get(parent), groupIds.get(child));
-        }        
+        }
     }
-    
+
 }

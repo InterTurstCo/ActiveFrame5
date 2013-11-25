@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.gui.model.form;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.config.model.gui.form.MarkupConfig;
+import ru.intertrust.cm.core.config.gui.form.MarkupConfig;
 
 import java.util.HashMap;
 

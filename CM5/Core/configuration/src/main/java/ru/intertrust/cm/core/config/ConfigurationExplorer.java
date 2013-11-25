@@ -1,8 +1,7 @@
 package ru.intertrust.cm.core.config;
 
-import ru.intertrust.cm.core.config.model.*;
-import ru.intertrust.cm.core.config.model.base.Configuration;
-import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionColumnConfig;
+import ru.intertrust.cm.core.config.base.Configuration;
+import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 
 import java.util.Collection;
 import java.util.List;

@@ -15,4 +15,15 @@
         <root.basedir>${project.parent.parent.basedir}</root.basedir>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.simpleframework</groupId>
+            <artifactId>simple-xml</artifactId>
+        </dependency>
+    </dependencies>
+
 </project>

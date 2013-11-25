@@ -5,13 +5,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import ru.intertrust.cm.core.config.model.FieldConfig;
-import ru.intertrust.cm.core.config.model.ReferenceFieldConfig;
-import ru.intertrust.cm.core.config.model.base.CollectionConfig;
-import ru.intertrust.cm.core.config.model.base.TopLevelConfig;
-import ru.intertrust.cm.core.config.model.gui.collection.view.CollectionViewConfig;
-import ru.intertrust.cm.core.config.model.gui.form.*;
-import ru.intertrust.cm.core.config.model.gui.form.widget.*;
+import ru.intertrust.cm.core.config.base.CollectionConfig;
+import ru.intertrust.cm.core.config.base.TopLevelConfig;
+import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
+import ru.intertrust.cm.core.config.gui.form.*;
+import ru.intertrust.cm.core.config.gui.form.widget.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,7 +36,7 @@ public class FormLogicalValidator {
     private static final String WIDGET_HANDLER_FULL_QUALIFIED_NAME =
             "ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler";
     private static final String REFERENCE_FIELD_CONFIG_FULL_QUALIFIED_NAME =
-            "ru.intertrust.cm.core.config.model.ReferenceFieldConfig";
+            "ru.intertrust.cm.core.config.ReferenceFieldConfig";
 
 
     @Autowired

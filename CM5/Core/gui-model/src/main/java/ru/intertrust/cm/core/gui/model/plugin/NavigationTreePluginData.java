@@ -1,8 +1,8 @@
 package ru.intertrust.cm.core.gui.model.plugin;
 
-import ru.intertrust.cm.core.config.model.gui.navigation.LinkConfig;
-import ru.intertrust.cm.core.config.model.gui.navigation.NavigationConfig;
-import ru.intertrust.cm.core.config.model.gui.navigation.PluginConfig;
+import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
+import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
+import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
 
 public class NavigationTreePluginData extends PluginData {
 
