@@ -14,15 +14,15 @@ import java.util.List;
  */
 public class DomainObjectFieldsConfig implements Serializable {
     @ElementListUnion({
-            @ElementList(entry="boolean", type=BooleanFieldConfig.class, inline=true),
-            @ElementList(entry="long", type=LongFieldConfig.class, inline=true),
-            @ElementList(entry="decimal", type=DecimalFieldConfig.class, inline=true),
-            @ElementList(entry="dateTime", type=DateTimeFieldConfig.class, inline=true),
-            @ElementList(entry="dateTimeWithTimeZone", type=DateTimeWithTimeZoneFieldConfig.class, inline=true),
-            @ElementList(entry="timelessDate", type=TimelessDateFieldConfig.class, inline=true),
-            @ElementList(entry="string", type=StringFieldConfig.class, inline=true),
-            @ElementList(entry="text", type=TextFieldConfig.class, inline=true),
-            @ElementList(entry="reference", type=ReferenceFieldConfig.class, inline=true)
+            @ElementList(entry="boolean", type=BooleanFieldConfig.class, inline=true, required = false),
+            @ElementList(entry="long", type=LongFieldConfig.class, inline=true, required = false),
+            @ElementList(entry="decimal", type=DecimalFieldConfig.class, inline=true, required = false),
+            @ElementList(entry="dateTime", type=DateTimeFieldConfig.class, inline=true, required = false),
+            @ElementList(entry="dateTimeWithTimeZone", type=DateTimeWithTimeZoneFieldConfig.class, inline=true, required = false),
+            @ElementList(entry="timelessDate", type=TimelessDateFieldConfig.class, inline=true, required = false),
+            @ElementList(entry="string", type=StringFieldConfig.class, inline=true, required = false),
+            @ElementList(entry="text", type=TextFieldConfig.class, inline=true, required = false),
+            @ElementList(entry="reference", type=ReferenceFieldConfig.class, inline=true, required = false)
     })
     private List<FieldConfig> fieldConfigs = new ArrayList<>();
 
