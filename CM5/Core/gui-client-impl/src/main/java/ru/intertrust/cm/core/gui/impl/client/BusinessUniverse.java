@@ -174,7 +174,9 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         flowPanel.add(toggleBtn);
 
         focusPanel.add(flowPanel);
-        focusPanel.getElement().getStyle().setBackgroundColor("blue");
+        focusPanel.getElement().getStyle().setBackgroundColor("white");
+
+
         mainLayoutPanel.addEast(focusPanel, 30);
     }
 

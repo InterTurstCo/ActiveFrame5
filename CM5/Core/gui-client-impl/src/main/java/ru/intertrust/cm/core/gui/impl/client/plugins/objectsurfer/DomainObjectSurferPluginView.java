@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.*;
-import ru.intertrust.cm.core.config.model.gui.navigation.DomainObjectSurferConfig;
+import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;

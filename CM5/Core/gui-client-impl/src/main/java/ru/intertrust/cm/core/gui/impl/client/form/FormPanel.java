@@ -6,8 +6,8 @@ import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
-import ru.intertrust.cm.core.config.model.gui.form.*;
-import ru.intertrust.cm.core.config.model.gui.form.widget.WidgetDisplayConfig;
+import ru.intertrust.cm.core.config.gui.form.*;
+import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterInnerScrollEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterInnerScrollEventHandler;
@@ -34,9 +34,9 @@ public class FormPanel implements IsWidget {
     ScrollPanel scrollPanel ;
     EventBus eventBus;
     public FormPanel (FormDisplayData formDisplayData, EventBus eventBus, int width, int height) {
-          this(formDisplayData, eventBus);
-          formWidth = width;
-          formHeight = height;
+        this(formDisplayData, eventBus);
+        formWidth = width;
+        formHeight = height;
     }
     public FormPanel(FormDisplayData formDisplayData, EventBus eventBus) {
 
@@ -111,67 +111,63 @@ public class FormPanel implements IsWidget {
         HeaderConfig header = markup.getHeader();
         IsWidget headerTable = buildTable(header.getTableLayout());
 
-
-
+        final HackTabLayoutPanel bodyTabPanel;
         BodyConfig body = markup.getBody();
         List<TabConfig> tabs = body.getTabs();
-        final TabLayoutPanel bodyTabPanel;
+
         int countTab = 1;
         if (body.isDisplaySingleTab() == true && tabs.size() == countTab){
 
-            bodyTabPanel = new TabLayoutPanel(0, Style.Unit.PX);
-
+            bodyTabPanel = new HackTabLayoutPanel(0, Style.Unit.PX);
             bodyTabPanel.add(buildTabContent(tabs.get(0)));
         }
         else{
 
-            bodyTabPanel = new TabLayoutPanel(35, Style.Unit.PX);
+            bodyTabPanel = new HackTabLayoutPanel(35, Style.Unit.PX);
 
             for (TabConfig tab : tabs) {
                 bodyTabPanel.add(buildTabContent(tab), tab.getName());
-        }
             }
+        }
 
-            bodyTabPanel.selectTab(0);
-            bodyTabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
-                @Override
-                public void onSelection(SelectionEvent<Integer> event) {
-                    setStyleForAllTabs(event.getSelectedItem(), bodyTabPanel);
-                }
-            });
+        bodyTabPanel.selectTab(0);
+        bodyTabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
+            @Override
+            public void onSelection(SelectionEvent<Integer> event) {
+                setStyleForAllTabs(event.getSelectedItem(), bodyTabPanel);
+
+            }
+        });
 
         if(header.getTableLayout().getHeight()!= null){
 
             bodyTabPanel.setHeight(header.getTableLayout().getHeight());
         }
         else{
-          bodyTabPanel.setHeight(formHeight + "px");
+            bodyTabPanel.setHeight("200px");
         }
         if(header.getTableLayout().getWidth()!= null){
-            bodyTabPanel.setWidth(header.getTableLayout().getWidth());
+            bodyTabPanel.setWidth((header.getTableLayout().getWidth()));
         }
         else{
-           bodyTabPanel.setWidth(formWidth + "px");
+            bodyTabPanel.setWidth(formWidth + "px");
         }
-            scrollPanel = getScrollPanel(headerTable, bodyTabPanel, formDisplayData);
+        scrollPanel = getScrollPanel(headerTable, bodyTabPanel, formDisplayData);
 
         return scrollPanel;
     }
 
-    private ScrollPanel getScrollPanel(IsWidget headerTable, TabLayoutPanel bodyTabPanel,FormDisplayData formDisplayData){
+    private ScrollPanel getScrollPanel(IsWidget headerTable, HackTabLayoutPanel bodyTabPanel,FormDisplayData formDisplayData){
         VerticalPanel verticalPanel = new VerticalPanel();
         formDisplayData.getMarkup().getHeader().getTableLayout().getHeight();
         formDisplayData.getMarkup().getHeader().getTableLayout().getWidth();
 
-        if(formDisplayData.getMarkup().getHeader().getTableLayout().getWidth() != null){
-          verticalPanel.setWidth(formDisplayData.getMarkup().getHeader().getTableLayout().getWidth()+"px");
-          verticalPanel.setHeight("100%");
-        }
-
-
         scrollPanel.add(verticalPanel);
         verticalPanel.add(headerTable);
         verticalPanel.add(bodyTabPanel);
+
+        // scrollPanel.setHeight((Window.getClientHeight()-98)/2 + "px");
+        // scrollPanel.setWidth((Window.getClientWidth() - 235) + "px");
 
         verticalPanel.add(headerTable);
         verticalPanel.add(bodyTabPanel);
@@ -179,7 +175,8 @@ public class FormPanel implements IsWidget {
 
         return scrollPanel;
     }
-    private void setStyleForAllTabs(Integer activeTab, TabLayoutPanel bodyTabPanel) {
+
+    private void setStyleForAllTabs(Integer activeTab, HackTabLayoutPanel bodyTabPanel) {
         for (int i = 0; i < bodyTabPanel.getWidgetCount(); i++) {
             if (activeTab == i) {
                 bodyTabPanel.getTabWidget(i).getElement().getStyle().setProperty("backgroundColor", "white");
@@ -191,13 +188,14 @@ public class FormPanel implements IsWidget {
     }
     private IsWidget buildTabContent(TabConfig tabConfig) {
         FlowPanel panel = new FlowPanel();
-
+        //panel.setSize((Window.getClientWidth() - 260) + "px", "100%");
         TabGroupListConfig groupList = tabConfig.getGroupList();
         if (groupList instanceof SingleEntryGroupListConfig) {
             panel.add(buildTable(((SingleEntryGroupListConfig) groupList).getTabGroupConfig().getLayout()));
         }
         if (groupList instanceof BookmarkListConfig) {
-            final BookmarksTabPanel bodyTabPanel = new BookmarksTabPanel();
+//            final BookmarksTabPanel bodyTabPanel = new BookmarksTabPanel();
+            final BookmarksHelper bodyTabPanel = new BookmarksHelper();
             List<TabGroupConfig> bookmarkTabs = ((BookmarkListConfig) groupList).getTabGroupConfigs();
             for (TabGroupConfig tab : bookmarkTabs) {
                 bodyTabPanel.add(tab.getName(), buildBookmarksTabContent(tab));
@@ -207,7 +205,8 @@ public class FormPanel implements IsWidget {
         }
 
         if (groupList instanceof HidingGroupListConfig) {
-            HidingGroupListTabPanel bodyTabPanel = new HidingGroupListTabPanel();
+
+            HiddenGroupHelper bodyTabPanel = new HiddenGroupHelper();
             List<TabGroupConfig> bookmarkTabs = ((HidingGroupListConfig) groupList).getTabGroupConfigs();
             for (TabGroupConfig tab : bookmarkTabs) {
                 bodyTabPanel.add(tab.getName(), hidingGroupListTabContent(tab));
@@ -220,13 +219,14 @@ public class FormPanel implements IsWidget {
     private IsWidget hidingGroupListTabContent(TabGroupConfig tabGroupConfig) {
         FlowPanel panel = new FlowPanel();
 
-        panel.add(buildTable(tabGroupConfig.getLayout()));
+        IsWidget table = buildTable(tabGroupConfig.getLayout());
+        panel.add(table);
         return panel;
     }
 
     private IsWidget buildBookmarksTabContent(TabGroupConfig tabGroupConfig) {
         FlowPanel panel = new FlowPanel();
-
+        //panel.setSize((Window.getClientWidth() - 260) + "px", "100%");
         panel.add(buildTable(tabGroupConfig.getLayout()));
         return panel;
     }
@@ -238,7 +238,7 @@ public class FormPanel implements IsWidget {
             table.setBorderWidth(1);
             table.getElement().setId("debug"); // todo: why ID?
         }
-
+        table.setSize("500px", "100%");
         FlexTable.FlexCellFormatter cellFormatter = table.getFlexCellFormatter();
         HTMLTable.ColumnFormatter columnFormatter = table.getColumnFormatter();
         int rowIndex = 0;
@@ -283,16 +283,16 @@ public class FormPanel implements IsWidget {
     }
     private HasHorizontalAlignment.HorizontalAlignmentConstant getHorizontalAlignmentForCurrentCell(String cellAlignment){
         HasHorizontalAlignment.HorizontalAlignmentConstant  horizontalAllignment = HasHorizontalAlignment.ALIGN_LEFT;
-                if (cellAlignment == null || cellAlignment.equals("left")){
-                    horizontalAllignment = HasHorizontalAlignment.ALIGN_LEFT;
-                }
-                if (cellAlignment != null && cellAlignment.equals("right")){
-                    horizontalAllignment = HasHorizontalAlignment.ALIGN_RIGHT;
-                }
-                if (cellAlignment != null && cellAlignment.equals("center")){
-                    horizontalAllignment = HasHorizontalAlignment.ALIGN_CENTER;
-                }
-       return horizontalAllignment;
+        if (cellAlignment == null || cellAlignment.equals("left")){
+            horizontalAllignment = HasHorizontalAlignment.ALIGN_LEFT;
+        }
+        if (cellAlignment != null && cellAlignment.equals("right")){
+            horizontalAllignment = HasHorizontalAlignment.ALIGN_RIGHT;
+        }
+        if (cellAlignment != null && cellAlignment.equals("center")){
+            horizontalAllignment = HasHorizontalAlignment.ALIGN_CENTER;
+        }
+        return horizontalAllignment;
     }
 
     private HasVerticalAlignment.VerticalAlignmentConstant getVerticalAlignmentForCurrentCell(String cellAlignment) {
@@ -312,8 +312,5 @@ public class FormPanel implements IsWidget {
         return configValue == null || configValue.isEmpty() ? 1 : Integer.parseInt(configValue);
     }
 
-    private int getNumberFromSizeString(String string) {
-        int UnitPx = 2;
-        return Integer.parseInt(string.substring(0, string.length() - UnitPx));
-    }
+
 }
