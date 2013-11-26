@@ -563,8 +563,9 @@ h1 {
 */
 
 div.gwt-Label{
-    margin-left: 20px ;
-    font-size: 120%;
+    /*margin-left: 20px ;*/
+    margin-left: 10px;
+    font-size: 100%;
     text-align: left;
 }
 

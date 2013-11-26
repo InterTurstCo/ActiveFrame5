@@ -2,43 +2,48 @@ package ru.intertrust.cm.core.gui.impl.client.form;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Widget;
 
 /**
  * Created with IntelliJ IDEA.
- * User: tbilyi
- * Date: 05.11.13
- * Time: 10:47
+ * User: Timofiy Bilyi
+ * Date: 22.11.13
+ * Time: 17:51
  * To change this template use File | Settings | File Templates.
  */
-public class HidingGroupListTabPanel implements IsWidget{
 
-        private VerticalPanel rootPanel = new VerticalPanel();
+public class HiddenGroupHelper implements IsWidget {
+    private AbsolutePanel rootPanel;
 
-   public void add(String title, IsWidget widget) {
-        final HorizontalPanel titlePanel = new HorizontalPanel();
-        final FocusPanel btn = new FocusPanel();
-        btn.setStyleName("hidden-group");
+    public HiddenGroupHelper() {
+        rootPanel = new AbsolutePanel();
+        rootPanel.setStyleName("hidden-group-root-div");
+    }
 
-        final HorizontalPanel contentPanel = new HorizontalPanel();
+    public void add(String title, IsWidget widget) {
+        AbsolutePanel titlePanel = new AbsolutePanel();
+        titlePanel.setStyleName("hidden-group-title-panel");
+        final AbsolutePanel contentPanel = new AbsolutePanel();
 
-        VerticalPanel elementPanel = new VerticalPanel();
+        AbsolutePanel elementPanel = new AbsolutePanel();
+        elementPanel.setStyleName("hidden-block-row");
 
-        titlePanel.add(btn);
-        Label label = new Label(title);
+        final Label label = new Label(title);
         label.setStyleName("hidden-group-title-first-level");
         titlePanel.add(label);
 
         contentPanel.add(widget);
         contentPanel.setStyleName("hidden-group-content-box");
 
-
         contentPanel.setVisible(false);
         elementPanel.add(titlePanel);
         elementPanel.add(contentPanel);
         rootPanel.add(elementPanel);
 
-        btn.addClickHandler(new ClickHandler() {
+        label.addClickHandler(new ClickHandler() {
 
             @Override
             public void onClick(ClickEvent event) {
@@ -46,17 +51,14 @@ public class HidingGroupListTabPanel implements IsWidget{
                 String style;
                 if (!contentPanel.isVisible()) {
                     contentPanel.setVisible(true);
-                   // path = ("images/down.png");
                     style = "hidden-group-select";
                 }
                 else {
                     contentPanel.setVisible(false);
-                    //path = ("images/right.png");
                     style = "hidden-group";
 
                 }
-               //btn.setUrl(path);
-                btn.setStyleName(style);
+                label.setStyleName(style);
 
             }
         });
@@ -67,4 +69,5 @@ public class HidingGroupListTabPanel implements IsWidget{
         // TODO Auto-generated method stub
         return rootPanel;
     }
+
 }

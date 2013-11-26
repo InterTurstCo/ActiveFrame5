@@ -24,7 +24,7 @@ public class NavigationTreePluginView extends PluginView {
 
     static Logger log = Logger.getLogger("navigation tree plugin view");
     private VerticalPanel navigationTreesPanel = new VerticalPanel();
-
+    SidebarView sideBarView;
     protected NavigationTreePluginView(Plugin plugin) {
         super(plugin);
     }
@@ -46,7 +46,8 @@ public class NavigationTreePluginView extends PluginView {
         HorizontalPanel navigationTreeContainer = new HorizontalPanel();
         decorateNavigationTreeContainer(navigationTreeContainer);
 
-        SidebarView sideBarView = new SidebarView();
+        sideBarView = new SidebarView();
+
         SystemTreeStyles.I.styles().ensureInjected();
 
         VerticalPanel rootLinksPanel = new VerticalPanel();
@@ -65,6 +66,9 @@ public class NavigationTreePluginView extends PluginView {
 
         drawNavigationTrees(firstRootLink);
         navigationTreeContainer.add(navigationTreesPanel);
+
+        setIndex(0);
+
         return navigationTreeContainer;
     }
 
@@ -113,25 +117,65 @@ public class NavigationTreePluginView extends PluginView {
         };
     }
 
-    private void buildRootLinks(List<LinkConfig> linkConfigList,
-                                final String selectedRootLinkName, SidebarView sideBarView) {
+    private void buildRootLinks(final List<LinkConfig> linkConfigList,
+                                final String selectedRootLinkName, final SidebarView sideBarView) {
         for (LinkConfig linkConfig : linkConfigList) {
-            RootNodeButton my = new RootNodeButton();
+            final RootNodeButton my = new RootNodeButton();
             sideBarView.sidebarItem("images/inbox.png", linkConfig.getDisplayText(), linkConfig.getName(), 3587L, my);
             sideBarView.getMenuItems().add(my);
 
-            if (linkConfig.getName().equals(selectedRootLinkName)) {
+          if (linkConfig.getName().equals(selectedRootLinkName)) {
                 my.setStyleName("selected");
             }
+
             my.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
                     RootNodeButton source = (RootNodeButton) event.getSource();
                     plugin.getEventBus().fireEventFromSource(new RootLinkSelectedEvent(source.getTitle()), plugin);
+                    setStyleForAllNAvigationButton(sideBarView.getWidgetIndex(my), sideBarView);
                 }
             });
         }
+
+
     }
+
+    private void setStyleForAllNAvigationButton(Integer activeMenu, SidebarView navigationPanel) {
+        for (int i = 0; i < navigationPanel.getMenuItems().getWidgetCount(); i++) {
+            if (activeMenu == i) {
+                navigationPanel.getMenuItems().getWidget(i).removeStyleName("non-selected");
+                navigationPanel.getMenuItems().getWidget(i).setStyleName("selected");
+            }
+            else {
+                navigationPanel.getMenuItems().getWidget(i).removeStyleName("selected");
+                navigationPanel.getMenuItems().getWidget(i).setStyleName("non-selected");
+            }
+        }
+    }
+
+    void setIndex(int index){
+
+        for (int i = 0; i < sideBarView.getMenuItems().getWidgetCount(); i++) {
+            if (i == index) {
+
+                sideBarView.getMenuItems().getWidget(i).setStyleName("selected");
+            }
+            else {
+
+                sideBarView.getMenuItems().getWidget(i).setStyleName("non-selected");
+            }
+        }
+    }
+
+     void setStyle(RootNodeButton my, List<LinkConfig> linkConfigList){
+         if(linkConfigList.size() == 1){
+             my.setStyleName("selected");
+         }
+         else {
+             my.setStyleName("non-selected");
+         }
+     }
 
     private void decorateRootlinksPanel(VerticalPanel chapterMenu) {
         chapterMenu.getElement().getStyle().setProperty("backgroundColor", "#EEE");

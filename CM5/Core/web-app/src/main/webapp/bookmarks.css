@@ -1,0 +1,213 @@
+/*.button-hide{*/
+/*background: #FF0000;*/
+/*padding: 10px;*/
+/*}*/
+
+/*.button-hide-selected{*/
+/*background: #00FF00;*/
+/*padding: 10px;*/
+/*}*/
+
+/*.bookmarks-linklabel{*/
+
+/*}*/
+
+
+.bookmark-content{
+
+}
+
+
+
+.bookmark-leftpanel{
+    min-height: 132px;
+}
+.bookmark-leftpanel-active {
+    background: #FEFFFF;
+    background: -moz-linear-gradient(left, #FEFFFF 0%, #D8E3EA 100%);
+    background: -webkit-gradient(linear, left top, right top, color-stop(0%, #FEFFFF), color-stop(100%, #D8E3EA));
+    background: -webkit-linear-gradient(left, #FEFFFF 0%, #D8E3EA 100%);
+    background: -o-linear-gradient(left, #FEFFFF 0%, #D8E3EA 100%);
+    background: -ms-linear-gradient(left, #FEFFFF 0%, #D8E3EA 100%);
+    background: linear-gradient(left, #FEFFFF 0%, #D8E3EA 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FEFFFF", endColorstr="#D8E3EA", GradientType=1);
+    width: 233px;
+    -webkit-box-shadow:inset -2px 0px 2px 0px #858585;
+    -moz-box-shadow:inset -2px 0px 2px 0px #858585;
+    box-shadow:inset -2px 0px 2px 0px #858585;
+}
+/*
+.bookmark-leftpanel table{
+    width: 100%;
+}
+*/
+/*
+.bookmark-leftpanel-non-active {
+    -webkit-box-shadow:inset 2px 0px 3px 0px #858585;
+    -moz-box-shadow:inset 2px 0px 3px 0px #858585;
+    box-shadow:inset 2px 0px 3px 0px #858585;
+    width: 3px;
+    z-index: 99;
+    position: relative;
+}
+*/
+.bookmark-leftpanel{
+    min-height: 132px;
+    padding-top: 14px;
+}
+
+
+.panel-left-exist{
+   background-color: white;
+}
+
+.bookmark-panel-left{
+    border: red 3px;
+}
+
+.bookmark-panel-right{
+    border: green 3px;
+}
+
+.buttonHideOff{
+    background: #FF0000;
+    padding: 10px;
+}
+.gwt-TabLayoutPanel-No-Padding{
+    padding: 0px;
+}
+/* Кнопки скрытия и открытия */
+
+.left-button{
+position: absolute;
+top: 20px;
+right: 15px;
+background: url(images/tab-close-block.png) no-repeat;
+	width: 21px;
+	height: 40px;
+	display: block;
+	outline: none;
+	cursor: pointer;
+	float: left;
+}
+ins {
+text-decoration: none;
+border-bottom-width: 1px;
+border-bottom-style: dotted;
+cursor: pointer;
+cursor: pointer;
+}
+.right-button .inside-vertical-tab-text  {
+padding: 2px 10px 3px;
+display: inline-block;
+color: black;
+}
+.right-button {
+background: scroll rgba(255, 255, 255, 0.8) none 0 0 no-repeat;
+-moz-transform: rotate(-90deg);
+-webkit-transform: rotate(-90deg);
+-o-transform: rotate(-90deg);
+-ms-transform: rotate(-90deg);
+border-bottom: 1px solid;
+border-left: 1px solid;
+border-right: 1px solid;
+color: black;
+border-radius: 0 0 10px 10px;
+position: absolute;
+z-index: 1;
+outline: none;
+top: 31px;
+left: -23px;
+}
+/* Кнопки END */
+.root-div{
+
+    border-color: black;
+}
+.left-div{
+position: absolute !important;
+width: 190px;
+top: 0;
+bottom: 0;
+background: #dde4ea;
+padding: 0 20px;
+border-right: 1px solid #becad6;
+margin-left: -0px;
+padding: 10px 20px 0 20px;
+border-width: 0;
+border-radius: 5px 0 0 5px;
+background: #fff;
+background: -moz-linear-gradient(left, #ffffff 0%, #d4e1e9 100%);
+background: -webkit-gradient(linear, left top, right top, color-stop(0%, #ffffff),	 color-stop(100%, #d4e1e9) );
+background: -webkit-linear-gradient(left, #ffffff 0%, #d4e1e9 100%);
+background: -o-linear-gradient(left, #ffffff 0%, #d4e1e9 100%);
+background: -ms-linear-gradient(left, #ffffff 0%, #d4e1e9 100%);
+filter: progid\: DXImageTransform\.Microsoft\.gradient\( startColorstr\= "#ffffff", endColorstr\= "#d4e1e9", GradientType\= 1 \);
+background: linear-gradient(left, #ffffff 0%, #d4e1e9 100%);
+}
+.right-div,
+.bookmarks-no-margin{
+min-height: 220px;
+padding-right: 10px;
+margin-left: 215px;
+padding-left: 20px;
+position: relative;
+background: #fff;
+border: none;
+border-radius: 5px 5px 5px 5px;
+box-shadow: -2px 0 2px #ccc;
+padding-top: 17px;
+}
+.bookmarks-no-margin {
+margin-left: 10px;
+padding-left: 37px !important;
+}
+.decorated-left-div{
+
+}
+.decorated-right-div{
+
+}
+
+.vertical-tab-text{
+
+}
+.inside-vertical-tab-text{
+
+}
+
+
+.gwt-TabLayoutPanelContent.gwt-TabLayoutPanel-No-Padding{
+padding: 0px !important;
+}
+/* левая панель кнопки */
+.bookmarks-link-non-active a,
+.bookmarks-link-active a{
+    padding: 3px 15px;
+    text-decoration: underline;
+    color: black !important;
+    cursor: pointer;
+	float: left;
+	border: 3px solid transparent;
+}
+.bookmarks-link-non-active a:hover{
+    text-decoration: none;
+}
+.bookmarks-link-active,
+.bookmarks-link-non-active{
+	margin-left: 16px;
+	float: left;
+	clear: left;
+}
+.bookmarks-link-active {
+    margin-left: 12px;
+}
+.bookmarks-link-active a {
+    padding-left: 19px;
+    padding-right: 9px;
+    border: 3px solid #024186;
+    border-radius: 14px;
+    text-decoration: none;
+}
+/* левая панель кнопки END */
+

@@ -14,52 +14,137 @@ import com.google.gwt.user.client.ui.*;
 public class BookmarksTabPanel implements IsWidget {
     private HorizontalPanel rootPanel = new HorizontalPanel();
     private VerticalPanel leftPanel = new VerticalPanel();
+    private HorizontalPanel leftPanelWithHideButtonContainer = new HorizontalPanel();
+    private HorizontalPanel rightPanelWithHideButtonContainer = new HorizontalPanel();
+    private FocusPanel leftInnerPanel = new FocusPanel();
     private VerticalPanel buttonHidePanel = new VerticalPanel();
-    private Button buttonHide = new Button("<-");
+//    private Button buttonHide = new Button("<-");
+    private FocusPanel buttonHide;
+    private FocusPanel buttonHideOff;
     private VerticalPanel contentRightPanel = new VerticalPanel();
+    private FocusPanel contentInnerPanel = new FocusPanel();
 
     public BookmarksTabPanel() {
         init();
+
+        //получить по класснейму элемент
+        //
+
+        rootPanel.setStyleName("panel-left-exist");
+
+        buttonHide.setStyleName("button-hide");
+        buttonHideOff.setStyleName("buttonHideOff");
+        leftInnerPanel.addStyleName("bookmark-leftpanel");
+
+        leftInnerPanel.addStyleName("bookmark-leftpanel-active");
+
+        contentInnerPanel.addStyleName("bookmark-content");
+        leftPanelWithHideButtonContainer.setStyleName("bookmark-panel-left");
+        rightPanelWithHideButtonContainer.setStyleName("bookmark-panel-right");
+
+
     }
 
     private void init() {
-        rootPanel.add(leftPanel);
-        rootPanel.add(buttonHidePanel);
+
+        buttonHide = new FocusPanel();
+        buttonHideOff = new FocusPanel();
+        buttonHideOff.setVisible(false);
+        leftPanelWithHideButtonContainer.add(leftPanel);
+        leftPanelWithHideButtonContainer.add(buttonHidePanel);
+        leftInnerPanel.add(leftPanelWithHideButtonContainer);
+
+
+
+        rootPanel.add(leftInnerPanel);
+
+        //rootPanel.add(buttonHidePanel);
         buttonHidePanel.add(buttonHide);
-        rootPanel.add(contentRightPanel);
+
+        contentInnerPanel.add(contentRightPanel);
+
+        rightPanelWithHideButtonContainer.add(buttonHideOff);
+        rightPanelWithHideButtonContainer.add(contentInnerPanel);
+
+        rootPanel.add(rightPanelWithHideButtonContainer);
+
+//        buttonHide.addClickHandler(new ClickHandler() {
+//
+//            @Override
+//            public void onClick(ClickEvent event) {
+//
+//                if (leftPanel.isVisible()) {
+//
+//                    leftPanel.setVisible(false);
+//                    buttonHide.setStyleName("button-hide-selected");
+//
+//                    leftInnerPanel.removeStyleName("bookmark-leftpanel-active");
+//                    leftInnerPanel.addStyleName("bookmark-leftpanel-non-active");
+//                } else {
+//                    leftPanel.setVisible(true);
+//
+//                    buttonHide.setStyleName("button-hide");
+//
+//                    leftInnerPanel.removeStyleName("bookmark-leftpanel-non-active");
+//                    leftInnerPanel.addStyleName("bookmark-leftpanel-active");
+//                }
+//            }
+//        });
 
         buttonHide.addClickHandler(new ClickHandler() {
 
             @Override
             public void onClick(ClickEvent event) {
-                if (rootPanel.getWidget(0).isVisible()) {
-                    rootPanel.getWidget(0).setVisible(false);
-                }
-                else
-                    rootPanel.getWidget(0).setVisible(true);
+                    leftPanel.setVisible(false);
+                    buttonHide.setStyleName("button-hide-selected");
+                    leftInnerPanel.removeStyleName("bookmark-leftpanel-active");
+                    leftInnerPanel.addStyleName("bookmark-leftpanel-non-active");
+                    buttonHideOff.setVisible(true);
+                    buttonHide.setVisible(false);
+            }
+        });
+
+        buttonHideOff.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                leftPanel.setVisible(true);
+                buttonHide.setStyleName("button-hide");
+                leftInnerPanel.removeStyleName("bookmark-leftpanel-non-active");
+                leftInnerPanel.addStyleName("bookmark-leftpanel-active");
+                buttonHideOff.setVisible(false);
+                buttonHide.setVisible(true);
             }
         });
     }
 
     public void add(String title, IsWidget content) {
-        final Button label = new Button(title);
-        label.setWidth("200px");
-        leftPanel.add(label);
+        final Hyperlink linkLabel = new Hyperlink();
+        //addstyle
+        //linkLabel.setStyleName("bookmarks-linklabel");
+        linkLabel.setStyleName("bookmarks-link-non-active");
+        linkLabel.setText(title);
+        //linkLabel.setWidth("200px"); //убрать размер
+        leftPanel.add(linkLabel);
+
         contentRightPanel.add(content);
 
-        label.addClickHandler(new ClickHandler() {
+
+        linkLabel.addClickHandler(new ClickHandler() {
             int index;
 
             @Override
             public void onClick(ClickEvent event) {
-                index = leftPanel.getWidgetIndex(label);
+                index = leftPanel.getWidgetIndex(linkLabel);
                 contentRightPanel.getWidget(index).setVisible(true);
+
                 for (int i = 0; i < contentRightPanel.getWidgetCount(); i++) {
                     if (i == index) {
                         contentRightPanel.getWidget(i).setVisible(true);
+                        leftPanel.getWidget(i).setStyleName("bookmarks-link-active");
                     }
                     else {
                         contentRightPanel.getWidget(i).setVisible(false);
+                        leftPanel.getWidget(i).setStyleName("bookmarks-link-non-active");
                     }
                 }
             }

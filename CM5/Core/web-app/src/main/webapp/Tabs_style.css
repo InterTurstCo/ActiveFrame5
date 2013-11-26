@@ -1,82 +1,98 @@
-.gwt-TabLayoutPanel 
+.gwt-TabLayoutPanel
 {
-    /*height: 300px !important;*/
-    /*overflow: scroll !important;*/
+    height: 300px !important;
 }
- 
+
 .gwt-TabLayoutPanelTabs{
-	background: #c2e7f0 !important;
+    background: #c2e7f0 !important;
+
 }
 
- .gwt-TabLayoutPanel .gwt-TabLayoutPanelTabs {
-padding-top: 6px !important;
-padding-left: 1px !important;
-margin-left: 0 !important;
-margin-right: 20px !important;
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelTabs {
+    padding-top: 6px !important;
+    padding-left: 1px !important;
+    margin-left: 0 !important;
+    margin-right: 20px !important;
 }
 
-.gwt-TabLayoutPanel .gwt-TabLayoutPanelContent { 
-  border-color: #c2e7f0 !important; 
-  border-style: solid !important; 
-  border-width: 0px 2px 2px !important; 
-  overflow: hidden !important; 
-  padding: 0px !important; 
-  background: #FFFFFF !important;  
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelContent {
+    border: 0px !important;
+    background: none !important;
 }
- 
-.gwt-TabLayoutPanel .gwt-TabLayoutPanelTab { 
-  /* margin-left: 6px !important;  */
-  padding: 3px 8px 0px 0px !important; 
-  cursor: pointer !important; 
-  cursor: hand !important; 
-  color: black !important; 
-  font-size: 1.2em !important; 
-  /*color: #blue !important; */
-  text-align: center !important; 
-  background: #c2e7f0 !important;
-}
-
-.gwt-TabLayoutPanel .gwt-TabLayoutPanelTab-selected{ 
-  cursor: default !important; 
-  /* background: #8bc53d !important; */ 
-  font-size: 1.2em !important; 
-  padding: 0 24px 0 0 !important;
-  /* background: url(css/images/tabs_selected_r.png) no-repeat scroll 100% 0 transparent !important; */
-  background: url(css/images/tabs_selected_r.png) no-repeat scroll 100% 0  !important;
-  /* background-color: #FF0000 !important; */
-   /* background-color: #c2e7f0 !important; */
-}
-
-/*.gwt-TabLayoutPanel > .gwt-TabLayoutPanelTab-selected >.gwt-Label{
-  
-   background-color: #FF0000 !important;
-}*/
 
 .gwt-TabLayoutPanel .gwt-TabLayoutPanelTab {
-color: #000 !important;
-font-size: 110% !important;
-cursor: pointer !important;
-cursor: hand !important;
-font-weight: normal !important;
-text-align: center !important;
-border-radius: 3px 3px 0 0 !important;
+    /* margin-left: 6px !important;  */
+    padding: 3px 8px 0px 0px !important;
+    cursor: pointer !important;
+    cursor: hand !important;
+    color: black !important;
+    font-size: 1.2em !important;
+    color: #blue !important;
+    text-align: center !important;
+    background: #c2e7f0 !important;
 }
 
-.gwt-TabLayoutPanelContent{
-	width: 100%;
-    height: 100%;
-	padding: 0px !important;
-	margin: 0px !important;
+
+
+.gwt-TabLayoutPanel > .gwt-TabLayoutPanelTab-selected >.gwt-Label{
+
+    background-color: #FF0000 !important;
 }
 
-/*.gwt-TabLayoutPanelContentContainer{*/
-    /*position: static !important;*/
-    /*left: 0px !important;*/
-    /*top: 0px !important;*/
-    /*right: 0px !important;*/
-    /*bottom: 0px !important;*/
-/*}*/
- /*добавление скролла tabpanelinstance.addStyleName("tab-style-content");*/
-.tab-style-content .gwt-TabLayoutPanelContent{
-    overflow: auto;
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelTab {
+    color: #000 !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+    cursor: hand !important;
+    font-weight: normal !important;
+    text-align: center !important;
+    border-radius: 3px 3px 0 0 !important;
+}
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelTab-selected .gwt-TabLayoutPanelTabInner{
+    background: url(css/images/left-tab.png) no-repeat  0px 0px  !important;
+    padding-left: 9px;
+}
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelTab-selected  .gwt-Label{
+    margin-left: 0px !important;
+}
+.gwt-TabLayoutPanel   .gwt-Label{
+
+    height: 28px;
+    line-height: 28px;
+}
+.gwt-TabLayoutPanel{
+    margin-left: 8px;
+}
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelTab {
+    margin-right: 0px;
+    margin-left: 8px !important;
+}
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelTab-selected {
+    font-weight: bold !important;
+    cursor: default !important;
+    /* background: #8bc53d !important; */
+
+    padding: 0 24px 0 0 !important;
+    /* background: url(css/images/tabs_selected_r.png) no-repeat scroll 100% 0 transparent !important; */
+    background: url(css/images/tabs_selected_r.png) no-repeat scroll 100% 0  !important;
+    /* background-color: #FF0000 !important; */
+    /* background-color: #c2e7f0 !important; */
+}
+.gwt-TabLayoutPanel .div.gwt-Label{
+    font-size: 14px !important;
+}
+
+
+
+.gwt-TabLayoutPanelContentContainer{
+    background-color: #FFFFFF !important;
+    border: none !important;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    /*
+    -webkit-box-shadow: 0px 5px 10px 0px #363636;
+    -moz-box-shadow: 0px 5px 10px 0px #363636;
+    box-shadow: 0px 5px 10px 0px #363636;
+    */
 }

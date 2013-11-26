@@ -38,7 +38,16 @@ public class SidebarView extends Composite {
     HTMLPanel arrsPanel = new HTMLPanel("");
     Element arrTop;
     Element arrBottom;
-    VerticalPanel menuItems = new VerticalPanel();
+    public VerticalPanel menuItems = new VerticalPanel();
+
+    public int getWidgetIndex(Widget w){
+        int result = menuItems.getWidgetIndex(w);
+        return result;
+    }
+
+    public Widget getWidgetMenuItems(int index){
+        return menuItems.getWidget(index);
+    }
 
     public void createSideBar() {
         hpan.add(sidebarPanel);
@@ -79,7 +88,6 @@ public class SidebarView extends Composite {
                 correctContentStyles();
             }
         });
-
     }
 
     // @Override

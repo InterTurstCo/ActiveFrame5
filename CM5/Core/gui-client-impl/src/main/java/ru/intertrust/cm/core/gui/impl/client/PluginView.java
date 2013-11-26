@@ -13,6 +13,8 @@ import ru.intertrust.cm.core.gui.model.plugin.IsActive;
 import java.util.List;
 import java.util.logging.Logger;
 
+//import ru.intertrust.cm.core.config.gui.ActionConfig;
+
 /**
  * Базовый класс представления плагина.
  *
@@ -61,10 +63,13 @@ public abstract class PluginView implements IsWidget {
         }
         for (final ActionContext actionContext : actionContexts) {
             final ActionConfig actionConfig = actionContext.getActionConfig();
+            Hyperlink hyperlink = new Hyperlink(actionConfig.getText(), actionConfig.getText());
+            hyperlink.setStyleName("style-button");
             if (actionConfig == null) {
                 continue;
             }
-            actionToolBar.add(new Button(actionConfig.getText(), new ClickHandler() {
+            actionToolBar.add(hyperlink);
+            hyperlink.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
                     String component = actionConfig.getComponent();
@@ -76,9 +81,10 @@ public abstract class PluginView implements IsWidget {
                     action.setPlugin(plugin);
                     action.execute();
                 }
-            }));
+            });
         }
     }
+
 
     /**
      * Строит и возвращает представление (внешнее отображение) плагина
