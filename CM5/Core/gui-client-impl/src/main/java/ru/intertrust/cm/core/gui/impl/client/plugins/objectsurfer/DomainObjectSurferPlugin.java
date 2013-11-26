@@ -9,10 +9,7 @@ import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
-import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
+import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.form.FormState;
@@ -24,7 +21,7 @@ import java.util.logging.Logger;
 
 @ComponentName("domain.object.surfer.plugin")
 public class DomainObjectSurferPlugin extends Plugin implements
-        IsActive, CollectionRowSelectedEventHandler, IsDomainObjectEditor, IsIdentifiableObjectList {
+        IsActive, CollectionRowSelectedEventHandler, IsDomainObjectEditor, IsIdentifiableObjectList, PluginPanelSizeChangedEventHandler {
 
     private Plugin collectionPlugin;
     private Plugin formPlugin;
@@ -39,7 +36,7 @@ public class DomainObjectSurferPlugin extends Plugin implements
 
     @Override
     protected GwtEvent.Type[] getEventTypesToHandle() {
-        return new GwtEvent.Type[]{CollectionRowSelectedEvent.TYPE};
+        return new GwtEvent.Type[]{CollectionRowSelectedEvent.TYPE, PluginPanelSizeChangedEvent.TYPE};
     }
 
     @Override
@@ -69,7 +66,7 @@ public class DomainObjectSurferPlugin extends Plugin implements
         formPluginPanel.closeCurrentPlugin();
         final FormPlugin newFormPlugin = ComponentRegistry.instance.get("form.plugin");
         newFormPlugin.setConfig(new FormPluginConfig(event.getId()));
-        newFormPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {
+        newFormPlugin.addViewCreatedListener(new SizeChangedEventListener() {
             @Override
             public void onViewCreation(PluginViewCreatedEvent source) {
                 List<ActionContext> actions = ((FormPluginData) newFormPlugin.getInitialData()).getActionContexts();
@@ -126,5 +123,19 @@ public class DomainObjectSurferPlugin extends Plugin implements
             this.formPlugin.setDisplayActionToolBar(false);
         }
         this.formPlugin.setInitialData(initialData.getFormPluginData());
+    }
+
+    @Override
+    public void updateSizes() {
+        int width = getOwner().getPanelWidth();
+        int height = getOwner().getPanelHeight();
+        formPlugin.getOwner().setPanelWidth(width);
+        formPlugin.getOwner().setPanelHeight(height / 2);
+        collectionPlugin.getOwner().setPanelWidth(width);
+        collectionPlugin.getOwner().setPanelHeight(height / 2);
+
+        getView().onPluginPanelResize();
+        collectionPlugin.getView().onPluginPanelResize();
+        formPlugin.getView().onPluginPanelResize();
     }
 }

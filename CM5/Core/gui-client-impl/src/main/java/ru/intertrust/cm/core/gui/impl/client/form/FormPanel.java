@@ -9,7 +9,10 @@ import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.config.model.gui.form.*;
 import ru.intertrust.cm.core.config.model.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
-import ru.intertrust.cm.core.gui.impl.client.event.*;
+import ru.intertrust.cm.core.gui.impl.client.event.SplitterInnerScrollEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.SplitterInnerScrollEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
@@ -24,14 +27,19 @@ import java.util.List;
  *         Time: 14:53
  */
 public class FormPanel implements IsWidget {
-    private float formWidthRatio;
-    private float formHeightRatio;
+    private int formWidth;
+    private int formHeight;
     private FormDisplayData formDisplayData;
     private List<BaseWidget> widgets;
     ScrollPanel scrollPanel ;
     EventBus eventBus;
-
+    public FormPanel (FormDisplayData formDisplayData, EventBus eventBus, int width, int height) {
+          this(formDisplayData, eventBus);
+          formWidth = width;
+          formHeight = height;
+    }
     public FormPanel(FormDisplayData formDisplayData, EventBus eventBus) {
+
         this.formDisplayData = formDisplayData;
         widgets = new ArrayList<BaseWidget>(formDisplayData.getFormState().getFullWidgetsState().size());
         scrollPanel = new ScrollPanel();
@@ -68,15 +76,12 @@ public class FormPanel implements IsWidget {
 
             }
         });
-        eventBus.addHandler(PluginViewCreatedSubEvent.TYPE, new PluginViewCreatedSubEventHandler() {
-            @Override
-            public void setSizes(float widthRatio, float heightRatio) {
 
-                formWidthRatio = widthRatio;
-                formHeightRatio = heightRatio;
 
-            }
-        }) ;
+    }
+    public void updateSizes(int width, int height) {
+        formWidth = width;
+        formHeight = height;
 
     }
 
@@ -106,15 +111,16 @@ public class FormPanel implements IsWidget {
         HeaderConfig header = markup.getHeader();
         IsWidget headerTable = buildTable(header.getTableLayout());
 
-        final TabLayoutPanel bodyTabPanel;
+
 
         BodyConfig body = markup.getBody();
         List<TabConfig> tabs = body.getTabs();
-
+        final TabLayoutPanel bodyTabPanel;
         int countTab = 1;
         if (body.isDisplaySingleTab() == true && tabs.size() == countTab){
 
             bodyTabPanel = new TabLayoutPanel(0, Style.Unit.PX);
+
             bodyTabPanel.add(buildTabContent(tabs.get(0)));
         }
         else{
@@ -139,13 +145,13 @@ public class FormPanel implements IsWidget {
             bodyTabPanel.setHeight(header.getTableLayout().getHeight());
         }
         else{
-            bodyTabPanel.setHeight((int)(formHeightRatio * Window.getClientHeight()) + "px");
+          bodyTabPanel.setHeight(formHeight + "px");
         }
         if(header.getTableLayout().getWidth()!= null){
-            bodyTabPanel.setWidth((int)(formWidthRatio * Window.getClientWidth()) + "px");
+            bodyTabPanel.setWidth(header.getTableLayout().getWidth());
         }
         else{
-            bodyTabPanel.setWidth((int)(formWidthRatio * Window.getClientWidth()) + "px");
+           bodyTabPanel.setWidth(formWidth + "px");
         }
             scrollPanel = getScrollPanel(headerTable, bodyTabPanel, formDisplayData);
 
@@ -157,21 +163,16 @@ public class FormPanel implements IsWidget {
         formDisplayData.getMarkup().getHeader().getTableLayout().getHeight();
         formDisplayData.getMarkup().getHeader().getTableLayout().getWidth();
 
-        if(getNumberFromSizeString(formDisplayData.getMarkup().getHeader().getTableLayout().getWidth()) > formWidthRatio){
+        if(formDisplayData.getMarkup().getHeader().getTableLayout().getWidth() != null){
           verticalPanel.setWidth(formDisplayData.getMarkup().getHeader().getTableLayout().getWidth()+"px");
           verticalPanel.setHeight("100%");
         }
-        else{
-            verticalPanel.setHeight(((int)(formHeightRatio * Window.getClientHeight() / 2)) + "px");
-            verticalPanel.setWidth(formWidthRatio * Window.getClientWidth() + "px");
-        }
+
 
         scrollPanel.add(verticalPanel);
         verticalPanel.add(headerTable);
         verticalPanel.add(bodyTabPanel);
 
-        scrollPanel.setHeight((int)(formHeightRatio * Window.getClientHeight()) + "px");
-        scrollPanel.setWidth((int)(formWidthRatio * Window.getClientWidth()) + "px");
         verticalPanel.add(headerTable);
         verticalPanel.add(bodyTabPanel);
         bodyTabPanel.getTabWidget(0).getElement().getStyle().setProperty("backgroundColor", "white");
@@ -237,7 +238,7 @@ public class FormPanel implements IsWidget {
             table.setBorderWidth(1);
             table.getElement().setId("debug"); // todo: why ID?
         }
-        table.setSize(formWidthRatio + "px", "100%");
+
         FlexTable.FlexCellFormatter cellFormatter = table.getFlexCellFormatter();
         HTMLTable.ColumnFormatter columnFormatter = table.getColumnFormatter();
         int rowIndex = 0;

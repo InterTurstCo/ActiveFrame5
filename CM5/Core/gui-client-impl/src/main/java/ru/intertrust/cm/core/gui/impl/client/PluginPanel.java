@@ -16,13 +16,30 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  */
 public class PluginPanel implements IsWidget {
 
-
+    private int panelWidth;
+    private int panelHeight;
     private SimplePanel impl = new SimplePanel();
     private EventBus eventBus;
     private Plugin currentPlugin;
 
     public PluginPanel(EventBus eventBus) {
         this.eventBus = eventBus;
+    }
+
+    public int getPanelWidth() {
+        return panelWidth;
+    }
+
+    public void setPanelWidth(int panelWidth) {
+        this.panelWidth = panelWidth;
+    }
+
+    public int getPanelHeight() {
+        return panelHeight;
+    }
+
+    public void setPanelHeight(int panelHeight) {
+        this.panelHeight = panelHeight;
     }
 
     /**
@@ -83,6 +100,7 @@ public class PluginPanel implements IsWidget {
         beforePluginOpening();
         impl.setWidget(this.currentPlugin.getView());
         impl.setSize("100%", "100%");
+
     }
 
     @Override

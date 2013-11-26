@@ -124,6 +124,7 @@ public class TableBrowserView extends Composite {
         filterEditor = new TextBox();
         openDialogButton = new Button("ADD");
         dialogBox = new DialogBox();
+
         table = new CellTable<TableBrowserRowItem>();
         okButton = new Button("OK");
         cancelButton = new Button("CANCEL");

@@ -1,17 +1,15 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer;
 
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.logical.shared.ResizeEvent;
-import com.google.gwt.event.logical.shared.ResizeHandler;
-import com.google.gwt.user.client.Window;
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.*;
-import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
-import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.config.model.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
-import ru.intertrust.cm.core.gui.impl.client.event.*;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
+import ru.intertrust.cm.core.gui.impl.client.event.SplitterInnerScrollEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.splitter.SplitterEx;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
@@ -22,57 +20,36 @@ import java.util.logging.Logger;
 
 public class DomainObjectSurferPluginView extends PluginView {
 
-    FlowPanel formFlowPanel = new FlowPanel();
-    SimplePanel splitterFirstWidget = new SimplePanel();
-    ScrollPanel splitterScroll = new ScrollPanel();
+    private int surferWidth;
+    private int surferHeight;
+    private FlowPanel formFlowPanel = new FlowPanel();
+    private SimplePanel splitterFirstWidget = new SimplePanel();
+    private ScrollPanel splitterScroll = new ScrollPanel();
     private DomainObjectSurferPlugin domainObjectSurferPlugin;
-    SplitterEx splitterPanel;
-    static Logger log = Logger.getLogger("DomainObjectSurfer");
-    private float splitterWidthRatio;
-    private float splitterHeightRatio;
-    public DomainObjectSurferPluginView(DomainObjectSurferPlugin domainObjectSurferPlugin) {
-        super(domainObjectSurferPlugin);
-        this.domainObjectSurferPlugin = domainObjectSurferPlugin;
+    private EventBus eventBus;
+    private SplitterEx splitterPanel;
+    private static Logger log = Logger.getLogger("DomainObjectSurfer");
+    private FlowPanel flowPanel;
+
+    public DomainObjectSurferPluginView(Plugin plugin) {
+        super(plugin);
+        domainObjectSurferPlugin = (DomainObjectSurferPlugin) plugin;
         splitterScroll.getElement().getStyle().setOverflowY(Style.Overflow.HIDDEN);
+        surferWidth = plugin.getOwner().getPanelWidth();
+        surferHeight = plugin.getOwner().getPanelHeight();
         initSplitter();
-        addWindowResizeListeners();
-
-
-        domainObjectSurferPlugin.getEventBus().addHandler(SplitterWidgetResizerEvent.TYPE, new SplitterWidgetResizerEventHandler() {
-            @Override
-            public void setWidgetSize(SplitterWidgetResizerEvent event) {
-
-                if (event.isType()){
-                    splitterPanel.remove(0);
-                    splitterPanel.insertWest(splitterScroll, event.getFirstWidgetWidth(), splitterPanel.getWidget(0));
-                } else {
-                    splitterPanel.remove(0);
-                    splitterPanel.insertNorth(splitterScroll, event.getFirstWidgetHeight(), splitterPanel.getWidget(0));
-                }
-            }
-        });
-        domainObjectSurferPlugin.getEventBus().addHandler(PluginViewCreatedSubEvent.TYPE, new PluginViewCreatedSubEventHandler() {
-            @Override
-            public void setSizes(float widthRatio, float heightRatio) {
-                if (splitterWidthRatio != 0) {
-                       return;
-                }
-
-                splitterWidthRatio = widthRatio;
-                splitterHeightRatio = heightRatio;
-                splitterSetSize();
-
-            }
-        }) ;
+        splitterSetSize();
+        eventBus = domainObjectSurferPlugin.getEventBus();
+        addSplitterWidgetResizeHandler();
 
     }
 
-    void initSplitter(){
-        splitterPanel = new SplitterEx(9, domainObjectSurferPlugin.getEventBus()){
+    private void initSplitter() {
+        splitterPanel = new SplitterEx(9, domainObjectSurferPlugin.getEventBus()) {
             @Override
             public void onResize() {
                 super.onResize();
-                domainObjectSurferPlugin.getEventBus()
+                eventBus
                         .fireEvent(new SplitterInnerScrollEvent(splitterScroll.getOffsetHeight(),
                                 splitterScroll.getOffsetWidth(), formFlowPanel.getOffsetHeight(),
                                 formFlowPanel.getOffsetWidth()));
@@ -81,31 +58,48 @@ public class DomainObjectSurferPluginView extends PluginView {
         };
     }
 
-    protected void splitterSetSize(){
+    public void onPluginPanelResize() {
+        updateSizes();
+        splitterSetSize();
+    }
+
+    private void updateSizes() {
+        surferWidth = plugin.getOwner().getPanelWidth();
+        surferHeight = plugin.getOwner().getPanelHeight();
+
+    }
+
+    protected void splitterSetSize() {
         splitterPanel.clear();
 
-        splitterPanel.setSize((int)(splitterWidthRatio * Window.getClientWidth()) + "px", (int)(splitterHeightRatio * Window.getClientHeight()) + "px");
-        splitterPanel.addNorth(splitterScroll, (int)(splitterHeightRatio * Window.getClientHeight() / 2));
+        splitterPanel.setSize(surferWidth + "px", surferHeight + "px");
+        splitterPanel.addNorth(splitterScroll, surferHeight / 2);
         splitterPanel.add(formFlowPanel);
     }
 
-
-    private void addWindowResizeListeners(){
-        Window.addResizeHandler(new ResizeHandler() {
+    private void addSplitterWidgetResizeHandler() {
+        eventBus.addHandler(SplitterWidgetResizerEvent.TYPE, new SplitterWidgetResizerEventHandler() {
             @Override
-            public void onResize(ResizeEvent event) {
-                splitterSetSize();
+            public void setWidgetSize(SplitterWidgetResizerEvent event) {
+
+                if (event.isType()) {
+                    splitterPanel.remove(0);
+                    splitterPanel.insertWest(splitterScroll, event.getFirstWidgetWidth(), splitterPanel.getWidget(0));
+                } else {
+                    splitterPanel.remove(0);
+                    splitterPanel.insertNorth(splitterScroll, event.getFirstWidgetHeight(), splitterPanel.getWidget(0));
+                }
             }
         });
+
     }
 
     @Override
     protected IsWidget getViewWidget() {
 
-        FlowPanel flowPanel = new FlowPanel();
+        flowPanel = new FlowPanel();
         flowPanel.setStyleName("centerTopBottomDividerRoot");
         final VerticalPanel container = new VerticalPanel();
-
         flowPanel.add(container);
         splitterScroll.add(splitterFirstWidget);
 
@@ -114,17 +108,13 @@ public class DomainObjectSurferPluginView extends PluginView {
         final DomainObjectSurferConfig config = (DomainObjectSurferConfig) domainObjectSurferPlugin.getConfig();
         if (config != null) {
             log.info("plugin config, collection = " + config.getCollectionViewerConfig().getCollectionRefConfig().getName());
-            final PluginPanel formPluginPanel = new PluginPanel(domainObjectSurferPlugin.getEventBus());
-            final CollectionPlugin collectionViewerPlugin = ComponentRegistry.instance.get("collection.plugin");
+            final PluginPanel formPluginPanel = new PluginPanel(eventBus);
+            formPluginPanel.setPanelHeight(surferHeight / 2);
+            formPluginPanel.setPanelWidth(surferWidth);
+            final Plugin collectionViewerPlugin = domainObjectSurferPlugin.getCollectionPlugin();
             collectionViewerPlugin.setConfig(config.getCollectionViewerConfig());
-            collectionViewerPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {
-                @Override
-                public void onViewCreation(PluginViewCreatedEvent source) {
 
-                    domainObjectSurferPlugin.getEventBus().fireEvent(new PluginViewCreatedSubEvent(splitterWidthRatio, splitterHeightRatio));
-                }
-            });
-            PluginPanel collectionViewerPluginPanel = new PluginPanel(domainObjectSurferPlugin.getEventBus()) {
+            PluginPanel collectionViewerPluginPanel = new PluginPanel(eventBus) {
                 @Override
                 public void beforePluginOpening() {
                     CollectionPluginData collectionPluginData = collectionViewerPlugin.getInitialData();
@@ -139,16 +129,10 @@ public class DomainObjectSurferPluginView extends PluginView {
                     } else {
                         formPluginConfig = new FormPluginConfig(items.get(0).getId());
                     }
-                    Plugin formPlugin = ComponentRegistry.instance.get("form.plugin");
-                    formPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {
-                        @Override
-                        public void onViewCreation(PluginViewCreatedEvent source) {
+                    final Plugin formPlugin = domainObjectSurferPlugin.getFormPlugin();
+                    domainObjectSurferPlugin.setFormPlugin(formPlugin);
+                    formPlugin.setConfig(formPluginConfig);
 
-                            domainObjectSurferPlugin.getEventBus().fireEvent(new PluginViewCreatedSubEvent(splitterWidthRatio, splitterHeightRatio));
-                        }
-                    });
-                    domainObjectSurferPlugin.setFormPlugin(plugin);
-                    formPlugin .setConfig(formPluginConfig);
                     formPluginPanel.open(formPlugin);
                     splitterFirstWidget.add(this.asWidget());
 
@@ -156,10 +140,12 @@ public class DomainObjectSurferPluginView extends PluginView {
                     formFlowPanel.setSize("100%", "100%");
                     formFlowPanel.add(new ScrollPanel(formPluginPanel.asWidget()));
 
+
                 }
             };
+            collectionViewerPluginPanel.setPanelWidth(surferWidth);
+            collectionViewerPluginPanel.setPanelHeight(surferHeight / 2);
             collectionViewerPluginPanel.open(collectionViewerPlugin);
-
 
         }
         return flowPanel;

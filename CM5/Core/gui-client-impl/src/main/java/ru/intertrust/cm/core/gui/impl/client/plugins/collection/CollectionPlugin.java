@@ -29,5 +29,4 @@ public class CollectionPlugin extends Plugin {
         return new GwtEvent.Type[]{CollectionRowSelectedEvent.TYPE};
     }
 
-
 }

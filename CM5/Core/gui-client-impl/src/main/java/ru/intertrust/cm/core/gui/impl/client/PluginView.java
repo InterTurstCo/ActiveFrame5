@@ -106,4 +106,12 @@ public abstract class PluginView implements IsWidget {
         panel.add(getViewWidget());
         return panel;
     }
+
+    /**
+     * Перерисовует cодержимое плагин панели после изменения размеров панели
+     */
+    public  void onPluginPanelResize(){
+
+    }
+
 }

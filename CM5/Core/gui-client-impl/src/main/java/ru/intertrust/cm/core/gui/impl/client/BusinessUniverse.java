@@ -3,18 +3,20 @@ package ru.intertrust.cm.core.gui.impl.client;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.DockLayoutPanel;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.RootLayoutPanel;
+import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
-import ru.intertrust.cm.core.gui.impl.client.event.*;
+import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEvent;
 import ru.intertrust.cm.core.gui.impl.client.panel.HeaderContainer;
 import ru.intertrust.cm.core.gui.impl.client.plugins.navigation.NavigationTreePlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
@@ -37,9 +39,10 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     NavigationTreePlugin navigationTreePlugin;
     PluginPanel navigationTreePanel;
     FlowPanel headerPanel;
-
-    CurrentUserInfo getUserInfo(BusinessUniverseInitialization result){
-        return new CurrentUserInfo(result.getCurrentLogin(), result.getFirstName(), result.getLastName() , result.geteMail());
+    private int centralPluginWidth;
+    private int centralPluginHeight;
+    CurrentUserInfo getUserInfo(BusinessUniverseInitialization result) {
+        return new CurrentUserInfo(result.getCurrentLogin(), result.getFirstName(), result.getLastName(), result.geteMail());
     }
 
     public void onModuleLoad() {
@@ -55,15 +58,20 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 navigationTreePlugin = ComponentRegistry.instance.get("navigation.tree");
 
                 centralPluginPanel = new PluginPanel(eventBus);
-
+                centralPluginWidth = Window.getClientWidth() - 200;
+                centralPluginHeight = Window.getClientHeight()- 70;
+                centralPluginPanel.setPanelWidth(centralPluginWidth);
+                centralPluginPanel.setPanelHeight(centralPluginHeight);
                 eventBus.addHandler(NavigationTreeItemSelectedEvent.TYPE, BusinessUniverse.this);
 
                 navigationTreePanel.open(navigationTreePlugin);
                 rootPanel.addNorth(new HeaderContainer(getUserInfo(result)), 70);
 
                 rootPanel.addWest(navigationTreePanel, 200);
+                addStickerPanel(rootPanel);
                 rootPanel.add(centralPluginPanel);
 
+                addWindowResizeListener();
                 RootLayoutPanel.get().add(rootPanel);
 
             }
@@ -79,22 +87,14 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     @Override
     public void onNavigationTreeItemSelected(NavigationTreeItemSelectedEvent event) {
         centralPluginPanel.closeCurrentPlugin();
+
         final DomainObjectSurferPlugin domainObjectSurfer = ComponentRegistry.instance.get("domain.object.surfer.plugin");
         domainObjectSurfer.setConfig(event.getPluginConfig());
         domainObjectSurfer.setDisplayActionToolBar(true);
 
         centralPluginPanel.open(domainObjectSurfer);
-        float windowWidth = Window.getClientWidth();
-        float windowHeight = Window.getClientHeight();
-        final float widthRatio = centralPluginPanel.asWidget().getOffsetWidth() / windowWidth ;
-        final float heightRatio = centralPluginPanel.asWidget().getOffsetHeight() / windowHeight;
-        domainObjectSurfer.addViewCreatedListener(new PluginViewCreatedEventListener() {
-            @Override
-            public void onViewCreation(PluginViewCreatedEvent source) {
 
-                domainObjectSurfer.getEventBus().fireEvent(new PluginViewCreatedSubEvent(widthRatio, heightRatio));
-            }
-        });
+
     }
 
     private FlowPanel createHeaderPanel() {
@@ -117,13 +117,65 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         return rootPanel;
     }
 
-    private void addStickerPanel(DockLayoutPanel mainLayoutPanel) {
+    private void addWindowResizeListener() {
+        Window.addResizeHandler(new ResizeHandler() {
+            @Override
+            public void onResize(ResizeEvent event) {
+                int centralPanelWidth = event.getWidth() - navigationTreePanel.getPanelWidth();
+                int centralPanelHeight = event.getHeight() - navigationTreePanel.getPanelHeight();
+                centralPluginPanel.setPanelWidth(centralPanelWidth);
+                centralPluginPanel.setPanelHeight(centralPanelHeight);
+                eventBus.fireEvent(new PluginPanelSizeChangedEvent());
 
-        PluginPanel stickerPluginPanel = new PluginPanel(eventBus);
-        Plugin stickerPlugin = ComponentRegistry.instance.get("sticker.plugin");
-        stickerPluginPanel.open(stickerPlugin);
+            }
+        });
+    }
 
-        mainLayoutPanel.addEast(stickerPluginPanel, 20);
+    private void addStickerPanel(final DockLayoutPanel mainLayoutPanel) {
+
+        final FlowPanel flowPanel = new FlowPanel();
+        final ToggleButton toggleBtn = new ToggleButton("sticker");
+        final FocusPanel focusPanel = new FocusPanel();
+        toggleBtn.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                if (toggleBtn.getValue())    {
+                mainLayoutPanel.setWidgetSize(focusPanel, 300);
+                centralPluginWidth -= 300;
+                }
+                else {
+                centralPluginWidth += 300;
+                }
+
+                centralPluginPanel.setPanelWidth(centralPluginWidth);
+                eventBus.fireEvent(new PluginPanelSizeChangedEvent());
+            }
+        });
+
+
+        focusPanel.addMouseOverHandler(new MouseOverHandler() {
+            @Override
+            public void onMouseOver(MouseOverEvent event) {
+                mainLayoutPanel.setWidgetSize(focusPanel, 300);
+            }
+        });
+
+        focusPanel.addMouseOutHandler(new MouseOutHandler() {
+            @Override
+            public void onMouseOut(MouseOutEvent event) {
+                if (toggleBtn.getValue()) {
+                    return;
+                }
+                mainLayoutPanel.setWidgetSize(focusPanel, 10);
+
+            }
+        });
+
+        flowPanel.add(toggleBtn);
+
+        focusPanel.add(flowPanel);
+        focusPanel.getElement().getStyle().setBackgroundColor("blue");
+        mainLayoutPanel.addEast(focusPanel, 30);
     }
 
     @Override

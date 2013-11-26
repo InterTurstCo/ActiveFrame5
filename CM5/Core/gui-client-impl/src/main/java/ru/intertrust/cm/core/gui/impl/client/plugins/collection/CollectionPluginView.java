@@ -6,6 +6,7 @@ import com.google.gwt.event.dom.client.ScrollEvent;
 import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.RowStyles;
@@ -55,7 +56,9 @@ public class CollectionPluginView extends PluginView {
     private String collectionName;
     private int scrollStart = 0;
     private int listCount = 0;
-
+    private int tableWidth;
+    private int tableHeight;
+    private EventBus eventBus;
 
     /**
      * Создание стилей для ящеек таблицы
@@ -68,57 +71,22 @@ public class CollectionPluginView extends PluginView {
         tableHeader = new CellTable<CollectionRowItem>(999, adapter.getResources());
         tableBody = new CellTable<CollectionRowItem>(999, adapter.getResources());
         tableController = new TableController(tableHeader, tableBody);
+        updateSizes();
 
-        plugin.getEventBus().addHandler(SplitterInnerScrollEvent.TYPE, new SplitterInnerScrollEventHandler() {
-            @Override
-            public void setScrollPanelHeight(SplitterInnerScrollEvent event) {
-
-                scrollTableBody.setHeight((event.getUpperPanelHeight() - headerPanel.getOffsetHeight()) + "px");
-                tableController.columnWindowResize(columnMinWidth(event.getUpperPanelWidth()/tableBody.getColumnCount()));
-            }
-        });
-
-        plugin.getEventBus().addHandler(SplitterWidgetResizerEvent.TYPE, new SplitterWidgetResizerEventHandler() {
-
-            @Override
-            public void setWidgetSize(SplitterWidgetResizerEvent event) {
-                if (event.isType()){
-                    if ((event.getFirstWidgetHeight() * 2) < Window.getClientHeight()) {
-                        scrollTableBody.setHeight(((event.getFirstWidgetHeight()*2) - headerPanel.getOffsetHeight()) + "px");
-                    }  else {
-                        scrollTableBody.setHeight((event.getFirstWidgetHeight() - headerPanel.getOffsetHeight()) + "px");
-                    }
-                }
-                else
-                {
-                    scrollTableBody.setHeight((event.getFirstWidgetHeight() - headerPanel.getOffsetHeight()) + "px");
-                }
-                tableController.columnWindowResize(columnMinWidth(event.getFirstWidgetWidth()/tableBody.getColumnCount()));
-            }
-        });
-
-
-
-        scrollTableBody.addScrollHandler(new ScrollHandler() {
-            @Override
-            public void onScroll(ScrollEvent event) {
-                //To change body of implemented methods use File | Settings | File Templates.
-                if (scrollStart +25 < scrollTableBody.getVerticalScrollPosition() || scrollStart == scrollTableBody.getMaximumVerticalScrollPosition() ){
-                createCollectionData();
-                    scrollStart=scrollTableBody.getVerticalScrollPosition();
-                    listCount+= 15;
-                }
-
-            }
-        });
-
+        eventBus = plugin.getEventBus();
 
     }
 
-    private void createCollectionData(){
-        CollectionRowsRequest collectionRowsRequest = new CollectionRowsRequest( listCount , 15, collectionName, columnNamesOnDoFieldsMap);
+    private void updateSizes() {
+        tableWidth = plugin.getOwner().getPanelWidth();
+        tableHeight = plugin.getOwner().getPanelHeight();
+
+    }
+
+    private void createCollectionData() {
+        CollectionRowsRequest collectionRowsRequest = new CollectionRowsRequest(listCount, 15, collectionName, columnNamesOnDoFieldsMap);
         Command command = new Command("generateCollectionRowItems", "collection.plugin", collectionRowsRequest);
-        
+
         BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onFailure(Throwable caught) {
@@ -163,22 +131,69 @@ public class CollectionPluginView extends PluginView {
             @Override
             public void onResize(ResizeEvent event) {
 
-                tableController.columnWindowResize(columnMinWidth(Window.getClientWidth() - 235) / tableHeader.getColumnCount());
-                scrollTableBody.setHeight(((Window.getClientHeight() - 300) / 2) + "px");
+                tableController.columnWindowResize(columnMinWidth(tableWidth / tableHeader.getColumnCount()));
+                scrollTableBody.setHeight(tableHeight + "px");
             }
         });
     }
 
-    private int columnMinWidth(int width){
-        if (width < 100){
+    private int columnMinWidth(int width) {
+        if (width < 100) {
             width = 100;
         }
         return width;
     }
 
+    public void onPluginPanelResize() {
+        updateSizes();
+        tableController.columnWindowResize(columnMinWidth(tableWidth / tableHeader.getColumnCount()));
+        scrollTableBody.setHeight(tableHeight + "px");
+    }
+
     private void addHandlers() {
         addResizeHandler();
         tableHeader.addCellPreviewHandler(new CellTableEventHandler<CollectionRowItem>(tableHeader, plugin));
+        eventBus.addHandler(SplitterInnerScrollEvent.TYPE, new SplitterInnerScrollEventHandler() {
+            @Override
+            public void setScrollPanelHeight(SplitterInnerScrollEvent event) {
+
+                scrollTableBody.setHeight((event.getUpperPanelHeight() - headerPanel.getOffsetHeight()) + "px");
+                tableController.columnWindowResize(columnMinWidth(event.getUpperPanelWidth() / tableBody.getColumnCount()));
+            }
+        });
+
+        eventBus.addHandler(SplitterWidgetResizerEvent.TYPE, new SplitterWidgetResizerEventHandler() {
+
+            @Override
+            public void setWidgetSize(SplitterWidgetResizerEvent event) {
+                if (event.isType()) {
+                    if ((event.getFirstWidgetHeight() * 2) < Window.getClientHeight()) {
+                        scrollTableBody.setHeight(((event.getFirstWidgetHeight() * 2) - headerPanel.getOffsetHeight()) + "px");
+                    } else {
+                        scrollTableBody.setHeight((event.getFirstWidgetHeight() - headerPanel.getOffsetHeight()) + "px");
+                    }
+                } else {
+                    scrollTableBody.setHeight((event.getFirstWidgetHeight() - headerPanel.getOffsetHeight()) + "px");
+                }
+                tableController.columnWindowResize(columnMinWidth(event.getFirstWidgetWidth() / tableBody.getColumnCount()));
+            }
+        });
+
+
+        scrollTableBody.addScrollHandler(new ScrollHandler() {
+            @Override
+            public void onScroll(ScrollEvent event) {
+
+                if (scrollStart + 25 < scrollTableBody.getVerticalScrollPosition() || scrollStart == scrollTableBody.
+                        getMaximumVerticalScrollPosition()) {
+                    createCollectionData();
+                    scrollStart = scrollTableBody.getVerticalScrollPosition();
+                    listCount += 15;
+                }
+
+            }
+        });
+
     }
 
 
@@ -197,7 +212,7 @@ public class CollectionPluginView extends PluginView {
         bodyPanel.add(tableBody);
         verticalPanel.add(headerPanel);
         scrollTableBody.getElement().getStyle().setOverflowX(Style.Overflow.HIDDEN);
-        scrollTableBody.setHeight(((Window.getClientHeight() - 300) / 2) + "px");
+        scrollTableBody.setHeight(tableHeight + "px");
         scrollTableBody.add(bodyPanel);
         verticalPanel.add(scrollTableBody);
         verticalPanel.setSize("100%", "100%");
@@ -206,8 +221,8 @@ public class CollectionPluginView extends PluginView {
     }
 
     private void buildTableColumns(LinkedHashMap<String, String> domainObjectFieldsOnColumnNamesMap) {
-        int count = domainObjectFieldsOnColumnNamesMap.keySet().size();
-        int columnWidth = ((Window.getClientWidth() - 235) / count);
+        int numberOfColumns = domainObjectFieldsOnColumnNamesMap.keySet().size();
+        int columnWidth = (tableWidth / numberOfColumns);
         for (String field : domainObjectFieldsOnColumnNamesMap.keySet()) {
             Column<CollectionRowItem, String> column = buildNameColumn(field);
             String columnName = domainObjectFieldsOnColumnNamesMap.get(field);
@@ -223,11 +238,11 @@ public class CollectionPluginView extends PluginView {
     private void insertRows(List<CollectionRowItem> list) {
         tableBody.setRowData(items);
         listCount = items.size();
-        System.out.println("!!!!!"+listCount);
+
     }
 
     private void insertMoreRows(List<CollectionRowItem> list) {
-        //items.clear();
+
         items.addAll(list);
         tableBody.setRowData(items);
     }

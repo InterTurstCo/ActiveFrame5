@@ -9,6 +9,6 @@ import com.google.gwt.event.shared.EventHandler;
  * Time: 14:06
  * To change this template use File | Settings | File Templates.
  */
-public interface PluginViewCreatedSubEventHandler extends EventHandler {
-    public void setSizes(float widthRatio, float heightRatio);
+public interface PluginPanelSizeChangedEventHandler extends EventHandler {
+    public void updateSizes();
 }

@@ -20,11 +20,13 @@ import java.util.Map;
  *         Time: 15:29
  */
 public class FormPluginView extends PluginView {
-    private FormPanel formPanel;
+    private FormPanel  formPanel;
 
     protected FormPluginView(Plugin plugin, FormDisplayData formDisplayData) {
         super(plugin);
-        formPanel = new FormPanel(formDisplayData, plugin.getEventBus());
+        int formWidth = plugin.getOwner().getPanelWidth();
+        int formHeight = plugin.getOwner().getPanelHeight();
+        formPanel = new FormPanel(formDisplayData, plugin.getEventBus(), formWidth, formHeight);
     }
 
     @Override
@@ -55,4 +57,11 @@ public class FormPluginView extends PluginView {
     void update(FormState formState) {
         formPanel.update(formState);
     }
+
+    public void onPluginPanelResize() {
+        int width = plugin.getOwner().getPanelWidth();
+        int height = plugin.getOwner().getPanelHeight();
+        formPanel.updateSizes(width, height);
+    }
+
 }
