@@ -1,11 +1,10 @@
 package ru.intertrust.cm.core.business.api;
 
-import java.util.List;
-
 import com.healthmarketscience.rmiio.RemoteInputStream;
-
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+
+import java.util.List;
 
 /**
  * Работа с доменными объектами Вложения. Вынесен в отдельный сервис, так как нужны функции работы с контентом Вложений.
@@ -58,6 +57,7 @@ public interface AttachmentService {
      * Получает список ДО Вложений для переданного ДО.
      * @param domainObject ДО, для которого находятся вложения
      * @return список ДО Вложений
+     * @deprecated
      */
     List<DomainObject> getAttachmentDomainObjectsFor(DomainObject domainObject);
     
