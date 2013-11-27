@@ -25,9 +25,6 @@ public class Application {
         if(ourInstance == null) {
             ourInstance = new Application();
         }
-
-
-
         return ourInstance;
     }
 
