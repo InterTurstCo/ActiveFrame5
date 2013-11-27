@@ -41,6 +41,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     FlowPanel headerPanel;
     private int centralPluginWidth;
     private int centralPluginHeight;
+    private int stickerPluginWidth;
     CurrentUserInfo getUserInfo(BusinessUniverseInitialization result) {
         return new CurrentUserInfo(result.getCurrentLogin(), result.getFirstName(), result.getLastName(), result.geteMail());
     }
@@ -58,7 +59,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 navigationTreePlugin = ComponentRegistry.instance.get("navigation.tree");
 
                 centralPluginPanel = new PluginPanel(eventBus);
-                centralPluginWidth = Window.getClientWidth() - 200;
+                centralPluginWidth = Window.getClientWidth() - 250;
                 centralPluginHeight = Window.getClientHeight()- 70;
                 centralPluginPanel.setPanelWidth(centralPluginWidth);
                 centralPluginPanel.setPanelHeight(centralPluginHeight);
@@ -121,8 +122,8 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         Window.addResizeHandler(new ResizeHandler() {
             @Override
             public void onResize(ResizeEvent event) {
-                int centralPanelWidth = event.getWidth() - navigationTreePanel.getPanelWidth();
-                int centralPanelHeight = event.getHeight() - navigationTreePanel.getPanelHeight();
+                int centralPanelWidth = event.getWidth() - navigationTreePanel.getPanelWidth() - stickerPluginWidth;
+                int centralPanelHeight = event.getHeight() - 70;
                 centralPluginPanel.setPanelWidth(centralPanelWidth);
                 centralPluginPanel.setPanelHeight(centralPanelHeight);
                 eventBus.fireEvent(new PluginPanelSizeChangedEvent());
@@ -142,9 +143,11 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 if (toggleBtn.getValue())    {
                 mainLayoutPanel.setWidgetSize(focusPanel, 300);
                 centralPluginWidth -= 300;
+                stickerPluginWidth = 30;
                 }
                 else {
                 centralPluginWidth += 300;
+                stickerPluginWidth = 300;
                 }
 
                 centralPluginPanel.setPanelWidth(centralPluginWidth);
@@ -166,7 +169,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 if (toggleBtn.getValue()) {
                     return;
                 }
-                mainLayoutPanel.setWidgetSize(focusPanel, 10);
+                mainLayoutPanel.setWidgetSize(focusPanel, 30);
 
             }
         });
@@ -178,6 +181,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
 
         mainLayoutPanel.addEast(focusPanel, 30);
+        stickerPluginWidth = 30;
     }
 
     @Override
