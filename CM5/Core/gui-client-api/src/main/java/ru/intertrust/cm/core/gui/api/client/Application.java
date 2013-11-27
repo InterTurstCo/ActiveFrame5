@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.gui.api.client;
 
 import com.google.gwt.core.shared.GWT;
-import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 
 /**
@@ -17,7 +16,7 @@ public class Application {
     /*
      * Шина событий приложения
      */
-    private EventBus APP_EVENT_BUS = null;
+    private SimpleEventBus APP_EVENT_BUS = null;
 
     /*
      * Метод получения экземпляра класса
@@ -35,7 +34,7 @@ public class Application {
     /*
      * Метод получения "глобальной" шины событий
      */
-    public EventBus getAppEventBus( ) {
+    public SimpleEventBus getAppEventBus( ) {
         return APP_EVENT_BUS;
     }
 
