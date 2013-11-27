@@ -19,6 +19,7 @@ import java.util.Map;
  */
 @ComponentName("form.plugin")
 public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor {
+
     @Override
     public PluginView createView() {
         FormPluginData initialData = getInitialData();
@@ -53,7 +54,7 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
         newPlugin.addViewCreatedListener(new SizeChangedEventListener() {
             @Override
             public void onViewCreation(PluginViewCreatedEvent source) {
-                getEventBus().fireEvent(new PluginPanelSizeChangedEvent());
+                getLocalPluginEventBus().fireEvent(new PluginPanelSizeChangedEvent());
             }
         }
         );

@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer;
 
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
@@ -26,7 +26,7 @@ public class DomainObjectSurferPluginView extends PluginView {
     private SimplePanel splitterFirstWidget = new SimplePanel();
     private ScrollPanel splitterScroll = new ScrollPanel();
     private DomainObjectSurferPlugin domainObjectSurferPlugin;
-    private EventBus eventBus;
+    private SimpleEventBus eventBus;
     private SplitterEx splitterPanel;
     private static Logger log = Logger.getLogger("DomainObjectSurfer");
     private FlowPanel flowPanel;
@@ -39,13 +39,13 @@ public class DomainObjectSurferPluginView extends PluginView {
         surferHeight = plugin.getOwner().getPanelHeight();
         initSplitter();
         splitterSetSize();
-        eventBus = domainObjectSurferPlugin.getEventBus();
+        eventBus = domainObjectSurferPlugin.getLocalPluginEventBus();
         addSplitterWidgetResizeHandler();
 
     }
 
     private void initSplitter() {
-        splitterPanel = new SplitterEx(9, domainObjectSurferPlugin.getEventBus()) {
+        splitterPanel = new SplitterEx(9, domainObjectSurferPlugin.getLocalPluginEventBus()) {
             @Override
             public void onResize() {
                 super.onResize();

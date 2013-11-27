@@ -14,6 +14,7 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
  */
 @ComponentName("collection.plugin")
 public class CollectionPlugin extends Plugin {
+
     @Override
     public PluginView createView() {
         return new CollectionPluginView(this);

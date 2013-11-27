@@ -111,7 +111,7 @@ public class NavigationTreePluginView extends PluginView {
                 currentActiveItem = event.getSelectedItem();
                 event.getSelectedItem().setStyleName("synchronized");
                 Map<String, Object> treeItemUserObject = (Map<String, Object>) event.getSelectedItem().getUserObject();
-                plugin.getEventBus().fireEventFromSource(
+                plugin.getLocalPluginEventBus().fireEventFromSource(
                         new NavigationTreeItemSelectedEvent((PluginConfig) treeItemUserObject.get("pluginConfig")), plugin);
             }
         };
@@ -132,7 +132,7 @@ public class NavigationTreePluginView extends PluginView {
                 @Override
                 public void onClick(ClickEvent event) {
                     RootNodeButton source = (RootNodeButton) event.getSource();
-                    plugin.getEventBus().fireEventFromSource(new RootLinkSelectedEvent(source.getTitle()), plugin);
+                    plugin.getLocalPluginEventBus().fireEventFromSource(new RootLinkSelectedEvent(source.getTitle()), plugin);
                     setStyleForAllNAvigationButton(sideBarView.getWidgetIndex(my), sideBarView);
                 }
             });

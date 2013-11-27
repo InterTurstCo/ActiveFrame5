@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
-import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.HandlerRegistration;
@@ -37,7 +37,10 @@ import java.util.logging.Logger;
  */
 public abstract class Plugin extends BaseComponent {
     private PluginPanel owner;
-    private EventBus eventBus;
+
+    // IPetrov 26.11.2013
+    // для хранения локальных шин событий
+    protected SimpleEventBus pluginEventBus;
     private PluginConfig config;
     private boolean displayActionToolBar;
     private PluginData initialData;
@@ -77,6 +80,7 @@ public abstract class Plugin extends BaseComponent {
      * производится соответствующим обработчиком плагина в методе {@link PluginHandler#initialize(Dto)}
      */
     protected void setUp() {
+
         registerEventsHandling(getEventTypesToHandle());
         if (!shouldBeInitialized()) {
             postSetUp();
@@ -108,7 +112,7 @@ public abstract class Plugin extends BaseComponent {
             return;
         }
         for (GwtEvent.Type eventType : events) {
-            HandlerRegistration handlerRegistration = eventBus.addHandler(eventType, this);
+            HandlerRegistration handlerRegistration = pluginEventBus.addHandler(eventType, this);
             handlerRegistrations.add(handlerRegistration);
         }
     }
@@ -144,12 +148,12 @@ public abstract class Plugin extends BaseComponent {
     }
 
     /**
-     * Устанавливает шину сообщений
+     * Устанавливает локальную шину сообщений
      *
-     * @param eventBus шина сообщений
+     * @param pluginEventBus шина сообщений
      */
-    void setEventBus(EventBus eventBus) {
-        this.eventBus = eventBus;
+    public void setPluginEventBus(SimpleEventBus pluginEventBus) {
+        this.pluginEventBus = pluginEventBus;
     }
 
     /**
@@ -230,8 +234,9 @@ public abstract class Plugin extends BaseComponent {
         return owner;
     }
 
-    public EventBus getEventBus() {
-        return eventBus;
+    //
+    public SimpleEventBus getLocalPluginEventBus() {
+        return pluginEventBus;
     }
 
     public boolean displayActionToolBar() {

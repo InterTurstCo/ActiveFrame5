@@ -22,11 +22,11 @@ import java.util.Map;
 public class FormPluginView extends PluginView {
     private FormPanel  formPanel;
 
-    protected FormPluginView(Plugin plugin, FormDisplayData formDisplayData) {
+    protected FormPluginView(FormPlugin plugin, FormDisplayData formDisplayData) {
         super(plugin);
         int formWidth = plugin.getOwner().getPanelWidth();
         int formHeight = plugin.getOwner().getPanelHeight();
-        formPanel = new FormPanel(formDisplayData, plugin.getEventBus(), formWidth, formHeight);
+        formPanel = new FormPanel(formDisplayData, plugin.getLocalPluginEventBus(), formWidth, formHeight);
     }
 
     @Override

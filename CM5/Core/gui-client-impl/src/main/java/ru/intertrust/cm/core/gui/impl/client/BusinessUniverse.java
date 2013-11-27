@@ -1,16 +1,15 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
-import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
@@ -34,7 +33,8 @@ import java.util.logging.Logger;
 @ComponentName("business.universe")
 public class BusinessUniverse extends BaseComponent implements EntryPoint, NavigationTreeItemSelectedEventHandler {
     static Logger logger = Logger.getLogger("Business universe");
-    final private EventBus eventBus = GWT.create(SimpleEventBus.class);
+    // глобальная шина событий - доступна во всем приложении
+    private static SimpleEventBus eventBus = Application.getInstance().getAppEventBus(); //GWT.create(SimpleEventBus.class);
     private PluginPanel centralPluginPanel;
     NavigationTreePlugin navigationTreePlugin;
     PluginPanel navigationTreePanel;

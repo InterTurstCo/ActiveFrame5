@@ -6,7 +6,7 @@ import com.google.gwt.event.dom.client.ScrollEvent;
 import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
-import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.RowStyles;
@@ -58,7 +58,7 @@ public class CollectionPluginView extends PluginView {
     private int listCount = 0;
     private int tableWidth;
     private int tableHeight;
-    private EventBus eventBus;
+    private SimpleEventBus eventBus;
 
     /**
      * Создание стилей для ящеек таблицы
@@ -73,7 +73,7 @@ public class CollectionPluginView extends PluginView {
         tableController = new TableController(tableHeader, tableBody);
         updateSizes();
 
-        eventBus = plugin.getEventBus();
+        eventBus = plugin.getLocalPluginEventBus();
 
     }
 
@@ -152,7 +152,7 @@ public class CollectionPluginView extends PluginView {
 
     private void addHandlers() {
         addResizeHandler();
-        tableHeader.addCellPreviewHandler(new CellTableEventHandler<CollectionRowItem>(tableHeader, plugin));
+        tableBody.addCellPreviewHandler(new CellTableEventHandler<CollectionRowItem>(tableHeader, plugin));
         eventBus.addHandler(SplitterInnerScrollEvent.TYPE, new SplitterInnerScrollEventHandler() {
             @Override
             public void setScrollPanelHeight(SplitterInnerScrollEvent event) {

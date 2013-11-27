@@ -60,4 +60,33 @@
         </domain-object-context>
         <action name="sign.action"/>
     </action-context>
+
+    <!-- Конфигурация действия для обновления формы/коллекции -->
+    <action name="update.form.action" component="update.form.action" text="Обновить форму" image="updateForm.png" show-text="false">
+        <before-execution>
+            <!-- Текст-подтверждение перед выполнением данного действия -->
+            <!-- <confirmation-message text="Обновлять?"/> -->
+
+            <!--Не обязательный атрибут, по умолчанию "true" - определяет, требуется ли сохранять доменный объект
+            контекста действия (открытый доменный объект) перед выполнением -->
+            <!-- save-context value="false"/-->
+        </before-execution>
+
+        <after-execution>
+            <!-- Текст-подтверждение после выполнения данного действия -->
+           <!-- <on-success-message text="Обновление успешно!"/> -->
+
+        </after-execution>
+        <action-settings>
+            <process-action class-name="start-update"  process-name="execution"/>
+        </action-settings>
+    </action>
+
+    <action-context name="update">
+        <domain-object-context>
+            <type name="???????????????????"/>
+            <Status>OnUpdate</Status>
+        </domain-object-context>
+        <action name="updateForm.action"/>
+    </action-context>
 </configuration>

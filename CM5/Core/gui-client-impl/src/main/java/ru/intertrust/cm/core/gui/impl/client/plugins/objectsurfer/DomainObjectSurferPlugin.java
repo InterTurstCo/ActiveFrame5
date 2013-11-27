@@ -1,6 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer;
 
+import com.google.gwt.core.shared.GWT;
 import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.event.shared.SimpleEventBus;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Component;
@@ -19,15 +21,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+//import com.google.gwt.event.shared.EventBus;
+
 @ComponentName("domain.object.surfer.plugin")
 public class DomainObjectSurferPlugin extends Plugin implements
         IsActive, CollectionRowSelectedEventHandler, IsDomainObjectEditor, IsIdentifiableObjectList, PluginPanelSizeChangedEventHandler {
 
     private Plugin collectionPlugin;
     private Plugin formPlugin;
+    private PluginPanel formPluginPanel;
 
     static Logger log = Logger.getLogger("domain.object.surfer.plugin");
 
+    /*
+     * Конструктор плагина в котором
+     * создается объект локальной шины событий
+     */
+    public DomainObjectSurferPlugin() {
+        // поле из базового класса, в которое устанавливается локальная шина событий
+        pluginEventBus = GWT.create(SimpleEventBus.class);
+    }
 
     @Override
     public PluginView createView() {
@@ -60,9 +73,14 @@ public class DomainObjectSurferPlugin extends Plugin implements
         this.formPlugin = formPlugin;
     }
 
+    //@Override
+    public SimpleEventBus getLocalPluginEventBus() {
+        return pluginEventBus;
+    }
+
     @Override
     public void onCollectionRowSelect(CollectionRowSelectedEvent event) {
-        PluginPanel formPluginPanel = formPlugin.getOwner();
+        formPluginPanel = formPlugin.getOwner();
         formPluginPanel.closeCurrentPlugin();
         final FormPlugin newFormPlugin = ComponentRegistry.instance.get("form.plugin");
         newFormPlugin.setConfig(new FormPluginConfig(event.getId()));
