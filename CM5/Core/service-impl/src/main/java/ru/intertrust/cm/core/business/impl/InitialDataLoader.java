@@ -14,9 +14,12 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import ru.intertrust.cm.core.business.api.AuthenticationService;
 import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.StaticGroupConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
@@ -77,6 +80,19 @@ public class InitialDataLoader {
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
     }
+    
+    protected Id createUserGroup(String dynamicGroupName) {
+        Id userGroupId;
+        GenericDomainObject userGroupDO = new GenericDomainObject();
+        userGroupDO.setTypeName(GenericDomainObject.USER_GROUP_DOMAIN_OBJECT);
+        userGroupDO.setString("group_name", dynamicGroupName);
+
+        AccessToken accessToken = accessControlService.createSystemAccessToken("InitialDataLoader");
+        DomainObject updatedObject = domainObjectDao.save(userGroupDO, accessToken);
+        userGroupId = updatedObject.getId();
+        return userGroupId;
+    }
+
 
     /**
      * Загружает конфигурацию доменных объектов, валидирует и создает соответствующие сущности в базе.
@@ -87,8 +103,30 @@ public class InitialDataLoader {
         // статусы сохраняются до сохранения остальных доменных объектов, т.к. ДО могут использовать статусы при
         // сохранении
         saveInitialStatuses();
+        saveStaticGroups();
+        
         if (!authenticationService.existsAuthenticationInfo(ADMIN_LOGIN)) {
             insertAdminAuthenticationInfo();
+        }
+    }
+
+    private void saveStaticGroups() {
+        Set<String> staticGroups = new HashSet<String>();
+
+        Collection<StaticGroupConfig> staticGroupConfigs =
+                configurationExplorer.getConfigs(StaticGroupConfig.class);
+
+        for (StaticGroupConfig staticGroup : staticGroupConfigs) {
+            String groupName = staticGroup.getName();
+            if (groupName != null) {
+                staticGroups.add(groupName);
+            }
+        }
+
+        for (String staticGroupName : staticGroups) {
+            if (!existsStaticGroup(staticGroupName)) {
+                createUserGroup(staticGroupName);
+            }
         }
     }
 
@@ -118,6 +156,16 @@ public class InitialDataLoader {
         paramMap.put("name", statusName);
         @SuppressWarnings("deprecation")
         int total = jdbcTemplate.queryForInt(query, paramMap);
+        return total > 0;
+    }
+
+    private boolean existsStaticGroup(String staticGroupName) {
+        String query = "select count(*) from " + GenericDomainObject.USER_GROUP_DOMAIN_OBJECT
+                        + " ug where ug.group_name = :group_name and ug.object_id is null";
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("group_name", staticGroupName);
+        @SuppressWarnings("deprecation")
+        int total = jdbcTemplate.queryForObject(query, paramMap, Integer.class);
         return total > 0;
     }
 

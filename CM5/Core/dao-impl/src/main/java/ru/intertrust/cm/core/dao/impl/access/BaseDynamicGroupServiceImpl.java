@@ -37,10 +37,6 @@ import ru.intertrust.cm.core.dao.impl.utils.ObjectIdRowMapper;
  */
 public class BaseDynamicGroupServiceImpl {
 
-    public static final String USER_GROUP_DOMAIN_OBJECT = "User_Group";
-
-    public static final String GROUP_MEMBER_DOMAIN_OBJECT = "Group_Member";
-
     @Autowired
     protected NamedParameterJdbcOperations jdbcTemplate;
 
@@ -111,7 +107,7 @@ public class BaseDynamicGroupServiceImpl {
     }
 
     private String generateDeleteUserGroupQuery() {
-        String tableName = getSqlName(USER_GROUP_DOMAIN_OBJECT);
+        String tableName = getSqlName(GenericDomainObject.USER_GROUP_DOMAIN_OBJECT);
         StringBuilder query = new StringBuilder();
         query.append("Delete from ");
         query.append(tableName).append(" ug");
@@ -132,7 +128,7 @@ public class BaseDynamicGroupServiceImpl {
         String query = generateGetUserGroupWithContextQuery();
 
         Map<String, Object> parameters = initializeProcessUserGroupWithContextParameters(groupName, contextObjectId);
-        Integer doTypeId = domainObjectTypeIdCache.getId(USER_GROUP_DOMAIN_OBJECT);
+        Integer doTypeId = domainObjectTypeIdCache.getId(GenericDomainObject.USER_GROUP_DOMAIN_OBJECT);
         return jdbcTemplate.query(query, parameters, new ObjectIdRowMapper("id", doTypeId));
     }
 
@@ -144,7 +140,7 @@ public class BaseDynamicGroupServiceImpl {
     }
 
     private String generateGetUserGroupWithContextQuery() {
-        String tableName = getSqlName(USER_GROUP_DOMAIN_OBJECT);
+        String tableName = getSqlName(GenericDomainObject.USER_GROUP_DOMAIN_OBJECT);
         StringBuilder query = new StringBuilder();
         query.append("select ug.id from ");
         query.append(tableName).append(" ug");
@@ -157,7 +153,7 @@ public class BaseDynamicGroupServiceImpl {
         String query = generateGetUserGroupQuery();
 
         Map<String, Object> parameters = initializeProcessUserGroupParameters(groupName);
-        Integer doTypeId = domainObjectTypeIdCache.getId(USER_GROUP_DOMAIN_OBJECT);
+        Integer doTypeId = domainObjectTypeIdCache.getId(GenericDomainObject.USER_GROUP_DOMAIN_OBJECT);
         return jdbcTemplate.query(query, parameters, new ObjectIdRowMapper("id", doTypeId));
     }
 
@@ -168,7 +164,7 @@ public class BaseDynamicGroupServiceImpl {
     }
 
     private String generateGetUserGroupQuery() {
-        String tableName = getSqlName(USER_GROUP_DOMAIN_OBJECT);
+        String tableName = getSqlName(GenericDomainObject.USER_GROUP_DOMAIN_OBJECT);
         StringBuilder query = new StringBuilder();
         query.append("select ug.id from ");
         query.append(tableName).append(" ug");
@@ -272,7 +268,7 @@ public class BaseDynamicGroupServiceImpl {
     protected Id createUserGroup(String dynamicGroupName, Id contextObjectId) {
         Id userGroupId;
         GenericDomainObject userGroupDO = new GenericDomainObject();
-        userGroupDO.setTypeName(USER_GROUP_DOMAIN_OBJECT);
+        userGroupDO.setTypeName(GenericDomainObject.USER_GROUP_DOMAIN_OBJECT);
         userGroupDO.setString("group_name", dynamicGroupName);
         if (contextObjectId != null) {
             userGroupDO.setReference("object_id", contextObjectId);

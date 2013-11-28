@@ -18,6 +18,10 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
     public static String STATUS_COLUMN = "STATUS";    
     public static String STATUS_DO = "Status";
 
+    public static final String USER_GROUP_DOMAIN_OBJECT = "User_Group";
+
+    public static final String GROUP_MEMBER_DOMAIN_OBJECT = "Group_Member";
+
     /**
      * Создаёт доменный объект
      */

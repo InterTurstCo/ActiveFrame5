@@ -266,7 +266,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
             List<DomainObject> groupMembers = new ArrayList<DomainObject>();
             for (Id personValue : personIds) {
                 GenericDomainObject groupMemeber = new GenericDomainObject();
-                groupMemeber.setTypeName(GROUP_MEMBER_DOMAIN_OBJECT);
+                groupMemeber.setTypeName(GenericDomainObject.GROUP_MEMBER_DOMAIN_OBJECT);
                 groupMemeber.setReference("UserGroup", dynamicGroupId);
                 groupMemeber.setReference("person_id", personValue);
                 groupMembers.add(groupMemeber);
