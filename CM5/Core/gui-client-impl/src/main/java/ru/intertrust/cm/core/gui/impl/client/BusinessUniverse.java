@@ -62,11 +62,11 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
                 centralPluginPanel = new PluginPanel();
                 centralPluginWidth = Window.getClientWidth() - 250;
-                centralPluginHeight = Window.getClientHeight()- 70;
-                centralPluginPanel.setPanelWidth(centralPluginWidth);
-                centralPluginPanel.setPanelHeight(centralPluginHeight);
+                centralPluginHeight = Window.getClientHeight()- 100;
+                centralPluginPanel.setVisibleWidth(centralPluginWidth);
+                centralPluginPanel.setVisibleHeight(centralPluginHeight);
                 eventBus.addHandler(NavigationTreeItemSelectedEvent.TYPE, BusinessUniverse.this);
-
+                navigationTreePanel.setVisibleWidth(250);
                 navigationTreePanel.open(navigationTreePlugin);
                 rootPanel.addNorth(new HeaderContainer(getUserInfo(result)), 70);
 
@@ -124,10 +124,10 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         Window.addResizeHandler(new ResizeHandler() {
             @Override
             public void onResize(ResizeEvent event) {
-                int centralPanelWidth = event.getWidth() - navigationTreePanel.getPanelWidth() - stickerPluginWidth;
-                int centralPanelHeight = event.getHeight() - 70;
-                centralPluginPanel.setPanelWidth(centralPanelWidth);
-                centralPluginPanel.setPanelHeight(centralPanelHeight);
+                int centralPanelWidth = event.getWidth() - navigationTreePanel.getVisibleWidth() - stickerPluginWidth;
+                int centralPanelHeight = event.getHeight() - 100;
+                centralPluginPanel.setVisibleWidth(centralPanelWidth);
+                centralPluginPanel.setVisibleHeight(centralPanelHeight);
                 eventBus.fireEvent(new PluginPanelSizeChangedEvent());
 
             }
@@ -152,7 +152,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 stickerPluginWidth = 300;
                 }
 
-                centralPluginPanel.setPanelWidth(centralPluginWidth);
+                centralPluginPanel.setVisibleWidth(centralPluginWidth);
                 eventBus.fireEvent(new PluginPanelSizeChangedEvent());
             }
         });

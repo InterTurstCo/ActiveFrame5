@@ -105,7 +105,7 @@
                 <!--width="800px" height="200px"-->
                 <table >
                     <tr>
-                        <td width="100px" h-align="right">
+                        <td  h-align="right">
                             <widget id="1"/>
                         </td>
                         <!-- label (Название) -->
@@ -237,7 +237,7 @@
                         <tab-group>
                             <table>
                                 <tr>
-                                    <td><widget id = "15" width = "1600px"/></td>
+                                    <td><widget id = "15" width = "600px"/></td>
                                 </tr>
                                 <tr>
                                     <td><widget id = "16"/></td>
@@ -251,7 +251,7 @@
                         <tab-group>
                             <table>
                                 <tr>
-                                    <td><widget id = "17a" width="1600px" /></td>
+                                    <td><widget id = "17a" width="600px" /></td>
                                 </tr>
                             </table>
                         </tab-group>

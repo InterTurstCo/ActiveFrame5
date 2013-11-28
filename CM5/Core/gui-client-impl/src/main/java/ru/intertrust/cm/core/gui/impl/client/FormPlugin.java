@@ -93,5 +93,4 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
         initialData.getFormDisplayData().setFormState(formState);
     }
 
-
 }

@@ -124,6 +124,7 @@ public class BookmarksHelper implements IsWidget {
         divLeftButton.setStyleName("left-button");
         rootDiv.setStyleName("root-div");
         divLeft.setStyleName("left-div");
+        divLeft.getElement().setId("bookmark-left-side");
         decoratedDivLeft.setStyleName("decorated-left-div");
         divRight.setStyleName("right-div");
         decoratedDivRight.setStyleName("decorated-right-div");
