@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.view.client.CellPreviewEvent;
+import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
@@ -14,11 +15,13 @@ import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
  */
 public class CellTableEventHandler<T1> implements CellPreviewEvent.Handler<T1> {
     public CellTable cellTableEx;
-    private Plugin plugin;
+    protected Plugin plugin;
+    private EventBus eventBus;
 
-    public CellTableEventHandler(CellTable cellTableEx, Plugin plugin) {
+    public CellTableEventHandler(CellTable cellTableEx, Plugin plugin, EventBus eventBus) {
         this.cellTableEx = cellTableEx;
         this.plugin = plugin;
+        this.eventBus = eventBus;
     }
 
     /**
@@ -39,7 +42,7 @@ public class CellTableEventHandler<T1> implements CellPreviewEvent.Handler<T1> {
 
         if (plugin != null) {
             CollectionPluginData pluginData = plugin.getInitialData();
-            plugin.getLocalPluginEventBus().fireEvent(new CollectionRowSelectedEvent(pluginData.
+            eventBus.fireEvent(new CollectionRowSelectedEvent(pluginData.
                     getItems().get(currentRow).getId()));
         }
     }

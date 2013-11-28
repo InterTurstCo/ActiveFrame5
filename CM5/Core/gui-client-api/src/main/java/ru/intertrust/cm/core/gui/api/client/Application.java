@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.api.client;
 
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.event.shared.SimpleEventBus;
+import com.google.web.bindery.event.shared.EventBus;
 
 /**
  * Утилитный класс, который обеспечивает доступ к "глобальным" объектам приложения
@@ -16,7 +17,7 @@ public class Application {
     /*
      * Шина событий приложения
      */
-    private SimpleEventBus APP_EVENT_BUS = null;
+    private EventBus eventBus = null;
 
     /*
      * Метод получения экземпляра класса
@@ -31,12 +32,12 @@ public class Application {
     /*
      * Метод получения "глобальной" шины событий
      */
-    public SimpleEventBus getAppEventBus( ) {
-        return APP_EVENT_BUS;
+    public EventBus getEventBus( ) {
+        return eventBus;
     }
 
     private Application() {
         // создаем шину сообщений
-        APP_EVENT_BUS = GWT.create(SimpleEventBus.class);
+        eventBus = GWT.create(SimpleEventBus.class);
     }
 }

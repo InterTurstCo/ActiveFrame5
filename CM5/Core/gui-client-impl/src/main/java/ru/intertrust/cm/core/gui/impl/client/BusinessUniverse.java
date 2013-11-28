@@ -5,10 +5,10 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
-import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
+import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.client.Component;
@@ -34,7 +34,7 @@ import java.util.logging.Logger;
 public class BusinessUniverse extends BaseComponent implements EntryPoint, NavigationTreeItemSelectedEventHandler {
     static Logger logger = Logger.getLogger("Business universe");
     // глобальная шина событий - доступна во всем приложении
-    private static SimpleEventBus eventBus = Application.getInstance().getAppEventBus(); //GWT.create(SimpleEventBus.class);
+    private static EventBus eventBus = Application.getInstance().getEventBus(); //GWT.create(SimpleEventBus.class);
     private PluginPanel centralPluginPanel;
     NavigationTreePlugin navigationTreePlugin;
     PluginPanel navigationTreePanel;
@@ -53,12 +53,14 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 DockLayoutPanel rootPanel = createRootPanel();
                 headerPanel = createHeaderPanel();
 
-                navigationTreePanel = new PluginPanel(eventBus);
+                navigationTreePanel = new PluginPanel();
                 // todo мы должны просто класть туда панель - пустую, а nav tree plugin уже будет открывать в ней что нужно
 
                 navigationTreePlugin = ComponentRegistry.instance.get("navigation.tree");
+                // данному плагину устанавливается глобальная шина событий
+                navigationTreePlugin.setEventBus(eventBus);
 
-                centralPluginPanel = new PluginPanel(eventBus);
+                centralPluginPanel = new PluginPanel();
                 centralPluginWidth = Window.getClientWidth() - 250;
                 centralPluginHeight = Window.getClientHeight()- 70;
                 centralPluginPanel.setPanelWidth(centralPluginWidth);

@@ -8,6 +8,7 @@ import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
 import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
@@ -111,7 +112,7 @@ public class NavigationTreePluginView extends PluginView {
                 currentActiveItem = event.getSelectedItem();
                 event.getSelectedItem().setStyleName("synchronized");
                 Map<String, Object> treeItemUserObject = (Map<String, Object>) event.getSelectedItem().getUserObject();
-                plugin.getLocalPluginEventBus().fireEventFromSource(
+                Application.getInstance().getEventBus().fireEventFromSource(
                         new NavigationTreeItemSelectedEvent((PluginConfig) treeItemUserObject.get("pluginConfig")), plugin);
             }
         };
@@ -132,7 +133,7 @@ public class NavigationTreePluginView extends PluginView {
                 @Override
                 public void onClick(ClickEvent event) {
                     RootNodeButton source = (RootNodeButton) event.getSource();
-                    plugin.getLocalPluginEventBus().fireEventFromSource(new RootLinkSelectedEvent(source.getTitle()), plugin);
+                    Application.getInstance().getEventBus().fireEventFromSource(new RootLinkSelectedEvent(source.getTitle()), plugin);
                     setStyleForAllNAvigationButton(sideBarView.getWidgetIndex(my), sideBarView);
                 }
             });

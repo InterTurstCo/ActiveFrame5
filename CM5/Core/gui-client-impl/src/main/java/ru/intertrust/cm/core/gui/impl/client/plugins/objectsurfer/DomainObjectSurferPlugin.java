@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer;
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.SimpleEventBus;
+import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Component;
@@ -12,6 +13,7 @@ import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.form.FormState;
@@ -27,9 +29,12 @@ import java.util.logging.Logger;
 public class DomainObjectSurferPlugin extends Plugin implements
         IsActive, CollectionRowSelectedEventHandler, IsDomainObjectEditor, IsIdentifiableObjectList, PluginPanelSizeChangedEventHandler {
 
-    private Plugin collectionPlugin;
-    private Plugin formPlugin;
+    private CollectionPlugin collectionPlugin;
+    private FormPlugin formPlugin;
     private PluginPanel formPluginPanel;
+
+    // локальная шина событий
+    private EventBus eventBus;
 
     static Logger log = Logger.getLogger("domain.object.surfer.plugin");
 
@@ -39,7 +44,8 @@ public class DomainObjectSurferPlugin extends Plugin implements
      */
     public DomainObjectSurferPlugin() {
         // поле из базового класса, в которое устанавливается локальная шина событий
-        pluginEventBus = GWT.create(SimpleEventBus.class);
+        eventBus = GWT.create(SimpleEventBus.class);
+        eventBus.addHandler(CollectionRowSelectedEvent.TYPE, this);
     }
 
     @Override
@@ -49,7 +55,7 @@ public class DomainObjectSurferPlugin extends Plugin implements
 
     @Override
     protected GwtEvent.Type[] getEventTypesToHandle() {
-        return new GwtEvent.Type[]{CollectionRowSelectedEvent.TYPE, PluginPanelSizeChangedEvent.TYPE};
+        return new GwtEvent.Type[]{PluginPanelSizeChangedEvent.TYPE};
     }
 
     @Override
@@ -61,7 +67,7 @@ public class DomainObjectSurferPlugin extends Plugin implements
         return collectionPlugin;
     }
 
-    public void setCollectionPlugin(Plugin collectionPlugin) {
+    public void setCollectionPlugin(CollectionPlugin collectionPlugin) {
         this.collectionPlugin = collectionPlugin;
     }
 
@@ -69,13 +75,13 @@ public class DomainObjectSurferPlugin extends Plugin implements
         return formPlugin;
     }
 
-    public void setFormPlugin(Plugin formPlugin) {
+    public void setFormPlugin(FormPlugin formPlugin) {
         this.formPlugin = formPlugin;
     }
 
     //@Override
-    public SimpleEventBus getLocalPluginEventBus() {
-        return pluginEventBus;
+    public EventBus getLocalPluginEventBus() {
+        return eventBus;
     }
 
     @Override
@@ -83,6 +89,7 @@ public class DomainObjectSurferPlugin extends Plugin implements
         formPluginPanel = formPlugin.getOwner();
         formPluginPanel.closeCurrentPlugin();
         final FormPlugin newFormPlugin = ComponentRegistry.instance.get("form.plugin");
+        newFormPlugin.setEventBus(this.eventBus);
         newFormPlugin.setConfig(new FormPluginConfig(event.getId()));
         newFormPlugin.addViewCreatedListener(new SizeChangedEventListener() {
             @Override
@@ -134,13 +141,16 @@ public class DomainObjectSurferPlugin extends Plugin implements
         if (this.collectionPlugin == null) {
             this.collectionPlugin = ComponentRegistry.instance.get("collection.plugin");
         }
+
         this.collectionPlugin.setInitialData(initialData.getCollectionPluginData());
+        this.collectionPlugin.setEventBus(eventBus);
 
         if (this.formPlugin == null) {
             this.formPlugin = ComponentRegistry.instance.get("form.plugin");
             this.formPlugin.setDisplayActionToolBar(false);
         }
         this.formPlugin.setInitialData(initialData.getFormPluginData());
+        this.formPlugin.setEventBus(eventBus);
     }
 
     @Override

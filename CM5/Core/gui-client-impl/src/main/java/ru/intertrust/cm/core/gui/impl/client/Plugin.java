@@ -1,12 +1,12 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.event.shared.GwtEvent;
-import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
@@ -37,10 +37,6 @@ import java.util.logging.Logger;
  */
 public abstract class Plugin extends BaseComponent {
     private PluginPanel owner;
-
-    // IPetrov 26.11.2013
-    // для хранения локальных шин событий
-    protected SimpleEventBus pluginEventBus;
     private PluginConfig config;
     private boolean displayActionToolBar;
     private PluginData initialData;
@@ -112,7 +108,7 @@ public abstract class Plugin extends BaseComponent {
             return;
         }
         for (GwtEvent.Type eventType : events) {
-            HandlerRegistration handlerRegistration = pluginEventBus.addHandler(eventType, this);
+            HandlerRegistration handlerRegistration = Application.getInstance().getEventBus().addHandler(eventType, this);
             handlerRegistrations.add(handlerRegistration);
         }
     }
@@ -123,7 +119,7 @@ public abstract class Plugin extends BaseComponent {
         postSetUp();
     }
 
-    void clearHandlers() {
+    protected void clearHandlers() {
         for (HandlerRegistration registration : handlerRegistrations) {
             registration.removeHandler();
         }
@@ -145,15 +141,6 @@ public abstract class Plugin extends BaseComponent {
      */
     void setOwner(PluginPanel owner) {
         this.owner = owner;
-    }
-
-    /**
-     * Устанавливает локальную шину сообщений
-     *
-     * @param pluginEventBus шина сообщений
-     */
-    public void setPluginEventBus(SimpleEventBus pluginEventBus) {
-        this.pluginEventBus = pluginEventBus;
     }
 
     /**
@@ -234,12 +221,7 @@ public abstract class Plugin extends BaseComponent {
         return owner;
     }
 
-    //
-    public SimpleEventBus getLocalPluginEventBus() {
-        return pluginEventBus;
-    }
-
-    public boolean displayActionToolBar() {
+        public boolean displayActionToolBar() {
         return displayActionToolBar;
     }
 

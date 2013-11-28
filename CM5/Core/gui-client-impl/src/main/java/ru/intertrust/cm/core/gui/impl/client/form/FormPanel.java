@@ -3,16 +3,10 @@ package ru.intertrust.cm.core.gui.impl.client.form;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.config.gui.form.*;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
-import ru.intertrust.cm.core.gui.impl.client.event.SplitterInnerScrollEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.SplitterInnerScrollEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
@@ -31,52 +25,18 @@ public class FormPanel implements IsWidget {
     private int formHeight;
     private FormDisplayData formDisplayData;
     private List<BaseWidget> widgets;
-    ScrollPanel scrollPanel ;
-    EventBus eventBus;
-    public FormPanel (FormDisplayData formDisplayData, EventBus eventBus, int width, int height) {
-        this(formDisplayData, eventBus);
+    private ScrollPanel scrollPanel ;
+
+    public FormPanel (FormDisplayData formDisplayData, int width, int height) {
+        this(formDisplayData);
         formWidth = width;
         formHeight = height;
     }
-    public FormPanel(FormDisplayData formDisplayData, EventBus eventBus) {
+    public FormPanel(FormDisplayData formDisplayData) {
 
         this.formDisplayData = formDisplayData;
         widgets = new ArrayList<BaseWidget>(formDisplayData.getFormState().getFullWidgetsState().size());
         scrollPanel = new ScrollPanel();
-        this.eventBus = eventBus;
-
-        eventBus.addHandler(SplitterInnerScrollEvent.TYPE, new SplitterInnerScrollEventHandler() {
-            @Override
-            public void setScrollPanelHeight(SplitterInnerScrollEvent event) {
-
-                scrollPanel.setHeight(event.getDownPanelHeight() + "px");
-                scrollPanel.setWidth(scrollPanel.getParent().getParent().getOffsetWidth()+"px");
-
-            }
-        });
-
-        eventBus.addHandler(SplitterWidgetResizerEvent.TYPE, new SplitterWidgetResizerEventHandler() {
-
-            @Override
-            public void setWidgetSize(SplitterWidgetResizerEvent event) {
-                if (event.isType()){
-                    if ((event.getFirstWidgetHeight() * 2) < Window.getClientHeight()) {
-                        scrollPanel.setHeight(((event.getFirstWidgetHeight()*2) ) + "px");
-                    }  else {
-                        scrollPanel.setHeight((event.getFirstWidgetHeight()) + "px");
-                    }
-                }
-                else
-                {
-                    scrollPanel.setHeight((event.getFirstWidgetHeight() ) + "px");
-                }
-
-                scrollPanel.setWidth(event.getFirstWidgetWidth()+"px");
-
-
-            }
-        });
-
 
     }
     public void updateSizes(int width, int height) {
@@ -154,6 +114,10 @@ public class FormPanel implements IsWidget {
         }
         scrollPanel = getScrollPanel(headerTable, bodyTabPanel, formDisplayData);
 
+        return scrollPanel;
+    }
+
+    public ScrollPanel getInstanceScrollPanel() {
         return scrollPanel;
     }
 

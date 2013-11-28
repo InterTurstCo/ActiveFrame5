@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.navigation;
 
 import com.google.gwt.event.shared.GwtEvent;
+import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
@@ -8,6 +9,14 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 
 @ComponentName("navigation.tree")
 public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEventHandler {
+
+    protected EventBus eventBus;
+
+    // установка шины событий плагину
+    public void setEventBus(EventBus eventBus) {
+        this.eventBus = eventBus;
+    }
+
     @Override
     public PluginView createView() {
         return new NavigationTreePluginView(this);

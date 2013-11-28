@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
+import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEvent;
@@ -19,6 +20,22 @@ import java.util.Map;
  */
 @ComponentName("form.plugin")
 public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor {
+
+    // поле для локальной шины событий
+    protected EventBus eventBus;
+
+    // установка локальной шины событий плагину
+    public void setEventBus(EventBus eventBus) {
+        this.eventBus = eventBus;
+    }
+
+    // получение локальной шины событий плагину
+    public EventBus getEventBus() {
+        return eventBus;
+    }
+
+    public FormPlugin() {
+    }
 
     @Override
     public PluginView createView() {
@@ -54,12 +71,10 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
         newPlugin.addViewCreatedListener(new SizeChangedEventListener() {
             @Override
             public void onViewCreation(PluginViewCreatedEvent source) {
-                getLocalPluginEventBus().fireEvent(new PluginPanelSizeChangedEvent());
+                eventBus.fireEvent(new PluginPanelSizeChangedEvent());
             }
         }
         );
-
-
     }
 
     @Override

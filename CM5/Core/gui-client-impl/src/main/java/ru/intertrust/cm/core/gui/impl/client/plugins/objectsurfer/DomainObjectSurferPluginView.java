@@ -1,9 +1,10 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer;
 
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.*;
+import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
+import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
@@ -26,7 +27,8 @@ public class DomainObjectSurferPluginView extends PluginView {
     private SimplePanel splitterFirstWidget = new SimplePanel();
     private ScrollPanel splitterScroll = new ScrollPanel();
     private DomainObjectSurferPlugin domainObjectSurferPlugin;
-    private SimpleEventBus eventBus;
+    //локальная шина событий
+    private EventBus eventBus;
     private SplitterEx splitterPanel;
     private static Logger log = Logger.getLogger("DomainObjectSurfer");
     private FlowPanel flowPanel;
@@ -108,13 +110,14 @@ public class DomainObjectSurferPluginView extends PluginView {
         final DomainObjectSurferConfig config = (DomainObjectSurferConfig) domainObjectSurferPlugin.getConfig();
         if (config != null) {
             log.info("plugin config, collection = " + config.getCollectionViewerConfig().getCollectionRefConfig().getName());
-            final PluginPanel formPluginPanel = new PluginPanel(eventBus);
+            final PluginPanel formPluginPanel = new PluginPanel();
             formPluginPanel.setPanelHeight(surferHeight / 2);
             formPluginPanel.setPanelWidth(surferWidth);
             final Plugin collectionViewerPlugin = domainObjectSurferPlugin.getCollectionPlugin();
             collectionViewerPlugin.setConfig(config.getCollectionViewerConfig());
 
-            PluginPanel collectionViewerPluginPanel = new PluginPanel(eventBus) {
+
+            PluginPanel collectionViewerPluginPanel = new PluginPanel() {
                 @Override
                 public void beforePluginOpening() {
                     CollectionPluginData collectionPluginData = collectionViewerPlugin.getInitialData();
@@ -129,7 +132,7 @@ public class DomainObjectSurferPluginView extends PluginView {
                     } else {
                         formPluginConfig = new FormPluginConfig(items.get(0).getId());
                     }
-                    final Plugin formPlugin = domainObjectSurferPlugin.getFormPlugin();
+                    final FormPlugin formPlugin = (FormPlugin)domainObjectSurferPlugin.getFormPlugin();
                     domainObjectSurferPlugin.setFormPlugin(formPlugin);
                     formPlugin.setConfig(formPluginConfig);
 

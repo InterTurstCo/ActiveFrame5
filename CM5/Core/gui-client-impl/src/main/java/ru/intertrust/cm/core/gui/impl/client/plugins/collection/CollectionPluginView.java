@@ -6,7 +6,6 @@ import com.google.gwt.event.dom.client.ScrollEvent;
 import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
-import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.RowStyles;
@@ -14,6 +13,7 @@ import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
+import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
@@ -58,22 +58,25 @@ public class CollectionPluginView extends PluginView {
     private int listCount = 0;
     private int tableWidth;
     private int tableHeight;
-    private SimpleEventBus eventBus;
+
+    // локальная шина событий
+    private EventBus eventBus;
+    protected Plugin plugin;
 
     /**
      * Создание стилей для ящеек таблицы
      */
     private final DGCellTableResourceAdapter adapter;
 
-    protected CollectionPluginView(Plugin plugin) {
+    protected CollectionPluginView(CollectionPlugin plugin) {
         super(plugin);
+        this.plugin = plugin;
+        this.eventBus = plugin.getEventBus();
         adapter = new DGCellTableResourceAdapter(CellTableResourcesEx.I);
         tableHeader = new CellTable<CollectionRowItem>(999, adapter.getResources());
         tableBody = new CellTable<CollectionRowItem>(999, adapter.getResources());
         tableController = new TableController(tableHeader, tableBody);
         updateSizes();
-
-        eventBus = plugin.getLocalPluginEventBus();
 
     }
 
@@ -152,7 +155,7 @@ public class CollectionPluginView extends PluginView {
 
     private void addHandlers() {
         addResizeHandler();
-        tableBody.addCellPreviewHandler(new CellTableEventHandler<CollectionRowItem>(tableHeader, plugin));
+        tableBody.addCellPreviewHandler(new CellTableEventHandler<CollectionRowItem>(tableBody, plugin, eventBus));
         eventBus.addHandler(SplitterInnerScrollEvent.TYPE, new SplitterInnerScrollEventHandler() {
             @Override
             public void setScrollPanelHeight(SplitterInnerScrollEvent event) {
@@ -283,6 +286,10 @@ public class CollectionPluginView extends PluginView {
 
     public ScrollPanel getScrollTableBody() {
         return scrollTableBody;
+    }
+
+    public void setEventBus(EventBus eventBus) {
+        this.eventBus = eventBus;
     }
 
 }

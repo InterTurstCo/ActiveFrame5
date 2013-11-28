@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
-import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -19,11 +18,10 @@ public class PluginPanel implements IsWidget {
     private int panelWidth;
     private int panelHeight;
     private SimplePanel impl = new SimplePanel();
-    private SimpleEventBus eventBus;
     private Plugin currentPlugin;
 
-    public PluginPanel(SimpleEventBus eventBus) {
-        this.eventBus = eventBus;
+    public PluginPanel() {
+
     }
 
     public int getPanelWidth() {
@@ -55,8 +53,7 @@ public class PluginPanel implements IsWidget {
     }
 
     public void open(Plugin plugin, Dto initParams) {
-        // IPetrov 26.11.2013
-        plugin.setPluginEventBus(eventBus);
+
         plugin.setOwner(this);
         plugin.setUp();
     }
