@@ -123,6 +123,7 @@ public class DomainObjectSurferPlugin extends Plugin implements
         newPlugin.setConfig(formPluginConfig);
         ((Plugin) formPlugin).getOwner().open(newPlugin);
         formPlugin = newPlugin;
+        formPlugin.setEventBus(this.eventBus);
     }
 
     @Override
