@@ -81,8 +81,8 @@ public class CollectionPluginView extends PluginView {
     }
 
     private void updateSizes() {
-        tableWidth = plugin.getOwner().getPanelWidth();
-        tableHeight = plugin.getOwner().getPanelHeight();
+        tableWidth = plugin.getOwner().getVisibleWidth();
+        tableHeight = plugin.getOwner().getVisibleHeight();
 
     }
 

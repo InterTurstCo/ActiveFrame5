@@ -37,10 +37,11 @@ public class DomainObjectSurferPluginView extends PluginView {
         super(plugin);
         domainObjectSurferPlugin = (DomainObjectSurferPlugin) plugin;
         splitterScroll.getElement().getStyle().setOverflowY(Style.Overflow.HIDDEN);
-        surferWidth = plugin.getOwner().getPanelWidth();
-        surferHeight = plugin.getOwner().getPanelHeight();
+        surferWidth = plugin.getOwner().getVisibleWidth();
+        surferHeight = plugin.getOwner().getVisibleHeight();
         initSplitter();
         splitterSetSize();
+        formFlowPanel.getElement().getStyle().setOverflow(Style.Overflow.AUTO);
         eventBus = domainObjectSurferPlugin.getLocalPluginEventBus();
         addSplitterWidgetResizeHandler();
 
@@ -66,8 +67,8 @@ public class DomainObjectSurferPluginView extends PluginView {
     }
 
     private void updateSizes() {
-        surferWidth = plugin.getOwner().getPanelWidth();
-        surferHeight = plugin.getOwner().getPanelHeight();
+        surferWidth = plugin.getOwner().getVisibleWidth();
+        surferHeight = plugin.getOwner().getVisibleHeight();
 
     }
 
@@ -111,8 +112,8 @@ public class DomainObjectSurferPluginView extends PluginView {
         if (config != null) {
             log.info("plugin config, collection = " + config.getCollectionViewerConfig().getCollectionRefConfig().getName());
             final PluginPanel formPluginPanel = new PluginPanel();
-            formPluginPanel.setPanelHeight(surferHeight / 2);
-            formPluginPanel.setPanelWidth(surferWidth);
+            formPluginPanel.setVisibleHeight(surferHeight / 2);
+            formPluginPanel.setVisibleWidth(surferWidth);
             final Plugin collectionViewerPlugin = domainObjectSurferPlugin.getCollectionPlugin();
             collectionViewerPlugin.setConfig(config.getCollectionViewerConfig());
 
@@ -133,7 +134,7 @@ public class DomainObjectSurferPluginView extends PluginView {
                         formPluginConfig = new FormPluginConfig(items.get(0).getId());
                     }
                     final FormPlugin formPlugin = (FormPlugin)domainObjectSurferPlugin.getFormPlugin();
-                    domainObjectSurferPlugin.setFormPlugin(formPlugin);
+
                     formPlugin.setConfig(formPluginConfig);
 
                     formPluginPanel.open(formPlugin);
@@ -146,8 +147,8 @@ public class DomainObjectSurferPluginView extends PluginView {
 
                 }
             };
-            collectionViewerPluginPanel.setPanelWidth(surferWidth);
-            collectionViewerPluginPanel.setPanelHeight(surferHeight / 2);
+            collectionViewerPluginPanel.setVisibleWidth(surferWidth);
+            collectionViewerPluginPanel.setVisibleHeight(surferHeight / 2);
             collectionViewerPluginPanel.open(collectionViewerPlugin);
 
         }

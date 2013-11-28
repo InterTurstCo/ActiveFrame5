@@ -1,8 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterInnerScrollEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterInnerScrollEventHandler;
@@ -30,7 +30,7 @@ public class FormPluginView extends PluginView {
     private FormPanel  formPanel;
     // локальная шина событий
     protected EventBus eventBus;
-    private ScrollPanel scrollPanel;
+    private FlowPanel flowPanel;
 
     // установка локальной шины событий плагину
     public void setEventBus(EventBus eventBus) {
@@ -41,10 +41,10 @@ public class FormPluginView extends PluginView {
         super(plugin);
         // установка локальной шины событий
         this.eventBus = plugin.getEventBus();
-        int formWidth = plugin.getOwner().getPanelWidth();
-        int formHeight = plugin.getOwner().getPanelHeight();
+        int formWidth = plugin.getOwner().getVisibleWidth();
+        int formHeight = plugin.getOwner().getVisibleHeight();
         formPanel = new FormPanel(formDisplayData, formWidth, formHeight);
-        scrollPanel = formPanel.getInstanceScrollPanel();
+        flowPanel = formPanel.getPanel();
         // добавляем обработчики
         addHandlers();
     }
@@ -60,8 +60,8 @@ public class FormPluginView extends PluginView {
             @Override
             public void setScrollPanelHeight(SplitterInnerScrollEvent event) {
 
-                scrollPanel.setHeight(event.getDownPanelHeight() + "px");
-                scrollPanel.setWidth(scrollPanel.getParent().getParent().getOffsetWidth() + "px");
+                flowPanel.setHeight(event.getDownPanelHeight() + "px");
+                flowPanel.setWidth(flowPanel.getParent().getParent().getOffsetWidth() + "px");
 
             }
         });
@@ -72,17 +72,17 @@ public class FormPluginView extends PluginView {
             public void setWidgetSize(SplitterWidgetResizerEvent event) {
                 if (event.isType()){
                     if ((event.getFirstWidgetHeight() * 2) < Window.getClientHeight()) {
-                        scrollPanel.setHeight(((event.getFirstWidgetHeight()*2) ) + "px");
+                        flowPanel.setHeight(((event.getFirstWidgetHeight()*2) ) + "px");
                     }  else {
-                        scrollPanel.setHeight((event.getFirstWidgetHeight()) + "px");
+                        flowPanel.setHeight((event.getFirstWidgetHeight()) + "px");
                     }
                 }
                 else
                 {
-                    scrollPanel.setHeight((event.getFirstWidgetHeight() ) + "px");
+                   flowPanel.setHeight((event.getFirstWidgetHeight() ) + "px");
                 }
 
-                scrollPanel.setWidth(event.getFirstWidgetWidth()+"px");
+                flowPanel.setWidth(event.getFirstWidgetWidth()+"px");
 
 
             }
@@ -113,10 +113,6 @@ public class FormPluginView extends PluginView {
         formPanel.update(formState);
     }
 
-    public void onPluginPanelResize() {
-        int width = plugin.getOwner().getPanelWidth();
-        int height = plugin.getOwner().getPanelHeight();
-        formPanel.updateSizes(width, height);
-    }
+
 
 }

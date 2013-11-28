@@ -156,15 +156,14 @@ public class DomainObjectSurferPlugin extends Plugin implements
 
     @Override
     public void updateSizes() {
-        int width = getOwner().getPanelWidth();
-        int height = getOwner().getPanelHeight();
-        formPlugin.getOwner().setPanelWidth(width);
-        formPlugin.getOwner().setPanelHeight(height / 2);
-        collectionPlugin.getOwner().setPanelWidth(width);
-        collectionPlugin.getOwner().setPanelHeight(height / 2);
+        int width = getOwner().getVisibleWidth();
+        int height = getOwner().getVisibleHeight();
+
+        collectionPlugin.getOwner().setVisibleWidth(width);
+        collectionPlugin.getOwner().setVisibleHeight(height / 2);
 
         getView().onPluginPanelResize();
         collectionPlugin.getView().onPluginPanelResize();
-        formPlugin.getView().onPluginPanelResize();
+
     }
 }
