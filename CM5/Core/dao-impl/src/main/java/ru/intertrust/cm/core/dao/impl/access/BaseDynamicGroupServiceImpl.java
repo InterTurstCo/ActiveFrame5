@@ -149,7 +149,7 @@ public class BaseDynamicGroupServiceImpl {
         return query.toString();
     }
 
-    protected Id getUserGroupByGroupName(String groupName) {
+    public Id getUserGroupByGroupName(String groupName) {
         String query = generateGetUserGroupQuery();
 
         Map<String, Object> parameters = initializeProcessUserGroupParameters(groupName);

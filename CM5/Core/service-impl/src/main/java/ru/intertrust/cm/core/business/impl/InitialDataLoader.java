@@ -22,7 +22,10 @@ import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.StaticGroupConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.DynamicGroupService;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 
 /**
  * Класс, предназначенный для загрузки конфигурации доменных объектов
@@ -35,6 +38,8 @@ public class InitialDataLoader {
     private static final String ADMIN_LOGIN = "admin";
     private static final String ADMIN_PASSWORD = "admin";
 
+    private static final String SUPER_USERS_STATIC_GROUP = "Superusers";
+
     @Autowired
     private AuthenticationService authenticationService;
 
@@ -46,6 +51,15 @@ public class InitialDataLoader {
 
     @Autowired
     private AccessControlService accessControlService;
+    
+    @Autowired
+    private PersonManagementServiceDao personManagementServiceDao;
+
+    @Autowired
+    private DynamicGroupService dynamicGroupService;
+
+    @Autowired
+    protected DomainObjectTypeIdCache domainObjectTypeIdCache;
 
     private NamedParameterJdbcTemplate jdbcTemplate;
 
@@ -103,13 +117,18 @@ public class InitialDataLoader {
         // статусы сохраняются до сохранения остальных доменных объектов, т.к. ДО могут использовать статусы при
         // сохранении
         saveInitialStatuses();
+
         saveStaticGroups();
-        
+
         if (!authenticationService.existsAuthenticationInfo(ADMIN_LOGIN)) {
             insertAdminAuthenticationInfo();
         }
+        saveSuperUsersGroup();
     }
 
+    /**
+     * Создает все статические группы кроме {@link InitialDataLoader#SUPER_USERS_STATIC_GROUP}. 
+     */
     private void saveStaticGroups() {
         Set<String> staticGroups = new HashSet<String>();
 
@@ -125,9 +144,46 @@ public class InitialDataLoader {
 
         for (String staticGroupName : staticGroups) {
             if (!existsStaticGroup(staticGroupName)) {
-                createUserGroup(staticGroupName);
+                if (!SUPER_USERS_STATIC_GROUP.equals(staticGroupName)) {
+                    createUserGroup(staticGroupName);
+                }
             }
         }
+    }
+    
+    /**
+     * Создает группу статическую группу {@link InitialDataLoader#SUPER_USERS_STATIC_GROUP}, если ее еще нет. Должен
+     * вызываться после создания Администратора, т.к. этот пользователь затем добавляется в эту группу.
+     */
+    private void saveSuperUsersGroup() {
+        Set<String> staticGroups = new HashSet<String>();
+
+        Collection<StaticGroupConfig> staticGroupConfigs =
+                configurationExplorer.getConfigs(StaticGroupConfig.class);
+
+        for (StaticGroupConfig staticGroup : staticGroupConfigs) {
+            String groupName = staticGroup.getName();
+            if (groupName != null) {
+                staticGroups.add(groupName);
+            }
+        }
+
+        if(staticGroups.contains(SUPER_USERS_STATIC_GROUP)){
+            if (!existsStaticGroup(SUPER_USERS_STATIC_GROUP)) {
+                createUserGroup(SUPER_USERS_STATIC_GROUP);
+                addAdminUserToSuperUsers();
+            }
+            
+        }
+    }
+
+    private void addAdminUserToSuperUsers() {
+        Id adminId = personManagementServiceDao.getPersonId(ADMIN_LOGIN);
+        Id superUsersGroupId = dynamicGroupService.getUserGroupByGroupName(SUPER_USERS_STATIC_GROUP);
+        if (adminId == null || superUsersGroupId == null) {
+            throw new IllegalArgumentException("User admin or user group SuperUsers does't exists");
+        }
+        personManagementServiceDao.addPersonToGroup(superUsersGroupId, adminId);
     }
 
     private void saveInitialStatuses() {
@@ -164,7 +220,6 @@ public class InitialDataLoader {
                         + " ug where ug.group_name = :group_name and ug.object_id is null";
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("group_name", staticGroupName);
-        @SuppressWarnings("deprecation")
         int total = jdbcTemplate.queryForObject(query, paramMap, Integer.class);
         return total > 0;
     }

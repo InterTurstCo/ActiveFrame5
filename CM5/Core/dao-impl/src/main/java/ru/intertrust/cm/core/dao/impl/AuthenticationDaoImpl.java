@@ -1,13 +1,14 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
-import ru.intertrust.cm.core.dao.api.AuthenticationDao;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+
+import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
+import ru.intertrust.cm.core.dao.api.AuthenticationDao;
 
 /**
  * Реализация DAO для работы с системным объектом AuthenticationInfo.

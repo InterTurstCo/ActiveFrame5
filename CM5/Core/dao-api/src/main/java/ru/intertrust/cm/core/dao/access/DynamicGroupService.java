@@ -54,4 +54,11 @@ public interface DynamicGroupService {
      */
     List<Id> getInvalidGroupsBeforeDelete(DomainObject domainObject);
     
+    /**
+     * Поиск группы (динамической или статической) по имени.
+     * @param groupName имя группы
+     * @return идентификатор группы
+     */
+    Id getUserGroupByGroupName(String groupName);
+    
 }

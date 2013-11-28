@@ -1,16 +1,26 @@
 package ru.intertrust.cm.core.business.impl;
 
+import java.util.Date;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
 import ru.intertrust.cm.core.business.api.AuthenticationService;
 import ru.intertrust.cm.core.business.api.MD5Service;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.AuthenticationDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
-
-import java.util.Date;
+import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
+import ru.intertrust.cm.core.model.FatalException;
 
 /**
  * Реализация сервиса для работы с доменным объектом объектом Authentication Info
@@ -18,7 +28,9 @@ import java.util.Date;
  *
  */
 public class AuthenticationServiceImpl implements AuthenticationService {
-
+   
+    private static final String ADMINISTRATORS_STATIC_GROUP = "Administrators";
+    
     private MD5Service md5Service;
 
     private AuthenticationDao authenticationDao;
@@ -30,6 +42,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Autowired
     private AccessControlService accessControlService;
+
+    @Autowired
+    private PersonManagementServiceDao personManagementServiceDao;
 
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
@@ -75,7 +90,22 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         role.setValue("Role", roleName);
         role.setValue("Authentication_Info", new ReferenceValue(id));
         domainObjectDao.create(role, accessToken);
-        
+
+        Id adminGroupId = personManagementServiceDao.getGroupId(ADMINISTRATORS_STATIC_GROUP);
+
+        if (adminGroupId == null) {
+            throw new FatalException("Administrators group not found.");
+        }
+        List<DomainObject> personsInAdministrators = personManagementServiceDao.getAllPersonsInGroup(adminGroupId);
+        if (personsInAdministrators == null || personsInAdministrators.size() == 0) {
+            DomainObject adminPerson = createAdminPerson(authenticationInfo, currentDate, accessToken);
+            personManagementServiceDao.addPersonToGroup(adminGroupId, adminPerson.getId());
+        }
+
+    }
+
+    private DomainObject createAdminPerson(AuthenticationInfoAndRole authenticationInfo, Date currentDate,
+            AccessToken accessToken) {
         //Создание персоны администратора
         GenericDomainObject person = new GenericDomainObject();
         person.setTypeName("Person");
@@ -84,8 +114,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         person.setString("Login", authenticationInfo.getUserUid());
         person.setString("FirstName", authenticationInfo.getUserUid());
         person.setString("Login", authenticationInfo.getUserUid());
-        person.setString("EMail", authenticationInfo.getUserUid() + "@localhost.com");
-        domainObjectDao.create(person, accessToken);
+        person.setString("EMail", authenticationInfo.getUserUid() + "@localhost.com");        
+        DomainObject adminPerson = domainObjectDao.create(person, accessToken);
+
+        if (adminPerson == null || adminPerson.getId() == null) {
+            throw new FatalException("Admin peson was not created.");
+        }
+        return adminPerson;
     }
 
     /**

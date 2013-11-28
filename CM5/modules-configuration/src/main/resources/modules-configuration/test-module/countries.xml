@@ -69,7 +69,7 @@
         </fields>
     </domain-object-type>
 
-    <domain-object-type name="city">
+    <domain-object-type name="city" initial-status="Active">
         <fields>
             <reference name="country" type="country"/>
             <string name="name" length="128"/>
