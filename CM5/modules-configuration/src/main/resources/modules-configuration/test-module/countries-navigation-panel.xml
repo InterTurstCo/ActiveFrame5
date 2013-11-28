@@ -35,11 +35,11 @@
         <link name="Administration" display-text="Администрирование" image="images/inbox.png" child-to-open="Employee">
             <!-- в администрировании не задан плагин, значит по клику ничего открываться не должно, либо должна открываться дочерняя ссылка. дочерняя ссылка должна быть одной из вложенных (1й уровень вложенности). если не задан ни плагин, ни дочерняя ссылка, то данная ссылка является простой группировкой дочерних -->
             <child-links> <!-- group-name параметр не обязательный. Если он задан, то на экране появляется элемент-название группы (см. "Руководство разработчика", раздел Строение системы, Навигационное дерево -> "Стадии и задачи"-->
-                <link name="Employee" display-text="Фейк" image="images/inbox.png">
+                <link name="Employee" display-text="Сотрудники" image="images/inbox.png">
                     <plugin>
                         <!-- DomainObjectSurferConfig и CustomPluginConfig должны наследоваться от PluginConfig -->
                         <!-- если используется collection-view, то collection нельзя использовать -->
-                        <domain-object-surfer>
+                        <domain-object-surfer domain-object-type-to-create="Employee">
                             <collection-viewer>
                                 <collection-ref name="Employees" use-default="true"/>
                                 <sort-criterion field="last_name"/>
@@ -50,6 +50,40 @@
                         <collection-counter/>
                     </decorations>
                 </link>
+
+                <link name="Department" display-text="Отдел" image="images/inbox.png">
+                    <plugin>
+                        <!-- DomainObjectSurferConfig и CustomPluginConfig должны наследоваться от PluginConfig -->
+                        <!-- если используется collection-view, то collection нельзя использовать -->
+                        <domain-object-surfer domain-object-type-to-create="Department">
+                            <collection-viewer>
+                                <collection-ref name="Departments" use-default="true"/>
+                                <sort-criterion field="name"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                    <decorations>
+                        <collection-counter/>
+                    </decorations>
+                </link>
+
+                <link name="Organization" display-text="Организация" image="images/inbox.png">
+                    <plugin>
+                        <!-- DomainObjectSurferConfig и CustomPluginConfig должны наследоваться от PluginConfig -->
+                        <!-- если используется collection-view, то collection нельзя использовать -->
+                        <domain-object-surfer domain-object-type-to-create="Organization">
+                            <collection-viewer>
+                                <collection-ref name="Organizations" use-default="true"/>
+                                <sort-criterion field="name"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                    <decorations>
+                        <collection-counter/>
+                    </decorations>
+                </link>
+
+
             </child-links>
         </link>
         <link name="Documents" display-text="Документы" image="images/inbox.png" child-to-open="Internal_Document">
@@ -73,6 +107,17 @@
                         <domain-object-surfer domain-object-type-to-create="Internal_Document">
                             <collection-viewer>
                                 <collection-ref name="Tasks"/>
+                                <sort-criterion field="name" order="asc"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+
+                <link name="Letters" display-text="Письма">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="Letter">
+                            <collection-viewer>
+                                <collection-ref name="Letters"/>
                                 <sort-criterion field="name" order="asc"/>
                             </collection-viewer>
                         </domain-object-surfer>

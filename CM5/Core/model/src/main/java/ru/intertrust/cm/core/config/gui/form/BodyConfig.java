@@ -18,7 +18,7 @@ public class BodyConfig implements Dto {
     @Attribute(name = "display-single-tab")
     private boolean displaySingleTab;
 
-    @ElementList(inline = true)
+    @ElementList(inline = true, required = false)
     private List<TabConfig> tabs = new ArrayList<TabConfig>();
 
     public boolean isDisplaySingleTab() {

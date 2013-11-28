@@ -71,18 +71,25 @@ public class FormPanel implements IsWidget {
         HeaderConfig header = markup.getHeader();
         IsWidget headerTable = buildTable(header.getTableLayout());
 
-        final HackTabLayoutPanel bodyTabPanel;
         BodyConfig body = markup.getBody();
         List<TabConfig> tabs = body.getTabs();
 
-        int countTab = 1;
-        if (body.isDisplaySingleTab() == true && tabs.size() == countTab){
+        final HackTabLayoutPanel bodyTabPanel = buildBodyTabPanel(header, body, tabs);
 
+        scrollPanel = getScrollPanel(headerTable, bodyTabPanel, formDisplayData);
+        return scrollPanel;
+    }
+
+    private HackTabLayoutPanel buildBodyTabPanel(HeaderConfig header, BodyConfig body, List<TabConfig> tabs) {
+        if (tabs.size() == 0) {
+            return null;
+        }
+
+        final HackTabLayoutPanel bodyTabPanel;
+        if (body.isDisplaySingleTab() && tabs.size() == 1) {
             bodyTabPanel = new HackTabLayoutPanel(0, Style.Unit.PX);
             bodyTabPanel.add(buildTabContent(tabs.get(0)));
-        }
-        else{
-
+        } else {
             bodyTabPanel = new HackTabLayoutPanel(35, Style.Unit.PX);
 
             for (TabConfig tab : tabs) {
@@ -99,22 +106,18 @@ public class FormPanel implements IsWidget {
             }
         });
 
-        if(header.getTableLayout().getHeight()!= null){
-
+        if (header.getTableLayout().getHeight() != null) {
             bodyTabPanel.setHeight(header.getTableLayout().getHeight());
-        }
-        else{
+        } else {
             bodyTabPanel.setHeight("200px");
         }
-        if(header.getTableLayout().getWidth()!= null){
+
+        if (header.getTableLayout().getWidth() != null) {
             bodyTabPanel.setWidth((header.getTableLayout().getWidth()));
-        }
-        else{
+        } else {
             bodyTabPanel.setWidth(formWidth + "px");
         }
-        scrollPanel = getScrollPanel(headerTable, bodyTabPanel, formDisplayData);
-
-        return scrollPanel;
+        return bodyTabPanel;
     }
 
     public ScrollPanel getInstanceScrollPanel() {
@@ -128,14 +131,10 @@ public class FormPanel implements IsWidget {
 
         scrollPanel.add(verticalPanel);
         verticalPanel.add(headerTable);
-        verticalPanel.add(bodyTabPanel);
-
-        // scrollPanel.setHeight((Window.getClientHeight()-98)/2 + "px");
-        // scrollPanel.setWidth((Window.getClientWidth() - 235) + "px");
-
-        verticalPanel.add(headerTable);
-        verticalPanel.add(bodyTabPanel);
-        bodyTabPanel.getTabWidget(0).getElement().getStyle().setProperty("backgroundColor", "white");
+        if (bodyTabPanel != null) {
+            verticalPanel.add(bodyTabPanel);
+            bodyTabPanel.getTabWidget(0).getElement().getStyle().setProperty("backgroundColor", "white");
+        }
 
         return scrollPanel;
     }

@@ -54,6 +54,46 @@
         </filter>
     </collection>
 
+    <collection name="Departments" idField="id">
+        <prototype>
+            <![CDATA[
+                    select
+                        d.id, d.name
+                    from
+                        Department d
+                ]]>
+        </prototype>
+
+        <counting-prototype>
+            select count(*) from Department d
+        </counting-prototype>
+    </collection>
+
+    <collection-view name="departments_default_view" collection="Departments" is-default="true">
+        <display>
+            <column field="id" name="id" type="integer" sortable="false"/>
+            <column field="name" name="Название" editable="false" type="string" sortable="true"/>
+        </display>
+    </collection-view>
+
+    <collection name="Organizations" idField="id">
+        <prototype>
+            <![CDATA[
+                    select
+                        o.id, o.name
+                    from
+                        Organization o
+                ]]>
+        </prototype>
+    </collection>
+
+    <collection-view name="organizations_default_view" collection="Organizations" is-default="true">
+        <display>
+            <column field="id" name="id" type="integer" sortable="false"/>
+            <column field="name" name="Название организации" editable="false" type="string" sortable="true"/>
+        </display>
+    </collection-view>
+
     <collection name="Employees_2" idField="id">
         <renderer
             className="ru.intertrust.cm.core.business.impl.EmployeesCollectionRenderer" />

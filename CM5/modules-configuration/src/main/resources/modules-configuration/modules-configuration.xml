@@ -17,6 +17,11 @@
     </module-configuration>
 
     <module-configuration>
+        <path>/test-module/letters.xml</path>
+        <schema-path>/test-module/custom-configuration.xsd</schema-path>
+    </module-configuration>
+
+    <module-configuration>
         <path>/test-module/countries-navigation-panel.xml</path>
         <schema-path>/test-module/custom-configuration.xsd</schema-path>
     </module-configuration>

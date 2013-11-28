@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+    <domain-object-type name="letter">
+        <fields>
+            <string name="subject" length="128"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="letter_addressee">
+        <fields>
+            <reference name="letter" type="letter"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="organization_addressee" extends="letter_addressee">
+        <fields>
+            <reference name="organization" type="Organization"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="department_addressee" extends="letter_addressee">
+        <fields>
+            <reference name="department" type="Department"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="employee_addressee" extends="letter_addressee">
+        <fields>
+            <reference name="employee" type="Employee"/>
+        </fields>
+    </domain-object-type>
+
+    <form name="employee_form" domain-object-type="Employee" is-default="true">
+        <markup>
+            <header>
+                <table width="500px" height="200px">
+                    <tr>
+                        <td width="100px" h-align="right">
+                            <widget id="Name-Label"/>
+                        </td>
+                        <td width="100%" h-align="left">
+                            <widget id="Name"/>
+                        </td>
+                        <!-- text-box (Название) -->
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false"> <!-- в теле - только закладки -->
+                <tab name="Главная"> <!-- закладка состоит из групп с разметкой -->
+                    <single-entry-group> <!-- наследник от TabGroupsConfig -->
+                        <tab-group> <!-- вхождение в группу уже может содержать разметку -->
+                            <table>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="Department-Label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="Department"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="positionLabel"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="position"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="Name-Label">
+                <field-path/>
+                <text>Название:</text>
+            </label>
+            <text-box id="Name">
+                <field-path value="Name"/>
+            </text-box>
+
+            <label id="Department-Label">
+                <text>Департамент:</text>
+            </label>
+            <combo-box id="Department">
+                <field-path value="Department"/>
+                <pattern value="{Name}"/>
+            </combo-box>
+
+            <label id="positionLabel">
+                <text>Должность(*):</text>
+            </label>
+            <text-box id="position">
+                <field-path value="Position"/>
+            </text-box>
+        </widget-config>
+    </form>
+
+    <form name="department_form" domain-object-type="Department" is-default="true">
+        <markup>
+            <header>
+                <table width="500px" height="200px">
+                    <tr>
+                        <td width="100px" h-align="right">
+                            <widget id="Name-Label"/>
+                        </td>
+                        <td width="100%" h-align="left">
+                            <widget id="Name"/>
+                        </td>
+                        <!-- text-box (Название) -->
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false"> <!-- в теле - только закладки -->
+                <tab name="Главная"> <!-- закладка состоит из групп с разметкой -->
+                    <single-entry-group> <!-- наследник от TabGroupsConfig -->
+                        <tab-group> <!-- вхождение в группу уже может содержать разметку -->
+                            <table>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="Organization-Label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="Organization"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="Name-Label">
+                <field-path/>
+                <text>Название:</text>
+            </label>
+            <text-box id="Name">
+                <field-path value="Name"/>
+            </text-box>
+
+            <label id="Organization-Label">
+                <text>Организация:</text>
+            </label>
+            <combo-box id="Organization">
+                <field-path value="Organization"/>
+                <pattern value="{Name}"/>
+            </combo-box>
+        </widget-config>
+    </form>
+
+    <form name="organization_form" domain-object-type="Organization" is-default="true">
+        <markup>
+            <header>
+                <table width="500px" height="200px">
+                    <tr>
+                        <td width="100px" h-align="right">
+                            <widget id="Name-Label"/>
+                        </td>
+                        <td width="100%" h-align="left">
+                            <widget id="Name"/>
+                        </td>
+                        <!-- text-box (Название) -->
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+            </body>
+        </markup>
+        <widget-config>
+            <label id="Name-Label">
+                <field-path/>
+                <text>Название:</text>
+            </label>
+            <text-box id="Name">
+                <field-path value="Name"/>
+            </text-box>
+        </widget-config>
+    </form>
+</configuration>
