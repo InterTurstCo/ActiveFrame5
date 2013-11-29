@@ -23,6 +23,11 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
     public static final String GROUP_MEMBER_DOMAIN_OBJECT = "Group_Member";
 
     public static final String PERSON_DOMAIN_OBJECT = "Person";
+    
+    public static final String ADMINISTRATORS_STATIC_GROUP = "Administrators";
+
+    public static final String SUPER_USERS_STATIC_GROUP = "Superusers";
+    
     /**
      * Создаёт доменный объект
      */

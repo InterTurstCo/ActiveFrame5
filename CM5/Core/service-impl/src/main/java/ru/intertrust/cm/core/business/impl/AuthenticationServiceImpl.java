@@ -29,7 +29,6 @@ import ru.intertrust.cm.core.model.FatalException;
  */
 public class AuthenticationServiceImpl implements AuthenticationService {
    
-    private static final String ADMINISTRATORS_STATIC_GROUP = "Administrators";
     
     private MD5Service md5Service;
 
@@ -91,7 +90,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         role.setValue("Authentication_Info", new ReferenceValue(id));
         domainObjectDao.create(role, accessToken);
 
-        Id adminGroupId = personManagementServiceDao.getGroupId(ADMINISTRATORS_STATIC_GROUP);
+        Id adminGroupId = personManagementServiceDao.getGroupId(GenericDomainObject.ADMINISTRATORS_STATIC_GROUP);
 
         if (adminGroupId == null) {
             throw new FatalException("Administrators group not found.");

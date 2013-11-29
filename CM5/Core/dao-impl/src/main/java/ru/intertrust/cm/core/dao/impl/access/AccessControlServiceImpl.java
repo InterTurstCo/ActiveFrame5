@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.dao.access.*;
@@ -30,8 +31,12 @@ public class AccessControlServiceImpl implements AccessControlService {
 
     @Autowired    
     private PersonManagementServiceDao personManagementService;
+        
+    private Map<String, Id> loginToUserIdCache = new HashMap<String, Id>();
     
-    Map<String, Id> userIdCache = new HashMap<String, Id>();
+    private Map<Id, Boolean> personIdToIsSuperUserCache = new HashMap<Id, Boolean>();
+    
+    private Id superUsersGroupId = null;
     
     /**
      * Устанавливает программный агент, которому делегируются функции физической проверки прав доступа
@@ -55,7 +60,7 @@ public class AccessControlServiceImpl implements AccessControlService {
 
     @Override
     public AccessToken createAdminAccessToken(String login) throws AccessException {
-        Integer personId = getUserId(login);
+        Id personId = getUserIdByLogin(login);
         // TODO Implement
         return null;
     }
@@ -64,8 +69,14 @@ public class AccessControlServiceImpl implements AccessControlService {
     public AccessToken createAccessToken(String login, Id objectId, AccessType type)
             throws AccessException {
         
-        Integer userId = getUserId(login);
-        //TODO database should contain Persons with correct logins
+        Id personId = getUserIdByLogin(login);
+        Integer personIdInt = (int) ((RdbmsId) personId).getId();
+        boolean isSuperUser = isPersonSuperUser(personId);
+
+        if (isSuperUser) {
+            return new SuperUserAccessToken(new UserSubject(personIdInt));
+        }       
+
         boolean deferred = false;
         if (DomainObjectAccessType.READ.equals(type)) {
             deferred = true; // Проверка прав на чтение объекта осуществляется при его выборке
@@ -75,40 +86,72 @@ public class AccessControlServiceImpl implements AccessControlService {
             // throw new AccessException();
             // }
         }
-        AccessToken token = new SimpleAccessToken(new UserSubject(userId), objectId, type, deferred);
+        
+        AccessToken token = new SimpleAccessToken(new UserSubject(personIdInt), objectId, type, deferred);
         return token;
     }
 
-    private Integer getUserId(String login) {
+    private Id getUserIdByLogin(String login) {
         Id personId = null;
-        if (userIdCache.get(login) != null) {
-            personId = userIdCache.get(login);
+        if (loginToUserIdCache.get(login) != null) {
+            personId = loginToUserIdCache.get(login);
         } else {
             personId = personManagementService.getPersonId(login);
-            userIdCache.put(login, personId);
-        }
-        if (personId != null) {
-            return (int) ((RdbmsId) personId).getId();
-        }
-        return null;
+            loginToUserIdCache.put(login, personId);
+        }        
+        return personId;
     }
 
+    
+    private Id getSuperUsersGroupId() {
+        if (superUsersGroupId == null) {
+            superUsersGroupId = personManagementService.getGroupId(GenericDomainObject.SUPER_USERS_STATIC_GROUP);
+        }
+        return superUsersGroupId;
+    }
+
+    private boolean isPersonSuperUser(Id personId) {
+        boolean isSuperUser = false;
+        if (personIdToIsSuperUserCache.get(personId) != null) {
+            isSuperUser = personIdToIsSuperUserCache.get(personId);
+        } else {
+            isSuperUser = personManagementService.isPersonInGroup(getSuperUsersGroupId(), personId);
+            personIdToIsSuperUserCache.put(personId, isSuperUser);
+        }
+        return isSuperUser;
+
+    }
+    
     @Override
     public AccessToken createCollectionAccessToken(String login) throws AccessException {
         boolean deferred = true;
 
-        Integer personId = getUserId(login);
+        Id personId = getUserIdByLogin(login);
+        Integer personIdInt = (int) ((RdbmsId) personId).getId();
+
+        boolean isSuperUser = isPersonSuperUser(personId);
+        if (isSuperUser) {
+            return new SuperUserAccessToken(new UserSubject(personIdInt));
+        }
+
         //TODO database should contain Persons with correct logins
 //        personId = 1;
+       
         AccessToken token =
-                new SimpleAccessToken(new UserSubject(personId), null, DomainObjectAccessType.READ, deferred);
+                new SimpleAccessToken(new UserSubject(personIdInt), null, DomainObjectAccessType.READ, deferred);
         return token;
     }
 
     @Override
     public AccessToken createAccessToken(String login, Id[] objectIds, AccessType type, boolean requireAll)
             throws AccessException {
-        Integer personId = getUserId(login);
+        Id personId = getUserIdByLogin(login);
+        Integer personIdInt = (int) ((RdbmsId) personId).getId();
+        boolean isSuperUser = isPersonSuperUser(personId);
+
+        if (isSuperUser) {
+            return new SuperUserAccessToken(new UserSubject(personIdInt));
+        }
 
         // Id[] ids = databaseAgent.checkMultiDomainObjectAccess(userId, objectIds, type);
         // if (requireAll ? ids.length < objectIds.length : ids.length == 0) {
@@ -116,7 +159,8 @@ public class AccessControlServiceImpl implements AccessControlService {
         // }
         // AccessToken token = new MultiObjectAccessToken(new UserSubject(userId), ids, type);
         // TODO Uncomment when access control will be restored
-        AccessToken token = new MultiObjectAccessToken(new UserSubject(personId), objectIds, type);
+
+        AccessToken token = new MultiObjectAccessToken(new UserSubject(personIdInt), objectIds, type);
 
         return token;
     }
@@ -125,12 +169,19 @@ public class AccessControlServiceImpl implements AccessControlService {
     public AccessToken createAccessToken(String login, Id objectId, AccessType[] types, boolean requireAll)
             throws AccessException {
 
-        Integer personId = getUserId(login);
+        Id personId = getUserIdByLogin(login);
+        Integer personIdInt = (int) ((RdbmsId) personId).getId();
+        boolean isSuperUser = isPersonSuperUser(personId);
+
+        if (isSuperUser) {
+            return new SuperUserAccessToken(new UserSubject(personIdInt));
+        }
 
 //        AccessType[] granted = databaseAgent.checkDomainObjectMultiAccess(userId, objectId, types); if (requireAll ?
 //        granted.length < types.length : granted.length == 0) { throw new AccessException(); }
+
         
-        AccessToken token = new MultiTypeAccessToken(new UserSubject(personId), objectId, types);
+        AccessToken token = new MultiTypeAccessToken(new UserSubject(personIdInt), objectId, types);
         return token;
     }
 
@@ -169,6 +220,13 @@ public class AccessControlServiceImpl implements AccessControlService {
         }
 
     }
+    
+    public void cleanPersonCache(){
+        personIdToIsSuperUserCache.clear();
+        loginToUserIdCache.clear();
+        
+    }
+    
     /**
      * Базовый класс для маркеров доступа.
      * Все маркеры доступа, поддерживаемые данной реализацией сервиса контроля доступа,
@@ -324,6 +382,36 @@ public class AccessControlServiceImpl implements AccessControlService {
         @Override
         boolean allowsAccess(Id objectId, AccessType type) {
             return true;    // Разрешает любой доступ к любому объекту
+        }
+    }
+    
+    /**
+     * Маркер доступа для суперпользователя. Разрешает любой доступ к любому объекту.
+     * Отличается от системного тем, что хранит идентификатор пользователя (необходим для аудит логов).
+     * @author atsvetkov
+     *
+     */
+    private final class SuperUserAccessToken extends AccessTokenBase {
+
+        private final UserSubject subject;
+
+        SuperUserAccessToken(UserSubject subject) {
+            this.subject = subject;
+        }
+
+        @Override
+        public Subject getSubject() {
+            return subject;
+        }
+
+        @Override
+        public boolean isDeferred() {
+            return false;
+        }
+
+        @Override
+        boolean allowsAccess(Id objectId, AccessType type) {
+            return true; // Разрешает любой доступ к любому объекту
         }
     }
 }

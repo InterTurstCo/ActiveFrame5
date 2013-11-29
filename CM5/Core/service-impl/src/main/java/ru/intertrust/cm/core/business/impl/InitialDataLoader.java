@@ -38,8 +38,6 @@ public class InitialDataLoader {
     private static final String ADMIN_LOGIN = "admin";
     private static final String ADMIN_PASSWORD = "admin";
 
-    private static final String SUPER_USERS_STATIC_GROUP = "Superusers";
-
     @Autowired
     private AuthenticationService authenticationService;
 
@@ -144,7 +142,7 @@ public class InitialDataLoader {
 
         for (String staticGroupName : staticGroups) {
             if (!existsStaticGroup(staticGroupName)) {
-                if (!SUPER_USERS_STATIC_GROUP.equals(staticGroupName)) {
+                if (!GenericDomainObject.SUPER_USERS_STATIC_GROUP.equals(staticGroupName)) {
                     createUserGroup(staticGroupName);
                 }
             }
@@ -168,9 +166,9 @@ public class InitialDataLoader {
             }
         }
 
-        if(staticGroups.contains(SUPER_USERS_STATIC_GROUP)){
-            if (!existsStaticGroup(SUPER_USERS_STATIC_GROUP)) {
-                createUserGroup(SUPER_USERS_STATIC_GROUP);
+        if(staticGroups.contains(GenericDomainObject.SUPER_USERS_STATIC_GROUP)){
+            if (!existsStaticGroup(GenericDomainObject.SUPER_USERS_STATIC_GROUP)) {
+                createUserGroup(GenericDomainObject.SUPER_USERS_STATIC_GROUP);
                 addAdminUserToSuperUsers();
             }
             
@@ -179,7 +177,7 @@ public class InitialDataLoader {
 
     private void addAdminUserToSuperUsers() {
         Id adminId = personManagementServiceDao.getPersonId(ADMIN_LOGIN);
-        Id superUsersGroupId = dynamicGroupService.getUserGroupByGroupName(SUPER_USERS_STATIC_GROUP);
+        Id superUsersGroupId = dynamicGroupService.getUserGroupByGroupName(GenericDomainObject.SUPER_USERS_STATIC_GROUP);
         if (adminId == null || superUsersGroupId == null) {
             throw new IllegalArgumentException("User admin or user group SuperUsers does't exists");
         }
