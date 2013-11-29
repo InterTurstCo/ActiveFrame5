@@ -16,7 +16,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.LabelState;
 public class LabelHandler extends SingleObjectWidgetHandler {
     @Override
     public LabelState getInitialState(WidgetContext context) {
-        FieldPath fieldPath = context.getFieldPath();
+        FieldPath fieldPath = context.getFieldPaths()[0];
         if (fieldPath != null) {
             String plainValue = context.getFieldPlainValue();
             return new LabelState(plainValue == null || plainValue.isEmpty() ? "" : plainValue);

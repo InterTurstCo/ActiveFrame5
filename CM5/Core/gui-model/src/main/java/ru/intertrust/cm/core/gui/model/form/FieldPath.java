@@ -12,9 +12,21 @@ import java.util.*;
 public class FieldPath implements Dto, Comparable<FieldPath> {
     public static final FieldPath ROOT = new FieldPath();
 
+    private static final String[] EMPTY_PATHS = new String[1];
+
     private String path;
     private transient Element[] elements;
     private transient FieldPath parentPath;
+
+    public static FieldPath[] createPaths(String path) {
+        String[] fieldPaths = path == null ? EMPTY_PATHS : path.split(",");
+        FieldPath[] result = new FieldPath[fieldPaths.length];
+        for (int i = 0; i < fieldPaths.length; ++i) {
+            String fieldPath = fieldPaths[i];
+            result[i] = fieldPath == null || "".equals(fieldPath) ? null : new FieldPath(fieldPath);
+        }
+        return result;
+    }
 
     public FieldPath() {
         this.path = "";

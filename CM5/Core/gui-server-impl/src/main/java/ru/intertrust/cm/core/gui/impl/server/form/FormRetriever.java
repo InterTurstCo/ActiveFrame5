@@ -91,26 +91,30 @@ public class FormRetriever {
                 widgetComponents.put(widgetId, config.getComponentName());
                 continue;
             }
-            FieldPath fieldPath = new FieldPath(fieldPathConfig.getValue());
+
+            // field path config can point to multiple paths
+            FieldPath[] fieldPaths = FieldPath.createPaths(fieldPathConfig.getValue());
 
             rootNode = formObjects.getRootNode();
-            for (Iterator<FieldPath> childrenIterator = fieldPath.childrenIterator(); childrenIterator.hasNext(); ) {
-                FieldPath childPath = childrenIterator.next();
-                if (childPath.isField()) {
-                    break;
+            for (FieldPath fieldPath : fieldPaths) {
+                for (Iterator<FieldPath> childrenIterator = fieldPath.childrenIterator(); childrenIterator.hasNext(); ) {
+                    FieldPath childPath = childrenIterator.next();
+                    if (childPath.isField()) {
+                        break;
+                    }
+
+                    if (formObjects.containsNode(childPath)) {
+                        rootNode = formObjects.getNode(childPath);
+                        continue;
+                    }
+
+                    // it's a reference. linked objects can exist only for Single-Object Nodes. class-cast exception will
+                    // raise if that's not true
+                    ObjectsNode linkedNode = findLinkedNode((SingleObjectNode) rootNode, childPath);
+
+                    formObjects.setNode(childPath, linkedNode);
+                    rootNode = linkedNode;
                 }
-
-                if (formObjects.containsNode(childPath)) {
-                    rootNode = formObjects.getNode(childPath);
-                    continue;
-                }
-
-                // it's a reference. linked objects can exist only for Single-Object Nodes. class-cast exception will
-                // raise if that's not true
-                ObjectsNode linkedNode = findLinkedNode((SingleObjectNode) rootNode, childPath);
-
-                formObjects.setNode(childPath, linkedNode);
-                rootNode = linkedNode;
             }
 
             WidgetContext widgetContext = new WidgetContext(config, formObjects);
