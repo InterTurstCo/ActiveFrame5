@@ -257,4 +257,27 @@
         </uniqueKey-->
     </domain-object-type>
 
+    <domain-object-type name="report_template"
+        initial-status="Draft">
+        <fields>
+            <string name="name" length="256" not-null="true" />
+            <string name="description" length="512" not-null="true" />
+        </fields>
+        <uniqueKey>
+            <field name="name" />
+        </uniqueKey>
+    </domain-object-type>
+
+    <domain-object-type name="report_result"
+        initial-status="Draft">
+        <fields>
+            <string name="name" length="256" not-null="true" />
+            <reference name="template_id" type="report_template"
+                not-null="true" />
+            <reference name="owner" type="Person" not-null="false" />
+            <dateTime name="keep_to" not-null="false" />
+        </fields>
+    </domain-object-type>
+
+
 </configuration>
