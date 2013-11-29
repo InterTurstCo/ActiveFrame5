@@ -355,7 +355,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
             List<ReferenceFieldConfig> referenceFieldConfigs = new ArrayList<>();
             List<UniqueKeyConfig> uniqueKeyConfigs = new ArrayList<>();
             ReferenceFieldConfig referenceStatusField = new ReferenceFieldConfig();
-            referenceStatusField.setName(GenericDomainObject.STATUS_COLUMN);
+            referenceStatusField.setName(GenericDomainObject.STATUS_FIELD_NAME);
             referenceStatusField.setType(GenericDomainObject.STATUS_DO);
 
             referenceFieldConfigs.add(referenceStatusField);

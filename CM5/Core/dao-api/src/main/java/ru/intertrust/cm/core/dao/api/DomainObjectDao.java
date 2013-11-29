@@ -17,23 +17,23 @@ import java.util.List;
  */
 public interface DomainObjectDao {
 
-    String ID_COLUMN = "ID";
-    String TYPE_COLUMN = "TYPE_ID";
-    String CREATED_DATE_COLUMN = "CREATED_DATE";
-    String UPDATED_DATE_COLUMN = "UPDATED_DATE";
-    String REFERENCE_TYPE_POSTFIX = "_TYPE";
-    String TIME_ID_ZONE_POSTFIX = "_TZ";
-    String STATUS_TYPE_COLUMN = GenericDomainObject.STATUS_COLUMN  + REFERENCE_TYPE_POSTFIX;
+    String ID_COLUMN = "id";
+    String TYPE_COLUMN = "type_id";
+    String CREATED_DATE_COLUMN = "created_date";
+    String UPDATED_DATE_COLUMN = "updated_date";
+    String REFERENCE_TYPE_POSTFIX = "_type";
+    String TIME_ID_ZONE_POSTFIX = "_tz";
+    String STATUS_TYPE_COLUMN = GenericDomainObject.STATUS_FIELD_NAME + REFERENCE_TYPE_POSTFIX;
+    String OPERATION_COLUMN = "operation";
 
-    String DOMAIN_OBJECT_ID = "DOMAIN_OBJECT_ID";
-    String COMPONENT = "COMPONENT";
-    String IP_ADDRESS = "IP_ADDRESS";
-    String INFO = "INFO";
-    String OPERATION_COLUMN = "OPERATION";
+    String DOMAIN_OBJECT_ID_COLUMN = "fomain_object_id";
+    String COMPONENT_COLUMN = "component";
+    String IP_ADDRESS_COLUMN = "ip_address";
+    String INFO_COLUMN = "info";
 
     /**
      * Создает новый доменный объект. Метод вызывается только с системным маркером доступа.
-     * 
+     *
      * @param domainObject доменный объект который будет создан
      * @param accessToken маркер доступа
      * @return созданыый доменный объект
@@ -57,7 +57,7 @@ public interface DomainObjectDao {
      * Сохраняет список доменных объектов. Если какой-то объект не существует в системе, создаёт его и заполняет
      * отсутствующие атрибуты значениями, сгенерированными согласно правилам, определённым для данного объекта
      * (например, будет сгенерирован и заполнен идентификатор объекта). Оригинальные Java-объекты измененям
-     * не подвергаются, изменения отражены в возвращённых объектах. 
+     * не подвергаются, изменения отражены в возвращённых объектах.
      *
      * @param domainObjects доменные объекты для сохранения
      * @return список сохраненных доменных объектов
@@ -181,10 +181,10 @@ public interface DomainObjectDao {
      * @return {@link ru.intertrust.cm.core.business.api.dto.DomainObject}
      */
     List<DomainObject> findAll(String domainObjectType, int offset, int limit, AccessToken accessToken);
-    
+
     /**
      * Устанавливает статус доменного объекта. Метод может быть вызван только с системным маркером доступа.
-     * 
+     *
      * @param objectId идентификатор доменного объекта
      * @param status идентификатор статуса
      * @param accessToken маркер доступа

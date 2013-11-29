@@ -4,13 +4,14 @@ import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 
-import java.util.Arrays;
 import java.util.List;
 
-import static ru.intertrust.cm.core.dao.api.ConfigurationDao.CONFIGURATION_TABLE;
+import static ru.intertrust.cm.core.dao.api.ConfigurationDao.*;
 import static ru.intertrust.cm.core.dao.api.DataStructureDao.AUTHENTICATION_INFO_TABLE;
+import static ru.intertrust.cm.core.dao.api.DataStructureDao.USER_UID_COLUMN;
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.*;
 import static ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao.DOMAIN_OBJECT_TYPE_ID_TABLE;
+import static ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao.NAME_COLUMN;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
 
 /**
@@ -19,11 +20,11 @@ import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
  */
 public class PostgreSqlQueryHelper {
 
-    public static final String ACL_TABLE_SUFFIX = "_ACL";
+    public static final String ACL_TABLE_SUFFIX = "_acl";
 
-    public static final String READ_TABLE_SUFFIX = "_READ";
+    public static final String READ_TABLE_SUFFIX = "_read";
 
-    private static final String GROUP_TABLE = "User_Group";
+    private static final String GROUP_TABLE = "user_group";
 
     /**
      * Генерирует запрос, возвращающий кол-во таблиц в базе данных
@@ -38,8 +39,10 @@ public class PostgreSqlQueryHelper {
      * @return запрос, создающий таблицу BUSINESS_OBJECT
      */
     public static String generateCreateDomainObjectTableQuery() {
-        return "create table " + DOMAIN_OBJECT_TYPE_ID_TABLE + "(ID bigserial not null, NAME varchar(256) not null, " +
-                "constraint PK_" + DOMAIN_OBJECT_TYPE_ID_TABLE + " primary key (ID), constraint U_" + DOMAIN_OBJECT_TYPE_ID_TABLE + " unique (NAME))";
+        return "create table " + wrap(DOMAIN_OBJECT_TYPE_ID_TABLE) + " (" + wrap(ID_COLUMN) + " bigserial not null, " +
+                wrap(NAME_COLUMN) + " varchar(256) not null, " +
+                "constraint " + wrap("pk_" + DOMAIN_OBJECT_TYPE_ID_TABLE) + " primary key (" + wrap(ID_COLUMN) + "), " +
+                "constraint " + wrap("u_" + DOMAIN_OBJECT_TYPE_ID_TABLE) + " unique (" + wrap(NAME_COLUMN) + "))";
     }
 
     /**
@@ -47,8 +50,10 @@ public class PostgreSqlQueryHelper {
      * @return запрос, создающий таблицу для хранения версий конфигурации
      */
     public static String generateCreateConfigurationTableQuery() {
-        return "create table " + CONFIGURATION_TABLE + "(ID bigserial not null, CONTENT text not null, " +
-                "LOADED_DATE timestamp not null, constraint PK_" + CONFIGURATION_TABLE + " primary key (ID))";
+        return "create table " + wrap(CONFIGURATION_TABLE) + " (" + wrap(ID_COLUMN) + " bigserial not null, " +
+                wrap(CONTENT_COLUMN) + " text not null, " +
+                wrap(LOADED_DATE_COLUMN) + " timestamp not null, " +
+                "constraint " + wrap("pk_" + CONFIGURATION_TABLE) + " primary key (" + wrap(ID_COLUMN) + "))";
     }
 
     /**
@@ -56,39 +61,43 @@ public class PostgreSqlQueryHelper {
      * @return запрос, создающий таблицу AUTHENTICATION_INFO
      */
     public static String generateCreateAuthenticationInfoTableQuery() {
-        return "CREATE TABLE " + AUTHENTICATION_INFO_TABLE
-                + " (ID bigint not null, user_uid character varying(64) NOT NULL, password"
-                + " character varying(128), constraint PK_" + AUTHENTICATION_INFO_TABLE
-                + "_ID primary key (ID), constraint U_" + AUTHENTICATION_INFO_TABLE
-                + "_USER_UID unique(user_uid))";
+        return "CREATE TABLE " + wrap(AUTHENTICATION_INFO_TABLE) +
+                " (" + wrap(ID_COLUMN) + " bigint not null, " +
+                wrap(USER_UID_COLUMN) + " character varying(64) NOT NULL, " +
+                wrap("password") + " character varying(128), " +
+                "constraint " + wrap("pk_" + AUTHENTICATION_INFO_TABLE + "_" + ID_COLUMN) + " " +
+                    "primary key (" + wrap(ID_COLUMN) + "), " +
+                "constraint " + wrap("u_" + AUTHENTICATION_INFO_TABLE + "_" + USER_UID_COLUMN) + " " +
+                    "unique" + "(" + wrap(USER_UID_COLUMN) + "))";
     }
 
     private static String createAclTableQueryFor(String domainObjectType) {
-        return "create table " + domainObjectType + "_ACL (object_id bigint not null, group_id bigint not null, " +
-                "operation varchar(256) not null, constraint PK_" + toUpperCase(domainObjectType)
-                + "_ACL primary key (object_id, group_id, operation)";
-
+        return "create table " + wrap(domainObjectType + "_acl") + " (" +
+                wrap("object_id") + " bigint not null, " + wrap("group_id") + " bigint not null, " +
+                wrap("operation") + " varchar(256) not null, " +
+                "constraint " + wrap("pk_" + domainObjectType.toLowerCase() + "_acl") +
+                    " primary key (" + wrap("object_id") + ", " + wrap("group_id") + ", " +
+                    wrap(OPERATION_COLUMN) + ")";
     }
 
     private static String createAclReadTableQueryFor(String domainObjectType) {
-        return "create table " + domainObjectType + "_READ (object_id bigint not null, group_id bigint not null, " +
-                "constraint PK_" + domainObjectType + "_READ primary key (object_id, group_id)";
+        return "create table " + wrap(domainObjectType + "_read") + " (" +
+                wrap("object_id") + " bigint not null, " + wrap("group_id") + " bigint not null, " +
+                "constraint " + wrap("pk_" + domainObjectType + "_read") + " primary key (" + wrap("object_id") +
+                ", " + wrap("group_id") + ")";
     }
 
     private static void appendFKConstraintForDO(String sourceDomainObjectType, String targetDomainObjectType, StringBuilder query) {
-        query.append(", ").append("CONSTRAINT FK_").append(sourceDomainObjectType).append("_")
-                .append(targetDomainObjectType).append(" FOREIGN KEY (object_id) REFERENCES ")
-                .append(targetDomainObjectType).append(" (id)");
-    }
+        query.append(", ").append("CONSTRAINT ").
+                append(wrap("fk_" + sourceDomainObjectType.toLowerCase() + "_" + targetDomainObjectType.toLowerCase())).
+                append(" FOREIGN KEY (").append(wrap("object_id")).append(") REFERENCES ").
+                append(wrap(targetDomainObjectType)).append(" (").append(wrap(ID_COLUMN)).append(")");
+}
 
     private static void appendFKConstraintForGroup(String domainObjectType, StringBuilder query) {
-        query.append(", ").append("CONSTRAINT FK_").append(domainObjectType).append("_")
-                .append(toUpperCase(GROUP_TABLE)).append(" FOREIGN KEY (group_id) REFERENCES ").append(GROUP_TABLE)
-                .append(" (id)");
-    }
-
-    private static String toUpperCase(String sourceDomainObjectType) {
-        return sourceDomainObjectType.toUpperCase();
+        query.append(", ").append("CONSTRAINT ").append(wrap("fk_" + domainObjectType + "_" + GROUP_TABLE)).
+                append(" FOREIGN KEY (").append(wrap("group_id")).append(") REFERENCES ").append(wrap(GROUP_TABLE)).
+                append(" (").append(wrap(ID_COLUMN)).append(")");
     }
 
     /**
@@ -102,8 +111,7 @@ public class PostgreSqlQueryHelper {
     public static String generateSequenceQuery(DomainObjectTypeConfig config) {
         String sequenceName = getSqlSequenceName(config);
         StringBuilder query = new StringBuilder();
-        query.append("create sequence ");
-        query.append(sequenceName);
+        query.append("create sequence ").append(wrap(sequenceName));
 
         return query.toString();
     }
@@ -119,8 +127,7 @@ public class PostgreSqlQueryHelper {
     public static String generateAuditSequenceQuery(DomainObjectTypeConfig config) {
         String sequenceName = getSqlAuditSequenceName(config);
         StringBuilder query = new StringBuilder();
-        query.append("create sequence ");
-        query.append(sequenceName);
+        query.append("create sequence ").append(wrap(sequenceName));
 
         return query.toString();
     }
@@ -133,7 +140,7 @@ public class PostgreSqlQueryHelper {
      */
     public static String generateCreateTableQuery(DomainObjectTypeConfig config) {
         String tableName = getSqlName(config);
-        StringBuilder query = new StringBuilder("create table ").append(tableName).append(" ( ");
+        StringBuilder query = new StringBuilder("create table ").append(wrap(tableName)).append(" ( ");
 
         appendSystemColumnsQueryPart(config, query);
 
@@ -164,20 +171,20 @@ public class PostgreSqlQueryHelper {
      * @return запрос, создающий таблицу по конфигурации доменного объекта
      */
     public static String generateCreateAuditTableQuery(DomainObjectTypeConfig config) {
-        String tableName = getSqlName(config) + "_LOG";
-        StringBuilder query = new StringBuilder("create table ").append(tableName).append(" ( ");
+        String tableName = getSqlName(config) + "_log";
+        StringBuilder query = new StringBuilder("create table ").append(wrap(tableName)).append(" (");
 
         // Системные атрибуты
-        query.append("ID bigint not null, ");
-        query.append(TYPE_COLUMN + " integer not null");
+        query.append(wrap(ID_COLUMN)).append(" bigint not null, ");
+        query.append(wrap(TYPE_COLUMN)).append(" integer not null");
         if (config.getExtendsAttribute() == null) {
             query.append(", ");
-            query.append(DomainObjectDao.OPERATION_COLUMN + " int not null, ");
-            query.append(DomainObjectDao.UPDATED_DATE_COLUMN + " timestamp not null, ");
-            query.append(DOMAIN_OBJECT_ID + " bigint not null, ");
-            query.append(COMPONENT + " varchar(512), ");
-            query.append(IP_ADDRESS + " varchar(16), ");
-            query.append(INFO + " varchar(512)");
+            query.append(wrap(DomainObjectDao.OPERATION_COLUMN)).append(" int not null, ");
+            query.append(wrap(DomainObjectDao.UPDATED_DATE_COLUMN)).append(" timestamp not null, ");
+            query.append(wrap(DOMAIN_OBJECT_ID_COLUMN)).append(" bigint not null, ");
+            query.append(wrap(COMPONENT_COLUMN)).append(" varchar(512), ");
+            query.append(wrap(IP_ADDRESS_COLUMN)).append(" varchar(16), ");
+            query.append(wrap(INFO_COLUMN)).append(" varchar(512)");
         }
 
         if (config.getFieldConfigs().size() > 0) {
@@ -194,7 +201,7 @@ public class PostgreSqlQueryHelper {
 
         query.append(", ");
         if (config.getExtendsAttribute() != null) {
-            appendFKConstraint(query, tableName, ID_COLUMN, config.getExtendsAttribute() + "_LOG", ID_COLUMN);
+            appendFKConstraint(query, tableName, ID_COLUMN, config.getExtendsAttribute() + "_log", ID_COLUMN);
             query.append(", ");
         }
 
@@ -259,7 +266,7 @@ public class PostgreSqlQueryHelper {
      */
     public static String generateAddColumnsQuery(String domainObjectConfigName, List<FieldConfig> fieldConfigList) {
         String tableName = getSqlName(domainObjectConfigName);
-        StringBuilder query = new StringBuilder("alter table ").append(tableName).append(" ");
+        StringBuilder query = new StringBuilder("alter table ").append(wrap(tableName)).append(" ");
         appendColumnsQueryPart(query, fieldConfigList, true);
 
         return query.toString();
@@ -281,7 +288,7 @@ public class PostgreSqlQueryHelper {
             List<ReferenceFieldConfig> fieldConfigList,
             List<UniqueKeyConfig> uniqueKeyConfigList) {
         String tableName = getSqlName(domainObjectConfigName);
-        StringBuilder query = new StringBuilder("alter table ").append(tableName).append(" ");
+        StringBuilder query = new StringBuilder("alter table ").append(wrap(tableName)).append(" ");
 
         boolean commaNeeded = false;
         boolean existsConstraints = false;
@@ -318,9 +325,10 @@ public class PostgreSqlQueryHelper {
                         }
                     };
 
-            String constraintName = "U_" + tableName + "_" +
+            String constraintName = "u_" + tableName + "_" +
                     listFormatter.formatAsDelimitedList(uniqueKeyConfig.getUniqueKeyFieldConfigs(), "_");
-            String fieldsList = listFormatter.formatAsDelimitedList(uniqueKeyConfig.getUniqueKeyFieldConfigs(), ", ");
+            String fieldsList =
+                    listFormatter.formatAsDelimitedList(uniqueKeyConfig.getUniqueKeyFieldConfigs(), ", ", "\"");
 
             if (commaNeeded) {
                 query.append(", ");
@@ -346,7 +354,7 @@ public class PostgreSqlQueryHelper {
     }
 
     public static String generateCreateAuditLogIndexesQuery(DomainObjectTypeConfig config) {
-        return generateCreateIndexesQuery(config.getName() + "_LOG", config.getFieldConfigs());
+        return generateCreateIndexesQuery(config.getName() + "_log", config.getFieldConfigs());
     }
 
     /**
@@ -375,9 +383,9 @@ public class PostgreSqlQueryHelper {
     }
 
     private static void appendIndexQueryPart(StringBuilder query, String tableName, String fieldName) {
-        String indexName = "I_" + tableName + "_" + fieldName;
-        query.append("create index ").append(indexName).append(" on ").append(tableName).append(" (").
-                append(fieldName).append(");\n");
+        String indexName = "i_" + tableName + "_" + fieldName;
+        query.append("create index ").append(wrap(indexName)).append(" on ").append(wrap(tableName)).append(" (").
+                append(wrap(fieldName)).append(");\n");
     }
 
     private static void appendParentFKConstraintsQueryPart(StringBuilder query, String tableName,
@@ -397,6 +405,10 @@ public class PostgreSqlQueryHelper {
         }
     }
 
+    public static String wrap(String string) {
+        return "\"" + string + "\"";
+    }
+
     private static void appendFKConstraint(StringBuilder query, String tableName, String columnName,
             String referencedTable, String referencedFieldName) {
         appendFKConstraint(query, tableName, new String[] { columnName }, referencedTable,
@@ -407,43 +419,44 @@ public class PostgreSqlQueryHelper {
             String referencedTable, String[] referencedFieldNames) {
         DelimitedListFormatter<String> listFormatter = new DelimitedListFormatter<>();
 
-        String constraintName = "FK_" + tableName + "_" + listFormatter.formatAsDelimitedList(columnNames, "_");
+        String constraintName = "fk_" + tableName + "_" + listFormatter.formatAsDelimitedList(columnNames, "_");
 
-        query.append("constraint ").append(constraintName).append(" foreign key (").
-                append(listFormatter.formatAsDelimitedList(columnNames, ", ")).append(")").
-                append(" ").append("references").append(" ").append(getSqlName(referencedTable)).
-                append("(").append(listFormatter.formatAsDelimitedList(referencedFieldNames, ", ")).append(")");
+        query.append("constraint ").append(wrap(constraintName)).append(" foreign key (").
+                append(listFormatter.formatAsDelimitedList(columnNames, ", ", "\"")).append(")").
+                append(" ").append("references ").append(wrap(getSqlName(referencedTable))).
+                append(" (").append(listFormatter.formatAsDelimitedList(referencedFieldNames, ", ", "\"")).append(")");
     }
 
     private static void appendPKConstraintQueryPart(StringBuilder query, String tableName) {
-        String pkName = "PK_" + tableName + "_ID";
-        query.append(", constraint ").append(pkName).append(" primary key (ID)");
+        String pkName = "pk_" + tableName + "_id";
+        query.append(", constraint ").append(wrap(pkName)).append(" primary key (").
+                append(wrap(ID_COLUMN)).append(")");
     }
 
     private static void appendIdTypeUniqueConstraint(StringBuilder query, String tableName) {
         DelimitedListFormatter<String> listFormatter = new DelimitedListFormatter<>();
-        String[] keyFields = new String[] { ID_COLUMN,TYPE_COLUMN };
+        String[] keyFields = new String[] { ID_COLUMN, TYPE_COLUMN };
 
-        String constraintName = "U_" + tableName + "_" + listFormatter.formatAsDelimitedList(keyFields, "_");
-        String fieldsList = listFormatter.formatAsDelimitedList(keyFields, ", ");
+        String constraintName = "u_" + tableName + "_" + listFormatter.formatAsDelimitedList(keyFields, "_");
+        String fieldsList = listFormatter.formatAsDelimitedList(keyFields, ", ", "\"");
 
         query.append(", ");
         appendUniqueConstraint(query, constraintName, fieldsList);
     }
 
     private static void appendSystemColumnsQueryPart(DomainObjectTypeConfig config, StringBuilder query) {
-        query.append("ID bigint not null, ");
+        query.append(wrap(ID_COLUMN)).append(" bigint not null, ");
 
         if (config.getExtendsAttribute() == null) {
-            query.append("CREATED_DATE timestamp not null, ");
-            query.append("UPDATED_DATE timestamp not null, ");
+            query.append(wrap(CREATED_DATE_COLUMN)).append(" timestamp not null, ");
+            query.append(wrap(UPDATED_DATE_COLUMN)).append(" timestamp not null, ");
 
-            query.append(GenericDomainObject.STATUS_COLUMN + " bigint, ");
-            query.append(DomainObjectDao.STATUS_TYPE_COLUMN + " integer, ");
+            query.append(wrap(GenericDomainObject.STATUS_FIELD_NAME)).append(" bigint, ");
+            query.append(wrap(DomainObjectDao.STATUS_TYPE_COLUMN)).append(" integer, ");
 
         }
 
-        query.append(TYPE_COLUMN + " integer");
+        query.append(wrap(TYPE_COLUMN)).append(" integer");
     }
 
     private static void appendColumnsQueryPart(StringBuilder query, List<FieldConfig> fieldConfigList,
@@ -460,7 +473,7 @@ public class PostgreSqlQueryHelper {
                 query.append("add column ");
             }
 
-            query.append(getSqlName(fieldConfig)).append(" ").append(getSqlType(fieldConfig));
+            query.append(wrap(getSqlName(fieldConfig))).append(" ").append(getSqlType(fieldConfig));
             if (fieldConfig.isNotNull()) {
                 query.append(" not null");
             }
@@ -470,7 +483,7 @@ public class PostgreSqlQueryHelper {
                 if (isAlterQuery) {
                     query.append("add column ");
                 }
-                query.append(getReferenceTypeColumnName(fieldConfig.getName())).append(" integer");
+                query.append(wrap(getReferenceTypeColumnName(fieldConfig.getName()))).append(" integer");
                 if (fieldConfig.isNotNull()) {
                     query.append(" not null");
                 }
@@ -479,7 +492,7 @@ public class PostgreSqlQueryHelper {
                 if (isAlterQuery) {
                     query.append("add column ");
                 }
-                query.append(getTimeZoneIdColumnName(fieldConfig.getName())).append(" ").
+                query.append(wrap(getTimeZoneIdColumnName(fieldConfig.getName()))).append(" ").
                         append(getTimeZoneIdSqlType());
                 if (fieldConfig.isNotNull()) {
                     query.append(" not null");
@@ -502,21 +515,21 @@ public class PostgreSqlQueryHelper {
                 query.append("add column ");
             }
 
-            query.append(getSqlName(fieldConfig)).append(" ").append(getSqlType(fieldConfig));
+            query.append(wrap(getSqlName(fieldConfig))).append(" ").append(getSqlType(fieldConfig));
 
             if (ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
                 query.append(", ");
-                query.append(getReferenceTypeColumnName(fieldConfig.getName())).append(" integer");
+                query.append(wrap(getReferenceTypeColumnName(fieldConfig.getName()))).append(" integer");
             } else if (DateTimeWithTimeZoneFieldConfig.class.equals(fieldConfig.getClass())) {
                 query.append(", ");
-                query.append(getTimeZoneIdColumnName(fieldConfig.getName())).
-                        append(" ").append(getTimeZoneIdSqlType());
+                query.append(wrap(getTimeZoneIdColumnName(fieldConfig.getName()))).append(" ").
+                        append(getTimeZoneIdSqlType());
             }
         }
     }
 
     private static void appendUniqueConstraint(StringBuilder query, String constraintName, String fieldsList) {
-        query.append("constraint ").append(constraintName).append(" unique (").
+        query.append("constraint ").append(wrap(constraintName)).append(" unique (").
                 append(fieldsList).append(")");
     }
 
@@ -572,33 +585,4 @@ public class PostgreSqlQueryHelper {
         throw new IllegalArgumentException("Invalid field type");
     }
 
-    private static class DelimitedListFormatter<T> {
-
-        public String formatAsDelimitedList(Iterable<T> iterable, String delimiter) {
-            if (!iterable.iterator().hasNext()) {
-                throw new IllegalArgumentException("Iterable parameter is empty");
-            }
-
-            StringBuilder result = new StringBuilder();
-            boolean delimiterNeed = false;
-            for (T item : iterable) {
-                if (delimiterNeed) {
-                    result.append(delimiter);
-                } else {
-                    delimiterNeed = true;
-                }
-                result.append(format(item));
-            }
-
-            return result.toString();
-        }
-
-        public String formatAsDelimitedList(T[] items, String delimiter) {
-            return formatAsDelimitedList(Arrays.asList(items), delimiter);
-        }
-
-        protected String format(T item) {
-            return item.toString();
-        }
-    }
 }

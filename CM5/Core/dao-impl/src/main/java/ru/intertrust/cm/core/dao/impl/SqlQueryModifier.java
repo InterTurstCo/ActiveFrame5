@@ -1,28 +1,11 @@
 package ru.intertrust.cm.core.dao.impl;
 
 
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TIME_ID_ZONE_POSTFIX;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TYPE_COLUMN;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getServiceColumnName;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
-import net.sf.jsqlparser.statement.select.FromItem;
-import net.sf.jsqlparser.statement.select.Join;
-import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.SelectBody;
-import net.sf.jsqlparser.statement.select.SelectExpressionItem;
-import net.sf.jsqlparser.statement.select.SetOperationList;
+import net.sf.jsqlparser.statement.select.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DateTimeWithTimeZoneFieldConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
@@ -30,6 +13,12 @@ import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.exception.CollectionQueryException;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
+
+import java.util.*;
+
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.*;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getServiceColumnName;
+import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.wrap;
 
 
 /**
@@ -51,32 +40,25 @@ public class SqlQueryModifier {
      * @return запрос с добавленным полем Тип Объекта идентификатора
      */
     public String addServiceColumns(String query, ConfigurationExplorer configurationExplorer) {
-        String modifiedQuery = null;
-        SqlQueryParser sqlParser = new SqlQueryParser(query);
-
-        SelectBody selectBody = sqlParser.getSelectBody();
-        if (selectBody.getClass().equals(PlainSelect.class)) {
-            PlainSelect plainSelect = (PlainSelect) selectBody;
-            addServiceColumnsInPlainSelect(plainSelect, configurationExplorer);
-            modifiedQuery = plainSelect.toString();
-
-        } else if (selectBody.getClass().equals(SetOperationList.class)) {
-            SetOperationList union = (SetOperationList) selectBody;
-            List plainSelects = union.getPlainSelects();
-            for (Object plainSelect : plainSelects) {
-                addServiceColumnsInPlainSelect((PlainSelect) plainSelect, configurationExplorer);
+        return processQuery(query, configurationExplorer, new QueryProcessor() {
+            @Override
+            protected void processPlainSelect(PlainSelect plainSelect, ConfigurationExplorer configurationExplorer) {
+                addServiceColumnsInPlainSelect(plainSelect, configurationExplorer);
             }
-            modifiedQuery = union.toString();
-
-        } else {
-            throw new IllegalArgumentException("Unsupported type of select body: " + selectBody.getClass());
-
-        }
-
-        return modifiedQuery;
+        });
     }
 
-    public Map<String, FieldConfig> buildColumnToConfigMap(String query, ConfigurationExplorer configurationExplorer) {
+    public static String wrapAndLowerCaseNames(String query) {
+        return processQuery(query, null, new QueryProcessor() {
+            @Override
+            protected void processPlainSelect(PlainSelect plainSelect, ConfigurationExplorer configurationExplorer) {
+                wrapAndLowerCaseNamesInPlainSelect(plainSelect);
+            }
+        });
+    }
+
+    public static Map<String, FieldConfig> buildColumnToConfigMap(String query,
+                                                            ConfigurationExplorer configurationExplorer) {
         Map<String, FieldConfig> columnToTableMapping = new HashMap<>();
 
         SqlQueryParser sqlParser = new SqlQueryParser(query);
@@ -87,7 +69,7 @@ public class SqlQueryModifier {
             plainSelect = (PlainSelect) selectBody;
         } else if (selectBody.getClass().equals(SetOperationList.class)) {
             SetOperationList union = (SetOperationList) selectBody;
-            plainSelect = (PlainSelect) union.getPlainSelects().get(0);
+            plainSelect = union.getPlainSelects().get(0);
         } else {
             throw new IllegalArgumentException("Unsupported type of select body: " + selectBody.getClass());
         }
@@ -204,7 +186,23 @@ public class SqlQueryModifier {
         plainSelect.getSelectItems().addAll(selectExpressionItemsToAdd);
     }
 
-    private String getTableName(PlainSelect plainSelect, Column column) {
+    private static void wrapAndLowerCaseNamesInPlainSelect(PlainSelect plainSelect) {
+        Table fromItem = (Table) plainSelect.getFromItem();
+        fromItem.setName(wrap(fromItem.getName().toLowerCase()));
+
+
+        for (Object selectItem : plainSelect.getSelectItems()) {
+            if (!(selectItem instanceof SelectExpressionItem)) {
+                continue;
+            }
+
+            SelectExpressionItem selectExpressionItem = (SelectExpressionItem) selectItem;
+            Column column = (Column) selectExpressionItem.getExpression();
+            column.setColumnName(wrap(column.getColumnName().toLowerCase()));
+        }
+    }
+
+    private static String getTableName(PlainSelect plainSelect, Column column) {
         Table fromItem = (Table) plainSelect.getFromItem();
         if (column.getTable().getName().equals(fromItem.getAlias())) {
             return fromItem.getName();
@@ -308,6 +306,41 @@ public class SqlQueryModifier {
         SqlQueryParser aclSqlParser = new SqlQueryParser(aclQuery.toString());
         Expression aclExpression = ((PlainSelect) aclSqlParser.getSelectBody()).getWhere();
         return aclExpression;
+    }
+
+    private static String processQuery(String query, ConfigurationExplorer configurationExplorer,
+                                  QueryProcessor processor) {
+        return processor.process(query, configurationExplorer);
+    }
+
+    private static abstract class QueryProcessor {
+
+        public String process(String query, ConfigurationExplorer configurationExplorer) {
+            String modifiedQuery = null;
+            SqlQueryParser sqlParser = new SqlQueryParser(query);
+
+            SelectBody selectBody = sqlParser.getSelectBody();
+            if (selectBody.getClass().equals(PlainSelect.class)) {
+                PlainSelect plainSelect = (PlainSelect) selectBody;
+                processPlainSelect(plainSelect, configurationExplorer);
+                modifiedQuery = plainSelect.toString();
+            } else if (selectBody.getClass().equals(SetOperationList.class)) {
+                SetOperationList union = (SetOperationList) selectBody;
+                List plainSelects = union.getPlainSelects();
+                for (Object plainSelect : plainSelects) {
+                    processPlainSelect((PlainSelect) plainSelect, configurationExplorer);
+                }
+                modifiedQuery = union.toString();
+            } else {
+                throw new IllegalArgumentException("Unsupported type of select body: " + selectBody.getClass());
+
+            }
+
+            return modifiedQuery;
+        }
+
+        protected abstract void processPlainSelect(PlainSelect plainSelect, ConfigurationExplorer configurationExplorer);
+
     }
 
 }

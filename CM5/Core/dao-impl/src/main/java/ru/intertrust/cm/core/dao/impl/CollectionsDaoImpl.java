@@ -29,6 +29,9 @@ import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.exception.CollectionConfigurationException;
 import ru.intertrust.cm.core.dao.impl.utils.CollectionRowMapper;
 
+import static ru.intertrust.cm.core.dao.impl.SqlQueryModifier.buildColumnToConfigMap;
+import static ru.intertrust.cm.core.dao.impl.SqlQueryModifier.wrapAndLowerCaseNames;
+
 /**
  * @author vmatsukevich
  *         Date: 7/1/13
@@ -91,8 +94,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
         String collectionQuery =
                 getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, offset, limit, accessToken);
 
-        Map<String, FieldConfig> columnToConfigMap =
-                new SqlQueryModifier().buildColumnToConfigMap(collectionQuery, configurationExplorer);
+        Map<String, FieldConfig> columnToConfigMap = buildColumnToConfigMap(collectionQuery, configurationExplorer);
 
         Map<String, Object> parameters = new HashMap<>();
         fillFilterParameters(filterValues, parameters);
@@ -103,6 +105,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
         addCurrentPersonParameter(collectionQuery, parameters);
         collectionQuery = adjustParameterNamesForSpring(collectionQuery);
+        collectionQuery = wrapAndLowerCaseNames(collectionQuery);
 
 
         IdentifiableObjectCollection collection = jdbcTemplate.query(collectionQuery, parameters,
@@ -137,10 +140,10 @@ public class CollectionsDaoImpl implements CollectionsDao {
             fillAclParameters(accessToken, parameters);
         }
 
-        collectionQuery = adjustParameterNamesForSpring(collectionQuery);
+        Map<String, FieldConfig> columnToConfigMap = buildColumnToConfigMap(collectionQuery, configurationExplorer);
 
-        Map<String, FieldConfig> columnToConfigMap =
-                new SqlQueryModifier().buildColumnToConfigMap(collectionQuery, configurationExplorer);
+        collectionQuery = adjustParameterNamesForSpring(collectionQuery);
+        collectionQuery = wrapAndLowerCaseNames(collectionQuery);
 
         IdentifiableObjectCollection collection = jdbcTemplate.query(collectionQuery, parameters,
                 new CollectionRowMapper(columnToConfigMap, configurationExplorer, domainObjectTypeIdCache));
@@ -170,7 +173,9 @@ public class CollectionsDaoImpl implements CollectionsDao {
         if (accessToken.isDeferred()) {
             fillAclParameters(accessToken, parameters);
         }
+
         collectionQuery = adjustParameterNamesForSpring(collectionQuery);
+        collectionQuery = wrapAndLowerCaseNames(collectionQuery);
 
         return jdbcTemplate.queryForObject(collectionQuery, parameters, Integer.class);
     }

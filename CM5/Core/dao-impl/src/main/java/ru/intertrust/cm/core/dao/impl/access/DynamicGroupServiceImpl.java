@@ -40,6 +40,8 @@ import ru.intertrust.cm.core.dao.api.extension.OnLoadConfigurationExtensionHandl
 import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.model.PermissionException;
 
+import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.wrap;
+
 /**
  * Реализация сервиса по работе с динамическими группами пользователей
  *
@@ -344,8 +346,9 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
         AccessToken accessToken = accessControlService
                 .createSystemAccessToken(this.getClass().getName());
 
-        String query = "select t.id from User_Group t where object_id = " + ((RdbmsId) domainObjectId).getId()
-                + " and object_id_type = " + ((RdbmsId) domainObjectId).getTypeId();
+        String query = "select t." + wrap("id") + " from " + wrap("user_group") + " t where " + wrap("object_id") +
+                " = " + ((RdbmsId) domainObjectId).getId() + " and " + wrap("object_id_type") + " = " +
+                ((RdbmsId) domainObjectId).getTypeId();
         IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(query, 0, 1000, accessToken);
         for (IdentifiableObject identifiableObject : collection) {
             domainObjectDao.delete(identifiableObject.getId(), accessToken);
@@ -575,7 +578,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
         AccessToken accessToken = accessControlService
                 .createSystemAccessToken(this.getClass().getName());
         String query =
-                "select t.id from Group_Member t where t.person_id = "
+                "select t." + wrap("id") + " from " + wrap("group_member") + " t where t." + wrap("person_id") + " = "
                         + ((RdbmsId) deletedDomainObject.getId()).getId();
         IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(query, 0, 1000, accessToken);
         for (IdentifiableObject identifiableObject : collection) {

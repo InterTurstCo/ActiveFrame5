@@ -120,7 +120,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
             return null;
         }
 
-        return (T) typeMap.get(name);
+        return (T) typeMap.get(name.toLowerCase());
     }
 
     /**
@@ -138,7 +138,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         List<T> result = new ArrayList<T>();
         result.addAll((Collection<T>)typeMap.values());
 
-        return (Collection<T>) result;
+        return result;
     }
 
     @Override
@@ -350,7 +350,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
             typeMap = new HashMap<>();
             topLevelConfigMap.put(config.getClass(), typeMap);
         }
-        typeMap.put(config.getName(), config);
+        typeMap.put(config.getName().toLowerCase(), config);
     }
 
     private void fillLinkConfigMap(NavigationConfig navigationPanel) {
@@ -364,7 +364,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
             FieldConfigKey fieldConfigKey =
                     new FieldConfigKey(domainObjectTypeConfig.getName(), fieldConfig.getName());
             if (GenericDomainObject.STATUS_DO.equals(domainObjectTypeConfig.getName())
-                    && GenericDomainObject.STATUS_COLUMN.equals(fieldConfig.getName())) {
+                    && GenericDomainObject.STATUS_FIELD_NAME.equals(fieldConfig.getName())) {
                 continue;
             }
             fieldConfigMap.put(fieldConfigKey, fieldConfig);
@@ -422,7 +422,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         private String fieldConfigName;
 
         private FieldConfigKey(String domainObjectName, String fieldConfigName) {
-            this.domainObjectName = domainObjectName;
+            this.domainObjectName = domainObjectName.toLowerCase();
             this.fieldConfigName = fieldConfigName.toLowerCase();
         }
 
@@ -463,9 +463,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         private PrototypeHelper(String templateName) throws IOException {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(bos);
-            topLevelConfigMap.get(DomainObjectTypeConfig.class).get(templateName);
-            TopLevelConfig templateDomainObjectTypeConfig =
-                    topLevelConfigMap.get(DomainObjectTypeConfig.class).get(templateName);
+            TopLevelConfig templateDomainObjectTypeConfig = getConfig(DomainObjectTypeConfig.class, templateName);
             oos.writeObject(templateDomainObjectTypeConfig);
             oos.close();
             bis = new ByteArrayInputStream(bos.toByteArray());

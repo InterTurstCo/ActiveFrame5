@@ -2,6 +2,8 @@ package ru.intertrust.cm.core.dao.impl.utils;
 
 import java.util.Collection;
 
+import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.wrap;
+
 /**
  * Представляет набор функций для работы со колонками доменного объекта
  *
@@ -66,9 +68,8 @@ public class DaoUtils {
             if (!firstColumn.equals(column)) {
                 builder.append(", ");
             }
-            builder.append(column);
-            builder.append("=");
-            builder.append(":");
+            builder.append(wrap(column));
+            builder.append("=:");
             builder.append(column.toLowerCase());
 
         }

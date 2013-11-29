@@ -32,25 +32,24 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class PostgresDatabaseAccessAgentTest {
 
-    private static final String CHECK_DOMAIN_OBJECT_ACCESS_QUERY = "select count(*) from Employee_ACL a inner join " +
-    		"group_member gm on a.group_id = gm.usergroup where gm.person_id = :user_id and a.object_id = :object_id " +
-            "" +
-    		"and a.operation = :operation";
+    private static final String CHECK_DOMAIN_OBJECT_ACCESS_QUERY = "select count(*) from \"employee_acl\" a inner " +
+            "join \"group_member\" gm on a.\"group_id\" = gm.\"usergroup\" where gm.\"person_id\" = :user_id and " +
+            "a.\"object_id\" = :object_id and a.\"operation\" = :operation";
 
     private static final String CHECK_MULTI_DOMAIN_OBJECT_ACCESS_FOR_EMPLOYEE_QUERY =
-            "select a.object_id object_id from Employee_ACL " +
-                    "a inner join group_member gm on a.group_id = gm.usergroup where gm.person_id = :user_id " +
-                    "and a.object_id in (:object_ids) and a.operation = :operation";
+            "select a.\"object_id\" object_id from \"employee_acl\" " +
+                    "a inner join \"group_member\" gm on a.\"group_id\" = gm.\"usergroup\" where gm.\"person_id\" = " +
+                    ":user_id and a.\"object_id\" in (:object_ids) and a.\"operation\" = :operation";
 
     private static final String CHECK_MULTI_DOMAIN_OBJECT_ACCESS_FOR_DEPARTMENT_QUERY =
-            "select a.object_id object_id from Department_ACL a inner join group_member gm on " +
-                    "a.group_id = gm.usergroup " +
-                    "where gm.person_id = :user_id and a.object_id in (:object_ids) and a.operation = :operation";
+            "select a.\"object_id\" object_id from \"department_acl\" a inner join \"group_member\" gm on " +
+                    "a.\"group_id\" = gm.\"usergroup\" where gm.\"person_id\" = :user_id and a.\"object_id\" in " +
+                    "(:object_ids) and a.\"operation\" = :operation";
 
     private static final String CHECK_DOMAIN_OBJECT_MULTI_ACCESS_QUERY =
-            "select a.operation operation from Employee_ACL a " +
-                    "inner join group_member gm on a.group_id = gm.usergroup where gm.person_id = :user_id " +
-                    "and a.object_id = :object_id and a.operation in (:operations)";
+            "select a.\"operation\" operation from \"employee_acl\" a " +
+                    "inner join \"group_member\" gm on a.\"group_id\" = gm.\"usergroup\" where gm.\"person_id\" = " +
+                    ":user_id and a.\"object_id\" = :object_id and a.\"operation\" in (:operations)";
 
     @InjectMocks
     private final PostgresDatabaseAccessAgent accessAgent = new PostgresDatabaseAccessAgent();

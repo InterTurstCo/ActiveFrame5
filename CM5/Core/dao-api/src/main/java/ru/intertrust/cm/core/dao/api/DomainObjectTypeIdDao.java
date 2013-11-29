@@ -12,9 +12,9 @@ import java.util.List;
  */
 public interface DomainObjectTypeIdDao {
 
-    String DOMAIN_OBJECT_TYPE_ID_TABLE = "DOMAIN_OBJECT_TYPE_ID";
-    String ID_COLUMN = "ID";
-    String NAME_COLUMN = "NAME";
+    String DOMAIN_OBJECT_TYPE_ID_TABLE = "domain_object_type_id";
+    String ID_COLUMN = "id";
+    String NAME_COLUMN = "name";
 
     /**
      * Возвращает идентификаторы всех типов доменных объектов

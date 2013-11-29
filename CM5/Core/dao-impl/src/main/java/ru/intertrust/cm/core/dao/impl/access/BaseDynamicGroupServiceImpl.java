@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.wrap;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -36,6 +37,10 @@ import ru.intertrust.cm.core.dao.impl.utils.ObjectIdRowMapper;
  * @author atsvetkov
  */
 public class BaseDynamicGroupServiceImpl {
+
+    public static final String USER_GROUP_DOMAIN_OBJECT = "user_group";
+
+    public static final String GROUP_MEMBER_DOMAIN_OBJECT = "group_member";
 
     @Autowired
     protected NamedParameterJdbcOperations jdbcTemplate;
@@ -109,9 +114,10 @@ public class BaseDynamicGroupServiceImpl {
     private String generateDeleteUserGroupQuery() {
         String tableName = getSqlName(GenericDomainObject.USER_GROUP_DOMAIN_OBJECT);
         StringBuilder query = new StringBuilder();
-        query.append("Delete from ");
-        query.append(tableName).append(" ug");
-        query.append(" where ug.group_name = :group_name and ug.object_id = :object_id");
+        query.append("delete from ");
+        query.append(wrap(tableName)).append(" ug");
+        query.append(" where ug.").append(wrap("group_name")).append(" = :group_name and ").
+                append("ug.").append(wrap("object_id")).append(" = :object_id");
 
         return query.toString();
     }
@@ -142,9 +148,10 @@ public class BaseDynamicGroupServiceImpl {
     private String generateGetUserGroupWithContextQuery() {
         String tableName = getSqlName(GenericDomainObject.USER_GROUP_DOMAIN_OBJECT);
         StringBuilder query = new StringBuilder();
-        query.append("select ug.id from ");
-        query.append(tableName).append(" ug");
-        query.append(" where ug.group_name = :group_name and ug.object_id = :object_id");
+        query.append("select ug.").append(wrap("id")).append(" from ");
+        query.append(wrap(tableName)).append(" ug");
+        query.append(" where ug.").append(wrap("group_name")).append(" = :group_name and ug.").
+                append(wrap("object_id")).append(" = :object_id");
 
         return query.toString();
     }
@@ -166,9 +173,9 @@ public class BaseDynamicGroupServiceImpl {
     private String generateGetUserGroupQuery() {
         String tableName = getSqlName(GenericDomainObject.USER_GROUP_DOMAIN_OBJECT);
         StringBuilder query = new StringBuilder();
-        query.append("select ug.id from ");
-        query.append(tableName).append(" ug");
-        query.append(" where ug.group_name = :group_name");
+        query.append("select ug.").append(wrap("id")).append(" from ");
+        query.append(wrap(tableName)).append(" ug");
+        query.append(" where ug.").append(wrap("group_name")).append(" = :group_name");
         return query.toString();
     }
 
@@ -219,11 +226,10 @@ public class BaseDynamicGroupServiceImpl {
 
         String tableName = getSqlName(typeConfig.getName());
         StringBuilder query = new StringBuilder();
-        query.append("select s.name from ");
-        query.append(tableName).append(
-                " o inner join " + GenericDomainObject.STATUS_DO + " s on s.id = o."
-                        + GenericDomainObject.STATUS_COLUMN);
-        query.append(" where o.id = :object_id");
+        query.append("select s.").append(wrap("name")).append(" from ").append(wrap(tableName)).
+                append(" o inner join ").append(wrap(GenericDomainObject.STATUS_DO)).append(" s on ").
+                append("s.").append(wrap("id")).append(" = o.").append(wrap(GenericDomainObject.STATUS_FIELD_NAME));
+        query.append(" where o.").append(wrap("id")).append(" = :object_id");
 
         return query.toString();
     }

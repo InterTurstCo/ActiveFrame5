@@ -15,7 +15,8 @@ import java.util.List;
  */
 public interface DataStructureDao {
 
-    String AUTHENTICATION_INFO_TABLE = "AUTHENTICATION_INFO";
+    String AUTHENTICATION_INFO_TABLE = "authentication_info";
+    String USER_UID_COLUMN = "user_uid";
 
     /**
      * Создает таблицу по конфигурации доменного объекта

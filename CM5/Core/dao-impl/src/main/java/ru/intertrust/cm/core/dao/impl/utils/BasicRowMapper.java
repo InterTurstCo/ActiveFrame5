@@ -156,11 +156,11 @@ public class BasicRowMapper extends ValueReader {
 
         // Установка полей версии
         object.setId(new RdbmsId(typeId, rs.getLong(DomainObjectDao.ID_COLUMN)));
-        object.setDomainObjectId(new RdbmsId(typeId, rs.getLong(DomainObjectDao.DOMAIN_OBJECT_ID)));
+        object.setDomainObjectId(new RdbmsId(typeId, rs.getLong(DomainObjectDao.DOMAIN_OBJECT_ID_COLUMN)));
         object.setModifiedDate(rs.getTimestamp(UPDATED_DATE_COLUMN));
-        object.setVersionInfo(rs.getString(DomainObjectDao.INFO));
-        object.setIpAddress(rs.getString(DomainObjectDao.IP_ADDRESS));
-        object.setComponent(rs.getString(DomainObjectDao.COMPONENT));
+        object.setVersionInfo(rs.getString(DomainObjectDao.INFO_COLUMN));
+        object.setIpAddress(rs.getString(DomainObjectDao.IP_ADDRESS_COLUMN));
+        object.setComponent(rs.getString(DomainObjectDao.COMPONENT_COLUMN));
         object.setOperation(getOperation(rs.getInt(DomainObjectDao.OPERATION_COLUMN)));
 
         setDomainObjectFields(object, rs, domainObjectType);

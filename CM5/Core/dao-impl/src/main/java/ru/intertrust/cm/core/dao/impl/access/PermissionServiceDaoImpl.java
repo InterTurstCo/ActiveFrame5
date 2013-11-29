@@ -55,6 +55,8 @@ import ru.intertrust.cm.core.dao.api.extension.OnLoadConfigurationExtensionHandl
 import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.model.PermissionException;
 
+import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.wrap;
+
 /**
  * Реализация сервиса обновления списков доступа.
  * @author atsvetkov
@@ -192,16 +194,18 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         String tableNameAcl =
                 AccessControlUtility.getAclTableName(domainObjectTypeIdCache.getName(rdbmsObjectId.getTypeId()));
 
-        String query = "select 'R' as operation, r.group_id from " + tableNameRead + " r ";
-        query += "where r.object_id = :object_id ";
-        query += "union ";
-        query += "select a.operation, a.group_id from " + tableNameAcl + " a ";
-        query += "where a.object_id = :object_id ";
+        StringBuilder query = new StringBuilder();
+        query.append("select 'R' as operation, r.").append(wrap("group_id")).append(" from ").
+                append(wrap(tableNameRead)).append(" r ").append("where r.").append(wrap("object_id")).
+                append(" = :object_id ");
+        query.append("union ");
+        query.append("select a.").append(wrap("operation")).append(", a.").append(wrap("group_id")).append(" from ").
+                append(wrap(tableNameAcl)).append(" a where a.").append(wrap("object_id")).append(" = :object_id ");
 
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("object_id", rdbmsObjectId.getId());
 
-        return jdbcTemplate.query(query, parameters, new ResultSetExtractor<List<AclInfo>>() {
+        return jdbcTemplate.query(query.toString(), parameters, new ResultSetExtractor<List<AclInfo>>() {
 
             @Override
             public List<AclInfo> extractData(ResultSet rs) throws SQLException, DataAccessException {
@@ -393,8 +397,8 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         StringBuilder query = new StringBuilder();
         query.append("delete from ");
-        query.append(tableName).append(" where object_id = :object_id ");
-        query.append("and group_id = :group_id");
+        query.append(wrap(tableName)).append(" where ").append(wrap("object_id")).append(" = :object_id ");
+        query.append("and ").append(wrap("group_id")).append(" = :group_id");
 
         return query.toString();
     }
@@ -405,8 +409,8 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         StringBuilder query = new StringBuilder();
         query.append("insert  into ");
-        query.append(tableName).append(" (object_id, group_id)");
-        query.append(" values (:object_id, :group_id)");
+        query.append(wrap(tableName)).append(" (").append(wrap("object_id")).append(", ").append(wrap("group_id")).
+                append(") values (:object_id, :group_id)");
 
         return query.toString();
     }
@@ -417,8 +421,8 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         StringBuilder query = new StringBuilder();
         query.append("delete from ");
-        query.append(tableName).append(" where operation=:operation and object_id=:object_id ");
-        query.append("and group_id=:group_id");
+        query.append(wrap(tableName)).append(" where ").append(wrap("operation")).append("=:operation and ").
+                append(wrap("object_id")).append("=:object_id and ").append(wrap("group_id")).append("=:group_id");
 
         return query.toString();
     }
@@ -430,8 +434,9 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         StringBuilder query = new StringBuilder();
         query.append("insert  into ");
-        query.append(tableName).append(" (operation, object_id, group_id)");
-        query.append(" values (:operation, :object_id, :group_id)");
+        query.append(wrap(tableName)).append(" (").append(wrap("operation")).append(", ").
+                append(wrap("object_id")).append(", ").append(wrap("group_id")).append(")").
+                append(" values (:operation, :object_id, :group_id)");
 
         return query.toString();
     }
@@ -512,8 +517,8 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         StringBuilder query = new StringBuilder();
         query.append("delete from ");
-        query.append(tableName).append(" o ");
-        query.append("where o.object_id = :object_id");
+        query.append(wrap(tableName)).append(" o ");
+        query.append("where o.").append(wrap("object_id")).append(" = :object_id");
 
         return query.toString();
     }
@@ -692,20 +697,25 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         String tableNameAcl =
                 AccessControlUtility.getAclTableName(domainObjectTypeIdCache.getName(rdbmsObjectId.getTypeId()));
 
-        String query = "select 'R' as operation, gm.person_id, gm.person_id_type from " + tableNameRead + " r ";
-        query += "inner join group_group gg on (r.group_id = gg.child_group_id) ";
-        query += "inner join group_member gm on (gg.parent_group_id = gm.usergroup) ";
-        query += "where r.object_id = :object_id ";
+        StringBuilder query = new StringBuilder();
+        query.append("select 'R' as operation, gm.").append(wrap("person_id")).append(", gm.").
+                append(wrap("person_id_type")).append(" from ").append(wrap(tableNameRead)).append(" r ").
+                append("inner join ").append(wrap("group_group")).append(" gg on (r.").append(wrap("group_id")).
+                append(" = gg.").append(wrap("child_group_id")).append(") inner join ").append(wrap("group_member")).
+                append(" gm on gg.").append(wrap("parent_group_id")).append(" = gm.").append(wrap("usergroup")).
+                append(" where r.").append(wrap("object_id")).append(" = :object_id ");
         if (personId != null) {
-            query += "and gm.person_id = :person_id";
+            query.append("and gm.").append(wrap("person_id")).append(" = :person_id");
         }
-        query += "union ";
-        query += "select a.operation, gm.person_id, gm.person_id_type from " + tableNameAcl + " a ";
-        query += "inner join group_group gg on (a.group_id = gg.child_group_id) ";
-        query += "inner join group_member gm on (gg.parent_group_id = gm.usergroup) ";
-        query += "where a.object_id = :object_id ";
+        query.append("union ");
+        query.append("select a.").append(wrap("operation")).append(", gm.").append(wrap("person_id")).append(", ").
+                append("gm.").append(wrap("person_id_type")).append(" from ").append(wrap(tableNameAcl)).append(" a ").
+                append("inner join ").append(wrap("group_group")).append(" gg on (a.").append(wrap("group_id")).
+                append(" = gg.").append(wrap("child_group_id")).append(") inner join ").append(wrap("group_member")).
+                append(" gm on gg.").append(wrap("parent_group_id")).append(" = gm.").append(wrap("usergroup")).
+                append(" where a.").append(wrap("object_id")).append(" = :object_id ");
         if (personId != null) {
-            query += "and gm.person_id = :person_id";
+            query.append("and gm.").append(wrap("person_id")).append(" = :person_id");
         }
 
         Map<String, Object> parameters = new HashMap<String, Object>();
@@ -714,7 +724,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             parameters.put("person_id", ((RdbmsId) personId).getId());
         }
 
-        return jdbcTemplate.query(query, parameters, new ResultSetExtractor<List<DomainObjectPermission>>() {
+        return jdbcTemplate.query(query.toString(), parameters, new ResultSetExtractor<List<DomainObjectPermission>>() {
 
             @Override
             public List<DomainObjectPermission> extractData(ResultSet rs) throws SQLException, DataAccessException {

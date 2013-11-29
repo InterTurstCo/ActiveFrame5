@@ -35,7 +35,7 @@ public class DataStructureNamingHelper {
      */
     public static String getSqlSequenceName(DomainObjectTypeConfig domainObjectTypeConfig) {
 
-        return convertToSqlFormat(domainObjectTypeConfig.getName()) + "_SEQ";
+        return convertToSqlFormat(domainObjectTypeConfig.getName()) + "_seq";
     }
 
     /**
@@ -45,7 +45,7 @@ public class DataStructureNamingHelper {
      */
     public static String getSqlAuditSequenceName(DomainObjectTypeConfig domainObjectTypeConfig) {
 
-        return convertToSqlFormat(domainObjectTypeConfig.getName()) + "_LOG_SEQ";
+        return convertToSqlFormat(domainObjectTypeConfig.getName()) + "_log_seq";
     }
 
 
@@ -135,6 +135,6 @@ public class DataStructureNamingHelper {
             throw new IllegalArgumentException("Name is empty");
         }
 
-        return name.toUpperCase();
+        return name.toLowerCase();
     }
 }

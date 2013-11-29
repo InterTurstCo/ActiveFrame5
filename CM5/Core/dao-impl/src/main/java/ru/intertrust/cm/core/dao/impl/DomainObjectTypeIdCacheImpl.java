@@ -26,7 +26,10 @@ public class DomainObjectTypeIdCacheImpl implements DomainObjectTypeIdCache {
     private Map<Integer, String> idToNameMap = new ConcurrentHashMap<>();
 
     public DomainObjectTypeIdCacheImpl() {
+    }
 
+    public void setDomainObjectTypeIdDao(DomainObjectTypeIdDao domainObjectTypeIdDao) {
+        this.domainObjectTypeIdDao = domainObjectTypeIdDao;
     }
 
     /**
@@ -41,12 +44,12 @@ public class DomainObjectTypeIdCacheImpl implements DomainObjectTypeIdCache {
 
         nameToIdMap.clear();
         for (DomainObjectTypeId domainObjectTypeId : domainObjectTypeIds) {
-            nameToIdMap.put(domainObjectTypeId.getName(), domainObjectTypeId.getId());
+            nameToIdMap.put(domainObjectTypeId.getName().toLowerCase(), domainObjectTypeId.getId());
         }
 
         idToNameMap.clear();
         for (DomainObjectTypeId domainObjectTypeId : domainObjectTypeIds) {
-            idToNameMap.put(domainObjectTypeId.getId(), domainObjectTypeId.getName());
+            idToNameMap.put(domainObjectTypeId.getId(), domainObjectTypeId.getName().toLowerCase());
         }
     }
 
@@ -55,7 +58,10 @@ public class DomainObjectTypeIdCacheImpl implements DomainObjectTypeIdCache {
      */
     @Override
     public Integer getId(String name) {
-        return nameToIdMap.get(name);
+        if (name == null) {
+            return null;
+        }
+        return nameToIdMap.get(name.toLowerCase());
     }
 
     /**
@@ -72,11 +78,13 @@ public class DomainObjectTypeIdCacheImpl implements DomainObjectTypeIdCache {
      */
     @Override
     public String getName(Id id) {
-        return idToNameMap.get(((RdbmsId) id).getTypeId());
-    }
+        String name = idToNameMap.get(((RdbmsId) id).getTypeId());
 
-    public void setDomainObjectTypeIdDao(DomainObjectTypeIdDao domainObjectTypeIdDao) {
-        this.domainObjectTypeIdDao = domainObjectTypeIdDao;
+        if (name != null) {
+            name = name.toLowerCase();
+        }
+
+        return name;
     }
 
 }

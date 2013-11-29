@@ -1,7 +1,9 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.*;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlAlias;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.wrap;
 
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +20,6 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.dao.api.AuditLogServiceDao;
-import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.impl.utils.DefaultFields;
 import ru.intertrust.cm.core.dao.impl.utils.MultipleVersionRowMapper;
@@ -85,12 +86,10 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
         StringBuilder query = new StringBuilder();
         query.append("delete ");
         query.append(" from ");
-        query.append(getSqlName(typeName));
-        query.append("_LOG ");
-        query.append("where id in (select id from ");
-        query.append(getSqlName(rootType));
-        query.append("_LOG ");
-        query.append("where domain_object_id = :id)");
+        query.append(wrap(getSqlName(typeName) + "_log"));
+        query.append("where ").append(wrap(ID_COLUMN)).append(" in (select ").append(wrap(ID_COLUMN)).append(" from ");
+        query.append(wrap(getSqlName(rootType) + "_log")).append(" ");
+        query.append("where ").append(wrap("domain_object_id")).append(" = :id)");
 
         return query.toString();
     }
@@ -159,7 +158,7 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
 
         StringBuilder query = new StringBuilder();
         query.append(generateFindQuery(typeName));
-        query.append(" where ").append(rootAlias).append(".domain_object_id=:id ");
+        query.append(" where ").append(wrap(rootAlias)).append(".").append(wrap("domain_object_id")).append("=:id ");
 
         return query.toString();
     }
@@ -172,14 +171,14 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
 
         StringBuilder query = new StringBuilder();
         query.append("select ");
-        query.append(rootAlias).append(".id, ");
-        query.append(rootAlias).append(".type_id, ");
-        query.append(rootAlias).append(".operation, ");
-        query.append(rootAlias).append(".updated_date, ");
-        query.append(rootAlias).append(".domain_object_id, ");
-        query.append(rootAlias).append(".component, ");
-        query.append(rootAlias).append(".ip_address, ");
-        query.append(rootAlias).append(".info ");
+        query.append(wrap(rootAlias)).append(".").append(wrap(ID_COLUMN)).append(", ");
+        query.append(wrap(rootAlias)).append(".").append(wrap(TYPE_COLUMN)).append(", ");
+        query.append(wrap(rootAlias)).append(".").append(wrap(OPERATION_COLUMN)).append(", ");
+        query.append(wrap(rootAlias)).append(".").append(wrap(UPDATED_DATE_COLUMN)).append(", ");
+        query.append(wrap(rootAlias)).append(".").append(wrap(DOMAIN_OBJECT_ID_COLUMN)).append(", ");
+        query.append(wrap(rootAlias)).append(".").append(wrap(COMPONENT_COLUMN)).append(", ");
+        query.append(wrap(rootAlias)).append(".").append(wrap(IP_ADDRESS_COLUMN)).append(", ");
+        query.append(wrap(rootAlias)).append(".").append(wrap(INFO_COLUMN)).append(" ");
         appendColumnsQueryPart(query, typeName);
         query.append(" from ");
         appendVersionTableNameQueryPart(query, typeName);
@@ -208,9 +207,9 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
                 continue;
             }
 
-            query.append(", ").append(tableAlias).append(".").append(getSqlName(fieldConfig));
+            query.append(", ").append(tableAlias).append(".").append(wrap(getSqlName(fieldConfig)));
             if (fieldConfig.getFieldType().equals(FieldType.REFERENCE)) {
-                query.append(", ").append(tableAlias).append(".").append(getSqlName(fieldConfig)).append("_type");
+                query.append(", ").append(tableAlias).append(".").append(wrap(getSqlName(fieldConfig) + "_type"));
             }
         }
 
@@ -221,8 +220,8 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
 
     private void appendVersionTableNameQueryPart(StringBuilder query, String typeName) {
         String aliasName = getSqlName(typeName);
-        String tableName = getSqlName(typeName) + "_LOG";
-        query.append(tableName).append(" ").append(aliasName);
+        String tableName = getSqlName(typeName) + "_log";
+        query.append(wrap(tableName)).append(" ").append(aliasName);
         appendVersionParentTable(query, typeName);
     }
 
@@ -236,13 +235,12 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
 
         String tableAlias = getSqlAlias(typeName);
 
-        String parentTableName = getSqlName(config.getExtendsAttribute()) + "_LOG";
+        String parentTableName = getSqlName(config.getExtendsAttribute()) + "_log";
         String parentTableAlias = getSqlAlias(config.getExtendsAttribute());
 
-        query.append(" inner join ").append(parentTableName).append(" ")
-                .append(parentTableAlias);
-        query.append(" on ").append(tableAlias).append(".").append(DomainObjectDao.ID_COLUMN).append("=");
-        query.append(parentTableAlias).append(".").append(DomainObjectDao.ID_COLUMN);
+        query.append(" inner join ").append(wrap(parentTableName)).append(" ").append(parentTableAlias);
+        query.append(" on ").append(tableAlias).append(".").append(wrap(ID_COLUMN)).append("=");
+        query.append(parentTableAlias).append(".").append(wrap(ID_COLUMN));
 
         appendParentTable(query, config.getExtendsAttribute());
     }
@@ -260,10 +258,10 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
         String parentTableName = getSqlName(config.getExtendsAttribute());
         String parentTableAlias = getSqlAlias(config.getExtendsAttribute());
 
-        query.append(" inner join ").append(parentTableName).append(" ")
+        query.append(" inner join ").append(wrap(parentTableName)).append(" ")
                 .append(parentTableAlias);
-        query.append(" on ").append(tableAlias).append(".").append(DomainObjectDao.ID_COLUMN).append("=");
-        query.append(parentTableAlias).append(".").append(DomainObjectDao.ID_COLUMN);
+        query.append(" on ").append(tableAlias).append(".").append(wrap(ID_COLUMN)).append("=");
+        query.append(parentTableAlias).append(".").append(wrap(ID_COLUMN));
 
         appendParentTable(query, config.getExtendsAttribute());
     }
@@ -304,11 +302,10 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
         String rootType = getRootTypeName(config);
 
         StringBuilder query = new StringBuilder();
-        query.append("select max(id) ");
+        query.append("select max(").append(wrap(ID_COLUMN)).append(") ");
         query.append("from ");
-        query.append(getSqlName(rootType));
-        query.append("_log ");
-        query.append("where domain_object_id = :id");
+        query.append(wrap(getSqlName(rootType) + "_log")).append(" ");
+        query.append("where ").append(wrap("domain_object_id")).append(" = :id");
 
         return query.toString();
     }

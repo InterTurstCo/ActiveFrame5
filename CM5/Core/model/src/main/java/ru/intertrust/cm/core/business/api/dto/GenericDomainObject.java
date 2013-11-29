@@ -15,8 +15,8 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
     private Date createdDate;
     private Date modifiedDate;
 
-    public static String STATUS_COLUMN = "STATUS";    
-    public static String STATUS_DO = "Status";
+    public static String STATUS_FIELD_NAME = "status";
+    public static String STATUS_DO = "status";
 
     public static final String USER_GROUP_DOMAIN_OBJECT = "User_Group";
 
@@ -77,13 +77,13 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
 
     @Override
     public Id getStatus() {
-     return getReference(STATUS_COLUMN);   
+     return getReference(STATUS_FIELD_NAME);
     }
 
     public void setStatus(Id status) {
-        setReference(STATUS_COLUMN, status);
+        setReference(STATUS_FIELD_NAME, status);
     }
-    
+
     @Override
     public boolean isNew() {
         return (getId() == null);

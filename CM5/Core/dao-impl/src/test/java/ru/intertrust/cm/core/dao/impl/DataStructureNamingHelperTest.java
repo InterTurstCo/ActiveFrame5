@@ -19,7 +19,7 @@ public class DataStructureNamingHelperTest {
         domainObjectTypeConfig.setName("Outgoing_Document");
 
         String sqlName = DataStructureNamingHelper.getSqlName(domainObjectTypeConfig);
-        assertEquals("OUTGOING_DOCUMENT", sqlName);
+        assertEquals("outgoing_document", sqlName);
     }
 
     @Test
@@ -28,12 +28,12 @@ public class DataStructureNamingHelperTest {
         fieldConfig.setName("Registration_Number");
 
         String sqlName = DataStructureNamingHelper.getSqlName(fieldConfig);
-        assertEquals("REGISTRATION_NUMBER", sqlName);
+        assertEquals("registration_number", sqlName);
     }
 
     @Test
     public void testGetSqlNameForString() throws Exception {
         String sqlName = DataStructureNamingHelper.getSqlName("Registration_Date");
-        assertEquals("REGISTRATION_DATE", sqlName);
+        assertEquals("registration_date", sqlName);
     }
 }

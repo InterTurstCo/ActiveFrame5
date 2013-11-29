@@ -37,62 +37,67 @@ public class PostgreSqlQueryHelperTest {
 
     @Test
     public void testGenerateCreateDomainObjectTableQuery() {
-        String query = "create table " + DOMAIN_OBJECT_TYPE_ID_TABLE + "(ID bigserial not null, NAME varchar(256) not null, " +
-                "constraint PK_" + DOMAIN_OBJECT_TYPE_ID_TABLE + " primary key (ID), constraint U_" + DOMAIN_OBJECT_TYPE_ID_TABLE + " unique (NAME))";
+        String query = "create table \"" + DOMAIN_OBJECT_TYPE_ID_TABLE + "\" (\"id\" bigserial not null, " +
+                "\"name\" varchar(256) not null, " +
+                "constraint \"pk_" + DOMAIN_OBJECT_TYPE_ID_TABLE + "\" primary key (\"id\"), " +
+                "constraint \"u_" + DOMAIN_OBJECT_TYPE_ID_TABLE + "\" unique (\"name\"))";
         String testQuery = PostgreSqlQueryHelper.generateCreateDomainObjectTableQuery();
-        assertEquals(testQuery, query);
+        assertEquals(query, testQuery);
     }
 
     @Test
     public void testGenerateCreateConfigurationTableQuery() {
-        String query = "create table " + CONFIGURATION_TABLE + "(ID bigserial not null, CONTENT text not null, " +
-                "LOADED_DATE timestamp not null, constraint PK_" + CONFIGURATION_TABLE + " primary key (ID))";
+        String query = "create table \"" + CONFIGURATION_TABLE + "\" (\"id\" bigserial not null, " +
+                "\"content\" text not null, \"loaded_date\" timestamp not null, " +
+                "constraint \"pk_" + CONFIGURATION_TABLE + "\" primary key (\"id\"))";
         String testQuery = PostgreSqlQueryHelper.generateCreateConfigurationTableQuery();
-        assertEquals(testQuery, query);
+        assertEquals(query, testQuery);
     }
 
     @Test
     public void testGenerateCreateAuthenticationInfoTableQuery() {
-        String query = "CREATE TABLE " + AUTHENTICATION_INFO_TABLE + " (ID bigint not null, " +
-                "user_uid character varying(64) NOT NULL, password character varying(128), constraint PK_" +
-                AUTHENTICATION_INFO_TABLE + "_ID primary key (ID), constraint U_" + AUTHENTICATION_INFO_TABLE +
-                "_USER_UID unique(user_uid))";
+        String query = "CREATE TABLE \"" + AUTHENTICATION_INFO_TABLE + "\" (\"id\" bigint not null, " +
+                "\"user_uid\" character varying(64) NOT NULL, \"password\" character varying(128), " +
+                "constraint \"pk_" + AUTHENTICATION_INFO_TABLE + "_id\" primary key (\"id\"), " +
+                "constraint \"u_" + AUTHENTICATION_INFO_TABLE + "_user_uid\" unique(\"user_uid\"))";
         String testQuery = PostgreSqlQueryHelper.generateCreateAuthenticationInfoTableQuery();
-        assertEquals(testQuery, query);
+        assertEquals(query, testQuery);
     }
 
     @Test
     public void testGenerateSequenceQuery() {
-        String query = "create sequence OUTGOING_DOCUMENT_SEQ";
+        String query = "create sequence \"outgoing_document_seq\"";
         String testQuery = PostgreSqlQueryHelper.generateSequenceQuery(domainObjectTypeConfig);
-        assertEquals(testQuery, query);
+        assertEquals(query, testQuery);
     }
 
     @Test
      public void testGenerateCreateTableQuery() throws Exception {
         String query = PostgreSqlQueryHelper.generateCreateTableQuery(domainObjectTypeConfig);
-        String checkQuery = "create table OUTGOING_DOCUMENT ( ID bigint not null, TYPE_ID integer, " +
-                "REGISTRATION_NUMBER varchar(128), " +
-                "REGISTRATION_DATE timestamp, AUTHOR bigint, AUTHOR_TYPE integer, " +
-                "LONG_FIELD bigint, DECIMAL_FIELD_1 decimal(10, 2), DECIMAL_FIELD_2 decimal(10), " +
-                "constraint PK_OUTGOING_DOCUMENT_ID primary key (ID), " +
-                "constraint U_OUTGOING_DOCUMENT_ID_TYPE_ID unique (ID, TYPE_ID), " +
-                "constraint FK_OUTGOING_DOCUMENT_ID" + " foreign key (ID) references DOCUMENT(ID), " +
-                "constraint FK_OUTGOING_DOCUMENT_" + TYPE_COLUMN + " foreign key (" + TYPE_COLUMN +
-                    ") references DOMAIN_OBJECT_TYPE_ID(ID))";
+        String checkQuery = "create table \"outgoing_document\" ( \"id\" bigint not null, \"type_id\" integer, " +
+                "\"registration_number\" varchar(128), " +
+                "\"registration_date\" timestamp, \"author\" bigint, \"author_type\" integer, " +
+                "\"long_field\" bigint, \"decimal_field_1\" decimal(10, 2), \"decimal_field_2\" decimal(10), " +
+                "constraint \"pk_outgoing_document_id\" primary key (\"id\"), " +
+                "constraint \"u_outgoing_document_id_type_id\" unique (\"id\", \"type_id\"), " +
+                "constraint \"fk_outgoing_document_id\"" + " foreign key (\"id\") references " +
+                "\"document\" (\"id\"), constraint \"fk_outgoing_document_" + TYPE_COLUMN + "\" " +
+                "foreign key (\""+ TYPE_COLUMN + "\") references \"domain_object_type_id\" (\"id\"))";
         assertEquals(checkQuery, query);
     }
 
     @Test
     public void testGenerateCreateTableQueryWithoutExtendsAttribute() throws Exception {
-        String checkQuery = "create table OUTGOING_DOCUMENT ( ID bigint not null, " +
-                "CREATED_DATE timestamp not null, " + "UPDATED_DATE timestamp not null, STATUS bigint, STATUS_TYPE integer, " + TYPE_COLUMN +" integer, " +
-                "REGISTRATION_NUMBER varchar(128), REGISTRATION_DATE timestamp, AUTHOR bigint, AUTHOR_TYPE integer, " +
-                "LONG_FIELD bigint, DECIMAL_FIELD_1 decimal(10, 2), DECIMAL_FIELD_2 decimal(10), " +
-                "constraint PK_OUTGOING_DOCUMENT_ID primary key (ID), " +
-                "constraint U_OUTGOING_DOCUMENT_ID_TYPE_ID unique (ID, TYPE_ID), " +
-                "constraint FK_OUTGOING_DOCUMENT_" + TYPE_COLUMN + " foreign key (" + TYPE_COLUMN + ") references " +
-                "DOMAIN_OBJECT_TYPE_ID(ID))";
+        String checkQuery = "create table \"outgoing_document\" ( \"id\" bigint not null, " +
+                "\"created_date\" timestamp not null, " + "\"updated_date\" timestamp not null, \"status\" bigint, " +
+                "\"status_type\" integer, \"" + TYPE_COLUMN + "\" integer, " +
+                "\"registration_number\" varchar(128), \"registration_date\" timestamp, \"author\" bigint, " +
+                "\"author_type\" integer, " +
+                "\"long_field\" bigint, \"decimal_field_1\" decimal(10, 2), \"decimal_field_2\" decimal(10), " +
+                "constraint \"pk_outgoing_document_id\" primary key (\"id\"), " +
+                "constraint \"u_outgoing_document_id_type_id\" unique (\"id\", \"type_id\"), " +
+                "constraint \"fk_outgoing_document_" + TYPE_COLUMN + "\" foreign key (\"" + TYPE_COLUMN + "\") " +
+                "references \"domain_object_type_id\" (\"id\"))";
         domainObjectTypeConfig.setExtendsAttribute(null);
         String query = PostgreSqlQueryHelper.generateCreateTableQuery(domainObjectTypeConfig);
         assertEquals(checkQuery, query);
@@ -102,12 +107,13 @@ public class PostgreSqlQueryHelperTest {
     public void testGenerateCreateAclTableQuery() throws Exception {
         String query = PostgreSqlQueryHelper.generateCreateAclTableQuery(domainObjectTypeConfig);
 
-        String checkQuery = "create table OUTGOING_DOCUMENT_ACL (object_id bigint not null, " +
-                "group_id bigint not null, operation varchar(256) not null, " +
-                "constraint PK_OUTGOING_DOCUMENT_ACL primary key (object_id, group_id, operation), " +
-                "CONSTRAINT FK_OUTGOING_DOCUMENT_ACL_OUTGOING_DOCUMENT FOREIGN KEY (object_id) " +
-                "REFERENCES OUTGOING_DOCUMENT (id), " +
-                "CONSTRAINT FK_OUTGOING_DOCUMENT_USER_GROUP FOREIGN KEY (group_id) REFERENCES User_Group (id))";
+        String checkQuery = "create table \"outgoing_document_acl\" (\"object_id\" bigint not null, " +
+                "\"group_id\" bigint not null, \"operation\" varchar(256) not null, " +
+                "constraint \"pk_outgoing_document_acl\" primary key (\"object_id\", \"group_id\", \"operation\"), " +
+                "CONSTRAINT \"fk_outgoing_document_acl_outgoing_document\" FOREIGN KEY (\"object_id\") " +
+                "REFERENCES \"outgoing_document\" (\"id\"), " +
+                "CONSTRAINT \"fk_outgoing_document_user_group\" FOREIGN KEY (\"group_id\") REFERENCES " +
+                "\"user_group\" (\"id\"))";
         assertEquals(checkQuery, query);
     }
 
@@ -115,19 +121,21 @@ public class PostgreSqlQueryHelperTest {
     public void testGenerateCreateAclReadTableQuery() throws Exception {
         String query = PostgreSqlQueryHelper.generateCreateAclReadTableQuery(domainObjectTypeConfig);
 
-        String checkQuery = "create table OUTGOING_DOCUMENT_READ (object_id bigint not null, " +
-                "group_id bigint not null, constraint PK_OUTGOING_DOCUMENT_READ primary key (object_id, group_id), " +
-                "CONSTRAINT FK_OUTGOING_DOCUMENT_READ_OUTGOING_DOCUMENT FOREIGN KEY (object_id) " +
-                "REFERENCES OUTGOING_DOCUMENT (id), " +
-                "CONSTRAINT FK_OUTGOING_DOCUMENT_USER_GROUP FOREIGN KEY (group_id) REFERENCES User_Group (id))";
+        String checkQuery = "create table \"outgoing_document_read\" (\"object_id\" bigint not null, " +
+                "\"group_id\" bigint not null, constraint \"pk_outgoing_document_read\" " +
+                "primary key (\"object_id\", \"group_id\"), " +
+                "CONSTRAINT \"fk_outgoing_document_read_outgoing_document\" FOREIGN KEY (\"object_id\") " +
+                "REFERENCES \"outgoing_document\" (\"id\"), " +
+                "CONSTRAINT \"fk_outgoing_document_user_group\" FOREIGN KEY (\"group_id\") " +
+                "REFERENCES \"user_group\" (\"id\"))";
         assertEquals(checkQuery, query);
     }
 
     @Test
     public void testGenerateAddColumnsQuery() {
-        String expectedQuery = "alter table OUTGOING_DOCUMENT " +
-                "add column DESCRIPTION varchar(256), " +
-                "add column EXECUTOR bigint not null, add column EXECUTOR_TYPE integer not null";
+        String expectedQuery = "alter table \"outgoing_document\" " +
+                "add column \"description\" varchar(256), " +
+                "add column \"executor\" bigint not null, add column \"executor_type\" integer not null";
 
         List<FieldConfig> newColumns = new ArrayList<>();
 
@@ -151,10 +159,10 @@ public class PostgreSqlQueryHelperTest {
 
     @Test
     public void testGenerateCreateForeignKeyAndUniqueConstraintsQuery() {
-        String expectedQuery = "alter table OUTGOING_DOCUMENT " +
-                "add constraint FK_OUTGOING_DOCUMENT_EXECUTOR_EXECUTOR_TYPE " +
-                "foreign key (EXECUTOR, EXECUTOR_TYPE) references EMPLOYEE(ID, TYPE_ID), " +
-                "add constraint U_OUTGOING_DOCUMENT_REGISTRATION_NUMBER" + " unique (REGISTRATION_NUMBER)";
+        String expectedQuery = "alter table \"outgoing_document\" " +
+                "add constraint \"fk_outgoing_document_executor_executor_type\" " +
+                "foreign key (\"executor\", \"executor_type\") references \"employee\" (\"id\", \"type_id\"), " +
+                "add constraint \"u_outgoing_document_registration_number\"" + " unique (\"registration_number\")";
 
         ReferenceFieldConfig executorFieldConfig = new ReferenceFieldConfig();
         executorFieldConfig.setName("Executor");
@@ -180,7 +188,7 @@ public class PostgreSqlQueryHelperTest {
     public void testGenerateCreateIndexesQuery() throws Exception {
         String query = PostgreSqlQueryHelper.generateCreateIndexesQuery(domainObjectTypeConfig.getName(),
                 domainObjectTypeConfig.getFieldConfigs());
-        String checkQuery = "create index I_OUTGOING_DOCUMENT_AUTHOR on OUTGOING_DOCUMENT (AUTHOR);\n";
+        String checkQuery = "create index \"i_outgoing_document_author\" on \"outgoing_document\" (\"author\");\n";
         assertEquals(query, checkQuery);
     }
 

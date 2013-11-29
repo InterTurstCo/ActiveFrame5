@@ -81,9 +81,10 @@ public class DomainObjectDaoImplTest {
         domainObject.setModifiedDate(currentDate);
 
         String checkCreateQuery =
-                "insert into PERSON (ID, CREATED_DATE, UPDATED_DATE, STATUS, STATUS_TYPE, TYPE_ID, EMAIL," +
-                        "LOGIN,PASSWORD,BOSS,BOSS_TYPE) values " +
-                        "(:id , :created_date, :updated_date, :status, :status_type, :type_id, :email,:login,:password,:boss,:boss_type)";
+                "insert into \"person\" (\"id\", \"created_date\", \"updated_date\", \"status\", \"status_type\", " +
+                        "\"type_id\", \"email\", \"login\", \"password\", \"boss\", \"boss_type\") values " +
+                        "(:id , :created_date, :updated_date, :status, :status_type, :type_id, :email,:login," +
+                        ":password,:boss,:boss_type)";
 
         String query = domainObjectDaoImpl.generateCreateQuery(domainObjectTypeConfig);
         assertEquals(checkCreateQuery, query);
@@ -92,7 +93,7 @@ public class DomainObjectDaoImplTest {
     @Test
     public void testGenerateFindQuery() throws Exception {
         AccessToken accessToken = createMockAccessToken();
-        String expectedQuery = "select person.* from PERSON person where person.ID=:id "/* +
+        String expectedQuery = "select person.* from \"person\" person where person.\"id\"=:id "/* +
                 "  and " +
                 "exists (select a.object_id from Person_READ a inner join group_member gm on " +
                 "a.group_id = gm.usergroup where gm.person_id = :user_id and a.object_id = :id)"*/;
@@ -142,9 +143,9 @@ public class DomainObjectDaoImplTest {
         domainObject.setCreatedDate(currentDate);
         domainObject.setModifiedDate(currentDate);
 
-        String checkUpdateQuery = "update PERSON set UPDATED_DATE=:current_date, STATUS=:status, " +
-                "EMAIL=:email, LOGIN=:login, PASSWORD=:password, BOSS=:boss, " +
-                "BOSS_TYPE=:boss_type where ID=:id and UPDATED_DATE=:updated_date";
+        String checkUpdateQuery = "update \"person\" set \"updated_date\"=:current_date, \"status\"=:status, " +
+                "\"email\"=:email, \"login\"=:login, \"password\"=:password, \"boss\"=:boss, " +
+                "\"boss_type\"=:boss_type where \"id\"=:id and \"updated_date\"=:updated_date";
 
         String query = domainObjectDaoImpl.generateUpdateQuery(domainObjectTypeConfig, true);
         assertEquals(checkUpdateQuery, query);
@@ -152,7 +153,7 @@ public class DomainObjectDaoImplTest {
 
     @Test
     public void testGenerateDeleteQuery() throws Exception {
-        String checkDeleteQuery = "delete from PERSON where id=:id";
+        String checkDeleteQuery = "delete from \"person\" where \"id\"=:id";
 
         String query = domainObjectDaoImpl.generateDeleteQuery(domainObjectTypeConfig);
         assertEquals(checkDeleteQuery, query);
@@ -160,7 +161,7 @@ public class DomainObjectDaoImplTest {
 
     @Test
     public void testGenerateDeleteAllQuery() throws Exception {
-        String checkDeleteQuery = "delete from PERSON";
+        String checkDeleteQuery = "delete from \"person\"";
 
         String query = domainObjectDaoImpl.generateDeleteAllQuery(domainObjectTypeConfig);
         assertEquals(checkDeleteQuery, query);
@@ -169,7 +170,7 @@ public class DomainObjectDaoImplTest {
 
     @Test
     public void testGenerateExistsQuery() throws Exception {
-        String checkExistsQuery = "select id from PERSON where id=:id";
+        String checkExistsQuery = "select \"id\" from \"person\" where \"id\"=:id";
 
         String query = domainObjectDaoImpl.generateExistsQuery(domainObjectTypeConfig.getName());
         assertEquals(checkExistsQuery, query);

@@ -8,7 +8,9 @@ package ru.intertrust.cm.core.dao.api;
  */
 public interface ConfigurationDao {
 
-    String CONFIGURATION_TABLE = "CONFIGURATION";
+    String CONFIGURATION_TABLE = "configuration";
+    String CONTENT_COLUMN = "content";
+    String LOADED_DATE_COLUMN = "loaded_date";
 
     /**
      * Сохраняет конфигурацию
