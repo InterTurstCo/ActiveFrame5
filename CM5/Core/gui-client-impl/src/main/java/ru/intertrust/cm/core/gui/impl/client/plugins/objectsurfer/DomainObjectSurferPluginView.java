@@ -23,6 +23,8 @@ public class DomainObjectSurferPluginView extends PluginView {
 
     private int surferWidth;
     private int surferHeight;
+    private int horizontalSplitterSavedSize = -1;
+    private int verticalSplitterSavedSize =-1;
     private FlowPanel formFlowPanel = new FlowPanel();
     private SimplePanel splitterFirstWidget = new SimplePanel();
     private ScrollPanel splitterScroll = new ScrollPanel();
@@ -40,9 +42,13 @@ public class DomainObjectSurferPluginView extends PluginView {
         surferWidth = plugin.getOwner().getVisibleWidth();
         surferHeight = plugin.getOwner().getVisibleHeight();
         initSplitter();
+        splitterPanel.addNorth(splitterScroll, surferHeight / 2);
+        splitterPanel.add(formFlowPanel);
         splitterSetSize();
         formFlowPanel.getElement().getStyle().setOverflow(Style.Overflow.AUTO);
         eventBus = domainObjectSurferPlugin.getLocalPluginEventBus();
+
+
         addSplitterWidgetResizeHandler();
 
     }
@@ -52,14 +58,23 @@ public class DomainObjectSurferPluginView extends PluginView {
             @Override
             public void onResize() {
                 super.onResize();
-                eventBus
-                        .fireEvent(new SplitterInnerScrollEvent(splitterScroll.getOffsetHeight(),
-                                splitterScroll.getOffsetWidth(), formFlowPanel.getOffsetHeight(),
-                                formFlowPanel.getOffsetWidth()));
+                eventBus.fireEvent(new SplitterInnerScrollEvent(splitterScroll.getOffsetHeight(),
+                        splitterScroll.getOffsetWidth(), formFlowPanel.getOffsetHeight(),
+                        formFlowPanel.getOffsetWidth()));
+
+                 if (!splitterPanel.isSplitType()){
+                                horizontalSplitterSavedSize =  splitterScroll.getOffsetHeight();
+
+                 }
+                 if (splitterPanel.isSplitType()){
+                                verticalSplitterSavedSize = splitterScroll.getOffsetWidth();
+                 }
+
 
             }
         };
     }
+
 
     public void onPluginPanelResize() {
         updateSizes();
@@ -73,11 +88,12 @@ public class DomainObjectSurferPluginView extends PluginView {
     }
 
     protected void splitterSetSize() {
-        splitterPanel.clear();
-
         splitterPanel.setSize(surferWidth + "px", surferHeight + "px");
-        splitterPanel.addNorth(splitterScroll, surferHeight / 2);
-        splitterPanel.add(formFlowPanel);
+        checkLastSplitterPosition(splitterPanel.isSplitType(), surferWidth, surferHeight / 2, false);
+
+
+
+
     }
 
     private void addSplitterWidgetResizeHandler() {
@@ -85,16 +101,59 @@ public class DomainObjectSurferPluginView extends PluginView {
             @Override
             public void setWidgetSize(SplitterWidgetResizerEvent event) {
 
-                if (event.isType()) {
-                    splitterPanel.remove(0);
-                    splitterPanel.insertWest(splitterScroll, event.getFirstWidgetWidth(), splitterPanel.getWidget(0));
-                } else {
-                    splitterPanel.remove(0);
-                    splitterPanel.insertNorth(splitterScroll, event.getFirstWidgetHeight(), splitterPanel.getWidget(0));
-                }
+                checkLastSplitterPosition(event.isType(), event.getFirstWidgetWidth(), event.getFirstWidgetHeight(), event.isArrowsPress());
+
             }
         });
 
+    }
+
+    private void checkLastSplitterPosition(boolean type, int firstWidgetWidth, int firstWidgetHeight, boolean arrowButton) {
+        if (!arrowButton){
+            if (horizontalSplitterSavedSize >= 0){
+                firstWidgetHeight = horizontalSplitterSavedSize;
+            }
+
+            if (verticalSplitterSavedSize >= 0) {
+                firstWidgetWidth = verticalSplitterSavedSize;
+            }
+        }
+
+        if (type && arrowButton){
+            verticalSplitterSavedSize = firstWidgetWidth;
+
+        } else {
+            horizontalSplitterSavedSize = firstWidgetHeight;
+        }
+
+        reDrawSplitter(type, firstWidgetWidth, firstWidgetHeight);
+
+    }
+
+    private void reDrawSplitter(boolean type, int firstWidgetWidth, int firstWidgetHeight){
+
+        if (type) {
+
+            if (firstWidgetWidth > surferWidth){
+                firstWidgetWidth = surferWidth-splitterPanel.getSplitterSize();
+
+            }
+
+            splitterPanel.remove(0);
+            splitterPanel.insertWest(splitterScroll, firstWidgetWidth, splitterPanel.getWidget(0));
+        } else {
+
+            if (firstWidgetHeight > surferHeight){
+                firstWidgetHeight = surferHeight-splitterPanel.getSplitterSize();
+            }
+
+            splitterPanel.remove(0);
+            splitterPanel.insertNorth(splitterScroll, firstWidgetHeight, splitterPanel.getWidget(0));
+
+
+
+        }
+        splitterScroll.getElement().getStyle().setOverflowY(Style.Overflow.HIDDEN);
     }
 
     @Override
@@ -105,6 +164,7 @@ public class DomainObjectSurferPluginView extends PluginView {
         final VerticalPanel container = new VerticalPanel();
         flowPanel.add(container);
         splitterScroll.add(splitterFirstWidget);
+
 
         container.add(splitterPanel);
 

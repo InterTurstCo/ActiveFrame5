@@ -26,7 +26,7 @@ public class FormPanel implements IsWidget {
     private HackTabLayoutPanel bodyTabPanel;
     private FormDisplayData formDisplayData;
     private List<BaseWidget> widgets;
-    private FlowPanel panel;
+    private FlowPanel panel = new FlowPanel();
     private boolean isHeightFromConfig;
     private boolean isWidthFromConfig;
     private List<TabConfig> tabs;
@@ -117,7 +117,7 @@ public class FormPanel implements IsWidget {
         if (isWidthDeclaredInConfig(configWidth)) {
             bodyTabPanel.setWidth(configWidth);
         }
-        panel = new FlowPanel();
+
         panel.add(headerTable);
         panel.add(bodyTabPanel);
 
@@ -221,6 +221,7 @@ public class FormPanel implements IsWidget {
 
                     columnFormatter.setWidth(colIndex, cellWidth);
                 }
+                columnFormatter.setWidth(colIndex, cellWidth);
                 if (rowHeight != null && !rowHeight.isEmpty()) {
                     cellFormatter.setHeight(rowIndex, colIndex, rowHeight);
                 }

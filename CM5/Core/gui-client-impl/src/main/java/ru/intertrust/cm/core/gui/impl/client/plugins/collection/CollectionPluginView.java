@@ -54,8 +54,8 @@ public class CollectionPluginView extends PluginView {
     private VerticalPanel verticalPanel = new VerticalPanel();
     private FlowPanel root = new FlowPanel();
     private String collectionName;
-    private int scrollStart = 0;
-    private int listCount = 0;
+    private int scrollStart;
+    private int listCount;
     private int tableWidth;
     private int tableHeight;
 
@@ -160,7 +160,7 @@ public class CollectionPluginView extends PluginView {
             @Override
             public void setScrollPanelHeight(SplitterInnerScrollEvent event) {
 
-                scrollTableBody.setHeight((event.getUpperPanelHeight() - headerPanel.getOffsetHeight()) + "px");
+                scrollTableBody.setHeight((event.getUpperPanelHeight() - (headerPanel.getOffsetHeight())) + "px");
                 tableController.columnWindowResize(columnMinWidth(event.getUpperPanelWidth() / tableBody.getColumnCount()));
             }
         });
@@ -169,15 +169,15 @@ public class CollectionPluginView extends PluginView {
 
             @Override
             public void setWidgetSize(SplitterWidgetResizerEvent event) {
-                if (event.isType()) {
+               // if (event.isType()) {
                     if ((event.getFirstWidgetHeight() * 2) < Window.getClientHeight()) {
                         scrollTableBody.setHeight(((event.getFirstWidgetHeight() * 2) - headerPanel.getOffsetHeight()) + "px");
                     } else {
                         scrollTableBody.setHeight((event.getFirstWidgetHeight() - headerPanel.getOffsetHeight()) + "px");
                     }
-                } else {
-                    scrollTableBody.setHeight((event.getFirstWidgetHeight() - headerPanel.getOffsetHeight()) + "px");
-                }
+//                } else {
+//                    scrollTableBody.setHeight((event.getFirstWidgetHeight() - headerPanel.getOffsetHeight()) + "px");
+//                }
                 tableController.columnWindowResize(columnMinWidth(event.getFirstWidgetWidth() / tableBody.getColumnCount()));
             }
         });
@@ -215,6 +215,7 @@ public class CollectionPluginView extends PluginView {
         bodyPanel.add(tableBody);
         verticalPanel.add(headerPanel);
         scrollTableBody.getElement().getStyle().setOverflowX(Style.Overflow.HIDDEN);
+
         scrollTableBody.setHeight(tableHeight + "px");
         scrollTableBody.add(bodyPanel);
         verticalPanel.add(scrollTableBody);

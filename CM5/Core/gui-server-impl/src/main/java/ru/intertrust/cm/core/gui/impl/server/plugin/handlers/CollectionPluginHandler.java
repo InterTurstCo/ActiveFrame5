@@ -139,7 +139,7 @@ public class CollectionPluginHandler extends PluginHandler {
                 collectionRowsRequest.getFields().keySet(), collectionRowsRequest.getOffset(),
                     collectionRowsRequest.getLimit());
 
-        System.out.println("DTO "+list.size());
+
 
         CollectionRowItemList collectionRowItemList = new CollectionRowItemList();
         collectionRowItemList.setCollectionRows(list);

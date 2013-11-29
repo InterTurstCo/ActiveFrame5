@@ -18,15 +18,17 @@ public class SplitterWidgetResizerEvent extends GwtEvent<SplitterWidgetResizerEv
     private int firstWidgetHeight;
     private int secondWidgetHeight;
     private boolean type;
+    private boolean arrowsPress;
 
 
     public SplitterWidgetResizerEvent(int firstWidgetWidth, int secondWidgetWidth,
-               int firstWidgetHeight, int secondWidgetHeight, boolean type) {
+               int firstWidgetHeight, int secondWidgetHeight, boolean type, boolean arrowsPress) {
         this.firstWidgetWidth = firstWidgetWidth;
         this.secondWidgetWidth = secondWidgetWidth;
         this.firstWidgetHeight = firstWidgetHeight;
         this.secondWidgetHeight = secondWidgetHeight;
         this.type = type;
+        this.arrowsPress = arrowsPress;
     }
 
     @Override
@@ -59,5 +61,9 @@ public class SplitterWidgetResizerEvent extends GwtEvent<SplitterWidgetResizerEv
 
     public boolean isType() {
         return type;
+    }
+
+    public boolean isArrowsPress() {
+        return arrowsPress;
     }
 }

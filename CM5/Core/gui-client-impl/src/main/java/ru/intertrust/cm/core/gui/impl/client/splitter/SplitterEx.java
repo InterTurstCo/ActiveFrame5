@@ -130,6 +130,7 @@ public class SplitterEx extends DockLayoutPanel {
             style.ensureInjected();
             this.target = target;
             this.reverse = reverse;
+            target.getElement().getStyle().setOverflow(Style.Overflow.VISIBLE);
 
             dummyLeftPanel.setStyleName(style.touchDummyButton());
             dummyLeftButton.setStyleName(style.touchDummyButton());
@@ -168,7 +169,7 @@ public class SplitterEx extends DockLayoutPanel {
                 @Override
                 public void onClick(ClickEvent event) {
                     eventBus.fireEvent(new SplitterWidgetResizerEvent(target.getParent().getParent().getOffsetWidth()-splitterSize,
-                            0, target.getParent().getParent().getOffsetHeight()-splitterSize, 0, splitType ));
+                            0, target.getParent().getParent().getOffsetHeight()-splitterSize, 0, splitType, true ));
 
                 }
             }, ClickEvent.getType());
@@ -178,7 +179,7 @@ public class SplitterEx extends DockLayoutPanel {
                 @Override
                 public void onClick(ClickEvent event) {
                     eventBus.fireEvent(new SplitterWidgetResizerEvent(0, target.getParent().getParent().getOffsetWidth(),
-                            0, target.getParent().getParent().getOffsetHeight()-splitterSize, splitType ));
+                            0, target.getParent().getParent().getOffsetHeight()-splitterSize, splitType, true ));
 
                 }
             }, ClickEvent.getType());
@@ -193,7 +194,7 @@ public class SplitterEx extends DockLayoutPanel {
                     }
 
                     eventBus.fireEvent(new SplitterWidgetResizerEvent(target.getParent().getParent().getOffsetWidth()/2, 0,
-                            target.getParent().getParent().getOffsetHeight()/2, 0, splitType ));
+                            target.getParent().getParent().getOffsetHeight()/2, target.getParent().getParent().getOffsetHeight(), splitType, false ));
 
                 }
             }, ClickEvent.getType());
@@ -498,7 +499,7 @@ public class SplitterEx extends DockLayoutPanel {
      */
     private static Element glassElem = null;
 
-    private final int splitterSize;
+    private final int splitterSize ;
 
     public SplitterEx(int splitterSize, EventBus eventBus) {
         super(Style.Unit.PX);
@@ -526,6 +527,8 @@ public class SplitterEx extends DockLayoutPanel {
     public int getSplitterSize() {
         return splitterSize;
     }
+
+
 
     @Override
     public void insert(Widget child, Direction direction, double size, Widget before) {

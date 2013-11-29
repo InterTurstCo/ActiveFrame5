@@ -10,4 +10,6 @@ import java.util.ArrayList;
  * Time: 23:40
  */
 public class SortOrder extends ArrayList<SortCriterion> implements Dto {
+
+
 }
