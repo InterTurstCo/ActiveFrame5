@@ -88,16 +88,24 @@ public class FormPanel implements IsWidget {
 
             bodyTabPanel = new HackTabLayoutPanel(0, Style.Unit.PX);
             bodyTabPanel.add(buildTabContent(tabs.get(0)));
-        } else {
+        }
+        else{
 
             bodyTabPanel = new HackTabLayoutPanel(35, Style.Unit.PX);
+
 
             for (TabConfig tab : tabs) {
                 bodyTabPanel.add(buildTabContent(tab), tab.getName());
             }
         }
 
+        if(!tabs.isEmpty()){
         bodyTabPanel.selectTab(0);
+        bodyTabPanel.getTabWidget(0).getElement().getStyle().setProperty("backgroundColor", "white");
+        }
+
+        bodyTabPanel.getWidget(0).addStyleName("gwt-TabLayoutPanel-No-Padding");
+
         bodyTabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
             @Override
             public void onSelection(SelectionEvent<Integer> event) {
@@ -106,7 +114,7 @@ public class FormPanel implements IsWidget {
             }
         });
         bodyTabPanel.getElement().getStyle().setProperty("minWidth", formWidth - 20 + "px");
-        bodyTabPanel.getTabWidget(0).getElement().getStyle().setProperty("backgroundColor", "white");
+
 
         String configHeight = header.getTableLayout().getHeight();
         if (isHeightDeclaredInConfig(configHeight)) {
@@ -124,11 +132,12 @@ public class FormPanel implements IsWidget {
         return panel;
     }
 
-    private void setStyleForAllTabs(Integer activeTab, HackTabLayoutPanel bodyTabPanel) {
+private void setStyleForAllTabs(Integer activeTab, HackTabLayoutPanel bodyTabPanel) {
         for (int i = 0; i < bodyTabPanel.getWidgetCount(); i++) {
             if (activeTab == i) {
                 bodyTabPanel.getTabWidget(i).getElement().getStyle().setProperty("backgroundColor", "white");
-            } else {
+            }
+            else {
                 bodyTabPanel.getTabWidget(i).getElement().getStyle().setProperty("backgroundColor", "#c2e7f0");
             }
         }
@@ -183,7 +192,7 @@ public class FormPanel implements IsWidget {
     private IsWidget buildTable(LayoutConfig layout) {
         TableLayoutConfig tableLayout = (TableLayoutConfig) layout;
         FlexTable table = new FlexTable();
-        if (formDisplayData.isDebug()) {
+        if (formDisplayData.isDebug()){
             table.setBorderWidth(1);
             table.getElement().setId("debug"); // todo: why ID?
         }
@@ -235,19 +244,18 @@ public class FormPanel implements IsWidget {
         }
         return table;
     }
-
-    private HasHorizontalAlignment.HorizontalAlignmentConstant getHorizontalAlignmentForCurrentCell(String cellAlignment) {
-        HasHorizontalAlignment.HorizontalAlignmentConstant horizontalAllignment = HasHorizontalAlignment.ALIGN_LEFT;
-        if (cellAlignment == null || cellAlignment.equals("left")) {
-            horizontalAllignment = HasHorizontalAlignment.ALIGN_LEFT;
-        }
-        if (cellAlignment != null && cellAlignment.equals("right")) {
-            horizontalAllignment = HasHorizontalAlignment.ALIGN_RIGHT;
-        }
-        if (cellAlignment != null && cellAlignment.equals("center")) {
-            horizontalAllignment = HasHorizontalAlignment.ALIGN_CENTER;
-        }
-        return horizontalAllignment;
+    private HasHorizontalAlignment.HorizontalAlignmentConstant getHorizontalAlignmentForCurrentCell(String cellAlignment){
+        HasHorizontalAlignment.HorizontalAlignmentConstant  horizontalAllignment = HasHorizontalAlignment.ALIGN_LEFT;
+                if (cellAlignment == null || cellAlignment.equals("left")){
+                    horizontalAllignment = HasHorizontalAlignment.ALIGN_LEFT;
+                }
+                if (cellAlignment != null && cellAlignment.equals("right")){
+                    horizontalAllignment = HasHorizontalAlignment.ALIGN_RIGHT;
+                }
+                if (cellAlignment != null && cellAlignment.equals("center")){
+                    horizontalAllignment = HasHorizontalAlignment.ALIGN_CENTER;
+                }
+       return horizontalAllignment;
     }
 
     private HasVerticalAlignment.VerticalAlignmentConstant getVerticalAlignmentForCurrentCell(String cellAlignment) {

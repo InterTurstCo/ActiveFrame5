@@ -174,6 +174,7 @@ h1 {
     background: transparent url("css/images/sidebar-selected.png") left top
     no-repeat;
     width: 129px;
+	height: 83px;
     /*
     position: fixed;
 */

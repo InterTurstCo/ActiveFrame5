@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer;
 
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
@@ -164,6 +165,10 @@ public class DomainObjectSurferPluginView extends PluginView {
         final VerticalPanel container = new VerticalPanel();
         flowPanel.add(container);
         splitterScroll.add(splitterFirstWidget);
+
+        //splitter fix
+        Element e = (Element)splitterPanel.getElement().getChild(2);
+        e.getStyle().clearOverflow();
 
 
         container.add(splitterPanel);

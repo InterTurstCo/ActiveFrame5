@@ -26,14 +26,8 @@ public class HeaderContainer extends SimplePanel {
         SimplePanel head = createHeadPanel(this);
         FlexTable headTable = createHeadTable();
 
-        TextBox suggestBox = new TextBox();
-        suggestBox.setWidth("100%");
-
-        headTable.setWidget(FIRST_ROW, 1, suggestBox);
+        headTable.setWidget(FIRST_ROW, 1, new HeaderSectionSuggestBox());
         headTable.getFlexCellFormatter().setStyleName(FIRST_ROW, 1, "H_td_notes");
-
-        //userName = new InlineLabel("Василий пупкин");
-        //userName.addStyleName("HeadUserName");
 
         Hyperlink userName = new Hyperlink(currentUserInfo.getFirstName() + " " + currentUserInfo.getLastName(), "login");
         userName.addClickHandler(new ClickHandler() {
@@ -43,6 +37,12 @@ public class HeaderContainer extends SimplePanel {
             }
         });
 
+        FocusPanel thirdImage = new FocusPanel();
+        thirdImage.setStyleName("header-third-action-button");
+        headTable.setWidget(FIRST_ROW, 2, thirdImage);
+        headTable.getFlexCellFormatter().setStyleName(FIRST_ROW, 2, "H_td_ExtSearch");
+
+
         InlineLabel userPosition = new InlineLabel("Head of department");
         userPosition.addStyleName("HeadUserPost");
 
@@ -50,26 +50,34 @@ public class HeaderContainer extends SimplePanel {
         userInfoPanel.add(new SimplePanel(userName));
         userInfoPanel.add(new SimplePanel(userPosition));
 
-        headTable.setWidget(FIRST_ROW, 2, userInfoPanel);
-        headTable.getFlexCellFormatter().setStyleName(FIRST_ROW, 2, "H_td_user");
+        headTable.setWidget(FIRST_ROW, 3, userInfoPanel);
+        headTable.getFlexCellFormatter().setStyleName(FIRST_ROW, 3, "H_td_user");
 
-        FlowPanel linksPanel = new FlowPanel();
+        HorizontalPanel linksPanel = new HorizontalPanel();
+        AbsolutePanel decoratedSettings = new AbsolutePanel();
+        decoratedSettings.setStyleName("decorated-settings");
         Anchor settings = new Anchor("Settings", "Settings");
-        linksPanel.add(new SimplePanel(settings));
-        Anchor help = new Anchor("Help", "Help");
-        linksPanel.add(new SimplePanel(help));
+        decoratedSettings.add(settings);
 
-        headTable.setWidget(FIRST_ROW, 3, linksPanel);
-        headTable.getCellFormatter().setStyleName(FIRST_ROW, 3, "H_td_links");
+        AbsolutePanel decoratedHelp = new AbsolutePanel();
+        decoratedHelp.setStyleName("decorated-help");
+        Anchor help = new Anchor("Help", "Help");
+        decoratedHelp.add(help);
+
+        linksPanel.add(decoratedSettings);
+        linksPanel.add(decoratedHelp);
+
+        headTable.setWidget(FIRST_ROW, 4, linksPanel);
+        headTable.getCellFormatter().setStyleName(FIRST_ROW, 4, "H_td_links");
         Hyperlink logoutLink = new Hyperlink("Выход", "logout");
-        headTable.setWidget(FIRST_ROW, 4, logoutLink);
+        headTable.setWidget(FIRST_ROW, 5, logoutLink);
 
         logoutLink.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                logout();
             }
         });
-        headTable.getCellFormatter().setStyleName(FIRST_ROW, 4, "H_td_logout");
+        headTable.getCellFormatter().setStyleName(FIRST_ROW, 5, "H_td_logout");
         head.add(headTable);
     }
 

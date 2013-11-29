@@ -18,7 +18,6 @@ public class BookmarksTabPanel implements IsWidget {
     private HorizontalPanel rightPanelWithHideButtonContainer = new HorizontalPanel();
     private FocusPanel leftInnerPanel = new FocusPanel();
     private VerticalPanel buttonHidePanel = new VerticalPanel();
-//    private Button buttonHide = new Button("<-");
     private FocusPanel buttonHide;
     private FocusPanel buttonHideOff;
     private VerticalPanel contentRightPanel = new VerticalPanel();
@@ -27,8 +26,6 @@ public class BookmarksTabPanel implements IsWidget {
     public BookmarksTabPanel() {
         init();
 
-        //получить по класснейму элемент
-        //
 
         rootPanel.setStyleName("panel-left-exist");
 
@@ -58,7 +55,6 @@ public class BookmarksTabPanel implements IsWidget {
 
         rootPanel.add(leftInnerPanel);
 
-        //rootPanel.add(buttonHidePanel);
         buttonHidePanel.add(buttonHide);
 
         contentInnerPanel.add(contentRightPanel);
@@ -67,29 +63,6 @@ public class BookmarksTabPanel implements IsWidget {
         rightPanelWithHideButtonContainer.add(contentInnerPanel);
 
         rootPanel.add(rightPanelWithHideButtonContainer);
-
-//        buttonHide.addClickHandler(new ClickHandler() {
-//
-//            @Override
-//            public void onClick(ClickEvent event) {
-//
-//                if (leftPanel.isVisible()) {
-//
-//                    leftPanel.setVisible(false);
-//                    buttonHide.setStyleName("button-hide-selected");
-//
-//                    leftInnerPanel.removeStyleName("bookmark-leftpanel-active");
-//                    leftInnerPanel.addStyleName("bookmark-leftpanel-non-active");
-//                } else {
-//                    leftPanel.setVisible(true);
-//
-//                    buttonHide.setStyleName("button-hide");
-//
-//                    leftInnerPanel.removeStyleName("bookmark-leftpanel-non-active");
-//                    leftInnerPanel.addStyleName("bookmark-leftpanel-active");
-//                }
-//            }
-//        });
 
         buttonHide.addClickHandler(new ClickHandler() {
 
@@ -119,11 +92,8 @@ public class BookmarksTabPanel implements IsWidget {
 
     public void add(String title, IsWidget content) {
         final Hyperlink linkLabel = new Hyperlink();
-        //addstyle
-        //linkLabel.setStyleName("bookmarks-linklabel");
         linkLabel.setStyleName("bookmarks-link-non-active");
         linkLabel.setText(title);
-        //linkLabel.setWidth("200px"); //убрать размер
         leftPanel.add(linkLabel);
 
         contentRightPanel.add(content);

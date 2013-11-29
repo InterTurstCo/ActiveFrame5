@@ -53,6 +53,7 @@
 /*}*/
 
 .gwt-SuggestBox {
+/*
 height: 15px;
 padding: 9px 25px 9px 40px !important;
 position: relative;
@@ -61,6 +62,7 @@ border-color: #fff1ca #ffedbe #ffedbe;
 border-radius: 5px;
 background: url(images/ext-search2.png) no-repeat scroll 4px 0px #fffdf0;
 outline: none;
+*/
 }
 
 .suggestPopupMiddleLeft,

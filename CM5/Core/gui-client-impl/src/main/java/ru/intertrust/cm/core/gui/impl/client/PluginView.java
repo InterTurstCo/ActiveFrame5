@@ -26,7 +26,7 @@ public abstract class PluginView implements IsWidget {
     protected Plugin plugin;
     protected static Logger log = Logger.getLogger("PluginView console logger");
 
-    private HorizontalPanel actionToolBar;
+    private AbsolutePanel actionToolBar;
 
     /**
      * Основной конструктор
@@ -44,10 +44,14 @@ public abstract class PluginView implements IsWidget {
      * @return возвращает виджет, отображающий "Панель действий"
      */
     protected void initializeActionToolBar() {
-        actionToolBar = new HorizontalPanel();
+        actionToolBar = new AbsolutePanel();
+        actionToolBar.setStyleName("action-bar");
     }
 
     protected void updateActionToolBar() {
+        AbsolutePanel decoratedActionLink = new AbsolutePanel();
+        decoratedActionLink.setStyleName("decorated-action-link");
+
         if (!(plugin instanceof IsActive)) {
             return;
         }
@@ -64,11 +68,32 @@ public abstract class PluginView implements IsWidget {
         for (final ActionContext actionContext : actionContexts) {
             final ActionConfig actionConfig = actionContext.getActionConfig();
             Hyperlink hyperlink = new Hyperlink(actionConfig.getText(), actionConfig.getText());
-            hyperlink.setStyleName("style-button");
+            Image actionPic = new Image(actionConfig.getImageUrl());
+            hyperlink.setStyleName("action-bar-button");
+            //actionPic.setStyleName("action-bar-button");
+            decoratedActionLink.add(actionPic);
+            decoratedActionLink.add(hyperlink);
+
             if (actionConfig == null) {
                 continue;
             }
-            actionToolBar.add(hyperlink);
+
+            actionToolBar.add(decoratedActionLink);
+
+            actionPic.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    String component = actionConfig.getComponent();
+                    if (component == null) {
+                        component = "generic.workflow.action";
+                    }
+                    Action action = ComponentRegistry.instance.get(component);
+                    action.setInitialContext(actionContext);
+                    action.setPlugin(plugin);
+                    action.execute();
+                }
+            });
+
             hyperlink.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
@@ -83,6 +108,22 @@ public abstract class PluginView implements IsWidget {
                 }
             });
         }
+
+        final FocusPanel rightButton = new FocusPanel();
+        rightButton.setStyleName("action-bar-right-button-non-active");
+        actionToolBar.add(rightButton);
+        rightButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                if(rightButton.getStyleName().equals("action-bar-right-button-non-active")){
+                    rightButton.addStyleName("action-bar-right-button-active");
+                }
+                else{
+                    rightButton.removeStyleName("action-bar-right-button-active");
+                }
+            }
+        });
+
     }
 
 

@@ -40,11 +40,13 @@ public class FormPluginHandler extends ActivePluginHandler {
     public List<ActionContext> getActions(FormPluginConfig config)  {
         ActionConfig saveActionConfig = new ActionConfig("save.action", "save.action");
         saveActionConfig.setText("Сохранить");
+        saveActionConfig.setImageUrl("icons/ico-save.gif");
         ActionContext saveActionContext = new SaveActionContext();
         saveActionContext.setActionConfig(saveActionConfig);
 
         ActionConfig createNewActionConfig = new ActionConfig("create.new.object.action", "create.new.object.action");
         createNewActionConfig.setText("Создать новый");
+        createNewActionConfig.setImageUrl("icons/icon-create.png");
         ActionContext createNewActionContext = new ActionContext();
         createNewActionContext.setActionConfig(createNewActionConfig);
 

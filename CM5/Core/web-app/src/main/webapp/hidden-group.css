@@ -22,7 +22,8 @@ background: url(images/tab-close.png) 3px 8px no-repeat;
 /* Заголовки скрытия открытия подпунктов END */
 
 .gwt-TabLayoutPanelContent .gwt-Label{
-width: 148px;
+width: 150px;
+margin-right: 20px;
 }
 
 .hidden-group-title-first-level{

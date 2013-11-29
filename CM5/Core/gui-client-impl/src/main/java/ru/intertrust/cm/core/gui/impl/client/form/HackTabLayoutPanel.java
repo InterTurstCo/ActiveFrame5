@@ -115,7 +115,7 @@ import java.util.Iterator;
         private static final String CONTENT_CONTAINER_STYLE = "gwt-TabLayoutPanelContentContainer";
 
 
-        private static final String CONTENT_STYLE = "gwt-TabLayoutPanelContent gwt-TabLayoutPanel-No-Padding";
+        private static final String CONTENT_STYLE = "gwt-TabLayoutPanelContent";
         private static final String TAB_STYLE = "gwt-TabLayoutPanelTab";
 
         private static final String TAB_INNER_STYLE = "gwt-TabLayoutPanelTabInner";

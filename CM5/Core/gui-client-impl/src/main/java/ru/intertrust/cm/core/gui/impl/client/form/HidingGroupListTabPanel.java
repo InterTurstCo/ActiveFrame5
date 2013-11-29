@@ -46,16 +46,13 @@ public class HidingGroupListTabPanel implements IsWidget{
                 String style;
                 if (!contentPanel.isVisible()) {
                     contentPanel.setVisible(true);
-                   // path = ("images/down.png");
                     style = "hidden-group-select";
                 }
                 else {
                     contentPanel.setVisible(false);
-                    //path = ("images/right.png");
                     style = "hidden-group";
 
                 }
-               //btn.setUrl(path);
                 btn.setStyleName(style);
 
             }
