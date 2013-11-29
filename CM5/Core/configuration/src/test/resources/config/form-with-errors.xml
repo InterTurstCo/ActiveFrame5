@@ -346,7 +346,7 @@
         </display>
     </collection-view>
 
-    <collection name="Cities" idField="id">
+    <collection name="Citiees" idField="id">
 
         <prototype>
             <![CDATA[
