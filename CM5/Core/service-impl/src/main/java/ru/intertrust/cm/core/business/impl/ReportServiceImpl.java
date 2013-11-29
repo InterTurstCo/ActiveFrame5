@@ -76,8 +76,6 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
     public static final String DOCX_FORMAT = "DOCX";
     public static final String XLSX_FORMAT = "XLSX";
 
-    private static File tempFolder;
-
     @Autowired
     private CurrentUserAccessor currentUserAccessor;
 
@@ -109,6 +107,9 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
             reportResult.setReport(readFile(result));
             reportResult.setTemplateName(name);
 
+            //Удаляем временный файл
+            result.delete();
+            
             return reportResult;
         } catch (Exception ex) {
             throw new ReportServiceException("Error on generate report", ex);
@@ -176,31 +177,32 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
         //Получение директории с шаблонами
         File templatesFolder = new File(tempFolder, TEMPLATES_FOLDER_NAME);
         File templateFolder = new File(templatesFolder, reportTemplateDo.getString("name"));
+        boolean dirCreated = false; 
         if (!templateFolder.exists()) {
             templateFolder.mkdirs();
+            dirCreated = true;
         }
 
         //Сравнение даты изменения директории и даты создания доменного объекта шаблонов отчета 
-        if (templateFolder.lastModified() < reportTemplateDo.getModifiedDate().getTime()) {
+        if (dirCreated || templateFolder.lastModified() < reportTemplateDo.getModifiedDate().getTime()) {
             //Шаблоны требуют перезачитывания
+            //Удаляем все содержимое папки
+            File[] files = templateFolder.listFiles();
+            for (File file : files) {
+                file.delete();
+            }
+            
             //Получение всех вложений
-            List<DomainObject> attachments = attachmentService.getAttachmentDomainObjectsFor(reportTemplateDo);
+            List<DomainObject> attachments = getAttachments("report_template_attachment", reportTemplateDo);
             for (DomainObject attachment : attachments) {
                 byte[] content = getAttachmentContent(attachment);
                 //Запись файла на диск
-                writeToFile(content, new File(templateFolder, attachment.getString("name")));
+                writeToFile(content, new File(templateFolder, attachment.getString("Name")));
             }
+            templateFolder.setLastModified(System.currentTimeMillis());
         }
         return templateFolder;
 
-    }
-
-    private File getTempFolder() throws IOException {
-        if (tempFolder == null) {
-            File tmpFile = File.createTempFile("xx", "xx");
-            tempFolder = tmpFile.getParentFile();
-        }
-        return tempFolder;
     }
 
     @Override
@@ -225,7 +227,7 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
         ClassLoader defaultClassLoader = Thread.currentThread().getContextClassLoader();
         try {
 
-            File templateFile = new File(templateFolder, reportMetadata.getMainTemplate());
+            File templateFile = new File(templateFolder, reportMetadata.getMainTemplate() + ".jasper");
             ScriptletClassLoader scriptletClassLoader =
                     new ScriptletClassLoader(templateFile.getParentFile().getPath(), defaultClassLoader);
             Thread.currentThread().setContextClassLoader(scriptletClassLoader);
@@ -306,7 +308,10 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
     }
 
     private String getFormat(ReportMetadataConfig reportMetadata, Map<String, Object> params) {
-        String formatParam = (String) params.get(FORMAP_PARAM);
+        String formatParam = null;
+        if (params != null){
+            formatParam = (String) params.get(FORMAP_PARAM);
+        }
         String format = null;
         if (formatParam == null && reportMetadata.getFormats().size() > 1) {
             throw new ReportServiceException("FORMAT parameter is required");

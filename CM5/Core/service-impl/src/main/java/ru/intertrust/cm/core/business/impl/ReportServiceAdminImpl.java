@@ -63,7 +63,8 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
 
             //Получаем все новые вложения и ищем файл с метаинформацией
             ReportMetadataConfig reportMetadata = null;
-            File tmpFolder = File.createTempFile("report_", "_template");
+            File tmpFolder = new File(getTempFolder(), "deploy_report_" + System.currentTimeMillis());
+            //File tmpFolder = File.createTempFile("report_", "_template");
             tmpFolder.mkdirs();
             for (DeployReportItem item : deployReportData.getItems()) {
                 //Ищем вложение с метаданными по имени
@@ -92,26 +93,32 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
                 reportTemplateObject.setString("name", reportMetadata.getName());
             } else {
                 //Если существует то удаляем все вложения по нему
-                List<DomainObject> attachments = attachmentService.getAttachmentDomainObjectsFor(reportTemplateObject);
+                List<DomainObject> attachments = getAttachments("report_template_attachment", reportTemplateObject);
                 for (DomainObject attachment : attachments) {
                     attachmentService.deleteAttachment(attachment);
                 }
             }
             reportTemplateObject.setString("description", reportMetadata.getDescription());
-            domainObjectDao.save(reportTemplateObject, accessToken);
+            reportTemplateObject = domainObjectDao.save(reportTemplateObject, accessToken);
 
             //Получаем все вложения из временной директории и сохраняем их как вложения
             File[] filelist = tmpFolder.listFiles();
             for (File file : filelist) {
                 DomainObject attachment =
-                        attachmentService.createAttachmentDomainObjectFor(reportTemplateObject.getId(), "Attachment");
+                        attachmentService.createAttachmentDomainObjectFor(reportTemplateObject.getId(), "report_template_attachment");
+                attachment.setString("Name", file.getName());
                 ByteArrayInputStream bis = new ByteArrayInputStream(readFile(file));
                 SimpleRemoteInputStream simpleRemoteInputStream = new SimpleRemoteInputStream(bis);
 
                 RemoteInputStream remoteInputStream;
                 remoteInputStream = simpleRemoteInputStream.export();
                 attachmentService.saveAttachment(remoteInputStream, attachment);
+                
+                //Удаляем, больше нам не нужен
+                file.delete();
             }
+            
+            tmpFolder.delete();
         } catch (Exception ex) {
             throw new ReportServiceException("Error deploy process", ex);
         }
@@ -124,7 +131,9 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
             out = new FileOutputStream(new File(tmpFolder, item.getName()));
             out.write(item.getBody());
         } finally {
-            out.close();
+            if (out != null){
+                out.close();
+            }
         }
     }
 
@@ -175,7 +184,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
                     new ScriptletClassLoader(fileName.getParent(), defaultClassLoader);
             Thread.currentThread().setContextClassLoader(scriptletClassLoader);
             logger.debug("Compile template " + fileName);
-            String jasperLocation = fileName.getPath().replace("\\.jrxml", ".jasper");
+            String jasperLocation = fileName.getPath().replace(".jrxml", ".jasper");
             JasperCompileManager.compileReportToFile(fileName.getPath(), jasperLocation);
         } finally {
             Thread.currentThread().setContextClassLoader(defaultClassLoader);

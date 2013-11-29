@@ -24,6 +24,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
+import ru.intertrust.cm.core.business.api.CollectionsService.Remote;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.jdbc.JdbcDriver.ConnectMode;
 
@@ -43,11 +44,24 @@ public class JdbcConnection implements Connection {
                         (ConfigurationService) getRemoteService("ConfigurationServiceImpl", address, login, password,
                                 ConfigurationService.Remote.class);
             } else {
-                //TODO реализовать получение локальных интерфейсов
+                collectionService =
+                        (CollectionsService) getLocalService("CollectionsServiceImpl", CollectionsService.Remote.class);
+                configurationService =
+                        (ConfigurationService) getLocalService("ConfigurationServiceImpl", ConfigurationService.Remote.class);
             }
         } catch (Exception ex) {
             throw new SQLException("Error create jdbc connection", ex);
         }
+    }
+
+    private Object getLocalService(String serviceName, Class<?> remoteInterfaceClass) throws NamingException {
+        if (ctx == null) {
+            ctx = new InitialContext();
+        }
+
+        Object service = ctx.lookup("ejb:cm-sochi/web-app//" + serviceName + "!" + remoteInterfaceClass.getName());
+
+        return service;
     }
 
     @Override

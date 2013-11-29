@@ -5,7 +5,7 @@ package ru.intertrust.cm.core.business.api.dto;
  * @author larin
  *
  */
-public class ReportResult {
+public class ReportResult implements Dto{
     private String templateName;
     private String fileName;
     private byte[] report;

@@ -16,15 +16,15 @@ public class ReportMetadataConfig implements Dto{
     private String description;
     @Attribute
     private String mainTemplate;
-    @Attribute
+    @Attribute(required=false)
     private String dataSourceClass;
-    @Attribute
+    @Attribute(required=false)
     private String form;
-    @Attribute
+    @Attribute(required=false)
     private Integer keepDays;
-    @ElementList
+    @ElementList(required=false)
     private List<ReportParameter> parameters;
-    @ElementList(name="format")
+    @ElementList(name="formats", required=true)
     private List<String> formats;
     
     public String getName() {

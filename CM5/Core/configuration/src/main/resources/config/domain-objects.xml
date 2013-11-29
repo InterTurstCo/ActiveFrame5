@@ -266,6 +266,10 @@
         <uniqueKey>
             <field name="name" />
         </uniqueKey>
+        <attachment-types>
+            <attachment-type name="report_template_attachment"/>
+        </attachment-types>
+        
     </domain-object-type>
 
     <domain-object-type name="report_result"
@@ -277,6 +281,9 @@
             <reference name="owner" type="Person" not-null="false" />
             <dateTime name="keep_to" not-null="false" />
         </fields>
+        <attachment-types>
+            <attachment-type name="report_result_attachment"/>
+        </attachment-types>        
     </domain-object-type>
 
 

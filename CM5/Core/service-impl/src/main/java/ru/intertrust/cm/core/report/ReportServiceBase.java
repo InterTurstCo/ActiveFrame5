@@ -7,7 +7,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -20,6 +22,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.config.model.ReportMetadataConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
@@ -36,7 +39,8 @@ import com.healthmarketscience.rmiio.RemoteInputStreamClient;
  * 
  */
 public class ReportServiceBase {
-
+    private static File tempFolder;
+    
     @Autowired
     protected CollectionsDao collectionsDao;
 
@@ -88,6 +92,12 @@ public class ReportServiceBase {
             inputStream = attachmentService.loadAttachment(attachment);
             contentStream = RemoteInputStreamClient.wrap(inputStream);
             ByteArrayOutputStream attachmentBytes = new ByteArrayOutputStream();
+            
+            int read = 0;
+            byte[] buffer = new byte[1024];
+            while ((read = contentStream.read(buffer)) > 0){
+                attachmentBytes.write(buffer, 0, read);
+            }
             return attachmentBytes.toByteArray();
         } catch (Exception ex) {
             throw new ReportServiceException("Error on get attachment body", ex);
@@ -153,5 +163,23 @@ public class ReportServiceBase {
         }
     }
     
-    
+    protected File getTempFolder() throws IOException {
+        if (tempFolder == null) {
+            File tmpFile = File.createTempFile("report_", "_service.tmp");
+            tempFolder = tmpFile.getParentFile();
+        }
+        return tempFolder;
+    }
+
+    protected List<DomainObject> getAttachments(String attachmentType, DomainObject attachmentOwner){
+        String query = "select t.id from " + attachmentType + " t where t.report_template = " + ((RdbmsId)attachmentOwner.getId()).getId();
+        
+        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+        List<DomainObject> result = new ArrayList<DomainObject>();
+        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, 0, 1000, accessToken);
+        for (IdentifiableObject identifiableObject : collection) {
+            result.add(domainObjectDao.find(identifiableObject.getId(), accessToken));
+        }
+        return result;
+    }
 }

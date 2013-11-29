@@ -3,6 +3,7 @@ package ru.intertrust.cm.remoteclient.report.test;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
@@ -11,8 +12,8 @@ import ru.intertrust.cm.core.business.api.ReportService;
 import ru.intertrust.cm.core.business.api.ReportServiceAdmin;
 import ru.intertrust.cm.core.business.api.dto.DeployReportData;
 import ru.intertrust.cm.core.business.api.dto.DeployReportItem;
+import ru.intertrust.cm.core.business.api.dto.ReportResult;
 import ru.intertrust.cm.remoteclient.ClientBase;
-import ru.intertrust.cm.remoteclient.process.test.CreateTestData;
 
 public class TestReportService extends ClientBase {
     private CrudService crudService;
@@ -22,7 +23,7 @@ public class TestReportService extends ClientBase {
 
     public static void main(String[] args) {
         try {
-            CreateTestData test = new CreateTestData();
+            TestReportService test = new TestReportService();
             test.execute(args);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -50,13 +51,43 @@ public class TestReportService extends ClientBase {
             deployReport("../reports/reports/all-employee");
             
             //Генерация отчета
-            reportService.generate("all-employee", null);
+            ReportResult result = generateReport("all-employee", null);
+            
+            //и еще раз генерим тот же отчет
+            result = generateReport("all-employee", null);
+            
+            
             
             
         } finally {
             writeLog();
         }
     }
+
+    private ReportResult generateReport(String string, Object object) throws IOException {
+        ReportResult result = reportService.generate("all-employee", null);
+        
+        writeToFile(result.getReport(), new File(result.getFileName()));
+        
+        
+        return result;
+    }
+    
+    /**
+     * Запись массива байт в файл
+     * @param content
+     * @param file
+     * @throws IOException
+     */
+    protected void writeToFile(byte[] content, File file) throws IOException {
+        FileOutputStream outStream = null;
+        try {
+            outStream = new FileOutputStream(file);
+            outStream.write(content);
+        } finally {
+            outStream.close();
+        }
+    }    
 
     private void deployReport(String templateFolderPath) throws IOException {
         DeployReportData deployData = new DeployReportData();
