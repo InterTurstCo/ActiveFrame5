@@ -1146,7 +1146,7 @@ a:active .icon.back {
     background-image: url("css/icons/icon_locker.png");
 }
 
-.table-scroll {
+/*.table-scroll {
     overflow: auto    !important;
     height: 300px;
     width: 100%;
@@ -1160,7 +1160,7 @@ a:active .icon.back {
 
 .scrollBody {
     overflow: auto;
-    /*max-height: 100%;*/
-    /*min-height: 300px;*/
-}
+    *//*max-height: 100%;*//*
+    *//*min-height: 300px;*//*
+}*/
 

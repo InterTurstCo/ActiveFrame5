@@ -162,6 +162,7 @@ public class DomainObjectSurferPluginView extends PluginView {
 
         flowPanel = new FlowPanel();
         flowPanel.setStyleName("centerTopBottomDividerRoot");
+
         final VerticalPanel container = new VerticalPanel();
         flowPanel.add(container);
         splitterScroll.add(splitterFirstWidget);
@@ -207,7 +208,8 @@ public class DomainObjectSurferPluginView extends PluginView {
 
                     formFlowPanel.setStyleName("tab-content");
                     formFlowPanel.setSize("100%", "100%");
-                    formFlowPanel.add(new ScrollPanel(formPluginPanel.asWidget()));
+
+                    formFlowPanel.add(formPluginPanel.asWidget());
 
 
                 }
