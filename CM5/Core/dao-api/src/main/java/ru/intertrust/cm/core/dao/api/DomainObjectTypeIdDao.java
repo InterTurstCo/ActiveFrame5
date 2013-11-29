@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.dao.api;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObjectTypeId;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 
 import java.util.List;
 
@@ -24,8 +25,16 @@ public interface DomainObjectTypeIdDao {
 
     /**
      * Создает и сохраняет идентификатор типа доменного объекта
-     * @param domainObjectTypeName
+     * @param domainObjectTypeConfig
      * @return
      */
-    public Integer insert(String domainObjectTypeName);
+    public Integer insert(DomainObjectTypeConfig domainObjectTypeConfig);
+
+
+    /**
+     * Возвращает идентификатор типа доменного объекта по имени
+     * @param configName
+     * @return
+     */
+    public Integer findIdByName(String configName);
 }

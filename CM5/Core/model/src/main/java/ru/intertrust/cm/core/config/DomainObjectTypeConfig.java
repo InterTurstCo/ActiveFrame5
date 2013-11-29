@@ -23,6 +23,9 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
     @Attribute(required = true)
     private String name;
 
+    @Attribute(name = "db-id", required = false)
+    private Integer dbId;
+
     @Attribute(name = "initial-status", required = false)
     private String initialStatus;
 
@@ -82,6 +85,14 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Integer getDbId() {
+        return dbId;
+    }
+
+    public void setDbId(Integer dbId) {
+        this.dbId = dbId;
     }
 
     public String getInitialStatus() {
@@ -181,6 +192,11 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
         if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
         }
+
+        if (dbId != null ? !dbId.equals(that.dbId) : that.dbId != null) {
+            return false;
+        }
+
         if (initialStatus != null ? !initialStatus.equals(that.initialStatus) : that.initialStatus != null) {
             return false;
         }

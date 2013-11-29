@@ -14,6 +14,7 @@ import ru.intertrust.cm.core.config.UniqueKeyConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.model.FatalException;
 
 import java.util.*;
@@ -33,6 +34,8 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     private ConfigurationExplorer configurationExplorer;
     @Autowired
     private DataStructureDao dataStructureDao;
+    @Autowired
+    private DomainObjectTypeIdDao domainObjectTypeIdDao;
     @Autowired
     private ConfigurationDao configurationDao;
     @Autowired
@@ -56,6 +59,10 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
 
     public void setConfigurationSerializer(ConfigurationSerializer configurationSerializer) {
         this.configurationSerializer = configurationSerializer;
+    }
+
+    public void setDomainObjectTypeIdDao(DomainObjectTypeIdDao domainObjectTypeIdDao) {
+        this.domainObjectTypeIdDao = domainObjectTypeIdDao;
     }
 
     /**
@@ -229,6 +236,15 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
         private void updateDomainObjectConfig(DomainObjectTypeConfig domainObjectTypeConfig,
                                               DomainObjectTypeConfig oldDomainObjectTypeConfig) {
             processDependentConfigs(domainObjectTypeConfig);
+
+            if (oldDomainObjectTypeConfig.getDbId() == null && domainObjectTypeConfig.getDbId() != null) {
+                Integer usedId = domainObjectTypeIdDao.findIdByName(domainObjectTypeConfig.getName());
+                if (!domainObjectTypeConfig.getDbId().equals(usedId)) {
+                    throw new FatalException("Cannot update domain object type " + domainObjectTypeConfig.getName() +
+                    " because db-id different from specified " + domainObjectTypeConfig.getDbId() +
+                            " is already in use");
+                }
+            }
 
             List<FieldConfig> newFieldConfigs = new ArrayList<>();
 

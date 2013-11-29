@@ -46,7 +46,7 @@ public class PostgreSqlDataStructureDaoImplTest {
 
     @Test
     public void testCreateTable() throws Exception {
-        when(domainObjectTypeIdDao.insert(domainObjectTypeConfig.getName())).thenReturn(Integer.valueOf(7)); // ID
+        when(domainObjectTypeIdDao.insert(domainObjectTypeConfig)).thenReturn(Integer.valueOf(7)); // ID
         // конфигурации доменного объекта
         dataStructureDao.createTable(domainObjectTypeConfig);
 
@@ -54,7 +54,7 @@ public class PostgreSqlDataStructureDaoImplTest {
         verify(jdbcTemplate).update(generateCreateIndexesQuery(domainObjectTypeConfig.getName(),
                 domainObjectTypeConfig.getFieldConfigs()));
 
-        verify(domainObjectTypeIdDao).insert(domainObjectTypeConfig.getName());
+        verify(domainObjectTypeIdDao).insert(domainObjectTypeConfig);
 
         assertEquals(Long.valueOf(7), domainObjectTypeConfig.getId());
     }
