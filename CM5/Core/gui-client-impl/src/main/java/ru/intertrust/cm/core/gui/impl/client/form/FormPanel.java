@@ -30,10 +30,12 @@ public class FormPanel implements IsWidget {
     private boolean isHeightFromConfig;
     private boolean isWidthFromConfig;
     private List<TabConfig> tabs;
+
     public FormPanel(FormDisplayData formDisplayData, int width, int height) {
         this(formDisplayData);
         formWidth = width;
         formHeight = height;
+
     }
 
     public FormPanel(FormDisplayData formDisplayData) {
@@ -47,9 +49,10 @@ public class FormPanel implements IsWidget {
         return panel;
     }
 
-    public void updateSizes(int width, int height) {
-        formWidth = width;
-        formHeight = height;
+    public void updateSizes(int width, int height) {     
+
+        panel.setSize(width   +"px", height + "px");
+        bodyTabPanel.setSize(width   +"px", height + "px");
 
     }
 
@@ -76,11 +79,40 @@ public class FormPanel implements IsWidget {
 
 
     private FlowPanel build() {
-
+        setMinimalFormWidth();
         MarkupConfig markup = formDisplayData.getMarkup();
+        IsWidget headerTable = buildHeader(markup);
+        buildTabs(markup);
+
+        bodyTabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
+            @Override
+            public void onSelection(SelectionEvent<Integer> event) {
+                setStyleForAllTabs(event.getSelectedItem(), bodyTabPanel);
+
+            }
+        });
+        panel.add(headerTable);
+        panel.add(bodyTabPanel);
+
+        return panel;
+    }
+
+    private IsWidget buildHeader(MarkupConfig markup) {
         HeaderConfig header = markup.getHeader();
         IsWidget headerTable = buildTable(header.getTableLayout());
+        String configHeight = header.getTableLayout().getHeight();
+        if (isHeightDeclaredInConfig(configHeight)) {
 
+            headerTable.asWidget().setHeight(configHeight);
+        }
+        String configWidth = header.getTableLayout().getWidth();
+        if (isWidthDeclaredInConfig(configWidth)) {
+            headerTable.asWidget().setWidth(configWidth);
+        }
+        return headerTable;
+    }
+
+    private void buildTabs(MarkupConfig markup) {
         BodyConfig body = markup.getBody();
         tabs = body.getTabs();
 
@@ -98,6 +130,9 @@ public class FormPanel implements IsWidget {
                 bodyTabPanel.add(buildTabContent(tab), tab.getName());
             }
         }
+        if (tabs.size() != 0) {
+            bodyTabPanel.selectTab(0);
+            bodyTabPanel.getTabWidget(0).getElement().getStyle().setProperty("backgroundColor", "white");
 
         if(!tabs.isEmpty()){
         bodyTabPanel.selectTab(0);
@@ -121,23 +156,17 @@ public class FormPanel implements IsWidget {
 
             bodyTabPanel.setHeight(configHeight);
         }
-        String configWidth = header.getTableLayout().getWidth();
-        if (isWidthDeclaredInConfig(configWidth)) {
-            bodyTabPanel.setWidth(configWidth);
-        }
+       bodyTabPanel.setWidth(formWidth -8 + "px");
 
-        panel.add(headerTable);
-        panel.add(bodyTabPanel);
 
-        return panel;
+   
     }
 
-private void setStyleForAllTabs(Integer activeTab, HackTabLayoutPanel bodyTabPanel) {
+    private void setStyleForAllTabs(Integer activeTab, HackTabLayoutPanel bodyTabPanel) {
         for (int i = 0; i < bodyTabPanel.getWidgetCount(); i++) {
             if (activeTab == i) {
                 bodyTabPanel.getTabWidget(i).getElement().getStyle().setProperty("backgroundColor", "white");
-            }
-            else {
+            } else {
                 bodyTabPanel.getTabWidget(i).getElement().getStyle().setProperty("backgroundColor", "#c2e7f0");
             }
         }
@@ -153,11 +182,13 @@ private void setStyleForAllTabs(Integer activeTab, HackTabLayoutPanel bodyTabPan
         if (groupList instanceof BookmarkListConfig) {
 
             final BookmarksHelper bodyTabPanel = new BookmarksHelper();
+            panel.getElement().getStyle().setOverflow(Style.Overflow.VISIBLE);
             List<TabGroupConfig> bookmarkTabs = ((BookmarkListConfig) groupList).getTabGroupConfigs();
             for (TabGroupConfig tab : bookmarkTabs) {
                 bodyTabPanel.add(tab.getName(), buildBookmarksTabContent(tab));
             }
             panel.add(bodyTabPanel);
+
             bodyTabPanel.selectedIndex(0);
         }
 
@@ -192,7 +223,7 @@ private void setStyleForAllTabs(Integer activeTab, HackTabLayoutPanel bodyTabPan
     private IsWidget buildTable(LayoutConfig layout) {
         TableLayoutConfig tableLayout = (TableLayoutConfig) layout;
         FlexTable table = new FlexTable();
-        if (formDisplayData.isDebug()){
+        if (formDisplayData.isDebug()) {
             table.setBorderWidth(1);
             table.getElement().setId("debug"); // todo: why ID?
         }
@@ -244,18 +275,19 @@ private void setStyleForAllTabs(Integer activeTab, HackTabLayoutPanel bodyTabPan
         }
         return table;
     }
-    private HasHorizontalAlignment.HorizontalAlignmentConstant getHorizontalAlignmentForCurrentCell(String cellAlignment){
-        HasHorizontalAlignment.HorizontalAlignmentConstant  horizontalAllignment = HasHorizontalAlignment.ALIGN_LEFT;
-                if (cellAlignment == null || cellAlignment.equals("left")){
-                    horizontalAllignment = HasHorizontalAlignment.ALIGN_LEFT;
-                }
-                if (cellAlignment != null && cellAlignment.equals("right")){
-                    horizontalAllignment = HasHorizontalAlignment.ALIGN_RIGHT;
-                }
-                if (cellAlignment != null && cellAlignment.equals("center")){
-                    horizontalAllignment = HasHorizontalAlignment.ALIGN_CENTER;
-                }
-       return horizontalAllignment;
+
+    private HasHorizontalAlignment.HorizontalAlignmentConstant getHorizontalAlignmentForCurrentCell(String cellAlignment) {
+        HasHorizontalAlignment.HorizontalAlignmentConstant horizontalAllignment = HasHorizontalAlignment.ALIGN_LEFT;
+        if (cellAlignment == null || cellAlignment.equals("left")) {
+            horizontalAllignment = HasHorizontalAlignment.ALIGN_LEFT;
+        }
+        if (cellAlignment != null && cellAlignment.equals("right")) {
+            horizontalAllignment = HasHorizontalAlignment.ALIGN_RIGHT;
+        }
+        if (cellAlignment != null && cellAlignment.equals("center")) {
+            horizontalAllignment = HasHorizontalAlignment.ALIGN_CENTER;
+        }
+        return horizontalAllignment;
     }
 
     private HasVerticalAlignment.VerticalAlignmentConstant getVerticalAlignmentForCurrentCell(String cellAlignment) {
@@ -287,12 +319,21 @@ private void setStyleForAllTabs(Integer activeTab, HackTabLayoutPanel bodyTabPan
         return isWidthFromConfig;
 
     }
+
     private int getNumberFromSizeString(String sizeString) {
         if (sizeString == null || sizeString.equalsIgnoreCase("")) {
             return 0;
         }
         int UnitPx = 2;
         return Integer.parseInt(sizeString.substring(0, sizeString.length() - UnitPx));
+    }
+    private void setMinimalFormWidth() {
+        String minimalWidth = formDisplayData.getMinWidth();
+        if (minimalWidth != null) {
+          panel.getElement().getStyle().setProperty("minWidth", minimalWidth);
+        } else {
+          panel.getElement().getStyle().setProperty("minWidth", formWidth  + "px");
+        }
     }
 
 }

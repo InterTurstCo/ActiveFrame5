@@ -99,7 +99,7 @@
 
 
 
-    <form name="country_form" domain-object-type="country" is-default="true" debug = "false">
+    <form name="country_form" domain-object-type="country" is-default="true" debug = "false" min-width= "900px">
         <markup>
             <header>
                 <!--width="800px" height="200px"-->
@@ -117,7 +117,7 @@
                 </table>
             </header>
             <body display-single-tab="false"> <!-- в теле - только закладки -->
-                <tab name="Закладки">
+               <tab name="Закладки">
                     <bookmarks> <!-- наследник от TabGroupsConfig -->
                         <tab-group name="Главная"> <!-- либо таб, либо разметка, вместе - нельзя -->
                             <table>

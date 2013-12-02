@@ -811,6 +811,7 @@
         <xs:attribute type="xs:string" name="domain-object-type" />
         <xs:attribute type="xs:boolean" name="is-default" />
         <xs:attribute type="xs:boolean" name="debug" />
+        <xs:attribute type="xs:string" name="min-width" />
     </xs:complexType>
 
     <xs:complexType name="columnFromType" mixed="true">

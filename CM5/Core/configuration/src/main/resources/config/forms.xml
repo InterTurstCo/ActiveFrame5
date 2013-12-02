@@ -10,7 +10,7 @@
     todo: впоследствии, вероятно, форму можно будет определить исходя из статуса доменного объекта
 
     is-default определяет факт того, что данная форма является таковой "по умолчанию", то есть используется для тех пользователей и ролей, для которых форма не переопределена -->
-    <form name="incoming_document_base_form" domain-object-type="incoming_document" is-default="true">
+    <form name="incoming_document_base_form" domain-object-type="incoming_document" is-default = "true" >
         <markup>
             <header>
                 <table width="500px" height="200px" row-height="50px" col-width="20%" h-align="left" v-align="top">

@@ -199,9 +199,7 @@ public class DomainObjectSurferPluginView extends PluginView {
                     } else {
                         formPluginConfig = new FormPluginConfig(items.get(0).getId());
                     }
-                    final FormPlugin formPlugin = (FormPlugin)domainObjectSurferPlugin.getFormPlugin();
-
-                    formPlugin.setConfig(formPluginConfig);
+                    FormPlugin formPlugin = (FormPlugin)domainObjectSurferPlugin.getFormPlugin();
 
                     formPluginPanel.open(formPlugin);
                     splitterFirstWidget.add(this.asWidget());

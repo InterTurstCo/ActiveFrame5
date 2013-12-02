@@ -125,7 +125,8 @@ public class FormRetriever {
             widgetComponents.put(widgetId, config.getComponentName());
         }
         FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects);
-        return new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents, formConfig.getDebug(), true);
+        return new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents,
+                formConfig.getMinWidth(), formConfig.getDebug(), true);
     }
 
     private ObjectsNode findLinkedNode(SingleObjectNode parentNode, FieldPath childPath) {

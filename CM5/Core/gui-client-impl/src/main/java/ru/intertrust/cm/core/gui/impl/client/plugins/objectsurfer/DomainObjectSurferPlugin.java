@@ -159,9 +159,10 @@ public class DomainObjectSurferPlugin extends Plugin implements
 
         collectionPlugin.getOwner().setVisibleWidth(width);
         collectionPlugin.getOwner().setVisibleHeight(height / 2);
-
+        formPlugin.setTemporaryWidth(width);
+         formPlugin.setTemporaryHeight(height / 2);
         getView().onPluginPanelResize();
         collectionPlugin.getView().onPluginPanelResize();
-
+        formPlugin.getView().onPluginPanelResize();
     }
 }

@@ -89,6 +89,12 @@ public class FormPluginView extends PluginView {
         formPanel.update(formState);
     }
 
+    @Override
+    public  void onPluginPanelResize(){
+        int formWidth = ((FormPlugin)plugin).getTemporaryWidth();
+        int formHeight = ((FormPlugin)plugin).getTemporaryHeight();
+        formPanel.updateSizes(formWidth, formHeight);
+    }
 
 
 }

@@ -61,7 +61,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 navigationTreePlugin.setEventBus(eventBus);
 
                 centralPluginPanel = new PluginPanel();
-                centralPluginWidth = Window.getClientWidth() - 250;
+                centralPluginWidth = Window.getClientWidth() - 250 -30;
                 centralPluginHeight = Window.getClientHeight()- 100;
                 centralPluginPanel.setVisibleWidth(centralPluginWidth);
                 centralPluginPanel.setVisibleHeight(centralPluginHeight);
@@ -70,7 +70,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 navigationTreePanel.open(navigationTreePlugin);
                 rootPanel.addNorth(new HeaderContainer(getUserInfo(result)), 70);
 
-                rootPanel.addWest(navigationTreePanel, 200);
+                rootPanel.addWest(navigationTreePanel, 250);
                 addStickerPanel(rootPanel);
                 rootPanel.add(centralPluginPanel);
 
