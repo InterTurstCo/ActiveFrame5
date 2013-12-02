@@ -53,7 +53,7 @@ public class DomainObjectSurferPluginView extends PluginView {
     }
 
     private void initSplitter() {
-        splitterPanel = new SplitterEx(9, domainObjectSurferPlugin.getLocalPluginEventBus()) {
+        splitterPanel = new SplitterEx(8, domainObjectSurferPlugin.getLocalPluginEventBus()) {
             @Override
             public void onResize() {
                 super.onResize();
@@ -141,7 +141,7 @@ public class DomainObjectSurferPluginView extends PluginView {
             }
 
             splitterPanel.remove(0);
-            splitterPanel.insertNorth(splitterScroll, firstWidgetHeight, splitterPanel.getWidget(0));
+            splitterPanel.insertNorth(splitterScroll, firstWidgetHeight - splitterPanel.getSplitterSize(), splitterPanel.getWidget(0));
 
         }
         splitterScroll.getElement().getStyle().setOverflowY(Style.Overflow.HIDDEN);
