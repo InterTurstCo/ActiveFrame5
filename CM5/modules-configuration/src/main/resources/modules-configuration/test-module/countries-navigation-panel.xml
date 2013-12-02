@@ -88,6 +88,16 @@
         </link>
         <link name="Documents" display-text="Документы" image="images/inbox.png" child-to-open="Internal_Document">
             <child-links>
+                <link name="Letters" display-text="Письма">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="letter">
+                            <collection-viewer>
+                                <collection-ref name="letters"/>
+                                <sort-criterion field="created_date" order="desc"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
                 <link name="Internal_Document" display-text="Внутренние документы">
                     <plugin>
                         <domain-object-surfer domain-object-type-to-create="Internal_Document">

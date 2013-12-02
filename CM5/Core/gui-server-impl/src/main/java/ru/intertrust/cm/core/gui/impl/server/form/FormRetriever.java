@@ -73,8 +73,8 @@ public class FormRetriever {
         HashMap<String, String> widgetComponents = new HashMap<>(widgetConfigs.size());
         FormObjects formObjects = new FormObjects();
 
-        ObjectsNode rootNode = new SingleObjectNode(root);
-        formObjects.setRootNode(rootNode);
+        final ObjectsNode ROOT_NODE = new SingleObjectNode(root);
+        formObjects.setRootNode(ROOT_NODE);
         for (WidgetConfig config : widgetConfigs) {
             String widgetId = config.getId();
             FieldPathConfig fieldPathConfig = config.getFieldPathConfig();
@@ -95,8 +95,8 @@ public class FormRetriever {
             // field path config can point to multiple paths
             FieldPath[] fieldPaths = FieldPath.createPaths(fieldPathConfig.getValue());
 
-            rootNode = formObjects.getRootNode();
             for (FieldPath fieldPath : fieldPaths) {
+                ObjectsNode currentRootNode = ROOT_NODE;
                 for (Iterator<FieldPath> childrenIterator = fieldPath.childrenIterator(); childrenIterator.hasNext(); ) {
                     FieldPath childPath = childrenIterator.next();
                     if (childPath.isField()) {
@@ -104,16 +104,16 @@ public class FormRetriever {
                     }
 
                     if (formObjects.containsNode(childPath)) {
-                        rootNode = formObjects.getNode(childPath);
+                        currentRootNode = formObjects.getNode(childPath);
                         continue;
                     }
 
                     // it's a reference. linked objects can exist only for Single-Object Nodes. class-cast exception will
                     // raise if that's not true
-                    ObjectsNode linkedNode = findLinkedNode((SingleObjectNode) rootNode, childPath);
+                    ObjectsNode linkedNode = findLinkedNode((SingleObjectNode) currentRootNode, childPath);
 
                     formObjects.setNode(childPath, linkedNode);
-                    rootNode = linkedNode;
+                    currentRootNode = linkedNode;
                 }
             }
 

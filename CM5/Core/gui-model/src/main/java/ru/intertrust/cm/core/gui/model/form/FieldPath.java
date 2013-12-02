@@ -23,7 +23,12 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
         FieldPath[] result = new FieldPath[fieldPaths.length];
         for (int i = 0; i < fieldPaths.length; ++i) {
             String fieldPath = fieldPaths[i];
-            result[i] = fieldPath == null || "".equals(fieldPath) ? null : new FieldPath(fieldPath);
+            if (fieldPath == null) {
+                result[i] = null;
+            } else {
+                fieldPath = fieldPath.trim();
+                result[i] = "".equals(fieldPath) ? null : new FieldPath(fieldPath);
+            }
         }
         return result;
     }

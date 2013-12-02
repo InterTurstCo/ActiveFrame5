@@ -30,6 +30,81 @@
         </fields>
     </domain-object-type>
 
+    <collection name="letters" idField="id">
+        <prototype>
+            <![CDATA[
+                    select
+                        l.id, l.subject, l.created_date
+                    from
+                        letter l
+                ]]>
+        </prototype>
+
+        <counting-prototype>
+            select count(*) from letter l
+        </counting-prototype>
+    </collection>
+
+    <collection-view name="letters_default_view" collection="Letters" is-default="true">
+        <display>
+            <column field="id" name="id" type="integer" sortable="false"/>
+            <column field="subject" name="Тема" editable="false" type="string" sortable="true"/>
+            <column field="created_date" name="Дата" editable="false" type="string" sortable="true"/>
+        </display>
+    </collection-view>
+
+    <form name="letter_form" domain-object-type="letter" is-default="true">
+        <markup>
+            <header>
+                <table width="500px" height="200px">
+                    <tr>
+                        <td width="100px" h-align="right">
+                            <widget id="subject_label"/>
+                        </td>
+                        <td width="100%" h-align="left">
+                            <widget id="subject"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Главная">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="addressees_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="addressees"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="subject_label">
+                <field-path/>
+                <text>Тема:</text>
+            </label>
+            <text-box id="subject">
+                <field-path value="subject"/>
+            </text-box>
+
+            <label id="addressees_label">
+                <text>Адресаты:</text>
+            </label>
+            <list-box id="addressees">
+                <field-path value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
+                <pattern value="{Name}"/>
+            </list-box>
+        </widget-config>
+    </form>
+
     <form name="employee_form" domain-object-type="Employee" is-default="true">
         <markup>
             <header>
