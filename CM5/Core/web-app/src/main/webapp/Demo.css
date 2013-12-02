@@ -45,6 +45,7 @@ h1 {
     background-color: white;
     height: 60px; /**/
     box-shadow: 0 4px 10px #2d5b7d;
+    z-index: 5;
 
 }
 
@@ -188,6 +189,7 @@ h1 {
     display: block;
     width: 106px;
     text-align: center;
+
 }
 
 #sidebar li a:hover {

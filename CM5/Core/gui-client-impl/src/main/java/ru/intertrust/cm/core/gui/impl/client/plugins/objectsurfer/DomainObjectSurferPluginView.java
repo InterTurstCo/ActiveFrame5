@@ -25,7 +25,7 @@ public class DomainObjectSurferPluginView extends PluginView {
     private int surferWidth;
     private int surferHeight;
     private int horizontalSplitterSavedSize = -1;
-    private int verticalSplitterSavedSize =-1;
+    private int verticalSplitterSavedSize = -1;
     private FlowPanel formFlowPanel = new FlowPanel();
     private SimplePanel splitterFirstWidget = new SimplePanel();
     private ScrollPanel splitterScroll = new ScrollPanel();
@@ -48,8 +48,6 @@ public class DomainObjectSurferPluginView extends PluginView {
         splitterSetSize();
         formFlowPanel.getElement().getStyle().setOverflow(Style.Overflow.AUTO);
         eventBus = domainObjectSurferPlugin.getLocalPluginEventBus();
-
-
         addSplitterWidgetResizeHandler();
 
     }
@@ -63,19 +61,16 @@ public class DomainObjectSurferPluginView extends PluginView {
                         splitterScroll.getOffsetWidth(), formFlowPanel.getOffsetHeight(),
                         formFlowPanel.getOffsetWidth()));
 
-                 if (!splitterPanel.isSplitType()){
-                                horizontalSplitterSavedSize =  splitterScroll.getOffsetHeight();
+                if (!splitterPanel.isSplitType()) {
+                    horizontalSplitterSavedSize = splitterScroll.getOffsetHeight();
 
-                 }
-                 if (splitterPanel.isSplitType()){
-                                verticalSplitterSavedSize = splitterScroll.getOffsetWidth();
-                 }
-
-
+                }
+                if (splitterPanel.isSplitType()) {
+                    verticalSplitterSavedSize = splitterScroll.getOffsetWidth();
+                }
             }
         };
     }
-
 
     public void onPluginPanelResize() {
         updateSizes();
@@ -92,9 +87,6 @@ public class DomainObjectSurferPluginView extends PluginView {
         splitterPanel.setSize(surferWidth + "px", surferHeight + "px");
         checkLastSplitterPosition(splitterPanel.isSplitType(), surferWidth, surferHeight / 2, false);
 
-
-
-
     }
 
     private void addSplitterWidgetResizeHandler() {
@@ -110,8 +102,8 @@ public class DomainObjectSurferPluginView extends PluginView {
     }
 
     private void checkLastSplitterPosition(boolean type, int firstWidgetWidth, int firstWidgetHeight, boolean arrowButton) {
-        if (!arrowButton){
-            if (horizontalSplitterSavedSize >= 0){
+        if (!arrowButton) {
+            if (horizontalSplitterSavedSize >= 0) {
                 firstWidgetHeight = horizontalSplitterSavedSize;
             }
 
@@ -120,7 +112,7 @@ public class DomainObjectSurferPluginView extends PluginView {
             }
         }
 
-        if (type && arrowButton){
+        if (type && arrowButton) {
             verticalSplitterSavedSize = firstWidgetWidth;
 
         } else {
@@ -131,12 +123,12 @@ public class DomainObjectSurferPluginView extends PluginView {
 
     }
 
-    private void reDrawSplitter(boolean type, int firstWidgetWidth, int firstWidgetHeight){
+    private void reDrawSplitter(boolean type, int firstWidgetWidth, int firstWidgetHeight) {
 
         if (type) {
 
-            if (firstWidgetWidth > surferWidth){
-                firstWidgetWidth = surferWidth-splitterPanel.getSplitterSize();
+            if (firstWidgetWidth > surferWidth) {
+                firstWidgetWidth = surferWidth - splitterPanel.getSplitterSize();
 
             }
 
@@ -144,14 +136,12 @@ public class DomainObjectSurferPluginView extends PluginView {
             splitterPanel.insertWest(splitterScroll, firstWidgetWidth, splitterPanel.getWidget(0));
         } else {
 
-            if (firstWidgetHeight > surferHeight){
-                firstWidgetHeight = surferHeight-splitterPanel.getSplitterSize();
+            if (firstWidgetHeight > surferHeight) {
+                firstWidgetHeight = surferHeight - splitterPanel.getSplitterSize();
             }
 
             splitterPanel.remove(0);
             splitterPanel.insertNorth(splitterScroll, firstWidgetHeight, splitterPanel.getWidget(0));
-
-
 
         }
         splitterScroll.getElement().getStyle().setOverflowY(Style.Overflow.HIDDEN);
@@ -168,7 +158,7 @@ public class DomainObjectSurferPluginView extends PluginView {
         splitterScroll.add(splitterFirstWidget);
 
         //splitter fix
-        Element e = (Element)splitterPanel.getElement().getChild(2);
+        Element e = (Element) splitterPanel.getElement().getChild(2);
         e.getStyle().clearOverflow();
 
 
@@ -199,7 +189,7 @@ public class DomainObjectSurferPluginView extends PluginView {
                     } else {
                         formPluginConfig = new FormPluginConfig(items.get(0).getId());
                     }
-                    FormPlugin formPlugin = (FormPlugin)domainObjectSurferPlugin.getFormPlugin();
+                    FormPlugin formPlugin = (FormPlugin) domainObjectSurferPlugin.getFormPlugin();
 
                     formPluginPanel.open(formPlugin);
                     splitterFirstWidget.add(this.asWidget());
@@ -208,7 +198,6 @@ public class DomainObjectSurferPluginView extends PluginView {
                     formFlowPanel.setSize("100%", "100%");
 
                     formFlowPanel.add(formPluginPanel.asWidget());
-
 
                 }
             };

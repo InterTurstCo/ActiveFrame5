@@ -95,7 +95,7 @@
         is-default="true" debug="false">
         <markup>
             <header>
-                <table width="800px" height="400px">
+                <table width="800px" height="100px">
                     <tr>
                         <!-- label (Название) -->
                         <td width="100px" h-align="right">
