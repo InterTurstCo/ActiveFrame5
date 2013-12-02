@@ -30,7 +30,7 @@
         </fields>
     </domain-object-type>
 
-    <form name="employee_form" domain-object-type="employee" is-default="true">
+    <form name="employee_form" domain-object-type="Employee" is-default="true">
         <markup>
             <header>
                 <table width="500px" height="200px">
@@ -98,7 +98,7 @@
         </widget-config>
     </form>
 
-    <form name="department_form" domain-object-type="department" is-default="true">
+    <form name="department_form" domain-object-type="Department" is-default="true">
         <markup>
             <header>
                 <table width="500px" height="200px">
@@ -151,7 +151,7 @@
         </widget-config>
     </form>
 
-    <form name="organization_form" domain-object-type="organization" is-default="true">
+    <form name="organization_form" domain-object-type="Organization" is-default="true">
         <markup>
             <header>
                 <table width="500px" height="200px">
