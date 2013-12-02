@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Map;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
@@ -55,7 +56,11 @@ public class TestReportService extends ClientBase {
             
             //и еще раз генерим тот же отчет
             result = generateReport("all-employee", null);
+
+            deployReport("../reports/reports/employee-groups");
+            result = generateReport("employee-groups", null);
             
+            log("Test complete");
             
             
             
@@ -64,8 +69,8 @@ public class TestReportService extends ClientBase {
         }
     }
 
-    private ReportResult generateReport(String string, Object object) throws IOException {
-        ReportResult result = reportService.generate("all-employee", null);
+    private ReportResult generateReport(String reportName, Map params) throws IOException {
+        ReportResult result = reportService.generate(reportName, params);
         
         writeToFile(result.getReport(), new File(result.getFileName()));
         

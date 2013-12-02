@@ -39,27 +39,27 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
 
     @Override
     public ResultSet executeQuery() throws SQLException {
-        log("executeQuery " + collectionService  + " cl " + collectionService.getClass().getClassLoader());
-        Object result = collectionService.findCollectionByQuery(query);
+        //TODO Пока не поддерживаем выполнение запроса с параметрами приходится лепить запрос здесь
+        String sql = query;
+        int paramNum = 1;
         
-        log("Result " + result + " cl " + result.getClass().getClassLoader() + " orig " + IdentifiableObjectCollection.class.getClassLoader());
+        while (sql.contains("?")){
+            String value = "";
+            if(parameters.get(paramNum) instanceof Integer){
+                value = parameters.get(paramNum).toString();
+            }else if(parameters.get(paramNum) instanceof Long){
+                value = parameters.get(paramNum).toString();
+            }else{
+                value = "'" + parameters.get(paramNum) + "'";
+            }
+            
+            sql = sql.replaceFirst("\\?", value);
+        }
         
-        IdentifiableObjectCollection collection = (IdentifiableObjectCollection)result;   
+        IdentifiableObjectCollection collection = (IdentifiableObjectCollection)collectionService.findCollectionByQuery(sql);
         return new JdbcResultSet(collection);
     }
 
-    private void log(String message) {
-        try {
-            FileOutputStream stream = new FileOutputStream("C:/temp/jdbc.log", true);
-            stream.write(message.getBytes());
-            stream.write("\n".getBytes());
-            stream.close();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-    
-    
     @Override
     public int executeUpdate() throws SQLException {
         throw new UnsupportedOperationException();
