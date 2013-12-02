@@ -49,10 +49,9 @@ public class FormPanel implements IsWidget {
         return panel;
     }
 
-    public void updateSizes(int width, int height) {     
-
-        panel.setSize(width   +"px", height + "px");
-        bodyTabPanel.setSize(width   +"px", height + "px");
+    public void updateSizes(int width, int height) {
+        panel.setSize(width + "px", height + "px");
+      //  bodyTabPanel.setSize(width + "px", height + "px");
 
     }
 
@@ -102,7 +101,6 @@ public class FormPanel implements IsWidget {
         IsWidget headerTable = buildTable(header.getTableLayout());
         String configHeight = header.getTableLayout().getHeight();
         if (isHeightDeclaredInConfig(configHeight)) {
-
             headerTable.asWidget().setHeight(configHeight);
         }
         String configWidth = header.getTableLayout().getWidth();
@@ -120,23 +118,16 @@ public class FormPanel implements IsWidget {
 
             bodyTabPanel = new HackTabLayoutPanel(0, Style.Unit.PX);
             bodyTabPanel.add(buildTabContent(tabs.get(0)));
-        }
-        else{
-
+        } else {
             bodyTabPanel = new HackTabLayoutPanel(35, Style.Unit.PX);
-
-
             for (TabConfig tab : tabs) {
                 bodyTabPanel.add(buildTabContent(tab), tab.getName());
             }
         }
-        if (tabs.size() != 0) {
+
+        if (!tabs.isEmpty()) {
             bodyTabPanel.selectTab(0);
             bodyTabPanel.getTabWidget(0).getElement().getStyle().setProperty("backgroundColor", "white");
-
-        if(!tabs.isEmpty()){
-        bodyTabPanel.selectTab(0);
-        bodyTabPanel.getTabWidget(0).getElement().getStyle().setProperty("backgroundColor", "white");
         }
 
         bodyTabPanel.getWidget(0).addStyleName("gwt-TabLayoutPanel-No-Padding");
@@ -148,18 +139,11 @@ public class FormPanel implements IsWidget {
 
             }
         });
-        bodyTabPanel.getElement().getStyle().setProperty("minWidth", formWidth - 20 + "px");
+        bodyTabPanel.getElement().getStyle().setProperty("minWidth", formWidth + "px");
+
+        bodyTabPanel.setWidth(formWidth - 8 + "px");
 
 
-        String configHeight = header.getTableLayout().getHeight();
-        if (isHeightDeclaredInConfig(configHeight)) {
-
-            bodyTabPanel.setHeight(configHeight);
-        }
-       bodyTabPanel.setWidth(formWidth -8 + "px");
-
-
-   
     }
 
     private void setStyleForAllTabs(Integer activeTab, HackTabLayoutPanel bodyTabPanel) {
@@ -227,7 +211,7 @@ public class FormPanel implements IsWidget {
             table.setBorderWidth(1);
             table.getElement().setId("debug"); // todo: why ID?
         }
-        table.setHeight("100%");
+        //  table.setHeight("100%");
 
         table.getElement().getStyle().setBackgroundColor("yellow");
         FlexTable.FlexCellFormatter cellFormatter = table.getFlexCellFormatter();
@@ -327,12 +311,13 @@ public class FormPanel implements IsWidget {
         int UnitPx = 2;
         return Integer.parseInt(sizeString.substring(0, sizeString.length() - UnitPx));
     }
+
     private void setMinimalFormWidth() {
         String minimalWidth = formDisplayData.getMinWidth();
         if (minimalWidth != null) {
-          panel.getElement().getStyle().setProperty("minWidth", minimalWidth);
+            panel.getElement().getStyle().setProperty("minWidth", minimalWidth);
         } else {
-          panel.getElement().getStyle().setProperty("minWidth", formWidth  + "px");
+            panel.getElement().getStyle().setProperty("minWidth", formWidth + "px");
         }
     }
 

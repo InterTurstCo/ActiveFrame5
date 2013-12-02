@@ -124,7 +124,8 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         Window.addResizeHandler(new ResizeHandler() {
             @Override
             public void onResize(ResizeEvent event) {
-                int centralPanelWidth = event.getWidth() - navigationTreePanel.getVisibleWidth() - stickerPluginWidth;
+                int some = stickerPluginWidth -300;
+                int centralPanelWidth = event.getWidth() - navigationTreePanel.getVisibleWidth() - some;
                 int centralPanelHeight = event.getHeight() - 100;
                 centralPluginPanel.setVisibleWidth(centralPanelWidth);
                 centralPluginPanel.setVisibleHeight(centralPanelHeight);
