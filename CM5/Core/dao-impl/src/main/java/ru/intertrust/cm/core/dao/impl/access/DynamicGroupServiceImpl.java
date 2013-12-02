@@ -346,8 +346,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
         AccessToken accessToken = accessControlService
                 .createSystemAccessToken(this.getClass().getName());
 
-        String query = "select t." + wrap("id") + " from " + wrap("user_group") + " t where " + wrap("object_id") +
-                " = " + ((RdbmsId) domainObjectId).getId() + " and " + wrap("object_id_type") + " = " +
+        String query = "select t.id from user_group t where object_id = " + ((RdbmsId) domainObjectId).getId() + " and object_id_type = " +
                 ((RdbmsId) domainObjectId).getTypeId();
         IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(query, 0, 1000, accessToken);
         for (IdentifiableObject identifiableObject : collection) {
@@ -578,7 +577,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
         AccessToken accessToken = accessControlService
                 .createSystemAccessToken(this.getClass().getName());
         String query =
-                "select t." + wrap("id") + " from " + wrap("group_member") + " t where t." + wrap("person_id") + " = "
+                "select t.id from group_member t where t.person_id = "
                         + ((RdbmsId) deletedDomainObject.getId()).getId();
         IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(query, 0, 1000, accessToken);
         for (IdentifiableObject identifiableObject : collection) {

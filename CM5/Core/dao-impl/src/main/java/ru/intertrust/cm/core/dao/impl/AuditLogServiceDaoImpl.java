@@ -154,7 +154,7 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
         DomainObjectTypeConfig config = configurationExplorer.getConfig(
                 DomainObjectTypeConfig.class, typeName);
 
-        String rootAlias = getRootTypeName(config);
+        String rootAlias = getRootTypeName(config).toLowerCase();
 
         StringBuilder query = new StringBuilder();
         query.append(generateFindQuery(typeName));
@@ -167,7 +167,7 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
         DomainObjectTypeConfig config = configurationExplorer.getConfig(
                 DomainObjectTypeConfig.class, typeName);
 
-        String rootAlias = getRootTypeName(config);
+        String rootAlias = getRootTypeName(config).toLowerCase();
 
         StringBuilder query = new StringBuilder();
         query.append("select ");

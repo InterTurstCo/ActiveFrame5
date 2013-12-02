@@ -987,7 +987,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         List<FieldConfig> fieldConfigs = domainObjectTypeConfig
                 .getFieldConfigs();
 
-        String tableName = getSqlName(domainObjectTypeConfig) + "_LOG";
+        String tableName = getSqlName(domainObjectTypeConfig) + "_log";
         List<String> columnNames = DataStructureNamingHelper
                 .getColumnNames(fieldConfigs);
 
@@ -1010,9 +1010,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         query.append(commaSeparatedColumns);
-        query.append(") values (:ID, :TYPE_ID, ");
+        query.append(") values (:").append(ID_COLUMN).append(", :").append(TYPE_COLUMN).append(", ");
         if (!isDerived(domainObjectTypeConfig)) {
-            query.append(":OPERATION, :UPDATED_DATE, :COMPONENT_COLUMN, :DOMAIN_OBJECT_ID_COLUMN, :INFO_COLUMN, :IP_ADDRESS_COLUMN, ");
+            query.append(":operation, :updated_date, :component, :domain_object_id, :info, :ip_address, ");
         }
 
         query.append(commaSeparatedParameters);
@@ -1333,7 +1333,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                     .getConfig(DomainObjectTypeConfig.class, typeName);
 
             // Проверка на включенность аудит лога, или если пришли рекурсивно
-            // из подчиненного уровня, где аудит был вулючен
+            // из подчиненного уровня, где аудит был включен
             if (isAuditLogEnable(domainObjectTypeConfig)
                     || !domainObject.getTypeName().equals(typeName)) {
 

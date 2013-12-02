@@ -26,7 +26,7 @@ public interface DomainObjectDao {
     String STATUS_TYPE_COLUMN = GenericDomainObject.STATUS_FIELD_NAME + REFERENCE_TYPE_POSTFIX;
     String OPERATION_COLUMN = "operation";
 
-    String DOMAIN_OBJECT_ID_COLUMN = "fomain_object_id";
+    String DOMAIN_OBJECT_ID_COLUMN = "domain_object_id";
     String COMPONENT_COLUMN = "component";
     String IP_ADDRESS_COLUMN = "ip_address";
     String INFO_COLUMN = "info";
