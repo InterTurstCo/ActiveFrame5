@@ -37,6 +37,6 @@
         <dependency>    
             <groupId>net.sf.jasperreports</groupId>
             <artifactId>jasperreports</artifactId>
-        </dependency>
+        </dependency>        
     </dependencies>
 </project>

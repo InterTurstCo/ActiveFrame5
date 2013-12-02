@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.jdbc;
 
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -23,41 +22,44 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Hashtable;
 
-import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.jdbc.JdbcDriver.ConnectMode;
 
 public class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
     private Hashtable<Integer, Object> parameters = new Hashtable<Integer, Object>();
-    private CollectionsService collectionService;
     private String query;
-    
-    public JdbcPreparedStatement(CollectionsService collectionService, String query){
-        super(collectionService);
-        this.collectionService = collectionService;
+
+    public JdbcPreparedStatement(ConnectMode mode, String address, String login, String password, String query) {
+        super(mode, address, login, password);
         this.query = query;
     }
 
     @Override
     public ResultSet executeQuery() throws SQLException {
-        //TODO Пока не поддерживаем выполнение запроса с параметрами приходится лепить запрос здесь
-        String sql = query;
-        int paramNum = 1;
-        
-        while (sql.contains("?")){
-            String value = "";
-            if(parameters.get(paramNum) instanceof Integer){
-                value = parameters.get(paramNum).toString();
-            }else if(parameters.get(paramNum) instanceof Long){
-                value = parameters.get(paramNum).toString();
-            }else{
-                value = "'" + parameters.get(paramNum) + "'";
+        try {
+            //TODO Пока не поддерживаем выполнение запроса с параметрами приходится лепить запрос здесь
+            String sql = query;
+            int paramNum = 1;
+
+            while (sql.contains("?")) {
+                String value = "";
+                if (parameters.get(paramNum) instanceof Integer) {
+                    value = parameters.get(paramNum).toString();
+                } else if (parameters.get(paramNum) instanceof Long) {
+                    value = parameters.get(paramNum).toString();
+                } else {
+                    value = "'" + parameters.get(paramNum) + "'";
+                }
+
+                sql = sql.replaceFirst("\\?", value);
             }
-            
-            sql = sql.replaceFirst("\\?", value);
+
+            IdentifiableObjectCollection collection =
+                    (IdentifiableObjectCollection) client.getCollectionService().findCollectionByQuery(sql);
+            return new JdbcResultSet(collection);
+        } catch (Exception ex) {
+            throw new SQLException("Error on execute query", ex);
         }
-        
-        IdentifiableObjectCollection collection = (IdentifiableObjectCollection)collectionService.findCollectionByQuery(sql);
-        return new JdbcResultSet(collection);
     }
 
     @Override
@@ -380,5 +382,5 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     private void addParameter(int parameterIndex, Object value) throws SQLException {
         parameters.put(parameterIndex, value);
     }
-    
+
 }

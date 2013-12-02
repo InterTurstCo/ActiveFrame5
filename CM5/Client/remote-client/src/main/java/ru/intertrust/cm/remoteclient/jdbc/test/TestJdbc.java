@@ -69,7 +69,7 @@ public class TestJdbc extends ClientBase {
 
         int rowCount = 0;
         while (resultset.next()) {
-            System.out.println(rowCount + "\t" + resultset.getString(1) + "\t" + resultset.getDate(2) + "\t" + resultset.getLong(3) + "\t" + resultset.getLong(4));
+            System.out.println(rowCount + "\t" + resultset.getString(1) + "\t" + resultset.getDate(2) + "\t" + resultset.getObject(3) + "\t" + resultset.getObject(4));
             rowCount++;
         }
         resultset.close();
@@ -81,7 +81,7 @@ public class TestJdbc extends ClientBase {
 
             rowCount = 0;
             while (resultset.next()) {
-                System.out.println(rowCount + "\t" + resultset.getString(1) + "\t" + resultset.getDate(2) + "\t" + resultset.getLong(3) + "\t" + resultset.getLong(4));
+                System.out.println(rowCount + "\t" + resultset.getString(1) + "\t" + resultset.getDate(2) + "\t" + resultset.getObject(3) + "\t" + resultset.getObject(4));
                 rowCount++;
             }
             resultset.close();
@@ -89,6 +89,21 @@ public class TestJdbc extends ClientBase {
 
         }
 
+        statement = connection.createStatement();
+        if (statement.execute(query)){
+            resultset = statement.getResultSet();
+
+            rowCount = 0;
+            while (resultset.next()) {
+                System.out.println(rowCount + "\t" + resultset.getString(1) + "\t" + resultset.getDate(2) + "\t" + resultset.getObject(3) + "\t" + resultset.getObject(4));
+                rowCount++;
+            }
+            resultset.close();
+            statement.close();
+
+        }
+        
+        
         connection.close();
 
     }

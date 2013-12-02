@@ -217,16 +217,16 @@ public class JdbcResultSet implements ResultSet {
         Integer result = null;
         Value value = collection.get(index).getValue(columnLabel);
         if (value != null && value.get() != null) {
-            if (value instanceof LongValue){
-                result = ((LongValue)value).get().intValue();
-            }else if(value instanceof ReferenceValue){
-                RdbmsId id = (RdbmsId)((ReferenceValue)value).get();
-                result = Long.valueOf(id.getId()).intValue();                
-            }            
+            if (value instanceof LongValue) {
+                result = ((LongValue) value).get().intValue();
+            } else if (value instanceof ReferenceValue) {
+                RdbmsId id = (RdbmsId) ((ReferenceValue) value).get();
+                result = Long.valueOf(id.getId()).intValue();
+            }
         }
 
         return result;
-   }
+    }
 
     @Override
     public long getLong(String columnLabel) throws SQLException {
@@ -320,12 +320,14 @@ public class JdbcResultSet implements ResultSet {
     public Object getObject(int columnIndex) throws SQLException {
         Value value = collection.get(index).getValue(getFieldName(columnIndex));
         Object result = null;
-        if (value instanceof LongValue) {
-            result = ((LongValue) value).get();
-        } else if (value instanceof ReferenceValue) {
-            result = ((RdbmsId) ((ReferenceValue) value).get()).getId();
-        } else if (value instanceof TimestampValue) {
-            result =  ((TimestampValue) value).get();
+        if (value.get() != null) {
+            if (value instanceof LongValue) {
+                result = ((LongValue) value).get();
+            } else if (value instanceof ReferenceValue) {
+                result = ((RdbmsId) ((ReferenceValue) value).get()).getId();
+            } else if (value instanceof TimestampValue) {
+                result = ((TimestampValue) value).get();
+            }
         }
         return result;
     }

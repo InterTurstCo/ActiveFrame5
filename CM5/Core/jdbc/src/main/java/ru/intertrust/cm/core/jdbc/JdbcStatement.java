@@ -8,18 +8,27 @@ import java.sql.Statement;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.jdbc.JdbcDriver.ConnectMode;
 
 public class JdbcStatement implements Statement {
-    private CollectionsService collectionService;
-    
+
     private boolean closed = false;
     private int maxRows;
     private JdbcResultSet resultSet;
+    private ConnectMode mode;
+    private String address;
+    private String login;
+    private String password;
+    protected SochiClient client;
 
-    public JdbcStatement(CollectionsService collectionService){
-        this.collectionService = collectionService;
+    public JdbcStatement(ConnectMode mode, String address, String login, String password) {
+        this.mode = mode;
+        this.address = address;
+        this.login = login;
+        this.password = password;
+        client = new SochiClient(mode, address, login, password);
     }
-    
+
     @Override
     public <T> T unwrap(Class<T> iface) throws SQLException {
         throw new UnsupportedOperationException();
@@ -47,6 +56,7 @@ public class JdbcStatement implements Statement {
     @Override
     public void close() throws SQLException {
         this.closed = true;
+        client.close();
     }
 
     @Override
@@ -63,7 +73,7 @@ public class JdbcStatement implements Statement {
 
     @Override
     public int getMaxRows() throws SQLException {
-        return maxRows;    
+        return maxRows;
     }
 
     @Override
@@ -113,11 +123,11 @@ public class JdbcStatement implements Statement {
 
     @Override
     public boolean execute(String sql) throws SQLException {
-        try{
-        IdentifiableObjectCollection collection = collectionService.findCollectionByQuery(sql);   
-        this.resultSet = new JdbcResultSet(collection);
-        return true;
-        }catch(Exception ex){
+        try {
+            IdentifiableObjectCollection collection = client.getCollectionService().findCollectionByQuery(sql);
+            this.resultSet = new JdbcResultSet(collection);
+            return true;
+        } catch (Exception ex) {
             ex.printStackTrace();
             throw new SQLException(ex);
         }
