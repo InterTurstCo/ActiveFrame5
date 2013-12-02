@@ -103,4 +103,6 @@ public interface ConfigurationService {
      * @return конфигурация контекстной роли
      */
     ContextRoleConfig getContextRoleByName(String contextRoleName);
+
+    String getDomainObjectType(Id id);
 }

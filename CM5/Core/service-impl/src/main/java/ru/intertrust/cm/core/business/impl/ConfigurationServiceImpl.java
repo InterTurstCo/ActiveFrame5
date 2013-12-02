@@ -5,9 +5,9 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.*;
-import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -84,7 +84,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     @Override
     public List<DynamicGroupConfig> getDynamicGroupConfigsByTrackDO(Id objectId, String status) {
-        return configurationExplorer.getDynamicGroupConfigsByTrackDO(domainObjectTypeIdCache.getName(objectId),
+        return configurationExplorer.getDynamicGroupConfigsByTrackDO(getDomainObjectType(objectId),
                 status);
     }
 
@@ -96,5 +96,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     @Override
     public ContextRoleConfig getContextRoleByName(String contextRoleName) {
         return configurationExplorer.getContextRoleByName(contextRoleName);
+    }
+
+    @Override
+    public String getDomainObjectType(Id id) {
+        return domainObjectTypeIdCache.getName(id);
     }
 }
