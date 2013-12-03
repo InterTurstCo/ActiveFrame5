@@ -662,6 +662,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             
             String aclReadTable = AccessControlUtility
                     .getAclReadTableNameFor(domainObjectType);
+
             query.append("select distinct t.* from " + domainObjectType + " t ");
             query.append(" inner join ").append(aclReadTable).append(" r on t.id = r.object_id ");
             query.append(" inner join ").append(wrap("group_group")).append(" gg on r.").append(wrap("group_id"))
@@ -876,6 +877,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             
             String aclReadTable = AccessControlUtility
                     .getAclReadTableName(typeName);
+
             query.append(" where exists (select a.object_id from ").append(aclReadTable).append(" a");
             query.append(" inner join ").append(wrap("group_group")).append(" gg on a.").append(wrap("group_id"))
                     .append(" = gg.").append(wrap("parent_group_id"));
