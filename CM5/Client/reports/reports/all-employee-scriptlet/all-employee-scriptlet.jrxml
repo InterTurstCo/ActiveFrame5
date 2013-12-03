@@ -18,11 +18,11 @@
 	<title>
 		<band height="20" splitType="Stretch">
 			<staticText>
-				<reportElement x="159" y="0" width="236" height="20" uuid="9af2dd75-c5ca-4a05-8c16-67c229f9f61e"/>
+				<reportElement x="60" y="0" width="460" height="20" uuid="9af2dd75-c5ca-4a05-8c16-67c229f9f61e"/>
 				<textElement textAlignment="Center">
 					<font pdfFontName="DejaVuSans.ttf" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 				</textElement>
-				<text><![CDATA[Отчет все сотрудники]]></text>
+				<text><![CDATA[Отчет все сотрудники (Отчет с использованием скрптлета)]]></text>
 			</staticText>
 		</band>
 	</title>

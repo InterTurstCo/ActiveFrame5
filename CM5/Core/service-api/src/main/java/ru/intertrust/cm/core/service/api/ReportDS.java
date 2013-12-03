@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.service.api;
 import java.sql.Connection;
 import java.util.Map;
 
-import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.JRDataSource;
 
 /**
  * Интерфейс истояника данных для отчета
@@ -19,5 +19,5 @@ public interface ReportDS {
      * @return
      * @throws Exception
      */
-	JRBeanCollectionDataSource getJRDataSource(Connection connection, Map params) throws Exception;
+    JRDataSource getJRDataSource(Connection connection, Map params) throws Exception;
 }

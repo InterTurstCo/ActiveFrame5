@@ -22,7 +22,7 @@
 				<textElement textAlignment="Center">
 					<font pdfFontName="DejaVuSans.ttf" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 				</textElement>
-				<text><![CDATA[Отчет все сотрудники]]></text>
+				<text><![CDATA[Отчет все сотрудники (Отчет с подотчетом)]]></text>
 			</staticText>
 		</band>
 	</title>

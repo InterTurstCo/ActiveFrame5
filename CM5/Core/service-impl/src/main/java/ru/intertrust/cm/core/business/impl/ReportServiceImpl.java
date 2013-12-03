@@ -20,11 +20,11 @@ import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
+import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JRExporter;
 import net.sf.jasperreports.engine.JRExporterParameter;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.export.JRHtmlExporter;
 import net.sf.jasperreports.engine.export.JRPdfExporter;
 import net.sf.jasperreports.engine.export.JRRtfExporter;
@@ -240,7 +240,7 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
                 Class<?> reportDSClass = Thread.currentThread()
                         .getContextClassLoader().loadClass(reportMetadata.getDataSourceClass());
                 ReportDS reportDS = (ReportDS) reportDSClass.newInstance();
-                JRBeanCollectionDataSource ds = reportDS.getJRDataSource(
+                JRDataSource ds = reportDS.getJRDataSource(
                         connection, params);
                 print = JasperFillManager.fillReport(templateFile.getPath(), params, ds);
             }
