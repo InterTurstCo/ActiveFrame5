@@ -4,9 +4,10 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
 
@@ -105,7 +106,8 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
             File[] filelist = tmpFolder.listFiles();
             for (File file : filelist) {
                 DomainObject attachment =
-                        attachmentService.createAttachmentDomainObjectFor(reportTemplateObject.getId(), "report_template_attachment");
+                        attachmentService.createAttachmentDomainObjectFor(reportTemplateObject.getId(),
+                                "report_template_attachment");
                 attachment.setString("Name", file.getName());
                 ByteArrayInputStream bis = new ByteArrayInputStream(readFile(file));
                 SimpleRemoteInputStream simpleRemoteInputStream = new SimpleRemoteInputStream(bis);
@@ -113,11 +115,11 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
                 RemoteInputStream remoteInputStream;
                 remoteInputStream = simpleRemoteInputStream.export();
                 attachmentService.saveAttachment(remoteInputStream, attachment);
-                
+
                 //Удаляем, больше нам не нужен
                 file.delete();
             }
-            
+
             tmpFolder.delete();
         } catch (Exception ex) {
             throw new ReportServiceException("Error deploy process", ex);
@@ -131,7 +133,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
             out = new FileOutputStream(new File(tmpFolder, item.getName()));
             out.write(item.getBody());
         } finally {
-            if (out != null){
+            if (out != null) {
                 out.close();
             }
         }
@@ -149,7 +151,9 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
         domainObjectDao.delete(reportTemplateObject.getId(), accessToken);
     }
 
-    private void compileReport(File tempFolder) throws IOException, JRException {
+    private void compileReport(File tempFolder) throws IOException, JRException, NoSuchMethodException,
+            SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
+            InstantiationException, ClassNotFoundException {
 
         File[] filelist = tempFolder.listFiles();
 
@@ -191,7 +195,9 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
         }
     }
 
-    private void scriptletCompilation(List<File> javaFiles, File tempFolder) throws IOException {
+    private void scriptletCompilation(List<File> javaFiles, File tempFolder) throws IOException, NoSuchMethodException,
+            SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
+            InstantiationException, ClassNotFoundException {
 
         for (File file : javaFiles) {
             logger.debug("Compile class " + file.getName());
@@ -206,13 +212,8 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
                 .getJavaFileObjectsFromFiles(javaFiles);
         ArrayList<String> compileOptions = new ArrayList<String>();
 
-        URLClassLoader defaultClassLoader = (URLClassLoader) Thread.currentThread().getContextClassLoader();
-        StringBuilder cp = new StringBuilder();
-        for (URL url : defaultClassLoader.getURLs()) {
-            cp.append(url.getFile()).append(File.pathSeparator);
-        }
         compileOptions.add("-cp");
-        compileOptions.add(cp.toString());
+        compileOptions.add(getCompileClassPath());
         compileOptions.add("-d");
         compileOptions.add(tempFolder.getPath());
         compileOptions.add("-encoding");
@@ -234,6 +235,31 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
             }
             throw new ReportServiceException(message);
         }
+    }
+
+    private String getCompileClassPath() throws IOException {
+        String[] rootPackages = new String[] { "net","ru","com","org" };
+        //Получаем библиотеки для runtime компилятора
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        //Список найденых jar библиотек. Необходим чтоб не дублировать jar-ы
+        List<String> paths = new ArrayList<String>();
+        StringBuilder cp = new StringBuilder();
+        
+        for (String rootPackage : rootPackages) {
+
+            Enumeration<URL> urls = classLoader.getResources(rootPackage);
+            while (urls.hasMoreElements()) {
+                URL url = (URL) urls.nextElement();
+                int end = url.getPath().indexOf(".jar");
+                String path = url.getPath().substring(0, end + 4);
+                if (!paths.contains(path)){
+                    cp.append(path).append(File.pathSeparator);
+                    paths.add(path);
+                }
+            }
+        }
+
+        return cp.toString();
     }
 
 }

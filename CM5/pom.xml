@@ -134,10 +134,10 @@
                 <version>5.5.0</version>
                 <exclusions> 
                     <exclusion> 
-                    <artifactId>jdtcore</artifactId> 
-                    <groupId>eclipse</groupId> 
-                </exclusion> 
-            </exclusions>                
+                        <artifactId>jdtcore</artifactId> 
+                        <groupId>eclipse</groupId> 
+                    </exclusion> 
+                </exclusions>                
             </dependency>
             <!-- Logging -->
 

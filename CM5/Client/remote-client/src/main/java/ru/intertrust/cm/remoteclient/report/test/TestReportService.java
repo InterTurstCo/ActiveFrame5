@@ -53,12 +53,17 @@ public class TestReportService extends ClientBase {
             
             //Генерация отчета
             ReportResult result = generateReport("all-employee", null);
-            
             //и еще раз генерим тот же отчет
             result = generateReport("all-employee", null);
 
             deployReport("../reports/reports/employee-groups");
             result = generateReport("employee-groups", null);
+            
+            deployReport("../reports/reports/all-employee-scriptlet");
+            result = generateReport("all-employee-scriptlet", null);
+
+            deployReport("../reports/reports/all-employee-ds");
+            result = generateReport("all-employee-ds", null);
             
             log("Test complete");
             
