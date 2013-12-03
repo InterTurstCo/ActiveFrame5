@@ -137,8 +137,15 @@
                         <artifactId>jdtcore</artifactId> 
                         <groupId>eclipse</groupId> 
                     </exclusion> 
-                </exclusions>                
+                </exclusions>
             </dependency>
+            
+            <dependency>
+                <groupId>com.lowagie</groupId>
+                <artifactId>itext</artifactId>
+                <version>2.1.7</version>
+            </dependency>
+                        
             <!-- Logging -->
 
             <dependency>
