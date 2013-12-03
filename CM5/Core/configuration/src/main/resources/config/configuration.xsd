@@ -1074,6 +1074,19 @@
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
+    <xs:complexType name="selectionStyleReferenceType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="name" type="con:selectionStyleAttr" default="inline"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:simpleType name="selectionStyleAttr">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="inline" />
+            <xs:enumeration value="table" />
+        </xs:restriction>
+    </xs:simpleType>
     <xs:complexType name="suggestBoxType">
         <xs:sequence>
             <xs:element type="con:fieldPathType" name="field-path"
@@ -1092,7 +1105,9 @@
                 name="input-text-filter" xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="xs:integer" name="page-size"
                 nillable="false" xmlns:con="https://cm5.intertrust.ru/config" />
-        </xs:sequence>
+            <xs:element type="con:selectionStyleReferenceType" name="selection-style"
+                xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
+            </xs:sequence>
         <xs:attribute type="xs:string" name="id" />
     </xs:complexType>
     <xs:complexType name="linkedDomainObjectHyperlinkType">

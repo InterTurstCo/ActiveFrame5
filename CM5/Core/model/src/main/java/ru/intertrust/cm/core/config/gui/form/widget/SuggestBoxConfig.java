@@ -34,6 +34,9 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
     @Element(name = "page-size",required = false)
     Integer pageSize;
 
+    @Element(name = "selection-style",required = false)
+    SelectionStyleNameConfig selectionStyleNameConfig;
+
     @Override
     public boolean equals(Object o) {
         return super.equals(o);
@@ -103,6 +106,14 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
 
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
+    }
+
+    public SelectionStyleNameConfig getSelectionStyleNameConfig() {
+        return selectionStyleNameConfig;
+    }
+
+    public void setSelectionStyleNameConfig(SelectionStyleNameConfig selectionStyleNameConfig) {
+        this.selectionStyleNameConfig = selectionStyleNameConfig;
     }
 }
 

@@ -1166,3 +1166,11 @@ a:active .icon.back {
     *//*min-height: 300px;*//*
 }*/
 
+
+
+suggest-box-panel{
+   border: cornflowerblue;
+}
+my-suggest-box  {
+    border: none !important;
+}

@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
@@ -25,7 +26,7 @@ public class SuggestBoxWidget extends BaseWidget {
     SuggestBoxState currentState;
     HashMap<Id, String> allSuggestions = new HashMap<Id, String>();
     HashMap<Id, String> selectedSuggestions = new HashMap<Id, String>();
-    private VerticalPanel selectedRecords;
+    private HorizontalPanel selectedRecords;
 
     @Override
     public void setCurrentState(WidgetState currentState) {
@@ -62,11 +63,21 @@ public class SuggestBoxWidget extends BaseWidget {
     protected Widget asEditableWidget() {
         MultiWordSuggestOracle oracle = buildDynamicMultiWordOracle();
         final SuggestBox suggestBox = new SuggestBox(oracle);
-        selectedRecords = new VerticalPanel();
+        suggestBox.addStyleName("my-suggest-box");
+        suggestBox.getElement().removeClassName("gwt-SuggestBox");
 
-        VerticalPanel container = new VerticalPanel();
-        container.add(suggestBox);
-        container.add(selectedRecords);
+        selectedRecords = new HorizontalPanel();
+
+        FlowPanel container = new FlowPanel();
+        HorizontalPanel hp = new HorizontalPanel();
+        hp.addStyleName("suggest-box-panel");
+        hp.getElement().getStyle().setBorderWidth(2, Style.Unit.PX);
+        container.add(hp);
+        hp.add(selectedRecords);
+        hp.add(suggestBox);
+
+      //  container.add(selectedRecords);
+
 
         suggestBox.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
             public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
