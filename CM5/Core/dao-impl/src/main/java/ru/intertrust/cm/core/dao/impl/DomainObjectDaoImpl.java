@@ -659,16 +659,18 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         Map<String, Object> aclParameters = new HashMap<String, Object>();
 
         if (accessToken.isDeferred()) {
-            /*
-             * String aclReadTable = AccessControlUtility
-             * .getAclReadTableNameFor(domainObjectType);
-             * query.append("select distinct t.* from " + domainObjectType +
-             * " t inner join " + aclReadTable + " r " +
-             * "on t.id = r.object_id inner join group_member gm on r.group_id = gm.usergroup "
-             * + "where gm.person_id = :user_id and t.id in (:object_ids) ");
-             *
-             * aclParameters = getAclParameters(accessToken);
-             */
+            
+            String aclReadTable = AccessControlUtility
+                    .getAclReadTableNameFor(domainObjectType);
+            query.append("select distinct t.* from " + domainObjectType + " t " +
+                    " inner join " + aclReadTable + " r on t.id = r.object_id " +
+                    
+                    " inner join " + wrap("group_group") + " gg on r." + wrap("group_id") + " = gg." + wrap("parent_group_id") +
+                    " inner join " + wrap("group_member") + " gm on gg." + wrap("child_group_id") + " = gm." + wrap("usergroup") +
+                    
+                    " where gm.person_id = :user_id and t.id in (:object_ids) ");
+
+            aclParameters = getAclParameters(accessToken);             
 
         } else {
             query.append("select * from ").append(wrap(getSqlName(domainObjectType)))
@@ -845,14 +847,15 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         Map<String, Object> aclParameters = new HashMap<String, Object>();
         if (accessToken.isDeferred()) {
-            /*
-             * String aclReadTable = AccessControlUtility
-             * .getAclReadTableName(typeName);
-             * query.append(" and exists (select a.object_id from " +
-             * aclReadTable + " a inner join group_member gm " +
-             * "on a.group_id = gm.usergroup where gm.person_id = :user_id and a.object_id = :id)"
-             * );
-             */
+            
+            String aclReadTable = AccessControlUtility
+                    .getAclReadTableName(typeName);
+            query.append(" and exists (select a.object_id from " + aclReadTable + " a " +
+                            " inner join " + wrap("group_group") + " gg on a." + wrap("group_id") + " = gg." + wrap("parent_group_id") +
+                            " inner join " + wrap("group_member") + " gm on gg." + wrap("child_group_id") + " = gm." + wrap("usergroup") +
+                    		" where gm.person_id = :user_id and a.object_id = :id)"
+                    );
+             
         }
 
         if (lock) {
@@ -882,14 +885,15 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         appendTableNameQueryPart(query, typeName);
 
         if (accessToken.isDeferred()) {
-            /*
-             * String aclReadTable = AccessControlUtility
-             * .getAclReadTableName(typeName); query.append(
-             * " where exists (select a.object_id from " + aclReadTable +
-             * " a inner join group_member gm " +
-             * "on a.group_id = gm.usergroup where gm.person_id = :user_id and a.object_id = "
-             * ) .append(tableAlias).append(".ID)");
-             */
+            
+            String aclReadTable = AccessControlUtility
+                    .getAclReadTableName(typeName);
+            query.append(
+                    " where exists (select a.object_id from " + aclReadTable + " a" +
+                            " inner join " + wrap("group_group") + " gg on a." + wrap("group_id") + " = gg." + wrap("parent_group_id") +
+                            " inner join " + wrap("group_member") + " gm on gg." + wrap("child_group_id") + " = gm." + wrap("usergroup") +
+                            " where gm.person_id = :user_id and a.object_id = "
+                    ).append(tableAlias).append(".ID)");                         
         }
 
         applyOffsetAndLimitWithDefaultOrdering(query, tableAlias, offset, limit);
@@ -1225,7 +1229,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 append(wrap(getSqlName(linkedField))).append(" = :domain_object_id");
 
         if (accessToken.isDeferred()) {
-            // appendAccessControlLogicToQuery(query, linkedType);
+             appendAccessControlLogicToQuery(query, linkedType);
         }
 
         applyOffsetAndLimitWithDefaultOrdering(query, tableAlias, offset, limit);
@@ -1246,7 +1250,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 append(" = :domain_object_id");
 
         if (accessToken.isDeferred()) {
-            // appendAccessControlLogicToQuery(query, linkedType);
+            appendAccessControlLogicToQuery(query, linkedType);
         }
 
         applyOffsetAndLimitWithDefaultOrdering(query, tableAlias, offset, limit);
@@ -1258,11 +1262,13 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             String linkedType) {
         String childAclReadTable = AccessControlUtility
                 .getAclReadTableNameFor(linkedType);
-        query.append(" and exists (select r.").append(wrap("object_id")).append(" from ")
-                .append(wrap(childAclReadTable)).append(" r ");
-        query.append("inner join ").append(wrap("group_member")).append(" gm on r.").append(wrap("group_id")).
-                append(" = gm.").append(wrap("usergroup")).append(" where gm.").append(wrap("person_id")).
-                append(" = :user_id and r.").append(wrap("object_id")).append(" = t.").append(wrap(ID_COLUMN)).append(")");
+        query.append(" and exists (select r.object_id from ")
+                .append(childAclReadTable).append(" r ");
+        
+        query.append(" inner join " + wrap("group_group") + " gg on r." + wrap("group_id") + " = gg." + wrap("parent_group_id") +
+                     " inner join " + wrap("group_member") + " gm on gg." + wrap("child_group_id") + " = gm." + wrap("usergroup"));
+
+        query.append("where gm.person_id = :user_id and r.object_id = t.id)");
     }
 
     private DomainObject create(DomainObject domainObject, Integer type, String initialStatus) {

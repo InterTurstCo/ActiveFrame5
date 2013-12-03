@@ -58,7 +58,6 @@ public class AccessControlServiceImpl implements AccessControlService {
     @Override
     public AccessToken createAdminAccessToken(String login) throws AccessException {
         Id personId = getUserIdByLogin(login);
-        // TODO Implement
         return null;
     }
 
@@ -78,10 +77,10 @@ public class AccessControlServiceImpl implements AccessControlService {
         if (DomainObjectAccessType.READ.equals(type)) {
             deferred = true; // Проверка прав на чтение объекта осуществляется при его выборке
         } else { // Для всех других типов доступа к доменному объекту производим запрос в БД
-            // TODO Uncomment when access control will be restored
-            // if (!databaseAgent.checkDomainObjectAccess(userId, objectId, type)) {
-            // throw new AccessException();
-            // }
+
+            if (!databaseAgent.checkDomainObjectAccess(personIdInt, objectId, type)) {
+                throw new AccessException();
+            }
         }
         
         AccessToken token = new SimpleAccessToken(new UserSubject(personIdInt), objectId, type, deferred);
@@ -107,10 +106,7 @@ public class AccessControlServiceImpl implements AccessControlService {
         if (isSuperUser) {
             return new SuperUserAccessToken(new UserSubject(personIdInt));
         }
-
-        //TODO database should contain Persons with correct logins
-//        personId = 1;
-       
+      
         AccessToken token =
                 new SimpleAccessToken(new UserSubject(personIdInt), null, DomainObjectAccessType.READ, deferred);
         return token;
@@ -127,14 +123,11 @@ public class AccessControlServiceImpl implements AccessControlService {
             return new SuperUserAccessToken(new UserSubject(personIdInt));
         }
 
-        // Id[] ids = databaseAgent.checkMultiDomainObjectAccess(userId, objectIds, type);
-        // if (requireAll ? ids.length < objectIds.length : ids.length == 0) {
-        // throw new AccessException();
-        // }
-        // AccessToken token = new MultiObjectAccessToken(new UserSubject(userId), ids, type);
-        // TODO Uncomment when access control will be restored
-
-        AccessToken token = new MultiObjectAccessToken(new UserSubject(personIdInt), objectIds, type);
+        Id[] ids = databaseAgent.checkMultiDomainObjectAccess(personIdInt, objectIds, type);
+        if (requireAll ? ids.length < objectIds.length : ids.length == 0) {
+            throw new AccessException();
+        }
+        AccessToken token = new MultiObjectAccessToken(new UserSubject(personIdInt), ids, type);
 
         return token;
     }
@@ -151,8 +144,8 @@ public class AccessControlServiceImpl implements AccessControlService {
             return new SuperUserAccessToken(new UserSubject(personIdInt));
         }
 
-//        AccessType[] granted = databaseAgent.checkDomainObjectMultiAccess(userId, objectId, types); if (requireAll ?
-//        granted.length < types.length : granted.length == 0) { throw new AccessException(); }
+        AccessType[] granted = databaseAgent.checkDomainObjectMultiAccess(personIdInt, objectId, types); if (requireAll ?
+        granted.length < types.length : granted.length == 0) { throw new AccessException(); }
 
         
         AccessToken token = new MultiTypeAccessToken(new UserSubject(personIdInt), objectId, types);
