@@ -36,8 +36,9 @@ public class SuggestBoxWidget extends BaseWidget {
         LinkedHashMap<Id, String> listValues = suggestBoxState.getObjects();
         for (final Map.Entry<Id, String> listEntry : listValues.entrySet()) {
             final HorizontalPanel recordContainer = new HorizontalPanel();
-            recordContainer.add(new Label(listEntry.getValue()));
-            Button closeButton = new Button("X");
+            recordContainer.add(new InlineLabel(listEntry.getValue()));
+            final HTML closeButton = new HTML();
+            closeButton.addStyleName("icon remove ");
             closeButton.getElement().setId(listEntry.getKey().toStringRepresentation());
             closeButton.addClickHandler(new ClickHandler() {
                 @Override
@@ -63,20 +64,21 @@ public class SuggestBoxWidget extends BaseWidget {
     protected Widget asEditableWidget() {
         MultiWordSuggestOracle oracle = buildDynamicMultiWordOracle();
         final SuggestBox suggestBox = new SuggestBox(oracle);
-        suggestBox.addStyleName("my-suggest-box");
+
         suggestBox.getElement().removeClassName("gwt-SuggestBox");
 
         selectedRecords = new HorizontalPanel();
 
         FlowPanel container = new FlowPanel();
         HorizontalPanel hp = new HorizontalPanel();
-        hp.addStyleName("suggest-box-panel");
+        hp.setWidth("400px");
+
         hp.getElement().getStyle().setBorderWidth(2, Style.Unit.PX);
         container.add(hp);
         hp.add(selectedRecords);
         hp.add(suggestBox);
 
-      //  container.add(selectedRecords);
+
 
 
         suggestBox.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
@@ -85,8 +87,9 @@ public class SuggestBoxWidget extends BaseWidget {
                 final String replacementString = selectedItem.getReplacementString();
                 selectedSuggestions.put(selectedItem.getId(), selectedItem.getReplacementString());
                 final HorizontalPanel record = new HorizontalPanel();
-                record.add(new Label(replacementString));
-                final Button closeButton = new Button("X");
+                record.add(new InlineLabel(replacementString));
+                final HTML closeButton = new HTML();
+                closeButton.addStyleName("icon remove ");
                 closeButton.getElement().setId(selectedItem.getId().toStringRepresentation());
                 closeButton.addClickHandler(new ClickHandler() {
                     @Override
