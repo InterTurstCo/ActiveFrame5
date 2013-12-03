@@ -407,7 +407,9 @@ public class SqlQueryModifier {
         String aclReadTable = AccessControlUtility.getAclReadTableNameFor(domainObjectType);
         aclQuery.append("Select * from " + domainObjectType + " where exists (select r.object_id from ")
                 .append(aclReadTable).append(" r ");
-        aclQuery.append("inner join group_member gm on r.group_id = gm.usergroup where gm.person_id = " + USER_ID_PARAM
+        aclQuery.append("inner join " + wrap("group_group") + " gg on r." + wrap("group_id") + " = gg." + wrap("parent_group_id"));
+        aclQuery.append("inner join " + wrap("group_member") + " gm on gg." + wrap("child_group_id") + " = gm." + wrap("usergroup"));        
+                aclQuery.append(" where gm.person_id = " + USER_ID_PARAM
                 + " and r.object_id = ");
         aclQuery.append(idField).append(")");
 
