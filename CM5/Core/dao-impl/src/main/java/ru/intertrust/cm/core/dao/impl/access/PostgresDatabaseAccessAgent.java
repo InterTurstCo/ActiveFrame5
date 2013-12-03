@@ -64,8 +64,10 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
     private String getQueryForCheckDomainObjectAccess(RdbmsId id) {
         String domainObjectAclTable = getAclTableName(id);
+        
         String query = "select count(*) from " + wrap(domainObjectAclTable) + " a " +
-                "inner join " + wrap("group_member") + " gm on a." + wrap("group_id") + " = gm." + wrap("usergroup") +
+                " inner join " + wrap("group_group") + " gg on a." + wrap("group_id") + " = gg." + wrap("parent_group_id") +
+                " inner join " + wrap("group_member") + " gm on gg." + wrap("child_group_id") + " = gm." + wrap("usergroup") +
                 " where gm." + wrap("person_id") + " = :user_id and a." + wrap("object_id") + " = :object_id and a." +
                 wrap("operation")  +" = :operation";
         return query;
@@ -126,7 +128,8 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         String domainObjectAclTable = getAclTableNameFor(domainObjectType);
 
         String query = "select a." + wrap("object_id") + " object_id from " + wrap(domainObjectAclTable) + " a " +
-                "inner join " + wrap("group_member") + " gm on a." + wrap("group_id") + " = gm." + wrap("usergroup") +
+                " inner join " + wrap("group_group") + " gg on a." + wrap("group_id") + " = gg." + wrap("parent_group_id") +
+                " inner join " + wrap("group_member") + " gm on gg." + wrap("child_group_id") + " = gm." + wrap("usergroup") +
                 " where gm." + wrap("person_id") + " = :user_id and a." + wrap("object_id") + " in (:object_ids) and " +
                 "a." + wrap("operation") + " = :operation";
         return query;
@@ -155,8 +158,10 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
     private String getQueryForCheckDomainObjectMultiAccess(RdbmsId id) {
         String domainObjectAclTable = getAclTableName(id);
+
         String query = "select a." + wrap("operation") + " operation from " + wrap(domainObjectAclTable) + " a " +
-                "inner join " + wrap("group_member") + " gm on a." + wrap("group_id") + " = gm." + wrap("usergroup") +
+                " inner join " + wrap("group_group") + " gg on a." + wrap("group_id") + " = gg." + wrap("parent_group_id") +
+                " inner join " + wrap("group_member") + " gm on gg." + wrap("child_group_id") + " = gm." + wrap("usergroup") +
                 " where gm." + wrap("person_id") + " = :user_id and a." + wrap("object_id") + " = :object_id and a." +
                 wrap("operation") + " in (:operations)";
         return query;
@@ -228,8 +233,11 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
     }
 
     private String getQueryForCheckUserGroup() {
+
         String query = "select count(*) from " + wrap("user_group") + " ug " +
-                "inner join " + wrap("group_member") + " gm on ug." + wrap("id") + " = gm." + wrap("usergroup") + " " +
+                "inner join " + wrap("group_group") + " gg on ug." + wrap("id") + " = gg." + wrap("parent_group_id") +
+                "inner join " + wrap("group_member") + " gm on gg." + wrap("child_group_id") + " = gm." + wrap("usergroup") +
+
                 "where gm." + wrap("person_id") + " = :user_id and ug." + wrap("group_name") + " = :group_name";
         return query;
     }
