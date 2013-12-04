@@ -36,5 +36,5 @@ public interface ReportService {
      * @param parameters
      * @return
      */
-    Future<GenerateReportStatus> generateAsync(String name, Map<String, Object> parameters);
+    Future<ReportResult> generateAsync(String name, Map<String, Object> parameters);
 }

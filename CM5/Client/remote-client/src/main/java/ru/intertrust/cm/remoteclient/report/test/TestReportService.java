@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.Future;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
@@ -13,6 +14,7 @@ import ru.intertrust.cm.core.business.api.ReportService;
 import ru.intertrust.cm.core.business.api.ReportServiceAdmin;
 import ru.intertrust.cm.core.business.api.dto.DeployReportData;
 import ru.intertrust.cm.core.business.api.dto.DeployReportItem;
+import ru.intertrust.cm.core.business.api.dto.GenerateReportStatus;
 import ru.intertrust.cm.core.business.api.dto.ReportResult;
 import ru.intertrust.cm.remoteclient.ClientBase;
 
@@ -64,6 +66,15 @@ public class TestReportService extends ClientBase {
 
             deployReport("../reports/reports/all-employee-ds");
             result = generateReport("all-employee-ds", null);
+            
+            //TODO асинхронная генерация, временно закоментарино, до перехода на eap 6.1 
+            /*Future<ReportResult> acyncResult = reportService.generateAsync("all-employee-ds", null);
+            while (!acyncResult.isDone())
+            {
+               log("Wait generation report");
+               Thread.sleep(100);
+            }
+            writeToFile(acyncResult.get().getReport(), new File(acyncResult.get().getFileName()));*/
             
             log("Test complete");
             

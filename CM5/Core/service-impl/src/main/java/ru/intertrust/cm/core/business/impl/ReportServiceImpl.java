@@ -15,6 +15,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
+import javax.annotation.Resource;
+import javax.ejb.AsyncResult;
+import javax.ejb.Asynchronous;
+import javax.ejb.EJBContext;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
@@ -78,6 +82,9 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
 
     @Autowired
     private CurrentUserAccessor currentUserAccessor;
+    
+    @Resource
+    private EJBContext ejbContext;
 
     /**
      * Формирование отчета
@@ -206,9 +213,11 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
     }
 
     @Override
-    public Future<GenerateReportStatus> generateAsync(String name, Map<String, Object> parameters) {
-        // TODO Auto-generated method stub
-        return null;
+    @Asynchronous
+    public Future<ReportResult> generateAsync(String name, Map<String, Object> parameters) {
+        String user = ejbContext.getCallerPrincipal().getName();
+        ReportResult result = generate(name, parameters);
+        return new AsyncResult<ReportResult>(result);
     }
 
     /**
