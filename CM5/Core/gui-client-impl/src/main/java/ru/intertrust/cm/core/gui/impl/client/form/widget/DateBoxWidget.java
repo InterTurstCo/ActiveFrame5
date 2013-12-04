@@ -4,7 +4,6 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.user.datepicker.client.DateBox;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
@@ -24,13 +23,14 @@ public class DateBoxWidget extends BaseWidget {
 
     @Override
     public Component createNew() {
+
         return new DateBoxWidget();
     }
 
     public void setCurrentState(WidgetState currentState) {
         Date value = ((DateBoxState) currentState).getDate();
         if (isEditable) {
-            DateBox dateBox = (DateBox) impl;
+            DateBoxDecorate dateBox = (DateBoxDecorate) impl;
             dateBox.setValue(value);
         } else {
             setTrimmedText((HasText) impl, value == null ? "" : DATE_TIME_FORMAT.format(value));
@@ -41,16 +41,19 @@ public class DateBoxWidget extends BaseWidget {
     public WidgetState getCurrentState() {
         DateBoxState data = new DateBoxState();
         if (isEditable) {
-            data.setDate(((DateBox) impl).getValue());
+            data.setDate(((DateBoxDecorate) impl).getValue());
         } else {
-            data.setDate(DATE_TIME_FORMAT.parse(((Label) impl).getText()));
+            //data.setDate(DATE_TIME_FORMAT.parse(((DateBoxDecorate) impl).getTextField().getText()));
+            data.setDate(DATE_TIME_FORMAT.parse(((DateBoxDecorate) impl).getValue().toString()));
         }
         return data;
     }
 
     @Override
     protected Widget asEditableWidget() {
-        return new DateBox();
+        DateBoxDecorate dateBoxDecorate = new DateBoxDecorate();
+        return dateBoxDecorate;
+        //return new DateBox();
     }
 
     @Override

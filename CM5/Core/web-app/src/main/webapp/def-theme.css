@@ -238,3 +238,45 @@ border: 1px solid #ccc;
 .gwt-Label {
 font-weight: bold;
 }
+
+/*актуальная верстка*/
+.header-section{
+
+}
+
+.action-section{
+
+}
+
+.left-section{
+   float: left;
+}
+
+.centr-inner-section{
+    float: left;
+}
+
+.right-section{
+    float: left;
+}
+
+.footer-section{
+
+}
+
+.center-section{
+
+}
+
+.root-section{
+
+}
+
+.popup-content{
+    padding: 40px;
+}
+
+/*splitter!!!*/
+.GLW1MH4CPL {
+    height: 8px !important;
+}

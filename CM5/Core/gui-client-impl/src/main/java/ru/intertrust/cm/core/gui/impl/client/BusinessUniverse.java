@@ -50,7 +50,36 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         AsyncCallback<BusinessUniverseInitialization> callback = new AsyncCallback<BusinessUniverseInitialization>() {
             @Override
             public void onSuccess(BusinessUniverseInitialization result) {
-                DockLayoutPanel rootPanel = createRootPanel();
+                AbsolutePanel header = new AbsolutePanel();
+                header.setStyleName("header-section");
+                AbsolutePanel action = new AbsolutePanel();
+                action.setStyleName("action-section");
+
+                AbsolutePanel left  = new AbsolutePanel();
+                left.setStyleName("left-section");
+                AbsolutePanel centrInner = new AbsolutePanel();
+                centrInner.setStyleName("centr-inner-section");
+                AbsolutePanel center = new AbsolutePanel();
+                center.setStyleName("center-section");
+                AbsolutePanel right = new AbsolutePanel();
+                right.setStyleName("right-section");
+                AbsolutePanel footer = new AbsolutePanel();
+                footer.setStyleName("footer-section");
+                AbsolutePanel root = new AbsolutePanel();
+                root.setStyleName("root-section");
+                root.addStyleName("content");
+
+                root.add(header);
+                root.add(center);
+                root.add(footer);
+
+                centrInner.add(action);
+                centrInner.add(right);
+
+
+                center.add(left);
+                center.add(centrInner);
+
                 headerPanel = createHeaderPanel();
 
                 navigationTreePanel = new PluginPanel();
@@ -68,14 +97,16 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 eventBus.addHandler(NavigationTreeItemSelectedEvent.TYPE, BusinessUniverse.this);
                 navigationTreePanel.setVisibleWidth(250);
                 navigationTreePanel.open(navigationTreePlugin);
-                rootPanel.addNorth(new HeaderContainer(getUserInfo(result)), 70);
-
-                rootPanel.addWest(navigationTreePanel, 250);
-                addStickerPanel(rootPanel);
-                rootPanel.add(centralPluginPanel);
+                header.add(new HeaderContainer(getUserInfo(result)));
+                action.add(centralPluginPanel);
+                left.add(navigationTreePanel);
+                left.setHeight(Window.getClientHeight() + "px");
+                //left.setHeight(centralPluginHeight + "px");
+                addStickerPanel(root);
+                centrInner.add(centralPluginPanel);
 
                 addWindowResizeListener();
-                RootLayoutPanel.get().add(rootPanel);
+                RootLayoutPanel.get().add(root);
 
             }
 
@@ -135,7 +166,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         });
     }
 
-    private void addStickerPanel(final DockLayoutPanel mainLayoutPanel) {
+    private void addStickerPanel(final AbsolutePanel mainLayoutPanel) {
 
         final FlowPanel flowPanel = new FlowPanel();
         final ToggleButton toggleBtn = new ToggleButton("sticker");
@@ -144,12 +175,12 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
             @Override
             public void onClick(ClickEvent event) {
                 if (toggleBtn.getValue())    {
-                mainLayoutPanel.setWidgetSize(focusPanel, 300);
+                //mainLayoutPanel.setWidgetSize(focusPanel, 300);
                 centralPluginWidth -= 300;
                 stickerPluginWidth = 300;
                 }
                 else {
-                    mainLayoutPanel.setWidgetSize(focusPanel, 30);
+                    //mainLayoutPanel.setWidgetSize(focusPanel, 30);
                 centralPluginWidth += 300;
                 stickerPluginWidth = 30;
                 }
@@ -163,7 +194,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         focusPanel.addMouseOverHandler(new MouseOverHandler() {
             @Override
             public void onMouseOver(MouseOverEvent event) {
-                mainLayoutPanel.setWidgetSize(focusPanel, 300);
+                //mainLayoutPanel.setWidgetSize(focusPanel, 300);
             }
         });
 
@@ -173,7 +204,8 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 if (toggleBtn.getValue()) {
                     return;
                 }
-                mainLayoutPanel.setWidgetSize(focusPanel, stickerPluginWidth);
+                //mainLayoutPanel.setWidgetSize(focusPanel, 30);
+                //mainLayoutPanel.setWidgetSize(focusPanel, stickerPluginWidth);
 
             }
         });
@@ -184,7 +216,9 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         focusPanel.getElement().getStyle().setBackgroundColor("white");
 
 
-        mainLayoutPanel.addEast(focusPanel, stickerPluginWidth);
+       // mainLayoutPanel.addEast(focusPanel, 30);
+        stickerPluginWidth = 30;
+        //mainLayoutPanel.addEast(focusPanel, stickerPluginWidth);
 
     }
 

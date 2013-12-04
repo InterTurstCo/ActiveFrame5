@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer;
 
-import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
@@ -48,6 +47,8 @@ public class DomainObjectSurferPluginView extends PluginView {
         splitterSetSize();
         formFlowPanel.getElement().getStyle().setOverflow(Style.Overflow.AUTO);
         eventBus = domainObjectSurferPlugin.getLocalPluginEventBus();
+
+
         addSplitterWidgetResizeHandler();
 
     }
@@ -72,6 +73,7 @@ public class DomainObjectSurferPluginView extends PluginView {
         };
     }
 
+
     public void onPluginPanelResize() {
         updateSizes();
         splitterSetSize();
@@ -86,6 +88,9 @@ public class DomainObjectSurferPluginView extends PluginView {
     protected void splitterSetSize() {
         splitterPanel.setSize(surferWidth + "px", surferHeight + "px");
         checkLastSplitterPosition(splitterPanel.isSplitType(), surferWidth, surferHeight / 2, false);
+
+
+
 
     }
 
@@ -143,6 +148,8 @@ public class DomainObjectSurferPluginView extends PluginView {
             splitterPanel.remove(0);
             splitterPanel.insertNorth(splitterScroll, firstWidgetHeight - splitterPanel.getSplitterSize(), splitterPanel.getWidget(0));
 
+
+
         }
         splitterScroll.getElement().getStyle().setOverflowY(Style.Overflow.HIDDEN);
     }
@@ -152,15 +159,9 @@ public class DomainObjectSurferPluginView extends PluginView {
 
         flowPanel = new FlowPanel();
         flowPanel.setStyleName("centerTopBottomDividerRoot");
-
         final VerticalPanel container = new VerticalPanel();
         flowPanel.add(container);
         splitterScroll.add(splitterFirstWidget);
-
-        //splitter fix
-        Element e = (Element) splitterPanel.getElement().getChild(2);
-        e.getStyle().clearOverflow();
-
 
         container.add(splitterPanel);
 

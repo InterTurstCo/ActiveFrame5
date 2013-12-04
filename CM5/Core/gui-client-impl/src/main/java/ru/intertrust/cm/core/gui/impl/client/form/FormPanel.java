@@ -23,7 +23,7 @@ import java.util.List;
 public class FormPanel implements IsWidget {
     private int formWidth;
     private int formHeight;
-    private HackTabLayoutPanel bodyTabPanel;
+    private TabLayoutPanel bodyTabPanel;
     private FormDisplayData formDisplayData;
     private List<BaseWidget> widgets;
     private FlowPanel panel = new FlowPanel();
@@ -115,16 +115,17 @@ public class FormPanel implements IsWidget {
 
         if (body.isDisplaySingleTab() == false && tabs.size() == 1) {
 
-            bodyTabPanel = new HackTabLayoutPanel(0, Style.Unit.PX);
-
+            bodyTabPanel = new TabLayoutPanel(0, Style.Unit.PX);
             bodyTabPanel.add(buildTabContent(tabs.get(0)));
-        } else {
-            bodyTabPanel = new HackTabLayoutPanel(35, Style.Unit.PX);
+        }
+        else{
 
+            bodyTabPanel = new TabLayoutPanel(35, Style.Unit.PX);
             for (TabConfig tab : tabs) {
                 bodyTabPanel.add(buildTabContent(tab), tab.getName());
             }
         }
+
             setFormMinWidth();
         if (!tabs.isEmpty()) {
             bodyTabPanel.selectTab(0);
@@ -143,11 +144,12 @@ public class FormPanel implements IsWidget {
 
     }
 
-    private void setStyleForAllTabs(Integer activeTab, HackTabLayoutPanel bodyTabPanel) {
+    private void setStyleForAllTabs(Integer activeTab, TabLayoutPanel bodyTabPanel) {
         for (int i = 0; i < bodyTabPanel.getWidgetCount(); i++) {
             if (activeTab == i) {
                 bodyTabPanel.getTabWidget(i).getElement().getStyle().setProperty("backgroundColor", "white");
-            } else {
+            }
+            else {
                 bodyTabPanel.getTabWidget(i).getElement().getStyle().setProperty("backgroundColor", "#c2e7f0");
             }
         }
@@ -163,13 +165,11 @@ public class FormPanel implements IsWidget {
         if (groupList instanceof BookmarkListConfig) {
 
             final BookmarksHelper bodyTabPanel = new BookmarksHelper();
-            panel.getElement().getStyle().setOverflow(Style.Overflow.VISIBLE);
             List<TabGroupConfig> bookmarkTabs = ((BookmarkListConfig) groupList).getTabGroupConfigs();
             for (TabGroupConfig tab : bookmarkTabs) {
                 bodyTabPanel.add(tab.getName(), buildBookmarksTabContent(tab));
             }
             panel.add(bodyTabPanel);
-
             bodyTabPanel.selectedIndex(0);
         }
 
