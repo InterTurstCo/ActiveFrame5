@@ -229,6 +229,33 @@
         </groups>
     </context-role>
 
+    <!-- <dynamic-group name="Редактор Стран">
+        По одной группе на каждый объект "Person" (пользователь) в системе
+        <context>
+            <domain-object type="country" />
+        </context>
+        <members>
+            Отслеживаем сохранение/удаление объектов типа "Person" в 
+                статусе "active" и включаем их в соответствующую группу, т.е. где контекст 
+                = объекту
+            <track-domain-objects type="country"
+                status="Active" />
+        </members>
+    </dynamic-group>
+
+    <context-role name="Редактор Стран">
+        <context>
+            <domain-object type="country" />
+        </context>
+        <groups>
+            <track-domain-objects>
+                <get-group name="Редактор Стран">
+                    <doel>Author</doel>
+                </get-group>
+            </track-domain-objects>
+        </groups>
+    </context-role> -->
+
     <!-- Матрицы доступа -->
     <access-matrix type="Outgoing_Document">
         <status name="Draft">
@@ -249,6 +276,7 @@
             </execute-action>
         </status>
     </access-matrix>
+    
     <access-matrix type="country">
         <status name="Active">
             <read>
@@ -265,6 +293,23 @@
             </execute-action>
         </status>
     </access-matrix>
+    
+    <access-matrix type="city">
+        <status name="Active">
+            <read>
+                <permit-group name="AllPersons" />
+            </read>
+            <write>
+                <permit-group name="AllPersons" />
+            </write>
+            <delete>
+                <permit-group name="AllPersons" />
+            </delete>
+            <execute-action name="action1">
+                <permit-group name="AllPersons" />
+            </execute-action>
+        </status>
+    </access-matrix>    
 
     <!-- Внутренний документ -->
     <access-matrix type="Internal_Document">
