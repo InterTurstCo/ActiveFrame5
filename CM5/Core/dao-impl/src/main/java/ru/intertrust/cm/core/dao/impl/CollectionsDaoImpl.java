@@ -1,26 +1,11 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-
-import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.RdbmsId;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.SortOrder;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.base.CollectionConfig;
-import ru.intertrust.cm.core.config.base.CollectionFilterConfig;
-import ru.intertrust.cm.core.config.base.CollectionFilterCriteriaConfig;
-import ru.intertrust.cm.core.config.base.CollectionFilterReferenceConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
@@ -29,6 +14,12 @@ import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.exception.CollectionConfigurationException;
 import ru.intertrust.cm.core.dao.impl.utils.CollectionRowMapper;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
 import static ru.intertrust.cm.core.dao.impl.SqlQueryModifier.buildColumnToConfigMap;
 import static ru.intertrust.cm.core.dao.impl.SqlQueryModifier.wrapAndLowerCaseNames;
 
@@ -89,10 +80,9 @@ public class CollectionsDaoImpl implements CollectionsDao {
                                                        SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
 
         CollectionConfig collectionConfig = configurationExplorer.getConfig(CollectionConfig.class, collectionName);
-        List<CollectionFilterConfig> filledFilterConfigs = findFilledFilterConfigs(filterValues, collectionConfig);
 
         String collectionQuery =
-                getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, offset, limit, accessToken);
+                getFindCollectionQuery(collectionConfig, filterValues, sortOrder, offset, limit, accessToken);
 
         Map<String, FieldConfig> columnToConfigMap = buildColumnToConfigMap(collectionQuery, configurationExplorer);
 
@@ -164,8 +154,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
     public int findCollectionCount(String collectionName,
             List<Filter> filterValues, AccessToken accessToken) {
         CollectionConfig collectionConfig = configurationExplorer.getConfig(CollectionConfig.class, collectionName);
-        List<CollectionFilterConfig> filledFilterConfigs = findFilledFilterConfigs(filterValues, collectionConfig);
-        String collectionQuery = getFindCollectionCountQuery(collectionConfig, filledFilterConfigs, accessToken);
+        String collectionQuery = getFindCollectionCountQuery(collectionConfig, filterValues, accessToken);
 
         Map<String, Object> parameters = new HashMap<String, Object>();
         fillFilterParameters(filterValues, parameters);
@@ -195,18 +184,18 @@ public class CollectionsDaoImpl implements CollectionsDao {
      * Возвращает запрос, который используется в методе поиска коллекции доменных объектов
      *
      * @param collectionConfig
-     * @param filledFilterConfigs
+     * @param filterValues
      * @param sortOrder
      * @param offset
      * @param limit
      * @return
      */
     protected String getFindCollectionQuery(CollectionConfig collectionConfig,
-                                            List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder,
+                                            List<Filter> filterValues, SortOrder sortOrder,
                                             int offset, int limit, AccessToken accessToken) {
         CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer(configurationExplorer);
 
-        String collectionQuery = collectionQueryInitializer.initializeQuery(collectionConfig, filledFilterConfigs,
+        String collectionQuery = collectionQueryInitializer.initializeQuery(collectionConfig, filterValues,
                         sortOrder, offset, limit, accessToken);
 
         return collectionQuery;
@@ -216,15 +205,15 @@ public class CollectionsDaoImpl implements CollectionsDao {
      * Возвращает запрос, который используется в методе поиска количества объектов в коллекции
      *
      * @param collectionConfig
-     * @param filledFilterConfigs
+     * @param filterValues
      * @return
      */
     protected String getFindCollectionCountQuery(CollectionConfig collectionConfig,
-            List<CollectionFilterConfig> filledFilterConfigs, AccessToken accessToken) {
+            List<Filter> filterValues, AccessToken accessToken) {
         CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer(configurationExplorer);
 
         String collectionQuery =
-                collectionQueryInitializer.initializeCountQuery(collectionConfig, filledFilterConfigs, accessToken);
+                collectionQueryInitializer.initializeCountQuery(collectionConfig, filterValues, accessToken);
 
         return collectionQuery;
     }
@@ -256,6 +245,12 @@ public class CollectionsDaoImpl implements CollectionsDao {
                         List<Value> valuesList = (List) criterion;
                         List<Object> parameterValues = getParameterValues(valuesList);
                         parameters.put(parameterName, parameterValues);
+                    }
+
+                    if (filter instanceof IdsIncludedFilter || filter instanceof IdsExcludedFilter) {
+                        parameterName = filter.getFilter() + key + REFERENCE_TYPE_POSTFIX;
+                        ReferenceValue referenceValue = (ReferenceValue) criterion;
+                        parameters.put(parameterName, ((RdbmsId) referenceValue.get()).getTypeId());
                     }
                 }
             }
@@ -294,88 +289,9 @@ public class CollectionsDaoImpl implements CollectionsDao {
         return parametrValue;
     }
 
-    /**
-     * Заполняет конфигурации фильтров значениями. Возвращает заполненные конфигурации фильтров (для которых были
-     * переданы значения). Сделан публичным для тестов.
-     * @param filterValues
-     * @param collectionConfig
-     * @return
-     */
-    private List<CollectionFilterConfig> findFilledFilterConfigs(List<Filter> filterValues,
-                                                                 CollectionConfig collectionConfig) {
-        List<CollectionFilterConfig> filterConfigs = collectionConfig.getFilters();
-
-        List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<CollectionFilterConfig>();
-
-        if (filterConfigs == null || filterValues == null) {
-            return filledFilterConfigs;
-        }
-
-        for (CollectionFilterConfig filterConfig : filterConfigs) {
-            for (Filter filterValue : filterValues) {
-                if (!filterConfig.getName().equals(filterValue.getFilter())) {
-                    continue;
-                }
-                CollectionFilterConfig filledFilterConfig = replaceFilterCriteriaParam(filterConfig, filterValue);
-                filledFilterConfigs.add(filledFilterConfig);
-
-            }
-        }
-        return filledFilterConfigs;
-    }
-
-    /**
-     * Заменяет названия параметров в конфигурации фильтра по схеме {0} - > ":filterName_0".
-     * @param filterConfig
-     * @param filterValue
-     * @return
-     */
-    private CollectionFilterConfig replaceFilterCriteriaParam(CollectionFilterConfig filterConfig, Filter filterValue) {
-        CollectionFilterConfig clonedFilterConfig = cloneFilterConfig(filterConfig);
-
-        String criteria = clonedFilterConfig.getFilterCriteria().getValue();
-        String filterName = filterValue.getFilter();
-
-        String parameterPrefix = PARAM_NAME_PREFIX + filterName;
-        String newFilterCriteria = adjustParameterNames(criteria, parameterPrefix);
-
-        clonedFilterConfig.getFilterCriteria().setValue(newFilterCriteria);
-        return clonedFilterConfig;
-    }
-
     public static String adjustParameterNames(String subQuery, String parameterPrefix) {
         String newFilterCriteria = subQuery.replaceAll("[{]", parameterPrefix);
         newFilterCriteria = newFilterCriteria.replaceAll("[}]", "");
         return newFilterCriteria;
-    }
-
-    /**
-     * Клонирует конфигурацию коллекции. При заполнении параметров в фильтрах нужно, чтобы первоначальная конфигурация
-     * коллекции оставалась неизменной.
-     * @param filterConfig конфигурации коллекции
-     * @return копия переданной конфигурации коллекции
-     */
-    private CollectionFilterConfig cloneFilterConfig(CollectionFilterConfig filterConfig) {
-        CollectionFilterConfig clonedFilterConfig = new CollectionFilterConfig();
-
-        CollectionFilterReferenceConfig srcFilterReference = filterConfig.getFilterReference();
-        if (srcFilterReference != null) {
-            CollectionFilterReferenceConfig clonedFilterReference = new CollectionFilterReferenceConfig();
-            clonedFilterReference.setPlaceholder(srcFilterReference.getPlaceholder());
-            clonedFilterReference.setValue(srcFilterReference.getValue());
-            clonedFilterConfig.setFilterReference(clonedFilterReference);
-        }
-
-        CollectionFilterCriteriaConfig srcFilterCriteria = filterConfig.getFilterCriteria();
-        if (srcFilterCriteria != null) {
-            CollectionFilterCriteriaConfig clonedFilterCriteria = new CollectionFilterCriteriaConfig();
-            clonedFilterCriteria.setPlaceholder(srcFilterCriteria.getPlaceholder());
-            clonedFilterCriteria.setValue(srcFilterCriteria.getValue());
-            clonedFilterConfig.setFilterCriteria(clonedFilterCriteria);
-        }
-
-        clonedFilterConfig.setName(filterConfig.getName());
-
-        return clonedFilterConfig;
     }
 }

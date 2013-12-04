@@ -16,7 +16,7 @@ public class Filter implements Dto {
     /**
      * содержит имя фильтра
      */
-    private String filter;
+    protected String filter;
 
     private TreeMap<Integer, Object> parameterMap = new TreeMap<Integer, Object>();
 

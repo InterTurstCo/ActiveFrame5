@@ -2,10 +2,19 @@ package ru.intertrust.cm.core.dao.impl;
 
 
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.JdbcNamedParameter;
+import net.sf.jsqlparser.expression.LongValue;
+import net.sf.jsqlparser.expression.Parenthesis;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
+import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
+import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
+import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.*;
+import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.IdsExcludedFilter;
+import ru.intertrust.cm.core.business.api.dto.IdsIncludedFilter;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DateTimeWithTimeZoneFieldConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
@@ -39,20 +48,29 @@ public class SqlQueryModifier {
      * @param query первоначальный SQL запрос
      * @return запрос с добавленным полем Тип Объекта идентификатора
      */
-    public String addServiceColumns(String query, ConfigurationExplorer configurationExplorer) {
-        return processQuery(query, configurationExplorer, new QueryProcessor() {
+    public String addServiceColumns(String query, final ConfigurationExplorer configurationExplorer) {
+        return processQuery(query, new QueryProcessor() {
             @Override
-            protected void processPlainSelect(PlainSelect plainSelect, ConfigurationExplorer configurationExplorer) {
+            protected void processPlainSelect(PlainSelect plainSelect) {
                 addServiceColumnsInPlainSelect(plainSelect, configurationExplorer);
             }
         });
     }
 
     public static String wrapAndLowerCaseNames(String query) {
-        return processQuery(query, null, new QueryProcessor() {
+        return processQuery(query, new QueryProcessor() {
             @Override
-            protected void processPlainSelect(PlainSelect plainSelect, ConfigurationExplorer configurationExplorer) {
+            protected void processPlainSelect(PlainSelect plainSelect) {
                 wrapAndLowerCaseNamesInPlainSelect(plainSelect);
+            }
+        });
+    }
+
+    public String addIdBasedFilters(String query, final List<Filter> filterValues, final String idField) {
+        return processQuery(query, new QueryProcessor() {
+            @Override
+            protected void processPlainSelect(PlainSelect plainSelect) {
+                addIdBasedFiltersInPlainSelect(plainSelect, filterValues, idField);
             }
         });
     }
@@ -100,24 +118,16 @@ public class SqlQueryModifier {
      * @param idField название поля, использующегося в качестве ключевого
      * @return запрос с добавленным ACL фильтром
      */
-    public String addAclQuery(String query, String idField) {
+    public String addAclQuery(String query, final String idField) {
+        query = processQuery(query, new QueryProcessor() {
+            @Override
+            protected void processPlainSelect(PlainSelect plainSelect) {
+                applyAclFilterExpression(idField, plainSelect);
+            }
+        });
 
         SqlQueryParser sqlParser = new SqlQueryParser(query);
-
         SelectBody selectBody = sqlParser.getSelectBody();
-
-        if (selectBody.getClass().equals(PlainSelect.class)) {
-            PlainSelect plainSelect = (PlainSelect) selectBody;
-            applyAclFilterExpression(idField, plainSelect);
-
-        } else if (selectBody.getClass().equals(SetOperationList.class)) {
-            SetOperationList union = (SetOperationList) selectBody;
-            List plainSelects = union.getPlainSelects();
-            for (Object plainSelect : plainSelects) {
-                applyAclFilterExpression(idField, (PlainSelect) plainSelect);
-            }
-        }
-
         String modifiedQuery = selectBody.toString();
         modifiedQuery = modifiedQuery.replaceAll(USER_ID_PARAM, USER_ID_VALUE);
         return modifiedQuery;
@@ -125,21 +135,12 @@ public class SqlQueryModifier {
     }
 
     public void checkDuplicatedColumns(String query) {
-        SqlQueryParser sqlParser = new SqlQueryParser(query);
-
-        SelectBody selectBody = sqlParser.getSelectBody();
-        if (selectBody.getClass().equals(PlainSelect.class)) {
-            PlainSelect plainSelect = (PlainSelect) selectBody;
-            checkDuplicatedColumnsInPlainSelect(plainSelect);
-        } else if (selectBody.getClass().equals(SetOperationList.class)) {
-            SetOperationList union = (SetOperationList) selectBody;
-            List plainSelects = union.getPlainSelects();
-            for (Object plainSelect : plainSelects) {
-                checkDuplicatedColumnsInPlainSelect((PlainSelect) plainSelect);
+        processQuery(query, new QueryProcessor() {
+            @Override
+            protected void processPlainSelect(PlainSelect plainSelect) {
+                checkDuplicatedColumnsInPlainSelect(plainSelect);
             }
-        } else {
-            throw new IllegalArgumentException("Unsupported type of select body: " + selectBody.getClass());
-        }
+        });
     }
 
     private void checkDuplicatedColumnsInPlainSelect(PlainSelect plainSelect) {
@@ -186,6 +187,78 @@ public class SqlQueryModifier {
         plainSelect.getSelectItems().addAll(selectExpressionItemsToAdd);
     }
 
+    private void addIdBasedFiltersInPlainSelect(PlainSelect plainSelect, List<Filter> filterValues, String idField) {
+        if (filterValues == null) {
+            return;
+        }
+
+        Table fromItem = (Table) plainSelect.getFromItem();
+
+        Expression where = plainSelect.getWhere();
+        if (where == null) {
+            EqualsTo equalsTo = new EqualsTo();
+            equalsTo.setLeftExpression(new LongValue("1"));
+            equalsTo.setRightExpression(new LongValue("1"));
+            plainSelect.setWhere(equalsTo);
+            where = plainSelect.getWhere();
+        }
+
+        for (Filter filter : filterValues) {
+            if (!(filter instanceof IdsIncludedFilter || filter instanceof IdsExcludedFilter)) {
+                continue;
+            }
+
+            Expression expression = null;
+            for (Integer key : filter.getCriterionKeys()){
+                Expression idExpression = getIdEqualsExpression(filter, key, fromItem, idField, false);
+                Expression typeExpression = ID_COLUMN.equalsIgnoreCase(idField) ?
+                        getIdEqualsExpression(filter, key, fromItem, TYPE_COLUMN, true) :
+                        getIdEqualsExpression(filter, key, fromItem, idField + REFERENCE_TYPE_POSTFIX, true);
+
+                AndExpression andExpression = new AndExpression(idExpression, typeExpression);
+                Parenthesis parenthesis = new Parenthesis(andExpression);
+
+                if (expression == null) {
+                    expression = parenthesis;
+                } else {
+                    if (filter instanceof IdsIncludedFilter) {
+                        expression = new OrExpression(expression, parenthesis);
+                    } else if (filter instanceof IdsExcludedFilter) {
+                        expression = new AndExpression(expression, parenthesis);
+                    }
+                }
+            }
+
+            if (expression != null) {
+                if (!(expression instanceof Parenthesis)) {
+                    expression = new Parenthesis(expression);
+                }
+                where = new AndExpression(where, expression);
+            }
+        }
+
+        plainSelect.setWhere(where);
+    }
+
+    private Expression getIdEqualsExpression(Filter filter, Integer key, Table table, String columnName, boolean isType) {
+        JdbcNamedParameter jdbcNamedParameter = new JdbcNamedParameter();
+        jdbcNamedParameter.setName(filter.getFilter() + key + (isType ? REFERENCE_TYPE_POSTFIX : ""));
+
+        if (filter instanceof IdsIncludedFilter) {
+            EqualsTo idEqualsTo = new EqualsTo();
+            idEqualsTo.setLeftExpression(new Column(table, columnName));
+            idEqualsTo.setRightExpression(jdbcNamedParameter);
+            return idEqualsTo;
+        } else if (filter instanceof IdsExcludedFilter) {
+            NotEqualsTo idNotEqualsTo = new NotEqualsTo();
+            idNotEqualsTo.setLeftExpression(new Column(table, columnName));
+            idNotEqualsTo.setRightExpression(jdbcNamedParameter);
+            return idNotEqualsTo;
+        } else {
+            throw new IllegalArgumentException("IdsIncluded and IdsExcluded filters supported only");
+        }
+    }
+
     private static void wrapAndLowerCaseNamesInPlainSelect(PlainSelect plainSelect) {
         Table fromItem = (Table) plainSelect.getFromItem();
         fromItem.setName(wrap(fromItem.getName().toLowerCase()));
@@ -229,12 +302,6 @@ public class SqlQueryModifier {
         FromItem fromItem = plainSelect.getFromItem();
         validateFromItem(fromItem);
         return ((Table) fromItem).getName();
-    }
-
-    private String getFromTableAlias(PlainSelect plainSelect) {
-        FromItem fromItem = plainSelect.getFromItem();
-        validateFromItem(fromItem);
-        return fromItem.getAlias();
     }
 
     private void validateFromItem(FromItem fromItem) {
@@ -308,38 +375,36 @@ public class SqlQueryModifier {
         return aclExpression;
     }
 
-    private static String processQuery(String query, ConfigurationExplorer configurationExplorer,
-                                  QueryProcessor processor) {
-        return processor.process(query, configurationExplorer);
+    private static String processQuery(String query, QueryProcessor processor) {
+        return processor.process(query);
     }
 
     private static abstract class QueryProcessor {
 
-        public String process(String query, ConfigurationExplorer configurationExplorer) {
+        public String process(String query) {
             String modifiedQuery = null;
             SqlQueryParser sqlParser = new SqlQueryParser(query);
 
             SelectBody selectBody = sqlParser.getSelectBody();
             if (selectBody.getClass().equals(PlainSelect.class)) {
                 PlainSelect plainSelect = (PlainSelect) selectBody;
-                processPlainSelect(plainSelect, configurationExplorer);
+                processPlainSelect(plainSelect);
                 modifiedQuery = plainSelect.toString();
             } else if (selectBody.getClass().equals(SetOperationList.class)) {
                 SetOperationList union = (SetOperationList) selectBody;
                 List plainSelects = union.getPlainSelects();
                 for (Object plainSelect : plainSelects) {
-                    processPlainSelect((PlainSelect) plainSelect, configurationExplorer);
+                    processPlainSelect((PlainSelect) plainSelect);
                 }
                 modifiedQuery = union.toString();
             } else {
                 throw new IllegalArgumentException("Unsupported type of select body: " + selectBody.getClass());
-
             }
 
             return modifiedQuery;
         }
 
-        protected abstract void processPlainSelect(PlainSelect plainSelect, ConfigurationExplorer configurationExplorer);
+        protected abstract void processPlainSelect(PlainSelect plainSelect);
 
     }
 
