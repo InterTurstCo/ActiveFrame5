@@ -1,23 +1,94 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration>
-    <search-area name="Входящие документы">
-        <domain-objects type="Outgoing_Document">
-            <indexed-fields>
-                <field name="Registration_Number"/>
-                <field name="Name"/>
-                <field name="Description"/>
-                <field name="Author">
-                    <doel>Author.Name</doel>
-                </field>
-                <field name="Signer">
-                    <doel>Signer.Name</doel>
-                </field>
-            </indexed-fields>
-        </domain-objects>
-        <domain-objects type="Assignment">
-            <indexed-fields>
-                
-            </indexed-fields>
-        </domain-objects>
+<configuration xmlns="https://cm5.intertrust.ru/config"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="https://cm5.intertrust.ru/config configuration.xsd">
+    <search-area name="Внутренние документы">
+        <target-domain-object type="Internal_Document">
+            <indexed-field name="RegNum"/>
+            <indexed-field name="Name"/>
+            <indexed-field name="Description"/>
+            <indexed-field name="Author"/>
+            <indexed-field name="Author_Name">
+                <doel>docAuthor.Name</doel>
+            </indexed-field>
+            <indexed-field name="Registrant"/>
+            <indexed-field name="Registrant_Name">
+                <doel>Registrant.Name</doel>
+            </indexed-field>
+            <indexed-field name="Inspector"/>
+            <indexed-field name="Inspector_Name">
+                <doel>Inspector.Name</doel>
+            </indexed-field>
+            <indexed-field name="Signer"/>
+            <indexed-field name="Signer_Name">
+                <doel>Signer.Name</doel>
+            </indexed-field>
+            <indexed-content type="Internal_Document_Content"/>
+            <linked-domain-object type="Negotiation_Card">
+                <indexed-field name="Negotiator">
+                    <doel>Negotiator.Name</doel>
+                </indexed-field>
+                <parent-link>
+                    <doel>Parent_Document</doel>
+                </parent-link>
+            </linked-domain-object>
+            <linked-domain-object type="Examine_Card">
+                <indexed-field name="Examiner">
+                    <doel>Examiner.Name</doel>
+                </indexed-field>
+                <parent-link>
+                    <doel>Parent_Document</doel>
+                </parent-link>
+            </linked-domain-object>
+            <linked-domain-object type="Resolution_Card">
+                <indexed-field name="Executor">
+                    <doel>Executor.Name</doel>
+                </indexed-field>
+                <parent-link>
+                    <doel>Parent_Document</doel>
+                </parent-link>
+            </linked-domain-object>
+        </target-domain-object>
+    </search-area>
+
+    <search-area name="Сотрудники">
+        <target-domain-object type="Employee">
+            <indexed-field name="FirstName"/>
+            <indexed-field name="LastName"/>
+            <indexed-field name="EMail"/>
+            <indexed-field name="Position"/>
+            <indexed-field name="Department"/>
+            <indexed-field name="Department_Name">
+                <doel>Department.Name</doel>
+            </indexed-field>
+            <indexed-field name="Organization">
+                <doel>Department.Organization</doel>
+            </indexed-field>
+            <indexed-field name="Organization_Name">
+                <doel>Department.Organization.Name</doel>
+            </indexed-field>
+        </target-domain-object>
+        <target-domain-object type="Department">
+            <indexed-field name="Name"/>
+            <indexed-field name="Organization">
+                <doel>Organization</doel>
+            </indexed-field>
+            <indexed-field name="Organization_Name">
+                <doel>Organization.Name</doel>
+            </indexed-field>
+            <indexed-field name="ParentDepartment">
+                <doel>ParentDepartment</doel>
+            </indexed-field>
+            <indexed-field name="ParentDepartment_Name">
+                <doel>ParentDepartment.Name</doel>
+            </indexed-field>
+            <linked-domain-object type="Employee">
+                <indexed-field name="FirstName"/>
+                <indexed-field name="LastName"/>
+                <parent-link>
+                    <doel>Department^Boss</doel>
+                </parent-link>
+            </linked-domain-object>
+        </target-domain-object>
     </search-area>
 </configuration>
