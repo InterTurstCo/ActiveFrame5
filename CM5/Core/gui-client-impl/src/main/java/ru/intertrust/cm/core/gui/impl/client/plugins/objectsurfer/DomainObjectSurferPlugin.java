@@ -87,6 +87,7 @@ public class DomainObjectSurferPlugin extends Plugin implements
         formPluginPanel = formPlugin.getOwner();
         formPluginPanel.closeCurrentPlugin();
         final FormPlugin newFormPlugin = ComponentRegistry.instance.get("form.plugin");
+        // после обновления формы ей снова "нужно дать" локальную шину событий
         newFormPlugin.setEventBus(this.eventBus);
         newFormPlugin.setConfig(new FormPluginConfig(event.getId()));
         newFormPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {

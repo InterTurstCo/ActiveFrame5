@@ -53,6 +53,7 @@ public class FormPluginHandler extends ActivePluginHandler {
         ArrayList<ActionContext> actions = new ArrayList<>();
         actions.add(saveActionContext);
         actions.add(createNewActionContext);
+
         List<ActionContext> otherActions = null;
         if (config.getDomainObjectId() != null){
             otherActions = actionService.getActions(config.getDomainObjectId());
