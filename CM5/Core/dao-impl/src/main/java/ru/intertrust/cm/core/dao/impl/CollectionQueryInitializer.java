@@ -1,18 +1,18 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion.Order;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.base.CollectionConfig;
 import ru.intertrust.cm.core.config.base.CollectionFilterConfig;
+import ru.intertrust.cm.core.config.base.CollectionFilterCriteriaConfig;
+import ru.intertrust.cm.core.config.base.CollectionFilterReferenceConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.model.FatalException;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.applyOffsetAndLimit;
 
@@ -43,14 +43,16 @@ public class CollectionQueryInitializer {
 
     /**
      * Применение фильтров, сортировки и т.д. к прототипу запроса.
-     * @param filledFilterConfigs заполненные фильтры
+     * @param filterValues заполненные фильтры
      * @param sortOrder порядок сортировки
      * @param offset смещение
      * @param limit ограничение количества
      * @return
      */
-    public String initializeQuery(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs,
+    public String initializeQuery(CollectionConfig collectionConfig, List<Filter> filterValues,
             SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
+        List<CollectionFilterConfig> filledFilterConfigs = findFilledFilterConfigs(filterValues, collectionConfig);
+
         String prototypeQuery = collectionConfig.getPrototype();
 
         String filledQuery =  fillPrototypeQuery(collectionConfig, filledFilterConfigs, sortOrder, offset, limit,
@@ -59,10 +61,83 @@ public class CollectionQueryInitializer {
 
         filledQuery = processPersonParameter(filledQuery);
 
-        filledQuery = postProcessQuery(collectionConfig, accessToken, filledQuery);
+        filledQuery = postProcessQuery(collectionConfig, filterValues, accessToken, filledQuery);
 
         return filledQuery;
 
+    }
+
+    /**
+     * Заполняет конфигурации фильтров значениями. Возвращает заполненные конфигурации фильтров (для которых были
+     * переданы значения). Сделан публичным для тестов.
+     * @param filterValues
+     * @param collectionConfig
+     * @return
+     */
+    private List<CollectionFilterConfig> findFilledFilterConfigs(List<Filter> filterValues,
+                                                                 CollectionConfig collectionConfig) {
+        List<CollectionFilterConfig> filterConfigs = collectionConfig.getFilters();
+
+        List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<CollectionFilterConfig>();
+
+        if (filterConfigs == null || filterValues == null) {
+            return filledFilterConfigs;
+        }
+
+        for (CollectionFilterConfig filterConfig : filterConfigs) {
+            for (Filter filterValue : filterValues) {
+                if (!filterConfig.getName().equals(filterValue.getFilter())) {
+                    continue;
+                }
+                CollectionFilterConfig filledFilterConfig = replaceFilterCriteriaParam(filterConfig, filterValue);
+                filledFilterConfigs.add(filledFilterConfig);
+
+            }
+        }
+        return filledFilterConfigs;
+    }
+
+    private CollectionFilterConfig replaceFilterCriteriaParam(CollectionFilterConfig filterConfig, Filter filterValue) {
+        CollectionFilterConfig clonedFilterConfig = cloneFilterConfig(filterConfig);
+
+        String criteria = clonedFilterConfig.getFilterCriteria().getValue();
+        String filterName = filterValue.getFilter();
+
+        String parameterPrefix = CollectionsDaoImpl.PARAM_NAME_PREFIX + filterName;
+        String newFilterCriteria = CollectionsDaoImpl.adjustParameterNames(criteria, parameterPrefix);
+
+        clonedFilterConfig.getFilterCriteria().setValue(newFilterCriteria);
+        return clonedFilterConfig;
+    }
+
+    /**
+     * Клонирует конфигурацию коллекции. При заполнении параметров в фильтрах нужно, чтобы первоначальная конфигурация
+     * коллекции оставалась неизменной.
+     * @param filterConfig конфигурации коллекции
+     * @return копия переданной конфигурации коллекции
+     */
+    private CollectionFilterConfig cloneFilterConfig(CollectionFilterConfig filterConfig) {
+        CollectionFilterConfig clonedFilterConfig = new CollectionFilterConfig();
+
+        CollectionFilterReferenceConfig srcFilterReference = filterConfig.getFilterReference();
+        if (srcFilterReference != null) {
+            CollectionFilterReferenceConfig clonedFilterReference = new CollectionFilterReferenceConfig();
+            clonedFilterReference.setPlaceholder(srcFilterReference.getPlaceholder());
+            clonedFilterReference.setValue(srcFilterReference.getValue());
+            clonedFilterConfig.setFilterReference(clonedFilterReference);
+        }
+
+        CollectionFilterCriteriaConfig srcFilterCriteria = filterConfig.getFilterCriteria();
+        if (srcFilterCriteria != null) {
+            CollectionFilterCriteriaConfig clonedFilterCriteria = new CollectionFilterCriteriaConfig();
+            clonedFilterCriteria.setPlaceholder(srcFilterCriteria.getPlaceholder());
+            clonedFilterCriteria.setValue(srcFilterCriteria.getValue());
+            clonedFilterConfig.setFilterCriteria(clonedFilterCriteria);
+        }
+
+        clonedFilterConfig.setName(filterConfig.getName());
+
+        return clonedFilterConfig;
     }
 
     private String processPersonParameter(String filledQuery) {
@@ -86,9 +161,10 @@ public class CollectionQueryInitializer {
      * @param query первоначальный запрос
      * @return измененный запрос
      */
-    private String postProcessQuery(CollectionConfig collectionConfig, AccessToken accessToken, String query) {
+    private String postProcessQuery(CollectionConfig collectionConfig, List<Filter> filterValues, AccessToken accessToken, String query) {
         SqlQueryModifier sqlQueryModifier = new SqlQueryModifier();
         query = sqlQueryModifier.addServiceColumns(query, configurationExplorer);
+        query = sqlQueryModifier.addIdBasedFilters(query, filterValues, collectionConfig.getIdField());
 
 /*        if (accessToken.isDeferred()) {
             query = sqlQueryModifier.addAclQuery(query, collectionConfig.getIdField());
@@ -135,17 +211,19 @@ public class CollectionQueryInitializer {
 
     /**
      * Применение фильтров, и т.д. к прототипу запроса на количество доменных объектов в коллекции.
-     * @param filledFilterConfigs заполненные фильтры
+     * @param filterValues заполненные фильтры
      * @return
      */
-    public String initializeCountQuery(CollectionConfig collectionConfig, List<CollectionFilterConfig> filledFilterConfigs, AccessToken accessToken) {
+    public String initializeCountQuery(CollectionConfig collectionConfig, List<Filter> filterValues, AccessToken accessToken) {
+        List<CollectionFilterConfig> filledFilterConfigs = findFilledFilterConfigs(filterValues, collectionConfig);
+
         String prototypeQuery = collectionConfig.getCountingPrototype();
         String filledQuery = fillPrototypeQuery(collectionConfig, filledFilterConfigs, null, 0, 0, accessToken,
                 prototypeQuery);
 
         filledQuery = processPersonParameter(filledQuery);
 
-        filledQuery = postProcessQuery(collectionConfig, accessToken, filledQuery);
+        filledQuery = postProcessQuery(collectionConfig, filterValues, accessToken, filledQuery);
 
         return filledQuery;
 
