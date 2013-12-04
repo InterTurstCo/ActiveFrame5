@@ -6,7 +6,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Map;
-import java.util.concurrent.Future;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
@@ -14,7 +13,6 @@ import ru.intertrust.cm.core.business.api.ReportService;
 import ru.intertrust.cm.core.business.api.ReportServiceAdmin;
 import ru.intertrust.cm.core.business.api.dto.DeployReportData;
 import ru.intertrust.cm.core.business.api.dto.DeployReportItem;
-import ru.intertrust.cm.core.business.api.dto.GenerateReportStatus;
 import ru.intertrust.cm.core.business.api.dto.ReportResult;
 import ru.intertrust.cm.remoteclient.ClientBase;
 

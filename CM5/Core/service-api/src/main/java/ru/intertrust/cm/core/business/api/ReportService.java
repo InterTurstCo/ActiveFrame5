@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.business.api;
 import java.util.Map;
 import java.util.concurrent.Future;
 
-import ru.intertrust.cm.core.business.api.dto.GenerateReportStatus;
 import ru.intertrust.cm.core.business.api.dto.ReportResult;
 
 /**
