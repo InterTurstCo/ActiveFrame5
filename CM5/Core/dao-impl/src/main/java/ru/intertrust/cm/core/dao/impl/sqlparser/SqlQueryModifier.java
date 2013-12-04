@@ -598,12 +598,13 @@ public class SqlQueryModifier {
         StringBuilder aclQuery = new StringBuilder();
 
         String aclReadTable = AccessControlUtility.getAclReadTableNameFor(domainObjectType);
-        aclQuery.append("Select * from " + domainObjectType + " where exists (select r.object_id from ")
+        aclQuery.append("Select * from ").append(domainObjectType).append(" where exists (select r.object_id from ")
                 .append(aclReadTable).append(" r ");
-        aclQuery.append("inner join " + wrap("group_group") + " gg on r." + wrap("group_id") + " = gg." + wrap("parent_group_id"));
-        aclQuery.append("inner join " + wrap("group_member") + " gm on gg." + wrap("child_group_id") + " = gm." + wrap("usergroup"));        
-                aclQuery.append(" where gm.person_id = " + USER_ID_PARAM
-                + " and r.object_id = ");
+        aclQuery.append("inner join ").append(wrap("group_group")).append(" gg on r.")
+                .append(wrap("group_id") + " = gg.").append(wrap("parent_group_id"));
+        aclQuery.append("inner join ").append(wrap("group_member")).append(" gm on gg.").append(wrap("child_group_id"))
+                .append(" = gm.").append(wrap("usergroup"));
+        aclQuery.append(" where gm.person_id = ").append(USER_ID_PARAM).append(" and r.object_id = ");
         aclQuery.append(idField).append(")");
 
         SqlQueryParser aclSqlParser = new SqlQueryParser(aclQuery.toString());
