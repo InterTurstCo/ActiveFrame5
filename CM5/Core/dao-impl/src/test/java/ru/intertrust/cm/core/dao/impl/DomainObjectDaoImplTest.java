@@ -226,17 +226,10 @@ public class DomainObjectDaoImplTest {
     @Test
     public void testGenerateFindChildrenIdsQuery() {
         AccessToken accessToken = createMockAccessToken();
-
-        String expectedQuery = "select assignment.\"id\" from \"assignment\" assignment where assignment.\"author\" = :domain_object_id and exists " +
-                "(select r.object_id from assignment_read r  inner join \"group_group\" gg on " +
-                "r.\"group_id\" = gg.\"parent_group_id\" inner join \"group_member\" gm on " +
-                "gg.\"child_group_id\" = gm.\"usergroup\"where gm.person_id = :user_id and r.object_id = t\"id\")";
-
-//        String expectedQuery = "select assignment.\"id\" from \"assignment\" assignment where assignment.\"author\" = " +
-//                ":domain_object_id"/* +
-//              " and exists" +
-//                " (select r.object_id from assignment_READ r inner join group_member " +
-//                "gm on r.group_id = gm.usergroup where gm.person_id = :user_id and r.object_id = t.id)"*/;
+        String expectedQuery = "select t.id from assignment t where t.author = :domain_object_id and exists " +
+                "(select r.object_id from assignment_read r  inner join \"group_group\" gg on r.\"group_id\" = " +
+                "gg.\"parent_group_id\" inner join \"group_member\" gm on gg.\"child_group_id\" = " +
+                "gm.\"usergroup\"where gm.person_id = :user_id and r.object_id = t.id)";
 
         Assert.assertEquals(expectedQuery, domainObjectDaoImpl.buildFindChildrenIdsQuery("assignment", "author",
                 0, 0, accessToken));

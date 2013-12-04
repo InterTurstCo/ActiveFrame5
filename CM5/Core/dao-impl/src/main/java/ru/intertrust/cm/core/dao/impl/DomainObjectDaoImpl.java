@@ -1270,6 +1270,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 .append(" = gg.").append(wrap("parent_group_id"));
         query.append(" inner join ").append(wrap("group_member")).append(" gm on gg.")
                 .append(wrap("child_group_id")).append(" = gm.").append(wrap("usergroup"));
+
         query.append("where gm.person_id = :user_id and r.object_id = t.").append(wrap(ID_COLUMN)).append(")");
     }
 
