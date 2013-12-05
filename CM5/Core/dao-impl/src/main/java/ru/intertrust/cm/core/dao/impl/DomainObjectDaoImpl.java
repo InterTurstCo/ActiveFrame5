@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.dao.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.util.StringUtils;
-
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.access.*;
@@ -949,6 +948,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         StringBuilder query = new StringBuilder();
         query.append("insert into ").append(wrap(tableName)).append(" (").append(wrap(ID_COLUMN)).append(", ");
+        query.append(wrap(TYPE_COLUMN)).append(", ");
 
         if (!isDerived(domainObjectTypeConfig)) {
             query.append(wrap(CREATED_DATE_COLUMN)).append(", ")
@@ -958,16 +958,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                     .append(wrap(STATUS_TYPE_COLUMN)).append(", ");
 
         }
-        query.append(wrap(TYPE_COLUMN)).append(", ");
 
         query.append(commaSeparatedColumns);
-        query.append(") values (:id , ");
+        query.append(") values (:id , :type_id, ");
 
         if (!isDerived(domainObjectTypeConfig)) {
             query.append(":created_date, :updated_date, ");
             query.append(":status, :status_type, ");
         }
-        query.append(":type_id, ");
 
         query.append(commaSeparatedParameters);
         query.append(")");
