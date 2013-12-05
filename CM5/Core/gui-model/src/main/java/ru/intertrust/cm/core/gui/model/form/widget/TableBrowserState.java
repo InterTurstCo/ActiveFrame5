@@ -13,6 +13,7 @@ import java.util.LinkedHashMap;
  */
 public class TableBrowserState extends LinkEditingWidgetState {
     private String collectionName;
+    private String collectionViewName;
     private ArrayList<TableBrowserRowItem> selectedItems;
     private LinkedHashMap<String, String> domainFieldOnColumnNameMap;
     private TableBrowserConfig tableBrowserConfig;
@@ -23,6 +24,14 @@ public class TableBrowserState extends LinkEditingWidgetState {
 
     public void setCollectionName(String collectionName) {
         this.collectionName = collectionName;
+    }
+
+    public String getCollectionViewName() {
+        return collectionViewName;
+    }
+
+    public void setCollectionViewName(String collectionViewName) {
+        this.collectionViewName = collectionViewName;
     }
 
     public ArrayList<TableBrowserRowItem> getSelectedItems() {

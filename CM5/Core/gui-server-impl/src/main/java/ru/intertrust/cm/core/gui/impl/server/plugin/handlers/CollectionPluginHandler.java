@@ -7,6 +7,7 @@ import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionDisplayConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.InputTextFilterConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
@@ -36,12 +37,16 @@ public class CollectionPluginHandler extends PluginHandler {
     public CollectionPluginData initialize(Dto param) {
         CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig) param;
         CollectionRefConfig collectionRefConfig = collectionViewerConfig.getCollectionRefConfig();
+        InputTextFilterConfig inputTextFilterConfig = collectionViewerConfig.getInputTextFilterConfig();
+        String text = inputTextFilterConfig.getName();
+        Filter filterByText = prepareInputTextFilter(text);
+        List<Filter> filters = new ArrayList<Filter>();
+        filters.add(filterByText);
         String collectionName = collectionRefConfig.getName();
         CollectionPluginData pluginData = new CollectionPluginData();
         CollectionViewConfig collectionViewConfig = findRequiredCollectionView(collectionName);
-
         LinkedHashMap<String, String> map = getDomainObjectFieldOnColumnNameMap(collectionViewConfig);
-        ArrayList<CollectionRowItem> items = generateCollectionRowItems(collectionName, map.keySet(), 0, 70);
+        ArrayList<CollectionRowItem> items = generateTableRowsForPluginInitialization(collectionName, map.keySet(), 0, 70, filters);
         pluginData.setDomainObjectFieldOnColumnNameMap(map);
         pluginData.setItems(items);
         pluginData.setCollectionName(collectionName);
@@ -115,18 +120,11 @@ public class CollectionPluginHandler extends PluginHandler {
 
     }
 
-    private ArrayList<CollectionRowItem> generateCollectionRowItems(String collectionName, Set<String> fields) {
+    public ArrayList<CollectionRowItem> generateTableRowsForPluginInitialization
+            (String collectionName, Set<String> fields, int offset, int count, List<Filter> filters) {
         ArrayList<CollectionRowItem> items = new ArrayList<CollectionRowItem>();
-        IdentifiableObjectCollection collection = collectionsService.findCollection(collectionName);
-        for (IdentifiableObject identifiableObject : collection) {
-            items.add(generateCollectionRowItem(identifiableObject, fields));
-        }
-        return items;
-    }
-
-    public ArrayList<CollectionRowItem> generateCollectionRowItems(String collectionName, Set<String> fields, int offset, int count) {
-        ArrayList<CollectionRowItem> items = new ArrayList<CollectionRowItem>();
-        IdentifiableObjectCollection collection = collectionsService.findCollection(collectionName, null, null , offset, count);
+        IdentifiableObjectCollection collection = collectionsService.
+                findCollection(collectionName, null, filters, offset, count);
         for (IdentifiableObject identifiableObject : collection) {
             items.add(generateCollectionRowItem(identifiableObject, fields));
         }
@@ -135,14 +133,17 @@ public class CollectionPluginHandler extends PluginHandler {
 
     public Dto generateCollectionRowItems(Dto dto){
         CollectionRowsRequest collectionRowsRequest = (CollectionRowsRequest) dto;
-        ArrayList<CollectionRowItem> list = generateCollectionRowItems(collectionRowsRequest.getCollectionName(),
+        ArrayList<CollectionRowItem> list = generateTableRowsForPluginInitialization(collectionRowsRequest.getCollectionName(),
                 collectionRowsRequest.getFields().keySet(), collectionRowsRequest.getOffset(),
-                    collectionRowsRequest.getLimit());
-
-
-
+                collectionRowsRequest.getLimit(), null);
         CollectionRowItemList collectionRowItemList = new CollectionRowItemList();
         collectionRowItemList.setCollectionRows(list);
         return collectionRowItemList;
+    }
+    private Filter prepareInputTextFilter(String text) {
+        Filter textFilter = new Filter();
+        textFilter.setFilter("byText");
+        textFilter.addCriterion(0, new StringValue(text + "%"));
+        return textFilter;
     }
 }

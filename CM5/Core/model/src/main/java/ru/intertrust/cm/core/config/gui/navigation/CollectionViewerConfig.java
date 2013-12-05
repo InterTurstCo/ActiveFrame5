@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.gui.navigation;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.config.gui.form.widget.InputTextFilterConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,9 @@ public class CollectionViewerConfig extends PluginConfig{
 
     @Element(name = "collection-view-ref", required = false)
     private CollectionViewRefConfig collectionViewRefConfig;
+
+    @Element(name = "input-text-filter", required = false)
+    private InputTextFilterConfig inputTextFilterConfig;
 
     @ElementList(inline = true)
     private List<SortCriterionConfig> sortCriterionConfigList = new ArrayList<SortCriterionConfig>();
@@ -47,6 +51,13 @@ public class CollectionViewerConfig extends PluginConfig{
         this.collectionViewRefConfig = collectionViewRefConfig;
     }
 
+    public InputTextFilterConfig getInputTextFilterConfig() {
+        return inputTextFilterConfig;
+    }
+
+    public void setInputTextFilterConfig(InputTextFilterConfig inputTextFilterConfig) {
+        this.inputTextFilterConfig = inputTextFilterConfig;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -73,6 +84,10 @@ public class CollectionViewerConfig extends PluginConfig{
                 getCollectionViewRefConfig() != null) {
             return false;
         }
+        if (inputTextFilterConfig != null ? !inputTextFilterConfig.equals(that.inputTextFilterConfig) : that.
+                inputTextFilterConfig != null) {
+            return false;
+        }
 
         return true;
     }
@@ -82,6 +97,7 @@ public class CollectionViewerConfig extends PluginConfig{
         int result = collectionRefConfig != null ? collectionRefConfig.hashCode() : 0;
         result = 31 * result + (collectionViewRefConfig != null ? collectionViewRefConfig.hashCode() : 0);
         result = 31 * result + (sortCriterionConfigList != null ? sortCriterionConfigList.hashCode() : 0);
+        result = 31 * result + (inputTextFilterConfig != null ? inputTextFilterConfig.hashCode() : 0);
         return result;
     }
 

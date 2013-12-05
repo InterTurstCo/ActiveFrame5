@@ -12,6 +12,7 @@
                             <collection-viewer>
                                 <collection-ref name="Countries"/>
                                 <sort-criterion field="name" order="asc"/>
+                                <input-text-filter name="byText"/>
                             </collection-viewer>
                         </domain-object-surfer>
                     </plugin>

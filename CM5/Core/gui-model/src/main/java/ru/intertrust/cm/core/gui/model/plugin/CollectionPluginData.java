@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.model.plugin;
 
+import ru.intertrust.cm.core.business.api.dto.Id;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
@@ -10,14 +12,30 @@ import java.util.LinkedHashMap;
  */
 public class CollectionPluginData extends PluginData {
 
-
     private String collectionName;
+    private String textToFindInRow;
     private ArrayList<CollectionRowItem> items;
-
+    private ArrayList<Id> excludedIds = new ArrayList<Id>();
     private LinkedHashMap<String, String> domainObjectFieldOnColumnNameMap;
 
     public CollectionPluginData() {
 
+    }
+
+    public String getTextToFindInRow() {
+        return textToFindInRow;
+    }
+
+    public void setTextToFindInRow(String textToFindInRow) {
+        this.textToFindInRow = textToFindInRow;
+    }
+
+    public ArrayList<Id> getExcludedIds() {
+        return excludedIds;
+    }
+
+    public void setExcludedIds(ArrayList<Id> excludedIds) {
+        this.excludedIds = excludedIds;
     }
 
     public ArrayList<CollectionRowItem> getItems() {

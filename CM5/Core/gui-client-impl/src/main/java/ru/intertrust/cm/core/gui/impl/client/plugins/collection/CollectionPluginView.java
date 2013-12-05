@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
+import com.google.gwt.cell.client.CheckboxCell;
+import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ScrollEvent;
@@ -15,18 +17,17 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
-import ru.intertrust.cm.core.gui.impl.client.event.SplitterInnerScrollEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.SplitterInnerScrollEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CellTableEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CheckedSelectionModel;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.TableController;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.resources.CellTableResourcesEx;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.resources.DGCellTableResourceAdapter;
 import ru.intertrust.cm.core.gui.model.Command;
+import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowItemList;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
@@ -58,7 +59,7 @@ public class CollectionPluginView extends PluginView {
     private int listCount;
     private int tableWidth;
     private int tableHeight;
-
+    private boolean isSingleChoice = true;
     // локальная шина событий
     private EventBus eventBus;
     protected Plugin plugin;
@@ -80,6 +81,14 @@ public class CollectionPluginView extends PluginView {
 
     }
 
+    public TableController getTableController() {
+        return tableController;
+    }
+
+    public void setTableController(TableController tableController) {
+        this.tableController = tableController;
+    }
+
     private void updateSizes() {
         tableWidth = plugin.getOwner().getVisibleWidth();
         tableHeight = plugin.getOwner().getVisibleHeight();
@@ -88,12 +97,12 @@ public class CollectionPluginView extends PluginView {
 
     private void createCollectionData() {
         CollectionRowsRequest collectionRowsRequest = new CollectionRowsRequest(listCount, 15, collectionName, columnNamesOnDoFieldsMap);
-        Command command = new Command("generateCollectionRowItems", "collection.plugin", collectionRowsRequest);
+        Command command = new Command("generateTableRowsForPluginInitialization", "collection.plugin", collectionRowsRequest);
 
         BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onFailure(Throwable caught) {
-                GWT.log("something was going wrong while obtaining generateCollectionRowItems for ''");
+                GWT.log("something was going wrong while obtaining generateTableRowsForPluginInitialization for ''");
                 caught.printStackTrace();
             }
 
@@ -115,17 +124,26 @@ public class CollectionPluginView extends PluginView {
         columnNamesOnDoFieldsMap = collectionPluginData.getDomainObjectFieldOnColumnNameMap();
         items = collectionPluginData.getItems();
         init();
+
         return root;
 
     }
 
     public void init() {
         buildPanel();
-        buildTableColumns(columnNamesOnDoFieldsMap);
+        createTableColumns();
         insertRows(items);
         applyStyles();
         addHandlers();
 
+    }
+    private void createTableColumns() {
+        if (isSingleChoice) {
+            createTableColumnsWithoutCheckBoxes(columnNamesOnDoFieldsMap, 0);
+        }
+        else {
+            createTableColumnsWithCheckBoxes(columnNamesOnDoFieldsMap);
+        }
     }
 
     private void addResizeHandler() {
@@ -156,6 +174,14 @@ public class CollectionPluginView extends PluginView {
     private void addHandlers() {
         addResizeHandler();
         tableBody.addCellPreviewHandler(new CellTableEventHandler<CollectionRowItem>(tableBody, plugin, eventBus));
+         eventBus.addHandler(CollectionRowDeletedEvent.TYPE, new CollectionRowDeletedEventHandler() {
+             @Override
+             public void onCollectionRowDeleted(CollectionRowDeletedEvent event) {
+                    CollectionRowItem collectionRowItem = findCollectionRowItemById(event.getId());
+                 items.remove(collectionRowItem);
+                 insertRows(items);
+             }
+         });
         eventBus.addHandler(SplitterInnerScrollEvent.TYPE, new SplitterInnerScrollEventHandler() {
             @Override
             public void setScrollPanelHeight(SplitterInnerScrollEvent event) {
@@ -219,13 +245,38 @@ public class CollectionPluginView extends PluginView {
         scrollTableBody.setHeight(tableHeight + "px");
         scrollTableBody.add(bodyPanel);
         verticalPanel.add(scrollTableBody);
-        verticalPanel.setSize("100%", "100%");
+      //  verticalPanel.setSize("100%", "100%");
         root.add(verticalPanel);
 
     }
+    private void createTableColumnsWithCheckBoxes(LinkedHashMap<String, String> domainObjectFieldsOnColumnNamesMap) {
 
-    private void buildTableColumns(LinkedHashMap<String, String> domainObjectFieldsOnColumnNamesMap) {
-        int numberOfColumns = domainObjectFieldsOnColumnNamesMap.keySet().size();
+        Column<CollectionRowItem, Boolean> checkColumn = new Column<CollectionRowItem, Boolean>(
+                new CheckboxCell(true, false)) {
+            @Override
+            public Boolean getValue(CollectionRowItem object) {
+                return false;
+            }
+        };
+
+        checkColumn.setFieldUpdater(new FieldUpdater<CollectionRowItem, Boolean>() {
+            @Override
+            public void update(int index, CollectionRowItem object, Boolean value) {
+                if (value) {
+
+                } else {
+
+                }
+            }
+        });
+        tableHeader.addColumn(checkColumn, "");
+        tableBody.addColumn(checkColumn);
+        createTableColumnsWithoutCheckBoxes(domainObjectFieldsOnColumnNamesMap, 1);
+
+    }
+
+    private void createTableColumnsWithoutCheckBoxes(LinkedHashMap<String, String> domainObjectFieldsOnColumnNamesMap, int startNumberOfColumns) {
+        int numberOfColumns = startNumberOfColumns + domainObjectFieldsOnColumnNamesMap.keySet().size();
         int columnWidth = (tableWidth / numberOfColumns);
         for (String field : domainObjectFieldsOnColumnNamesMap.keySet()) {
             Column<CollectionRowItem, String> column = buildNameColumn(field);
@@ -239,7 +290,7 @@ public class CollectionPluginView extends PluginView {
 
     }
 
-    private void insertRows(List<CollectionRowItem> list) {
+    public void insertRows(List<CollectionRowItem> list) {
         tableBody.setRowData(items);
         listCount = items.size();
 
@@ -293,5 +344,13 @@ public class CollectionPluginView extends PluginView {
         this.eventBus = eventBus;
     }
 
+   private CollectionRowItem findCollectionRowItemById(Id id) {
+         for (CollectionRowItem rowItem : items) {
+             if (id.equals(rowItem.getId())) {
+                 return rowItem;
+             }
+         }
+       throw new GuiException("Couldn't find row with id '" + id.toStringRepresentation() + "'");
+   }
 }
 

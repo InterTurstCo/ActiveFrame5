@@ -15,8 +15,8 @@ import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
-import ru.intertrust.cm.core.gui.model.form.widget.FilteredRowsList;
-import ru.intertrust.cm.core.gui.model.form.widget.FilteredRowsRequest;
+import ru.intertrust.cm.core.gui.model.form.widget.ParseRowsRequest;
+import ru.intertrust.cm.core.gui.model.form.widget.ParsedRowsList;
 import ru.intertrust.cm.core.gui.model.form.widget.TableBrowserRowItem;
 import ru.intertrust.cm.core.gui.model.form.widget.TableBrowserState;
 
@@ -68,26 +68,27 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
             items.add(item);
         }
         state.setCollectionName(collectionName);
+        state.setCollectionViewName(collectionViewName);
         state.setDomainFieldOnColumnNameMap(map);
         state.setSelectedItems(items);
         return state;
     }
 
-    public FilteredRowsList fetchFilteredRows(Dto inputParams) {
-        FilteredRowsRequest filteredRowsRequest = (FilteredRowsRequest) inputParams;
+    public ParsedRowsList fetchFilteredRowsDeprecated(Dto inputParams) {
+        ParseRowsRequest parseRowsRequest = (ParseRowsRequest) inputParams;
         List<Filter> filters = new ArrayList<>();
 
-        if (!filteredRowsRequest.getExcludeIds().isEmpty()) {
-            Set<Id> excludedIds = new HashSet(filteredRowsRequest.getExcludeIds());
-            filters.add(prepareExcludeIdsFilter(excludedIds, filteredRowsRequest.getIdsExclusionFilterName()));
+        if (!parseRowsRequest.getExcludeIds().isEmpty()) {
+            Set<Id> excludedIds = new HashSet(parseRowsRequest.getExcludeIds());
+            filters.add(prepareExcludeIdsFilter(excludedIds, parseRowsRequest.getIdsExclusionFilterName()));
         }
-        filters.add(prepareInputTextFilter(filteredRowsRequest.getText(), filteredRowsRequest.getInputTextFilterName()));
+        filters.add(prepareInputTextFilter(parseRowsRequest.getText(), parseRowsRequest.getInputTextFilterName()));
 
         IdentifiableObjectCollection collection = collectionsService.
-                findCollection(filteredRowsRequest.getCollectionName(), null, filters);
+                findCollection(parseRowsRequest.getCollectionName(), null, filters);
         Pattern pattern = createDefaultRegexPattern();
 
-        Matcher selectionMatcher = pattern.matcher(filteredRowsRequest.getSelectionPattern());
+        Matcher selectionMatcher = pattern.matcher(parseRowsRequest.getSelectionPattern());
 
         ArrayList<TableBrowserRowItem> items = new ArrayList<>();
 
@@ -96,14 +97,38 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
             TableBrowserRowItem item = new TableBrowserRowItem();
             item.setId(identifiableObject.getId());
             item.setSelectedRowRepresentation(format(identifiableObject, selectionMatcher));
-            LinkedHashMap<String, Value> values = getRowModelValues(identifiableObject, filteredRowsRequest.
+            LinkedHashMap<String, Value> values = getRowModelValues(identifiableObject, parseRowsRequest.
                     getColumnFields());
             item.setRow(values);
             items.add(item);
         }
-        FilteredRowsList filteredRows = new FilteredRowsList();
+        ParsedRowsList filteredRows = new ParsedRowsList();
         filteredRows.setFilteredRows(items);
         return filteredRows;
+    }
+    public ParsedRowsList fetchParsedRows(Dto inputParams) {
+        ParseRowsRequest parseRowsRequest = (ParseRowsRequest) inputParams;
+        List<Id> idsToParse = parseRowsRequest.getExcludeIds();
+        List<DomainObject> domainObjects = crudService.find(idsToParse);
+        Pattern pattern = createDefaultRegexPattern();
+
+        Matcher selectionMatcher = pattern.matcher(parseRowsRequest.getSelectionPattern());
+
+        ArrayList<TableBrowserRowItem> items = new ArrayList<>();
+
+        for (DomainObject domainObject : domainObjects) {
+
+            TableBrowserRowItem item = new TableBrowserRowItem();
+            item.setId(domainObject.getId());
+            item.setSelectedRowRepresentation(format(domainObject, selectionMatcher));
+            LinkedHashMap<String, Value> values = getRowModelValues(domainObject, parseRowsRequest.
+                    getColumnFields());
+            item.setRow(values);
+            items.add(item);
+        }
+        ParsedRowsList parsedRows = new ParsedRowsList();
+        parsedRows.setFilteredRows(items);
+        return parsedRows;
     }
 
     private Filter prepareInputTextFilter(String text, String inputTextFilterName) {

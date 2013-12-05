@@ -1,15 +1,13 @@
 package ru.intertrust.cm.core.gui.impl.client.tablebrowser;
 
-import com.google.gwt.cell.client.CheckboxCell;
-import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.NoSelectionModel;
 import com.google.gwt.view.client.SelectionChangeEvent;
+import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
+import ru.intertrust.cm.core.gui.impl.client.form.FacebookStyleView;
 import ru.intertrust.cm.core.gui.model.form.widget.TableBrowserRowItem;
 
 import java.util.ArrayList;
@@ -22,7 +20,7 @@ import java.util.List;
  *         Time: 13:15
  */
 public class TableBrowserView extends Composite {
-
+    private FacebookStyleView facebookStyleView;
     private VerticalPanel root;
     private HorizontalPanel horizontLine;
     private VerticalPanel selectedRowsContainer;
@@ -31,7 +29,7 @@ public class TableBrowserView extends Composite {
     private Button okButton;
     private Button cancelButton;
     private DialogBox dialogBox;
-    private CellTable<TableBrowserRowItem> table;
+    private PluginPanel table;
     private ArrayList<TableBrowserRowItem> selectedItems = new ArrayList<TableBrowserRowItem>();
     private List<TableBrowserRowItem> proposedItems = new ArrayList<TableBrowserRowItem>();
     private List<TableBrowserRowItem> temporaryItems = new ArrayList<TableBrowserRowItem>();
@@ -41,7 +39,8 @@ public class TableBrowserView extends Composite {
     private FlowPanel dialogBoxContent;
     private boolean isSingleChoice;
     private int widgetWidth;
-
+    private String collectionName;
+    private String collectionViewName;
     public TableBrowserView() {
         init();
     }
@@ -50,6 +49,22 @@ public class TableBrowserView extends Composite {
         this.domainObjectFieldOnColumnNameMap = columnNamesAndDoFieldsMap;
         init();
 
+    }
+
+    public String getCollectionName() {
+        return collectionName;
+    }
+
+    public void setCollectionName(String collectionName) {
+        this.collectionName = collectionName;
+    }
+
+    public String getCollectionViewName() {
+        return collectionViewName;
+    }
+
+    public void setCollectionViewName(String collectionViewName) {
+        this.collectionViewName = collectionViewName;
     }
 
     public void setWidgetWidth(int widgetWidth) {
@@ -92,53 +107,35 @@ public class TableBrowserView extends Composite {
         return filterEditor;
     }
 
-    public CellTable<TableBrowserRowItem> getTable() {
-        return table;
-    }
+
 
     public void init() {
         root = new VerticalPanel();
         horizontLine = new HorizontalPanel();
         selectedRowsContainer = new VerticalPanel();
-        initDialogView();
-        horizontLine.add(filterEditor);
-        horizontLine.add(openDialogButton);
-        root.add(horizontLine);
-        root.add(selectedRowsContainer);
+
+
+     //   root.add(selectedRowsContainer);
+        facebookStyleView = new FacebookStyleView();
+        facebookStyleView.setRowItems(selectedItems);
+        root.add(facebookStyleView);
         initWidget(root);
 
     }
 
     public void buildTable() {
-        if (isSingleChoice) {
+    /*    if (isSingleChoice) {
             createTableWithoutCheckBoxes(domainObjectFieldOnColumnNameMap);
             addClickHandlersForSingleChoice();
         } else {
             createTableWithCheckBoxes(domainObjectFieldOnColumnNameMap);
             addClickHandlersForMultiplyChoice();
-        }
+        }      */
         drawSelectedRows();
     }
 
-    private void initDialogView() {
-        filterEditor = new TextBox();
-        openDialogButton = new Button("ADD");
-        dialogBox = new DialogBox();
-        dialogBox.getElement().getStyle().setZIndex(10);
-        table = new CellTable<TableBrowserRowItem>();
-        okButton = new Button("OK");
-        cancelButton = new Button("CANCEL");
-        buttonsContainer = new HorizontalPanel();
-        buttonsContainer.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
-        buttonsContainer.add(okButton);
-        buttonsContainer.add(cancelButton);
-        dialogBoxContent = new FlowPanel();
-        dialogBoxContent.add(table);
-        dialogBoxContent.add(buttonsContainer);
 
-        dialogBox.add(dialogBoxContent);
 
-    }
 
     private void addCancelButtonClickHandler() {
 
@@ -180,7 +177,7 @@ public class TableBrowserView extends Composite {
         });
 
 
-        table.setSelectionModel(selectionModel);
+    /*    table.setSelectionModel(selectionModel);
         okButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -194,19 +191,21 @@ public class TableBrowserView extends Composite {
                 drawSelectedRows();
 
             }
-        });
+        });  */
 
     }
 
     public void drawSelectedRows() {
-        for (TableBrowserRowItem row : selectedItems) {
+     /*   for (TableBrowserRowItem row : selectedItems) {
             drawSelectedRow(row);
-        }
+        }    */
+        facebookStyleView.setRowItems(selectedItems);
+        facebookStyleView.showSelectedItems();
     }
 
     private void drawSelectedRow(TableBrowserRowItem row) {
 
-        Button moveUp = new Button("UP");
+   /*     Button moveUp = new Button("UP");
         Button moveDown = new Button("DOWN");
         Button delete = new Button("DELETE");
         HorizontalPanel rowPanel = new HorizontalPanel();
@@ -219,8 +218,8 @@ public class TableBrowserView extends Composite {
         selectedRowsContainer.add(rowPanel);
         delete.addClickHandler(new DeleteSelectedModelHandler(row));
         moveUp.addClickHandler(new MoveUpHandler(rowPanel));
-        moveDown.addClickHandler(new MoveDownHandler(rowPanel));
-
+        moveDown.addClickHandler(new MoveDownHandler(rowPanel));     */
+         facebookStyleView.addRowItem(row);
     }
 
     private TextColumn<TableBrowserRowItem> buildNameColumn(final String s) {
@@ -234,7 +233,7 @@ public class TableBrowserView extends Composite {
         };
     }
 
-    private void createTableWithCheckBoxes(LinkedHashMap<String, String> columnNamesAndDoFieldsMap) {
+  /*  private void createTableWithCheckBoxes(LinkedHashMap<String, String> columnNamesAndDoFieldsMap) {
 
         Column<TableBrowserRowItem, Boolean> checkColumn = new Column<TableBrowserRowItem, Boolean>(
                 new CheckboxCell(true, false)) {
@@ -256,11 +255,10 @@ public class TableBrowserView extends Composite {
                 }
             }
         });
-        table.addColumn(checkColumn, "");
+     //   table.addColumn(checkColumn, "");
         createTableWithoutCheckBoxes(columnNamesAndDoFieldsMap);
 
     }
-
 
     private void createTableWithoutCheckBoxes(LinkedHashMap<String, String> domainObjectFieldsOnColumnNamesMap) {
 
@@ -273,11 +271,11 @@ public class TableBrowserView extends Composite {
             table.setColumnWidth(column, columnSize + "px");
         }
 
-    }
+    }   */
 
     public void setTableData(List<TableBrowserRowItem> newRows) {
         proposedItems = newRows;
-        table.setRowData(newRows);
+     //   table.setRowData(newRows);
     }
 
 

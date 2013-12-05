@@ -9,10 +9,10 @@ import java.util.Set;
 
 /**
  * @author Yaroslav Bondarchuk
- *         Date: 08.11.13
+ *         Date: 03.12.13
  *         Time: 13:15
  */
-public class FilteredRowsRequest implements Dto {
+public class ParseRowsRequest implements Dto {
     private String text;
     private String collectionName;
     private String selectionPattern;

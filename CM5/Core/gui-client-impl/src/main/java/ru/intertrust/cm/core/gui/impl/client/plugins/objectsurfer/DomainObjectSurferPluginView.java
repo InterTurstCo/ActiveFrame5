@@ -175,7 +175,7 @@ public class DomainObjectSurferPluginView extends PluginView {
             collectionViewerPlugin.setConfig(config.getCollectionViewerConfig());
 
 
-            PluginPanel collectionViewerPluginPanel = new PluginPanel() {
+            PluginPanel collectionViewerPluginPanel  = new PluginPanel() {
                 @Override
                 public void beforePluginOpening() {
                     CollectionPluginData collectionPluginData = collectionViewerPlugin.getInitialData();
@@ -207,6 +207,7 @@ public class DomainObjectSurferPluginView extends PluginView {
             collectionViewerPluginPanel.open(collectionViewerPlugin);
 
         }
+
         return flowPanel;
     }
 
