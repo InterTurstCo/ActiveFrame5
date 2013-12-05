@@ -226,6 +226,9 @@ public class FormSaver {
             result.put(fieldPath, new ArrayList<Id>());
         }
         ArrayList<Id> ids = widgetState.getIds();
+        if (ids == null) {
+            return result;
+        }
         for (Id id : ids) {
             for (FieldPath fieldPath : fieldPaths) {
                 String linkingObjectType = fieldPath.getLinkingObjectType();
