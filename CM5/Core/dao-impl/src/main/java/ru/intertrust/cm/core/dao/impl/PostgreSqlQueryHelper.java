@@ -446,17 +446,15 @@ public class PostgreSqlQueryHelper {
 
     private static void appendSystemColumnsQueryPart(DomainObjectTypeConfig config, StringBuilder query) {
         query.append(wrap(ID_COLUMN)).append(" bigint not null, ");
+        query.append(wrap(TYPE_COLUMN)).append(" integer");
 
         if (config.getExtendsAttribute() == null) {
-            query.append(wrap(CREATED_DATE_COLUMN)).append(" timestamp not null, ");
+            query.append(", ").append(wrap(CREATED_DATE_COLUMN)).append(" timestamp not null, ");
             query.append(wrap(UPDATED_DATE_COLUMN)).append(" timestamp not null, ");
 
             query.append(wrap(GenericDomainObject.STATUS_FIELD_NAME)).append(" bigint, ");
-            query.append(wrap(DomainObjectDao.STATUS_TYPE_COLUMN)).append(" integer, ");
-
+            query.append(wrap(DomainObjectDao.STATUS_TYPE_COLUMN)).append(" integer");
         }
-
-        query.append(wrap(TYPE_COLUMN)).append(" integer");
     }
 
     private static void appendColumnsQueryPart(StringBuilder query, List<FieldConfig> fieldConfigList,

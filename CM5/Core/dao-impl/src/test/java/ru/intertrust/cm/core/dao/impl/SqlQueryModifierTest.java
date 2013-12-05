@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.config.base.Configuration;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TYPE_COLUMN;
 
 public class SqlQueryModifierTest {
 
@@ -32,9 +33,9 @@ public class SqlQueryModifierTest {
             "Department AS d WHERE 1 = 1 AND e.id = 1";
 
     private static final String PLAIN_SELECT_QUERY_WITH_IDS_INCLUDED_FILTERS = "SELECT * FROM EMPLOYEE AS e, " +
-            "Department AS d WHERE 1 = 1 AND (EMPLOYEE.id = :idsIncluded10 AND EMPLOYEE.type_id = :idsIncluded10_type) " +
-            "AND ((EMPLOYEE.id = :idsIncluded20 AND EMPLOYEE.type_id = :idsIncluded20_type) OR " +
-            "(EMPLOYEE.id = :idsIncluded21 AND EMPLOYEE.type_id = :idsIncluded21_type))";
+            "Department AS d WHERE 1 = 1 AND (EMPLOYEE.id = :idsIncluded10 AND EMPLOYEE." + TYPE_COLUMN +
+            " = :idsIncluded10_type) AND ((EMPLOYEE.id = :idsIncluded20 AND EMPLOYEE." + TYPE_COLUMN +
+            " = :idsIncluded20_type) OR (EMPLOYEE.id = :idsIncluded21 AND EMPLOYEE." + TYPE_COLUMN + " = :idsIncluded21_type))";
 
     private static final String PLAIN_SELECT_QUERY_WITH_IDS_EXCLUDED_FILTERS = "SELECT * FROM EMPLOYEE AS e, " +
             "Department AS d WHERE 1 = 1 AND (EMPLOYEE.person <> :idsExcluded10 AND EMPLOYEE.person_type <> :idsExcluded10_type) " +

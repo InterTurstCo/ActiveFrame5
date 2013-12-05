@@ -26,6 +26,7 @@ import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
 import java.util.*;
 
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.*;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getServiceColumnName;
 import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.wrap;
 
@@ -211,9 +212,7 @@ public class SqlQueryModifier {
             Expression expression = null;
             for (Integer key : filter.getCriterionKeys()){
                 Expression idExpression = getIdEqualsExpression(filter, key, fromItem, idField, false);
-                Expression typeExpression = ID_COLUMN.equalsIgnoreCase(idField) ?
-                        getIdEqualsExpression(filter, key, fromItem, TYPE_COLUMN, true) :
-                        getIdEqualsExpression(filter, key, fromItem, idField + REFERENCE_TYPE_POSTFIX, true);
+                Expression typeExpression = getIdEqualsExpression(filter, key, fromItem, getReferenceTypeColumnName(idField), true);
 
                 AndExpression andExpression = new AndExpression(idExpression, typeExpression);
                 Parenthesis parenthesis = new Parenthesis(andExpression);

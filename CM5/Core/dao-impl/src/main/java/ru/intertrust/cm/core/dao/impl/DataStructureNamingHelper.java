@@ -69,11 +69,7 @@ public class DataStructureNamingHelper {
         for (FieldConfig fieldConfig : fieldConfigs) {
             columnNames.add(getSqlName(fieldConfig));
             if (fieldConfig instanceof ReferenceFieldConfig) {
-                if (fieldConfig.getName().equalsIgnoreCase(DomainObjectDao.ID_COLUMN)){
-                    columnNames.add(DomainObjectDao.TYPE_COLUMN);
-                }else{
-                    columnNames.add(getReferenceTypeColumnName(fieldConfig.getName()));
-                }
+                columnNames.add(getReferenceTypeColumnName(fieldConfig.getName()));
             } else if (fieldConfig instanceof DateTimeWithTimeZoneFieldConfig) {
                 columnNames.add(getTimeZoneIdColumnName(fieldConfig.getName()));
             }

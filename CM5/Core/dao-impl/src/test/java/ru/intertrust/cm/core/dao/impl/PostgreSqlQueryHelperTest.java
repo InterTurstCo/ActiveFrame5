@@ -11,6 +11,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static ru.intertrust.cm.core.dao.api.ConfigurationDao.CONFIGURATION_TABLE;
 import static ru.intertrust.cm.core.dao.api.DataStructureDao.AUTHENTICATION_INFO_TABLE;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.ID_COLUMN;
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TYPE_COLUMN;
 import static ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao.DOMAIN_OBJECT_TYPE_ID_TABLE;
 
@@ -74,12 +75,12 @@ public class PostgreSqlQueryHelperTest {
     @Test
      public void testGenerateCreateTableQuery() throws Exception {
         String query = PostgreSqlQueryHelper.generateCreateTableQuery(domainObjectTypeConfig);
-        String checkQuery = "create table \"outgoing_document\" ( \"id\" bigint not null, \"type_id\" integer, " +
-                "\"registration_number\" varchar(128), " +
+        String checkQuery = "create table \"outgoing_document\" ( \"id\" bigint not null, \"" + TYPE_COLUMN +
+                "\" integer, \"registration_number\" varchar(128), " +
                 "\"registration_date\" timestamp, \"author\" bigint, \"author_type\" integer, " +
                 "\"long_field\" bigint, \"decimal_field_1\" decimal(10, 2), \"decimal_field_2\" decimal(10), " +
                 "constraint \"pk_outgoing_document_id\" primary key (\"id\"), " +
-                "constraint \"u_outgoing_document_id_type_id\" unique (\"id\", \"type_id\"), " +
+                "constraint \"u_outgoing_document_id_id_type\" unique (\"id\", \"" + TYPE_COLUMN + "\"), " +
                 "constraint \"fk_outgoing_document_id\"" + " foreign key (\"id\") references " +
                 "\"document\" (\"id\"), constraint \"fk_outgoing_document_" + TYPE_COLUMN + "\" " +
                 "foreign key (\""+ TYPE_COLUMN + "\") references \"domain_object_type_id\" (\"id\"))";
@@ -88,14 +89,14 @@ public class PostgreSqlQueryHelperTest {
 
     @Test
     public void testGenerateCreateTableQueryWithoutExtendsAttribute() throws Exception {
-        String checkQuery = "create table \"outgoing_document\" ( \"id\" bigint not null, " +
+        String checkQuery = "create table \"outgoing_document\" ( \"id\" bigint not null, \"" + TYPE_COLUMN + "\" integer, " +
                 "\"created_date\" timestamp not null, " + "\"updated_date\" timestamp not null, \"status\" bigint, " +
-                "\"status_type\" integer, \"" + TYPE_COLUMN + "\" integer, " +
+                "\"status_type\" integer, " +
                 "\"registration_number\" varchar(128), \"registration_date\" timestamp, \"author\" bigint, " +
                 "\"author_type\" integer, " +
                 "\"long_field\" bigint, \"decimal_field_1\" decimal(10, 2), \"decimal_field_2\" decimal(10), " +
                 "constraint \"pk_outgoing_document_id\" primary key (\"id\"), " +
-                "constraint \"u_outgoing_document_id_type_id\" unique (\"id\", \"type_id\"), " +
+                "constraint \"u_outgoing_document_id_id_type\" unique (\"id\", \"" + TYPE_COLUMN + "\"), " +
                 "constraint \"fk_outgoing_document_" + TYPE_COLUMN + "\" foreign key (\"" + TYPE_COLUMN + "\") " +
                 "references \"domain_object_type_id\" (\"id\"))";
         domainObjectTypeConfig.setExtendsAttribute(null);
@@ -161,7 +162,8 @@ public class PostgreSqlQueryHelperTest {
     public void testGenerateCreateForeignKeyAndUniqueConstraintsQuery() {
         String expectedQuery = "alter table \"outgoing_document\" " +
                 "add constraint \"fk_outgoing_document_executor_executor_type\" " +
-                "foreign key (\"executor\", \"executor_type\") references \"employee\" (\"id\", \"type_id\"), " +
+                "foreign key (\"executor\", \"executor_type\") references \"employee\" (\"" + ID_COLUMN + "\", \"" +
+                TYPE_COLUMN + "\"), " +
                 "add constraint \"u_outgoing_document_registration_number\"" + " unique (\"registration_number\")";
 
         ReferenceFieldConfig executorFieldConfig = new ReferenceFieldConfig();
