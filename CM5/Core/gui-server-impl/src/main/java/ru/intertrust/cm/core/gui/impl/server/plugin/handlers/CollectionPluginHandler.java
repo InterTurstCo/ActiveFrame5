@@ -37,13 +37,31 @@ public class CollectionPluginHandler extends PluginHandler {
     public CollectionPluginData initialize(Dto param) {
         CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig) param;
         CollectionRefConfig collectionRefConfig = collectionViewerConfig.getCollectionRefConfig();
-        List<Filter> filters = prepareFilters(collectionViewerConfig);
         String collectionName = collectionRefConfig.getName();
+        boolean singleChoice = collectionViewerConfig.isSingleChoice();
+        boolean displayChosenValues = collectionViewerConfig.isDisplayChosenValues();
         CollectionPluginData pluginData = new CollectionPluginData();
+        pluginData.setSingleChoice(singleChoice);
+        pluginData.setDisplayChosenValues(displayChosenValues);
         CollectionViewConfig collectionViewConfig = findRequiredCollectionView(collectionName);
         LinkedHashMap<String, String> map = getDomainObjectFieldOnColumnNameMap(collectionViewConfig);
-        ArrayList<CollectionRowItem> items = generateTableRowsForPluginInitialization(collectionName, map.keySet(), 0, 70, filters);
         pluginData.setDomainObjectFieldOnColumnNameMap(map);
+
+        List<Filter> filters = null;
+
+        if (tableHasSingleSelectionModelAndDoesntShowAlreadyChosenRows(singleChoice, displayChosenValues)) {
+          filters = prepareFilters(collectionViewerConfig);
+        }
+        if (tableHasMultipleSelectionModelAndDoesntShowAlreadyChosenRows(singleChoice, displayChosenValues)) {
+            filters = prepareFilters(collectionViewerConfig);
+        }
+        if (tableHasSingleSelectionModelAndDoesntShowAlreadyChosenRows(singleChoice, displayChosenValues)) {
+
+        }
+
+
+        ArrayList<CollectionRowItem> items = generateTableRowsForPluginInitialization(collectionName, map.keySet(), 0, 70, filters);
+
         pluginData.setItems(items);
         pluginData.setCollectionName(collectionName);
 
@@ -176,4 +194,19 @@ public class CollectionPluginHandler extends PluginHandler {
         IdsExcludedFilter includeIdsFilter = new IdsExcludedFilter(list);
         return includeIdsFilter;
     }
+    private boolean tableHasSingleSelectionModelAndDoesntShowAlreadyChosenRows(boolean singleChoice, boolean displayChosenValues) {
+        return singleChoice && !displayChosenValues;
+    }
+    private boolean tableHasSingleSelectionModelAndShowsAlreadyChosenRows(boolean singleChoice, boolean displayChosenValues) {
+        return singleChoice && displayChosenValues;
+    }
+    private boolean tableHasMultipleSelectionModelAndDoesntShowAlreadyChosenRows(boolean singleChoice, boolean displayChosenValues) {
+        return !singleChoice && !displayChosenValues;
+    }
+    private boolean tableHasMultiplySelectionModelAndShowsAlreadyChosenRows(boolean singleChoice, boolean displayChosenValues) {
+        return !singleChoice && displayChosenValues;
+    }
+   private CollectionPluginData prepareDynamicContentOfCollectionPluginData(CollectionPluginData collectionPluginData){
+        return collectionPluginData;
+   }
 }

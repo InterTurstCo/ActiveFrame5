@@ -4,6 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
@@ -14,7 +15,6 @@ import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
-import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
@@ -41,7 +41,7 @@ public class TableBrowserWidget extends BaseWidget {
     private PluginPanel pluginPanel;
     private Button openDialogButton;
     private TextBox filterEditor;
-    private EventBus eventBus = Application.getInstance().getEventBus();
+    private EventBus eventBus = new SimpleEventBus();
     private ArrayList<TableBrowserRowItem> selectedItemsRepresentations = new ArrayList<TableBrowserRowItem>();
     private ArrayList<Id> selectedIds = new ArrayList<Id>();
     private ArrayList<Id> temporarySelectedIds = new ArrayList<Id>();
@@ -149,15 +149,9 @@ public class TableBrowserWidget extends BaseWidget {
         CollectionViewerConfig collectionViewerConfig = initCollectionConfig();
         collectionPlugin.setConfig(collectionViewerConfig);
         collectionPlugin.setEventBus(eventBus);
-
         pluginPanel.open(collectionPlugin);
-
         dialogBox.center();
-        if (tableBrowserConfig.getDisplayChosenValues().isDisplayChosenValues()){
 
-        } else {
-
-        }
     }
 
     private FlowPanel initWidgetView() {
@@ -228,6 +222,18 @@ public class TableBrowserWidget extends BaseWidget {
                 dialogBox.hide();
             }
         });
+        eventBus.addHandler(CollectionRowSelectedEvent.TYPE, new CollectionRowSelectedEventHandler() {
+            @Override
+            public void onCollectionRowSelect(CollectionRowSelectedEvent event) {
+                   if (event.isDeselected()) {
+                       temporarySelectedIds.remove(event.getId());
+                   }  else {
+                       temporarySelectedIds.add(event.getId());
+                   }
+
+            }
+        });
+
     }
 
     private void addClickHandlersForSingleChoice(final Button okButton, final Button cancelButton, final DialogBox dialogBox) {

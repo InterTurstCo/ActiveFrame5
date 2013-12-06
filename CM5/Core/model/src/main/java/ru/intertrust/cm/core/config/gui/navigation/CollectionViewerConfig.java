@@ -32,7 +32,7 @@ public class CollectionViewerConfig extends PluginConfig{
 
     private boolean displayChosenValues;
 
-    private boolean singleChoice;
+    private boolean singleChoice = true;
 
     public CollectionRefConfig getCollectionRefConfig() {
         return collectionRefConfig;
