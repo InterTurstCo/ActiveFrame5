@@ -33,14 +33,14 @@ public class SqlQueryModifierTest {
             "Department AS d WHERE 1 = 1 AND e.id = 1";
 
     private static final String PLAIN_SELECT_QUERY_WITH_IDS_INCLUDED_FILTERS = "SELECT * FROM EMPLOYEE AS e, " +
-            "Department AS d WHERE 1 = 1 AND (EMPLOYEE.id = :idsIncluded10 AND EMPLOYEE." + TYPE_COLUMN +
-            " = :idsIncluded10_type) AND ((EMPLOYEE.id = :idsIncluded20 AND EMPLOYEE." + TYPE_COLUMN +
-            " = :idsIncluded20_type) OR (EMPLOYEE.id = :idsIncluded21 AND EMPLOYEE." + TYPE_COLUMN + " = :idsIncluded21_type))";
+            "Department AS d WHERE 1 = 1 AND (e.id = :idsIncluded10 AND e." + TYPE_COLUMN +
+            " = :idsIncluded10_type) AND ((e.id = :idsIncluded20 AND e." + TYPE_COLUMN +
+            " = :idsIncluded20_type) OR (e.id = :idsIncluded21 AND e." + TYPE_COLUMN + " = :idsIncluded21_type))";
 
     private static final String PLAIN_SELECT_QUERY_WITH_IDS_EXCLUDED_FILTERS = "SELECT * FROM EMPLOYEE AS e, " +
-            "Department AS d WHERE 1 = 1 AND (EMPLOYEE.person <> :idsExcluded10 AND EMPLOYEE.person_type <> :idsExcluded10_type) " +
-            "AND ((EMPLOYEE.person <> :idsExcluded20 AND EMPLOYEE.person_type <> :idsExcluded20_type) AND " +
-            "(EMPLOYEE.person <> :idsExcluded21 AND EMPLOYEE.person_type <> :idsExcluded21_type))";
+            "Department AS d WHERE 1 = 1 AND (e.person <> :idsExcluded10 AND e.person_type <> :idsExcluded10_type) " +
+            "AND ((e.person <> :idsExcluded20 AND e.person_type <> :idsExcluded20_type) AND " +
+            "(e.person <> :idsExcluded21 AND e.person_type <> :idsExcluded21_type))";
 
     private static final String UNION_QUERY_WITH_TYPE = "(SELECT * FROM EMPLOYEE AS e, " +
             "Department AS d WHERE 1 = 1 AND e.id = 1) " +
@@ -96,9 +96,7 @@ public class SqlQueryModifierTest {
    }
 
     @Test
-    public void testIdsIncludedFilter() {
-        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier();
-
+     public void testIdsIncludedFilter() {
         IdsIncludedFilter idsIncludedFilter1 = new IdsIncludedFilter();
         idsIncludedFilter1.setFilter("idsIncluded1");
         idsIncludedFilter1.addCriterion(0, new ReferenceValue(new RdbmsId(1, 100)));
@@ -108,6 +106,7 @@ public class SqlQueryModifierTest {
         idsIncludedFilter2.addCriterion(0, new ReferenceValue(new RdbmsId(1, 101)));
         idsIncludedFilter2.addCriterion(1, new ReferenceValue(new RdbmsId(1, 102)));
 
+        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier();
         String modifiedQuery = collectionQueryModifier.addIdBasedFilters(PLAIN_SELECT_QUERY_WITHOUT_WHERE,
                 Arrays.asList(new Filter[] {idsIncludedFilter1, idsIncludedFilter2}), "id");
 
@@ -123,6 +122,24 @@ public class SqlQueryModifierTest {
         idsExcludedFilter2.addCriterion(1, new ReferenceValue(new RdbmsId(1, 102)));
 
         modifiedQuery = collectionQueryModifier.addIdBasedFilters(PLAIN_SELECT_QUERY_WITHOUT_WHERE,
+                Arrays.asList(new Filter[]{idsExcludedFilter1, idsExcludedFilter2}), "person");
+
+        assertEquals(PLAIN_SELECT_QUERY_WITH_IDS_EXCLUDED_FILTERS, modifiedQuery);
+    }
+
+    @Test
+    public void testIdsExcludedFilter() {
+        IdsExcludedFilter idsExcludedFilter1 = new IdsExcludedFilter();
+        idsExcludedFilter1.setFilter("idsExcluded1");
+        idsExcludedFilter1.addCriterion(0, new ReferenceValue(new RdbmsId(1, 100)));
+
+        IdsExcludedFilter idsExcludedFilter2 = new IdsExcludedFilter();
+        idsExcludedFilter2.setFilter("idsExcluded2");
+        idsExcludedFilter2.addCriterion(0, new ReferenceValue(new RdbmsId(1, 101)));
+        idsExcludedFilter2.addCriterion(1, new ReferenceValue(new RdbmsId(1, 102)));
+
+        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier();
+        String modifiedQuery = collectionQueryModifier.addIdBasedFilters(PLAIN_SELECT_QUERY_WITHOUT_WHERE,
                 Arrays.asList(new Filter[]{idsExcludedFilter1, idsExcludedFilter2}), "person");
 
         assertEquals(PLAIN_SELECT_QUERY_WITH_IDS_EXCLUDED_FILTERS, modifiedQuery);

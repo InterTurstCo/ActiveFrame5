@@ -194,6 +194,12 @@ public class SqlQueryModifier {
         }
 
         Table fromItem = (Table) plainSelect.getFromItem();
+        Table whereTable = new Table();
+        if (fromItem.getAlias() != null) {
+            whereTable.setName(fromItem.getAlias());
+        } else {
+            whereTable.setName(wrap(fromItem.getName()));
+        }
 
         Expression where = plainSelect.getWhere();
         if (where == null) {
@@ -211,8 +217,8 @@ public class SqlQueryModifier {
 
             Expression expression = null;
             for (Integer key : filter.getCriterionKeys()){
-                Expression idExpression = getIdEqualsExpression(filter, key, fromItem, idField, false);
-                Expression typeExpression = getIdEqualsExpression(filter, key, fromItem, getReferenceTypeColumnName(idField), true);
+                Expression idExpression = getIdEqualsExpression(filter, key, whereTable, idField, false);
+                Expression typeExpression = getIdEqualsExpression(filter, key, whereTable, getReferenceTypeColumnName(idField), true);
 
                 AndExpression andExpression = new AndExpression(idExpression, typeExpression);
                 Parenthesis parenthesis = new Parenthesis(andExpression);
