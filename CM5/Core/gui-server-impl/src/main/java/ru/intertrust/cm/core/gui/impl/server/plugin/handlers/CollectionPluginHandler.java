@@ -37,11 +37,7 @@ public class CollectionPluginHandler extends PluginHandler {
     public CollectionPluginData initialize(Dto param) {
         CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig) param;
         CollectionRefConfig collectionRefConfig = collectionViewerConfig.getCollectionRefConfig();
-        InputTextFilterConfig inputTextFilterConfig = collectionViewerConfig.getInputTextFilterConfig();
-        String text = inputTextFilterConfig.getName();
-        Filter filterByText = prepareInputTextFilter(text);
-        List<Filter> filters = new ArrayList<Filter>();
-        filters.add(filterByText);
+        List<Filter> filters = prepareFilters(collectionViewerConfig);
         String collectionName = collectionRefConfig.getName();
         CollectionPluginData pluginData = new CollectionPluginData();
         CollectionViewConfig collectionViewConfig = findRequiredCollectionView(collectionName);
@@ -60,6 +56,21 @@ public class CollectionPluginHandler extends PluginHandler {
 
         return viewConfigs;
 
+    }
+    private List<Filter> prepareFilters(CollectionViewerConfig collectionViewerConfig){
+        List<Filter> filters = new ArrayList<Filter>();
+        InputTextFilterConfig inputTextFilterConfig = collectionViewerConfig.getInputTextFilterConfig();
+        if (inputTextFilterConfig == null) {
+              return filters;
+        }
+        String name = inputTextFilterConfig.getName();
+        String text = inputTextFilterConfig.getValue();
+        Filter filterByText = prepareInputTextFilter(name, text);
+        Filter filterByIds = prepareExcludeIdsFilter(collectionViewerConfig.getExcludedIds());
+
+        filters.add(filterByText);
+        filters.add(filterByIds);
+        return filters;
     }
 
     private CollectionViewConfig findRequiredCollectionView(String collection) {
@@ -140,10 +151,29 @@ public class CollectionPluginHandler extends PluginHandler {
         collectionRowItemList.setCollectionRows(list);
         return collectionRowItemList;
     }
-    private Filter prepareInputTextFilter(String text) {
+    private Filter prepareInputTextFilter(String name, String text) {
         Filter textFilter = new Filter();
-        textFilter.setFilter("byText");
+        textFilter.setFilter(name);
         textFilter.addCriterion(0, new StringValue(text + "%"));
         return textFilter;
+    }
+    private Filter prepareExcludeIdsFilter(List<Id> excludeIds) {
+
+       List<ReferenceValue> list = new ArrayList<ReferenceValue>();
+        for (Id excludeId : excludeIds) {
+            list.add(new ReferenceValue(excludeId));
+        }
+        IdsExcludedFilter excludeIdsFilter = new IdsExcludedFilter(list);
+
+        return excludeIdsFilter;
+    }
+    private Filter prepareIncludeIdsFilter(List<Id> icludeIds) {
+
+        List<ReferenceValue> list = new ArrayList<ReferenceValue>();
+        for (Id includeId :icludeIds) {
+            list.add(new ReferenceValue(includeId));
+        }
+        IdsExcludedFilter includeIdsFilter = new IdsExcludedFilter(list);
+        return includeIdsFilter;
     }
 }

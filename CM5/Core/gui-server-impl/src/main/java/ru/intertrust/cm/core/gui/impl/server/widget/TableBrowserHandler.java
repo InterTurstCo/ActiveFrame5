@@ -67,10 +67,9 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
             item.setRow(values);
             items.add(item);
         }
-        state.setCollectionName(collectionName);
-        state.setCollectionViewName(collectionViewName);
+
         state.setDomainFieldOnColumnNameMap(map);
-        state.setSelectedItems(items);
+        state.setSelectedItemsRepresentations(items);
         return state;
     }
 
@@ -139,15 +138,20 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
     }
 
     private Filter prepareExcludeIdsFilter(Set<Id> excludeIds, String idsExclusionFilterName) {
-        Filter exludeIdsFilter = new Filter();
+      /*  Filter exludeIdsFilter = new Filter();
 
         List<Value> excludeIdsCriterion = new ArrayList<>();
         for (Id id : excludeIds) {
             excludeIdsCriterion.add(new ReferenceValue(id));
         }
         exludeIdsFilter.addMultiCriterion(0, excludeIdsCriterion);
-        exludeIdsFilter.setFilter(idsExclusionFilterName);
-        return exludeIdsFilter;
+        exludeIdsFilter.setFilter(idsExclusionFilterName);   */
+        List<ReferenceValue> list = new ArrayList<ReferenceValue>();
+        for (Id exludeId : excludeIds) {
+            list.add(new ReferenceValue(exludeId));
+        }
+        IdsExcludedFilter excludeIdsFilter = new IdsExcludedFilter(list);
+        return excludeIdsFilter;
     }
 
     private Pattern createDefaultRegexPattern() {

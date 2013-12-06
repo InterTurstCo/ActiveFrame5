@@ -23,9 +23,8 @@ public class CollectionRowsRequest implements Dto {
         this.limit = limit;
         this.collectionName = collectionName;
         this.fields = fields;
+
     }
-
-
 
     public CollectionRowsRequest() {
     }

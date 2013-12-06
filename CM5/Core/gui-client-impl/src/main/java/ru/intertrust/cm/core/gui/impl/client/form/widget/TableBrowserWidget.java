@@ -4,9 +4,9 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
+import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.InputTextFilterConfig;
@@ -14,10 +14,10 @@ import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
-import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowDeletedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.FacebookStyleView;
@@ -38,14 +38,13 @@ import java.util.List;
 @ComponentName("table-browser")
 public class TableBrowserWidget extends BaseWidget {
     private TableBrowserConfig tableBrowserConfig;
-    private String collectionName;
-    private String collectionViewName;
     private PluginPanel pluginPanel;
     private Button openDialogButton;
     private TextBox filterEditor;
-    private  SimpleEventBus eventBus = new SimpleEventBus();
-    private ArrayList<TableBrowserRowItem> selectedItems = new ArrayList<TableBrowserRowItem>();
+    private EventBus eventBus = Application.getInstance().getEventBus();
+    private ArrayList<TableBrowserRowItem> selectedItemsRepresentations = new ArrayList<TableBrowserRowItem>();
     private ArrayList<Id> selectedIds = new ArrayList<Id>();
+    private ArrayList<Id> temporarySelectedIds = new ArrayList<Id>();
     private int width;
     private int height;
     private DialogBox dialogBox;
@@ -54,18 +53,17 @@ public class TableBrowserWidget extends BaseWidget {
     @Override
     public void setCurrentState(WidgetState currentState) {
         TableBrowserState tableBrowserState = (TableBrowserState) currentState;
-        collectionName = tableBrowserState.getCollectionName();
-        collectionViewName = tableBrowserState.getCollectionViewName();
         tableBrowserConfig = tableBrowserState.getTableBrowserConfig();
+        facebookStyleView.initDisplayStyle(tableBrowserConfig.getSelectionStyleConfig().getName());
         initSizes();
-        selectedItems = tableBrowserState.getSelectedItems();
+        selectedItemsRepresentations = tableBrowserState.getSelectedItemsRepresentations();
         initDialogView();
     }
 
     @Override
     public TableBrowserState getCurrentState() {
         TableBrowserState state = new TableBrowserState();
-        state.setSelectedItems(facebookStyleView.getRowItems());
+        state.setSelectedItemsRepresentations(facebookStyleView.getRowItems());
 
         return state;
     }
@@ -76,7 +74,7 @@ public class TableBrowserWidget extends BaseWidget {
         return initWidgetView();
     }
 
-   private void fetchParsedRows(String text) {
+   private void fetchParsedRows() {
 
         ParseRowsRequest parseRowsRequest = new ParseRowsRequest();
         String name = tableBrowserConfig.getCollectionRefConfig().getName();
@@ -85,7 +83,7 @@ public class TableBrowserWidget extends BaseWidget {
         TableBrowserState tableBrowserState = getCurrentState();
      //   parseRowsRequest.setColumnFields(view.getDomainObjectFieldOnColumnNameMap());
         parseRowsRequest.setSelectionPattern(tableBrowserConfig.getSelectionPatternConfig().getValue());
-        parseRowsRequest.setText(text);
+
         parseRowsRequest.setExcludeIds(selectedIds);
         parseRowsRequest.setInputTextFilterName(tableBrowserConfig.getInputTextFilterConfig().getName());
         parseRowsRequest.setIdsExclusionFilterName(tableBrowserConfig.getSelectionExcludeFilterConfig().getName());
@@ -97,8 +95,8 @@ public class TableBrowserWidget extends BaseWidget {
                 ParsedRowsList list = (ParsedRowsList) result;
 
                 List<TableBrowserRowItem> items = list.getFilteredRows();
-                selectedItems.addAll(items);
-                facebookStyleView.setRowItems(selectedItems);
+                selectedItemsRepresentations.addAll(items);
+                facebookStyleView.setRowItems(selectedItemsRepresentations);
                 facebookStyleView.showSelectedItems();
             }
 
@@ -131,34 +129,41 @@ public class TableBrowserWidget extends BaseWidget {
         CollectionViewerConfig collectionViewerConfig = new CollectionViewerConfig();
         CollectionViewRefConfig collectionViewRefConfig = new CollectionViewRefConfig();
         InputTextFilterConfig inputTextFilterConfig = new InputTextFilterConfig();
-        inputTextFilterConfig.setName(filterEditor.getText());
-        collectionViewRefConfig.setName(collectionViewName);
+        inputTextFilterConfig.setName("byText");
+        inputTextFilterConfig.setValue(filterEditor.getValue());
+        collectionViewRefConfig.setName(tableBrowserConfig.getCollectionViewRefConfig().getName());
         CollectionRefConfig collectionRefConfig = new CollectionRefConfig();
-        collectionRefConfig.setName(collectionName);
+        collectionRefConfig.setName(tableBrowserConfig.getCollectionRefConfig().getName());
         collectionViewerConfig.setCollectionRefConfig(collectionRefConfig);
         collectionViewerConfig.setCollectionViewRefConfig(collectionViewRefConfig);
         collectionViewerConfig.setInputTextFilterConfig(inputTextFilterConfig);
+        collectionViewerConfig.setSingleChoice(tableBrowserConfig.getSingleChoice().isSingleChoice());
+        collectionViewerConfig.setDisplayChosenValues(tableBrowserConfig.getDisplayChosenValues().isDisplayChosenValues());
+        collectionViewerConfig.setExcludedIds(selectedIds);
         return collectionViewerConfig;
     }
 
     private void openCollectionPlugin(){
-        pluginPanel.closeCurrentPlugin();
+
         CollectionPlugin collectionPlugin = ComponentRegistry.instance.get("collection.plugin");
         CollectionViewerConfig collectionViewerConfig = initCollectionConfig();
         collectionPlugin.setConfig(collectionViewerConfig);
         collectionPlugin.setEventBus(eventBus);
-   /*     CollectionPluginData pluginData = new CollectionPluginData();
-        pluginData.setTextToFindInRow(filterEditor.getText());
-        collectionPlugin.getInitialData();*/
-   //     collectionPlugin.setInitialData(pluginData);
+
         pluginPanel.open(collectionPlugin);
+
         dialogBox.center();
+        if (tableBrowserConfig.getDisplayChosenValues().isDisplayChosenValues()){
+
+        } else {
+
+        }
     }
 
     private FlowPanel initWidgetView() {
         FlowPanel root = new FlowPanel();
         facebookStyleView = new FacebookStyleView();
-        facebookStyleView.setRowItems(selectedItems);
+        facebookStyleView.setRowItems(selectedItemsRepresentations);
         filterEditor = new TextBox();
         openDialogButton = new Button("ADD");
         openDialogButton.addClickHandler(new FetchFilteredRowsClickHandler());
@@ -218,8 +223,8 @@ public class TableBrowserWidget extends BaseWidget {
         okButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-
-                fetchParsedRows("");
+               selectedIds.addAll(temporarySelectedIds);
+                fetchParsedRows();
                 dialogBox.hide();
             }
         });
@@ -230,37 +235,20 @@ public class TableBrowserWidget extends BaseWidget {
         okButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                eventBus.fireEvent(new CollectionRowDeletedEvent(selectedIds.get(0)));
-                fetchParsedRows("");
+          //      eventBus.fireEvent(new CollectionRowDeletedEvent(selectedIds));
+                selectedIds.addAll(temporarySelectedIds);
+                fetchParsedRows();
                 dialogBox.hide();
             }
         });
         eventBus.addHandler(CollectionRowSelectedEvent.TYPE, new CollectionRowSelectedEventHandler() {
             @Override
             public void onCollectionRowSelect(CollectionRowSelectedEvent event) {
-              selectedIds.clear();
-              selectedIds.add(event.getId());
+              temporarySelectedIds.clear();
+              temporarySelectedIds.add(event.getId());
 
             }
         });
-
-
-
-    /*    pluginPanel.setSelectionModel(selectionModel);
-        okButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-
-                selectedItems.add(newSelectedItem);
-                proposedItems.remove(newSelectedItem);
-                selectionModel.setSelected(newSelectedItem, false);
-                setTableData(proposedItems);
-                pluginPanel.redraw();
-                cleanUpSelectedRows();
-                drawSelectedRows();
-
-            }
-        });  */
 
     }
     private void initSizes() {
@@ -270,4 +258,5 @@ public class TableBrowserWidget extends BaseWidget {
         height = heightString == null ? 300 :  Integer.parseInt(heightString.replaceAll("\\D+", ""));
 
     }
+
 }

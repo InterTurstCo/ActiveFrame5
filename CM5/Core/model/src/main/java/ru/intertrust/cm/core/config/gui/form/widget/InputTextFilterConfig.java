@@ -16,7 +16,8 @@ import java.io.Serializable;
 @Root(name = "input-text-filter")
 public class InputTextFilterConfig implements Serializable {
     @Attribute(name = "name")
-    String name;
+    private String name;
+    private String value;
 
     public String getName() {
         return name;
@@ -24,5 +25,13 @@ public class InputTextFilterConfig implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 }

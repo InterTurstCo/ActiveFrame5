@@ -220,7 +220,7 @@ public class FormSaver {
     }
 
     private HashMap<FieldPath, ArrayList<Id>> getBackReferenceFieldPathsIds(FieldPath[] fieldPaths,
-                                                                            LinkEditingWidgetState  widgetState) {
+                                                                            LinkEditingWidgetState widgetState) {
         HashMap<FieldPath, ArrayList<Id>> result = new HashMap<>();
         for (FieldPath fieldPath : fieldPaths) {
             result.put(fieldPath, new ArrayList<Id>());
@@ -261,7 +261,7 @@ public class FormSaver {
 
         String linkToParentName = fieldPath.getLinkToParentName();
 
-        ArrayList<DomainObject> previousState = ((MultiObjectNode)formObjects.getNode(fieldPath)).getDomainObjects();
+        ArrayList<DomainObject> previousState = ((MultiObjectNode) formObjects.getNode(fieldPath)).getDomainObjects();
         if (previousState == null) {
             previousState = new ArrayList<>(0);
         }

@@ -89,7 +89,7 @@ public class DomainObjectSurferPlugin extends Plugin implements
         final FormPlugin newFormPlugin = ComponentRegistry.instance.get("form.plugin");
         newFormPlugin.setEventBus(this.eventBus);
         newFormPlugin.setConfig(new FormPluginConfig(event.getId()));
-        newFormPlugin.addViewCreatedListener(new SizeChangedEventListener() {
+        newFormPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {
             @Override
             public void onViewCreation(PluginViewCreatedEvent source) {
                 List<ActionContext> actions = ((FormPluginData) newFormPlugin.getInitialData()).getActionContexts();

@@ -11,15 +11,15 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  */
 @Root(name = "display-chosen-values")
 public class DisplayChosenValuesConfig implements Dto {
-    @Attribute(name = "name")
-    String name;
+    @Attribute(name = "value", required = false)
+    private boolean displayChosenValues = false;
 
-    public String getName() {
-        return name;
+    public boolean isDisplayChosenValues() {
+        return displayChosenValues;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setDisplayChosenValues(boolean displayChosenValues) {
+        this.displayChosenValues = displayChosenValues;
     }
 
     @Override
@@ -33,13 +33,15 @@ public class DisplayChosenValuesConfig implements Dto {
 
         DisplayChosenValuesConfig that = (DisplayChosenValuesConfig) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (displayChosenValues != that.displayChosenValues) {
+            return false;
+        }
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return name != null ? name.hashCode() : 0;
+        return (displayChosenValues ? 1 : 0);
     }
 }

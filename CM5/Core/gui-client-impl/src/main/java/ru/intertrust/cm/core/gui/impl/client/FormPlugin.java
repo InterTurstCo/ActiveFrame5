@@ -6,7 +6,7 @@ import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.SizeChangedEventListener;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
@@ -86,7 +86,7 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
         final FormPlugin newPlugin = ComponentRegistry.instance.get("form.plugin");
         newPlugin.setConfig(formPluginConfig);
         getOwner().open(newPlugin);
-        newPlugin.addViewCreatedListener(new SizeChangedEventListener() {
+        newPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {
             @Override
             public void onViewCreation(PluginViewCreatedEvent source) {
                 eventBus.fireEvent(new PluginPanelSizeChangedEvent());

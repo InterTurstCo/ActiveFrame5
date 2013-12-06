@@ -3,20 +3,28 @@ package ru.intertrust.cm.core.gui.impl.client.event;
 import com.google.gwt.event.shared.GwtEvent;
 import ru.intertrust.cm.core.business.api.dto.Id;
 
+import java.util.List;
+
 /**
- * Created with IntelliJ IDEA.
- * User: User
- * Date: 04.12.13
- * Time: 13:12
- * To change this template use File | Settings | File Templates.
+ * @author Yaroslav Bondarchuk
+ *         Date: 02.12.13
+ *         Time: 11:15
  */
 public class CollectionRowDeletedEvent extends GwtEvent<CollectionRowDeletedEventHandler> {
 
     public static Type<CollectionRowDeletedEventHandler> TYPE = new Type<CollectionRowDeletedEventHandler>();
-    private Id id;
+    private List<Id> ids;
 
-    public CollectionRowDeletedEvent(Id id) {
-        this.id = id;
+    public CollectionRowDeletedEvent(List<Id> ids) {
+        this.ids = ids;
+    }
+
+    public List<Id> getIds() {
+        return ids;
+    }
+
+    public void setIds(List<Id> ids) {
+        this.ids = ids;
     }
 
     @Override
@@ -29,7 +37,5 @@ public class CollectionRowDeletedEvent extends GwtEvent<CollectionRowDeletedEven
         handler.onCollectionRowDeleted(this);
     }
 
-    public Id getId() {
-        return id;
-    }
+
 }

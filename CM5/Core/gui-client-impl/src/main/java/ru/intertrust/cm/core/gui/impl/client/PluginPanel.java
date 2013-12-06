@@ -97,7 +97,6 @@ public class PluginPanel implements IsWidget {
         this.currentPlugin = plugin;
         beforePluginOpening();
         impl.setWidget(this.currentPlugin.getView());
-        impl.setSize("100%", "100%");
 
     }
 

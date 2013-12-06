@@ -18,6 +18,7 @@ import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
@@ -81,6 +82,14 @@ public class CollectionPluginView extends PluginView {
 
     }
 
+    public boolean isSingleChoice() {
+        return isSingleChoice;
+    }
+
+    public void setSingleChoice(boolean singleChoice) {
+        isSingleChoice = singleChoice;
+    }
+
     public TableController getTableController() {
         return tableController;
     }
@@ -96,8 +105,10 @@ public class CollectionPluginView extends PluginView {
     }
 
     private void createCollectionData() {
+        CollectionPluginData collectionPluginData = plugin.getInitialData();
+
         CollectionRowsRequest collectionRowsRequest = new CollectionRowsRequest(listCount, 15, collectionName, columnNamesOnDoFieldsMap);
-        Command command = new Command("generateTableRowsForPluginInitialization", "collection.plugin", collectionRowsRequest);
+        Command command = new Command("generateCollectionRowItems", "collection.plugin", collectionRowsRequest);
 
         BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, new AsyncCallback<Dto>() {
             @Override
@@ -137,11 +148,11 @@ public class CollectionPluginView extends PluginView {
         addHandlers();
 
     }
+
     private void createTableColumns() {
         if (isSingleChoice) {
             createTableColumnsWithoutCheckBoxes(columnNamesOnDoFieldsMap, 0);
-        }
-        else {
+        } else {
             createTableColumnsWithCheckBoxes(columnNamesOnDoFieldsMap);
         }
     }
@@ -174,14 +185,15 @@ public class CollectionPluginView extends PluginView {
     private void addHandlers() {
         addResizeHandler();
         tableBody.addCellPreviewHandler(new CellTableEventHandler<CollectionRowItem>(tableBody, plugin, eventBus));
-         eventBus.addHandler(CollectionRowDeletedEvent.TYPE, new CollectionRowDeletedEventHandler() {
-             @Override
-             public void onCollectionRowDeleted(CollectionRowDeletedEvent event) {
-                    CollectionRowItem collectionRowItem = findCollectionRowItemById(event.getId());
-                 items.remove(collectionRowItem);
-                 insertRows(items);
-             }
-         });
+        Application.getInstance().getEventBus().addHandler(CollectionRowDeletedEvent.TYPE, new CollectionRowDeletedEventHandler() {
+            @Override
+            public void onCollectionRowDeleted(CollectionRowDeletedEvent event) {
+                List<CollectionRowItem> collectionRowItemsToRemove = findCollectionRowItemsByIds(event.getIds());
+                items.removeAll(collectionRowItemsToRemove);
+                insertRows(items);
+                tableBody.redraw();
+            }
+        });
         eventBus.addHandler(SplitterInnerScrollEvent.TYPE, new SplitterInnerScrollEventHandler() {
             @Override
             public void setScrollPanelHeight(SplitterInnerScrollEvent event) {
@@ -195,12 +207,12 @@ public class CollectionPluginView extends PluginView {
 
             @Override
             public void setWidgetSize(SplitterWidgetResizerEvent event) {
-               // if (event.isType()) {
-                    if ((event.getFirstWidgetHeight() * 2) < Window.getClientHeight()) {
-                        scrollTableBody.setHeight(((event.getFirstWidgetHeight() * 2) - headerPanel.getOffsetHeight()) + "px");
-                    } else {
-                        scrollTableBody.setHeight((event.getFirstWidgetHeight() - headerPanel.getOffsetHeight()) + "px");
-                    }
+                // if (event.isType()) {
+                if ((event.getFirstWidgetHeight() * 2) < Window.getClientHeight()) {
+                    scrollTableBody.setHeight(((event.getFirstWidgetHeight() * 2) - headerPanel.getOffsetHeight()) + "px");
+                } else {
+                    scrollTableBody.setHeight((event.getFirstWidgetHeight() - headerPanel.getOffsetHeight()) + "px");
+                }
 //                } else {
 //                    scrollTableBody.setHeight((event.getFirstWidgetHeight() - headerPanel.getOffsetHeight()) + "px");
 //                }
@@ -225,7 +237,6 @@ public class CollectionPluginView extends PluginView {
 
     }
 
-
     private TextColumn<CollectionRowItem> buildNameColumn(final String string) {
 
         return new TextColumn<CollectionRowItem>() {
@@ -245,10 +256,11 @@ public class CollectionPluginView extends PluginView {
         scrollTableBody.setHeight(tableHeight + "px");
         scrollTableBody.add(bodyPanel);
         verticalPanel.add(scrollTableBody);
-      //  verticalPanel.setSize("100%", "100%");
+        //  verticalPanel.setSize("100%", "100%");
         root.add(verticalPanel);
 
     }
+
     private void createTableColumnsWithCheckBoxes(LinkedHashMap<String, String> domainObjectFieldsOnColumnNamesMap) {
 
         Column<CollectionRowItem, Boolean> checkColumn = new Column<CollectionRowItem, Boolean>(
@@ -344,13 +356,25 @@ public class CollectionPluginView extends PluginView {
         this.eventBus = eventBus;
     }
 
-   private CollectionRowItem findCollectionRowItemById(Id id) {
-         for (CollectionRowItem rowItem : items) {
-             if (id.equals(rowItem.getId())) {
-                 return rowItem;
-             }
-         }
-       throw new GuiException("Couldn't find row with id '" + id.toStringRepresentation() + "'");
-   }
+    private List<CollectionRowItem> findCollectionRowItemsByIds(List<Id> ids) {
+        List<CollectionRowItem> foundRowItems = new ArrayList<CollectionRowItem>();
+        for (Id idToFind : ids) {
+            CollectionRowItem foundCollectionRowItem = findCollectionRowItemById(idToFind);
+            foundRowItems.add(foundCollectionRowItem);
+        }
+        return foundRowItems;
+    }
+
+    private CollectionRowItem findCollectionRowItemById(Id id) {
+        for (CollectionRowItem rowItem : items) {
+            System.out.println("table id " + rowItem.getId());
+            System.out.println(" id to delete " + id);
+            if (id.equals(rowItem.getId())) {
+                return rowItem;
+            }
+        }
+     throw new GuiException("Couldn't find row with id '" + id.toStringRepresentation() + "'");
+       // return new CollectionRowItem();
+    }
 }
 

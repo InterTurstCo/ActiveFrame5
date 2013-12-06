@@ -15,7 +15,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  */
 
 @Root(name = "selection-style")
-public class SelectionStyleNameConfig implements Dto {
+public class SelectionStyleConfig implements Dto {
 
     @Attribute(name = "name")
     String name;
@@ -31,9 +31,9 @@ public class SelectionStyleNameConfig implements Dto {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof SelectionStyleNameConfig)) return false;
+        if (!(o instanceof SelectionStyleConfig)) return false;
 
-        SelectionStyleNameConfig that = (SelectionStyleNameConfig) o;
+        SelectionStyleConfig that = (SelectionStyleConfig) o;
 
         if (!name.equals(that.name)) return false;
 

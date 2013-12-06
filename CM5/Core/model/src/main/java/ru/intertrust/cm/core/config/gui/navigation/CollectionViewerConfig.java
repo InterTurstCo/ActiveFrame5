@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.gui.navigation;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.InputTextFilterConfig;
 
 import java.util.ArrayList;
@@ -26,6 +27,12 @@ public class CollectionViewerConfig extends PluginConfig{
 
     @ElementList(inline = true)
     private List<SortCriterionConfig> sortCriterionConfigList = new ArrayList<SortCriterionConfig>();
+
+    private List<Id> excludedIds = new ArrayList<Id>();
+
+    private boolean displayChosenValues;
+
+    private boolean singleChoice;
 
     public CollectionRefConfig getCollectionRefConfig() {
         return collectionRefConfig;
@@ -57,6 +64,30 @@ public class CollectionViewerConfig extends PluginConfig{
 
     public void setInputTextFilterConfig(InputTextFilterConfig inputTextFilterConfig) {
         this.inputTextFilterConfig = inputTextFilterConfig;
+    }
+
+    public List<Id> getExcludedIds() {
+        return excludedIds;
+    }
+
+    public void setExcludedIds(List<Id> excludedIds) {
+        this.excludedIds = excludedIds;
+    }
+
+    public boolean isDisplayChosenValues() {
+        return displayChosenValues;
+    }
+
+    public void setDisplayChosenValues(boolean displayChosenValues) {
+        this.displayChosenValues = displayChosenValues;
+    }
+
+    public boolean isSingleChoice() {
+        return singleChoice;
+    }
+
+    public void setSingleChoice(boolean singleChoice) {
+        this.singleChoice = singleChoice;
     }
 
     @Override

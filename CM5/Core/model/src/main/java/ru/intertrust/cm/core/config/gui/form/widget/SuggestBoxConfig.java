@@ -35,7 +35,7 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
     Integer pageSize;
 
     @Element(name = "selection-style",required = false)
-    SelectionStyleNameConfig selectionStyleNameConfig;
+    SelectionStyleConfig selectionStyleConfig;
 
     @Override
     public boolean equals(Object o) {
@@ -108,12 +108,12 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
         this.pageSize = pageSize;
     }
 
-    public SelectionStyleNameConfig getSelectionStyleNameConfig() {
-        return selectionStyleNameConfig;
+    public SelectionStyleConfig getSelectionStyleConfig() {
+        return selectionStyleConfig;
     }
 
-    public void setSelectionStyleNameConfig(SelectionStyleNameConfig selectionStyleNameConfig) {
-        this.selectionStyleNameConfig = selectionStyleNameConfig;
+    public void setSelectionStyleConfig(SelectionStyleConfig selectionStyleConfig) {
+        this.selectionStyleConfig = selectionStyleConfig;
     }
 }
 
