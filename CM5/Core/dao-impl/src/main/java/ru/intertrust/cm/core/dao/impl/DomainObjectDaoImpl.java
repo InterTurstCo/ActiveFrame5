@@ -1179,32 +1179,45 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
     }
 
-    protected String buildFindChildrenQuery(String linkedType,
-            String linkedField, int offset, int limit, AccessToken accessToken) {
+    protected String buildFindChildrenQuery(String linkedType, String linkedField, int offset,
+                                            int limit, AccessToken accessToken) {
+        String tableAlias = getSqlAlias(linkedType);
+        String tableHavingLinkedFieldAlias = getSqlAlias(findInHierarchyDOTypeHavingField(linkedType, linkedField));
+
         StringBuilder query = new StringBuilder();
-        query.append("select t.* from ").append(linkedType)
-                .append(" t where t.").append(linkedField)
-                .append(" = :domain_object_id");
+        query.append("select ");
+        appendColumnsQueryPart(query, linkedType);
+        query.append(" from ");
+        appendTableNameQueryPart(query, linkedType);
+        query.append(" where ").append(tableHavingLinkedFieldAlias).append(".").
+                append(wrap(getSqlName(linkedField))).append(" = :domain_object_id");
+
         if (accessToken.isDeferred()) {
             // appendAccessControlLogicToQuery(query, linkedType);
         }
 
-        applyOffsetAndLimitWithDefaultOrdering(query, "t", offset, limit);
+        applyOffsetAndLimitWithDefaultOrdering(query, tableAlias, offset, limit);
 
         return query.toString();
     }
 
     protected String buildFindChildrenIdsQuery(String linkedType,
             String linkedField, int offset, int limit, AccessToken accessToken) {
+        String doTypeHavingLinkedField = findInHierarchyDOTypeHavingField(linkedType, linkedField);
+        String tableName = getSqlName(doTypeHavingLinkedField);
+        String tableAlias = getSqlAlias(tableName);
+
         StringBuilder query = new StringBuilder();
-        query.append("select t.id from ").append(linkedType)
-                .append(" t where t.").append(linkedField)
-                .append(" = :domain_object_id");
+        query.append("select ").append(tableAlias).append(".").append(wrap(ID_COLUMN)).
+                append(" from ").append(wrap(tableName)).append(" ").append(tableAlias).
+                append(" where ").append(tableAlias).append(".").append(wrap(getSqlName(linkedField))).
+                append(" = :domain_object_id");
+
         if (accessToken.isDeferred()) {
             // appendAccessControlLogicToQuery(query, linkedType);
         }
 
-        applyOffsetAndLimitWithDefaultOrdering(query, "t", offset, limit);
+        applyOffsetAndLimitWithDefaultOrdering(query, tableAlias, offset, limit);
 
         return query.toString();
     }
@@ -1213,10 +1226,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             String linkedType) {
         String childAclReadTable = AccessControlUtility
                 .getAclReadTableNameFor(linkedType);
-        query.append(" and exists (select r.object_id from ")
-                .append(childAclReadTable).append(" r ");
-        query.append("inner join group_member gm on r.group_id = gm.usergroup where gm.person_id = :user_id and r"
-                + ".object_id = t.id)");
+        query.append(" and exists (select r.").append(wrap("object_id")).append(" from ")
+                .append(wrap(childAclReadTable)).append(" r ");
+        query.append("inner join ").append(wrap("group_member")).append(" gm on r.").append(wrap("group_id")).
+                append(" = gm.").append(wrap("usergroup")).append(" where gm.").append(wrap("person_id")).
+                append(" = :user_id and r.").append(wrap("object_id")).append(" = t.").append(wrap(ID_COLUMN)).append(")");
     }
 
     private DomainObject create(DomainObject domainObject, Integer type, String initialStatus) {
@@ -1436,13 +1450,28 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         String parentTableName = getSqlName(config.getExtendsAttribute());
         String parentTableAlias = getSqlAlias(config.getExtendsAttribute());
 
-        query.append(" inner join ").append(parentTableName).append(" ")
+        query.append(" inner join ").append(wrap(parentTableName)).append(" ")
                 .append(parentTableAlias);
-        query.append(" on ").append(tableAlias).append(".").append(ID_COLUMN)
-                .append("=");
-        query.append(parentTableAlias).append(".").append(ID_COLUMN);
+        query.append(" on ").append(tableAlias).append(".").append(wrap(ID_COLUMN))
+                .append(" = ");
+        query.append(parentTableAlias).append(".").append(wrap(ID_COLUMN));
 
         appendParentTable(query, config.getExtendsAttribute());
+    }
+
+    private String findInHierarchyDOTypeHavingField(String doType, String fieldName) {
+        FieldConfig fieldConfig = configurationExplorer.getFieldConfig(doType, fieldName, false);
+        if (fieldConfig != null) {
+            return doType;
+        } else {
+            DomainObjectTypeConfig doTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, doType);
+            if (doTypeConfig.getExtendsAttribute() != null) {
+                return findInHierarchyDOTypeHavingField(doTypeConfig.getExtendsAttribute(), fieldName);
+            } else {
+                throw new ConfigurationException("Field '" + fieldName +
+                        "' is not found in hierarchy of domain object type '" + doType + "'");
+            }
+        }
     }
 
     private void appendParentColumns(StringBuilder query,
@@ -1453,21 +1482,26 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         String tableAlias = getSqlAlias(parentConfig.getName());
 
         for (FieldConfig fieldConfig : parentConfig.getFieldConfigs()) {
-            if ("ID".equals(fieldConfig.getName())) {
+            if (ID_COLUMN.equals(fieldConfig.getName())) {
                 continue;
             }
 
             query.append(", ").append(tableAlias).append(".")
-                    .append(getSqlName(fieldConfig));
+                    .append(wrap(getSqlName(fieldConfig)));
+
+            if (fieldConfig instanceof ReferenceFieldConfig) {
+                query.append(", ").append(tableAlias).append(".")
+                        .append(wrap(getReferenceTypeColumnName(fieldConfig.getName())));
+            }
         }
 
         if (parentConfig.getExtendsAttribute() != null) {
             appendParentColumns(query, parentConfig);
         } else {
-            query.append(", ").append(CREATED_DATE_COLUMN);
-            query.append(", ").append(UPDATED_DATE_COLUMN);
-            query.append(", ").append(STATUS_FIELD_NAME);
-            query.append(", ").append(STATUS_TYPE_COLUMN);
+            query.append(", ").append(wrap(CREATED_DATE_COLUMN));
+            query.append(", ").append(wrap(UPDATED_DATE_COLUMN));
+            query.append(", ").append(wrap(STATUS_FIELD_NAME));
+            query.append(", ").append(wrap(STATUS_TYPE_COLUMN));
         }
     }
 
@@ -1493,7 +1527,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private void applyOffsetAndLimitWithDefaultOrdering(StringBuilder query,
             String tableAlias, int offset, int limit) {
         if (limit != 0) {
-            query.append(" order by ").append(tableAlias).append(".ID");
+            query.append(" order by ").append(tableAlias).append(".").append(wrap(ID_COLUMN));
             PostgreSqlQueryHelper.applyOffsetAndLimit(query, offset, limit);
         }
     }

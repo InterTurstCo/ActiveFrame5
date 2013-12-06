@@ -180,7 +180,8 @@ public class DomainObjectDaoImplTest {
     @Test
     public void testGenerateFindChildrenQuery() {
         AccessToken accessToken = createMockAccessToken();
-        String expectedQuery = "select t.* from assignment t where t.author = :domain_object_id"/* +
+        String expectedQuery = "select assignment.* from \"assignment\" assignment where assignment.\"author\" = " +
+                ":domain_object_id"/* +
         		" and exists" +
                 " (select r.object_id from assignment_READ r inner join group_member " +
                 "gm on r.group_id = gm.usergroup where gm.person_id = :user_id and r.object_id = t.id)"*/;
@@ -190,9 +191,26 @@ public class DomainObjectDaoImplTest {
     }
 
     @Test
+    public void testGenerateFindChildrenQueryForInheritedField() {
+        AccessToken accessToken = createMockAccessToken();
+        String expectedQuery = "select internal_employee.*, " +
+                "person.\"email\", person.\"login\", person.\"password\", person.\"boss\", person.\"boss_type\", " +
+                "\"created_date\", \"updated_date\", \"status\", \"status_type\" " +
+                "from \"internal_employee\" internal_employee inner join \"person\" person on " +
+                "internal_employee.\"id\" = person.\"id\" where person.\"boss\" = :domain_object_id"/* +
+        		" and exists" +
+                " (select r.object_id from assignment_READ r inner join group_member " +
+                "gm on r.group_id = gm.usergroup where gm.person_id = :user_id and r.object_id = t.id)"*/;
+        Assert.assertEquals(expectedQuery, domainObjectDaoImpl.buildFindChildrenQuery("Internal_Employee", "Boss",
+                0, 0, accessToken));
+
+    }
+
+    @Test
     public void testGenerateFindChildrenIdsQuery() {
         AccessToken accessToken = createMockAccessToken();
-        String expectedQuery = "select t.id from assignment t where t.author = :domain_object_id"/* +
+        String expectedQuery = "select assignment.\"id\" from \"assignment\" assignment where assignment.\"author\" = " +
+                ":domain_object_id"/* +
         		" and exists" +
                 " (select r.object_id from assignment_READ r inner join group_member " +
                 "gm on r.group_id = gm.usergroup where gm.person_id = :user_id and r.object_id = t.id)"*/;
@@ -201,6 +219,17 @@ public class DomainObjectDaoImplTest {
 
     }
 
+    @Test
+    public void testGenerateFindChildrenIdsQueryForInheritedField() {
+        AccessToken accessToken = createMockAccessToken();
+        String expectedQuery = "select person.\"id\" from \"person\" person where person.\"boss\" = :domain_object_id"/* +
+        		" and exists" +
+                " (select r.object_id from assignment_READ r inner join group_member " +
+                "gm on r.group_id = gm.usergroup where gm.person_id = :user_id and r.object_id = t.id)"*/;
+        Assert.assertEquals(expectedQuery, domainObjectDaoImpl.buildFindChildrenIdsQuery("Internal_Employee", "Boss",
+                0, 0, accessToken));
+
+    }
 
     private void initConfigs() {
 
@@ -245,14 +274,26 @@ public class DomainObjectDaoImplTest {
 
         DomainObjectTypeConfig internalEmployee = new DomainObjectTypeConfig();
         internalEmployee.setName("Internal_Employee");
+        internalEmployee.setExtendsAttribute("Person");
 
         DomainObjectTypeConfig externalEmployee = new DomainObjectTypeConfig();
         externalEmployee.setName("External_Employee");
+
+        DomainObjectTypeConfig assignment = new DomainObjectTypeConfig();
+        assignment.setName("assignment");
+
+        ReferenceFieldConfig author = new ReferenceFieldConfig();
+        author.setName("author");
+        author.setType("Person");
+
+        assignment.getFieldConfigs().add(author);
+
 
         Configuration configuration = new Configuration();
         configuration.getConfigurationList().add(domainObjectTypeConfig);
         configuration.getConfigurationList().add(internalEmployee);
         configuration.getConfigurationList().add(externalEmployee);
+        configuration.getConfigurationList().add(assignment);
         configuration.getConfigurationList().add(globalSettings);
 
         configurationExplorer = new ConfigurationExplorerImpl(configuration);
@@ -318,6 +359,8 @@ public class DomainObjectDaoImplTest {
                 any(MultipleObjectRowMapper.class))).thenReturn(result);
 
         DomainObjectDaoImpl domainObjectDao = new DomainObjectDaoImpl();
+        domainObjectDao.setConfigurationExplorer(configurationExplorer);
+        domainObjectDaoImpl.setConfigurationExplorer(configurationExplorer);
 
         when(domainObjectCacheService.getObjectToCache(any(Id.class),
                 any(String.class), any(String.class), any(String.class), any(String.class))).thenReturn(null);
@@ -326,8 +369,8 @@ public class DomainObjectDaoImplTest {
 
         AccessToken accessToken = createMockAccessToken();
 
-        List<DomainObject> l = domainObjectDao.findLinkedDomainObjects(new RdbmsId(1, 1), "Attachment",
-                "Person1_Attachment", accessToken);
+        List<DomainObject> l = domainObjectDao.findLinkedDomainObjects(new RdbmsId(1, 1), "Person1_Attachment",
+                "Person", accessToken);
         Assert.assertEquals(1, ((RdbmsId) l.get(0).getId()).getId());
         Assert.assertEquals(2, ((RdbmsId) l.get(1).getId()).getId());
     }
