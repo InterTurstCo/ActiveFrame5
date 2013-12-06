@@ -38,9 +38,9 @@ public class SqlQueryModifierTest {
             " = :idsIncluded20_type) OR (e.id = :idsIncluded21 AND e." + TYPE_COLUMN + " = :idsIncluded21_type))";
 
     private static final String PLAIN_SELECT_QUERY_WITH_IDS_EXCLUDED_FILTERS = "SELECT * FROM EMPLOYEE AS e, " +
-            "Department AS d WHERE 1 = 1 AND (e.person <> :idsExcluded10 AND e.person_type <> :idsExcluded10_type) " +
-            "AND ((e.person <> :idsExcluded20 AND e.person_type <> :idsExcluded20_type) AND " +
-            "(e.person <> :idsExcluded21 AND e.person_type <> :idsExcluded21_type))";
+            "Department AS d WHERE 1 = 1 AND (e.person <> :idsExcluded10 OR e.person_type <> :idsExcluded10_type) " +
+            "AND ((e.person <> :idsExcluded20 OR e.person_type <> :idsExcluded20_type) AND " +
+            "(e.person <> :idsExcluded21 OR e.person_type <> :idsExcluded21_type))";
 
     private static final String UNION_QUERY_WITH_TYPE = "(SELECT * FROM EMPLOYEE AS e, " +
             "Department AS d WHERE 1 = 1 AND e.id = 1) " +
@@ -111,20 +111,6 @@ public class SqlQueryModifierTest {
                 Arrays.asList(new Filter[] {idsIncludedFilter1, idsIncludedFilter2}), "id");
 
         assertEquals(PLAIN_SELECT_QUERY_WITH_IDS_INCLUDED_FILTERS, modifiedQuery);
-
-        IdsExcludedFilter idsExcludedFilter1 = new IdsExcludedFilter();
-        idsExcludedFilter1.setFilter("idsExcluded1");
-        idsExcludedFilter1.addCriterion(0, new ReferenceValue(new RdbmsId(1, 100)));
-
-        IdsExcludedFilter idsExcludedFilter2 = new IdsExcludedFilter();
-        idsExcludedFilter2.setFilter("idsExcluded2");
-        idsExcludedFilter2.addCriterion(0, new ReferenceValue(new RdbmsId(1, 101)));
-        idsExcludedFilter2.addCriterion(1, new ReferenceValue(new RdbmsId(1, 102)));
-
-        modifiedQuery = collectionQueryModifier.addIdBasedFilters(PLAIN_SELECT_QUERY_WITHOUT_WHERE,
-                Arrays.asList(new Filter[]{idsExcludedFilter1, idsExcludedFilter2}), "person");
-
-        assertEquals(PLAIN_SELECT_QUERY_WITH_IDS_EXCLUDED_FILTERS, modifiedQuery);
     }
 
     @Test
