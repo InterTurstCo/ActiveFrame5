@@ -294,25 +294,38 @@ public class SqlQueryModifier {
         }
     }
 
+    /**
+     * Возвращает имя таблицы, в которой находится данная колонка. Елси алиас для таблицы не был использован в SQL
+     * запросе, то берется название первой таблицы в FROM выражении.
+     * @param plainSelect SQL запрос
+     * @param column колока (поле) в запросе.
+     * @return
+     */
     private static String getTableName(PlainSelect plainSelect, Column column) {
         Table fromItem = (Table) plainSelect.getFromItem();
-        if (column.getTable().getName().equals(fromItem.getAlias())) {
+        if (column.getTable() != null && column.getTable().getName() != null) {
+
+            if (column.getTable().getName().equals(fromItem.getAlias())) {
+                return fromItem.getName();
+            }
+
+            List joinList = plainSelect.getJoins();
+            if (joinList == null || joinList.isEmpty()) {
+                throw new CollectionQueryException("Failed to evaluate table name for column '" +
+                        column.getColumnName() + "'");
+            }
+
+            for (Object joinObject : joinList) {
+                Join join = (Join) joinObject;
+                if (column.getTable().getName().equals(join.getRightItem().getAlias())) {
+                    return ((Table) join.getRightItem()).getName();
+                }
+            }
+
+        } else {
             return fromItem.getName();
         }
-
-        List joinList = plainSelect.getJoins();
-        if (joinList == null || joinList.isEmpty()) {
-            throw new CollectionQueryException("Failed to evaluate table name for column '" +
-                    column.getColumnName() + "'");
-        }
-
-        for (Object joinObject : joinList) {
-            Join join = (Join) joinObject;
-            if (column.getTable().getName().equals(join.getRightItem().getAlias())) {
-                return ((Table) join.getRightItem()).getName();
-            }
-        }
-
+        
         throw new CollectionQueryException("Failed to evaluate table name for column '" +
                 column.getColumnName() + "'");
     }
@@ -332,13 +345,21 @@ public class SqlQueryModifier {
 
     private SelectExpressionItem createObjectTypeSelectItem(SelectExpressionItem selectExpressionItem) {
         Column column = (Column) selectExpressionItem.getExpression();
-        StringBuilder expression = new StringBuilder(column.getTable().getName()).append(".").append(TYPE_COLUMN);
+        
+        StringBuilder objectTypeColumnExpression = null;
+        if(column.getTable() != null && column.getTable().getName()!= null){
+            objectTypeColumnExpression = new StringBuilder(column.getTable().getName()).append(".").append(TYPE_COLUMN);
+        }else{
+            objectTypeColumnExpression = new StringBuilder().append(TYPE_COLUMN);            
+        }
+        
+        //TODO нужно ли это?
         if (selectExpressionItem.getAlias() != null) {
-            expression.append(" as ").append(selectExpressionItem.getAlias()).append(REFERENCE_TYPE_POSTFIX);
+            objectTypeColumnExpression.append(" as ").append(selectExpressionItem.getAlias()).append(REFERENCE_TYPE_POSTFIX);
         }
 
         SelectExpressionItem objectTypeItem = new SelectExpressionItem();
-        objectTypeItem.setExpression(new Column(new Table(), expression.toString()));
+        objectTypeItem.setExpression(new Column(new Table(), objectTypeColumnExpression.toString()));
         return objectTypeItem;
     }
 
