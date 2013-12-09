@@ -127,7 +127,7 @@ h1 {
 
 .content {
 
-    position: absolute;
+ /*   position: absolute;*/
     top: 0;
     bottom: 0;
     left: 0px; /* 	left: 109px; */
@@ -574,6 +574,7 @@ div.gwt-Label{
 
 .tree-label{
     margin-left: -20px !important;
+    padding-left: 20px !important;
 }
 
 
@@ -1173,4 +1174,28 @@ suggest-box-panel{
 }
 my-suggest-box  {
     border: none !important;
+}
+
+.icon.pin-pressed {
+    background-image: url("css/icons/pin-pressed.png");
+    cursor: pointer;
+    left: 5px;
+}
+
+.icon.pin-normal {
+    background-image: url("css/icons/pin-normal.png");
+    cursor: pointer;
+    left: 5px;
+}
+
+.icon.pin-pressed:hover {
+    background-image: url("css/icons/pin-pressed-hover.png");
+    cursor: pointer;
+    left: 5px;
+}
+
+.icon.pin-normal:hover {
+    background-image: url("css/icons/pin-normal-hover.png");
+    cursor: pointer;
+    left: 5px;
 }

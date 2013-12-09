@@ -13,9 +13,7 @@ import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
-import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.panel.HeaderContainer;
 import ru.intertrust.cm.core.gui.impl.client.plugins.navigation.NavigationTreePlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
@@ -57,8 +55,10 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
                 AbsolutePanel left  = new AbsolutePanel();
                 left.setStyleName("left-section");
-                AbsolutePanel centrInner = new AbsolutePanel();
+                final AbsolutePanel centrInner = new AbsolutePanel();
                 centrInner.setStyleName("centr-inner-section");
+                centrInner.getElement().getStyle().setLeft(130, Style.Unit.PX);
+
                 AbsolutePanel center = new AbsolutePanel();
                 center.setStyleName("center-section");
                 AbsolutePanel right = new AbsolutePanel();
@@ -90,18 +90,29 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 navigationTreePlugin.setEventBus(eventBus);
 
                 centralPluginPanel = new PluginPanel();
-                centralPluginWidth = Window.getClientWidth() - 250 - stickerPluginWidth;
+                centralPluginWidth = Window.getClientWidth() - 130;
                 centralPluginHeight = Window.getClientHeight()- 120;
                 centralPluginPanel.setVisibleWidth(centralPluginWidth);
                 centralPluginPanel.setVisibleHeight(centralPluginHeight);
                 eventBus.addHandler(NavigationTreeItemSelectedEvent.TYPE, BusinessUniverse.this);
-                navigationTreePanel.setVisibleWidth(250);
+                navigationTreePanel.setVisibleWidth(130);
                 navigationTreePanel.open(navigationTreePlugin);
                 header.add(new HeaderContainer(getUserInfo(result)));
                 action.add(centralPluginPanel);
                 left.add(navigationTreePanel);
                 left.setHeight(Window.getClientHeight() + "px");
-                //left.setHeight(centralPluginHeight + "px");
+
+
+                eventBus.addHandler(SideBarResizeEvent.TYPE, new SideBarResizeEventHandler() {
+                    @Override
+                    public void sideBarFixPositionEvent(SideBarResizeEvent event) {
+                        centralPluginWidth = Window.getClientWidth() - event.getSideBarWidts();
+                        centralPluginPanel.setVisibleWidth(centralPluginWidth);
+                        centrInner.getElement().getStyle().setLeft(event.getSideBarWidts(), Style.Unit.PX);
+                        eventBus.fireEvent(new PluginPanelSizeChangedEvent());
+                    }
+                });
+
                 addStickerPanel(root);
                 centrInner.add(centralPluginPanel);
 
