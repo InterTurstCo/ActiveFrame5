@@ -43,7 +43,7 @@ public class CellTableEventHandler<T1> implements CellPreviewEvent.Handler<T1> {
         if (plugin != null) {
             CollectionPluginData pluginData = plugin.getInitialData();
             eventBus.fireEvent(new CollectionRowSelectedEvent(pluginData.
-                    getItems().get(currentRow).getId(), true));
+                    getItems().get(currentRow).getId()));
         }
     }
 

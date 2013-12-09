@@ -1,7 +1,10 @@
 package ru.intertrust.cm.core.gui.model.plugin;
 
+import ru.intertrust.cm.core.business.api.dto.Id;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -13,9 +16,10 @@ public class CollectionPluginData extends PluginData {
     private String collectionName;
     private boolean singleChoice;
     private boolean displayChosenValues;
-    private ArrayList<CollectionRowItem> items;
-    private LinkedHashMap<String, String> domainObjectFieldOnColumnNameMap;
-
+    private ArrayList<CollectionRowItem> items = new ArrayList<CollectionRowItem>();
+    private LinkedHashMap<String, String> domainObjectFieldOnColumnNameMap = new LinkedHashMap<String, String>();
+    private ArrayList<Integer> indexesOfSelectedItems = new ArrayList<Integer>();
+    private List<Id> chosenIds = new ArrayList<Id>();
     public CollectionPluginData() {
 
     }
@@ -58,5 +62,21 @@ public class CollectionPluginData extends PluginData {
 
     public void setCollectionName(String collectionName) {
         this.collectionName = collectionName;
+    }
+
+    public ArrayList<Integer> getIndexesOfSelectedItems() {
+        return indexesOfSelectedItems;
+    }
+
+    public void setIndexesOfSelectedItems(ArrayList<Integer> indexesOfSelectedItems) {
+        this.indexesOfSelectedItems = indexesOfSelectedItems;
+    }
+
+    public List<Id> getChosenIds() {
+        return chosenIds;
+    }
+
+    public void setChosenIds(List<Id> chosenIds) {
+        this.chosenIds = chosenIds;
     }
 }

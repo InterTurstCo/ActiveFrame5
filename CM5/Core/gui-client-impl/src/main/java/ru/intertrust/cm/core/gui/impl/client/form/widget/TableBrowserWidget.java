@@ -18,6 +18,8 @@ import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
+import ru.intertrust.cm.core.gui.impl.client.event.CheckBoxFieldUpdateEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.CheckBoxFieldUpdateEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.FacebookStyleView;
@@ -42,9 +44,8 @@ public class TableBrowserWidget extends BaseWidget {
     private Button openDialogButton;
     private TextBox filterEditor;
     private EventBus eventBus = new SimpleEventBus();
-    private ArrayList<TableBrowserRowItem> selectedItemsRepresentations = new ArrayList<TableBrowserRowItem>();
-    private ArrayList<Id> selectedIds = new ArrayList<Id>();
-    private ArrayList<Id> temporarySelectedIds = new ArrayList<Id>();
+    private ArrayList<Id> chosenIds = new ArrayList<Id>();
+
     private int width;
     private int height;
     private DialogBox dialogBox;
@@ -55,15 +56,15 @@ public class TableBrowserWidget extends BaseWidget {
         TableBrowserState tableBrowserState = (TableBrowserState) currentState;
         tableBrowserConfig = tableBrowserState.getTableBrowserConfig();
         facebookStyleView.initDisplayStyle(tableBrowserConfig.getSelectionStyleConfig().getName());
+        facebookStyleView.setChosenItems(tableBrowserState.getSelectedItemsRepresentations());
         initSizes();
-        selectedItemsRepresentations = tableBrowserState.getSelectedItemsRepresentations();
         initDialogView();
     }
 
     @Override
     public TableBrowserState getCurrentState() {
         TableBrowserState state = new TableBrowserState();
-        state.setSelectedItemsRepresentations(facebookStyleView.getRowItems());
+        state.setSelectedItemsRepresentations(facebookStyleView.getChosenItems());
 
         return state;
     }
@@ -72,40 +73,6 @@ public class TableBrowserWidget extends BaseWidget {
     protected Widget asEditableWidget() {
 
         return initWidgetView();
-    }
-
-   private void fetchParsedRows() {
-
-        ParseRowsRequest parseRowsRequest = new ParseRowsRequest();
-        String name = tableBrowserConfig.getCollectionRefConfig().getName();
-        parseRowsRequest.setCollectionName(name);
-
-        TableBrowserState tableBrowserState = getCurrentState();
-     //   parseRowsRequest.setColumnFields(view.getDomainObjectFieldOnColumnNameMap());
-        parseRowsRequest.setSelectionPattern(tableBrowserConfig.getSelectionPatternConfig().getValue());
-
-        parseRowsRequest.setExcludeIds(selectedIds);
-        parseRowsRequest.setInputTextFilterName(tableBrowserConfig.getInputTextFilterConfig().getName());
-        parseRowsRequest.setIdsExclusionFilterName(tableBrowserConfig.getSelectionExcludeFilterConfig().getName());
-
-        Command command = new Command("fetchParsedRows", getName(), parseRowsRequest);
-        BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, new AsyncCallback<Dto>() {
-            @Override
-            public void onSuccess(Dto result) {
-                ParsedRowsList list = (ParsedRowsList) result;
-
-                List<TableBrowserRowItem> items = list.getFilteredRows();
-                selectedItemsRepresentations.addAll(items);
-                facebookStyleView.setRowItems(selectedItemsRepresentations);
-                facebookStyleView.showSelectedItems();
-            }
-
-            @Override
-            public void onFailure(Throwable caught) {
-                GWT.log("something was going wrong while obtaining rows");
-            }
-        });
-
     }
 
     @Override
@@ -118,7 +85,7 @@ public class TableBrowserWidget extends BaseWidget {
         return new TableBrowserWidget();
     }
 
-    private void initCollectionPluginPanel(){
+    private void initCollectionPluginPanel() {
         pluginPanel = new PluginPanel();
         pluginPanel.setVisibleWidth(width);
         pluginPanel.setVisibleHeight(height);
@@ -129,7 +96,7 @@ public class TableBrowserWidget extends BaseWidget {
         CollectionViewerConfig collectionViewerConfig = new CollectionViewerConfig();
         CollectionViewRefConfig collectionViewRefConfig = new CollectionViewRefConfig();
         InputTextFilterConfig inputTextFilterConfig = new InputTextFilterConfig();
-        inputTextFilterConfig.setName("byText");
+        inputTextFilterConfig.setName(tableBrowserConfig.getInputTextFilterConfig().getName());
         inputTextFilterConfig.setValue(filterEditor.getValue());
         collectionViewRefConfig.setName(tableBrowserConfig.getCollectionViewRefConfig().getName());
         CollectionRefConfig collectionRefConfig = new CollectionRefConfig();
@@ -139,11 +106,11 @@ public class TableBrowserWidget extends BaseWidget {
         collectionViewerConfig.setInputTextFilterConfig(inputTextFilterConfig);
         collectionViewerConfig.setSingleChoice(tableBrowserConfig.getSingleChoice().isSingleChoice());
         collectionViewerConfig.setDisplayChosenValues(tableBrowserConfig.getDisplayChosenValues().isDisplayChosenValues());
-        collectionViewerConfig.setExcludedIds(selectedIds);
+        collectionViewerConfig.setExcludedIds(facebookStyleView.getChosenIds());
         return collectionViewerConfig;
     }
 
-    private void openCollectionPlugin(){
+    private void openCollectionPlugin() {
 
         CollectionPlugin collectionPlugin = ComponentRegistry.instance.get("collection.plugin");
         CollectionViewerConfig collectionViewerConfig = initCollectionConfig();
@@ -157,7 +124,6 @@ public class TableBrowserWidget extends BaseWidget {
     private FlowPanel initWidgetView() {
         FlowPanel root = new FlowPanel();
         facebookStyleView = new FacebookStyleView();
-        facebookStyleView.setRowItems(selectedItemsRepresentations);
         filterEditor = new TextBox();
         openDialogButton = new Button("ADD");
         openDialogButton.addClickHandler(new FetchFilteredRowsClickHandler());
@@ -176,14 +142,18 @@ public class TableBrowserWidget extends BaseWidget {
         initCollectionPluginPanel();
         Button okButton = new Button("OK");
         Button cancelButton = new Button("CANCEL");
-        addClickHandlersForSingleChoice(okButton, cancelButton, dialogBox);
+        if (tableBrowserConfig.getSingleChoice().isSingleChoice()) {
+            addClickHandlersForSingleChoice(okButton, cancelButton, dialogBox);
+        } else {
+            addClickHandlersForMultiplyChoice(okButton, cancelButton, dialogBox);
+        }
         HorizontalPanel buttonsContainer = new HorizontalPanel();
         buttonsContainer.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
         buttonsContainer.add(okButton);
         buttonsContainer.add(cancelButton);
         FlowPanel dialogBoxContent = new FlowPanel();
 
-        dialogBoxContent.setWidth(width+"px");
+        dialogBoxContent.setWidth(width + "px");
         dialogBoxContent.getElement().getStyle().setOverflow(Style.Overflow.AUTO);
         dialogBoxContent.add(pluginPanel);
         dialogBoxContent.add(buttonsContainer);
@@ -205,32 +175,31 @@ public class TableBrowserWidget extends BaseWidget {
     private class FetchFilteredRowsClickHandler implements ClickHandler {
         @Override
         public void onClick(ClickEvent event) {
-                 openCollectionPlugin();
-         //   fetchParsedRows(text);
+            openCollectionPlugin();
 
         }
     }
+
     private void addClickHandlersForMultiplyChoice(final Button okButton, final Button cancelButton, final DialogBox dialogBox) {
 
         addCancelButtonClickHandler(cancelButton, dialogBox);
-
         okButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-               selectedIds.addAll(temporarySelectedIds);
                 fetchParsedRows();
                 dialogBox.hide();
             }
         });
-        eventBus.addHandler(CollectionRowSelectedEvent.TYPE, new CollectionRowSelectedEventHandler() {
+        eventBus.addHandler(CheckBoxFieldUpdateEvent.TYPE, new CheckBoxFieldUpdateEventHandler() {
             @Override
-            public void onCollectionRowSelect(CollectionRowSelectedEvent event) {
-                   if (event.isDeselected()) {
-                       temporarySelectedIds.remove(event.getId());
-                   }  else {
-                       temporarySelectedIds.add(event.getId());
-                   }
-
+            public void onCheckBoxFieldUpdate(CheckBoxFieldUpdateEvent event) {
+                if (event.isDeselected()) {
+                    chosenIds.remove(event.getId());
+                    facebookStyleView.removeChosenItem(event.getId());
+                } else {
+                    chosenIds.add(event.getId());
+                }
+                System.out.println("breakpoint");
             }
         });
 
@@ -241,8 +210,7 @@ public class TableBrowserWidget extends BaseWidget {
         okButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-          //      eventBus.fireEvent(new CollectionRowDeletedEvent(selectedIds));
-                selectedIds.addAll(temporarySelectedIds);
+
                 fetchParsedRows();
                 dialogBox.hide();
             }
@@ -250,18 +218,48 @@ public class TableBrowserWidget extends BaseWidget {
         eventBus.addHandler(CollectionRowSelectedEvent.TYPE, new CollectionRowSelectedEventHandler() {
             @Override
             public void onCollectionRowSelect(CollectionRowSelectedEvent event) {
-              temporarySelectedIds.clear();
-              temporarySelectedIds.add(event.getId());
+                chosenIds.clear();
+                chosenIds.add(event.getId());
 
             }
         });
 
     }
+
     private void initSizes() {
         String widthString = displayConfig.getWidth();
         String heightString = displayConfig.getHeight();
-        width = widthString == null ? 500 :  Integer.parseInt(widthString.replaceAll("\\D+", ""));
-        height = heightString == null ? 300 :  Integer.parseInt(heightString.replaceAll("\\D+", ""));
+        width = widthString == null ? 500 : Integer.parseInt(widthString.replaceAll("\\D+", ""));
+        height = heightString == null ? 300 : Integer.parseInt(heightString.replaceAll("\\D+", ""));
+
+    }
+
+    private void fetchParsedRows() {
+
+        if (chosenIds.isEmpty()) {
+            facebookStyleView.showSelectedItems();
+            return;
+        }
+        FormatRowsRequest formatRowsRequest = new FormatRowsRequest();
+        formatRowsRequest.setSelectionPattern(tableBrowserConfig.getSelectionPatternConfig().getValue());
+        formatRowsRequest.setIdsShouldBeFormatted(chosenIds);
+
+        Command command = new Command("fetchParsedRows", getName(), formatRowsRequest);
+        BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, new AsyncCallback<Dto>() {
+            @Override
+            public void onSuccess(Dto result) {
+                ParsedRowsList list = (ParsedRowsList) result;
+                List<TableBrowserRowItem> items = list.getFilteredRows();
+                facebookStyleView.getChosenItems().addAll(items);
+                facebookStyleView.showSelectedItems();
+                chosenIds.clear();
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                GWT.log("something was going wrong while obtaining rows");
+            }
+        });
 
     }
 

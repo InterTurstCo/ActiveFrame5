@@ -15,11 +15,10 @@ import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
-import com.google.gwt.view.client.NoSelectionModel;
-import com.google.gwt.view.client.SelectionChangeEvent;
+import com.google.gwt.view.client.MultiSelectionModel;
+import com.google.gwt.view.client.SelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
@@ -29,7 +28,6 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.Table
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.resources.CellTableResourcesEx;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.resources.DGCellTableResourceAdapter;
 import ru.intertrust.cm.core.gui.model.Command;
-import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowItemList;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
@@ -65,7 +63,9 @@ public class CollectionPluginView extends PluginView {
     // локальная шина событий
     private EventBus eventBus;
     protected Plugin plugin;
-
+    private ArrayList<Integer> chosenIndexes = new ArrayList<Integer>();
+    private Column<CollectionRowItem, Boolean> checkColumn;
+    private SelectionModel<CollectionRowItem> selectionModel;
     /**
      * Создание стилей для ящеек таблицы
      */
@@ -89,7 +89,6 @@ public class CollectionPluginView extends PluginView {
 
     }
 
-
     @Override
     protected IsWidget getViewWidget() {
 
@@ -98,7 +97,7 @@ public class CollectionPluginView extends PluginView {
         columnNamesOnDoFieldsMap = collectionPluginData.getDomainObjectFieldOnColumnNameMap();
         items = collectionPluginData.getItems();
         singleChoice = collectionPluginData.isSingleChoice();
-
+        chosenIndexes = collectionPluginData.getIndexesOfSelectedItems();
         init();
 
         return root;
@@ -108,9 +107,10 @@ public class CollectionPluginView extends PluginView {
     public void init() {
         buildPanel();
         createTableColumns();
+        applySelectionModel();
         insertRows(items);
         applyStyles();
-        applySelectionModel();
+
         addHandlers();
 
     }
@@ -136,8 +136,6 @@ public class CollectionPluginView extends PluginView {
         scrollTableBody.setHeight(tableHeight + "px");
     }
 
-
-
     private TextColumn<CollectionRowItem> buildNameColumn(final String string) {
 
         return new TextColumn<CollectionRowItem>() {
@@ -162,18 +160,18 @@ public class CollectionPluginView extends PluginView {
     }
 
     private void createTableColumnsWithCheckBoxes(LinkedHashMap<String, String> domainObjectFieldsOnColumnNamesMap) {
-        Column<CollectionRowItem, Boolean> checkColumn = new Column<CollectionRowItem, Boolean>(
-                new CheckboxCell(true, false)) {
+        checkColumn = new Column<CollectionRowItem, Boolean>(
+                new CheckboxCell(true, true)) {
             @Override
             public Boolean getValue(CollectionRowItem object) {
-                return false;
+                return selectionModel.isSelected(object);
             }
         };
 
         checkColumn.setFieldUpdater(new FieldUpdater<CollectionRowItem, Boolean>() {
             @Override
             public void update(int index, CollectionRowItem object, Boolean value) {
-                  eventBus.fireEvent( new CollectionRowSelectedEvent(object.getId(), value));
+                eventBus.fireEvent(new CheckBoxFieldUpdateEvent(object.getId(), !value));
             }
         });
         tableHeader.addColumn(checkColumn, "");
@@ -200,13 +198,21 @@ public class CollectionPluginView extends PluginView {
     public void insertRows(List<CollectionRowItem> list) {
         tableBody.setRowData(items);
         listCount = items.size();
-
+        selectChosenRows();
     }
 
     private void insertMoreRows(List<CollectionRowItem> list) {
 
         items.addAll(list);
         tableBody.setRowData(items);
+    }
+
+    private void selectChosenRows() {
+        for (Integer index : chosenIndexes) {
+            CollectionRowItem rowItem = items.get(index);
+            selectionModel.setSelected(rowItem, true);
+
+        }
     }
 
     private void applyStyles() {
@@ -220,23 +226,15 @@ public class CollectionPluginView extends PluginView {
         headerPanel.setStyleName(adapter.getResources().cellTableStyle().docsCommonCelltableHeaderPanel());
 
     }
-    private void applySelectionModel(){
+
+    private void applySelectionModel() {
 
         if (singleChoice) {
-            final CheckedSelectionModel<CollectionRowItem> selectionModelForSingleChoice = new CheckedSelectionModel<CollectionRowItem>();
-            tableBody.setSelectionModel(selectionModelForSingleChoice);
+            selectionModel = new CheckedSelectionModel<CollectionRowItem>();
         } else {
-            final NoSelectionModel<CollectionRowItem> selectionModelForMultiplyChocie = new NoSelectionModel<CollectionRowItem>();
-            selectionModelForMultiplyChocie.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-
-                @Override
-                public void onSelectionChange(SelectionChangeEvent event) {
-
-
-                }
-            });
-            tableBody.setSelectionModel(selectionModelForMultiplyChocie);
+            selectionModel = new MultiSelectionModel<CollectionRowItem>();
         }
+        tableBody.setSelectionModel(selectionModel);
     }
 
     private void applyBodyTableStyle() {
@@ -260,30 +258,12 @@ public class CollectionPluginView extends PluginView {
         this.eventBus = eventBus;
     }
 
-    private List<CollectionRowItem> findCollectionRowItemsByIds(List<Id> ids) {
-        List<CollectionRowItem> foundRowItems = new ArrayList<CollectionRowItem>();
-        for (Id idToFind : ids) {
-            CollectionRowItem foundCollectionRowItem = findCollectionRowItemById(idToFind);
-            foundRowItems.add(foundCollectionRowItem);
-        }
-        return foundRowItems;
-    }
 
-    private CollectionRowItem findCollectionRowItemById(Id id) {
-        for (CollectionRowItem rowItem : items) {
-            System.out.println("table id " + rowItem.getId());
-            System.out.println(" id to delete " + id);
-            if (id.equals(rowItem.getId())) {
-                return rowItem;
-            }
-        }
-     throw new GuiException("Couldn't find row with id '" + id.toStringRepresentation() + "'");
-
-    }
     private void createCollectionData() {
         CollectionPluginData collectionPluginData = plugin.getInitialData();
 
-        CollectionRowsRequest collectionRowsRequest = new CollectionRowsRequest(listCount, 15, collectionName, columnNamesOnDoFieldsMap);
+        CollectionRowsRequest collectionRowsRequest = new CollectionRowsRequest(listCount, 15,
+                collectionName, columnNamesOnDoFieldsMap);
         Command command = new Command("generateCollectionRowItems", "collection.plugin", collectionRowsRequest);
 
         BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, new AsyncCallback<Dto>() {
@@ -302,18 +282,11 @@ public class CollectionPluginView extends PluginView {
             }
         });
     }
+
     private void addHandlers() {
         addResizeHandler();
         tableBody.addCellPreviewHandler(new CellTableEventHandler<CollectionRowItem>(tableBody, plugin, eventBus));
-        eventBus.addHandler(CollectionRowDeletedEvent.TYPE, new CollectionRowDeletedEventHandler() {
-            @Override
-            public void onCollectionRowDeleted(CollectionRowDeletedEvent event) {
-                List<CollectionRowItem> collectionRowItemsToRemove = findCollectionRowItemsByIds(event.getIds());
-                items.removeAll(collectionRowItemsToRemove);
-                insertRows(items);
-                tableBody.redraw();
-            }
-        });
+
         eventBus.addHandler(SplitterInnerScrollEvent.TYPE, new SplitterInnerScrollEventHandler() {
             @Override
             public void setScrollPanelHeight(SplitterInnerScrollEvent event) {
@@ -354,6 +327,7 @@ public class CollectionPluginView extends PluginView {
         });
 
     }
+
     private void addResizeHandler() {
 
         Window.addResizeHandler(new ResizeHandler() {

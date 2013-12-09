@@ -4,38 +4,58 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.*;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.model.form.widget.TableBrowserRowItem;
 
 import java.util.ArrayList;
 
 /**
- * @author Yaroslav Bondarchuk feat Timofiy Biliy
+ * @author Yaroslav Bondarchuk
  *         Date: 01.12.13
  *         Time: 16:15
  */
-public class FacebookStyleView implements IsWidget{
+public class FacebookStyleView implements IsWidget {
     private static final String DISPLAY_STYLE_INLINE = "inline";
     private static final String DISPLAY_STYLE_TABLE = "table";
     private AbsolutePanel mainBoxPanel;
     private Style.Display displayStyle;
-    private ArrayList<TableBrowserRowItem> rowItems;
+    private ArrayList<TableBrowserRowItem> chosenItems;
 
-    public FacebookStyleView(){
+    public FacebookStyleView() {
 
         mainBoxPanel = new AbsolutePanel();
         mainBoxPanel.setStyleName("facebook-main-box");
+        chosenItems = new ArrayList<TableBrowserRowItem>();
 
     }
 
-    public ArrayList<TableBrowserRowItem> getRowItems() {
-        return rowItems;
+    public ArrayList<Id> getChosenIds() {
+        ArrayList<Id> chosenIds = new ArrayList<Id>();
+        for (TableBrowserRowItem rowItem : chosenItems) {
+            chosenIds.add(rowItem.getId());
+        }
+        return chosenIds;
     }
 
-    public void setRowItems(ArrayList<TableBrowserRowItem> rowItems) {
-        this.rowItems = rowItems;
+    public void removeChosenItem(Id id) {
+
+        for (TableBrowserRowItem chosenItem : chosenItems) {
+            if (chosenItem.getId().equals(id)) {
+                chosenItems.remove(chosenItem);
+            }
+        }
     }
 
-    public void addRowItem(final TableBrowserRowItem rowItem){
+
+    public ArrayList<TableBrowserRowItem> getChosenItems() {
+        return chosenItems;
+    }
+
+    public void setChosenItems(ArrayList<TableBrowserRowItem> chosenItems) {
+        this.chosenItems = chosenItems;
+    }
+
+    public void displayChosenRowItem(final TableBrowserRowItem rowItem) {
         final AbsolutePanel element = new AbsolutePanel();
         element.getElement().getStyle().setDisplay(displayStyle);
         element.setStyleName("facebook-element");
@@ -49,7 +69,7 @@ public class FacebookStyleView implements IsWidget{
         delBtn.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-               rowItems.remove(rowItem);
+                chosenItems.remove(rowItem);
                 element.removeFromParent();
             }
         });
@@ -69,10 +89,10 @@ public class FacebookStyleView implements IsWidget{
 
     }
 
-    public void showSelectedItems(){
+    public void showSelectedItems() {
         mainBoxPanel.clear();
-        for(TableBrowserRowItem rowItem : rowItems){
-            addRowItem(rowItem);
+        for (TableBrowserRowItem rowItem : chosenItems) {
+            displayChosenRowItem(rowItem);
         }
 
     }

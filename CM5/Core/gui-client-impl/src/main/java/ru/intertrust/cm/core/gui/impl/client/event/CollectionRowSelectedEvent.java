@@ -7,11 +7,10 @@ public class CollectionRowSelectedEvent extends GwtEvent<CollectionRowSelectedEv
 
     public static Type<CollectionRowSelectedEventHandler> TYPE = new Type<CollectionRowSelectedEventHandler>();
     private Id id;
-    private boolean deselected;
 
-    public CollectionRowSelectedEvent(Id id, boolean deselected) {
+    public CollectionRowSelectedEvent(Id id) {
         this.id = id;
-        this.deselected = deselected;
+
     }
 
     @Override
@@ -28,7 +27,4 @@ public class CollectionRowSelectedEvent extends GwtEvent<CollectionRowSelectedEv
         return id;
     }
 
-    public boolean isDeselected() {
-        return deselected;
-    }
 }

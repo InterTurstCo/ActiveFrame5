@@ -117,7 +117,7 @@ public class TableBrowserView extends Composite {
 
      //   root.add(selectedRowsContainer);
         facebookStyleView = new FacebookStyleView();
-        facebookStyleView.setRowItems(selectedItems);
+        facebookStyleView.setChosenItems(selectedItems);
         root.add(facebookStyleView);
         initWidget(root);
 
@@ -199,7 +199,7 @@ public class TableBrowserView extends Composite {
      /*   for (TableBrowserRowItem row : selectedItems) {
             drawSelectedRow(row);
         }    */
-        facebookStyleView.setRowItems(selectedItems);
+        facebookStyleView.setChosenItems(selectedItems);
         facebookStyleView.showSelectedItems();
     }
 
@@ -219,7 +219,7 @@ public class TableBrowserView extends Composite {
         delete.addClickHandler(new DeleteSelectedModelHandler(row));
         moveUp.addClickHandler(new MoveUpHandler(rowPanel));
         moveDown.addClickHandler(new MoveDownHandler(rowPanel));     */
-         facebookStyleView.addRowItem(row);
+         facebookStyleView.displayChosenRowItem(row);
     }
 
     private TextColumn<TableBrowserRowItem> buildNameColumn(final String s) {
@@ -228,7 +228,7 @@ public class TableBrowserView extends Composite {
             @Override
             public String getValue(TableBrowserRowItem object) {
 
-                return object.getStringValue(s);
+                return/* object.getStringValue(s)*/ "";
             }
         };
     }

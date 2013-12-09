@@ -47,22 +47,27 @@ public class CollectionPluginHandler extends PluginHandler {
         LinkedHashMap<String, String> map = getDomainObjectFieldOnColumnNameMap(collectionViewConfig);
         pluginData.setDomainObjectFieldOnColumnNameMap(map);
 
-        List<Filter> filters = null;
+        List<Filter> filters = new ArrayList<Filter>();
 
-        if (tableHasSingleSelectionModelAndDoesntShowAlreadyChosenRows(singleChoice, displayChosenValues)) {
-          filters = prepareFilters(collectionViewerConfig);
+        if (tableHasSingleSelectionModelAndDoesntShowAlreadyChosenRows(singleChoice, displayChosenValues) ||
+                tableHasMultipleSelectionModelAndDoesntShowAlreadyChosenRows(singleChoice, displayChosenValues)) {
+            filters = addFilterByText(collectionViewerConfig, filters);
+            filters = addFilterExcludeIds(collectionViewerConfig, filters);
+            ArrayList<CollectionRowItem> items = generateTableRowsForPluginInitialization(collectionName,
+                    map.keySet(), 0, 70, filters);
+            pluginData.setItems(items);
         }
-        if (tableHasMultipleSelectionModelAndDoesntShowAlreadyChosenRows(singleChoice, displayChosenValues)) {
-            filters = prepareFilters(collectionViewerConfig);
+
+        if (tableHasSingleSelectionModelAndShowsAlreadyChosenRows(singleChoice, displayChosenValues) ||
+                tableHasMultiplySelectionModelAndShowsAlreadyChosenRows(singleChoice, displayChosenValues)) {
+            filters = addFilterByText(collectionViewerConfig, filters);
+            ArrayList<CollectionRowItem> items = generateTableRowsForPluginInitialization(collectionName,
+                    map.keySet(), 0, 70, filters);
+            List<Id> chosenIds = collectionViewerConfig.getExcludedIds();
+            pluginData.setIndexesOfSelectedItems(getListOfAlreadyChosenItems(chosenIds, items));
+            pluginData.setItems(items);
         }
-        if (tableHasSingleSelectionModelAndDoesntShowAlreadyChosenRows(singleChoice, displayChosenValues)) {
 
-        }
-
-
-        ArrayList<CollectionRowItem> items = generateTableRowsForPluginInitialization(collectionName, map.keySet(), 0, 70, filters);
-
-        pluginData.setItems(items);
         pluginData.setCollectionName(collectionName);
 
         return pluginData;
@@ -75,19 +80,28 @@ public class CollectionPluginHandler extends PluginHandler {
         return viewConfigs;
 
     }
-    private List<Filter> prepareFilters(CollectionViewerConfig collectionViewerConfig){
-        List<Filter> filters = new ArrayList<Filter>();
+
+    private List<Filter> addFilterByText(CollectionViewerConfig collectionViewerConfig, List<Filter> filters) {
+
         InputTextFilterConfig inputTextFilterConfig = collectionViewerConfig.getInputTextFilterConfig();
         if (inputTextFilterConfig == null) {
-              return filters;
+            return filters;
         }
         String name = inputTextFilterConfig.getName();
         String text = inputTextFilterConfig.getValue();
         Filter filterByText = prepareInputTextFilter(name, text);
-        Filter filterByIds = prepareExcludeIdsFilter(collectionViewerConfig.getExcludedIds());
-
         filters.add(filterByText);
-        filters.add(filterByIds);
+
+        return filters;
+    }
+
+    private List<Filter> addFilterExcludeIds(CollectionViewerConfig collectionViewerConfig, List<Filter> filters) {
+        InputTextFilterConfig inputTextFilterConfig = collectionViewerConfig.getInputTextFilterConfig();
+        if (inputTextFilterConfig == null) {
+            return filters;
+        }
+        Filter filterExcludeIds = prepareExcludeIdsFilter(collectionViewerConfig.getExcludedIds());
+        filters.add(filterExcludeIds);
         return filters;
     }
 
@@ -160,53 +174,65 @@ public class CollectionPluginHandler extends PluginHandler {
         return items;
     }
 
-    public Dto generateCollectionRowItems(Dto dto){
+    public Dto generateCollectionRowItems(Dto dto) {
         CollectionRowsRequest collectionRowsRequest = (CollectionRowsRequest) dto;
-        ArrayList<CollectionRowItem> list = generateTableRowsForPluginInitialization(collectionRowsRequest.getCollectionName(),
+        ArrayList<CollectionRowItem> list = generateTableRowsForPluginInitialization(
+                collectionRowsRequest.getCollectionName(),
                 collectionRowsRequest.getFields().keySet(), collectionRowsRequest.getOffset(),
                 collectionRowsRequest.getLimit(), null);
         CollectionRowItemList collectionRowItemList = new CollectionRowItemList();
         collectionRowItemList.setCollectionRows(list);
         return collectionRowItemList;
     }
+
     private Filter prepareInputTextFilter(String name, String text) {
         Filter textFilter = new Filter();
         textFilter.setFilter(name);
         textFilter.addCriterion(0, new StringValue(text + "%"));
         return textFilter;
     }
+
     private Filter prepareExcludeIdsFilter(List<Id> excludeIds) {
 
-       List<ReferenceValue> list = new ArrayList<ReferenceValue>();
+        List<ReferenceValue> list = new ArrayList<ReferenceValue>();
         for (Id excludeId : excludeIds) {
             list.add(new ReferenceValue(excludeId));
         }
         IdsExcludedFilter excludeIdsFilter = new IdsExcludedFilter(list);
-
+        excludeIdsFilter.setFilter("excludeIds");
         return excludeIdsFilter;
     }
-    private Filter prepareIncludeIdsFilter(List<Id> icludeIds) {
 
-        List<ReferenceValue> list = new ArrayList<ReferenceValue>();
-        for (Id includeId :icludeIds) {
-            list.add(new ReferenceValue(includeId));
-        }
-        IdsExcludedFilter includeIdsFilter = new IdsExcludedFilter(list);
-        return includeIdsFilter;
-    }
-    private boolean tableHasSingleSelectionModelAndDoesntShowAlreadyChosenRows(boolean singleChoice, boolean displayChosenValues) {
+    private boolean tableHasSingleSelectionModelAndDoesntShowAlreadyChosenRows(boolean singleChoice,
+                                                                               boolean displayChosenValues) {
         return singleChoice && !displayChosenValues;
     }
-    private boolean tableHasSingleSelectionModelAndShowsAlreadyChosenRows(boolean singleChoice, boolean displayChosenValues) {
+
+    private boolean tableHasSingleSelectionModelAndShowsAlreadyChosenRows(boolean singleChoice,
+                                                                          boolean displayChosenValues) {
         return singleChoice && displayChosenValues;
     }
-    private boolean tableHasMultipleSelectionModelAndDoesntShowAlreadyChosenRows(boolean singleChoice, boolean displayChosenValues) {
+
+    private boolean tableHasMultipleSelectionModelAndDoesntShowAlreadyChosenRows(boolean singleChoice,
+                                                                                 boolean displayChosenValues) {
         return !singleChoice && !displayChosenValues;
     }
-    private boolean tableHasMultiplySelectionModelAndShowsAlreadyChosenRows(boolean singleChoice, boolean displayChosenValues) {
+
+    private boolean tableHasMultiplySelectionModelAndShowsAlreadyChosenRows(boolean singleChoice,
+                                                                            boolean displayChosenValues) {
         return !singleChoice && displayChosenValues;
     }
-   private CollectionPluginData prepareDynamicContentOfCollectionPluginData(CollectionPluginData collectionPluginData){
-        return collectionPluginData;
-   }
+
+
+    private ArrayList<Integer> getListOfAlreadyChosenItems(List<Id> chosenIds, List<CollectionRowItem> itemsForClient) {
+        ArrayList<Integer> indexesOfChosenItems = new ArrayList<Integer>();
+        for (Id id : chosenIds) {
+            for (int i = 0; i < itemsForClient.size(); i++) {
+                if (id.equals(itemsForClient.get(i).getId())) {
+                    indexesOfChosenItems.add(i);
+                }
+            }
+        }
+        return indexesOfChosenItems;
+    }
 }
