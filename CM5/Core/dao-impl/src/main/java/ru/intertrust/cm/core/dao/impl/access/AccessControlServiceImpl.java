@@ -1,19 +1,22 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.RdbmsId;
-import ru.intertrust.cm.core.dao.access.*;
-import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
-import ru.intertrust.cm.core.dao.exception.AccessException;
-
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.dao.access.AccessControlService;
+import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.AccessType;
+import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
+import ru.intertrust.cm.core.dao.access.Subject;
+import ru.intertrust.cm.core.dao.access.SystemSubject;
+import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
+import ru.intertrust.cm.core.dao.access.UserSubject;
+import ru.intertrust.cm.core.dao.exception.AccessException;
 
 /**
  * Реализация службы контроля доступа.
@@ -29,15 +32,9 @@ public class AccessControlServiceImpl implements AccessControlService {
     @Autowired
     private DatabaseAccessAgent databaseAgent;
 
-    @Autowired    
-    private PersonManagementServiceDao personManagementService;
-        
-    private Map<String, Id> loginToUserIdCache = new HashMap<String, Id>();
-    
-    private Map<Id, Boolean> personIdToIsSuperUserCache = new HashMap<Id, Boolean>();
-    
-    private Id superUsersGroupId = null;
-    
+    @Autowired
+    private UserGroupGlobalCache userGroupCache;
+
     /**
      * Устанавливает программный агент, которому делегируются функции физической проверки прав доступа
      * через запросы в БД. 
@@ -48,8 +45,8 @@ public class AccessControlServiceImpl implements AccessControlService {
         this.databaseAgent = databaseAgent;
     }    
 
-    public void setPersonManagementService(PersonManagementServiceDao personManagementService) {
-        this.personManagementService = personManagementService;
+    public void setUserGroupCache(UserGroupGlobalCache userGroupCache) {
+        this.userGroupCache = userGroupCache;
     }
 
     @Override
@@ -92,34 +89,11 @@ public class AccessControlServiceImpl implements AccessControlService {
     }
 
     private Id getUserIdByLogin(String login) {
-        Id personId = null;
-        if (loginToUserIdCache.get(login) != null) {
-            personId = loginToUserIdCache.get(login);
-        } else {
-            personId = personManagementService.getPersonId(login);
-            loginToUserIdCache.put(login, personId);
-        }        
-        return personId;
-    }
-
-    
-    private Id getSuperUsersGroupId() {
-        if (superUsersGroupId == null) {
-            superUsersGroupId = personManagementService.getGroupId(GenericDomainObject.SUPER_USERS_STATIC_GROUP);
-        }
-        return superUsersGroupId;
+        return userGroupCache.getUserIdByLogin(login);
     }
 
     private boolean isPersonSuperUser(Id personId) {
-        boolean isSuperUser = false;
-        if (personIdToIsSuperUserCache.get(personId) != null) {
-            isSuperUser = personIdToIsSuperUserCache.get(personId);
-        } else {
-            isSuperUser = personManagementService.isPersonInGroup(getSuperUsersGroupId(), personId);
-            personIdToIsSuperUserCache.put(personId, isSuperUser);
-        }
-        return isSuperUser;
-
+        return userGroupCache.isPersonSuperUser(personId);
     }
     
     @Override
@@ -220,13 +194,8 @@ public class AccessControlServiceImpl implements AccessControlService {
         }
 
     }
-    
-    public void cleanPersonCache(){
-        personIdToIsSuperUserCache.clear();
-        loginToUserIdCache.clear();
-        
-    }
-    
+
+
     /**
      * Базовый класс для маркеров доступа.
      * Все маркеры доступа, поддерживаемые данной реализацией сервиса контроля доступа,

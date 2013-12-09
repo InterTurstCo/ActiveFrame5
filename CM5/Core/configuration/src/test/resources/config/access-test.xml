@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration xmlns="https://cm5.intertrust.ru/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
     <!-- Статические группы пользователей - мы вынуждены объявлять их здесь, 
         т.к. они используются в матрицах доступа -->
-    <static-group name="Администраторы" />
+    <static-group name="Administrators" />
+
+    <static-group name="Superusers" />
 
     <!-- Динамические группы пользователей - вычисляются системой -->
-    <dynamic-group name="Все пользователи">
-        <!-- Бесконтекстная - существует в единственном экземпляре -->
-        <members>
-            <!-- Отслеживаем сохранение/удаление объектов типа "Person" в 
-                статусе "active" и включаем их в группу -->
-            <track-domain-objects type="Person"
-                status="active" />
-        </members>
-    </dynamic-group>
+    <!-- Безконтекстные группы не поддерживаются. Это статичная группа заполняемая 
+        точкой расширения на сохранение объектов -->
+    <!-- dynamic-group name="AllPersons"> <members> <track-domain-objects 
+        type="Person" status="active" /> </members> </dynamic-group -->
 
-    <dynamic-group name="Пользователь">
+    <dynamic-group name="Person">
         <!-- По одной группе на каждый объект "Person" (пользователь) в системе -->
         <context>
             <domain-object type="Person" />
@@ -29,16 +27,15 @@
         </members>
     </dynamic-group>
 
-    <dynamic-group name="Пользователь и его заместители">
+    <dynamic-group name="PersonAndDelegates">
         <!-- По одной группе на каждый объект "Person" (пользователь) в системе -->
         <context>
-            <domain-object type="Person" />
+            <domain-object type="Employee" />
         </context>
         <members>
             <!-- Отслеживаем сохранение/удаление объектов типа "Delegation" 
                 в статусе "active" -->
-            <track-domain-objects type="Delegation"
-                status="active">
+            <track-domain-objects type="Delegation">
                 <!-- Указываем, какую именно группу (с каким контекстом) 
                     менять - берём пользователя из поля "person" -->
                 <bind-context>
@@ -47,136 +44,186 @@
                 <!-- Указываем, как получить пользователя, который войдёт 
                     в группу - берём его из поля "delegate" -->
                 <get-person>
-                    <doel>delegate</doel>
+                    <doel>Delegation^person.delegate</doel>
+                </get-person>
+            </track-domain-objects>
+            <track-domain-objects>
+                <get-person>
+                    <doel>id</doel>
                 </get-person>
             </track-domain-objects>
         </members>
+        <!-- Также включаем всех членов группы "Пользователь" с тем же контекстом -->
+        <!-- include-group name="Пользователь" / -->
+        <!-- Вероятно, по соображениям эффективности выгоднее будет не включать 
+            здесь группу "Пользователь", а повторить тег trackObjects из неё -->
     </dynamic-group>
 
-    <dynamic-group name="Сотрудники подразделения">
-        <!-- По одной группе на каждый объект "Department" (подразделение) 
-            в системе -->
+    <dynamic-group name="DepartmentEmployees">
         <context>
             <domain-object type="Department" />
         </context>
         <members>
-            <!-- Отслеживаем сохранение/удаление объектов типа "Person" в 
-                статусе "active" -->
-            <track-domain-objects type="Employee"
-                status="active">
-                <!-- Контекст для включения в группу берём из поля "Department" -->
+            <track-domain-objects type="Employee">
                 <bind-context>
                     <doel>Department</doel>
                 </bind-context>
+                <get-group name="PersonAndDelegates">
+                    <doel>Employee^Department.id</doel>
+                </get-group>
             </track-domain-objects>
         </members>
     </dynamic-group>
 
-    <dynamic-group name="Сотдруники подразделения пользователя">
+    <dynamic-group name="OrganizationEmployees">
+        <context>
+            <domain-object type="Organization" />
+        </context>
+        <members>
+            <track-domain-objects type="Employee">
+                <bind-context>
+                    <doel>Department.Organization</doel>
+                </bind-context>
+                <get-group name="DepartmentEmployees">
+                    <!-- doel>Department^Organization.Employee^Department</doel -->
+                    <!-- Врепенное решение пока не починится DOEL -->
+                    <doel>Department^Organization</doel>
+                </get-group>
+            </track-domain-objects>
+            <track-domain-objects type="Department">
+                <bind-context>
+                    <doel>Organization</doel>
+                </bind-context>
+                <get-group name="DepartmentEmployees">
+                    <!-- doel>Department^Organization.Employee^Department</doel -->
+                    <!-- Врепенное решение пока не починится DOEL -->
+                    <doel>Department^Organization</doel>
+                </get-group>
+            </track-domain-objects>
+        </members>
+    </dynamic-group>
+
+
+    <dynamic-group name="EmployeeDepartmentEmployees">
         <!-- По одной группе на каждый объект "Employee" (сотрудник) в системе -->
         <context>
             <domain-object type="Employee" />
         </context>
+        <members>
+            <track-domain-objects>
+                <get-group name="DepartmentEmployees">
+                    <doel>Department</doel>
+                </get-group>
+            </track-domain-objects>
+        </members>
     </dynamic-group>
 
-    <!-- <dynamic-group name="Исполнители Поручений">
-        По одной группе на каждый объект "Outgoing_Document" (документ) в системе
+    <dynamic-group name="OrganizationBoss">
+        <context>
+            <domain-object type="Organization" />
+        </context>
+        <members>
+            <track-domain-objects>
+                <get-group name="PersonAndDelegates">
+                    <doel>Boss</doel>
+                </get-group>
+            </track-domain-objects>
+        </members>
+    </dynamic-group>
+
+    <dynamic-group name="DepartmentBosses">
+        <context>
+            <domain-object type="Organization" />
+        </context>
+        <members>
+            <track-domain-objects type="Department">
+                <bind-context>
+                    <doel>Organization</doel>
+                </bind-context>
+                <get-group name="PersonAndDelegates">
+                    <doel>Department^Organization.Boss</doel>
+                </get-group>
+            </track-domain-objects>
+        </members>
+    </dynamic-group>
+
+    <dynamic-group name="DepartmentBoss">
+        <context>
+            <domain-object type="Department" />
+        </context>
+        <members>
+            <track-domain-objects>
+                <get-group name="PersonAndDelegates">
+                    <doel>Boss</doel>
+                </get-group>
+            </track-domain-objects>
+        </members>
+    </dynamic-group>
+
+    <!-- Контекстные роли -->
+    <context-role name="DocumentAuthor">
         <context>
             <domain-object type="Outgoing_Document" />
         </context>
-        <members>
-            Отслеживаем сохранение/удаление объектов типа "Подпись" в статусе "active"
-            <track-domain-objects type="Execution" status="active">
-                <bind-context>
-                    <doel>parent.parent</doel>
-                </bind-context>
-                <get-person>
-                    <doel>executor</doel>
-                </get-person>
+        <groups>
+            <track-domain-objects>
+                <get-group name="PersonAndDelegates">
+                    <doel>Author</doel>
+                </get-group>
             </track-domain-objects>
+        </groups>
+    </context-role>
 
-            <track-domain-objects type="Commission">
-                <bind-context>
-                    <doel>parent</doel>
-                </bind-context>
-                <get-person>
-                    <doel>Execution^parent.executor</doel>
-                </get-person>
-            </track-domain-objects>
-        </members>
-    </dynamic-group>
--->    
-
-    <!-- Forward Link used from Doc1 to Doc 3 -->
-    <!--
-    Doc1      ->        Doc2         ->   Doc3
-    linkToDoc2          linkToDoc3        fieldDoc3
-    -->
- <!--    <dynamic-group name="Rule on Field Doc3 ">
+    <context-role name="Author">
         <context>
-            <domain-object type="Doc1" />
-        </context>
-        <members>            
-            <track-domain-objects type="Doc3" status="active">
-                <bind-context>
-                    <doel>Doc2^linkToDoc3.Doc1^linkToDoc2</doel>
-                </bind-context>
-                <get-person>
-                    <doel>fieldDoc3</doel>
-                </get-person>
-            </track-domain-objects>
-
-            <track-domain-objects type="Doc2">
-                <bind-context>
-                    <doel>Doc1^linkToDoc2</doel>
-                </bind-context>
-                <get-person>
-                    <doel>linkToDoc3.fieldDoc3</doel>
-                </get-person>
-            </track-domain-objects>
-        </members>
-    </dynamic-group> -->
-
-    <!-- Back link  from Doc1 to Doc3-->
-    <!--
-    Doc1      ->        Doc2         ->   Doc3
-    linkToDoc2          linkToDoc1        linkToDoc2
-                                          fieldDoc3
-    -->
-    <!-- <dynamic-group name="Rule on Field Doc3 ">
-        <context>
-            <domain-object type="Doc1" />
-        </context>
-        <members>            
-            <track-domain-objects type="Doc3" status="active">
-                <bind-context>
-                    <doel>linkToDoc2.linkToDoc1</doel>
-                </bind-context>
-                <get-person>
-                    <doel>fieldDoc3</doel>
-                </get-person>
-            </track-domain-objects>
-
-            <track-domain-objects type="Doc2">
-                <bind-context>
-                    <doel>linkToDoc1</doel>
-                </bind-context>
-                <get-person>
-                    <doel>Doc3^linkDoc2.fieldDoc3</doel>
-                </get-person>
-            </track-domain-objects>
-        </members>
-    </dynamic-group> -->
-
-    <!-- Контекстные роли -->
-    <context-role name="Автор документа">
-        <context>
-            <domain-object type="Outgoing_Document"  />
+            <domain-object type="Internal_Document" />
         </context>
         <groups>
             <track-domain-objects>
-                <get-group name="Пользователь и его заместители">
-                    <doel>Author</doel>
+                <get-group name="PersonAndDelegates">
+                    <doel>docAuthor</doel>
+                </get-group>
+            </track-domain-objects>
+        </groups>
+    </context-role>
+
+    <context-role name="AuthorBosses">
+        <context>
+            <domain-object type="Internal_Document" />
+        </context>
+        <groups>
+            <track-domain-objects>
+                <get-group name="DepartmentBosses">
+                    <doel>docAuthor.Department.Organization</doel>
+                </get-group>
+            </track-domain-objects>
+        </groups>
+    </context-role>
+
+    <context-role name="Registrator">
+        <context>
+            <domain-object type="Internal_Document" />
+        </context>
+        <groups>
+            <track-domain-objects>
+                <get-group name="PersonAndDelegates">
+                    <doel>Registrant</doel>
+                </get-group>
+            </track-domain-objects>
+        </groups>
+    </context-role>
+
+    <context-role name="Negotiator">
+        <context>
+            <domain-object type="Internal_Document" />
+        </context>
+        <groups>
+            <track-domain-objects type="Negotiation_Card">
+                <bind-context>
+                    <doel>Parent_Document</doel>
+                </bind-context>
+                <get-group name="PersonAndDelegates">
+                    <doel>Negotiation_Card^Parent_Document.Negotiator</doel>
                 </get-group>
             </track-domain-objects>
         </groups>
@@ -186,23 +233,92 @@
     <access-matrix type="Outgoing_Document">
         <status name="Draft">
             <read>
-                <permit-role name="Автор документа"></permit-role>
-                <permit-group name="Пользователь и его заместители"></permit-group>
+                <permit-role name="DocumentAuthor" />
             </read>
             <write>
-                <permit-role name="Автор документа"></permit-role>
+                <permit-role name="DocumentAuthor" />
             </write>
             <delete>
-                <permit-role name="Автор документа"></permit-role>
-            </delete>            
+                <permit-role name="DocumentAuthor" />
+            </delete>
             <create-child type="Employee">
-                <permit-role name="Автор документа"></permit-role>
+                <permit-role name="DocumentAuthor" />
             </create-child>
             <execute-action name="action1">
-                <permit-role name="Автор документа"></permit-role>
-            </execute-action>            
+                <permit-role name="DocumentAuthor" />
+            </execute-action>
         </status>
     </access-matrix>
+    <access-matrix type="country">
+        <status name="Active">
+            <read>
+                <permit-group name="AllPersons" />
+            </read>
+            <write>
+                <permit-group name="AllPersons" />
+            </write>
+            <delete>
+                <permit-group name="AllPersons" />
+            </delete>
+            <execute-action name="action1">
+                <permit-group name="AllPersons" />
+            </execute-action>
+        </status>
+    </access-matrix>
+
+    <!-- Внутренний документ -->
+    <access-matrix type="Internal_Document">
+        <status name="Draft">
+            <read>
+                <permit-role name="Author" />
+            </read>
+            <write>
+                <permit-role name="Author" />
+            </write>
+            <delete>
+                <permit-role name="Author" />
+            </delete>
+            <execute-action name="StartProcessAction">
+                <permit-role name="Author" />
+            </execute-action>
+            <execute-action name="ChangeStatusAction">
+                <permit-role name="Author" />
+            </execute-action>
+        </status>
+        <status name="Negotiation">
+            <read>
+                <permit-role name="Negotiator" />
+                <permit-group name="AllPersons" />
+            </read>
+            <write>
+                <permit-role name="Author" />
+            </write>
+        </status>
+        <status name="Registration">
+            <read>
+                <permit-role name="Negotiator" />
+                <permit-group name="AllPersons" />
+            </read>
+            <write>
+                <permit-role name="Author" />
+                <permit-role name="Registrator" />
+            </write>
+        </status>
+        <status name="Registred">
+            <read>
+                <permit-group name="AllPersons" />
+            </read>
+        </status>
+        <status name="OnRevision">
+            <read>
+                <permit-group name="AllPersons" />
+            </read>
+            <write>
+                <permit-role name="Author" />
+            </write>
+        </status>
+    </access-matrix>
+
 </configuration>
 
 
