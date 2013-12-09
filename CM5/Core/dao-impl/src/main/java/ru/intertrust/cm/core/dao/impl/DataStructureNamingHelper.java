@@ -35,7 +35,17 @@ public class DataStructureNamingHelper {
      */
     public static String getSqlSequenceName(DomainObjectTypeConfig domainObjectTypeConfig) {
 
-        return convertToSqlFormat(domainObjectTypeConfig.getName()) + "_seq";
+        return getSqlSequenceName(domainObjectTypeConfig.getName());
+    }
+
+    /**
+     * Возвращает имя последовательности(сиквенса) sql-виде
+     * @param name имя
+     * @return имя последовательности в sql-виде
+     */
+    public static String getSqlSequenceName(String name) {
+
+        return convertToSqlFormat(name) + "_seq";
     }
 
     /**

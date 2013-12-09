@@ -103,7 +103,7 @@ public class PostgreSqlDataStructureDaoImplTest {
     @Test
     public void testCreateServiceTables() throws Exception {
         dataStructureDao.createServiceTables();
-        verify(jdbcTemplate).update(generateCreateDomainObjectTableQuery());
+        verify(jdbcTemplate).update(generateCreateDomainObjectTypeIdTableQuery());
         verify(jdbcTemplate).update(generateCreateConfigurationTableQuery());
     }
 

@@ -38,11 +38,12 @@ public class PostgreSqlQueryHelperTest {
 
     @Test
     public void testGenerateCreateDomainObjectTableQuery() {
-        String query = "create table \"" + DOMAIN_OBJECT_TYPE_ID_TABLE + "\" (\"id\" bigserial not null, " +
+        String query = "create table \"" + DOMAIN_OBJECT_TYPE_ID_TABLE + "\" (" +
+                "\"id\" bigint not null default nextval('\"" + DOMAIN_OBJECT_TYPE_ID_TABLE + "_seq" + "\"'), " +
                 "\"name\" varchar(256) not null, " +
                 "constraint \"pk_" + DOMAIN_OBJECT_TYPE_ID_TABLE + "\" primary key (\"id\"), " +
                 "constraint \"u_" + DOMAIN_OBJECT_TYPE_ID_TABLE + "\" unique (\"name\"))";
-        String testQuery = PostgreSqlQueryHelper.generateCreateDomainObjectTableQuery();
+        String testQuery = PostgreSqlQueryHelper.generateCreateDomainObjectTypeIdTableQuery();
         assertEquals(query, testQuery);
     }
 
