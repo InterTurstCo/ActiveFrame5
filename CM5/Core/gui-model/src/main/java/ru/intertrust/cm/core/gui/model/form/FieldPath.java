@@ -100,6 +100,15 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
         return ((BackReference) getLastElement()).getReferenceType();
     }
 
+    public String getReferenceName() {
+        BackReference lastElement = (BackReference) getLastElement();
+        if (lastElement instanceof ManyToManyReference) {
+            return ((ManyToManyReference) lastElement).getLinkToChildrenName();
+        } else {
+            return lastElement.getLinkToParentName();
+        }
+    }
+
     public String getLinkToParentName() {
         return ((BackReference) getLastElement()).getLinkToParentName();
     }

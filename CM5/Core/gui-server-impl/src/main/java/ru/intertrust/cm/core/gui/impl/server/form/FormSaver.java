@@ -231,11 +231,17 @@ public class FormSaver {
         }
         for (Id id : ids) {
             for (FieldPath fieldPath : fieldPaths) {
-                String linkingObjectType = fieldPath.getLinkingObjectType();
-                String linkToChildrenName = fieldPath.getLinkToChildrenName();
-                ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig)
-                        configurationExplorer.getFieldConfig(linkingObjectType, linkToChildrenName);
-                String linkedType = referenceFieldConfig.getType();
+                String linkedType;
+                String referenceType = fieldPath.getReferenceType();
+                if (fieldPath.isOneToManyReference()) {
+                    linkedType = referenceType;
+                } else {
+                    String referenceName = fieldPath.getReferenceName();
+                    ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig)
+                            configurationExplorer.getFieldConfig(referenceType, referenceName);
+                    linkedType = referenceFieldConfig.getType();
+                }
+
                 if (configurationService.getDomainObjectType(id).equalsIgnoreCase(linkedType)) {
                     result.get(fieldPath).add(id);
                     break;

@@ -620,11 +620,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             return cachedDomainObjects;
         }
 
-        List<RdbmsId> idsToRead = null;
-        if (cachedDomainObjects == null) {
-            idsToRead = ids;
-        } else {
-            idsToRead = new ArrayList<>(ids.size());
+        LinkedHashSet<RdbmsId> idsToRead = new LinkedHashSet<>(ids);
+        if (cachedDomainObjects != null) {
             for (DomainObject domainObject : cachedDomainObjects) {
                 idsToRead.remove(domainObject.getId());
             }
@@ -651,19 +648,25 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                     .append(" where ID in (:object_ids) ");
         }
 
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        List<Long> listIds = AccessControlUtility
-                .convertRdbmsIdsToLongIds(idsToRead);
-        parameters.put("object_ids", listIds);
+        Map<String, Object> parameters = new HashMap<>();
+        List<DomainObject> readDomainObjects;
+        if (!idsToRead.isEmpty()) {
 
-        if (accessToken.isDeferred()) {
-            parameters.putAll(aclParameters);
+            List<Long> listIds = AccessControlUtility
+                    .convertRdbmsIdsToLongIds(new ArrayList<>(idsToRead));
+            parameters.put("object_ids", listIds);
+
+            if (accessToken.isDeferred()) {
+                parameters.putAll(aclParameters);
+            }
+
+            readDomainObjects = jdbcTemplate.query(query
+                    .toString(), parameters, new MultipleObjectRowMapper(
+                    domainObjectType, configurationExplorer,
+                    domainObjectTypeIdCache));
+        } else {
+            readDomainObjects = new ArrayList<>(0);
         }
-
-        List<DomainObject> readDomainObjects = jdbcTemplate.query(query
-                .toString(), parameters, new MultipleObjectRowMapper(
-                domainObjectType, configurationExplorer,
-                domainObjectTypeIdCache));
 
         if (cachedDomainObjects == null) {
             return readDomainObjects;
@@ -672,6 +675,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             result.addAll(readDomainObjects);
             return result;
         }
+
     }
 
     @Override
