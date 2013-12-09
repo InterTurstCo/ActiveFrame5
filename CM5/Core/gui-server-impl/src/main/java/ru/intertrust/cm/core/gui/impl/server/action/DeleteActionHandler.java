@@ -2,16 +2,11 @@ package ru.intertrust.cm.core.gui.impl.server.action;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
-import ru.intertrust.cm.core.gui.impl.server.plugin.handlers.FormPluginHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
-import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
-import ru.intertrust.cm.core.gui.model.action.SaveActionData;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
+import ru.intertrust.cm.core.gui.model.action.DeleteActionData;
 
 /**
  * User: IPetrov
@@ -30,11 +25,9 @@ public class DeleteActionHandler extends ActionHandler {
 
         crudService.delete(context.getRootObjectId());
 
-        DomainObject rootDomainObject = guiService.saveForm(((SaveActionContext) context).getFormState());
-        FormPluginHandler handler = (FormPluginHandler) applicationContext.getBean("form.plugin");
-        FormPluginConfig config = new FormPluginConfig(rootDomainObject.getId());
-        SaveActionData result = new SaveActionData();
-        result.setFormPluginData((FormPluginData) handler.initialize(config));
+        DeleteActionData result = new DeleteActionData();
+        result.setId(context.getRootObjectId());
+
         return (T) result;
     }
 }

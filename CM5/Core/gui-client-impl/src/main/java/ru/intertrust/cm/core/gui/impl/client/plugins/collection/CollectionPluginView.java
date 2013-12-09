@@ -14,7 +14,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
-import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
@@ -213,8 +213,42 @@ public class CollectionPluginView extends PluginView {
                 refreshCollection(event.getIdentifiableObject());
              }
         });
+
+        // обработчик удаления элемента коллекции (строки в таблице)
+        eventBus.addHandler(DeleteCollectionRowEvent.TYPE, new DeleteCollectionRowEventHandler() {
+            @Override
+            public void deleteCollectionRow(DeleteCollectionRowEvent event) {
+                delCollectionRow(event.getId());
+            }
+        });
     }
 
+    // метод для удаления из коллекции
+    public void delCollectionRow(Id collectionObject) {
+        // ищем какая строка была выбрана
+        int index = 0;
+        for (CollectionRowItem i : items) {
+            if (i.getId().toStringRepresentation().equalsIgnoreCase(collectionObject.toStringRepresentation())) {
+                index = items.indexOf(i);
+            }
+        }
+
+        // удаляем из коллекции и из таблицы
+        items.remove(index);
+
+        // выделение строки - если удалили последнюю строку, выделяем предыдущую
+       if (index == items.size()) {
+           index--;
+       }
+
+       CollectionRowItem itemRow = items.get(index);
+       selectionModel.setSelected(itemRow, true);
+
+       // обновляем таблицу
+       tableBody.setRowData(items);
+       tableBody.redraw();
+       tableBody.flush();
+    }
     // метод для обновления коллекции
     public void refreshCollection(IdentifiableObject collectionObject) {
         CollectionRowItem item = new CollectionRowItem();

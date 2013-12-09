@@ -2,17 +2,15 @@ package ru.intertrust.cm.core.gui.impl.client.action;
 
 import com.google.gwt.user.client.Window;
 import ru.intertrust.cm.core.gui.api.client.Component;
-import ru.intertrust.cm.core.gui.impl.client.Plugin;
-import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.DeleteCollectionRowEvent;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
+import ru.intertrust.cm.core.gui.model.action.DeleteActionData;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
-import ru.intertrust.cm.core.gui.model.action.SaveActionData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
 
 /**
@@ -44,22 +42,19 @@ public class DeleteAction extends SimpleServerAction {
 
     @Override
     protected void onSuccess(ActionData result) {
-        FormPluginData formPluginData = ((SaveActionData) result).getFormPluginData();
-        Plugin plugin = getPlugin();
-        ((IsDomainObjectEditor) plugin).setFormState(formPluginData.getFormDisplayData().getFormState());
-        plugin.setActionContexts(formPluginData.getActionContexts());
+        if (result instanceof DeleteActionData)
+            // вызываем событие удаления из коллекции
+            ((DomainObjectSurferPlugin) plugin).getEventBus().fireEvent(new DeleteCollectionRowEvent(
+                                                                                ((DeleteActionData) result).getId()));
 
-        // вызываем событие обновления коллекции
-        ((DomainObjectSurferPlugin) plugin).getEventBus().fireEvent(new UpdateCollectionEvent(
-                formPluginData.getFormDisplayData().getFormState().getObjects().getRootNode().getDomainObject()));
-        // получаем конфигурацию для очистки формы
-        String domainObjectType = ((IsDomainObjectEditor) plugin).getRootDomainObject().getTypeName();
-        FormPluginConfig config = new FormPluginConfig(domainObjectType);
-        config.setDomainObjectTypeToCreate(domainObjectType);
+            // получаем конфигурацию для очистки формы
+            String domainObjectType = ((IsDomainObjectEditor) plugin).getRootDomainObject().getTypeName();
+            FormPluginConfig config = new FormPluginConfig(domainObjectType);
+            config.setDomainObjectTypeToCreate(domainObjectType);
 
-        // чистим форму
-        ((IsDomainObjectEditor) plugin).replaceForm(config);
-        Window.alert("Строка удалена!!!");
+            // чистим форму
+            ((IsDomainObjectEditor) plugin).replaceForm(config);
+            Window.alert("Строка удалена!!!");
 
     }
 

@@ -51,14 +51,13 @@ public class FormPluginHandler extends ActivePluginHandler {
         createNewActionContext.setActionConfig(createNewActionConfig);
 
         ActionConfig deleteActionConfig = new ActionConfig("delete.action", "delete.action");
-        saveActionConfig.setText("Удалить");
+        deleteActionConfig.setText("Удалить");
         ActionContext deleteActionContext = new SaveActionContext();
-        saveActionContext.setActionConfig(deleteActionConfig);
+        deleteActionContext.setActionConfig(deleteActionConfig);
 
         ArrayList<ActionContext> actions = new ArrayList<>();
         actions.add(saveActionContext);
         actions.add(createNewActionContext);
-
         actions.add(deleteActionContext);
 
         List<ActionContext> otherActions = null;
