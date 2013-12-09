@@ -125,7 +125,9 @@ public class TableBrowserWidget extends BaseWidget {
         FlowPanel root = new FlowPanel();
         facebookStyleView = new FacebookStyleView();
         filterEditor = new TextBox();
+        filterEditor.getElement().setClassName("table-browser-filter-editor");
         openDialogButton = new Button("ADD");
+        openDialogButton.getElement().setClassName("table-browser-add-button");
         openDialogButton.addClickHandler(new FetchFilteredRowsClickHandler());
         root.add(filterEditor);
         root.add(openDialogButton);
