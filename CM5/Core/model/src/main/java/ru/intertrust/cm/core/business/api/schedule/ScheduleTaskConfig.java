@@ -1,0 +1,16 @@
+package ru.intertrust.cm.core.business.api.schedule;
+
+import org.simpleframework.xml.Element;
+import org.simpleframework.xml.Root;
+import org.simpleframework.xml.convert.Convert;
+
+import ru.intertrust.cm.core.config.converter.ScheduleTaskParametersConverter;
+
+@Root
+public class ScheduleTaskConfig {
+
+    @Element
+    @Convert(ScheduleTaskParametersConverter.class)
+    private ScheduleTaskParameters parameters;
+    
+}

@@ -82,7 +82,7 @@ public class ExtensionServiceImpl implements ExtensionService, ApplicationContex
 
                 // Сканирование класспаса
                 ClassPathScanningCandidateComponentProvider scanner =
-                        new ClassPathScanningCandidateComponentProvider(true);
+                        new ClassPathScanningCandidateComponentProvider(false);
                 scanner.addIncludeFilter(new AnnotationTypeFilter(ExtensionPoint.class));
                 // Цикл по найденным классам
                 for (BeanDefinition bd : scanner.findCandidateComponents(basePackage)) {
