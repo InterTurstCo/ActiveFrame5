@@ -97,12 +97,5 @@ public interface ConfigurationService {
      */
     AccessMatrixStatusConfig getAccessMatrixByObjectTypeAndStatus(String domainObjectType, String status);
 
-    /**
-     * Возвращает конфигурацию контекстной роли по имени.
-     * @param contextRoleName имя контекстной роли
-     * @return конфигурация контекстной роли
-     */
-    ContextRoleConfig getContextRoleByName(String contextRoleName);
-
     String getDomainObjectType(Id id);
 }

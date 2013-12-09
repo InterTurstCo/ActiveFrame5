@@ -94,11 +94,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     @Override
-    public ContextRoleConfig getContextRoleByName(String contextRoleName) {
-        return configurationExplorer.getContextRoleByName(contextRoleName);
-    }
-
-    @Override
     public String getDomainObjectType(Id id) {
         return domainObjectTypeIdCache.getName(id);
     }

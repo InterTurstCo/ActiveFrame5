@@ -278,7 +278,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             if (permit.getClass().equals(PermitRole.class)) {
                 String contextRoleName = permit.getName();
                 ContextRoleConfig contextRoleConfig =
-                        configurationExplorer.getContextRoleByName(contextRoleName);
+                        configurationExplorer.getConfig(ContextRoleConfig.class, contextRoleName);
                 if (contextRoleConfig == null) {
                     throw new ConfigurationException("Context role : " + contextRoleName
                             + " not found in configuaration");
@@ -299,8 +299,8 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                 String dynamicGroupName = permit.getName();
 
                 DynamicGroupConfig dynamicGroupConfig =
-                        configurationExplorer.getDynamicGroupByName(dynamicGroupName);
-
+                        configurationExplorer.getConfig(DynamicGroupConfig.class, dynamicGroupName);
+                                
                 if (dynamicGroupConfig != null && dynamicGroupConfig.getContext() != null
                         && dynamicGroupConfig.getContext().getDomainObject() != null) {
 

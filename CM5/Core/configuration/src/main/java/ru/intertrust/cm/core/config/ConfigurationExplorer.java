@@ -101,17 +101,4 @@ public interface ConfigurationExplorer {
      */
     AccessMatrixStatusConfig getAccessMatrixByObjectTypeAndStatus(String domainObjectType, String status);
 
-    /**
-     * Возвращает конфигурацию контекстной роли по имени.
-     * @param contextRoleName имя контекстной роли
-     * @return конфигурация контекстной роли
-     */
-    ContextRoleConfig getContextRoleByName(String contextRoleName);
-
-    /**
-     * Возвращает конфигурацию динамической группы по имени.
-     * @param dynamicGroupName имя динамической группы
-     * @return конфигурация динамической группы
-     */
-    DynamicGroupConfig getDynamicGroupByName(String dynamicGroupName);
 }
