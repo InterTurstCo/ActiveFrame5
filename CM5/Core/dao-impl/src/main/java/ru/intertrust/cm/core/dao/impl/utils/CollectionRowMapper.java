@@ -91,14 +91,14 @@ public class CollectionRowMapper extends BasicRowMapper implements
     /**
      * Возвращает список названий колонок, которые будут добавлены в коллекцию. SQL запрос коллекции может содержать
      * произвольные поля, но добавляются в коллекцию только поля, которые указаны в конфигурации представления
-     * коллекции. Причем, список не содержит колонку-идентификатор.
+     * коллекции. Причем, список не содержит колонку-идентификатор и колонку идентификатор типа (id_type)
      * @param columnModel модель колонок содержит список всех колонок из запроса.
      * @return список колонок, которые будут добавлены в коллекцию.
      */
     private List<String> collectColumnNamesToInsert(ColumnModel columnModel) {
         List<String> fieldNamesToInsert = new ArrayList<String>();
         for (String columnName : columnModel.getColumnNames()) {
-            if(idField.equals(columnName)) {
+            if(idField.equals(columnName) || TYPE_ID_COLUMN.equals(columnName)) {
                 continue;
             }
             if (collectionConfigExists(columnName)) {
