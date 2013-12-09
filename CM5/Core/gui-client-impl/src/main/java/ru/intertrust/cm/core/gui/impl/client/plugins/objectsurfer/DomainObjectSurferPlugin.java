@@ -41,7 +41,7 @@ public class DomainObjectSurferPlugin extends Plugin implements
      * создается объект локальной шины событий
      */
     public DomainObjectSurferPlugin() {
-        // поле из базового класса, в которое устанавливается локальная шина событий
+        // устанавливается локальная шина событий
         eventBus = GWT.create(SimpleEventBus.class);
         eventBus.addHandler(CollectionRowSelectedEvent.TYPE, this);
     }
@@ -165,5 +165,10 @@ public class DomainObjectSurferPlugin extends Plugin implements
         getView().onPluginPanelResize();
         collectionPlugin.getView().onPluginPanelResize();
         formPlugin.getView().onPluginPanelResize();
+    }
+
+    // получение локальной шины событий плагина
+    public EventBus getEventBus() {
+        return eventBus;
     }
 }

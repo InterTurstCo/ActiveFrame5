@@ -41,7 +41,7 @@ import java.util.List;
  */
 public class CollectionPluginView extends PluginView {
     private CellTable<CollectionRowItem> tableHeader;
-    private CellTable<CollectionRowItem> tableBody;
+    protected CellTable<CollectionRowItem> tableBody;
     private ScrollPanel scrollTableBody = new ScrollPanel();
     private TableController tableController;
     private ArrayList<CollectionRowItem> items;
@@ -56,6 +56,10 @@ public class CollectionPluginView extends PluginView {
     private int tableWidth;
     private int tableHeight;
     private boolean singleChoice = true;
+
+    // IPetrov
+    private CheckedSelectionModel<CollectionRowItem> selectionModel = null;
+
     // локальная шина событий
     private EventBus eventBus;
     protected Plugin plugin;
@@ -202,8 +206,56 @@ public class CollectionPluginView extends PluginView {
             }
         });
 
+        // обработчик обновления коллекции (строки в таблице)
+        eventBus.addHandler(UpdateCollectionEvent.TYPE, new UpdateCollectionEventHandler() {
+            @Override
+            public void updateCollection(UpdateCollectionEvent event) {
+                refreshCollection(event.getIdentifiableObject());
+             }
+        });
     }
 
+    // метод для обновления коллекции
+    public void refreshCollection(IdentifiableObject collectionObject) {
+        CollectionRowItem item = new CollectionRowItem();
+        LinkedHashMap<String, Value> rowValues = new LinkedHashMap<String, Value>();
+        for (String field : columnNamesOnDoFieldsMap.keySet()) {
+            Value value;
+            if ("id".equalsIgnoreCase(field)) {
+                value = new StringValue(collectionObject.getId().toStringRepresentation());
+            } else {
+                value = collectionObject.getValue(field);
+
+            }
+            rowValues.put(field, value);
+        }
+
+        item.setId(collectionObject.getId());
+        item.setRow(rowValues);
+
+        int index = -1;
+        // ищем совпадающий(для случая редактирования коллекции) объект
+        for (CollectionRowItem i : items) {
+            if (i.getId().toStringRepresentation().equalsIgnoreCase(item.getId().toStringRepresentation())) {
+                index = items.indexOf(i);
+            }
+        }
+
+        if (index >= 0) {
+            //CollectionRowItem itemRow = items.get(index);
+            items.set(index, item);
+            selectionModel.setSelected(item, true);
+        } else {
+            items.add(item);
+            //index = items.indexOf(item);
+            selectionModel.clear();
+            selectionModel.setSelected(item, true);
+        }
+
+        tableBody.setRowData(items);
+        tableBody.redraw();
+        tableBody.flush();
+    }
 
     private TextColumn<CollectionRowItem> buildNameColumn(final String string) {
 
@@ -308,7 +360,7 @@ public class CollectionPluginView extends PluginView {
     }
 
     private void applyBodyTableStyle() {
-        final CheckedSelectionModel<CollectionRowItem> selectionModel = new CheckedSelectionModel<CollectionRowItem>();
+        selectionModel = new CheckedSelectionModel<CollectionRowItem>();
         String emptyTableText = null;
 
         HTML emptyTableWidget = new HTML("<br/><div align='center'> <h1> " + emptyTableText + " </h1> </div>");
@@ -336,6 +388,7 @@ public class CollectionPluginView extends PluginView {
     public void setEventBus(EventBus eventBus) {
         this.eventBus = eventBus;
     }
+
 
 
     private void createCollectionData() {

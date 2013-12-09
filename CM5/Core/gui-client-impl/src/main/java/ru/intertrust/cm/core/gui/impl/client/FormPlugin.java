@@ -31,7 +31,7 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
         this.eventBus = eventBus;
     }
 
-    // получение локальной шины событий плагину
+    // получение локальной шины событий плагина
     public EventBus getEventBus() {
         return eventBus;
     }

@@ -2,10 +2,9 @@ package ru.intertrust.cm.core.gui.impl.client.action;
 
 import com.google.gwt.user.client.Window;
 import ru.intertrust.cm.core.gui.api.client.Component;
-import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEvent;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
+import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
@@ -50,6 +49,10 @@ public class SaveAction extends SimpleServerAction {
         ((IsDomainObjectEditor) plugin).setFormState(formPluginData.getFormDisplayData().getFormState());
         plugin.setActionContexts(formPluginData.getActionContexts());
 
+        // IPetrov
+        // вызываем событие обновления коллекции
+        ((DomainObjectSurferPlugin) plugin).getEventBus().fireEvent(new UpdateCollectionEvent(
+                formPluginData.getFormDisplayData().getFormState().getObjects().getRootNode().getDomainObject()));
         // получаем конфигурацию для очистки формы
         String domainObjectType = ((IsDomainObjectEditor) plugin).getRootDomainObject().getTypeName();
         FormPluginConfig config = new FormPluginConfig(domainObjectType);
@@ -57,17 +60,9 @@ public class SaveAction extends SimpleServerAction {
 
         // чистим форму
         ((IsDomainObjectEditor) plugin).replaceForm(config);
-        // вызываем обновление коллекции
-        updateCollection();
         Window.alert("Saved!!!");
-    }
-
-    // IPetrov 04.12.2013
-    protected void updateCollection() {
-        CollectionPlugin collectionPlugin = ComponentRegistry.instance.get("collection.plugin");
-        collectionPlugin.getEventBus().fireEvent(new UpdateCollectionEvent());
 
     }
 
 }
-//formPluginData.getFormDisplayData().getFormState().getObjects().getRootNode().getDomainObject().getId()
+

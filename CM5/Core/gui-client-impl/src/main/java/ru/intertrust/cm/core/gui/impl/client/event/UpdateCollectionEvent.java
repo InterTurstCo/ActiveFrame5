@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.event;
 
 import com.google.gwt.event.shared.GwtEvent;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 
 /**
  * User: IPetrov
@@ -10,7 +11,13 @@ import com.google.gwt.event.shared.GwtEvent;
  */
 public class UpdateCollectionEvent extends GwtEvent<UpdateCollectionEventHandler> {
 
-    public static Type<UpdateCollectionEventHandler> TYPE = new Type<>();
+    public static Type<UpdateCollectionEventHandler> TYPE = new Type<UpdateCollectionEventHandler>();
+    // поле для объекта, который будет добавляться в коллекцию
+    private IdentifiableObject identifiableObject;
+
+    public UpdateCollectionEvent(IdentifiableObject identifiableObject) {
+        this.identifiableObject = identifiableObject;
+    }
 
     @Override
     public Type<UpdateCollectionEventHandler> getAssociatedType() {
@@ -19,5 +26,9 @@ public class UpdateCollectionEvent extends GwtEvent<UpdateCollectionEventHandler
     @Override
     protected void dispatch(UpdateCollectionEventHandler handler) {
         handler.updateCollection(this);
+    }
+
+    public IdentifiableObject getIdentifiableObject() {
+        return identifiableObject;
     }
 }

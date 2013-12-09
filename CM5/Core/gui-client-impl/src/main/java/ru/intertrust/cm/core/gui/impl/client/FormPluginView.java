@@ -33,6 +33,11 @@ public class FormPluginView extends PluginView {
         this.eventBus = eventBus;
     }
 
+    // получение локальной шины событий плагина
+    public EventBus getEventBus() {
+        return eventBus;
+    }
+
     protected FormPluginView(FormPlugin plugin, FormDisplayData formDisplayData) {
         super(plugin);
         // установка локальной шины событий
