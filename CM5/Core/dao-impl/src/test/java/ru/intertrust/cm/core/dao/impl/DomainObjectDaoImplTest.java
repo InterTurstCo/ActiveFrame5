@@ -195,10 +195,10 @@ public class DomainObjectDaoImplTest {
     public void testGenerateFindChildrenQuery() {
         AccessToken accessToken = createMockAccessToken();
         String expectedQuery = "select assignment.* from \"assignment\" assignment where assignment.\"author\" = " +
-                ":domain_object_id"/* +
-                " and exists" +
-                " (select r.object_id from assignment_READ r inner join group_member " +
-                "gm on r.group_id = gm.usergroup where gm.person_id = :user_id and r.object_id = t.id)"*/;
+                ":domain_object_id and exists (select r.object_id from assignment_read r  " +
+                "inner join \"group_group\" gg on r.\"group_id\" = gg.\"parent_group_id\" " +
+                "inner join \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\"" +
+                "where gm.person_id = :user_id and r.object_id = t\"id\")";
         Assert.assertEquals(expectedQuery, domainObjectDaoImpl.buildFindChildrenQuery("assignment", "author",
                 0, 0, accessToken));
 
@@ -211,7 +211,10 @@ public class DomainObjectDaoImplTest {
                 "person.\"email\", person.\"login\", person.\"password\", person.\"boss\", person.\"boss_type\", " +
                 "\"created_date\", \"updated_date\", \"status\", \"status_type\" " +
                 "from \"internal_employee\" internal_employee inner join \"person\" person on " +
-                "internal_employee.\"id\" = person.\"id\" where person.\"boss\" = :domain_object_id"/* +
+                "internal_employee.\"id\" = person.\"id\" where person.\"boss\" = :domain_object_id and exists " +
+                "(select r.object_id from Internal_Employee_read r  inner join \"group_group\" gg on " +
+                "r.\"group_id\" = gg.\"parent_group_id\" inner join \"group_member\" gm on " +
+                "gg.\"child_group_id\" = gm.\"usergroup\"where gm.person_id = :user_id and r.object_id = t\"id\")" /* +
                 " and exists" +
                 " (select r.object_id from assignment_READ r inner join group_member " +
                 "gm on r.group_id = gm.usergroup where gm.person_id = :user_id and r.object_id = t.id)"*/;
