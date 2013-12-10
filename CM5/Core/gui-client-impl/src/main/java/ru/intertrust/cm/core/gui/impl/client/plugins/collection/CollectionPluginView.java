@@ -38,13 +38,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-//import ru.intertrust.cm.core.gui.model.Command;
-//import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowItemList;
-//import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
-//import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
-//import ru.intertrust.cm.core.gui.model.plugin.CollectionRowsRequest;
-//import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
-
 /**
  * @author Yaroslav Bondacrhuk
  *         Date: 17/9/13
@@ -67,9 +60,6 @@ public class CollectionPluginView extends PluginView {
     private int tableWidth;
     private int tableHeight;
     private boolean singleChoice = true;
-
-    // IPetrov
-   // private CheckedSelectionModel<CollectionRowItem> selectionModel = null;
 
     // локальная шина событий
     private EventBus eventBus;
@@ -94,7 +84,6 @@ public class CollectionPluginView extends PluginView {
 
     }
 
-    // IPetrov 03.12.2013
     public CellTable getTableBody() {
         return tableBody;
     }
