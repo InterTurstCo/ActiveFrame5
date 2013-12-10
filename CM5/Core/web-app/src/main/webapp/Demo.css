@@ -127,7 +127,7 @@ h1 {
 
 .content {
 
- /*   position: absolute;*/
+    position: absolute;
     top: 0;
     bottom: 0;
     left: 0px; /* 	left: 109px; */
@@ -418,11 +418,15 @@ h1 {
 #gwt-splitter {
     overflow: visible;
     top: 30%;
-    left: 0;
+	height: 8px !important;
+    left: -1px !important;
     right: 0;
     border: 1px solid #9EAFBF;
     border-collapse: collapse;
     z-index: 2;
+}
+#gwt-splitter .GLW1MH4CPL{
+height: 8px !important;
 }
 
 .gwt-SplitLayoutPanel-VDragger {
