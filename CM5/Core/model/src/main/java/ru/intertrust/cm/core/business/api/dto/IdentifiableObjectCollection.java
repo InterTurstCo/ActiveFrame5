@@ -11,8 +11,6 @@ import java.util.List;
  * Time: 13:44
  */
 public interface IdentifiableObjectCollection extends Iterable<IdentifiableObject>, Dto {
-    @Deprecated // todo: drop in next release
-    void setFields(List<String> fields);
 
     void setFieldsConfiguration(List<FieldConfig> fieldConfigs);
 

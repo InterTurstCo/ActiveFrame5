@@ -373,15 +373,22 @@ public class SqlQueryModifier {
 
     private SelectExpressionItem generateServiceColumnExpression(SelectExpressionItem selectExpressionItem, String postfix) {
         Column column = (Column) selectExpressionItem.getExpression();
-        StringBuilder expression = new StringBuilder(column.getTable().getName()).append(".").
-                append(getServiceColumnName(column.getColumnName(), postfix));
+
+        StringBuilder referenceColumnExpression = new StringBuilder();
+        if (column.getTable() != null && column.getTable().getName() != null) {
+            referenceColumnExpression.append(column.getTable().getName()).append(".").append(
+                    getServiceColumnName(column.getColumnName(), postfix));
+        } else {
+            referenceColumnExpression.append(getServiceColumnName(column.getColumnName(), postfix));
+        }
 
         if (selectExpressionItem.getAlias() != null) {
-            expression.append(" as ").append(getServiceColumnName(selectExpressionItem.getAlias(), postfix));
+            referenceColumnExpression.append(" as ")
+                    .append(getServiceColumnName(selectExpressionItem.getAlias(), postfix));
         }
 
         SelectExpressionItem referenceFieldTypeItem = new SelectExpressionItem();
-        referenceFieldTypeItem.setExpression(new Column(new Table(), expression.toString()));
+        referenceFieldTypeItem.setExpression(new Column(new Table(), referenceColumnExpression.toString()));
         return referenceFieldTypeItem;
     }
 

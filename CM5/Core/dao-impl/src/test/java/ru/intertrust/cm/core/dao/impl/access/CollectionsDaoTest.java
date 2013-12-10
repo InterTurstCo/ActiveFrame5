@@ -58,8 +58,23 @@ public class CollectionsDaoTest extends BaseDaoTest {
 
         IdentifiableObjectCollection objectCollection =
                 collectionsDao.findCollection("Employees", filterValues, sortOrder, 0, 0, accessToken);
+        
+        System.out.print(objectCollection);
         assertNotNull(objectCollection);
         assertTrue(objectCollection.size() >= 1);
 
     }
+    
+    @Test
+    public void testFindCollectionByQuery() {
+
+        String query = "select ai.id, ai.created_date, ai.status, user_uid, password from authentication_info ai where user_uid='admin'";
+
+        IdentifiableObjectCollection identifiableObjectCollection = collectionsDao.findCollectionByQuery(query, 0, 0, accessToken);        
+        
+        System.out.print(identifiableObjectCollection);
+
+    }    
+
+    
 }
