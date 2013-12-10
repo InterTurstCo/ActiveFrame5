@@ -16,13 +16,40 @@ import java.util.*;
 public class GenericIdentifiableObjectCollection implements IdentifiableObjectCollection {
 
     private ArrayList<IdentifiableObject> list = new ArrayList<IdentifiableObject>();
-    private HashMap<String, Integer> fieldIndexes = new HashMap<String, Integer>();
+    private CaseInsensitiveKeyHashMap<Integer> fieldIndexes = new CaseInsensitiveKeyHashMap<Integer>();
     private ArrayList<String> fields;
     private ArrayList<FieldConfig> fieldConfigs;
 
     public GenericIdentifiableObjectCollection() {
     }
     
+
+    /**
+     * Обертывает @{link HashMap} для хранения ключей объектов в нижнем регистре (регистронезависимо).
+     * @author atsvetkov
+     *
+     */
+    private static class CaseInsensitiveKeyHashMap<T> {
+        private HashMap<String, T> map = new HashMap<String, T>();
+
+        public T put(String key, T value) {
+            String lowerCaseKey = null;
+            if (key != null) {
+                lowerCaseKey = key.toLowerCase();
+            }
+            return map.put(lowerCaseKey, value);
+        }
+
+        public T get(String key) {
+            String lowerCaseKey = null;
+            if (key != null) {
+                lowerCaseKey = key.toLowerCase();
+            }
+            return map.get(lowerCaseKey);
+
+        }
+        
+    }
 
     //TODO Удалить после исправления JdbcDatabaseMetaData.java
     @Override
@@ -54,7 +81,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         }
         int fieldIndex = 0;
         for (FieldConfig field : this.fieldConfigs) {
-            fieldIndexes.put(new String(field.getName()).toLowerCase(), fieldIndex);
+            fieldIndexes.put(field.getName(), fieldIndex);
             ++fieldIndex;
         }
     }
@@ -397,4 +424,5 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
             dirty = false;
         }
     }
+    
 }
