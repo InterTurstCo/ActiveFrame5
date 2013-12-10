@@ -10,6 +10,8 @@ import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
 
 import java.util.Arrays;
 
+import java.util.Arrays;
+
 import static org.junit.Assert.assertEquals;
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TYPE_COLUMN;
 
