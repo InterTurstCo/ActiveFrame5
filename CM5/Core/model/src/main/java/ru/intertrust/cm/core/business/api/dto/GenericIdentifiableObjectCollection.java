@@ -23,6 +23,25 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
     public GenericIdentifiableObjectCollection() {
     }
     
+
+    //TODO Удалить после исправления JdbcDatabaseMetaData.java
+    @Override
+    public void setFields(List<String> fields) {
+        if (this.fields != null) {
+            throw new IllegalArgumentException("Collection fields are already set");
+        }
+        if (fields == null) {
+            this.fields = new ArrayList<String>();
+        } else {
+            this.fields = new ArrayList<String>(fields);
+        }
+        int fieldIndex = 0;
+        for (String field : this.fields) {
+            fieldIndexes.put(field, fieldIndex);
+            ++fieldIndex;
+        }
+    }
+
     @Override
     public void setFieldsConfiguration(List<FieldConfig> fieldConfigs) {
         if (this.fieldConfigs != null) {
