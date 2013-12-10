@@ -2,8 +2,8 @@ package ru.intertrust.cm.core.business.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.ejb.Local;
@@ -18,6 +18,7 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.ScheduleService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
@@ -78,7 +79,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         for (SheduleTaskReestrItem sheduleTaskReestrItem : tasksDescriptions) {
             result.add(sheduleTaskReestrItem.getScheduleTask().getClass().toString());
         }
-        return null;
+        return result;
     }
 
     @Override
@@ -119,7 +120,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             if (task.getString(SCHEDULE_PARAMETERS) != null) {
                 inputStream =
                         new ByteArrayInputStream(task.getString(SCHEDULE_PARAMETERS).getBytes("utf8"));
-                result = (ScheduleTaskParameters) serializer.read(ScheduleTaskConfig.class, inputStream);
+                result = ((ScheduleTaskConfig) serializer.read(ScheduleTaskConfig.class, inputStream)).getParameters();
             }
             return result;
         } catch (Exception ex) {
@@ -145,7 +146,10 @@ public class ScheduleServiceImpl implements ScheduleService {
 
             Serializer serializer = new Persister();
             out = new ByteArrayOutputStream();
-            serializer.write(parameters, out);
+            
+            ScheduleTaskConfig config = new ScheduleTaskConfig();
+            config.setParameters(parameters);
+            serializer.write(config, out);
 
             task.setString(SCHEDULE_PARAMETERS, out.toString("utf8"));
             domainObjectDao.save(task, accessToken);
@@ -184,7 +188,9 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     public void run(Id taskId) {
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
-        domainObjectDao.setStatus(taskId, statusDao.getStatusIdByName(SCHEDULE_STATUS_READY), accessToken);
+        DomainObject task = domainObjectDao.setStatus(taskId, statusDao.getStatusIdByName(SCHEDULE_STATUS_READY), accessToken);
+        task.setTimestamp(SCHEDULE_LAST_REDY, new Date());
+        domainObjectDao.save(task, accessToken);
     }
 
     @Override
@@ -206,4 +212,24 @@ public class ScheduleServiceImpl implements ScheduleService {
             domainObjectDao.save(task, accessToken);
         }
     }
+
+    @Override
+    public DomainObject createScheduleTask(String className, String name) {
+        return sheduleTaskLoader.createTaskDomainObject(sheduleTaskLoader.getSheduleTaskReestrItem(className), name);
+    }
+    
+    /**
+     * Создание нового доменного объекта
+     * 
+     * @param type
+     * @return
+     */
+    protected DomainObject createDomainObject(String type) {
+        GenericDomainObject domainObject = new GenericDomainObject();
+        domainObject.setTypeName(type);
+        Date currentDate = new Date();
+        domainObject.setCreatedDate(currentDate);
+        domainObject.setModifiedDate(currentDate);
+        return domainObject;
+    }    
 }

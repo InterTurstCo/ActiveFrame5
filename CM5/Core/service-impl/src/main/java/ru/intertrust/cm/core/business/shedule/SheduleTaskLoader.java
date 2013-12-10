@@ -22,6 +22,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTask;
+import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskConfig;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskDefaultParameters;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskHandle;
 import ru.intertrust.cm.core.business.api.schedule.SheduleType;
@@ -85,11 +86,19 @@ public class SheduleTaskLoader implements ApplicationContextAware {
         }
     }
 
-    private void createTaskDomainObject(SheduleTaskReestrItem item) {
+    public DomainObject createTaskDomainObject(SheduleTaskReestrItem item) {
+        return createTaskDomainObject(item, null);
+    }
+
+    public DomainObject createTaskDomainObject(SheduleTaskReestrItem item, String name) {
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
 
         DomainObject task = createDomainObject("schedule");
-        task.setString(ScheduleService.SCHEDULE_NAME, item.configuration.name());
+        if (name == null) {
+            task.setString(ScheduleService.SCHEDULE_NAME, item.configuration.name());
+        } else {
+            task.setString(ScheduleService.SCHEDULE_NAME, name);
+        }
         task.setString(ScheduleService.SCHEDULE_TASK_CLASS, item.scheduleTask.getClass().getName());
         task.setLong(ScheduleService.SCHEDULE_TASK_TYPE, item.configuration.type().toLong());
         task.setString(ScheduleService.SCHEDULE_YEAR, item.configuration.year());
@@ -102,7 +111,7 @@ public class SheduleTaskLoader implements ApplicationContextAware {
         task.setLong(ScheduleService.SCHEDULE_PRIORITY, item.configuration.priority());
         task.setString(ScheduleService.SCHEDULE_PARAMETERS, getDefaultParameters(item.configuration));
         task.setLong(ScheduleService.SCHEDULE_ACTIVE, item.configuration.active() ? 1L : 0);
-        domainObjectDao.save(task, accessToken);
+        return domainObjectDao.save(task, accessToken);
     }
 
     private String getDefaultParameters(ScheduleTask configuration) {
@@ -114,7 +123,10 @@ public class SheduleTaskLoader implements ApplicationContextAware {
             if (!defaultConfigClass.equals(ScheduleTaskDefaultParameters.class)) {
                 ScheduleTaskDefaultParameters configClass = defaultConfigClass.newInstance();
                 out = new ByteArrayOutputStream();
-                serializer.write(configClass.getDefaultParameters(), out);
+                ScheduleTaskConfig config = new ScheduleTaskConfig();
+                config.setParameters(configClass.getDefaultParameters());
+
+                serializer.write(config, out);
                 result = out.toString("utf8");
             }
 
@@ -236,6 +248,10 @@ public class SheduleTaskLoader implements ApplicationContextAware {
             }
         }
         return result;
+    }
+
+    public SheduleTaskReestrItem getSheduleTaskReestrItem(String className) {
+        return reestr.get(className);
     }
 
     public ScheduleTaskHandle getSheduleTaskHandle(String className) {

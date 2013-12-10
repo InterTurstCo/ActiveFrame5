@@ -302,7 +302,7 @@
             <long name="priority" not-null="true" />
             <string name="parameters" length="1024" not-null="false" />
             <long name="last_result" not-null="false"/>
-            <string name="last_result_description" length="1024" not-null="false"/>
+            <text name="last_result_description" not-null="false"/>
             <long name="active" not-null="true"/>
             <dateTime name="last_redy" not-null="false"/>
             <dateTime name="last_wait" not-null="false"/>

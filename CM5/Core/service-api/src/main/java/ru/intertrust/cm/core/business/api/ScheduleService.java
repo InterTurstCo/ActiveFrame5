@@ -115,5 +115,12 @@ public interface ScheduleService {
      * @param timeout
      */
     void setTimeout(Id taskId, int timeout);
+
+    /**
+     * Создание периодического задания класса multible
+     * @param string
+     * @return
+     */
+    DomainObject createScheduleTask(String className, String name);
     
 }

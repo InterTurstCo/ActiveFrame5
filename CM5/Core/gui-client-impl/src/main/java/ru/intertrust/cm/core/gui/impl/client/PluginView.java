@@ -68,31 +68,29 @@ public abstract class PluginView implements IsWidget {
         for (final ActionContext actionContext : actionContexts) {
             final ActionConfig actionConfig = actionContext.getActionConfig();
             Hyperlink hyperlink = new Hyperlink(actionConfig.getText(), actionConfig.getText());
-            Image actionPic = new Image(actionConfig.getImageUrl());
+            if (actionConfig.getImageUrl() != null) {
+                Image actionPic = new Image(actionConfig.getImageUrl());
+                decoratedActionLink.add(actionPic);
+                actionPic.addClickHandler(new ClickHandler() {
+                    @Override
+                    public void onClick(ClickEvent event) {
+                        String component = actionConfig.getComponent();
+                        if (component == null) {
+                            component = "generic.workflow.action";
+                        }
+                        Action action = ComponentRegistry.instance.get(component);
+                        action.setInitialContext(actionContext);
+                        action.setPlugin(plugin);
+                        action.execute();
+                    }
+                });
+            }
             hyperlink.setStyleName("action-bar-button");
             //actionPic.setStyleName("action-bar-button");
-            decoratedActionLink.add(actionPic);
             decoratedActionLink.add(hyperlink);
-
-            if (actionConfig == null) {
-                continue;
-            }
 
             actionToolBar.add(decoratedActionLink);
 
-            actionPic.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    String component = actionConfig.getComponent();
-                    if (component == null) {
-                        component = "generic.workflow.action";
-                    }
-                    Action action = ComponentRegistry.instance.get(component);
-                    action.setInitialContext(actionContext);
-                    action.setPlugin(plugin);
-                    action.execute();
-                }
-            });
 
             hyperlink.addClickHandler(new ClickHandler() {
                 @Override

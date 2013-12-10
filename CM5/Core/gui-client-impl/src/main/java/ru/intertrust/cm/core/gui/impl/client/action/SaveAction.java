@@ -49,7 +49,6 @@ public class SaveAction extends SimpleServerAction {
         ((IsDomainObjectEditor) plugin).setFormState(formPluginData.getFormDisplayData().getFormState());
         plugin.setActionContexts(formPluginData.getActionContexts());
 
-        // IPetrov
         // вызываем событие обновления коллекции
         ((DomainObjectSurferPlugin) plugin).getEventBus().fireEvent(new UpdateCollectionEvent(
                 formPluginData.getFormDisplayData().getFormState().getObjects().getRootNode().getDomainObject()));
