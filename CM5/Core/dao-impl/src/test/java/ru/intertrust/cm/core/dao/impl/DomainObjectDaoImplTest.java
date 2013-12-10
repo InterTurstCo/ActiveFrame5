@@ -231,10 +231,13 @@ public class DomainObjectDaoImplTest {
     @Test
     public void testGenerateFindChildrenIdsQueryForInheritedField() {
         AccessToken accessToken = createMockAccessToken();
-        String expectedQuery = "select person.\"id\" from \"person\" person where person.\"boss\" = :domain_object_id"/* +
-        		" and exists" +
-                " (select r.object_id from assignment_READ r inner join group_member " +
-                "gm on r.group_id = gm.usergroup where gm.person_id = :user_id and r.object_id = t.id)"*/;
+        String expectedQuery =
+                "select person.\"id\" from \"person\" person where person.\"boss\" = :domain_object_id and exists " +
+                "(select r.object_id from Internal_Employee_read r  inner join \"group_group\" gg on " +
+                "r.\"group_id\" = gg.\"parent_group_id\" inner join \"group_member\" gm on " +
+                "gg.\"child_group_id\" = gm.\"usergroup\"where gm.person_id = :user_id and r.object_id = t\"id\")";
+                
+
         Assert.assertEquals(expectedQuery, domainObjectDaoImpl.buildFindChildrenIdsQuery("Internal_Employee", "Boss",
                 0, 0, accessToken));
 
