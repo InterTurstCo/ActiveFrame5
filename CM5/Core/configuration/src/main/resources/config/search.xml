@@ -48,6 +48,7 @@
                     <doel>Parent_Document</doel>
                 </parent-link>
             </linked-domain-object>
+            <target-collection name="Internal_Document"/>
         </target-domain-object>
     </search-area>
 
@@ -67,6 +68,7 @@
             <indexed-field name="Organization_Name">
                 <doel>Department.Organization.Name</doel>
             </indexed-field>
+            <target-collection name="PersonByLogin"/>
         </target-domain-object>
         <target-domain-object type="Department">
             <indexed-field name="Name"/>
@@ -89,6 +91,7 @@
                     <doel>Department^Boss</doel>
                 </parent-link>
             </linked-domain-object>
+            <target-collection name="Departments"/>
         </target-domain-object>
     </search-area>
 </configuration>

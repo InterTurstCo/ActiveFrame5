@@ -7,7 +7,7 @@ import java.util.List;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 
-public class IndexedDomainObjectConfig implements Serializable {
+abstract public class IndexedDomainObjectConfig implements Serializable {
 
     @Attribute(required = true)
     private String type;
