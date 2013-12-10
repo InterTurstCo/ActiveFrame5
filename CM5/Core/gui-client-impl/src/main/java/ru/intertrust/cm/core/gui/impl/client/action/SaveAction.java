@@ -11,7 +11,6 @@ import ru.intertrust.cm.core.gui.model.action.ActionData;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.action.SaveActionData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
 
@@ -52,16 +51,8 @@ public class SaveAction extends SimpleServerAction {
         // вызываем событие обновления коллекции
         ((DomainObjectSurferPlugin) plugin).getEventBus().fireEvent(new UpdateCollectionEvent(
                 formPluginData.getFormDisplayData().getFormState().getObjects().getRootNode().getDomainObject()));
-        // получаем конфигурацию для очистки формы
-        String domainObjectType = ((IsDomainObjectEditor) plugin).getRootDomainObject().getTypeName();
-        FormPluginConfig config = new FormPluginConfig(domainObjectType);
-        config.setDomainObjectTypeToCreate(domainObjectType);
 
-        // чистим форму
-        ((IsDomainObjectEditor) plugin).replaceForm(config);
         Window.alert("Saved!!!");
-
     }
-
 }
 
