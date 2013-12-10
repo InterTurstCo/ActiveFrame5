@@ -2,10 +2,19 @@ package ru.intertrust.cm.core.dao.impl;
 
 
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.JdbcNamedParameter;
+import net.sf.jsqlparser.expression.LongValue;
+import net.sf.jsqlparser.expression.Parenthesis;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
+import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
+import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
+import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.*;
+import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.IdsExcludedFilter;
+import ru.intertrust.cm.core.business.api.dto.IdsIncludedFilter;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DateTimeWithTimeZoneFieldConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
@@ -17,6 +26,7 @@ import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
 import java.util.*;
 
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.*;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getServiceColumnName;
 import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.wrap;
 
@@ -39,20 +49,29 @@ public class SqlQueryModifier {
      * @param query первоначальный SQL запрос
      * @return запрос с добавленным полем Тип Объекта идентификатора
      */
-    public String addServiceColumns(String query, ConfigurationExplorer configurationExplorer) {
-        return processQuery(query, configurationExplorer, new QueryProcessor() {
+    public String addServiceColumns(String query, final ConfigurationExplorer configurationExplorer) {
+        return processQuery(query, new QueryProcessor() {
             @Override
-            protected void processPlainSelect(PlainSelect plainSelect, ConfigurationExplorer configurationExplorer) {
+            protected void processPlainSelect(PlainSelect plainSelect) {
                 addServiceColumnsInPlainSelect(plainSelect, configurationExplorer);
             }
         });
     }
 
     public static String wrapAndLowerCaseNames(String query) {
-        return processQuery(query, null, new QueryProcessor() {
+        return processQuery(query, new QueryProcessor() {
             @Override
-            protected void processPlainSelect(PlainSelect plainSelect, ConfigurationExplorer configurationExplorer) {
+            protected void processPlainSelect(PlainSelect plainSelect) {
                 wrapAndLowerCaseNamesInPlainSelect(plainSelect);
+            }
+        });
+    }
+
+    public String addIdBasedFilters(String query, final List<Filter> filterValues, final String idField) {
+        return processQuery(query, new QueryProcessor() {
+            @Override
+            protected void processPlainSelect(PlainSelect plainSelect) {
+                addIdBasedFiltersInPlainSelect(plainSelect, filterValues, idField);
             }
         });
     }
@@ -100,24 +119,16 @@ public class SqlQueryModifier {
      * @param idField название поля, использующегося в качестве ключевого
      * @return запрос с добавленным ACL фильтром
      */
-    public String addAclQuery(String query, String idField) {
+    public String addAclQuery(String query, final String idField) {
+        query = processQuery(query, new QueryProcessor() {
+            @Override
+            protected void processPlainSelect(PlainSelect plainSelect) {
+                applyAclFilterExpression(idField, plainSelect);
+            }
+        });
 
         SqlQueryParser sqlParser = new SqlQueryParser(query);
-
         SelectBody selectBody = sqlParser.getSelectBody();
-
-        if (selectBody.getClass().equals(PlainSelect.class)) {
-            PlainSelect plainSelect = (PlainSelect) selectBody;
-            applyAclFilterExpression(idField, plainSelect);
-
-        } else if (selectBody.getClass().equals(SetOperationList.class)) {
-            SetOperationList union = (SetOperationList) selectBody;
-            List plainSelects = union.getPlainSelects();
-            for (Object plainSelect : plainSelects) {
-                applyAclFilterExpression(idField, (PlainSelect) plainSelect);
-            }
-        }
-
         String modifiedQuery = selectBody.toString();
         modifiedQuery = modifiedQuery.replaceAll(USER_ID_PARAM, USER_ID_VALUE);
         return modifiedQuery;
@@ -125,21 +136,12 @@ public class SqlQueryModifier {
     }
 
     public void checkDuplicatedColumns(String query) {
-        SqlQueryParser sqlParser = new SqlQueryParser(query);
-
-        SelectBody selectBody = sqlParser.getSelectBody();
-        if (selectBody.getClass().equals(PlainSelect.class)) {
-            PlainSelect plainSelect = (PlainSelect) selectBody;
-            checkDuplicatedColumnsInPlainSelect(plainSelect);
-        } else if (selectBody.getClass().equals(SetOperationList.class)) {
-            SetOperationList union = (SetOperationList) selectBody;
-            List plainSelects = union.getPlainSelects();
-            for (Object plainSelect : plainSelects) {
-                checkDuplicatedColumnsInPlainSelect((PlainSelect) plainSelect);
+        processQuery(query, new QueryProcessor() {
+            @Override
+            protected void processPlainSelect(PlainSelect plainSelect) {
+                checkDuplicatedColumnsInPlainSelect(plainSelect);
             }
-        } else {
-            throw new IllegalArgumentException("Unsupported type of select body: " + selectBody.getClass());
-        }
+        });
     }
 
     private void checkDuplicatedColumnsInPlainSelect(PlainSelect plainSelect) {
@@ -186,6 +188,96 @@ public class SqlQueryModifier {
         plainSelect.getSelectItems().addAll(selectExpressionItemsToAdd);
     }
 
+    private void addIdBasedFiltersInPlainSelect(PlainSelect plainSelect, List<Filter> filterValues, String idField) {
+        if (filterValues == null) {
+            return;
+        }
+
+        Table fromItem = (Table) plainSelect.getFromItem();
+        Table whereTable = new Table();
+        if (fromItem.getAlias() != null) {
+            whereTable.setName(fromItem.getAlias());
+        } else {
+            whereTable.setName(wrap(fromItem.getName()));
+        }
+
+        Expression where = plainSelect.getWhere();
+        if (where == null) {
+            EqualsTo equalsTo = new EqualsTo();
+            equalsTo.setLeftExpression(new LongValue("1"));
+            equalsTo.setRightExpression(new LongValue("1"));
+            plainSelect.setWhere(equalsTo);
+            where = plainSelect.getWhere();
+        }
+
+        for (Filter filter : filterValues) {
+            if (!(filter instanceof IdsIncludedFilter || filter instanceof IdsExcludedFilter)) {
+                continue;
+            }
+
+            Expression expression = null;
+            for (Integer key : filter.getCriterionKeys()){
+                Parenthesis parenthesis;
+                if (filter instanceof IdsIncludedFilter) {
+                    IdsIncludedFilter idsIncludedFilter = (IdsIncludedFilter) filter;
+
+                    Expression idExpression = getIdEqualsExpression(idsIncludedFilter, key, whereTable, idField, false);
+                    Expression typeExpression = getIdEqualsExpression(idsIncludedFilter, key, whereTable,
+                            getReferenceTypeColumnName(idField), true);
+
+                    parenthesis = new Parenthesis(new AndExpression(idExpression, typeExpression));
+                    if (expression != null) {
+                        expression = new OrExpression(expression, parenthesis);
+                    }
+                } else {
+                    IdsExcludedFilter idsExcludedFilter = (IdsExcludedFilter) filter;
+
+                    Expression idExpression = getIdNotEqualsExpression(idsExcludedFilter, key, whereTable, idField, false);
+                    Expression typeExpression = getIdNotEqualsExpression(idsExcludedFilter, key, whereTable,
+                            getReferenceTypeColumnName(idField), true);
+
+                    parenthesis = new Parenthesis(new OrExpression(idExpression, typeExpression));
+                    if (expression != null) {
+                        expression = new AndExpression(expression, parenthesis);
+                    }
+                }
+
+                if (expression == null) {
+                    expression = parenthesis;
+                }
+            }
+
+            if (expression != null) {
+                if (!(expression instanceof Parenthesis)) {
+                    expression = new Parenthesis(expression);
+                }
+                where = new AndExpression(where, expression);
+            }
+        }
+
+        plainSelect.setWhere(where);
+    }
+
+    private Expression getIdEqualsExpression(IdsIncludedFilter filter, Integer key, Table table, String columnName, boolean isType) {
+        JdbcNamedParameter jdbcNamedParameter = new JdbcNamedParameter();
+        jdbcNamedParameter.setName(filter.getFilter() + key + (isType ? REFERENCE_TYPE_POSTFIX : ""));
+
+        EqualsTo idEqualsTo = new EqualsTo();
+        idEqualsTo.setLeftExpression(new Column(table, columnName));
+        idEqualsTo.setRightExpression(jdbcNamedParameter);
+        return idEqualsTo;
+    }
+
+    private Expression getIdNotEqualsExpression(Filter filter, Integer key, Table table, String columnName, boolean isType) {
+        JdbcNamedParameter jdbcNamedParameter = new JdbcNamedParameter();
+        jdbcNamedParameter.setName(filter.getFilter() + key + (isType ? REFERENCE_TYPE_POSTFIX : ""));
+
+        NotEqualsTo idNotEqualsTo = new NotEqualsTo();
+        idNotEqualsTo.setLeftExpression(new Column(table, columnName));
+        idNotEqualsTo.setRightExpression(jdbcNamedParameter);
+        return idNotEqualsTo;
+    }
+
     private static void wrapAndLowerCaseNamesInPlainSelect(PlainSelect plainSelect) {
         Table fromItem = (Table) plainSelect.getFromItem();
         fromItem.setName(wrap(fromItem.getName().toLowerCase()));
@@ -202,25 +294,38 @@ public class SqlQueryModifier {
         }
     }
 
+    /**
+     * Возвращает имя таблицы, в которой находится данная колонка. Елси алиас для таблицы не был использован в SQL
+     * запросе, то берется название первой таблицы в FROM выражении.
+     * @param plainSelect SQL запрос
+     * @param column колока (поле) в запросе.
+     * @return
+     */
     private static String getTableName(PlainSelect plainSelect, Column column) {
         Table fromItem = (Table) plainSelect.getFromItem();
-        if (column.getTable().getName().equals(fromItem.getAlias())) {
+        if (column.getTable() != null && column.getTable().getName() != null) {
+
+            if (column.getTable().getName().equals(fromItem.getAlias())) {
+                return fromItem.getName();
+            }
+
+            List joinList = plainSelect.getJoins();
+            if (joinList == null || joinList.isEmpty()) {
+                throw new CollectionQueryException("Failed to evaluate table name for column '" +
+                        column.getColumnName() + "'");
+            }
+
+            for (Object joinObject : joinList) {
+                Join join = (Join) joinObject;
+                if (column.getTable().getName().equals(join.getRightItem().getAlias())) {
+                    return ((Table) join.getRightItem()).getName();
+                }
+            }
+
+        } else {
             return fromItem.getName();
         }
-
-        List joinList = plainSelect.getJoins();
-        if (joinList == null || joinList.isEmpty()) {
-            throw new CollectionQueryException("Failed to evaluate table name for column '" +
-                    column.getColumnName() + "'");
-        }
-
-        for (Object joinObject : joinList) {
-            Join join = (Join) joinObject;
-            if (column.getTable().getName().equals(join.getRightItem().getAlias())) {
-                return ((Table) join.getRightItem()).getName();
-            }
-        }
-
+        
         throw new CollectionQueryException("Failed to evaluate table name for column '" +
                 column.getColumnName() + "'");
     }
@@ -229,12 +334,6 @@ public class SqlQueryModifier {
         FromItem fromItem = plainSelect.getFromItem();
         validateFromItem(fromItem);
         return ((Table) fromItem).getName();
-    }
-
-    private String getFromTableAlias(PlainSelect plainSelect) {
-        FromItem fromItem = plainSelect.getFromItem();
-        validateFromItem(fromItem);
-        return fromItem.getAlias();
     }
 
     private void validateFromItem(FromItem fromItem) {
@@ -246,13 +345,21 @@ public class SqlQueryModifier {
 
     private SelectExpressionItem createObjectTypeSelectItem(SelectExpressionItem selectExpressionItem) {
         Column column = (Column) selectExpressionItem.getExpression();
-        StringBuilder expression = new StringBuilder(column.getTable().getName()).append(".").append(TYPE_COLUMN);
+        
+        StringBuilder objectTypeColumnExpression = null;
+        if(column.getTable() != null && column.getTable().getName()!= null){
+            objectTypeColumnExpression = new StringBuilder(column.getTable().getName()).append(".").append(TYPE_COLUMN);
+        }else{
+            objectTypeColumnExpression = new StringBuilder().append(TYPE_COLUMN);            
+        }
+        
+        //TODO нужно ли это?
         if (selectExpressionItem.getAlias() != null) {
-            expression.append(" as ").append(selectExpressionItem.getAlias()).append(REFERENCE_TYPE_POSTFIX);
+            objectTypeColumnExpression.append(" as ").append(selectExpressionItem.getAlias()).append(REFERENCE_TYPE_POSTFIX);
         }
 
         SelectExpressionItem objectTypeItem = new SelectExpressionItem();
-        objectTypeItem.setExpression(new Column(new Table(), expression.toString()));
+        objectTypeItem.setExpression(new Column(new Table(), objectTypeColumnExpression.toString()));
         return objectTypeItem;
     }
 
@@ -266,15 +373,22 @@ public class SqlQueryModifier {
 
     private SelectExpressionItem generateServiceColumnExpression(SelectExpressionItem selectExpressionItem, String postfix) {
         Column column = (Column) selectExpressionItem.getExpression();
-        StringBuilder expression = new StringBuilder(column.getTable().getName()).append(".").
-                append(getServiceColumnName(column.getColumnName(), postfix));
+
+        StringBuilder referenceColumnExpression = new StringBuilder();
+        if (column.getTable() != null && column.getTable().getName() != null) {
+            referenceColumnExpression.append(column.getTable().getName()).append(".").append(
+                    getServiceColumnName(column.getColumnName(), postfix));
+        } else {
+            referenceColumnExpression.append(getServiceColumnName(column.getColumnName(), postfix));
+        }
 
         if (selectExpressionItem.getAlias() != null) {
-            expression.append(" as ").append(getServiceColumnName(selectExpressionItem.getAlias(), postfix));
+            referenceColumnExpression.append(" as ")
+                    .append(getServiceColumnName(selectExpressionItem.getAlias(), postfix));
         }
 
         SelectExpressionItem referenceFieldTypeItem = new SelectExpressionItem();
-        referenceFieldTypeItem.setExpression(new Column(new Table(), expression.toString()));
+        referenceFieldTypeItem.setExpression(new Column(new Table(), referenceColumnExpression.toString()));
         return referenceFieldTypeItem;
     }
 
@@ -311,38 +425,36 @@ public class SqlQueryModifier {
         return aclExpression;
     }
 
-    private static String processQuery(String query, ConfigurationExplorer configurationExplorer,
-                                  QueryProcessor processor) {
-        return processor.process(query, configurationExplorer);
+    private static String processQuery(String query, QueryProcessor processor) {
+        return processor.process(query);
     }
 
     private static abstract class QueryProcessor {
 
-        public String process(String query, ConfigurationExplorer configurationExplorer) {
+        public String process(String query) {
             String modifiedQuery = null;
             SqlQueryParser sqlParser = new SqlQueryParser(query);
 
             SelectBody selectBody = sqlParser.getSelectBody();
             if (selectBody.getClass().equals(PlainSelect.class)) {
                 PlainSelect plainSelect = (PlainSelect) selectBody;
-                processPlainSelect(plainSelect, configurationExplorer);
+                processPlainSelect(plainSelect);
                 modifiedQuery = plainSelect.toString();
             } else if (selectBody.getClass().equals(SetOperationList.class)) {
                 SetOperationList union = (SetOperationList) selectBody;
                 List plainSelects = union.getPlainSelects();
                 for (Object plainSelect : plainSelects) {
-                    processPlainSelect((PlainSelect) plainSelect, configurationExplorer);
+                    processPlainSelect((PlainSelect) plainSelect);
                 }
                 modifiedQuery = union.toString();
             } else {
                 throw new IllegalArgumentException("Unsupported type of select body: " + selectBody.getClass());
-
             }
 
             return modifiedQuery;
         }
 
-        protected abstract void processPlainSelect(PlainSelect plainSelect, ConfigurationExplorer configurationExplorer);
+        protected abstract void processPlainSelect(PlainSelect plainSelect);
 
     }
 
