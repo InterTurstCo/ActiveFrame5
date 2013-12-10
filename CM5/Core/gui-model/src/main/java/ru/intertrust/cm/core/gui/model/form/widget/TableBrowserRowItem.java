@@ -2,9 +2,6 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.Value;
-
-import java.util.LinkedHashMap;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -15,7 +12,6 @@ public class TableBrowserRowItem implements Dto {
 
     private Id id;
     private String selectedRowRepresentation;
-    private LinkedHashMap<String, Value> row;
 
     public Id getId() {
         return id;
@@ -25,13 +21,6 @@ public class TableBrowserRowItem implements Dto {
         this.id = id;
     }
 
-    public LinkedHashMap<String, Value> getRow() {
-        return row;
-    }
-
-    public void setRow(LinkedHashMap<String, Value> row) {
-        this.row = row;
-    }
 
     public String getSelectedRowRepresentation() {
         return selectedRowRepresentation;
@@ -41,10 +30,6 @@ public class TableBrowserRowItem implements Dto {
         this.selectedRowRepresentation = selectedRowRepresentation;
     }
 
-    public String getStringValue(String key) {
-        Value value = row.get(key);
-        return value == null ? "" : value.toString();
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -61,10 +46,7 @@ public class TableBrowserRowItem implements Dto {
                 that.id != null) {
             return false;
         }
-        if (row != null ? !row.equals(that.row) :
-                that.row != null) {
-            return false;
-        }
+
         if (selectedRowRepresentation != null ? !selectedRowRepresentation.equals(that.selectedRowRepresentation) :
                 that.selectedRowRepresentation != null) {
             return false;
@@ -77,7 +59,6 @@ public class TableBrowserRowItem implements Dto {
     public int hashCode() {
 
         int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (row != null ? row.hashCode() : 0);
         result = 31 * result + (selectedRowRepresentation != null ? selectedRowRepresentation.hashCode() : 0);
         return result;
     }

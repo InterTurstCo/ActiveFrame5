@@ -13,9 +13,7 @@ import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
-import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.panel.HeaderContainer;
 import ru.intertrust.cm.core.gui.impl.client.plugins.navigation.NavigationTreePlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
@@ -41,7 +39,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     FlowPanel headerPanel;
     private int centralPluginWidth;
     private int centralPluginHeight;
-    private int stickerPluginWidth;
+    private int stickerPluginWidth = 30;
     CurrentUserInfo getUserInfo(BusinessUniverseInitialization result) {
         return new CurrentUserInfo(result.getCurrentLogin(), result.getFirstName(), result.getLastName(), result.geteMail());
     }
@@ -50,7 +48,38 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         AsyncCallback<BusinessUniverseInitialization> callback = new AsyncCallback<BusinessUniverseInitialization>() {
             @Override
             public void onSuccess(BusinessUniverseInitialization result) {
-                DockLayoutPanel rootPanel = createRootPanel();
+                AbsolutePanel header = new AbsolutePanel();
+                header.setStyleName("header-section");
+                AbsolutePanel action = new AbsolutePanel();
+                action.setStyleName("action-section");
+
+                AbsolutePanel left  = new AbsolutePanel();
+                left.setStyleName("left-section");
+                final AbsolutePanel centrInner = new AbsolutePanel();
+                centrInner.setStyleName("centr-inner-section");
+                centrInner.getElement().getStyle().setLeft(130, Style.Unit.PX);
+
+                AbsolutePanel center = new AbsolutePanel();
+                center.setStyleName("center-section");
+                AbsolutePanel right = new AbsolutePanel();
+                right.setStyleName("right-section");
+                AbsolutePanel footer = new AbsolutePanel();
+                footer.setStyleName("footer-section");
+                AbsolutePanel root = new AbsolutePanel();
+                root.setStyleName("root-section");
+                root.addStyleName("content");
+
+                root.add(header);
+                root.add(center);
+                root.add(footer);
+
+                centrInner.add(action);
+                centrInner.add(right);
+
+
+                center.add(left);
+                center.add(centrInner);
+
                 headerPanel = createHeaderPanel();
 
                 navigationTreePanel = new PluginPanel();
@@ -61,21 +90,34 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 navigationTreePlugin.setEventBus(eventBus);
 
                 centralPluginPanel = new PluginPanel();
-                centralPluginWidth = Window.getClientWidth() - 250;
-                centralPluginHeight = Window.getClientHeight()- 100;
+                centralPluginWidth = Window.getClientWidth() - 130;
+                centralPluginHeight = Window.getClientHeight()- 120;
                 centralPluginPanel.setVisibleWidth(centralPluginWidth);
                 centralPluginPanel.setVisibleHeight(centralPluginHeight);
                 eventBus.addHandler(NavigationTreeItemSelectedEvent.TYPE, BusinessUniverse.this);
-                navigationTreePanel.setVisibleWidth(250);
+                navigationTreePanel.setVisibleWidth(130);
                 navigationTreePanel.open(navigationTreePlugin);
-                rootPanel.addNorth(new HeaderContainer(getUserInfo(result)), 70);
+                header.add(new HeaderContainer(getUserInfo(result)));
+                action.add(centralPluginPanel);
+                left.add(navigationTreePanel);
+                left.setHeight(Window.getClientHeight() + "px");
 
-                rootPanel.addWest(navigationTreePanel, 200);
-                addStickerPanel(rootPanel);
-                rootPanel.add(centralPluginPanel);
+
+                eventBus.addHandler(SideBarResizeEvent.TYPE, new SideBarResizeEventHandler() {
+                    @Override
+                    public void sideBarFixPositionEvent(SideBarResizeEvent event) {
+                        centralPluginWidth = Window.getClientWidth() - event.getSideBarWidts();
+                        centralPluginPanel.setVisibleWidth(centralPluginWidth);
+                        centrInner.getElement().getStyle().setLeft(event.getSideBarWidts(), Style.Unit.PX);
+                        eventBus.fireEvent(new PluginPanelSizeChangedEvent());
+                    }
+                });
+
+                addStickerPanel(root);
+                centrInner.add(centralPluginPanel);
 
                 addWindowResizeListener();
-                RootLayoutPanel.get().add(rootPanel);
+                RootLayoutPanel.get().add(root);
 
             }
 
@@ -124,8 +166,9 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         Window.addResizeHandler(new ResizeHandler() {
             @Override
             public void onResize(ResizeEvent event) {
+
                 int centralPanelWidth = event.getWidth() - navigationTreePanel.getVisibleWidth() - stickerPluginWidth;
-                int centralPanelHeight = event.getHeight() - 100;
+                int centralPanelHeight = event.getHeight() - 120;
                 centralPluginPanel.setVisibleWidth(centralPanelWidth);
                 centralPluginPanel.setVisibleHeight(centralPanelHeight);
                 eventBus.fireEvent(new PluginPanelSizeChangedEvent());
@@ -134,7 +177,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         });
     }
 
-    private void addStickerPanel(final DockLayoutPanel mainLayoutPanel) {
+    private void addStickerPanel(final AbsolutePanel mainLayoutPanel) {
 
         final FlowPanel flowPanel = new FlowPanel();
         final ToggleButton toggleBtn = new ToggleButton("sticker");
@@ -143,13 +186,14 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
             @Override
             public void onClick(ClickEvent event) {
                 if (toggleBtn.getValue())    {
-                mainLayoutPanel.setWidgetSize(focusPanel, 300);
+                //mainLayoutPanel.setWidgetSize(focusPanel, 300);
                 centralPluginWidth -= 300;
-                stickerPluginWidth = 30;
+                stickerPluginWidth = 300;
                 }
                 else {
+                    //mainLayoutPanel.setWidgetSize(focusPanel, 30);
                 centralPluginWidth += 300;
-                stickerPluginWidth = 300;
+                stickerPluginWidth = 30;
                 }
 
                 centralPluginPanel.setVisibleWidth(centralPluginWidth);
@@ -161,7 +205,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         focusPanel.addMouseOverHandler(new MouseOverHandler() {
             @Override
             public void onMouseOver(MouseOverEvent event) {
-                mainLayoutPanel.setWidgetSize(focusPanel, 300);
+                //mainLayoutPanel.setWidgetSize(focusPanel, 300);
             }
         });
 
@@ -171,7 +215,8 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 if (toggleBtn.getValue()) {
                     return;
                 }
-                mainLayoutPanel.setWidgetSize(focusPanel, 30);
+                //mainLayoutPanel.setWidgetSize(focusPanel, 30);
+                //mainLayoutPanel.setWidgetSize(focusPanel, stickerPluginWidth);
 
             }
         });
@@ -182,8 +227,10 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         focusPanel.getElement().getStyle().setBackgroundColor("white");
 
 
-        mainLayoutPanel.addEast(focusPanel, 30);
+       // mainLayoutPanel.addEast(focusPanel, 30);
         stickerPluginWidth = 30;
+        //mainLayoutPanel.addEast(focusPanel, stickerPluginWidth);
+
     }
 
     @Override

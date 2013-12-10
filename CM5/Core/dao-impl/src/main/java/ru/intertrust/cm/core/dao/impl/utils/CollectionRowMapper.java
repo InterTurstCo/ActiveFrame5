@@ -57,10 +57,9 @@ public class CollectionRowMapper extends BasicRowMapper implements
             columnTypeMap.put(fieldName, getColumnDataTypeByDbTypeName(rs.getMetaData().getColumnTypeName(i)));
         }
 
-        List<String> fieldNamesToInsert = collectColumnNamesToInsert(columnModel);
-
-        collection.setFields(fieldNamesToInsert);
-
+        List<FieldConfig> collectionFieldConfigs = collectFieldConfigs(columnModel);
+        collection.setFieldsConfiguration(collectionFieldConfigs);
+        
         int row = 0;
         while (rs.next()) {
 
@@ -88,17 +87,33 @@ public class CollectionRowMapper extends BasicRowMapper implements
         return collection;
     }
 
+    private List<FieldConfig> collectFieldConfigs(ColumnModel columnModel) {
+        List<String> fieldNamesToDisplay = collectColumnNamesToDisplay(columnModel);
+
+        List<FieldConfig> collectionFieldConfigs = new ArrayList<FieldConfig>();
+
+        for (String columnName : fieldNamesToDisplay) {
+
+            FieldConfig columnFieldConfig = columnToConfigMap.get(columnName);
+            if (columnFieldConfig != null) {
+                collectionFieldConfigs.add(columnFieldConfig);
+
+            }
+        }
+        return collectionFieldConfigs;
+    }
+
     /**
      * Возвращает список названий колонок, которые будут добавлены в коллекцию. SQL запрос коллекции может содержать
      * произвольные поля, но добавляются в коллекцию только поля, которые указаны в конфигурации представления
-     * коллекции. Причем, список не содержит колонку-идентификатор.
+     * коллекции. Причем, список не содержит колонку-идентификатор и колонку идентификатор типа (id_type)
      * @param columnModel модель колонок содержит список всех колонок из запроса.
      * @return список колонок, которые будут добавлены в коллекцию.
      */
-    private List<String> collectColumnNamesToInsert(ColumnModel columnModel) {
+    private List<String> collectColumnNamesToDisplay(ColumnModel columnModel) {
         List<String> fieldNamesToInsert = new ArrayList<String>();
         for (String columnName : columnModel.getColumnNames()) {
-            if(idField.equals(columnName)) {
+            if(idField.equals(columnName) || TYPE_ID_COLUMN.equals(columnName)) {
                 continue;
             }
             if (collectionConfigExists(columnName)) {

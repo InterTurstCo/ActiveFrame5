@@ -1,12 +1,16 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import org.junit.Test;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.config.GlobalSettingsConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 
+import java.util.Arrays;
+
 import static org.junit.Assert.assertEquals;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TYPE_COLUMN;
 
 public class SqlQueryModifierTest {
 
@@ -27,6 +31,16 @@ public class SqlQueryModifierTest {
     private static final String PLAIN_SELECT_QUERY_WITH_TYPE = "SELECT * FROM " +
             "EMPLOYEE AS e, " +
             "Department AS d WHERE 1 = 1 AND e.id = 1";
+
+    private static final String PLAIN_SELECT_QUERY_WITH_IDS_INCLUDED_FILTERS = "SELECT * FROM EMPLOYEE AS e, " +
+            "Department AS d WHERE 1 = 1 AND (e.id = :idsIncluded10 AND e." + TYPE_COLUMN +
+            " = :idsIncluded10_type) AND ((e.id = :idsIncluded20 AND e." + TYPE_COLUMN +
+            " = :idsIncluded20_type) OR (e.id = :idsIncluded21 AND e." + TYPE_COLUMN + " = :idsIncluded21_type))";
+
+    private static final String PLAIN_SELECT_QUERY_WITH_IDS_EXCLUDED_FILTERS = "SELECT * FROM EMPLOYEE AS e, " +
+            "Department AS d WHERE 1 = 1 AND (e.person <> :idsExcluded10 OR e.person_type <> :idsExcluded10_type) " +
+            "AND ((e.person <> :idsExcluded20 OR e.person_type <> :idsExcluded20_type) AND " +
+            "(e.person <> :idsExcluded21 OR e.person_type <> :idsExcluded21_type))";
 
     private static final String UNION_QUERY_WITH_TYPE = "(SELECT * FROM EMPLOYEE AS e, " +
             "Department AS d WHERE 1 = 1 AND e.id = 1) " +
@@ -83,5 +97,41 @@ public class SqlQueryModifierTest {
         assertEquals(PLAIN_SELECT_QUERY_WITHOUT_WHERE_ACL_APPLIED, modifiedQuery);
 
    }
+
+    @Test
+     public void testIdsIncludedFilter() {
+        IdsIncludedFilter idsIncludedFilter1 = new IdsIncludedFilter();
+        idsIncludedFilter1.setFilter("idsIncluded1");
+        idsIncludedFilter1.addCriterion(0, new ReferenceValue(new RdbmsId(1, 100)));
+
+        IdsIncludedFilter idsIncludedFilter2 = new IdsIncludedFilter();
+        idsIncludedFilter2.setFilter("idsIncluded2");
+        idsIncludedFilter2.addCriterion(0, new ReferenceValue(new RdbmsId(1, 101)));
+        idsIncludedFilter2.addCriterion(1, new ReferenceValue(new RdbmsId(1, 102)));
+
+        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier();
+        String modifiedQuery = collectionQueryModifier.addIdBasedFilters(PLAIN_SELECT_QUERY_WITHOUT_WHERE,
+                Arrays.asList(new Filter[] {idsIncludedFilter1, idsIncludedFilter2}), "id");
+
+        assertEquals(PLAIN_SELECT_QUERY_WITH_IDS_INCLUDED_FILTERS, modifiedQuery);
+    }
+
+    @Test
+    public void testIdsExcludedFilter() {
+        IdsExcludedFilter idsExcludedFilter1 = new IdsExcludedFilter();
+        idsExcludedFilter1.setFilter("idsExcluded1");
+        idsExcludedFilter1.addCriterion(0, new ReferenceValue(new RdbmsId(1, 100)));
+
+        IdsExcludedFilter idsExcludedFilter2 = new IdsExcludedFilter();
+        idsExcludedFilter2.setFilter("idsExcluded2");
+        idsExcludedFilter2.addCriterion(0, new ReferenceValue(new RdbmsId(1, 101)));
+        idsExcludedFilter2.addCriterion(1, new ReferenceValue(new RdbmsId(1, 102)));
+
+        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier();
+        String modifiedQuery = collectionQueryModifier.addIdBasedFilters(PLAIN_SELECT_QUERY_WITHOUT_WHERE,
+                Arrays.asList(new Filter[]{idsExcludedFilter1, idsExcludedFilter2}), "person");
+
+        assertEquals(PLAIN_SELECT_QUERY_WITH_IDS_EXCLUDED_FILTERS, modifiedQuery);
+    }
 
 }

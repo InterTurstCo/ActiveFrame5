@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.jdbc.core.JdbcTemplate;
+import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.config.*;
@@ -12,6 +13,7 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -123,19 +125,6 @@ public class CollectionsDaoImplTest {
 
     @Before
     public void setUp() throws Exception {
-        byDepartmentFilterConfig = createByDepartmentFilterConfig();
-        byDepartmentComplexFilterConfig = createByDepartmentComplexFilterConfig();
-
-        byNameFilterConfig = createByNameFilterConfig();
-        byNameComplexFilterConfig = createByNameComplexFilterConfig();
-        byAuthenticationInfoFilterConfig = createByAuthenticationInfoFilterConfig();
-
-        sortOrder = createByNameSortOrder();
-
-        collectionConfig = createEmployeesCollectionConfig();
-        complexCollectionConfig = createEmployeesComplexCollectionConfig();
-        personsCollectionConfig = createPersonsCollectionConfig();
-
         initConfigurationExplorer();
     }
 
@@ -182,6 +171,39 @@ public class CollectionsDaoImplTest {
         configuration.getConfigurationList().add(internalEmployee);
         configuration.getConfigurationList().add(externalEmployee);
 
+        collectionConfig = createEmployeesCollectionConfig();
+        configuration.getConfigurationList().add(collectionConfig);
+
+        complexCollectionConfig = createEmployeesComplexCollectionConfig();
+        configuration.getConfigurationList().add(complexCollectionConfig);
+
+        personsCollectionConfig = createPersonsCollectionConfig();
+        configuration.getConfigurationList().add(personsCollectionConfig);
+
+        byDepartmentFilterConfig = createByDepartmentFilterConfig();
+        collectionConfig.getFilters().add(byDepartmentFilterConfig);
+        complexCollectionConfig.getFilters().add(byDepartmentFilterConfig);
+
+        byDepartmentComplexFilterConfig = createByDepartmentComplexFilterConfig();
+        collectionConfig.getFilters().add(byDepartmentComplexFilterConfig);
+        complexCollectionConfig.getFilters().add(byDepartmentComplexFilterConfig);
+
+        byNameFilterConfig = createByNameFilterConfig();
+        collectionConfig.getFilters().add(byNameFilterConfig);
+        complexCollectionConfig.getFilters().add(byNameFilterConfig);
+
+        byNameComplexFilterConfig = createByNameComplexFilterConfig();
+        collectionConfig.getFilters().add(byNameComplexFilterConfig);
+        complexCollectionConfig.getFilters().add(byNameComplexFilterConfig);
+
+        byAuthenticationInfoFilterConfig = createByAuthenticationInfoFilterConfig();
+        collectionConfig.getFilters().add(byAuthenticationInfoFilterConfig);
+        complexCollectionConfig.getFilters().add(byAuthenticationInfoFilterConfig);
+
+        sortOrder = createByNameSortOrder();
+
+        configuration.getConfigurationList().add(new GlobalSettingsConfig());
+
         configurationExplorer = new ConfigurationExplorerImpl(configuration);
         collectionsDaoImpl.setConfigurationExplorer(configurationExplorer);
     }
@@ -198,68 +220,76 @@ public class CollectionsDaoImplTest {
     //TODO uncomment tests when access list check will be returned.
     //@Test
     public void testFindCollectionWithFilters() throws Exception {
-        List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<>();
-
-        filledFilterConfigs.add(byDepartmentFilterConfig);
+        Filter filter = new Filter();
+        filter.setFilter("byDepartment");
 
         AccessToken accessToken = createMockAccessToken();
-        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, 0, 0, accessToken);
+        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(collectionConfig, Collections.singletonList(filter),
+                sortOrder, 0, 0, accessToken);
         String refinedActualQuery = refineQuery(actualQuery);
         assertEquals(FIND_COLLECTION_QUERY_WITH_FILTERS, refinedActualQuery);
     }
 
     //@Test
     public void testFindCollectionWithMultipleReferenceTypes() throws Exception {
-        List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<>();
+        Filter filter = new Filter();
+        filter.setFilter("byDepartment");
 
         AccessToken accessToken = createMockAccessToken();
-        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(personsCollectionConfig, filledFilterConfigs,
+        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(personsCollectionConfig, Collections.singletonList(filter),
                 new SortOrder(), 0, 0, accessToken);
         String refinedActualQuery = refineQuery(actualQuery);
         assertEquals(FIND_COLLECTION_QUERY_WITH_MULTIPLE_TYPE_REFERENCE, refinedActualQuery);
     }
 
     //@Test
-    public void testFindCopmplexCollectionWithFilters() throws Exception {
-        List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<>();
+    public void testFindComplexCollectionWithFilters() throws Exception {
+        List<Filter> filterValues = new ArrayList<>();
 
-        filledFilterConfigs.add(byDepartmentComplexFilterConfig);
-        filledFilterConfigs.add(byNameComplexFilterConfig);
-        filledFilterConfigs.add(byAuthenticationInfoFilterConfig);
+        Filter filter = new Filter();
+        filter.setFilter("byDepartment");
+        filterValues.add(filter);
+
+        filter = new Filter();
+        filter.setFilter("byName");
+        filterValues.add(filter);
+
+        filter = new Filter();
+        filter.setFilter("byAuthenticationInfo");
+        filterValues.add(filter);
 
         AccessToken accessToken = createMockAccessToken();
-        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(complexCollectionConfig, filledFilterConfigs, sortOrder, 0, 0, accessToken);
+        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(complexCollectionConfig, filterValues, sortOrder, 0, 0, accessToken);
         String refinedActualQuery = refineQuery(actualQuery);
         assertEquals(FIND_COMPLEX_COLLECTION_QUERY_WITH_FILTERS, refinedActualQuery);
     }
 
     //@Test
     public void testFindCollectionWithoutFilters() throws Exception {
-        List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<>();
         AccessToken accessToken = createMockAccessToken();
 
-        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, 0, 0, accessToken);
+        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(collectionConfig, new ArrayList<Filter>(), sortOrder, 0, 0, accessToken);
         String refinedActualQuery = refineQuery(actualQuery);
         assertEquals(COLLECTION_QUERY_WITHOUT_FILTERS, refinedActualQuery);
     }
 
     //@Test
     public void testFindCollectionWithoutSortOrder() throws Exception {
-        List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<>();
         AccessToken accessToken = createMockAccessToken();
 
-        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(collectionConfig, filledFilterConfigs, null, 0, 0, accessToken);
+        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(collectionConfig, new ArrayList<Filter>(), null, 0, 0, accessToken);
         String refinedActualQuery = refineQuery(actualQuery);
         assertEquals(COLLECTION_QUERY_WITHOUT_SORT_ORDER, refinedActualQuery);
     }
 
     //@Test
     public void testFindCollectionWithLimits() throws Exception {
-        List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<>();
-        filledFilterConfigs.add(byDepartmentFilterConfig);
+        Filter filter = new Filter();
+        filter.setFilter("byDepartment");
         AccessToken accessToken = createMockAccessToken();
 
-        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(collectionConfig, filledFilterConfigs, sortOrder, 10, 100, accessToken);
+        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(collectionConfig, Collections.singletonList(filter),
+                sortOrder, 10, 100, accessToken);
         String refinedActualQuery = refineQuery(actualQuery);
 
         assertEquals(COLLECTION_QUERY_WITH_LIMITS, refinedActualQuery);
@@ -267,12 +297,18 @@ public class CollectionsDaoImplTest {
 
     //@Test
     public void testFindCollectionCountWithFilters() throws Exception {
-        List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<>();
-        filledFilterConfigs.add(byDepartmentFilterConfig);
-        filledFilterConfigs.add(byNameFilterConfig);
+        List<Filter> filterValues = new ArrayList<>();
+
+        Filter filter = new Filter();
+        filter.setFilter("byDepartment");
+        filterValues.add(filter);
+
+        filter = new Filter();
+        filter.setFilter("byName");
+        filterValues.add(filter);
 
         AccessToken accessToken = createMockAccessToken();
-        String actualQuery = collectionsDaoImpl.getFindCollectionCountQuery(collectionConfig, filledFilterConfigs, accessToken);
+        String actualQuery = collectionsDaoImpl.getFindCollectionCountQuery(collectionConfig, filterValues, accessToken);
         String refinedActualQuery = refineQuery(actualQuery);
         assertEquals(COLLECTION_COUNT_WITH_FILTERS, refinedActualQuery);
     }
@@ -368,7 +404,6 @@ public class CollectionsDaoImplTest {
         result.setPrototype(EMLOYEES_PROROTYPE);
         result.setCountingPrototype(EMPLOYEES_COUNTING_PROTOTYPE);
         result.setIdField("id");
-        result.getFilters().add(byDepartmentFilterConfig);
 
         return result;
     }
@@ -378,7 +413,6 @@ public class CollectionsDaoImplTest {
         result.setName("EmployeesComplex");
         result.setPrototype(EMPLOYEES_COMPLEX_PROTOTYPE);
         result.setCountingPrototype(EMPLOYEES_COUNTING_PROTOTYPE);
-        result.getFilters().add(byDepartmentFilterConfig);
         result.setIdField("id");
         return result;
     }

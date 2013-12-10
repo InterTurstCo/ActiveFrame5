@@ -55,6 +55,7 @@
             </plugin>
         </plugins>
     </build>
+    
     <profiles>
         <profile>
             <id>deploy-jboss</id>
@@ -68,21 +69,68 @@
                             <hostname>localhost</hostname>
                             <port>9999</port>
                             <filename>cm-sochi-${project.version}.ear</filename>
+                            <name>cm-sochi.ear</name>
                             <skip>false</skip>
                         </configuration>
 
                         <executions>
-                            <!-- Undeploy the application on clean -->
-                            <!-- <execution>
-                                <id>undeploy</id>
+                            <execution>
+                                <id>deploy</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>deploy</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>undeploy-jboss</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jboss.as.plugins</groupId>
+                        <artifactId>jboss-as-maven-plugin</artifactId>
+                        <version>7.4.Final</version>
+                        <configuration>
+                            <hostname>localhost</hostname>
+                            <port>9999</port>
+                            <name>cm-sochi.ear</name>
+                            <skip>false</skip>
+                        </configuration>
+
+                        <executions>
+                            <execution>
+                                <id>deploy</id>
                                 <phase>clean</phase>
                                 <goals>
                                     <goal>undeploy</goal>
                                 </goals>
-                                <configuration>
-                                    <ignoreMissingDeployment>true</ignoreMissingDeployment>
-                                </configuration>
-                            </execution> -->
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>config-jboss</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jboss.as.plugins</groupId>
+                        <artifactId>jboss-as-maven-plugin</artifactId>
+                        <version>7.4.Final</version>
+                        <configuration>
+                            <hostname>localhost</hostname>
+                            <port>9999</port>
+                            <skip>false</skip>
+                        </configuration>
+
+                        <executions>
                             <execution>
                                 <id>deploy-driver</id>
                                 <phase>install</phase>
@@ -120,15 +168,56 @@
                                     </resource>
                                 </configuration>
                             </execution>
-                            <!-- Deploy the application on install. Must be after resource deployment -->
                             <execution>
-                                <id>deploy</id>
+                                <id>add-security-domain</id>
                                 <phase>install</phase>
                                 <goals>
-                                    <goal>deploy</goal>
+                                    <goal>add-resource</goal>
                                 </goals>
+                                <configuration>
+                                    <address>subsystem=security</address>
+                                    <force>true</force>
+                                    <resources>
+                                        <resource>
+                                            <address>security-domain=CM5</address>
+                                            <properties>
+                                                <cache-type>default</cache-type>
+                                            </properties>
+                                            <resources>
+                                                <resource>
+                                                    <address>authentication=classic</address>
+                                                        <properties>
+                                                            <login-modules>
+                                                            !![
+                                                            {"code"=>"org.jboss.security.ClientLoginModule","flag"=>"optional"},
+                                                            {"code"=>"Remoting","flag"=>"optional","module-options"=>[("password-stacking"=>"useFirstPass")]},
+                                                            {"code"=>"Database","flag"=>"required","module-options"=>[("dsJndiName"=>"java:jboss/datasources/CM5"),("principalsQuery"=>"SELECT info.password from authentication_info info where info.user_uid = ?"),("rolesQuery"=>"SELECT 'cm_user', 'Roles' from authentication_info where user_uid = ?"),("hashAlgorithm"=>"MD5"),("hashEncoding"=>"hex")]}
+                                                            ]
+                                                            </login-modules>
+                                                        </properties>
+                                                </resource>
+                                            </resources>
+                                        </resource>
+                                    </resources>
+                                </configuration>
                             </execution>
-
+                            <execution>
+                                <id>change-application-realm</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>execute-commands</goal>
+                                </goals>
+                                <configuration>
+                                    <execute-commands>
+                                        <batch>true</batch>
+                                        <commands>
+                                            <command>/core-service=management/security-realm=ApplicationRealm/authentication=properties:remove</command>
+                                            <command>/core-service=management/security-realm=ApplicationRealm/authentication=jaas:remove</command>
+                                            <command>/core-service=management/security-realm=ApplicationRealm/authentication=jaas:add(name="CM5")</command>
+                                        </commands>
+                                    </execute-commands>                                
+                                </configuration>
+                            </execution>
                         </executions>
                     </plugin>
                     <plugin>

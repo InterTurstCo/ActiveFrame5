@@ -101,7 +101,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
     private void
             notifyDomainObjectChangedInternal(DomainObject domainObject, List<FieldModification> modifiedFieldNames) {
-        String typeName = domainObject.getTypeName();
+        String typeName = domainObject.getTypeName().toLowerCase();
 
         List<ContextRoleRegisterItem> typeCollectors = collectors.get(typeName);
         // Формируем мапу динамических групп, требующих пересчета и их
@@ -278,7 +278,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             if (permit.getClass().equals(PermitRole.class)) {
                 String contextRoleName = permit.getName();
                 ContextRoleConfig contextRoleConfig =
-                        configurationExplorer.getContextRoleByName(contextRoleName);
+                        configurationExplorer.getConfig(ContextRoleConfig.class, contextRoleName);
                 if (contextRoleConfig == null) {
                     throw new ConfigurationException("Context role : " + contextRoleName
                             + " not found in configuaration");
@@ -299,8 +299,8 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                 String dynamicGroupName = permit.getName();
 
                 DynamicGroupConfig dynamicGroupConfig =
-                        configurationExplorer.getDynamicGroupByName(dynamicGroupName);
-
+                        configurationExplorer.getConfig(DynamicGroupConfig.class, dynamicGroupName);
+                                
                 if (dynamicGroupConfig != null && dynamicGroupConfig.getContext() != null
                         && dynamicGroupConfig.getContext().getDomainObject() != null) {
 
@@ -477,7 +477,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             roleContextType = contextRoleConfig.getContext().getDomainObject().getType();
         }
 
-        if (!domainObjectType.equals(roleContextType)) {
+        if (!domainObjectType.equalsIgnoreCase(roleContextType)) {
             throw new ConfigurationException("Context type for context role : " + contextRoleConfig.getName()
                     + " does not match the domain object type in access matrix configuration for: "
                     + domainObjectType);
@@ -607,10 +607,10 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
      * @param collector
      */
     private void registerCollector(String type, ContextRoleCollector collector, ContextRoleConfig config) {
-        List<ContextRoleRegisterItem> typeCollectors = collectors.get(type);
+        List<ContextRoleRegisterItem> typeCollectors = collectors.get(type.toLowerCase());
         if (typeCollectors == null) {
             typeCollectors = new ArrayList<ContextRoleRegisterItem>();
-            collectors.put(type, typeCollectors);
+            collectors.put(type.toLowerCase(), typeCollectors);
         }
         typeCollectors.add(new ContextRoleRegisterItem(collector));
     }

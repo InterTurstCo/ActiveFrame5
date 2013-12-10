@@ -16,12 +16,13 @@ public class FormDisplayData implements Dto {
     private HashMap<String, String> widgetComponents;
     private boolean debug;
     private boolean editable;
-
+    private String minWidth;
     public FormDisplayData() {
     }
 
-    public FormDisplayData(FormState formState, MarkupConfig markup, HashMap<String, String> widgetComponents,
+    public FormDisplayData(FormState formState, MarkupConfig markup, HashMap<String, String> widgetComponents, String minWidth,
                            boolean debug, boolean editable) {
+        this.minWidth = minWidth;
         this.formState = formState;
         this.markup = markup;
         this.widgetComponents = widgetComponents;
@@ -63,6 +64,14 @@ public class FormDisplayData implements Dto {
 
     public String getWidgetComponent(String widgetId) {
         return this.widgetComponents.get(widgetId);
+    }
+
+    public String getMinWidth() {
+        return minWidth;
+    }
+
+    public void setMinWidth(String minWidth) {
+        this.minWidth = minWidth;
     }
 
     public boolean isDebug() {

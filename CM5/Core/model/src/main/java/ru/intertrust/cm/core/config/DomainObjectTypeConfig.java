@@ -36,10 +36,10 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
     private Boolean auditLog;
 
     /**
-     * флаг конструирования, определяет является ли объект шаблоном
-     * true - создать таблицу в базе данных
-     * false - не создавать таблицу в базе данных
-     * по умолчанию false
+     * Флаг, указывающий, что это не обычный доменный объект и для него не надо создвавать таблицу. 
+     * true - не создать таблицу в базе данных.
+     * false - создавать таблицу в базе данных.
+     * Значение по умолчанию false
      */
     @Attribute(name = "template", required = false)
     private Boolean isTemplate;

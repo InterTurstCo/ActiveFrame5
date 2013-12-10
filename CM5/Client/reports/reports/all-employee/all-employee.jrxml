@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version last-->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="all-employee" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="9fce2c98-92c0-4f2d-b864-9b72c225e35d">
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="all-employee" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="9fce2c98-92c0-4f2d-b864-9b72c225e35d">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Sochi JDBC on localhost"/>
 	<style name="odd" mode="Opaque">
 		<conditionalStyle>
@@ -20,9 +20,9 @@
 			<staticText>
 				<reportElement x="159" y="0" width="236" height="20" uuid="9af2dd75-c5ca-4a05-8c16-67c229f9f61e"/>
 				<textElement textAlignment="Center">
-					<font pdfFontName="Courier" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<font pdfFontName="DejaVuSans.ttf" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 				</textElement>
-				<text><![CDATA[Отчет все сотрудники]]></text>
+				<text><![CDATA[Отчет все сотрудники (простой отчет)]]></text>
 			</staticText>
 		</band>
 	</title>
@@ -62,7 +62,7 @@
 			<textField>
 				<reportElement x="395" y="0" width="154" height="22" uuid="fdc8bc2f-90d7-4b4f-9e9d-0881a3bfdf71"/>
 				<textElement textAlignment="Right">
-					<font pdfFontName="Helvetica" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
+					<font pdfFontName="DejaVuSans.ttf" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 				</textElement>
 				<textFieldExpression><![CDATA["Стр. " + $V{PAGE_NUMBER}]]></textFieldExpression>
 			</textField>

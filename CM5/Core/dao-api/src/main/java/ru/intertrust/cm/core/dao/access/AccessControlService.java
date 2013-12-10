@@ -134,10 +134,5 @@ public interface AccessControlService {
      * @param accessToken Маркер доступа
      * @throws AccessException если маркер нулевой или не является универсальным маркером доступа
      */
-    public void verifySystemAccessToken(AccessToken accessToken) throws AccessException;
-    
-    /**
-     * Очищает кеш по принадлежности пользователя к группе Superusers.
-     */
-    public void cleanPersonCache();
+    public void verifySystemAccessToken(AccessToken accessToken) throws AccessException;    
 }

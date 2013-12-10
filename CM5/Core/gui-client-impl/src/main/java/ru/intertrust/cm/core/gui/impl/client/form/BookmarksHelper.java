@@ -27,11 +27,13 @@ public class BookmarksHelper implements IsWidget {
     public BookmarksHelper() {
 
         rootDiv = new AbsolutePanel();
-
+      //  rootDiv.setSize("100%", "100%");
         divLeft = new AbsolutePanel();
+      divLeft.setHeight("100%");
         decoratedDivLeft = new AbsolutePanel();
 
         divRight = new AbsolutePanel();
+        //divRight.setWidth("100%");
         decoratedDivRight = new AbsolutePanel();
 
         divLeftButton = new FocusPanel();

@@ -6,7 +6,7 @@
         <prototype>
             <![CDATA[
                 select
-                    e.id, e.type_id, e.name, e.position
+                    e.id, e.name, e.position
                 from
                     employee e
                      ::from-clause

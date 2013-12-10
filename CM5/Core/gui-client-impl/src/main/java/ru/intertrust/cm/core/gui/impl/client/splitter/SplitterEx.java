@@ -156,6 +156,7 @@ public class SplitterEx extends DockLayoutPanel {
             leftArrow.setVisible(true);
             rightArrow.setVisible(true);
 
+
             getElement().setId("gwt-splitter");
             sinkEvents(Event.ONMOUSEDOWN | Event.ONMOUSEUP | Event.ONMOUSEMOVE
                     | Event.ONDBLCLICK | Event.ONMOUSEOVER  | Event.ONMOUSEOUT);
@@ -307,6 +308,8 @@ public class SplitterEx extends DockLayoutPanel {
                 case Event.ONMOUSEOVER:
                     panelOnMouseEvent(true);
                     event.preventDefault();
+
+
                     break;
 
                 case Event.ONMOUSEOUT:
@@ -322,6 +325,7 @@ public class SplitterEx extends DockLayoutPanel {
             if (b == true){
                 centralPanel.getElement().getStyle().setVisibility(Style.Visibility.VISIBLE);
                 changeModePanel.getElement().getStyle().setVisibility(Style.Visibility.VISIBLE);
+                //
             }
             else {
                 centralPanel.getElement().getStyle().setVisibility(Style.Visibility.HIDDEN);
@@ -646,6 +650,7 @@ public class SplitterEx extends DockLayoutPanel {
 
 
         LayoutData layout = (LayoutData) widget.getLayoutData();
+
         Splitter splitter = null;
         switch (getResolvedDirection(layout.direction)) {
             case WEST:
@@ -665,6 +670,11 @@ public class SplitterEx extends DockLayoutPanel {
         }
 
         super.insert(splitter, layout.direction, splitterSize, before);
+
+        //8px
+        super.getWidgetContainerElement(splitter).getStyle().clearOverflow();
+        this.setStyleName("tested");
+
     }
 
     public boolean isSplitType() {

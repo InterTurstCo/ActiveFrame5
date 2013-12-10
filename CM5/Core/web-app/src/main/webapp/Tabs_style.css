@@ -12,7 +12,8 @@
     padding-top: 6px !important;
     padding-left: 1px !important;
     margin-left: 0 !important;
-    margin-right: 20px !important;
+    /*margin-right: 20px !important;*/
+    margin-right: 0px !important;
 }
 
 .gwt-TabLayoutPanel .gwt-TabLayoutPanelContent {
@@ -61,11 +62,13 @@
     line-height: 28px;
 }
 .gwt-TabLayoutPanel{
-    margin-left: 8px;
+    /*margin-left: 8px;*/
+    margin-left: 0px;
 }
 .gwt-TabLayoutPanel .gwt-TabLayoutPanelTab {
     margin-right: 0px;
-    margin-left: 8px !important;
+    /*margin-left: 8px !important;*/
+    margin-left: 0px !important;
 }
 .gwt-TabLayoutPanel .gwt-TabLayoutPanelTab-selected {
     font-weight: bold !important;

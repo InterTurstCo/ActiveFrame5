@@ -11,7 +11,7 @@
         </fields>
     </domain-object-type>
 
-    <domain-object-type name="Status">
+    <domain-object-type name="Status" db-id="31">
         <fields>
             <string name="Name" length="128" not-null="true" />
         </fields>

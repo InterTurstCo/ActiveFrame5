@@ -14,6 +14,7 @@ import net.sf.jsqlparser.statement.select.SelectItem;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import ru.intertrust.cm.core.business.api.dto.*;
@@ -46,7 +47,9 @@ import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getColumn
 
 public class DoelResolver {
 
-    private NamedParameterJdbcTemplate jdbcTemplate;
+    @Autowired
+    private NamedParameterJdbcOperations jdbcTemplate;
+    //private NamedParameterJdbcTemplate jdbcTemplate;
 
     @Autowired
     private ConfigurationExplorer configurationExplorer;

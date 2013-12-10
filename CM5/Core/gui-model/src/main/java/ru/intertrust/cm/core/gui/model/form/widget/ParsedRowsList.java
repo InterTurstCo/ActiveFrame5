@@ -6,10 +6,10 @@ import java.util.ArrayList;
 
 /**
  * @author Yaroslav Bondarchuk
- *         Date: 08.11.13
+ *         Date: 03.12.13
  *         Time: 13:15
  */
-public class FilteredRowsList implements Dto {
+public class ParsedRowsList implements Dto {
     ArrayList<TableBrowserRowItem> filteredRows;
 
     public ArrayList<TableBrowserRowItem> getFilteredRows() {

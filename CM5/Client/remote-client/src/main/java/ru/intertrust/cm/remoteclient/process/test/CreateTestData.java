@@ -38,7 +38,12 @@ public class CreateTestData
             ProcessService.Remote processService = (ProcessService.Remote) getService(
                     "ProcessService", ProcessService.Remote.class);            
 
-            String[] statuses = new String[] { "Active","Draft","Active4","Active3","Negotiation","Agree","Sign","Registration","Registred", "AdditionalNegotiation", "OnRevision", "Send", "Acquired", "Complete", "Pretermit" };
+            
+            
+            String[] statuses = new String[] { "Active","Draft","Active4","Active3",
+                    "Negotiation","Agree","Sign","Registration",
+                    "Registred", "AdditionalNegotiation", "OnRevision", 
+                    "Send", "Acquired", "Complete", "Pretermit", "Sleep", "Ready", "Wait", "Run"};
             
             for (String status : statuses) {
                 createStatus(status);

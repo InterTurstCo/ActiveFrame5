@@ -30,6 +30,14 @@ public abstract class LinkEditingWidgetHandler extends WidgetHandler {
         }
     }
 
+    protected String[] getLinkedObjectTypes(WidgetContext context, FieldPath[] fieldPaths) {
+        String[] result = new String[fieldPaths.length];
+        for (int i = 0; i < fieldPaths.length; ++i) {
+            result[i] = getLinkedObjectType(context, fieldPaths[i]);
+        }
+        return result;
+    }
+
     public void saveNewObjects(WidgetContext context, WidgetState state) {
     }
 }

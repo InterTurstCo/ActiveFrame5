@@ -23,7 +23,11 @@
                 статусе "active" и включаем их в соответствующую группу, т.е. где контекст 
                 = объекту -->
             <track-domain-objects type="Person"
-                status="active" />
+                status="Active">
+                <get-person>
+                    <doel>id</doel>
+                </get-person>
+            </track-domain-objects>
         </members>
     </dynamic-group>
 
@@ -69,7 +73,7 @@
                     <doel>Department</doel>
                 </bind-context>
                 <get-group name="PersonAndDelegates">
-                    <doel>Employee^Department.id</doel>
+                    <doel>Employee^Department</doel>
                 </get-group>
             </track-domain-objects>
         </members>

@@ -35,7 +35,17 @@ public class DataStructureNamingHelper {
      */
     public static String getSqlSequenceName(DomainObjectTypeConfig domainObjectTypeConfig) {
 
-        return convertToSqlFormat(domainObjectTypeConfig.getName()) + "_seq";
+        return getSqlSequenceName(domainObjectTypeConfig.getName());
+    }
+
+    /**
+     * Возвращает имя последовательности(сиквенса) sql-виде
+     * @param name имя
+     * @return имя последовательности в sql-виде
+     */
+    public static String getSqlSequenceName(String name) {
+
+        return convertToSqlFormat(name) + "_seq";
     }
 
     /**
@@ -69,11 +79,7 @@ public class DataStructureNamingHelper {
         for (FieldConfig fieldConfig : fieldConfigs) {
             columnNames.add(getSqlName(fieldConfig));
             if (fieldConfig instanceof ReferenceFieldConfig) {
-                if (fieldConfig.getName().equalsIgnoreCase(DomainObjectDao.ID_COLUMN)){
-                    columnNames.add(DomainObjectDao.TYPE_COLUMN);
-                }else{
-                    columnNames.add(getReferenceTypeColumnName(fieldConfig.getName()));
-                }
+                columnNames.add(getReferenceTypeColumnName(fieldConfig.getName()));
             } else if (fieldConfig instanceof DateTimeWithTimeZoneFieldConfig) {
                 columnNames.add(getTimeZoneIdColumnName(fieldConfig.getName()));
             }

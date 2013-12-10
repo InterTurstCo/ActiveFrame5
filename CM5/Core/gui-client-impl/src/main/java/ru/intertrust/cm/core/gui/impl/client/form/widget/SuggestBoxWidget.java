@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
@@ -25,7 +26,7 @@ public class SuggestBoxWidget extends BaseWidget {
     SuggestBoxState currentState;
     HashMap<Id, String> allSuggestions = new HashMap<Id, String>();
     HashMap<Id, String> selectedSuggestions = new HashMap<Id, String>();
-    private VerticalPanel selectedRecords;
+    private AbsolutePanel selectedRecords;
 
     @Override
     public void setCurrentState(WidgetState currentState) {
@@ -34,9 +35,18 @@ public class SuggestBoxWidget extends BaseWidget {
         this.currentState = suggestBoxState;
         LinkedHashMap<Id, String> listValues = suggestBoxState.getObjects();
         for (final Map.Entry<Id, String> listEntry : listValues.entrySet()) {
-            final HorizontalPanel recordContainer = new HorizontalPanel();
-            recordContainer.add(new Label(listEntry.getValue()));
-            Button closeButton = new Button("X");
+            final AbsolutePanel recordContainer = new AbsolutePanel();
+            recordContainer.setStyleName("suggest-element");
+            AbsolutePanel textDecorate = new AbsolutePanel();
+            textDecorate.setStyleName("suggest-text-record");
+            InlineLabel text = new InlineLabel(listEntry.getValue());
+            textDecorate.add(text);
+            recordContainer.add(textDecorate);
+            final FocusPanel closeButton = new FocusPanel();
+            AbsolutePanel btnDecorate = new AbsolutePanel();
+            btnDecorate.setStyleName("suggest-decorate-close");
+            btnDecorate.add(closeButton);
+            closeButton.setStyleName("suggest-record-close-button");
             closeButton.getElement().setId(listEntry.getKey().toStringRepresentation());
             closeButton.addClickHandler(new ClickHandler() {
                 @Override
@@ -45,7 +55,7 @@ public class SuggestBoxWidget extends BaseWidget {
                     selectedSuggestions.remove(listEntry.getKey());
                 }
             });
-            recordContainer.add(closeButton);
+            recordContainer.add(btnDecorate);
             selectedRecords.add(recordContainer);
             selectedSuggestions.put(listEntry.getKey(), listEntry.getValue());
         }
@@ -62,20 +72,31 @@ public class SuggestBoxWidget extends BaseWidget {
     protected Widget asEditableWidget() {
         MultiWordSuggestOracle oracle = buildDynamicMultiWordOracle();
         final SuggestBox suggestBox = new SuggestBox(oracle);
-        selectedRecords = new VerticalPanel();
 
-        VerticalPanel container = new VerticalPanel();
-        container.add(suggestBox);
+        suggestBox.getElement().removeClassName("gwt-SuggestBox");
+        suggestBox.getElement().setClassName("Cmj-gwt-SuggestBox");
+        selectedRecords = new AbsolutePanel();
+        selectedRecords.setStyleName("suggest-selected-records");
+        final AbsolutePanel container = new AbsolutePanel();
+        container.setStyleName("suggest-container");
+        container.getElement().getStyle().setBorderWidth(1, Style.Unit.PX);
         container.add(selectedRecords);
-
+        container.add(suggestBox);
         suggestBox.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
+
             public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
                 final MultiWordIdentifiableSuggestion selectedItem = (MultiWordIdentifiableSuggestion) event.getSelectedItem();
                 final String replacementString = selectedItem.getReplacementString();
                 selectedSuggestions.put(selectedItem.getId(), selectedItem.getReplacementString());
-                final HorizontalPanel record = new HorizontalPanel();
-                record.add(new Label(replacementString));
-                final Button closeButton = new Button("X");
+
+                final AbsolutePanel record = new AbsolutePanel();
+                record.setStyleName("suggest-element");
+                record.add(new InlineLabel(replacementString));
+                final FocusPanel closeButton = new FocusPanel();
+                AbsolutePanel btnDecorate = new AbsolutePanel();
+                btnDecorate.setStyleName("suggest-decorate-close");
+                btnDecorate.add(closeButton);
+                closeButton.setStyleName("suggest-record-close-button");
                 closeButton.getElement().setId(selectedItem.getId().toStringRepresentation());
                 closeButton.addClickHandler(new ClickHandler() {
                     @Override
@@ -84,12 +105,11 @@ public class SuggestBoxWidget extends BaseWidget {
                         selectedSuggestions.remove(selectedItem.getId());
                     }
                 });
-                record.add(closeButton);
-                selectedRecords.add(record);
+                record.add(btnDecorate);
                 SuggestBox sourceObject = (SuggestBox) event.getSource();
-
                 //clear suggest input filling
                 sourceObject.setText("");
+                selectedRecords.add(record);
             }
         });
         return container;

@@ -59,8 +59,12 @@ public class CollectionViewConfig implements TopLevelConfig {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof CollectionViewConfig)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         CollectionViewConfig that = (CollectionViewConfig) o;
 
@@ -70,7 +74,8 @@ public class CollectionViewConfig implements TopLevelConfig {
         if (collection != null ? !collection.equals(that.collection) : that.collection != null) {
             return false;
         }
-        if (collectionDisplayConfig != null ? !collectionDisplayConfig.equals(that.collectionDisplayConfig) : that.collectionDisplayConfig != null)
+        if (collectionDisplayConfig != null ? !collectionDisplayConfig.
+                equals(that.collectionDisplayConfig) : that.collectionDisplayConfig != null)
             return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
 

@@ -72,7 +72,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
             List<FieldModification> modifiedFieldNames, List<Id> beforeSaveInvalidGroups) {
         String typeName = domainObject.getTypeName();
 
-        List<DynamicGroupRegisterItem> typeCollectors = collectorsByTrackingType.get(typeName);
+        List<DynamicGroupRegisterItem> typeCollectors = collectorsByTrackingType.get(typeName.toLowerCase());
         // Формируем список динамических групп, требующих пересчета и их
         // коллекторов, исключая дублирование
         List<Id> invalidGroups = new ArrayList<Id>();
@@ -141,7 +141,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
         //При создание объекта получаем все его динамические группы и создаем их, пока пустыми
         createAllDynamicGroups(domainObject);
 
-        List<DynamicGroupRegisterItem> typeCollectors = collectorsByTrackingType.get(typeName);
+        List<DynamicGroupRegisterItem> typeCollectors = collectorsByTrackingType.get(typeName.toLowerCase());
         // Формируем мап динамических групп, требующих пересчета и их
         // коллекторов, исключая дублирование
         List<Id> invalidGroups = new ArrayList<Id>();
@@ -165,7 +165,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
     }
 
     private void createAllDynamicGroups(DomainObject domainObject) {
-        List<DynamicGroupConfig> configs = configsByContextType.get(domainObject.getTypeName());
+        List<DynamicGroupConfig> configs = configsByContextType.get(domainObject.getTypeName().toLowerCase());
         if (configs != null) {
             for (DynamicGroupConfig dynamicGroupConfig : configs) {
                 createUserGroup(dynamicGroupConfig.getName(), domainObject.getId());
@@ -308,7 +308,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
     public void notifyDomainObjectDeleted(DomainObject domainObject, List<Id> beforeDeleteInvalidGroups) {
         String typeName = domainObject.getTypeName();
 
-        List<DynamicGroupRegisterItem> typeCollectors = collectorsByTrackingType.get(typeName);
+        List<DynamicGroupRegisterItem> typeCollectors = collectorsByTrackingType.get(typeName.toLowerCase());
         // Формируем список динамических групп, требующих пересчета и их
         // коллекторов, исключая дублирование
         List<Id> invalidGroups = new ArrayList<Id>();
@@ -346,8 +346,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
         AccessToken accessToken = accessControlService
                 .createSystemAccessToken(this.getClass().getName());
 
-        String query = "select t." + wrap("id") + " from " + wrap("user_group") + " t where " + wrap("object_id") +
-                " = " + ((RdbmsId) domainObjectId).getId() + " and " + wrap("object_id_type") + " = " +
+        String query = "select t.id from user_group t where object_id = " + ((RdbmsId) domainObjectId).getId() + " and object_id_type = " +
                 ((RdbmsId) domainObjectId).getTypeId();
         IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(query, 0, 1000, accessToken);
         for (IdentifiableObject identifiableObject : collection) {
@@ -437,10 +436,10 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
      * @param config
      */
     private void registerOneTypeConfig(String type, DynamicGroupConfig config) {
-        List<DynamicGroupConfig> typeCollectors = configsByContextType.get(type);
+        List<DynamicGroupConfig> typeCollectors = configsByContextType.get(type.toLowerCase());
         if (typeCollectors == null) {
             typeCollectors = new ArrayList<DynamicGroupConfig>();
-            configsByContextType.put(type, typeCollectors);
+            configsByContextType.put(type.toLowerCase(), typeCollectors);
         }
         typeCollectors.add(config);
     }
@@ -493,10 +492,11 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
      * @param collector
      */
     private void registerCollector(String type, DynamicGroupCollector collector, DynamicGroupConfig config) {
-        List<DynamicGroupRegisterItem> typeCollectors = collectorsByTrackingType.get(type);
+        String typeKey = type.toLowerCase();
+        List<DynamicGroupRegisterItem> typeCollectors = collectorsByTrackingType.get(typeKey);
         if (typeCollectors == null) {
             typeCollectors = new ArrayList<DynamicGroupRegisterItem>();
-            collectorsByTrackingType.put(type, typeCollectors);
+            collectorsByTrackingType.put(typeKey, typeCollectors);
         }
         typeCollectors.add(new DynamicGroupRegisterItem(config, collector));
     }
@@ -578,7 +578,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
         AccessToken accessToken = accessControlService
                 .createSystemAccessToken(this.getClass().getName());
         String query =
-                "select t." + wrap("id") + " from " + wrap("group_member") + " t where t." + wrap("person_id") + " = "
+                "select t.id from group_member t where t.person_id = "
                         + ((RdbmsId) deletedDomainObject.getId()).getId();
         IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(query, 0, 1000, accessToken);
         for (IdentifiableObject identifiableObject : collection) {
@@ -592,7 +592,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
     public List<Id> getInvalidGroupsBeforeChange(DomainObject domainObject, List<FieldModification> modifiedFieldNames) {
         String typeName = domainObject.getTypeName();
 
-        List<DynamicGroupRegisterItem> typeCollectors = collectorsByTrackingType.get(typeName);
+        List<DynamicGroupRegisterItem> typeCollectors = collectorsByTrackingType.get(typeName.toLowerCase());
         // Формируем мапу динамических групп, требующих пересчета и их
         // коллекторов, исключая дублирование
         List<Id> invalidGroups = new ArrayList<Id>();
@@ -617,7 +617,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
     public List<Id> getInvalidGroupsBeforeDelete(DomainObject domainObject) {
         String typeName = domainObject.getTypeName();
 
-        List<DynamicGroupRegisterItem> typeCollectors = collectorsByTrackingType.get(typeName);
+        List<DynamicGroupRegisterItem> typeCollectors = collectorsByTrackingType.get(typeName.toLowerCase());
         // Формируем мапу динамических групп, требующих пересчета и их
         // коллекторов, исключая дублирование
         List<Id> invalidGroups = new ArrayList<Id>();

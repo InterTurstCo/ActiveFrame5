@@ -126,7 +126,6 @@ public abstract class PluginView implements IsWidget {
 
     }
 
-
     /**
      * Строит и возвращает представление (внешнее отображение) плагина
      *

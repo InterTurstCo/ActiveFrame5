@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer;
 
-import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
@@ -25,7 +24,7 @@ public class DomainObjectSurferPluginView extends PluginView {
     private int surferWidth;
     private int surferHeight;
     private int horizontalSplitterSavedSize = -1;
-    private int verticalSplitterSavedSize =-1;
+    private int verticalSplitterSavedSize = -1;
     private FlowPanel formFlowPanel = new FlowPanel();
     private SimplePanel splitterFirstWidget = new SimplePanel();
     private ScrollPanel splitterScroll = new ScrollPanel();
@@ -55,7 +54,7 @@ public class DomainObjectSurferPluginView extends PluginView {
     }
 
     private void initSplitter() {
-        splitterPanel = new SplitterEx(9, domainObjectSurferPlugin.getLocalPluginEventBus()) {
+        splitterPanel = new SplitterEx(8, domainObjectSurferPlugin.getLocalPluginEventBus()) {
             @Override
             public void onResize() {
                 super.onResize();
@@ -63,15 +62,13 @@ public class DomainObjectSurferPluginView extends PluginView {
                         splitterScroll.getOffsetWidth(), formFlowPanel.getOffsetHeight(),
                         formFlowPanel.getOffsetWidth()));
 
-                 if (!splitterPanel.isSplitType()){
-                                horizontalSplitterSavedSize =  splitterScroll.getOffsetHeight();
+                if (!splitterPanel.isSplitType()) {
+                    horizontalSplitterSavedSize = splitterScroll.getOffsetHeight();
 
-                 }
-                 if (splitterPanel.isSplitType()){
-                                verticalSplitterSavedSize = splitterScroll.getOffsetWidth();
-                 }
-
-
+                }
+                if (splitterPanel.isSplitType()) {
+                    verticalSplitterSavedSize = splitterScroll.getOffsetWidth();
+                }
             }
         };
     }
@@ -110,8 +107,8 @@ public class DomainObjectSurferPluginView extends PluginView {
     }
 
     private void checkLastSplitterPosition(boolean type, int firstWidgetWidth, int firstWidgetHeight, boolean arrowButton) {
-        if (!arrowButton){
-            if (horizontalSplitterSavedSize >= 0){
+        if (!arrowButton) {
+            if (horizontalSplitterSavedSize >= 0) {
                 firstWidgetHeight = horizontalSplitterSavedSize;
             }
 
@@ -120,7 +117,7 @@ public class DomainObjectSurferPluginView extends PluginView {
             }
         }
 
-        if (type && arrowButton){
+        if (type && arrowButton) {
             verticalSplitterSavedSize = firstWidgetWidth;
 
         } else {
@@ -131,12 +128,12 @@ public class DomainObjectSurferPluginView extends PluginView {
 
     }
 
-    private void reDrawSplitter(boolean type, int firstWidgetWidth, int firstWidgetHeight){
+    private void reDrawSplitter(boolean type, int firstWidgetWidth, int firstWidgetHeight) {
 
         if (type) {
 
-            if (firstWidgetWidth > surferWidth){
-                firstWidgetWidth = surferWidth-splitterPanel.getSplitterSize();
+            if (firstWidgetWidth > surferWidth) {
+                firstWidgetWidth = surferWidth - splitterPanel.getSplitterSize();
 
             }
 
@@ -144,12 +141,12 @@ public class DomainObjectSurferPluginView extends PluginView {
             splitterPanel.insertWest(splitterScroll, firstWidgetWidth, splitterPanel.getWidget(0));
         } else {
 
-            if (firstWidgetHeight > surferHeight){
-                firstWidgetHeight = surferHeight-splitterPanel.getSplitterSize();
+            if (firstWidgetHeight > surferHeight) {
+                firstWidgetHeight = surferHeight - splitterPanel.getSplitterSize();
             }
 
             splitterPanel.remove(0);
-            splitterPanel.insertNorth(splitterScroll, firstWidgetHeight, splitterPanel.getWidget(0));
+            splitterPanel.insertNorth(splitterScroll, firstWidgetHeight - splitterPanel.getSplitterSize(), splitterPanel.getWidget(0));
 
 
 
@@ -166,11 +163,6 @@ public class DomainObjectSurferPluginView extends PluginView {
         flowPanel.add(container);
         splitterScroll.add(splitterFirstWidget);
 
-        //splitter fix
-        Element e = (Element)splitterPanel.getElement().getChild(2);
-        e.getStyle().clearOverflow();
-
-
         container.add(splitterPanel);
 
         final DomainObjectSurferConfig config = (DomainObjectSurferConfig) domainObjectSurferPlugin.getConfig();
@@ -183,7 +175,7 @@ public class DomainObjectSurferPluginView extends PluginView {
             collectionViewerPlugin.setConfig(config.getCollectionViewerConfig());
 
 
-            PluginPanel collectionViewerPluginPanel = new PluginPanel() {
+            PluginPanel collectionViewerPluginPanel  = new PluginPanel() {
                 @Override
                 public void beforePluginOpening() {
                     CollectionPluginData collectionPluginData = collectionViewerPlugin.getInitialData();
@@ -198,17 +190,15 @@ public class DomainObjectSurferPluginView extends PluginView {
                     } else {
                         formPluginConfig = new FormPluginConfig(items.get(0).getId());
                     }
-                    final FormPlugin formPlugin = (FormPlugin)domainObjectSurferPlugin.getFormPlugin();
-
-                    formPlugin.setConfig(formPluginConfig);
+                    FormPlugin formPlugin = (FormPlugin) domainObjectSurferPlugin.getFormPlugin();
 
                     formPluginPanel.open(formPlugin);
                     splitterFirstWidget.add(this.asWidget());
 
                     formFlowPanel.setStyleName("tab-content");
                     formFlowPanel.setSize("100%", "100%");
-                    formFlowPanel.add(new ScrollPanel(formPluginPanel.asWidget()));
 
+                    formFlowPanel.add(formPluginPanel.asWidget());
 
                 }
             };
@@ -217,6 +207,7 @@ public class DomainObjectSurferPluginView extends PluginView {
             collectionViewerPluginPanel.open(collectionViewerPlugin);
 
         }
+
         return flowPanel;
     }
 

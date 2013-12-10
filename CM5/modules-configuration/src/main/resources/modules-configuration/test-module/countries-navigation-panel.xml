@@ -12,6 +12,7 @@
                             <collection-viewer>
                                 <collection-ref name="Countries"/>
                                 <sort-criterion field="name" order="asc"/>
+                                <input-text-filter name="byText"/>
                             </collection-viewer>
                         </domain-object-surfer>
                     </plugin>
@@ -32,7 +33,7 @@
 
             </child-links>
         </link>
-        <link name="Administration" display-text="Администрирование" image="images/inbox.png" child-to-open="Employee">
+        <link name="Administration" display-text="Состав" image="images/inbox.png" child-to-open="Employee">
             <!-- в администрировании не задан плагин, значит по клику ничего открываться не должно, либо должна открываться дочерняя ссылка. дочерняя ссылка должна быть одной из вложенных (1й уровень вложенности). если не задан ни плагин, ни дочерняя ссылка, то данная ссылка является простой группировкой дочерних -->
             <child-links> <!-- group-name параметр не обязательный. Если он задан, то на экране появляется элемент-название группы (см. "Руководство разработчика", раздел Строение системы, Навигационное дерево -> "Стадии и задачи"-->
                 <link name="Employee" display-text="Сотрудники" image="images/inbox.png">
@@ -88,6 +89,16 @@
         </link>
         <link name="Documents" display-text="Документы" image="images/inbox.png" child-to-open="Internal_Document">
             <child-links>
+                <link name="Letters" display-text="Письма">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="letter">
+                            <collection-viewer>
+                                <collection-ref name="letters"/>
+                                <sort-criterion field="created_date" order="desc"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
                 <link name="Internal_Document" display-text="Внутренние документы">
                     <plugin>
                         <domain-object-surfer domain-object-type-to-create="Internal_Document">

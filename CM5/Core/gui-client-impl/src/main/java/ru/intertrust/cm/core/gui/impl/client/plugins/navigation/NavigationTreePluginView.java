@@ -1,17 +1,19 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.navigation;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.*;
+import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
 import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEvent;
 import ru.intertrust.cm.core.gui.impl.client.panel.RootNodeButton;
 import ru.intertrust.cm.core.gui.impl.client.panel.SidebarView;
 import ru.intertrust.cm.core.gui.impl.client.panel.SystemTreeStyles;
@@ -23,9 +25,15 @@ import java.util.logging.Logger;
 
 public class NavigationTreePluginView extends PluginView {
 
+    private static EventBus eventBus = Application.getInstance().getEventBus();
+    private final int DURATION = 500;
+    private int END_WIDGET_WIDTH = 380;
+    private int START_WIDGET_WIDTH = 130;
+    private boolean pinButtonClick = false;
+
     static Logger log = Logger.getLogger("navigation tree plugin view");
-    private VerticalPanel navigationTreesPanel = new VerticalPanel();
-    SidebarView sideBarView;
+    private FlowPanel navigationTreesPanel = new FlowPanel();
+    private SidebarView sideBarView;
     protected NavigationTreePluginView(Plugin plugin) {
         super(plugin);
     }
@@ -44,10 +52,19 @@ public class NavigationTreePluginView extends PluginView {
     protected IsWidget getViewWidget() {
         NavigationTreePluginData navigationTreePluginData = plugin.getInitialData();
 
-        HorizontalPanel navigationTreeContainer = new HorizontalPanel();
+
+        final HTML pinButton = new HTML();
+        pinButton.getElement().getStyle().setLeft(150, Style.Unit.PX);
+        pinButton.getElement().getStyle().setTop(20, Style.Unit.PX);
+        navigationTreesPanel.getElement().getStyle().setLeft(15, Style.Unit.PX);
+        navigationTreesPanel.setWidth("130px");
+        final HorizontalPanel navigationTreeContainer = new HorizontalPanel();
         decorateNavigationTreeContainer(navigationTreeContainer);
+        VerticalPanel verticalPanel = new VerticalPanel();
 
         sideBarView = new SidebarView();
+        FocusPanel focusContainer = new FocusPanel();
+
 
         SystemTreeStyles.I.styles().ensureInjected();
 
@@ -62,11 +79,81 @@ public class NavigationTreePluginView extends PluginView {
         navigationTreeContainer.add(sideBarView);
         HorizontalPanel navigationTreePanel = new HorizontalPanel();
 
-        navigationTreePanel.add(rootLinksPanel);
+     //   verticalPanel.getElement().getStyle().setPaddingLeft(125, Style.Unit.PX);
+        HorizontalPanel horizontalPanel = new HorizontalPanel();
+        horizontalPanel.add(sideBarView);
+        horizontalPanel.add(verticalPanel);
+        verticalPanel.add(pinButton);
+        verticalPanel.add(navigationTreesPanel);
+        navigationTreePanel.getElement().getStyle().setLeft(150, Style.Unit.PX);
+        focusContainer.add(horizontalPanel);
+
+
+
+        navigationTreeContainer.add(focusContainer);
         LinkConfig firstRootLink = first(linkConfigList);
 
         drawNavigationTrees(firstRootLink);
-        navigationTreeContainer.add(navigationTreesPanel);
+
+        pinButton.getElement().getStyle().setZIndex(111);
+        pinButton.getElement().getStyle().setDisplay(Style.Display.BLOCK);
+        navigationTreesPanel.getElement().getStyle().setPaddingTop(20, Style.Unit.PX);
+
+        pinButton.removeStyleName("gwt-HTML");
+
+        pinButton.addStyleName("icon pin-normal");
+
+
+        pinButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                if (pinButtonClick == false ){
+                    pinButtonClick = true;
+                    pinButton.removeStyleName("icon pin-normal");
+                    pinButton.addStyleName("icon pin-pressed");
+                    eventBus.fireEvent(new SideBarResizeEvent(true, END_WIDGET_WIDTH));
+
+                }  else {
+                    pinButtonClick = false;
+                    pinButton.removeStyleName("icon pin-pressed");
+                    pinButton.addStyleName("icon pin-normal");
+                    eventBus.fireEvent(new SideBarResizeEvent(false, START_WIDGET_WIDTH));
+
+
+                }
+
+
+            }
+        });
+
+
+        focusContainer.addMouseOverHandler(new MouseOverHandler() {
+            @Override
+            public void onMouseOver(MouseOverEvent event) {
+                ResizeTreeAnimation resizeTreeAnimation = new ResizeTreeAnimation(END_WIDGET_WIDTH, navigationTreesPanel);
+                resizeTreeAnimation.run(DURATION);
+                pinButton.getElement().getStyle().setZIndex(10);
+                navigationTreeContainer.getElement().getStyle().setZIndex(9);
+            }
+        });
+
+        focusContainer.addMouseOutHandler(new MouseOutHandler() {
+            @Override
+            public void onMouseOut(MouseOutEvent event) {
+                if (!pinButtonClick){
+                    ResizeTreeAnimation resizeTreeAnimation = new ResizeTreeAnimation(START_WIDGET_WIDTH, navigationTreesPanel);
+                    resizeTreeAnimation.run(DURATION);
+                    pinButton.getElement().getStyle().setZIndex(0);
+                    navigationTreeContainer.getElement().getStyle().setZIndex(0);
+                }
+            }
+        });
+
+//        navigationTreeContainer.add(navigationTreesPanel);
+
+//        navigationTreesPanel.getElement().getStyle().setBackgroundColor("red");
+//        navigationTreesPanel.setWidth("0px");
+
 
         setIndex(0);
 

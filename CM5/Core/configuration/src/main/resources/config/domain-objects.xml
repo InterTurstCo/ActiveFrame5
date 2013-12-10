@@ -257,4 +257,61 @@
         </uniqueKey-->
     </domain-object-type>
 
+    <domain-object-type name="report_template"
+        initial-status="Draft">
+        <fields>
+            <string name="name" length="256" not-null="true" />
+            <string name="description" length="512" not-null="true" />
+        </fields>
+        <uniqueKey>
+            <field name="name" />
+        </uniqueKey>
+        <attachment-types>
+            <attachment-type name="report_template_attachment"/>
+        </attachment-types>
+        
+    </domain-object-type>
+
+    <domain-object-type name="report_result"
+        initial-status="Draft">
+        <fields>
+            <string name="name" length="256" not-null="true" />
+            <reference name="template_id" type="report_template"
+                not-null="true" />
+            <reference name="owner" type="Person" not-null="false" />
+            <dateTime name="keep_to" not-null="false" />
+        </fields>
+        <attachment-types>
+            <attachment-type name="report_result_attachment"/>
+        </attachment-types>        
+    </domain-object-type>
+
+    <domain-object-type name="schedule"
+        initial-status="Sleep">
+        <fields>
+            <string name="name" length="256" not-null="true" />
+            <string name="task_class" length="256" not-null="true" />
+            <long name="task_type" not-null="true" />
+            <string name="year" length="8" not-null="true" />
+            <string name="month" length="8" not-null="true" />
+            <string name="day_of_month" length="8" not-null="true" />
+            <string name="day_of_week" length="8" not-null="true" />
+            <string name="hour" length="8" not-null="true" />
+            <string name="minute" length="8" not-null="true" />
+            <long name="timeout" not-null="true" />
+            <long name="priority" not-null="true" />
+            <string name="parameters" length="1024" not-null="false" />
+            <long name="last_result" not-null="false"/>
+            <string name="last_result_description" length="1024" not-null="false"/>
+            <long name="active" not-null="true"/>
+            <dateTime name="last_redy" not-null="false"/>
+            <dateTime name="last_wait" not-null="false"/>
+            <dateTime name="last_run" not-null="false"/>
+            <dateTime name="last_end" not-null="false"/>
+        </fields>
+        <uniqueKey>
+            <field name="name" />
+        </uniqueKey>
+    </domain-object-type>
+
 </configuration>

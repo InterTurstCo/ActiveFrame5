@@ -1,33 +1,16 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.generateAddColumnsQuery;
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.generateAuditSequenceQuery;
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.generateCountTablesQuery;
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.generateCreateAclReadTableQuery;
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.generateCreateAclTableQuery;
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.generateCreateAuditLogIndexesQuery;
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.generateCreateAuditTableQuery;
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.generateCreateConfigurationTableQuery;
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.generateCreateDomainObjectTableQuery;
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.generateCreateForeignKeyAndUniqueConstraintsQuery;
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.generateCreateIndexesQuery;
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.generateCreateTableQuery;
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.generateSequenceQuery;
-
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcOperations;
-
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.ReferenceFieldConfig;
-import ru.intertrust.cm.core.config.UniqueKeyConfig;
+import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
+
+import java.util.List;
+
+import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.*;
 
 /**
  * Реализация {@link ru.intertrust.cm.core.dao.api.DataStructureDao} для PostgreSQL
@@ -166,7 +149,8 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
      */
     @Override
     public void createServiceTables() {
-        jdbcTemplate.update(generateCreateDomainObjectTableQuery());
+        jdbcTemplate.update(generateCreateDomainObjectTypeIdSequenceQuery());
+        jdbcTemplate.update(generateCreateDomainObjectTypeIdTableQuery());
         jdbcTemplate.update(generateCreateConfigurationTableQuery());
     }
 

@@ -19,35 +19,20 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-
-import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.jdbc.JdbcDriver.ConnectMode;
 
 public class JdbcConnection implements Connection {
-    private InitialContext ctx;
-    private CollectionsService collectionService;
-    private ConfigurationService configurationService;
     private boolean closed = false;
+    private ConnectMode mode;
+    private String address;
+    private String login;
+    private String password;
 
     public JdbcConnection(ConnectMode mode, String address, String login, String password) throws SQLException {
-        try {
-            if (mode.equals(ConnectMode.Remoting)) {
-                collectionService =
-                        (CollectionsService) getRemoteService("CollectionsServiceImpl", address, login, password,
-                                CollectionsService.Remote.class);
-                configurationService =
-                        (ConfigurationService) getRemoteService("ConfigurationServiceImpl", address, login, password,
-                                ConfigurationService.Remote.class);
-            } else {
-                //TODO реализовать получение локальных интерфейсов
-            }
-        } catch (Exception ex) {
-            throw new SQLException("Error create jdbc connection", ex);
-        }
+        this.mode = mode;
+        this.address = address;
+        this.login = login;
+        this.password = password;
     }
 
     @Override
@@ -62,12 +47,12 @@ public class JdbcConnection implements Connection {
 
     @Override
     public Statement createStatement() throws SQLException {
-        return new JdbcStatement(collectionService);
+        return new JdbcStatement(mode, address, login, password);
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql) throws SQLException {
-        return new JdbcPreparedStatement(collectionService, sql);
+        return new JdbcPreparedStatement(mode, address, login, password, sql);
     }
 
     @Override
@@ -102,14 +87,7 @@ public class JdbcConnection implements Connection {
 
     @Override
     public void close() throws SQLException {
-        try {
-            this.closed = true;
-            ctx.close();
-            ctx = null;
-            collectionService = null;
-        } catch (NamingException ex) {
-            throw new SQLException("Error close connection.", ex);
-        }
+        this.closed = true;
     }
 
     @Override
@@ -119,7 +97,7 @@ public class JdbcConnection implements Connection {
 
     @Override
     public DatabaseMetaData getMetaData() throws SQLException {
-        return new JdbcDatabaseMetaData(configurationService);
+        return new JdbcDatabaseMetaData(mode, address, login, password);
     }
 
     @Override
@@ -329,29 +307,5 @@ public class JdbcConnection implements Connection {
     @Override
     public int getNetworkTimeout() throws SQLException {
         throw new UnsupportedOperationException();
-    }
-
-    private Object getRemoteService(String serviceName, String address, String login, String password,
-            Class<?> remoteInterfaceClass) throws Exception {
-
-        if (ctx == null) {
-            Properties jndiProps = new Properties();
-            jndiProps.put(Context.INITIAL_CONTEXT_FACTORY,
-                    "org.jboss.naming.remote.client.InitialContextFactory");
-            jndiProps.put(Context.PROVIDER_URL, "remote://" + address);
-            jndiProps.put("jboss.naming.client.ejb.context", "true");
-            jndiProps
-                    .put("jboss.naming.client.connect.options.org.xnio.Options.SASL_POLICY_NOPLAINTEXT",
-                            "false");
-            jndiProps.put(Context.SECURITY_PRINCIPAL, login);
-            jndiProps.put(Context.SECURITY_CREDENTIALS, password);
-            jndiProps.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
-
-            ctx = new InitialContext(jndiProps);
-        }
-
-        Object service = ctx.lookup("ejb:cm-sochi/web-app//" + serviceName + "!" + remoteInterfaceClass.getName());
-
-        return service;
     }
 }

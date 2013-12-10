@@ -1,11 +1,14 @@
 package ru.intertrust.cm.core.business.api.dto;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
+
+import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.StringFieldConfig;
 
 /**
  * Тестовый клас для {@link GenericIdentifiableObjectCollection}
@@ -23,12 +26,21 @@ public class GenericIdentifiableObjectCollectionTest {
     @Before
     public void setUp() {
         collection = new GenericIdentifiableObjectCollection();
-        ArrayList<String> fields = new ArrayList<>();
-        fields.add("Type1");
-        fields.add("Type2");
-        fields.add("Type3");
-        collection.setFields(fields);
-
+        ArrayList<FieldConfig> fieldConfigs = new ArrayList<>();
+        FieldConfig fieldConfig = new StringFieldConfig();
+        fieldConfig.setName("Type1");
+        
+        fieldConfigs.add(fieldConfig);
+        
+        fieldConfig = new StringFieldConfig();
+        fieldConfig.setName("Type2");
+        
+        fieldConfigs.add(fieldConfig);
+        fieldConfig = new StringFieldConfig();
+        fieldConfig.setName("Type3");
+        
+        fieldConfigs.add(fieldConfig);
+        collection.setFieldsConfiguration(fieldConfigs);        
     }
 
     @Test

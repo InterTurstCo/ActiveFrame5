@@ -45,6 +45,7 @@ h1 {
     background-color: white;
     height: 60px; /**/
     box-shadow: 0 4px 10px #2d5b7d;
+    z-index: 5;
 
 }
 
@@ -188,6 +189,7 @@ h1 {
     display: block;
     width: 106px;
     text-align: center;
+
 }
 
 #sidebar li a:hover {
@@ -416,11 +418,15 @@ h1 {
 #gwt-splitter {
     overflow: visible;
     top: 30%;
-    left: 0;
+	height: 8px !important;
+    left: -1px !important;
     right: 0;
     border: 1px solid #9EAFBF;
     border-collapse: collapse;
     z-index: 2;
+}
+#gwt-splitter .GLW1MH4CPL{
+height: 8px !important;
 }
 
 .gwt-SplitLayoutPanel-VDragger {
@@ -572,6 +578,7 @@ div.gwt-Label{
 
 .tree-label{
     margin-left: -20px !important;
+    padding-left: 20px !important;
 }
 
 
@@ -1146,7 +1153,7 @@ a:active .icon.back {
     background-image: url("css/icons/icon_locker.png");
 }
 
-.table-scroll {
+/*.table-scroll {
     overflow: auto    !important;
     height: 300px;
     width: 100%;
@@ -1160,7 +1167,39 @@ a:active .icon.back {
 
 .scrollBody {
     overflow: auto;
-    /*max-height: 100%;*/
-    /*min-height: 300px;*/
+    *//*max-height: 100%;*//*
+    *//*min-height: 300px;*//*
+}*/
+
+
+
+suggest-box-panel{
+   border: cornflowerblue;
+}
+my-suggest-box  {
+    border: none !important;
 }
 
+.icon.pin-pressed {
+    background-image: url("css/icons/pin-pressed.png");
+    cursor: pointer;
+    left: 5px;
+}
+
+.icon.pin-normal {
+    background-image: url("css/icons/pin-normal.png");
+    cursor: pointer;
+    left: 5px;
+}
+
+.icon.pin-pressed:hover {
+    background-image: url("css/icons/pin-pressed-hover.png");
+    cursor: pointer;
+    left: 5px;
+}
+
+.icon.pin-normal:hover {
+    background-image: url("css/icons/pin-normal-hover.png");
+    cursor: pointer;
+    left: 5px;
+}

@@ -199,7 +199,7 @@ public class DoelValidator {
                 DoelExpression.Children chilrenElem = (DoelExpression.Children) exprElem;
                 fieldConfig = config.getFieldConfig(chilrenElem.getChildType(), chilrenElem.getParentLink());
                 if (fieldConfig != null && (fieldConfig instanceof ReferenceFieldConfig) &&
-                        !(((ReferenceFieldConfig) fieldConfig).getType().equals(currentType.getType()) ||
+                        !(((ReferenceFieldConfig) fieldConfig).getType().equalsIgnoreCase(currentType.getType()) ||
                         ReferenceFieldConfig.ANY_TYPE.equals(((ReferenceFieldConfig) fieldConfig).getType()))) {
                     //TODO: Несвязанная ссылка: тип и поле правильные, но не ссылается на предыдущий объект
                     result.brokenPaths = true;

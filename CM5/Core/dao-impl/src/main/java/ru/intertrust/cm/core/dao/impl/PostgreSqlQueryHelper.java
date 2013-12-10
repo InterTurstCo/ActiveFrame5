@@ -38,11 +38,21 @@ public class PostgreSqlQueryHelper {
      * Генерирует запрос, создающий таблицу BUSINESS_OBJECT
      * @return запрос, создающий таблицу BUSINESS_OBJECT
      */
-    public static String generateCreateDomainObjectTableQuery() {
-        return "create table " + wrap(DOMAIN_OBJECT_TYPE_ID_TABLE) + " (" + wrap(ID_COLUMN) + " bigserial not null, " +
+    public static String generateCreateDomainObjectTypeIdTableQuery() {
+        return "create table " + wrap(DOMAIN_OBJECT_TYPE_ID_TABLE) + " (" +
+                wrap(ID_COLUMN) + " bigint not null default " +
+                    "nextval('" + wrap(getSqlSequenceName(DOMAIN_OBJECT_TYPE_ID_TABLE)) +   "'), " +
                 wrap(NAME_COLUMN) + " varchar(256) not null, " +
                 "constraint " + wrap("pk_" + DOMAIN_OBJECT_TYPE_ID_TABLE) + " primary key (" + wrap(ID_COLUMN) + "), " +
                 "constraint " + wrap("u_" + DOMAIN_OBJECT_TYPE_ID_TABLE) + " unique (" + wrap(NAME_COLUMN) + "))";
+    }
+
+    /**
+     * Генерирует запрос для создания последовательности для domain_object_type_id
+     * @return запрос для создания последовательности для domain_object_type_id
+     */
+    public static String generateCreateDomainObjectTypeIdSequenceQuery() {
+        return "create sequence " + wrap(getSqlSequenceName(DOMAIN_OBJECT_TYPE_ID_TABLE)) + " start 1001";
     }
 
     /**
@@ -446,17 +456,15 @@ public class PostgreSqlQueryHelper {
 
     private static void appendSystemColumnsQueryPart(DomainObjectTypeConfig config, StringBuilder query) {
         query.append(wrap(ID_COLUMN)).append(" bigint not null, ");
+        query.append(wrap(TYPE_COLUMN)).append(" integer");
 
         if (config.getExtendsAttribute() == null) {
-            query.append(wrap(CREATED_DATE_COLUMN)).append(" timestamp not null, ");
+            query.append(", ").append(wrap(CREATED_DATE_COLUMN)).append(" timestamp not null, ");
             query.append(wrap(UPDATED_DATE_COLUMN)).append(" timestamp not null, ");
 
             query.append(wrap(GenericDomainObject.STATUS_FIELD_NAME)).append(" bigint, ");
-            query.append(wrap(DomainObjectDao.STATUS_TYPE_COLUMN)).append(" integer, ");
-
+            query.append(wrap(DomainObjectDao.STATUS_TYPE_COLUMN)).append(" integer");
         }
-
-        query.append(wrap(TYPE_COLUMN)).append(" integer");
     }
 
     private static void appendColumnsQueryPart(StringBuilder query, List<FieldConfig> fieldConfigList,

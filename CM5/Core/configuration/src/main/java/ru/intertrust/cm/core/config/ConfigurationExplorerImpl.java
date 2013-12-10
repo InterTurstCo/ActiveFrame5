@@ -318,32 +318,6 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         return result;
     }
 
-    @Override
-    public ContextRoleConfig getContextRoleByName(String contextRoleName) {
-        Map<String, TopLevelConfig> contextRoleMap = topLevelConfigMap.get(ContextRoleConfig.class);
-
-        for (String roleName : contextRoleMap.keySet()) {
-            if (contextRoleName.equals(roleName)) {
-                return (ContextRoleConfig) contextRoleMap.get(roleName);
-            }
-        }
-
-        return null;
-    }
-
-    @Override
-    public DynamicGroupConfig getDynamicGroupByName(String dynamicGroupName) {
-        Map<String, TopLevelConfig> dynamicGroupMap = topLevelConfigMap.get(DynamicGroupConfig.class);
-
-        for (String roleName : dynamicGroupMap.keySet()) {
-            if (dynamicGroupName.equals(roleName)) {
-                return (DynamicGroupConfig) dynamicGroupMap.get(roleName);
-            }
-        }
-
-        return null;
-    }
-
     private void fillTopLevelConfigMap(TopLevelConfig config) {
         Map<String, TopLevelConfig> typeMap = topLevelConfigMap.get(config.getClass());
         if (typeMap == null) {

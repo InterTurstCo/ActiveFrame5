@@ -28,20 +28,26 @@ public class ListBoxHandler extends LinkEditingWidgetHandler {
     public ListBoxState getInitialState(WidgetContext context) {
         ListBoxConfig widgetConfig = context.getWidgetConfig();
 
-        String linkType = getLinkedObjectType(context, context.getFieldPath());
+        String[] linkTypes = getLinkedObjectTypes(context, context.getFieldPaths());
 
-        List<DomainObject> listToDisplay = crudService.findAll(linkType);
+        List<DomainObject> domainObjectsToDisplay = new ArrayList<>();
+        for (String linkType : linkTypes) {
+            List<DomainObject> domainObjects = crudService.findAll(linkType);
+            if (domainObjects != null) {
+                domainObjectsToDisplay.addAll(domainObjects);
+            }
+        }
         LinkedHashMap<Id, String> idDisplayMapping = new LinkedHashMap<>();
 
         ListBoxState result = new ListBoxState();
         result.setListValues(idDisplayMapping);
 
-        if (listToDisplay == null) {
+        if (domainObjectsToDisplay.isEmpty()) {
             return result;
         }
 
         String displayPattern = widgetConfig.getPatternConfig().getValue();
-        appendDisplayMappings(listToDisplay, displayPattern, idDisplayMapping);
+        appendDisplayMappings(domainObjectsToDisplay, displayPattern, idDisplayMapping);
 
         ArrayList<Id> selectedIds = context.getObjectIds();
         result.setSelectedIds(selectedIds);

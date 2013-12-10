@@ -10,7 +10,7 @@ import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.SizeChangedEventListener;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.plugin.ActivePluginData;
@@ -43,7 +43,7 @@ public abstract class Plugin extends BaseComponent {
     private boolean initialDataAssigned;
     private PluginView view;
     private List<HandlerRegistration> handlerRegistrations = new ArrayList<HandlerRegistration>();
-    private List<SizeChangedEventListener> viewCreatedEventListeners = new ArrayList<SizeChangedEventListener>(1);
+    private List<PluginViewCreatedEventListener> viewCreatedEventListeners = new ArrayList<PluginViewCreatedEventListener>(1);
 
     static Logger logger = Logger.getLogger("plugin logger");
 
@@ -54,7 +54,7 @@ public abstract class Plugin extends BaseComponent {
      */
     public abstract PluginView createView();
 
-    public void addViewCreatedListener(SizeChangedEventListener listener) {
+    public void addViewCreatedListener(PluginViewCreatedEventListener listener) {
         viewCreatedEventListeners.add(listener);
     }
 
@@ -207,7 +207,7 @@ public abstract class Plugin extends BaseComponent {
     private void postSetUp() {
         view = createView();
         PluginViewCreatedEvent event = new PluginViewCreatedEvent(this);
-        for (SizeChangedEventListener listener : viewCreatedEventListeners) {
+        for (PluginViewCreatedEventListener listener : viewCreatedEventListeners) {
             listener.onViewCreation(event);
         }
         // just in case, make sure to produce NPE if view is "created" again. and free memory of course

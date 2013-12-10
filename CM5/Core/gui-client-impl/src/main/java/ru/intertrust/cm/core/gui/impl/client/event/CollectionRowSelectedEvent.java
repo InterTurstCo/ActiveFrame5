@@ -10,6 +10,7 @@ public class CollectionRowSelectedEvent extends GwtEvent<CollectionRowSelectedEv
 
     public CollectionRowSelectedEvent(Id id) {
         this.id = id;
+
     }
 
     @Override
@@ -25,4 +26,5 @@ public class CollectionRowSelectedEvent extends GwtEvent<CollectionRowSelectedEv
     public Id getId() {
         return id;
     }
+
 }

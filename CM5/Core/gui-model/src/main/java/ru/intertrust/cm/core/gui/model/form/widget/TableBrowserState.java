@@ -12,25 +12,17 @@ import java.util.LinkedHashMap;
  *         Time: 16:15
  */
 public class TableBrowserState extends LinkEditingWidgetState {
-    private String collectionName;
-    private ArrayList<TableBrowserRowItem> selectedItems;
+
+    private ArrayList<TableBrowserRowItem> selectedItemsRepresentations;
     private LinkedHashMap<String, String> domainFieldOnColumnNameMap;
     private TableBrowserConfig tableBrowserConfig;
 
-    public String getCollectionName() {
-        return collectionName;
+    public ArrayList<TableBrowserRowItem> getSelectedItemsRepresentations() {
+        return selectedItemsRepresentations;
     }
 
-    public void setCollectionName(String collectionName) {
-        this.collectionName = collectionName;
-    }
-
-    public ArrayList<TableBrowserRowItem> getSelectedItems() {
-        return selectedItems;
-    }
-
-    public void setSelectedItems(ArrayList<TableBrowserRowItem> selectedItems) {
-        this.selectedItems = selectedItems;
+    public void setSelectedItemsRepresentations(ArrayList<TableBrowserRowItem> selectedItemsRepresentations) {
+        this.selectedItemsRepresentations = selectedItemsRepresentations;
     }
 
     public TableBrowserConfig getTableBrowserConfig() {
@@ -52,7 +44,7 @@ public class TableBrowserState extends LinkEditingWidgetState {
     @Override
     public ArrayList<Id> getIds() {
         ArrayList<Id> selectedIds = new ArrayList<Id>();
-        for (TableBrowserRowItem model : selectedItems) {
+        for (TableBrowserRowItem model : selectedItemsRepresentations) {
             selectedIds.add(model.getId());
         }
 

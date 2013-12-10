@@ -2,9 +2,14 @@ package ru.intertrust.cm.core.gui.impl.server.form;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfigurationConfig;
@@ -31,7 +36,8 @@ public class FormSaver {
     private ConfigurationExplorer configurationExplorer;
     @Autowired
     private CrudService crudService;
-
+    @Autowired
+    private ConfigurationService configurationService;
     private FormState formState;
     private FormObjects formObjects;
     private List<WidgetConfig> widgetConfigs;
@@ -62,17 +68,21 @@ public class FormSaver {
             if (widgetState == null) { // ignore - such data shouldn't be saved
                 continue;
             }
-            FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
-            FieldPath parentObjectPath = fieldPath.getParentPath();
-            if (fieldPath.isBackReference()) {
-                ArrayList<Id> newIds = ((LinkEditingWidgetState) widgetState).getIds();
-                linkChangeOperations.addAll(mergeObjectReferences(fieldPath, newIds));
+            FieldPath[] fieldPaths = FieldPath.createPaths(widgetConfig.getFieldPathConfig().getValue());
+            FieldPath firstFieldPath = fieldPaths[0];
+            if (firstFieldPath.isBackReference()) {
+                HashMap<FieldPath, ArrayList<Id>> fieldPathsIds
+                        = getBackReferenceFieldPathsIds(fieldPaths, (LinkEditingWidgetState) widgetState);
+                for (FieldPath fieldPath : fieldPaths) {
+                    linkChangeOperations.addAll(mergeObjectReferences(fieldPath, fieldPathsIds.get(fieldPath)));
+                }
                 continue;
             }
 
             Value newValue = ((ValueEditingWidgetState) widgetState).getValue();
-            Value oldValue = formObjects.getFieldValue(fieldPath);
+            Value oldValue = formObjects.getFieldValue(firstFieldPath);
             if (!areValuesSemanticallyEqual(newValue, oldValue)) {
+                FieldPath parentObjectPath = firstFieldPath.getParentPath();
                 ArrayList<ObjectCreationOperation> objectCreationOperations = addNewNodeChainIfNotEmpty(parentObjectPath);
                 if (!objectCreationOperations.isEmpty()) {
                     for (ObjectCreationOperation operation : objectCreationOperations) {
@@ -84,7 +94,7 @@ public class FormSaver {
                 } else { // value is changed -> add field's object to be updated
                     objectsFieldPathsToUpdate.add(parentObjectPath);
                 }
-                formObjects.setFieldValue(fieldPath, newValue);
+                formObjects.setFieldValue(firstFieldPath, newValue);
             }
         }
 
@@ -209,6 +219,38 @@ public class FormSaver {
         return result;
     }
 
+    private HashMap<FieldPath, ArrayList<Id>> getBackReferenceFieldPathsIds(FieldPath[] fieldPaths,
+                                                                            LinkEditingWidgetState widgetState) {
+        HashMap<FieldPath, ArrayList<Id>> result = new HashMap<>();
+        for (FieldPath fieldPath : fieldPaths) {
+            result.put(fieldPath, new ArrayList<Id>());
+        }
+        ArrayList<Id> ids = widgetState.getIds();
+        if (ids == null) {
+            return result;
+        }
+        for (Id id : ids) {
+            for (FieldPath fieldPath : fieldPaths) {
+                String linkedType;
+                String referenceType = fieldPath.getReferenceType();
+                if (fieldPath.isOneToManyReference()) {
+                    linkedType = referenceType;
+                } else {
+                    String referenceName = fieldPath.getReferenceName();
+                    ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig)
+                            configurationExplorer.getFieldConfig(referenceType, referenceName);
+                    linkedType = referenceFieldConfig.getType();
+                }
+
+                if (configurationService.getDomainObjectType(id).equalsIgnoreCase(linkedType)) {
+                    result.get(fieldPath).add(id);
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
     private ArrayList<FormSaveOperation> mergeObjectReferences(FieldPath fieldPath, ArrayList<Id> newIds) {
         if (fieldPath.isOneToManyReference()) {
             return mergeOneToMany(fieldPath, newIds);
@@ -225,7 +267,7 @@ public class FormSaver {
 
         String linkToParentName = fieldPath.getLinkToParentName();
 
-        ArrayList<DomainObject> previousState = ((MultiObjectNode)formObjects.getNode(fieldPath)).getDomainObjects();
+        ArrayList<DomainObject> previousState = ((MultiObjectNode) formObjects.getNode(fieldPath)).getDomainObjects();
         if (previousState == null) {
             previousState = new ArrayList<>(0);
         }

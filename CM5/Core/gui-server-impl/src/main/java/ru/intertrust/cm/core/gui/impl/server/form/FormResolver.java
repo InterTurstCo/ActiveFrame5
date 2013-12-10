@@ -43,7 +43,7 @@ public class FormResolver {
         // если флаг "использовать по умолчанию" не установлен
         // в конечном итоге получаем FormConfig
 
-        String typeName = root.getTypeName();
+        String typeName = root.getTypeName().toLowerCase();
         List<FormConfig> userFormConfigs = getUserFormConfigs(userUid, typeName);
         if (userFormConfigs != null && userFormConfigs.size() != 0) {
             if (userFormConfigs.size() > 1) {
@@ -86,17 +86,18 @@ public class FormResolver {
         }
         for (FormConfig formConfig : formConfigs) {
             String domainObjectType = formConfig.getDomainObjectType();
+            String domainObjectTypeInLowerCase = domainObjectType.toLowerCase();
             if (formConfig.isDefault()) {
                 if (defaultFormByDomainObjectType.containsKey(domainObjectType)) {
                     throw new GuiException("There's more than 1 default form for type: " + domainObjectType);
                 }
-                defaultFormByDomainObjectType.put(domainObjectType, formConfig);
+                defaultFormByDomainObjectType.put(domainObjectTypeInLowerCase, formConfig);
             }
 
             List<FormConfig> domainObjectTypeForms = allFormsByDomainObjectType.get(domainObjectType);
             if (domainObjectTypeForms == null) {
                 domainObjectTypeForms = new ArrayList<>();
-                allFormsByDomainObjectType.put(domainObjectType, domainObjectTypeForms);
+                allFormsByDomainObjectType.put(domainObjectTypeInLowerCase, domainObjectTypeForms);
             }
             domainObjectTypeForms.add(formConfig);
         }

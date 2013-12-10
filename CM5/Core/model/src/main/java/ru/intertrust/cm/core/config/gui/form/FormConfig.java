@@ -26,6 +26,9 @@ public class FormConfig implements Dto, TopLevelConfig {
     @Attribute(name = "debug",required = false)
     private boolean debug;
 
+    @Attribute(name = "min-width",required = false)
+    private String minWidth;
+
     @Element(name = "markup")
     private MarkupConfig markup;
 
@@ -72,6 +75,14 @@ public class FormConfig implements Dto, TopLevelConfig {
         this.debug = debug;
     }
 
+    public String getMinWidth() {
+        return minWidth;
+    }
+
+    public void setMinWidth(String minWidth) {
+        this.minWidth = minWidth;
+    }
+
     public WidgetConfigurationConfig getWidgetConfigurationConfig() {
         return widgetConfigurationConfig;
     }
@@ -103,6 +114,9 @@ public class FormConfig implements Dto, TopLevelConfig {
         if (markup != null ? !markup.equals(that.markup) : that.markup != null) {
             return false;
         }
+        if (minWidth != null ? !minWidth.equals(that.minWidth) : that.minWidth != null) {
+            return false;
+        }
         if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
         }
@@ -121,6 +135,7 @@ public class FormConfig implements Dto, TopLevelConfig {
         result = 31 * result + (isDefault ? 1 : 0);
         result = 31 * result + (debug ? 1 : 0);
         result = 31 * result + (markup != null ? markup.hashCode() : 0);
+        result = 31 * result + (minWidth != null ? minWidth.hashCode() : 0);
         result = 31 * result + (widgetConfigurationConfig != null ? widgetConfigurationConfig.hashCode() : 0);
         return result;
     }

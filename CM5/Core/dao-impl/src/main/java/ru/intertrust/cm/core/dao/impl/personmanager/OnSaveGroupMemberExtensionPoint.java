@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.extension.AfterSaveExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
@@ -21,6 +22,9 @@ import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
  */
 @ExtensionPoint(filter = "Group_Member")
 public class OnSaveGroupMemberExtensionPoint implements AfterSaveExtensionHandler {
+
+    @Autowired
+    private UserGroupGlobalCache userGroupGlobalCache;
 
     @Autowired
     private AccessControlService accessControlService;
@@ -38,7 +42,7 @@ public class OnSaveGroupMemberExtensionPoint implements AfterSaveExtensionHandle
             String groupName = userGroup.getString("group_name");
             // если изменяется состав группы Superusers, нужно очищать кеш в пользователей в AccessControlService
             if (GenericDomainObject.SUPER_USERS_STATIC_GROUP.equals(groupName)) {
-                accessControlService.cleanPersonCache();
+                userGroupGlobalCache.cleanCache();
             }
         }
     }

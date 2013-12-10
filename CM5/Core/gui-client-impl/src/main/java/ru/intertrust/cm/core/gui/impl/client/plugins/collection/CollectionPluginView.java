@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
+import com.google.gwt.cell.client.CheckboxCell;
+import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ScrollEvent;
@@ -13,14 +15,13 @@ import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.view.client.MultiSelectionModel;
+import com.google.gwt.view.client.SelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
-import ru.intertrust.cm.core.gui.impl.client.event.SplitterInnerScrollEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.SplitterInnerScrollEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CellTableEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CheckedSelectionModel;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.TableController;
@@ -58,11 +59,13 @@ public class CollectionPluginView extends PluginView {
     private int listCount;
     private int tableWidth;
     private int tableHeight;
-
+    private boolean singleChoice = true;
     // локальная шина событий
     private EventBus eventBus;
     protected Plugin plugin;
-
+    private ArrayList<Integer> chosenIndexes = new ArrayList<Integer>();
+    private Column<CollectionRowItem, Boolean> checkColumn;
+    private SelectionModel<CollectionRowItem> selectionModel;
     /**
      * Создание стилей для ящеек таблицы
      */
@@ -86,27 +89,6 @@ public class CollectionPluginView extends PluginView {
 
     }
 
-    private void createCollectionData() {
-        CollectionRowsRequest collectionRowsRequest = new CollectionRowsRequest(listCount, 15, collectionName, columnNamesOnDoFieldsMap);
-        Command command = new Command("generateCollectionRowItems", "collection.plugin", collectionRowsRequest);
-
-        BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, new AsyncCallback<Dto>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                GWT.log("something was going wrong while obtaining generateCollectionRowItems for ''");
-                caught.printStackTrace();
-            }
-
-            @Override
-            public void onSuccess(Dto result) {
-                CollectionRowItemList collectionRowItemList = (CollectionRowItemList) result;
-                List<CollectionRowItem> collectionRowItems = collectionRowItemList.getCollectionRows();
-                insertMoreRows(collectionRowItems);
-
-            }
-        });
-    }
-
     @Override
     protected IsWidget getViewWidget() {
 
@@ -114,30 +96,31 @@ public class CollectionPluginView extends PluginView {
         collectionName = collectionPluginData.getCollectionName();
         columnNamesOnDoFieldsMap = collectionPluginData.getDomainObjectFieldOnColumnNameMap();
         items = collectionPluginData.getItems();
+        singleChoice = collectionPluginData.isSingleChoice();
+        chosenIndexes = collectionPluginData.getIndexesOfSelectedItems();
         init();
+
         return root;
 
     }
 
     public void init() {
         buildPanel();
-        buildTableColumns(columnNamesOnDoFieldsMap);
+        createTableColumns();
+        applySelectionModel();
         insertRows(items);
         applyStyles();
+
         addHandlers();
 
     }
 
-    private void addResizeHandler() {
-
-        Window.addResizeHandler(new ResizeHandler() {
-            @Override
-            public void onResize(ResizeEvent event) {
-
-                tableController.columnWindowResize(columnMinWidth(tableWidth / tableHeader.getColumnCount()));
-                scrollTableBody.setHeight(tableHeight + "px");
-            }
-        });
+    private void createTableColumns() {
+        if (singleChoice) {
+            createTableColumnsWithoutCheckBoxes(columnNamesOnDoFieldsMap, 0);
+        } else {
+            createTableColumnsWithCheckBoxes(columnNamesOnDoFieldsMap);
+        }
     }
 
     private int columnMinWidth(int width) {
@@ -153,9 +136,157 @@ public class CollectionPluginView extends PluginView {
         scrollTableBody.setHeight(tableHeight + "px");
     }
 
+    private TextColumn<CollectionRowItem> buildNameColumn(final String string) {
+
+        return new TextColumn<CollectionRowItem>() {
+            @Override
+            public String getValue(CollectionRowItem object) {
+                return object.getStringValue(string);
+            }
+        };
+    }
+
+    private void buildPanel() {
+        headerPanel.add(tableHeader);
+        bodyPanel.add(tableBody);
+        verticalPanel.add(headerPanel);
+        scrollTableBody.getElement().getStyle().setOverflowX(Style.Overflow.HIDDEN);
+
+        scrollTableBody.setHeight(tableHeight + "px");
+        scrollTableBody.add(bodyPanel);
+        verticalPanel.add(scrollTableBody);
+        root.add(verticalPanel);
+
+    }
+
+    private void createTableColumnsWithCheckBoxes(LinkedHashMap<String, String> domainObjectFieldsOnColumnNamesMap) {
+        checkColumn = new Column<CollectionRowItem, Boolean>(
+                new CheckboxCell(true, true)) {
+            @Override
+            public Boolean getValue(CollectionRowItem object) {
+                return selectionModel.isSelected(object);
+            }
+        };
+
+        checkColumn.setFieldUpdater(new FieldUpdater<CollectionRowItem, Boolean>() {
+            @Override
+            public void update(int index, CollectionRowItem object, Boolean value) {
+                eventBus.fireEvent(new CheckBoxFieldUpdateEvent(object.getId(), !value));
+            }
+        });
+        tableHeader.addColumn(checkColumn, "");
+        tableBody.addColumn(checkColumn);
+        createTableColumnsWithoutCheckBoxes(domainObjectFieldsOnColumnNamesMap, 1);
+
+    }
+
+    private void createTableColumnsWithoutCheckBoxes(LinkedHashMap<String, String> domainObjectFieldsOnColumnNamesMap, int startNumberOfColumns) {
+        int numberOfColumns = startNumberOfColumns + domainObjectFieldsOnColumnNamesMap.keySet().size();
+        int columnWidth = (tableWidth / numberOfColumns);
+        for (String field : domainObjectFieldsOnColumnNamesMap.keySet()) {
+            Column<CollectionRowItem, String> column = buildNameColumn(field);
+            String columnName = domainObjectFieldsOnColumnNamesMap.get(field);
+            tableHeader.addColumn(column, columnName);
+            tableHeader.setColumnWidth(column, columnWidth + "px");
+            column.setDataStoreName(columnName);
+            tableBody.addColumn(column);
+            tableBody.setColumnWidth(column, columnWidth + "px");
+        }
+
+    }
+
+    public void insertRows(List<CollectionRowItem> list) {
+        tableBody.setRowData(items);
+        listCount = items.size();
+        selectChosenRows();
+    }
+
+    private void insertMoreRows(List<CollectionRowItem> list) {
+
+        items.addAll(list);
+        tableBody.setRowData(items);
+    }
+
+    private void selectChosenRows() {
+        for (Integer index : chosenIndexes) {
+            CollectionRowItem rowItem = items.get(index);
+            selectionModel.setSelected(rowItem, true);
+
+        }
+    }
+
+    private void applyStyles() {
+        applyHeaderTableStyle();
+        applyBodyTableStyle();
+    }
+
+    private void applyHeaderTableStyle() {
+        tableHeader.setStyleName(adapter.getResources().cellTableStyle().docsCommonCelltableHeader());
+        tableHeader.setTableLayoutFixed(true);
+        headerPanel.setStyleName(adapter.getResources().cellTableStyle().docsCommonCelltableHeaderPanel());
+
+    }
+
+    private void applySelectionModel() {
+
+        if (singleChoice) {
+            selectionModel = new CheckedSelectionModel<CollectionRowItem>();
+        } else {
+            selectionModel = new MultiSelectionModel<CollectionRowItem>();
+        }
+        tableBody.setSelectionModel(selectionModel);
+    }
+
+    private void applyBodyTableStyle() {
+        String emptyTableText = null;
+        HTML emptyTableWidget = new HTML("<br/><div align='center'> <h1> " + emptyTableText + " </h1> </div>");
+        emptyTableWidget.getElement().getStyle().setPaddingLeft(60, Style.Unit.PX);
+        tableBody.setRowStyles(new RowStyles<CollectionRowItem>() {
+            @Override
+            public String getStyleNames(CollectionRowItem row, int rowIndex) {
+                return adapter.getResources().cellTableStyle().docsCommonCelltableTrCommon();
+
+            }
+        });
+        tableBody.setStyleName(adapter.getResources().cellTableStyle().docsCommonCelltableBody());
+        tableBody.setEmptyTableWidget(emptyTableWidget);
+        tableBody.setTableLayoutFixed(true);
+
+    }
+
+    public void setEventBus(EventBus eventBus) {
+        this.eventBus = eventBus;
+    }
+
+
+    private void createCollectionData() {
+        CollectionPluginData collectionPluginData = plugin.getInitialData();
+
+        CollectionRowsRequest collectionRowsRequest = new CollectionRowsRequest(listCount, 15,
+                collectionName, columnNamesOnDoFieldsMap);
+        Command command = new Command("generateCollectionRowItems", "collection.plugin", collectionRowsRequest);
+
+        BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, new AsyncCallback<Dto>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                GWT.log("something was going wrong while obtaining generateTableRowsForPluginInitialization for ''");
+                caught.printStackTrace();
+            }
+
+            @Override
+            public void onSuccess(Dto result) {
+                CollectionRowItemList collectionRowItemList = (CollectionRowItemList) result;
+                List<CollectionRowItem> collectionRowItems = collectionRowItemList.getCollectionRows();
+                insertMoreRows(collectionRowItems);
+
+            }
+        });
+    }
+
     private void addHandlers() {
         addResizeHandler();
         tableBody.addCellPreviewHandler(new CellTableEventHandler<CollectionRowItem>(tableBody, plugin, eventBus));
+
         eventBus.addHandler(SplitterInnerScrollEvent.TYPE, new SplitterInnerScrollEventHandler() {
             @Override
             public void setScrollPanelHeight(SplitterInnerScrollEvent event) {
@@ -169,15 +300,13 @@ public class CollectionPluginView extends PluginView {
 
             @Override
             public void setWidgetSize(SplitterWidgetResizerEvent event) {
-               // if (event.isType()) {
-                    if ((event.getFirstWidgetHeight() * 2) < Window.getClientHeight()) {
-                        scrollTableBody.setHeight(((event.getFirstWidgetHeight() * 2) - headerPanel.getOffsetHeight()) + "px");
-                    } else {
-                        scrollTableBody.setHeight((event.getFirstWidgetHeight() - headerPanel.getOffsetHeight()) + "px");
-                    }
-//                } else {
-//                    scrollTableBody.setHeight((event.getFirstWidgetHeight() - headerPanel.getOffsetHeight()) + "px");
-//                }
+
+                if ((event.getFirstWidgetHeight() * 2) < Window.getClientHeight()) {
+                    scrollTableBody.setHeight(((event.getFirstWidgetHeight() * 2) - headerPanel.getOffsetHeight()) + "px");
+                } else {
+                    scrollTableBody.setHeight((event.getFirstWidgetHeight() - headerPanel.getOffsetHeight()) + "px");
+                }
+
                 tableController.columnWindowResize(columnMinWidth(event.getFirstWidgetWidth() / tableBody.getColumnCount()));
             }
         });
@@ -199,99 +328,16 @@ public class CollectionPluginView extends PluginView {
 
     }
 
+    private void addResizeHandler() {
 
-    private TextColumn<CollectionRowItem> buildNameColumn(final String string) {
-
-        return new TextColumn<CollectionRowItem>() {
+        Window.addResizeHandler(new ResizeHandler() {
             @Override
-            public String getValue(CollectionRowItem object) {
-                return object.getStringValue(string);
-            }
-        };
-    }
+            public void onResize(ResizeEvent event) {
 
-    private void buildPanel() {
-        headerPanel.add(tableHeader);
-        bodyPanel.add(tableBody);
-        verticalPanel.add(headerPanel);
-        scrollTableBody.getElement().getStyle().setOverflowX(Style.Overflow.HIDDEN);
-
-        scrollTableBody.setHeight(tableHeight + "px");
-        scrollTableBody.add(bodyPanel);
-        verticalPanel.add(scrollTableBody);
-        verticalPanel.setSize("100%", "100%");
-        root.add(verticalPanel);
-
-    }
-
-    private void buildTableColumns(LinkedHashMap<String, String> domainObjectFieldsOnColumnNamesMap) {
-        int numberOfColumns = domainObjectFieldsOnColumnNamesMap.keySet().size();
-        int columnWidth = (tableWidth / numberOfColumns);
-        for (String field : domainObjectFieldsOnColumnNamesMap.keySet()) {
-            Column<CollectionRowItem, String> column = buildNameColumn(field);
-            String columnName = domainObjectFieldsOnColumnNamesMap.get(field);
-            tableHeader.addColumn(column, columnName);
-            tableHeader.setColumnWidth(column, columnWidth + "px");
-            column.setDataStoreName(columnName);
-            tableBody.addColumn(column);
-            tableBody.setColumnWidth(column, columnWidth + "px");
-        }
-
-    }
-
-    private void insertRows(List<CollectionRowItem> list) {
-        tableBody.setRowData(items);
-        listCount = items.size();
-
-    }
-
-    private void insertMoreRows(List<CollectionRowItem> list) {
-
-        items.addAll(list);
-        tableBody.setRowData(items);
-    }
-
-    private void applyStyles() {
-        applyHeaderTableStyle();
-        applyBodyTableStyle();
-    }
-
-    private void applyHeaderTableStyle() {
-        tableHeader.setStyleName(adapter.getResources().cellTableStyle().docsCommonCelltableHeader());
-        tableHeader.setTableLayoutFixed(true);
-        headerPanel.setStyleName(adapter.getResources().cellTableStyle().docsCommonCelltableHeaderPanel());
-
-    }
-
-    private void applyBodyTableStyle() {
-        final CheckedSelectionModel<CollectionRowItem> selectionModel = new CheckedSelectionModel<CollectionRowItem>();
-        String emptyTableText = null;
-
-        HTML emptyTableWidget = new HTML("<br/><div align='center'> <h1> " + emptyTableText + " </h1> </div>");
-        emptyTableWidget.getElement().getStyle().setPaddingLeft(60, Style.Unit.PX);
-
-        tableBody.setRowStyles(new RowStyles<CollectionRowItem>() {
-            @Override
-            public String getStyleNames(CollectionRowItem row, int rowIndex) {
-                return adapter.getResources().cellTableStyle().docsCommonCelltableTrCommon();
-
+                tableController.columnWindowResize(columnMinWidth(tableWidth / tableHeader.getColumnCount()));
+                scrollTableBody.setHeight(tableHeight + "px");
             }
         });
-        tableBody.setStyleName(adapter.getResources().cellTableStyle().docsCommonCelltableBody());
-
-        tableBody.setEmptyTableWidget(emptyTableWidget);
-        tableBody.setSelectionModel(selectionModel);
-        tableBody.setTableLayoutFixed(true);
-
     }
-
-    public ScrollPanel getScrollTableBody() {
-        return scrollTableBody;
-    }
-
-    public void setEventBus(EventBus eventBus) {
-        this.eventBus = eventBus;
-    }
-
 }
 

@@ -16,11 +16,12 @@ import java.util.ArrayList;
  *         Time: 17:54
  */
 public class WidgetContext implements Dto {
-    private static final FieldPath NOT_INITIALIZED_FIELD_PATH = new FieldPath("+");
+    private static final FieldPath[] NOT_INITIALIZED_FIELD_PATHS = new FieldPath[0];
+    private static final FieldPath[] EMPTY_PATHS = new FieldPath[1];
 
     private WidgetConfig widgetConfig;
     private FormObjects formObjects;
-    private transient FieldPath fieldPath = NOT_INITIALIZED_FIELD_PATH;
+    private transient FieldPath[] fieldPaths = NOT_INITIALIZED_FIELD_PATHS;
 
     public WidgetContext() {
     }
@@ -46,22 +47,21 @@ public class WidgetContext implements Dto {
         this.formObjects = formObjects;
     }
 
-    public FieldPath getFieldPath() {
-        if (fieldPath != NOT_INITIALIZED_FIELD_PATH) {
-            return fieldPath;
+    public FieldPath[] getFieldPaths() {
+        if (fieldPaths != NOT_INITIALIZED_FIELD_PATHS) {
+            return fieldPaths;
         }
         FieldPathConfig fieldPathConfig = widgetConfig.getFieldPathConfig();
         if (fieldPathConfig == null) {
-            fieldPath = null;
-            return null;
+            fieldPaths = EMPTY_PATHS;
+            return fieldPaths;
         }
-        String fieldPathConfigValue = fieldPathConfig.getValue();
-        fieldPath = fieldPathConfigValue == null ? null : new FieldPath(fieldPathConfigValue);
-        return fieldPath;
+        fieldPaths = FieldPath.createPaths(fieldPathConfig.getValue());
+        return fieldPaths;
     }
 
     public <T extends Value> T getValue() {
-        return (T) formObjects.getFieldValue(getFieldPath());
+        return (T) formObjects.getFieldValue(getFieldPaths()[0]);
     }
 
     public <T> T getFieldPlainValue() {
@@ -70,6 +70,11 @@ public class WidgetContext implements Dto {
     }
 
     public ArrayList<Id> getObjectIds() {
-        return formObjects.getObjectIds(getFieldPath());
+        ArrayList<Id> result = new ArrayList<Id>();
+        FieldPath[] fieldPaths = getFieldPaths();
+        for (FieldPath fieldPath : fieldPaths) {
+            result.addAll(formObjects.getObjectIds(fieldPath));
+        }
+        return result;
     }
 }

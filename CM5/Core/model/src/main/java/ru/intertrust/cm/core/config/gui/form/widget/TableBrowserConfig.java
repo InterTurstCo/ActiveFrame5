@@ -33,6 +33,15 @@ public class TableBrowserConfig extends WidgetConfig {
     @Element(name = "page-size", required = false)
     private Integer pageSize;
 
+    @Element(name = "display-chosen-values", required = false)
+    private DisplayChosenValuesConfig displayChosenValues;
+
+    @Element(name = "selection-style", required = false)
+    private SelectionStyleConfig selectionStyleConfig;
+
+    @Element(name = "single-choice", required = false)
+    private SingleChoiceConfig singleChoice;
+
     public CollectionViewRefConfig getCollectionViewRefConfig() {
         return collectionViewRefConfig;
     }
@@ -89,6 +98,30 @@ public class TableBrowserConfig extends WidgetConfig {
         this.pageSize = pageSize;
     }
 
+    public DisplayChosenValuesConfig getDisplayChosenValues() {
+        return displayChosenValues;
+    }
+
+    public void setDisplayChosenValues(DisplayChosenValuesConfig displayChosenValues) {
+        this.displayChosenValues = displayChosenValues;
+    }
+
+    public SelectionStyleConfig getSelectionStyleConfig() {
+        return selectionStyleConfig;
+    }
+
+    public void setSelectionStyleConfig(SelectionStyleConfig selectionStyleConfig) {
+        this.selectionStyleConfig = selectionStyleConfig;
+    }
+
+    public SingleChoiceConfig getSingleChoice() {
+        return singleChoice;
+    }
+
+    public void setSingleChoice(SingleChoiceConfig singleChoice) {
+        this.singleChoice = singleChoice;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -131,13 +164,26 @@ public class TableBrowserConfig extends WidgetConfig {
                 that.selectionPatternConfig != null) {
             return false;
         }
+        if (displayChosenValues != null ? !displayChosenValues.equals(that.displayChosenValues) :
+                that.displayChosenValues != null) {
+            return false;
+        }
 
+        if (selectionStyleConfig != null ? !selectionStyleConfig.equals(that.selectionStyleConfig) :
+                that.selectionPatternConfig != null) {
+            return false;
+        }
+        if (selectionStyleConfig != null ? !selectionStyleConfig.equals(that.selectionStyleConfig) :
+                that.selectionPatternConfig != null) {
+            return false;
+        }
         return true;
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
+        result = 31 * result + (singleChoice != null ? singleChoice.hashCode() : 0);
         result = 31 * result + (collectionViewRefConfig != null ? collectionViewRefConfig.hashCode() : 0);
         result = 31 * result + (collectionRefConfig != null ? collectionRefConfig.hashCode() : 0);
         result = 31 * result + (selectionFilterConfig != null ? selectionFilterConfig.hashCode() : 0);
@@ -145,6 +191,8 @@ public class TableBrowserConfig extends WidgetConfig {
         result = 31 * result + (selectionPatternConfig != null ? selectionPatternConfig.hashCode() : 0);
         result = 31 * result + (inputTextFilterConfig != null ? inputTextFilterConfig.hashCode() : 0);
         result = 31 * result + (pageSize != null ? pageSize.hashCode() : 0);
+        result = 31 * result + (displayChosenValues != null ? displayChosenValues.hashCode() : 0);
+        result = 31 * result + (selectionStyleConfig != null ? selectionStyleConfig.hashCode() : 0);
         return result;
     }
 

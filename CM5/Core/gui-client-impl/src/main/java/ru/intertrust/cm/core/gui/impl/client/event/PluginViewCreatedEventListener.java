@@ -5,6 +5,6 @@ package ru.intertrust.cm.core.gui.impl.client.event;
  *         Date: 29.10.13
  *         Time: 19:46
  */
-public interface SizeChangedEventListener {
+public interface PluginViewCreatedEventListener {
     void onViewCreation(PluginViewCreatedEvent source);
 }

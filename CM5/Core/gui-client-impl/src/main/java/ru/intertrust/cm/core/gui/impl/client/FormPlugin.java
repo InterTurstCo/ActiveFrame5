@@ -4,8 +4,9 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.SizeChangedEventListener;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
@@ -19,8 +20,9 @@ import java.util.Map;
  *         Time: 15:28
  */
 @ComponentName("form.plugin")
-public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor {
-
+public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor, PluginPanelSizeChangedEventHandler {
+     private int temporaryWidth;
+     private int temporaryHeight;
     // поле для локальной шины событий
     protected EventBus eventBus;
 
@@ -35,6 +37,22 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
     }
 
     public FormPlugin() {
+    }
+
+    public int getTemporaryWidth() {
+        return temporaryWidth;
+    }
+
+    public void setTemporaryWidth(int temporaryWidth) {
+        this.temporaryWidth = temporaryWidth;
+    }
+
+    public int getTemporaryHeight() {
+        return temporaryHeight;
+    }
+
+    public void setTemporaryHeight(int temporaryHeight) {
+        this.temporaryHeight = temporaryHeight;
     }
 
     @Override
@@ -68,7 +86,7 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
         final FormPlugin newPlugin = ComponentRegistry.instance.get("form.plugin");
         newPlugin.setConfig(formPluginConfig);
         getOwner().open(newPlugin);
-        newPlugin.addViewCreatedListener(new SizeChangedEventListener() {
+        newPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {
             @Override
             public void onViewCreation(PluginViewCreatedEvent source) {
                 eventBus.fireEvent(new PluginPanelSizeChangedEvent());
@@ -92,5 +110,9 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
         FormPluginData initialData = getInitialData();
         initialData.getFormDisplayData().setFormState(formState);
     }
+    @Override
+    public void updateSizes() {
+      getView().onPluginPanelResize();
 
+    }
 }

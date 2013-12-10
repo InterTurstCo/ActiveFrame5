@@ -22,7 +22,9 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
 
     public GenericIdentifiableObjectCollection() {
     }
+    
 
+    //TODO Удалить после исправления JdbcDatabaseMetaData.java
     @Override
     public void setFields(List<String> fields) {
         if (this.fields != null) {
@@ -43,7 +45,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
     @Override
     public void setFieldsConfiguration(List<FieldConfig> fieldConfigs) {
         if (this.fieldConfigs != null) {
-            throw new IllegalArgumentException("Collection fields are already set");
+            throw new IllegalArgumentException("Collection field configs are already set");
         }
         if (fieldConfigs == null) {
             this.fieldConfigs = new ArrayList<FieldConfig>(0);
@@ -103,7 +105,16 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
 
     @Override
     public ArrayList<String> getFields() {
-        return fields == null ? new ArrayList<String>(0) : new ArrayList<String>(fields);
+        if (this.fields == null) {
+            ArrayList<String> fieldNames = new ArrayList<String>();
+
+            for (FieldConfig fieldConfig : fieldConfigs) {
+                fieldNames.add(fieldConfig.getName());
+            }
+
+            this.fields = fieldNames;
+        }
+        return this.fields;
     }
 
     @Override
@@ -124,9 +135,6 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
-        for (String field : getFields()) {
-
-        }
         for (IdentifiableObject obj : this) {
             result.append(ModelUtil.getTableRowDescription(obj)).append('\n');
         }
@@ -149,8 +157,8 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
     }
 
     private IdentifiableObject createObjectByTemplate() {
-        if (fields == null) {
-            setFields(Collections.<String>emptyList());
+        if (fieldConfigs == null) {
+            setFieldsConfiguration(new ArrayList<FieldConfig>(0));
         }
         return new FastIdentifiableObjectImpl(this);
     }
@@ -169,7 +177,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
 
         private FastIdentifiableObjectImpl(IdentifiableObjectCollection collection) {
             this.collection = collection;
-            int fieldsSize = collection.getFields().size();
+            int fieldsSize = collection.getFieldsConfiguration().size();
             fieldValues = new ArrayList<Value>(fieldsSize);
             for (int i = 0; i < fieldsSize; ++i) {
                 fieldValues.add(null);
