@@ -48,9 +48,8 @@ public class OnAfterSaveInternalDocument implements AfterSaveExtensionHandler {
 
     @Override
     public void onAfterSave(DomainObject domainObject, List<FieldModification> changedFields) {
-        //Не обрабатываем новые объекты или в случае если статус не менялся
         FieldModification fieldModification = getChangeState(changedFields);
-        
+        //Не обрабатываем новые объекты или в случае если статус не менялся        
         if (domainObject.getId() != null && fieldModification != null) {
 
             AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());

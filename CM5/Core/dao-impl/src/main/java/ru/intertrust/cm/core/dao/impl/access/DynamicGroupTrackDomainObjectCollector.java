@@ -127,7 +127,7 @@ public class DynamicGroupTrackDomainObjectCollector extends BaseDynamicGroupServ
             if (groups) {
                 result = getDynGroups(result, trackDomainObjects.getGetGroup().getGroupName());
             }
-        }
+        }        
         return result;
     }
 

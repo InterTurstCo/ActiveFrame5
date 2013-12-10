@@ -58,16 +58,16 @@ public class EmployeeBosses extends DynamicGroupCollectorBase implements Dynamic
     @Override
     public List<Id> getInvalidContexts(DomainObject domainObject, List<FieldModification> modifiedFields) {
         List<Id> result = new ArrayList<Id>();
-        if (domainObject.getTypeName().equals("Organization") && containsModifiedField(modifiedFields, "Boss")) {
+        if (domainObject.getTypeName().equalsIgnoreCase("Organization") && containsModifiedField(modifiedFields, "Boss")) {
             result.addAll(getIdsByQuery("select e.id from Employee e inner join Department d on (e.department = d.id) where d.organization = "
                     + ((RdbmsId) domainObject.getId()).getId()));
-        } else if (domainObject.getTypeName().equals("Department") &&
+        } else if (domainObject.getTypeName().equalsIgnoreCase("Department") &&
                 (containsModifiedField(modifiedFields, "Boss") ||
                         containsModifiedField(modifiedFields, "ParentDepartment") ||
                 containsModifiedField(modifiedFields, "Organization"))) {
             result.addAll(getIdsByQuery("select e.id from Employee e where e.department = "
                     + ((RdbmsId) domainObject.getId()).getId()));
-        } else if (domainObject.getTypeName().equals("Employee") &&
+        } else if (domainObject.getTypeName().equalsIgnoreCase("Employee") &&
                 (containsModifiedField(modifiedFields, "Department"))) {
             result.add(domainObject.getId());
         }

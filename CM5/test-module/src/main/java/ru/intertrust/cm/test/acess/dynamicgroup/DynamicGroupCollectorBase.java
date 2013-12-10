@@ -66,7 +66,7 @@ public class DynamicGroupCollectorBase {
             List<FieldModification> modifiedFieldNames, String fieldName) {
         if (modifiedFieldNames != null) {
             for (FieldModification fieldModification : modifiedFieldNames) {
-                if (fieldModification.getName().equals(fieldName)) {
+                if (fieldModification.getName().equalsIgnoreCase(fieldName)) {
                     return true;
                 }
             }
