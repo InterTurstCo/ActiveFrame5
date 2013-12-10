@@ -39,13 +39,12 @@ public class FacebookStyleView implements IsWidget {
 
     public void removeChosenItem(Id id) {
 
-        for (TableBrowserRowItem chosenItem : chosenItems) {
+        for (TableBrowserRowItem chosenItem : new ArrayList<TableBrowserRowItem>(chosenItems)) {
             if (chosenItem.getId().equals(id)) {
                 chosenItems.remove(chosenItem);
             }
         }
     }
-
 
     public ArrayList<TableBrowserRowItem> getChosenItems() {
         return chosenItems;
