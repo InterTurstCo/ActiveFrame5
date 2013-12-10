@@ -9,7 +9,7 @@
     <parent>
         <groupId>ru.intertrust.cm-sochi</groupId>
         <artifactId>cm-sochi</artifactId>
-        <version>0.5.1-2-SNAPSHOT</version>
+        <version>0.5.2</version>
     </parent>
 
     <properties>
@@ -189,9 +189,9 @@
                                                         <properties>
                                                             <login-modules>
                                                             !![
-                                                            {"code"=>"org.jboss.security.ClientLoginModule","flag"=>"optional"},
-                                                            {"code"=>"Remoting","flag"=>"optional","module-options"=>[("password-stacking"=>"useFirstPass")]},
-                                                            {"code"=>"Database","flag"=>"required","module-options"=>[("dsJndiName"=>"java:jboss/datasources/CM5"),("principalsQuery"=>"SELECT info.password from authentication_info info where info.user_uid = ?"),("rolesQuery"=>"SELECT 'cm_user', 'Roles' from authentication_info where user_uid = ?"),("hashAlgorithm"=>"MD5"),("hashEncoding"=>"hex")]}
+                                                            {"code"=&gt;"org.jboss.security.ClientLoginModule","flag"=&gt;"optional"},
+                                                            {"code"=&gt;"Remoting","flag"=&gt;"optional","module-options"=&gt;[("password-stacking"=&gt;"useFirstPass")]},
+                                                            {"code"=&gt;"Database","flag"=&gt;"required","module-options"=&gt;[("dsJndiName"=&gt;"java:jboss/datasources/CM5"),("principalsQuery"=&gt;"SELECT info.password from authentication_info info where info.user_uid = ?"),("rolesQuery"=&gt;"SELECT 'cm_user', 'Roles' from authentication_info where user_uid = ?"),("hashAlgorithm"=&gt;"MD5"),("hashEncoding"=&gt;"hex")]}
                                                             ]
                                                             </login-modules>
                                                         </properties>
