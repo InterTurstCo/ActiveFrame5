@@ -52,7 +52,7 @@ public class PostgreSqlQueryHelper {
      * @return запрос для создания последовательности для domain_object_type_id
      */
     public static String generateCreateDomainObjectTypeIdSequenceQuery() {
-        return "create sequence " + wrap(getSqlSequenceName(DOMAIN_OBJECT_TYPE_ID_TABLE)) + " start 10001";
+        return "create sequence " + wrap(getSqlSequenceName(DOMAIN_OBJECT_TYPE_ID_TABLE)) + " start 1001";
     }
 
     /**
