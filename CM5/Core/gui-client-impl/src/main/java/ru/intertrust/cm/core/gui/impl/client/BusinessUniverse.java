@@ -32,7 +32,7 @@ import java.util.logging.Logger;
 public class BusinessUniverse extends BaseComponent implements EntryPoint, NavigationTreeItemSelectedEventHandler {
     static Logger logger = Logger.getLogger("Business universe");
     // глобальная шина событий - доступна во всем приложении
-    private static EventBus eventBus = Application.getInstance().getEventBus(); //GWT.create(SimpleEventBus.class);
+    private static EventBus eventBus = Application.getInstance().getEventBus();
     private PluginPanel centralPluginPanel;
     NavigationTreePlugin navigationTreePlugin;
     PluginPanel navigationTreePanel;
