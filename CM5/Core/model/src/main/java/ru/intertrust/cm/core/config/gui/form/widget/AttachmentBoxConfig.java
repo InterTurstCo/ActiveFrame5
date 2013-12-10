@@ -17,6 +17,9 @@ public class AttachmentBoxConfig extends WidgetConfig  {
     @Element(name = "scanner")
     private ScannerConfig scanner;
 
+    @Element(name = "selection-style")
+    private SelectionStyleConfig selectionStyle;
+
     public AttachmentTypeRefConfig getAttachmentType() {
         return attachmentType;
     }
@@ -31,6 +34,14 @@ public class AttachmentBoxConfig extends WidgetConfig  {
 
     public void setScanner(ScannerConfig scanner) {
         this.scanner = scanner;
+    }
+
+    public SelectionStyleConfig getSelectionStyle() {
+        return selectionStyle;
+    }
+
+    public void setSelectionStyle(SelectionStyleConfig selectionStyle) {
+        this.selectionStyle = selectionStyle;
     }
 
     @Override
@@ -55,6 +66,9 @@ public class AttachmentBoxConfig extends WidgetConfig  {
         if (scanner != null ? !scanner.equals(that.scanner) : that.scanner != null) {
             return false;
         }
+        if (selectionStyle != null ? !selectionStyle.equals(that.selectionStyle) : that.selectionStyle != null) {
+            return false;
+        }
 
         return true;
     }
@@ -64,7 +78,7 @@ public class AttachmentBoxConfig extends WidgetConfig  {
         int result = super.hashCode();
         result = 31 * result + (attachmentType != null ? attachmentType.hashCode() : 0);
         result = 31 * result + (scanner != null ? scanner.hashCode() : 0);
-
+        result = 31 * result + (selectionStyle != null ? selectionStyle.hashCode() : 0);
         return result;
     }
 

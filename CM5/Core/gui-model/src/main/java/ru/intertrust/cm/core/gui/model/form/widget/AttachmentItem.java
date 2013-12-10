@@ -8,7 +8,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
  *         Date: 24.10.13
  *         Time: 13:15
  */
-public class AttachmentModel implements Dto {
+public class AttachmentItem implements Dto {
 
     private String name;
     private String temporaryName;
@@ -65,7 +65,7 @@ public class AttachmentModel implements Dto {
             return false;
         }
 
-        AttachmentModel that = (AttachmentModel) o;
+        AttachmentItem that = (AttachmentItem) o;
 
         if (description != null ? !description.equals(that.description) : that.description != null) {
             return false;

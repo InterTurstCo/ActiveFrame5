@@ -1272,6 +1272,8 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:attachmentTypeRefType"
                         name="attachment-type-ref" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:selectionStyleType"
+                        name="selection-style" xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:choice>
         <xs:attribute type="xs:string" name="id" use="required"/>
     </xs:complexType>

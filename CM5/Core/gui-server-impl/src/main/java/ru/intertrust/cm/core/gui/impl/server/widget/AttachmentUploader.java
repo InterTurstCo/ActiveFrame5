@@ -85,7 +85,6 @@ public class AttachmentUploader {
             }
 
         }
-
     }
 
     public static AttachmentUploadPercentage getUploadProgress(HttpSession session) {

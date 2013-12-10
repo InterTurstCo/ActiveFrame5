@@ -18,7 +18,7 @@ import ru.intertrust.cm.core.gui.model.GuiUtil;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.MultiObjectNode;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentBoxState;
-import ru.intertrust.cm.core.gui.model.form.widget.AttachmentModel;
+import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.io.*;
@@ -48,30 +48,30 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
     public AttachmentBoxState getInitialState(WidgetContext context) {
         AttachmentBoxConfig widgetConfig = context.getWidgetConfig();
         FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
-
-        List<AttachmentModel> savedAttachments = new ArrayList<AttachmentModel>();
+        String selectionStyle = widgetConfig.getSelectionStyle().getName();
+        List<AttachmentItem> savedAttachments = new ArrayList<AttachmentItem>();
 
         MultiObjectNode node = (MultiObjectNode) context.getFormObjects().getNode(fieldPath);
         for (DomainObject object : node) {
-            AttachmentModel attachmentModel = new AttachmentModel();
-            attachmentModel.setName(object.getString(ATTACHMENT_NAME));
-            attachmentModel.setDescription(object.getString(ATTACHMENT_DESCRIPTION));
+            AttachmentItem attachmentItem = new AttachmentItem();
+            attachmentItem.setName(object.getString(ATTACHMENT_NAME));
+            attachmentItem.setDescription(object.getString(ATTACHMENT_DESCRIPTION));
             Long contentLength = object.getLong(ATTACHMENT_CONTENT_LENGTH);
             String humanReadableContentLength = GuiUtil.humanReadableByteCount(contentLength);
-            attachmentModel.setContentLength(humanReadableContentLength);
-            attachmentModel.setId(object.getId());
-            savedAttachments.add(attachmentModel);
+            attachmentItem.setContentLength(humanReadableContentLength);
+            attachmentItem.setId(object.getId());
+            savedAttachments.add(attachmentItem);
         }
 
         AttachmentBoxState result = new AttachmentBoxState();
         result.setAttachments(savedAttachments);
-
+        result.setSelectionStyle(selectionStyle);
         return result;
     }
 
     public void saveNewObjects(WidgetContext context, WidgetState state) {
         AttachmentBoxState attachmentBoxState = (AttachmentBoxState) state;
-        List<AttachmentModel> attachmentModels = attachmentBoxState.getAttachments();
+        List<AttachmentItem> attachmentItems = attachmentBoxState.getAttachments();
         DomainObject domainObject = context.getFormObjects().getRootNode().getDomainObject();
 
         AttachmentBoxConfig widgetConfig = context.getWidgetConfig();
@@ -79,15 +79,15 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
         FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
         String parentLinkFieldName = fieldPath.getLinkToParentName();
 
-        for (AttachmentModel attachmentModel : attachmentModels) {
-            if (attachmentModel.getId() != null) {
+        for (AttachmentItem attachmentItem : attachmentItems) {
+            if (attachmentItem.getId() != null) {
                 continue;
             }
             GlobalSettingsConfig globalSettingsConfig = configurationExplorer.getGlobalSettings();
             AttachmentUploadTempStorageConfig attachmentUploadTempStorageConfig = globalSettingsConfig.
                     getAttachmentUploadTempStorageConfig();
             String pathForTempFilesStore = attachmentUploadTempStorageConfig.getPath();
-            String filePath = pathForTempFilesStore + attachmentModel.getTemporaryName();
+            String filePath = pathForTempFilesStore + attachmentItem.getTemporaryName();
             File fileToSave = new File(filePath);
             long contentLength = fileToSave.length();
             try
@@ -95,8 +95,8 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
                      RemoteInputStreamServer remoteFileData = new SimpleRemoteInputStream(fileData)) {
                 DomainObject attachmentDomainObject = attachmentService.
                         createAttachmentDomainObjectFor(domainObject.getId(), attachmentType);
-                attachmentDomainObject.setValue(ATTACHMENT_NAME, new StringValue(attachmentModel.getName()));
-                attachmentDomainObject.setValue(ATTACHMENT_DESCRIPTION, new StringValue(attachmentModel.
+                attachmentDomainObject.setValue(ATTACHMENT_NAME, new StringValue(attachmentItem.getName()));
+                attachmentDomainObject.setValue(ATTACHMENT_DESCRIPTION, new StringValue(attachmentItem.
                         getDescription()));
                 String mimeType = Files.probeContentType(Paths.get(filePath));
                 mimeType = mimeType == null ? "undefined" : mimeType;

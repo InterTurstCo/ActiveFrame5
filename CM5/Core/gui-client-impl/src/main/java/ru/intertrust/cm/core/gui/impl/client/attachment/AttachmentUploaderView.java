@@ -7,7 +7,9 @@ import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.*;
-import ru.intertrust.cm.core.gui.model.form.widget.AttachmentModel;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.AttachmentBoxWidget;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.DownloadAttachmentHandler;
+import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 
 import java.util.List;
 
@@ -17,16 +19,19 @@ import java.util.List;
  *         Time: 13:15
  */
 public class AttachmentUploaderView extends Composite {
-
-    private VerticalPanel attachmentsPanel;
+    private static final String DISPLAY_STYLE_INLINE = "inline";
+    private static final String DISPLAY_STYLE_TABLE = "table";
+    private AbsolutePanel mainBoxPanel;
+    private AbsolutePanel root;
+    private Style.Display displayStyle;
+    private String selectionStyle;
+    private Image progressbar;
+    private Label percentage;
     private Image addFile;
     private FileUpload fileUpload;
     private FormPanel submitForm;
-    private int widgetWidth;
-    private int partWidth;
-    private UploaderProgressBar uploaderProgressBar;
-    private List<AttachmentModel> attachments;
-    private VerticalPanel root;
+
+    private List<AttachmentItem> attachments;
 
     public AttachmentUploaderView() {
         init();
@@ -37,34 +42,24 @@ public class AttachmentUploaderView extends Composite {
      *
      * @param attachments
      */
-    public AttachmentUploaderView(List<AttachmentModel> attachments) {
+    public AttachmentUploaderView(List<AttachmentItem> attachments) {
         this.attachments = attachments;
         init();
     }
 
-    public UploaderProgressBar getUploaderProgressBar() {
-        return uploaderProgressBar;
-    }
-
-
     public FormPanel getSubmitForm() {
         return submitForm;
-    }
-
-    public void adjustWidgetSizes(int widgetWidth) {
-        this.widgetWidth = widgetWidth;
-        partWidth = widgetWidth / 2;
     }
 
     public FileUpload getFileUpload() {
         return fileUpload;
     }
 
-    public List<AttachmentModel> getAttachments() {
+    public List<AttachmentItem> getAttachments() {
         return attachments;
     }
 
-    public void setAttachments(List<AttachmentModel> attachments) {
+    public void setAttachments(List<AttachmentItem> attachments) {
         this.attachments = attachments;
     }
 
@@ -76,68 +71,102 @@ public class AttachmentUploaderView extends Composite {
         submitForm.addSubmitHandler(submitHandler);
     }
 
+    public Label getPercentage() {
+        return percentage;
+    }
+
+    public Image getProgressbar() {
+        return progressbar;
+    }
+
+    public String getSelectionStyle() {
+        return selectionStyle;
+    }
+
+    public void setSelectionStyle(String selectionStyle) {
+        this.selectionStyle = selectionStyle;
+    }
+
     /**
      * Инициализация частей составного виджета
      */
     private void init() {
-        root = new VerticalPanel();
+        root = new AbsolutePanel();
+        mainBoxPanel = new AbsolutePanel();
+        mainBoxPanel.setStyleName("facebook-main-box");
 
-        attachmentsPanel = new VerticalPanel();
         initSubmitForm();
         initFileUpload();
 
         initUploadButton();
         root.add(addFile);
         submitForm.add(fileUpload);
-
         root.add(submitForm);
-        root.add(attachmentsPanel);
+        root.add(mainBoxPanel);
         initWidget(root);
     }
 
-    /**
-     * Cоздает строку-отображение состояния выгрузки прикрекпления
-     *
-     * @param model        модель прикрепления
-     * @param deleteButton кнопка для удаления отображения и отмены выгрузки
-     * @param anchor       линк для скачивания прикрепления, в случаи еще не сохраненного прикрепления - null
-     */
-    public void addRowWithAttachment(AttachmentModel model, Image deleteButton, Anchor anchor) {
 
-        HorizontalPanel horizontalPanel = new HorizontalPanel();
+    public void displayAttachmentItem(final AttachmentItem item, AttachmentBoxWidget.CancelUploadAttachmentHandler handler) {
+        final AbsolutePanel element = new AbsolutePanel();
 
-        HorizontalPanel rightSide = new HorizontalPanel();
-        HorizontalPanel leftSide = new HorizontalPanel();
+        element.setStyleName("facebook-element");
+        Label label = new Label(item.getName());
+        label.setStyleName("facebook-label");
+        progressbar = new Image();
+        progressbar.setUrl("CMJSpinner.gif");
+        percentage = new Label("0%");
+        FocusPanel delBtn = new FocusPanel();
+        delBtn.addStyleName("facebook-btn");
+        delBtn.getElement().getStyle().setPadding(2, Style.Unit.PX);
+        delBtn.getElement().getStyle().setBackgroundColor("red");
 
-        rightSide.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
-        rightSide.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-        rightSide.setWidth(partWidth + "px");
-        leftSide.setWidth(partWidth + "px");
-        Image stylizedDeleteButton = stylizeDeleteButton(deleteButton);
-        if (model.getId() == null) {
-            Label fileNameLabel = initLabel(model);
-            leftSide.add(fileNameLabel);
-            int imageWidth = stylizedDeleteButton.getWidth();
-            uploaderProgressBar = new UploaderProgressBar(partWidth - imageWidth - 10);
-            rightSide.add(uploaderProgressBar);
+        delBtn.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                attachments.remove(item);
+                element.removeFromParent();
+            }
+        });
+        delBtn.addClickHandler(handler);
+        element.add(label);
+        element.add(progressbar);
+        element.add(percentage);
+        element.add(delBtn);
+        mainBoxPanel.add(element);
+    }
 
-        } else {
+    public void displayAttachmentLinkItem(final AttachmentItem item) {
+        final AbsolutePanel element = new AbsolutePanel();
 
-            leftSide.add(stylizeAnchor(anchor));
-        }
+        element.setStyleName("facebook-element");
+        String contentLength = item.getContentLength();
 
-        rightSide.add(stylizedDeleteButton);
-        horizontalPanel.add(leftSide);
-        horizontalPanel.add(rightSide);
-        attachmentsPanel.add(horizontalPanel);
+        String anchorTitle = contentLength == null ? item.getName() : item.getName() + " (" + item.getContentLength() + ")";
+        Anchor fileNameAnchor = new Anchor(anchorTitle);
+        fileNameAnchor.addClickHandler(new DownloadAttachmentHandler(item));
+        FocusPanel delBtn = new FocusPanel();
+        delBtn.addStyleName("facebook-btn");
+        delBtn.getElement().getStyle().setPadding(2, Style.Unit.PX);
+        delBtn.getElement().getStyle().setBackgroundColor("red");
 
+        delBtn.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                attachments.remove(item);
+                element.removeFromParent();
+            }
+        });
+        element.add(fileNameAnchor);
+        element.add(delBtn);
+        mainBoxPanel.add(element);
     }
 
     /**
      * Удаляет все прикрепления из отображения
      */
     public void cleanUp() {
-        attachmentsPanel.clear();
+        mainBoxPanel.clear();
     }
 
     private void initFileUpload() {
@@ -158,12 +187,10 @@ public class AttachmentUploaderView extends Composite {
 
     private void initSubmitForm() {
         submitForm = new FormPanel();
-
         submitForm.setAction("http://127.0.0.1:8080/cm-sochi/attachment-upload");
         // set form to use the POST method, and multipart MIME encoding.
         submitForm.setEncoding(FormPanel.ENCODING_MULTIPART);
         submitForm.setMethod(FormPanel.METHOD_POST);
-
 
     }
 
@@ -171,7 +198,6 @@ public class AttachmentUploaderView extends Composite {
         addFile = new Image("add-button.png");
         Style style = addFile.getElement().getStyle();
         style.setMarginBottom(10, Style.Unit.PX);
-
         addFile.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -181,31 +207,16 @@ public class AttachmentUploaderView extends Composite {
         });
     }
 
-    private Label initLabel(AttachmentModel model) {
+    public void initDisplayStyle(String howToDisplay) {
 
-        Label fileNameLabel = new Label(model.getName());
-        Style style = fileNameLabel.getElement().getStyle();
-        style.setOverflow(Style.Overflow.HIDDEN);
-        style.setFontSize(98, Style.Unit.PCT);
+        if (DISPLAY_STYLE_INLINE.equalsIgnoreCase(howToDisplay)) {
+            displayStyle = Style.Display.INLINE_BLOCK;
+        }
+        if (DISPLAY_STYLE_TABLE.equalsIgnoreCase(howToDisplay)) {
+            displayStyle = Style.Display.BLOCK;
+        }
 
-        return fileNameLabel;
-    }
-
-    private Anchor stylizeAnchor(Anchor fileNameAnchor) {
-
-        Style style = fileNameAnchor.getElement().getStyle();
-        style.setOverflow(Style.Overflow.HIDDEN);
-        style.setMarginLeft(20, Style.Unit.PX);
-        fileNameAnchor.setWidth(partWidth + "px");
-
-        return fileNameAnchor;
-    }
-
-    private Image stylizeDeleteButton(Image deleteButton) {
-        deleteButton.setUrl("button_cancel.png");
-        deleteButton.getElement().getStyle().setVerticalAlign(Style.VerticalAlign.MIDDLE);
-
-        return deleteButton;
+        mainBoxPanel.getElement().getStyle().setDisplay(displayStyle);
     }
 
 }
