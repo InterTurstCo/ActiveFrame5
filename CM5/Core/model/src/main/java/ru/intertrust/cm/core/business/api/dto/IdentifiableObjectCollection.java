@@ -20,6 +20,11 @@ public interface IdentifiableObjectCollection extends Iterable<IdentifiableObjec
 
     void set(int fieldIndex, int row, Value value);
 
+    // TODO Удалить после иcправления JdbcDatabaseMetaData.java
+    @Deprecated
+    // todo: drop in next release
+    void setFields(List<String> fields);
+    
     /**
      * @deprecated todo review
      * @param field
