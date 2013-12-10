@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Map;
 
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
-import static ru.intertrust.cm.core.dao.impl.SqlQueryModifier.buildColumnToConfigMap;
-import static ru.intertrust.cm.core.dao.impl.SqlQueryModifier.wrapAndLowerCaseNames;
+import static ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier.buildColumnToConfigMap;
+import static ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier.wrapAndLowerCaseNames;
 
 /**
  * @author vmatsukevich

@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.dao.impl;
+package ru.intertrust.cm.core.dao.impl.sqlparser;
 
 
 import net.sf.jsqlparser.expression.Expression;
@@ -59,12 +59,11 @@ public class SqlQueryModifier {
     }
 
     public static String wrapAndLowerCaseNames(String query) {
-        return processQuery(query, new QueryProcessor() {
-            @Override
-            protected void processPlainSelect(PlainSelect plainSelect) {
-                wrapAndLowerCaseNamesInPlainSelect(plainSelect);
-            }
-        });
+        SqlQueryParser sqlParser = new SqlQueryParser(query);
+        SelectBody selectBody = sqlParser.getSelectBody();
+
+        selectBody.accept(new WrapAndLowerCaseSelectVisitor());
+        return selectBody.toString();
     }
 
     public String addIdBasedFilters(String query, final List<Filter> filterValues, final String idField) {
@@ -276,22 +275,6 @@ public class SqlQueryModifier {
         idNotEqualsTo.setLeftExpression(new Column(table, columnName));
         idNotEqualsTo.setRightExpression(jdbcNamedParameter);
         return idNotEqualsTo;
-    }
-
-    private static void wrapAndLowerCaseNamesInPlainSelect(PlainSelect plainSelect) {
-        Table fromItem = (Table) plainSelect.getFromItem();
-        fromItem.setName(wrap(fromItem.getName().toLowerCase()));
-
-
-        for (Object selectItem : plainSelect.getSelectItems()) {
-            if (!(selectItem instanceof SelectExpressionItem)) {
-                continue;
-            }
-
-            SelectExpressionItem selectExpressionItem = (SelectExpressionItem) selectItem;
-            Column column = (Column) selectExpressionItem.getExpression();
-            column.setColumnName(wrap(column.getColumnName().toLowerCase()));
-        }
     }
 
     /**

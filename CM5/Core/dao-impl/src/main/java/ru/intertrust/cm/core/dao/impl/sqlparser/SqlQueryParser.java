@@ -1,6 +1,4 @@
-package ru.intertrust.cm.core.dao.impl;
-
-import java.io.StringReader;
+package ru.intertrust.cm.core.dao.impl.sqlparser;
 
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserManager;
@@ -9,6 +7,8 @@ import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectBody;
 import ru.intertrust.cm.core.dao.exception.CollectionQueryException;
 import ru.intertrust.cm.core.model.FatalException;
+
+import java.io.StringReader;
 
 /**
  * Парсер SQL запросов. Парсит только Select запросы. При передачи ему другого типа запроса выбрасывает исключение

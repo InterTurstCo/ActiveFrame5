@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.config.GlobalSettingsConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
+import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
 
 import java.util.Arrays;
 
@@ -58,6 +59,20 @@ public class SqlQueryModifierTest {
             "FROM EMPLOYEE_read AS r INNER JOIN group_member AS gm ON r.group_id = gm.usergroup WHERE " +
             "gm.person_id = :user_id AND r.object_id = id) AND 1 = 1 AND e.id = 2)";
 
+    private static final String WRAP_AND_LOWERCASE_QUERY = "SELECT module.Id, module.type_id " +
+            "FROM SS_MODULE AS module " +
+            "JOIN SS_ModuleType AS type ON type.id = module.Type " +
+            "JOIN SS_ModuleOrg AS org ON org.Module = module.id " +
+            "JOIN SS_ModuleOrg AS org2 ON org2.Organization = org.Organization " +
+            "WHERE 1 = 1 AND type.Name = ? AND org2.Module = ? AND type.Name = ? AND org2.Module = ?";
+
+    private static final String WRAP_AND_LOWERCASE_CHECK_QUERY = "SELECT module.\"id\", module.\"type_id\" " +
+            "FROM \"ss_module\" AS module " +
+            "JOIN \"ss_moduletype\" AS type ON type.\"id\" = module.\"type\" " +
+            "JOIN \"ss_moduleorg\" AS org ON org.\"module\" = module.\"id\" " +
+            "JOIN \"ss_moduleorg\" AS org2 ON org2.\"organization\" = org.\"organization\" " +
+            "WHERE 1 = 1 AND type.\"name\" = ? AND org2.\"module\" = ? AND type.\"name\" = ? AND org2.\"module\" = ?";
+
     @Test
     public void testAddTypeColumn() {
         Configuration configuration = new Configuration();
@@ -72,6 +87,12 @@ public class SqlQueryModifierTest {
         modifiedQuery = collectionQueryModifier.addServiceColumns(UNION_QUERY, configurationExplorer);
 
         assertEquals(UNION_QUERY_WITH_TYPE, modifiedQuery);
+    }
+
+    @Test
+    public void testWrapAndLowerCaseNames() {
+        String modifiedQuery = SqlQueryModifier.wrapAndLowerCaseNames(WRAP_AND_LOWERCASE_QUERY);
+        assertEquals(WRAP_AND_LOWERCASE_CHECK_QUERY, modifiedQuery);
     }
 
     @Test
