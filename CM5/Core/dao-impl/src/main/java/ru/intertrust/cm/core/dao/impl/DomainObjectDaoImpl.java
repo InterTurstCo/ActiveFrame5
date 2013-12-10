@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.dao.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.util.StringUtils;
-
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.access.*;
@@ -621,11 +620,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             return cachedDomainObjects;
         }
 
-        List<RdbmsId> idsToRead = null;
-        if (cachedDomainObjects == null) {
-            idsToRead = ids;
-        } else {
-            idsToRead = new ArrayList<>(ids.size());
+        LinkedHashSet<RdbmsId> idsToRead = new LinkedHashSet<>(ids);
+        if (cachedDomainObjects != null) {
             for (DomainObject domainObject : cachedDomainObjects) {
                 idsToRead.remove(domainObject.getId());
             }
@@ -654,19 +650,25 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                     .append(" where ID in (:object_ids) ");
         }
 
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        List<Long> listIds = AccessControlUtility
-                .convertRdbmsIdsToLongIds(idsToRead);
-        parameters.put("object_ids", listIds);
+        Map<String, Object> parameters = new HashMap<>();
+        List<DomainObject> readDomainObjects;
+        if (!idsToRead.isEmpty()) {
 
-        if (accessToken.isDeferred()) {
-            parameters.putAll(aclParameters);
+            List<Long> listIds = AccessControlUtility
+                    .convertRdbmsIdsToLongIds(new ArrayList<>(idsToRead));
+            parameters.put("object_ids", listIds);
+
+            if (accessToken.isDeferred()) {
+                parameters.putAll(aclParameters);
+            }
+
+            readDomainObjects = jdbcTemplate.query(query
+                    .toString(), parameters, new MultipleObjectRowMapper(
+                    domainObjectType, configurationExplorer,
+                    domainObjectTypeIdCache));
+        } else {
+            readDomainObjects = new ArrayList<>(0);
         }
-
-        List<DomainObject> readDomainObjects = jdbcTemplate.query(query
-                .toString(), parameters, new MultipleObjectRowMapper(
-                domainObjectType, configurationExplorer,
-                domainObjectTypeIdCache));
 
         if (cachedDomainObjects == null) {
             return readDomainObjects;
@@ -675,6 +677,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             result.addAll(readDomainObjects);
             return result;
         }
+
     }
 
     @Override
@@ -955,6 +958,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         StringBuilder query = new StringBuilder();
         query.append("insert into ").append(wrap(tableName)).append(" (").append(wrap(ID_COLUMN)).append(", ");
+        query.append(wrap(TYPE_COLUMN)).append(", ");
 
         if (!isDerived(domainObjectTypeConfig)) {
             query.append(wrap(CREATED_DATE_COLUMN)).append(", ")
@@ -964,16 +968,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                     .append(wrap(STATUS_TYPE_COLUMN)).append(", ");
 
         }
-        query.append(wrap(TYPE_COLUMN)).append(", ");
 
         query.append(commaSeparatedColumns);
-        query.append(") values (:id , ");
+        query.append(") values (:id , :type_id, ");
 
         if (!isDerived(domainObjectTypeConfig)) {
             query.append(":created_date, :updated_date, ");
             query.append(":status, :status_type, ");
         }
-        query.append(":type_id, ");
 
         query.append(commaSeparatedParameters);
         query.append(")");
@@ -993,7 +995,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         List<FieldConfig> fieldConfigs = domainObjectTypeConfig
                 .getFieldConfigs();
 
-        String tableName = getSqlName(domainObjectTypeConfig) + "_LOG";
+        String tableName = getSqlName(domainObjectTypeConfig) + "_log";
         List<String> columnNames = DataStructureNamingHelper
                 .getColumnNames(fieldConfigs);
 
@@ -1016,9 +1018,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         query.append(commaSeparatedColumns);
-        query.append(") values (:ID, :TYPE_ID, ");
+        query.append(") values (:").append(ID_COLUMN).append(", :").append(TYPE_COLUMN).append(", ");
         if (!isDerived(domainObjectTypeConfig)) {
-            query.append(":OPERATION, :UPDATED_DATE, :COMPONENT_COLUMN, :DOMAIN_OBJECT_ID_COLUMN, :INFO_COLUMN, :IP_ADDRESS_COLUMN, ");
+            query.append(":operation, :updated_date, :component, :domain_object_id, :info, :ip_address, ");
         }
 
         query.append(commaSeparatedParameters);
@@ -1187,32 +1189,45 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
     }
 
-    protected String buildFindChildrenQuery(String linkedType,
-            String linkedField, int offset, int limit, AccessToken accessToken) {
+    protected String buildFindChildrenQuery(String linkedType, String linkedField, int offset,
+                                            int limit, AccessToken accessToken) {
+        String tableAlias = getSqlAlias(linkedType);
+        String tableHavingLinkedFieldAlias = getSqlAlias(findInHierarchyDOTypeHavingField(linkedType, linkedField));
+
         StringBuilder query = new StringBuilder();
-        query.append("select t.* from ").append(linkedType)
-                .append(" t where t.").append(linkedField)
-                .append(" = :domain_object_id");
+        query.append("select ");
+        appendColumnsQueryPart(query, linkedType);
+        query.append(" from ");
+        appendTableNameQueryPart(query, linkedType);
+        query.append(" where ").append(tableHavingLinkedFieldAlias).append(".").
+                append(wrap(getSqlName(linkedField))).append(" = :domain_object_id");
+
         if (accessToken.isDeferred()) {
-            // appendAccessControlLogicToQuery(query, linkedType);
+             appendAccessControlLogicToQuery(query, linkedType);
         }
 
-        applyOffsetAndLimitWithDefaultOrdering(query, "t", offset, limit);
+        applyOffsetAndLimitWithDefaultOrdering(query, tableAlias, offset, limit);
 
         return query.toString();
     }
 
     protected String buildFindChildrenIdsQuery(String linkedType,
             String linkedField, int offset, int limit, AccessToken accessToken) {
+        String doTypeHavingLinkedField = findInHierarchyDOTypeHavingField(linkedType, linkedField);
+        String tableName = getSqlName(doTypeHavingLinkedField);
+        String tableAlias = getSqlAlias(tableName);
+
         StringBuilder query = new StringBuilder();
-        query.append("select t.id from ").append(linkedType)
-                .append(" t where t.").append(linkedField)
-                .append(" = :domain_object_id");
+        query.append("select ").append(tableAlias).append(".").append(wrap(ID_COLUMN)).
+                append(" from ").append(wrap(tableName)).append(" ").append(tableAlias).
+                append(" where ").append(tableAlias).append(".").append(wrap(getSqlName(linkedField))).
+                append(" = :domain_object_id");
+
         if (accessToken.isDeferred()) {
              appendAccessControlLogicToQuery(query, linkedType);
         }
 
-        applyOffsetAndLimitWithDefaultOrdering(query, "t", offset, limit);
+        applyOffsetAndLimitWithDefaultOrdering(query, tableAlias, offset, limit);
 
         return query.toString();
     }
@@ -1227,7 +1242,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 .append(" = gg.").append(wrap("parent_group_id"));
         query.append(" inner join ").append(wrap("group_member")).append(" gm on gg.")
                 .append(wrap("child_group_id")).append(" = gm.").append(wrap("usergroup"));
-        query.append("where gm.person_id = :user_id and r.object_id = t.id)");
+        query.append("where gm.person_id = :user_id and r.object_id = t").append(wrap(ID_COLUMN)).append(")");
     }
 
     private DomainObject create(DomainObject domainObject, Integer type, String initialStatus) {
@@ -1342,7 +1357,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                     .getConfig(DomainObjectTypeConfig.class, typeName);
 
             // Проверка на включенность аудит лога, или если пришли рекурсивно
-            // из подчиненного уровня, где аудит был вулючен
+            // из подчиненного уровня, где аудит был включен
             if (isAuditLogEnable(domainObjectTypeConfig)
                     || !domainObject.getTypeName().equals(typeName)) {
 
@@ -1447,13 +1462,28 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         String parentTableName = getSqlName(config.getExtendsAttribute());
         String parentTableAlias = getSqlAlias(config.getExtendsAttribute());
 
-        query.append(" inner join ").append(parentTableName).append(" ")
+        query.append(" inner join ").append(wrap(parentTableName)).append(" ")
                 .append(parentTableAlias);
-        query.append(" on ").append(tableAlias).append(".").append(ID_COLUMN)
-                .append("=");
-        query.append(parentTableAlias).append(".").append(ID_COLUMN);
+        query.append(" on ").append(tableAlias).append(".").append(wrap(ID_COLUMN))
+                .append(" = ");
+        query.append(parentTableAlias).append(".").append(wrap(ID_COLUMN));
 
         appendParentTable(query, config.getExtendsAttribute());
+    }
+
+    private String findInHierarchyDOTypeHavingField(String doType, String fieldName) {
+        FieldConfig fieldConfig = configurationExplorer.getFieldConfig(doType, fieldName, false);
+        if (fieldConfig != null) {
+            return doType;
+        } else {
+            DomainObjectTypeConfig doTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, doType);
+            if (doTypeConfig.getExtendsAttribute() != null) {
+                return findInHierarchyDOTypeHavingField(doTypeConfig.getExtendsAttribute(), fieldName);
+            } else {
+                throw new ConfigurationException("Field '" + fieldName +
+                        "' is not found in hierarchy of domain object type '" + doType + "'");
+            }
+        }
     }
 
     private void appendParentColumns(StringBuilder query,
@@ -1464,21 +1494,26 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         String tableAlias = getSqlAlias(parentConfig.getName());
 
         for (FieldConfig fieldConfig : parentConfig.getFieldConfigs()) {
-            if ("ID".equals(fieldConfig.getName())) {
+            if (ID_COLUMN.equals(fieldConfig.getName())) {
                 continue;
             }
 
             query.append(", ").append(tableAlias).append(".")
-                    .append(getSqlName(fieldConfig));
+                    .append(wrap(getSqlName(fieldConfig)));
+
+            if (fieldConfig instanceof ReferenceFieldConfig) {
+                query.append(", ").append(tableAlias).append(".")
+                        .append(wrap(getReferenceTypeColumnName(fieldConfig.getName())));
+            }
         }
 
         if (parentConfig.getExtendsAttribute() != null) {
             appendParentColumns(query, parentConfig);
         } else {
-            query.append(", ").append(CREATED_DATE_COLUMN);
-            query.append(", ").append(UPDATED_DATE_COLUMN);
-            query.append(", ").append(STATUS_FIELD_NAME);
-            query.append(", ").append(STATUS_TYPE_COLUMN);
+            query.append(", ").append(wrap(CREATED_DATE_COLUMN));
+            query.append(", ").append(wrap(UPDATED_DATE_COLUMN));
+            query.append(", ").append(wrap(STATUS_FIELD_NAME));
+            query.append(", ").append(wrap(STATUS_TYPE_COLUMN));
         }
     }
 
@@ -1504,7 +1539,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private void applyOffsetAndLimitWithDefaultOrdering(StringBuilder query,
             String tableAlias, int offset, int limit) {
         if (limit != 0) {
-            query.append(" order by ").append(tableAlias).append(".ID");
+            query.append(" order by ").append(tableAlias).append(".").append(wrap(ID_COLUMN));
             PostgreSqlQueryHelper.applyOffsetAndLimit(query, offset, limit);
         }
     }
