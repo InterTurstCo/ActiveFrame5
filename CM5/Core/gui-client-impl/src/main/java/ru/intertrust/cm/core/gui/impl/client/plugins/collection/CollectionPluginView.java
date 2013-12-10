@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
+import com.google.gwt.cell.client.CheckboxCell;
+import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ScrollEvent;
@@ -13,6 +15,8 @@ import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.view.client.MultiSelectionModel;
+import com.google.gwt.view.client.SelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
@@ -33,6 +37,13 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+
+//import ru.intertrust.cm.core.gui.model.Command;
+//import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowItemList;
+//import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
+//import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
+//import ru.intertrust.cm.core.gui.model.plugin.CollectionRowsRequest;
+//import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -58,7 +69,7 @@ public class CollectionPluginView extends PluginView {
     private boolean singleChoice = true;
 
     // IPetrov
-    private CheckedSelectionModel<CollectionRowItem> selectionModel = null;
+   // private CheckedSelectionModel<CollectionRowItem> selectionModel = null;
 
     // локальная шина событий
     private EventBus eventBus;
@@ -94,26 +105,26 @@ public class CollectionPluginView extends PluginView {
 
     }
 
-    private void createCollectionData() {
-        CollectionRowsRequest collectionRowsRequest = new CollectionRowsRequest(listCount, 15, collectionName, columnNamesOnDoFieldsMap);
-        Command command = new Command("generateCollectionRowItems", "collection.plugin", collectionRowsRequest);
-
-        BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, new AsyncCallback<Dto>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                GWT.log("something was going wrong while obtaining generateCollectionRowItems for ''");
-                caught.printStackTrace();
-            }
-
-            @Override
-            public void onSuccess(Dto result) {
-                CollectionRowItemList collectionRowItemList = (CollectionRowItemList) result;
-                List<CollectionRowItem> collectionRowItems = collectionRowItemList.getCollectionRows();
-                insertMoreRows(collectionRowItems);
-
-            }
-        });
-    }
+//    private void createCollectionData() {
+//        CollectionRowsRequest collectionRowsRequest = new CollectionRowsRequest(listCount, 15, collectionName, columnNamesOnDoFieldsMap);
+//        Command command = new Command("generateCollectionRowItems", "collection.plugin", collectionRowsRequest);
+//
+//        BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, new AsyncCallback<Dto>() {
+//            @Override
+//            public void onFailure(Throwable caught) {
+//                GWT.log("something was going wrong while obtaining generateCollectionRowItems for ''");
+//                caught.printStackTrace();
+//            }
+//
+//            @Override
+//            public void onSuccess(Dto result) {
+//                CollectionRowItemList collectionRowItemList = (CollectionRowItemList) result;
+//                List<CollectionRowItem> collectionRowItems = collectionRowItemList.getCollectionRows();
+//                insertMoreRows(collectionRowItems);
+//
+//            }
+//        });
+//    }
 
     @Override
     protected IsWidget getViewWidget() {
@@ -241,7 +252,15 @@ public class CollectionPluginView extends PluginView {
            index--;
        }
 
+        if (index < 0)   {
+            // если строка была единственная, то "чистимся" и выходим из метода
+            tableBody.setRowData(items);
+            tableBody.redraw();
+            tableBody.flush();
+            return;
+        }
        CollectionRowItem itemRow = items.get(index);
+
        selectionModel.setSelected(itemRow, true);
 
        // обновляем таблицу
@@ -267,22 +286,26 @@ public class CollectionPluginView extends PluginView {
         item.setId(collectionObject.getId());
         item.setRow(rowValues);
 
-        int index = -1;
-        // ищем совпадающий(для случая редактирования коллекции) объект
+        int index = 0;
+        // ищем совпадающий элемент(для случая редактирования коллекции)
         for (CollectionRowItem i : items) {
             if (i.getId().toStringRepresentation().equalsIgnoreCase(item.getId().toStringRepresentation())) {
                 index = items.indexOf(i);
             }
         }
 
-        if (index >= 0) {
-            //CollectionRowItem itemRow = items.get(index);
+        if (index > 0) {
+            CollectionRowItem itemRow = items.get(index - 1);
+            selectionModel.setSelected(itemRow, false);
             items.set(index, item);
             selectionModel.setSelected(item, true);
-        } else {
+        } else if (index == 0 || items.size() > 0) {
+            for (CollectionRowItem i : items) {
+                if (selectionModel.isSelected(i)) {
+                   selectionModel.setSelected(i, false);
+                }
+            }
             items.add(item);
-            //index = items.indexOf(item);
-            selectionModel.clear();
             selectionModel.setSelected(item, true);
         }
 
@@ -449,50 +472,50 @@ public class CollectionPluginView extends PluginView {
         });
     }
 
-    private void addHandlers() {
-        addResizeHandler();
-        tableBody.addCellPreviewHandler(new CellTableEventHandler<CollectionRowItem>(tableBody, plugin, eventBus));
-
-        eventBus.addHandler(SplitterInnerScrollEvent.TYPE, new SplitterInnerScrollEventHandler() {
-            @Override
-            public void setScrollPanelHeight(SplitterInnerScrollEvent event) {
-
-                scrollTableBody.setHeight((event.getUpperPanelHeight() - (headerPanel.getOffsetHeight())) + "px");
-                tableController.columnWindowResize(columnMinWidth(event.getUpperPanelWidth() / tableBody.getColumnCount()));
-            }
-        });
-
-        eventBus.addHandler(SplitterWidgetResizerEvent.TYPE, new SplitterWidgetResizerEventHandler() {
-
-            @Override
-            public void setWidgetSize(SplitterWidgetResizerEvent event) {
-
-                if ((event.getFirstWidgetHeight() * 2) < Window.getClientHeight()) {
-                    scrollTableBody.setHeight(((event.getFirstWidgetHeight() * 2) - headerPanel.getOffsetHeight()) + "px");
-                } else {
-                    scrollTableBody.setHeight((event.getFirstWidgetHeight() - headerPanel.getOffsetHeight()) + "px");
-                }
-
-                tableController.columnWindowResize(columnMinWidth(event.getFirstWidgetWidth() / tableBody.getColumnCount()));
-            }
-        });
-
-
-        scrollTableBody.addScrollHandler(new ScrollHandler() {
-            @Override
-            public void onScroll(ScrollEvent event) {
-
-                if (scrollStart + 25 < scrollTableBody.getVerticalScrollPosition() || scrollStart == scrollTableBody.
-                        getMaximumVerticalScrollPosition()) {
-                    createCollectionData();
-                    scrollStart = scrollTableBody.getVerticalScrollPosition();
-                    listCount += 15;
-                }
-
-            }
-        });
-
-    }
+//    private void addHandlers() {
+//        addResizeHandler();
+//        tableBody.addCellPreviewHandler(new CellTableEventHandler<CollectionRowItem>(tableBody, plugin, eventBus));
+//
+//        eventBus.addHandler(SplitterInnerScrollEvent.TYPE, new SplitterInnerScrollEventHandler() {
+//            @Override
+//            public void setScrollPanelHeight(SplitterInnerScrollEvent event) {
+//
+//                scrollTableBody.setHeight((event.getUpperPanelHeight() - (headerPanel.getOffsetHeight())) + "px");
+//                tableController.columnWindowResize(columnMinWidth(event.getUpperPanelWidth() / tableBody.getColumnCount()));
+//            }
+//        });
+//
+//        eventBus.addHandler(SplitterWidgetResizerEvent.TYPE, new SplitterWidgetResizerEventHandler() {
+//
+//            @Override
+//            public void setWidgetSize(SplitterWidgetResizerEvent event) {
+//
+//                if ((event.getFirstWidgetHeight() * 2) < Window.getClientHeight()) {
+//                    scrollTableBody.setHeight(((event.getFirstWidgetHeight() * 2) - headerPanel.getOffsetHeight()) + "px");
+//                } else {
+//                    scrollTableBody.setHeight((event.getFirstWidgetHeight() - headerPanel.getOffsetHeight()) + "px");
+//                }
+//
+//                tableController.columnWindowResize(columnMinWidth(event.getFirstWidgetWidth() / tableBody.getColumnCount()));
+//            }
+//        });
+//
+//
+//        scrollTableBody.addScrollHandler(new ScrollHandler() {
+//            @Override
+//            public void onScroll(ScrollEvent event) {
+//
+//                if (scrollStart + 25 < scrollTableBody.getVerticalScrollPosition() || scrollStart == scrollTableBody.
+//                        getMaximumVerticalScrollPosition()) {
+//                    createCollectionData();
+//                    scrollStart = scrollTableBody.getVerticalScrollPosition();
+//                    listCount += 15;
+//                }
+//
+//            }
+//        });
+//
+//    }
 
     private void addResizeHandler() {
 
