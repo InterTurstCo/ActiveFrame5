@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.business.shedule;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.Date;
 import java.util.concurrent.Future;
 
@@ -58,7 +60,7 @@ public class ScheduleProcessorImpl implements ScheduleProcessor {
     private ScheduleService scheduleService;
 
     @Resource
-    EJBContext ejbContext;
+    private EJBContext ejbContext;
 
     /**
      * Метод который непосредственно выполняет задачу
@@ -77,8 +79,8 @@ public class ScheduleProcessorImpl implements ScheduleProcessor {
                 ejbContext.getUserTransaction().begin();
                 //Установка статуса
                 task = domainObjectDao.setStatus(taskId,
-                                statusDao.getStatusIdByName(ScheduleService.SCHEDULE_STATUS_RUN),
-                                accessToken);
+                        statusDao.getStatusIdByName(ScheduleService.SCHEDULE_STATUS_RUN),
+                        accessToken);
                 task.setTimestamp(ScheduleService.SCHEDULE_LAST_RUN, new Date());
                 domainObjectDao.save(task, accessToken);
                 ejbContext.getUserTransaction().commit();
@@ -90,8 +92,11 @@ public class ScheduleProcessorImpl implements ScheduleProcessor {
                         sheduleTaskLoader.getSheduleTaskHandle(task.getString(ScheduleService.SCHEDULE_TASK_CLASS));
                 result = handle.execute(scheduleService.getTaskParams(taskId));
 
-            } catch (Exception ex) {
-                result = ex.toString();
+            } catch (Throwable ex) {
+                logger.error("Error on exec task " + taskId, ex);
+                ByteArrayOutputStream err = new ByteArrayOutputStream();
+                ex.printStackTrace(new PrintStream(err, true));
+                result = err.toString("utf8");
                 error = true;
                 ejbContext.getUserTransaction().rollback();
             }
@@ -100,7 +105,7 @@ public class ScheduleProcessorImpl implements ScheduleProcessor {
             if (ejbContext.getUserTransaction().getStatus() == Status.STATUS_NO_TRANSACTION) {
                 ejbContext.getUserTransaction().begin();
             }
-            
+
             //Сохранение результата
             task = domainObjectDao.setStatus(taskId,
                     statusDao.getStatusIdByName(ScheduleService.SCHEDULE_STATUS_SLEEP),
@@ -121,6 +126,12 @@ public class ScheduleProcessorImpl implements ScheduleProcessor {
         } catch (Exception ex) {
             logger.error("Error on acync start schedule task", ex);
             result += "\n" + ex.toString();
+            try {
+                if (ejbContext.getUserTransaction().getStatus() == Status.STATUS_ACTIVE) {
+                    ejbContext.getUserTransaction().rollback();
+                }
+            } catch (Exception ignoreEx) {
+            }
         }
         return new AsyncResult<String>(result);
 

@@ -12,5 +12,13 @@ public class ScheduleTaskConfig {
     @Element
     @Convert(ScheduleTaskParametersConverter.class)
     private ScheduleTaskParameters parameters;
+
+    public ScheduleTaskParameters getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(ScheduleTaskParameters parameters) {
+        this.parameters = parameters;
+    }
     
 }

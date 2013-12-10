@@ -59,6 +59,10 @@
             <artifactId>xnio-api</artifactId>
             <version>3.0.7.GA</version>
         </dependency>
-
+        <dependency>
+            <groupId>ru.intertrust.cm-sochi</groupId>
+            <artifactId>test-module</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
