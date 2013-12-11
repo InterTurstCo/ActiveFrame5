@@ -72,6 +72,22 @@ public class SuggestBoxWidget extends BaseWidget {
     protected Widget asEditableWidget() {
         MultiWordSuggestOracle oracle = buildDynamicMultiWordOracle();
         final SuggestBox suggestBox = new SuggestBox(oracle);
+        final FocusPanel arrowListButton = new FocusPanel();
+        arrowListButton.setStyleName("arrow-suggest-button-off");
+        arrowListButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                if(arrowListButton.getStyleName().equals("arrow-suggest-button-off")){
+                    arrowListButton.removeStyleName("arrow-suggest-button-off");
+                    arrowListButton.setStyleName("arrow-suggest-button-on");
+                }
+                else{
+                    arrowListButton.removeStyleName("arrow-suggest-button-on");
+                    arrowListButton.setStyleName("arrow-suggest-button-off");
+                }
+
+            }
+        });
 
         suggestBox.getElement().removeClassName("gwt-SuggestBox");
         suggestBox.getElement().setClassName("Cmj-gwt-SuggestBox");
@@ -82,6 +98,9 @@ public class SuggestBoxWidget extends BaseWidget {
         container.getElement().getStyle().setBorderWidth(1, Style.Unit.PX);
         container.add(selectedRecords);
         container.add(suggestBox);
+        container.add(arrowListButton);
+
+
         suggestBox.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
 
             public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {

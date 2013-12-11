@@ -12,6 +12,7 @@
     </domain-object-type>
 
     <domain-object-type name="Status" db-id="31">
+    <!--<domain-object-type name="Status">-->
         <fields>
             <string name="Name" length="128" not-null="true" />
         </fields>

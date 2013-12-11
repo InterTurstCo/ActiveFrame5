@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.authentication;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
@@ -49,11 +50,16 @@ public class LoginWindow extends DialogBox implements Component {
     }
 
     protected void login() {
+
         AsyncCallback<Void> callback = new AsyncCallback<Void>() {
+
+
             @Override
             public void onSuccess(Void result) {
                 //todo: переадресация должна уметь задаваться на стадии открытия LoginPage. пока хардкод
-                Window.Location.assign("/cm-sochi/BusinessUniverse.html" + Window.Location.getQueryString());
+                String path = GWT.getHostPageBaseURL();
+                Window.Location.assign(path + "BusinessUniverse.html" + Window.Location.getQueryString());
+
             }
 
             @Override
@@ -62,6 +68,7 @@ public class LoginWindow extends DialogBox implements Component {
             }
         };
         UserUidWithPassword credentials = new UserUidWithPassword(loginField.getText(), passwordField.getText());
+
         BusinessUniverseAuthenticationServiceAsync.Impl.getInstance().login(credentials, callback);
     }
 

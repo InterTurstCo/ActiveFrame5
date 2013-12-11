@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.attachment;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.InputElement;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ChangeEvent;
@@ -187,7 +188,7 @@ public class AttachmentUploaderView extends Composite {
 
     private void initSubmitForm() {
         submitForm = new FormPanel();
-        submitForm.setAction("http://127.0.0.1:8080/cm-sochi/attachment-upload");
+        submitForm.setAction(GWT.getHostPageBaseURL() + "attachment-upload");
         // set form to use the POST method, and multipart MIME encoding.
         submitForm.setEncoding(FormPanel.ENCODING_MULTIPART);
         submitForm.setMethod(FormPanel.METHOD_POST);
