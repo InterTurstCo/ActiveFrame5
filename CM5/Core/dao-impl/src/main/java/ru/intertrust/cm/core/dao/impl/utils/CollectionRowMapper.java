@@ -96,8 +96,8 @@ public class CollectionRowMapper extends BasicRowMapper implements
 
             FieldConfig columnFieldConfig = columnToConfigMap.get(columnName);
             if (columnFieldConfig != null) {
+                columnFieldConfig.setName(columnName);
                 collectionFieldConfigs.add(columnFieldConfig);
-
             }
         }
         return collectionFieldConfigs;
