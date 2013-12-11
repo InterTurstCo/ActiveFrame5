@@ -1,23 +1,24 @@
 package ru.intertrust.cm.core.jdbc;
 
+import java.math.BigDecimal;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.List;
+import java.sql.Timestamp;
 
+import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.LongValue;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.TimestampValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.StringFieldConfig;
+import ru.intertrust.cm.core.config.TextFieldConfig;
 
 public class JdbcResultSetMetaData implements ResultSetMetaData {
 
     private IdentifiableObjectCollection collection;
 
-    public JdbcResultSetMetaData(IdentifiableObjectCollection collection){
+    public JdbcResultSetMetaData(IdentifiableObjectCollection collection) {
         this.collection = collection;
     }
-    
+
     @Override
     public <T> T unwrap(Class<T> iface) throws SQLException {
         throw new UnsupportedOperationException();
@@ -32,7 +33,7 @@ public class JdbcResultSetMetaData implements ResultSetMetaData {
 
     @Override
     public int getColumnCount() throws SQLException {
-        return collection.getFields().size();
+        return collection.getFieldsConfiguration().size();
 
     }
 
@@ -61,7 +62,7 @@ public class JdbcResultSetMetaData implements ResultSetMetaData {
 
     @Override
     public int isNullable(int column) throws SQLException {
-        return columnNullable;
+        return getFieldConfig(column).isNotNull() ? columnNoNulls : columnNullable;
     }
 
     @Override
@@ -71,18 +72,28 @@ public class JdbcResultSetMetaData implements ResultSetMetaData {
 
     @Override
     public int getColumnDisplaySize(int column) throws SQLException {
-        return 0;
+        FieldConfig fieldConfig = getFieldConfig(column);
+        int result = 0;
+        if (fieldConfig.getFieldType() == FieldType.STRING){
+            result = ((StringFieldConfig)fieldConfig).getLength();
+        }else if (fieldConfig.getFieldType() == FieldType.TEXT){
+            result = 1024; //Чтобы ширина поля в представлениях была не слишком узкой
+        }else{
+            result = 32;
+        }
+
+        return result;
 
     }
 
     @Override
     public String getColumnLabel(int column) throws SQLException {
-        return collection.getFields().get(column - 1);
+        return getFieldConfig(column).getName();
     }
 
     @Override
     public String getColumnName(int column) throws SQLException {
-        return collection.getFields().get(column - 1);
+        return getFieldConfig(column).getName();
     }
 
     @Override
@@ -116,29 +127,39 @@ public class JdbcResultSetMetaData implements ResultSetMetaData {
 
     @Override
     public int getColumnType(int column) throws SQLException {
+        FieldConfig fieldConfig = getFieldConfig(column);
+
         int result = java.sql.Types.VARCHAR;
-        if (collection.size() > 0){
-            Value value = collection.get(0).getValue(getFieldName(column));
-            if (value instanceof ReferenceValue){
-                result = java.sql.Types.NUMERIC;
-            }else if(value instanceof TimestampValue){
-                result = java.sql.Types.TIMESTAMP;                
-            }else if(value instanceof LongValue){
-                result = java.sql.Types.NUMERIC;                
-            }
+        if (fieldConfig.getFieldType() == FieldType.BOOLEAN) {
+            result = java.sql.Types.BIT;
+        } else if (fieldConfig.getFieldType() == FieldType.DATETIME) {
+            result = java.sql.Types.TIMESTAMP;
+        } else if (fieldConfig.getFieldType() == FieldType.DATETIMEWITHTIMEZONE) {
+            result = java.sql.Types.TIMESTAMP;
+        } else if (fieldConfig.getFieldType() == FieldType.DECIMAL) {
+            result = java.sql.Types.DECIMAL;
+        } else if (fieldConfig.getFieldType() == FieldType.LONG) {
+            result = java.sql.Types.NUMERIC;
+        } else if (fieldConfig.getFieldType() == FieldType.PASSWORD) {
+            result = java.sql.Types.VARCHAR;
+        } else if (fieldConfig.getFieldType() == FieldType.REFERENCE) {
+            result = java.sql.Types.NUMERIC;
+        } else if (fieldConfig.getFieldType() == FieldType.STRING) {
+            result = java.sql.Types.VARCHAR;
+        } else if (fieldConfig.getFieldType() == FieldType.TEXT) {
+            result = java.sql.Types.VARCHAR;
+        } else if (fieldConfig.getFieldType() == FieldType.TIMELESSDATE) {
+            result = java.sql.Types.TIMESTAMP;
+        } else {
+            result = java.sql.Types.VARCHAR;
         }
         return result;
     }
 
-    private String getFieldName(int columnIndex) {
-        List<String> fields = collection.getFields();
-        return fields.get(columnIndex-1);
-    }    
-    
     @Override
     public String getColumnTypeName(int column) throws SQLException {
-        return String.class.getName();
-
+        FieldConfig fieldConfig = getFieldConfig(column);
+        return fieldConfig.getFieldType().name();
     }
 
     @Override
@@ -161,12 +182,36 @@ public class JdbcResultSetMetaData implements ResultSetMetaData {
 
     @Override
     public String getColumnClassName(int column) throws SQLException {
-        if (collection.size() > 0){
-            
-        }else{
-            
+        FieldConfig fieldConfig = getFieldConfig(column);
+
+        Class<?> result = null;
+        if (fieldConfig.getFieldType() == FieldType.BOOLEAN) {
+            result = Boolean.class;
+        } else if (fieldConfig.getFieldType() == FieldType.DATETIME) {
+            result = Timestamp.class;
+        } else if (fieldConfig.getFieldType() == FieldType.DATETIMEWITHTIMEZONE) {
+            result = Timestamp.class;
+        } else if (fieldConfig.getFieldType() == FieldType.DECIMAL) {
+            result = BigDecimal.class;
+        } else if (fieldConfig.getFieldType() == FieldType.LONG) {
+            result = Long.class;
+        } else if (fieldConfig.getFieldType() == FieldType.PASSWORD) {
+            result = String.class;
+        } else if (fieldConfig.getFieldType() == FieldType.REFERENCE) {
+            result = Long.class;
+        } else if (fieldConfig.getFieldType() == FieldType.STRING) {
+            result = String.class;
+        } else if (fieldConfig.getFieldType() == FieldType.TEXT) {
+            result = String.class;
+        } else if (fieldConfig.getFieldType() == FieldType.TIMELESSDATE) {
+            result = Timestamp.class;
+        } else {
+            result = String.class;
         }
-        return String.class.getName();
+        return result.getName();
     }
 
+    private FieldConfig getFieldConfig(int column){
+        return collection.getFieldsConfiguration().get(column - 1);
+    }
 }

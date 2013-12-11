@@ -125,7 +125,7 @@ public class JdbcStatement implements Statement {
     public boolean execute(String sql) throws SQLException {
         try {
             IdentifiableObjectCollection collection = client.getCollectionService().findCollectionByQuery(sql);
-            this.resultSet = new JdbcResultSet(collection);
+            this.resultSet = new JdbcResultSet(this, collection);
             return true;
         } catch (Exception ex) {
             ex.printStackTrace();

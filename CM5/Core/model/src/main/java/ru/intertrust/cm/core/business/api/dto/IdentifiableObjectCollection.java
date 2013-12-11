@@ -46,6 +46,11 @@ public interface IdentifiableObjectCollection extends Iterable<IdentifiableObjec
 
     int getFieldIndex(String field);
 
+    /**
+     * Использовать getFieldsConfiguration
+     * @return
+     */
+    @Deprecated
     ArrayList<String> getFields();
 
     ArrayList<FieldConfig> getFieldsConfiguration();

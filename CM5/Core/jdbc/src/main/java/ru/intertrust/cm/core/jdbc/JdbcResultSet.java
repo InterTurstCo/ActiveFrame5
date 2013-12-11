@@ -20,7 +20,6 @@ import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Map;
 
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
@@ -35,11 +34,17 @@ public class JdbcResultSet implements ResultSet {
     private IdentifiableObjectCollection collection;
     private int index = -1;
     private boolean closed = false;
+    private Statement statemrnt = null;
+
+    public JdbcResultSet(Statement statemrnt, IdentifiableObjectCollection collection) {
+        this.collection = collection;
+        this.statemrnt  = statemrnt;
+    }
 
     public JdbcResultSet(IdentifiableObjectCollection collection) {
         this.collection = collection;
     }
-
+    
     @Override
     public <T> T unwrap(Class<T> iface) throws SQLException {
         throw new UnsupportedOperationException();
@@ -74,8 +79,7 @@ public class JdbcResultSet implements ResultSet {
     }
 
     private String getFieldName(int columnIndex) {
-        List<String> fields = collection.getFields();
-        return fields.get(columnIndex - 1);
+        return collection.getFieldsConfiguration().get(columnIndex - 1).getName();
     }
 
     @Override
@@ -103,16 +107,7 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public long getLong(int columnIndex) throws SQLException {
-        Value value = collection.get(index).getValue(getFieldName(columnIndex));
-        long result = 0;
-        if (value instanceof LongValue) {
-            result = ((LongValue) value).get();
-        } else if (value instanceof ReferenceValue) {
-            result = ((RdbmsId) ((ReferenceValue) value).get()).getId();
-        } else {
-            throw new SQLException("Value of column " + columnIndex + " is not long type");
-        }
-        return result;
+        return getLong(getFieldName(columnIndex));
     }
 
     @Override
@@ -141,12 +136,7 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public Date getDate(int columnIndex) throws SQLException {
-        java.util.Date result = collection.get(index).getTimestamp(getFieldName(columnIndex));
-
-        if (result != null) {
-            return new Date(result.getTime());
-        } else
-            return null;
+        return getDate(getFieldName(columnIndex));
     }
 
     @Override
@@ -157,12 +147,7 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public Timestamp getTimestamp(int columnIndex) throws SQLException {
-        java.util.Date result = collection.get(index).getTimestamp(getFieldName(columnIndex));
-
-        if (result != null) {
-            return new Timestamp(result.getTime());
-        } else
-            return null;
+        return getTimestamp(getFieldName(columnIndex));
     }
 
     @Override
@@ -230,8 +215,16 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public long getLong(String columnLabel) throws SQLException {
-        throw new UnsupportedOperationException();
-
+        Value value = collection.get(index).getValue(columnLabel);
+        long result = 0;
+        if (value instanceof LongValue) {
+            result = ((LongValue) value).get();
+        } else if (value instanceof ReferenceValue) {
+            result = ((RdbmsId) ((ReferenceValue) value).get()).getId();
+        } else {
+            throw new SQLException("Value of column " + columnLabel + " is not long type");
+        }
+        return result;
     }
 
     @Override
@@ -260,8 +253,12 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public Date getDate(String columnLabel) throws SQLException {
-        throw new UnsupportedOperationException();
+        java.util.Date result = collection.get(index).getTimestamp(columnLabel);
 
+        if (result != null) {
+            return new Date(result.getTime());
+        } else
+            return null;
     }
 
     @Override
@@ -272,8 +269,12 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public Timestamp getTimestamp(String columnLabel) throws SQLException {
-        throw new UnsupportedOperationException();
+        java.util.Date result = collection.get(index).getTimestamp(columnLabel);
 
+        if (result != null) {
+            return new Timestamp(result.getTime());
+        } else
+            return null;
     }
 
     @Override
@@ -318,7 +319,12 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public Object getObject(int columnIndex) throws SQLException {
-        Value value = collection.get(index).getValue(getFieldName(columnIndex));
+        return getObject(getFieldName(columnIndex));
+    }
+
+    @Override
+    public Object getObject(String columnLabel) throws SQLException {
+        Value value = collection.get(index).getValue(columnLabel);
         Object result = null;
         if (value.get() != null) {
             if (value instanceof LongValue) {
@@ -330,12 +336,6 @@ public class JdbcResultSet implements ResultSet {
             }
         }
         return result;
-    }
-
-    @Override
-    public Object getObject(String columnLabel) throws SQLException {
-        throw new UnsupportedOperationException();
-
     }
 
     @Override
@@ -466,8 +466,7 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public int getType() throws SQLException {
-        throw new UnsupportedOperationException();
-
+        return ResultSet.TYPE_FORWARD_ONLY;
     }
 
     @Override
@@ -766,8 +765,7 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public Statement getStatement() throws SQLException {
-        throw new UnsupportedOperationException();
-
+        return this.statemrnt;
     }
 
     @Override

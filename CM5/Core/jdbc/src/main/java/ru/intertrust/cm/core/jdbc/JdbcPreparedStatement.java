@@ -56,7 +56,7 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
 
             IdentifiableObjectCollection collection =
                     (IdentifiableObjectCollection) client.getCollectionService().findCollectionByQuery(sql);
-            return new JdbcResultSet(collection);
+            return new JdbcResultSet(this, collection);
         } catch (Exception ex) {
             throw new SQLException("Error on execute query", ex);
         }
