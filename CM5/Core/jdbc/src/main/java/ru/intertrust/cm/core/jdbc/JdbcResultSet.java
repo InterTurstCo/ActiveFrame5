@@ -33,18 +33,19 @@ public class JdbcResultSet implements ResultSet {
 
     private IdentifiableObjectCollection collection;
     private int index = -1;
+    private int resultsetIndex = -1;
     private boolean closed = false;
-    private Statement statemrnt = null;
+    private JdbcStatement statement = null;
 
-    public JdbcResultSet(Statement statemrnt, IdentifiableObjectCollection collection) {
+    public JdbcResultSet(Statement statement, IdentifiableObjectCollection collection) {
         this.collection = collection;
-        this.statemrnt  = statemrnt;
+        this.statement = (JdbcStatement) statement;
     }
 
     public JdbcResultSet(IdentifiableObjectCollection collection) {
         this.collection = collection;
     }
-    
+
     @Override
     public <T> T unwrap(Class<T> iface) throws SQLException {
         throw new UnsupportedOperationException();
@@ -59,8 +60,22 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public boolean next() throws SQLException {
-        index++;
-        return collection.size() >= index + 1;
+        try {
+            index++;
+            resultsetIndex++;
+            //Проверка на то что коллекция закончилась и надо получить следующую партию данных
+            if (collection.size() == index + 1) {
+                //Дозапрашиваем данные
+                if (statement != null) {
+                    collection = statement.getCollectionPartition();
+                    index = 0;
+                }
+            }
+
+            return collection.size() >= index + 1;
+        } catch (Exception ex) {
+            throw new SQLException("Error get next row", ex);
+        }
     }
 
     @Override
@@ -418,7 +433,7 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public int getRow() throws SQLException {
-        throw new UnsupportedOperationException();
+        return resultsetIndex + 1;
 
     }
 
@@ -765,7 +780,7 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public Statement getStatement() throws SQLException {
-        return this.statemrnt;
+        return this.statement;
     }
 
     @Override

@@ -38,7 +38,7 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     public ResultSet executeQuery() throws SQLException {
         try {
             //TODO Пока не поддерживаем выполнение запроса с параметрами приходится лепить запрос здесь
-            String sql = query;
+            sql = query;
             int paramNum = 1;
 
             while (sql.contains("?")) {
@@ -54,9 +54,7 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
                 sql = sql.replaceFirst("\\?", value);
             }
 
-            IdentifiableObjectCollection collection =
-                    (IdentifiableObjectCollection) client.getCollectionService().findCollectionByQuery(sql);
-            return new JdbcResultSet(this, collection);
+            return new JdbcResultSet(this, getCollectionPartition());
         } catch (Exception ex) {
             throw new SQLException("Error on execute query", ex);
         }

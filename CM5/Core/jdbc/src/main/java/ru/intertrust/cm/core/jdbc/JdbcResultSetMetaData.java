@@ -9,7 +9,6 @@ import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.StringFieldConfig;
-import ru.intertrust.cm.core.config.TextFieldConfig;
 
 public class JdbcResultSetMetaData implements ResultSetMetaData {
 

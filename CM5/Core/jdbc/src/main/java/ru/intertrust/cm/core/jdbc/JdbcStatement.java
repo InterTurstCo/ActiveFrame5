@@ -6,26 +6,19 @@ import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
 
-import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.jdbc.JdbcDriver.ConnectMode;
 
 public class JdbcStatement implements Statement {
-
+    public static final int COLLECTION_LIMIT = 1000;
+    private int collectionPartition = 0;
     private boolean closed = false;
     private int maxRows;
     private JdbcResultSet resultSet;
-    private ConnectMode mode;
-    private String address;
-    private String login;
-    private String password;
     protected SochiClient client;
+    protected String sql = null;
 
     public JdbcStatement(ConnectMode mode, String address, String login, String password) {
-        this.mode = mode;
-        this.address = address;
-        this.login = login;
-        this.password = password;
         client = new SochiClient(mode, address, login, password);
     }
 
@@ -124,8 +117,8 @@ public class JdbcStatement implements Statement {
     @Override
     public boolean execute(String sql) throws SQLException {
         try {
-            IdentifiableObjectCollection collection = client.getCollectionService().findCollectionByQuery(sql);
-            this.resultSet = new JdbcResultSet(this, collection);
+            this.sql = sql;            
+            this.resultSet = new JdbcResultSet(this, getCollectionPartition());
             return true;
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -292,4 +285,10 @@ public class JdbcStatement implements Statement {
 
     }
 
+    public IdentifiableObjectCollection getCollectionPartition() throws Exception{
+        IdentifiableObjectCollection collection = client.getCollectionService().findCollectionByQuery(sql, collectionPartition, COLLECTION_LIMIT);
+        collectionPartition++;
+        return collection;        
+    }
+    
 }
