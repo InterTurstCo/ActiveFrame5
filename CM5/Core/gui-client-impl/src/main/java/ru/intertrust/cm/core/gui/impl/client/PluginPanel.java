@@ -3,7 +3,8 @@ package ru.intertrust.cm.core.gui.impl.client;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
-import ru.intertrust.cm.core.business.api.dto.Dto;
+
+import java.util.ArrayList;
 
 /**
  * Панель плагинов. Имеет возможность отображать плагины (как самостоятельные, так и дочерние), поддерживая порядок их
@@ -18,10 +19,11 @@ public class PluginPanel implements IsWidget {
     private int visibleWidth;
     private int visibleHeight;
     private SimplePanel impl = new SimplePanel();
-    private Plugin currentPlugin;
+    // LinkedList doesn't emulate GWT fully, thus we're using ArrayList
+    private ArrayList<Plugin> plugins = new ArrayList<Plugin>(1);
+    private boolean openingChild;
 
     public PluginPanel() {
-
     }
 
     public int getVisibleWidth() {
@@ -40,6 +42,10 @@ public class PluginPanel implements IsWidget {
         this.visibleHeight = visibleHeight;
     }
 
+    public Plugin getCurrentPlugin() {
+        return plugins.isEmpty() ? null : plugins.get(plugins.size() - 1);
+    }
+
     /**
      * <p>
      * Открывает плагин, замещая предыдущий, если он был открыт. Операция необратима, восстановить предыдущий плагин или
@@ -49,15 +55,10 @@ public class PluginPanel implements IsWidget {
      * @param plugin плагин, который нужно открыть в панели
      */
     public void open(Plugin plugin) {
-        open(plugin, null);
-    }
-
-    public void open(Plugin plugin, Dto initParams) {
-
+        this.openingChild = false;
         plugin.setOwner(this);
         plugin.setUp();
     }
-
 
     /**
      * <p>
@@ -68,18 +69,26 @@ public class PluginPanel implements IsWidget {
      * @param plugin плагин, который нужно открыть в панели
      */
     public void openChild(Plugin plugin) {
-
+        this.openingChild = true;
+        plugin.setOwner(this);
+        plugin.setUp();
     }
 
     /**
      * Закрывает текущий плагин. Если у него есть родитель, то он будет показан по закрытию текущего.
      */
     public void closeCurrentPlugin() {
-        if (currentPlugin == null) {
+        Plugin currentPluginToClose = removeCurrentPluginLeavingViewDisplayed();
+        if (currentPluginToClose == null) {
             return;
         }
-        currentPlugin.clearHandlers();
-        impl.remove(asWidget());
+
+        Plugin parentPlugin = getCurrentPlugin(); // current plugin is already a different one
+        if (parentPlugin != null) { // there's a parent plugin to display after closing previous
+            impl.setWidget(parentPlugin.getView());
+        } else {
+            impl.remove(currentPluginToClose.getView());
+        }
     }
 
     /**
@@ -94,9 +103,12 @@ public class PluginPanel implements IsWidget {
     }
 
     public void onPluginViewCreated(Plugin plugin) {
-        this.currentPlugin = plugin;
+        if (!this.openingChild) { // replace current plugin or just create a first one
+            removeCurrentPluginLeavingViewDisplayed();
+        }
+        this.plugins.add(plugin);
         beforePluginOpening();
-        impl.setWidget(this.currentPlugin.getView());
+        impl.setWidget(plugin.getView());
 
     }
 
@@ -107,5 +119,15 @@ public class PluginPanel implements IsWidget {
 
     public void setSize(String width, String height) {
         impl.setSize(width, height);
+    }
+
+    private Plugin removeCurrentPluginLeavingViewDisplayed() {
+        Plugin currentPluginToClose = getCurrentPlugin();
+        if (currentPluginToClose == null) {
+            return null;
+        }
+        currentPluginToClose.clearHandlers();
+        this.plugins.remove(this.plugins.size() - 1);
+        return currentPluginToClose;
     }
 }

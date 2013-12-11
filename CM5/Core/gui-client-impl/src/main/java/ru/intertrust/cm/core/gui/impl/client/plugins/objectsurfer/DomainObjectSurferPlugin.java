@@ -85,7 +85,6 @@ public class DomainObjectSurferPlugin extends Plugin implements
     @Override
     public void onCollectionRowSelect(CollectionRowSelectedEvent event) {
         formPluginPanel = formPlugin.getOwner();
-        formPluginPanel.closeCurrentPlugin();
         final FormPlugin newFormPlugin = ComponentRegistry.instance.get("form.plugin");
         // после обновления формы ей снова "нужно дать" локальную шину событий
         newFormPlugin.setEventBus(this.eventBus);

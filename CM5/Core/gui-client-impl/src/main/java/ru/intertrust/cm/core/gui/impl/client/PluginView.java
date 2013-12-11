@@ -27,6 +27,7 @@ public abstract class PluginView implements IsWidget {
     protected static Logger log = Logger.getLogger("PluginView console logger");
 
     private AbsolutePanel actionToolBar;
+    private Widget viewWidget;
 
     /**
      * Основной конструктор
@@ -133,6 +134,10 @@ public abstract class PluginView implements IsWidget {
 
     @Override
     public Widget asWidget() {
+        if (viewWidget != null) {
+            return viewWidget;
+        }
+
         VerticalPanel panel = new VerticalPanel();
         if (plugin instanceof IsActive) {
             initializeActionToolBar();
@@ -142,7 +147,8 @@ public abstract class PluginView implements IsWidget {
             }
         }
         panel.add(getViewWidget());
-        return panel;
+        viewWidget = panel;
+        return viewWidget;
     }
 
     /**

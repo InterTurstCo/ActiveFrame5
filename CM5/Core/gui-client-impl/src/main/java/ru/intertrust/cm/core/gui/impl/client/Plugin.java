@@ -113,7 +113,7 @@ public abstract class Plugin extends BaseComponent {
         }
     }
 
-    public void reinit(PluginData initData) {
+    private void reinit(PluginData initData) {
         getOwner().closeCurrentPlugin();
         Plugin.this.setInitialData(initData);
         postSetUp();

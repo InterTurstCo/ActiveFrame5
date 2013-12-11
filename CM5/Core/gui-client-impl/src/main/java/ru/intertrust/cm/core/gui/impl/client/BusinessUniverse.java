@@ -131,8 +131,6 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
     @Override
     public void onNavigationTreeItemSelected(NavigationTreeItemSelectedEvent event) {
-        centralPluginPanel.closeCurrentPlugin();
-
         final DomainObjectSurferPlugin domainObjectSurfer = ComponentRegistry.instance.get("domain.object.surfer.plugin");
         domainObjectSurfer.setConfig(event.getPluginConfig());
         domainObjectSurfer.setDisplayActionToolBar(true);
