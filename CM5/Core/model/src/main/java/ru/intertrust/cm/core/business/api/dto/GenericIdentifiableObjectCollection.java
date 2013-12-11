@@ -29,7 +29,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
      * @author atsvetkov
      *
      */
-    private static class CaseInsensitiveKeyHashMap<T> {
+    private static class CaseInsensitiveKeyHashMap<T> implements Dto {
         private HashMap<String, T> map = new HashMap<String, T>();
 
         public T put(String key, T value) {
