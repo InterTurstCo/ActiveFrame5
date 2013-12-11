@@ -136,7 +136,11 @@
                     <exclusion> 
                         <artifactId>jdtcore</artifactId> 
                         <groupId>eclipse</groupId> 
-                    </exclusion> 
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.lowagie</groupId>
+                        <artifactId>itext</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             
