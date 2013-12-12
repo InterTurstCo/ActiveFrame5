@@ -4,6 +4,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import ru.intertrust.cm.core.business.api.dto.GenericIdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
@@ -73,11 +74,12 @@ public class CollectionRowMapper extends BasicRowMapper implements
 
                 if (valueModel.getId() != null) {
                     collection.setId(row, valueModel.getId());
+                    collection.set(index, row, new ReferenceValue(valueModel.getId()));
                 } else if (valueModel.getValue() != null && collectionConfigExists(columnName)) {
                     collection.set(index, row, valueModel.getValue());
-                    // инкремент индекса только при заполнении полей коллекции (id каждой записи заполняется отдельно)
-                    index++;
                 }
+                index++;
+
             }
 
             collection.resetDirty(row);
