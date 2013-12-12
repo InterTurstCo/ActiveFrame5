@@ -19,7 +19,7 @@ public class DeployArchives {
     private static EnterpriseArchive createFullDeployment() {
         File ear = Maven.resolver()
                 .loadPomFromFile("pom.xml")
-                .resolve("ru.intertrust.cm-sochi:ear:ear:0.5.2-1-SNAPSHOT")
+                .resolve("ru.intertrust.cm-sochi:ear:ear:0.5.2-2-SNAPSHOT")
                 .withoutTransitivity()
                 .asSingleFile();
 
