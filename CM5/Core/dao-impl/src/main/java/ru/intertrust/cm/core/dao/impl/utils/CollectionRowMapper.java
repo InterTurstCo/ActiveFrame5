@@ -113,7 +113,7 @@ public class CollectionRowMapper extends BasicRowMapper implements
     private List<String> collectColumnNamesToDisplay(ColumnModel columnModel) {
         List<String> fieldNamesToInsert = new ArrayList<String>();
         for (String columnName : columnModel.getColumnNames()) {
-            if(idField.equals(columnName) || TYPE_ID_COLUMN.equals(columnName)) {
+            if(TYPE_ID_COLUMN.equals(columnName)) {
                 continue;
             }
             if (collectionConfigExists(columnName)) {
