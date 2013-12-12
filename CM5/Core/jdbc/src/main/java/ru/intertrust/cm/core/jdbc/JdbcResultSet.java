@@ -64,13 +64,14 @@ public class JdbcResultSet implements ResultSet {
             index++;
             resultsetIndex++;
             //Проверка на то что коллекция закончилась и надо получить следующую партию данных
-            if (collection.size() == index + 1) {
+            //TODO раскомментировать когда выполнится CMFIVE-337
+            /*if (collection.size() == index + 1) {
                 //Дозапрашиваем данные
                 if (statement != null) {
                     collection = statement.getCollectionPartition();
                     index = 0;
                 }
-            }
+            }*/
 
             return collection.size() >= index + 1;
         } catch (Exception ex) {

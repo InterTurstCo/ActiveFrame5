@@ -51,39 +51,34 @@ public class TestJdbc extends ClientBase {
 
         Connection connection = DriverManager.getConnection("jdbc:sochi:remoting://localhost:4447", "admin", "admin");
 
-        String query = "select t.name, t.created_date, t.author, t.long_field ";
+        String query = "select t.id, t.name, t.created_date, t.author, t.long_field, t.status ";
         query += "from Outgoing_Document t ";
-        //query += "where creation_date between ? and ? and Name = ? and Author = ? and Long_Field = ?";
+        query += "where t.created_date between ? and ? and t.Name = ? and t.Author = ? and t.Long_Field = ?";
 
         PreparedStatement prepareStatement =
                 connection.prepareStatement(query);
 
         Calendar fromDate = Calendar.getInstance();
-        fromDate.set(2000, 1, 1);
-        prepareStatement.setDate(0, new java.sql.Date(fromDate.getTime().getTime()));
-        prepareStatement.setDate(1, new java.sql.Date(System.currentTimeMillis()));
-        prepareStatement.setString(2, "Outgoing_Document");
-        prepareStatement.setLong(3, ((RdbmsId) outgoingDocument.getReference("Author")).getId());
-        prepareStatement.setLong(4, 10);
+        fromDate.set(2000, 0, 1);
+        prepareStatement.setTimestamp(1, new java.sql.Timestamp(fromDate.getTime().getTime()));
+        prepareStatement.setTimestamp(2, new java.sql.Timestamp(System.currentTimeMillis()));
+        prepareStatement.setString(3, "Outgoing_Document");
+        prepareStatement.setLong(4, ((RdbmsId) outgoingDocument.getReference("Author")).getId());
+        prepareStatement.setLong(5, 10);
         ResultSet resultset = prepareStatement.executeQuery();
 
-        int rowCount = 0;
-        while (resultset.next()) {
-            System.out.println(rowCount + "\t" + resultset.getString(1) + "\t" + resultset.getDate(2) + "\t" + resultset.getObject(3) + "\t" + resultset.getObject(4));
-            rowCount++;
-        }
+        printResultSet(resultset);
+        
         resultset.close();
         prepareStatement.close();
 
+        query = "select t.id, t.name, t.created_date, t.author, t.long_field, t.status ";
+        query += "from Outgoing_Document t ";
         Statement statement = connection.createStatement();
         if (statement.execute(query)){
             resultset = statement.getResultSet();
 
-            rowCount = 0;
-            while (resultset.next()) {
-                System.out.println(rowCount + "\t" + resultset.getString(1) + "\t" + resultset.getDate(2) + "\t" + resultset.getObject(3) + "\t" + resultset.getObject(4));
-                rowCount++;
-            }
+            printResultSet(resultset);
             resultset.close();
             statement.close();
 
@@ -93,17 +88,11 @@ public class TestJdbc extends ClientBase {
         if (statement.execute(query)){
             resultset = statement.getResultSet();
 
-            rowCount = 0;
-            while (resultset.next()) {
-                System.out.println(rowCount + "\t" + resultset.getString(1) + "\t" + resultset.getDate(2) + "\t" + resultset.getObject(3) + "\t" + resultset.getObject(4));
-                rowCount++;
-            }
+            printResultSet(resultset);
+            
             resultset.close();
             statement.close();
-
         }
-        
-        
         connection.close();
 
     }
@@ -130,4 +119,20 @@ public class TestJdbc extends ClientBase {
         return result;
     }
 
+    private void printResultSet(ResultSet resultset) throws SQLException{
+        System.out.print("№\t");
+        for (int i=1; i<=resultset.getMetaData().getColumnCount(); i++ ){
+            System.out.print(resultset.getMetaData().getColumnName(i) + "\t");
+        }
+        System.out.print("\n");
+        int rowCount = 0;
+        while (resultset.next()) {
+            System.out.print(rowCount + "\t");
+            for (int i = 1; i <= resultset.getMetaData().getColumnCount(); i++) {
+                System.out.print(resultset.getObject(i) + "\t");
+            }
+            System.out.print("\n");
+            rowCount++;
+        }
+    }
 }

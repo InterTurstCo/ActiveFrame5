@@ -286,7 +286,7 @@ public class JdbcStatement implements Statement {
     }
 
     public IdentifiableObjectCollection getCollectionPartition() throws Exception{
-        IdentifiableObjectCollection collection = client.getCollectionService().findCollectionByQuery(sql, collectionPartition, COLLECTION_LIMIT);
+        IdentifiableObjectCollection collection = client.getCollectionService().findCollectionByQuery(sql, collectionPartition * COLLECTION_LIMIT, COLLECTION_LIMIT);
         collectionPartition++;
         return collection;        
     }

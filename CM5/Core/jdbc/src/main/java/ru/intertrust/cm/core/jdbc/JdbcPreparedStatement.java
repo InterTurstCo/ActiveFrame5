@@ -37,7 +37,7 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     @Override
     public ResultSet executeQuery() throws SQLException {
         try {
-            //TODO Пока не поддерживаем выполнение запроса с параметрами приходится лепить запрос здесь
+            //TODO Пока не поддерживаем выполнение запроса с параметрами приходится лепить запрос здесь, ждем  CMFIVE-182
             sql = query;
             int paramNum = 1;
 
@@ -52,6 +52,7 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
                 }
 
                 sql = sql.replaceFirst("\\?", value);
+                paramNum++;
             }
 
             return new JdbcResultSet(this, getCollectionPartition());
@@ -141,8 +142,8 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     }
 
     @Override
-    public void setTimestamp(int parameterIndex, Timestamp x) throws SQLException {
-        throw new UnsupportedOperationException();
+    public void setTimestamp(int parameterIndex, Timestamp value) throws SQLException {
+        addParameter(parameterIndex, value);
 
     }
 
