@@ -39,7 +39,7 @@ public class CollectionsDaoImplTest {
             " group_member AS gm ON r.group_id = gm.usergroup WHERE gm.person_id = :user_id AND r.object_id = id) ";
 
     private static final String COLLECTION_COUNT_WITH_FILTERS =
-            "SELECT count(*), 'employee' AS TYPE_CONSTANT FROM employee AS e " +
+            "SELECT count(*), 'employee' AS TEST_CONSTANT FROM employee AS e " +
             "INNER JOIN department AS d ON e.department = d.id WHERE EXISTS " +
             "(SELECT r.object_id FROM employee_READ AS r INNER JOIN group_member AS gm ON r.group_id = gm.usergroup " +
                     "WHERE gm.person_id = :user_id " +
@@ -47,52 +47,56 @@ public class CollectionsDaoImplTest {
             "AND 1 = 1 AND d.name = 'dep1' AND e.name = 'employee1'";
 
     private static final String COLLECTION_QUERY_WITH_FILTER_AND_LIMITS =
-            "SELECT e.id, e.name, e.position, e.created_date, e.updated_date, 'employee' AS TYPE_CONSTANT " +
+            "SELECT e.id, e.name, e.position, e.created_date, e.updated_date, 'employee' AS TEST_CONSTANT " +
             "FROM employee AS e INNER JOIN department AS d ON e.department = d.id WHERE " + COLLECTION_ACL_QUERY +
             "AND 1 = 1 AND d.name = 'dep1' ORDER BY e.name LIMIT 100 OFFSET 10";
 
     private static final String COLLECTION_QUERY =
-            "SELECT e.id, e.email, e.login, e.password, e.created_date, e.updated_date, 'employee' AS TYPE_CONSTANT " +
+            "SELECT e.id, e.email, e.login, e.password, e.created_date, e.updated_date, 'employee' AS TEST_CONSTANT " +
                     "FROM person AS e INNER JOIN department AS d ON e.department = d.id";
 
     private static final String ACTUAL_COLLECTION_QUERY_WITH_LIMITS =
             "SELECT e.\"id\", e.\"email\", e.\"login\", e.\"password\", e.\"created_date\", " +
-                    "e.\"updated_date\", 'employee' AS TYPE_CONSTANT, e.\"id_type\" " +
+                    "e.\"updated_date\", 'employee' AS TEST_CONSTANT, e.\"id_type\" " +
                     "FROM \"person\" AS e INNER JOIN \"department\" AS d " +
                     "ON e.\"department\" = d.\"id\" LIMIT 100 OFFSET 10";
 
     private static final String FIND_COLLECTION_QUERY_WITH_FILTERS =
-            "SELECT e.id, e.name, e.position, e.created_date, e.updated_date, 'employee' AS TYPE_CONSTANT " +
-            "FROM employee AS e " +
-            "INNER JOIN department AS d ON e.department = d.id WHERE " +
-            COLLECTION_ACL_QUERY +
-            "AND 1 = 1 AND d.name = 'dep1' ORDER BY e.name";
+            "SELECT e.\"id\", e.\"name\", e.\"position\", e.\"created_date\", e.\"updated_date\", " +
+                    "'employee' AS TEST_CONSTANT " +
+            "FROM \"employee\" AS e " +
+            "INNER JOIN \"department\" AS d ON e.\"department\" = d.\"id\" WHERE " +
+//            COLLECTION_ACL_QUERY + "AND "
+            "1 = 1 AND d.\"name\" = 'dep1' ORDER BY e.\"name\"";
 
     private static final String FIND_COLLECTION_QUERY_WITH_MULTIPLE_TYPE_REFERENCE =
-            "SELECT p.id, p.login, p.password, coalesce(p.BOSS1, p.BOSS2) AS BOSS, p.created_date, p.updated_date, " +
-                    "'person' AS TYPE_CONSTANT FROM person AS p WHERE EXISTS (SELECT r.object_id FROM person_READ AS r " +
-                    "INNER JOIN group_member AS gm ON r.group_id = gm.usergroup WHERE gm.person_id = :user_id AND " +
-                    "r.object_id = id) AND 1 = 1";
+            "SELECT p.\"id\", p.\"login\", p.\"password\", coalesce(p.\"boss1\", p.\"boss2\") AS BOSS, " +
+                    "p.\"created_date\", p.\"updated_date\", 'person' AS TEST_CONSTANT, p.\"id_type\" " +
+                    "FROM \"person\" AS p WHERE " +
+//                    "EXISTS (SELECT r.object_id FROM person_READ AS r " +
+//                    "INNER JOIN group_member AS gm ON r.group_id = gm.usergroup WHERE gm.person_id = :user_id AND " +
+//                    "r.object_id = id) AND " +
+                    "1 = 1";
 
     private static final String FIND_COMPLEX_COLLECTION_QUERY_WITH_FILTERS =
-            "SELECT e.id, e.name, e.position, e.created_date, e.updated_date, 'employee' AS TYPE_CONSTANT FROM employee AS e " +
+            "SELECT e.id, e.name, e.position, e.created_date, e.updated_date, 'employee' AS TEST_CONSTANT FROM employee AS e " +
             "INNER JOIN department AS d ON e.department = d.id " +
             "INNER JOIN authentication_info AS a ON e.login = a.id WHERE " +
             COLLECTION_ACL_QUERY +
             "AND 1 = 1 AND d.name = 'dep1' AND e.name = 'employee1' AND a.id = 1 ORDER BY e.name";
 
     private static final String COLLECTION_QUERY_WITHOUT_FILTERS =
-             "SELECT e.id, e.name, e.position, e.created_date, e.updated_date, 'employee' AS TYPE_CONSTANT FROM employee AS e WHERE " + COLLECTION_ACL_QUERY +
+             "SELECT e.id, e.name, e.position, e.created_date, e.updated_date, 'employee' AS TEST_CONSTANT FROM employee AS e WHERE " + COLLECTION_ACL_QUERY +
              "AND 1 = 1 ORDER BY e.name";
 
 
     private static final String COLLECTION_QUERY_WITHOUT_SORT_ORDER =
-            "SELECT e.id, e.name, e.position, e.created_date, e.updated_date, 'employee' AS TYPE_CONSTANT FROM employee AS e WHERE "
+            "SELECT e.id, e.name, e.position, e.created_date, e.updated_date, 'employee' AS TEST_CONSTANT FROM employee AS e WHERE "
                     + COLLECTION_ACL_QUERY +
                     "AND 1 = 1";
 
     private static final String EMLOYEES_PROROTYPE = "select\n" +
-            "                    e.id, e.name, e.position, e.created_date, e.updated_date\n" +
+            "                    e.id, e.name, e.position, e.created_date, e.updated_date, 'employee' AS TEST_CONSTANT\n" +
             "                from\n" +
             "                    employee e\n" +
             "                     ::from-clause\n" +
@@ -111,7 +115,8 @@ public class CollectionsDaoImplTest {
             "                    1=1 ::where-clause1 ::where-clause2";
 
     private static final String PERSONS_PROROTYPE = "select\n" +
-            "                    p.id, p.login, p.password, p.boss, p.created_date, p.updated_date\n" +
+            "                    p.id, p.login, p.password, coalesce(p.BOSS1, p.BOSS2) AS BOSS, p.created_date, " +
+            "                    p.updated_date, 'person' AS TEST_CONSTANT\n" +
             "                from\n" +
             "                    person p\n" +
             "                     ::from-clause\n" +
@@ -235,29 +240,29 @@ public class CollectionsDaoImplTest {
         when(accessToken.getSubject()).thenReturn(subject);
         return accessToken;
     }
-    //TODO uncomment tests when access list check will be returned.
-    //@Test
+
+    @Test
     public void testFindCollectionWithFilters() throws Exception {
         Filter filter = new Filter();
         filter.setFilter("byDepartment");
-
         AccessToken accessToken = createMockAccessToken();
-        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(collectionConfig, Collections.singletonList(filter),
-                sortOrder, 0, 0, accessToken);
-        String refinedActualQuery = refineQuery(actualQuery);
-        assertEquals(FIND_COLLECTION_QUERY_WITH_FILTERS, refinedActualQuery);
+
+        collectionsDaoImpl.findCollection("Employees", Collections.singletonList(filter), sortOrder, 0, 0, accessToken);
+
+        verify(jdbcTemplate).query(eq(FIND_COLLECTION_QUERY_WITH_FILTERS),
+                anyMapOf(String.class, Object.class), any(CollectionRowMapper.class));
     }
 
-    //@Test
+    @Test
     public void testFindCollectionWithMultipleReferenceTypes() throws Exception {
         Filter filter = new Filter();
         filter.setFilter("byDepartment");
-
         AccessToken accessToken = createMockAccessToken();
-        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(personsCollectionConfig, Collections.singletonList(filter),
-                new SortOrder(), 0, 0, accessToken);
-        String refinedActualQuery = refineQuery(actualQuery);
-        assertEquals(FIND_COLLECTION_QUERY_WITH_MULTIPLE_TYPE_REFERENCE, refinedActualQuery);
+
+        collectionsDaoImpl.findCollection("Persons", Collections.singletonList(filter), new SortOrder(), 0, 0, accessToken);
+
+        verify(jdbcTemplate).query(eq(FIND_COLLECTION_QUERY_WITH_MULTIPLE_TYPE_REFERENCE),
+                anyMapOf(String.class, Object.class), any(CollectionRowMapper.class));
     }
 
     //@Test

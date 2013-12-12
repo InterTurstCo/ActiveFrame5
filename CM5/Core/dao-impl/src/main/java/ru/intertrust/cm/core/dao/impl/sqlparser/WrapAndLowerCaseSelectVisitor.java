@@ -45,6 +45,22 @@ public class WrapAndLowerCaseSelectVisitor implements SelectVisitor {
                 expression.accept(new WrapAndLowerCaseExpressionVisitor());
             }
         }
+
+        if (plainSelect.getOrderByElements() != null) {
+            for (OrderByElement orderByElement : plainSelect.getOrderByElements()) {
+                if (orderByElement.getExpression() != null) {
+                    orderByElement.getExpression().accept(new WrapAndLowerCaseExpressionVisitor());
+                }
+            }
+        }
+
+        if (plainSelect.getHaving() != null) {
+            plainSelect.getHaving().accept(new WrapAndLowerCaseExpressionVisitor());
+        }
+
+        if (plainSelect.getInto() != null) {
+
+        }
     }
 
     @Override
