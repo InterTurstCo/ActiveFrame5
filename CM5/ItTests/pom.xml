@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>it-test</artifactId>
+    <name>it-test</name>
+
+    <parent>
+        <groupId>ru.intertrust.cm-sochi</groupId>
+        <artifactId>cm-sochi</artifactId>
+        <version>0.5.2-2-SNAPSHOT</version>
+    </parent>
+
+    <properties>
+        <root.basedir>${project.parent.parent.basedir}</root.basedir>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>ru.intertrust.cm-sochi</groupId>
+            <artifactId>ear</artifactId>
+            <type>ear</type>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ru.intertrust.cm-sochi</groupId>
+            <artifactId>service-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>        
+        <dependency>
+            <groupId>org.jboss.arquillian.junit</groupId>
+            <artifactId>arquillian-junit-container</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.shrinkwrap.resolver</groupId>
+            <artifactId>shrinkwrap-resolver-api-maven</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.spec.javax.ejb</groupId>
+            <artifactId>jboss-ejb-api_3.1_spec</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>

@@ -61,6 +61,7 @@ public class JdbcIT {
         try {
 
             Assert.assertNotNull(collectionService);
+            
             String query = "select p.id from person p";
             IdentifiableObjectCollection collection = collectionService.findCollectionByQuery(query);
             Assert.assertNotNull(collection);
