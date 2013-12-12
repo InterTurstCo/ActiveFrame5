@@ -7,15 +7,15 @@
     </bean>
 
     <jee:local-slsb id="guiService"
-                    jndi-name="java:app/web-app/GuiServiceImpl!ru.intertrust.cm.core.gui.api.server.GuiService"
+                    jndi-name="java:module/GuiServiceImpl!ru.intertrust.cm.core.gui.api.server.GuiService"
                     business-interface="ru.intertrust.cm.core.gui.api.server.GuiService"/>
 
     <jee:local-slsb id="actionService"
-                    jndi-name="java:app/web-app/ActionServiceImpl!ru.intertrust.cm.core.gui.api.server.ActionService"
+                    jndi-name="java:module/ActionServiceImpl!ru.intertrust.cm.core.gui.api.server.ActionService"
                     business-interface="ru.intertrust.cm.core.gui.api.server.ActionService"/>
 
     <jee:local-slsb id="processService"
-                    jndi-name="java:app/web-app/ProcessService!ru.intertrust.cm.core.business.api.ProcessService"
+                    jndi-name="java:module/ProcessService!ru.intertrust.cm.core.business.api.ProcessService"
                     business-interface="ru.intertrust.cm.core.business.api.ProcessService"/>
 
 
