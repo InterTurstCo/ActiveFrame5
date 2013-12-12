@@ -14,7 +14,6 @@
 
     <properties>
         <root.basedir>${project.parent.basedir}</root.basedir>
-        <jboss.appname>cm-sochi-${project.version}</jboss.appname>
     </properties>
 
     <dependencies>
@@ -35,10 +34,10 @@
 
     </dependencies>
 
-    <build>
+    <!-- <build>
         <finalName>cm-sochi-${project.version}</finalName>
         <plugins>
-            <!-- <plugin>
+            <!- - <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>properties-maven-plugin</artifactId>
                 <executions>
@@ -54,8 +53,8 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin> -->
-            <plugin>
+            </plugin> - ->
+            <!- - <plugin>
                 <artifactId>maven-ear-plugin</artifactId>
                 <configuration>
                     <applicationName>cm-sochi</applicationName>
@@ -73,29 +72,90 @@
                     <filters>
                         <filter>${basedir}/../deploy.properties</filter>
                     </filters>
-                    <applicationXml>src/main/application/META-INF/application.xml</applicationXml>
-                    <!-- <env-entries>
-                        <env-entry>
-                            <env-entry-name>search.solr.url</env-entry-name>
-                            <env-entry-type>java.lang.String</env-entry-type>
-                            <env-entry-value>${search.solr.url}</env-entry-value>
-                        </env-entry>
-                        <env-entry>
-                            <env-entry-name>search.solr.home</env-entry-name>
-                            <env-entry-type>java.lang.String</env-entry-type>
-                            <env-entry-value>${search.solr.home}</env-entry-value>
-                        </env-entry>
-                        <env-entry>
-                            <env-entry-name>search.solr.home</env-entry-name>
-                            <env-entry-type>java.lang.String</env-entry-type>
-                            <env-entry-value>${basedir}/deploy.properties</env-entry-value>
-                        </env-entry>
-                    </env-entries> -->
+                    <applicationXml>${basedir}/src/main/application/META-INF/application-externalSolr.xml</applicationXml>
                 </configuration>
-            </plugin>
+            </plugin> - ->
         </plugins>
-    </build>
+    </build> -->
+
     <profiles>
+        <profile>
+            <id>solr.external</id>
+            <activation>
+                <property>
+                    <name>solr.external</name>
+                </property>
+            </activation>
+            <properties>
+                <ear.name>cm-sochi-${project.version}</ear.name>
+            </properties>
+            <build>
+                <finalName>${ear.name}</finalName>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-ear-plugin</artifactId>
+                        <configuration>
+                            <applicationName>cm-sochi</applicationName>
+                            <version>6</version>
+                            <modules>
+                                <webModule>
+                                    <groupId>ru.intertrust.cm-sochi</groupId>
+                                    <artifactId>web-app</artifactId>
+                                    <uri>web-app.war</uri>
+                                    <bundleFileName>web-app</bundleFileName>
+                                    <contextRoot>/cm-sochi</contextRoot>
+                                </webModule>
+                            </modules>
+                            <packagingExcludes>META-INF/application-*.xml</packagingExcludes>
+                            <filtering>true</filtering>
+                            <filters>
+                                <filter>${basedir}/../deploy.properties</filter>
+                            </filters>
+                            <applicationXml>${basedir}/src/main/application/META-INF/application-externalSolr.xml</applicationXml>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>solr.embedded</id>
+            <activation>
+                <property>
+                    <name>!solr.external</name>
+                </property>
+            </activation>
+            <properties>
+                <ear.name>cm-sochi-solr-${project.version}</ear.name>
+            </properties>
+            <build>
+                <finalName>${ear.name}</finalName>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-ear-plugin</artifactId>
+                        <configuration>
+                            <applicationName>cm-sochi</applicationName>
+                            <version>6</version>
+                            <modules>
+                                <webModule>
+                                    <groupId>ru.intertrust.cm-sochi</groupId>
+                                    <artifactId>web-app</artifactId>
+                                    <uri>web-app.war</uri>
+                                    <bundleFileName>web-app</bundleFileName>
+                                    <contextRoot>/cm-sochi</contextRoot>
+                                </webModule>
+                            </modules>
+                            <packagingExcludes>META-INF/application-*.xml</packagingExcludes>
+                            <filtering>true</filtering>
+                            <filters>
+                                <filter>${basedir}/../deploy.properties</filter>
+                            </filters>
+                            <applicationXml>${basedir}/src/main/application/META-INF/application-embeddedSolr.xml</applicationXml>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
         <profile>
             <id>deploy-jboss</id>
             <build>
@@ -107,7 +167,7 @@
                         <configuration>
                             <hostname>localhost</hostname>
                             <port>9999</port>
-                            <filename>${jboss.appname}.ear</filename>
+                            <filename>${ear.name}.ear</filename>
                             <skip>false</skip>
                         </configuration>
 
@@ -160,7 +220,7 @@
                                     </resource>
                                 </configuration>
                             </execution>
-                            <execution>
+                            <!-- <execution>
                                 <id>add-instance-config</id>
                                 <phase>install</phase>
                                 <goals>
@@ -176,7 +236,7 @@
                                         </properties>
                                     </resource>
                                 </configuration>
-                            </execution>
+                            </execution> -->
                             <!-- Deploy the application on install. Must be after resource deployment -->
                             <execution>
                                 <id>deploy</id>

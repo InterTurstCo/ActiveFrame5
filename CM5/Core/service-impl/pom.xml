@@ -65,9 +65,82 @@
             <version>1.5.1</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>solr.embedded</id>
+            <activation>
+                <property>
+                    <name>!solr.external</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.solr</groupId>
+                    <artifactId>solr-core</artifactId>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>jdk.tools</groupId>
+                            <artifactId>jdk.tools</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.solr</groupId>
+                    <artifactId>solr-dataimporthandler-extras</artifactId>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.solr</groupId>
+                    <artifactId>solr-langid</artifactId>
+                </dependency>
+                <!-- <dependency>
+                    <groupId>jdk.tools</groupId>
+                    <artifactId>jdk.tools</artifactId>
+                    <version>1.6</version>
+                    <scope>system</scope>
+                    <systemPath>${JAVA_HOME}/lib/tools.jar</systemPath>
+                </dependency> -->
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>add-embedded-solr-src</id>
+                                <goals>
+                                    <goal>add-source</goal>
+                                </goals>
+                                <configuration>
+                                    <sources>
+                                        <source>src/solr/java</source>
+                                    </sources>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>add-embedded-solr-res</id>
+                                <goals>
+                                    <goal>add-resource</goal>
+                                </goals>
+                                <configuration>
+                                    <resources>
+                                        <resource>
+                                            <directory>src/solr/resources</directory>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
