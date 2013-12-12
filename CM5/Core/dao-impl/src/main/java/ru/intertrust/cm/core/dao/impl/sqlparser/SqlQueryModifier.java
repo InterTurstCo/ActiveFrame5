@@ -98,6 +98,11 @@ public class SqlQueryModifier {
             }
 
             SelectExpressionItem selectExpressionItem = (SelectExpressionItem) selectItem;
+
+            if (!(selectExpressionItem.getExpression() instanceof Column)) {
+                continue;
+            }
+
             Column column = (Column) selectExpressionItem.getExpression();
             FieldConfig fieldConfig = configurationExplorer.getFieldConfig(getTableName(plainSelect, column),
                     column.getColumnName());
@@ -151,7 +156,8 @@ public class SqlQueryModifier {
             }
             SelectExpressionItem selectExpressionItem = (SelectExpressionItem) selectItem;
             String column = selectExpressionItem.getAlias() + ":" +
-                    ((Column) selectExpressionItem.getExpression()).getColumnName();
+                    (selectExpressionItem.getExpression() instanceof Column ?
+                        ((Column) selectExpressionItem.getExpression()).getColumnName() : "");
             column = column.toLowerCase();
             if (!columns.add(column)) {
                 throw new CollectionQueryException("Collection query contains duplicated columns: " +
@@ -169,6 +175,11 @@ public class SqlQueryModifier {
             }
 
             SelectExpressionItem selectExpressionItem = (SelectExpressionItem) selectItem;
+
+            if (!(selectExpressionItem.getExpression() instanceof Column)) {
+                continue;
+            }
+
             Column column = (Column) selectExpressionItem.getExpression();
             FieldConfig fieldConfig = configurationExplorer.getFieldConfig(getTableName(plainSelect, column),
                     column.getColumnName());

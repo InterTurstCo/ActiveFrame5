@@ -1,9 +1,12 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
@@ -11,20 +14,25 @@ import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.*;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserSubject;
+import ru.intertrust.cm.core.dao.impl.utils.CollectionRowMapper;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyMapOf;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 /**
  * @author vmatsukevich
  *         Date: 7/2/13
  *         Time: 12:55 PM
  */
+
+@RunWith(MockitoJUnitRunner.class)
 public class CollectionsDaoImplTest {
 
     private static final String COLLECTION_ACL_QUERY = "EXISTS (SELECT r.object_id FROM employee_READ AS r INNER JOIN" +
@@ -38,10 +46,20 @@ public class CollectionsDaoImplTest {
             "AND r.object_id = id) " +
             "AND 1 = 1 AND d.name = 'dep1' AND e.name = 'employee1'";
 
-    private static final String COLLECTION_QUERY_WITH_LIMITS =
+    private static final String COLLECTION_QUERY_WITH_FILTER_AND_LIMITS =
             "SELECT e.id, e.name, e.position, e.created_date, e.updated_date, 'employee' AS TYPE_CONSTANT " +
             "FROM employee AS e INNER JOIN department AS d ON e.department = d.id WHERE " + COLLECTION_ACL_QUERY +
             "AND 1 = 1 AND d.name = 'dep1' ORDER BY e.name LIMIT 100 OFFSET 10";
+
+    private static final String COLLECTION_QUERY =
+            "SELECT e.id, e.email, e.login, e.password, e.created_date, e.updated_date, 'employee' AS TYPE_CONSTANT " +
+                    "FROM person AS e INNER JOIN department AS d ON e.department = d.id";
+
+    private static final String ACTUAL_COLLECTION_QUERY_WITH_LIMITS =
+            "SELECT e.\"id\", e.\"email\", e.\"login\", e.\"password\", e.\"created_date\", " +
+                    "e.\"updated_date\", 'employee' AS TYPE_CONSTANT, e.\"id_type\" " +
+                    "FROM \"person\" AS e INNER JOIN \"department\" AS d " +
+                    "ON e.\"department\" = d.\"id\" LIMIT 100 OFFSET 10";
 
     private static final String FIND_COLLECTION_QUERY_WITH_FILTERS =
             "SELECT e.id, e.name, e.position, e.created_date, e.updated_date, 'employee' AS TYPE_CONSTANT " +
@@ -107,7 +125,7 @@ public class CollectionsDaoImplTest {
     private final CollectionsDaoImpl collectionsDaoImpl = new CollectionsDaoImpl();
 
     @Mock
-    private JdbcTemplate jdbcTemplate;
+    private NamedParameterJdbcOperations jdbcTemplate;
 
     private ConfigurationExplorerImpl configurationExplorer;
 
@@ -292,7 +310,16 @@ public class CollectionsDaoImplTest {
                 sortOrder, 10, 100, accessToken);
         String refinedActualQuery = refineQuery(actualQuery);
 
-        assertEquals(COLLECTION_QUERY_WITH_LIMITS, refinedActualQuery);
+        assertEquals(COLLECTION_QUERY_WITH_FILTER_AND_LIMITS, refinedActualQuery);
+    }
+
+    @Test
+    public void testFindCollectionByQueryWithLimits() throws Exception {
+        AccessToken accessToken = createMockAccessToken();
+        collectionsDaoImpl.findCollectionByQuery(COLLECTION_QUERY, 10, 100, accessToken);
+
+        verify(jdbcTemplate).query(eq(ACTUAL_COLLECTION_QUERY_WITH_LIMITS),
+                anyMapOf(String.class, Object.class), any(CollectionRowMapper.class));
     }
 
     //@Test

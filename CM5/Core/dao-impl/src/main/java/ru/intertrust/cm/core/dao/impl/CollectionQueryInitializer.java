@@ -152,7 +152,7 @@ public class CollectionQueryInitializer {
     public String initializeQuery(String query, int offset, int limit, AccessToken accessToken) {
         StringBuilder collectionQuery = new StringBuilder(query);
         applyOffsetAndLimit(collectionQuery, offset, limit);
-        return postProcessQuery(accessToken, query);
+        return postProcessQuery(accessToken, collectionQuery.toString());
     }
 
     /**
