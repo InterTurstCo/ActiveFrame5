@@ -24,6 +24,9 @@ import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.doel.DoelExpression;
 import ru.intertrust.cm.core.config.doel.DoelValidator;
 import ru.intertrust.cm.core.config.doel.DoelValidator.DoelTypes;
+import ru.intertrust.cm.core.dao.access.AccessControlService;
+import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.api.DoelEvaluator;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.impl.utils.ValueReader;
@@ -44,10 +47,12 @@ import java.util.Map;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getColumnNames;
 
-public class DoelResolver {
+public class DoelResolver implements DoelEvaluator {
 
     private NamedParameterJdbcTemplate jdbcTemplate;
 
+    @Autowired
+    private AccessControlService accessControlService;
     @Autowired
     private ConfigurationExplorer configurationExplorer;
     @Autowired
@@ -73,6 +78,16 @@ public class DoelResolver {
 
     public void setDomainObjectCacheService(DomainObjectCacheServiceImpl domainObjectCacheService) {
         this.domainObjectCacheService = domainObjectCacheService;
+    }
+
+    public void setAccessControlService(AccessControlService accessControlService) {
+        this.accessControlService = accessControlService;
+    }
+
+    @Override
+    public <T extends Value> List<T> evaluate(DoelExpression expression, Id sourceObjectId, AccessToken accessToken) {
+        accessControlService.verifySystemAccessToken(accessToken);  //*****
+        return evaluate(expression, sourceObjectId);
     }
 /*
     private EvaluationQueryResult generateEvaluationQuery(DoelExpression expression, String sourceType) {
@@ -321,7 +336,7 @@ public class DoelResolver {
                             result.add((T) value);
                         }*/
                         if (fieldElem.getName().equalsIgnoreCase(DomainObjectDao.ID_COLUMN)) {
-                            result.add((T)new ReferenceValue(obj.getId()));
+                            result.add((T) new ReferenceValue(obj.getId()));
                         } else {
                             Value value = obj.getValue(fieldElem.getName());
                             if (value != null) {
