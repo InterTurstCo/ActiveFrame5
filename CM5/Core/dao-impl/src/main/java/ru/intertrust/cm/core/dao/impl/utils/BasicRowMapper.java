@@ -172,7 +172,7 @@ public class BasicRowMapper extends ValueReader {
         object.resetDirty();
 
         if (object.getId() != null) {
-            getDomainObjectCacheService().putObjectToCache(object);
+//            getDomainObjectCacheService().putObjectToCache(object);
         }
 
         return object;
