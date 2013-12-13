@@ -16,7 +16,11 @@ public class CollectionRowsRequest implements Dto {
     private int offset;
     private int limit;
     private String collectionName;
-    private HashMap<String, String> fields;
+    private HashMap<String, String> fields = new HashMap<String, String>();
+    private boolean sotrType;
+    private String columnName;
+    private boolean sortable;
+    private String field;
 
     public CollectionRowsRequest(int offset, int limit, String collectionName, HashMap<String, String> fields) {
         this.offset = offset;
@@ -24,6 +28,18 @@ public class CollectionRowsRequest implements Dto {
         this.collectionName = collectionName;
         this.fields = fields;
 
+    }
+
+    public CollectionRowsRequest(int offset, int limit, String collectionName, HashMap<String, String> fields,
+                                 boolean sotrType, String columnName, String field) {
+        this.offset = offset;
+        this.limit = limit;
+        this.collectionName = collectionName;
+        this.fields = fields;
+        this.sotrType = sotrType;
+        this.columnName = columnName;
+        this.sortable = true;
+        this.field = field;
     }
 
     public CollectionRowsRequest() {
@@ -59,5 +75,37 @@ public class CollectionRowsRequest implements Dto {
 
     public HashMap<String, String> getFields() {
         return fields;
+    }
+
+    public boolean isSotrType() {
+        return sotrType;
+    }
+
+    public void setSotrType(boolean sotrType) {
+        this.sotrType = sotrType;
+    }
+
+    public String getColumnName() {
+        return columnName;
+    }
+
+    public void setColumnName(String columnName) {
+        this.columnName = columnName;
+    }
+
+    public boolean isSortable() {
+        return sortable;
+    }
+
+    public void setSortable(boolean sortable) {
+        this.sortable = sortable;
+    }
+
+    public String getField() {
+        return field;
+    }
+
+    public void setField(String field) {
+        this.field = field;
     }
 }

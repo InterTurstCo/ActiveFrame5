@@ -14,6 +14,7 @@ import java.util.List;
 public class CollectionPluginData extends PluginData {
 
     private String collectionName;
+    private LinkedHashMap<String, String> fieldMap = new LinkedHashMap<String, String>();
     private boolean singleChoice;
     private boolean displayChosenValues;
     private ArrayList<CollectionRowItem> items = new ArrayList<CollectionRowItem>();
@@ -78,5 +79,13 @@ public class CollectionPluginData extends PluginData {
 
     public void setChosenIds(List<Id> chosenIds) {
         this.chosenIds = chosenIds;
+    }
+
+    public LinkedHashMap<String, String> getFieldMap() {
+        return fieldMap;
+    }
+
+    public void setFieldMap(LinkedHashMap<String, String> fieldMap) {
+        this.fieldMap = fieldMap;
     }
 }

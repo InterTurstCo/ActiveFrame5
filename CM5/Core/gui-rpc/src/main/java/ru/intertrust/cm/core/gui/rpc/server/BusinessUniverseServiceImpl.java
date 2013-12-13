@@ -60,7 +60,9 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         try {
             return guiService.executeCommand(command);
         } catch (RuntimeException e) {
+
             throw handleEjbException(command, e);
+
         }
     }
 

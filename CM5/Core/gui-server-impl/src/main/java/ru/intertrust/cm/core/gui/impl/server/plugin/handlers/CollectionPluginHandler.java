@@ -44,8 +44,17 @@ public class CollectionPluginHandler extends PluginHandler {
         pluginData.setSingleChoice(singleChoice);
         pluginData.setDisplayChosenValues(displayChosenValues);
         CollectionViewConfig collectionViewConfig = findRequiredCollectionView(collectionName);
+
+
+
         LinkedHashMap<String, String> map = getDomainObjectFieldOnColumnNameMap(collectionViewConfig);
         pluginData.setDomainObjectFieldOnColumnNameMap(map);
+        LinkedHashMap<String, String> fieldMap = new LinkedHashMap<String, String>();
+        for (int i = 0; i <map.size() ; i++ ){
+            fieldMap.put(collectionViewConfig.getCollectionDisplayConfig().getColumnConfig().get(i).getName(),
+                    collectionViewConfig.getCollectionDisplayConfig().getColumnConfig().get(i).getField());
+
+        }
 
         List<Filter> filters = new ArrayList<Filter>();
 
@@ -69,6 +78,7 @@ public class CollectionPluginHandler extends PluginHandler {
         }
 
         pluginData.setCollectionName(collectionName);
+        pluginData.setFieldMap(fieldMap);
 
         return pluginData;
     }
@@ -138,6 +148,7 @@ public class CollectionPluginHandler extends PluginHandler {
     private LinkedHashMap<String, String> getDomainObjectFieldOnColumnNameMap(CollectionViewConfig collectionViewConfig) {
         LinkedHashMap<String, String> columnNames = new LinkedHashMap<String, String>();
         CollectionDisplayConfig collectionDisplay = collectionViewConfig.getCollectionDisplayConfig();
+
         if (collectionDisplay != null) {
             List<CollectionColumnConfig> columnConfigs = collectionDisplay.getColumnConfig();
             for (CollectionColumnConfig collectionColumnConfig : columnConfigs) {
@@ -174,14 +185,50 @@ public class CollectionPluginHandler extends PluginHandler {
         return items;
     }
 
+    public ArrayList<CollectionRowItem> generateSortTableRowsForPluginInitialization
+            (String collectionName, Set<String> fields, int offset, int count, List<Filter> filters, String field, boolean sortable ) {
+        ArrayList<CollectionRowItem> items = new ArrayList<CollectionRowItem>();
+        SortCriterion.Order order;
+         if (sortable){
+             order = SortCriterion.Order.ASCENDING;
+         } else {
+             order = SortCriterion.Order.DESCENDING;
+         }
+
+        SortOrder sortOrder = new SortOrder();
+        sortOrder.add(new SortCriterion(field, order));
+
+        IdentifiableObjectCollection collection = collectionsService.
+                findCollection(collectionName, sortOrder, filters, offset, count);
+        for (IdentifiableObject identifiableObject : collection) {
+            items.add(generateCollectionRowItem(identifiableObject, fields));
+        }
+        return items;
+    }
+
+
+
     public Dto generateCollectionRowItems(Dto dto) {
         CollectionRowsRequest collectionRowsRequest = (CollectionRowsRequest) dto;
-        ArrayList<CollectionRowItem> list = generateTableRowsForPluginInitialization(
-                collectionRowsRequest.getCollectionName(),
-                collectionRowsRequest.getFields().keySet(), collectionRowsRequest.getOffset(),
-                collectionRowsRequest.getLimit(), null);
+        ArrayList<CollectionRowItem> list;
+        if (((CollectionRowsRequest) dto).isSortable()){
+            list = generateSortTableRowsForPluginInitialization(collectionRowsRequest.getCollectionName(),
+                    collectionRowsRequest.getFields().keySet(), collectionRowsRequest.getOffset(),
+                    collectionRowsRequest.getLimit(), null, ((CollectionRowsRequest) dto).getField(),
+                    ((CollectionRowsRequest) dto).isSotrType());
+        }   else {
+             list = generateTableRowsForPluginInitialization(
+                    collectionRowsRequest.getCollectionName(),
+                    collectionRowsRequest.getFields().keySet(), collectionRowsRequest.getOffset(),
+                    collectionRowsRequest.getLimit(), null);
+            CollectionRowItemList collectionRowItemList = new CollectionRowItemList();
+            collectionRowItemList.setCollectionRows(list);
+
+
+        }
         CollectionRowItemList collectionRowItemList = new CollectionRowItemList();
         collectionRowItemList.setCollectionRows(list);
+
         return collectionRowItemList;
     }
 

@@ -10,6 +10,9 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.gui.impl.client.event.TableControllerSortEvent;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.SortCollectionState;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 
 /**
@@ -23,26 +26,31 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
 
     private FlowPanel           tablePanelWinth;
     private int                 resizeModifier;
-
+    private EventBus eventBus;
     static final int            COLUMN_MIN_WIDTH = 100;
     private Point               startResizePoint;
     private Point               startMovePoint;
+    private int                 mouseDownSortPoint;
+    private int                 mouseUpSortPoint;
     private int                 resizeStartPoint;
     private int                 resizeEndPoint;
     private boolean             mouseDown        = false;
+    private boolean             sortDirection;
     private int                 colIdx;
     private static int          DELTA_X          = 3;
     private static int          DELTA_DRAG       = 1;
     private static Style.Cursor MOVE_CURSOR      = Style.Cursor.MOVE;
     private static Style.Cursor RESIZE_CURSOR    = Style.Cursor.COL_RESIZE;
     private static Style.Cursor DEFAULT_CURSOR   = Style.Cursor.DEFAULT;
+    private Column lastColumn;
 
     CellTable<CollectionRowItem> header;
     CellTable<CollectionRowItem> body;
 
-    public TableController(CellTable<CollectionRowItem> header, CellTable<CollectionRowItem> body) {
+    public TableController(CellTable<CollectionRowItem> header, CellTable<CollectionRowItem> body, EventBus eventBus) {
         this.header = header;
         this.body = body;
+        this.eventBus = eventBus;
 
 
         header.sinkEvents(Event.ONMOUSEDOWN | Event.ONMOUSEUP | Event.ONMOUSEMOVE | Event.ONMOUSEOVER);
@@ -68,12 +76,14 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
 
     @Override
     public void onMouseDown(MouseDownEvent event) {
+        checkFstSortClick(event);
         onMouseDownEvent(event);
         event.preventDefault();
     }
 
     @Override
     public void onMouseUp(MouseUpEvent event) {
+        checkSndSortClick(event);
         onMouseUpEvent(event);
         event.preventDefault();
     }
@@ -90,6 +100,86 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
 
         onMouseOverEvent(event);
         event.preventDefault();
+    }
+
+    private void checkFstSortClick(final MouseEvent e){
+        Point p = getPoint(e);
+        mouseDownSortPoint = (int) p.getX();
+    }
+    private void checkSndSortClick(final MouseEvent e){
+        Point p = getPoint(e);
+        mouseUpSortPoint = (int) p.getX();
+        if (mouseDownSortPoint == mouseUpSortPoint){
+            fireSortEvent();
+        }
+    }
+
+    private void fireSortEvent(){
+        Column column = getSortedColumn();
+        System.out.println("colData "+column.getDataStoreName());
+        String colDataStoreName = column.getDataStoreName().replaceAll("([↓↑])", "");
+
+        System.out.println("colData "+colDataStoreName);
+        if (lastColumn != null){
+        if (!lastColumn.equals(column)){
+            String rename = lastColumn.getDataStoreName().replaceAll("([↓↑])", "");
+            lastColumn.setDataStoreName(rename);
+
+            resetLastColumn();
+
+            }
+        }
+
+        if (!sortDirection){
+            sortDirection = true;
+        }  else {
+            sortDirection = false;
+        }
+        eventBus.fireEvent(new TableControllerSortEvent(colDataStoreName, new SortCollectionState(
+                70, 0, colDataStoreName, sortDirection ,true )));
+
+           lastColumn = column;
+
+
+    }
+
+    private void resetLastColumn(){
+
+        for (int i = 0 ; i < header.getColumnCount(); i++){
+            if (lastColumn.equals(header.getColumn(i))){
+                 reDrawColumn(i, lastColumn);
+            }
+        }
+    }
+
+    private Column getSortedColumn(){
+        int checkPos = 0;
+
+        for (int i = 0; i < header.getColumnCount(); i++ ){
+            Column column = header.getColumn(i);
+            checkPos += getThisColumnWidth(column);
+            if (checkPos > mouseDownSortPoint){
+                String colName = header.getColumn(i).getDataStoreName() ;
+                if (!sortDirection)  {
+                    colName = colName.replaceAll("([↑↓])", "");
+                    column.setDataStoreName(colName+"↑");
+
+                } else {
+                    colName = colName.replaceAll("([↑↓])", "");
+                    column.setDataStoreName(colName+"↓");
+                }
+                reDrawColumn(i, column);
+                return column;
+            }
+        }
+
+        return null;
+    }
+
+    private void reDrawColumn(int index, Column column){
+        header.removeColumn(index);
+        header.insertColumn(index, column, column.getDataStoreName());
+
     }
 
     private void onMouseDownEvent(final MouseDownEvent e) {
