@@ -76,11 +76,12 @@ public class CollectionRowMapper extends BasicRowMapper implements
                 if (valueModel.getId() != null) {
                     collection.setId(row, valueModel.getId());
                     collection.set(index, row, new ReferenceValue(valueModel.getId()));
+                    index++;
                 } else if (valueModel.getValue() != null && collectionConfigExists(columnName)) {
                     collection.set(index, row, valueModel.getValue());
+                    index++;
                 }
-                index++;
-
+                // если поле в коллекцию не добавляется, то индекс не инкрементируется
             }
 
             collection.resetDirty(row);
