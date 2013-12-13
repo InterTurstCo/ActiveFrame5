@@ -39,5 +39,27 @@ public class CollectionRowItem implements Dto{
         this.row = row;
     }
 
+    public HashMap<String, Value> getRow () {
+        return row;
+    }
 
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == this)
+            return true;
+
+        if(obj == null)
+            return false;
+
+        /* Удостоверимся, что ссылки имеют тот же самый тип */
+        if(!(getClass() == obj.getClass()))
+            return false;
+        else {
+            CollectionRowItem tmp = (CollectionRowItem)obj;
+            if(tmp.getId() == this.getId())
+                return true;
+            else
+                return false;
+        }
+    }
 }

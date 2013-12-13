@@ -225,7 +225,7 @@ public class CollectionPluginView extends PluginView {
 
     // метод для удаления из коллекции
     public void delCollectionRow(Id collectionObject) {
-        // ищем какая строка была выбрана
+        // ищем какаой элемент коллекции должен быть удален
         int index = 0;
         for (CollectionRowItem i : items) {
             if (i.getId().toStringRepresentation().equalsIgnoreCase(collectionObject.toStringRepresentation())) {
@@ -233,25 +233,31 @@ public class CollectionPluginView extends PluginView {
             }
         }
 
-        // удаляем из коллекции и из таблицы
+        // если в коллекции не было элементов
+        // операция удаления ни к чему не приводит
+        if (items.size() == 0)
+            return;
+
+        // удаляем из коллекции
         items.remove(index);
 
-        // выделение строки - если удалили последнюю строку, выделяем предыдущую
-       if (index == items.size()) {
-           index--;
-       }
-
-        if (index < 0)   {
-            // если строка была единственная, то "чистимся" и выходим из метода
+        // если в коллекции был один элемент перед удалением
+        if (index == items.size() && items.size() == 0) {
             tableBody.setRowData(items);
             tableBody.redraw();
             tableBody.flush();
             return;
         }
+        // выделение строки - если удалили последнюю строку, выделяем предыдущую
+       if (index == items.size()) {
+           index--;
+       }
+
        CollectionRowItem itemRow = items.get(index);
-
-       selectionModel.setSelected(itemRow, true);
-
+       if (index > 0)
+           selectionModel.setSelected(itemRow, true);
+       if (index == 0)
+           selectionModel.setSelected(itemRow, false);
        // обновляем таблицу
        tableBody.setRowData(items);
        tableBody.redraw();
@@ -262,42 +268,71 @@ public class CollectionPluginView extends PluginView {
         CollectionRowItem item = new CollectionRowItem();
         LinkedHashMap<String, Value> rowValues = new LinkedHashMap<String, Value>();
         for (String field : columnNamesOnDoFieldsMap.keySet()) {
-            Value value;
-            if ("id".equalsIgnoreCase(field)) {
-                value = new StringValue(collectionObject.getId().toStringRepresentation());
-            } else {
-                value = collectionObject.getValue(field);
+             Value value = null;
+             value = collectionObject.getValue(field);
 
+            if (field.equalsIgnoreCase("id")) {
+                value = new StringValue(collectionObject.getId().toStringRepresentation().toLowerCase());
             }
+
+            if (field.equalsIgnoreCase("name")) {
+                value = new StringValue(collectionObject.getString(field));
+                // это для коллекции организаций(временное решение)
+                if (value.toString() == "null")
+                    value = new StringValue(collectionObject.getString("Name"));
+                rowValues.put(field, value);
+                continue;
+            }
+
             rowValues.put(field, value);
         }
 
         item.setId(collectionObject.getId());
         item.setRow(rowValues);
 
-        int index = 0;
-        // ищем совпадающий элемент(для случая редактирования коллекции)
+        // ищем совпадающий элемент, берем его индекс
+        int index = -1;
         for (CollectionRowItem i : items) {
             if (i.getId().toStringRepresentation().equalsIgnoreCase(item.getId().toStringRepresentation())) {
                 index = items.indexOf(i);
             }
         }
 
-        if (index > 0) {
-            CollectionRowItem itemRow = items.get(index - 1);
-            selectionModel.setSelected(itemRow, false);
-            items.set(index, item);
-            selectionModel.setSelected(item, true);
-        } else if (index == 0 || items.size() > 0) {
+        // коллекция не пуста
+        if (items.size() >= 0) {
+            // признак вставки элемента в коллекцию
+            boolean inserted = false;
+            // если была выделена строка коллекции - снимаем выделение
             for (CollectionRowItem i : items) {
                 if (selectionModel.isSelected(i)) {
-                   selectionModel.setSelected(i, false);
+                    selectionModel.setSelected(i, false);
                 }
             }
-            items.add(item);
-            selectionModel.setSelected(item, true);
+
+            // если был совпадающий по id элемент
+            if (index >= 0) {
+                try {
+                    // замена элемента в коллекции
+                    items.remove(index);
+                    items.add(index, item);
+                    selectionModel.setSelected(item, true);
+                    inserted = true;
+                    // обновляем таблицу
+                    tableBody.setRowData(items);
+                    tableBody.redraw();
+                    tableBody.flush();
+                } catch (IndexOutOfBoundsException ie) {
+                }
+            }
+
+            // добавление нового элемента
+            if (!inserted) {
+                items.add(item);
+                selectionModel.setSelected(item, true);
+            }
         }
 
+        // перерисовка таблицы(коллекции)
         tableBody.setRowData(items);
         tableBody.redraw();
         tableBody.flush();
