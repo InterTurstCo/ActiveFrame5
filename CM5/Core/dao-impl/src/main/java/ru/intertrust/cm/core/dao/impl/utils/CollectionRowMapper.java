@@ -106,9 +106,10 @@ public class CollectionRowMapper extends BasicRowMapper implements
     }
 
     /**
-     * Возвращает список названий колонок, которые будут добавлены в коллекцию. SQL запрос коллекции может содержать
+     * Возвращает список названий колонок, которые будут заполняться в коллекции. SQL запрос коллекции может содержать
      * произвольные поля, но добавляются в коллекцию только поля, которые указаны в конфигурации представления
-     * коллекции. Причем, список не содержит колонку-идентификатор и колонку идентификатор типа (id_type)
+     * коллекции (collections-view.xml). Причем, список не содержит колонку идентификатор типа (id_type).
+     * Колонка идентификатор содержится в списке всегда.
      * @param columnModel модель колонок содержит список всех колонок из запроса.
      * @return список колонок, которые будут добавлены в коллекцию.
      */
@@ -125,7 +126,17 @@ public class CollectionRowMapper extends BasicRowMapper implements
         return fieldNamesToInsert;
     }
 
+    /**
+     * Проверяет, содержится ли колонка в конфигурации отображаемых полей коллекции (collections-view.xml).
+     * Колонка id содержиться в конфигурации по умолчанию.
+     * @param columnName
+     * @return
+     */
     protected boolean collectionConfigExists(String columnName) {
+        if (DomainObjectDao.ID_COLUMN.equals(columnName)) {
+            return true;
+        }
+        
         if (collectionName != null) {
             CollectionColumnConfig columnConfig =
                     configurationExplorer.getCollectionColumnConfig(collectionName, columnName);
