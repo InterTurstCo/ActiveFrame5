@@ -8,8 +8,6 @@ import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
-import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
-import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.model.FatalException;
 
 import java.io.*;
@@ -25,10 +23,9 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     private final static String GLOBAL_SETTINGS_CLASS_NAME = "ru.intertrust.cm.core.config.GlobalSettingsConfig";
     private Configuration configuration;
 
-    private Map<Class<?>, Map<String, TopLevelConfig>> topLevelConfigMap = new HashMap<>();
+    private Map<Class<?>, Map<TopLevelConfigKey, TopLevelConfig>> topLevelConfigMap = new HashMap<>();
     private Map<FieldConfigKey, FieldConfig> fieldConfigMap = new HashMap<>();
     private Map<FieldConfigKey, CollectionColumnConfig> collectionColumnConfigMap = new HashMap<>();
-    private Map<String, LinkConfig> linkConfigMap = new HashMap<>();
     private GlobalSettingsConfig globalSettings;
     @Autowired
     FormLogicalValidator formLogicalValidator;
@@ -115,12 +112,12 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     @Override
     @SuppressWarnings("unchecked")
     public <T> T getConfig(Class<T> type, String name) {
-        Map<String, TopLevelConfig> typeMap = topLevelConfigMap.get(type);
+        Map<TopLevelConfigKey, TopLevelConfig> typeMap = topLevelConfigMap.get(type);
         if (typeMap == null) {
             return null;
         }
 
-        return (T) typeMap.get(name.toLowerCase());
+        return (T) typeMap.get(new TopLevelConfigKey(name));
     }
 
     /**
@@ -129,14 +126,14 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     @Override
     @SuppressWarnings("unchecked")
     public <T> Collection<T> getConfigs(Class<T> type) {
-        Map<String, TopLevelConfig> typeMap = topLevelConfigMap.get(type);
+        Map<TopLevelConfigKey, TopLevelConfig> typeMap = topLevelConfigMap.get(type);
         if (typeMap == null) {
             return Collections.EMPTY_LIST;
         }
 
         //Перекладываем в другой контейнер, для возможности сериализации
         List<T> result = new ArrayList<T>();
-        result.addAll((Collection<T>)typeMap.values());
+        result.addAll((Collection<T>) typeMap.values());
 
         return result;
     }
@@ -229,9 +226,6 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
             } else if (CollectionViewConfig.class.equals(config.getClass())) {
                 CollectionViewConfig collectionViewConfig = (CollectionViewConfig) config;
                 fillCollectionColumnConfigMap(collectionViewConfig);
-            } else if (NavigationConfig.class.equals(config.getClass())) {
-                NavigationConfig navigationConfig = (NavigationConfig) config;
-                fillLinkConfigMap(navigationConfig);
             }
         }
 
@@ -245,10 +239,10 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     public List<DynamicGroupConfig> getDynamicGroupConfigsByContextType(String domainObjectType) {
         List<DynamicGroupConfig> dynamicGroups = new ArrayList<DynamicGroupConfig>();
 
-        Map<String, TopLevelConfig> dynamicGroupMap = topLevelConfigMap.get(DynamicGroupConfig.class);
+        Map<TopLevelConfigKey, TopLevelConfig> dynamicGroupMap = topLevelConfigMap.get(DynamicGroupConfig.class);
 
-        for (String groupName : dynamicGroupMap.keySet()) {
-            DynamicGroupConfig dynamicGroup = (DynamicGroupConfig) dynamicGroupMap.get(groupName);
+        for (TopLevelConfigKey groupKey : dynamicGroupMap.keySet()) {
+            DynamicGroupConfig dynamicGroup = (DynamicGroupConfig) dynamicGroupMap.get(groupKey);
             if (dynamicGroup.getContext() != null && dynamicGroup.getContext().getDomainObject() != null) {
                 String objectType = dynamicGroup.getContext().getDomainObject().getType();
 
@@ -267,10 +261,10 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     public List<DynamicGroupConfig> getDynamicGroupConfigsByTrackDO(String trackDOTypeName, String status) {
         List<DynamicGroupConfig> dynamicGroups = new ArrayList<DynamicGroupConfig>();
 
-        Map<String, TopLevelConfig> dynamicGroupMap = topLevelConfigMap.get(DynamicGroupConfig.class);
+        Map<TopLevelConfigKey, TopLevelConfig> dynamicGroupMap = topLevelConfigMap.get(DynamicGroupConfig.class);
 
-        for (String groupName : dynamicGroupMap.keySet()) {
-            DynamicGroupConfig dynamicGroup = (DynamicGroupConfig) dynamicGroupMap.get(groupName);
+        for (TopLevelConfigKey groupKey : dynamicGroupMap.keySet()) {
+            DynamicGroupConfig dynamicGroup = (DynamicGroupConfig) dynamicGroupMap.get(groupKey);
 
             if (dynamicGroup.getMembers() != null && dynamicGroup.getMembers().getTrackDomainObjects() != null) {
                 List<DynamicGroupTrackDomainObjectsConfig> trackDomainObjectConfigs =
@@ -295,42 +289,29 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      */
     @Override
     public AccessMatrixStatusConfig getAccessMatrixByObjectTypeAndStatus(String domainObjectType, String status) {
-        Map<String, TopLevelConfig> accessMatrixMap = topLevelConfigMap.get(AccessMatrixConfig.class);
+        //Получение конфигурации матрицы
+        AccessMatrixConfig accessMatrixConfig = getConfig(AccessMatrixConfig.class, domainObjectType);
+        if (accessMatrixConfig == null) {
+            return null;
+        }
 
-        AccessMatrixStatusConfig result = null;
-
-        for (String accessMatrixObjectType : accessMatrixMap.keySet()) {
-            //Проверка типа
-            if (accessMatrixObjectType.equals(domainObjectType)) {
-                //Получение конфигурации матрицы
-                AccessMatrixConfig accessMatrixConfig =
-                        (AccessMatrixConfig) accessMatrixMap.get(accessMatrixObjectType);
-                //Получаем все статусы
-                for (AccessMatrixStatusConfig acessStatusConfig : accessMatrixConfig.getStatus()) {
-                    if (status != null && status.equals(acessStatusConfig.getName())) {
-                        result  = acessStatusConfig;
-                        break;
-                    }
-                }
-                break;
+        //Получаем все статусы
+        for (AccessMatrixStatusConfig accessStatusConfig : accessMatrixConfig.getStatus()) {
+            if (status != null && status.equals(accessStatusConfig.getName())) {
+                return accessStatusConfig;
             }
         }
-        return result;
+
+        return null;
     }
 
     private void fillTopLevelConfigMap(TopLevelConfig config) {
-        Map<String, TopLevelConfig> typeMap = topLevelConfigMap.get(config.getClass());
+        Map<TopLevelConfigKey, TopLevelConfig> typeMap = topLevelConfigMap.get(config.getClass());
         if (typeMap == null) {
             typeMap = new HashMap<>();
             topLevelConfigMap.put(config.getClass(), typeMap);
         }
-        typeMap.put(config.getName().toLowerCase(), config);
-    }
-
-    private void fillLinkConfigMap(NavigationConfig navigationPanel) {
-        for (LinkConfig linkConfig : navigationPanel.getLinkConfigList()) {
-            linkConfigMap.put(linkConfig.getName(), linkConfig);
-        }
+        typeMap.put(new TopLevelConfigKey(config.getName()), config);
     }
 
     private void fillSystemFields(DomainObjectTypeConfig domainObjectTypeConfig) {
@@ -411,11 +392,11 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
 
             FieldConfigKey that = (FieldConfigKey) o;
 
-            if (domainObjectName != null ? !domainObjectName.equalsIgnoreCase(that.domainObjectName) :
+            if (domainObjectName != null ? !domainObjectName.equals(that.domainObjectName) :
                     that.domainObjectName != null) {
                 return false;
             }
-            if (fieldConfigName != null ? !fieldConfigName.equalsIgnoreCase(that.fieldConfigName) :
+            if (fieldConfigName != null ? !fieldConfigName.equals(that.fieldConfigName) :
                     that.fieldConfigName != null) {
                 return false;
             }
@@ -428,6 +409,35 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
             int result = domainObjectName != null ? domainObjectName.hashCode() : 0;
             result = 31 * result + (fieldConfigName != null ? fieldConfigName.hashCode() : 0);
             return result;
+        }
+    }
+
+    private class TopLevelConfigKey {
+        private String key;
+
+        private TopLevelConfigKey(String key) {
+            if (key != null) {
+                this.key = key.toLowerCase();
+            } else {
+                this.key = null;
+            }
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            TopLevelConfigKey that = (TopLevelConfigKey) o;
+
+            if (key != null ? !key.equals(that.key) : that.key != null) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            return key != null ? key.hashCode() : 0;
         }
     }
 

@@ -6,6 +6,8 @@ import ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+
 /**
  * Утилитный класс системы контроля доступа.
  * @author atsvetkov
@@ -18,8 +20,7 @@ public class AccessControlUtility {
     }
 
     public static String getAclTableNameFor(String domainObjectTable) {
-        String domainObjectAclTable = domainObjectTable + PostgreSqlQueryHelper.ACL_TABLE_SUFFIX;
-        return domainObjectAclTable;
+        return getSqlName(domainObjectTable + PostgreSqlQueryHelper.ACL_TABLE_SUFFIX);
     }
 
     public static String getAclReadTableName(String doTypeName) {
@@ -27,8 +28,7 @@ public class AccessControlUtility {
     }
 
     public static String getAclReadTableNameFor(String domainObjectTable) {
-        String domainObjectAclTable = domainObjectTable + PostgreSqlQueryHelper.READ_TABLE_SUFFIX;
-        return domainObjectAclTable;
+        return getSqlName(domainObjectTable + PostgreSqlQueryHelper.READ_TABLE_SUFFIX);
     }
 
     /**

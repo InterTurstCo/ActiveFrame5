@@ -644,8 +644,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
              */
 
         } else {
-            query.append("select * from ").append(domainObjectType)
-                    .append(" where ID in (:object_ids) ");
+            query.append("select * from ").append(wrap(getSqlName(domainObjectType)))
+                    .append(" where ").append(wrap(ID_COLUMN)).append(" in (:object_ids) ");
         }
 
         Map<String, Object> parameters = new HashMap<>();

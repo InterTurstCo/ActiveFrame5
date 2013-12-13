@@ -22,7 +22,7 @@ public class DomainObjectTypeIdCacheImpl implements DomainObjectTypeIdCache {
     @Autowired
     private DomainObjectTypeIdDao domainObjectTypeIdDao;
 
-    private Map<String, Integer> nameToIdMap = new ConcurrentHashMap<>();
+    private Map<CaseTolerantKey, Integer> nameToIdMap = new ConcurrentHashMap<>();
     private Map<Integer, String> idToNameMap = new ConcurrentHashMap<>();
 
     public DomainObjectTypeIdCacheImpl() {
@@ -44,12 +44,12 @@ public class DomainObjectTypeIdCacheImpl implements DomainObjectTypeIdCache {
 
         nameToIdMap.clear();
         for (DomainObjectTypeId domainObjectTypeId : domainObjectTypeIds) {
-            nameToIdMap.put(domainObjectTypeId.getName().toLowerCase(), domainObjectTypeId.getId());
+            nameToIdMap.put(new CaseTolerantKey(domainObjectTypeId.getName()), domainObjectTypeId.getId());
         }
 
         idToNameMap.clear();
         for (DomainObjectTypeId domainObjectTypeId : domainObjectTypeIds) {
-            idToNameMap.put(domainObjectTypeId.getId(), domainObjectTypeId.getName().toLowerCase());
+            idToNameMap.put(domainObjectTypeId.getId(), domainObjectTypeId.getName());
         }
     }
 
@@ -61,7 +61,7 @@ public class DomainObjectTypeIdCacheImpl implements DomainObjectTypeIdCache {
         if (name == null) {
             return null;
         }
-        return nameToIdMap.get(name.toLowerCase());
+        return nameToIdMap.get(new CaseTolerantKey(name));
     }
 
     /**
@@ -78,13 +78,34 @@ public class DomainObjectTypeIdCacheImpl implements DomainObjectTypeIdCache {
      */
     @Override
     public String getName(Id id) {
-        String name = idToNameMap.get(((RdbmsId) id).getTypeId());
+        return idToNameMap.get(((RdbmsId) id).getTypeId());
+    }
 
-        if (name != null) {
-            name = name.toLowerCase();
+    private class CaseTolerantKey {
+        private String key;
+
+        private CaseTolerantKey(String key) {
+            if (key != null) {
+                this.key = key.toLowerCase();
+            }
         }
 
-        return name;
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            CaseTolerantKey key1 = (CaseTolerantKey) o;
+
+            if (key != null ? !key.equals(key1.key) : key1.key != null) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            return key != null ? key.hashCode() : 0;
+        }
     }
 
 }
