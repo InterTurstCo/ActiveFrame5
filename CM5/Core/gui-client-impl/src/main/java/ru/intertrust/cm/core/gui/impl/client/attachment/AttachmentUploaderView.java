@@ -98,7 +98,6 @@ public class AttachmentUploaderView extends Composite {
 
         initSubmitForm();
         initFileUpload();
-
         initUploadButton();
         root.add(addFile);
         submitForm.add(fileUpload);
@@ -106,7 +105,6 @@ public class AttachmentUploaderView extends Composite {
         root.add(mainBoxPanel);
         initWidget(root);
     }
-
 
     public void displayAttachmentItem(final AttachmentItem item, AttachmentBoxWidget.CancelUploadAttachmentHandler handler) {
         final AbsolutePanel element = new AbsolutePanel();
@@ -188,7 +186,7 @@ public class AttachmentUploaderView extends Composite {
 
     private void initSubmitForm() {
         submitForm = new FormPanel();
-        submitForm.setAction(GWT.getHostPageBaseURL() + "attachment-upload");
+        submitForm.setAction(GWT.getHostPageBaseURL() + "/attachment-upload");
         // set form to use the POST method, and multipart MIME encoding.
         submitForm.setEncoding(FormPanel.ENCODING_MULTIPART);
         submitForm.setMethod(FormPanel.METHOD_POST);

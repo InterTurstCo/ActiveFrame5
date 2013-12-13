@@ -83,16 +83,12 @@ public class AttachmentBoxWidget extends BaseWidget {
         return attachmentItem;
     }
 
-    private void cancelTimer() {
-        if (elapsedTimer != null) {
-            elapsedTimer.cancel();
-            elapsedTimer = null;
+    private void setUpProgressOfUpload(final boolean isUploadCancel) {
+
+        if (isUploadCancel) {
+            return;
         }
-    }
-
-    private void setUpProgressOfUpload(final boolean isUploadCanceled) {
-
-        SERVICE.getAttachmentUploadPercentage(isUploadCanceled, new AsyncCallback<AttachmentUploadPercentage>() {
+        SERVICE.getAttachmentUploadPercentage(isUploadCancel, new AsyncCallback<AttachmentUploadPercentage>() {
 
             @Override
             public void onFailure(final Throwable t) {
@@ -101,10 +97,10 @@ public class AttachmentBoxWidget extends BaseWidget {
 
             @Override
             public void onSuccess(AttachmentUploadPercentage percentage) {
-                if (isUploadCanceled) {
-                    return;
-                }
                 Integer percentageValue = percentage.getPercentage();
+                if (percentageValue == 100) {
+                    cancelTimer();
+                }
                 AttachmentUploaderView view = (AttachmentUploaderView) impl;
                 view.getPercentage().setText(percentageValue + "%");
             }
@@ -117,7 +113,9 @@ public class AttachmentBoxWidget extends BaseWidget {
         public void onSubmit(FormPanel.SubmitEvent event) {
 
             AttachmentUploaderView view = (AttachmentUploaderView) impl;
-            String filename = view.getFileUpload().getFilename();
+            String browserFilename = view.getFileUpload().getFilename();
+
+            String filename = getFilename(browserFilename);
             AttachmentItem item = new AttachmentItem();
             item.setName(filename);
             view.displayAttachmentItem(item, new CancelUploadAttachmentHandler(item));
@@ -126,7 +124,7 @@ public class AttachmentBoxWidget extends BaseWidget {
                     setUpProgressOfUpload(false);
                 }
             };
-            elapsedTimer.scheduleRepeating(1000);
+            elapsedTimer.scheduleRepeating(100);
 
         }
     }
@@ -140,12 +138,12 @@ public class AttachmentBoxWidget extends BaseWidget {
                 return;
             }
             String filePath = event.getResults();
+
             AttachmentItem item = handleFileNameFromServer(filePath);
             AttachmentUploaderView view = (AttachmentUploaderView) impl;
             view.getPercentage().getParent().removeFromParent();    //removing attachment with progress
             view.displayAttachmentLinkItem(item);
-            elapsedTimer.cancel();
-            view.getPercentage().setText("100%");
+            cancelTimer();
             view.getProgressbar().getElement().removeFromParent();
 
         }
@@ -169,6 +167,26 @@ public class AttachmentBoxWidget extends BaseWidget {
 
             }
 
+        }
+    }
+
+    private String getFilename(String browserFilename) {
+
+        if (browserFilename.contains("/")) {
+            String[] split = browserFilename.split("/");
+            return split[split.length - 1];
+        }
+        if (browserFilename.contains("\\")) {
+            String[] split = browserFilename.split("\\\\");
+            return split[split.length - 1];
+        }
+        return browserFilename;
+    }
+
+    private void cancelTimer() {
+        if (elapsedTimer != null) {
+            elapsedTimer.cancel();
+            elapsedTimer = null;
         }
     }
 }

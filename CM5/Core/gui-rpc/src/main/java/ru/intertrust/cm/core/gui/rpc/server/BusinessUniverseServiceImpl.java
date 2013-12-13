@@ -8,7 +8,7 @@ import ru.intertrust.cm.core.business.api.dto.AttachmentUploadPercentage;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
-import ru.intertrust.cm.core.gui.impl.server.widget.AttachmentUploader;
+import ru.intertrust.cm.core.gui.impl.server.widget.AttachmentUploaderServlet;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
@@ -81,7 +81,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
 
         HttpSession session = getThreadLocalRequest().getSession();
         session.setAttribute(SESSION_ATTRIBUTE_UPLOAD_PROGRESS, isCanceled);
-        AttachmentUploadPercentage uploadProgress = AttachmentUploader.getUploadProgress(session);
+        AttachmentUploadPercentage uploadProgress = AttachmentUploaderServlet.getUploadProgress(session);
 
         return uploadProgress;
     }

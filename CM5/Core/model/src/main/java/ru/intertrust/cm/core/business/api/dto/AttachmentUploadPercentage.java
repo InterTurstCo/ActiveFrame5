@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.business.api.dto;
 
 public final class AttachmentUploadPercentage implements Dto {
 
-    private Integer percentage;
+    private Integer percentage = 0;
 
     public AttachmentUploadPercentage() {
     }
