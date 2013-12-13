@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.dao.impl.utils;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import ru.intertrust.cm.core.business.api.dto.GenericIdentifiableObjectCollection;
@@ -98,8 +99,11 @@ public class CollectionRowMapper extends BasicRowMapper implements
 
             FieldConfig columnFieldConfig = columnToConfigMap.get(columnName);
             if (columnFieldConfig != null) {
-                columnFieldConfig.setName(columnName);
-                collectionFieldConfigs.add(columnFieldConfig);
+                FieldConfig collectionColumnFieldConfig = BeanUtils.instantiate(columnFieldConfig.getClass());
+                BeanUtils.copyProperties(columnFieldConfig, collectionColumnFieldConfig);
+                collectionColumnFieldConfig.setName(columnName);
+
+                collectionFieldConfigs.add(collectionColumnFieldConfig);
             }
         }
         return collectionFieldConfigs;
