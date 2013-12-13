@@ -36,7 +36,7 @@ import ru.intertrust.cm.core.dao.api.StatusDao;
 
 @Stateless
 @Local(ScheduleProcessor.class)
-@TransactionManagement(TransactionManagementType.BEAN)
+//@TransactionManagement(TransactionManagementType.BEAN)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class ScheduleProcessorImpl implements ScheduleProcessor {
     private static final Logger logger = LoggerFactory.getLogger(SchedulerBean.class);
