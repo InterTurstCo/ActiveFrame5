@@ -1,5 +1,6 @@
 package ru.intertrust.cm.remoteclient;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -194,4 +195,25 @@ public abstract class ClientBase {
         log(message + ": OK");
     }
 
+    /**
+     * Получение файла в виде массива байт
+     * @param file
+     * @return
+     * @throws IOException
+     */
+    protected byte[] readFile(File file) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        FileInputStream input = null;
+        try {
+            input = new FileInputStream(file);
+            int read = 0;
+            byte[] buffer = new byte[1024];
+            while ((read = input.read(buffer)) > 0) {
+                out.write(buffer, 0, read);
+            }
+            return out.toByteArray();
+        } finally {
+            input.close();
+        }
+    }
 }

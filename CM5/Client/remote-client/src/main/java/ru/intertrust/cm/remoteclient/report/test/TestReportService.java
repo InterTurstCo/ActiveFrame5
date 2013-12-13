@@ -122,28 +122,6 @@ public class TestReportService extends ClientBase {
         }
         
         reportServiceAdmin.deploy(deployData);
-        
-    }
-    /**
-     * Получение файла в виде массива байт
-     * @param file
-     * @return
-     * @throws IOException
-     */
-    protected byte[] readFile(File file) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        FileInputStream input = null;
-        try {
-            input = new FileInputStream(file);
-            int read = 0;
-            byte[] buffer = new byte[1024];
-            while ((read = input.read(buffer)) > 0) {
-                out.write(buffer, 0, read);
-            }
-            return out.toByteArray();
-        } finally {
-            input.close();
-        }
-    }
+    }   
 
 }

@@ -59,7 +59,6 @@ public class JdbcIT extends IntegrationTestBase {
             //Выполняем запрос с помощью JDBC
             Class.forName("ru.intertrust.cm.core.jdbc.JdbcDriver");
 
-            //connection = DriverManager.getConnection("jdbc:sochi:remoting://localhost:4447", "admin", "admin");
             connection = DriverManager.getConnection("jdbc:sochi:local");
 
             String query = "select t.id, t.name, t.created_date, t.author, t.long_field, t.status ";
@@ -111,7 +110,6 @@ public class JdbcIT extends IntegrationTestBase {
             Class.forName("ru.intertrust.cm.core.jdbc.JdbcDriver");
 
             //Создаем соединение
-            //connection = DriverManager.getConnection("jdbc:sochi:remoting://localhost:4447", "admin", "admin");
             connection = DriverManager.getConnection("jdbc:sochi:local");
 
             //Выполняем запрос с помощью JDBC
