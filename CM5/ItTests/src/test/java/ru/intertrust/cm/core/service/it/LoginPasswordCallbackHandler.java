@@ -8,6 +8,11 @@ import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
+/**
+ * Callbac класс для аутентификации пользователя
+ * @author larin
+ *
+ */
 public class LoginPasswordCallbackHandler implements CallbackHandler{
   private String m_login = null;
   private String m_password = null;

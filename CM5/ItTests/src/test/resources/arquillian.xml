@@ -7,8 +7,6 @@
     <container qualifier="jbossas-remote" default="true">
         <configuration>
             <property name="managementPort">9999</property>     
-            <property name="username">admin</property>     
-            <property name="password">admin</property>     
             <property name="managementAddress">localhost</property>     
         </configuration>
     </container>

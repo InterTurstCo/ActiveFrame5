@@ -12,21 +12,21 @@
         <version>0.5.2-2-SNAPSHOT</version>
     </parent>
 
-    <properties>
-        <root.basedir>${project.parent.parent.basedir}</root.basedir>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>ru.intertrust.cm-sochi</groupId>
             <artifactId>ear</artifactId>
             <type>ear</type>
-            <scope>test</scope>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ru.intertrust.cm-sochi</groupId>
             <artifactId>service-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>        
+        <dependency>
+            <groupId>ru.intertrust.cm-sochi</groupId>
+            <artifactId>jdbc</artifactId>
             <version>${project.version}</version>
         </dependency>        
         <dependency>
