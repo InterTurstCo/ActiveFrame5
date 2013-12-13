@@ -272,7 +272,7 @@ public class CollectionPluginView extends PluginView {
              value = collectionObject.getValue(field);
 
             if (field.equalsIgnoreCase("id")) {
-                value = new StringValue(collectionObject.getId().toStringRepresentation().toLowerCase());
+                value = new StringValue(collectionObject.getId().toStringRepresentation());
             }
 
             if (field.equalsIgnoreCase("name")) {
