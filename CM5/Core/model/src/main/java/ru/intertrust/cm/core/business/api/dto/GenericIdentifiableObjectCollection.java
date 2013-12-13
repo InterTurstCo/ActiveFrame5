@@ -1,13 +1,13 @@
 package ru.intertrust.cm.core.business.api.dto;
 
-import ru.intertrust.cm.core.business.api.util.ModelUtil;
-import ru.intertrust.cm.core.config.FieldConfig;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
+
+import ru.intertrust.cm.core.business.api.util.ModelUtil;
+import ru.intertrust.cm.core.config.FieldConfig;
 
 /**
  * Коллекция объектов, наделённых идентификатором
@@ -46,6 +46,13 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         }
     }
 
+    public boolean containsField(String fieldName) {
+        if (fieldConfigs.contains(fieldName)) {
+            return true;
+        }
+        throw new IllegalArgumentException("Field: " + fieldName + " does not exist in collection view configuration");
+    }
+    
     @Override
     public Id getId(int row) {
         return list.get(row).getId();
@@ -196,6 +203,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
 
         @Override
         public void setString(String field, String value) {
+            
             fieldValues.set(collection.getFieldIndex(field), new StringValue(value));
             dirty = true;
         }
