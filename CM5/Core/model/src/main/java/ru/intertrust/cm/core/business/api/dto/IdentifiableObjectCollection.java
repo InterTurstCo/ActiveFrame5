@@ -50,5 +50,12 @@ public interface IdentifiableObjectCollection extends Iterable<IdentifiableObjec
 
     ArrayList<FieldConfig> getFieldsConfiguration();
 
+    /**
+     * Проверяет, содержится ли поле в списке полей коллекции
+     * @param fieldName имя поля
+     * @return
+     */
+    boolean containsField(String fieldName);
+    
     int size();
 }
