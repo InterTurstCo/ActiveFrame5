@@ -1,7 +1,12 @@
 package ru.intertrust.cm.core.service.it;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.util.Properties;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
@@ -21,6 +26,7 @@ import org.jboss.shrinkwrap.resolver.api.maven.Maven;
  */
 public class IntegrationTestBase {
     
+    private InitialContext ctx;
     /**
      * Получение ear архива для установки на сервер приложений
      * @param currentClass
@@ -61,5 +67,39 @@ public class IntegrationTestBase {
         lc.login();
         return lc;
     }
+
+    /**
+     * Получение удаленного сервиса
+     * @param serviceName
+     * @param remoteInterfaceClass
+     * @return
+     * @throws NamingException
+     */
+    protected Object getRemoteService(String serviceName, Class remoteInterfaceClass, String login, String password) throws Exception {
+        if (ctx == null) {
+            
+            Properties properties = new Properties(); 
+            properties.load(new FileInputStream("client.properties"));
+            
+            Properties jndiProps = new Properties();
+            jndiProps.put(Context.INITIAL_CONTEXT_FACTORY,
+                    "org.jboss.naming.remote.client.InitialContextFactory");
+            jndiProps.put(Context.PROVIDER_URL, "remote://" + properties.getProperty("address"));
+            jndiProps.put("jboss.naming.client.ejb.context", "true");
+            jndiProps
+                    .put("jboss.naming.client.connect.options.org.xnio.Options.SASL_POLICY_NOPLAINTEXT",
+                            "false");
+            jndiProps.put(Context.SECURITY_PRINCIPAL, login);
+            jndiProps.put(Context.SECURITY_CREDENTIALS, password);
+            jndiProps.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
+
+            ctx = new InitialContext(jndiProps);
+        }
+
+        Object service = ctx.lookup("ejb:cm-sochi/web-app//" + serviceName + "!" + remoteInterfaceClass.getName());
+        return service;
+
+    }
+    
     
 }
