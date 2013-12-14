@@ -573,7 +573,10 @@ div.gwt-Label{
     /*margin-left: 20px ;*/
     margin-left: 10px;
     font-size: 100%;
-    text-align: left;
+}
+
+div.gwt-Good-Label {
+    font-weight: bold;
 }
 
 .tree-label{

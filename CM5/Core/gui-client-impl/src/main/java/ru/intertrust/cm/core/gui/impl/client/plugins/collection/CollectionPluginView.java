@@ -434,7 +434,7 @@ public class CollectionPluginView extends PluginView {
 
     private void applyBodyTableStyle() {
         selectionModel = new CheckedSelectionModel<CollectionRowItem>();
-        String emptyTableText = null;
+        String emptyTableText = "Результаты отсутствуют";
         HTML emptyTableWidget = new HTML("<br/><div align='center'> <h1> " + emptyTableText + " </h1> </div>");
         emptyTableWidget.getElement().getStyle().setPaddingLeft(60, Style.Unit.PX);
         tableBody.setRowStyles(new RowStyles<CollectionRowItem>() {

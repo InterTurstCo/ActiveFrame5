@@ -34,7 +34,9 @@ public class LabelWidget extends BaseWidget {
 
     @Override
     protected Widget asEditableWidget() {
-        return new Label();
+        Label label = new Label();
+        label.setStyleName("gwt-Good-Label");
+        return label;
     }
 
     @Override

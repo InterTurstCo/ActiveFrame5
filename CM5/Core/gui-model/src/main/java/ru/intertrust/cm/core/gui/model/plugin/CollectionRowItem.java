@@ -32,7 +32,7 @@ public class CollectionRowItem implements Dto{
 
     public String getStringValue(String key) {
         Value value = row.get(key);
-        return value == null ? "" : value.toString();
+        return value == null || value.get() == null ? "" : value.toString();
     }
 
     public void setRow(HashMap<String, Value> row) {

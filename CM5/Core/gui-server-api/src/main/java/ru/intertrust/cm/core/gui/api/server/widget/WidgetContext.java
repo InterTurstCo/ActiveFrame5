@@ -73,7 +73,12 @@ public class WidgetContext implements Dto {
         ArrayList<Id> result = new ArrayList<Id>();
         FieldPath[] fieldPaths = getFieldPaths();
         for (FieldPath fieldPath : fieldPaths) {
-            result.addAll(formObjects.getObjectIds(fieldPath));
+            ArrayList<Id> objectIds = formObjects.getObjectIds(fieldPath);
+            if (objectIds == null) {
+                continue;
+            }
+            // if field path a direct reference, then object id can be NULL
+            result.addAll(objectIds);
         }
         return result;
     }

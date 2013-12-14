@@ -1,8 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.authentication;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
@@ -27,7 +27,7 @@ public class LoginWindow extends DialogBox implements Component {
         loginField = new TextBox();
         passwordField = new PasswordTextBox();
         message = new Label();
-        loginButton = new Button("Войти");
+        loginButton = new Button("Enter");
         loginButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 login();
@@ -46,8 +46,29 @@ public class LoginWindow extends DialogBox implements Component {
         dialogPanel.add(passwordField);
         dialogPanel.add(loginButton);
 
+        addDomHandler(new KeyDownHandler() {
+            @Override
+            public void onKeyDown(KeyDownEvent event) {
+                checkEnterKey(event);
+            }
+        }, KeyDownEvent.getType());
+
         setWidget(dialogPanel);
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                loginField.setFocus(true);
+            }
+        });
     }
+
+    protected void checkEnterKey(KeyDownEvent event) {
+        if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+            login();
+        }
+    }
+
+
 
     protected void login() {
 

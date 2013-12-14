@@ -52,12 +52,13 @@ public class FormPluginHandler extends ActivePluginHandler {
 
         ActionConfig deleteActionConfig = new ActionConfig("delete.action", "delete.action");
         deleteActionConfig.setText("Удалить");
+        deleteActionConfig.setImageUrl("icons/ico-delete.gif");
         ActionContext deleteActionContext = new SaveActionContext();
         deleteActionContext.setActionConfig(deleteActionConfig);
 
         ArrayList<ActionContext> actions = new ArrayList<>();
-        actions.add(saveActionContext);
         actions.add(createNewActionContext);
+        actions.add(saveActionContext);
         actions.add(deleteActionContext);
 
         List<ActionContext> otherActions = null;

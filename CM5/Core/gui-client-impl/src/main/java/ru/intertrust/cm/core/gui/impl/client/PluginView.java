@@ -68,7 +68,7 @@ public abstract class PluginView implements IsWidget {
         }
         for (final ActionContext actionContext : actionContexts) {
             final ActionConfig actionConfig = actionContext.getActionConfig();
-            Hyperlink hyperlink = new Hyperlink(actionConfig.getText(), actionConfig.getText());
+            Anchor hyperlink = new Anchor(actionConfig.getText());
             if (actionConfig.getImageUrl() != null) {
                 Image actionPic = new Image(actionConfig.getImageUrl());
                 decoratedActionLink.add(actionPic);

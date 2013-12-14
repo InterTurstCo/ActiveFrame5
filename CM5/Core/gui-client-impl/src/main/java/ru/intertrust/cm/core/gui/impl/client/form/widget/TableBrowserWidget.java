@@ -161,6 +161,8 @@ public class TableBrowserWidget extends BaseWidget {
         dialogBoxContent.add(buttonsContainer);
 
         dialogBox.add(dialogBoxContent);
+        dialogBox.setWidth(width + "px");
+        dialogBox.setHeight(height + "px");
 
     }
 
