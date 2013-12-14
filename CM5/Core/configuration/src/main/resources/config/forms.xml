@@ -170,7 +170,7 @@
             <linked-domain-objects-table id="5">
                 <field-path value="correspondent"/>
                 <linked-form name="organization_default_form" inline="true"/>
-                <summary-table form-name="some_form">
+                <summary-table>
                     <summary-table-column header="Название">
                         <pattern value="{name}, {short_name}"/> <!-- пути задаются относительно базового field-path (correspondent) -->
                         <formatting>

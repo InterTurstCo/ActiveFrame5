@@ -50,32 +50,61 @@
             <page-size>30</page-size>
         </table-browser>
 
+        <!-- возможный упрощённый вариант, который сейчас реализовать невозможно -->
         <hierarchy-browser id="2">
             <field-path value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
 
             <!-- Определение списка/таблицы, выпадающего при раскрытии узла -->
             <!-- Уже выбранные элементы показываются помеченными галочками -->
-            <root-domain-object-type name="organization"/>
-            <node-collection-def>
+            <node-def domain-object-type="organization">
+                <!-- название фильтра по тексту, введённому пользователем -->
+                <input-text-filter name="byName"/>
                 <!-- паттерн отображения уже выбранных значений -->
                 <selection-pattern value="{name}"/>
-                <!-- название фильтра по тексту, введённому пользователем -->
-                <input-text-filter name="byText"/>
-                <child-node domain-object-type="department" parent-link-field="organization">
-                    <!-- путь к узлу верхнего уровня (относительно пути этого узла) от узла данного уровня -->
-                    <node-collection-def>
+                <node-def domain-object-type="department" parent-link-field="organization">
+                    <!-- название фильтра по тексту, введённому пользователем -->
+                    <input-text-filter name="byName"/>
+                    <!-- паттерн отображения уже выбранных значений -->
+                    <selection-pattern value="{name}"/>
+                    <node-def domain-object-type="employee" parent-link-field="department">
+                        <!-- название фильтра по тексту, введённому пользователем -->
+                        <input-text-filter name="byLastNameAndName"/>
                         <!-- паттерн отображения уже выбранных значений -->
-                        <selection-pattern value="{name}"/>
-                        <child-node>
-                            <!-- путь к узлу верхнего уровня (относительно пути этого узла) от узла данного уровня -->
-                            <node-collection-def domain-object-type="employee" parent-link-field="department">
-                                <!-- паттерн отображения уже выбранных значений -->
-                                <selection-pattern value="{name} {last_name}"/>
-                            </node-collection-def>
-                        </child-node>
+                        <selection-pattern value="{name} {last_name}"/>
+                    </node-def>
+                </node-def>
+            </node-def>
+
+            <!-- количество элементов, показываемых в данном узле дерева изначально -->
+            <page-size>30</page-size>
+        </hierarchy-browser>
+
+        <!-- актуальный вариант, вынуждающий нас конфигурировать коллекции для каждого типа узла -->
+        <hierarchy-browser id="2">
+            <field-path value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
+
+            <!-- Определение списка/таблицы, выпадающего при раскрытии узла -->
+            <!-- Уже выбранные элементы показываются помеченными галочками -->
+            <!-- collection - название коллекции для отображения списка значений узла -->
+            <node-def collection="Organizations">
+                <!-- название фильтра по тексту, введённому пользователем -->
+                <input-text-filter name="byName"/>
+                <!-- паттерн отображения уже выбранных значений -->
+                <selection-pattern value="{name}"/>
+                <node-collection-def collection="Departments" parent-filter="byOrganization">
+                    <!-- название фильтра по тексту, введённому пользователем -->
+                    <input-text-filter name="byName"/>
+                    <!-- паттерн отображения уже выбранных значений -->
+                    <selection-pattern value="{name}"/>
+                        <!-- путь к узлу верхнего уровня (относительно пути этого узла) от узла данного уровня -->
+                    <node-collection-def collection="Employees" parent-filter="byDepartment">
+                        <!-- название фильтра по тексту, введённому пользователем -->
+                        <input-text-filter name="byLastNameAndName"/>
+                        <!-- паттерн отображения уже выбранных значений -->
+                        <selection-pattern value="{name} {last_name}"/>
                     </node-collection-def>
-                </child-node>
-            </node-collection-def>
+                </node-collection-def>
+            </node-def>
 
             <!-- количество элементов, показываемых в данном узле дерева изначально -->
             <page-size>30</page-size>
