@@ -58,6 +58,8 @@ public class CollectionPluginHandler extends PluginHandler {
 
         List<Filter> filters = new ArrayList<Filter>();
 
+        // todo не совсем верная логика. а в каком режиме обычная коллекция открывается? single choice? display chosen values?
+        // todo: по-моему условие singleChoice && !displayChosenValues вполне говорит само за себя :) в следующем условии тоже
         if (tableHasSingleSelectionModelAndDoesntShowAlreadyChosenRows(singleChoice, displayChosenValues) ||
                 tableHasMultipleSelectionModelAndDoesntShowAlreadyChosenRows(singleChoice, displayChosenValues)) {
             filters = addFilterByText(collectionViewerConfig, filters);
@@ -99,6 +101,9 @@ public class CollectionPluginHandler extends PluginHandler {
         }
         String name = inputTextFilterConfig.getName();
         String text = inputTextFilterConfig.getValue();
+        if (text == null || text.trim().isEmpty()) {
+            return filters;
+        }
         Filter filterByText = prepareInputTextFilter(name, text);
         filters.add(filterByText);
 
@@ -135,7 +140,7 @@ public class CollectionPluginHandler extends PluginHandler {
             if ("id".equalsIgnoreCase(field)) {
                 value = new StringValue(identifiableObject.getId().toStringRepresentation());
             } else {
-                value = identifiableObject.getValue(field);
+                value = identifiableObject.getValue(field.toLowerCase());
 
             }
             values.put(field, value);
