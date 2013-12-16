@@ -72,7 +72,7 @@ public class TestJdbc extends ClientBase {
         resultset.close();
         prepareStatement.close();
 
-        query = "select t.id, t.name, t.created_date, t.author, t.long_field, t.status ";
+        query = "select t.name, t.created_date, t.author, t.long_field, t.status, t.id ";
         query += "from Outgoing_Document t ";
         Statement statement = connection.createStatement();
         if (statement.execute(query)){
