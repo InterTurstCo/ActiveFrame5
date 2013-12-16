@@ -76,12 +76,6 @@ public class SqlQueryModifier {
         });
     }
 
-    /**
-     * Находит дескрипторы всех полей, которые указаны в SQL запросе коллекции.
-     * @param query SQL запрос коллекции
-     * @param configurationExplorer {@link ConfigurationExplorer}
-     * @return
-     */
     public static Map<String, FieldConfig> buildColumnToConfigMap(String query,
                                                             ConfigurationExplorer configurationExplorer) {
         Map<String, FieldConfig> columnToTableMapping = new HashMap<>();
