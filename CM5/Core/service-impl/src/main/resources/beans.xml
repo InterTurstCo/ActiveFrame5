@@ -89,4 +89,6 @@
 
     <bean id="searchService" class="ru.intertrust.cm.core.business.impl.search.SearchServiceImpl"/>
 
+    <bean id="searchConfigHelper" class="ru.intertrust.cm.core.business.impl.search.SearchConfigHelper"/>
+
 </beans>

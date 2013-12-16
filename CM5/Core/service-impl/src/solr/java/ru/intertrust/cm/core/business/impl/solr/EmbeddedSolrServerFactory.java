@@ -12,7 +12,7 @@ public class EmbeddedSolrServerFactory implements DynamicLoadClassFactory<SolrSe
     public SolrServer createInstance() {
         CoreContainer container = new CoreContainer();
         container.load();
-        return new EmbeddedSolrServer(container, "CM5");
+        return new EmbeddedSolrServer(container, "");
     }
 
 }

@@ -23,7 +23,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
     private SolrServer solrServer;
 
     @Override
-    public IdentifiableObjectCollection search(String query, String areaName, int maxResults) {
+    public IdentifiableObjectCollection search(String query, String areaName, String objectType, int maxResults) {
         // TODO Auto-generated method stub
         return null;
     }
