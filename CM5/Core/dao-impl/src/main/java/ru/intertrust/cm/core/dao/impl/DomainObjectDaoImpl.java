@@ -136,7 +136,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 domainObjectTypeIdCache.getId(domainObject.getTypeName()), initialStatus);
         domainObjectCacheService.putObjectToCache(createdObject);
 
-//        refreshDynamiGroupsAndAclForCreate(createdObject);
+        refreshDynamiGroupsAndAclForCreate(createdObject);
         return createdObject;
     }
 
@@ -192,12 +192,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         List<FieldModification> changedFields = getModifiedFieldNames(domainObject);
 
         // Вызов точки расширения до сохранения
-//        List<String> parentTypes = getAllParentTypes(domainObject.getTypeName());
-//        for (String typeName : parentTypes) {
-//            BeforeSaveExtensionHandler beforeSaveExtension = extensionService
-//                    .getExtentionPoint(BeforeSaveExtensionHandler.class, typeName);
-//            beforeSaveExtension.onBeforeSave(domainObject, changedFields);
-//        }
+        List<String> parentTypes = getAllParentTypes(domainObject.getTypeName());
+        for (String typeName : parentTypes) {
+            BeforeSaveExtensionHandler beforeSaveExtension = extensionService
+                    .getExtentionPoint(BeforeSaveExtensionHandler.class, typeName);
+            beforeSaveExtension.onBeforeSave(domainObject, changedFields);
+        }
 
         DomainObjectVersion.AuditLogOperation operation = null;
 
@@ -216,11 +216,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 operation);
 
         // Вызов точки расширения после сохранения
-//        for (String typeName : parentTypes) {
-//            AfterSaveExtensionHandler afterSaveExtension = extensionService
-//                    .getExtentionPoint(AfterSaveExtensionHandler.class, typeName);
-//            afterSaveExtension.onAfterSave(result, changedFields);
-//        }
+        for (String typeName : parentTypes) {
+            AfterSaveExtensionHandler afterSaveExtension = extensionService
+                    .getExtentionPoint(AfterSaveExtensionHandler.class, typeName);
+            afterSaveExtension.onAfterSave(result, changedFields);
+        }
 
         return result;
     }
@@ -383,12 +383,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         List<Id> beforeChangeInvalidGroups = dynamicGroupService.getInvalidGroupsBeforeDelete(deletedObject);
 
         // Точка расширения до удаления
-//        List<String> parentTypes = getAllParentTypes(domainObjectTypeConfig.getName());
-//        for (String typeName : parentTypes) {
-//            BeforeDeleteExtensionHandler beforeDeleteEH = extensionService
-//                    .getExtentionPoint(BeforeDeleteExtensionHandler.class, typeName);
-//            beforeDeleteEH.onBeforeDelete(deletedObject);
-//        }
+        List<String> parentTypes = getAllParentTypes(domainObjectTypeConfig.getName());
+        for (String typeName : parentTypes) {
+            BeforeDeleteExtensionHandler beforeDeleteEH = extensionService
+                    .getExtentionPoint(BeforeDeleteExtensionHandler.class, typeName);
+            beforeDeleteEH.onBeforeDelete(deletedObject);
+        }
 
         //непосредственно удаление из базыы
         internalDelete(id);
@@ -401,14 +401,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 DomainObjectVersion.AuditLogOperation.DELETE);
 
         // Точка расширения после удаления, вызывается с установкой фильтра текущего типа и всех наследников
-//        for (String typeName : parentTypes) {
-//            AfterDeleteExtensionHandler afterDeleteEH = extensionService
-//                    .getExtentionPoint(AfterDeleteExtensionHandler.class, typeName);
-//            afterDeleteEH.onAfterDelete(deletedObject);
-//        }
+        for (String typeName : parentTypes) {
+            AfterDeleteExtensionHandler afterDeleteEH = extensionService
+                    .getExtentionPoint(AfterDeleteExtensionHandler.class, typeName);
+            afterDeleteEH.onAfterDelete(deletedObject);
+        }
 
         //Пересчет прав
-//        refreshDynamiGroupsAndAclForDelete(deletedObject, beforeChangeInvalidGroups);
+        refreshDynamiGroupsAndAclForDelete(deletedObject, beforeChangeInvalidGroups);
 
     }
 
