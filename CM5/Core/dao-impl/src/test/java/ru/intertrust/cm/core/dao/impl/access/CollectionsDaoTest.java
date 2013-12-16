@@ -68,7 +68,7 @@ public class CollectionsDaoTest extends BaseDaoTest {
     @Test
     public void testFindCollectionByQuery() {
 
-        String query = "select id from authentication_info ai where user_uid='admin'";
+        String query = "select ai.id, ai.created_date, ai.status, user_uid, password from authentication_info ai where user_uid='admin'";
 
         IdentifiableObjectCollection identifiableObjectCollection = collectionsDao.findCollectionByQuery(query, 0, 0, accessToken);        
         
