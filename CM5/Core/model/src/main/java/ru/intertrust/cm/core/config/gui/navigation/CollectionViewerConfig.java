@@ -30,7 +30,7 @@ public class CollectionViewerConfig extends PluginConfig{
 
     private List<Id> excludedIds = new ArrayList<Id>();
 
-    private boolean displayChosenValues;
+    private boolean displayChosenValues = true;
 
     private boolean singleChoice = true;
 
