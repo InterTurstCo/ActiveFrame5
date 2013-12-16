@@ -45,8 +45,6 @@ public class CollectionPluginHandler extends PluginHandler {
         pluginData.setDisplayChosenValues(displayChosenValues);
         CollectionViewConfig collectionViewConfig = findRequiredCollectionView(collectionName);
 
-
-
         LinkedHashMap<String, String> map = getDomainObjectFieldOnColumnNameMap(collectionViewConfig);
         pluginData.setDomainObjectFieldOnColumnNameMap(map);
         LinkedHashMap<String, String> fieldMap = new LinkedHashMap<String, String>();
@@ -60,8 +58,8 @@ public class CollectionPluginHandler extends PluginHandler {
 
         // todo не совсем верная логика. а в каком режиме обычная коллекция открывается? single choice? display chosen values?
         // todo: по-моему условие singleChoice && !displayChosenValues вполне говорит само за себя :) в следующем условии тоже
-        if (tableHasSingleSelectionModelAndDoesntShowAlreadyChosenRows(singleChoice, displayChosenValues) ||
-                tableHasMultipleSelectionModelAndDoesntShowAlreadyChosenRows(singleChoice, displayChosenValues)) {
+        if ((singleChoice && !displayChosenValues) ||  (!singleChoice && !displayChosenValues)) {
+
             filters = addFilterByText(collectionViewerConfig, filters);
             filters = addFilterExcludeIds(collectionViewerConfig, filters);
             ArrayList<CollectionRowItem> items = generateTableRowsForPluginInitialization(collectionName,
@@ -69,8 +67,8 @@ public class CollectionPluginHandler extends PluginHandler {
             pluginData.setItems(items);
         }
 
-        if (tableHasSingleSelectionModelAndShowsAlreadyChosenRows(singleChoice, displayChosenValues) ||
-                tableHasMultiplySelectionModelAndShowsAlreadyChosenRows(singleChoice, displayChosenValues)) {
+        if ((singleChoice && displayChosenValues) || (!singleChoice && displayChosenValues)) {
+
             filters = addFilterByText(collectionViewerConfig, filters);
             ArrayList<CollectionRowItem> items = generateTableRowsForPluginInitialization(collectionName,
                     map.keySet(), 0, 70, filters);
@@ -211,8 +209,6 @@ public class CollectionPluginHandler extends PluginHandler {
         return items;
     }
 
-
-
     public Dto generateCollectionRowItems(Dto dto) {
         CollectionRowsRequest collectionRowsRequest = (CollectionRowsRequest) dto;
         ArrayList<CollectionRowItem> list;
@@ -254,27 +250,6 @@ public class CollectionPluginHandler extends PluginHandler {
         excludeIdsFilter.setFilter("excludeIds");
         return excludeIdsFilter;
     }
-
-    private boolean tableHasSingleSelectionModelAndDoesntShowAlreadyChosenRows(boolean singleChoice,
-                                                                               boolean displayChosenValues) {
-        return singleChoice && !displayChosenValues;
-    }
-
-    private boolean tableHasSingleSelectionModelAndShowsAlreadyChosenRows(boolean singleChoice,
-                                                                          boolean displayChosenValues) {
-        return singleChoice && displayChosenValues;
-    }
-
-    private boolean tableHasMultipleSelectionModelAndDoesntShowAlreadyChosenRows(boolean singleChoice,
-                                                                                 boolean displayChosenValues) {
-        return !singleChoice && !displayChosenValues;
-    }
-
-    private boolean tableHasMultiplySelectionModelAndShowsAlreadyChosenRows(boolean singleChoice,
-                                                                            boolean displayChosenValues) {
-        return !singleChoice && displayChosenValues;
-    }
-
 
     private ArrayList<Integer> getListOfAlreadyChosenItems(List<Id> chosenIds, List<CollectionRowItem> itemsForClient) {
         ArrayList<Integer> indexesOfChosenItems = new ArrayList<Integer>();
