@@ -7,6 +7,8 @@ import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_POSTFIX;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getServiceColumnName;
 import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.unwrap;
+import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.wrap;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;

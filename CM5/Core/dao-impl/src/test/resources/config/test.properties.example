@@ -1,4 +1,4 @@
 driver.name=org.postgresql.xa.PGXADataSource
-database.url=dbc:postgresql://localhost:5432/br4j22
-database.user=br4j
+database.url=dbc:postgresql://localhost:5432/cm5
+database.user=cm5
 database.password=welcome
