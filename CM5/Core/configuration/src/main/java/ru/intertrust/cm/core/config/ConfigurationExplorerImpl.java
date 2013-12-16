@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
@@ -23,7 +24,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     private final static String GLOBAL_SETTINGS_CLASS_NAME = "ru.intertrust.cm.core.config.GlobalSettingsConfig";
     private Configuration configuration;
 
-    private Map<Class<?>, Map<TopLevelConfigKey, TopLevelConfig>> topLevelConfigMap = new HashMap<>();
+    private Map<Class<?>, CaseInsensitiveMap<TopLevelConfig>> topLevelConfigMap = new HashMap<>();
     private Map<FieldConfigKey, FieldConfig> fieldConfigMap = new HashMap<>();
     private Map<FieldConfigKey, CollectionColumnConfig> collectionColumnConfigMap = new HashMap<>();
     private GlobalSettingsConfig globalSettings;
@@ -112,12 +113,12 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     @Override
     @SuppressWarnings("unchecked")
     public <T> T getConfig(Class<T> type, String name) {
-        Map<TopLevelConfigKey, TopLevelConfig> typeMap = topLevelConfigMap.get(type);
+        CaseInsensitiveMap<TopLevelConfig> typeMap = topLevelConfigMap.get(type);
         if (typeMap == null) {
             return null;
         }
 
-        return (T) typeMap.get(new TopLevelConfigKey(name));
+        return (T) typeMap.get(name);
     }
 
     /**
@@ -126,7 +127,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     @Override
     @SuppressWarnings("unchecked")
     public <T> Collection<T> getConfigs(Class<T> type) {
-        Map<TopLevelConfigKey, TopLevelConfig> typeMap = topLevelConfigMap.get(type);
+        CaseInsensitiveMap<TopLevelConfig> typeMap = topLevelConfigMap.get(type);
         if (typeMap == null) {
             return Collections.EMPTY_LIST;
         }
@@ -239,9 +240,9 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     public List<DynamicGroupConfig> getDynamicGroupConfigsByContextType(String domainObjectType) {
         List<DynamicGroupConfig> dynamicGroups = new ArrayList<DynamicGroupConfig>();
 
-        Map<TopLevelConfigKey, TopLevelConfig> dynamicGroupMap = topLevelConfigMap.get(DynamicGroupConfig.class);
+        CaseInsensitiveMap<TopLevelConfig> dynamicGroupMap = topLevelConfigMap.get(DynamicGroupConfig.class);
 
-        for (TopLevelConfigKey groupKey : dynamicGroupMap.keySet()) {
+        for (String groupKey : dynamicGroupMap.keySet()) {
             DynamicGroupConfig dynamicGroup = (DynamicGroupConfig) dynamicGroupMap.get(groupKey);
             if (dynamicGroup.getContext() != null && dynamicGroup.getContext().getDomainObject() != null) {
                 String objectType = dynamicGroup.getContext().getDomainObject().getType();
@@ -261,9 +262,9 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     public List<DynamicGroupConfig> getDynamicGroupConfigsByTrackDO(String trackDOTypeName, String status) {
         List<DynamicGroupConfig> dynamicGroups = new ArrayList<DynamicGroupConfig>();
 
-        Map<TopLevelConfigKey, TopLevelConfig> dynamicGroupMap = topLevelConfigMap.get(DynamicGroupConfig.class);
+        CaseInsensitiveMap<TopLevelConfig> dynamicGroupMap = topLevelConfigMap.get(DynamicGroupConfig.class);
 
-        for (TopLevelConfigKey groupKey : dynamicGroupMap.keySet()) {
+        for (String groupKey : dynamicGroupMap.keySet()) {
             DynamicGroupConfig dynamicGroup = (DynamicGroupConfig) dynamicGroupMap.get(groupKey);
 
             if (dynamicGroup.getMembers() != null && dynamicGroup.getMembers().getTrackDomainObjects() != null) {
@@ -306,12 +307,12 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     }
 
     private void fillTopLevelConfigMap(TopLevelConfig config) {
-        Map<TopLevelConfigKey, TopLevelConfig> typeMap = topLevelConfigMap.get(config.getClass());
+        CaseInsensitiveMap<TopLevelConfig> typeMap = topLevelConfigMap.get(config.getClass());
         if (typeMap == null) {
-            typeMap = new HashMap<>();
+            typeMap = new CaseInsensitiveMap<>();
             topLevelConfigMap.put(config.getClass(), typeMap);
         }
-        typeMap.put(new TopLevelConfigKey(config.getName()), config);
+        typeMap.put(config.getName(), config);
     }
 
     private void fillSystemFields(DomainObjectTypeConfig domainObjectTypeConfig) {

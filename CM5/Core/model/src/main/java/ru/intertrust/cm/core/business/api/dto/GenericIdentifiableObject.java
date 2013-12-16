@@ -15,14 +15,14 @@ import java.util.LinkedHashMap;
 public class GenericIdentifiableObject implements IdentifiableObject {
 
     private Id id;
-    protected LinkedHashMap<String, Value> fieldValues;
+    protected CaseInsensitiveMap<Value> fieldValues;
     protected boolean dirty = false;
 
     /**
      * Создаёт объект
      */
     public GenericIdentifiableObject() {
-        fieldValues = new LinkedHashMap<String, Value>(); // параметры специфицированы явно, для поддержки GWT
+        fieldValues = new CaseInsensitiveMap<>(); // параметры специфицированы явно, для поддержки GWT
     }
 
     /**
@@ -34,7 +34,7 @@ public class GenericIdentifiableObject implements IdentifiableObject {
         this();
         setId(source.getId());
         ArrayList<String> sourceFields = source.getFields();
-        fieldValues = new LinkedHashMap<String, Value>(sourceFields.size());
+        fieldValues = new CaseInsensitiveMap<>(sourceFields.size());
         for (String field : sourceFields) {
             setValue(field, source.getValue(field));
         }
@@ -70,7 +70,7 @@ public class GenericIdentifiableObject implements IdentifiableObject {
 
     @Override
     public ArrayList<String> getFields() {
-        return new ArrayList<String>(fieldValues.keySet());
+        return new ArrayList<>(fieldValues.keySet());
     }
 
     @Override

@@ -37,12 +37,12 @@ public class CollectionViewLogicalValidatorTest {
     @Test
     public void validateIncorrectCollectionView() throws Exception {
         expectedException.expect(ConfigurationException.class);
-        expectedException.expectMessage("Configuration of collection-view with name "
-                + "'countries_view' was validated with errors.Count: 1 Content:\n"
-                + "Couldn't find collection with name 'Countries'\n"
-                + "Configuration of collection-view with name 'employees_default_view' "
+        expectedException.expectMessage("Configuration of collection-view with name 'employees_default_view' "
                 + "was validated with errors.Count: 1 Content:\n"
-                + "Couldn't find field 'updated_date' in sql query for collection with name 'Employees'");
+                + "Couldn't find field 'updated_date' in sql query for collection with name 'Employees'\n"
+                + "Configuration of collection-view with name "
+                + "'countries_view' was validated with errors.Count: 1 Content:\n"
+                + "Couldn't find collection with name 'Countries'\n");
 
         ConfigurationExplorer configurationExplorer = createConfigurationExplorer(INVALID_COLLECTION_VIEW_XML_PATH);
 

@@ -50,17 +50,17 @@ public class FormLogicalValidatorTest {
     @Test
     public void validateIncorrectForm() throws Exception {
 
-        String exceptedMessage = ("Configuration of form with "
-                + "name 'city_form' was validated with errors.Count: 2 Content:\n"
-                + "Could not find field 'city'  in path 'country^federal_unit.city.population'\n"
-                + "Path part 'year_of_foundation' in  'year_of_foundation.date' isn't a reference type\n"
-                + "Configuration of form with name 'country_form' was validated with errors.Count: 6 Content:\n"
+        String exceptedMessage = ("Configuration of form with name 'country_form' was validated with errors.Count: 6 Content:\n"
                 + "h-align 'righ' is incorrect\n"
                 + "v-align 'middle' is incorrect\n"
                 + "Field 'is_old' in  domain object 'country' isn't a boolean type\n"
                 + "Collection 'Streets' for table-browser with id '17a' wasn't found\n"
                 + "Collection view 'cities_default' for table-browser with id '17a' wasn't found\n"
-                + "Collection 'cities' for suggest-box with id '8a' wasn't found\n");
+                + "Collection 'cities' for suggest-box with id '8a' wasn't found\n"
+                + "Configuration of form with "
+                + "name 'city_form' was validated with errors.Count: 2 Content:\n"
+                + "Could not find field 'city'  in path 'country^federal_unit.city.population'\n"
+                + "Path part 'year_of_foundation' in  'year_of_foundation.date' isn't a reference type\n");
        ConfigurationExplorer configurationExplorer = createConfigurationExplorer(INVALID_FORM_XML_PATH);
 
        FormLogicalValidator formValidator = new FormLogicalValidator();
