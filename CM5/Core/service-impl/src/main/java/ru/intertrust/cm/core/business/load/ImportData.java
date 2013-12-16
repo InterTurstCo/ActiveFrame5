@@ -93,7 +93,8 @@ public class ImportData {
                     //Метаданные
                     String[] metaDatas = line.split(";");
                     for (String metaData : metaDatas) {
-                        String[] metaItem = metaData.split("=");
+                        String normalMetaData = getNormalizationField(metaData);
+                        String[] metaItem = normalMetaData.split("=");
                         if (metaItem[0].equalsIgnoreCase(ImportDataService.TYPE_NAME)) {
                             typeName = metaItem[1];
                         } else if (metaItem[0].equalsIgnoreCase(ImportDataService.KEYS)) {
@@ -103,6 +104,9 @@ public class ImportData {
                 } else if (lineNum == 1) {
                     //Имена полей
                     fields = line.split(";");
+                    for (int i = 0; i < fields.length; i++) {
+                        fields[i] = getNormalizationField(fields[i]);
+                    }
                 } else {
                     //Импорт одной строки
                     importLine(line);
@@ -141,7 +145,12 @@ public class ImportData {
      * @throws ParseException
      */
     private void importLine(String line) throws ParseException {
-        AccessToken accessToken = accessService.createSystemAccessToken(this.getClass().getName());
+        AccessToken accessToken = null;
+        if (login == null){
+            accessToken = accessService.createSystemAccessToken(this.getClass().getName());
+        }else{
+            accessToken = accessService.createCollectionAccessToken(login);
+        }
         //Разделяем строку на значения
         String[] fieldValues = line.split(";");
         List<String> fieldValuesList = new ArrayList<String>();
@@ -298,7 +307,12 @@ public class ImportData {
      * @return
      */
     private Id getReferenceFromSelect(String query) {
-        AccessToken accessToken = accessService.createCollectionAccessToken(login);
+        AccessToken accessToken = null;
+        if (login == null){
+            accessToken = accessService.createSystemAccessToken(this.getClass().getName());
+        }else{
+            accessToken = accessService.createCollectionAccessToken(login);
+        }
         IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, 0, 1000, accessToken);
         Id result = null;
         if (collection.size() > 0) {
@@ -319,7 +333,12 @@ public class ImportData {
         }
 
         String query = getQuery(typeName, keys, values);
-        AccessToken accessToken = accessService.createCollectionAccessToken(login);
+        AccessToken accessToken = null;
+        if (login == null){
+            accessToken = accessService.createSystemAccessToken(this.getClass().getName());
+        }else{
+            accessToken = accessService.createCollectionAccessToken(login);
+        }
         IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, 0, 1000, accessToken);
         DomainObject result = null;
         if (collection.size() > 0) {

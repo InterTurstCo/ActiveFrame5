@@ -29,9 +29,9 @@ public class ImportDataServiceImpl implements ImportDataService {
     @Autowired
     private ConfigurationExplorer configurationExplorer;
     @Autowired
-    private DomainObjectDao domainObjectDao;
-    @Autowired
     private AccessControlService accessControlService;
+    @Autowired
+    private DomainObjectDao domainObjectDao;
     @Resource
     private EJBContext context;
     

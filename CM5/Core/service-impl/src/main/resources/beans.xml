@@ -61,6 +61,10 @@
         <property name="basePackage" value="ru/intertrust/cm" />
     </bean>
 
+    <bean id="importSystemData" class="ru.intertrust.cm.core.business.load.ImportSystemData" init-method="onLoad" />
+    
+    
+
     <!-- Интеграция с Activiti -->
     <bean id="processEngineConfiguration" class="org.activiti.spring.SpringProcessEngineConfiguration">
         <property name="dataSource" ref="dataSource"/>
