@@ -15,14 +15,14 @@ public class SearchAreaConfig implements TopLevelConfig {
     private String name;
 
     @ElementList(entry = "target-domain-object", inline = true)
-    private List<IndexedDomainObjectConfig> targetObjects;
+    private List<TargetDomainObjectConfig> targetObjects;
 
     @Override
     public String getName() {
         return name;
     }
 
-    public List<IndexedDomainObjectConfig> getTargetObjects() {
+    public List<TargetDomainObjectConfig> getTargetObjects() {
         return targetObjects;
     }
 

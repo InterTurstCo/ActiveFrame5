@@ -13,16 +13,16 @@ abstract public class IndexedDomainObjectConfig implements Serializable {
     @Attribute(required = true)
     private String type;
 
-    @Element
+    @Element(required = false)
     private DomainObjectFilterConfig filter;
 
     @ElementList(entry = "indexed-field", inline = true)
     private List<IndexedFieldConfig> fields = new ArrayList<>();
 
-    @ElementList(entry = "indexed-content", inline = true)
+    @ElementList(entry = "indexed-content", inline = true, required = false)
     private List<IndexedContentConfig> contentObjects = new ArrayList<>();
 
-    @ElementList(entry = "linked-domain-object", inline = true)
+    @ElementList(entry = "linked-domain-object", inline = true, required = false)
     private List<LinkedDomainObjectConfig> linkedObjects = new ArrayList<>();
 
     public String getType() {

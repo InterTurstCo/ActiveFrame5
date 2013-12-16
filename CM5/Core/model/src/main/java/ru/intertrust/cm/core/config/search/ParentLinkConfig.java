@@ -6,7 +6,7 @@ import ru.intertrust.cm.core.config.DoelAware;
 
 public class ParentLinkConfig extends DoelAware {
 
-    @Attribute(required = true)
+    @Attribute(required = false)
     private String type;
 
     public String getType() {
