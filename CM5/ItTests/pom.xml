@@ -9,13 +9,9 @@
     <parent>
         <groupId>ru.intertrust.cm-sochi</groupId>
         <artifactId>cm-sochi</artifactId>
-        <version>0.5.2-2-SNAPSHOT</version>
+        <version>0.5.2-3-SNAPSHOT</version>
     </parent>
     
-    <properties>
-        <shrinkwrap-resolver.version>2.0.0</shrinkwrap-resolver.version>
-    </properties>    
-
     <dependencies>
         <dependency>
             <groupId>ru.intertrust.cm-sochi</groupId>
@@ -49,7 +45,6 @@
             <artifactId>jboss-javaee-6.0</artifactId>
             <type>pom</type>
             <scope>provided</scope>
-            <version>1.0.0.Final</version>
         </dependency>        
         
     </dependencies>
