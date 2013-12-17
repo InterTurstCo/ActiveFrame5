@@ -11,6 +11,10 @@
         <artifactId>cm-sochi</artifactId>
         <version>0.5.2-2-SNAPSHOT</version>
     </parent>
+    
+    <properties>
+        <shrinkwrap-resolver.version>2.0.0</shrinkwrap-resolver.version>
+    </properties>    
 
     <dependencies>
         <dependency>
@@ -36,13 +40,17 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.shrinkwrap.resolver</groupId>
-            <artifactId>shrinkwrap-resolver-api-maven</artifactId>
+            <artifactId>shrinkwrap-resolver-depchain</artifactId>
             <scope>test</scope>
+            <type>pom</type>
         </dependency>
         <dependency>
-            <groupId>org.jboss.spec.javax.ejb</groupId>
-            <artifactId>jboss-ejb-api_3.1_spec</artifactId>
+            <groupId>org.jboss.spec</groupId>
+            <artifactId>jboss-javaee-6.0</artifactId>
+            <type>pom</type>
             <scope>provided</scope>
-        </dependency>
+            <version>1.0.0.Final</version>
+        </dependency>        
+        
     </dependencies>
 </project>
