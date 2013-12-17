@@ -12,7 +12,7 @@ public class ImportFileConfig {
     @Attribute
     private String name;
     
-    @ElementList(inline=true, required=false)
+    @ElementList(inline=true, required=false, entry="Depend")
     private List<String> depend;
 
     public String getName() {

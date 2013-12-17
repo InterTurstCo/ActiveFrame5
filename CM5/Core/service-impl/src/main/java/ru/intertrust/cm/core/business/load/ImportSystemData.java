@@ -10,6 +10,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Stack;
 
+import org.apache.log4j.Logger;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,8 @@ import ru.intertrust.cm.core.model.FatalException;
  */
 public class ImportSystemData {
 
+    private static final Logger logger = Logger.getLogger(ImportSystemData.class);
+    
     @Autowired
     private CollectionsDao collectionsDao;
     @Autowired
@@ -86,6 +89,7 @@ public class ImportSystemData {
                 URL fileUrl =
                         this.getClass().getClassLoader()
                                 .getResource("ru/intertrust/cm/core/importdata/" + fileNode.name);
+                logger.info("Import system data from file \"ru/intertrust/cm/core/importdata/" + fileNode.name + "\"");
                 ImportData.importData(readFile(fileUrl));
             }
 

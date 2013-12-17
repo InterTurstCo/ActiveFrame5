@@ -1,0 +1,22 @@
+<?xml version="1.1" encoding="UTF-8" standalone="yes"?>
+<ImportData>
+    <File name="import-organization.csv">
+        <Depend>status.csv</Depend>
+    </File>
+    <File name="import-department.csv">
+        <Depend>status.csv</Depend>
+        <Depend>import-organization.csv</Depend>
+    </File>
+    <File name="import-employee.csv">
+        <Depend>status.csv</Depend>
+        <Depend>import-department.csv</Depend>
+    </File>
+    <File name="set-organization-boss.csv">
+        <Depend>status.csv</Depend>
+        <Depend>import-employee.csv</Depend>
+    </File>
+    <File name="set-department-boss.csv">
+        <Depend>status.csv</Depend>
+        <Depend>import-employee.csv</Depend>
+    </File>
+</ImportData>
