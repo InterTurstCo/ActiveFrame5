@@ -71,7 +71,8 @@ public interface ConfigurationExplorer {
     FieldConfig getFieldConfig(String domainObjectConfigName, String fieldConfigName, boolean returnInheritedConfig);
 
     /**
-     * Находит конфигурацию отображаемого поля коллекции по имени коллекции и имени поля
+     * Находит конфигурацию отображаемого поля коллекции по имени коллекции и имени поля в представлении коллекции
+     * (collection-views.xml).
      * @param collectionConfigName имя коллекции
      * @param columnConfigName имя поля
      * @return конфигурацию отображаемого поля коллекции

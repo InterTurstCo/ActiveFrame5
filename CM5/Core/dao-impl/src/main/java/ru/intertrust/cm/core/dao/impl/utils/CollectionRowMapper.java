@@ -132,13 +132,15 @@ public class CollectionRowMapper extends BasicRowMapper implements
     }
 
     /**
-     * Проверяет, содержится ли колонка в конфигурации отображаемых полей коллекции (collections-view.xml).
-     * Колонка id содержиться в конфигурации по умолчанию.
+     * Проверяет, содержится ли колонка в конфигурации отображаемых полей коллекции (collections-view.xml). Если
+     * конфигурация не содержится - возвращает false. Исключение для поля {@see BasicRowMapper#idField}, для которого
+     * всегда возвращается true. Это необходимо, так как поле {@see BasicRowMapper#idField} всегда содержится в списке
+     * полей коллекции.
      * @param columnName
      * @return
      */
     protected boolean collectionConfigExists(String columnName) {
-        if (DomainObjectDao.ID_COLUMN.equals(columnName)) {
+        if (idField.equalsIgnoreCase(columnName)) {
             return true;
         }
         
