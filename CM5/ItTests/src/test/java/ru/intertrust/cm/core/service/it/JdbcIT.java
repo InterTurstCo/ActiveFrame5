@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.service.it;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -10,12 +11,14 @@ import java.util.Calendar;
 
 import javax.ejb.EJB;
 import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -36,12 +39,29 @@ public class JdbcIT extends IntegrationTestBase {
 
     @Deployment
     public static Archive<EnterpriseArchive> createDeployment() {
-        return createDeployment(JdbcIT.class);
+        return createDeployment(new Class[] { JdbcIT.class }, new String[] { "test-data/import-department.csv",
+                "test-data/import-employee.csv","test-data/import-organization.csv",
+                "test-data/set-department-boss.csv","test-data/set-organization-boss.csv" });
     }
 
     @Test
     public void testArquillianInjection() {
         Assert.assertNotNull(collectionService);
+    }
+
+    @Before
+    public void init() throws IOException, LoginException {
+        LoginContext lc = login("admin", "admin");
+        lc.login();
+        try {
+            importTestData("test-data/import-department.csv");
+            importTestData("test-data/import-employee.csv");
+            importTestData("test-data/import-organization.csv");
+            importTestData("test-data/set-department-boss.csv");
+            importTestData("test-data/set-organization-boss.csv");
+        } finally {
+            lc.logout();
+        }
     }
 
     @Test
@@ -137,7 +157,7 @@ public class JdbcIT extends IntegrationTestBase {
     private DomainObject greateOutgoingDocument() {
         DomainObject document = crudService.createDomainObject("Outgoing_Document");
         document.setString("Name", "Outgoing_Document");
-        document.setReference("Author", findDomainObject("Employee", "Name", "Employee-1"));
+        document.setReference("Author", findDomainObject("Employee", "Name", "Сотрудник 1"));
         document.setLong("Long_Field", 10L);
 
         document = crudService.save(document);

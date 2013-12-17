@@ -1,0 +1,10 @@
+TYPE_NAME=Department;KEYS=Name
+Name;Boss
+Подразделение 1;"login=""person1"""
+Подразделение 2;"login=""person2"""
+Подразделение 3;"login=""person3"""
+Подразделение 4;"login=""person4"""
+Подразделение 5;"login=""person5"""
+Подразделение 6;"login=""person6"""
+Подразделение 7;"login=""person7"""
+Подразделение 8;"login=""person8"""
