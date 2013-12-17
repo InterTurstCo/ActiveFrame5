@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import ru.intertrust.cm.core.business.api.ConfigurationService;
+import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.GenericIdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.LongValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
@@ -19,21 +19,14 @@ import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.LongFieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.StringFieldConfig;
 import ru.intertrust.cm.core.jdbc.JdbcDriver.ConnectMode;
 
 public class JdbcDatabaseMetaData implements DatabaseMetaData {
 
-    private ConnectMode mode;
-    private String address;
-    private String login;
-    private String password;
     private SochiClient client;
 
     public JdbcDatabaseMetaData(ConnectMode mode, String address, String login, String password) {
-        this.mode = mode;
-        this.address = address;
-        this.login = login;
-        this.password = password;
         client = new SochiClient(mode, address, login, password);
     }
 
@@ -765,17 +758,17 @@ public class JdbcDatabaseMetaData implements DatabaseMetaData {
             throws SQLException {
         try {
             GenericIdentifiableObjectCollection collection = new GenericIdentifiableObjectCollection();
-            List<String> fields = new ArrayList<String>();
-            fields.add("TABLE_CAT");
-            fields.add("TABLE_SCHEM");
-            fields.add("TABLE_NAME");
-            fields.add("TABLE_TYPE");
-            fields.add("REMARKS");
-            fields.add("TYPE_CAT");
-            fields.add("TYPE_SCHEM");
-            fields.add("SELF_REFERENCING_COL_NAME");
-            fields.add("REF_GENERATION");
-            collection.setFields(fields);
+            List<FieldConfig> fields = new ArrayList<FieldConfig>();
+            fields.add(getFieldConfig("TABLE_CAT", FieldType.STRING));
+            fields.add(getFieldConfig("TABLE_SCHEM", FieldType.STRING));
+            fields.add(getFieldConfig("TABLE_NAME", FieldType.STRING));
+            fields.add(getFieldConfig("TABLE_TYPE", FieldType.STRING));
+            fields.add(getFieldConfig("REMARKS", FieldType.STRING));
+            fields.add(getFieldConfig("TYPE_CAT", FieldType.STRING));
+            fields.add(getFieldConfig("TYPE_SCHEM", FieldType.STRING));
+            fields.add(getFieldConfig("SELF_REFERENCING_COL_NAME", FieldType.STRING));
+            fields.add(getFieldConfig("REF_GENERATION", FieldType.STRING));
+            collection.setFieldsConfiguration(fields);
 
             Collection<DomainObjectTypeConfig> typeConfigs =
                     client.getConfigService().getConfigs(DomainObjectTypeConfig.class);
@@ -798,10 +791,10 @@ public class JdbcDatabaseMetaData implements DatabaseMetaData {
     @Override
     public ResultSet getSchemas() throws SQLException {
         GenericIdentifiableObjectCollection collection = new GenericIdentifiableObjectCollection();
-        List<String> fields = new ArrayList<String>();
-        fields.add("TABLE_SCHEM");
-        fields.add("TABLE_CATALOG");
-        collection.setFields(fields);
+        List<FieldConfig> fields = new ArrayList<FieldConfig>();
+        fields.add(getFieldConfig("TABLE_SCHEM", FieldType.STRING));
+        fields.add(getFieldConfig("TABLE_CATALOG", FieldType.STRING));
+        collection.setFieldsConfiguration(fields);
         collection.set("TABLE_SCHEM", 0, new StringValue(""));
         collection.set("TABLE_CATALOG", 0, new StringValue(""));
 
@@ -818,15 +811,29 @@ public class JdbcDatabaseMetaData implements DatabaseMetaData {
     @Override
     public ResultSet getTableTypes() throws SQLException {
         GenericIdentifiableObjectCollection collection = new GenericIdentifiableObjectCollection();
-        List<String> fields = new ArrayList<String>();
-        fields.add("TABLE_TYPE");
-        collection.setFields(fields);
+        List<FieldConfig> fields = new ArrayList<FieldConfig>();
+        fields.add(getFieldConfig("TABLE_TYPE", FieldType.STRING));
+        collection.setFieldsConfiguration(fields);
         collection.set(0, 0, new StringValue("collection"));
 
         JdbcResultSet result = new JdbcResultSet(collection);
         return result;
     }
 
+    private FieldConfig getFieldConfig(String name, FieldType type){
+        FieldConfig result = null;
+        if (type == FieldType.STRING){
+            result = new StringFieldConfig();
+            result.setName(name);
+            result.setNotNull(false);
+        }else if(type == FieldType.LONG){
+            result = new LongFieldConfig();
+            result.setName(name);
+            result.setNotNull(false);
+        }
+        return result;
+    }
+    
     @Override
     public ResultSet getColumns(
             String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern)
@@ -834,32 +841,32 @@ public class JdbcDatabaseMetaData implements DatabaseMetaData {
         try {
             GenericIdentifiableObjectCollection collection = new GenericIdentifiableObjectCollection();
 
-            List<String> fields = new ArrayList<String>();
-            fields.add("TABLE_CAT");
-            fields.add("TABLE_SCHEM");
-            fields.add("TABLE_NAME");
-            fields.add("COLUMN_NAME");
-            fields.add("DATA_TYPE");
-            fields.add("TYPE_NAME");
-            fields.add("COLUMN_SIZE");
-            fields.add("BUFFER_LENGTH");
-            fields.add("DECIMAL_DIGITS");
-            fields.add("NUM_PREC_RADIX");
-            fields.add("NULLABLE");
-            fields.add("REMARKS");
-            fields.add("COLUMN_DEF");
-            fields.add("SQL_DATA_TYPE");
-            fields.add("SQL_DATETIME_SUB");
-            fields.add("CHAR_OCTET_LENGTH");
-            fields.add("ORDINAL_POSITION");
-            fields.add("IS_NULLABLE");
-            fields.add("SCOPE_CATALOG");
-            fields.add("SCOPE_SCHEMA");
-            fields.add("SCOPE_TABLE");
-            fields.add("SOURCE_DATA_TYPE");
-            fields.add("IS_AUTOINCREMENT");
-            fields.add("IS_GENERATEDCOLUMN");
-            collection.setFields(fields);
+            List<FieldConfig> fields = new ArrayList<FieldConfig>();
+            fields.add(getFieldConfig("TABLE_CAT", FieldType.STRING));
+            fields.add(getFieldConfig("TABLE_SCHEM", FieldType.STRING));
+            fields.add(getFieldConfig("TABLE_NAME", FieldType.STRING));
+            fields.add(getFieldConfig("COLUMN_NAME", FieldType.STRING));
+            fields.add(getFieldConfig("DATA_TYPE", FieldType.LONG));
+            fields.add(getFieldConfig("TYPE_NAME", FieldType.STRING));
+            fields.add(getFieldConfig("COLUMN_SIZE", FieldType.LONG));
+            fields.add(getFieldConfig("BUFFER_LENGTH", FieldType.STRING));
+            fields.add(getFieldConfig("DECIMAL_DIGITS", FieldType.LONG));
+            fields.add(getFieldConfig("NUM_PREC_RADIX", FieldType.LONG));
+            fields.add(getFieldConfig("NULLABLE", FieldType.LONG));
+            fields.add(getFieldConfig("REMARKS", FieldType.STRING));
+            fields.add(getFieldConfig("COLUMN_DEF", FieldType.STRING));
+            fields.add(getFieldConfig("SQL_DATA_TYPE", FieldType.LONG));
+            fields.add(getFieldConfig("SQL_DATETIME_SUB", FieldType.LONG));
+            fields.add(getFieldConfig("CHAR_OCTET_LENGTH", FieldType.LONG));
+            fields.add(getFieldConfig("ORDINAL_POSITION", FieldType.LONG));
+            fields.add(getFieldConfig("IS_NULLABLE", FieldType.STRING));
+            fields.add(getFieldConfig("SCOPE_CATALOG", FieldType.STRING));
+            fields.add(getFieldConfig("SCOPE_SCHEMA", FieldType.STRING));
+            fields.add(getFieldConfig("SCOPE_TABLE", FieldType.STRING));
+            fields.add(getFieldConfig("SOURCE_DATA_TYPE", FieldType.LONG));
+            fields.add(getFieldConfig("IS_AUTOINCREMENT", FieldType.STRING));
+            fields.add(getFieldConfig("IS_GENERATEDCOLUMN", FieldType.STRING));
+            collection.setFieldsConfiguration(fields);
 
             if (tableNamePattern != null && tableNamePattern.length() > 0) {
 
@@ -935,14 +942,14 @@ public class JdbcDatabaseMetaData implements DatabaseMetaData {
     public ResultSet getPrimaryKeys(String catalog, String schema, String table) throws SQLException {
         GenericIdentifiableObjectCollection collection = new GenericIdentifiableObjectCollection();
 
-        List<String> fields = new ArrayList<String>();
-        fields.add("TABLE_CAT");
-        fields.add("TABLE_SCHEM");
-        fields.add("TABLE_NAME");
-        fields.add("COLUMN_NAME");
-        fields.add("KEY_SEQ");
-        fields.add("PK_NAME");
-        collection.setFields(fields);
+        List<FieldConfig> fields = new ArrayList<FieldConfig>();
+        fields.add(getFieldConfig("TABLE_CAT", FieldType.STRING));
+        fields.add(getFieldConfig("TABLE_SCHEM", FieldType.STRING));
+        fields.add(getFieldConfig("TABLE_NAME", FieldType.STRING));
+        fields.add(getFieldConfig("COLUMN_NAME", FieldType.STRING));
+        fields.add(getFieldConfig("KEY_SEQ", FieldType.LONG));
+        fields.add(getFieldConfig("PK_NAME", FieldType.STRING));
+        collection.setFieldsConfiguration(fields);
 
         collection.set("TABLE_NAME", 0, new StringValue(table));
         collection.set("COLUMN_NAME", 0, new StringValue("id"));
@@ -955,22 +962,22 @@ public class JdbcDatabaseMetaData implements DatabaseMetaData {
     public ResultSet getImportedKeys(String catalog, String schema, String table) throws SQLException {
         GenericIdentifiableObjectCollection collection = new GenericIdentifiableObjectCollection();
 
-        List<String> fields = new ArrayList<String>();
-        fields.add("PKTABLE_CAT");
-        fields.add("PKTABLE_SCHEM");
-        fields.add("PKTABLE_NAME");
-        fields.add("PKCOLUMN_NAME");
-        fields.add("FKTABLE_CAT");
-        fields.add("FKTABLE_SCHEM");
-        fields.add("FKTABLE_NAME");
-        fields.add("FKCOLUMN_NAME");
-        fields.add("KEY_SEQ");
-        fields.add("UPDATE_RULE");
-        fields.add("DELETE_RULE");
-        fields.add("FK_NAME");
-        fields.add("PK_NAME");
-        fields.add("DEFERRABILITY");
-        collection.setFields(fields);
+        List<FieldConfig> fields = new ArrayList<FieldConfig>();
+        fields.add(getFieldConfig("PKTABLE_CAT", FieldType.STRING));
+        fields.add(getFieldConfig("PKTABLE_SCHEM", FieldType.STRING));
+        fields.add(getFieldConfig("PKTABLE_NAME", FieldType.STRING));
+        fields.add(getFieldConfig("PKCOLUMN_NAME", FieldType.STRING));
+        fields.add(getFieldConfig("FKTABLE_CAT", FieldType.STRING));
+        fields.add(getFieldConfig("FKTABLE_SCHEM", FieldType.STRING));
+        fields.add(getFieldConfig("FKTABLE_NAME", FieldType.STRING));
+        fields.add(getFieldConfig("FKCOLUMN_NAME", FieldType.STRING));
+        fields.add(getFieldConfig("KEY_SEQ", FieldType.LONG));
+        fields.add(getFieldConfig("UPDATE_RULE", FieldType.LONG));
+        fields.add(getFieldConfig("DELETE_RULE", FieldType.LONG));
+        fields.add(getFieldConfig("FK_NAME", FieldType.STRING));
+        fields.add(getFieldConfig("PK_NAME", FieldType.STRING));
+        fields.add(getFieldConfig("DEFERRABILITY", FieldType.LONG));
+        collection.setFieldsConfiguration(fields);
 
         //TODO сформировать список forenkey
         JdbcResultSet result = new JdbcResultSet(collection);

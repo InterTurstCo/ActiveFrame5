@@ -93,6 +93,11 @@ public class TestJdbc extends ClientBase {
             resultset.close();
             statement.close();
         }
+        
+        ResultSet tablesRS = connection.getMetaData().getTableTypes();
+        printResultSet(tablesRS);
+        tablesRS.close();
+
         connection.close();
 
     }
