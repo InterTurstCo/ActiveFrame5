@@ -108,9 +108,9 @@ public class SqlQueryModifier {
                     column.getColumnName());
 
             if (selectExpressionItem.getAlias() != null) {
-                columnToTableMapping.put(selectExpressionItem.getAlias(), fieldConfig);
+                columnToTableMapping.put(selectExpressionItem.getAlias().toLowerCase(), fieldConfig);
             } else {
-                columnToTableMapping.put(column.getColumnName(), fieldConfig);
+                columnToTableMapping.put(column.getColumnName().toLowerCase(), fieldConfig);
             }
         }
 
