@@ -16,39 +16,11 @@ import java.util.*;
 public class GenericIdentifiableObjectCollection implements IdentifiableObjectCollection {
 
     private ArrayList<IdentifiableObject> list = new ArrayList<IdentifiableObject>();
-    private CaseInsensitiveKeyHashMap<Integer> fieldIndexes = new CaseInsensitiveKeyHashMap<Integer>();
+    private CaseInsensitiveMap<Integer> fieldIndexes = new CaseInsensitiveMap<Integer>();
     private ArrayList<String> fields;
     private ArrayList<FieldConfig> fieldConfigs;
 
     public GenericIdentifiableObjectCollection() {
-    }
-    
-
-    /**
-     * Обертывает @{link HashMap} для хранения ключей объектов в нижнем регистре (регистронезависимо).
-     * @author atsvetkov
-     *
-     */
-    private static class CaseInsensitiveKeyHashMap<T> implements Dto {
-        private HashMap<String, T> map = new HashMap<String, T>();
-
-        public T put(String key, T value) {
-            String lowerCaseKey = null;
-            if (key != null) {
-                lowerCaseKey = key.toLowerCase();
-            }
-            return map.put(lowerCaseKey, value);
-        }
-
-        public T get(String key) {
-            String lowerCaseKey = null;
-            if (key != null) {
-                lowerCaseKey = key.toLowerCase();
-            }
-            return map.get(lowerCaseKey);
-
-        }
-        
     }
 
     //TODO Удалить после исправления JdbcDatabaseMetaData.java

@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 
 /**
@@ -15,14 +16,15 @@ import java.util.LinkedHashMap;
 public class GenericIdentifiableObject implements IdentifiableObject {
 
     private Id id;
-    protected CaseInsensitiveMap<Value> fieldValues;
+    protected LinkedHashMap<String, Value> fieldValues;
+    protected HashSet<String> originalKeys = new HashSet<String>();
     protected boolean dirty = false;
 
     /**
      * Создаёт объект
      */
     public GenericIdentifiableObject() {
-        fieldValues = new CaseInsensitiveMap<>(); // параметры специфицированы явно, для поддержки GWT
+        fieldValues = new LinkedHashMap<String, Value>(); // параметры специфицированы явно, для поддержки GWT
     }
 
     /**
@@ -34,7 +36,7 @@ public class GenericIdentifiableObject implements IdentifiableObject {
         this();
         setId(source.getId());
         ArrayList<String> sourceFields = source.getFields();
-        fieldValues = new CaseInsensitiveMap<>(sourceFields.size());
+        fieldValues = new LinkedHashMap<String, Value>(sourceFields.size());
         for (String field : sourceFields) {
             setValue(field, source.getValue(field));
         }
@@ -55,9 +57,11 @@ public class GenericIdentifiableObject implements IdentifiableObject {
     @Override
     public void setValue(String field, Value value) {
         if (value != null) {
-            fieldValues.put(field, value);
+            fieldValues.put(getLowerCaseKey(field), value);
+            originalKeys.add(field);
         } else {
-            fieldValues.remove(field);
+            fieldValues.remove(getLowerCaseKey(field));
+            originalKeys.remove(field);
         }
         dirty = true;
     }
@@ -65,20 +69,22 @@ public class GenericIdentifiableObject implements IdentifiableObject {
     @SuppressWarnings("unchecked")
     @Override
     public <T extends Value> T getValue(String field) {
-        return (T) fieldValues.get(field);
+        return (T) fieldValues.get(getLowerCaseKey(field));
     }
 
     @Override
     public ArrayList<String> getFields() {
-        return new ArrayList<>(fieldValues.keySet());
+        return new ArrayList<String>(originalKeys);
     }
 
     @Override
     public void setString(String field, String value) {
         if (value != null) {
-            fieldValues.put(field, new StringValue(value));
+            fieldValues.put(getLowerCaseKey(field), new StringValue(value));
+            originalKeys.add(field);
         } else {
-            fieldValues.remove(field);
+            fieldValues.remove(getLowerCaseKey(field));
+            originalKeys.remove(field);
         }
         dirty = true;
     }
@@ -92,9 +98,11 @@ public class GenericIdentifiableObject implements IdentifiableObject {
     @Override
     public void setLong(String field, Long value) {
         if (value != null) {
-            fieldValues.put(field, new LongValue(value));
+            fieldValues.put(getLowerCaseKey(field), new LongValue(value));
+            originalKeys.add(field);
         } else {
-            fieldValues.remove(field);
+            fieldValues.remove(getLowerCaseKey(field));
+            originalKeys.remove(field);
         }
         dirty = true;
     }
@@ -108,9 +116,11 @@ public class GenericIdentifiableObject implements IdentifiableObject {
     @Override
     public void setBoolean(String field, Boolean value) {
         if (value != null) {
-            fieldValues.put(field, new BooleanValue(value));
+            fieldValues.put(getLowerCaseKey(field), new BooleanValue(value));
+            originalKeys.add(field);
         } else {
-            fieldValues.remove(field);
+            fieldValues.remove(getLowerCaseKey(field));
+            originalKeys.remove(field);
         }
         dirty = true;
     }
@@ -124,9 +134,11 @@ public class GenericIdentifiableObject implements IdentifiableObject {
     @Override
     public void setDecimal(String field, BigDecimal value) {
         if (value != null) {
-            fieldValues.put(field, new DecimalValue(value));
+            fieldValues.put(getLowerCaseKey(field), new DecimalValue(value));
+            originalKeys.add(field);
         } else {
-            fieldValues.remove(field);
+            fieldValues.remove(getLowerCaseKey(field));
+            originalKeys.remove(field);
         }
         dirty = true;
     }
@@ -140,9 +152,11 @@ public class GenericIdentifiableObject implements IdentifiableObject {
     @Override
     public void setTimestamp(String field, Date value) {
         if (value != null) {
-            fieldValues.put(field, new TimestampValue(value));
+            fieldValues.put(getLowerCaseKey(field), new TimestampValue(value));
+            originalKeys.add(field);
         } else {
-            fieldValues.remove(field);
+            fieldValues.remove(getLowerCaseKey(field));
+            originalKeys.remove(field);
         }
         dirty = true;
     }
@@ -156,9 +170,11 @@ public class GenericIdentifiableObject implements IdentifiableObject {
     @Override
     public void setTimelessDate(String field, TimelessDate value) {
         if (value != null) {
-            fieldValues.put(field, new TimelessDateValue(value));
+            fieldValues.put(getLowerCaseKey(field), new TimelessDateValue(value));
+            originalKeys.add(field);
         } else {
-            fieldValues.remove(field);
+            fieldValues.remove(getLowerCaseKey(field));
+            originalKeys.remove(field);
         }
         dirty = true;
     }
@@ -172,9 +188,11 @@ public class GenericIdentifiableObject implements IdentifiableObject {
     @Override
     public void setDateTimeWithTimeZone(String field, DateTimeWithTimeZone value) {
         if (value != null) {
-            fieldValues.put(field, new DateTimeWithTimeZoneValue(value));
+            fieldValues.put(getLowerCaseKey(field), new DateTimeWithTimeZoneValue(value));
+            originalKeys.add(field);
         } else {
-            fieldValues.remove(field);
+            fieldValues.remove(getLowerCaseKey(field));
+            originalKeys.remove(field);
         }
         dirty = true;
     }
@@ -190,12 +208,14 @@ public class GenericIdentifiableObject implements IdentifiableObject {
         if (domainObject != null) {
             Id id = domainObject.getId();
             if (id != null) {
-                fieldValues.put(field, new ReferenceValue(id));
+                fieldValues.put(getLowerCaseKey(field), new ReferenceValue(id));
+                originalKeys.add(field);
             } else {
                 throw new NullPointerException("Impossible to reference to an unsaved object");
             }
         } else {
-            fieldValues.remove(field);
+            fieldValues.remove(getLowerCaseKey(field));
+            originalKeys.remove(field);
         }
         dirty = true;
     }
@@ -203,9 +223,11 @@ public class GenericIdentifiableObject implements IdentifiableObject {
     @Override
     public void setReference(String field, Id id) {
         if (id != null) {
-            fieldValues.put(field, new ReferenceValue(id));
+            fieldValues.put(getLowerCaseKey(field), new ReferenceValue(id));
+            originalKeys.add(field);
         } else {
-            fieldValues.remove(field);
+            fieldValues.remove(getLowerCaseKey(field));
+            originalKeys.remove(field);
         }
         dirty = true;
     }
@@ -231,5 +253,13 @@ public class GenericIdentifiableObject implements IdentifiableObject {
 
     public void resetDirty() {
         dirty = false;
+    }
+
+    private String getLowerCaseKey(String key) {
+        String lowerCaseKey = null;
+        if (key != null) {
+            lowerCaseKey = key.toLowerCase();
+        }
+        return lowerCaseKey;
     }
 }
