@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
@@ -82,6 +83,17 @@ public class CollectionRowMapper extends BasicRowMapper implements
                     index++;
                 }
                 // если поле в коллекцию не добавляется, то индекс не инкрементируется
+            }
+
+            // Для случая извлечения коллекции по запросу при отсутствующем Id, заполняем Id первым ссылочным полем
+            if (collectionName == null && collection.getId(row) == null) {
+                for (FieldConfig fieldConfig : collection.getFieldsConfiguration()) {
+                    if (fieldConfig instanceof ReferenceFieldConfig) {
+                        ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
+                        collection.setId(row, collection.get(row).getReference(referenceFieldConfig.getName()));
+                        break;
+                    }
+                }
             }
 
             collection.resetDirty(row);
