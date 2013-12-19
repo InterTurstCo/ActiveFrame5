@@ -28,7 +28,6 @@ import java.util.*;
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.*;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getServiceColumnName;
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.wrap;
 
 
 /**
@@ -41,6 +40,12 @@ public class SqlQueryModifier {
     private static final String USER_ID_PARAM = "USER_ID_PARAM";
     private static final String USER_ID_VALUE = ":user_id";
 
+    private ConfigurationExplorer configurationExplorer;
+
+    public SqlQueryModifier(ConfigurationExplorer configurationExplorer) {
+        this.configurationExplorer = configurationExplorer;
+    }
+
     /**
      * Добавляет сервисные поля (Тип Объекта идентификатора, идентификатор таймзоны и т.п.) в SQL запрос получения
      * данных для коллекции. Переданный SQL запрос должен быть запросом чтения (SELECT) либо объединением запросов
@@ -49,13 +54,8 @@ public class SqlQueryModifier {
      * @param query первоначальный SQL запрос
      * @return запрос с добавленным полем Тип Объекта идентификатора
      */
-    public String addServiceColumns(String query, final ConfigurationExplorer configurationExplorer) {
-        return processQuery(query, new QueryProcessor() {
-            @Override
-            protected void processPlainSelect(PlainSelect plainSelect) {
-                addServiceColumnsInPlainSelect(plainSelect, configurationExplorer);
-            }
-        });
+    public String addServiceColumns(String query) {
+        return processQuery(query, new AddServiceColumnsQueryProcessor());
     }
 
     public static String wrapAndLowerCaseNames(String query) {
@@ -81,16 +81,7 @@ public class SqlQueryModifier {
 
         SqlQueryParser sqlParser = new SqlQueryParser(query);
         SelectBody selectBody = sqlParser.getSelectBody();
-
-        PlainSelect plainSelect = null;
-        if (selectBody.getClass().equals(PlainSelect.class)) {
-            plainSelect = (PlainSelect) selectBody;
-        } else if (selectBody.getClass().equals(SetOperationList.class)) {
-            SetOperationList union = (SetOperationList) selectBody;
-            plainSelect = union.getPlainSelects().get(0);
-        } else {
-            throw new IllegalArgumentException("Unsupported type of select body: " + selectBody.getClass());
-        }
+        PlainSelect plainSelect = getPlainSelect(selectBody);
 
         for (Object selectItem : plainSelect.getSelectItems()) {
             if (!(selectItem instanceof SelectExpressionItem)) {
@@ -104,7 +95,7 @@ public class SqlQueryModifier {
             }
 
             Column column = (Column) selectExpressionItem.getExpression();
-            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(getTableName(plainSelect, column),
+            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(getTableName(plainSelect, column, false),
                     column.getColumnName());
 
             if (selectExpressionItem.getAlias() != null) {
@@ -166,8 +157,13 @@ public class SqlQueryModifier {
         }
     }
 
-    private void addServiceColumnsInPlainSelect(PlainSelect plainSelect, ConfigurationExplorer configurationExplorer) {
+    private void addServiceColumnsInPlainSelect(PlainSelect plainSelect) {
         List<SelectExpressionItem> selectExpressionItemsToAdd = new ArrayList<>();
+
+        if (plainSelect.getFromItem() instanceof SubSelect) {
+            SubSelect subSelect = (SubSelect) plainSelect.getFromItem();
+            processSelectBody(subSelect.getSelectBody(), new AddServiceColumnsQueryProcessor());
+        }
 
         for (Object selectItem : plainSelect.getSelectItems()) {
             if (!(selectItem instanceof SelectExpressionItem)) {
@@ -181,7 +177,7 @@ public class SqlQueryModifier {
             }
 
             Column column = (Column) selectExpressionItem.getExpression();
-            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(getTableName(plainSelect, column),
+            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(getTableName(plainSelect, column, false),
                     column.getColumnName());
 
             if (fieldConfig instanceof ReferenceFieldConfig) {
@@ -203,13 +199,8 @@ public class SqlQueryModifier {
             return;
         }
 
-        Table fromItem = (Table) plainSelect.getFromItem();
         Table whereTable = new Table();
-        if (fromItem.getAlias() != null) {
-            whereTable.setName(fromItem.getAlias());
-        } else {
-            whereTable.setName(wrap(fromItem.getName()));
-        }
+        whereTable.setName(getTableAlias(plainSelect));
 
         Expression where = plainSelect.getWhere();
         if (where == null) {
@@ -295,9 +286,18 @@ public class SqlQueryModifier {
      * @param column колока (поле) в запросе.
      * @return
      */
-    private static String getTableName(PlainSelect plainSelect, Column column) {
-        Table fromItem = (Table) plainSelect.getFromItem();
-        if (column.getTable() != null && column.getTable().getName() != null) {
+    private static String getTableName(PlainSelect plainSelect, Column column, boolean forSubSelect) {
+
+        if (plainSelect.getFromItem() instanceof SubSelect) {
+            SubSelect subSelect = (SubSelect) plainSelect.getFromItem();
+            PlainSelect plainSubSelect = getPlainSelect(subSelect.getSelectBody());
+            return getTableName(plainSubSelect, column, true);
+        } else if (plainSelect.getFromItem() instanceof Table) {
+            Table fromItem = (Table) plainSelect.getFromItem();
+
+            if (forSubSelect || column.getTable() == null || column.getTable().getName() == null) {
+                return fromItem.getName();
+            }
 
             if (column.getTable().getName().equals(fromItem.getAlias())) {
                 return fromItem.getName();
@@ -311,17 +311,34 @@ public class SqlQueryModifier {
 
             for (Object joinObject : joinList) {
                 Join join = (Join) joinObject;
-                if (column.getTable().getName().equals(join.getRightItem().getAlias())) {
-                    return ((Table) join.getRightItem()).getName();
+
+                if (!(join.getRightItem() instanceof Table)) {
+                    continue;
+                }
+
+                Table joinTable = (Table) join.getRightItem();
+
+                if (column.getTable().getName().equals(joinTable.getAlias()) ||
+                        column.getTable().getName().equals(joinTable.getName())) {
+                    return joinTable.getName();
                 }
             }
-
-        } else {
-            return fromItem.getName();
         }
         
         throw new CollectionQueryException("Failed to evaluate table name for column '" +
                 column.getColumnName() + "'");
+    }
+
+    private static String getTableAlias(PlainSelect plainSelect) {
+        if (plainSelect.getFromItem() instanceof SubSelect) {
+            SubSelect subSelect = (SubSelect) plainSelect.getFromItem();
+            return subSelect.getAlias() != null ? subSelect.getAlias() : null;
+        } else if (plainSelect.getFromItem() instanceof Table) {
+            Table table = (Table) plainSelect.getFromItem();
+            return table.getAlias() != null ? table.getAlias() : table.getName();
+        }
+
+        throw new CollectionQueryException("Unsupported FromItem type.");
     }
 
     private String getDomainObjectTypeFromSelect(PlainSelect plainSelect) {
@@ -416,37 +433,57 @@ public class SqlQueryModifier {
         return aclExpression;
     }
 
-    private static String processQuery(String query, QueryProcessor processor) {
-        return processor.process(query);
+    private static PlainSelect getPlainSelect(SelectBody selectBody) {
+        if (selectBody instanceof PlainSelect) {
+            return (PlainSelect) selectBody;
+        } else if (selectBody instanceof SetOperationList) {
+            SetOperationList union = (SetOperationList) selectBody;
+            return union.getPlainSelects().get(0);
+        } else {
+            throw new IllegalArgumentException("Unsupported type of select body: " + selectBody.getClass());
+        }
     }
 
-    private static abstract class QueryProcessor {
+    private static String processQuery(String query, QueryProcessor processor) {
+        SqlQueryParser sqlParser = new SqlQueryParser(query);
+        SelectBody selectBody = sqlParser.getSelectBody();
 
-        public String process(String query) {
-            String modifiedQuery = null;
-            SqlQueryParser sqlParser = new SqlQueryParser(query);
+        selectBody = processor.process(selectBody);
+        return selectBody.toString();
+    }
 
-            SelectBody selectBody = sqlParser.getSelectBody();
+    private static SelectBody processSelectBody(SelectBody selectBody, QueryProcessor processor) {
+        return processor.process(selectBody);
+    }
+
+    private abstract class QueryProcessor {
+
+        public SelectBody process(SelectBody selectBody) {
             if (selectBody.getClass().equals(PlainSelect.class)) {
                 PlainSelect plainSelect = (PlainSelect) selectBody;
                 processPlainSelect(plainSelect);
-                modifiedQuery = plainSelect.toString();
+                return plainSelect;
             } else if (selectBody.getClass().equals(SetOperationList.class)) {
                 SetOperationList union = (SetOperationList) selectBody;
                 List plainSelects = union.getPlainSelects();
                 for (Object plainSelect : plainSelects) {
                     processPlainSelect((PlainSelect) plainSelect);
                 }
-                modifiedQuery = union.toString();
+                return union;
             } else {
                 throw new IllegalArgumentException("Unsupported type of select body: " + selectBody.getClass());
             }
-
-            return modifiedQuery;
         }
 
         protected abstract void processPlainSelect(PlainSelect plainSelect);
 
+    }
+
+    private class AddServiceColumnsQueryProcessor extends QueryProcessor {
+        @Override
+        protected void processPlainSelect(PlainSelect plainSelect) {
+            addServiceColumnsInPlainSelect(plainSelect);
+        }
     }
 
 }

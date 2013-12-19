@@ -163,8 +163,8 @@ public class CollectionQueryInitializer {
      * @return измененный запрос
      */
     private String postProcessQuery(CollectionConfig collectionConfig, List<Filter> filterValues, AccessToken accessToken, String query) {
-        SqlQueryModifier sqlQueryModifier = new SqlQueryModifier();
-        query = sqlQueryModifier.addServiceColumns(query, configurationExplorer);
+        SqlQueryModifier sqlQueryModifier = new SqlQueryModifier(configurationExplorer);
+        query = sqlQueryModifier.addServiceColumns(query);
         query = sqlQueryModifier.addIdBasedFilters(query, filterValues, collectionConfig.getIdField());
 
 /*        if (accessToken.isDeferred()) {
@@ -183,8 +183,8 @@ public class CollectionQueryInitializer {
      * @return измененный запрос
      */
     private String postProcessQuery(AccessToken accessToken, String query) {
-        SqlQueryModifier sqlQueryModifier = new SqlQueryModifier();
-        query = sqlQueryModifier.addServiceColumns(query, configurationExplorer);
+        SqlQueryModifier sqlQueryModifier = new SqlQueryModifier(configurationExplorer);
+        query = sqlQueryModifier.addServiceColumns(query);
 
 /*        if (accessToken.isDeferred()) {
             query = sqlQueryModifier.addAclQuery(query, "id");

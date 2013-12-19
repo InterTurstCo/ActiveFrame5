@@ -242,6 +242,7 @@ public class WrapAndLowerCaseExpressionVisitor implements ExpressionVisitor {
 
     @Override
     public void visit(Concat concat) {
+        visitBinaryExpression(concat);
     }
 
     @Override

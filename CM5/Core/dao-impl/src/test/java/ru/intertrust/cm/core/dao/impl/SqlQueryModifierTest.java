@@ -79,12 +79,12 @@ public class SqlQueryModifierTest {
         GlobalSettingsConfig globalSettings = new GlobalSettingsConfig();
         configuration.getConfigurationList().add(globalSettings);
         ConfigurationExplorer configurationExplorer = new ConfigurationExplorerImpl(configuration);
-        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier();
-        String modifiedQuery = collectionQueryModifier.addServiceColumns(PLAIN_SELECT_QUERY, configurationExplorer);
+        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier(configurationExplorer);
+        String modifiedQuery = collectionQueryModifier.addServiceColumns(PLAIN_SELECT_QUERY);
 
         assertEquals(PLAIN_SELECT_QUERY_WITH_TYPE, modifiedQuery);
 
-        modifiedQuery = collectionQueryModifier.addServiceColumns(UNION_QUERY, configurationExplorer);
+        modifiedQuery = collectionQueryModifier.addServiceColumns(UNION_QUERY);
 
         assertEquals(UNION_QUERY_WITH_TYPE, modifiedQuery);
     }
@@ -97,7 +97,7 @@ public class SqlQueryModifierTest {
 
     @Test
     public void testAddAclQuery() {
-        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier();
+        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier(null);
         String modifiedQuery = collectionQueryModifier.addAclQuery(PLAIN_SELECT_QUERY, ID_FIELD);
 
         assertEquals(PLAIN_SELECT_QUERY_WITH_ACL, modifiedQuery);
@@ -109,7 +109,7 @@ public class SqlQueryModifierTest {
 
     @Test
     public void testAddAclQueryToSqlWithoutWhereClause() {
-        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier();
+        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier(null);
         String modifiedQuery = collectionQueryModifier.addAclQuery(PLAIN_SELECT_QUERY_WITHOUT_WHERE, ID_FIELD);
 
         assertEquals(PLAIN_SELECT_QUERY_WITHOUT_WHERE_ACL_APPLIED, modifiedQuery);
@@ -127,7 +127,7 @@ public class SqlQueryModifierTest {
         idsIncludedFilter2.addCriterion(0, new ReferenceValue(new RdbmsId(1, 101)));
         idsIncludedFilter2.addCriterion(1, new ReferenceValue(new RdbmsId(1, 102)));
 
-        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier();
+        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier(null);
         String modifiedQuery = collectionQueryModifier.addIdBasedFilters(PLAIN_SELECT_QUERY_WITHOUT_WHERE,
                 Arrays.asList(new Filter[] {idsIncludedFilter1, idsIncludedFilter2}), "id");
 
@@ -145,7 +145,7 @@ public class SqlQueryModifierTest {
         idsExcludedFilter2.addCriterion(0, new ReferenceValue(new RdbmsId(1, 101)));
         idsExcludedFilter2.addCriterion(1, new ReferenceValue(new RdbmsId(1, 102)));
 
-        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier();
+        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier(null);
         String modifiedQuery = collectionQueryModifier.addIdBasedFilters(PLAIN_SELECT_QUERY_WITHOUT_WHERE,
                 Arrays.asList(new Filter[]{idsExcludedFilter1, idsExcludedFilter2}), "person");
 
