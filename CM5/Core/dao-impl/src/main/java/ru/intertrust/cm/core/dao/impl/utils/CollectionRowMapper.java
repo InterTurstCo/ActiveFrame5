@@ -9,7 +9,6 @@ import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
-import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.impl.DataType;
@@ -78,7 +77,7 @@ public class CollectionRowMapper extends BasicRowMapper implements
                     collection.setId(row, valueModel.getId());
                     collection.set(index, row, new ReferenceValue(valueModel.getId()));
                     index++;
-                } else if (valueModel.getValue() != null && collectionConfigExists(columnName)) {
+                } else if (valueModel.getValue() != null) {
                     collection.set(index, row, valueModel.getValue());
                     index++;
                 }
@@ -133,36 +132,11 @@ public class CollectionRowMapper extends BasicRowMapper implements
     private List<String> collectColumnNamesToDisplay(ColumnModel columnModel) {
         List<String> fieldNamesToInsert = new ArrayList<String>();
         for (String columnName : columnModel.getColumnNames()) {
-            if(TYPE_ID_COLUMN.equals(columnName)) {
-                continue;
-            }
-            if (collectionConfigExists(columnName)) {
+            if(!TYPE_ID_COLUMN.equals(columnName)) {
                 fieldNamesToInsert.add(columnName);
             }
         }
         return fieldNamesToInsert;
-    }
-
-    /**
-     * Проверяет, содержится ли колонка в конфигурации отображаемых полей коллекции (collections-view.xml). Если
-     * конфигурация не содержится - возвращает false. Исключение для поля {@see BasicRowMapper#idField}, для которого
-     * всегда возвращается true. Это необходимо, так как поле {@see BasicRowMapper#idField} всегда содержится в списке
-     * полей коллекции.
-     * @param columnName
-     * @return
-     */
-    protected boolean collectionConfigExists(String columnName) {
-        if (idField.equalsIgnoreCase(columnName)) {
-            return true;
-        }
-        
-        if (collectionName != null) {
-            CollectionColumnConfig columnConfig =
-                    configurationExplorer.getCollectionColumnConfig(collectionName, columnName);
-            return columnConfig != null;
-        } else {
-            return true; // Для коллекций, получаемых по запросу без конфигурации возвращаем все колонки
-        }
     }
 
 }
