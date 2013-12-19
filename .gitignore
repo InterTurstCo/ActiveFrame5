@@ -46,3 +46,4 @@ release.properties
 pom.xml.next
 build.properties
 CM5/deploy.properties
+CM5/mvn-build.bat
