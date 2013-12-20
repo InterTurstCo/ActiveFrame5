@@ -62,10 +62,6 @@
           class="ru.intertrust.cm.core.dao.impl.access.AccessControlServiceImpl"
           p:databaseAgent-ref="databaseAccessAgent" />
 
-    <bean id="attachmentContentDao"
-          class="ru.intertrust.cm.core.dao.impl.FileSystemAttachmentContentDaoImpl"
-          init-method="init" />
-
     <bean id="userTransactionService"
           class="ru.intertrust.cm.core.dao.impl.UserTransactionServiceImpl" />
 
@@ -101,5 +97,26 @@
     <bean id="doelResolver" class="ru.intertrust.cm.core.dao.impl.doel.DoelResolver"/>
 
     <bean id="statusDao" class="ru.intertrust.cm.core.dao.impl.StatusDaoImpl"/>
+
+    <beans profile="default">
+        <bean id="attachmentContentDao"
+            class="ru.intertrust.cm.core.dao.impl.FileSystemAttachmentContentDaoImpl"
+            init-method="init" />
+    </beans>
+    
+    <!-- Для выбора профиля отличного от default необходимо в standalone.xml добавить следующие строки>
+    <system-properties>
+        <property name="spring.profiles.active" value="filenet"/>
+    </system-properties-->    
+    <beans profile="filenet">
+        <bean id="attachmentContentDao"
+            class="ru.intertrust.cm.core.dao.impl.filenet.FilenetAttachmentContentDaoImpl">
+            <property name="serverUrl" value="vm-fn-01:9443" />
+            <property name="login" value="p8admin" />
+            <property name="password" value="Welcome777" />
+            <property name="objectStore" value="OS" />
+            <property name="baseFolder" value="/CM5" />
+        </bean>
+    </beans>          
 
 </beans>

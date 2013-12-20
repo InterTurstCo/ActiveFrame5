@@ -29,6 +29,7 @@
         <module>web-app</module>
         <module>bootstrap</module>
         <module>jdbc</module>
+        <module>file-net-adapter</module>        
     </modules>
 
     <properties>

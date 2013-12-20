@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<!-- 
+   ====== Copyright (c) 2006 FileNet Corporation. All rights reserved. =====*
+               
+   Description:
+  
+        FileNet P8 Content Engine Web Service Definition
+  
+   
+  ========================================================================= 
+-->
+
+<definitions
+            name="FNCEWS40MTOM"
+            targetNamespace="http://www.filenet.com/ns/fnce/2006/11/ws/MTOM/wsdl"
+            xmlns="http://schemas.xmlsoap.org/wsdl/"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/"
+            xmlns:mdef="http://www.filenet.com/ns/fnce/2006/11/ws/MTOM/wsdl"
+            xmlns:cdef="http://www.filenet.com/ns/fnce/2006/11/ws/wsdl"
+            xmlns:ctyp="http://www.filenet.com/ns/fnce/2006/11/ws/schema" >
+
+    <import location="FNCEWS40.wsdl" namespace="http://www.filenet.com/ns/fnce/2006/11/ws/wsdl"/>
+
+    <binding name="FNCEWS40MTOMBinding" type="cdef:FNCEWS40PortType">
+        <soap12:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="GetObjects">
+            <soap12:operation soapAction="http://www.filenet.com/ns/fnce/2006/11/ws/MTOM#GetObjects"/>
+            <input>
+                <soap12:header message="cdef:LocalizationHeader" part="header" use="literal"/>
+                <soap12:body use="literal"/>
+            </input>
+            <output>
+                <soap12:body use="literal"/>
+           </output>
+           <fault name="GeneralError">
+                <soap12:fault name="GeneralError" use="literal"/>
+           </fault>
+        </operation>
+        <operation name="ExecuteChanges">
+            <soap12:operation soapAction="http://www.filenet.com/ns/fnce/2006/11/ws/MTOM#ExecuteChanges"/>
+            <input>
+                <soap12:header message="cdef:LocalizationHeader" part="header" use="literal"/>
+                <soap12:body use="literal"/>
+            </input>
+            <output>
+                <soap12:body use="literal"/>
+           </output>
+           <fault name="GeneralError">
+                <soap12:fault name="GeneralError" use="literal"/>
+           </fault>
+        </operation>
+        <operation name="ExecuteSearch">
+            <soap12:operation soapAction="http://www.filenet.com/ns/fnce/2006/11/ws/MTOM#ExecuteSearch"/>
+            <input>
+                <soap12:header message="cdef:LocalizationHeader" part="header" use="literal"/>
+                <soap12:body use="literal"/>
+            </input>
+            <output>
+                <soap12:body use="literal"/>
+           </output>
+           <fault name="GeneralError">
+                <soap12:fault name="GeneralError" use="literal"/>
+           </fault>
+        </operation>
+        <operation name="GetSearchMetadata">
+            <soap12:operation soapAction="http://www.filenet.com/ns/fnce/2006/11/ws/MTOM#GetSearchMetadata"/>
+            <input>
+                <soap12:header message="cdef:LocalizationHeader" part="header" use="literal"/>
+                <soap12:body use="literal"/>
+            </input>
+            <output>
+                <soap12:body use="literal"/>
+            </output>
+            <fault name="GeneralError">
+                <soap12:fault name="GeneralError" use="literal"/>
+            </fault>
+        </operation>
+        <operation name="GetContent">
+            <soap12:operation soapAction="http://www.filenet.com/ns/fnce/2006/11/ws/MTOM#GetContent"/>
+            <input>
+                <soap12:header message="cdef:LocalizationHeader" part="header" use="literal"/>
+                <soap12:body use="literal"/>
+            </input>
+            <output>
+                <soap12:body use="literal"/>
+           </output>
+           <fault name="GeneralError">
+                <soap12:fault name="GeneralError" use="literal"/>
+           </fault>
+        </operation>
+    </binding>
+
+    <service name="FNCEWS40Service">
+        <documentation>FileNET P8 Content Engine Web Service</documentation>
+        <port name="FNCEWS40MTOMPort" binding="mdef:FNCEWS40MTOMBinding">
+            <soap12:address location="https://vm-fn-01:9443/wsi/FNCEWS40MTOM/"/>
+        </port>
+    </service>
+
+</definitions>
+

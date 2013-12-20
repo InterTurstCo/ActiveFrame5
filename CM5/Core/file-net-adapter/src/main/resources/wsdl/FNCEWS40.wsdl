@@ -1,0 +1,1094 @@
+<?xml version="1.0"?>
+<!-- 
+   ====== Copyright (c) 2004 FileNet Corporation. All rights reserved. =====*
+               
+   Description:
+  
+        FileNet P8 Content Engine Web Service Definition
+        
+        This is revised version containing change to order of
+        sequence and attribute node in ListOfObject type. According
+        to W3 WSDL schema sequence node should come above attribute node.
+  
+   
+  ========================================================================= 
+-->
+
+<definitions
+            name="FNCEWS40"
+            targetNamespace="http://www.filenet.com/ns/fnce/2006/11/ws/wsdl"
+            xmlns="http://schemas.xmlsoap.org/wsdl/"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:cdef="http://www.filenet.com/ns/fnce/2006/11/ws/wsdl"
+            xmlns:ctyp="http://www.filenet.com/ns/fnce/2006/11/ws/schema" >
+    <types>
+
+        <xsd:schema 
+                    xmlns="http://www.filenet.com/ns/fnce/2006/11/ws/schema"
+                    targetNamespace="http://www.filenet.com/ns/fnce/2006/11/ws/schema"
+                    elementFormDefault="qualified">
+
+        <!-- ***Property representations*** -->
+
+            <!-- Stringized GUID -->
+            <xsd:simpleType name="GuidType">
+                <xsd:restriction base="xsd:string">
+                    <xsd:pattern value="\{[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}\}"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+
+            <!-- Abstract base -->
+            <xsd:complexType name="PropertyType" abstract="true">
+                <xsd:attribute name="propertyId" type="xsd:string" use="required"/>
+                <xsd:attribute name="settable" type="xsd:boolean"/>
+            </xsd:complexType>
+            
+            
+            <xsd:simpleType name="CollectionType">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="List"/>
+                    <xsd:enumeration value="Enum"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+
+            <xsd:simpleType name="StringEncodingType">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="H9"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+
+            <xsd:complexType name="UnevaluatedCollection">
+                <xsd:complexContent>
+                    <xsd:extension base="PropertyType">
+                        <xsd:sequence>
+                            <xsd:element name="ParentReference" type="ObjectReference" minOccurs="0"/>
+                        </xsd:sequence>
+                        <xsd:attribute name="collectionType" type="CollectionType"/>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+
+            <!-- Secondary base, for property types that are modifiable -->
+            <!-- (i.e. may appear in an ExecuteChanges action)          -->
+            <xsd:complexType name="ModifiablePropertyType" abstract="true">
+                <xsd:complexContent>
+                    <xsd:extension base="PropertyType"/>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <!-- Singleton types -->
+            <xsd:complexType name="SingletonBoolean">
+                <xsd:complexContent>
+                    <xsd:extension base="ModifiablePropertyType">
+                        <xsd:sequence>
+                            <xsd:element name="Value" type="xsd:boolean" minOccurs="0"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="SingletonBinary">
+                <xsd:complexContent>
+                    <xsd:extension base="ModifiablePropertyType">
+                        <xsd:sequence>
+                            <xsd:element name="Value" type="xsd:base64Binary" minOccurs="0"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="SingletonDateTime">
+                <xsd:complexContent>
+                    <xsd:extension base="ModifiablePropertyType">
+                        <xsd:sequence>
+                            <xsd:element name="Value" type="xsd:dateTime" minOccurs="0"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="SingletonFloat64">
+                <xsd:complexContent>
+                    <xsd:extension base="ModifiablePropertyType">
+                        <xsd:sequence>
+                            <xsd:element name="Value" type="xsd:double" minOccurs="0"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="SingletonId">
+                <xsd:complexContent>
+                    <xsd:extension base="ModifiablePropertyType">
+                        <xsd:sequence>
+                            <xsd:element name="Value" type="GuidType" minOccurs="0"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="SingletonInteger32">
+                <xsd:complexContent>
+                    <xsd:extension base="ModifiablePropertyType">
+                        <xsd:sequence>
+                            <xsd:element name="Value" type="xsd:int" minOccurs="0"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="SingletonObject">
+                <xsd:complexContent>
+                    <xsd:extension base="ModifiablePropertyType">
+                        <xsd:sequence>
+                            <xsd:element name="Value" type="ObjectEntryType" minOccurs="0"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="SingletonString">
+                <xsd:complexContent>
+                    <xsd:extension base="ModifiablePropertyType">
+                        <xsd:sequence>
+                            <xsd:element name="Value" type="xsd:string" minOccurs="0"/>
+                        </xsd:sequence>
+						<xsd:attribute name="encoding" type="StringEncodingType"/>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <!-- Lists of scalars -->
+
+            <xsd:complexType name="ListOfBoolean">
+                <xsd:complexContent>
+                    <xsd:extension base="ModifiablePropertyType">
+                        <xsd:sequence>
+                            <xsd:element name="Value" type="xsd:boolean" minOccurs="0" maxOccurs="unbounded"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="ListOfBinary">
+                <xsd:complexContent>
+                    <xsd:extension base="ModifiablePropertyType">
+                        <xsd:sequence>
+                            <xsd:element name="Value" type="xsd:base64Binary" minOccurs="0" maxOccurs="unbounded"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="ListOfDateTime">
+                <xsd:complexContent>
+                    <xsd:extension base="ModifiablePropertyType">
+                        <xsd:sequence>
+                            <xsd:element name="Value" type="xsd:dateTime" minOccurs="0" maxOccurs="unbounded"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="ListOfFloat64">
+                <xsd:complexContent>
+                    <xsd:extension base="ModifiablePropertyType">
+                        <xsd:sequence>
+                            <xsd:element name="Value" type="xsd:double" minOccurs="0" maxOccurs="unbounded"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="ListOfId">
+                <xsd:complexContent>
+                    <xsd:extension base="ModifiablePropertyType">
+                        <xsd:sequence>
+                            <xsd:element name="Value" type="GuidType" minOccurs="0" maxOccurs="unbounded"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="ListOfInteger32">
+                <xsd:complexContent>
+                    <xsd:extension base="ModifiablePropertyType">
+                        <xsd:sequence>
+                            <xsd:element name="Value" type="xsd:int" minOccurs="0" maxOccurs="unbounded"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="ListOfObject">
+                <xsd:complexContent>
+                    <xsd:extension base="ModifiablePropertyType">
+                    	<xsd:sequence>
+                            <xsd:element name="Value" type="DependentObjectType" minOccurs="0" maxOccurs="unbounded"/>
+                        </xsd:sequence>
+                        <xsd:attribute name="listMode">
+                            <xsd:simpleType>
+                                <xsd:restriction base="xsd:string">
+                                    <xsd:enumeration value="Update"/>
+                                    <xsd:enumeration value="Replace"/>
+                                </xsd:restriction>
+                            </xsd:simpleType>
+                        </xsd:attribute>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="ListOfString">
+                <xsd:complexContent>
+                    <xsd:extension base="ModifiablePropertyType">
+                        <xsd:sequence>
+                            <xsd:element name="Value" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+                        </xsd:sequence>
+						<xsd:attribute name="encoding" type="StringEncodingType"/>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <!-- Enumerations -->
+
+            <xsd:complexType name="EnumOfObject">
+                <xsd:complexContent>
+                    <xsd:extension base="PropertyType">
+                        <xsd:sequence>
+                            <xsd:element name="Value" type="ObjectValue" minOccurs="0" maxOccurs="unbounded"/>
+                            <xsd:element name="CollectionTerminator" type="CollectionTerminatorType" minOccurs="0"/>
+                            <xsd:element name="ParentReference" type="ObjectReference" minOccurs="0"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <!-- Content pseudo-property -->
+
+            <xsd:complexType name="ContentData">
+                <xsd:complexContent>
+                    <xsd:extension base="ModifiablePropertyType">
+                        <xsd:sequence>
+                            <xsd:element name="Value" type="ContentType"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+
+        <!-- ***Objects and sets of objects*** -->
+
+            <!-- Base for all representations of object -->
+            <xsd:complexType name="ObjectEntryType" abstract="true"/>
+
+            <!-- Types used in outbound representations of object-valued
+                 properties -->
+
+            <xsd:complexType name="WithObjectIdentityType" abstract="true">
+                <xsd:complexContent>
+                    <xsd:extension base="ObjectEntryType">
+                        <xsd:attribute name="classId" type="xsd:string"/>
+                        <xsd:attribute name="objectId" type="xsd:string"/>
+                        <xsd:attribute name="objectStore" type="xsd:string"/>
+						<xsd:attribute name="serializationDuplicate" type="xsd:boolean"/>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="ObjectValue">
+                <xsd:complexContent>
+                    <xsd:extension base="WithObjectIdentityType">
+                        <xsd:sequence>
+                            <xsd:element name="Property" type="PropertyType" minOccurs="0" maxOccurs="unbounded"/>
+                        </xsd:sequence>
+                        <xsd:attribute name="updateSequenceNumber" type="xsd:int"/>
+                        <xsd:attribute name="accessAllowed" type="xsd:int"/>
+                        <xsd:attribute name="superClasses">
+                            <xsd:simpleType>
+                                <xsd:list itemType="xsd:string"/>
+                            </xsd:simpleType>
+                        </xsd:attribute>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="ObjectReference">
+                <xsd:complexContent>
+                    <xsd:extension base="WithObjectIdentityType"/>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="RetrievalError">
+                <xsd:complexContent>
+                    <xsd:extension base="WithObjectIdentityType">
+                        <xsd:sequence>
+                            <xsd:element name="ErrorStack" type="ErrorStackType"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <!-- Type representing an unevaluated object property -->
+            <xsd:complexType name="Unevaluated">
+                <xsd:complexContent>
+                    <xsd:extension base="ObjectEntryType">
+                        <xsd:sequence>
+                            <xsd:element name="ParentReference" type="ObjectReference" minOccurs="0"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <!-- Additional type for specifying objects in requests -->
+            <xsd:complexType name="ObjectSpecification">
+                <xsd:annotation>
+                    <xsd:documentation xml:lang="en">
+                        An ObjectSpecification can be used in a request anywhere
+                        that calls for an ObjectReference
+                    </xsd:documentation>
+                </xsd:annotation>
+                <xsd:complexContent>
+                    <xsd:extension base="ObjectReference">
+                        <xsd:attribute name="path" type="xsd:string"/>
+                        <xsd:attribute name="propertyId" type="xsd:string"/>
+                        <xsd:attribute name="itemIndex" type="xsd:int"/>
+                        <xsd:attribute name="batchRef" type="xsd:IDREF"/>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="DependentObjectType">
+                <xsd:complexContent>
+                    <xsd:extension base="ObjectValue">
+                        <xsd:attribute name="originalIndex" type="xsd:int"/>
+                        <xsd:attribute name="newIndex" type="xsd:int"/>
+                        <xsd:attribute name="dependentAction">
+                            <xsd:simpleType>
+                                <xsd:restriction base="xsd:string">
+                                    <xsd:enumeration value="Update"/>
+                                    <xsd:enumeration value="Move"/>
+                                    <xsd:enumeration value="Insert"/>
+                                    <xsd:enumeration value="Delete"/>
+                                </xsd:restriction>
+                            </xsd:simpleType>
+                        </xsd:attribute>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="ObjectSetType">
+                <xsd:sequence>
+                    <xsd:element name="Object" type="ObjectValue" minOccurs="0" maxOccurs="unbounded"/>
+                    <xsd:element name="CollectionTerminator" type="CollectionTerminatorType" minOccurs="0"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <!-- Collection terminator -->
+            <xsd:complexType name="CollectionTerminatorType" abstract="true"/>
+
+            <xsd:complexType name="EndOfCollection">
+                <xsd:complexContent>
+                    <xsd:extension base="CollectionTerminatorType"/>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="EndOfPage">
+                <xsd:complexContent>
+                    <xsd:extension base="CollectionTerminatorType">
+                        <xsd:attribute name="continueFrom" type="xsd:string"/>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="TraversalError">
+                <xsd:complexContent>
+                    <xsd:extension base="CollectionTerminatorType">
+                        <xsd:sequence>
+                            <xsd:element name="ErrorStack" type="ErrorStackType"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+        <!-- ***Content data*** -->
+            <xsd:complexType name="ContentType" abstract="true">
+                <xsd:attribute name="size" type="xsd:unsignedLong"/>
+            </xsd:complexType>
+
+            <xsd:complexType name="InlineContent">
+                <xsd:complexContent>
+                    <xsd:extension base="ContentType">
+                        <xsd:sequence>
+                            <xsd:element name="Binary" type="xsd:base64Binary"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+        <!-- ***Property Filter*** -->
+            <xsd:complexType name="FilterElementType">
+                <xsd:simpleContent>
+                    <xsd:extension base="xsd:string">
+                        <xsd:attribute name="maxRecursion" type="xsd:int"/>
+                        <xsd:attribute name="maxSize" type="xsd:unsignedLong"/>
+                        <xsd:attribute name="maxElements" type="xsd:int"/>
+                        <xsd:attribute name="levelDependents" type="xsd:boolean"/>
+                    </xsd:extension>
+                </xsd:simpleContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="PropertyFilterType">
+                <xsd:sequence >
+                    <xsd:element name="IncludeProperties" type="FilterElementType" minOccurs="0" maxOccurs="unbounded"/>
+                    <xsd:element name="IncludeTypes" type="FilterElementType" minOccurs="0" maxOccurs="unbounded"/>
+                    <xsd:element name="ExcludeProperties" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+                </xsd:sequence>
+                <xsd:attribute name="maxRecursion" type="xsd:int"/>
+                <xsd:attribute name="maxSize" type="xsd:unsignedLong"/>
+                <xsd:attribute name="maxElements" type="xsd:int"/>
+                <xsd:attribute name="levelDependents" type="xsd:boolean"/>
+            </xsd:complexType>
+
+        <!-- ***ExecuteChange actions*** -->
+
+            <xsd:complexType name="ModifiedPropertiesType">
+                <xsd:sequence>
+                    <xsd:element name="Property" type="ModifiablePropertyType" minOccurs="0" maxOccurs="unbounded"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <!-- Abstract base -->
+
+            <xsd:complexType name="ActionType" abstract="true"/>
+
+            <!-- Enumerated type for the reservationType flag attribute -->
+            <xsd:simpleType name="ReservationType">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="Collaborative"/>
+                    <xsd:enumeration value="Exclusive"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+
+            <!-- Concrete types -->
+            <xsd:complexType name="CreateAction">
+                <xsd:complexContent>
+                    <xsd:extension base="ActionType">
+                        <xsd:attribute name="classId" type="xsd:string" use="required"/>
+                        <!-- optional override of object id -->
+                        <xsd:attribute name="objectId" type="GuidType"/>
+                        <!-- for create of RCR -->
+                        <xsd:attribute name="autoUniqueContainmentName" type="xsd:boolean"/>
+                        <xsd:attribute name="defineSecurityParentage" type="xsd:boolean"/>
+                        <!-- for versionable, optional override of version series id -->
+                        <xsd:attribute name="versionSeriesId" type="GuidType"/>
+                        <!-- for create of versionable as a reservation -->
+                        <xsd:attribute name="reservationType" type="ReservationType"/>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="UpdateAction">
+                <xsd:complexContent>
+                    <xsd:extension base="ActionType"/>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="DeleteAction">
+                <xsd:complexContent>
+                    <xsd:extension base="ActionType"/>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="CheckoutAction">
+                    <xsd:complexContent>
+                        <xsd:extension base="ActionType">
+                            <xsd:sequence>
+                                <xsd:element name="ReservationProperties" type="ModifiedPropertiesType" minOccurs="0"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="reservationId" type="GuidType"/>
+                            <xsd:attribute name="reservationType" type="ReservationType"/>
+                            <xsd:attribute name="reservationClass" type="xsd:string"/>
+                        </xsd:extension>
+                    </xsd:complexContent>
+                </xsd:complexType>
+
+            <xsd:complexType name="CheckinAction">
+                <xsd:complexContent>
+                    <xsd:extension base="ActionType">
+                        <xsd:attribute name="autoClassify" type="xsd:boolean"/>
+                        <xsd:attribute name="checkinMinorVersion" type="xsd:boolean"/>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="FreezeAction">
+                <xsd:complexContent>
+                    <xsd:extension base="ActionType"/>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="ChangeStateAction">
+                <xsd:complexContent>
+                    <xsd:extension base="ActionType">
+                        <xsd:attribute name="lifecycleAction" use="required">
+                            <xsd:simpleType>
+                                <xsd:restriction base="xsd:string">
+                                    <xsd:enumeration value="Reset"/>
+                                    <xsd:enumeration value="Promote"/>
+                                    <xsd:enumeration value="Demote"/>
+                                    <xsd:enumeration value="SetException"/>
+                                    <xsd:enumeration value="ClearException"/>
+                                </xsd:restriction>
+                            </xsd:simpleType>
+                        </xsd:attribute>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="ChangeClassAction">
+                <xsd:complexContent>
+                    <xsd:extension base="ActionType">
+                        <xsd:attribute name="newClass" type="xsd:string" use="required"/>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="MoveContentAction">
+                <xsd:complexContent>
+                    <xsd:extension base="ActionType">
+                        <xsd:attribute name="targetPolicyId" type="GuidType" use="required"/>
+                        <xsd:attribute name="moveAllVersions" type="xsd:boolean"/>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="LockAction">
+                <xsd:complexContent>
+                    <xsd:extension base="ActionType">
+                        <xsd:attribute name="timeout" type="xsd:unsignedInt" use="required"/>
+                        <xsd:attribute name="owner" type="xsd:string"/>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="UnlockAction">
+                <xsd:complexContent>
+                    <xsd:extension base="ActionType"/>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="PromoteVersionAction">
+                <xsd:complexContent>
+                    <xsd:extension base="ActionType"/>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="DemoteVersionAction">
+                <xsd:complexContent>
+                    <xsd:extension base="ActionType"/>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="ApplySecurityTemplateAction">
+                <xsd:complexContent>
+                    <xsd:extension base="ActionType">
+                        <xsd:attribute name="applyStateId" type="GuidType" use="required"/>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="RaiseEventAction">
+                <xsd:complexContent>
+                    <xsd:extension base="ActionType">
+                        <xsd:sequence>
+                            <xsd:element name="EventProperties" type="ModifiedPropertiesType" minOccurs="0"/>
+                        </xsd:sequence>
+                        <xsd:attribute name="classId" type="xsd:string" use="required"/>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="InstallAddOnAction">
+                <xsd:complexContent>
+                    <xsd:extension base="ActionType">
+                        <xsd:attribute name="addOnId" type="GuidType" use="required"/>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="TakeFederatedOwnershipAction">
+                <xsd:complexContent>
+                    <xsd:extension base="ActionType"/>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+        <!-- ***Localization header*** -->
+            <xsd:element name="Localization">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="Locale" type="xsd:string"/>
+                        <xsd:element name="Timezone" type="xsd:string" minOccurs="0"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+        <!-- ***Error reporting*** -->
+
+            <xsd:simpleType name="ErrorNameType">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="SERVER_ERROR"/>
+                    <xsd:enumeration value="HEAP_FAILURE"/>
+                    <xsd:enumeration value="DEADLOCK_ERROR"/>
+                    <xsd:enumeration value="DATABASE_ERROR"/>
+                    <xsd:enumeration value="DATABASE_FULL"/>
+                    <xsd:enumeration value="TRANSACTION_TIMEOUT"/>
+                    <xsd:enumeration value="AUTHENTICATION_FAILURE"/>
+                    <xsd:enumeration value="NOT_SUPPORTED"/>
+                    <xsd:enumeration value="BAD_CLASSID"/>
+                    <xsd:enumeration value="BAD_PROPERTYID"/>
+                    <xsd:enumeration value="BAD_INDEX"/>
+                    <xsd:enumeration value="BAD_OBJECT"/>
+                    <xsd:enumeration value="INVALID_REQUEST"/>
+                    <xsd:enumeration value="REQUIRED_VALUE_ABSENT"/>
+                    <xsd:enumeration value="OBJECT_NOT_FOUND"/>
+                    <xsd:enumeration value="OBJECT_DELETED"/>
+                    <xsd:enumeration value="BAD_VALUE"/>
+                    <xsd:enumeration value="DATATYPE_MISMATCH"/>
+                    <xsd:enumeration value="ACCESS_DENIED"/>
+                    <xsd:enumeration value="CONSTRAINT_VIOLATED"/>
+                    <xsd:enumeration value="NOT_UNIQUE"/>
+                    <xsd:enumeration value="OBJECT_MODIFIED"/>
+                    <xsd:enumeration value="OBJECT_REFERENCED"/>
+                    <xsd:enumeration value="OBJECT_REFERENCES_OTHERS"/>
+                    <xsd:enumeration value="OBJECT_LOCKED"/>
+                    <xsd:enumeration value="OBJECT_NOT_LOCKED"/>
+                    <xsd:enumeration value="RESERVATION_EXISTS"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+
+            <xsd:complexType name="DiagnosticType">
+                <xsd:simpleContent>
+                    <xsd:extension base="xsd:string">
+                        <xsd:attribute name="diagnosticType" type="xsd:string"/>
+                    </xsd:extension>
+                </xsd:simpleContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="ErrorRecordType">
+                <xsd:sequence>
+                    <xsd:element name="Source" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="Description" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="Diagnostic" type="DiagnosticType" minOccurs="0" maxOccurs="unbounded"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <xsd:complexType name="ErrorStackType">
+                <xsd:sequence>
+                    <xsd:element name="ErrorName" type="ErrorNameType"/>
+                    <xsd:element name="ErrorRecord" type="ErrorRecordType" minOccurs="1" maxOccurs="unbounded"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <!-- FaultStackType is the same as ErrorStackType, and it is
+                 used only in SOAP faults. It is defined separately in
+                 order to allow JAX-RPC compliant toolkits to generate
+                 an exception-deriving class for FaultStackType without
+                 interfering with the use of ErrorStackType in normal
+                 response messages -->
+            <xsd:complexType name="FaultStackType">
+                <xsd:sequence>
+                    <xsd:element name="ErrorName" type="ErrorNameType"/>
+                    <xsd:element name="ErrorRecord" type="ErrorRecordType" minOccurs="1" maxOccurs="unbounded"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <xsd:element name="ErrorStack" type="FaultStackType"/>
+
+        <!-- ***Search scope*** -->
+
+            <xsd:complexType name="SearchScopeType" abstract="true"/>
+
+            <xsd:complexType name="ObjectStoreScope">
+                <xsd:complexContent>
+                    <xsd:extension base="SearchScopeType">
+                        <xsd:attribute name="objectStore" type="xsd:string" use="required"/>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="MergedScope">
+                <xsd:complexContent>
+                    <xsd:extension base="SearchScopeType">
+                        <xsd:sequence>
+                            <xsd:element name="ComponentScope" type="SearchScopeType" minOccurs="2" maxOccurs="unbounded"/>
+                        </xsd:sequence>
+                        <xsd:attribute name="mergeMode">
+                            <xsd:simpleType>
+                                <xsd:restriction base="xsd:string">
+                                    <xsd:enumeration value="Union"/>
+                                    <xsd:enumeration value="Intersection"/>
+                                </xsd:restriction>
+                            </xsd:simpleType>
+                        </xsd:attribute>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+        <!-- *** Search types *** -->
+
+            <xsd:simpleType name="RepositorySearchModeType">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="Rows"/>
+                    <xsd:enumeration value="Objects"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+
+            <xsd:complexType name="SearchRequestType" abstract="true">
+                <xsd:sequence>
+                    <xsd:element name="SelectionFilter" type="PropertyFilterType" minOccurs="0"/>
+                </xsd:sequence>
+                <xsd:attribute name="maxElements" type="xsd:int"/>
+                <xsd:attribute name="continueFrom" type="xsd:string"/>
+                <xsd:attribute name="continuable" type="xsd:boolean"/>
+            </xsd:complexType>
+
+            <xsd:complexType name="RepositorySearch">
+                <xsd:complexContent>
+                    <xsd:extension base="SearchRequestType">
+                        <xsd:sequence>
+                            <xsd:element name="SearchScope" type="SearchScopeType"/>
+                            <xsd:element name="SearchSQL" type="xsd:string"/>
+                        </xsd:sequence>
+                        <xsd:attribute name="repositorySearchMode" type="RepositorySearchModeType"/>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="PrincipalSearch">
+                <xsd:complexContent>
+                    <xsd:extension base="SearchRequestType">
+                        <xsd:sequence>
+                            <xsd:element name="SearchRealm" type="xsd:string"/>
+                            <xsd:element name="SearchPattern" type="xsd:string"/>
+                        </xsd:sequence>
+                        <xsd:attribute name="includeUsers" type="xsd:boolean"/>
+                        <xsd:attribute name="includeGroups" type="xsd:boolean"/>
+                        <xsd:attribute name="principalSearchType">
+                            <xsd:simpleType>
+                                <xsd:restriction base="xsd:string">
+                                    <xsd:enumeration value="Custom"/>
+                                    <xsd:enumeration value="PrefixMatch"/>
+                                    <xsd:enumeration value="SuffixMatch"/>
+                                    <xsd:enumeration value="Contains"/>
+                                    <xsd:enumeration value="Exact"/>
+                                </xsd:restriction>
+                            </xsd:simpleType>
+                        </xsd:attribute>
+                        <xsd:attribute name="principalSearchAttribute">
+                            <xsd:simpleType>
+                                <xsd:restriction base="xsd:string">
+                                    <xsd:enumeration value="ShortName"/>
+                                    <xsd:enumeration value="DisplayName"/>
+                                </xsd:restriction>
+                            </xsd:simpleType>
+                        </xsd:attribute>
+                        <xsd:attribute name="principalSort">
+                            <xsd:simpleType>
+                                <xsd:restriction base="xsd:string">
+                                    <xsd:enumeration value="Ascending"/>
+                                    <xsd:enumeration value="Descending"/>
+                                </xsd:restriction>
+                            </xsd:simpleType>
+                        </xsd:attribute>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="StoredSearch">
+                <xsd:complexContent>
+                    <xsd:extension base="SearchRequestType">
+                        <xsd:sequence>
+                            <xsd:element name="SearchObject" type="ObjectReference"/>
+                            <xsd:element name="ExecuteXML">
+                                <xsd:complexType>
+                                    <xsd:sequence>
+                                        <xsd:any processContents="lax"/>
+                                    </xsd:sequence>
+                                </xsd:complexType>
+                            </xsd:element>
+                        </xsd:sequence>
+                        <xsd:attribute name="repositorySearchMode" type="RepositorySearchModeType"/>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+        <!-- ***Top level request/response elements*** -->
+
+            <xsd:complexType name="ObjectRequestType">
+                <xsd:sequence>
+                    <xsd:element name="SourceSpecification" type="ObjectReference"/>
+                    <xsd:element name="PropertyFilter" type="PropertyFilterType" minOccurs="0"/>
+                </xsd:sequence>
+                <xsd:attribute name="id" type="xsd:ID"/>
+                <xsd:attribute name="cacheAllowed" type="xsd:boolean"/>
+                <xsd:attribute name="maxElements" type="xsd:int"/>
+                <xsd:attribute name="continueFrom" type="xsd:string"/>
+            </xsd:complexType>
+
+            <xsd:element name="GetObjectsRequest">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="ObjectRequest" type="ObjectRequestType" minOccurs="0" maxOccurs="unbounded"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+            <xsd:complexType name="ObjectResponseType" abstract="true">
+                <xsd:attribute name="id" type="xsd:ID"/>
+            </xsd:complexType>
+
+            <xsd:complexType name="SingleObjectResponse">
+                <xsd:complexContent>
+                    <xsd:extension base="ObjectResponseType">
+                        <xsd:sequence>
+                            <xsd:element name="Object" type="ObjectValue"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="ObjectSetResponse">
+                <xsd:complexContent>
+                    <xsd:extension base="ObjectResponseType">
+                        <xsd:sequence>
+                            <xsd:element name="ObjectSet" type="ObjectSetType"/>
+                        </xsd:sequence>
+                        <xsd:attribute name="collectionType" type="CollectionType"/>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="ErrorStackResponse">
+                <xsd:complexContent>
+                    <xsd:extension base="ObjectResponseType">
+                        <xsd:sequence>
+                            <xsd:element name="ErrorStack" type="ErrorStackType"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:element name="GetObjectsResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="ObjectResponse" type="ObjectResponseType" minOccurs="0" maxOccurs="unbounded"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+            <xsd:complexType name="ChangeRequestType">
+                <xsd:sequence>
+                    <xsd:element name="TargetSpecification" type="ObjectReference"/>
+                    <xsd:element name="Action" type="ActionType" minOccurs="0" maxOccurs="unbounded"/>
+                    <xsd:element name="ActionProperties" type="ModifiedPropertiesType" minOccurs="0"/>
+                    <xsd:element name="RefreshFilter" type="PropertyFilterType" minOccurs="0"/>
+                </xsd:sequence>
+                <xsd:attribute name="id" type="xsd:ID"/>
+                <xsd:attribute name="updateSequenceNumber" type="xsd:int"/>
+            </xsd:complexType>
+
+            <xsd:element name="ExecuteChangesRequest">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="ChangeRequest" type="ChangeRequestType" minOccurs="0" maxOccurs="unbounded"/>
+                    </xsd:sequence>
+                    <xsd:attribute name="refresh" type="xsd:boolean"/>
+                </xsd:complexType>
+            </xsd:element>
+
+            <xsd:complexType name="ChangeResponseType">
+                <xsd:complexContent>
+                    <xsd:extension base="ObjectValue">
+                        <xsd:attribute name="id" type="xsd:ID"/>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:element name="ExecuteChangesResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="ChangeResponse" type="ChangeResponseType" minOccurs="0" maxOccurs="unbounded"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+            <xsd:element name="ExecuteSearchRequest" type="SearchRequestType"/>
+
+            <xsd:element name="ExecuteSearchResponse" type="ObjectSetType"/>
+
+            <xsd:element name="GetSearchMetadataRequest">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="SearchScope" type="SearchScopeType"/>
+                        <xsd:element name="ClassFilter" type="xsd:string" minOccurs="0"/>
+                        <xsd:element name="PropertyFilter" type="PropertyFilterType" minOccurs="0"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+            <xsd:element name="GetSearchMetadataResponse">
+                <xsd:complexType>
+                    <xsd:complexContent>
+                        <xsd:extension base="ObjectSetType">
+                            <xsd:attribute name="metadataEpochId" type="xsd:string"/>
+                        </xsd:extension>
+                    </xsd:complexContent>
+                </xsd:complexType>
+            </xsd:element>
+
+            <xsd:complexType name="ElementSpecificationType">
+                <xsd:attribute name="itemIndex" type="xsd:int"/>
+                <xsd:attribute name="elementSequenceNumber" type="xsd:int"/>
+            </xsd:complexType>
+
+            <xsd:complexType name="ContentRequestType">
+                <xsd:sequence>
+                    <xsd:element name="SourceSpecification" type="ObjectReference"/>
+                    <xsd:element name="ElementSpecification" type="ElementSpecificationType"/>
+                </xsd:sequence>
+                <xsd:attribute name="id" type="xsd:ID"/>
+                <xsd:attribute name="cacheAllowed" type="xsd:boolean"/>
+                <xsd:attribute name="continueFrom" type="xsd:string"/>
+                <xsd:attribute name="startOffset" type="xsd:unsignedLong"/>
+                <xsd:attribute name="maxBytes" type="xsd:int"/>
+            </xsd:complexType>
+
+            <xsd:complexType name="ContentResponseType" abstract="true">
+                <xsd:attribute name="id" type="xsd:ID"/>
+            </xsd:complexType>
+
+            <xsd:complexType name="ContentElementResponse">
+                <xsd:complexContent>
+                    <xsd:extension base="ContentResponseType">
+                        <xsd:sequence>
+                            <xsd:element name="SourceSpecification" type="ObjectReference"/>
+                            <xsd:element name="ElementSpecification" type="ElementSpecificationType"/>
+                            <xsd:element name="Content" type="ContentType" minOccurs="0"/>
+                        </xsd:sequence>
+                        <xsd:attribute name="continueFrom" type="xsd:string"/>
+                        <xsd:attribute name="retrievalName" type="xsd:string"/>
+                        <xsd:attribute name="totalSize" type="xsd:unsignedLong"/>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:complexType name="ContentErrorResponse">
+                <xsd:complexContent>
+                    <xsd:extension base="ContentResponseType">
+                        <xsd:sequence>
+                            <xsd:element name="ErrorStack" type="ErrorStackType"/>
+                        </xsd:sequence>
+                    </xsd:extension>
+                </xsd:complexContent>
+            </xsd:complexType>
+
+            <xsd:element name="GetContentRequest">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="ContentRequest" type="ContentRequestType" minOccurs="0" maxOccurs="unbounded"/>
+                    </xsd:sequence>
+		<xsd:attribute name="validateOnly" type="xsd:boolean"/>
+                </xsd:complexType>
+            </xsd:element>
+
+            <xsd:element name="GetContentResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="ContentResponse" type="ContentResponseType" minOccurs="0" maxOccurs="unbounded"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+        </xsd:schema>
+
+    </types>
+
+    <message name="LocalizationHeader">
+        <part name="header" element="ctyp:Localization"/>
+    </message>
+
+    <message name="GetObjectsRequest">
+        <part name="request" element="ctyp:GetObjectsRequest"/>
+    </message>
+
+    <message name="GetObjectsResponse">
+        <part name="response" element="ctyp:GetObjectsResponse"/>
+    </message>
+
+    <message name="ExecuteChangesRequest">
+        <part name="request" element="ctyp:ExecuteChangesRequest"/>
+    </message>
+
+    <message name="ExecuteChangesResponse">
+        <part name="response" element="ctyp:ExecuteChangesResponse"/>
+    </message>
+
+    <message name="ExecuteSearchRequest">
+        <part name="request" element="ctyp:ExecuteSearchRequest"/>
+    </message>
+
+    <message name="ExecuteSearchResponse">
+        <part name="response" element="ctyp:ExecuteSearchResponse"/>
+    </message>
+
+    <message name="GetSearchMetadataRequest">
+        <part name="request" element="ctyp:GetSearchMetadataRequest"/>
+    </message>
+
+    <message name="GetSearchMetadataResponse">
+        <part name="response" element="ctyp:GetSearchMetadataResponse"/>
+    </message>
+    
+    <message name="GetContentRequest">
+        <part name="request" element="ctyp:GetContentRequest"/>
+    </message>
+
+    <message name="GetContentResponse">
+        <part name="response" element="ctyp:GetContentResponse"/>
+    </message>
+
+    <message name="FaultResponse">
+        <part name="error" element="ctyp:ErrorStack"/>
+    </message>
+
+    <portType name="FNCEWS40PortType">
+        <operation name="GetObjects">
+            <input message="cdef:GetObjectsRequest"/>
+            <output message="cdef:GetObjectsResponse"/>
+            <fault name="GeneralError" message="cdef:FaultResponse"/>
+        </operation>
+        <operation name="ExecuteChanges">
+            <input message="cdef:ExecuteChangesRequest"/>
+            <output message="cdef:ExecuteChangesResponse"/>
+            <fault name="GeneralError" message="cdef:FaultResponse"/>
+        </operation>
+        <operation name="ExecuteSearch">
+            <input message="cdef:ExecuteSearchRequest"/>
+            <output message="cdef:ExecuteSearchResponse"/>
+            <fault name="GeneralError" message="cdef:FaultResponse"/>
+        </operation>
+        <operation name="GetSearchMetadata">
+            <input message="cdef:GetSearchMetadataRequest"/>
+            <output message="cdef:GetSearchMetadataResponse"/>
+            <fault name="GeneralError" message="cdef:FaultResponse"/>
+        </operation>
+        <operation name="GetContent">
+            <input message="cdef:GetContentRequest"/>
+            <output message="cdef:GetContentResponse"/>
+            <fault name="GeneralError" message="cdef:FaultResponse"/>
+        </operation>
+    </portType>
+
+</definitions>
+
