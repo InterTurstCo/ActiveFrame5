@@ -279,7 +279,7 @@ public class CollectionQueryInitializer {
      */
     private String removeUnFilledPlaceholders(String prototypeQuery) {
         while(prototypeQuery.indexOf(PLACEHOLDER_PREFIX) > 0){            
-            prototypeQuery = prototypeQuery.replaceAll(PLACEHOLDER_REGEXP_PATTERN, EMPTY_STRING);
+            prototypeQuery = prototypeQuery.replaceAll(PLACEHOLDER_REGEXP_PATTERN, "");
         }
         return prototypeQuery;
     }
