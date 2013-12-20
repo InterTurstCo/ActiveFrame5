@@ -283,6 +283,10 @@
                                   type="xs:boolean"/>
                     <xs:attribute name="resolveParameters" use="required"
                                   type="xs:boolean"/>
+                    <xs:attribute name="minTime" use="optional"
+                                  type="xs:integer"/>
+                    <xs:attribute name="minRows" use="optional"
+                                  type="xs:integer"/>
                 </xs:complexType>
             </xs:element>
         </xs:sequence>

@@ -9,15 +9,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.GlobalSettingsConfig;
 import ru.intertrust.cm.core.config.SqlTrace;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author vmatsukevich
@@ -46,6 +46,38 @@ public class SqlLogger {
             return returnValue;
         }
 
+        if (timing < configuration.getMinTime()){
+            return returnValue;
+        }
+
+        int rows = -1;
+
+        if (returnValue == null) {
+            // не обрабатывается
+        } else if (returnValue instanceof IdentifiableObjectCollection) {
+            //  SELECT в случае коллекций получаем количество строк
+            IdentifiableObjectCollection result = (IdentifiableObjectCollection) returnValue;
+            rows = result.size();
+        } else if (returnValue instanceof List) {
+
+            rows = ((List)returnValue).size();
+
+        } else if (returnValue instanceof IdentifiableObject || returnValue instanceof Long) {
+            // SELECT для одиночных строк и запросов типа "select nextval"
+            rows = 1;
+
+        } else if (returnValue instanceof Integer) {
+            // для INSERT и DELETE
+            rows = (Integer)returnValue;
+        } else {
+            // для прочих
+            logger.warn("SQL Trace: Unknown result of the query " + returnValue.getClass());
+        }
+
+        if (rows < configuration.getMinRows()){
+            return returnValue;
+        }
+
         if (configuration.isResolveParameters()) {
             if (joinPoint.getThis() instanceof JdbcOperations) {
                 Object[] parameters = getParametersArray(joinPoint.getArgs());
@@ -54,11 +86,16 @@ public class SqlLogger {
                 Map<String, Object> parameters = getParametersMap(joinPoint.getArgs());
                 query = (parameters == null ? query : fillParameters(query, parameters));
             } else {
-                throw new IllegalStateException("SqlLogger intercepts uncupported class type");
+                throw new IllegalStateException("SqlLogger intercepts unsupported class type");
             }
         }
 
-        logger.debug("SQL Trace: " + timing + " " + query);
+        StringBuilder traceStringBuilder = new StringBuilder();
+        Formatter formatter = new Formatter(traceStringBuilder);
+        String format = "SQL Trace: %1$6s %2$7s: %3$s";
+        formatter.format(format, timing, "[" + rows + "]", query);
+
+        System.out.println(traceStringBuilder.toString());
         return returnValue;
     }
 

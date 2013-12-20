@@ -6,6 +6,6 @@
         <!--<attachment-upload-temp-storage path="c:\savedAttachments\"/>-->
         <attachment-storage path="/home/user/attach/"/>
         <attachment-upload-temp-storage path="/home/user/attach_save/"/>
-        <sql-trace enable="true" resolveParameters="true"/>
+        <sql-trace enable="true" resolveParameters="true" minRows="1" minTime="100"/>
     </global-settings>
 </configuration>
