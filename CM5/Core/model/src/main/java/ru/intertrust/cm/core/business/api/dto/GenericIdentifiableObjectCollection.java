@@ -23,24 +23,6 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
     public GenericIdentifiableObjectCollection() {
     }
 
-    //TODO Удалить после исправления JdbcDatabaseMetaData.java
-    @Override
-    public void setFields(List<String> fields) {
-        if (this.fields != null) {
-            throw new IllegalArgumentException("Collection fields are already set");
-        }
-        if (fields == null) {
-            this.fields = new ArrayList<String>();
-        } else {
-            this.fields = new ArrayList<String>(fields);
-        }
-        int fieldIndex = 0;
-        for (String field : this.fields) {
-            fieldIndexes.put(field, fieldIndex);
-            ++fieldIndex;
-        }
-    }
-
     @Override
     public void setFieldsConfiguration(List<FieldConfig> fieldConfigs) {
         if (this.fieldConfigs != null) {
@@ -100,20 +82,6 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
     public int getFieldIndex(String field) {
 
         return fieldIndexes.get(field);
-    }
-
-    @Override
-    public ArrayList<String> getFields() {
-        if (this.fields == null) {
-            ArrayList<String> fieldNames = new ArrayList<String>();
-
-            for (FieldConfig fieldConfig : fieldConfigs) {
-                fieldNames.add(fieldConfig.getName());
-            }
-
-            this.fields = fieldNames;
-        }
-        return this.fields;
     }
 
     @Override
@@ -379,7 +347,13 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
 
         @Override
         public ArrayList<String> getFields() {
-            return collection.getFields();
+            ArrayList<String> result = new ArrayList<String>();
+            
+            for (int i = 0; i < collection.getFieldsConfiguration().size(); i++) {
+                FieldConfig config = collection.getFieldsConfiguration().get(i);
+                result.add(config.getName());
+            }            
+            return result;
         }
 
         @Override

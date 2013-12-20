@@ -45,10 +45,9 @@ public class GenericIdentifiableObjectCollectionTest {
 
     @Test
     public void testFieldsOrder() {
-        assertEquals("Type2", collection.getFields().get(collection.getFieldIndex("Type2")));
+        assertEquals("Type2", collection.getFieldsConfiguration().get(collection.getFieldIndex("Type2")).getName());
         //проверить, что естественный порядок полей сохраняется
         assertEquals(1, collection.getFieldIndex("Type2"));
-
     }
 
     @Test
