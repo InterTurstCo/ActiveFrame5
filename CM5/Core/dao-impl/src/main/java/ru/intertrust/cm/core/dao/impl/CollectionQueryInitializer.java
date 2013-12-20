@@ -24,6 +24,8 @@ import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.applyOffsetAn
  */
 public class CollectionQueryInitializer {
 
+    private static final String PLACEHOLDER_REGEXP_PATTERN = "::[\\w\\d_\\-]+";
+
     private static final String PLACEHOLDER_PREFIX = "::";
 
     private static final String EMPTY_STRING = " ";
@@ -276,16 +278,8 @@ public class CollectionQueryInitializer {
      * @return измененный запрос
      */
     private String removeUnFilledPlaceholders(String prototypeQuery) {
-        while(prototypeQuery.indexOf(PLACEHOLDER_PREFIX) > 0){
-            int startPlaceHolderIndex = prototypeQuery.indexOf(PLACEHOLDER_PREFIX);
-            int endPlaceHolderIndex = prototypeQuery.indexOf(EMPTY_STRING, startPlaceHolderIndex);
-            if (endPlaceHolderIndex < 0) {
-                endPlaceHolderIndex = prototypeQuery.length();
-            }
-            String placeHolder = prototypeQuery.substring(startPlaceHolderIndex, endPlaceHolderIndex);
-
-            prototypeQuery = prototypeQuery.replaceAll(placeHolder, "");
-
+        while(prototypeQuery.indexOf(PLACEHOLDER_PREFIX) > 0){            
+            prototypeQuery = prototypeQuery.replaceAll(PLACEHOLDER_REGEXP_PATTERN, EMPTY_STRING);
         }
         return prototypeQuery;
     }
