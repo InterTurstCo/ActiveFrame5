@@ -146,7 +146,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
     @Override
     public int delete(Collection<Id> ids) {
         if (ids == null || ids.size() == 0) {
-            throw new IllegalArgumentException("Ids list can not be empty");
+            return 0;
         }
         Id[] idsArray = ids.toArray(new Id[ids.size()]);
         String user = currentUserAccessor.getCurrentUser();
