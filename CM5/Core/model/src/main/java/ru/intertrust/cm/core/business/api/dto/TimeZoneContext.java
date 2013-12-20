@@ -8,6 +8,9 @@ package ru.intertrust.cm.core.business.api.dto;
 public class TimeZoneContext extends DateContext {
     private String timeZoneId;
 
+    public TimeZoneContext() {
+    }
+
     public TimeZoneContext(String timeZoneId) {
         this.timeZoneId = timeZoneId;
     }

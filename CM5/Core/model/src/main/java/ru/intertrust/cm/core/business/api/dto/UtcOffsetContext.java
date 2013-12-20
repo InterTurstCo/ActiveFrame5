@@ -8,6 +8,9 @@ package ru.intertrust.cm.core.business.api.dto;
 public class UtcOffsetContext extends DateContext {
     private long offset;
 
+    public UtcOffsetContext() {
+    }
+
     public UtcOffsetContext(long offset) {
         this.offset = offset;
     }
