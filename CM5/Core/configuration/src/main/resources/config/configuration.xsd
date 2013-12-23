@@ -316,7 +316,7 @@
                         xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
         </xs:sequence>
-        <xs:attribute name="type" use="required" type="indexTypeType"/>
+        <xs:attribute name="type" use="required" type="con:indexTypeType"/>
     </xs:complexType>
 
     <xs:complexType name="passwordType">
