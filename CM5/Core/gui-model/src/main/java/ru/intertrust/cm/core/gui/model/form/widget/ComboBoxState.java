@@ -1,8 +1,6 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
 
 import java.util.LinkedHashMap;
 
@@ -40,11 +38,6 @@ public class ComboBoxState extends ValueEditingWidgetState {
 
     public void setListValues(LinkedHashMap<Id, String> listValues) {
         this.listValues = listValues;
-    }
-
-    @Override
-    public Value getValue() {
-        return new ReferenceValue(id);
     }
 
     @Override

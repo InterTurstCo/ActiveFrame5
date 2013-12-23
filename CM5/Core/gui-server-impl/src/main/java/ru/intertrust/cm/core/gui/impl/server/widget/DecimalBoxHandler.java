@@ -1,9 +1,12 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
+import ru.intertrust.cm.core.business.api.dto.DecimalValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.gui.api.server.widget.SingleObjectWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.DecimalBoxState;
+import ru.intertrust.cm.core.gui.model.form.widget.ValueEditingWidgetState;
 
 import java.math.BigDecimal;
 
@@ -17,5 +20,10 @@ public class DecimalBoxHandler extends SingleObjectWidgetHandler {
     @Override
     public DecimalBoxState getInitialState(WidgetContext context) {
         return new DecimalBoxState(context.<BigDecimal>getFieldPlainValue());
+    }
+
+    @Override
+    public Value getValue(ValueEditingWidgetState state) {
+        return new DecimalValue(((DecimalBoxState) state).getNumber());
     }
 }

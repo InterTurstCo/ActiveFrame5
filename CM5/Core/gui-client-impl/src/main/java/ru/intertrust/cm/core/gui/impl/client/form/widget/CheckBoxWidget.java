@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Widget;
-import ru.intertrust.cm.core.business.api.dto.BooleanValue;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.CheckBoxState;
@@ -23,8 +22,7 @@ public class CheckBoxWidget extends BaseWidget {
 
     public void setCurrentState(WidgetState currentState) {
         CheckBoxState checkBoxState = (CheckBoxState) currentState;
-        BooleanValue isSelected = (BooleanValue)checkBoxState.getValue();
-        ((CheckBox)impl).setValue(isSelected.get());
+        ((CheckBox)impl).setValue(checkBoxState.isSelected());
 
     }
 

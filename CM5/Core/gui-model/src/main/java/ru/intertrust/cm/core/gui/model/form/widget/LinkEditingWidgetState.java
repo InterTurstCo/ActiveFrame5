@@ -17,7 +17,6 @@ import java.util.ArrayList;
 public abstract class LinkEditingWidgetState extends ValueEditingWidgetState {
     public abstract ArrayList<Id> getIds();
 
-    @Override
     public Value getValue() {
         ArrayList<Id> ids = getIds();
         return ids == null || ids.isEmpty() ? null : new ReferenceValue(ids.get(0));

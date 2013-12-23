@@ -1,8 +1,5 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
-import ru.intertrust.cm.core.business.api.dto.TimestampValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
-
 import java.util.Date;
 
 /**
@@ -26,11 +23,6 @@ public class DateBoxState extends ValueEditingWidgetState {
 
     public void setDate(Date date) {
         this.date = date;
-    }
-
-    @Override
-    public Value getValue() {
-        return new TimestampValue(date);
     }
 
     @Override
