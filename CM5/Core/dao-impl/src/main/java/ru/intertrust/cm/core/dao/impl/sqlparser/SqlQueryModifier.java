@@ -19,13 +19,13 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DateTimeWithTimeZoneFieldConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
-import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.exception.CollectionQueryException;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
 
 import java.util.*;
 
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.*;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TIME_ID_ZONE_POSTFIX;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getServiceColumnName;
 import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.unwrap;
@@ -160,14 +160,17 @@ public class SqlQueryModifier {
     }
 
     private void addServiceColumnsInPlainSelect(PlainSelect plainSelect) {
-        List<SelectExpressionItem> selectExpressionItemsToAdd = new ArrayList<>();
 
         if (plainSelect.getFromItem() instanceof SubSelect) {
             SubSelect subSelect = (SubSelect) plainSelect.getFromItem();
             processSelectBody(subSelect.getSelectBody(), new AddServiceColumnsQueryProcessor());
         }
 
+        List selectItems = new ArrayList(plainSelect.getSelectItems().size());
+
         for (Object selectItem : plainSelect.getSelectItems()) {
+            selectItems.add(selectItem);
+
             if (!(selectItem instanceof SelectExpressionItem)) {
                 continue;
             }
@@ -183,13 +186,13 @@ public class SqlQueryModifier {
                     unwrap(column.getColumnName()));
 
             if (fieldConfig instanceof ReferenceFieldConfig) {
-                selectExpressionItemsToAdd.add(createReferenceFieldTypeSelectItem(selectExpressionItem));
+                selectItems.add(createReferenceFieldTypeSelectItem(selectExpressionItem));
             } else if (fieldConfig instanceof DateTimeWithTimeZoneFieldConfig) {
-                selectExpressionItemsToAdd.add(createTimeZoneIdSelectItem(selectExpressionItem));
+                selectItems.add(createTimeZoneIdSelectItem(selectExpressionItem));
             }
         }
 
-        plainSelect.getSelectItems().addAll(selectExpressionItemsToAdd);
+        plainSelect.setSelectItems(selectItems);
     }
 
     private void addIdBasedFiltersInPlainSelect(PlainSelect plainSelect, List<Filter> filterValues, String idField) {
