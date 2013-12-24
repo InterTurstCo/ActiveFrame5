@@ -52,13 +52,14 @@ public class CollectionRowMapper extends BasicRowMapper implements
         GenericIdentifiableObjectCollection collection = new GenericIdentifiableObjectCollection();
 
         ColumnModel columnModel = new ColumnModel();
-        Map<String, DataType> columnTypeMap = new HashMap<>();
+        Map<String, FieldConfig> columnTypeMap = new HashMap<>();
         for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
             String fieldName = rs.getMetaData().getColumnName(i);
             columnModel.getColumnNames().add(fieldName);
-            columnTypeMap.put(fieldName, getColumnDataTypeByDbTypeName(rs.getMetaData().getColumnTypeName(i)));
+            columnTypeMap.put(fieldName, getFieldConfigByDbTypeName(fieldName, rs.getMetaData().getColumnTypeName(i)));
         }
 
+        addMissedFieldConfigs(columnModel, columnTypeMap);
         List<FieldConfig> collectionFieldConfigs = collectFieldConfigs(columnModel);
         collection.setFieldsConfiguration(collectionFieldConfigs);
         
@@ -123,6 +124,31 @@ public class CollectionRowMapper extends BasicRowMapper implements
             }
         }
         return collectionFieldConfigs;
+    }
+
+    private void addMissedFieldConfigs(ColumnModel columnModel, Map<String, FieldConfig> columnTypeMap) {
+        for (String columnName : columnModel.getColumnNames()) {
+            FieldConfig columnFieldConfig = columnToConfigMap.get(columnName);
+            if (columnFieldConfig != null) {
+                continue;
+            }
+
+            if (columnName.endsWith(DomainObjectDao.REFERENCE_TYPE_POSTFIX)) {
+                String testFieldName = columnName.substring(0,
+                        columnName.length() - DomainObjectDao.REFERENCE_TYPE_POSTFIX.length());
+                if (columnToConfigMap.get(testFieldName) == null) {
+                    columnToConfigMap.put(columnName, columnTypeMap.get(columnName));
+                }
+            } else if (columnName.endsWith(DomainObjectDao.TIME_ID_ZONE_POSTFIX)) {
+                String testFieldName = columnName.substring(0,
+                        columnName.length() - DomainObjectDao.TIME_ID_ZONE_POSTFIX.length());
+                if (columnToConfigMap.get(testFieldName) == null) {
+                    columnToConfigMap.put(columnName, columnTypeMap.get(columnName));
+                }
+            } else {
+                columnToConfigMap.put(columnName, columnTypeMap.get(columnName));
+            }
+        }
     }
 
     /**
