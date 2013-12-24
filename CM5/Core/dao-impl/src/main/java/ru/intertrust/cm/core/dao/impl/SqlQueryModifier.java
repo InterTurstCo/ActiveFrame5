@@ -1,4 +1,4 @@
-﻿package ru.intertrust.cm.core.dao.impl;
+package ru.intertrust.cm.core.dao.impl;
 
 
 import net.sf.jsqlparser.expression.Expression;
