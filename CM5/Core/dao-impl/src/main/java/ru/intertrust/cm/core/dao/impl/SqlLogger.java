@@ -59,19 +59,13 @@ public class SqlLogger {
             IdentifiableObjectCollection result = (IdentifiableObjectCollection) returnValue;
             rows = result.size();
         } else if (returnValue instanceof List) {
-
             rows = ((List)returnValue).size();
-
-        } else if (returnValue instanceof IdentifiableObject || returnValue instanceof Long) {
-            // SELECT для одиночных строк и запросов типа "select nextval"
-            rows = 1;
-
-        } else if (returnValue instanceof Integer) {
-            // для INSERT и DELETE
+        } else if (returnValue instanceof Integer && query != null && !query.trim().toUpperCase().startsWith("SELECT")) {
+            // для INSERT, DELETE, UPDATE
             rows = (Integer)returnValue;
         } else {
             // для прочих
-            logger.warn("SQL Trace: Unknown result of the query " + returnValue.getClass());
+            rows = 1;
         }
 
         if (rows < configuration.getMinRows()){
