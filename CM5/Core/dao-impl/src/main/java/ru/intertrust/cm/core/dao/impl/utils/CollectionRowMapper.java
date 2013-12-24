@@ -84,6 +84,10 @@ public class CollectionRowMapper extends BasicRowMapper implements
                 // если поле в коллекцию не добавляется, то индекс не инкрементируется
             }
 
+            if (index == 0) {
+                continue;
+            }
+
             // Для случая извлечения коллекции по запросу при отсутствующем Id, заполняем Id первым ссылочным полем
             if (collectionName == null && collection.getId(row) == null) {
                 for (FieldConfig fieldConfig : collection.getFieldsConfiguration()) {

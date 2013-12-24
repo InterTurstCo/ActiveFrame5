@@ -28,6 +28,7 @@ import java.util.*;
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.*;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getServiceColumnName;
+import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.unwrap;
 
 
 /**
@@ -95,13 +96,14 @@ public class SqlQueryModifier {
             }
 
             Column column = (Column) selectExpressionItem.getExpression();
-            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(getTableName(plainSelect, column, false),
-                    column.getColumnName());
+            String fieldName = unwrap(column.getColumnName().toLowerCase());
+            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(getDOTypeName(plainSelect, column, false),
+                    fieldName);
 
             if (selectExpressionItem.getAlias() != null) {
-                columnToTableMapping.put(selectExpressionItem.getAlias().toLowerCase(), fieldConfig);
+                columnToTableMapping.put(unwrap(selectExpressionItem.getAlias().toLowerCase()), fieldConfig);
             } else {
-                columnToTableMapping.put(column.getColumnName().toLowerCase(), fieldConfig);
+                columnToTableMapping.put(fieldName, fieldConfig);
             }
         }
 
@@ -177,15 +179,11 @@ public class SqlQueryModifier {
             }
 
             Column column = (Column) selectExpressionItem.getExpression();
-            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(getTableName(plainSelect, column, false),
-                    column.getColumnName());
+            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(getDOTypeName(plainSelect, column, false),
+                    unwrap(column.getColumnName()));
 
             if (fieldConfig instanceof ReferenceFieldConfig) {
-                if (DomainObjectDao.ID_COLUMN.equalsIgnoreCase(column.getColumnName())) {
-                    selectExpressionItemsToAdd.add(createObjectTypeSelectItem(selectExpressionItem));
-                } else {
-                    selectExpressionItemsToAdd.add(createReferenceFieldTypeSelectItem(selectExpressionItem));
-                }
+                selectExpressionItemsToAdd.add(createReferenceFieldTypeSelectItem(selectExpressionItem));
             } else if (fieldConfig instanceof DateTimeWithTimeZoneFieldConfig) {
                 selectExpressionItemsToAdd.add(createTimeZoneIdSelectItem(selectExpressionItem));
             }
@@ -286,21 +284,22 @@ public class SqlQueryModifier {
      * @param column колока (поле) в запросе.
      * @return
      */
-    private static String getTableName(PlainSelect plainSelect, Column column, boolean forSubSelect) {
+    private static String getDOTypeName(PlainSelect plainSelect, Column column, boolean forSubSelect) {
 
         if (plainSelect.getFromItem() instanceof SubSelect) {
             SubSelect subSelect = (SubSelect) plainSelect.getFromItem();
             PlainSelect plainSubSelect = getPlainSelect(subSelect.getSelectBody());
-            return getTableName(plainSubSelect, column, true);
+            return getDOTypeName(plainSubSelect, column, true);
         } else if (plainSelect.getFromItem() instanceof Table) {
             Table fromItem = (Table) plainSelect.getFromItem();
 
             if (forSubSelect || column.getTable() == null || column.getTable().getName() == null) {
-                return fromItem.getName();
+                return unwrap(fromItem.getName());
             }
 
-            if (column.getTable().getName().equals(fromItem.getAlias())) {
-                return fromItem.getName();
+            if (column.getTable().getName().equals(fromItem.getAlias()) ||
+                    column.getTable().getName().equals(fromItem.getName()) ) {
+                return unwrap(fromItem.getName());
             }
 
             List joinList = plainSelect.getJoins();
@@ -320,7 +319,7 @@ public class SqlQueryModifier {
 
                 if (column.getTable().getName().equals(joinTable.getAlias()) ||
                         column.getTable().getName().equals(joinTable.getName())) {
-                    return joinTable.getName();
+                    return unwrap(joinTable.getName());
                 }
             }
         }
@@ -354,26 +353,6 @@ public class SqlQueryModifier {
         }
     }
 
-    private SelectExpressionItem createObjectTypeSelectItem(SelectExpressionItem selectExpressionItem) {
-        Column column = (Column) selectExpressionItem.getExpression();
-        
-        StringBuilder objectTypeColumnExpression = null;
-        if(column.getTable() != null && column.getTable().getName()!= null){
-            objectTypeColumnExpression = new StringBuilder(column.getTable().getName()).append(".").append(TYPE_COLUMN);
-        }else{
-            objectTypeColumnExpression = new StringBuilder().append(TYPE_COLUMN);            
-        }
-        
-        //TODO нужно ли это?
-        if (selectExpressionItem.getAlias() != null) {
-            objectTypeColumnExpression.append(" as ").append(selectExpressionItem.getAlias()).append(REFERENCE_TYPE_POSTFIX);
-        }
-
-        SelectExpressionItem objectTypeItem = new SelectExpressionItem();
-        objectTypeItem.setExpression(new Column(new Table(), objectTypeColumnExpression.toString()));
-        return objectTypeItem;
-    }
-
     private SelectExpressionItem createReferenceFieldTypeSelectItem(SelectExpressionItem selectExpressionItem) {
         return generateServiceColumnExpression(selectExpressionItem, REFERENCE_TYPE_POSTFIX);
     }
@@ -387,11 +366,9 @@ public class SqlQueryModifier {
 
         StringBuilder referenceColumnExpression = new StringBuilder();
         if (column.getTable() != null && column.getTable().getName() != null) {
-            referenceColumnExpression.append(column.getTable().getName()).append(".").append(
-                    getServiceColumnName(column.getColumnName(), postfix));
-        } else {
-            referenceColumnExpression.append(getServiceColumnName(column.getColumnName(), postfix));
+            referenceColumnExpression.append(column.getTable().getName()).append(".");
         }
+        referenceColumnExpression.append(getServiceColumnName(unwrap(column.getColumnName()), postfix));
 
         if (selectExpressionItem.getAlias() != null) {
             referenceColumnExpression.append(" as ")

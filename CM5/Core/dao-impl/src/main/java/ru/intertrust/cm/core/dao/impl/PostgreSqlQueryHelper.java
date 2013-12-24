@@ -416,7 +416,19 @@ public class PostgreSqlQueryHelper {
     }
 
     public static String wrap(String string) {
-        return "\"" + string + "\"";
+        if (string == null || string.startsWith("\"")) {
+            return string;
+        } else {
+            return "\"" + string + "\"";
+        }
+    }
+
+    public static String unwrap(String string) {
+        if (string == null || !string.startsWith("\"")) {
+            return string;
+        } else {
+            return string.substring(1, string.length() - 1);
+        }
     }
 
     private static void appendFKConstraint(StringBuilder query, String tableName, String columnName,
