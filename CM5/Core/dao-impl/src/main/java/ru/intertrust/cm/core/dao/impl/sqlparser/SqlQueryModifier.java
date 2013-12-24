@@ -1,6 +1,19 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
 
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TIME_ID_ZONE_POSTFIX;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getServiceColumnName;
+import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.unwrap;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.JdbcNamedParameter;
 import net.sf.jsqlparser.expression.LongValue;
@@ -11,24 +24,23 @@ import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
-import net.sf.jsqlparser.statement.select.*;
+import net.sf.jsqlparser.statement.select.FromItem;
+import net.sf.jsqlparser.statement.select.Join;
+import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.SelectBody;
+import net.sf.jsqlparser.statement.select.SelectExpressionItem;
+import net.sf.jsqlparser.statement.select.SetOperationList;
+import net.sf.jsqlparser.statement.select.SubSelect;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.IdsExcludedFilter;
 import ru.intertrust.cm.core.business.api.dto.IdsIncludedFilter;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DateTimeWithTimeZoneFieldConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.exception.CollectionQueryException;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
-
-import java.util.*;
-
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TIME_ID_ZONE_POSTFIX;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getServiceColumnName;
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.unwrap;
 
 
 /**
@@ -86,9 +98,46 @@ public class SqlQueryModifier {
             }
         });
 
+        processQuery(query, new QueryProcessor() {
+            @Override
+            protected void processPlainSelect(PlainSelect plainSelect) {
+                buildColumnToConfigMapInWhereClause(plainSelect, columnToTableMapping);
+            }
+        });
+        
         return columnToTableMapping;
     }
 
+    private void buildColumnToConfigMapInWhereClause(PlainSelect plainSelect, final Map<String, FieldConfig> columnToTableMapping) {
+        CollectWhereColumnConfigVisitor collectWhereColumnConfigVisitor = new CollectWhereColumnConfigVisitor(configurationExplorer, plainSelect);
+        if (plainSelect.getWhere() != null) {
+            plainSelect.getWhere().accept(collectWhereColumnConfigVisitor);
+        }
+        columnToTableMapping.putAll(collectWhereColumnConfigVisitor.getWhereColumnToConfigMapping());
+    }
+
+    /**
+     * Заменяет параметризованный фильтр по Reference полю (например, t.id = {0}) на рабочий вариант этого фильтра
+     * {например, t.id = 1 and t.id_type = 2 }
+     * @param query SQL запрос
+     * @param configurationExplorer {@link ConfigurationExplorer}
+     * @param params список переданных параметров
+     * @return
+     */
+    public static String modifyQueryWithParameters(String query, ConfigurationExplorer configurationExplorer, List<Value> params) {
+
+        SqlQueryParser sqlParser = new SqlQueryParser(query);
+        SelectBody selectBody = sqlParser.getSelectBody();
+        PlainSelect plainSelect = getPlainSelect(selectBody);
+
+        CollectWhereColumnConfigVisitor modifyReferenceFieldParameter = new CollectWhereColumnConfigVisitor(configurationExplorer, plainSelect, params);
+        if (plainSelect.getWhere() != null) {
+            plainSelect.getWhere().accept(modifyReferenceFieldParameter);
+        }
+
+        return modifyReferenceFieldParameter.getModifiedQuery();
+    }
+    
     /**
      * Добавляет ACL фильтр в SQL получения данных для коллекции.
      * @param query первоначальный запрос
@@ -293,7 +342,7 @@ public class SqlQueryModifier {
      * @param column колока (поле) в запросе.
      * @return
      */
-    private static String getDOTypeName(PlainSelect plainSelect, Column column, boolean forSubSelect) {
+    public static String getDOTypeName(PlainSelect plainSelect, Column column, boolean forSubSelect) {
 
         if (plainSelect.getFromItem() instanceof SubSelect) {
             SubSelect subSelect = (SubSelect) plainSelect.getFromItem();
