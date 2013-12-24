@@ -100,6 +100,14 @@ public interface DomainObjectDao {
     DomainObject find(Id id, AccessToken accessToken);
 
     /**
+     * Поиск и блокировка доменного объекта по уникальному идентификатору в системе.
+     *
+     * @param id идентификатору доменного объекта
+     * @return {@link ru.intertrust.cm.core.business.api.dto.DomainObject}
+     */
+    DomainObject findAndLock(Id id, AccessToken accessToken);
+
+    /**
      * Поиск списка доменных объектов по уникальным идентификаторам в системе.
      * Идентификаторы могут быть разных типов доменных объектов.
      *

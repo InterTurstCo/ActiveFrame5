@@ -97,7 +97,17 @@ public class DomainObjectDaoImplTest {
                 "  and " +
                 "exists (select a.object_id from Person_READ a inner join group_member gm on " +
                 "a.group_id = gm.usergroup where gm.person_id = :user_id and a.object_id = :id)"*/;
-        Assert.assertEquals(expectedQuery, domainObjectDaoImpl.generateFindQuery("Person", accessToken));
+        Assert.assertEquals(expectedQuery, domainObjectDaoImpl.generateFindQuery("Person", accessToken, false));
+    }
+
+    @Test
+    public void testGenerateFindQueryWithLock() throws Exception {
+        AccessToken accessToken = createMockAccessToken();
+        String expectedQuery = "select person.* from \"person\" person where person.\"id\"=:id for update"/* +
+                "  and " +
+                "exists (select a.object_id from Person_READ a inner join group_member gm on " +
+                "a.group_id = gm.usergroup where gm.person_id = :user_id and a.object_id = :id)"*/;
+        Assert.assertEquals(expectedQuery, domainObjectDaoImpl.generateFindQuery("Person", accessToken, true));
     }
 
     //@Test Метод update удален, так как непонятно чем он отличается от save

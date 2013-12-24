@@ -136,6 +136,13 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
     }
 
     @Override
+    public DomainObject findAndLock(Id id) {
+        String user = currentUserAccessor.getCurrentUser();
+        AccessToken accessToken = accessControlService.createAccessToken(user, id, DomainObjectAccessType.WRITE);
+        return domainObjectDao.findAndLock(id, accessToken);
+    }
+
+    @Override
     public List<DomainObject> find(List<Id> ids) {
         if (ids == null || ids.size() == 0) {
             throw new IllegalArgumentException("Ids list can not be empty");

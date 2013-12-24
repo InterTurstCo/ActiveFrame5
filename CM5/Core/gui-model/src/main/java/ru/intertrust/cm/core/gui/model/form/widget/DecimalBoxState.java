@@ -1,8 +1,5 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
-import ru.intertrust.cm.core.business.api.dto.DecimalValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
-
 import java.math.BigDecimal;
 
 /**
@@ -26,11 +23,6 @@ public class DecimalBoxState extends ValueEditingWidgetState {
 
     public void setNumber(BigDecimal number) {
         this.number = number;
-    }
-
-    @Override
-    public Value getValue() {
-        return new DecimalValue(number);
     }
 
     @Override

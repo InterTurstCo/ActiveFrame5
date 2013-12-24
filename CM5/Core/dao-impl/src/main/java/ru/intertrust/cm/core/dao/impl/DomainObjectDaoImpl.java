@@ -523,7 +523,34 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         RdbmsId rdbmsId = (RdbmsId) id;
         String typeName = getDOTypeName(rdbmsId.getTypeId());
 
-        String query = generateFindQuery(typeName, accessToken);
+        String query = generateFindQuery(typeName, accessToken, false);
+
+        Map<String, Object> parameters = initializeIdParameter(rdbmsId);
+        if (accessToken.isDeferred()) {
+            parameters.putAll(getAclParameters(accessToken));
+        }
+
+        return jdbcTemplate.query(query, parameters, new SingleObjectRowMapper(
+                typeName, configurationExplorer, domainObjectTypeIdCache));
+    }
+
+    @Override
+    public DomainObject findAndLock(Id id, AccessToken accessToken) {
+        if (id == null) {
+            throw new IllegalArgumentException("Object id can not be null");
+        }
+
+        accessControlService.verifyAccessToken(accessToken, id, DomainObjectAccessType.WRITE);
+
+        DomainObject domainObject = domainObjectCacheService.getObjectToCache(id);
+        if (domainObject != null) {
+            return domainObject;
+        }
+
+        RdbmsId rdbmsId = (RdbmsId) id;
+        String typeName = getDOTypeName(rdbmsId.getTypeId());
+
+        String query = generateFindQuery(typeName, accessToken, true);
 
         Map<String, Object> parameters = initializeIdParameter(rdbmsId);
         if (accessToken.isDeferred()) {
@@ -793,7 +820,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
      *            тип доменного объекта
      * @return SQL запрос для нахождения доменного объекта
      */
-    protected String generateFindQuery(String typeName, AccessToken accessToken) {
+    protected String generateFindQuery(String typeName, AccessToken accessToken, boolean lock) {
         String tableAlias = getSqlAlias(typeName);
 
         StringBuilder query = new StringBuilder();
@@ -815,8 +842,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
              */
         }
 
+        if (lock) {
+            query.append("for update");
+        }
+
         return query.toString();
     }
+
+
 
     /**
      * Создает SQL запрос для нахождения всех доменных объектов определенного типа

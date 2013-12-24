@@ -23,6 +23,9 @@
             <xs:element type="con:uniqueKeyType" name="uniqueKey"
                         minOccurs="0" maxOccurs="unbounded"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:indexType" name="index"
+                        minOccurs="0" maxOccurs="unbounded"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:attachmentTypes" name="attachment-types"
                         minOccurs="0" maxOccurs="1"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
@@ -66,6 +69,13 @@
             <xs:maxLength value="26"/>
             <xs:pattern value="[a-zA-Z0-9_]*|\*">
             </xs:pattern>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="indexTypeType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="b-tree"/>
+            <xs:enumeration value="hash"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -298,6 +308,15 @@
                         xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
         </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="indexType">
+        <xs:sequence maxOccurs="unbounded">
+            <xs:element type="con:fieldType" name="field"
+                        xmlns:con="https://cm5.intertrust.ru/config">
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="type" use="required" type="con:indexTypeType"/>
     </xs:complexType>
 
     <xs:complexType name="passwordType">

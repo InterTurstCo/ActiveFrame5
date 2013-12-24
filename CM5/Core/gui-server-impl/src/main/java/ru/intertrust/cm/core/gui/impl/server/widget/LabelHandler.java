@@ -1,11 +1,13 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.gui.form.widget.LabelConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.SingleObjectWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.widget.LabelState;
+import ru.intertrust.cm.core.gui.model.form.widget.ValueEditingWidgetState;
 
 /**
  * @author Denis Mitavskiy
@@ -24,5 +26,10 @@ public class LabelHandler extends SingleObjectWidgetHandler {
             LabelConfig widgetConfig = context.getWidgetConfig();
             return new LabelState(widgetConfig.getText());
         }
+    }
+
+    @Override
+    public Value getValue(ValueEditingWidgetState state) {
+        return null;
     }
 }

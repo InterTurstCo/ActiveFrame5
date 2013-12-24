@@ -27,7 +27,7 @@ public class LoginWindow extends DialogBox implements Component {
         loginField = new TextBox();
         passwordField = new PasswordTextBox();
         message = new Label();
-        loginButton = new Button("Enter");
+        loginButton = new Button("Войти");
         loginButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 login();

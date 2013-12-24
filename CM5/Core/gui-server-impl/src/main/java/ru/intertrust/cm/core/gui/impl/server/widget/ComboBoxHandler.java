@@ -5,6 +5,8 @@ import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.ComboBoxConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.SingleObjectWidgetHandler;
@@ -12,6 +14,7 @@ import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.widget.ComboBoxState;
+import ru.intertrust.cm.core.gui.model.form.widget.ValueEditingWidgetState;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -58,4 +61,8 @@ public class ComboBoxHandler extends SingleObjectWidgetHandler {
         return result;
     }
 
+    @Override
+    public Value getValue(ValueEditingWidgetState state) {
+        return new ReferenceValue(((ComboBoxState) state).getId());
+    }
 }
