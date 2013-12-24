@@ -76,36 +76,15 @@ public class SqlQueryModifier {
         });
     }
 
-    public static Map<String, FieldConfig> buildColumnToConfigMap(String query,
-                                                            ConfigurationExplorer configurationExplorer) {
-        Map<String, FieldConfig> columnToTableMapping = new HashMap<>();
+    public Map<String, FieldConfig> buildColumnToConfigMap(String query) {
+        final Map<String, FieldConfig> columnToTableMapping = new HashMap<>();
 
-        SqlQueryParser sqlParser = new SqlQueryParser(query);
-        SelectBody selectBody = sqlParser.getSelectBody();
-        PlainSelect plainSelect = getPlainSelect(selectBody);
-
-        for (Object selectItem : plainSelect.getSelectItems()) {
-            if (!(selectItem instanceof SelectExpressionItem)) {
-                continue;
+        processQuery(query, new QueryProcessor() {
+            @Override
+            protected void processPlainSelect(PlainSelect plainSelect) {
+                buildColumnToConfigMapInPlainSelect(plainSelect, columnToTableMapping);
             }
-
-            SelectExpressionItem selectExpressionItem = (SelectExpressionItem) selectItem;
-
-            if (!(selectExpressionItem.getExpression() instanceof Column)) {
-                continue;
-            }
-
-            Column column = (Column) selectExpressionItem.getExpression();
-            String fieldName = unwrap(column.getColumnName().toLowerCase());
-            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(getDOTypeName(plainSelect, column, false),
-                    fieldName);
-
-            if (selectExpressionItem.getAlias() != null) {
-                columnToTableMapping.put(unwrap(selectExpressionItem.getAlias().toLowerCase()), fieldConfig);
-            } else {
-                columnToTableMapping.put(fieldName, fieldConfig);
-            }
-        }
+        });
 
         return columnToTableMapping;
     }
@@ -193,6 +172,33 @@ public class SqlQueryModifier {
         }
 
         plainSelect.setSelectItems(selectItems);
+    }
+
+    private void buildColumnToConfigMapInPlainSelect(PlainSelect plainSelect,
+                                                            Map<String, FieldConfig> columnToConfigMap) {
+        for (Object selectItem : plainSelect.getSelectItems()) {
+            if (!(selectItem instanceof SelectExpressionItem)) {
+                continue;
+            }
+
+            SelectExpressionItem selectExpressionItem = (SelectExpressionItem) selectItem;
+
+            if (!(selectExpressionItem.getExpression() instanceof Column)) {
+                continue;
+            }
+
+            Column column = (Column) selectExpressionItem.getExpression();
+
+            String fieldName = unwrap(column.getColumnName().toLowerCase());
+            String columnName = selectExpressionItem.getAlias() != null ?
+                    unwrap(selectExpressionItem.getAlias().toLowerCase()) : fieldName;
+
+            if (columnToConfigMap.get(columnName) == null) {
+                FieldConfig fieldConfig =
+                        configurationExplorer.getFieldConfig(getDOTypeName(plainSelect, column, false), fieldName);
+                columnToConfigMap.put(columnName, fieldConfig);
+            }
+        }
     }
 
     private void addIdBasedFiltersInPlainSelect(PlainSelect plainSelect, List<Filter> filterValues, String idField) {
@@ -424,7 +430,7 @@ public class SqlQueryModifier {
         }
     }
 
-    private static String processQuery(String query, QueryProcessor processor) {
+    private String processQuery(String query, QueryProcessor processor) {
         SqlQueryParser sqlParser = new SqlQueryParser(query);
         SelectBody selectBody = sqlParser.getSelectBody();
 
@@ -432,7 +438,7 @@ public class SqlQueryModifier {
         return selectBody.toString();
     }
 
-    private static SelectBody processSelectBody(SelectBody selectBody, QueryProcessor processor) {
+    private SelectBody processSelectBody(SelectBody selectBody, QueryProcessor processor) {
         return processor.process(selectBody);
     }
 

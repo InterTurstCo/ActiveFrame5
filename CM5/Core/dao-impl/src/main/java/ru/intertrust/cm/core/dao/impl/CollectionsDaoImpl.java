@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.exception.CollectionConfigurationException;
+import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
 import ru.intertrust.cm.core.dao.impl.utils.CollectionRowMapper;
 
 import java.util.ArrayList;
@@ -20,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
-import static ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier.buildColumnToConfigMap;
 import static ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier.wrapAndLowerCaseNames;
 
 /**
@@ -84,7 +84,8 @@ public class CollectionsDaoImpl implements CollectionsDao {
         String collectionQuery =
                 getFindCollectionQuery(collectionConfig, filterValues, sortOrder, offset, limit, accessToken);
 
-        Map<String, FieldConfig> columnToConfigMap = buildColumnToConfigMap(collectionQuery, configurationExplorer);
+        Map<String, FieldConfig> columnToConfigMap =
+                new SqlQueryModifier(configurationExplorer).buildColumnToConfigMap(collectionQuery);
 
         Map<String, Object> parameters = new HashMap<>();
         fillFilterParameters(filterValues, parameters);
@@ -130,7 +131,8 @@ public class CollectionsDaoImpl implements CollectionsDao {
             fillAclParameters(accessToken, parameters);
         }
 
-        Map<String, FieldConfig> columnToConfigMap = buildColumnToConfigMap(collectionQuery, configurationExplorer);
+        Map<String, FieldConfig> columnToConfigMap =
+                new SqlQueryModifier(configurationExplorer).buildColumnToConfigMap(collectionQuery);
 
         collectionQuery = adjustParameterNamesForSpring(collectionQuery);
         collectionQuery = wrapAndLowerCaseNames(collectionQuery);
