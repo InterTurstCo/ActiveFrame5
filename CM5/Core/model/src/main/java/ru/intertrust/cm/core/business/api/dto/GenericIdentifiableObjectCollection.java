@@ -25,9 +25,9 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
 
     @Override
     public void setFieldsConfiguration(List<FieldConfig> fieldConfigs) {
-        if (this.fieldConfigs != null) {
+        /*if (this.fieldConfigs != null) {
             throw new IllegalArgumentException("Collection field configs are already set");
-        }
+        }*/
         if (fieldConfigs == null) {
             this.fieldConfigs = new ArrayList<FieldConfig>(0);
         } else {
@@ -164,6 +164,10 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
 
         @Override
         public void setValue(String field, Value value) {
+            int index = collection.getFieldIndex(field);
+            if (fieldValues.size() < index + 1){
+                fieldValues.add(null);
+            }
             fieldValues.set(collection.getFieldIndex(field), value);
             dirty = true;
         }
