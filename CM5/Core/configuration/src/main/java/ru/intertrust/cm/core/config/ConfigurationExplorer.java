@@ -102,4 +102,11 @@ public interface ConfigurationExplorer {
      */
     AccessMatrixStatusConfig getAccessMatrixByObjectTypeAndStatus(String domainObjectType, String status);
 
+    /**
+     * проверка того, что тип доменного обхекта - Attachment
+     * @param domainObjectType тип доменного обхекта
+     * @return true если тип доменного обхекта - Attachment
+     */
+    boolean isAttachmentType(String domainObjectType);
+
 }

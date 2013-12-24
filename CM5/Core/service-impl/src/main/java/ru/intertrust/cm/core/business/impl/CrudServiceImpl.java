@@ -10,11 +10,15 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.model.CrudException;
+import ru.intertrust.cm.core.model.SystemException;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -43,10 +47,24 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
     private AccessControlService accessControlService;
 
     @Autowired    
-    private CurrentUserAccessor currentUserAccessor; 
+    private CurrentUserAccessor currentUserAccessor;
+
+    @Autowired
+    private ConfigurationExplorer configurationExplorer;
+
+    @Autowired
+    private DomainObjectTypeIdCache domainObjectTypeIdCache;
     
     public void setCurrentUserAccessor(CurrentUserAccessor currentUserAccessor) {
         this.currentUserAccessor = currentUserAccessor;
+    }
+
+    public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
+        this.configurationExplorer = configurationExplorer;
+    }
+
+    public void setDomainObjectTypeIdCache(DomainObjectTypeIdCache domainObjectTypeIdCache) {
+        this.domainObjectTypeIdCache = domainObjectTypeIdCache;
     }
 
     public void setDomainObjectDao(DomainObjectDao domainObjectDao) {
@@ -76,6 +94,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     @Override
     public DomainObject save(DomainObject domainObject) {
+        checkForAttachment(domainObject.getTypeName());
         AccessToken accessToken = null;
         if (!domainObject.isNew()) {
             String user = currentUserAccessor.getCurrentUser();
@@ -87,8 +106,14 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         return domainObjectDao.save(domainObject, accessToken);
     }
 
+
     @Override
     public List<DomainObject> save(List<DomainObject> domainObjects) {
+
+        for (DomainObject domainObject : domainObjects) {
+           checkForAttachment(domainObject.getTypeName());
+        }
+
         AccessToken accessToken = createSystemAccessToken();
 
         return domainObjectDao.save(domainObjects, accessToken);
@@ -137,6 +162,8 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     @Override
     public void delete(Id id) {
+        String objectName = domainObjectTypeIdCache.getName(id);
+        checkForAttachment(objectName);
         String user = currentUserAccessor.getCurrentUser();
         AccessToken accessToken = null;
         accessToken = accessControlService.createAccessToken(user, id, DomainObjectAccessType.DELETE);
@@ -148,6 +175,11 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         if (ids == null || ids.size() == 0) {
             return 0;
         }
+        for (Id id : ids) {
+            String objectName = domainObjectTypeIdCache.getName(id);
+            checkForAttachment(objectName);
+        }
+
         Id[] idsArray = ids.toArray(new Id[ids.size()]);
         String user = currentUserAccessor.getCurrentUser();
         AccessToken accessToken = accessControlService.createAccessToken(user, idsArray, DomainObjectAccessType.DELETE, false);
@@ -167,4 +199,11 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
         return domainObjectDao.findLinkedDomainObjectsIds(domainObjectId, linkedType, linkedField, accessToken);
     }
+
+    private void checkForAttachment(String objectType) {
+        if (configurationExplorer.isAttachmentType(objectType)){
+            throw new CrudException("Working with Attachments allowed only through AttachmentService");
+        }
+    }
+
 }
