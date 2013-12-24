@@ -288,10 +288,12 @@ public class CollectionQueryInitializer {
         boolean hasSortEntry = false;
         if (sortOrder != null && sortOrder.size() > 0) {
             for (SortCriterion criterion : sortOrder) {
-                if (hasSortEntry) {
+                if (!hasSortEntry) {
+                    prototypeQuery.append(" order by ");
+                } else {
                     prototypeQuery.append(", ");
                 }
-                prototypeQuery.append(" order by ").append(criterion.getField()).append("  ").append(getSqlSortOrder(criterion.getOrder()));
+                prototypeQuery.append(criterion.getField()).append("  ").append(getSqlSortOrder(criterion.getOrder()));
                 hasSortEntry = true;
             }
         }
