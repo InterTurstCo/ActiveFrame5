@@ -24,6 +24,10 @@ public class CaseInsensitiveMap<T> implements Dto {
         return map.get(getLowerCaseKey(key));
     }
 
+    public boolean containsKey(String key) {
+        return map.containsKey(getLowerCaseKey(key));
+    }
+
     public T remove(String key) {
         return map.remove(getLowerCaseKey(key));
     }
@@ -35,6 +39,11 @@ public class CaseInsensitiveMap<T> implements Dto {
     public Set<String> keySet() {
         return map.keySet();
     }
+
+    public void clear() {
+        map.clear();
+    }
+
 
     private String getLowerCaseKey(String key) {
         String lowerCaseKey = null;

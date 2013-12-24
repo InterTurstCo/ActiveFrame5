@@ -75,7 +75,7 @@ public class CrudServiceImplTest {
         domainObjectList.add(employeeDomainObject);
 
         GenericDomainObject attachDomainObject = new GenericDomainObject();
-        attachDomainObject.setTypeName("SomeDoc");
+        attachDomainObject.setTypeName("somedoc");
         domainObjectList.add(attachDomainObject);
 
         expectedException.expect(CrudException.class);

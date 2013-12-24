@@ -28,7 +28,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     private Map<FieldConfigKey, FieldConfig> fieldConfigMap = new HashMap<>();
     private Map<FieldConfigKey, CollectionColumnConfig> collectionColumnConfigMap = new HashMap<>();
     private GlobalSettingsConfig globalSettings;
-    private List<String> attachmentDomainObjectTypes = new ArrayList<>();
+    private CaseInsensitiveMap<String> attachmentDomainObjectTypes = new CaseInsensitiveMap<>();
     @Autowired
     FormLogicalValidator formLogicalValidator;
 
@@ -314,8 +314,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      */
     @Override
     public boolean isAttachmentType(String domainObjectType) {
-
-        return attachmentDomainObjectTypes.contains(domainObjectType);
+        return attachmentDomainObjectTypes.containsKey(domainObjectType);
     }
 
     private void fillTopLevelConfigMap(TopLevelConfig config) {
@@ -375,7 +374,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
                                     domainObjectTypeConfig.getName());
                     fillTopLevelConfigMap(attachmentDomainObjectTypeConfig);
                     fillFieldsConfigMap(attachmentDomainObjectTypeConfig);
-                    attachmentDomainObjectTypes.add(attachmentDomainObjectTypeConfig.getName());
+                    attachmentDomainObjectTypes.put(attachmentDomainObjectTypeConfig.getName(), attachmentDomainObjectTypeConfig.getName());
                 }
             }
         } catch (IOException e) {
