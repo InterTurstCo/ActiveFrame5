@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.business.impl.solr;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.core.CoreContainer;
+import org.apache.solr.core.SolrResourceLoader;
 
 import ru.intertrust.cm.core.tools.DynamicLoadClassFactory;
 
@@ -10,9 +11,10 @@ public class EmbeddedSolrServerFactory implements DynamicLoadClassFactory<SolrSe
 
     @Override
     public SolrServer createInstance() {
-        CoreContainer container = new CoreContainer();
+        //SolrResourceLoader loader = new MySolrResourceLoader("");
+        CoreContainer container = new CoreContainer(/*loader*/);
         container.load();
-        return new EmbeddedSolrServer(container, "");
+        return new EmbeddedSolrServer(container, "collection1");
     }
 
 }

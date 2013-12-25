@@ -48,11 +48,16 @@ public class IndexUpdateAgent implements AfterSaveExtensionHandler {
         ArrayList<SolrInputDocument> solrDocs = new ArrayList<>(configs.size());
         for (SearchConfigHelper.SearchAreaDetailsConfig config : configs) {
             SolrInputDocument doc = new SolrInputDocument();
-            doc.addField("cm_id", domainObject.getId());
+            doc.addField("cm_id", domainObject.getId().toStringRepresentation());
             doc.addField("cm_area", config.getAreaName());
             doc.addField("cm_type", config.getTargetObjectType());
             for (IndexedFieldConfig fieldConfig : config.getObjectConfig().getFields()) {
-                doc.addField("cm_idx_" + fieldConfig.getName(), calculateField(domainObject, fieldConfig));
+                Object value = calculateField(domainObject, fieldConfig);
+                StringBuilder fieldName = new StringBuilder()
+                        .append("cm_f_")
+                        .append(fieldConfig.getName())
+                        .append(configHelper.getFieldType(fieldConfig, config.getTargetObjectType()).getSuffix());
+                doc.addField(fieldName.toString(), value);
             }
             doc.addField("id", createUniqueId(domainObject, config));
             solrDocs.add(doc);

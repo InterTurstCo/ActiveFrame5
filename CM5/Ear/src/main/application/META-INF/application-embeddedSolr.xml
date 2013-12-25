@@ -10,8 +10,8 @@
   </module>
   <library-directory>lib</library-directory>
   <env-entry>
-    <env-entry-name>search.solr.home</env-entry-name>
+    <env-entry-name>search.solr.data</env-entry-name>
     <env-entry-type>java.lang.String</env-entry-type>
-    <env-entry-value>${search.solr.home}</env-entry-value>
+    <env-entry-value>${search.solr.data}</env-entry-value>
   </env-entry>
 </application>

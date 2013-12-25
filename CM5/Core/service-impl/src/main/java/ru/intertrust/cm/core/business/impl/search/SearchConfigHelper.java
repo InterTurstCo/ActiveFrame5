@@ -8,9 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.DomainObjectFilter;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.search.DomainObjectFilterConfig;
 import ru.intertrust.cm.core.config.search.IndexedDomainObjectConfig;
+import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
 import ru.intertrust.cm.core.config.search.SearchAreaConfig;
 import ru.intertrust.cm.core.model.FatalException;
 
@@ -83,5 +86,27 @@ public class SearchConfigHelper {
             }
         }
         return null;    //*****
+    }
+
+    public SearchFieldType getFieldType(IndexedFieldConfig config, String objectType) {
+        if (config.getDoel() != null) {
+            //TODO Подключить DoelValidator для определения типа выражения
+            return SearchFieldType.TEXT;
+        } else {
+            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(objectType, config.getName());
+            if (fieldConfig == null) {
+                throw new IllegalArgumentException(config.getName() + " doesn't defined in type " + objectType);
+            }
+            if (FieldType.DATETIME == fieldConfig.getFieldType() ||
+                FieldType.DATETIMEWITHTIMEZONE == fieldConfig.getFieldType() ||
+                FieldType.TIMELESSDATE == fieldConfig.getFieldType()) {
+                return SearchFieldType.DATE;
+            }
+            if (FieldType.LONG == fieldConfig.getFieldType() ||
+                FieldType.DECIMAL == fieldConfig.getFieldType()) {
+                return SearchFieldType.LONG;
+            }
+            return SearchFieldType.TEXT;
+        }
     }
 }

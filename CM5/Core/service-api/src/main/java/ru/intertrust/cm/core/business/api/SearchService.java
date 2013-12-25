@@ -15,17 +15,20 @@ public interface SearchService {
 
     /**
      * Выполняет поиск по всем полям доменных объектов и вложениям в одной области поиска.
+     * Тип возвращаемых доменных объектов определяется конфигурацией запрошенной коллекции.
      * 
      * @param query Строка для поиска
      * @param areaName Имя области поиска
-     * @param objectType Тип искомых доменных объектов
+     * @param targetCollectionName Имя сконфигурированной коллекции для возврата объектов
      * @param maxResults Ограничение количества найденных объектов
      * @return Коллекция найденных доменных объектов
+     * @throws IllegalArgumentException если область поиска или коллекция отсутствуют в конфигурации,
+     *      или если возвращаемый коллекцией тип доменных объектов не содержится в заданной области поиска
      */
-    IdentifiableObjectCollection search(String query, String areaName, String objectType, int maxResults);
+    IdentifiableObjectCollection search(String query, String areaName, String targetCollectionName, int maxResults);
 
     /**
-     * Выполняет многокритериальный по полям доменных объектов и вложениям.
+     * Выполняет многокритериальный по полям доменных объектов и вложениям в одной или нескольких областях поиска.
      * 
      * @param query Критерии поиска
      * @param maxResults Ограничение количества найденных объектов
