@@ -45,7 +45,7 @@
     that avoids logging every request
 -->
 
-<schema name="example-schemaless" version="1.5">
+<schema name="CM5" version="1.5">
   <!-- attribute "name" is the name of this schema and is only used for display purposes.
        version="x.y" is Solr's version number for the schema syntax and 
        semantics.  It should not normally be changed by applications.
@@ -114,6 +114,10 @@
     <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
     <field name="_version_" type="long" indexed="true" stored="true"/>
 
+    <field name="cm_id" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
+    <field name="cm_area" type="string" indexed="true" stored="false" required="true" multiValued="false"/>
+    <field name="cm_type" type="string" indexed="true" stored="false" required="true" multiValued="false"/>
+    <field name="cm_text" type="text_ru" indexed="true" stored="false" multiValued="true"/>
 
     <!-- Dynamic field definitions allow using convention over configuration
        for fields via the specification of patterns to match field names. 
@@ -202,6 +206,8 @@
    <copyField source="includes" dest="text"/>
    <copyField source="manu" dest="manu_exact"/>
    -->
+
+  <copyField source="cm_f_*" dest="cm_text"/>
 
   <!-- Copy the price into a currency enabled field (default USD)
    <copyField source="price" dest="price_c"/>

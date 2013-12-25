@@ -99,9 +99,8 @@
        other than the default ./data under the Solr home.  If
        replication is in use, this should match the replication
        configuration.
-     - ->
+     -->
   <dataDir>${solr.data.dir:}</dataDir>
--->
 
   <!-- The DirectoryFactory to use for indexes.
        
@@ -150,7 +149,7 @@
   -->
   <schemaFactory class="ManagedIndexSchemaFactory">
     <bool name="mutable">true</bool>
-    <str name="managedSchemaResourceName">managed-schema</str>
+    <str name="managedSchemaResourceName">managed-schema.xml</str>
   </schemaFactory>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -310,7 +309,7 @@
          Setting The value to true will instruct the underlying Lucene
          IndexWriter to write its debugging info the specified file
       -->
-    <!-- <infoStream file="INFOSTREAM.txt">false</infoStream> -->
+    <infoStream file="INFOSTREAM.txt">true</infoStream>
   </indexConfig>
 
 
@@ -811,7 +810,7 @@
     <lst name="defaults">
       <str name="echoParams">explicit</str>
       <int name="rows">10</int>
-      <!-- <str name="df">text</str> -->
+      <!-- <str name="df">cm_id</str> -->
     </lst>
     <!-- In addition to defaults, "appends" params can be specified
          to identify values which should be appended to the list of
@@ -873,7 +872,7 @@
       <str name="echoParams">explicit</str>
       <str name="wt">json</str>
       <str name="indent">true</str>
-      <str name="df">text</str>
+      <!-- <str name="df">cm_text</str> -->
     </lst>
   </requestHandler>
 
