@@ -4,7 +4,10 @@ import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.FieldConfig;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.ListIterator;
 
 /**
  * Коллекция объектов, наделённых идентификатором
@@ -25,6 +28,9 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
 
     @Override
     public void setFieldsConfiguration(List<FieldConfig> fieldConfigs) {
+        // todo: это было сделано для того, чтобы в коллекцию можно было добавить новые поля. Надо расширить интерфейс
+        // IdentifiableObjectCollection для того, чтобы можно было добавлять новые поля (см. CMFIVE-386)
+
         /*if (this.fieldConfigs != null) {
             throw new IllegalArgumentException("Collection field configs are already set");
         }*/
@@ -164,6 +170,8 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
 
         @Override
         public void setValue(String field, Value value) {
+            // todo: это было сделано для того, чтобы в коллекцию можно было добавить новые поля. Надо расширить интерфейс
+            // IdentifiableObjectCollection для того, чтобы можно было добавлять новые поля (см. CMFIVE-386)
             int index = collection.getFieldIndex(field);
             if (fieldValues.size() < index + 1){
                 fieldValues.add(null);
