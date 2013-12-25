@@ -24,7 +24,8 @@ public interface CollectionsService {
      * @param limit          максимальное количество возвращаемых доменных объектов
      * @return коллекцию объектов {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObject}
      */
-    IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder, List<Filter> filters, int offset, int limit);
+    IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder,
+            List<? extends Filter> filters, int offset, int limit);
 
     /**
      * Возвращает заданную коллекцию, отфильтрованную и упорядоченную согласно порядку сортировки
@@ -34,7 +35,8 @@ public interface CollectionsService {
      * @param filters        список фильтров {@link ru.intertrust.cm.core.business.api.dto.Filter}
      * @return коллекцию объектов {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObject}
      */
-    IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder, List<Filter> filters);
+    IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder,
+            List<? extends Filter> filters);
 
     /**
      * Возвращает заданную коллекцию, упорядоченную согласно порядку сортировки
@@ -76,6 +78,6 @@ public interface CollectionsService {
      * @param filters        список фильтров {@link ru.intertrust.cm.core.business.api.dto.Filter}
      * @return число элементов заданной коллекции
      */
-    int findCollectionCount(String collectionName, List<Filter> filters);
+    int findCollectionCount(String collectionName, List<? extends Filter> filters);
 
 }

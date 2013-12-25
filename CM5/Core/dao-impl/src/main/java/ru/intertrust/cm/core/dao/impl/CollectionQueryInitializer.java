@@ -49,7 +49,7 @@ public class CollectionQueryInitializer {
      * @param limit ограничение количества
      * @return
      */
-    public String initializeQuery(CollectionConfig collectionConfig, List<Filter> filterValues,
+    public String initializeQuery(CollectionConfig collectionConfig, List<? extends Filter> filterValues,
             SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
         List<CollectionFilterConfig> filledFilterConfigs = findFilledFilterConfigs(filterValues, collectionConfig);
 
@@ -74,7 +74,7 @@ public class CollectionQueryInitializer {
      * @param collectionConfig
      * @return
      */
-    private List<CollectionFilterConfig> findFilledFilterConfigs(List<Filter> filterValues,
+    private List<CollectionFilterConfig> findFilledFilterConfigs(List<? extends Filter> filterValues,
                                                                  CollectionConfig collectionConfig) {
         List<CollectionFilterConfig> filterConfigs = collectionConfig.getFilters();
 
@@ -161,7 +161,8 @@ public class CollectionQueryInitializer {
      * @param query первоначальный запрос
      * @return измененный запрос
      */
-    private String postProcessQuery(CollectionConfig collectionConfig, List<Filter> filterValues, AccessToken accessToken, String query) {
+    private String postProcessQuery(CollectionConfig collectionConfig, List<? extends Filter> filterValues,
+            AccessToken accessToken, String query) {
         SqlQueryModifier sqlQueryModifier = new SqlQueryModifier();
         query = sqlQueryModifier.addServiceColumns(query, configurationExplorer);
         query = sqlQueryModifier.addIdBasedFilters(query, filterValues, collectionConfig.getIdField());
@@ -214,7 +215,8 @@ public class CollectionQueryInitializer {
      * @param filterValues заполненные фильтры
      * @return
      */
-    public String initializeCountQuery(CollectionConfig collectionConfig, List<Filter> filterValues, AccessToken accessToken) {
+    public String initializeCountQuery(CollectionConfig collectionConfig, List<? extends Filter> filterValues,
+            AccessToken accessToken) {
         List<CollectionFilterConfig> filledFilterConfigs = findFilledFilterConfigs(filterValues, collectionConfig);
 
         String prototypeQuery = collectionConfig.getCountingPrototype();

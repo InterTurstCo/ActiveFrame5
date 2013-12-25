@@ -76,7 +76,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
      */
     @Override
     public IdentifiableObjectCollection findCollection(String collectionName,
-                                                       List<Filter> filterValues,
+                                                       List<? extends Filter> filterValues,
                                                        SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
 
         CollectionConfig collectionConfig = configurationExplorer.getConfig(CollectionConfig.class, collectionName);
@@ -152,7 +152,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
      */
     @Override
     public int findCollectionCount(String collectionName,
-            List<Filter> filterValues, AccessToken accessToken) {
+            List<? extends Filter> filterValues, AccessToken accessToken) {
         CollectionConfig collectionConfig = configurationExplorer.getConfig(CollectionConfig.class, collectionName);
         String collectionQuery = getFindCollectionCountQuery(collectionConfig, filterValues, accessToken);
 
@@ -191,7 +191,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
      * @return
      */
     protected String getFindCollectionQuery(CollectionConfig collectionConfig,
-                                            List<Filter> filterValues, SortOrder sortOrder,
+                                            List<? extends Filter> filterValues, SortOrder sortOrder,
                                             int offset, int limit, AccessToken accessToken) {
         CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer(configurationExplorer);
 
@@ -209,7 +209,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
      * @return
      */
     protected String getFindCollectionCountQuery(CollectionConfig collectionConfig,
-            List<Filter> filterValues, AccessToken accessToken) {
+            List<? extends Filter> filterValues, AccessToken accessToken) {
         CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer(configurationExplorer);
 
         String collectionQuery =
@@ -224,7 +224,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
      * @param filterValues
      * @param parameters
      */
-    private void fillFilterParameters(List<Filter> filterValues, Map<String, Object> parameters) {
+    private void fillFilterParameters(List<? extends Filter> filterValues, Map<String, Object> parameters) {
         if (filterValues != null) {
             for (Filter filter : filterValues) {
                 for (Integer key : filter.getCriterionKeys()) {

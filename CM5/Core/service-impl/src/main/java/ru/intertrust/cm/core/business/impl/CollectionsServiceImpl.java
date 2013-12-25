@@ -51,8 +51,8 @@ public class CollectionsServiceImpl implements CollectionsService {
     }
 
     @Override
-    public IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder, List<Filter> filterValues,
-                                                       int offset, int limit) {
+    public IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder,
+            List<? extends Filter> filterValues, int offset, int limit) {
         String user = currentUserAccessor.getCurrentUser();
 
         AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
@@ -60,7 +60,8 @@ public class CollectionsServiceImpl implements CollectionsService {
     }
 
     @Override
-    public IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder, List<Filter> filters) {
+    public IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder,
+            List<? extends Filter> filters) {
         return findCollection(collectionName, sortOrder, filters, 0, 0);
     }
 
@@ -75,7 +76,7 @@ public class CollectionsServiceImpl implements CollectionsService {
     }
 
     @Override
-    public int findCollectionCount(String collectionName, List<Filter> filterValues) {
+    public int findCollectionCount(String collectionName, List<? extends Filter> filterValues) {
         String user = currentUserAccessor.getCurrentUser();
         AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
         return collectionsDao.findCollectionCount(collectionName, filterValues, accessToken);
