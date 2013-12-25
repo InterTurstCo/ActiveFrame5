@@ -2,10 +2,9 @@
 <configuration xmlns="https://cm5.intertrust.ru/config">
     <global-settings>
         <audit-log enable="false" />
-        <!--<attachment-storage path="c:\attachments\"/>-->
-        <!--<attachment-upload-temp-storage path="c:\savedAttachments\"/>-->
-        <attachment-storage path="/home/user/attach/"/>
-        <attachment-upload-temp-storage path="/home/user/attach_save/"/>
+        <attachment-storage path="c:\attachments\"/>
+        <attachment-upload-temp-storage path="c:\savedAttachments\"/>
+  
         <sql-trace enable="true" resolveParameters="true" minRows="1" minTime="100"/>
     </global-settings>
 </configuration>
