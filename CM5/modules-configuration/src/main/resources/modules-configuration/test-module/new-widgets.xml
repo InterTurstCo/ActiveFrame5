@@ -1,26 +1,5 @@
 <configuration>
 <form name="country_form" domain-object-type="country" is-default="true" debug = "false">
-    <markup>
-        <body display-single-tab="false">
-            <tab name="Главная">
-                <single-entry-group>
-                    <tab-group>
-                        <table>
-                            <tr>
-                                <td h-align="center" v-align="center">
-                                    <widget id="1"/>
-                                </td>
-                                <!-- label (Население) -->
-                                <td h-align="left">
-                                    <widget id="4"/>
-                                </td>
-                            </tr>
-                        </table>
-                    </tab-group>
-                </single-entry-group>
-            </tab>
-        </body>
-    </markup>
     <widget-config>
         <!-- Если выбор единственный (см. CMFIVE-229), то чек-боксы показывать не надо и выбор в данном случае можно
         сделать как по кнопке "Ок", так и двойным щелчком -->
@@ -96,7 +75,7 @@
                     <input-text-filter name="byName"/>
                     <!-- паттерн отображения уже выбранных значений -->
                     <selection-pattern value="{name}"/>
-                        <!-- путь к узлу верхнего уровня (относительно пути этого узла) от узла данного уровня -->
+                    <!-- путь к узлу верхнего уровня (относительно пути этого узла) от узла данного уровня -->
                     <node-collection-def collection="Employees" parent-filter="byDepartment">
                         <!-- название фильтра по тексту, введённому пользователем -->
                         <input-text-filter name="byLastNameAndName"/>
@@ -109,6 +88,52 @@
             <!-- количество элементов, показываемых в данном узле дерева изначально -->
             <page-size>30</page-size>
         </hierarchy-browser>
+
+        <date-box id="10">
+            <field-path value="independence_day"/>
+            <pattern value="dd.MM.yyyy hh:mm:ss"/> <!-- паттерн в формате Java DateFormat -->
+
+            <!-- id - id часового пояса, в котором нужно показывать и считывать дату с временем.
+            эта настройка не совместима с тэгом display-time-zone-choice - либо то, либо другое -->
+            <time-zone id="Europe/Kiev"/>
+
+            <!-- Если display-time-zone-choice "true", то рядом с полем ввода появляется Suggest Box с выпадающим списком
+            часовых поясов (пока без перевода) с указанием их UTC-смещения наподобие, как это сделано в Windows. Если при этом поле типа dateTimeWithTimeZone, то часовым поясом по умолчанию выбирается тот, в котором дата сохранена.
+
+            Если поле, за которое отвечает виджет, типа "timelessDate", то часовые пояса никогда не показываются
+
+            Значения, которые можно установить, кроме идентификаторов часовых поясов (если часовые пояса показываются, то эти значения надо показывать перед ними):
+            Перед списком часовых поясов показаны:
+            1) "По умолчанию" (из настроек пользователя, пока что аналогично локальной)
+            2) "Локальная" - указывает на то, что смещение используется локальное.
+            Существует тонкий момент с конвертацией в локальный пояс. В локальный пояс (из строки в дату и из даты в строку) надо переводить на клиенте, в часовой пояс из списка Java (Olson Time Zones) - на сервере.
+
+            После списка показаны: "плоские UTC смещения типа "UTC+01:00" или "UTC+04:45" - уникальные значения UTC-смещений из списка часовых поясов (упорядоченные по возрастанию)
+
+            -->
+            <display-time-zone-choice value="true"/>
+        </date-box>
     </widget-config>
+    <markup>
+        <body display-single-tab="false">
+            <tab name="Главная">
+                <single-entry-group>
+                    <tab-group>
+                        <table>
+                            <tr>
+                                <td h-align="center" v-align="center">
+                                    <widget id="1"/>
+                                </td>
+                                <!-- label (Население) -->
+                                <td h-align="left">
+                                    <widget id="4"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </tab-group>
+                </single-entry-group>
+            </tab>
+        </body>
+    </markup>
 </form>
 </configuration>
