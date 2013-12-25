@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
+import ru.intertrust.cm.core.business.api.dto.BooleanValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.gui.api.server.widget.SingleObjectWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
@@ -21,6 +22,7 @@ public class CheckBoxHandler extends SingleObjectWidgetHandler {
 
     @Override
     public Value getValue(ValueEditingWidgetState state) {
-        return null;
+        final boolean booleanValue = ((CheckBoxState) state).isSelected();
+        return new BooleanValue(booleanValue);
     }
 }
