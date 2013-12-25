@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
@@ -22,7 +21,6 @@ import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.SelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
-import net.sf.jasperreports.engine.export.data.TextValue;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
@@ -39,8 +37,6 @@ import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowsRequest;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.util.*;
 
 /**
@@ -256,8 +252,11 @@ public class CollectionPluginView extends PluginView {
                filterList.clear();
 
                 for (int i =0; i < searchBoxList.size(); i++){
-                    if (searchBoxList.get(i).getFilterType() != null  && searchBoxList.get(i).getText() != null &&
+
+
+                    if (searchBoxList.get(i).getFilterType() != null  &&
                             searchBoxList.get(i).getText().length() > 0 ){
+
                         Filter filter = new Filter();
                         filter.setFilter(searchBoxList.get(i).getFilterType());
                         Value value;
@@ -267,13 +266,14 @@ public class CollectionPluginView extends PluginView {
 
                             Date date = new Date();
                             date = searchBoxList.get(i).getDate();
-                            System.out.println("date = null "+date );
+
                             date.setHours(22);
-                            System.out.println("!!!!date "+date);
+
                             value = new TimestampValue(date);
 
                         }  else {
                             value = new StringValue("%"+searchBoxList.get(i).getText()+"%");
+
 
                         }
                         filter.addCriterion(0, value);
@@ -284,8 +284,7 @@ public class CollectionPluginView extends PluginView {
                 }
 
                 items.clear();
-                System.out.println(filterList.size());
-                System.out.println("START");
+
                 listCount =0;
                 collectionData();
 
@@ -585,7 +584,7 @@ public class CollectionPluginView extends PluginView {
       //  CollectionPluginData collectionPluginData = plugin.getInitialData();
 
 
-        CollectionRowsRequest collectionRowsRequest = new CollectionRowsRequest(listCount, 15,
+        CollectionRowsRequest collectionRowsRequest = new CollectionRowsRequest(listCount, 70,
                 collectionName, columnNamesOnDoFieldsMap, filterList);
         collectionRowRequestCommand(collectionRowsRequest);
     }
@@ -606,7 +605,7 @@ public class CollectionPluginView extends PluginView {
             listCount = 0;
         }    else {
             collectionRowsRequest = new CollectionRowsRequest(listCount,
-                    15, collectionName, columnNamesOnDoFieldsMap,
+                   70, collectionName, columnNamesOnDoFieldsMap,
                     sortCollectionState.isSortDirection(), sortCollectionState.getColumnName(),
                     fieldMap.get(sortCollectionState.getColumnName()), filterList);
         }

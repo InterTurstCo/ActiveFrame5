@@ -18,7 +18,8 @@ public class Filter implements Dto {
      */
     protected String filter;
 
-    private TreeMap<Integer, Object> parameterMap = new TreeMap<Integer, Object>();
+    private TreeMap<Integer, Value> parameterMap = new TreeMap<Integer, Value>();
+    private TreeMap<Integer, List<Value>> multiParameterMap = new TreeMap<Integer, List<Value>>();
 
     public void addCriterion(int index, Value value) {
         parameterMap.put(index, value);
@@ -29,27 +30,20 @@ public class Filter implements Dto {
     }
 
     public Value getCriterion(int index) {
-        Object result = parameterMap.get(index);
-        if (result instanceof Value) {
-            return (Value) result;
-        }
-        return null;
+        return parameterMap.get(index);
     }
 
     public void addMultiCriterion(int index, List<Value> value) {
-        parameterMap.put(index, value);
+        multiParameterMap.put(index, value);
     }
 
     public List<Value> getMultiCriterion(int index) {
-        Object result = parameterMap.get(index);
-        if (result instanceof List<?>) {
-            return (List<Value>) result;
-        }
-        return null;
+        return multiParameterMap.get(index);
     }
 
     public void removeCriterion(int index) {
         parameterMap.remove(index);
+        multiParameterMap.remove(index);
     }
 
     public void clear() {

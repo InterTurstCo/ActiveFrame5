@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.model.plugin;
 import ru.intertrust.cm.core.business.api.dto.Id;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -13,15 +14,20 @@ import java.util.List;
  */
 public class CollectionPluginData extends PluginData {
 
+
     private String collectionName;
-    private LinkedHashMap<String, String> fieldMap = new LinkedHashMap<String, String>();
+    private HashMap<String, String> fieldMap = new HashMap<String, String>();
+    private HashMap<String, String> fieldMapDisplay = new HashMap<String, String>();
+    private HashMap<String, String> fieldFilter = new HashMap<String, String>();
     private boolean singleChoice;
     private boolean displayChosenValues;
     private ArrayList<CollectionRowItem> items = new ArrayList<CollectionRowItem>();
-    private LinkedHashMap<String, String> domainObjectFieldOnColumnNameMap = new LinkedHashMap<String, String>();
+    private HashMap<String, String> domainObjectFieldOnColumnNameMap = new HashMap<String, String>();
     private ArrayList<Integer> indexesOfSelectedItems = new ArrayList<Integer>();
     private List<Id> chosenIds = new ArrayList<Id>();
+
     public CollectionPluginData() {
+
 
     }
 
@@ -49,7 +55,7 @@ public class CollectionPluginData extends PluginData {
         this.items = items;
     }
 
-    public LinkedHashMap<String, String> getDomainObjectFieldOnColumnNameMap() {
+    public HashMap<String, String> getDomainObjectFieldOnColumnNameMap() {
         return domainObjectFieldOnColumnNameMap;
     }
 
@@ -81,11 +87,27 @@ public class CollectionPluginData extends PluginData {
         this.chosenIds = chosenIds;
     }
 
-    public LinkedHashMap<String, String> getFieldMap() {
+    public HashMap<String, String> getFieldMap() {
         return fieldMap;
     }
 
-    public void setFieldMap(LinkedHashMap<String, String> fieldMap) {
+    public void setFieldMap(HashMap<String, String> fieldMap) {
         this.fieldMap = fieldMap;
+    }
+
+    public HashMap<String, String> getFieldMapDisplay() {
+        return fieldMapDisplay;
+    }
+
+    public void setFieldMapDisplay(HashMap<String, String> fieldMapDisplay) {
+        this.fieldMapDisplay = fieldMapDisplay;
+    }
+
+    public HashMap<String, String> getFieldFilter() {
+        return fieldFilter;
+    }
+
+    public void setFieldFilter(HashMap<String, String> fieldFilter) {
+        this.fieldFilter = fieldFilter;
     }
 }

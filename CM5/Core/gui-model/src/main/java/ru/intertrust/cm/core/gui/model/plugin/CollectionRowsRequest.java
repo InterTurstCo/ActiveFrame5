@@ -1,8 +1,10 @@
 package ru.intertrust.cm.core.gui.model.plugin;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Filter;
 
 import java.util.HashMap;
+import java.util.List;
 
 
 /**
@@ -21,17 +23,19 @@ public class CollectionRowsRequest implements Dto {
     private String columnName;
     private boolean sortable;
     private String field;
+    List<Filter> filterList;
 
-    public CollectionRowsRequest(int offset, int limit, String collectionName, HashMap<String, String> fields) {
+    public CollectionRowsRequest(int offset, int limit, String collectionName, HashMap<String, String> fields, List<Filter> filterList) {
         this.offset = offset;
         this.limit = limit;
         this.collectionName = collectionName;
         this.fields = fields;
+        this.filterList = filterList;
 
     }
 
     public CollectionRowsRequest(int offset, int limit, String collectionName, HashMap<String, String> fields,
-                                 boolean sotrType, String columnName, String field) {
+                                 boolean sotrType, String columnName, String field,  List<Filter> filterList) {
         this.offset = offset;
         this.limit = limit;
         this.collectionName = collectionName;
@@ -40,6 +44,7 @@ public class CollectionRowsRequest implements Dto {
         this.columnName = columnName;
         this.sortable = true;
         this.field = field;
+        this.filterList = filterList;
     }
 
     public CollectionRowsRequest() {
@@ -107,5 +112,13 @@ public class CollectionRowsRequest implements Dto {
 
     public void setField(String field) {
         this.field = field;
+    }
+
+    public List<Filter> getFilterList() {
+        return filterList;
+    }
+
+    public void setFilterList(List<Filter> filterList) {
+        this.filterList = filterList;
     }
 }

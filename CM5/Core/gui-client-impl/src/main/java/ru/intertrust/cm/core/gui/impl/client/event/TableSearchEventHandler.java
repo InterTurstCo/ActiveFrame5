@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.event;
 
+import com.google.gwt.event.shared.EventHandler;
+
 /**
  * Created with IntelliJ IDEA.
  * User: lvov
@@ -7,5 +9,7 @@ package ru.intertrust.cm.core.gui.impl.client.event;
  * Time: 13:45
  * To change this template use File | Settings | File Templates.
  */
-public interface TableSearchEventHandler {
+public interface TableSearchEventHandler extends EventHandler {
+    void seachByFields(TableSearchEvent event);
+
 }

@@ -16,13 +16,15 @@ public class SplitterInnerScrollEvent extends GwtEvent<SplitterInnerScrollEventH
     private int upperPanelWidth;
     private int downPanelHeight;
     private int downPanelWidth;
+    private boolean scrollState;
 
 
-    public SplitterInnerScrollEvent(int upperPanelHeight, int upperPanelWidth, int downPanelHeight, int downPanelWidth) {
+    public SplitterInnerScrollEvent(int upperPanelHeight, int upperPanelWidth, int downPanelHeight, int downPanelWidth/*, boolean scrollState*/) {
         this.upperPanelHeight = upperPanelHeight;
         this.upperPanelWidth = upperPanelWidth;
         this.downPanelHeight = downPanelHeight;
         this.downPanelWidth = downPanelWidth;
+//        this.scrollState = scrollState;
     }
 
     public SplitterInnerScrollEvent(int upperPanelHeight, int downPanelHeight) {
@@ -45,6 +47,10 @@ public class SplitterInnerScrollEvent extends GwtEvent<SplitterInnerScrollEventH
 
     public int getDownPanelWidth() {
         return downPanelWidth;
+    }
+
+    public boolean isScrollState() {
+        return scrollState;
     }
 
     @Override

@@ -29,6 +29,17 @@ public class CollectionColumnConfig implements Dto {
     @Attribute(required = true)
     private String type;
 
+    @Attribute(name = "search-filter", required = false)
+    private String searchFilter;
+
+    public String getSearchFilter() {
+        return searchFilter;
+    }
+
+    public void setSearchFilter(String searchFilter) {
+        this.searchFilter = searchFilter;
+    }
+
     public String getField() {
         return field;
     }

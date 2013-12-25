@@ -40,7 +40,7 @@ public class CollectionSearchBox extends Composite implements IsWidget {
     private Type type;
     private CheckBox checkBox;
     private String filterType;
-    private String text;
+    private String text = "";
     private Date date;
     private EventBus eventBus;
 

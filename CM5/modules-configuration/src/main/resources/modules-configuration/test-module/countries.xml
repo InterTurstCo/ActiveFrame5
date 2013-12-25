@@ -572,16 +572,60 @@
         <counting-prototype>
             select count(*) from country co ::from-clause WHERE 1=1 ::where-clause
         </counting-prototype>
+
+        <filter name="byName">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    co.name like {0}
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byIndependenceDay">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                   co.independence_day = {0}
+
+
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byPopulation">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    CAST(co.population AS TEXT)  like {0}
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byDescription">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    co.description like {0}
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="bySquare">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    CAST(co.square AS TEXT) like {0}
+                ]]>
+            </criteria>
+        </filter>
     </collection>
     <collection-view name="countries_default_view" collection="Countries" is-default="true">
         <display>
-            <column field="id" name="id" type="integer" sortable="false"/>
-            <column field="name" name="Название" editable="false" type="string" sortable="true"/>
+            <column field="id" name="id" type="integer" sortable="false"  />
+            <column field="name" name="Название" editable="false" type="string" sortable="true" search-filter="byName"/>
             <column field="independence_day" name="День Независимости" type="datetime" editable="false"
-                    sortable="true"/>
-            <column field="population" name="Популяция" type="long" editable="false" sortable="true"/>
-            <column field="description" name="Описание" type="string" editable="false" sortable="true"/>
-            <column field="square" name="Площадь" type="string" editable="false" sortable="true"/>
+                    sortable="true" search-filter="byIndependenceDay"/>
+            <column field="population" name="Популяция" type="long" editable="false" sortable="true"
+                    search-filter="byPopulation"/>
+            <column field="description" name="Описание" type="string" editable="false" sortable="true"
+                    search-filter="byDescription"/>
+            <column field="square" name="Площадь" type="string" editable="false" sortable="true" search-filter="bySquare"/>
         </display>
     </collection-view>
 

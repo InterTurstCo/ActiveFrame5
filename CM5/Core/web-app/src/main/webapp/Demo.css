@@ -1206,3 +1206,231 @@ my-suggest-box  {
     cursor: pointer;
     left: 5px;
 }
+/*оформление поиска коллекшен плагин вю начало*/
+.search-container {
+
+    background: none repeat scroll 0 0 #fff;
+    border: 1px solid #b0bdce;
+    border-radius: 9px 9px 9px 9px;
+    display: inline-block;
+    font-size: 11px;
+    height: 18px;
+    line-height: 18px;
+    margin: 0 0 0 1px;
+    overflow: hidden;
+    position: relative;
+    top: 0;
+    vertical-align: top;
+    white-space: nowrap;
+    padding: 0 0 2px 0;
+    position: relative;
+    width: 117;
+
+}
+.search-box{
+    border: 0 none;
+    font-size: 11px;
+    width: 70px;
+    line-height: 18px;
+    margin: 0;
+    outline: medium none;
+    padding-left: 3px;
+    padding-top: 5px;
+    vertical-align: middle;
+
+
+
+}
+
+.search-data-box{
+
+    border: 0 none;
+    font-size: 11px;
+    width: 70px;
+    line-height: 18px;
+    margin: 0;
+    outline: medium none;
+    padding-left: 3px;
+    padding-top: 5px;
+    vertical-align: middle;
+
+
+
+}
+.search-data-box-{
+
+    border: 0 none;
+    font-size: 11px;
+    width: 70px;
+    line-height: 18px;
+    margin: 0;
+    outline: medium none;
+    padding-left: 3px;
+    padding-top: 5px;
+    vertical-align: middle;
+
+
+}
+
+
+.horizont-container{
+    background-color: #f0f4ff;
+    padding: 5px 0 0 0;
+    border: 5 none;
+    height: 32px;
+    width: 100%;
+
+}
+
+.flush-serch{
+    background: url("css/icons1.png") no-repeat scroll -32px top transparent;
+    cursor: pointer;
+    border: 0 none;
+    box-shadow: none;
+    cursor: pointer;
+    font-size: 12px;
+    margin: 0;
+    vertical-align: middle;
+    display: inline-block;
+    float: none;
+    height: 16px;
+    left: auto;
+    position: relative;
+    width: 16px;
+}
+.date-select{
+    background: url("css/icon-datepicker.png") no-repeat ;
+    cursor: pointer;
+    border: 0 none;
+    box-shadow: none;
+    cursor: pointer;
+    font-size: 12px;
+    margin: 0;
+    vertical-align: middle;
+    display: inline-block;
+    float: none;
+    height: 16px;
+    left: auto;
+    position: relative;
+    width: 16px;
+}
+
+.flush-serch:hover{
+    background: url("css/icons1.png") no-repeat scroll -48px top transparent;
+}
+
+.flush-serch-hide{
+    background: url("css/icons1.png") no-repeat scroll -100px top transparent !important;
+    cursor: default !important;
+}
+.search-button{
+    height: 23px;
+    width: 23px;
+    background-color: #f0f4ff;
+    background-image: url("css/filter-btn.png");
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    position: relative;
+    border: 1px solid #c0c4cf !important;
+    border-radius: 3px 3px 3px 3px !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+
+    float: right;
+    margin-top: -26px;
+    margin-right: 5px;
+}
+
+.datePickerDay,.datePickerWeekdayLabel,.datePickerWeekendLabel {
+    font-size: 85%;
+    text-align: center;
+    padding: 4px;
+    outline: none;
+    font-weight: bold;
+    color: #333;
+    border-right: 1px solid #EDEDED;
+    border-bottom: 1px solid #EDEDED;
+}
+
+.datePickerWeekdayLabel,.datePickerWeekendLabel {
+    background: #fff;
+    padding: 0px 4px 2px;
+    cursor: default;
+    color: #666;
+    font-size: 70%;
+    font-weight: normal;
+}
+
+.datePickerWeekendLabel {
+    color: #FF0000;
+}
+
+.datePickerDay {
+    padding: 4px 7px;
+    cursor: hand;
+    cursor: pointer;
+}
+
+.datePickerDayIsWeekend {
+    background: #f7f7f7;
+    color: #FF0000;
+}
+
+.datePickerDayIsFiller {
+    color: #999;
+    font-weight: normal;
+}
+
+.datePickerDayIsValue {
+    background: #d7dfe8;
+}
+
+.datePickerDayIsDisabled {
+    color: #AAAAAA;
+    font-style: italic;
+}
+
+.datePickerDayIsHighlighted {
+    background: #F0E68C;
+}
+
+.datePickerDayIsValueAndHighlighted {
+    background: #d7dfe8;
+}
+
+.datePickerDayIsToday {
+    padding: 3px;
+    color: #fff;
+    background: url("images/hborderN.png") repeat-x 0px -2607px;
+}
+
+.datePickerMonthSelector {
+    width: 100%;
+    padding: 1px 0 5px 0;
+    background: #fff;
+}
+
+td.datePickerMonth {
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+    font-size: 100%;
+    font-weight: bold;
+    color: #333;
+}
+
+.datePickerPreviousButton,.datePickerNextButton {
+    font-size: 120%;
+    line-height: 1em;
+    color: #3a6aad;
+    cursor: hand;
+    cursor: pointer;
+    font-weight: bold;
+    padding: 0px 4px;
+    outline: none;
+}
+
+
+
+
+ /*оформление поиска коллекшен плагин вю конец*/
