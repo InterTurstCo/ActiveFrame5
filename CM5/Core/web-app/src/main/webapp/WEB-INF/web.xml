@@ -54,8 +54,8 @@
             <description>Protect everything in our applications</description>
             <url-pattern>/*/BusinessUniverseService</url-pattern>
             <url-pattern>/cm-sochi/*</url-pattern>
-           <!-- <url-pattern>/*/attachment-download/*</url-pattern>
-            <url-pattern>/*/attachment-upload</url-pattern>-->
+            <url-pattern>/*/attachment-download/*</url-pattern>
+            <url-pattern>/*/attachment-upload</url-pattern>
         </web-resource-collection>
         <auth-constraint>
             <description>
@@ -74,12 +74,12 @@
         <filter-name>LoginFilter</filter-name>
         <url-pattern>/remote/*</url-pattern>
     </filter-mapping>
-  <!--  <filter-mapping>
+    <filter-mapping>
         <filter-name>LoginFilter</filter-name>
         <url-pattern>/attachment-download/*</url-pattern>
     </filter-mapping>
     <filter-mapping>
         <filter-name>LoginFilter</filter-name>
         <url-pattern>/attachment-upload</url-pattern>
-    </filter-mapping>-->
+    </filter-mapping>
 </web-app>

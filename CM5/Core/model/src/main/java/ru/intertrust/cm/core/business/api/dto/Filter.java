@@ -1,8 +1,9 @@
 package ru.intertrust.cm.core.business.api.dto;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeMap;
 
 /**
  * Фильтр, используемый в основном для отсеивания результатов коллекций
@@ -12,17 +13,20 @@ import java.util.TreeMap;
  * Time: 13:53
  */
 public class Filter implements Dto {
-    
+
     /**
      * содержит имя фильтра
      */
     protected String filter;
 
-    private TreeMap<Integer, Value> parameterMap = new TreeMap<Integer, Value>();
-    private TreeMap<Integer, List<Value>> multiParameterMap = new TreeMap<Integer, List<Value>>();
+    private HashMap<Integer, List<Value>> parameterMap = new HashMap<Integer, List<Value>>();
+    private HashMap<Integer, Boolean> isSingleParameterMap = new HashMap<Integer, Boolean>();
 
     public void addCriterion(int index, Value value) {
-        parameterMap.put(index, value);
+        ArrayList<Value> list = new ArrayList<Value>(1);
+        list.add(value);
+        parameterMap.put(index, list);
+        isSingleParameterMap.put(index, Boolean.TRUE);
     }
 
     public Set<Integer> getCriterionKeys() {
@@ -30,24 +34,33 @@ public class Filter implements Dto {
     }
 
     public Value getCriterion(int index) {
-        return parameterMap.get(index);
+        List<Value> list = parameterMap.get(index);
+        if (list == null || isSingleParameterMap.get(index) == Boolean.FALSE) {
+            return null;
+        }
+        return list.get(0);
     }
 
     public void addMultiCriterion(int index, List<Value> value) {
-        multiParameterMap.put(index, value);
+        parameterMap.put(index, value);
+        isSingleParameterMap.put(index, Boolean.FALSE);
     }
 
     public List<Value> getMultiCriterion(int index) {
-        return multiParameterMap.get(index);
+        if (isSingleParameterMap.get(index) == Boolean.TRUE) {
+            return null;
+        }
+        return parameterMap.get(index);
     }
 
     public void removeCriterion(int index) {
         parameterMap.remove(index);
-        multiParameterMap.remove(index);
+        isSingleParameterMap.remove(index);
     }
 
     public void clear() {
         parameterMap.clear();
+        isSingleParameterMap.clear();
     }
 
     public String getFilter() {
