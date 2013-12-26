@@ -19,6 +19,7 @@ public class CollectionPluginData extends PluginData {
     private HashMap<String, String> fieldMap = new HashMap<String, String>();
     private HashMap<String, String> fieldMapDisplay = new HashMap<String, String>();
     private HashMap<String, String> fieldFilter = new HashMap<String, String>();
+
     private boolean singleChoice;
     private boolean displayChosenValues;
     private ArrayList<CollectionRowItem> items = new ArrayList<CollectionRowItem>();
@@ -110,4 +111,6 @@ public class CollectionPluginData extends PluginData {
     public void setFieldFilter(HashMap<String, String> fieldFilter) {
         this.fieldFilter = fieldFilter;
     }
+
+
 }

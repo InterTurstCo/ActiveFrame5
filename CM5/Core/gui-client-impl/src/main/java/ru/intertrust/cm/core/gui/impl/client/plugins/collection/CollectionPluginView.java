@@ -263,11 +263,8 @@ public class CollectionPluginView extends PluginView {
                         if (searchBoxList.get(i).getType() == CollectionSearchBox.Type.DATEBOX &&
                                 searchBoxList.get(i).getText().length() >0){
 
-
                             Date date = new Date();
                             date = searchBoxList.get(i).getDate();
-
-                            date.setHours(22);
 
                             value = new TimestampValue(date);
 
@@ -483,17 +480,18 @@ public class CollectionPluginView extends PluginView {
             Column<CollectionRowItem, String> column = buildNameColumn(field);
             String columnName = domainObjectFieldsOnColumnNamesMap.get(field);
             String type = filterNameMap.get(field);
+            column.setDataStoreName(columnName);
 
             tableHeader.addColumn(column, columnName);
             tableHeader.setColumnWidth(column, columnWidth + "px");
-            column.setDataStoreName(columnName);
-            CollectionSearchBox box;
 
-            if (fieldMapDisplay.get(columnName).equals("datetime")){
-                box = new CollectionSearchBox(new DateBox(), type, eventBus);
-            } else {
-                box = new CollectionSearchBox(new TextBox(), type, eventBus);
-            }
+            CollectionSearchBox box ;
+
+                if (fieldMapDisplay.get(columnName).equals("datetime")){
+                    box = new CollectionSearchBox(new DateBox(), type, eventBus);
+                } else {
+                    box = new CollectionSearchBox(new TextBox(), type, eventBus);
+                }
 
             searchBoxList.add(box);
 
@@ -501,6 +499,7 @@ public class CollectionPluginView extends PluginView {
             searchPanel.add(box);
             tableBody.addColumn(column);
             tableBody.setColumnWidth(column, columnWidth + "px");
+
 
         }
 

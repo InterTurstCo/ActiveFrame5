@@ -53,7 +53,12 @@ public class CollectionPluginHandler extends PluginHandler {
         HashMap<String, String> fieldMap = new HashMap<String, String>();
         HashMap<String, String> fieldMapDisplay = new HashMap<String, String>();
         HashMap<String, String> fieldFilter = new HashMap<String, String>();
-        for (int i = 0; i <map.size() ; i++ ){
+
+
+        List<CollectionColumnConfig> config = collectionViewConfig.getCollectionDisplayConfig().getColumnConfig();
+
+        for (int i = 0; i <config.size() ; i++ ){
+                if (!collectionViewConfig.getCollectionDisplayConfig().getColumnConfig().get(i).isHidden()){
             fieldMap.put(collectionViewConfig.getCollectionDisplayConfig().getColumnConfig().get(i).getName(),
                     collectionViewConfig.getCollectionDisplayConfig().getColumnConfig().get(i).getField());
             fieldMapDisplay.put(collectionViewConfig.getCollectionDisplayConfig().getColumnConfig().get(i).getName(),
@@ -61,6 +66,7 @@ public class CollectionPluginHandler extends PluginHandler {
             fieldFilter.put(collectionViewConfig.getCollectionDisplayConfig().getColumnConfig().get(i).getField(),
                 collectionViewConfig.getCollectionDisplayConfig().getColumnConfig().get(i).getSearchFilter());
 
+                }
         }
 
         List<Filter> filters = new ArrayList<Filter>();
@@ -90,6 +96,7 @@ public class CollectionPluginHandler extends PluginHandler {
         pluginData.setFieldMap(fieldMap);
         pluginData.setFieldMapDisplay(fieldMapDisplay);
         pluginData.setFieldFilter(fieldFilter);
+
 
         return pluginData;
     }
@@ -166,12 +173,13 @@ public class CollectionPluginHandler extends PluginHandler {
         if (collectionDisplay != null) {
             List<CollectionColumnConfig> columnConfigs = collectionDisplay.getColumnConfig();
             for (CollectionColumnConfig collectionColumnConfig : columnConfigs) {
-                if (collectionColumnConfig.isHidden()) {
-                    continue;
+                if (!collectionColumnConfig.isHidden()) {
+
+                    String columnName = collectionColumnConfig.getName();
+                    String columnField = collectionColumnConfig.getField();
+                    columnNames.put(columnField, columnName);
                 }
-                String columnName = collectionColumnConfig.getName();
-                String columnField = collectionColumnConfig.getField();
-                columnNames.put(columnField, columnName);
+
             }
             return columnNames;
 
