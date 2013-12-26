@@ -10,7 +10,9 @@ import ru.intertrust.cm.core.business.api.DomainObjectFilter;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.base.CollectionConfig;
 import ru.intertrust.cm.core.config.search.DomainObjectFilterConfig;
 import ru.intertrust.cm.core.config.search.IndexedDomainObjectConfig;
 import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
@@ -93,7 +95,7 @@ public class SearchConfigHelper {
             //TODO Подключить DoelValidator для определения типа выражения
             return SearchFieldType.TEXT;
         } else {
-            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(objectType, config.getName());
+            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(objectType.toLowerCase(), config.getName().toLowerCase());
             if (fieldConfig == null) {
                 throw new IllegalArgumentException(config.getName() + " doesn't defined in type " + objectType);
             }
@@ -108,5 +110,10 @@ public class SearchConfigHelper {
             }
             return SearchFieldType.TEXT;
         }
+    }
+
+    public DomainObjectTypeConfig getTargetObjectType(String collectionName) {
+        CollectionConfig collConfig = configurationExplorer.getConfig(CollectionConfig.class, collectionName);
+        return configurationExplorer.getConfig(DomainObjectTypeConfig.class, collConfig.getName()); //*****
     }
 }

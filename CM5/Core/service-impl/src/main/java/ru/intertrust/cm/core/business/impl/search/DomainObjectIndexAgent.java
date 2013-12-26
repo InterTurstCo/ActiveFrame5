@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrInputDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,7 @@ import ru.intertrust.cm.core.dao.api.extension.AfterSaveExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 
 @ExtensionPoint
-public class IndexUpdateAgent implements AfterSaveExtensionHandler {
+public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
 
     protected Logger log = LoggerFactory.getLogger(getClass());
 
@@ -48,23 +49,24 @@ public class IndexUpdateAgent implements AfterSaveExtensionHandler {
         ArrayList<SolrInputDocument> solrDocs = new ArrayList<>(configs.size());
         for (SearchConfigHelper.SearchAreaDetailsConfig config : configs) {
             SolrInputDocument doc = new SolrInputDocument();
-            doc.addField("cm_id", domainObject.getId().toStringRepresentation());
-            doc.addField("cm_area", config.getAreaName());
-            doc.addField("cm_type", config.getTargetObjectType());
+            doc.addField(SolrFields.OBJECT_ID, domainObject.getId().toStringRepresentation());
+            doc.addField(SolrFields.AREA, config.getAreaName());
+            doc.addField(SolrFields.TARGET_TYPE, config.getTargetObjectType());
             for (IndexedFieldConfig fieldConfig : config.getObjectConfig().getFields()) {
                 Object value = calculateField(domainObject, fieldConfig);
                 StringBuilder fieldName = new StringBuilder()
-                        .append("cm_f_")
-                        .append(fieldConfig.getName())
+                        .append(SolrFields.FIELD_PREFIX)
+                        .append(fieldConfig.getName().toLowerCase())
                         .append(configHelper.getFieldType(fieldConfig, config.getTargetObjectType()).getSuffix());
                 doc.addField(fieldName.toString(), value);
             }
             doc.addField("id", createUniqueId(domainObject, config));
             solrDocs.add(doc);
         }
-        //UpdateResponse response = null;
         try {
-            /*response =*/ solrServer.add(solrDocs);
+            @SuppressWarnings("unused")
+            UpdateResponse response = solrServer.add(solrDocs);
+            solrServer.commit();
         } catch (Exception e) {
             log.error("Error indexing document " + domainObject.getId(), e);
             return;
