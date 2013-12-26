@@ -109,7 +109,7 @@ public class SqlQueryModifier {
     }
 
     private void buildColumnToConfigMapInWhereClause(PlainSelect plainSelect, final Map<String, FieldConfig> columnToTableMapping) {
-        CollectWhereColumnConfigVisitor collectWhereColumnConfigVisitor = new CollectWhereColumnConfigVisitor(configurationExplorer, plainSelect);
+        CollectingWhereColumnConfigVisitor collectWhereColumnConfigVisitor = new CollectingWhereColumnConfigVisitor(configurationExplorer, plainSelect);
         if (plainSelect.getWhere() != null) {
             plainSelect.getWhere().accept(collectWhereColumnConfigVisitor);
         }
@@ -130,7 +130,8 @@ public class SqlQueryModifier {
         SelectBody selectBody = sqlParser.getSelectBody();
         PlainSelect plainSelect = getPlainSelect(selectBody);
 
-        CollectWhereColumnConfigVisitor modifyReferenceFieldParameter = new CollectWhereColumnConfigVisitor(configurationExplorer, plainSelect, params);
+        ReferenceParamsProcessingVisitor modifyReferenceFieldParameter =
+                new ReferenceParamsProcessingVisitor(configurationExplorer, plainSelect, params);
         if (plainSelect.getWhere() != null) {
             plainSelect.getWhere().accept(modifyReferenceFieldParameter);
         }

@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
@@ -93,6 +94,20 @@ public class CollectionsServiceImpl implements CollectionsService {
     @Override
     public IdentifiableObjectCollection findCollectionByQuery(String query) {
         return findCollectionByQuery(query, 0, 0);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public IdentifiableObjectCollection findCollectionByQuery(String query, List<Value> params, int offset, int limit) {
+        String user = currentUserAccessor.getCurrentUser();
+        AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
+        return collectionsDao.findCollectionByQuery(query, params, offset, limit, accessToken);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public IdentifiableObjectCollection findCollectionByQuery(String query, List<Value> params) {
+        return findCollectionByQuery(query, params, 0, 0);
     }
 
 }

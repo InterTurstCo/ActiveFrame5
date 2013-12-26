@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.business.api;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.business.api.dto.Value;
 
 import java.util.List;
 
@@ -77,5 +78,25 @@ public interface CollectionsService {
      * @return число элементов заданной коллекции
      */
     int findCollectionCount(String collectionName, List<Filter> filters);
+
+    /**
+     * Поиск коллекции доменных объектов, используя запрос с переданными параметрами. Используются нумерованные параметры вида {0}, {1} и т.д.
+     * При этом переданные параметры должны идти в том же порядке (в List<Value> params), в котором указаны их индексы в SQL запросе.
+     * @param query SQL запрос
+     * @param params параметры запроса
+     * @param offset смещение
+     * @param limit ограничение количества возвращенных доменных объектов
+     * @param accessToken маркер доступа
+     * @return результат поиска в виде {@link IdentifiableObjectCollection}
+     */
+    IdentifiableObjectCollection findCollectionByQuery(String query, List<Value> params, int offset, int limit);    
+
+    /**
+     * Поиск коллекции доменных объектов, используя запрос с переданными параметрами.
+     * @param query SQL запрос
+     * @param params параметры запроса
+     * @return результат поиска в виде {@link IdentifiableObjectCollection}
+     */
+    IdentifiableObjectCollection findCollectionByQuery(String query, List<Value> params);    
 
 }

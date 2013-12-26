@@ -70,16 +70,14 @@ import ru.intertrust.cm.core.dao.impl.CollectionsDaoImpl;
  * @author atsvetkov
  */
 
-public class CollectWhereColumnConfigVisitor implements ExpressionVisitor {
+public class CollectingWhereColumnConfigVisitor implements ExpressionVisitor {
 
-    private ConfigurationExplorer configurationExplorer;
-    private PlainSelect plainSelect;
+    protected ConfigurationExplorer configurationExplorer;
+    protected PlainSelect plainSelect;
 
-    private String plainSelectQuery;
+    protected String plainSelectQuery;
 
-    private Map<String, FieldConfig> whereColumnToConfigMapping = new HashMap<>();
-
-    private List<Value> params;
+    protected Map<String, FieldConfig> whereColumnToConfigMapping = new HashMap<>();
 
     public Map<String, FieldConfig> getWhereColumnToConfigMapping() {
         return whereColumnToConfigMapping;
@@ -89,17 +87,9 @@ public class CollectWhereColumnConfigVisitor implements ExpressionVisitor {
         return plainSelectQuery;
     }
 
-    public CollectWhereColumnConfigVisitor(ConfigurationExplorer configurationExplorer, PlainSelect plainSelect) {
+    public CollectingWhereColumnConfigVisitor(ConfigurationExplorer configurationExplorer, PlainSelect plainSelect) {
         this.configurationExplorer = configurationExplorer;
         this.plainSelect = plainSelect;
-        this.plainSelectQuery = plainSelect.toString();
-    }
-
-    public CollectWhereColumnConfigVisitor(ConfigurationExplorer configurationExplorer, PlainSelect plainSelect,
-            List<Value> params) {
-        this.configurationExplorer = configurationExplorer;
-        this.plainSelect = plainSelect;
-        this.params = params;
         this.plainSelectQuery = plainSelect.toString();
     }
 
@@ -206,85 +196,6 @@ public class CollectWhereColumnConfigVisitor implements ExpressionVisitor {
     public void visit(EqualsTo equalsTo) {
 
         visitBinaryExpression(equalsTo);
-        
-        processReferenceParameters(equalsTo, true);
-    }
-
-    private void processReferenceParameters(BinaryExpression equalsTo, boolean isEquals) {
-        if (params == null) {
-            return;
-        }
-        if (equalsTo.getLeftExpression() instanceof Column) {
-            Column column = (Column) equalsTo.getLeftExpression();
-
-            FieldConfig fieldConfig = whereColumnToConfigMapping.get(column.getColumnName().toLowerCase());
-
-            if (fieldConfig instanceof ReferenceFieldConfig) {
-
-                BinaryExpression modifiedEqualsToForReferenceId = null;
-                if (isEquals) {
-                    modifiedEqualsToForReferenceId = new EqualsTo();
-                } else {
-                    modifiedEqualsToForReferenceId = new NotEqualsTo();
-                }
-
-                modifiedEqualsToForReferenceId.setLeftExpression(equalsTo.getLeftExpression());
-                modifiedEqualsToForReferenceId.setRightExpression(equalsTo.getRightExpression());
-
-                String rightExpression = modifiedEqualsToForReferenceId.getRightExpression().toString();
-
-                ReferenceValue referenceValue = null;
-                if (rightExpression.indexOf(CollectionsDaoImpl.PARAM_NAME_PREFIX) > 0) {
-
-                    Integer paramIndex = findParameterIndex(rightExpression);
-                    referenceValue = (ReferenceValue) params.get(paramIndex);
-
-                    BinaryExpression equalsExpressionForReferenceType =
-                            createComparisonExpressionForReferenceType(column, referenceValue, isEquals);
-
-                    long refId = ((RdbmsId) referenceValue.get()).getId();
-                    modifiedEqualsToForReferenceId.setRightExpression(new LongValue(refId + ""));
-                    // замена старого параметризованного фильтра по Reference полю (например, t.id = {0}) на рабочий
-                    // фильтр {например, t.id = 1 and t.id_type = 2 }
-                    AndExpression newAndExpression =
-                            new AndExpression(modifiedEqualsToForReferenceId, equalsExpressionForReferenceType);
-
-                    plainSelectQuery =
-                            plainSelectQuery.replaceAll(equalsTo.toString(), newAndExpression.toString());
-                }
-            }
-        }
-    }
-
-    private Integer findParameterIndex(String rightExpression) {
-        int startParamNumberIndex =
-                rightExpression.indexOf(CollectionsDaoImpl.PARAM_NAME_PREFIX)
-                        + CollectionsDaoImpl.PARAM_NAME_PREFIX.length();
-        int endParamNumberIndex =
-                rightExpression.indexOf(CollectionsDaoImpl.END_PARAM_SIGN, startParamNumberIndex);
-        String paramName = rightExpression.substring(startParamNumberIndex, endParamNumberIndex);
-        Integer paramIndex = Integer.parseInt(paramName);
-        return paramIndex;
-    }
-
-    private BinaryExpression createComparisonExpressionForReferenceType(Column column,
-            ReferenceValue referenceValue, boolean isEquals) {
-        BinaryExpression comparisonExpressionForReferenceType = null;
-        if (isEquals) {
-            comparisonExpressionForReferenceType = new EqualsTo();
-        } else {
-            comparisonExpressionForReferenceType = new NotEqualsTo();
-        }
-        String typeColumnName = column.getColumnName() + DomainObjectDao.REFERENCE_TYPE_POSTFIX;
-        Column typeColumn = new Column(column.getTable(), typeColumnName);
-
-        comparisonExpressionForReferenceType.setLeftExpression(typeColumn);
-
-        long refTypeId = ((RdbmsId) referenceValue.get()).getTypeId();
-
-        comparisonExpressionForReferenceType.setRightExpression(new LongValue(refTypeId + ""));
-
-        return comparisonExpressionForReferenceType;
     }
 
     @Override
@@ -331,8 +242,6 @@ public class CollectWhereColumnConfigVisitor implements ExpressionVisitor {
     @Override
     public void visit(NotEqualsTo notEqualsTo) {
         visitBinaryExpression(notEqualsTo);
-        processReferenceParameters(notEqualsTo, false);
-
     }
 
     @Override
@@ -477,7 +386,7 @@ public class CollectWhereColumnConfigVisitor implements ExpressionVisitor {
     public void visit(IntervalExpression intervalExpression) {
     }
 
-    private void visitBinaryExpression(BinaryExpression binaryExpression) {
+    protected void visitBinaryExpression(BinaryExpression binaryExpression) {
         if (binaryExpression.getLeftExpression() != null) {
             binaryExpression.getLeftExpression().accept(this);
         }
@@ -487,7 +396,7 @@ public class CollectWhereColumnConfigVisitor implements ExpressionVisitor {
         }
     }
 
-    private void visitSubSelect(SubSelect subSelect) {
+    protected void visitSubSelect(SubSelect subSelect) {
         if (subSelect.getPivot() != null) {
             subSelect.getPivot().accept(new WrapAndLowerCasePivotVisitor());
         }

@@ -137,8 +137,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
                                                               AccessToken accessToken) {
         CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer(configurationExplorer);
         
-        String collectionQuery = adjustParameterNames(query, CollectionsDaoImpl.PARAM_NAME_PREFIX);
-        collectionQuery = collectionQueryInitializer.initializeQuery(collectionQuery, offset, limit, accessToken);
+        String collectionQuery = collectionQueryInitializer.initializeQuery(query, offset, limit, accessToken);
 
         Map<String, Object> parameters = new HashMap<>();
         
@@ -150,7 +149,6 @@ public class CollectionsDaoImpl implements CollectionsDao {
                 new SqlQueryModifier(configurationExplorer).buildColumnToConfigMap(collectionQuery);
 
         collectionQuery = wrapAndLowerCaseNames(collectionQuery);
-        collectionQuery = adjustParameterNamesForSpring(collectionQuery);
 
         IdentifiableObjectCollection collection = jdbcTemplate.query(collectionQuery, parameters,
                 new CollectionRowMapper(columnToConfigMap, configurationExplorer, domainObjectTypeIdCache));
