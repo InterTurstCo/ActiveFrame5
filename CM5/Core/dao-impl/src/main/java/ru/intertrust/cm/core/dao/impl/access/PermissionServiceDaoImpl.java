@@ -281,7 +281,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                         configurationExplorer.getContextRoleByName(contextRoleName);
                 if (contextRoleConfig == null) {
                     throw new ConfigurationException("Context role : " + contextRoleName
-                            + " not found in configuaration");
+                            + " not found in configuration");
 
                 }
                 validateRoleContextType(domainObjectType, contextRoleConfig);
