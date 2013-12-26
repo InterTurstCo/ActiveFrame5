@@ -57,6 +57,7 @@ public class TableBrowserWidget extends BaseWidget {
         tableBrowserConfig = tableBrowserState.getTableBrowserConfig();
         facebookStyleView.initDisplayStyle(tableBrowserConfig.getSelectionStyleConfig().getName());
         facebookStyleView.setChosenItems(tableBrowserState.getSelectedItemsRepresentations());
+        facebookStyleView.showSelectedItems();
         initSizes();
         initDialogView();
     }
