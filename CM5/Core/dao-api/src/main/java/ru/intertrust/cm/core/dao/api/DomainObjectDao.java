@@ -17,12 +17,14 @@ import java.util.List;
  */
 public interface DomainObjectDao {
 
+    String REFERENCE_TYPE_POSTFIX = "_type";
+    String TIME_ID_ZONE_POSTFIX = "_tz";
+    String REFERENCE_POSTFIX = "_id";
+
     String ID_COLUMN = "id";
     String TYPE_COLUMN = "id_type";
     String CREATED_DATE_COLUMN = "created_date";
     String UPDATED_DATE_COLUMN = "updated_date";
-    String REFERENCE_TYPE_POSTFIX = "_type";
-    String TIME_ID_ZONE_POSTFIX = "_tz";
     String STATUS_TYPE_COLUMN = GenericDomainObject.STATUS_FIELD_NAME + REFERENCE_TYPE_POSTFIX;
     String OPERATION_COLUMN = "operation";
 

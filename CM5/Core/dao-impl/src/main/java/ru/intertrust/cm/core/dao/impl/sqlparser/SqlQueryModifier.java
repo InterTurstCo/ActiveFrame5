@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.dao.impl.sqlparser;
 
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TIME_ID_ZONE_POSTFIX;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_POSTFIX;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getServiceColumnName;
 import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.unwrap;
@@ -14,10 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.JdbcNamedParameter;
+import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.LongValue;
-import net.sf.jsqlparser.expression.Parenthesis;
+import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
@@ -31,15 +31,13 @@ import net.sf.jsqlparser.statement.select.SelectBody;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import net.sf.jsqlparser.statement.select.SetOperationList;
 import net.sf.jsqlparser.statement.select.SubSelect;
-import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.IdsExcludedFilter;
-import ru.intertrust.cm.core.business.api.dto.IdsIncludedFilter;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DateTimeWithTimeZoneFieldConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.exception.CollectionQueryException;
+import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
 
 
@@ -206,18 +204,42 @@ public class SqlQueryModifier {
 
             SelectExpressionItem selectExpressionItem = (SelectExpressionItem) selectItem;
 
-            if (!(selectExpressionItem.getExpression() instanceof Column)) {
-                continue;
-            }
+            if (selectExpressionItem.getExpression() instanceof Column) {
+                Column column = (Column) selectExpressionItem.getExpression();
+                FieldConfig fieldConfig = configurationExplorer.getFieldConfig(getDOTypeName(plainSelect, column, false),
+                        unwrap(column.getColumnName()));
 
-            Column column = (Column) selectExpressionItem.getExpression();
-            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(getDOTypeName(plainSelect, column, false),
-                    unwrap(column.getColumnName()));
+                if (fieldConfig instanceof ReferenceFieldConfig) {
+                    selectItems.add(createReferenceFieldTypeSelectItem(selectExpressionItem));
+                } else if (fieldConfig instanceof DateTimeWithTimeZoneFieldConfig) {
+                    selectItems.add(createTimeZoneIdSelectItem(selectExpressionItem));
+                }
+            } else if (selectExpressionItem.getAlias().endsWith(REFERENCE_POSTFIX) &&
+                    selectExpressionItem.getAlias() != null) {
+                String alias = selectExpressionItem.getAlias();
+                if (selectExpressionItem.getExpression() instanceof NullValue) {
+                    SelectExpressionItem referenceFieldTypeItem = new SelectExpressionItem();
+                    referenceFieldTypeItem.setAlias(getServiceColumnName(unwrap(alias), REFERENCE_TYPE_POSTFIX));
+                    referenceFieldTypeItem.setExpression(new NullValue());
+                    selectItems.add(referenceFieldTypeItem);
+                } else if (selectExpressionItem.getExpression() instanceof StringValue) {
+                    StringValue stringValue = (StringValue) selectExpressionItem.getExpression();
+                    RdbmsId id = new RdbmsId(stringValue.getValue());
 
-            if (fieldConfig instanceof ReferenceFieldConfig) {
-                selectItems.add(createReferenceFieldTypeSelectItem(selectExpressionItem));
-            } else if (fieldConfig instanceof DateTimeWithTimeZoneFieldConfig) {
-                selectItems.add(createTimeZoneIdSelectItem(selectExpressionItem));
+                    SelectExpressionItem referenceFieldIdItem = new SelectExpressionItem();
+                    referenceFieldIdItem.setAlias(alias);
+                    referenceFieldIdItem.setExpression(new LongValue(String.valueOf(id.getId())));
+                    selectItems.set(selectItems.size() - 1, referenceFieldIdItem);
+
+                    SelectExpressionItem referenceFieldTypeItem = new SelectExpressionItem();
+                    referenceFieldTypeItem.setAlias(getServiceColumnName(unwrap(alias), REFERENCE_TYPE_POSTFIX));
+                    referenceFieldTypeItem.setExpression(new LongValue(String.valueOf(id.getTypeId())));
+                    selectItems.add(referenceFieldTypeItem);
+                } else {
+                    throw new DaoException("Unsupported Id constant type " +
+                            selectExpressionItem.getExpression().getClass().getName() +
+                            ". Only null and string constants can represent Id");
+                }
             }
         }
 
@@ -233,20 +255,28 @@ public class SqlQueryModifier {
 
             SelectExpressionItem selectExpressionItem = (SelectExpressionItem) selectItem;
 
-            if (!(selectExpressionItem.getExpression() instanceof Column)) {
-                continue;
-            }
+            if (selectExpressionItem.getExpression() instanceof Column) {
+                Column column = (Column) selectExpressionItem.getExpression();
 
-            Column column = (Column) selectExpressionItem.getExpression();
+                String fieldName = unwrap(column.getColumnName().toLowerCase());
+                String columnName = selectExpressionItem.getAlias() != null ?
+                        unwrap(selectExpressionItem.getAlias().toLowerCase()) : fieldName;
 
-            String fieldName = unwrap(column.getColumnName().toLowerCase());
-            String columnName = selectExpressionItem.getAlias() != null ?
-                    unwrap(selectExpressionItem.getAlias().toLowerCase()) : fieldName;
-
-            if (columnToConfigMap.get(columnName) == null) {
-                FieldConfig fieldConfig =
-                        configurationExplorer.getFieldConfig(getDOTypeName(plainSelect, column, false), fieldName);
-                columnToConfigMap.put(columnName, fieldConfig);
+                if (columnToConfigMap.get(columnName) == null) {
+                    FieldConfig fieldConfig =
+                            configurationExplorer.getFieldConfig(getDOTypeName(plainSelect, column, false), fieldName);
+                    columnToConfigMap.put(columnName, fieldConfig);
+                }
+            } else if (selectExpressionItem.getAlias().endsWith(REFERENCE_POSTFIX) &&
+                    selectExpressionItem.getAlias() != null &&
+                    (selectExpressionItem.getExpression() instanceof NullValue ||
+                            selectExpressionItem.getExpression() instanceof LongValue)) {
+                String alias = unwrap(selectExpressionItem.getAlias().toLowerCase());
+                if (columnToConfigMap.get(alias) == null) {
+                    FieldConfig fieldConfig = new ReferenceFieldConfig();
+                    fieldConfig.setName(alias);
+                    columnToConfigMap.put(alias, fieldConfig);
+                }
             }
         }
     }
