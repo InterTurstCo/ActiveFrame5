@@ -93,7 +93,7 @@
                 </dependency>
                 <dependency>
                     <groupId>org.apache.solr</groupId>
-                    <artifactId>solr-dataimporthandler-extras</artifactId>
+                    <artifactId>solr-cell</artifactId>
                 </dependency>
                 <dependency>
                     <groupId>org.apache.solr</groupId>

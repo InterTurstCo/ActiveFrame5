@@ -1,11 +1,18 @@
 package ru.intertrust.cm.core.business.impl.search;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.request.ContentStreamUpdateRequest;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.util.ContentStream;
+import org.apache.solr.common.util.NamedList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +26,7 @@ import ru.intertrust.cm.core.config.doel.DoelExpression;
 import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
 import ru.intertrust.cm.core.dao.api.DoelEvaluator;
 import ru.intertrust.cm.core.dao.api.extension.AfterSaveExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
@@ -40,6 +48,9 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
     @Autowired
     private AccessControlService accessControlService;
 
+    @Autowired
+    private AttachmentContentDao attachmentContentDao;
+
     @Override
     public void onAfterSave(DomainObject domainObject, List<FieldModification> changedFields) {
         List<SearchConfigHelper.SearchAreaDetailsConfig> configs = configHelper.findEffectiveConfigs(domainObject);
@@ -48,6 +59,10 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
         }
         ArrayList<SolrInputDocument> solrDocs = new ArrayList<>(configs.size());
         for (SearchConfigHelper.SearchAreaDetailsConfig config : configs) {
+            if (configHelper.isAttachmentObject(domainObject)) {
+                sendAttachment(domainObject, config);
+                continue;
+            }
             SolrInputDocument doc = new SolrInputDocument();
             doc.addField(SolrFields.OBJECT_ID, domainObject.getId().toStringRepresentation());
             doc.addField(SolrFields.AREA, config.getAreaName());
@@ -63,6 +78,9 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
             doc.addField("id", createUniqueId(domainObject, config));
             solrDocs.add(doc);
         }
+        if (solrDocs.size() == 0) {
+            return;
+        }
         try {
             @SuppressWarnings("unused")
             UpdateResponse response = solrServer.add(solrDocs);
@@ -73,6 +91,25 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
         }
         if (log.isInfoEnabled()) {
             log.info(Integer.toString(solrDocs.size()) + " Solr document(s) added to index");
+        }
+    }
+
+    private void sendAttachment(DomainObject object, SearchConfigHelper.SearchAreaDetailsConfig config) {
+        ContentStreamUpdateRequest request = new ContentStreamUpdateRequest("/update/extract");
+        request.addContentStream(new SolrAttachmentFeeder(object));
+        request.setParam("literal." + SolrFields.OBJECT_ID, createUniqueId(object, config));
+        request.setParam("literal." + SolrFields.AREA, config.getAreaName());
+        request.setParam("literal." + SolrFields.TARGET_TYPE, config.getTargetObjectType());
+        request.setParam("literal.id", createUniqueId(object, config));
+        request.setParam("uprefix", "attr_");
+        //request.setParam("extractOnly", "true");
+        try {
+            NamedList<?> result = solrServer.request(request);
+            if (log.isInfoEnabled()) {
+                log.info("Solr returned: " + result);
+            }
+        } catch (Exception e) {
+            log.error("Error indexing document " + object.getId(), e);
         }
     }
 
@@ -117,5 +154,45 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
            .append(":").append(config.getAreaName())
            .append(":").append(config.getTargetObjectType());
         return buf.toString();
+    }
+
+    public class SolrAttachmentFeeder implements ContentStream {
+
+        private DomainObject attachment;
+
+        public SolrAttachmentFeeder(DomainObject attachment) {
+            this.attachment = attachment;
+        }
+
+        @Override
+        public String getName() {
+            return attachment.getString("Name");
+        }
+
+        @Override
+        public String getSourceInfo() {
+            return attachment.getString("Description");
+        }
+
+        @Override
+        public String getContentType() {
+            return attachment.getString("MimeType");
+        }
+
+        @Override
+        public Long getSize() {
+            return attachment.getLong("ContentLength");
+        }
+
+        @Override
+        public InputStream getStream() throws IOException {
+            return attachmentContentDao.loadContent(attachment);
+        }
+
+        @Override
+        public Reader getReader() throws IOException {
+            return new InputStreamReader(getStream());
+        }
+        
     }
 }
