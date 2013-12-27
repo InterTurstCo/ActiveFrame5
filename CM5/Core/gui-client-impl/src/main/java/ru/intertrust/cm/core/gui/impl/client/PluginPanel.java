@@ -104,7 +104,7 @@ public class PluginPanel implements IsWidget {
 
     public void onPluginViewCreated(Plugin plugin) {
         if (!this.openingChild) { // replace current plugin or just create a first one
-            removeCurrentPluginLeavingViewDisplayed();
+            removeAllPluginsLeavingViewDisplayed();
         }
         this.plugins.add(plugin);
         beforePluginOpening();
@@ -129,5 +129,11 @@ public class PluginPanel implements IsWidget {
         currentPluginToClose.clearHandlers();
         this.plugins.remove(this.plugins.size() - 1);
         return currentPluginToClose;
+    }
+
+    private void removeAllPluginsLeavingViewDisplayed() {
+        while (this.plugins.size() != 0) {
+            removeCurrentPluginLeavingViewDisplayed();
+        }
     }
 }
