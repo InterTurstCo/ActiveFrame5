@@ -355,8 +355,9 @@ public class CollectionsDaoImpl implements CollectionsDao {
     }
 
     public static String adjustParameterNames(String subQuery, String parameterPrefix) {
-        String newFilterCriteria = subQuery.replaceAll("[{]", parameterPrefix);
-        newFilterCriteria = newFilterCriteria.replaceAll("[}]", "");
+        String newFilterCriteria = subQuery.replace("{", parameterPrefix);
+        newFilterCriteria = newFilterCriteria.replace("}", "");
+
         return newFilterCriteria;
     }
     
