@@ -44,7 +44,8 @@ public class ConfigurationExplorerImplTest {
     @Test
     public void testGetConfiguration() throws Exception {
         Configuration testConfiguration = configExplorer.getConfiguration();
-        assertTrue(config == testConfiguration);
+        assertTrue(config != testConfiguration);
+        Assert.assertEquals(config, testConfiguration);
     }
 
     @Test

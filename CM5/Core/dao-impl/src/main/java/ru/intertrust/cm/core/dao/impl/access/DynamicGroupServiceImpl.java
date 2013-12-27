@@ -30,6 +30,7 @@ import ru.intertrust.cm.core.config.CollectorConfig;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.DynamicGroupConfig;
 import ru.intertrust.cm.core.config.DynamicGroupTrackDomainObjectsConfig;
+import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.DynamicGroupCollector;
@@ -362,15 +363,16 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
     public void onLoad() {
         try {
             // Поиск конфигураций динамических групп
-            for (TopLevelConfig topConfig : configurationExplorer
-                    .getConfiguration().getConfigurationList()) {
+            Configuration configuration = configurationExplorer.getConfiguration();
+            List<TopLevelConfig> configurationList = configuration.getConfigurationList();
+            for (TopLevelConfig topConfig : configurationList) {
 
                 if (topConfig instanceof DynamicGroupConfig) {
                     DynamicGroupConfig config = (DynamicGroupConfig) topConfig;
 
                     //Регистрации конфигурации для типов контекстов с учетом иерархии типов
                     if (config.getContext() != null) {
-                        registerConfig(config.getContext().getDomainObject().getType(), config);
+                        registerConfig(config.getContext().getDomainObject().getType(), config, configuration);
                     }
 
                     if (config.getMembers() != null) {
@@ -388,7 +390,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
                                                 AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE,
                                                 false);
                                 collector.init(config, collectorConfig.getSettings());
-                                registerCollector(collector, config);
+                                registerCollector(collector, config, configuration);
 
                             }
                         } else {
@@ -406,7 +408,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
                                 // TODO Я конечно против использования базы напрямую, но так сделано изначально, пока не переделываем
                                 ((DynamicGroupTrackDomainObjectCollector) collector).setJdbcTemplate(jdbcTemplate);
                                 collector.init(config, collectorConfig);
-                                registerCollector(collector, config);
+                                registerCollector(collector, config, configuration);
                             }
                         }
                     }
@@ -420,13 +422,14 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
     /**
      * Создание реестра конфигураций по типам контекстов, с учетом наследования
      * @param contextType
-     * @param config
+     * @param dynamicGroupConfig
      */
-    private void registerConfig(String contextType, DynamicGroupConfig config) {
-        registerOneTypeConfig(contextType, config);
-        List<String> subTypes = getSubTypes(contextType);
+    private void registerConfig(String contextType, DynamicGroupConfig dynamicGroupConfig,
+                                Configuration configuration) {
+        registerOneTypeConfig(contextType, dynamicGroupConfig);
+        List<String> subTypes = getSubTypes(contextType, configuration);
         for (String subtype : subTypes) {
-            registerOneTypeConfig(subtype, config);
+            registerOneTypeConfig(subtype, dynamicGroupConfig);
         }
     }
 
@@ -447,26 +450,27 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
     /**
      * Регистрация коллектора для отслеживаемого типа доменного объекта
      * @param collector
-     * @param config
+     * @param dynamicGroupConfig
      */
-    private void registerCollector(DynamicGroupCollector collector, DynamicGroupConfig config) {
+    private void registerCollector(DynamicGroupCollector collector, DynamicGroupConfig dynamicGroupConfig,
+                                   Configuration configuration) {
         // Получение типов, которые отслеживает коллектор
         List<String> types = collector.getTrackTypeNames();
         // Регистрируем коллектор в реестре, для обработки
         // только определенных типов
         if (types != null) {
             for (String type : types) {
-                registerCollector(type, collector, config);
+                registerCollector(type, collector, dynamicGroupConfig);
                 // Ищем всех наследников и так же регистрируем
                 // их в
                 // реестре с данным коллектором
-                List<String> subTypes = getSubTypes(type);
+                List<String> subTypes = getSubTypes(type, configuration);
                 for (String subtype : subTypes) {
-                    registerCollector(subtype, collector, config);
+                    registerCollector(subtype, collector, dynamicGroupConfig);
                 }
             }
         }
-        registerCollectorForDynamicGroup(config.getName(), collector, config);
+        registerCollectorForDynamicGroup(dynamicGroupConfig.getName(), collector, dynamicGroupConfig);
     }
 
     /**
@@ -507,11 +511,11 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
      * @param type
      * @return
      */
-    private List<String> getSubTypes(String type) {
+    private List<String> getSubTypes(String type, Configuration configuration) {
         List<String> result = new ArrayList<String>();
         // Получение всех конфигураций доменных оьъектов
-        for (TopLevelConfig topConfig : configurationExplorer
-                .getConfiguration().getConfigurationList()) {
+        List<TopLevelConfig> configurationList = configuration.getConfigurationList();
+        for (TopLevelConfig topConfig : configurationList) {
             if (topConfig instanceof DomainObjectTypeConfig) {
                 DomainObjectTypeConfig config = (DomainObjectTypeConfig) topConfig;
                 // Сравнение родительского типа и переданного парамера
@@ -521,7 +525,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
                     result.add(config.getName());
                     // Рекурсивно вызываем для получения всех наследников
                     // найденного наследника
-                    result.addAll(getSubTypes(config.getName()));
+                    result.addAll(getSubTypes(config.getName(), configuration));
                 }
             }
         }

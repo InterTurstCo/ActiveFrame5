@@ -43,6 +43,7 @@ import ru.intertrust.cm.core.config.PermitRole;
 import ru.intertrust.cm.core.config.ReadConfig;
 import ru.intertrust.cm.core.config.TrackDomainObjectsConfig;
 import ru.intertrust.cm.core.config.WriteConfig;
+import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.dao.access.AccessType;
 import ru.intertrust.cm.core.dao.access.ContextRoleCollector;
@@ -261,7 +262,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
     /**
      * Обрабатывает все разрешения на выполнение переданной операции.
-     * @param objectId
+     * @param invalidContextId
      *            идентификатор доменного объекта, для которого расчитывается список доступа
      * @param operationPermitConfig
      *            конфигурация разрешений для операции
@@ -534,17 +535,18 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
     public void onLoad() {
         try {
             // Поиск конфигураций динамических групп
-            for (TopLevelConfig topConfig : configurationExplorer
-                    .getConfiguration().getConfigurationList()) {
+            Configuration configuration = configurationExplorer.getConfiguration();
+            List<TopLevelConfig> configurationList = configuration.getConfigurationList();
+            for (TopLevelConfig topConfig : configurationList) {
 
                 if (topConfig instanceof ContextRoleConfig) {
-                    ContextRoleConfig config = (ContextRoleConfig) topConfig;
+                    ContextRoleConfig contextRoleConfig = (ContextRoleConfig) topConfig;
                     // Если контекстная роль настраивается классом коллектором,
                     // то создаем его экземпляр, и добавляем в реестр
 
-                    if (config.getGroups() != null && config.getGroups().getGroups() != null) {
+                    if (contextRoleConfig.getGroups() != null && contextRoleConfig.getGroups().getGroups() != null) {
 
-                        for (Object collectorConfig : config.getGroups().getGroups()) {
+                        for (Object collectorConfig : contextRoleConfig.getGroups().getGroups()) {
                             if (collectorConfig instanceof CollectorConfig) {
                                 CollectorConfig classCollectorConfig = (CollectorConfig) collectorConfig;
                                 Class<?> collectorClass = Class.forName(classCollectorConfig.getClassName());
@@ -554,8 +556,8 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                                                 collectorClass,
                                                 AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE,
                                                 false);
-                                collector.init(config, classCollectorConfig.getSettings());
-                                registerCollector(collector, config);
+                                collector.init(contextRoleConfig, classCollectorConfig.getSettings());
+                                registerCollector(collector, contextRoleConfig, configuration);
                             } else if (collectorConfig instanceof TrackDomainObjectsConfig) {
                                 // Специфичный коллектор не указан используем коллектор
                                 // по умолчанию
@@ -567,8 +569,8 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                                                 ContextRoleTrackDomainObjectCollector.class,
                                                 AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE,
                                                 false);
-                                collector.init(config, trackDomainObjectsConfig);
-                                registerCollector(collector, config);
+                                collector.init(contextRoleConfig, trackDomainObjectsConfig);
+                                registerCollector(collector, contextRoleConfig, configuration);
                             }
                         }
                     }
@@ -579,25 +581,26 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         }
     }
 
-    private void registerCollector(ContextRoleCollector collector, ContextRoleConfig config) {
+    private void registerCollector(ContextRoleCollector collector, ContextRoleConfig contextRoleConfig,
+                                   Configuration configuration) {
         // Получение типов, которые отслеживает коллектор
         List<String> types = collector.getTrackTypeNames();
         // Регистрируем коллектор в реестре, для обработки
         // только определенных типов
         if (types != null) {
             for (String type : types) {
-                registerCollector(type, collector, config);
+                registerCollector(type, collector, contextRoleConfig);
                 // Ищем всех наследников и так же регистрируем
                 // их в
                 // реестре с данным коллектором
-                List<String> subTypes = getSubTypes(type);
+                List<String> subTypes = getSubTypes(type, configuration);
                 for (String subtype : subTypes) {
-                    registerCollector(subtype, collector, config);
+                    registerCollector(subtype, collector, contextRoleConfig);
                 }
             }
         }
 
-        registerCollectorForContextRole(config.getName(), collector, config);
+        registerCollectorForContextRole(contextRoleConfig.getName(), collector, contextRoleConfig);
     }
 
     /**
@@ -621,11 +624,10 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
      * @param type
      * @return
      */
-    private List<String> getSubTypes(String type) {
+    private List<String> getSubTypes(String type, Configuration configuration) {
         List<String> result = new ArrayList<String>();
         // Получение всех конфигураций доменных оьъектов
-        for (TopLevelConfig topConfig : configurationExplorer
-                .getConfiguration().getConfigurationList()) {
+        for (TopLevelConfig topConfig : configuration.getConfigurationList()) {
             if (topConfig instanceof DomainObjectTypeConfig) {
                 DomainObjectTypeConfig config = (DomainObjectTypeConfig) topConfig;
                 // Сравнение родительского типа и переданного парамера
@@ -635,7 +637,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                     result.add(config.getName());
                     // Рекурсивно вызываем для получения всех наследников
                     // найденного наследника
-                    result.addAll(getSubTypes(config.getName()));
+                    result.addAll(getSubTypes(config.getName(), configuration));
                 }
             }
         }

@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.model.FatalException;
+import ru.intertrust.cm.core.util.KryoCloner;
 
 import java.io.*;
 import java.util.*;
@@ -35,6 +36,8 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     @Autowired
     NavigationPanelLogicalValidator navigationPanelLogicalValidator;
 
+    private KryoCloner kryoCloner = new KryoCloner();
+
     /**
      * Создает {@link ConfigurationExplorerImpl}
      */
@@ -49,7 +52,9 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      */
     @Override
     public Configuration getConfiguration() {
-        return configuration;
+
+        Configuration cloneConfiguration = kryoCloner.cloneObject(configuration, Configuration.class);
+        return cloneConfiguration;
     }
 
     /**
@@ -62,7 +67,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     }
 
     public GlobalSettingsConfig getGlobalSettings() {
-        return globalSettings;
+        return kryoCloner.cloneObject(globalSettings, GlobalSettingsConfig.class) ;
     }
 
     /**
@@ -119,7 +124,8 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
             return null;
         }
 
-        return (T) typeMap.get(name);
+        T config = (T) typeMap.get(name);
+        return kryoCloner.cloneObject(config, type);
     }
 
     /**
@@ -137,7 +143,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         List<T> result = new ArrayList<T>();
         result.addAll((Collection<T>) typeMap.values());
 
-        return result;
+        return kryoCloner.cloneObject(result, ArrayList.class);
     }
 
     @Override
@@ -146,7 +152,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         Collection<DomainObjectTypeConfig> allTypes = getConfigs(DomainObjectTypeConfig.class);
         for (DomainObjectTypeConfig type : allTypes) {
             if (typeName.equals(type.getExtendsAttribute())) {
-                childTypes.add(type);
+                childTypes.add(kryoCloner.cloneObject(type, type.getClass()));
                 if (includeIndirect) {
                     childTypes.addAll(findChildDomainObjectTypes(type.getName(), true));
                 }
@@ -177,7 +183,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         FieldConfig result = fieldConfigMap.get(fieldConfigKey);
 
         if (result != null) {
-            return result;
+            return kryoCloner.cloneObject(result, result.getClass());
         }
 
         if (returnInheritedConfig) {
@@ -200,7 +206,8 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     @Override
     public CollectionColumnConfig getCollectionColumnConfig(String collectionConfigName, String columnConfigName) {
         FieldConfigKey collectionColumnConfigKey = new FieldConfigKey(collectionConfigName, columnConfigName);
-        return collectionColumnConfigMap.get(collectionColumnConfigKey);
+        CollectionColumnConfig collectionColumnConfig = collectionColumnConfigMap.get(collectionColumnConfigKey);
+        return kryoCloner.cloneObject(collectionColumnConfig, collectionColumnConfig.getClass());
     }
 
     private void initConfigurationMaps() {
@@ -250,7 +257,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
                 String objectType = dynamicGroup.getContext().getDomainObject().getType();
 
                 if (objectType.equals(domainObjectType)) {
-                    dynamicGroups.add(dynamicGroup);
+                    dynamicGroups.add(kryoCloner.cloneObject(dynamicGroup, dynamicGroup.getClass()));
                 }
             }
         }
@@ -278,7 +285,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
                     if (trackDOTypeName.equalsIgnoreCase(configuredType)) {
 
                         if (configuredStatus == null || configuredStatus.equals(status)) {
-                            dynamicGroups.add(dynamicGroup);
+                            dynamicGroups.add(kryoCloner.cloneObject(dynamicGroup, dynamicGroup.getClass()));
                         }
                     }
                 }
@@ -301,7 +308,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         //Получаем все статусы
         for (AccessMatrixStatusConfig accessStatusConfig : accessMatrixConfig.getStatus()) {
             if (status != null && status.equals(accessStatusConfig.getName())) {
-                return accessStatusConfig;
+                return kryoCloner.cloneObject(accessStatusConfig, accessStatusConfig.getClass());
             }
         }
 
