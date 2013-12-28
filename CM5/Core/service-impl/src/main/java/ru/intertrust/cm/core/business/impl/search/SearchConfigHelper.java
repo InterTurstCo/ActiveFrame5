@@ -17,7 +17,6 @@ import ru.intertrust.cm.core.config.search.DomainObjectFilterConfig;
 import ru.intertrust.cm.core.config.search.IndexedContentConfig;
 import ru.intertrust.cm.core.config.search.IndexedDomainObjectConfig;
 import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
-import ru.intertrust.cm.core.config.search.LinkedDomainObjectConfig;
 import ru.intertrust.cm.core.config.search.SearchAreaConfig;
 import ru.intertrust.cm.core.model.FatalException;
 
@@ -73,7 +72,7 @@ public class SearchConfigHelper {
             for (IndexedContentConfig contentConfig : config.getContentObjects()) {
                 if (object.getTypeName().equalsIgnoreCase(contentConfig.getType())) {
                     SearchAreaDetailsConfig details = new SearchAreaDetailsConfig();
-                    details.objectConfig = null;
+                    details.objectConfig = config;
                     details.areaName = areaName;
                     details.targetObjectType = targetObjectType;
                     result.add(details);
@@ -126,6 +125,10 @@ public class SearchConfigHelper {
     public boolean isAttachmentObject(DomainObject object) {
         String type = object.getTypeName();
         return configurationExplorer.isAttachmentType(type);
+    }
+
+    public String getAttachmentParentLinkName(String parentType) {
+        return parentType;
     }
 
     public DomainObjectTypeConfig getTargetObjectType(String collectionName) {

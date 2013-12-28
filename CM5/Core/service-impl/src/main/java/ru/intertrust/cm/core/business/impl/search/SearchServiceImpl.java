@@ -10,6 +10,7 @@ import javax.interceptor.Interceptors;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -58,11 +59,27 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
     @Override
     public IdentifiableObjectCollection search(String query, String areaName, String targetCollectionName,
             int maxResults) {
+        try {
+            SolrQuery testQuery = new SolrQuery()
+                    .setQuery("*:*")
+                    .addField("*");
+            QueryResponse all = solrServer.query(testQuery);
+            int i = 0;
+            for (SolrDocument doc : all.getResults()) {
+                System.out.println("==> Document #" + ++i);
+                for (String field : doc.getFieldNames()) {
+                    System.out.println("\t" + field + " = " + doc.getFieldValues(field));
+                }
+            }
+        } catch (SolrServerException e) {
+            e.printStackTrace();
+        }
+
         SolrQuery solrQuery = new SolrQuery()
-                .setQuery(SolrFields.EVERYTHING + ":" + protectQueryString(query))
-                .addFilterQuery(SolrFields.AREA + ":" + areaName)
+                .setQuery(SolrFields.EVERYTHING + ":" + protectQueryString(query) + " OR cm_content:" + query)
+                .addFilterQuery(SolrFields.AREA + ":\"" + areaName + "\"")
                 //.addFilterQuery("cm_type:" + configHelper.getTargetObjectType(targetCollectionName))
-                .addField(SolrFields.OBJECT_ID);
+                .addField(SolrFields.MAIN_OBJECT_ID);
 
         QueryResponse response = null;
         try {
@@ -105,7 +122,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 .addFilterQuery(SolrFields.AREA + ":" + areas)
                 //.addFilterQuery("cm_type:" + configHelper.getTargetObjectType(targetCollectionName))
                 .addField(SolrFields.FIELD_PREFIX + "*")
-                .addField(SolrFields.OBJECT_ID);
+                .addField(SolrFields.MAIN_OBJECT_ID);
 
         QueryResponse response = null;
         try {
@@ -127,7 +144,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             return new GenericIdentifiableObjectCollection();   //*****
         }
         for (SolrDocument doc : found) {
-            Id id = idService.createId((String) doc.getFieldValue(SolrFields.OBJECT_ID));
+            Id id = idService.createId((String) doc.getFieldValue(SolrFields.MAIN_OBJECT_ID));
             ids.add(new ReferenceValue(id));
         }
         Filter idFilter = new IdsIncludedFilter(ids);

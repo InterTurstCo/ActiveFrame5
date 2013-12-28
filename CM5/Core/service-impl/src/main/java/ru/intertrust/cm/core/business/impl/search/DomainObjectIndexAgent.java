@@ -23,7 +23,10 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.doel.DoelExpression;
+import ru.intertrust.cm.core.config.search.IndexedDomainObjectConfig;
 import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
+import ru.intertrust.cm.core.config.search.LinkedDomainObjectConfig;
+import ru.intertrust.cm.core.config.search.ParentLinkConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
@@ -67,6 +70,8 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
             doc.addField(SolrFields.OBJECT_ID, domainObject.getId().toStringRepresentation());
             doc.addField(SolrFields.AREA, config.getAreaName());
             doc.addField(SolrFields.TARGET_TYPE, config.getTargetObjectType());
+            doc.addField(SolrFields.MAIN_OBJECT_ID,
+                    calculateMainObject(domainObject.getId(), config.getObjectConfig()));
             for (IndexedFieldConfig fieldConfig : config.getObjectConfig().getFields()) {
                 Object value = calculateField(domainObject, fieldConfig);
                 StringBuilder fieldName = new StringBuilder()
@@ -97,11 +102,15 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
     private void sendAttachment(DomainObject object, SearchConfigHelper.SearchAreaDetailsConfig config) {
         ContentStreamUpdateRequest request = new ContentStreamUpdateRequest("/update/extract");
         request.addContentStream(new SolrAttachmentFeeder(object));
-        request.setParam("literal." + SolrFields.OBJECT_ID, createUniqueId(object, config));
+        request.setParam("literal." + SolrFields.OBJECT_ID, object.getId().toStringRepresentation());
         request.setParam("literal." + SolrFields.AREA, config.getAreaName());
         request.setParam("literal." + SolrFields.TARGET_TYPE, config.getTargetObjectType());
+        request.setParam("literal." + SolrFields.MAIN_OBJECT_ID,
+                calculateMainObject(object.getReference(configHelper.getAttachmentParentLinkName(
+                        config.getObjectConfig().getType())), config.getObjectConfig()));
         request.setParam("literal.id", createUniqueId(object, config));
-        request.setParam("uprefix", "attr_");
+        request.setParam("uprefix", "cm_c_");
+        request.setParam("fmap.content", "cm_content");
         //request.setParam("extractOnly", "true");
         try {
             NamedList<?> result = solrServer.request(request);
@@ -132,6 +141,25 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
         }
         Value value = object.getValue(config.getName());
         return convertValue(value);
+    }
+
+    private String calculateMainObject(Id objectId, IndexedDomainObjectConfig config) {
+        if (!LinkedDomainObjectConfig.class.isAssignableFrom(config.getClass())) {
+            return objectId.toStringRepresentation();
+        }
+        ParentLinkConfig parentConfig = ((LinkedDomainObjectConfig) config).getParentLink();
+        AccessToken accessToken = accessControlService.createSystemAccessToken(getClass().getName());
+        List<? extends Value> values = doelEvaluator.evaluate(
+                DoelExpression.parse(parentConfig.getDoel()), objectId, accessToken);
+        if (values.size() != 1) {
+            log.warn("Unexpected result (" + values.size() + ") while calculating main object for " + objectId +
+                    " by expression: " + parentConfig.getDoel());
+        }
+        if (values.size() == 0) {
+            return null;
+        } else { 
+            return (String) convertValue(values.get(0));
+        }
     }
 
     private Object convertValue(Value value) {
