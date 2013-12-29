@@ -59,7 +59,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
     @Override
     public IdentifiableObjectCollection search(String query, String areaName, String targetCollectionName,
             int maxResults) {
-        try {
+        /*try {
             SolrQuery testQuery = new SolrQuery()
                     .setQuery("*:*")
                     .addField("*");
@@ -73,7 +73,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             }
         } catch (SolrServerException e) {
             e.printStackTrace();
-        }
+        }*/
 
         SolrQuery solrQuery = new SolrQuery()
                 .setQuery(SolrFields.EVERYTHING + ":" + protectQueryString(query) + " OR cm_content:" + query)

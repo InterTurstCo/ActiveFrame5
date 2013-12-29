@@ -128,7 +128,7 @@ public class SearchConfigHelper {
     }
 
     public String getAttachmentParentLinkName(String parentType) {
-        return parentType;
+        return parentType.toLowerCase();
     }
 
     public DomainObjectTypeConfig getTargetObjectType(String collectionName) {

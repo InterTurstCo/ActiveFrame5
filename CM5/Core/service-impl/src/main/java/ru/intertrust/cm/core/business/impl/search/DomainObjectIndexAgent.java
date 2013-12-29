@@ -66,12 +66,16 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
                 sendAttachment(domainObject, config);
                 continue;
             }
+            Id mainId = calculateMainObject(domainObject.getId(), config.getObjectConfig());
+            if (mainId == null) {
+                // Объект не имеет главного; индексация в данной области не нужна
+                continue;
+            }
             SolrInputDocument doc = new SolrInputDocument();
             doc.addField(SolrFields.OBJECT_ID, domainObject.getId().toStringRepresentation());
             doc.addField(SolrFields.AREA, config.getAreaName());
             doc.addField(SolrFields.TARGET_TYPE, config.getTargetObjectType());
-            doc.addField(SolrFields.MAIN_OBJECT_ID,
-                    calculateMainObject(domainObject.getId(), config.getObjectConfig()));
+            doc.addField(SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
             for (IndexedFieldConfig fieldConfig : config.getObjectConfig().getFields()) {
                 Object value = calculateField(domainObject, fieldConfig);
                 StringBuilder fieldName = new StringBuilder()
@@ -100,14 +104,18 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
     }
 
     private void sendAttachment(DomainObject object, SearchConfigHelper.SearchAreaDetailsConfig config) {
+        Id mainId = calculateMainObject(object.getReference(configHelper.getAttachmentParentLinkName(
+                config.getObjectConfig().getType())), config.getObjectConfig());
+        if (mainId == null) {
+            // Объект не имеет главного; индексация в данной области не нужна
+            return;
+        }
         ContentStreamUpdateRequest request = new ContentStreamUpdateRequest("/update/extract");
         request.addContentStream(new SolrAttachmentFeeder(object));
         request.setParam("literal." + SolrFields.OBJECT_ID, object.getId().toStringRepresentation());
         request.setParam("literal." + SolrFields.AREA, config.getAreaName());
         request.setParam("literal." + SolrFields.TARGET_TYPE, config.getTargetObjectType());
-        request.setParam("literal." + SolrFields.MAIN_OBJECT_ID,
-                calculateMainObject(object.getReference(configHelper.getAttachmentParentLinkName(
-                        config.getObjectConfig().getType())), config.getObjectConfig()));
+        request.setParam("literal." + SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
         request.setParam("literal.id", createUniqueId(object, config));
         request.setParam("uprefix", "cm_c_");
         request.setParam("fmap.content", "cm_content");
@@ -143,23 +151,28 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
         return convertValue(value);
     }
 
-    private String calculateMainObject(Id objectId, IndexedDomainObjectConfig config) {
+    private Id calculateMainObject(Id objectId, IndexedDomainObjectConfig config) {
         if (!LinkedDomainObjectConfig.class.isAssignableFrom(config.getClass())) {
-            return objectId.toStringRepresentation();
+            return objectId;
         }
         ParentLinkConfig parentConfig = ((LinkedDomainObjectConfig) config).getParentLink();
         AccessToken accessToken = accessControlService.createSystemAccessToken(getClass().getName());
         List<? extends Value> values = doelEvaluator.evaluate(
                 DoelExpression.parse(parentConfig.getDoel()), objectId, accessToken);
-        if (values.size() != 1) {
-            log.warn("Unexpected result (" + values.size() + ") while calculating main object for " + objectId +
-                    " by expression: " + parentConfig.getDoel());
-        }
         if (values.size() == 0) {
             return null;
-        } else { 
-            return (String) convertValue(values.get(0));
         }
+        if (values.size() != 1) {
+            log.warn("Unexpected result count (" + values.size() + ") while calculating main object for " + objectId +
+                    " by expression: " + parentConfig.getDoel());
+        }
+        Value value = values.get(0);
+        if (!(value instanceof ReferenceValue)) {
+            log.warn("Wrong result type (" + value.getFieldType() + ") of main object reference for " + objectId +
+                    " by expression: " + parentConfig.getDoel());
+            return null;
+        }
+        return ((ReferenceValue) value).get();
     }
 
     private Object convertValue(Value value) {

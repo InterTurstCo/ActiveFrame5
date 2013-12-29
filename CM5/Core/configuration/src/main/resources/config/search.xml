@@ -7,7 +7,9 @@
             <indexed-field name="RegNum"/>
             <indexed-field name="Name"/>
             <indexed-field name="Description"/>
-            <indexed-field name="Author"/>
+            <indexed-field name="Author">
+                <doel>docAuthor</doel>
+            </indexed-field>
             <indexed-field name="Author_Name">
                 <doel>docAuthor.Name</doel>
             </indexed-field>
