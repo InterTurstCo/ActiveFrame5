@@ -14,6 +14,7 @@
 
     <properties>
         <root.basedir>${project.parent.basedir}</root.basedir>
+        <deploy.properties.path>${root.basedir}/deploy.properties</deploy.properties.path>
     </properties>
 
     <dependencies>
@@ -109,7 +110,7 @@
                             <packagingExcludes>META-INF/application-*.xml</packagingExcludes>
                             <filtering>true</filtering>
                             <filters>
-                                <filter>${basedir}/../deploy.properties</filter>
+                                <filter>${deploy.properties.path}</filter>
                             </filters>
                             <applicationXml>${basedir}/src/main/application/META-INF/application-externalSolr.xml</applicationXml>
                         </configuration>
@@ -145,10 +146,10 @@
                                 </webModule>
                             </modules>
                             <packagingExcludes>META-INF/application-*.xml</packagingExcludes>
-                            <filtering>true</filtering>
-                            <filters>
-                                <filter>${basedir}/../deploy.properties</filter>
-                            </filters>
+                            <filtering>false</filtering>
+                            <!-- <filters>
+                                <filter>${deploy.properties.path}</filter>
+                            </filters> -->
                             <applicationXml>${basedir}/src/main/application/META-INF/application-embeddedSolr.xml</applicationXml>
                         </configuration>
                     </plugin>
@@ -348,7 +349,7 @@
                                 </goals>
                                 <configuration>
                                     <files>
-                                        <file>${basedir}/../deploy.properties</file>
+                                        <file>${deploy.properties.path}</file>
                                     </files>
                                 </configuration>
                             </execution>

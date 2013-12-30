@@ -44,7 +44,7 @@ public class SolrServerFactory {
             if (data != null && !data.isEmpty()) {
                 System.setProperty("solr.data.dir", data);
             } else {
-                //System.setProperty("solr.solr.home", System.getProperty("user.dir"));
+                System.setProperty("solr.solr.home", ".");
             }
             DynamicLoadClassFactory<SolrServer> factory =
                     (DynamicLoadClassFactory<SolrServer>) Class.forName(SOLR_FACTORY_CLASS).newInstance();
