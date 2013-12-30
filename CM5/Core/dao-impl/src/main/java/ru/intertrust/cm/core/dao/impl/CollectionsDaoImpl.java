@@ -32,6 +32,7 @@ import java.util.Map;
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
 import static ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier.modifyQueryWithParameters;
 import static ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier.wrapAndLowerCaseNames;
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.setParameters;
 
 /**
  * @author vmatsukevich
@@ -298,12 +299,9 @@ public class CollectionsDaoImpl implements CollectionsDao {
                     if(criterion == null){
                         throw new CollectionConfigurationException("Not Criterion nor MultiCriterion is defined for filter");
                     }
+
                     if (criterion instanceof Value) {
-                        Value value = (Value) criterion;
-                        Object parameterValue = getParameterValue(value);
-
-                        parameters.put(parameterName, parameterValue);
-
+                        setParameters(parameterName, (Value) criterion, parameters);
                     } else if (criterion instanceof List) {
                         List<Value> valuesList = (List) criterion;
                         List<Object> parameterValues = getParameterValues(valuesList);

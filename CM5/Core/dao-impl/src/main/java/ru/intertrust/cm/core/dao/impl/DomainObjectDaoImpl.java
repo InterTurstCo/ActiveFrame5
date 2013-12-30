@@ -26,6 +26,7 @@ import static ru.intertrust.cm.core.business.api.dto.GenericDomainObject.STATUS_
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
 import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.wrap;
 import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.generateParameter;
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.setParameters;
 import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getGMTDate;
 import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getTimeZoneId;
 
@@ -1194,25 +1195,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 continue;
             }
 
-            if (ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
-                RdbmsId rdbmsId = (RdbmsId) value.get();
-                parameters.put(parameterName, rdbmsId.getId());
-                parameterName = generateParameter(getReferenceTypeColumnName(fieldConfig.getName()));
-                parameters.put(parameterName, rdbmsId.getTypeId());
-            } else if (DateTimeFieldConfig.class.equals(fieldConfig.getClass())) {
-                parameters.put(parameterName, getGMTDate((Date) value.get()));
-            } else if (DateTimeWithTimeZoneFieldConfig.class.equals(fieldConfig.getClass())) {
-                parameters.put(parameterName, getGMTDate((DateTimeWithTimeZone) value.get()));
-                parameterName = generateParameter(getTimeZoneIdColumnName(fieldConfig.getName()));
-                parameters.put(parameterName, getTimeZoneId((DateTimeWithTimeZone) value.get()));
-            } else if (TimelessDateFieldConfig.class.equals(fieldConfig.getClass())) {
-                parameters.put(parameterName, getGMTDate((TimelessDate) value.get()));
-            } else if (BooleanFieldConfig.class.equals(fieldConfig.getClass())) {
-                Boolean parameterValue = (Boolean) value.get();
-                parameters.put(parameterName, parameterValue ? 1 : 0);
-            } else {
-                parameters.put(parameterName, value.get());
-            }
+            setParameters(parameterName, value, parameters);
         }
     }
 
