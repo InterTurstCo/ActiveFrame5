@@ -2,8 +2,6 @@ package ru.intertrust.cm.core.dao.impl.sqlparser;
 
 import java.util.List;
 
-import org.springframework.context.ApplicationContext;
-
 import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
@@ -77,11 +75,11 @@ public class ReferenceParamsProcessingVisitor extends CollectingWhereColumnConfi
                 if (rightExpression.indexOf(CollectionsDaoImpl.PARAM_NAME_PREFIX) > 0) {
 
                     Integer paramIndex = findParameterIndex(rightExpression);
-                    
-                    if (params.get(paramIndex) instanceof ReferenceValue){
+
+                    if (params.get(paramIndex) instanceof ReferenceValue) {
                         referenceValue = (ReferenceValue) params.get(paramIndex);
-                    }else if (params.get(paramIndex) instanceof StringValue){
-                        String strValue = ((StringValue)params.get(paramIndex)).get();
+                    } else if (params.get(paramIndex) instanceof StringValue) {
+                        String strValue = ((StringValue) params.get(paramIndex)).get();
                         referenceValue = new ReferenceValue(new RdbmsId(strValue));
                     }
 
@@ -101,7 +99,7 @@ public class ReferenceParamsProcessingVisitor extends CollectingWhereColumnConfi
                         newReferenceExpression =
                                 new OrExpression(modifiedEqualsToForReferenceId, equalsToForReferenceType);
                     }
-                    
+
                     plainSelectQuery =
                             plainSelectQuery.replaceAll(equalsTo.toString(), newReferenceExpression.toString());
                 }
