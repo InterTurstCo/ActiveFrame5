@@ -1,15 +1,11 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
-import net.sf.jsqlparser.expression.*;
-import net.sf.jsqlparser.expression.operators.arithmetic.*;
-import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
-import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
-import net.sf.jsqlparser.expression.operators.relational.*;
-import net.sf.jsqlparser.schema.Column;
-import net.sf.jsqlparser.statement.select.OrderByElement;
-import net.sf.jsqlparser.statement.select.SubSelect;
-
 import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.wrap;
+import net.sf.jsqlparser.expression.ExpressionVisitor;
+import net.sf.jsqlparser.expression.Function;
+import net.sf.jsqlparser.expression.operators.relational.InExpression;
+import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.statement.select.SubSelect;
 
 /**
  * Реализация ExpressionVisitor для транформации sql-запросов: приведение к нижнему регистру и заключение в кавычки

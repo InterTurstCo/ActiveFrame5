@@ -42,13 +42,7 @@ public class CollectingWhereColumnConfigVisitor extends BaseExpressionVisitor im
     }
 
     protected void visitSubSelect(SubSelect subSelect) {
-        if (subSelect.getPivot() != null) {
-            subSelect.getPivot().accept(new WrapAndLowerCasePivotVisitor());
-        }
-
-        if (subSelect.getSelectBody() != null) {
-            subSelect.getSelectBody().accept(new WrapAndLowerCaseSelectVisitor());
-        }
+        // TODO Provide Visitor for Sub Select
     }
 
     @Override
