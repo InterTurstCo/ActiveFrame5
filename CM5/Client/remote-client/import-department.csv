@@ -1,4 +1,4 @@
-TYPE_NAME=Department;KEYS=Name;
+TYPE_NAME=Department;KEYS=Name,Organization;
 Name;Organization;ParentDepartment
 Подразделение 1;"name=""Организация 1""";
 Подразделение 2;"name=""Организация 1""";

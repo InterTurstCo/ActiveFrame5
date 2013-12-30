@@ -20,6 +20,7 @@ import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
@@ -420,7 +421,9 @@ public class ImportData {
         String result = null;
         if (fieldConfig.getFieldType() == FieldType.LONG) {
             result = valueAsString;
-        } else {
+        }else if (fieldConfig.getFieldType() == FieldType.REFERENCE) {
+            result = String.valueOf(((RdbmsId)getReference(fieldName, valueAsString)).getId());
+        }else {
             result = "'" + valueAsString + "'";
         }
         return result;
