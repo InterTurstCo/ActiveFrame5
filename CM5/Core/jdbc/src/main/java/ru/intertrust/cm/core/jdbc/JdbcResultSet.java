@@ -64,16 +64,15 @@ public class JdbcResultSet implements ResultSet {
             index++;
             resultsetIndex++;
             //Проверка на то что коллекция закончилась и надо получить следующую партию данных
-            //TODO раскомментировать когда выполнится CMFIVE-337
-            /*if (collection.size() == index + 1) {
+            if (collection.size() == index) {
                 //Дозапрашиваем данные
                 if (statement != null) {
                     collection = statement.getCollectionPartition();
                     index = 0;
                 }
-            }*/
+            }
 
-            return collection.size() >= index + 1;
+            return collection.size() > index;
         } catch (Exception ex) {
             throw new SQLException("Error get next row", ex);
         }
@@ -349,6 +348,8 @@ public class JdbcResultSet implements ResultSet {
                 result = ((RdbmsId) ((ReferenceValue) value).get()).getId();
             } else if (value instanceof TimestampValue) {
                 result = ((TimestampValue) value).get();
+            }else{
+                result = value.toString();
             }
         }
         return result;

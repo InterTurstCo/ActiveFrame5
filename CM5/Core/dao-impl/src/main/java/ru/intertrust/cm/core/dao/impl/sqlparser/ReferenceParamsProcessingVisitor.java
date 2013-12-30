@@ -2,6 +2,8 @@ package ru.intertrust.cm.core.dao.impl.sqlparser;
 
 import java.util.List;
 
+import org.springframework.context.ApplicationContext;
+
 import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
@@ -12,6 +14,7 @@ import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.FieldConfig;
@@ -74,7 +77,13 @@ public class ReferenceParamsProcessingVisitor extends CollectingWhereColumnConfi
                 if (rightExpression.indexOf(CollectionsDaoImpl.PARAM_NAME_PREFIX) > 0) {
 
                     Integer paramIndex = findParameterIndex(rightExpression);
-                    referenceValue = (ReferenceValue) params.get(paramIndex);
+                    
+                    if (params.get(paramIndex) instanceof ReferenceValue){
+                        referenceValue = (ReferenceValue) params.get(paramIndex);
+                    }else if (params.get(paramIndex) instanceof StringValue){
+                        String strValue = ((StringValue)params.get(paramIndex)).get();
+                        referenceValue = new ReferenceValue(new RdbmsId(strValue));
+                    }
 
                     BinaryExpression equalsToForReferenceType =
                             createComparisonExpressionForReferenceType(column, referenceValue, isEquals);

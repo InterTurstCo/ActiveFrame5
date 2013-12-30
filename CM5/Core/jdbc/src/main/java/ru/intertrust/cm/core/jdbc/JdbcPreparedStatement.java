@@ -19,10 +19,16 @@ import java.sql.SQLException;
 import java.sql.SQLXML;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Hashtable;
+import java.util.List;
 
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.LongValue;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.TimestampValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.jdbc.JdbcDriver.ConnectMode;
 
 public class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
@@ -37,28 +43,48 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     @Override
     public ResultSet executeQuery() throws SQLException {
         try {
-            //TODO Пока не поддерживаем выполнение запроса с параметрами приходится лепить запрос здесь, ждем  CMFIVE-182
             sql = query;
-            int paramNum = 1;
+            //Заменяем знаки вопроса на нумерованные параметры
+            int paramNum = 0;
 
             while (sql.contains("?")) {
-                String value = "";
-                if (parameters.get(paramNum) instanceof Integer) {
-                    value = parameters.get(paramNum).toString();
-                } else if (parameters.get(paramNum) instanceof Long) {
-                    value = parameters.get(paramNum).toString();
-                } else {
-                    value = "'" + parameters.get(paramNum) + "'";
-                }
 
-                sql = sql.replaceFirst("\\?", value);
+                sql = sql.replaceFirst("\\?", "{" + paramNum + "}");
                 paramNum++;
             }
 
-            return new JdbcResultSet(this, getCollectionPartition());
+            return new JdbcResultSet(this, getCollectionPartition(getParams()));
         } catch (Exception ex) {
             throw new SQLException("Error on execute query", ex);
         }
+    }
+
+    private List<Value> getParams() {
+        List<Value> result = new ArrayList<Value>();
+
+        int index = 1;
+        Object value = null;
+        while((value = parameters.get(index)) != null){
+            Value parameter = null;
+            if (value instanceof Integer) {
+                parameter = new LongValue((Integer)value);
+            } else if (value instanceof Long) {
+                parameter = new LongValue((Long)value);
+            } else if (value instanceof Long) {
+                parameter = new LongValue((Long)value);
+            } else if (value instanceof Timestamp) {
+                parameter = new TimestampValue(new Date(((Timestamp)value).getTime()));
+            } else if (value instanceof Date) {
+                parameter = new TimestampValue((Date)value);
+            } else {
+                parameter = new StringValue(value.toString());
+            } 
+            
+            result.add(parameter);            
+            index++;
+        }
+        
+        return result;
     }
 
     @Override
@@ -167,7 +193,7 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
 
     @Override
     public void clearParameters() throws SQLException {
-        throw new UnsupportedOperationException();
+        parameters.clear();
 
     }
 
@@ -381,5 +407,10 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     private void addParameter(int parameterIndex, Object value) throws SQLException {
         parameters.put(parameterIndex, value);
     }
+
+    @Override
+    public IdentifiableObjectCollection getCollectionPartition() throws Exception {
+        return getCollectionPartition(getParams());
+    }    
 
 }

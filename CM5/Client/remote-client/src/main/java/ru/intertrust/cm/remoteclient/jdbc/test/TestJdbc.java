@@ -63,7 +63,7 @@ public class TestJdbc extends ClientBase {
         prepareStatement.setTimestamp(1, new java.sql.Timestamp(fromDate.getTime().getTime()));
         prepareStatement.setTimestamp(2, new java.sql.Timestamp(System.currentTimeMillis()));
         prepareStatement.setString(3, "Outgoing_Document");
-        prepareStatement.setLong(4, ((RdbmsId) outgoingDocument.getReference("Author")).getId());
+        prepareStatement.setString(4, outgoingDocument.getReference("Author").toStringRepresentation());
         prepareStatement.setLong(5, 10);
         ResultSet resultset = prepareStatement.executeQuery();
 

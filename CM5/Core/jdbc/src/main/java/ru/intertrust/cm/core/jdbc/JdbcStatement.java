@@ -5,12 +5,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.jdbc.JdbcDriver.ConnectMode;
 
 public class JdbcStatement implements Statement {
     public static final int COLLECTION_LIMIT = 1000;
+    //public static final int COLLECTION_LIMIT = 5;
     private int collectionPartition = 0;
     private boolean closed = false;
     private int maxRows;
@@ -117,7 +122,7 @@ public class JdbcStatement implements Statement {
     @Override
     public boolean execute(String sql) throws SQLException {
         try {
-            this.sql = sql;            
+            this.sql = sql;
             this.resultSet = new JdbcResultSet(this, getCollectionPartition());
             return true;
         } catch (Exception ex) {
@@ -285,10 +290,20 @@ public class JdbcStatement implements Statement {
 
     }
 
-    public IdentifiableObjectCollection getCollectionPartition() throws Exception{
-        IdentifiableObjectCollection collection = client.getCollectionService().findCollectionByQuery(sql, collectionPartition * COLLECTION_LIMIT, COLLECTION_LIMIT);
-        collectionPartition++;
-        return collection;        
-    }
+    public IdentifiableObjectCollection getCollectionPartition() throws Exception {
+        return getCollectionPartition(null);
+    }    
     
+    public IdentifiableObjectCollection getCollectionPartition(List<Value> params) throws Exception {
+        
+        IdentifiableObjectCollection collection =
+                client.getCollectionService().findCollectionByQuery(
+                        sql, 
+                        params != null ? params : Collections.EMPTY_LIST,
+                        collectionPartition * COLLECTION_LIMIT, 
+                        COLLECTION_LIMIT);
+        collectionPartition++;
+        return collection;
+    }
+
 }
