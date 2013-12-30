@@ -202,6 +202,9 @@
             <xs:element name="action-context" type="con:actionСontextType"
                         maxOccurs="unbounded" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
+                <xs:element name="search-area" type="con:searchAreaType"
+                    maxOccurs="unbounded" minOccurs="0"
+                    xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:choice>
 
     </xs:complexType>
@@ -521,7 +524,7 @@
 
     <xs:simpleType name="doelType">
         <xs:restriction base="xs:string">
-            <xs:whiteSpace value="collapse"></xs:whiteSpace>
+            <xs:whiteSpace value="collapse"/>
             <xs:pattern
                     value="([A-Za-z0-9\s_]+(\^[A-Za-z0-9\s_]*)?\.)*[A-Za-z0-9\s_]+(\^[A-Za-z0-9\s_]*)?">
             </xs:pattern>
@@ -1458,5 +1461,81 @@
         <xs:attribute type="xs:string" name="name"/>
         <xs:attribute type="xs:string" name="collection"/>
         <xs:attribute type="xs:string" name="is-default"/>
+    </xs:complexType>
+
+    <xs:complexType name="searchAreaType">
+        <xs:sequence>
+            <xs:element type="con:targetDomainObjectType" name="target-domain-object"
+                minOccurs="1" maxOccurs="unbounded"
+                xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="name" use="required" />
+    </xs:complexType>
+
+    <xs:complexType name="indexedDomainObjectType" abstract="true">
+        <xs:sequence>
+            <xs:element type="con:indexedFieldType" name="indexed-field"
+                minOccurs="0" maxOccurs="unbounded"
+                xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:indexedContentType" name="indexed-content"
+                minOccurs="0" maxOccurs="unbounded"
+                xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:linkedDomainObjectType" name="linked-domain-object"
+	            minOccurs="0" maxOccurs="unbounded"
+	            xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="type" use="required" />
+    </xs:complexType>
+
+    <xs:complexType name="indexedFieldType">
+        <xs:complexContent>
+            <xs:extension base="con:optionalDomainObjectAlgorithmType"
+                    xmlns:con="https://cm5.intertrust.ru/config">
+                <xs:attribute type="xs:string" name="name" use="required" />
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="indexedContentType">
+        <xs:attribute type="xs:string" name="type" use="required" />
+    </xs:complexType>
+
+    <xs:complexType name="linkedDomainObjectType">
+        <xs:complexContent>
+            <xs:extension base="con:indexedDomainObjectType">
+                <xs:sequence>
+                    <xs:element type="con:optionalDomainObjectAlgorithmType" name="parent-link"
+                        minOccurs="1" maxOccurs="1"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="targetDomainObjectType" >
+        <xs:complexContent>
+            <xs:extension base="con:indexedDomainObjectType">
+                <xs:sequence>
+                    <xs:element type="con:targetCollectionType" name="target-collection"
+                        minOccurs="1" maxOccurs="1"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="targetCollectionType">
+        <xs:attribute type="xs:string" name="name" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="optionalDomainObjectAlgorithmType">
+        <xs:choice minOccurs="0" maxOccurs="1">
+            <xs:element name="java-class" type="con:javaClassType"
+                xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element name="spring-bean" type="con:springBeanType"
+                xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element name="doel" type="con:doelType"
+                xmlns:con="https://cm5.intertrust.ru/config" />
+        </xs:choice>
     </xs:complexType>
 </xs:schema>

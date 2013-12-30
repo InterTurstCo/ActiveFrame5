@@ -20,6 +20,7 @@
                 <value>config/collections.xml</value>
                 <value>config/collection-views.xml</value>
                 <value>config/access.xml</value>
+                <value>config/search.xml</value>
                 <value>config/navigation-panel.xml</value>
             </set>
         </property>

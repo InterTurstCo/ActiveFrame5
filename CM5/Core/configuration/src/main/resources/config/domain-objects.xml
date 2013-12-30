@@ -1,5 +1,7 @@
 <?xml version="1.1" encoding="UTF-8" standalone="yes"?>
-<configuration xmlns="https://cm5.intertrust.ru/config">
+<configuration xmlns="https://cm5.intertrust.ru/config"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="https://cm5.intertrust.ru/config configuration.xsd">
 
     <domain-object-type name="Outgoing_Document" audit-log="true" initial-status="Active"> <!-- OUTGOING_DOCUMENT table -->
         <fields>
@@ -22,6 +24,7 @@
      <domain-object-type name="Internal_Document" initial-status="Draft"> <!-- Internal_Document table -->
         <fields>
             <string name="Name" length="128" />
+            <string name="Description" length="128" />
             <long name="Stage"/>
             <string name="ReturnOnReject" length="3" />
             <reference name="docAuthor" type="Employee"/>
@@ -31,6 +34,9 @@
             <string name="RegNum" length="128" />
             <string name="State" length="128" /> <!-- Не удалять строковой статус. Требуется для тестирования -->
         </fields>
+        <attachment-types>
+            <attachment-type name="Internal_Document_Content"/>
+        </attachment-types>
     </domain-object-type>
 
     <domain-object-type name="Negotiation_Card"  initial-status="Draft"> <!-- Negotiation_Card table -->
@@ -79,13 +85,13 @@
             <string name="LastName" length="128" />
             <string name="EMail" length="128" />
         </fields>
-       <uniqueKey> <!-- This key means automatic key + index creation-->
+        <uniqueKey> <!-- This key means automatic key + index creation-->
             <field name="Login"/>
-       </uniqueKey>
-       <uniqueKey> <!-- This key means automatic key + index creation-->
+        </uniqueKey>
+        <uniqueKey> <!-- This key means automatic key + index creation-->
             <field name="EMail"/>
-       </uniqueKey>
-       <attachment-types>
+        </uniqueKey>
+        <attachment-types>
             <attachment-type name="Person_Attachment"></attachment-type>
         </attachment-types>
 
@@ -112,19 +118,19 @@
        </uniqueKey>
     </domain-object-type>
 
-	<domain-object-type name="Employee" extends="Person" audit-log="true" initial-status="Active">
-		<fields>
-			<reference name="Department" type="Department" not-null="true"/>
+    <domain-object-type name="Employee" extends="Person" audit-log="true" initial-status="Active">
+        <fields>
+            <reference name="Department" type="Department" not-null="true"/>
             <string name="Name" length="64" not-null="true" />
             <string name="Position" length="64" not-null="true" />
             <string name="Phone" length="32" />
             <string name="Certificate" length="4096" />
             <string name="Fingerprint" length="128" />
-		</fields>
-		<uniqueKey> <!-- This key means automatic key + index creation -->
-			<field name="Phone" />
-		</uniqueKey>
-	</domain-object-type>
+        </fields>
+        <uniqueKey> <!-- This key means automatic key + index creation -->
+            <field name="Phone" />
+        </uniqueKey>
+    </domain-object-type>
 
     <domain-object-type name="Tst_Employee" extends="Person" audit-log="true" initial-status="Active">
         <fields>
@@ -227,10 +233,10 @@
 
     <domain-object-type name="test_process_attachment">
         <fields>
-        	<string name="test_text" length="512"/>
-			<dateTime name="test_date"/>
-			<long name="test_long"/>
-			<decimal name="test_decimal" precision="10" scale="2"/>
+            <string name="test_text" length="512"/>
+            <dateTime name="test_date"/>
+            <long name="test_long"/>
+            <decimal name="test_decimal" precision="10" scale="2"/>
             <string name="new_field" length="512"/>
         </fields>
     </domain-object-type>

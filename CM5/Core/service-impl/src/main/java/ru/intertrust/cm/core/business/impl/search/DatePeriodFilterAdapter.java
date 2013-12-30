@@ -1,0 +1,32 @@
+package ru.intertrust.cm.core.business.impl.search;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import ru.intertrust.cm.core.business.api.dto.DatePeriodFilter;
+import ru.intertrust.cm.core.business.api.dto.SearchFilter;
+
+public class DatePeriodFilterAdapter implements FilterAdapter {
+
+    @Override
+    public String getFilterValue(SearchFilter filter) {
+        DatePeriodFilter dateFilter = (DatePeriodFilter) filter;
+        StringBuilder str = new StringBuilder()
+                .append("[")
+                .append(dateToString(dateFilter.getStartDate()))
+                .append(" TO ")
+                .append(dateToString(dateFilter.getEndDate()))
+                .append("]");
+        return str.toString();
+    }
+
+    private static final DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss:SSS'Z'");
+
+    private static String dateToString(Date date) {
+        if (date == null) {
+            return "*";
+        }
+        return formatter.format(date);
+    }
+}

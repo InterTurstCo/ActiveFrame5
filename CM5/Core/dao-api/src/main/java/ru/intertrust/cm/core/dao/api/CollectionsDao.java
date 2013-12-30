@@ -26,8 +26,8 @@ public interface CollectionsDao {
      * @param limit ограничение количества возвращенных доменных объектов
      * @return
      */
-    IdentifiableObjectCollection findCollection(String collectionName,
-                                                List<Filter> filterValues, SortOrder sortOrder, int offset, int limit, AccessToken accessToken);
+    IdentifiableObjectCollection findCollection(String collectionName, List<? extends Filter> filterValues,
+            SortOrder sortOrder, int offset, int limit, AccessToken accessToken);
 
     /**
      * Поиск коллекции доменных объектов, используя запрос
@@ -58,6 +58,6 @@ public interface CollectionsDao {
      * @param collectionName конфигурация коллекции
      * @return
      */
-    int findCollectionCount(String collectionName, List<Filter> filterValues, AccessToken accessToken);
+    int findCollectionCount(String collectionName, List<? extends Filter> filterValues, AccessToken accessToken);
 
 }

@@ -1,14 +1,5 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
-import static ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier.modifyQueryWithParameters;
-import static ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier.wrapAndLowerCaseNames;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
@@ -32,6 +23,15 @@ import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.exception.CollectionConfigurationException;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
 import ru.intertrust.cm.core.dao.impl.utils.CollectionRowMapper;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
+import static ru.intertrust.cm.core.dao.impl.SqlQueryModifier.buildColumnToConfigMap;
+import static ru.intertrust.cm.core.dao.impl.SqlQueryModifier.wrapAndLowerCaseNames;
 
 /**
  * @author vmatsukevich
@@ -88,7 +88,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
      */
     @Override
     public IdentifiableObjectCollection findCollection(String collectionName,
-                                                       List<Filter> filterValues,
+                                                       List<? extends Filter> filterValues,
                                                        SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
 
         CollectionConfig collectionConfig = configurationExplorer.getConfig(CollectionConfig.class, collectionName);
@@ -136,11 +136,9 @@ public class CollectionsDaoImpl implements CollectionsDao {
     public IdentifiableObjectCollection findCollectionByQuery(String query, int offset, int limit,
                                                               AccessToken accessToken) {
         CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer(configurationExplorer);
-        
         String collectionQuery = collectionQueryInitializer.initializeQuery(query, offset, limit, accessToken);
 
         Map<String, Object> parameters = new HashMap<>();
-        
         if (accessToken.isDeferred()) {
             fillAclParameters(accessToken, parameters);
         }
@@ -209,7 +207,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
      */
     @Override
     public int findCollectionCount(String collectionName,
-            List<Filter> filterValues, AccessToken accessToken) {
+            List<? extends Filter> filterValues, AccessToken accessToken) {
         CollectionConfig collectionConfig = configurationExplorer.getConfig(CollectionConfig.class, collectionName);
         String collectionQuery = getFindCollectionCountQuery(collectionConfig, filterValues, accessToken);
 
@@ -256,7 +254,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
      * @return
      */
     protected String getFindCollectionQuery(CollectionConfig collectionConfig,
-                                            List<Filter> filterValues, SortOrder sortOrder,
+                                            List<? extends Filter> filterValues, SortOrder sortOrder,
                                             int offset, int limit, AccessToken accessToken) {
         CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer(configurationExplorer);
 
@@ -274,7 +272,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
      * @return
      */
     protected String getFindCollectionCountQuery(CollectionConfig collectionConfig,
-            List<Filter> filterValues, AccessToken accessToken) {
+            List<? extends Filter> filterValues, AccessToken accessToken) {
         CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer(configurationExplorer);
 
         String collectionQuery =
@@ -289,7 +287,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
      * @param filterValues
      * @param parameters
      */
-    private void fillFilterParameters(List<Filter> filterValues, Map<String, Object> parameters) {
+    private void fillFilterParameters(List<? extends Filter> filterValues, Map<String, Object> parameters) {
         if (filterValues != null) {
             for (Filter filter : filterValues) {
                 for (Integer key : filter.getCriterionKeys()) {
@@ -360,7 +358,6 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
         return newFilterCriteria;
     }
-    
     /**
      * 
      * @param subQuery
@@ -372,5 +369,4 @@ public class CollectionsDaoImpl implements CollectionsDao {
         newFilterCriteria = newFilterCriteria.replaceAll("[}]", END_PARAM_SIGN);
         return newFilterCriteria;
     }
-
 }

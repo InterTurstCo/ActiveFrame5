@@ -91,4 +91,26 @@
     <bean id="formService" factory-bean="processEngine" factory-method="getFormService"/>
     <!-- Интеграция с Activiti -->
 
+    <bean id="solrServer"
+          class="ru.intertrust.cm.core.business.impl.search.SolrServerFactory"
+          factory-method="getSolrServer"/>
+
+    <bean id="searchService" class="ru.intertrust.cm.core.business.impl.search.SearchServiceImpl"/>
+
+    <bean id="searchConfigHelper" class="ru.intertrust.cm.core.business.impl.search.SearchConfigHelper"/>
+
+    <bean id="searchFilterImplementorFactory" class="ru.intertrust.cm.core.business.impl.search.ImplementorFactory">
+        <property name="implementors">
+            <map>
+                <entry key="ru.intertrust.cm.core.business.api.dto.TextSearchFilter"
+                       value="ru.intertrust.cm.core.business.impl.search.TextFilterAdapter"/>
+                <entry key="ru.intertrust.cm.core.business.api.dto.DatePeriodFilter"
+                       value="ru.intertrust.cm.core.business.impl.search.DatePeriodFilterAdapter"/>
+                <entry key="ru.intertrust.cm.core.business.api.dto.NumberRangeFilter"
+                       value="ru.intertrust.cm.core.business.impl.search.NumberRangeFilterAdapter"/>
+                <entry key="ru.intertrust.cm.core.business.api.dto.OneOfListFilter"
+                       value="ru.intertrust.cm.core.business.impl.search.OneOfListFilterAdapter"/>
+            </map>
+        </property>
+    </bean>
 </beans>
