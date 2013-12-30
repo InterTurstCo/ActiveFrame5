@@ -615,7 +615,7 @@
             </criteria>
         </filter>
     </collection>
-    <!-- collection-view name="countries_default_view" collection="Countries" is-default="true">
+    <collection-view name="countries_default_view" collection="Countries" is-default="true">
         <display>
             <column field="id" name="id" type="integer" sortable="false"  />
             <column field="name" name="Название" editable="false" type="string" sortable="true" search-filter="byName"/>
@@ -627,7 +627,7 @@
                     search-filter="byDescription"/>
             <column field="square" name="Площадь" type="string" editable="false" sortable="true" search-filter="bySquare"/>
         </display>
-    </collection-view-->
+    </collection-view>
 
     <collection name="Cities" idField="id">
         <prototype>
