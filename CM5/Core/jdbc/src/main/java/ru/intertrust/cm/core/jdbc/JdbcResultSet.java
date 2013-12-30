@@ -188,7 +188,11 @@ public class JdbcResultSet implements ResultSet {
         String result = null;
         Value value = collection.get(index).getValue(columnLabel);
         if (value != null && value.get() != null) {
-            result = value.get().toString();
+            if (value instanceof ReferenceValue){
+                result = ((ReferenceValue)value).get().toStringRepresentation();
+            }else{
+                result = value.get().toString();
+            }
         }
 
         return result;
@@ -219,9 +223,8 @@ public class JdbcResultSet implements ResultSet {
         if (value != null && value.get() != null) {
             if (value instanceof LongValue) {
                 result = ((LongValue) value).get().intValue();
-            } else if (value instanceof ReferenceValue) {
-                RdbmsId id = (RdbmsId) ((ReferenceValue) value).get();
-                result = Long.valueOf(id.getId()).intValue();
+            }else {
+                throw new SQLException("Value of column " + columnLabel + " is not int type");
             }
         }
 
@@ -234,8 +237,6 @@ public class JdbcResultSet implements ResultSet {
         long result = 0;
         if (value instanceof LongValue) {
             result = ((LongValue) value).get();
-        } else if (value instanceof ReferenceValue) {
-            result = ((RdbmsId) ((ReferenceValue) value).get()).getId();
         } else {
             throw new SQLException("Value of column " + columnLabel + " is not long type");
         }
@@ -345,7 +346,7 @@ public class JdbcResultSet implements ResultSet {
             if (value instanceof LongValue) {
                 result = ((LongValue) value).get();
             } else if (value instanceof ReferenceValue) {
-                result = ((RdbmsId) ((ReferenceValue) value).get()).getId();
+                result = ((ReferenceValue) value).get().toStringRepresentation();
             } else if (value instanceof TimestampValue) {
                 result = ((TimestampValue) value).get();
             }else{
