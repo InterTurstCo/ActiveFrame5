@@ -77,7 +77,7 @@ public class SqlQueryModifier {
         return selectBody.toString();
     }
 
-    public String addIdBasedFilters(String query, final List<Filter> filterValues, final String idField) {
+    public String addIdBasedFilters(String query, final List<? extends Filter> filterValues, final String idField) {
         return processQuery(query, new QueryProcessor() {
             @Override
             protected void processPlainSelect(PlainSelect plainSelect) {
@@ -281,7 +281,8 @@ public class SqlQueryModifier {
         }
     }
 
-    private void addIdBasedFiltersInPlainSelect(PlainSelect plainSelect, List<Filter> filterValues, String idField) {
+    private void addIdBasedFiltersInPlainSelect(PlainSelect plainSelect, List<? extends Filter> filterValues,
+            String idField) {
         if (filterValues == null) {
             return;
         }
