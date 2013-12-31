@@ -12,7 +12,16 @@ import java.util.List;
  *
  */
 public interface AttachmentService {
-   
+
+    /*
+     * константы для зарезервированных названий полей доменного объекта вложения
+     */
+    public final static String NAME =  "Name";
+    public final static String PATH = "Path";
+    public final static String MIME_TYPE = "MimeType";
+    public final static String DESCRIPTION = "Description";
+    public final static String CONTENT_LENGTH = "ContentLength";
+
     /**
      * Удаленный интерфейс для EJB
      * @author atsvetkov
@@ -41,24 +50,32 @@ public interface AttachmentService {
 
     /**
      * Загружает контент для доменного объекта Вложение.
-     * @param attachmentDomainObject ДО Вложение
+     * @param attachmentDomainObjectId ID ДО Вложение
      * @return обертка для для java.io.InputStream, используется для перемещения файлов в потоке по сети
      */
     
-    RemoteInputStream loadAttachment(DomainObject attachmentDomainObject);
+    RemoteInputStream loadAttachment(Id attachmentDomainObjectId);
 
     /**
      * Удаление ДО Вложение и его контента.
-     * @param path id в БД или абсолютный путь на жёстком диске
+     * @param attachmentDomainObjectId ID ДО Вложение
      */
-    void deleteAttachment(DomainObject attachmentDomainObject);
+    void deleteAttachment(Id attachmentDomainObjectId);
+
 
     /**
-     * Получает список ДО Вложений для переданного ДО.
-     * @param domainObject ДО, для которого находятся вложения
+     * Получает список ДО Вложений для переданного ID ДО.
+     * @param domainObjectId ID ДО, для которого находятся вложения
      * @return список ДО Вложений
-     * @deprecated
      */
-    List<DomainObject> getAttachmentDomainObjectsFor(DomainObject domainObject);
+    List<DomainObject> findAttachmentDomainObjectsFor(Id domainObjectId);
+
+    /**
+     * Получает все доменные объекты вложений определённого типа
+     * @param domainObjectId ID ДО, для которого находятся вложения
+     * @param attachmentType типа вложения
+     * @return список ДО Вложений
+     */
+    List<DomainObject> findAttachmentDomainObjectsFor(Id domainObjectId, String attachmentType);
     
 }

@@ -42,7 +42,7 @@ public class AttachmentDownloader {
         Id rdmsId = idService.createId(id);
         DomainObject domainObject = crudService.find(rdmsId);
         String mimeType = domainObject.getString("MimeType");
-        RemoteInputStream remoteFileData = attachmentService.loadAttachment(domainObject);
+        RemoteInputStream remoteFileData = attachmentService.loadAttachment(rdmsId);
         try (
                 InputStream fileData = RemoteInputStreamClient.wrap(remoteFileData);) {
             response.setHeader("Content-Disposition", "attachment; filename=" + domainObject.getString("Name"));

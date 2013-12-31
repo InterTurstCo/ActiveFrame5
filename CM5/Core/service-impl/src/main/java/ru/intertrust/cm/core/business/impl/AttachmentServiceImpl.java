@@ -137,9 +137,10 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
 
     @Override
-    public RemoteInputStream loadAttachment(DomainObject attachmentDomainObject) {
+    public RemoteInputStream loadAttachment(Id attachmentDomainObjectId) {
         InputStream inFile = null;
         SimpleRemoteInputStream remoteInputStream = null;
+        DomainObject attachmentDomainObject = crudService.find(attachmentDomainObjectId);
         try {
             inFile = attachmentContentDao.loadContent(attachmentDomainObject);
             remoteInputStream = new SimpleRemoteInputStream(inFile);
@@ -160,17 +161,20 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
 
     @Override
-    public void deleteAttachment(DomainObject attachmentDomainObject) {
+    public void deleteAttachment(Id attachmentDomainObjectId) {
+        DomainObject attachmentDomainObject = crudService.find(attachmentDomainObjectId);
         attachmentContentDao.deleteContent(attachmentDomainObject);
         //файл может быть и не удален
         AccessToken accessToken = createSystemAccessToken();
-        domainObjectDao.delete(attachmentDomainObject.getId(), accessToken);
+        domainObjectDao.delete(attachmentDomainObjectId, accessToken);
     }
 
+
     @Override
-    public List<DomainObject> getAttachmentDomainObjectsFor(DomainObject domainObject) {
+    public List<DomainObject> findAttachmentDomainObjectsFor(Id domainObjectId) {
+        String domainObjectTypeName = domainObjectTypeIdCache.getName(domainObjectId);
         DomainObjectTypeConfig domainObjectTypeConfig =
-                configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObject.getTypeName());
+                configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObjectTypeName);
         if (domainObjectTypeConfig.getAttachmentTypesConfig() == null) {
             return Collections.emptyList();
         }
@@ -179,13 +183,17 @@ public class AttachmentServiceImpl implements AttachmentService {
                 domainObjectTypeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs()) {
             DomainObjectTypeConfig attachDomainObjectTypeConfig =
                     configurationExplorer.getConfig(DomainObjectTypeConfig.class, attachmentTypeConfig.getName());
-            String user = currentUserAccessor.getCurrentUser();
-            AccessToken accessToken = accessControlService.createAccessToken(user, domainObject.getId(), DomainObjectAccessType.READ);
             String attachmentType = attachDomainObjectTypeConfig.getName();
-            attachmentDomainObjects.addAll(
-                    domainObjectDao.findLinkedDomainObjects(domainObject.getId(), attachmentType, attachmentType,
-                            accessToken));
+            List<DomainObject> domainObjectList = findAttachmentDomainObjectsFor(domainObjectId, attachmentType);
+            if (domainObjectList != null) attachmentDomainObjects.addAll(domainObjectList);
         }
         return attachmentDomainObjects;
+    }
+
+    @Override
+    public List<DomainObject> findAttachmentDomainObjectsFor(Id domainObjectId, String attachmentType) {
+        String user = currentUserAccessor.getCurrentUser();
+        AccessToken accessToken = accessControlService.createAccessToken(user, domainObjectId, DomainObjectAccessType.READ);
+        return  domainObjectDao.findLinkedDomainObjects(domainObjectId, attachmentType, attachmentType, accessToken);
     }
 }

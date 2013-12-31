@@ -89,7 +89,7 @@ public class ReportServiceBase {
         InputStream contentStream = null;
         RemoteInputStream inputStream = null;
         try {
-            inputStream = attachmentService.loadAttachment(attachment);
+            inputStream = attachmentService.loadAttachment(attachment.getId());
             contentStream = RemoteInputStreamClient.wrap(inputStream);
             ByteArrayOutputStream attachmentBytes = new ByteArrayOutputStream();
             

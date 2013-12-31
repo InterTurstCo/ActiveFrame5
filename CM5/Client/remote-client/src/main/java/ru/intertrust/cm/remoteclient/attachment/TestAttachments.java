@@ -59,7 +59,7 @@ public class TestAttachments extends ClientBase {
             boolean compareResult = compareContent(saveContent, loadContent);
             System.out.println("Load OK=" + compareResult);
             
-            attachmentService.deleteAttachment(secondAttachment);            
+            attachmentService.deleteAttachment(secondAttachment.getId());
             System.out.println("Delete OK");
             
         } finally {
@@ -106,7 +106,7 @@ public class TestAttachments extends ClientBase {
         InputStream contentStream = null;
         RemoteInputStream inputStream = null;
         try {
-            inputStream = attachmentService.loadAttachment(attachment);
+            inputStream = attachmentService.loadAttachment(attachment.getId());
             contentStream = RemoteInputStreamClient.wrap(inputStream);
             ByteArrayOutputStream attachmentBytes = new ByteArrayOutputStream();
             

@@ -96,7 +96,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
                 //Если существует то удаляем все вложения по нему
                 List<DomainObject> attachments = getAttachments("report_template_attachment", reportTemplateObject);
                 for (DomainObject attachment : attachments) {
-                    attachmentService.deleteAttachment(attachment);
+                    attachmentService.deleteAttachment(attachment.getId());
                 }
             }
             reportTemplateObject.setString("description", reportMetadata.getDescription());
