@@ -16,4 +16,6 @@ public interface IsDomainObjectEditor {
     DomainObject getRootDomainObject();
 
     void replaceForm(FormPluginConfig formPluginConfig);
+
+    FormPluginMode getFormPluginMode();
 }

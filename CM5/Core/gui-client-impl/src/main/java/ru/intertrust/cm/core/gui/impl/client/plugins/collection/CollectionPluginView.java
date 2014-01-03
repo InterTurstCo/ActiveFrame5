@@ -19,7 +19,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.gwt.view.client.MultiSelectionModel;
-import com.google.gwt.view.client.SelectionModel;
+import com.google.gwt.view.client.SetSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
@@ -75,7 +75,7 @@ public class CollectionPluginView extends PluginView {
     protected Plugin plugin;
     private ArrayList<Integer> chosenIndexes = new ArrayList<Integer>();
     private Column<CollectionRowItem, Boolean> checkColumn;
-    private SelectionModel<CollectionRowItem> selectionModel;
+    private SetSelectionModel<CollectionRowItem> selectionModel;
     /**
      * Создание стилей для ящеек таблицы
      */
@@ -133,9 +133,14 @@ public class CollectionPluginView extends PluginView {
         applySelectionModel();
         insertRows(items);
         applyStyles();
-
         addHandlers();
+        if (singleChoice && !items.isEmpty()) {
+            selectionModel.setSelected(items.get(0), true);
+        }
+    }
 
+    public SetSelectionModel<CollectionRowItem> getSelectionModel() {
+        return selectionModel;
     }
 
     private void createTableColumns() {
@@ -540,7 +545,6 @@ public class CollectionPluginView extends PluginView {
     }
 
     private void applySelectionModel() {
-
         if (singleChoice) {
             selectionModel = new CheckedSelectionModel<CollectionRowItem>();
         } else {

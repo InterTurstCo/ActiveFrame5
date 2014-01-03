@@ -23,6 +23,8 @@ public class SaveActionHandler extends ActionHandler {
         DomainObject rootDomainObject = guiService.saveForm(((SaveActionContext) context).getFormState());
         FormPluginHandler handler = (FormPluginHandler) applicationContext.getBean("form.plugin");
         FormPluginConfig config = new FormPluginConfig(rootDomainObject.getId());
+        config.setMode(((SaveActionContext) context).getMode());
+        config.setEditable(true);
         SaveActionData result = new SaveActionData();
         result.setFormPluginData((FormPluginData) handler.initialize(config));
         return (T) result;

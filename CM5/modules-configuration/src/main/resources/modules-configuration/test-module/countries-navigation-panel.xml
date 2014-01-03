@@ -45,6 +45,7 @@
                                 <collection-ref name="Employees" use-default="true"/>
                                 <sort-criterion field="last_name"/>
                             </collection-viewer>
+                            <first-open-read-only>true</first-open-read-only>
                         </domain-object-surfer>
                     </plugin>
                     <decorations>

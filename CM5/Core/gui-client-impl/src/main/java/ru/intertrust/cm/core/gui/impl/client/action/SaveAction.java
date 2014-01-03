@@ -34,10 +34,12 @@ public class SaveAction extends SimpleServerAction {
 
     @Override
     protected SaveActionContext appendCurrentContext(ActionContext initialContext) {
-        FormState formState = ((IsDomainObjectEditor) getPlugin()).getFormState();
+        final IsDomainObjectEditor editor = (IsDomainObjectEditor) getPlugin();
+        FormState formState = editor.getFormState();
         SaveActionContext context = (SaveActionContext) initialContext;
         context.setRootObjectId(formState.getObjects().getRootNode().getDomainObject().getId());
         context.setFormState(formState);
+        context.setMode(editor.getFormPluginMode());
         return context;
     }
 

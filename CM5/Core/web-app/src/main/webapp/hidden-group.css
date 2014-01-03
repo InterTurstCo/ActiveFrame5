@@ -24,7 +24,6 @@ background: url(images/tab-close.png) 3px 8px no-repeat;
 .gwt-TabLayoutPanelContent .gwt-Label {
 width: 150px;
 margin-right: 20px;
-line-height: 10px;
 }
 
 .hidden-group-title-first-level{

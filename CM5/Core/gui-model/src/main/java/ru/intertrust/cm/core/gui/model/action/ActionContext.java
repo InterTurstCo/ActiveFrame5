@@ -14,6 +14,15 @@ public class ActionContext implements Dto {
 
     private ActionConfig actionConfig;
 
+    /**
+     * Default constructor.
+     */
+    public ActionContext(){}
+
+    public ActionContext(final ActionConfig actionConfig) {
+        this.actionConfig = actionConfig;
+    }
+
     public Id getRootObjectId() {
         return rootObjectId;
     }
@@ -29,6 +38,4 @@ public class ActionContext implements Dto {
     public void setActionConfig(ActionConfig actionConfig) {
         this.actionConfig = actionConfig;
     }
-
-
 }

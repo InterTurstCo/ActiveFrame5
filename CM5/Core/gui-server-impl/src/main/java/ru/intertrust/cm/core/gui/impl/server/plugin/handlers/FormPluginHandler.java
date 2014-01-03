@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,47 +31,66 @@ public class FormPluginHandler extends ActivePluginHandler {
         String domainObjectToCreate = config.getDomainObjectTypeToCreate();
         FormDisplayData form = domainObjectToCreate != null ? guiService.getForm(domainObjectToCreate)
                 : guiService.getForm(config.getDomainObjectId());
-
+        form.setEditable(config.isEditable());
         FormPluginData pluginData = new FormPluginData();
         pluginData.setFormDisplayData(form);
+        pluginData.setMode(config.getMode());
         pluginData.setActionContexts(getActions(config));
         return pluginData;
     }
 
     public List<ActionContext> getActions(FormPluginConfig config)  {
-        ActionConfig saveActionConfig = new ActionConfig("save.action", "save.action");
-        saveActionConfig.setText("Сохранить");
-        saveActionConfig.setImageUrl("icons/ico-save.gif");
-        ActionContext saveActionContext = new SaveActionContext();
-        saveActionContext.setActionConfig(saveActionConfig);
+        final List<ActionContext> actions = getActionContexts(config.getMode(), config.isEditable());
 
-        ActionConfig createNewActionConfig = new ActionConfig("create.new.object.action", "create.new.object.action");
-        createNewActionConfig.setText("Создать новый");
-        createNewActionConfig.setImageUrl("icons/icon-create.png");
-        ActionContext createNewActionContext = new ActionContext();
-        createNewActionContext.setActionConfig(createNewActionConfig);
-
-        ActionConfig deleteActionConfig = new ActionConfig("delete.action", "delete.action");
-        deleteActionConfig.setText("Удалить");
-        deleteActionConfig.setImageUrl("icons/ico-delete.gif");
-        ActionContext deleteActionContext = new SaveActionContext();
-        deleteActionContext.setActionConfig(deleteActionConfig);
-
-        ArrayList<ActionContext> actions = new ArrayList<>();
-        actions.add(createNewActionContext);
-        actions.add(saveActionContext);
-        actions.add(deleteActionContext);
-
-        List<ActionContext> otherActions = null;
+        final List<ActionContext> otherActions;
         if (config.getDomainObjectId() != null){
             otherActions = actionService.getActions(config.getDomainObjectId());
         }else{
             otherActions = actionService.getActions(config.getDomainObjectTypeToCreate());
         }
-        if (otherActions != null) {
+        if (otherActions != null && !otherActions.isEmpty()) {
             actions.addAll(otherActions);
         }
 
         return actions;
+    }
+
+    private static List<ActionContext> getActionContexts(final FormPluginMode mode, final boolean isEditable) {
+        final List<ActionContext> contexts = new ArrayList<>();
+        switch (mode) {
+            case EDITABLE:
+                contexts.add(new ActionContext(createActionConfig("create.new.object.action",
+                        "create.new.object.action", "Создать новый", "icons/icon-create.png")));
+                contexts.add(new SaveActionContext(createActionConfig(
+                        "save.action", "save.action", "Сохранить", "icons/ico-save.gif")));
+                contexts.add(new SaveActionContext(createActionConfig(
+                        "delete.action", "delete.action", "Удалить", "icons/ico-delete.gif")));
+                break;
+            case MANUAL_EDIT:
+                if (isEditable) {
+                    contexts.add(new SaveActionContext(createActionConfig(
+                            "save.action", "save.action", "Сохранить", "icons/ico-save.gif")));
+                    contexts.add(new ActionContext(createActionConfig("cancel.edit.action",
+                            "cancel.edit.action", "Завершить редактирование", "icons/ico-edit-close.png")));
+                } else {
+                    contexts.add(new ActionContext(createActionConfig(
+                            "create.new.object.action", "create.new.object.action",
+                            "Создать новый", "icons/icon-create.png")));
+                    contexts.add(new ActionContext(createActionConfig(
+                            "edit.action", "edit.action", "Редактировать", "icons/icon-edit.png")));
+                    contexts.add(new SaveActionContext(createActionConfig(
+                            "delete.action", "delete.action", "Удалить", "icons/ico-delete.gif")));
+                }
+                break;
+        }
+        return contexts;
+    }
+
+    private static ActionConfig createActionConfig(final String name, final String component,
+                                                     final String label, final String imageUrl) {
+        final ActionConfig config = new ActionConfig(name, component);
+        config.setText(label);
+        config.setImageUrl(imageUrl);
+        return config;
     }
 }

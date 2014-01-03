@@ -14,6 +14,7 @@ import java.util.List;
 
 @ComponentName("domain.object.surfer.plugin")
 public class DomainObjectSurferHandler extends ActivePluginHandler {
+
     @Autowired
     private ApplicationContext applicationContext;
 
@@ -31,6 +32,8 @@ public class DomainObjectSurferHandler extends ActivePluginHandler {
         } else {
             formPluginConfig = new FormPluginConfig(items.get(0).getId());
         }
+        formPluginConfig.setMode(config.isFirstOpenReadonly() ? FormPluginMode.MANUAL_EDIT : FormPluginMode.EDITABLE);
+        formPluginConfig.setEditable(!config.isFirstOpenReadonly());
         FormPluginHandler formPluginHandler = (FormPluginHandler) applicationContext.getBean("form.plugin");
         FormPluginData formPluginData = formPluginHandler.initialize(formPluginConfig);
 

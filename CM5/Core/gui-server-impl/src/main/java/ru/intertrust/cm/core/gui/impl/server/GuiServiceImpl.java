@@ -52,8 +52,9 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
             return null;
         }
         try {
-            return (Dto) componentHandler.getClass().getMethod(command.getName(), Dto.class)
+            final Dto dto = (Dto) componentHandler.getClass().getMethod(command.getName(), Dto.class)
                     .invoke(componentHandler, command.getParameter());
+            return dto;
         } catch (NoSuchMethodException e) {
             log.error(e.getMessage(), e);
             throw new GuiException("No command + " + command.getName() + " implemented");

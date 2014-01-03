@@ -14,6 +14,7 @@ import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPluginView;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.form.FormState;
@@ -21,16 +22,16 @@ import ru.intertrust.cm.core.gui.model.plugin.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
 @ComponentName("domain.object.surfer.plugin")
-public class DomainObjectSurferPlugin extends Plugin implements
-        IsActive, CollectionRowSelectedEventHandler, IsDomainObjectEditor, IsIdentifiableObjectList, PluginPanelSizeChangedEventHandler {
+public class DomainObjectSurferPlugin extends Plugin implements IsActive, CollectionRowSelectedEventHandler,
+        IsDomainObjectEditor, IsIdentifiableObjectList, PluginPanelSizeChangedEventHandler {
 
     private CollectionPlugin collectionPlugin;
     private FormPlugin formPlugin;
     private PluginPanel formPluginPanel;
-
     // локальная шина событий
     private EventBus eventBus;
 
@@ -88,7 +89,11 @@ public class DomainObjectSurferPlugin extends Plugin implements
         final FormPlugin newFormPlugin = ComponentRegistry.instance.get("form.plugin");
         // после обновления формы ей снова "нужно дать" локальную шину событий
         newFormPlugin.setEventBus(this.eventBus);
-        newFormPlugin.setConfig(new FormPluginConfig(event.getId()));
+        final FormPluginConfig newConfig = new FormPluginConfig(event.getId());
+        final FormPluginData formPluginData = formPlugin.getInitialData();
+        newConfig.setMode(formPluginData.getMode());
+        newConfig.setEditable(formPluginData.getFormDisplayData().isEditable());
+        newFormPlugin.setConfig(newConfig);
         newFormPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {
             @Override
             public void onViewCreation(PluginViewCreatedEvent source) {
@@ -118,17 +123,34 @@ public class DomainObjectSurferPlugin extends Plugin implements
     @Override
     public void replaceForm(FormPluginConfig formPluginConfig) {
         FormPlugin newPlugin = ComponentRegistry.instance.get("form.plugin");
+        formPluginConfig.setMode(((FormPluginData) formPlugin.getInitialData()).getMode());
+        newPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {
+
+            @Override
+            public void onViewCreation(PluginViewCreatedEvent source) {
+                final FormPluginData data = source.getPlugin().getInitialData();
+                DomainObjectSurferPlugin.this.setActionContexts(data.getActionContexts());
+            }
+        });
         newPlugin.setConfig(formPluginConfig);
-        ((Plugin) formPlugin).getOwner().open(newPlugin);
+        formPlugin.getOwner().open(newPlugin);
         formPlugin = newPlugin;
         formPlugin.setEventBus(this.eventBus);
     }
 
     @Override
+    public FormPluginMode getFormPluginMode() {
+        return formPlugin == null ? FormPluginMode.EDITABLE : formPlugin.getFormPluginMode();
+    }
+
+    @Override
     public List<Id> getSelectedIds() {
-        // todo: quick impl, which is not correct in general
-        ArrayList<Id> result = new ArrayList<Id>(1);
-        result.add(((IsDomainObjectEditor) getFormPlugin()).getFormState().getObjects().getRootNode().getDomainObject().getId());
+        final CollectionPluginView cpView = (CollectionPluginView) collectionPlugin.getView();
+        final Set<CollectionRowItem> selected = cpView.getSelectionModel().getSelectedSet();
+        ArrayList<Id> result = new ArrayList<Id>(selected.size());
+        for (CollectionRowItem item : selected) {
+            result.add(item.getId());
+        }
         return result;
     }
 
@@ -140,7 +162,6 @@ public class DomainObjectSurferPlugin extends Plugin implements
         if (this.collectionPlugin == null) {
             this.collectionPlugin = ComponentRegistry.instance.get("collection.plugin");
         }
-
         this.collectionPlugin.setInitialData(initialData.getCollectionPluginData());
         this.collectionPlugin.setEventBus(eventBus);
 

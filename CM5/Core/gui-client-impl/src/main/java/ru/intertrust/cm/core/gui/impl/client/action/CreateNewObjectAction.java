@@ -14,12 +14,10 @@ public class CreateNewObjectAction extends Action {
     @Override
     public void execute() {
         IsDomainObjectEditor currentPlugin = (IsDomainObjectEditor) getPlugin();
-
         String domainObjectTypeToCreate = currentPlugin.getRootDomainObject().getTypeName();
-
         FormPluginConfig config = new FormPluginConfig(domainObjectTypeToCreate);
         config.setDomainObjectTypeToCreate(domainObjectTypeToCreate);
-
+        config.setEditable(true);
         currentPlugin.replaceForm(config);
     }
 
