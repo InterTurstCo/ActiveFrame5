@@ -85,7 +85,7 @@ public class ValueReader {
         if (rs.wasNull()) {
             return new ReferenceValue();
         } else {
-            String typeColumnName = getReferenceTypeColumnName(fieldConfig.getName()).toLowerCase();
+            String typeColumnName = getReferenceTypeColumnName(columnName);
             Integer typeId = rs.getInt(typeColumnName);
             if (!rs.wasNull()) {
                 return new ReferenceValue(new RdbmsId(typeId, longValue));
