@@ -119,6 +119,9 @@ public class AttachmentServiceImplTest {
         private DomainObjectDao domainObjectDao;
 
         @Mock
+        private CrudService crudService;
+
+        @Mock
         private AttachmentContentDao attachmentContentDao;
 
         @Mock
@@ -207,7 +210,15 @@ public class AttachmentServiceImplTest {
 
         @Bean
         public CrudService crudService() {
-            return new CrudServiceImpl();
+            doAnswer(new Answer() {
+                public Object answer(InvocationOnMock invocation) {
+                    DomainObject domainObject = new GenericDomainObject();
+                    domainObject.setString(AttachmentService.PATH, "" + (AttachmentServiceImplTest.suffix - 1));
+                    return domainObject;
+                }
+            }).when(crudService).find(any(Id.class));
+
+            return crudService;
         }
 
         @Bean
@@ -350,7 +361,6 @@ public class AttachmentServiceImplTest {
         Assert.assertEquals(2, ((RdbmsId) l.get(1).getId()).getId());
     }
 
-    /*
     @Test
     public void testDeleteAttachment() throws Exception {
         try {
@@ -393,7 +403,7 @@ public class AttachmentServiceImplTest {
             contentStream.close();
             //registry.unbind("AttachmentServiceRmi");
         }
-    }*/
+    }
 
     private DomainObjectTypeConfig createEmployee() {
         DomainObjectTypeConfig result = new DomainObjectTypeConfig();
