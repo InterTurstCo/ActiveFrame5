@@ -28,7 +28,6 @@ import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.wrap;
 import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.generateParameter;
 import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.setParameters;
 import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getGMTDate;
-import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getTimeZoneId;
 
 /**
  * Класс реализации работы с доменным объектом

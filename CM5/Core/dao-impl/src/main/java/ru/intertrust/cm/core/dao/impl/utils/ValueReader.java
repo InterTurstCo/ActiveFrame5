@@ -164,18 +164,18 @@ public class ValueReader {
         }
     }
 
-    private DateContext getDateTimeWithTimeZoneContext(String timeZoneId) {
+    private TimeZoneContext getDateTimeWithTimeZoneContext(String timeZoneId) {
         if (timeZoneId.startsWith("GMT")) {
             long offset = Long.parseLong(timeZoneId.substring(4))*3600000;
-            return new UtcOffsetContext(offset);
+            return new UTCOffsetTimeZoneContext(offset);
         } else {
-            return new TimeZoneContext(timeZoneId);
+            return new OlsonTimeZoneContext(timeZoneId);
         }
     }
 
     private DateTimeWithTimeZone getDateTimeWithTimeZone(Timestamp timestamp, String timeZoneId) {
         DateTimeWithTimeZone dateTimeWithTimeZone = new DateTimeWithTimeZone();
-        dateTimeWithTimeZone.setContext(getDateTimeWithTimeZoneContext(timeZoneId));
+        dateTimeWithTimeZone.setTimeZoneContext(getDateTimeWithTimeZoneContext(timeZoneId));
 
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(timeZoneId));
         calendar.setTime(timestamp);

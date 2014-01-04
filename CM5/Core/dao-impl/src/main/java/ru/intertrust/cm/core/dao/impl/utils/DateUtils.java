@@ -45,12 +45,13 @@ public class DateUtils {
         return calendar;
     }
 
+    @Deprecated
     public static String getTimeZoneId(DateTimeWithTimeZone dateTimeWithTimeZone) {
         String timeZoneId = null;
-        DateContext context = dateTimeWithTimeZone.getContext();
+        TimeZoneContext context = dateTimeWithTimeZone.getTimeZoneContext();
 
-        if (context instanceof UtcOffsetContext) {
-            long timeZoneOffset = ((UtcOffsetContext) context).getOffset();
+        if (context instanceof UTCOffsetTimeZoneContext) {
+            long timeZoneOffset = ((UTCOffsetTimeZoneContext) context).getOffset();
             if (timeZoneOffset == 0) {
                 timeZoneId = "GMT";
             } else {
@@ -61,8 +62,8 @@ public class DateUtils {
                     timeZoneId = "GMT-" + timeZoneOffsetInHours;
                 }
             }
-        } else if (context instanceof TimeZoneContext) {
-            timeZoneId = ((TimeZoneContext) context).getTimeZoneId();
+        } else if (context instanceof OlsonTimeZoneContext) {
+            timeZoneId = ((OlsonTimeZoneContext) context).getTimeZoneId();
         }
 
         return timeZoneId;
