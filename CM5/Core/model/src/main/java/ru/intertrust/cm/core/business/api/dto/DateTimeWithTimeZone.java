@@ -19,7 +19,7 @@ public class DateTimeWithTimeZone implements Dto {
     private int minutes;
     private int seconds;
     private int milliseconds;
-    private DateContext context;
+    private TimeZoneContext timeZoneContext;
 
     public DateTimeWithTimeZone() {
     }
@@ -98,12 +98,12 @@ public class DateTimeWithTimeZone implements Dto {
         this.milliseconds = milliseconds;
     }
 
-    public DateContext getContext() {
-        return context;
+    public TimeZoneContext getTimeZoneContext() {
+        return timeZoneContext;
     }
 
-    public void setContext(DateContext context) {
-        this.context = context;
+    public void setTimeZoneContext(TimeZoneContext timeZoneContext) {
+        this.timeZoneContext = timeZoneContext;
     }
 
     @Override
@@ -138,7 +138,7 @@ public class DateTimeWithTimeZone implements Dto {
         if (year != that.year) {
             return false;
         }
-        if (context != null ? !context.equals(that.context) : that.context != null) {
+        if (timeZoneContext != null ? !timeZoneContext.equals(that.timeZoneContext) : that.timeZoneContext != null) {
             return false;
         }
 
@@ -154,7 +154,7 @@ public class DateTimeWithTimeZone implements Dto {
         result = 31 * result + minutes;
         result = 31 * result + seconds;
         result = 31 * result + milliseconds;
-        result = 31 * result + (context != null ? context.hashCode() : 0);
+        result = 31 * result + (timeZoneContext != null ? timeZoneContext.hashCode() : 0);
         return result;
     }
 

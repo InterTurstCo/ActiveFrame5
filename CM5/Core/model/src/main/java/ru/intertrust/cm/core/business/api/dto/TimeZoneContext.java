@@ -1,21 +1,13 @@
 package ru.intertrust.cm.core.business.api.dto;
 
+import java.io.Serializable;
+
 /**
 * @author vmatsukevich
 *         Date: 10/29/13
-*         Time: 12:38 PM
+*         Time: 12:37 PM
 */
-public class TimeZoneContext extends DateContext {
-    private String timeZoneId;
+public abstract class TimeZoneContext implements Serializable {
 
-    public TimeZoneContext() {
-    }
-
-    public TimeZoneContext(String timeZoneId) {
-        this.timeZoneId = timeZoneId;
-    }
-
-    public String getTimeZoneId() {
-        return timeZoneId;
-    }
+    public abstract String getTimeZoneId();
 }
