@@ -166,8 +166,8 @@ public class ValueReader {
 
     private TimeZoneContext getDateTimeWithTimeZoneContext(String timeZoneId) {
         if (timeZoneId.startsWith("GMT")) {
-            long offset = Long.parseLong(timeZoneId.substring(4))*3600000;
-            return new UTCOffsetTimeZoneContext(offset);
+            TimeZone timeZone = TimeZone.getTimeZone(timeZoneId);
+            return new UTCOffsetTimeZoneContext(timeZone.getRawOffset());
         } else {
             return new OlsonTimeZoneContext(timeZoneId);
         }
