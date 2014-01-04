@@ -71,13 +71,13 @@ public interface ConfigurationExplorer {
     FieldConfig getFieldConfig(String domainObjectConfigName, String fieldConfigName, boolean returnInheritedConfig);
 
     /**
-     * Находит конфигурацию отображаемого поля коллекции по имени коллекции и имени поля в представлении коллекции
+     * Находит конфигурацию отображаемого поля коллекции по имени представления коллекции (view) и имени поля в представлении коллекции
      * (collection-views.xml).
-     * @param collectionConfigName имя коллекции
+     * @param collectionViewName имя представления (view) коллекции
      * @param columnConfigName имя поля
      * @return конфигурацию отображаемого поля коллекции
      */
-    CollectionColumnConfig getCollectionColumnConfig(String collectionConfigName, String columnConfigName);
+    CollectionColumnConfig getCollectionColumnConfig(String collectionViewName, String columnConfigName);
 
     /**
      * Поиск списка динамических групп по типу контекстного доменного объекта.

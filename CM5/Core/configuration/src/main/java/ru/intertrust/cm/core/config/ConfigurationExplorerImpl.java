@@ -204,8 +204,8 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
      * {@inheritDoc}
      */
     @Override
-    public CollectionColumnConfig getCollectionColumnConfig(String collectionConfigName, String columnConfigName) {
-        FieldConfigKey collectionColumnConfigKey = new FieldConfigKey(collectionConfigName, columnConfigName);
+    public CollectionColumnConfig getCollectionColumnConfig(String collectionViewName, String columnConfigName) {
+        FieldConfigKey collectionColumnConfigKey = new FieldConfigKey(collectionViewName, columnConfigName);
         CollectionColumnConfig collectionColumnConfig = collectionColumnConfigMap.get(collectionColumnConfigKey);
         return kryoCloner.cloneObject(collectionColumnConfig, collectionColumnConfig.getClass());
     }
@@ -350,7 +350,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
             for (CollectionColumnConfig columnConfig : collectionViewConfig.getCollectionDisplayConfig().
                     getColumnConfig()) {
                 FieldConfigKey fieldConfigKey =
-                        new FieldConfigKey(collectionViewConfig.getCollection(), columnConfig.getField());
+                        new FieldConfigKey(collectionViewConfig.getName(), columnConfig.getField());
                 collectionColumnConfigMap.put(fieldConfigKey, columnConfig);
 
             }
