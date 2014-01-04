@@ -1419,9 +1419,9 @@
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute type="xs:string" name="field"
-                              use="optional"/>
+                              use="required"/>
                 <xs:attribute type="xs:string" name="name"
-                              use="optional"/>
+                              use="required"/>
                 <xs:attribute type="xs:string" name="hidden"
                               use="optional"/>
                 <xs:attribute type="xs:string" name="sortable"
@@ -1429,7 +1429,7 @@
                 <xs:attribute type="xs:string" name="editable"
                               use="optional"/>
                 <xs:attribute type="xs:string" name="type"
-                              use="optional"/>
+                              use="required"/>
                 <xs:attribute type="xs:string" name="search-filter"
                               use="optional"/>
             </xs:extension>
@@ -1439,17 +1439,14 @@
     <xs:complexType name="displayType">
         <xs:sequence>
             <xs:element type="con:columnType" name="column"
-                        maxOccurs="unbounded" minOccurs="0"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
+                        maxOccurs="unbounded" minOccurs="0" />
         </xs:sequence>
     </xs:complexType>
 
     <xs:complexType name="collectionMappingType">
         <xs:sequence>
-            <xs:element type="con:usersType" name="users"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:rolesType" name="roles"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:usersType" name="users" />
+            <xs:element type="con:rolesType" name="roles" />
         </xs:sequence>
         <xs:attribute type="xs:string" name="collection"/>
         <xs:attribute type="xs:string" name="view"/>
