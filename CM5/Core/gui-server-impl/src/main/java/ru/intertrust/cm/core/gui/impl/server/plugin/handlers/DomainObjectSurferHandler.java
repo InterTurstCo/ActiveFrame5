@@ -26,11 +26,14 @@ public class DomainObjectSurferHandler extends ActivePluginHandler {
         CollectionPluginData collectionPluginData = collectionPluginHandler.initialize(config.getCollectionViewerConfig());
         ArrayList<CollectionRowItem> items = collectionPluginData.getItems();
 
-        FormPluginConfig formPluginConfig;
-        if (items == null || items.size() == 0) {
+        final FormPluginConfig formPluginConfig;
+        if (items == null || items.isEmpty()) {
             formPluginConfig = new FormPluginConfig(config.getDomainObjectTypeToCreate());
         } else {
             formPluginConfig = new FormPluginConfig(items.get(0).getId());
+            final ArrayList<Integer> selectedIndexes = new ArrayList<>(1);
+            selectedIndexes.add(Integer.valueOf(0));
+            collectionPluginData.setIndexesOfSelectedItems(selectedIndexes);
         }
         formPluginConfig.setMode(config.isFirstOpenReadonly() ? FormPluginMode.MANUAL_EDIT : FormPluginMode.EDITABLE);
         formPluginConfig.setEditable(!config.isFirstOpenReadonly());

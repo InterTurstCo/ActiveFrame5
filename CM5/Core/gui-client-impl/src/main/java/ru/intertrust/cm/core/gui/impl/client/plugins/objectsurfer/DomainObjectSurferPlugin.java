@@ -146,12 +146,7 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
     @Override
     public List<Id> getSelectedIds() {
         final CollectionPluginView cpView = (CollectionPluginView) collectionPlugin.getView();
-        final Set<CollectionRowItem> selected = cpView.getSelectionModel().getSelectedSet();
-        ArrayList<Id> result = new ArrayList<Id>(selected.size());
-        for (CollectionRowItem item : selected) {
-            result.add(item.getId());
-        }
-        return result;
+        return cpView.getSelectedIds();
     }
 
     @Override

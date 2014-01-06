@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
 import com.google.gwt.user.client.Window;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.event.DeleteCollectionRowEvent;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
@@ -11,7 +12,10 @@ import ru.intertrust.cm.core.gui.model.action.DeleteActionData;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginMode;
 import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
+
+import java.util.List;
 
 /**
  * @author IPetrov
@@ -33,30 +37,36 @@ public class DeleteAction extends SimpleServerAction {
 
     @Override
     protected SaveActionContext appendCurrentContext(ActionContext initialContext) {
-        FormState formState = ((IsDomainObjectEditor) getPlugin()).getFormState();
-        SaveActionContext context = (SaveActionContext) initialContext;
+        final IsDomainObjectEditor editor = (IsDomainObjectEditor) getPlugin();
+        final FormState formState = editor.getFormState();
+        final SaveActionContext context = (SaveActionContext) initialContext;
         context.setRootObjectId(formState.getObjects().getRootNode().getDomainObject().getId());
         context.setFormState(formState);
+        context.setMode(editor.getFormPluginMode());
         return context;
     }
 
     @Override
     protected void onSuccess(ActionData result) {
-        if (result instanceof DeleteActionData)
+        if (result instanceof DeleteActionData) {
+            final DomainObjectSurferPlugin dosPlugin = (DomainObjectSurferPlugin) getPlugin();
             // вызываем событие удаления из коллекции
-            ((DomainObjectSurferPlugin) plugin).getEventBus().fireEvent(new DeleteCollectionRowEvent(
-                                                                                ((DeleteActionData) result).getId()));
-
+            dosPlugin.getEventBus().fireEvent(new DeleteCollectionRowEvent(((DeleteActionData) result).getId()));
             // получаем конфигурацию для очистки формы
-            String domainObjectType = ((IsDomainObjectEditor) plugin).getRootDomainObject().getTypeName();
-            FormPluginConfig config = new FormPluginConfig(domainObjectType);
-            config.setDomainObjectTypeToCreate(domainObjectType);
-
-            // чистим форму
-            ((IsDomainObjectEditor) plugin).replaceForm(config);
+            final IsDomainObjectEditor editor = (IsDomainObjectEditor) plugin;
+            final List<Id> selected = dosPlugin.getSelectedIds();
+            final FormPluginConfig config;
+            if (selected.isEmpty()) {
+                final String domainObjectType = editor.getRootDomainObject().getTypeName();
+                config = new FormPluginConfig(domainObjectType);
+            } else {
+                config = new FormPluginConfig(selected.get(0));
+            }
+            config.setMode(editor.getFormPluginMode());
+            config.setEditable(FormPluginMode.EDITABLE == editor.getFormPluginMode());
+            editor.replaceForm(config);
             Window.alert("Строка удалена!!!");
-
+        }
     }
-
 }
 

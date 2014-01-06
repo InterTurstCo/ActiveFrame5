@@ -73,7 +73,6 @@ public class CollectionPluginView extends PluginView {
     // локальная шина событий
     private EventBus eventBus;
     protected Plugin plugin;
-    private ArrayList<Integer> chosenIndexes = new ArrayList<Integer>();
     private Column<CollectionRowItem, Boolean> checkColumn;
     private SetSelectionModel<CollectionRowItem> selectionModel;
     /**
@@ -120,11 +119,14 @@ public class CollectionPluginView extends PluginView {
         filterNameMap = collectionPluginData.getFieldFilter();
         items = collectionPluginData.getItems();
         singleChoice = collectionPluginData.isSingleChoice();
-        chosenIndexes = collectionPluginData.getIndexesOfSelectedItems();
+
         init();
 
+        final List<Integer> selectedIndexes = collectionPluginData.getIndexesOfSelectedItems();
+        for (int index : selectedIndexes) {
+            selectionModel.setSelected(items.get(index), true);
+        }
         return root;
-
     }
 
     public void init() {
@@ -134,13 +136,14 @@ public class CollectionPluginView extends PluginView {
         insertRows(items);
         applyStyles();
         addHandlers();
-        if (singleChoice && !items.isEmpty()) {
-            selectionModel.setSelected(items.get(0), true);
-        }
     }
 
-    public SetSelectionModel<CollectionRowItem> getSelectionModel() {
-        return selectionModel;
+    public List<Id> getSelectedIds() {
+        final List<Id> selectedIds = new ArrayList<Id>(selectionModel.getSelectedSet().size());
+        for (CollectionRowItem item : selectionModel.getSelectedSet()) {
+            selectedIds.add(item.getId());
+        }
+        return selectedIds;
     }
 
     private void createTableColumns() {
@@ -307,46 +310,39 @@ public class CollectionPluginView extends PluginView {
     }
 
     // метод для удаления из коллекции
-    public void delCollectionRow(Id collectionObject) {
-        // ищем какаой элемент коллекции должен быть удален
-        int index = 0;
+    private void delCollectionRow(Id collectionObject) {
+        if (items.isEmpty()) {
+            return;  // если в коллекции не было элементов операция удаления ни к чему не приводит
+        }
+        // ищем какой элемент коллекции должен быть удален
+        int index = -1;
         for (CollectionRowItem i : items) {
             if (i.getId().toStringRepresentation().equalsIgnoreCase(collectionObject.toStringRepresentation())) {
                 index = items.indexOf(i);
+                break;
             }
         }
-
-        // если в коллекции не было элементов
-        // операция удаления ни к чему не приводит
-        if (items.size() == 0)
-            return;
-
-        // удаляем из коллекции
-        items.remove(index);
-
-        // если в коллекции был один элемент перед удалением
-        if (index == items.size() && items.size() == 0) {
-            tableBody.setRowData(items);
-            tableBody.redraw();
-            tableBody.flush();
+        if (index < 0) {    // element of collection isn't found.
             return;
         }
-        // выделение строки - если удалили последнюю строку, выделяем предыдущую
-       if (index == items.size()) {
-           index--;
-       }
-
-       CollectionRowItem itemRow = items.get(index);
-       if (index > 0)
-           selectionModel.setSelected(itemRow, true);
-       if (index == 0)
-           selectionModel.setSelected(itemRow, false);
-       // обновляем таблицу
-       tableBody.setRowData(items);
-       tableBody.redraw();
-       tableBody.flush();
+        // удаляем из коллекции
+        selectionModel.setSelected(items.get(index), false);
+        items.remove(index);
+        if (!items.isEmpty()) {
+            // выделение строки - если удалили последнюю строку, выделяем предыдущую
+            if (index == items.size()) {
+                index--;
+            }
+            CollectionRowItem itemRow = items.get(index);
+            selectionModel.setSelected(itemRow, true);
+        }
+        tableBody.setRowData(items);
     }
-    // метод для обновления коллекции
+
+    /**
+     * Метод для обновления коллекции
+     * @param collectionObject
+     */
     public void refreshCollection(IdentifiableObject collectionObject) {
         CollectionRowItem item = new CollectionRowItem();
         LinkedHashMap<String, Value> rowValues = new LinkedHashMap<String, Value>();
@@ -515,21 +511,12 @@ public class CollectionPluginView extends PluginView {
 
         tableBody.setRowData(list);
         listCount = items.size();
-        selectChosenRows();
     }
 
     private void insertMoreRows(List<CollectionRowItem> list) {
         listCount += list.size();
         items.addAll(list);
         tableBody.setRowData(items);
-    }
-
-    private void selectChosenRows() {
-        for (Integer index : chosenIndexes) {
-            CollectionRowItem rowItem = items.get(index);
-            selectionModel.setSelected(rowItem, true);
-
-        }
     }
 
     private void applyStyles() {
