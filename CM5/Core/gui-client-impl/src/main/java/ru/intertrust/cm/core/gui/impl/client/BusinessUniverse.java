@@ -53,8 +53,8 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 AbsolutePanel action = new AbsolutePanel();
                 action.setStyleName("action-section");
 
-                AbsolutePanel left  = new AbsolutePanel();
-                left.setStyleName("left-section");
+                final AbsolutePanel left  = new AbsolutePanel();
+                left.setStyleName("left-section-active");
                 final AbsolutePanel centrInner = new AbsolutePanel();
                 centrInner.setStyleName("centr-inner-section");
                 centrInner.getElement().getStyle().setLeft(130, Style.Unit.PX);
@@ -91,7 +91,10 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
                 centralPluginPanel = new PluginPanel();
                 centralPluginWidth = Window.getClientWidth() - 130;
-                centralPluginHeight = Window.getClientHeight()- 120;
+                //centralPluginHeight = Window.getClientHeight()- 120;
+                // header 60 ;
+                // action panel 51
+                centralPluginHeight = Window.getClientHeight()- 9 ;
                 centralPluginPanel.setVisibleWidth(centralPluginWidth);
                 centralPluginPanel.setVisibleHeight(centralPluginHeight);
                 eventBus.addHandler(NavigationTreeItemSelectedEvent.TYPE, BusinessUniverse.this);
@@ -109,9 +112,19 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                         centralPluginWidth = Window.getClientWidth() - event.getSideBarWidts();
                         centralPluginPanel.setVisibleWidth(centralPluginWidth);
                         centrInner.getElement().getStyle().setLeft(event.getSideBarWidts(), Style.Unit.PX);
+                        left.setStyleName("left-section-active");
                         eventBus.fireEvent(new PluginPanelSizeChangedEvent());
                     }
                 });
+
+                eventBus.addHandler(SideBarResizeEventStyle.TYPE, new SideBarResizeEventStyleHandler(){
+                    @Override
+                    public void sideBarSetStyleEvent(SideBarResizeEventStyle event) {
+                        //left.removeStyleName();
+                        left.setStyleName(event.getStyleMouseOver());
+                    }
+                });
+
 
                 addStickerPanel(root);
                 centrInner.add(centralPluginPanel);
@@ -166,7 +179,11 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
             public void onResize(ResizeEvent event) {
 
                 int centralPanelWidth = event.getWidth() - navigationTreePanel.getVisibleWidth() - stickerPluginWidth;
-                int centralPanelHeight = event.getHeight() - 120;
+                System.out.println("event main height" + event.getHeight());
+                //int centralPanelHeight = event.getHeight() - 120;
+                //60 - header height
+                //51 height action panel + margin
+                int centralPanelHeight = event.getHeight() - 9;
                 centralPluginPanel.setVisibleWidth(centralPanelWidth);
                 centralPluginPanel.setVisibleHeight(centralPanelHeight);
                 eventBus.fireEvent(new PluginPanelSizeChangedEvent());
