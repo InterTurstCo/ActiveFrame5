@@ -421,7 +421,7 @@ h1 {
 	/*height: 8px !important;*/
     left: -1px !important;
     right: 0;
-    border: 1px solid #9EAFBF;
+    /*border: 1px solid #9EAFBF;*/
     border-collapse: collapse;
     z-index: 2;
 }
