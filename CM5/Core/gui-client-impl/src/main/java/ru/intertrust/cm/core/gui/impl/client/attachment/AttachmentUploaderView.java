@@ -194,7 +194,7 @@ public class AttachmentUploaderView extends Composite {
     }
 
     private void initUploadButton() {
-        addFile = new Image("add-button.png");
+        addFile = new Image("icons/icon-create.png");
         Style style = addFile.getElement().getStyle();
         style.setMarginBottom(10, Style.Unit.PX);
         addFile.addClickHandler(new ClickHandler() {
