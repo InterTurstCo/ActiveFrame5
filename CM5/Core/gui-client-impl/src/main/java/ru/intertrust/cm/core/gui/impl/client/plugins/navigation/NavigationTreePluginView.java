@@ -14,6 +14,7 @@ import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEventStyle;
 import ru.intertrust.cm.core.gui.impl.client.panel.RootNodeButton;
 import ru.intertrust.cm.core.gui.impl.client.panel.SidebarView;
 import ru.intertrust.cm.core.gui.impl.client.panel.SystemTreeStyles;
@@ -112,13 +113,15 @@ public class NavigationTreePluginView extends PluginView {
                     pinButton.removeStyleName("icon pin-normal");
                     pinButton.addStyleName("icon pin-pressed");
                     eventBus.fireEvent(new SideBarResizeEvent(true, END_WIDGET_WIDTH));
+                    eventBus.fireEvent(new SideBarResizeEventStyle(false, "", "left-section-active", ""));
+
 
                 }  else {
                     pinButtonClick = false;
                     pinButton.removeStyleName("icon pin-pressed");
                     pinButton.addStyleName("icon pin-normal");
                     eventBus.fireEvent(new SideBarResizeEvent(false, START_WIDGET_WIDTH));
-
+                    eventBus.fireEvent(new SideBarResizeEventStyle(false, "", "left-section", ""));
 
                 }
 
@@ -134,6 +137,12 @@ public class NavigationTreePluginView extends PluginView {
                 resizeTreeAnimation.run(DURATION);
                 pinButton.getElement().getStyle().setZIndex(10);
                 navigationTreeContainer.getElement().getStyle().setZIndex(9);
+                if(!pinButtonClick){
+                    eventBus.fireEvent(new SideBarResizeEventStyle(false, "", "left-section", ""));
+                }
+                 else{
+                    eventBus.fireEvent(new SideBarResizeEventStyle(false, "", "left-section-active", ""));
+                }
             }
         });
 
@@ -145,16 +154,11 @@ public class NavigationTreePluginView extends PluginView {
                     resizeTreeAnimation.run(DURATION);
                     pinButton.getElement().getStyle().setZIndex(0);
                     navigationTreeContainer.getElement().getStyle().setZIndex(0);
+                    eventBus.fireEvent(new SideBarResizeEventStyle(false, "", "left-section", ""));
+
                 }
             }
         });
-
-//        navigationTreeContainer.add(navigationTreesPanel);
-
-//        navigationTreesPanel.getElement().getStyle().setBackgroundColor("red");
-//        navigationTreesPanel.setWidth("0px");
-
-
         setIndex(0);
 
         return navigationTreeContainer;
