@@ -58,9 +58,12 @@ public class FormLogicalValidatorTest {
                 + "Collection view 'cities_default' for table-browser with id '17a' wasn't found\n"
                 + "Collection 'cities' for suggest-box with id '8a' wasn't found\n"
                 + "Configuration of form with "
-                + "name 'city_form' was validated with errors.Count: 2 Content:\n"
+                + "name 'city_form' was validated with errors.Count: 5 Content:\n"
                 + "Could not find field 'city'  in path 'country^federal_unit.city.population'\n"
-                + "Path part 'year_of_foundation' in  'year_of_foundation.date' isn't a reference type\n");
+                + "Path part 'year_of_foundation' in  'year_of_foundation.date' isn't a reference type\n"
+                + "Could not find field 'letter'  in path 'organization_addressee^letter.organization'\n"
+                + "Collection 'Departments' has no filter 'byOrganization'\n"
+                + "Collection 'Employees' for hierarchy-browser with id '33d' wasn't found\n");
        ConfigurationExplorer configurationExplorer = createConfigurationExplorer(INVALID_FORM_XML_PATH);
 
        FormLogicalValidator formValidator = new FormLogicalValidator();

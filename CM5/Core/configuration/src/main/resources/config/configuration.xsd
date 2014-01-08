@@ -1280,6 +1280,8 @@
                         name="linked-domain-objects-editable-table" xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:templateBasedWidgetType"
                         name="template-based-widget" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:hierarchyBrowserType"
+                        name="hierarchy-browser" xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:choice>
     </xs:complexType>
     <xs:complexType name="templateBasedWidgetType">
@@ -1290,6 +1292,46 @@
         <xs:attribute type="xs:string" name="id" use="optional"/>
         <xs:attribute type="xs:string" name="template-name"/>
     </xs:complexType>
+    <!-- Hierarchy browser definitions -->
+    <xs:complexType name="hierarchyBrowserType">
+        <xs:sequence>
+            <xs:element type="con:fieldPathType" name="field-path" xmlns:con="https://cm5.intertrust.ru/config"/>
+
+            <xs:element type="con:nodeCollectionDefType" name="node-collection-def"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="xs:string" name="page-size">
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="id"/>
+    </xs:complexType>
+    <xs:complexType name="nodeCollectionDefType">
+        <xs:sequence>
+            <xs:element type="con:selectionFilterReferenceType" name="input-text-filter" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:patternType" name="selection-pattern" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:nodeCollectionDefType" name="node-collection-def" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="collection" use="optional"/>
+        <xs:attribute type="xs:string" name="parent-filter" use="optional"/>
+    </xs:complexType>
+    <!--<xs:complexType name="rootDomainObjectType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="name"/>
+                <xs:attribute type="xs:string" name="display-name"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>-->
+   <!-- <xs:complexType name="childNodeType">
+        <xs:sequence>
+            <xs:element type="con:nodeCollectionDefType" name="node-collection-def"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="collection" use="optional"/>
+        <xs:attribute type="xs:string" name="parent-filter" use="optional"/>
+    </xs:complexType>-->
+
     <!-- Attachment box definitions -->
     <xs:complexType name="attachmentBoxType">
         <xs:choice maxOccurs="unbounded" minOccurs="0">

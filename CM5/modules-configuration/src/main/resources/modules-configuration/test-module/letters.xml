@@ -84,6 +84,19 @@
                         </tab-group>
                     </single-entry-group>
                 </tab>
+                <tab name="Иерархический браузер">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget width = "800px" height= "300px" id="2c"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
             </body>
         </markup>
         <widget-config>
@@ -102,6 +115,35 @@
                 <field-path value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
                 <pattern value="{Name}"/>
             </list-box>
+            <hierarchy-browser id="2c">
+                <field-path value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
+
+                <!-- Определение списка/таблицы, выпадающего при раскрытии узла -->
+                <!-- Уже выбранные элементы показываются помеченными галочками -->
+                <!-- collection - название коллекции для отображения списка значений узла -->
+                <node-collection-def collection="Organizations">
+                    <!-- название фильтра по тексту, введённому пользователем -->
+                    <input-text-filter name="byName"/>
+                    <!-- паттерн отображения уже выбранных значений -->
+                    <selection-pattern value="{name}"/>
+                    <node-collection-def collection="Departments" parent-filter="byOrganization">
+                        <!-- название фильтра по тексту, введённому пользователем -->
+                        <input-text-filter name="byName"/>
+                        <!-- паттерн отображения уже выбранных значений -->
+                        <selection-pattern value="{name}"/>
+                        <!-- путь к узлу верхнего уровня (относительно пути этого узла) от узла данного уровня -->
+                        <node-collection-def collection="Employees" parent-filter="byDepartment">
+                            <!-- название фильтра по тексту, введённому пользователем -->
+                            <input-text-filter name="byNameAndPosition"/>
+                            <!-- паттерн отображения уже выбранных значений -->
+                            <selection-pattern value="{name} {position}"/>
+                        </node-collection-def>
+                    </node-collection-def>
+                </node-collection-def>
+
+                <!-- количество элементов, показываемых в данном узле дерева изначально -->
+                <page-size>10</page-size>
+            </hierarchy-browser>
         </widget-config>
     </form>
 

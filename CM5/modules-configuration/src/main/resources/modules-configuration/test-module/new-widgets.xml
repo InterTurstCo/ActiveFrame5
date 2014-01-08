@@ -65,7 +65,7 @@
             <!-- Определение списка/таблицы, выпадающего при раскрытии узла -->
             <!-- Уже выбранные элементы показываются помеченными галочками -->
             <!-- collection - название коллекции для отображения списка значений узла -->
-            <node-def collection="Organizations">
+            <node-collection-def collection="Organizations" sort-field="name" sort-order="asc">
                 <!-- название фильтра по тексту, введённому пользователем -->
                 <input-text-filter name="byName"/>
                 <!-- паттерн отображения уже выбранных значений -->
@@ -83,7 +83,7 @@
                         <selection-pattern value="{name} {last_name}"/>
                     </node-collection-def>
                 </node-collection-def>
-            </node-def>
+            </node-collection-def>
 
             <!-- количество элементов, показываемых в данном узле дерева изначально -->
             <page-size>30</page-size>

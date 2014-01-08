@@ -1,0 +1,214 @@
+.hierarh-browser-inline {
+    margin-left: 10px;
+    display: inline-block;
+    position: relative;
+    vertical-align: top;
+}
+.float-right {
+    margin-left: 10px;
+    float:right;
+    position: relative;
+
+}
+.bottom-align {
+    vertical-align: bottom;
+    position: absolute;
+    bottom: 5px;
+}
+.composite-button {
+    margin-top: 4px;
+    margin-bottom: 4px;
+    padding-left: 3px;
+    padding-right: 3px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    font: 13px Arial;
+    color: grey;
+    border-radius: 5px;
+    white-space: nowrap;
+    box-shadow: 1px 1px 2px 1px #999;
+    background: white;
+}
+.hierarh-browser-button {
+    margin-top: 5px;
+    margin-bottom: 3px;
+    margin-left: 5px;
+    margin-right: 5px;
+    display: inline-block;
+    position: relative;
+
+}
+.hierarh-browser-border {
+    border: 2px solid #ededed;
+
+}
+.hierarh-browser-inline-margin-left {
+    padding-left: 3px;
+    display: inline-block;
+    position: relative;
+
+}
+.hierarh-browser-margin-left {
+    margin-right: 2px;
+
+}
+.button-refresh {
+    margin-top: 5px;
+    margin-bottom: 2px;
+    margin-right: 2px;
+    color: grey;
+    border-radius: 5px;
+    white-space: nowrap;
+    width: 21px;
+    height: 21px;
+    margin-left: 5px;
+    box-shadow: 1px 1px 2px 1px #999;
+    background: url(images/refresh.gif);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: white;
+}
+.popup-body{
+     background: #356a9e;
+     padding: 2px, 2px, 2px,2px;
+    -moz-border-radius: 20px;
+    -webkit-border-radius: 20px;
+    -khtml-border-radius: 20px;
+    border-radius: 15px;
+    border: 2px solid silver;
+}
+
+
+
+.popup-chosen-content{
+    background: white;
+
+    margin-left: 6px;
+    margin-right: 8px;
+
+
+}
+
+.white-background {
+    background: white;
+
+
+}
+.grey-background {
+    background: gainsboro;
+    margin-left: 6px;
+    border-style: solid;
+    border-color: gainsboro;
+}
+.node {
+    background: gainsboro;
+    border-style: solid;
+    border-color: gainsboro;
+    padding-right: 4px;
+}
+.one-node-body {
+
+    width:100%;
+}
+.one-node-scroll {
+    background: white;
+    border-color: orange;
+    border-style: solid;
+    width:100%;
+}
+.bottom-popup-button {
+    border-radius: 14px;
+    white-space: nowrap;
+    margin-right: 7px;
+    background: #9ca7bd;
+    box-shadow: 0 2px 2px #000;
+    text-decoration: none;
+    color: #000;
+
+
+}
+.bottom-popup-button: hover{
+    background: #54b5df;
+    color: #ffffff;
+}
+.bottom-popup-buttons-panel {
+    margin-top: 40px;
+    border-collapse: collapse;
+    margin-left: 5px;
+
+}
+.bottom-popup-buttons-panel td {
+    white-space: nowrap; /* запрещение переноса в ячейках*/
+   padding: 2px;
+}
+
+.node-link{
+    margin-left: 7px;
+    margin-top: 2px;
+
+    color: white!important;
+    text-decoration:underline;
+}
+.header-title{
+    font: 18px Arial!important;
+     color: white;
+    margin-top: 7px;
+    margin-bottom: 7px;
+    margin-right: 15px;
+}
+.node-section{
+    background: white;
+    /*margin-right: 6px;
+*/
+}
+.node-section-scroll{
+   margin-right: 8px;
+
+ /*   overflow-x: scroll;*/
+
+}
+.search-bar{
+    margin-top: 5px;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+.magnifier{
+
+    border: #AFBCC3;
+    border-style: solid;
+    background-color: white;
+    border-top-left-radius: 3px 3px;
+    border-bottom-left-radius: 3px 3px;
+    padding-right: 2px;
+    padding-left: 2px;
+    padding-top: 2px;
+}
+.input-text{
+    border: #AFBCC3;
+    border-style: solid;
+    border-top-right-radius: 5px 5px;
+    border-bottom-right-radius: 5px 5px;
+    padding-left: 2px;
+    padding-top: 2px;
+}
+.selected-node-link{
+    width: 100%;
+    background: #356a9e;;
+    vertical-align: middle!important;
+
+}
+.link-arrow{
+    float: right;
+    vertical-align: middle!important;
+}
+.selected-node-link td {
+    vertical-align: middle!important;
+
+}
+.selected-node-link a {
+
+    color: #ffffff!important;
+}
+.reset-button{
+    vertical-align: middle;
+}

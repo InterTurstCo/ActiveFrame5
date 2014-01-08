@@ -21,19 +21,13 @@
         </counting-prototype>
 
         <filter name="byDepartment">
-            <reference placeholder="from-clause">
-                 <![CDATA[
-                    inner join department d on e.department = d.id
-                ]]>
-            </reference>
-
-            <!-- по умолчанию and, если перед условием нет других (только 
+            <!-- по умолчанию and, если перед условием нет других (только
                 ключ. слово where), то условие опускаем -->
             <!-- {0} - это параметр фильтра, у одного фильтра может быть 
                 несколько параметров -->
             <criteria placeholder="where-clause">
                 <![CDATA[
-                    d.name = {0}
+                    e.department = {0}
                 ]]>
             </criteria>
         </filter>
@@ -52,6 +46,13 @@
                 ]]>
             </criteria>
         </filter>
+        <filter name="byNameAndPosition">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    e.name || e.position like {0}
+                ]]>
+            </criteria>
+        </filter>
     </collection>
 
     <collection name="Departments" idField="id">
@@ -61,12 +62,28 @@
                         d.id, d.name
                     from
                         Department d
+                    where
+                        1=1 ::where-clause
                 ]]>
         </prototype>
 
         <counting-prototype>
             select count(*) from Department d
         </counting-prototype>
+        <filter name="byOrganization">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    d.organization = {0}
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byName">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    d.name like {0}
+                ]]>
+            </criteria>
+        </filter>
     </collection>
 
     <collection-view name="departments_default_view" collection="Departments" is-default="true">
@@ -83,8 +100,17 @@
                         o.id, o.name
                     from
                         Organization o
+                         where
+                    1=1 ::where-clause
                 ]]>
         </prototype>
+        <filter name="byName">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    o.name like {0}
+                ]]>
+            </criteria>
+        </filter>
     </collection>
 
     <collection-view name="organizations_default_view" collection="Organizations" is-default="true">

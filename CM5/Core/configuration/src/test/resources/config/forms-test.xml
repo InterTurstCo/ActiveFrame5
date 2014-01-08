@@ -10,6 +10,7 @@
             <reference name="federal_unit" type="federal_unit"/>
             <string name="description" length="1024"/>
             <boolean name = "is_country_rich"/>
+            <string name="is_old" length="1024"/>
         </fields>
         <uniqueKey>
             <field name="name"/>
@@ -55,7 +56,35 @@
             <reference name="city" type="city"/>
         </fields>
     </domain-object-type>
+    <domain-object-type name="letter">
+        <fields>
+            <string name="subject" length="128"/>
+        </fields>
+    </domain-object-type>
 
+    <domain-object-type name="letter_addressee">
+        <fields>
+            <reference name="letter" type="letter"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="organization_addressee" extends="letter_addressee">
+        <fields>
+            <reference name="organization" type="Organization"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="department_addressee" extends="letter_addressee">
+        <fields>
+            <reference name="department" type="Department"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="employee_addressee" extends="letter_addressee">
+        <fields>
+            <reference name="employee" type="Employee"/>
+        </fields>
+    </domain-object-type>
     <form name="country_form" domain-object-type="country" is-default="true" debug = "false">
         <markup>
             <header>
@@ -170,6 +199,35 @@
             <check-box id = "16">
                 <field-path value="is_country_rich"/>
             </check-box>
+            <hierarchy-browser id="33d">
+                <field-path value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
+
+                <!-- Определение списка/таблицы, выпадающего при раскрытии узла -->
+                <!-- Уже выбранные элементы показываются помеченными галочками -->
+                <!-- collection - название коллекции для отображения списка значений узла -->
+                <node-collection-def collection="Organizations">
+                    <!-- название фильтра по тексту, введённому пользователем -->
+                    <input-text-filter name="byName"/>
+                    <!-- паттерн отображения уже выбранных значений -->
+                    <selection-pattern value="{name}"/>
+                    <node-collection-def collection="Departments" parent-filter="byOrganization">
+                        <!-- название фильтра по тексту, введённому пользователем -->
+                        <input-text-filter name="byName"/>
+                        <!-- паттерн отображения уже выбранных значений -->
+                        <selection-pattern value="{name}"/>
+                        <!-- путь к узлу верхнего уровня (относительно пути этого узла) от узла данного уровня -->
+                        <node-collection-def collection="Employees" parent-filter="byDepartment">
+                            <!-- название фильтра по тексту, введённому пользователем -->
+                            <input-text-filter name="byLastNameAndName"/>
+                            <!-- паттерн отображения уже выбранных значений -->
+                            <selection-pattern value="{name} {last_name}"/>
+                        </node-collection-def>
+                    </node-collection-def>
+                </node-collection-def>
+
+                <!-- количество элементов, показываемых в данном узле дерева изначально -->
+                <page-size>30</page-size>
+            </hierarchy-browser>
         </widget-config>
     </form>
     <form name="city_form" domain-object-type="city" is-default="true">
@@ -329,4 +387,95 @@
             <column field="square" name="Площадь" type="string" editable="false" sortable="true" />
         </display>
     </collection-view>
+    <collection name="Employees" idField="id">
+        <!--todo поддержка конвертации значений, например, в картинки -->
+
+        <prototype>
+            <![CDATA[
+                select
+                    e.id, e.name, e.position
+                from
+                    employee e
+                     ::from-clause
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+
+        <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) вместо названий колонок -->
+        <counting-prototype>
+            select count(*) from employee e ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+
+        <filter name="byDepartment">
+            <reference placeholder="from-clause">
+                <![CDATA[
+                    inner join department d on e.department = d.id
+                ]]>
+            </reference>
+
+            <!-- по умолчанию and, если перед условием нет других (только ключ. слово where), то условие опускаем -->
+            <!-- {0} - это параметр фильтра, у одного фильтра может быть несколько параметров -->
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    d.name = {0}
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byDepartmentNames">
+            <reference placeholder="from-clause">
+                <![CDATA[
+                    inner join department d on e.department = d.id
+                ]]>
+            </reference>
+
+            <!-- по умолчанию and, если перед условием нет других (только ключ. слово where), то условие опускаем -->
+            <!-- {0} - это параметр фильтра, у одного фильтра может быть несколько параметров -->
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    d.name in ({0})
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byName">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    e.name = {0}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+    <collection name="Organizations" idField="id">
+        <prototype>
+            <![CDATA[
+                    select
+                        o.id, o.name
+                    from
+                        Organization o
+                ]]>
+        </prototype>
+    </collection>
+    <collection name="Departments" idField="id">
+        <prototype>
+            <![CDATA[
+                    select
+                        d.id, d.name
+                    from
+                        Department d
+                ]]>
+        </prototype>
+
+        <counting-prototype>
+            select count(*) from Department d
+        </counting-prototype>
+        <filter name="byOrganization">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    d.organization = {0}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
 </configuration>

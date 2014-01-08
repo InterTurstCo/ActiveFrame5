@@ -369,3 +369,15 @@ float: left;
 margin-top: 6px;
 border: none;
 }
+
+.H-B-V-button{
+    /*padding: 20px;*/
+    /*background-color: red;*/
+    /*background: url(css/icons/icons.png) left top no-repeat;*/
+    background: url(images/tab-close.png) no-repeat 0 0;
+    top: 0;
+    right: 0px;
+    cursor: pointer;
+    height: 16px;
+    width: 16px;
+}

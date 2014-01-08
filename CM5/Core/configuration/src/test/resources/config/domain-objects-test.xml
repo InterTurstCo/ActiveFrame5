@@ -134,4 +134,5 @@
             <string name="role_name" length="64" not-null="true" />
         </fields>
     </domain-object-type>
+
 </configuration>
