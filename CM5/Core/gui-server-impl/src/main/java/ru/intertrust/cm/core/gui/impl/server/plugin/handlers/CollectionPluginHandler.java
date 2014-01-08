@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.config.gui.collection.view.CollectionDisplayConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.InputTextFilterConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
+import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -43,37 +44,30 @@ public class CollectionPluginHandler extends PluginHandler {
         CollectionPluginData pluginData = new CollectionPluginData();
         pluginData.setSingleChoice(singleChoice);
         pluginData.setDisplayChosenValues(displayChosenValues);
-        CollectionViewConfig collectionViewConfig = findRequiredCollectionView(collectionName);
-
-
-
-
+        CollectionViewConfig collectionViewConfig = getViewForCurrentCollection(collectionViewerConfig, collectionName);
         LinkedHashMap<String, String> map = getDomainObjectFieldOnColumnNameMap(collectionViewConfig);
         pluginData.setDomainObjectFieldOnColumnNameMap(map);
         HashMap<String, String> fieldMap = new HashMap<String, String>();
         HashMap<String, String> fieldMapDisplay = new HashMap<String, String>();
         HashMap<String, String> fieldFilter = new HashMap<String, String>();
-
-
         List<CollectionColumnConfig> config = collectionViewConfig.getCollectionDisplayConfig().getColumnConfig();
+        for (int i = 0; i < config.size(); i++) {
+            if (!collectionViewConfig.getCollectionDisplayConfig().getColumnConfig().get(i).isHidden()) {
+                fieldMap.put(collectionViewConfig.getCollectionDisplayConfig().getColumnConfig().get(i).getName(),
+                        collectionViewConfig.getCollectionDisplayConfig().getColumnConfig().get(i).getField());
+                fieldMapDisplay.put(collectionViewConfig.getCollectionDisplayConfig().getColumnConfig().get(i).getName(),
+                        collectionViewConfig.getCollectionDisplayConfig().getColumnConfig().get(i).getType());
+                fieldFilter.put(collectionViewConfig.getCollectionDisplayConfig().getColumnConfig().get(i).getField(),
+                        collectionViewConfig.getCollectionDisplayConfig().getColumnConfig().get(i).getSearchFilter());
 
-        for (int i = 0; i <config.size() ; i++ ){
-                if (!collectionViewConfig.getCollectionDisplayConfig().getColumnConfig().get(i).isHidden()){
-            fieldMap.put(collectionViewConfig.getCollectionDisplayConfig().getColumnConfig().get(i).getName(),
-                    collectionViewConfig.getCollectionDisplayConfig().getColumnConfig().get(i).getField());
-            fieldMapDisplay.put(collectionViewConfig.getCollectionDisplayConfig().getColumnConfig().get(i).getName(),
-                    collectionViewConfig.getCollectionDisplayConfig().getColumnConfig().get(i).getType());
-            fieldFilter.put(collectionViewConfig.getCollectionDisplayConfig().getColumnConfig().get(i).getField(),
-                collectionViewConfig.getCollectionDisplayConfig().getColumnConfig().get(i).getSearchFilter());
-
-                }
+            }
         }
 
         List<Filter> filters = new ArrayList<Filter>();
 
         // todo не совсем верная логика. а в каком режиме обычная коллекция открывается? single choice? display chosen values?
         // todo: по-моему условие singleChoice && !displayChosenValues вполне говорит само за себя :) в следующем условии тоже
-        if ((singleChoice && !displayChosenValues) ||  (!singleChoice && !displayChosenValues)) {
+        if ((singleChoice && !displayChosenValues) || (!singleChoice && !displayChosenValues)) {
 
             filters = addFilterByText(collectionViewerConfig, filters);
             filters = addFilterExcludeIds(collectionViewerConfig, filters);
@@ -82,7 +76,7 @@ public class CollectionPluginHandler extends PluginHandler {
             pluginData.setItems(items);
         }
 
-        if ((singleChoice && displayChosenValues) || (!singleChoice && displayChosenValues)){
+        if ((singleChoice && displayChosenValues) || (!singleChoice && displayChosenValues)) {
 
             filters = addFilterByText(collectionViewerConfig, filters);
             ArrayList<CollectionRowItem> items = generateTableRowsForPluginInitialization(collectionName,
@@ -96,8 +90,6 @@ public class CollectionPluginHandler extends PluginHandler {
         pluginData.setFieldMap(fieldMap);
         pluginData.setFieldMapDisplay(fieldMapDisplay);
         pluginData.setFieldFilter(fieldFilter);
-
-
         return pluginData;
     }
 
@@ -136,6 +128,17 @@ public class CollectionPluginHandler extends PluginHandler {
         return filters;
     }
 
+    private CollectionViewConfig getViewForCurrentCollection(CollectionViewerConfig collectionViewerConfig,
+                                                             String collectionName) {
+        CollectionViewRefConfig collectionViewRefConfig = collectionViewerConfig.getCollectionViewRefConfig();
+        if (collectionViewRefConfig == null) {
+            return findRequiredCollectionView(collectionName);
+        }
+        String viewName = collectionViewRefConfig.getName();
+        return findRequiredCollectionViewByName(viewName);
+
+    }
+
     private CollectionViewConfig findRequiredCollectionView(String collection) {
 
         Collection<CollectionViewConfig> collectionViewConfigs = getCollectionOfViewConfigs();
@@ -145,8 +148,20 @@ public class CollectionPluginHandler extends PluginHandler {
                 return collectionViewConfig;
             }
         }
-        throw new GuiException("Couldn't find for collection with name '" + collection + "'");
+        throw new GuiException("Couldn't find view for collection with name '" + collection + "'");
     }
+
+    private CollectionViewConfig findRequiredCollectionViewByName(String viewName) {
+        Collection<CollectionViewConfig> collectionViewConfigs = getCollectionOfViewConfigs();
+        for (CollectionViewConfig collectionViewConfig : collectionViewConfigs) {
+
+            if (collectionViewConfig.getName().equalsIgnoreCase(viewName)) {
+                return collectionViewConfig;
+            }
+        }
+        throw new GuiException("Couldn't find collection view with name '" + viewName + "'");
+    }
+
 
     private LinkedHashMap<String, Value> getRowValues(IdentifiableObject identifiableObject, Set<String> columnFields) {
 
@@ -208,14 +223,14 @@ public class CollectionPluginHandler extends PluginHandler {
     }
 
     public ArrayList<CollectionRowItem> generateSortTableRowsForPluginInitialization
-            (String collectionName, Set<String> fields, int offset, int count, List<Filter> filters, String field, boolean sortable ) {
+            (String collectionName, Set<String> fields, int offset, int count, List<Filter> filters, String field, boolean sortable) {
         ArrayList<CollectionRowItem> items = new ArrayList<CollectionRowItem>();
         SortCriterion.Order order;
-         if (sortable){
-             order = SortCriterion.Order.ASCENDING;
-         } else {
-             order = SortCriterion.Order.DESCENDING;
-         }
+        if (sortable) {
+            order = SortCriterion.Order.ASCENDING;
+        } else {
+            order = SortCriterion.Order.DESCENDING;
+        }
 
         SortOrder sortOrder = new SortOrder();
         sortOrder.add(new SortCriterion(field, order));
@@ -231,13 +246,13 @@ public class CollectionPluginHandler extends PluginHandler {
     public Dto generateCollectionRowItems(Dto dto) {
         CollectionRowsRequest collectionRowsRequest = (CollectionRowsRequest) dto;
         ArrayList<CollectionRowItem> list;
-        if (((CollectionRowsRequest) dto).isSortable()){
+        if (((CollectionRowsRequest) dto).isSortable()) {
             list = generateSortTableRowsForPluginInitialization(collectionRowsRequest.getCollectionName(),
                     collectionRowsRequest.getFields().keySet(), collectionRowsRequest.getOffset(),
                     collectionRowsRequest.getLimit(), collectionRowsRequest.getFilterList(), ((CollectionRowsRequest) dto).getField(),
                     ((CollectionRowsRequest) dto).isSotrType());
-        }   else {
-             list = generateTableRowsForPluginInitialization(
+        } else {
+            list = generateTableRowsForPluginInitialization(
                     collectionRowsRequest.getCollectionName(),
                     collectionRowsRequest.getFields().keySet(), collectionRowsRequest.getOffset(),
                     collectionRowsRequest.getLimit(), collectionRowsRequest.getFilterList());
