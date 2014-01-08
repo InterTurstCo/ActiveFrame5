@@ -12,7 +12,7 @@
 }
 
 .gwt-splitter-shadow {
-    border: 1px solid #9EAFBF;
+    /*border: 1px solid #9EAFBF;*/
     position: absolute;
     z-Index: 999;
     right: 0;

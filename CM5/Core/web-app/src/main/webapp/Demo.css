@@ -584,12 +584,11 @@ div.gwt-Good-Label {
     padding-left: 20px !important;
 }
 
-
-
-
-
-.gwt-TabLayoutPanel {
-
+#frm-pnl .gwt-TabLayoutPanelContentContainer,
+#frm-pnl .gwt-TabLayoutPanelContentContainer > div,
+#frm-pnl .gwt-TabLayoutPanelContentContainer > div > div,
+#frm-pnl .gwt-TabLayoutPanel > div:nth-child(3) {
+    position: relative !important;
 }
 
 /*** TAB PANEL***/

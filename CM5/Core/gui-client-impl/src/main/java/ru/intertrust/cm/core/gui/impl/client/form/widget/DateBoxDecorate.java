@@ -30,8 +30,6 @@ public class DateBoxDecorate extends Composite {
 
         DateBox.Format format = new DateBox.DefaultFormat(DateTimeFormat.getFormat("dd/MM/yyyy"));
         picker = new CMJDatePicker();
-
-        //dateBox = new DateBox(picker, null, format);
         dateBox = new DateBox(picker, null, format);
         TextBox textDateBox = dateBox.getTextBox();
         dateBox.getTextBox().addStyleName("date-text-box");
@@ -43,7 +41,7 @@ public class DateBoxDecorate extends Composite {
             public void onClick(ClickEvent event) {
                 String baloonUp;
                 String baloonDown;
-                dateBox.showDatePicker();
+//                dateBox.showDatePicker();
 
                 if(dateBtn.getAbsoluteTop() > dateBox.getDatePicker().getAbsoluteTop()){
                     baloonUp =  "date-picker-baloon-up";
@@ -55,6 +53,7 @@ public class DateBoxDecorate extends Composite {
                 }
 
                 picker.toggle(baloonDown, baloonUp);
+                dateBox.showDatePicker();
 
             }
         });
@@ -64,7 +63,7 @@ public class DateBoxDecorate extends Composite {
             public void onClick(ClickEvent event) {
                 String baloonUp;
                 String baloonDown;
-                dateBox.showDatePicker();
+
                 if(dateBtn.getAbsoluteTop() > dateBox.getDatePicker().getAbsoluteTop()){
                     baloonUp =  "date-picker-baloon-up";
                     baloonDown = "!!!";
@@ -74,6 +73,7 @@ public class DateBoxDecorate extends Composite {
                     baloonUp =  "!!!";
                 }
                 picker.toggle(baloonDown, baloonUp);
+                dateBox.showDatePicker();
             }
         });
 

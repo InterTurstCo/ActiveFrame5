@@ -74,7 +74,7 @@ display: none;
 
 .gwt-SuggestBoxPopup {
 background: #FFFDF0;
-width: 208px;
+width: 700px;
 border-bottom: 1px solid #F7EC70;
 border-left: 1px solid #F7EC70;
 border-right: 1px solid #F7EC70;
@@ -82,9 +82,12 @@ border-right: 1px solid #F7EC70;
 .gwt-SuggestBoxPopup .suggestPopupMiddleCenterInner table{
 width: 100%;
 }
+/*
 .gwt-SuggestBoxPopup .suggestPopupMiddleCenterInner {
 width: 207px;
 }
+*/
+
 .gwt-SuggestBoxPopup .item {
     padding: 2px 6px !important;
     color: #000!important;
@@ -185,3 +188,17 @@ html>body .gwt-SuggestBoxPopup {
     height: 0px!important;
     overflow: hidden!important;
 }
+.gwt-SuggestBoxPopup{
+margin-left: 0px !Important;
+z-index: 50;
+}
+.gwt-SuggestBoxPopup table{
+width: 100%;
+}
+
+/*.CMJ-suggest-display-popup{*/
+    /*width: 700px!important;*/
+    /*background: white!important;*/
+    /*border-color: black;*/
+    /*border: 1px;*/
+/*}*/
