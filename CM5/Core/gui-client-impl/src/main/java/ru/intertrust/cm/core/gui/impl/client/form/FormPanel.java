@@ -26,7 +26,7 @@ public class FormPanel implements IsWidget {
     private TabLayoutPanel bodyTabPanel;
     private FormDisplayData formDisplayData;
     private List<BaseWidget> widgets;
-    private FlowPanel panel = new FlowPanel();
+    private final FlowPanel panel;
     private boolean isHeightFromConfig;
     private boolean isWidthFromConfig;
     private List<TabConfig> tabs;
@@ -39,7 +39,8 @@ public class FormPanel implements IsWidget {
     }
 
     public FormPanel(FormDisplayData formDisplayData) {
-
+        panel = new FlowPanel();
+        panel.getElement().setId("frm-pnl");
         this.formDisplayData = formDisplayData;
         widgets = new ArrayList<BaseWidget>(formDisplayData.getFormState().getFullWidgetsState().size());
 
@@ -126,7 +127,7 @@ public class FormPanel implements IsWidget {
             }
         }
 
-            setFormMinWidth();
+        setFormMinWidth();
         if (!tabs.isEmpty()) {
             bodyTabPanel.selectTab(0);
             bodyTabPanel.getTabWidget(0).getElement().getStyle().setProperty("backgroundColor", "white");
@@ -311,9 +312,9 @@ public class FormPanel implements IsWidget {
     private void setFormMinWidth() {
         String minimalWidth = formDisplayData.getMinWidth();
         if (minimalWidth != null) {
-           bodyTabPanel.getElement().getStyle().setProperty("minWidth", minimalWidth);
+            bodyTabPanel.getElement().getStyle().setProperty("minWidth", minimalWidth);
         } else {
-           bodyTabPanel.getElement().getStyle().setProperty("minWidth", formWidth + "px");
+            bodyTabPanel.getElement().getStyle().setProperty("minWidth", formWidth + "px");
         }
     }
 
