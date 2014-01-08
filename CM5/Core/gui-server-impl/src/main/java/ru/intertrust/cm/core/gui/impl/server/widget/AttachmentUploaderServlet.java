@@ -1,11 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
-/**
- * @author Yaroslav Bondarchuk
- *         Date: 12.12.13
- *         Time: 13:15
- */
-
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUpload;
 import org.apache.commons.fileupload.FileUploadException;
@@ -49,7 +43,7 @@ import java.util.logging.Logger;
 public class AttachmentUploaderServlet {
     private static final Logger log = Logger.getLogger(FileUpload.class.getName());
     private static final String SESSION_ATTRIBUTE_UPLOAD_PROGRESS = "uploadProgress";
-    private static final String SESSION_ATTRIBUTE_UPLOAD_IS_CANCELED = "uploadIsCanceled";
+
     @Autowired
     private ConfigurationExplorer configurationExplorer;
 
@@ -66,7 +60,7 @@ public class AttachmentUploaderServlet {
         AttachmentUploadPercentage uploadProgress = getUploadProgress(session);
         upload.setProgressListener(new AttachmentUploadProgressListener(uploadProgress));
         // set limit of uploaded file, -1 mean no limit
-        upload.setSizeMax(-1);
+        upload.setSizeMax(2147483648L);
         // Parse the request to get file items.
         List fileItems = upload.parseRequest(req);
         // Process the uploaded file items
@@ -100,7 +94,6 @@ public class AttachmentUploaderServlet {
         return new ResponseEntity<String>(savedFilename, headers, HttpStatus.OK);
     }
 
-
     private void stream(InputStream input, OutputStream output, HttpSession session)
             throws IOException {
 
@@ -109,13 +102,7 @@ public class AttachmentUploaderServlet {
                 WritableByteChannel outputChannel = Channels.newChannel(output)) {
             ByteBuffer buffer = ByteBuffer.allocate(10240);
             while (inputChannel.read(buffer) != -1) {
-                Object isUploadCanceled = session.getAttribute(SESSION_ATTRIBUTE_UPLOAD_IS_CANCELED);
-                if (isUploadCanceled != null && (Boolean) isUploadCanceled) {
-                    session.setAttribute(SESSION_ATTRIBUTE_UPLOAD_IS_CANCELED, false);
-                    AttachmentUploadPercentage uploadProgress = new AttachmentUploadPercentage();
-                    session.setAttribute(SESSION_ATTRIBUTE_UPLOAD_PROGRESS, uploadProgress);
-                    return;
-                }
+
                 buffer.flip();
                 outputChannel.write(buffer);
                 buffer.clear();

@@ -474,8 +474,6 @@ public class CollectionPluginView extends PluginView {
     private void createTableColumnsWithoutCheckBoxes(HashMap<String, String> domainObjectFieldsOnColumnNamesMap, int startNumberOfColumns) {
         int numberOfColumns = startNumberOfColumns + domainObjectFieldsOnColumnNamesMap.keySet().size();
         int columnWidth = (tableWidth / numberOfColumns);
-
-
         for (String field : domainObjectFieldsOnColumnNamesMap.keySet()) {
 
             Column<CollectionRowItem, String> column = buildNameColumn(field);
@@ -501,9 +499,7 @@ public class CollectionPluginView extends PluginView {
             tableBody.addColumn(column);
             tableBody.setColumnWidth(column, columnWidth + "px");
 
-
         }
-
 
     }
 

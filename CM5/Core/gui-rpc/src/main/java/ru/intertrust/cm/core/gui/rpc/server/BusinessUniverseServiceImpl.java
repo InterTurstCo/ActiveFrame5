@@ -79,10 +79,9 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     }
 
     @Override
-    public AttachmentUploadPercentage getAttachmentUploadPercentage(boolean isCanceled) {
+    public AttachmentUploadPercentage getAttachmentUploadPercentage() {
 
         HttpSession session = getThreadLocalRequest().getSession();
-        session.setAttribute(SESSION_ATTRIBUTE_UPLOAD_PROGRESS, isCanceled);
         AttachmentUploadPercentage uploadProgress = AttachmentUploaderServlet.getUploadProgress(session);
 
         return uploadProgress;

@@ -8,10 +8,10 @@ import ru.intertrust.cm.core.business.api.dto.Id;
  *         Date: 09.11.13
  *         Time: 16:15
  */
-public class TableBrowserRowItem implements Dto {
+public class FacebookStyleItem implements Dto {
 
     private Id id;
-    private String selectedRowRepresentation;
+    private String stringRepresentation;
 
     public Id getId() {
         return id;
@@ -22,12 +22,12 @@ public class TableBrowserRowItem implements Dto {
     }
 
 
-    public String getSelectedRowRepresentation() {
-        return selectedRowRepresentation;
+    public String getStringRepresentation() {
+        return stringRepresentation;
     }
 
-    public void setSelectedRowRepresentation(String selectedRowRepresentation) {
-        this.selectedRowRepresentation = selectedRowRepresentation;
+    public void setStringRepresentation(String stringRepresentation) {
+        this.stringRepresentation = stringRepresentation;
     }
 
 
@@ -40,15 +40,15 @@ public class TableBrowserRowItem implements Dto {
             return false;
         }
 
-        TableBrowserRowItem that = (TableBrowserRowItem) o;
+        FacebookStyleItem that = (FacebookStyleItem) o;
 
         if (id != null ? !id.equals(that.id) :
                 that.id != null) {
             return false;
         }
 
-        if (selectedRowRepresentation != null ? !selectedRowRepresentation.equals(that.selectedRowRepresentation) :
-                that.selectedRowRepresentation != null) {
+        if (stringRepresentation != null ? !stringRepresentation.equals(that.stringRepresentation) :
+                that.stringRepresentation != null) {
             return false;
         }
 
@@ -59,7 +59,7 @@ public class TableBrowserRowItem implements Dto {
     public int hashCode() {
 
         int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (selectedRowRepresentation != null ? selectedRowRepresentation.hashCode() : 0);
+        result = 31 * result + (stringRepresentation != null ? stringRepresentation.hashCode() : 0);
         return result;
     }
 }

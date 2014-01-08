@@ -21,6 +21,6 @@ public interface BusinessUniverseService extends RemoteService {
 
     public FormDisplayData getForm(Id domainObjectId);
 
-    public AttachmentUploadPercentage getAttachmentUploadPercentage(boolean isCanceled);
+    public AttachmentUploadPercentage getAttachmentUploadPercentage();
 
 }

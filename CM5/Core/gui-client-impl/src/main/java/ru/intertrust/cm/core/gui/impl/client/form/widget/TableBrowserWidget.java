@@ -30,7 +30,6 @@ import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -204,7 +203,6 @@ public class TableBrowserWidget extends BaseWidget {
                 } else {
                     chosenIds.add(event.getId());
                 }
-                System.out.println("breakpoint");
             }
         });
 
@@ -254,8 +252,12 @@ public class TableBrowserWidget extends BaseWidget {
             @Override
             public void onSuccess(Dto result) {
                 ParsedRowsList list = (ParsedRowsList) result;
-                List<TableBrowserRowItem> items = list.getFilteredRows();
+                ArrayList<FacebookStyleItem> items = list.getFilteredRows();
+                if (tableBrowserConfig.getSingleChoice().isSingleChoice()) {
+                    facebookStyleView.setChosenItems(items);
+                } else {
                 facebookStyleView.getChosenItems().addAll(items);
+                }
                 facebookStyleView.showSelectedItems();
                 chosenIds.clear();
             }

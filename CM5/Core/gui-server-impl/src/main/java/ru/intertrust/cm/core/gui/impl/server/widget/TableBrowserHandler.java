@@ -10,9 +10,9 @@ import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.form.widget.FacebookStyleItem;
 import ru.intertrust.cm.core.gui.model.form.widget.FormatRowsRequest;
 import ru.intertrust.cm.core.gui.model.form.widget.ParsedRowsList;
-import ru.intertrust.cm.core.gui.model.form.widget.TableBrowserRowItem;
 import ru.intertrust.cm.core.gui.model.form.widget.TableBrowserState;
 
 import java.util.ArrayList;
@@ -43,14 +43,14 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
         } else {
             domainObjects = Collections.emptyList();
         }
-        ArrayList<TableBrowserRowItem> items = new ArrayList<TableBrowserRowItem>();
+        ArrayList<FacebookStyleItem> items = new ArrayList<FacebookStyleItem>();
         SelectionPatternConfig selectionPatternConfig = widgetConfig.getSelectionPatternConfig();
         Pattern pattern = createDefaultRegexPattern();
         Matcher matcher = pattern.matcher(selectionPatternConfig.getValue());
         for (DomainObject domainObject : domainObjects) {
-            TableBrowserRowItem item = new TableBrowserRowItem();
+            FacebookStyleItem item = new FacebookStyleItem();
             item.setId(domainObject.getId());
-            item.setSelectedRowRepresentation(format(domainObject, matcher));
+            item.setStringRepresentation(format(domainObject, matcher));
             items.add(item);
         }
 
@@ -66,13 +66,12 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
 
         Matcher selectionMatcher = pattern.matcher(formatRowsRequest.getSelectionPattern());
 
-        ArrayList<TableBrowserRowItem> items = new ArrayList<>();
+        ArrayList<FacebookStyleItem> items = new ArrayList<>();
 
         for (DomainObject domainObject : domainObjects) {
-
-            TableBrowserRowItem item = new TableBrowserRowItem();
+            FacebookStyleItem item = new FacebookStyleItem();
             item.setId(domainObject.getId());
-            item.setSelectedRowRepresentation(format(domainObject, selectionMatcher));
+            item.setStringRepresentation(format(domainObject, selectionMatcher));
             items.add(item);
         }
         ParsedRowsList parsedRows = new ParsedRowsList();

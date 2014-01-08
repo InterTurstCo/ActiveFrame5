@@ -10,13 +10,13 @@ import java.util.ArrayList;
  *         Time: 13:15
  */
 public class ParsedRowsList implements Dto {
-    ArrayList<TableBrowserRowItem> filteredRows;
+    ArrayList<FacebookStyleItem> filteredRows;
 
-    public ArrayList<TableBrowserRowItem> getFilteredRows() {
+    public ArrayList<FacebookStyleItem> getFilteredRows() {
         return filteredRows;
     }
 
-    public void setFilteredRows(ArrayList<TableBrowserRowItem> filteredRows) {
+    public void setFilteredRows(ArrayList<FacebookStyleItem> filteredRows) {
         this.filteredRows = filteredRows;
     }
 }

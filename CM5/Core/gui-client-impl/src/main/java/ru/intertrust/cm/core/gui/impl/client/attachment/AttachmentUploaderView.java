@@ -31,7 +31,6 @@ public class AttachmentUploaderView extends Composite {
     private Image addFile;
     private FileUpload fileUpload;
     private FormPanel submitForm;
-
     private List<AttachmentItem> attachments;
 
     public AttachmentUploaderView() {
@@ -169,6 +168,7 @@ public class AttachmentUploaderView extends Composite {
     }
 
     private void initFileUpload() {
+
         fileUpload = new FileUpload();
         Style style = fileUpload.getElement().getStyle();
         fileUpload.setName("fileUpload");
@@ -180,16 +180,26 @@ public class AttachmentUploaderView extends Composite {
             @Override
             public void onChange(ChangeEvent event) {
                 submitForm.submit();
+                InputElement inputElement = fileUpload.getElement().cast();
+                inputElement.setValue("");
             }
         });
+
     }
 
     private void initSubmitForm() {
+
         submitForm = new FormPanel();
-        submitForm.setAction(GWT.getHostPageBaseURL() + "/attachment-upload");
+        submitForm.setAction(GWT.getHostPageBaseURL() + "attachment-upload");
         // set form to use the POST method, and multipart MIME encoding.
         submitForm.setEncoding(FormPanel.ENCODING_MULTIPART);
         submitForm.setMethod(FormPanel.METHOD_POST);
+
+    }
+
+    public void reinitSubmitForm() {
+        submitForm.removeFromParent();
+        root.add(submitForm);
 
     }
 

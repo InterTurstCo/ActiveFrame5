@@ -88,7 +88,7 @@ public class AttachmentBoxWidget extends BaseWidget {
         if (isUploadCancel) {
             return;
         }
-        SERVICE.getAttachmentUploadPercentage(isUploadCancel, new AsyncCallback<AttachmentUploadPercentage>() {
+        SERVICE.getAttachmentUploadPercentage(new AsyncCallback<AttachmentUploadPercentage>() {
 
             @Override
             public void onFailure(final Throwable t) {
@@ -114,6 +114,9 @@ public class AttachmentBoxWidget extends BaseWidget {
 
             AttachmentUploaderView view = (AttachmentUploaderView) impl;
             String browserFilename = view.getFileUpload().getFilename();
+            if ("".equalsIgnoreCase(browserFilename)){
+                return;
+            }
 
             String filename = getFilename(browserFilename);
             AttachmentItem item = new AttachmentItem();
@@ -164,6 +167,10 @@ public class AttachmentBoxWidget extends BaseWidget {
                 dontShowNewRow = true;
                 setUpProgressOfUpload(true);
                 cancelTimer();
+                AttachmentUploaderView view = (AttachmentUploaderView) impl;
+                view.reinitSubmitForm();
+
+                view.addFormSubmitCompleteHandler(new FormSubmitCompleteHandler());
 
             }
 
