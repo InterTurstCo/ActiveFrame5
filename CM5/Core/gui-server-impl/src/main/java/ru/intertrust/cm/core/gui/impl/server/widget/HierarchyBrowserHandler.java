@@ -38,7 +38,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         SelectionPatternConfig selectionPatternConfig = nodeConfig.getSelectionPatternConfig();
         Pattern pattern = createDefaultRegexPattern();
         Matcher selectionMatcher = pattern.matcher(selectionPatternConfig.getValue());
-        ArrayList<Id> selectedIds = context.getObjectIds();
+        ArrayList<Id> selectedIds = context.getAllObjectIds();
         ArrayList<HierarchyBrowserItem> chosenItems = new ArrayList<HierarchyBrowserItem>();
         if (!selectedIds.isEmpty()) {
             List<Filter> filters = new ArrayList<Filter>();

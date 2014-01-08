@@ -37,7 +37,7 @@ public class SuggestBoxHandler extends LinkEditingWidgetHandler {
         SuggestBoxState state = new SuggestBoxState();
         SuggestBoxConfig widgetConfig = context.getWidgetConfig();
         state.setSuggestBoxConfig(widgetConfig);
-        ArrayList<Id> selectedIds = context.getObjectIds();
+        ArrayList<Id> selectedIds = context.getAllObjectIds();
         List<DomainObject> domainObjects;
         if (!selectedIds.isEmpty()) {
             domainObjects = crudService.find(selectedIds);

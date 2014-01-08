@@ -30,8 +30,13 @@ public class ListBoxWidget extends BaseWidget {
 
     public void setCurrentState(WidgetState currentState) {
         ListBoxState state = (ListBoxState) currentState;
-        ArrayList<Id> selectedIds = state.getSelectedIds();
-        HashSet<Id> selectedIdsSet = new HashSet<Id>(selectedIds == null ? new ArrayList<Id>(0) : selectedIds);
+        ArrayList<ArrayList<Id>> fieldPathSelectedIds = state.getSelectedIds();
+        HashSet<Id> selectedIdsSet = new HashSet<Id>();
+        if (fieldPathSelectedIds != null) {
+            for (ArrayList<Id> selectedIds : fieldPathSelectedIds) {
+                selectedIdsSet.addAll(selectedIds);
+            }
+        }
         LinkedHashMap<Id,String> listValues = state.getListValues();
 
         idMap = new HashMap<String, Id>(listValues.size());
@@ -58,10 +63,15 @@ public class ListBoxWidget extends BaseWidget {
             return state;
         }
 
-        ArrayList<Id> selectedIds = new ArrayList<Id>();
+        final ListBoxState initialState = (ListBoxState) getInitialData();
+        ArrayList<ArrayList<Id>> selectedIds = new ArrayList<ArrayList<Id>>(initialState.getFieldPaths().length);
+        for (int i = 0; i < initialState.getFieldPaths().length; ++i) {
+            selectedIds.add(new ArrayList<Id>());
+        }
         for (int i = 0; i < listSize; ++i) {
             if (listBox.isItemSelected(i)) {
-                selectedIds.add(idMap.get(listBox.getValue(i)));
+                final Id id = idMap.get(listBox.getValue(i));
+                selectedIds.get(initialState.getFieldPathIndex(id)).add(id);
             }
         }
         state.setSelectedIds(selectedIds);

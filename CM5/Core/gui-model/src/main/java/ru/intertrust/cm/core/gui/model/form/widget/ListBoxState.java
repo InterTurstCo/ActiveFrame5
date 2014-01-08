@@ -1,8 +1,10 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.gui.model.form.FieldPath;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 /**
@@ -11,14 +13,16 @@ import java.util.LinkedHashMap;
  *         Time: 19:48
  */
 public class ListBoxState extends LinkEditingWidgetState {
-    private ArrayList<Id> selectedIds;
+    private ArrayList<ArrayList<Id>> selectedIds;
     private LinkedHashMap<Id, String> listValues;
+    private HashMap<Id, Integer> idFieldPathIndexMapping;
+    private FieldPath[] fieldPaths;
 
-    public ArrayList<Id> getSelectedIds() {
+    public ArrayList<ArrayList<Id>> getSelectedIds() {
         return selectedIds;
     }
 
-    public void setSelectedIds(ArrayList<Id> selectedIds) {
+    public void setSelectedIds(ArrayList<ArrayList<Id>> selectedIds) {
         this.selectedIds = selectedIds;
     }
 
@@ -30,9 +34,36 @@ public class ListBoxState extends LinkEditingWidgetState {
         this.listValues = listValues;
     }
 
+    public FieldPath[] getFieldPaths() {
+        return fieldPaths;
+    }
+
+    public void setFieldPaths(FieldPath[] fieldPaths) {
+        this.fieldPaths = fieldPaths;
+    }
+
     @Override
     public ArrayList<Id> getIds() {
+        ArrayList<Id> result = new ArrayList<Id>();
+        ArrayList<ArrayList<Id>> fieldPathsIds = getFieldPathsIds();
+        if (fieldPathsIds != null) {
+            for (ArrayList<Id> idsList : fieldPathsIds) {
+                result.addAll(idsList);
+            }
+        }
+        return result;
+    }
+
+    public ArrayList<ArrayList<Id>> getFieldPathsIds() {
         return selectedIds;
+    }
+
+    public void setIdFieldPathIndexMapping(HashMap<Id, Integer> idFieldPathIndexMapping) {
+        this.idFieldPathIndexMapping = idFieldPathIndexMapping;
+    }
+
+    public Integer getFieldPathIndex(Id id) {
+        return idFieldPathIndexMapping.get(id);
     }
 
     @Override

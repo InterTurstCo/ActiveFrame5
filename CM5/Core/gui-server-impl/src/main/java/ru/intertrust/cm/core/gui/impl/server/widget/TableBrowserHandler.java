@@ -36,7 +36,7 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
         TableBrowserState state = new TableBrowserState();
         TableBrowserConfig widgetConfig = context.getWidgetConfig();
         state.setTableBrowserConfig(widgetConfig);
-        ArrayList<Id> selectedIds = context.getObjectIds();
+        ArrayList<Id> selectedIds = context.getAllObjectIds();
         List<DomainObject> domainObjects;
         if (!selectedIds.isEmpty()) {
             domainObjects = crudService.find(selectedIds);

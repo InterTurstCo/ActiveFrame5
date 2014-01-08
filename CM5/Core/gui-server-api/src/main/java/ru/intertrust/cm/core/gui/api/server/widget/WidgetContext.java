@@ -69,7 +69,7 @@ public class WidgetContext implements Dto {
         return fieldValue == null ? null : (T) fieldValue.get();
     }
 
-    public ArrayList<Id> getObjectIds() {
+    public ArrayList<Id> getAllObjectIds() {
         ArrayList<Id> result = new ArrayList<Id>();
         FieldPath[] fieldPaths = getFieldPaths();
         for (FieldPath fieldPath : fieldPaths) {
@@ -79,6 +79,22 @@ public class WidgetContext implements Dto {
             }
             // if field path a direct reference, then object id can be NULL
             result.addAll(objectIds);
+        }
+        return result;
+    }
+
+    public ArrayList<ArrayList<Id>> getObjectIds() {
+        FieldPath[] fieldPaths = getFieldPaths();
+        ArrayList<ArrayList<Id>> result = new ArrayList<ArrayList<Id>>(fieldPaths.length);
+        for (int i = 0; i < fieldPaths.length; ++i) {
+            FieldPath fieldPath = fieldPaths[i];
+            ArrayList<Id> objectIds = formObjects.getObjectIds(fieldPath);
+            if (objectIds == null) {
+                result.add(new ArrayList<Id>(0));
+            } else {
+                // if field path a direct reference, then object id can be NULL
+                result.add(objectIds);
+            }
         }
         return result;
     }

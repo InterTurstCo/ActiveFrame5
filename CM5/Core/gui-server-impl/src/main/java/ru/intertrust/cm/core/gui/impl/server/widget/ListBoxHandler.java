@@ -8,9 +8,11 @@ import ru.intertrust.cm.core.config.gui.form.widget.ListBoxConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.widget.ListBoxState;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -28,19 +30,27 @@ public class ListBoxHandler extends LinkEditingWidgetHandler {
     public ListBoxState getInitialState(WidgetContext context) {
         ListBoxConfig widgetConfig = context.getWidgetConfig();
 
-        String[] linkTypes = getLinkedObjectTypes(context, context.getFieldPaths());
+        final FieldPath[] fieldPaths = context.getFieldPaths();
+        String[] linkTypes = getLinkedObjectTypes(context, fieldPaths);
 
         List<DomainObject> domainObjectsToDisplay = new ArrayList<>();
-        for (String linkType : linkTypes) {
+        HashMap<Id, Integer> idFieldPathIndexMapping = new HashMap<>();
+        for (int i = 0; i < linkTypes.length; i++) {
+            String linkType = linkTypes[i];
             List<DomainObject> domainObjects = crudService.findAll(linkType);
             if (domainObjects != null) {
                 domainObjectsToDisplay.addAll(domainObjects);
+                for (DomainObject domainObject : domainObjects) {
+                    idFieldPathIndexMapping.put(domainObject.getId(), i);
+                }
             }
         }
         LinkedHashMap<Id, String> idDisplayMapping = new LinkedHashMap<>();
 
         ListBoxState result = new ListBoxState();
+        result.setFieldPaths(fieldPaths);
         result.setListValues(idDisplayMapping);
+        result.setIdFieldPathIndexMapping(idFieldPathIndexMapping);
 
         if (domainObjectsToDisplay.isEmpty()) {
             return result;
@@ -49,10 +59,9 @@ public class ListBoxHandler extends LinkEditingWidgetHandler {
         String displayPattern = widgetConfig.getPatternConfig().getValue();
         appendDisplayMappings(domainObjectsToDisplay, displayPattern, idDisplayMapping);
 
-        ArrayList<Id> selectedIds = context.getObjectIds();
-        result.setSelectedIds(selectedIds);
+        ArrayList<ArrayList<Id>> allIds = context.getObjectIds();
+        result.setSelectedIds(allIds);
 
         return result;
     }
-
 }
