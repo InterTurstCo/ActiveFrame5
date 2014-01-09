@@ -585,9 +585,9 @@ div.gwt-Good-Label {
 }
 
 #frm-pnl .gwt-TabLayoutPanelContentContainer,
-#frm-pnl .gwt-TabLayoutPanelContentContainer > div,
+#frm-pnl .gwt-TabLayoutPanelContentContainer > div:not(:first-child),
 #frm-pnl .gwt-TabLayoutPanelContentContainer > div > div,
-#frm-pnl .gwt-TabLayoutPanel > div:nth-child(3) {
+#frm-pnl .gwt-TabLayoutPanel > div:last-child {
     position: relative !important;
 }
 
