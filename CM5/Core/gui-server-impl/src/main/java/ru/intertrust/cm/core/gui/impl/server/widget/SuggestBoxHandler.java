@@ -84,7 +84,12 @@ public class SuggestBoxHandler extends LinkEditingWidgetHandler {
     private Filter prepareInputTextFilter(String text, String inputTextFilterName) {
         Filter textFilter = new Filter();
         textFilter.setFilter(inputTextFilterName);
-        textFilter.addCriterion(0, new StringValue(text + "%"));
+        if (text.equals("*")){
+            textFilter.addCriterion(0, new StringValue("%"));
+        }
+        else{
+            textFilter.addCriterion(0, new StringValue(text + "%"));
+        }
         return textFilter;
     }
 
