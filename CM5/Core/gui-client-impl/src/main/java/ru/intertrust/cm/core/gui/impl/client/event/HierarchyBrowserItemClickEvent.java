@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.event;
 
 import com.google.gwt.event.shared.GwtEvent;
-import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -11,10 +10,10 @@ import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 public class HierarchyBrowserItemClickEvent extends GwtEvent<HierarchyBrowserItemClickEventHandler> {
 
     public static Type<HierarchyBrowserItemClickEventHandler> TYPE = new Type<HierarchyBrowserItemClickEventHandler>();
-    private HierarchyBrowserItem item;
+    private String collectionName;
 
-    public HierarchyBrowserItemClickEvent(HierarchyBrowserItem item) {
-        this.item = item;
+    public HierarchyBrowserItemClickEvent(String collectionName) {
+        this.collectionName = collectionName;
 
     }
 
@@ -28,7 +27,7 @@ public class HierarchyBrowserItemClickEvent extends GwtEvent<HierarchyBrowserIte
         handler.onHierarchyBrowserItemClick(this);
     }
 
-    public HierarchyBrowserItem getItem() {
-        return item;
+    public String getCollectionName() {
+        return collectionName;
     }
 }

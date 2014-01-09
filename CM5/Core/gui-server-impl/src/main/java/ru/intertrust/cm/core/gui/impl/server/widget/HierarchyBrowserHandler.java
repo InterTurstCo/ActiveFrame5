@@ -10,9 +10,9 @@ import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
-import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItemList;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserWidgetState;
-import ru.intertrust.cm.core.gui.model.form.widget.NodeContentMetaData;
+import ru.intertrust.cm.core.gui.model.form.widget.NodeContentRequest;
+import ru.intertrust.cm.core.gui.model.form.widget.NodeContentResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,22 +75,22 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
 
     }
 
-    public HierarchyBrowserItemList fetchNodeContent(Dto inputParams) {
-        NodeContentMetaData nodeContentMetaData = (NodeContentMetaData) inputParams;
-        String collectionName = nodeContentMetaData.getCollectionName();
+    public NodeContentResponse fetchNodeContent(Dto inputParams) {
+        NodeContentRequest nodeContentRequest = (NodeContentRequest) inputParams;
+        String collectionName = nodeContentRequest.getCollectionName();
         Pattern pattern = createDefaultRegexPattern();
-        Matcher selectionMatcher = pattern.matcher(nodeContentMetaData.getSelectionPattern());
-        int numberOfItems = nodeContentMetaData.getNumberOfItemsToDisplay();
-        int offset = nodeContentMetaData.getOffset();
-        ArrayList<Id> chosenIds = nodeContentMetaData.getChosenIds();
+        Matcher selectionMatcher = pattern.matcher(nodeContentRequest.getSelectionPattern());
+        int numberOfItems = nodeContentRequest.getNumberOfItemsToDisplay();
+        int offset = nodeContentRequest.getOffset();
+        ArrayList<Id> chosenIds = nodeContentRequest.getChosenIds();
         ArrayList<HierarchyBrowserItem> items = new ArrayList<HierarchyBrowserItem>();
         List<Filter> filters = new ArrayList<Filter>();
-        if (nodeContentMetaData.getId() != null) {
-            filters = addParentFilter(nodeContentMetaData, filters);
+        if (nodeContentRequest.getId() != null) {
+            filters = addParentFilter(nodeContentRequest, filters);
         }
-        String inputText = nodeContentMetaData.getInputText();
+        String inputText = nodeContentRequest.getInputText();
         if (inputText != null && !inputText.equalsIgnoreCase("")) {
-            filters =  addInputTextFilter(nodeContentMetaData.getInputTextFilterName(), inputText, filters);
+            filters =  addInputTextFilter(nodeContentRequest.getInputTextFilterName(), inputText, filters);
         }
         IdentifiableObjectCollection collection = collectionsService.
                 findCollection(collectionName, null, filters, offset, numberOfItems);
@@ -106,10 +106,11 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
             }
             items.add(item);
         }
-        HierarchyBrowserItemList nodeContent = new HierarchyBrowserItemList();
+        NodeContentResponse nodeContent = new NodeContentResponse();
         nodeContent.setNodeContent(items);
         nodeContent.setNodeType(collectionName);
-        nodeContent.setParentId(nodeContentMetaData.getId());
+        nodeContent.setParentId(nodeContentRequest.getId());
+        nodeContent.setSelective(nodeContentRequest.isSelective());
         return nodeContent;
     }
 
@@ -117,9 +118,9 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         return Pattern.compile("\\{\\w+\\}");
     }
 
-    private List<Filter> addParentFilter(NodeContentMetaData nodeContentMetaData, List<Filter> filters) {
-        Id nodeId = nodeContentMetaData.getId();
-        String filterName = nodeContentMetaData.getParentFilterName();
+    private List<Filter> addParentFilter(NodeContentRequest nodeContentRequest, List<Filter> filters) {
+        Id nodeId = nodeContentRequest.getId();
+        String filterName = nodeContentRequest.getParentFilterName();
         Filter parentFilter = new Filter();
         parentFilter.setFilter(filterName);
         parentFilter.addCriterion(0, new ReferenceValue(nodeId));

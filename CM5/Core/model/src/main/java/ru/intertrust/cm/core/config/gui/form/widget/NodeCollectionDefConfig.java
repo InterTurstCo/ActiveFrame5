@@ -18,6 +18,9 @@ public class NodeCollectionDefConfig implements Dto {
     @Attribute(name = "parent-filter", required = false)
     private String parentFilter;
 
+    @Attribute(name = "selective", required = false)
+    private boolean selective = true;
+
     @Element(name = "selection-pattern", required = false)
     private SelectionPatternConfig selectionPatternConfig;
 
@@ -33,6 +36,14 @@ public class NodeCollectionDefConfig implements Dto {
 
     public void setSelectionPatternConfig(SelectionPatternConfig selectionPatternConfig) {
         this.selectionPatternConfig = selectionPatternConfig;
+    }
+
+    public boolean isSelective() {
+        return selective;
+    }
+
+    public void setSelective(boolean selective) {
+        this.selective = selective;
     }
 
     public InputTextFilterConfig getInputTextFilterConfig() {
@@ -97,6 +108,9 @@ public class NodeCollectionDefConfig implements Dto {
         if (collection != null ? !collection.equals(that.collection) : that.collection != null) {
             return false;
         }
+        if (selective != that.selective) {
+            return false;
+        }
 
         return true;
     }
@@ -108,6 +122,7 @@ public class NodeCollectionDefConfig implements Dto {
         result = 31 * result + (nodeCollectionDefConfig != null ? nodeCollectionDefConfig.hashCode() : 0);
         result = 31 * result + (parentFilter != null ? parentFilter.hashCode() : 0);
         result = 31 * result + (collection != null ? collection.hashCode() : 0);
+        result = 31 * result +(selective ? 1 : 0);
         return result;
     }
 }

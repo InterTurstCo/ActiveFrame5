@@ -8,8 +8,8 @@ import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
-import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItemList;
-import ru.intertrust.cm.core.gui.model.form.widget.NodeContentMetaData;
+import ru.intertrust.cm.core.gui.model.form.widget.NodeContentRequest;
+import ru.intertrust.cm.core.gui.model.form.widget.NodeContentResponse;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.ArrayList;
@@ -29,10 +29,10 @@ public class NewNodeContentManager extends NodeContentManager {
             this.collectionName = collectionName;
             this.parentId = parentId;
         }
-    private NodeContentMetaData prepareRequestDataForNewNodeOpening() {
+    private NodeContentRequest prepareRequestDataForNewNodeOpening() {
         NodeCollectionDefConfig nodeConfig = getNodeConfigForNewNodeOpening(collectionName, config.getNodeCollectionDefConfig());
-        NodeContentMetaData nodeContentMetaData = createRequestDataFromNodeConfig(nodeConfig);
-        return nodeContentMetaData;
+        NodeContentRequest nodeContentRequest = createRequestDataFromNodeConfig(nodeConfig);
+        return nodeContentRequest;
     }
 
     private NodeCollectionDefConfig getNodeConfigForNewNodeOpening(String collectionName, NodeCollectionDefConfig nodeConfig) {
@@ -47,17 +47,18 @@ public class NewNodeContentManager extends NodeContentManager {
     }
 
     public void fetchNodeContent() {
-        NodeContentMetaData  nodeContentMetaData = prepareRequestDataForNewNodeOpening();
-        nodeContentMetaData.setId(parentId);
-        Command command = new Command("fetchNodeContent", "hierarchy-browser", nodeContentMetaData);
+        NodeContentRequest nodeContentRequest = prepareRequestDataForNewNodeOpening();
+        nodeContentRequest.setId(parentId);
+        Command command = new Command("fetchNodeContent", "hierarchy-browser", nodeContentRequest);
         BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onSuccess(Dto result) {
-                HierarchyBrowserItemList nodeContent = (HierarchyBrowserItemList) result;
+                NodeContentResponse nodeContent = (NodeContentResponse) result;
                 List<HierarchyBrowserItem> items = nodeContent.getNodeContent();
                 String nodeType = nodeContent.getNodeType();
                 Id parentId = nodeContent.getParentId();
-                mainPopup.drawNewNode(items, nodeType, parentId);
+                boolean selective = nodeContent.isSelective();
+                mainPopup.drawNewNode(items, nodeType, parentId, selective);
 
             }
 

@@ -10,7 +10,7 @@ import java.util.ArrayList;
  *         Date: 23.12.13
  *         Time: 13:15
  */
-public class NodeContentMetaData implements Dto {
+public class NodeContentRequest implements Dto {
     private Id id;
     private String parentFilterName;
     private String selectionPattern;
@@ -19,6 +19,8 @@ public class NodeContentMetaData implements Dto {
     private int numberOfItemsToDisplay;
     private int offset;
     private String inputText;
+    private boolean selective = true;
+
     private ArrayList<Id> chosenIds = new ArrayList<Id>();
     public Id getId() {
         return id;
@@ -90,5 +92,13 @@ public class NodeContentMetaData implements Dto {
 
     public void setOffset(int offset) {
         this.offset = offset;
+    }
+
+    public boolean isSelective() {
+        return selective;
+    }
+
+    public void setSelective(boolean selective) {
+        this.selective = selective;
     }
 }

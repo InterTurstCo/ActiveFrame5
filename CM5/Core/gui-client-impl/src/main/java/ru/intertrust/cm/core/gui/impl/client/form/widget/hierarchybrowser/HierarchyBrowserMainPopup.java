@@ -80,7 +80,7 @@ public class HierarchyBrowserMainPopup {
         nodesSection.addStyleName("node-section");
         scrollPanel.add(nodesSection);
         addNodeLink("link", linksSection);
-        HorizontalPanel buttonsPanel = createFooterButtonPanel();
+        AbsolutePanel buttonsPanel = createFooterButtonPanel();
         linksAndNodesSection.add(linksSection);
         linksAndNodesSection.add(scrollPanel);
         root.add(popupChosenContent);
@@ -96,7 +96,7 @@ public class HierarchyBrowserMainPopup {
         HorizontalPanel nodePanel = new HorizontalPanel();
         nodePanel.addStyleName("selected-node-link");
         linkLabel = new Hyperlink();
-
+        linkLabel.removeStyleName("gwt-Hyperlink ");
         linkLabel.addStyleName("node-link");
         linkLabel.setText(title);
         linkLabel.getElement().getStyle().setColor("white");
@@ -126,8 +126,8 @@ public class HierarchyBrowserMainPopup {
         nodeHeight = (int) (0.6 * popupHeight);
     }
 
-    private HorizontalPanel createFooterButtonPanel() {
-        HorizontalPanel buttonsPanel = new HorizontalPanel();
+    private AbsolutePanel createFooterButtonPanel() {
+        AbsolutePanel buttonsPanel = new AbsolutePanel();
         buttonsPanel.setStyleName("bottom-popup-buttons-panel");
         okButton = new Button("Готово");
         okButton.removeStyleName("gwt-Button");
@@ -147,10 +147,8 @@ public class HierarchyBrowserMainPopup {
         return buttonsPanel;
     }
 
-    public void drawNewNode(List<HierarchyBrowserItem> items, String nodeType, Id parentId) {
-        if (items.isEmpty()) {
-            return;
-        }
+    public void drawNewNode(List<HierarchyBrowserItem> items, String nodeType, Id parentId, boolean selective) {
+
         if (containerMap.containsKey(nodeType)) {
             nodesSection.remove(containerMap.get(nodeType));
         }
@@ -163,11 +161,11 @@ public class HierarchyBrowserMainPopup {
                 nodesSection.remove(containerMap.get(childType));
             }
         }
-        HierarchyBrowserNodeView nodeView = new HierarchyBrowserNodeView(eventBus, nodeHeight, parentId);
-        nodeView.setItems(items);
+        HierarchyBrowserNodeView nodeView = new HierarchyBrowserNodeView(eventBus, nodeHeight,
+                parentId, selective, items);
         nodeView.asWidget().setWidth("100%");
         nodesSection.add(nodeView);
-        nodeView.drawNode();
+        nodeView.drawNode(nodeType);
         containerMap.put(nodeType, nodeView);
 
     }
@@ -177,14 +175,15 @@ public class HierarchyBrowserMainPopup {
         nodeView.drawMoreItems(items);
 
     }
-    public void redrawNode(List<HierarchyBrowserItem> items, String nodeType, Id parentId) {
+
+    public void redrawNode(List<HierarchyBrowserItem> items, String nodeType) {
         int index = nodeTypes.indexOf(nodeType);
         List<String> children = nodeTypes.subList(index + 1, nodeTypes.size());
         for (String childType : children) {
             nodesSection.remove(containerMap.get(childType));
         }
         HierarchyBrowserNodeView nodeView = containerMap.get(nodeType);
-        nodeView.redrawNode(items, parentId);
+        nodeView.redrawNode(items);
     }
 
     public void addOkClickHandler(ClickHandler openButtonClickHandler) {

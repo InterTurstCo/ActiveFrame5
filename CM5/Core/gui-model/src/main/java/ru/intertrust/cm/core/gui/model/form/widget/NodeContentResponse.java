@@ -10,10 +10,11 @@ import java.util.ArrayList;
  *         Date: 23.12.13
  *         Time: 13:15
  */
-public class HierarchyBrowserItemList implements Dto {
+public class NodeContentResponse implements Dto {
     private String nodeType;
     private ArrayList<HierarchyBrowserItem> nodeContent;
     private Id parentId;
+    private boolean selective = true;
     public ArrayList<HierarchyBrowserItem> getNodeContent() {
         return nodeContent;
     }
@@ -36,5 +37,13 @@ public class HierarchyBrowserItemList implements Dto {
 
     public void setParentId(Id parentId) {
         this.parentId = parentId;
+    }
+
+    public boolean isSelective() {
+        return selective;
+    }
+
+    public void setSelective(boolean selective) {
+        this.selective = selective;
     }
 }

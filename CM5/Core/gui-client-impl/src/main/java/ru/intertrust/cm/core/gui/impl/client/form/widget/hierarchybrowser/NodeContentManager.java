@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
-import ru.intertrust.cm.core.gui.model.form.widget.NodeContentMetaData;
+import ru.intertrust.cm.core.gui.model.form.widget.NodeContentRequest;
 
 import java.util.ArrayList;
 
@@ -22,15 +22,17 @@ public abstract class NodeContentManager {
         this.mainPopup = mainPopup;
         this.chosenIds = chosenIds;
     }
-    protected NodeContentMetaData createRequestDataFromNodeConfig(NodeCollectionDefConfig nodeConfig) {
-        NodeContentMetaData nodeContentMetaData = new NodeContentMetaData();
-        nodeContentMetaData.setSelectionPattern(nodeConfig.getSelectionPatternConfig().getValue());
-        nodeContentMetaData.setNumberOfItemsToDisplay(config.getPageSize());
-        nodeContentMetaData.setCollectionName(nodeConfig.getCollection());
-        nodeContentMetaData.setInputTextFilterName(nodeConfig.getInputTextFilterConfig().getName());
-        nodeContentMetaData.setParentFilterName(nodeConfig.getParentFilter());
-        nodeContentMetaData.setChosenIds(chosenIds);
-        return nodeContentMetaData;
+
+    protected NodeContentRequest createRequestDataFromNodeConfig(NodeCollectionDefConfig nodeConfig) {
+        NodeContentRequest nodeContentRequest = new NodeContentRequest();
+        nodeContentRequest.setSelectionPattern(nodeConfig.getSelectionPatternConfig().getValue());
+        nodeContentRequest.setNumberOfItemsToDisplay(config.getPageSize());
+        nodeContentRequest.setCollectionName(nodeConfig.getCollection());
+        nodeContentRequest.setInputTextFilterName(nodeConfig.getInputTextFilterConfig().getName());
+        nodeContentRequest.setParentFilterName(nodeConfig.getParentFilter());
+        nodeContentRequest.setChosenIds(chosenIds);
+        nodeContentRequest.setSelective(nodeConfig.isSelective());
+        return nodeContentRequest;
     }
     public abstract void fetchNodeContent() ;
 }

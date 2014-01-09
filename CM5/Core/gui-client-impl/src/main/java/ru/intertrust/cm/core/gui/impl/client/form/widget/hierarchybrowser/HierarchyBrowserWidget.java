@@ -129,13 +129,13 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
     @Override
     public void onHierarchyBrowserItemClick(HierarchyBrowserItemClickEvent event) {
-        HierarchyBrowserItem item = event.getItem();
+        String collectionName = event.getCollectionName();
         PopupPanel popup = new PopupPanel();
         popup.setModal(true);
         popup.setSize(popupWidth + "px", popupHeight + "px");
         popup.getElement().getStyle().setZIndex(10);
         AbsolutePanel panel = new AbsolutePanel();
-        Label label = new Label(item.getStringRepresentation());
+        Label label = new Label(collectionName);
         panel.add(label);
         AbsolutePanel popupButtons = createFooterButtonPanel(popup);
         panel.add(popupButtons);
@@ -160,7 +160,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         Id parentId = event.getParentId();
         HierarchyBrowserWidgetState state = (HierarchyBrowserWidgetState) getCurrentState();
         ArrayList<Id> chosenIds = state.getIds();
-        NodeContentManager nodeContentManager = new RedrawNodeContentManager(config,
+        NodeContentManager nodeContentManager = new RedrawNodeContentWithNewItemContentManager(config,
                 mainPopup, chosenIds, collectionName, parentId, "");
         nodeContentManager.fetchNodeContent();
     }
@@ -172,7 +172,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         String inputText = event.getInputText();
         HierarchyBrowserWidgetState state = (HierarchyBrowserWidgetState) getCurrentState();
         ArrayList<Id> chosenIds = state.getIds();
-        NodeContentManager nodeContentManager = new RedrawNodeContentManager(config, mainPopup, chosenIds,
+        NodeContentManager nodeContentManager = new RedrawNodeContentWithNewItemContentManager(config, mainPopup, chosenIds,
                 collectionName, parentId, inputText);
         nodeContentManager.fetchNodeContent();
     }
@@ -186,7 +186,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         String inputText = event.getInputText();
         HierarchyBrowserWidgetState state = (HierarchyBrowserWidgetState) getCurrentState();
         ArrayList<Id> chosenIds = state.getIds();
-        NodeContentManager nodeContentManager = new RedrawNodeContentWithMoreItemsManager(config, mainPopup,
+        NodeContentManager nodeContentManager = new RedrawNodeContentWithMoreItemsContentManager(config, mainPopup,
                 chosenIds, collectionName, parentId, inputText, offset);
         nodeContentManager.fetchNodeContent();
     }
