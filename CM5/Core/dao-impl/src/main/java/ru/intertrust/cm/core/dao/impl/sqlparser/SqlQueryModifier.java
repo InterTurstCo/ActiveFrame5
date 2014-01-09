@@ -39,6 +39,7 @@ import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.exception.CollectionQueryException;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
+import ru.intertrust.cm.core.util.KryoCloner;
 
 
 /**
@@ -214,6 +215,68 @@ public class SqlQueryModifier {
                 } else if (fieldConfig instanceof DateTimeWithTimeZoneFieldConfig) {
                     selectItems.add(createTimeZoneIdSelectItem(selectExpressionItem));
                 }
+            } else if (selectExpressionItem.getExpression() instanceof CaseExpression) {
+                CaseExpression caseExpression = (CaseExpression) selectExpressionItem.getExpression();
+                boolean returnsId = false;
+                for (Expression whenExpression : caseExpression.getWhenClauses()) {
+                    WhenClause whenClause = (WhenClause) whenExpression;
+                    if (whenClause.getThenExpression() instanceof Column) {
+                        Column column = (Column) whenClause.getThenExpression();
+                        FieldConfig fieldConfig = configurationExplorer.getFieldConfig(
+                                getDOTypeName(plainSelect, column, false), unwrap(column.getColumnName()));
+
+                        if (fieldConfig instanceof ReferenceFieldConfig) {
+                            returnsId = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!returnsId && caseExpression.getElseExpression() instanceof Column) {
+                    Column column = (Column) caseExpression.getElseExpression();
+                    FieldConfig fieldConfig = configurationExplorer.getFieldConfig(
+                            getDOTypeName(plainSelect, column, false), unwrap(column.getColumnName()));
+
+                    if (fieldConfig instanceof ReferenceFieldConfig) {
+                        returnsId = true;
+                    }
+                }
+
+                if (returnsId) {
+                    KryoCloner kryoCloner = new KryoCloner();
+                    CaseExpression idTypeExpression = kryoCloner.cloneObject(caseExpression, caseExpression.getClass());
+
+                    for (Expression whenExpression : idTypeExpression.getWhenClauses()) {
+                        WhenClause whenClause = (WhenClause) whenExpression;
+                        if (whenClause.getThenExpression() instanceof Column) {
+                            Column column = (Column) whenClause.getThenExpression();
+                            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(
+                                    getDOTypeName(plainSelect, column, false), unwrap(column.getColumnName()));
+
+                            if (fieldConfig instanceof ReferenceFieldConfig) {
+                                column.setColumnName(getReferenceTypeColumnName(column.getColumnName()));
+                            }
+                        }
+                    }
+
+                    if (idTypeExpression.getElseExpression() instanceof Column) {
+                        Column column = (Column) idTypeExpression.getElseExpression();
+                        FieldConfig fieldConfig = configurationExplorer.getFieldConfig(
+                                getDOTypeName(plainSelect, column, false), unwrap(column.getColumnName()));
+
+                        if (fieldConfig instanceof ReferenceFieldConfig) {
+                            column.setColumnName(getReferenceTypeColumnName(column.getColumnName()));
+                        }
+                    }
+
+                    SelectExpressionItem idTypeSelectExpressionItem = new SelectExpressionItem();
+                    idTypeSelectExpressionItem.setExpression(idTypeExpression);
+                    if (selectExpressionItem.getAlias() != null) {
+                        idTypeSelectExpressionItem.setAlias(getReferenceTypeColumnName(unwrap(selectExpressionItem.getAlias())));
+                    }
+
+                    selectItems.add(idTypeSelectExpressionItem);
+                }
             } else if (selectExpressionItem.getAlias().endsWith(REFERENCE_POSTFIX) &&
                     selectExpressionItem.getAlias() != null) {
                 String alias = selectExpressionItem.getAlias();
@@ -267,8 +330,8 @@ public class SqlQueryModifier {
                             configurationExplorer.getFieldConfig(getDOTypeName(plainSelect, column, false), fieldName);
                     columnToConfigMap.put(columnName, fieldConfig);
                 }
-            } else if (selectExpressionItem.getAlias().endsWith(REFERENCE_POSTFIX) &&
-                    selectExpressionItem.getAlias() != null &&
+            } else if (selectExpressionItem.getAlias() != null &&
+                    selectExpressionItem.getAlias().endsWith(REFERENCE_POSTFIX) &&
                     (selectExpressionItem.getExpression() instanceof NullValue ||
                             selectExpressionItem.getExpression() instanceof LongValue)) {
                 String alias = unwrap(selectExpressionItem.getAlias().toLowerCase());
