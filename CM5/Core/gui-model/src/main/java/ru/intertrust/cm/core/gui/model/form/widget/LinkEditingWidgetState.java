@@ -1,8 +1,6 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
 
 import java.util.ArrayList;
 
@@ -19,10 +17,5 @@ public abstract class LinkEditingWidgetState extends ValueEditingWidgetState {
 
     public ArrayList<ArrayList<Id>> getFieldPathsIds() {
         return null;
-    }
-
-    public Value getValue() {
-        ArrayList<Id> ids = getIds();
-        return ids == null || ids.isEmpty() ? null : new ReferenceValue(ids.get(0));
     }
 }

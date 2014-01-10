@@ -14,12 +14,10 @@ import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfigurationConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
-import ru.intertrust.cm.core.gui.api.server.widget.SingleObjectWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.form.*;
 import ru.intertrust.cm.core.gui.model.form.widget.LinkEditingWidgetState;
-import ru.intertrust.cm.core.gui.model.form.widget.ValueEditingWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import javax.annotation.PostConstruct;
@@ -81,7 +79,7 @@ public class FormSaver {
             }
 
             WidgetHandler handler = (WidgetHandler) applicationContext.getBean(widgetConfig.getComponentName());
-            Value newValue = ((SingleObjectWidgetHandler) handler).getValue((ValueEditingWidgetState) widgetState);
+            Value newValue = handler.getValue(widgetState);
             Value oldValue = formObjects.getFieldValue(firstFieldPath);
             if (!areValuesSemanticallyEqual(newValue, oldValue)) {
                 FieldPath parentObjectPath = firstFieldPath.getParentPath();

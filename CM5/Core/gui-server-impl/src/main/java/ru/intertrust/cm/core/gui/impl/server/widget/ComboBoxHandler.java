@@ -14,7 +14,7 @@ import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.widget.ComboBoxState;
-import ru.intertrust.cm.core.gui.model.form.widget.ValueEditingWidgetState;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -62,7 +62,7 @@ public class ComboBoxHandler extends SingleObjectWidgetHandler {
     }
 
     @Override
-    public Value getValue(ValueEditingWidgetState state) {
+    public Value getValue(WidgetState state) {
         return new ReferenceValue(((ComboBoxState) state).getId());
     }
 }

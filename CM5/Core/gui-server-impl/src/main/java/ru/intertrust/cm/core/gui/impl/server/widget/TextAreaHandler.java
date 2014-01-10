@@ -6,7 +6,7 @@ import ru.intertrust.cm.core.gui.api.server.widget.SingleObjectWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.TextAreaState;
-import ru.intertrust.cm.core.gui.model.form.widget.ValueEditingWidgetState;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 /**
  * @author Denis Mitavskiy
@@ -21,7 +21,7 @@ public class TextAreaHandler extends SingleObjectWidgetHandler {
     }
 
     @Override
-    public Value getValue(ValueEditingWidgetState state) {
+    public Value getValue(WidgetState state) {
         return new StringValue(((TextAreaState) state).getText());
     }
 }

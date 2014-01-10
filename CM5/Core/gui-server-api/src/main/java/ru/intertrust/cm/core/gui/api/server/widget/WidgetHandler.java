@@ -18,6 +18,8 @@ import java.util.regex.Pattern;
 public abstract class WidgetHandler implements ComponentHandler {
     public abstract <T extends WidgetState> T getInitialState(WidgetContext context);
 
+    public abstract Value getValue(WidgetState state);
+
     protected ArrayList<String> format(List<DomainObject> listToDisplay, String displayPattern) {
         Pattern pattern = Pattern.compile("\\{\\w+\\}");
         Matcher matcher = pattern.matcher(displayPattern);

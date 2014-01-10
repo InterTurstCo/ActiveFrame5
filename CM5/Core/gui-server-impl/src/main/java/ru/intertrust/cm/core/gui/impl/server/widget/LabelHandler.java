@@ -7,7 +7,7 @@ import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.widget.LabelState;
-import ru.intertrust.cm.core.gui.model.form.widget.ValueEditingWidgetState;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 /**
  * @author Denis Mitavskiy
@@ -29,7 +29,7 @@ public class LabelHandler extends SingleObjectWidgetHandler {
     }
 
     @Override
-    public Value getValue(ValueEditingWidgetState state) {
+    public Value getValue(WidgetState state) {
         return null;
     }
 }

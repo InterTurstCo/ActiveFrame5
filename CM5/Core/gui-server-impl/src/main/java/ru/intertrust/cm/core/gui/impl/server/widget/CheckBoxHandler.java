@@ -6,7 +6,7 @@ import ru.intertrust.cm.core.gui.api.server.widget.SingleObjectWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.CheckBoxState;
-import ru.intertrust.cm.core.gui.model.form.widget.ValueEditingWidgetState;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -21,7 +21,7 @@ public class CheckBoxHandler extends SingleObjectWidgetHandler {
     }
 
     @Override
-    public Value getValue(ValueEditingWidgetState state) {
+    public Value getValue(WidgetState state) {
         final boolean booleanValue = ((CheckBoxState) state).isSelected();
         return new BooleanValue(booleanValue);
     }
