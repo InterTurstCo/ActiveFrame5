@@ -9,6 +9,9 @@ import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.widget.LabelState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * @author Denis Mitavskiy
  *         Date: 14.09.13
@@ -20,8 +23,15 @@ public class LabelHandler extends SingleObjectWidgetHandler {
     public LabelState getInitialState(WidgetContext context) {
         FieldPath fieldPath = context.getFieldPaths()[0];
         if (fieldPath != null) {
-            String plainValue = context.getFieldPlainValue();
-            return new LabelState(plainValue == null || plainValue.isEmpty() ? "" : plainValue);
+            Object plainValue = context.getFieldPlainValue();
+            if (plainValue == null) {
+                return new LabelState("");
+            }
+            if (plainValue instanceof Date) {
+                return new LabelState(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format((Date) plainValue));
+            }
+
+            return new LabelState(plainValue.toString());
         } else {
             LabelConfig widgetConfig = context.getWidgetConfig();
             return new LabelState(widgetConfig.getText());
