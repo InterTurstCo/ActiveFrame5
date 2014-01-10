@@ -80,7 +80,10 @@ public class FormPanel implements IsWidget {
     private FlowPanel build() {
 
         MarkupConfig markup = formDisplayData.getMarkup();
-        IsWidget headerTable = buildHeader(markup);
+        if(markup.getHeader().getTableLayout() != null){
+            IsWidget headerTable = buildHeader(markup);
+            panel.add(headerTable);
+        }
         buildTabs(markup);
         panel.setWidth(formWidth-20 + "px");
         bodyTabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
@@ -90,9 +93,8 @@ public class FormPanel implements IsWidget {
 
             }
         });
-        panel.add(headerTable);
-        panel.add(bodyTabPanel);
 
+        panel.add(bodyTabPanel);
         return panel;
     }
 

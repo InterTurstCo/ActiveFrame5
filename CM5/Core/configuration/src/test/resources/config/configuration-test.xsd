@@ -954,7 +954,7 @@
     </xs:complexType>
     <xs:complexType name="headerType">
         <xs:sequence>
-            <xs:element type="con:tableType" name="table"
+            <xs:element type="con:tableType" name="table" minOccurs="0"
                 xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:sequence>
     </xs:complexType>

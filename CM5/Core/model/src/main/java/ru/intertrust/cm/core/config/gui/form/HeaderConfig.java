@@ -11,7 +11,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  */
 @Root(name = "header")
 public class HeaderConfig implements Dto {
-    @Element(name = "table")
+    @Element(name = "table", required=false)
     private TableLayoutConfig tableLayout;
 
     public TableLayoutConfig getTableLayout() {
