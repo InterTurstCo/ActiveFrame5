@@ -60,6 +60,9 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
     @ElementList(entry="uniqueKey", type=UniqueKeyConfig.class, inline=true, required = false)
     private List<UniqueKeyConfig> uniqueKeyConfigs = new ArrayList<>();
 
+    @Element(name = "indices", required = false)
+    private IndicesConfig indicesConfig = new IndicesConfig();
+
     private static final List<FieldConfig> SYSTEM_FIELDS = new ArrayList<>();
 
     static {
@@ -139,6 +142,14 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
         }
     }
 
+    public IndicesConfig getIndicesConfig() {
+        return indicesConfig;
+    }
+
+    public void setIndicesConfig(IndicesConfig indicesConfig) {
+        this.indicesConfig = indicesConfig;
+    }
+
     public Boolean isTemplate() {
         return isTemplate == null ? false : isTemplate;
     }
@@ -207,6 +218,10 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
             return false;
         }
         if (auditLog != null ? auditLog != that.auditLog : that.auditLog != null) {
+            return false;
+        }
+
+        if (indicesConfig != null ? !indicesConfig.equals(that.indicesConfig) : that.indicesConfig != null) {
             return false;
         }
 

@@ -43,12 +43,23 @@ public class DomainObjectLogicalValidator {
         validateExtendsAttribute(domainObjectTypeConfig);
         validateReferenceFields(domainObjectTypeConfig);
         validateUniqueKeys(domainObjectTypeConfig);
+        validateIndices(domainObjectTypeConfig);
     }
 
     private void validateUniqueKeys(DomainObjectTypeConfig domainObjectTypeConfig) {
         for (UniqueKeyConfig uniqueKeyConfig : domainObjectTypeConfig.getUniqueKeyConfigs()) {
             for (UniqueKeyFieldConfig uniqueKeyFieldConfig : uniqueKeyConfig.getUniqueKeyFieldConfigs()) {
                 validateDomainObjectConfigContainsField(domainObjectTypeConfig, uniqueKeyFieldConfig.getName());
+            }
+        }
+    }
+
+    private void validateIndices(DomainObjectTypeConfig domainObjectTypeConfig) {
+        if (domainObjectTypeConfig.getIndicesConfig() != null) {
+            for (IndexConfig indexConfig : domainObjectTypeConfig.getIndicesConfig().getIndices()) {
+                for (IndexFieldConfig indexFieldConfig : indexConfig.getIndexFieldConfigs()) {
+                    validateDomainObjectConfigContainsField(domainObjectTypeConfig, indexFieldConfig.getName());
+                }
             }
         }
     }

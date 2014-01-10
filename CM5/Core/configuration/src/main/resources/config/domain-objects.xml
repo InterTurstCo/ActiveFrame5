@@ -19,6 +19,15 @@
         <uniqueKey> <!-- This key means automatic key + index creation-->
             <field name="Registration_Number"/>
         </uniqueKey>
+        <indices>
+            <index type="hash">
+                <field name="Registration_Number" />
+                <field name="Name" />
+            </index>
+            <index>
+                <field name="Name" />
+            </index>
+        </indices>
     </domain-object-type>
 
      <domain-object-type name="Internal_Document" initial-status="Draft"> <!-- Internal_Document table -->

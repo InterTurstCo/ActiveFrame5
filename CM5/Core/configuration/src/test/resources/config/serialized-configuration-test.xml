@@ -14,6 +14,7 @@
       <uniqueKey>
          <field name="Registration_Number"/>
       </uniqueKey>
+      <indices/>
    </domain-object-type>
    <domain-object-type name="Assignment">
       <fields>
@@ -21,6 +22,7 @@
          <string name="Name" not-null="false" length="128"/>
          <string name="Description" not-null="false" length="128"/>
       </fields>
+      <indices/>
    </domain-object-type>
    <domain-object-type name="Person" initial-status="Active_Person">
       <fields>
@@ -30,6 +32,7 @@
       <uniqueKey>
          <field name="EMail"/>
       </uniqueKey>
+      <indices/>
    </domain-object-type>
    <domain-object-type name="Employee" initial-status="Active_Employee" extends="Person">
       <fields>
@@ -43,12 +46,14 @@
       <uniqueKey>
          <field name="Phone"/>
       </uniqueKey>
+      <indices/>
    </domain-object-type>
    <domain-object-type name="Delegation" initial-status="Active_Employee">
       <fields>
          <reference name="person" not-null="true" type="Employee"/>
          <reference name="delegate" not-null="true" type="Employee"/>
       </fields>
+      <indices/>
    </domain-object-type>
    <domain-object-type name="Authentication_Info">
       <fields>
@@ -58,6 +63,7 @@
       <uniqueKey>
          <field name="User_Uid"/>
       </uniqueKey>
+      <indices/>
    </domain-object-type>
    <domain-object-type name="Department" initial-status="Active" audit-log="true">
       <fields>
@@ -66,12 +72,14 @@
          <reference name="Boss" not-null="false" type="Employee"/>
          <reference name="ParentDepartment" not-null="false" type="Department"/>
       </fields>
+      <indices/>
    </domain-object-type>
    <domain-object-type name="Organization" audit-log="true">
       <fields>
          <string name="Name" not-null="true" length="128"/>
          <reference name="Boss" not-null="false" type="Employee"/>
       </fields>
+      <indices/>
    </domain-object-type>
    <domain-object-type name="User_Group">
       <fields>
@@ -79,18 +87,21 @@
          <long name="object_id" not-null="false"/>
          <long name="is_static" not-null="false"/>
       </fields>
+      <indices/>
    </domain-object-type>
    <domain-object-type name="Group_Member">
       <fields>
          <reference name="UserGroup" not-null="true" type="User_Group"/>
          <reference name="person_id" not-null="true" type="Authentication_Info"/>
       </fields>
+      <indices/>
    </domain-object-type>
    <domain-object-type name="Group_Admin">
       <fields>
          <reference name="UserGroup" not-null="true" type="User_Group"/>
          <string name="role_name" not-null="true" length="64"/>
       </fields>
+      <indices/>
    </domain-object-type>
    <collection name="Employees" idField="id">
       <prototype><![CDATA[
@@ -165,6 +176,7 @@
       <uniqueKey>
          <field name="Registration_Number"/>
       </uniqueKey>
+      <indices/>
    </domain-object-type>
    <domain-object-type name="Incoming_Document2">
       <fields>
@@ -181,5 +193,6 @@
       <uniqueKey>
          <field name="Registration_Number"/>
       </uniqueKey>
+      <indices/>
    </domain-object-type>
 </configuration>

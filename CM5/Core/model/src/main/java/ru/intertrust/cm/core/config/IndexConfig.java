@@ -28,13 +28,17 @@ public class IndexConfig implements Serializable {
         }
     }
 
-    @Attribute(name = "type")
+    @Attribute(name = "type", required = false)
     private String type;
 
     @ElementList(entry="field", inline=true)
     private List<IndexFieldConfig> indexFieldConfigs = new ArrayList<>();
 
     public IndexConfig() {
+    }
+    
+    public String getType() {
+        return type;
     }
 
     public List<IndexFieldConfig> getIndexFieldConfigs() {
