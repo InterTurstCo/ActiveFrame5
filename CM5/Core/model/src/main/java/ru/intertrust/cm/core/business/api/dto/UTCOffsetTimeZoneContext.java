@@ -23,7 +23,7 @@ public class UTCOffsetTimeZoneContext extends TimeZoneContext {
         if (offset == 0) {
             timeZoneId = "GMT";
         } else {
-            timeZoneId = String.format("%s%02d:%02d", offset > 0 ? "GMT+" : "GMT-",
+            timeZoneId = String.format("%s%02d:%02d", offset > 0 ? "GMT+" : "GMT",
                     offset / 3600000, (offset / 60000) % 60);
         }
 
