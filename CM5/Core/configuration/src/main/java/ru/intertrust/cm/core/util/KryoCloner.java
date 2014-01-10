@@ -12,12 +12,8 @@ import java.util.ArrayList;
  */
 public class KryoCloner {
 
-    private Kryo kryo;
 
     public KryoCloner() {
-        this.kryo = new Kryo();
-        kryo.register(ArrayList.class);
-        kryo.setRegistrationRequired(false);
     }
 
     /**
@@ -29,8 +25,7 @@ public class KryoCloner {
 
         if (source == null) return null;
 
-        long timeMillis = System.currentTimeMillis();
-
+        Kryo kryo = new Kryo();
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         Output output = new Output(stream);
         kryo.register(tClass);
@@ -41,12 +36,6 @@ public class KryoCloner {
         Input input = new Input(bytes);
         T newBean = kryo.readObject(input, tClass);
         input.close();
-
-        long delay = System.currentTimeMillis() - timeMillis;
-        if (delay > 15) {
-            System.out.println("Kryo Clone of " + tClass.getSimpleName() + " ["
-                    + buffSize + "] : " + delay);
-        }
 
         return newBean;
     }
