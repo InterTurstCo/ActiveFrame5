@@ -99,7 +99,8 @@ public class CollectionsServiceImpl implements CollectionsService {
 
     /** {@inheritDoc} */
     @Override
-    public IdentifiableObjectCollection findCollectionByQuery(String query, List<Value> params, int offset, int limit) {
+    public IdentifiableObjectCollection findCollectionByQuery(String query,
+            List<? extends Value> params, int offset, int limit) {
         String user = currentUserAccessor.getCurrentUser();
         AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
         return collectionsDao.findCollectionByQuery(query, params, offset, limit, accessToken);
@@ -107,7 +108,7 @@ public class CollectionsServiceImpl implements CollectionsService {
 
     /** {@inheritDoc} */
     @Override
-    public IdentifiableObjectCollection findCollectionByQuery(String query, List<Value> params) {
+    public IdentifiableObjectCollection findCollectionByQuery(String query, List<? extends Value> params) {
         return findCollectionByQuery(query, params, 0, 0);
     }
 

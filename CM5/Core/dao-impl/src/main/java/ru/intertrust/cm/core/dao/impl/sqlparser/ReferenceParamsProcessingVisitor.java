@@ -27,10 +27,10 @@ import ru.intertrust.cm.core.dao.impl.CollectionsDaoImpl;
  */
 public class ReferenceParamsProcessingVisitor extends CollectingWhereColumnConfigVisitor {
 
-    protected List<Value> params;
+    protected List<? extends Value> params;
     
     public ReferenceParamsProcessingVisitor(ConfigurationExplorer configurationExplorer, PlainSelect plainSelect,
-            List<Value> params) {
+            List<? extends Value> params) {
         super(configurationExplorer, plainSelect);
         this.params = params;
     }

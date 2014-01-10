@@ -49,8 +49,8 @@ public interface CollectionsDao {
      * @param accessToken маркер доступа
      * @return
      */
-    IdentifiableObjectCollection findCollectionByQuery(String query, List<Value> params, int offset, int limit,
-            AccessToken accessToken);    
+    IdentifiableObjectCollection findCollectionByQuery(String query, List<? extends Value> params,
+            int offset, int limit, AccessToken accessToken);
     /**
      * Поиск количества записей в коллекции доменных объектов используя фильтры
      *

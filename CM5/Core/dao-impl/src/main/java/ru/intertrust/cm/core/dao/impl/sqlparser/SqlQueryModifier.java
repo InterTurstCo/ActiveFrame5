@@ -123,7 +123,8 @@ public class SqlQueryModifier {
      * @param params список переданных параметров
      * @return
      */
-    public static String modifyQueryWithParameters(String query, ConfigurationExplorer configurationExplorer, List<Value> params) {
+    public static String modifyQueryWithParameters(String query, ConfigurationExplorer configurationExplorer,
+            List<? extends Value> params) {
 
         SqlQueryParser sqlParser = new SqlQueryParser(query);
         SelectBody selectBody = sqlParser.getSelectBody();

@@ -82,8 +82,10 @@ public interface CollectionsService {
     int findCollectionCount(String collectionName, List<? extends Filter> filters);
 
     /**
-     * Поиск коллекции доменных объектов, используя запрос с переданными параметрами. Используются нумерованные параметры вида {0}, {1} и т.д.
-     * При этом переданные параметры должны идти в том же порядке (в List<Value> params), в котором указаны их индексы в SQL запросе.
+     * Поиск коллекции доменных объектов, используя запрос с переданными параметрами.
+     * Используются нумерованные параметры вида {0}, {1} и т.д.
+     * При этом переданные параметры должны идти в том же порядке (в List<Value> params),
+     * в котором указаны их индексы в SQL запросе.
      * @param query SQL запрос
      * @param params параметры запроса
      * @param offset смещение
@@ -91,7 +93,8 @@ public interface CollectionsService {
      * @param accessToken маркер доступа
      * @return результат поиска в виде {@link IdentifiableObjectCollection}
      */
-    IdentifiableObjectCollection findCollectionByQuery(String query, List<Value> params, int offset, int limit);    
+    IdentifiableObjectCollection findCollectionByQuery(String query,
+            List<? extends Value> params, int offset, int limit);
 
     /**
      * Поиск коллекции доменных объектов, используя запрос с переданными параметрами.
@@ -99,6 +102,6 @@ public interface CollectionsService {
      * @param params параметры запроса
      * @return результат поиска в виде {@link IdentifiableObjectCollection}
      */
-    IdentifiableObjectCollection findCollectionByQuery(String query, List<Value> params);    
+    IdentifiableObjectCollection findCollectionByQuery(String query, List<? extends Value> params);
 
 }

@@ -160,8 +160,8 @@ public class CollectionsDaoImpl implements CollectionsDao {
      * {@inheritDoc}
      */
     @Override
-    public IdentifiableObjectCollection findCollectionByQuery(String query, List<Value> params, int offset, int limit,
-            AccessToken accessToken) {
+    public IdentifiableObjectCollection findCollectionByQuery(String query, List<? extends Value> params,
+            int offset, int limit, AccessToken accessToken) {
         CollectionQueryInitializer collectionQueryInitializer = new CollectionQueryInitializer(configurationExplorer);
 
         String collectionQuery = adjustParameterNamesBeforePreProcessing(query, CollectionsDaoImpl.PARAM_NAME_PREFIX);
@@ -189,7 +189,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
         return collection;
     }
 
-    private void fillParameterMap(List<Value> params, Map<String, Object> parameterMap) {
+    private void fillParameterMap(List<? extends Value> params, Map<String, Object> parameterMap) {
         int index = 0;
         for (Value value : params) {
             // в исполняемом SQL запросе названия параметров совпадает с их номерами в начальном SQL запросе.
