@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
+import ru.intertrust.cm.core.business.api.SearchService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionDisplayConfig;
@@ -21,7 +22,7 @@ import ru.intertrust.cm.core.gui.model.plugin.CollectionRowsRequest;
 
 import java.util.*;
 
-//import ru.intertrust.cm.core.business.impl.search.SearchServiceImpl;
+
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -37,8 +38,8 @@ public class CollectionPluginHandler extends PluginHandler {
     @Autowired
     ConfigurationService configurationService;
 
-//    @Autowired
-//    SearchServiceImpl searchService;
+    @Autowired
+    SearchService searchService;
 
     public CollectionPluginData initialize(Dto param) {
         CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig) param;
@@ -243,11 +244,11 @@ public class CollectionPluginHandler extends PluginHandler {
         int offset, int count, List<Filter> filters, String simpleSearchQuery, String searchArea){
         ArrayList<CollectionRowItem> items = new ArrayList<CollectionRowItem>();
 
-//        IdentifiableObjectCollection collection = searchService.search(simpleSearchQuery, searchArea, collectionName, 200);
-//
-//        for (IdentifiableObject identifiableObject : collection) {
-//            items.add(generateCollectionRowItem(identifiableObject, fields));
-//        }
+        IdentifiableObjectCollection collection = searchService.search(simpleSearchQuery, searchArea, collectionName, 200);
+
+        for (IdentifiableObject identifiableObject : collection) {
+            items.add(generateCollectionRowItem(identifiableObject, fields));
+        }
 
         return items;
     }
