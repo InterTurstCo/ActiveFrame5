@@ -52,4 +52,13 @@ public abstract class LinkEditingWidgetHandler extends WidgetHandler {
 
     public void saveNewObjects(WidgetContext context, WidgetState state) {
     }
+
+    /**
+     * Метод возвращает true, если при разрыве связи со связанными объектами, сами связанные объекты удаляются. Если false,
+     * то разрывается связь, а бывшие связанные объекты остаются в системе.
+     * @return true, если при разрыве связи со связанными объекты, сами связанные объекты удаляются, false - в противном случае
+     */
+    public boolean deleteEntriesOnLinkDrop() {
+        return false;
+    }
 }

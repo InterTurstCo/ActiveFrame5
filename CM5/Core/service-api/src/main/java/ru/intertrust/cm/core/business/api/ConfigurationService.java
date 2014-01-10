@@ -1,7 +1,10 @@
 package ru.intertrust.cm.core.business.api;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.AccessMatrixStatusConfig;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.DynamicGroupConfig;
+import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 
@@ -98,4 +101,11 @@ public interface ConfigurationService {
     AccessMatrixStatusConfig getAccessMatrixByObjectTypeAndStatus(String domainObjectType, String status);
 
     String getDomainObjectType(Id id);
+
+    /**
+     * проверка того, что тип доменного обхекта - Attachment
+     * @param domainObjectType тип доменного обхекта
+     * @return true если тип доменного обхекта - Attachment
+     */
+    boolean isAttachmentType(String domainObjectType);
 }

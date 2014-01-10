@@ -97,4 +97,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     public String getDomainObjectType(Id id) {
         return domainObjectTypeIdCache.getName(id);
     }
+
+    /**
+     * проверка того, что тип доменного обхекта - Attachment
+     * @param domainObjectType тип доменного обхекта
+     * @return true если тип доменного обхекта - Attachment
+     */
+    public boolean isAttachmentType(String domainObjectType) {
+        return configurationExplorer.isAttachmentType(domainObjectType);
+    }
 }

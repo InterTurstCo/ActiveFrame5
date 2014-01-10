@@ -115,4 +115,8 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
         }
     }
 
+    @Override
+    public boolean deleteEntriesOnLinkDrop() {
+        return true;
+    }
 }

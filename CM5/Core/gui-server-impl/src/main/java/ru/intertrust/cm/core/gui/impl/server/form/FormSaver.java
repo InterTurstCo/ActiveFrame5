@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.server.form;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -36,6 +37,8 @@ public class FormSaver {
     @Autowired
     private CrudService crudService;
     @Autowired
+    private AttachmentService attachmentService;
+    @Autowired
     private ConfigurationService configurationService;
     private FormState formState;
     private FormObjects formObjects;
@@ -69,16 +72,17 @@ public class FormSaver {
             }
             FieldPath[] fieldPaths = FieldPath.createPaths(widgetConfig.getFieldPathConfig().getValue());
             FieldPath firstFieldPath = fieldPaths[0];
+            WidgetHandler handler = getWidgetHandler(widgetConfig);
             if (firstFieldPath.isBackReference()) {
+                boolean deleteEntriesOnLinkDrop = ((LinkEditingWidgetHandler) handler).deleteEntriesOnLinkDrop();
                 HashMap<FieldPath, ArrayList<Id>> fieldPathsIds
                         = getBackReferenceFieldPathsIds(fieldPaths, (LinkEditingWidgetState) widgetState);
                 for (FieldPath fieldPath : fieldPaths) {
-                    linkChangeOperations.addAll(mergeObjectReferences(fieldPath, fieldPathsIds.get(fieldPath)));
+                    linkChangeOperations.addAll(mergeObjectReferences(fieldPath, fieldPathsIds.get(fieldPath), deleteEntriesOnLinkDrop));
                 }
                 continue;
             }
 
-            WidgetHandler handler = (WidgetHandler) applicationContext.getBean(widgetConfig.getComponentName());
             Value newValue = handler.getValue(widgetState);
             Value oldValue = formObjects.getFieldValue(firstFieldPath);
             if (!areValuesSemanticallyEqual(newValue, oldValue)) {
@@ -123,7 +127,7 @@ public class FormSaver {
 
         for (FormSaveOperation operation : linkChangeOperations) {
             if (operation.type == FormSaveOperation.Type.Delete) {
-                crudService.delete(operation.domainObject.getId());
+                delete(operation);
             } else {
                 operation.domainObject.setValue(operation.fieldToSetWithRootReference, rootObjectReference);
                 save(operation.domainObject);
@@ -139,12 +143,16 @@ public class FormSaver {
             if (widgetState == null) { // ignore - such data shouldn't be saved
                 continue;
             }
-            WidgetHandler componentHandler = (WidgetHandler) applicationContext.getBean(config.getComponentName());
-            if (componentHandler instanceof LinkEditingWidgetHandler) {
+            WidgetHandler widgetHandler = getWidgetHandler(config);
+            if (widgetHandler instanceof LinkEditingWidgetHandler) {
                 WidgetContext widgetContext = new WidgetContext(config, formObjects);
-                ((LinkEditingWidgetHandler) componentHandler).saveNewObjects(widgetContext, widgetState);
+                ((LinkEditingWidgetHandler) widgetHandler).saveNewObjects(widgetContext, widgetState);
             }
         }
+    }
+
+    private WidgetHandler getWidgetHandler(WidgetConfig config) {
+        return (WidgetHandler) applicationContext.getBean(config.getComponentName());
     }
 
     private boolean areValuesSemanticallyEqual(Value newValue, Value oldValue) {
@@ -176,14 +184,32 @@ public class FormSaver {
     private DomainObject save(DomainObject object) {
         // this is required to avoid optimistic lock exceptions when same object is being edited by several widgets,
         // for example, one widget is editing object's properties while the other edits links
-        DomainObject earlierSavedObject = savedObjectsById.get(object.getId());
+        final Id id = object.getId();
+        DomainObject earlierSavedObject = savedObjectsById.get(id);
         if (earlierSavedObject != null) {
             // todo merge objects here
             return earlierSavedObject;
         }
+        if (isAttachment(id)) { // attachments should never be saved again - they're "final"
+            return object;
+        }
         DomainObject savedObject = crudService.save(object);
         savedObjectsById.put(savedObject.getId(), savedObject);
         return savedObject;
+    }
+
+    private void delete(FormSaveOperation operation) {
+        final Id id = operation.id;
+        if (isAttachment(id)) {
+            // attachments should never be saved again - they're "final"
+            attachmentService.deleteAttachment(id);
+        } else {
+            crudService.delete(id);
+        }
+    }
+
+    private boolean isAttachment(Id id) {
+        return configurationExplorer.isAttachmentType(configurationService.getDomainObjectType(id));
     }
 
     private ArrayList<ObjectCreationOperation> addNewNodeChainIfNotEmpty(FieldPath objectPath) {
@@ -251,15 +277,15 @@ public class FormSaver {
         return result;
     }
 
-    private ArrayList<FormSaveOperation> mergeObjectReferences(FieldPath fieldPath, ArrayList<Id> newIds) {
+    private ArrayList<FormSaveOperation> mergeObjectReferences(FieldPath fieldPath, ArrayList<Id> newIds, boolean deleteEntriesOnLinkDrop) {
         if (fieldPath.isOneToManyReference()) {
-            return mergeOneToMany(fieldPath, newIds);
+            return mergeOneToMany(fieldPath, newIds, deleteEntriesOnLinkDrop);
         } else {
             return mergeManyToMany(fieldPath, newIds);
         }
     }
 
-    private ArrayList<FormSaveOperation> mergeOneToMany(FieldPath fieldPath, ArrayList<Id> newIds) {
+    private ArrayList<FormSaveOperation> mergeOneToMany(FieldPath fieldPath, ArrayList<Id> newIds, boolean deleteEntriesOnLinkDrop) {
 
         // there will be an exception if multi-object node is a parent for one-to-many relationship
         DomainObject parentObject = getSingleDomainObject(fieldPath.getParentPath());
@@ -296,6 +322,10 @@ public class FormSaver {
         previousIds.removeAll(newIds); // leave only those which aren't in new IDs
         for (Id id : previousIds) {
             if (id == null) {
+                continue;
+            }
+            if (deleteEntriesOnLinkDrop) {
+                operations.add(new FormSaveOperation(FormSaveOperation.Type.Delete, id));
                 continue;
             }
             DomainObject objectToDropLinkIn = crudService.find(id);
@@ -350,8 +380,7 @@ public class FormSaver {
             if (id == null) {
                 continue;
             }
-            DomainObject objectToDrop = previousDomainObjectsById.get(id);
-            operations.add(new FormSaveOperation(FormSaveOperation.Type.Delete, objectToDrop, rootLinkField));
+            operations.add(new FormSaveOperation(FormSaveOperation.Type.Delete, id));
         }
         return operations;
     }
