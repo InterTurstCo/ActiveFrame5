@@ -12,7 +12,8 @@
                             <collection-viewer>
                                 <collection-ref name="Countries"/>
                                 <sort-criterion field="name" order="asc"/>
-                                <input-text-filter name="byText"/>
+                                <search-area-ref name="Countries-Search-Area"/>
+                                <search-collection-ref name="Countries"/>
                             </collection-viewer>
                         </domain-object-surfer>
                     </plugin>

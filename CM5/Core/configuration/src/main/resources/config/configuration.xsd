@@ -708,7 +708,11 @@
                         maxOccurs="unbounded" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
-            <xs:element type="con:selectionFilterReferenceType" name="input-text-filter"
+            <xs:element type="con:searchAreaRefType" name="search-area-ref"
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config">
+            </xs:element>
+            <xs:element type="con:searchCollectionRefType" name="search-collection-ref"
                         maxOccurs="unbounded" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
@@ -1121,6 +1125,20 @@
     </xs:complexType>
 
     <xs:complexType name="selectionFilterReferenceType">
+    <xs:simpleContent>
+        <xs:extension base="xs:string">
+            <xs:attribute type="xs:string" name="name"/>
+        </xs:extension>
+    </xs:simpleContent>
+</xs:complexType>
+    <xs:complexType name="searchAreaRefType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="name"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="searchCollectionRefType">
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute type="xs:string" name="name"/>

@@ -134,12 +134,13 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
             String rename = lastColumn.getDataStoreName().replaceAll("([↓↑])", "");
             lastColumn.setDataStoreName(rename);
 
+
             resetLastColumn();
 
             }
         }
 
-        if (!sortDirection){
+        if (!sortDirection ){
             sortDirection = true;
         }  else {
             sortDirection = false;

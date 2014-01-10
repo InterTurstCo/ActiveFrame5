@@ -59,7 +59,6 @@ public class CollectionPluginView extends PluginView {
     private VerticalPanel verticalPanel = new VerticalPanel();
     private FlowPanel root = new FlowPanel();
     private String collectionName;
-    private int scrollStart;
     private int listCount;
     private int tableWidth;
     private int tableHeight;
@@ -68,7 +67,10 @@ public class CollectionPluginView extends PluginView {
     private Button filterButton = new Button();
     private HorizontalPanel searchPanel = new HorizontalPanel();
     private ArrayList<Filter> filterList;
-    private ArrayList<CollectionSearchBox> searchBoxList =  new ArrayList<CollectionSearchBox>();;
+    private ArrayList<CollectionSearchBox> searchBoxList =  new ArrayList<CollectionSearchBox>();
+    private HorizontalPanel treeLinkWidget = new HorizontalPanel();
+    private String simpleSearchQuery = "";
+    private String searchArea = "";
 
     // локальная шина событий
     private EventBus eventBus;
@@ -119,6 +121,7 @@ public class CollectionPluginView extends PluginView {
         filterNameMap = collectionPluginData.getFieldFilter();
         items = collectionPluginData.getItems();
         singleChoice = collectionPluginData.isSingleChoice();
+        searchArea = collectionPluginData.getSearchArea();
 
         init();
 
@@ -236,6 +239,26 @@ public class CollectionPluginView extends PluginView {
                 sortCollectionState = event.getSortCollectionState();
 
                 createSortedCollectionData();
+            }
+        });
+
+        eventBus.addHandler(SimpleSearchEvent.TYPE, new SimpleSearchEventHandler() {
+            @Override
+            public void collectionSimpleSearch(SimpleSearchEvent event) {
+                //To change body of implemented methods use File | Settings | File Templates.
+                listCount = 0;
+                items.clear();
+
+                if (!event.isTypeButton()){
+                    filterList.clear();
+
+                    simpleSearchQuery = "";
+                }  else {
+                    simpleSearchQuery = event.getText();
+
+                }
+
+                createCollectionData();
             }
         });
 
@@ -429,6 +452,14 @@ public class CollectionPluginView extends PluginView {
 
     private void buildPanel() {
         searchPanel.addStyleName("horizont-container");
+        headerPanel.add(treeLinkWidget);
+        treeLinkWidget.setWidth("100%");
+        treeLinkWidget.getElement().getStyle().setBackgroundColor("white");
+        FlowPanel simpleSearch = new FlowPanel();
+        if (searchArea != null && searchArea.length()>0){
+        SimpleSearchPanel simpleSearchPanel = new SimpleSearchPanel(simpleSearch, eventBus);
+        treeLinkWidget.add(simpleSearchPanel);
+        }
         headerPanel.add(tableHeader);
         headerPanel.add(filterButton);
         filterButton.removeStyleName("gwt-Button");
@@ -567,11 +598,9 @@ public class CollectionPluginView extends PluginView {
 
 
     private void createCollectionData() {
-      //  CollectionPluginData collectionPluginData = plugin.getInitialData();
-
-
         CollectionRowsRequest collectionRowsRequest = new CollectionRowsRequest(listCount, 70,
-                collectionName, columnNamesOnDoFieldsMap, filterList);
+                collectionName, columnNamesOnDoFieldsMap, filterList, simpleSearchQuery, searchArea);
+
         collectionRowRequestCommand(collectionRowsRequest);
     }
 

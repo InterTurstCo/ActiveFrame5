@@ -166,6 +166,7 @@ public class DomainObjectSurferPluginView extends PluginView {
         container.add(splitterPanel);
 
         final DomainObjectSurferConfig config = (DomainObjectSurferConfig) domainObjectSurferPlugin.getConfig();
+
         if (config != null) {
             log.info("plugin config, collection = " + config.getCollectionViewerConfig().getCollectionRefConfig().getName());
             final PluginPanel formPluginPanel = new PluginPanel();

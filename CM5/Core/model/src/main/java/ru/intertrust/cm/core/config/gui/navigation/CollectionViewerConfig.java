@@ -4,7 +4,8 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.gui.form.widget.InputTextFilterConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.SearchAreaRefConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.SearchCollectionRefConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,8 +23,11 @@ public class CollectionViewerConfig extends PluginConfig{
     @Element(name = "collection-view-ref", required = false)
     private CollectionViewRefConfig collectionViewRefConfig;
 
-    @Element(name = "input-text-filter", required = false)
-    private InputTextFilterConfig inputTextFilterConfig;
+    @Element(name = "search-area-ref", required = false)
+    private SearchAreaRefConfig searchAreaRefConfig;
+
+    @Element(name = "search-collection-ref", required = false)
+    private SearchCollectionRefConfig searchCollectionRefConfig;
 
     @ElementList(inline = true)
     private List<SortCriterionConfig> sortCriterionConfigList = new ArrayList<SortCriterionConfig>();
@@ -58,12 +62,12 @@ public class CollectionViewerConfig extends PluginConfig{
         this.collectionViewRefConfig = collectionViewRefConfig;
     }
 
-    public InputTextFilterConfig getInputTextFilterConfig() {
-        return inputTextFilterConfig;
+    public SearchAreaRefConfig getSearchAreaRefConfig() {
+        return searchAreaRefConfig;
     }
 
-    public void setInputTextFilterConfig(InputTextFilterConfig inputTextFilterConfig) {
-        this.inputTextFilterConfig = inputTextFilterConfig;
+    public void setSearchAreaRefConfig(SearchAreaRefConfig searchAreaRefConfig) {
+        this.searchAreaRefConfig = searchAreaRefConfig;
     }
 
     public List<Id> getExcludedIds() {
@@ -88,6 +92,14 @@ public class CollectionViewerConfig extends PluginConfig{
 
     public void setSingleChoice(boolean singleChoice) {
         this.singleChoice = singleChoice;
+    }
+
+    public SearchCollectionRefConfig getSearchCollectionRefConfig() {
+        return searchCollectionRefConfig;
+    }
+
+    public void setSearchCollectionRefConfig(SearchCollectionRefConfig searchCollectionRefConfig) {
+        this.searchCollectionRefConfig = searchCollectionRefConfig;
     }
 
     @Override
@@ -115,8 +127,12 @@ public class CollectionViewerConfig extends PluginConfig{
                 getCollectionViewRefConfig() != null) {
             return false;
         }
-        if (inputTextFilterConfig != null ? !inputTextFilterConfig.equals(that.inputTextFilterConfig) : that.
-                inputTextFilterConfig != null) {
+        if (searchAreaRefConfig != null ? !searchAreaRefConfig.equals(that.searchAreaRefConfig) : that.
+                searchAreaRefConfig != null) {
+            return false;
+        }
+        if (searchCollectionRefConfig != null ? !searchCollectionRefConfig.equals(that.searchCollectionRefConfig) : that.
+                searchCollectionRefConfig != null) {
             return false;
         }
 
@@ -128,7 +144,8 @@ public class CollectionViewerConfig extends PluginConfig{
         int result = collectionRefConfig != null ? collectionRefConfig.hashCode() : 0;
         result = 31 * result + (collectionViewRefConfig != null ? collectionViewRefConfig.hashCode() : 0);
         result = 31 * result + (sortCriterionConfigList != null ? sortCriterionConfigList.hashCode() : 0);
-        result = 31 * result + (inputTextFilterConfig != null ? inputTextFilterConfig.hashCode() : 0);
+        result = 31 * result + (searchAreaRefConfig != null ? searchAreaRefConfig.hashCode() : 0);
+        result = 31 * result + (searchCollectionRefConfig != null ? searchCollectionRefConfig.hashCode() : 0);
         return result;
     }
 

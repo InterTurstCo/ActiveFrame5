@@ -10,7 +10,7 @@ import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.gui.form.widget.InputTextFilterConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.SearchAreaRefConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
@@ -95,15 +95,15 @@ public class TableBrowserWidget extends BaseWidget {
     private CollectionViewerConfig initCollectionConfig() {
         CollectionViewerConfig collectionViewerConfig = new CollectionViewerConfig();
         CollectionViewRefConfig collectionViewRefConfig = new CollectionViewRefConfig();
-        InputTextFilterConfig inputTextFilterConfig = new InputTextFilterConfig();
-        inputTextFilterConfig.setName(tableBrowserConfig.getInputTextFilterConfig().getName());
-        inputTextFilterConfig.setValue(filterEditor.getValue());
+        SearchAreaRefConfig searchAreaRefConfig = new SearchAreaRefConfig();
+        searchAreaRefConfig.setName(tableBrowserConfig.getInputTextFilterConfig().getName());
+        searchAreaRefConfig.setValue(filterEditor.getValue());
         collectionViewRefConfig.setName(tableBrowserConfig.getCollectionViewRefConfig().getName());
         CollectionRefConfig collectionRefConfig = new CollectionRefConfig();
         collectionRefConfig.setName(tableBrowserConfig.getCollectionRefConfig().getName());
         collectionViewerConfig.setCollectionRefConfig(collectionRefConfig);
         collectionViewerConfig.setCollectionViewRefConfig(collectionViewRefConfig);
-        collectionViewerConfig.setInputTextFilterConfig(inputTextFilterConfig);
+        collectionViewerConfig.setSearchAreaRefConfig(searchAreaRefConfig);
         collectionViewerConfig.setSingleChoice(tableBrowserConfig.getSingleChoice().isSingleChoice());
         collectionViewerConfig.setDisplayChosenValues(tableBrowserConfig.getDisplayChosenValues().isDisplayChosenValues());
         collectionViewerConfig.setExcludedIds(facebookStyleView.getChosenIds());

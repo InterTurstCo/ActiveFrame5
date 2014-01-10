@@ -26,6 +26,7 @@ public class CollectionPluginData extends PluginData {
     private HashMap<String, String> domainObjectFieldOnColumnNameMap = new HashMap<String, String>();
     private ArrayList<Integer> indexesOfSelectedItems = new ArrayList<Integer>();
     private List<Id> chosenIds = new ArrayList<Id>();
+    private String searchArea;
 
     public CollectionPluginData() {
 
@@ -112,5 +113,11 @@ public class CollectionPluginData extends PluginData {
         this.fieldFilter = fieldFilter;
     }
 
+    public String getSearchArea() {
+        return searchArea;
+    }
 
+    public void setSearchArea(String searchArea) {
+        this.searchArea = searchArea;
+    }
 }

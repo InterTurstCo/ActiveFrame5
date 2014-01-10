@@ -4,10 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.impl.search.SearchServiceImpl;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionDisplayConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.InputTextFilterConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.SearchAreaRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
@@ -35,6 +36,9 @@ public class CollectionPluginHandler extends PluginHandler {
     @Autowired
     ConfigurationService configurationService;
 
+    @Autowired
+    SearchServiceImpl searchService;
+
     public CollectionPluginData initialize(Dto param) {
         CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig) param;
         CollectionRefConfig collectionRefConfig = collectionViewerConfig.getCollectionRefConfig();
@@ -45,11 +49,16 @@ public class CollectionPluginHandler extends PluginHandler {
         pluginData.setSingleChoice(singleChoice);
         pluginData.setDisplayChosenValues(displayChosenValues);
         CollectionViewConfig collectionViewConfig = getViewForCurrentCollection(collectionViewerConfig, collectionName);
+        collectionViewerConfig.getSearchAreaRefConfig();
+
         LinkedHashMap<String, String> map = getDomainObjectFieldOnColumnNameMap(collectionViewConfig);
         pluginData.setDomainObjectFieldOnColumnNameMap(map);
         HashMap<String, String> fieldMap = new HashMap<String, String>();
         HashMap<String, String> fieldMapDisplay = new HashMap<String, String>();
         HashMap<String, String> fieldFilter = new HashMap<String, String>();
+
+
+
         List<CollectionColumnConfig> config = collectionViewConfig.getCollectionDisplayConfig().getColumnConfig();
         for (int i = 0; i < config.size(); i++) {
             if (!collectionViewConfig.getCollectionDisplayConfig().getColumnConfig().get(i).isHidden()) {
@@ -90,6 +99,13 @@ public class CollectionPluginHandler extends PluginHandler {
         pluginData.setFieldMap(fieldMap);
         pluginData.setFieldMapDisplay(fieldMapDisplay);
         pluginData.setFieldFilter(fieldFilter);
+
+        if (collectionViewerConfig.getSearchAreaRefConfig()!=null){
+            pluginData.setSearchArea(collectionViewerConfig.getSearchAreaRefConfig().getName());
+        }  else {
+            pluginData.setSearchArea("");
+        }
+
         return pluginData;
     }
 
@@ -103,12 +119,12 @@ public class CollectionPluginHandler extends PluginHandler {
 
     private List<Filter> addFilterByText(CollectionViewerConfig collectionViewerConfig, List<Filter> filters) {
 
-        InputTextFilterConfig inputTextFilterConfig = collectionViewerConfig.getInputTextFilterConfig();
-        if (inputTextFilterConfig == null) {
+        SearchAreaRefConfig searchAreaRefConfig = collectionViewerConfig.getSearchAreaRefConfig();
+        if (searchAreaRefConfig == null) {
             return filters;
         }
-        String name = inputTextFilterConfig.getName();
-        String text = inputTextFilterConfig.getValue();
+        String name = searchAreaRefConfig.getName();
+        String text = searchAreaRefConfig.getValue();
         if (text == null || text.trim().isEmpty()) {
             return filters;
         }
@@ -119,8 +135,8 @@ public class CollectionPluginHandler extends PluginHandler {
     }
 
     private List<Filter> addFilterExcludeIds(CollectionViewerConfig collectionViewerConfig, List<Filter> filters) {
-        InputTextFilterConfig inputTextFilterConfig = collectionViewerConfig.getInputTextFilterConfig();
-        if (inputTextFilterConfig == null) {
+        SearchAreaRefConfig searchAreaRefConfig = collectionViewerConfig.getSearchAreaRefConfig();
+        if (searchAreaRefConfig == null) {
             return filters;
         }
         Filter filterExcludeIds = prepareExcludeIdsFilter(collectionViewerConfig.getExcludedIds());
@@ -222,11 +238,24 @@ public class CollectionPluginHandler extends PluginHandler {
         return items;
     }
 
+    public ArrayList<CollectionRowItem>  generateTableRowForSimpleSearch(String collectionName, Set<String> fields,
+        int offset, int count, List<Filter> filters, String simpleSearchQuery, String searchArea){
+        ArrayList<CollectionRowItem> items = new ArrayList<CollectionRowItem>();
+
+        IdentifiableObjectCollection collection = searchService.search(simpleSearchQuery, searchArea, collectionName, 200);
+
+        for (IdentifiableObject identifiableObject : collection) {
+            items.add(generateCollectionRowItem(identifiableObject, fields));
+        }
+
+        return items;
+    }
+
     public ArrayList<CollectionRowItem> generateSortTableRowsForPluginInitialization
-            (String collectionName, Set<String> fields, int offset, int count, List<Filter> filters, String field, boolean sortable) {
+            (String collectionName, Set<String> fields, int offset, int count, List<Filter> filters, String field, boolean sortableColumn) {
         ArrayList<CollectionRowItem> items = new ArrayList<CollectionRowItem>();
         SortCriterion.Order order;
-        if (sortable) {
+        if (sortableColumn){
             order = SortCriterion.Order.ASCENDING;
         } else {
             order = SortCriterion.Order.DESCENDING;
@@ -246,18 +275,25 @@ public class CollectionPluginHandler extends PluginHandler {
     public Dto generateCollectionRowItems(Dto dto) {
         CollectionRowsRequest collectionRowsRequest = (CollectionRowsRequest) dto;
         ArrayList<CollectionRowItem> list;
-        if (((CollectionRowsRequest) dto).isSortable()) {
+        if (((CollectionRowsRequest) dto).isSortable()){
             list = generateSortTableRowsForPluginInitialization(collectionRowsRequest.getCollectionName(),
                     collectionRowsRequest.getFields().keySet(), collectionRowsRequest.getOffset(),
                     collectionRowsRequest.getLimit(), collectionRowsRequest.getFilterList(), ((CollectionRowsRequest) dto).getField(),
                     ((CollectionRowsRequest) dto).isSotrType());
-        } else {
-            list = generateTableRowsForPluginInitialization(
-                    collectionRowsRequest.getCollectionName(),
-                    collectionRowsRequest.getFields().keySet(), collectionRowsRequest.getOffset(),
-                    collectionRowsRequest.getLimit(), collectionRowsRequest.getFilterList());
-            CollectionRowItemList collectionRowItemList = new CollectionRowItemList();
-            collectionRowItemList.setCollectionRows(list);
+        }   else {
+            if (collectionRowsRequest.getSimpleSearchQuery().length() > 0){
+                list = generateTableRowForSimpleSearch(collectionRowsRequest.getCollectionName(),
+                        collectionRowsRequest.getFields().keySet(), collectionRowsRequest.getOffset(),
+                        collectionRowsRequest.getLimit(), collectionRowsRequest.getFilterList(),
+                        collectionRowsRequest.getSimpleSearchQuery(), collectionRowsRequest.getSearchArea());
+            }   else {
+                list = generateTableRowsForPluginInitialization(
+                        collectionRowsRequest.getCollectionName(),
+                        collectionRowsRequest.getFields().keySet(), collectionRowsRequest.getOffset(),
+                        collectionRowsRequest.getLimit(), collectionRowsRequest.getFilterList() );
+                CollectionRowItemList collectionRowItemList = new CollectionRowItemList();
+                collectionRowItemList.setCollectionRows(list);
+            }
 
 
         }

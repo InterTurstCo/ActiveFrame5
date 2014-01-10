@@ -24,13 +24,18 @@ public class CollectionRowsRequest implements Dto {
     private boolean sortable;
     private String field;
     List<Filter> filterList;
+    private String simpleSearchQuery;
+    private String searchArea;
 
-    public CollectionRowsRequest(int offset, int limit, String collectionName, HashMap<String, String> fields, List<Filter> filterList) {
+    public CollectionRowsRequest(int offset, int limit, String collectionName, HashMap<String, String> fields,
+                                 List<Filter> filterList, String simpleSearchQuery, String searchArea) {
         this.offset = offset;
         this.limit = limit;
         this.collectionName = collectionName;
         this.fields = fields;
         this.filterList = filterList;
+        this.simpleSearchQuery = simpleSearchQuery;
+        this.searchArea = searchArea;
 
     }
 
@@ -120,5 +125,21 @@ public class CollectionRowsRequest implements Dto {
 
     public void setFilterList(List<Filter> filterList) {
         this.filterList = filterList;
+    }
+
+    public String getSimpleSearchQuery() {
+        return simpleSearchQuery;
+    }
+
+    public void setSimpleSearchQuery(String simpleSearchQuery) {
+        this.simpleSearchQuery = simpleSearchQuery;
+    }
+
+    public String getSearchArea() {
+        return searchArea;
+    }
+
+    public void setSearchArea(String searchArea) {
+        this.searchArea = searchArea;
     }
 }
