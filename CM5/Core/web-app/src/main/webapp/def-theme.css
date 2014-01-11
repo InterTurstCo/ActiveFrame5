@@ -231,16 +231,18 @@
 }
 
 .gwt-TextBox ,
-.gwt-ListBox{
-    padding: 7px !important;
-    border: 1px solid #ccc;
-    margin: 0px;
+.gwt-ListBox,
+.gwt-TextArea{
+padding: 7px !important;
+border: 1px solid #ccc;
+margin: 0px;
+font-family: arial;
 }
 .gwt-ListBox{
-    width: 165px;
+width: 165px;
 }
 .gwt-Label {
-    font-weight: bold;
+font-weight: bold;
 }
 
 /*актуальная верстка*/
