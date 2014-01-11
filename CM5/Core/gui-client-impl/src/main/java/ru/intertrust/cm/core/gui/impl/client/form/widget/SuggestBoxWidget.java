@@ -2,10 +2,9 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.Dto;
@@ -18,120 +17,83 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
 
 @ComponentName("suggest-box")
 public class SuggestBoxWidget extends BaseWidget {
 
-    SuggestBoxState currentState;
-    HashMap<Id, String> allSuggestions = new HashMap<Id, String>();
-    HashMap<Id, String> selectedSuggestions = new HashMap<Id, String>();
-    private AbsolutePanel selectedRecords;
+    private SuggestBox suggestBox;
+    private SuggestBoxState currentState;
+    private SuggestPresenter presenter;
+    private final HashMap<Id, String> allSuggestions = new HashMap<Id, String>();
+
+    public SuggestBoxWidget() {
+        presenter = new SuggestPresenter(true);
+    }
 
     @Override
     public void setCurrentState(WidgetState currentState) {
-        selectedRecords.clear();
-        SuggestBoxState suggestBoxState = (SuggestBoxState) currentState;
+        final SuggestBoxState suggestBoxState = (SuggestBoxState) currentState;
         this.currentState = suggestBoxState;
-        LinkedHashMap<Id, String> listValues = suggestBoxState.getObjects();
-        for (final Map.Entry<Id, String> listEntry : listValues.entrySet()) {
-            final AbsolutePanel recordContainer = new AbsolutePanel();
-            recordContainer.setStyleName("suggest-element");
-            AbsolutePanel textDecorate = new AbsolutePanel();
-            textDecorate.setStyleName("suggest-text-record");
-            InlineLabel text = new InlineLabel(listEntry.getValue());
-            textDecorate.add(text);
-            recordContainer.add(textDecorate);
-            final FocusPanel closeButton = new FocusPanel();
-            AbsolutePanel btnDecorate = new AbsolutePanel();
-            btnDecorate.setStyleName("suggest-decorate-close");
-            btnDecorate.add(closeButton);
-            closeButton.setStyleName("suggest-record-close-button");
-            closeButton.getElement().setId(listEntry.getKey().toStringRepresentation());
-            closeButton.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    recordContainer.removeFromParent();
-                    selectedSuggestions.remove(listEntry.getKey());
+        final Timer timer = new Timer() {
+            @Override
+            public void run() {
+                if (presenter.getOffsetWidth() > 0) {
+                    presenter.init(suggestBoxState, suggestBox);
+                    this.cancel();
                 }
-            });
-            recordContainer.add(btnDecorate);
-            selectedRecords.add(recordContainer);
-            selectedSuggestions.put(listEntry.getKey(), listEntry.getValue());
-        }
+            }
+        };
+        timer.scheduleRepeating(500);
+    }
+
+    @Override
+    public Component createNew() {
+        return new SuggestBoxWidget();
     }
 
     @Override
     public SuggestBoxState getCurrentState() {
         SuggestBoxState state = new SuggestBoxState();
-        state.setSelectedIds(new ArrayList<Id>(selectedSuggestions.keySet()));
+        state.setSelectedIds(new ArrayList<Id>(presenter.getSelectedKys()));
         return state;
     }
 
     @Override
-    protected Widget asEditableWidget() {
-        MultiWordSuggestOracle oracle = buildDynamicMultiWordOracle();
-        final SuggestBox suggestBox = new SuggestBox(oracle);
-        final FocusPanel arrowListButton = new FocusPanel();
-        arrowListButton.setStyleName("arrow-suggest-button-off");
-        arrowListButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                if(arrowListButton.getStyleName().equals("arrow-suggest-button-off")){
-                    arrowListButton.removeStyleName("arrow-suggest-button-off");
-                    arrowListButton.setStyleName("arrow-suggest-button-on");
-                }
-                else{
-                    arrowListButton.removeStyleName("arrow-suggest-button-on");
-                    arrowListButton.setStyleName("arrow-suggest-button-off");
-                }
+    protected Widget asNonEditableWidget() {
+        return presenter;
+    }
 
+    @Override
+    protected Widget asEditableWidget() {
+        presenter.setArrowBtnListener(new EventListener() {
+            @Override
+            public void onBrowserEvent(Event event) {
+                suggestBox.setText("*");
+                suggestBox.showSuggestionList();
+                suggestBox.setText("");
             }
         });
 
-        suggestBox.getElement().removeClassName("gwt-SuggestBox");
-        suggestBox.getElement().setClassName("Cmj-gwt-SuggestBox");
-        selectedRecords = new AbsolutePanel();
-        selectedRecords.setStyleName("suggest-selected-records");
-        final AbsolutePanel container = new AbsolutePanel();
-        container.setStyleName("suggest-container");
-        container.getElement().getStyle().setBorderWidth(1, Style.Unit.PX);
-        container.add(selectedRecords);
-        container.add(suggestBox);
-        container.add(arrowListButton);
-
-
+        MultiWordSuggestOracle oracle = buildDynamicMultiWordOracle();
+        suggestBox = new SuggestBox(oracle);
         suggestBox.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
 
             public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
-                final MultiWordIdentifiableSuggestion selectedItem = (MultiWordIdentifiableSuggestion) event.getSelectedItem();
+                final MultiWordIdentifiableSuggestion selectedItem =
+                        (MultiWordIdentifiableSuggestion) event.getSelectedItem();
                 final String replacementString = selectedItem.getReplacementString();
-                selectedSuggestions.put(selectedItem.getId(), selectedItem.getReplacementString());
-
-                final AbsolutePanel record = new AbsolutePanel();
-                record.setStyleName("suggest-element");
-                record.add(new InlineLabel(replacementString));
-                final FocusPanel closeButton = new FocusPanel();
-                AbsolutePanel btnDecorate = new AbsolutePanel();
-                btnDecorate.setStyleName("suggest-decorate-close");
-                btnDecorate.add(closeButton);
-                closeButton.setStyleName("suggest-record-close-button");
-                closeButton.getElement().setId(selectedItem.getId().toStringRepresentation());
-                closeButton.addClickHandler(new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        record.removeFromParent();
-                        selectedSuggestions.remove(selectedItem.getId());
-                    }
-                });
-                record.add(btnDecorate);
+                presenter.insert(selectedItem.getId(), replacementString);
                 SuggestBox sourceObject = (SuggestBox) event.getSource();
-                //clear suggest input filling
                 sourceObject.setText("");
-                selectedRecords.add(record);
+                sourceObject.setFocus(true);
             }
         });
-        return container;
+        return presenter;
     }
 
     private MultiWordSuggestOracle buildDynamicMultiWordOracle() {
@@ -148,7 +110,7 @@ public class SuggestBoxWidget extends BaseWidget {
                 suggestionRequest.setDropdownPattern(dropDownPatternConfig);
                 suggestionRequest.setSelectionPattern(suggestBoxConfig.getSelectionPatternConfig().getValue());
                 suggestionRequest.setText(request.getQuery());
-                suggestionRequest.setExcludeIds(new LinkedHashSet<Id>(selectedSuggestions.keySet()));
+                suggestionRequest.setExcludeIds(new LinkedHashSet<Id>(presenter.getSelectedKys()));
                 suggestionRequest.setInputTextFilterName(suggestBoxConfig.getInputTextFilterConfig().getName());
                 suggestionRequest.setIdsExclusionFilterName(suggestBoxConfig.getSelectionExcludeFilterConfig().getName());
 
@@ -178,13 +140,137 @@ public class SuggestBoxWidget extends BaseWidget {
         };
     }
 
-    @Override
-    protected Widget asNonEditableWidget() {
-        return asEditableWidget();
+    private static class SuggestPresenter extends CellPanel {
+
+        private final Map<Id, String> selectedSuggestions;
+        private final Element container;
+        private Element arrowBtn;
+        private SuggestBox suggestBox;
+
+        private SuggestPresenter(final boolean editable) {
+            this.selectedSuggestions = new HashMap<Id, String>();
+            setStyleName("suggest-container");
+            final Element row = DOM.createTR();
+            container = DOM.createTD();
+            DOM.appendChild(row, container);
+            DOM.appendChild(getBody(), row);
+            if (editable) {
+                arrowBtn = DOM.createTD();
+                arrowBtn.setClassName("arrow-suggest-btn");
+                DOM.appendChild(row, arrowBtn);
+                DOM.setEventListener(container, new EventListener() {
+                    @Override
+                    public void onBrowserEvent(Event event) {
+                        if (suggestBox != null) {
+                            suggestBox.setFocus(true);
+                        }
+                    }
+                });
+                DOM.sinkEvents(container, Event.ONCLICK | Event.ONFOCUS);
+            }
+        }
+
+        public Set<Id> getSelectedKys() {
+            return selectedSuggestions.keySet();
+        }
+
+        public void setArrowBtnListener(final EventListener listener) {
+            // NPE not checked, for developers only
+            DOM.setEventListener(arrowBtn, listener);
+            DOM.sinkEvents(arrowBtn, Event.ONCLICK);
+        }
+
+        public void init(final SuggestBoxState state, final SuggestBox suggestBox) {
+            this.suggestBox = suggestBox;
+            getElement().getStyle().setProperty("maxWidth", getContainerWidth(), Style.Unit.PX);
+            container.getStyle().setWidth(100, Style.Unit.PCT);
+            final HashMap<Id, String> listValues = state.getObjects();
+            for (final Map.Entry<Id, String> listEntry : listValues.entrySet()) {
+                final SelectedItemComposite itemComposite =
+                        new SelectedItemComposite(listEntry.getKey(), listEntry.getValue(), state.isEditable());
+                itemComposite.setCloseBtnListener(createCloseBtnListener(itemComposite));
+                super.add(itemComposite, container);
+                selectedSuggestions.put(listEntry.getKey(), listEntry.getValue());
+            }
+            if (state.isEditable()) {
+                super.add(suggestBox, container);
+                updateSuggestBoxWidth();
+            }
+        }
+
+        public void insert(final Id itemId, final String itemName) {
+            final SelectedItemComposite itemComposite = new SelectedItemComposite(itemId, itemName, true);
+            itemComposite.setCloseBtnListener(createCloseBtnListener(itemComposite));
+            selectedSuggestions.put(itemId, itemName);
+            final int index = container.getChildCount() - 1;
+            super.insert(itemComposite, container, index, true);
+            updateSuggestBoxWidth();
+        }
+
+        private void updateSuggestBoxWidth() {
+            final int parentWidth = getContainerWidth() - 22;
+            int childWidth = 0;
+            for (int index = 0; index < getWidgetCount(); index++) {
+                final Widget child = getWidget(index);
+                if (child instanceof SelectedItemComposite) {
+                    childWidth += child.getOffsetWidth();
+                    if (childWidth > parentWidth) {
+                        childWidth = child.getOffsetWidth();
+                    }
+                } else {
+                    break;
+                }
+            }
+            childWidth = parentWidth - childWidth;
+            if (childWidth < 40) {
+                childWidth = parentWidth;
+            }
+            suggestBox.getElement().getStyle().setWidth(childWidth, Style.Unit.PX);
+        }
+
+        private EventListener createCloseBtnListener(final SelectedItemComposite itemComposite) {
+            return new EventListener() {
+                @Override
+                public void onBrowserEvent(Event event) {
+                    remove(itemComposite);
+                    selectedSuggestions.remove(itemComposite.getItemId());
+                    suggestBox.setFocus(true);
+                    updateSuggestBoxWidth();
+                }
+            };
+        }
+
+        private int getContainerWidth() {
+            final int clientWidth = getElement().getClientWidth() - 4;
+            return arrowBtn == null ? clientWidth : clientWidth - arrowBtn.getOffsetWidth();
+        }
     }
 
-    @Override
-    public Component createNew() {
-        return new SuggestBoxWidget();
+    private static class SelectedItemComposite extends Composite {
+        private final SimplePanel wrapper;
+        private final Element closeBtn;
+        private final Id itemId;
+
+        private SelectedItemComposite(final Id itemId, final String itemName, final boolean editable) {
+            this.itemId = itemId;
+            wrapper = new SimplePanel();
+            wrapper.setStyleName("suggest-choose");
+            final Element label = DOM.createSpan();
+            label.setInnerText(itemName);
+            DOM.appendChild(wrapper.getElement(), label);
+            closeBtn = DOM.createSpan();
+            closeBtn.setClassName("suggest-choose-close");
+            DOM.appendChild(wrapper.getElement(), closeBtn);
+            initWidget(wrapper);
+        }
+
+        public Id getItemId() {
+            return itemId;
+        }
+
+        public void setCloseBtnListener(final EventListener listener) {
+            DOM.setEventListener(closeBtn, listener);
+            DOM.sinkEvents(closeBtn, Event.BUTTON_LEFT);
+        }
     }
 }
