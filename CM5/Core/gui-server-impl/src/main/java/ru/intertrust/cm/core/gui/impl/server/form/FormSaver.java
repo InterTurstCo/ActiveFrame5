@@ -201,7 +201,6 @@ public class FormSaver {
     private void delete(FormSaveOperation operation) {
         final Id id = operation.id;
         if (isAttachment(id)) {
-            // attachments should never be saved again - they're "final"
             attachmentService.deleteAttachment(id);
         } else {
             crudService.delete(id);
