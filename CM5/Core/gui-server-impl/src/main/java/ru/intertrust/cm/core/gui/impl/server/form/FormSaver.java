@@ -188,7 +188,7 @@ public class FormSaver {
             // todo merge objects here
             return earlierSavedObject;
         }
-        if (isAttachment(id)) { // attachments should never be saved again - they're "final"
+        if (id != null && isAttachment(id)) { // attachments should never be saved again - they're "final"
             return object;
         }
         DomainObject savedObject = crudService.save(object);

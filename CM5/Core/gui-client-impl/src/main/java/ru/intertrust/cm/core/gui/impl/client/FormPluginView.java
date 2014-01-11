@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.impl.client.form.FormPanel;
@@ -26,7 +25,6 @@ public class FormPluginView extends PluginView {
     private FormPanel  formPanel;
     // локальная шина событий
     protected EventBus eventBus;
-    private FlowPanel flowPanel;
 
     // установка локальной шины событий плагину
     public void setEventBus(EventBus eventBus) {
@@ -45,7 +43,6 @@ public class FormPluginView extends PluginView {
         int formWidth = plugin.getOwner().getVisibleWidth();
         int formHeight = plugin.getOwner().getVisibleHeight();
         formPanel = new FormPanel(formDisplayData, formWidth, formHeight);
-        flowPanel = formPanel.getPanel();
         // добавляем обработчики
 //        addHandlers();
     }

@@ -46,10 +46,6 @@ public class FormPanel implements IsWidget {
 
     }
 
-    public FlowPanel getPanel() {
-        return panel;
-    }
-
     public void updateSizes(int width, int height) {
         panel.setSize(width -20 + "px", height + "px");
 
