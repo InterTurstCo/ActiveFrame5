@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.impl.client.event.SimpleSearchEvent;
@@ -22,6 +21,7 @@ public class SimpleSearchPanel extends Composite implements IsWidget {
     private Button clearButton = new Button();
     private TextBox textBox = new TextBox();
     private EventBus eventBus;
+
 
     public SimpleSearchPanel(FlowPanel simpleSearchContainer, EventBus eventBus) {
        this.simpleSearchContainer = simpleSearchContainer;
@@ -67,6 +67,17 @@ public class SimpleSearchPanel extends Composite implements IsWidget {
 
                 eventBus.fireEvent(new SimpleSearchEvent(textBox.getText(), true));
 
+            }
+        });
+
+        textBox.addKeyDownHandler(new KeyDownHandler() {
+            @Override
+            public void onKeyDown(KeyDownEvent event) {
+                if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+
+                    eventBus.fireEvent(new SimpleSearchEvent(textBox.getText(), true));
+
+                }
             }
         });
 
