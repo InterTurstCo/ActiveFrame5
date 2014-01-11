@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.gui.impl.server.form;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.AttachmentService;
-import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -338,46 +337,47 @@ public class FormSaver {
 
         String rootLinkField = fieldPath.getLinkToParentName();
 
-        ArrayList<DomainObject> previousState = mergedNode.getDomainObjects();
-        if (previousState == null) {
-            previousState = new ArrayList<>(0);
+        ArrayList<DomainObject> previousInBetweenDOs = mergedNode.getDomainObjects();
+        if (previousInBetweenDOs == null) {
+            previousInBetweenDOs = new ArrayList<>(0);
         }
         if (newIds == null) {
             newIds = new ArrayList<>(0);
         }
 
-        HashSet<Id> previousIds = new HashSet<>(previousState.size());
-        HashMap<Id, DomainObject> previousDomainObjectsById = new HashMap<>(previousState.size());
+        HashSet<Id> prevLinkedIds = new HashSet<>(previousInBetweenDOs.size());
+        HashMap<Id, DomainObject> prevInBetweenDOsByLinkedObjectId = new HashMap<>(previousInBetweenDOs.size());
         String linkToChildrenName = fieldPath.getLinkToChildrenName();
-        for (DomainObject previousStateObject : previousState) {
-            Id id = previousStateObject.getReference(linkToChildrenName);
-            previousIds.add(id);
-            previousDomainObjectsById.put(id, previousStateObject);
+        for (DomainObject prevInBetweenObject : previousInBetweenDOs) {
+            Id linkedObjectId = prevInBetweenObject.getReference(linkToChildrenName);
+            prevLinkedIds.add(linkedObjectId);
+            prevInBetweenDOsByLinkedObjectId.put(linkedObjectId, prevInBetweenObject);
         }
 
-        ArrayList<FormSaveOperation> operations = new ArrayList<>(previousIds.size() + newIds.size());
+        ArrayList<FormSaveOperation> operations = new ArrayList<>(prevLinkedIds.size() + newIds.size());
 
         // there will be an exception if multi-object node is a parent for one-to-many relationship
         DomainObject parentObject = getSingleDomainObject(fieldPath.getParentPath());
         Id parentObjectId = parentObject.getId();
         // links to create
         for (Id id : newIds) {
-            if (previousIds.contains(id)) {
+            if (prevLinkedIds.contains(id)) {
                 continue; // nothing to update
             }
-            DomainObject newLinkObject = crudService.createDomainObject(linkObjectType);
-            newLinkObject.setReference(rootLinkField, parentObjectId);
-            newLinkObject.setReference(linkToChildrenName, id);
-            operations.add(new FormSaveOperation(FormSaveOperation.Type.Create, newLinkObject, rootLinkField));
+            DomainObject newInBetweenObject = crudService.createDomainObject(linkObjectType);
+            newInBetweenObject.setReference(rootLinkField, parentObjectId);
+            newInBetweenObject.setReference(linkToChildrenName, id);
+            operations.add(new FormSaveOperation(FormSaveOperation.Type.Create, newInBetweenObject, rootLinkField));
         }
 
         // links to drop
-        previousIds.removeAll(newIds); // leave only those which aren't in new values
-        for (Id id : previousIds) {
+        prevLinkedIds.removeAll(newIds); // leave only those which aren't in new values
+        for (Id id : prevLinkedIds) {
             if (id == null) {
                 continue;
             }
-            operations.add(new FormSaveOperation(FormSaveOperation.Type.Delete, id));
+            final DomainObject inBetweenDOToDrop = prevInBetweenDOsByLinkedObjectId.get(id);
+            operations.add(new FormSaveOperation(FormSaveOperation.Type.Delete, inBetweenDOToDrop.getId()));
         }
         return operations;
     }
