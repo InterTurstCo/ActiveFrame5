@@ -25,7 +25,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
     ConfigurationService configurationService;
 
     @Override
-    public ExtendedSearchPluginData initialize(Dto params) {
+    public  ExtendedSearchPluginData initialize(Dto params) {
         // область поиска - список целевых ДО
         HashMap<String, ArrayList<String>> searchAreas = new HashMap<String, ArrayList<String>>();
         // целевой ДО - список его полей
@@ -46,8 +46,8 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
                 ArrayList<String> fieldNames = new ArrayList<String>(fields.size());
                 for (Iterator<IndexedFieldConfig> j = fields.iterator(); j.hasNext();)
                     fieldNames.add(j.next().getName());
-                searchFields.put(t.getCollectionConfig().getName(), fieldNames);
-                arrayTargetObjects.add(t.getCollectionConfig().getName());
+                searchFields.put(t.getType(), fieldNames);
+                arrayTargetObjects.add(t.getType());
             }
 
             searchAreas.put(searchAreaConfig.getName(), arrayTargetObjects);
