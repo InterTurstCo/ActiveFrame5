@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.business.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
+import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
@@ -32,14 +33,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     private ConfigurationExplorer configurationExplorer;
 
     @Autowired
-    private DomainObjectTypeIdCache domainObjectTypeIdCache;
+    private CrudService crudService;
 
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
-    }
-
-    public void setDomainObjectTypeIdCache(DomainObjectTypeIdCache domainObjectTypeIdCache) {
-        this.domainObjectTypeIdCache = domainObjectTypeIdCache;
     }
 
     @Override
@@ -84,18 +81,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     @Override
     public List<DynamicGroupConfig> getDynamicGroupConfigsByTrackDO(Id objectId, String status) {
-        return configurationExplorer.getDynamicGroupConfigsByTrackDO(getDomainObjectType(objectId),
+        return configurationExplorer.getDynamicGroupConfigsByTrackDO(crudService.getDomainObjectType(objectId),
                 status);
     }
 
     @Override
     public AccessMatrixStatusConfig getAccessMatrixByObjectTypeAndStatus(String domainObjectType, String status) {
         return configurationExplorer.getAccessMatrixByObjectTypeAndStatus(domainObjectType, status);
-    }
-
-    @Override
-    public String getDomainObjectType(Id id) {
-        return domainObjectTypeIdCache.getName(id);
     }
 
     /**

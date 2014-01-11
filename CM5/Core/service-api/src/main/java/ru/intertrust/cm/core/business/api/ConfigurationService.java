@@ -100,8 +100,6 @@ public interface ConfigurationService {
      */
     AccessMatrixStatusConfig getAccessMatrixByObjectTypeAndStatus(String domainObjectType, String status);
 
-    String getDomainObjectType(Id id);
-
     /**
      * проверка того, что тип доменного обхекта - Attachment
      * @param domainObjectType тип доменного обхекта

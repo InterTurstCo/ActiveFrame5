@@ -207,6 +207,11 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         return domainObjectDao.findLinkedDomainObjectsIds(domainObjectId, linkedType, linkedField, accessToken);
     }
 
+    @Override
+    public String getDomainObjectType(Id id) {
+        return domainObjectTypeIdCache.getName(id);
+    }
+
     private void checkForAttachment(String objectType) {
         if (configurationExplorer.isAttachmentType(objectType)){
             throw new CrudException("Working with Attachments allowed only through AttachmentService");

@@ -154,4 +154,11 @@ public interface CrudService {
      * @return список идентификаторов связанных доменных объектов
      */
     List<Id> findLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField);
+
+    /**
+     * Возвращает строковый тип доменного объекта по идентификатору
+     * @param id идентификатор доменного объекта
+     * @return строковый тип доменного объекта
+     */
+    String getDomainObjectType(Id id);
 }

@@ -38,8 +38,6 @@ public class FormSaver {
     private CrudService crudService;
     @Autowired
     private AttachmentService attachmentService;
-    @Autowired
-    private ConfigurationService configurationService;
     private FormState formState;
     private FormObjects formObjects;
     private List<WidgetConfig> widgetConfigs;
@@ -208,7 +206,7 @@ public class FormSaver {
     }
 
     private boolean isAttachment(Id id) {
-        return configurationExplorer.isAttachmentType(configurationService.getDomainObjectType(id));
+        return configurationExplorer.isAttachmentType(crudService.getDomainObjectType(id));
     }
 
     private ArrayList<ObjectCreationOperation> addNewNodeChainIfNotEmpty(FieldPath objectPath) {
@@ -267,7 +265,7 @@ public class FormSaver {
                     linkedType = referenceFieldConfig.getType();
                 }
 
-                if (configurationService.getDomainObjectType(id).equalsIgnoreCase(linkedType)) {
+                if (crudService.getDomainObjectType(id).equalsIgnoreCase(linkedType)) {
                     result.get(fieldPath).add(id);
                     break;
                 }
