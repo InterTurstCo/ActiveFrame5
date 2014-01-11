@@ -27,23 +27,19 @@ import java.util.Map;
 public class SuggestBoxWidget extends BaseWidget {
 
     private SuggestBox suggestBox;
-    private SuggestBoxState currentState;
-    private SuggestPresenter presenter;
     private final HashMap<Id, String> allSuggestions = new HashMap<Id, String>();
 
     public SuggestBoxWidget() {
-        presenter = new SuggestPresenter(true);
     }
 
     @Override
     public void setCurrentState(WidgetState currentState) {
         final SuggestBoxState suggestBoxState = (SuggestBoxState) currentState;
-        this.currentState = suggestBoxState;
         final Timer timer = new Timer() {
             @Override
             public void run() {
-                if (presenter.getOffsetWidth() > 0) {
-                    presenter.init(suggestBoxState, suggestBox);
+                if (impl.getOffsetWidth() > 0) {
+                    initState(suggestBoxState, suggestBox);
                     this.cancel();
                 }
             }
@@ -59,26 +55,26 @@ public class SuggestBoxWidget extends BaseWidget {
     @Override
     public SuggestBoxState getCurrentState() {
         SuggestBoxState state = new SuggestBoxState();
-        state.setSelectedIds(new ArrayList<Id>(presenter.getSelectedKys()));
+        if (isEditable()) {
+            final SuggestPresenter presenter = (SuggestPresenter) impl;
+            state.setSelectedIds(new ArrayList<Id>(presenter.getSelectedKeys()));
+        } else {
+            final SuggestBoxState initialState = getInitialData();
+            state.setSelectedIds(initialState.getSelectedIds());
+        }
         return state;
     }
 
     @Override
     protected Widget asNonEditableWidget() {
-        return presenter;
+        final Label label = new Label();
+        label.setStyleName("suggest-choose-lbl");
+        return label;
     }
 
     @Override
     protected Widget asEditableWidget() {
-        presenter.setArrowBtnListener(new EventListener() {
-            @Override
-            public void onBrowserEvent(Event event) {
-                suggestBox.setText("*");
-                suggestBox.showSuggestionList();
-                suggestBox.setText("");
-            }
-        });
-
+        final SuggestPresenter presenter = new SuggestPresenter();
         MultiWordSuggestOracle oracle = buildDynamicMultiWordOracle();
         suggestBox = new SuggestBox(oracle);
         suggestBox.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
@@ -96,13 +92,33 @@ public class SuggestBoxWidget extends BaseWidget {
         return presenter;
     }
 
+    private void initState(final SuggestBoxState state, final SuggestBox suggestBox) {
+        if (isEditable()) {
+            final SuggestPresenter presenter = (SuggestPresenter) impl;
+            presenter.init(state, suggestBox);
+        } else {
+            final int maxWidth = impl.getElement().getParentElement().getClientWidth() - 4;
+            impl.getElement().getStyle().setProperty("maxWidth", maxWidth, Style.Unit.PX);
+            final StringBuilder builder = new StringBuilder();
+            final HashMap<Id, String> listValues = state.getObjects();
+            for (final Map.Entry<Id, String> listEntry : listValues.entrySet()) {
+                builder.append(listEntry.getValue()).append(", ");
+            }
+            if (builder.length() > 0) {
+                builder.setLength(builder.length() - 2);
+            }
+            final Label label = (Label) impl;
+            label.setText(builder.toString());
+        }
+    }
+
     private MultiWordSuggestOracle buildDynamicMultiWordOracle() {
         return new MultiWordSuggestOracle() {
             @Override
             public void requestSuggestions(final Request request, final Callback callback) {
                 SuggestionRequest suggestionRequest = new SuggestionRequest();
-
-                SuggestBoxConfig suggestBoxConfig = currentState.getSuggestBoxConfig();
+                final SuggestBoxState state = getInitialData();
+                SuggestBoxConfig suggestBoxConfig = state.getSuggestBoxConfig();
                 String name = suggestBoxConfig.getCollectionRefConfig().getName();
                 suggestionRequest.setCollectionName(name);
                 String dropDownPatternConfig = suggestBoxConfig.getDropdownPatternConfig().getValue();
@@ -110,7 +126,8 @@ public class SuggestBoxWidget extends BaseWidget {
                 suggestionRequest.setDropdownPattern(dropDownPatternConfig);
                 suggestionRequest.setSelectionPattern(suggestBoxConfig.getSelectionPatternConfig().getValue());
                 suggestionRequest.setText(request.getQuery());
-                suggestionRequest.setExcludeIds(new LinkedHashSet<Id>(presenter.getSelectedKys()));
+                final SuggestPresenter presenter = (SuggestPresenter) impl;
+                suggestionRequest.setExcludeIds(new LinkedHashSet<Id>(presenter.getSelectedKeys()));
                 suggestionRequest.setInputTextFilterName(suggestBoxConfig.getInputTextFilterConfig().getName());
                 suggestionRequest.setIdsExclusionFilterName(suggestBoxConfig.getSelectionExcludeFilterConfig().getName());
 
@@ -147,59 +164,59 @@ public class SuggestBoxWidget extends BaseWidget {
         private Element arrowBtn;
         private SuggestBox suggestBox;
 
-        private SuggestPresenter(final boolean editable) {
+        private SuggestPresenter() {
             this.selectedSuggestions = new HashMap<Id, String>();
             setStyleName("suggest-container");
             final Element row = DOM.createTR();
             container = DOM.createTD();
             DOM.appendChild(row, container);
             DOM.appendChild(getBody(), row);
-            if (editable) {
-                arrowBtn = DOM.createTD();
-                arrowBtn.setClassName("arrow-suggest-btn");
-                DOM.appendChild(row, arrowBtn);
-                DOM.setEventListener(container, new EventListener() {
-                    @Override
-                    public void onBrowserEvent(Event event) {
-                        if (suggestBox != null) {
-                            suggestBox.setFocus(true);
-                        }
-                    }
-                });
-                DOM.sinkEvents(container, Event.ONCLICK | Event.ONFOCUS);
-            }
-        }
-
-        public Set<Id> getSelectedKys() {
-            return selectedSuggestions.keySet();
-        }
-
-        public void setArrowBtnListener(final EventListener listener) {
-            // NPE not checked, for developers only
-            DOM.setEventListener(arrowBtn, listener);
+            arrowBtn = DOM.createTD();
+            arrowBtn.setClassName("arrow-suggest-btn");
+            DOM.appendChild(row, arrowBtn);
+            DOM.setEventListener(arrowBtn, new EventListener() {
+                @Override
+                public void onBrowserEvent(Event event) {
+                    suggestBox.setText("*");
+                    suggestBox.showSuggestionList();
+                    suggestBox.setText("");
+                }
+            });
             DOM.sinkEvents(arrowBtn, Event.ONCLICK);
+            DOM.setEventListener(container, new EventListener() {
+                @Override
+                public void onBrowserEvent(Event event) {
+                    if (suggestBox != null) {
+                        suggestBox.setFocus(true);
+                    }
+                }
+            });
+            DOM.sinkEvents(container, Event.ONCLICK | Event.ONFOCUS);
+        }
+
+        public Set<Id> getSelectedKeys() {
+            return selectedSuggestions.keySet();
         }
 
         public void init(final SuggestBoxState state, final SuggestBox suggestBox) {
             this.suggestBox = suggestBox;
-            getElement().getStyle().setProperty("maxWidth", getContainerWidth(), Style.Unit.PX);
+            final int maxWidth = getElement().getClientWidth() - arrowBtn.getOffsetWidth();
+            getElement().getStyle().setProperty("maxWidth", maxWidth, Style.Unit.PX);
             container.getStyle().setWidth(100, Style.Unit.PCT);
             final HashMap<Id, String> listValues = state.getObjects();
             for (final Map.Entry<Id, String> listEntry : listValues.entrySet()) {
                 final SelectedItemComposite itemComposite =
-                        new SelectedItemComposite(listEntry.getKey(), listEntry.getValue(), state.isEditable());
+                        new SelectedItemComposite(listEntry.getKey(), listEntry.getValue());
                 itemComposite.setCloseBtnListener(createCloseBtnListener(itemComposite));
                 super.add(itemComposite, container);
                 selectedSuggestions.put(listEntry.getKey(), listEntry.getValue());
             }
-            if (state.isEditable()) {
-                super.add(suggestBox, container);
-                updateSuggestBoxWidth();
-            }
+            super.add(suggestBox, container);
+            updateSuggestBoxWidth();
         }
 
         public void insert(final Id itemId, final String itemName) {
-            final SelectedItemComposite itemComposite = new SelectedItemComposite(itemId, itemName, true);
+            final SelectedItemComposite itemComposite = new SelectedItemComposite(itemId, itemName);
             itemComposite.setCloseBtnListener(createCloseBtnListener(itemComposite));
             selectedSuggestions.put(itemId, itemName);
             final int index = container.getChildCount() - 1;
@@ -208,7 +225,7 @@ public class SuggestBoxWidget extends BaseWidget {
         }
 
         private void updateSuggestBoxWidth() {
-            final int parentWidth = getContainerWidth() - 22;
+            final int parentWidth = getElement().getClientWidth() - arrowBtn.getOffsetWidth() - 26;
             int childWidth = 0;
             for (int index = 0; index < getWidgetCount(); index++) {
                 final Widget child = getWidget(index);
@@ -239,11 +256,6 @@ public class SuggestBoxWidget extends BaseWidget {
                 }
             };
         }
-
-        private int getContainerWidth() {
-            final int clientWidth = getElement().getClientWidth() - 4;
-            return arrowBtn == null ? clientWidth : clientWidth - arrowBtn.getOffsetWidth();
-        }
     }
 
     private static class SelectedItemComposite extends Composite {
@@ -251,7 +263,7 @@ public class SuggestBoxWidget extends BaseWidget {
         private final Element closeBtn;
         private final Id itemId;
 
-        private SelectedItemComposite(final Id itemId, final String itemName, final boolean editable) {
+        private SelectedItemComposite(final Id itemId, final String itemName) {
             this.itemId = itemId;
             wrapper = new SimplePanel();
             wrapper.setStyleName("suggest-choose");

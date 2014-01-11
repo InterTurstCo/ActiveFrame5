@@ -317,10 +317,11 @@
     width: 100%;
 }
 
-.suggest-choose {
+.suggest-choose, .suggest-choose-lbl {
     padding: 5px;
     display: inline-block;
 }
+
 
 .suggest-choose:hover {
     border: 1px solid #f7c137;

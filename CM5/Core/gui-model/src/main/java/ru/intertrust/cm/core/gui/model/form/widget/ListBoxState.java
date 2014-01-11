@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.gui.model.form.FieldPath;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 
 /**
@@ -66,8 +67,13 @@ public class ListBoxState extends LinkEditingWidgetState {
         return idFieldPathIndexMapping.get(id);
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        return super.equals(obj);
+    public HashSet<Id> getSelectedIdsSet() {
+        final HashSet<Id> selectedIdsSet = new HashSet<Id>();
+        if (selectedIds != null) {
+            for (ArrayList<Id> selectedIdList : selectedIds) {
+                selectedIdsSet.addAll(selectedIdList);
+            }
+        }
+        return selectedIdsSet;
     }
 }
