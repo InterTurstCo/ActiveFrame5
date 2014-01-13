@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.applyOffsetAndLimit;
 
@@ -284,8 +286,11 @@ public class CollectionQueryInitializer {
      * @return измененный запрос
      */
     private String removeUnFilledPlaceholders(String prototypeQuery) {
-        while(prototypeQuery.indexOf(PLACEHOLDER_PREFIX) > 0){            
-            prototypeQuery = prototypeQuery.replaceAll(PLACEHOLDER_REGEXP_PATTERN, "");
+        Pattern pattern = Pattern.compile(PLACEHOLDER_REGEXP_PATTERN);
+        Matcher matcher = pattern.matcher(prototypeQuery);
+        // Check all occurrences
+        while (matcher.find()) {
+            prototypeQuery = matcher.replaceAll("");
         }
         return prototypeQuery;
     }
