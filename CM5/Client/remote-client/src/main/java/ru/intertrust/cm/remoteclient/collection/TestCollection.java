@@ -51,12 +51,12 @@ public class TestCollection extends ClientBase {
             query += ") x";
             executeQuery(query, 2);
 
-            query = "select x.id, x.col2 from ( ";
+            query = "select x.id, x.col2, x.col3 from ( ";
             query += "select t.id, t.created_date as col2, t.organization as col3 from department t ";
             query += "union ";
             query += "select t.id, t.created_date as col2, t.organization as col3 from department t ";
             query += ") x";
-            executeQuery(query, 2);
+            executeQuery(query, 3);
             
             //TODO расскомментировать после исполнения 395
             /*List<Filter> filters = new ArrayList<Filter>();

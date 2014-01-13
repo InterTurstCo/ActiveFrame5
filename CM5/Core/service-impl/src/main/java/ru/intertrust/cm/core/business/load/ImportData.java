@@ -27,6 +27,8 @@ import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.AccessType;
+import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.model.FatalException;
@@ -147,11 +149,6 @@ public class ImportData {
      */
     private void importLine(String line) throws ParseException {
         AccessToken accessToken = null;
-        if (login == null){
-            accessToken = accessService.createSystemAccessToken(this.getClass().getName());
-        }else{
-            accessToken = accessService.createCollectionAccessToken(login);
-        }
         //Разделяем строку на значения
         String[] fieldValues = line.split(";");
         List<String> fieldValuesList = new ArrayList<String>();
@@ -239,6 +236,12 @@ public class ImportData {
                 throw new FatalException("Fileld " + fieldName + " not found in type " + typeName);
             }
         }
+        if (login == null || domainObject.isNew()){
+            accessToken = accessService.createSystemAccessToken(this.getClass().getName());
+        }else{
+            accessToken = accessService.createAccessToken(login, domainObject.getId(), DomainObjectAccessType.WRITE);
+        }
+        
         domainObjectDao.save(domainObject, accessToken);
     }
 
@@ -278,7 +281,8 @@ public class ImportData {
         FieldConfig fieldConfig = null;
         FieldConfig refFieldConfig = configurationExplorer.getFieldConfig(typeName, refFieldName);
         String[] field = null;
-        if (referenceValueAsString.indexOf(".") > -1) {
+        //Проверяем наличие точки до равно
+        if (referenceValueAsString.matches("[a-zA-Z1-9]+\\.[a-zA-Z1-9]+=.+")) {
             //Есть точка, значит в имени поля есть тип, получаем его
             String[] typeAndField = referenceValueAsString.split("\\.");
             type = typeAndField[0];
