@@ -5,6 +5,8 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.*;
+import com.google.gwt.user.client.EventListener;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.Dto;
@@ -17,11 +19,7 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
+import java.util.*;
 
 @ComponentName("suggest-box")
 public class SuggestBoxWidget extends BaseWidget {
@@ -35,16 +33,20 @@ public class SuggestBoxWidget extends BaseWidget {
     @Override
     public void setCurrentState(WidgetState currentState) {
         final SuggestBoxState suggestBoxState = (SuggestBoxState) currentState;
-        final Timer timer = new Timer() {
-            @Override
-            public void run() {
-                if (impl.getOffsetWidth() > 0) {
-                    initState(suggestBoxState, suggestBox);
-                    this.cancel();
+        if (impl.getOffsetWidth() > 0) {
+            initState(suggestBoxState, suggestBox);
+        } else {
+            final Timer timer = new Timer() {
+                @Override
+                public void run() {
+                    if (impl.getOffsetWidth() > 0) {
+                        initState(suggestBoxState, suggestBox);
+                        this.cancel();
+                    }
                 }
-            }
-        };
-        timer.scheduleRepeating(500);
+            };
+            timer.scheduleRepeating(500);
+        }
     }
 
     @Override
@@ -95,6 +97,7 @@ public class SuggestBoxWidget extends BaseWidget {
     private void initState(final SuggestBoxState state, final SuggestBox suggestBox) {
         if (isEditable()) {
             final SuggestPresenter presenter = (SuggestPresenter) impl;
+
             presenter.init(state, suggestBox);
         } else {
             final int maxWidth = impl.getElement().getParentElement().getClientWidth() - 4;
@@ -160,7 +163,7 @@ public class SuggestBoxWidget extends BaseWidget {
     private static class SuggestPresenter extends CellPanel {
 
         private final Map<Id, String> selectedSuggestions;
-        private final Element container;
+        private Element container;
         private Element arrowBtn;
         private SuggestBox suggestBox;
 
@@ -199,10 +202,13 @@ public class SuggestBoxWidget extends BaseWidget {
         }
 
         public void init(final SuggestBoxState state, final SuggestBox suggestBox) {
+            clearContainer();
             this.suggestBox = suggestBox;
-            final int maxWidth = getElement().getClientWidth() - arrowBtn.getOffsetWidth();
-            getElement().getStyle().setProperty("maxWidth", maxWidth, Style.Unit.PX);
-            container.getStyle().setWidth(100, Style.Unit.PCT);
+            if (getElement().getStyle().getProperty("maxWidth").isEmpty()) {
+                final int maxWidth = getElement().getClientWidth() - arrowBtn.getOffsetWidth();
+                getElement().getStyle().setProperty("maxWidth", maxWidth, Style.Unit.PX);
+                container.getStyle().setWidth(100, Style.Unit.PCT);
+            }
             final HashMap<Id, String> listValues = state.getObjects();
             for (final Map.Entry<Id, String> listEntry : listValues.entrySet()) {
                 final SelectedItemComposite itemComposite =
@@ -213,6 +219,11 @@ public class SuggestBoxWidget extends BaseWidget {
             }
             super.add(suggestBox, container);
             updateSuggestBoxWidth();
+        }
+
+        public void clearContainer() {
+            clear();
+            selectedSuggestions.clear();
         }
 
         public void insert(final Id itemId, final String itemName) {
