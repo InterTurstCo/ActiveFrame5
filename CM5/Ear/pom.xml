@@ -250,16 +250,16 @@
                                     <goal>add-resource</goal>
                                 </goals>
                                 <configuration>
-                                    <address>subsystem=datasources,data-source=${datasource.name}</address>
+                                    <address>subsystem=datasources,data-source=CM5</address>
                                     <resource>
                                         <enableResource>true</enableResource>
                                         <properties>
                                             <datasource-class>org.postgresql.xa.PGXADataSource</datasource-class>
-                                            <connection-url>${db.connection.url}</connection-url>
-                                            <jndi-name>${datasource.jndi.name}</jndi-name>
+                                            <connection-url>jdbc:postgresql://${db.host}:${db.port}/${db.name}</connection-url>
+                                            <jndi-name>java:jboss/datasources/CM5</jndi-name>
                                             <enabled>true</enabled>
                                             <enable>true</enable>
-                                            <pool-name>${datasource.pool.name}</pool-name>
+                                            <pool-name>CM5</pool-name>
                                             <user-name>${db.user}</user-name>
                                             <password>${db.password}</password>
                                             <driver-name>postgresql-jdbc4.jar</driver-name>
@@ -331,6 +331,37 @@
                                             <command>/core-service=management/security-realm=ApplicationRealm/authentication=properties:remove</command>
                                             <command>/core-service=management/security-realm=ApplicationRealm/authentication=jaas:remove</command>
                                             <command>/core-service=management/security-realm=ApplicationRealm/authentication=jaas:add(name="CM5")</command>
+                                        </commands>
+                                    </execute-commands>                                
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>ru.intertrust.dev</groupId>
+                        <artifactId>maven-plugin-jboss-as-ex</artifactId>
+                        <version>0.0.1</version>
+                        <configuration>
+                            <hostname>localhost</hostname>
+                            <port>9999</port>
+                            <skip>false</skip>
+                        </configuration>
+                
+                        <executions>
+                            <execution>
+                                <id>set-server-property-location</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>execute-commands-ex</goal>
+                                </goals>
+                                <configuration>
+                                    <execute-commands>
+                                        <ignoreException>true</ignoreException>                                        
+                                        <commands>
+                                            <command>/system-property=server.properties.location:add(value=${server.properties.location})</command>
+                                            <command>/system-property=server.properties.location:write-attribute(name=value, value=${server.properties.location})</command>
+                                            <command>/system-property=spring.profiles.active:add(value=${spring.profiles.active})</command>
+                                            <command>/system-property=spring.profiles.active:write-attribute(name=value, value=${spring.profiles.active})</command>
                                         </commands>
                                     </execute-commands>                                
                                 </configuration>

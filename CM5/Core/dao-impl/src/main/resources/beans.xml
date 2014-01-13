@@ -111,11 +111,11 @@
     <beans profile="filenet">
         <bean id="attachmentContentDao"
             class="ru.intertrust.cm.core.dao.impl.filenet.FilenetAttachmentContentDaoImpl">
-            <property name="serverUrl" value="vm-fn-01:9443" />
-            <property name="login" value="p8admin" />
-            <property name="password" value="Welcome777" />
-            <property name="objectStore" value="OS" />
-            <property name="baseFolder" value="/CM5" />
+            <property name="serverUrl" value="${filenet.server.url}" />
+            <property name="login" value="${filenet.server.login}" />
+            <property name="password" value="${filenet.server.password}" />
+            <property name="objectStore" value="${filenet.server.object.store}" />
+            <property name="baseFolder" value="${filenet.server.base.folder}" />
         </bean>
     </beans>          
 

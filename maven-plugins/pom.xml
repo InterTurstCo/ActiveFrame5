@@ -1,0 +1,24 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>   
+
+	<groupId>ru.intertrust.dev</groupId>
+	<artifactId>maven-plugins</artifactId>
+	<packaging>pom</packaging>
+	<version>0.0.1</version>
+
+	<modules>
+		<module>maven-plugin-jboss-as-ex</module>
+	</modules>
+
+    <distributionManagement>
+        <repository>
+            <id>intertrust.releases.cm-sochi</id>
+            <url>https://nexus.inttrust.ru/nexus/content/repositories/cm5-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>intertrust.snapshots.cm-sochi</id>
+            <url>https://nexus.inttrust.ru/nexus/content/repositories/cm5-snapshots/</url>
+            <uniqueVersion>false</uniqueVersion>
+        </snapshotRepository>
+    </distributionManagement>
+</project>
