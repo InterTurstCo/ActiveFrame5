@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.ListBoxConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -32,7 +33,9 @@ public class ListBoxHandler extends LinkEditingWidgetHandler {
 
         final FieldPath[] fieldPaths = context.getFieldPaths();
         String[] linkTypes = getLinkedObjectTypes(context, fieldPaths);
-
+        SingleChoiceConfig singleChoiceConfig = widgetConfig.getSingleChoice();
+        boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
+        boolean singleChoice = isSingleChoice(context, singleChoiceFromConfig) ;
         List<DomainObject> domainObjectsToDisplay = new ArrayList<>();
         HashMap<Id, Integer> idFieldPathIndexMapping = new HashMap<>();
         for (int i = 0; i < linkTypes.length; i++) {
@@ -51,7 +54,7 @@ public class ListBoxHandler extends LinkEditingWidgetHandler {
         result.setFieldPaths(fieldPaths);
         result.setListValues(idDisplayMapping);
         result.setIdFieldPathIndexMapping(idFieldPathIndexMapping);
-
+        result.setSingleChoice(singleChoice);
         if (domainObjectsToDisplay.isEmpty()) {
             return result;
         }

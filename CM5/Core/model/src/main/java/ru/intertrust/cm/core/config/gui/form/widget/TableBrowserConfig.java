@@ -173,8 +173,8 @@ public class TableBrowserConfig extends WidgetConfig {
                 that.selectionPatternConfig != null) {
             return false;
         }
-        if (selectionStyleConfig != null ? !selectionStyleConfig.equals(that.selectionStyleConfig) :
-                that.selectionPatternConfig != null) {
+        if (singleChoice != null ? !singleChoice.equals(that.singleChoice) :
+                that.singleChoice != null) {
             return false;
         }
         return true;

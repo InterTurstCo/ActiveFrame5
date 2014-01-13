@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionPatternConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SuggestBoxConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
@@ -51,6 +52,11 @@ public class SuggestBoxHandler extends LinkEditingWidgetHandler {
         for (DomainObject domainObject : domainObjects) {
             objects.put(domainObject.getId(), format(domainObject, matcher));
         }
+
+        SingleChoiceConfig singleChoiceConfig = widgetConfig.getSingleChoice();
+        boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
+        boolean singleChoice = isSingleChoice(context, singleChoiceFromConfig) ;
+        state.setSingleChoice(singleChoice);
         state.setObjects(objects);
         return state;
     }

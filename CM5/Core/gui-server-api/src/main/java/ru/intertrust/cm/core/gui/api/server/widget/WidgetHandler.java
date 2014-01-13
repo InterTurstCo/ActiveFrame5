@@ -2,6 +2,8 @@ package ru.intertrust.cm.core.gui.api.server.widget;
 
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
+import ru.intertrust.cm.core.gui.model.GuiException;
+import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.util.ArrayList;
@@ -65,5 +67,21 @@ public abstract class WidgetHandler implements ComponentHandler {
             DomainObject domainObject = listToDisplay.get(i);
             idDisplayMapping.put(domainObject.getId(), displayValues.get(i));
         }
+    }
+
+    protected boolean isSingleChoice(WidgetContext context, boolean singleChoiceFromConfig) {
+       FieldPath[] fieldPaths = context.getFieldPaths();
+       Boolean singleChoiceAnalyzed = null;
+       for (FieldPath fieldPath : fieldPaths) {
+           if (singleChoiceAnalyzed != null) {
+              if (singleChoiceAnalyzed.booleanValue() != (fieldPath.isOneToOneReference() || fieldPath.isField())){
+                  throw new GuiException("Multiply fieldPaths should be all reference type or all backreference type");
+              }
+
+           }
+            singleChoiceAnalyzed = fieldPath.isOneToOneReference() || fieldPath.isField();
+       }
+       return singleChoiceAnalyzed.booleanValue() == true ? true : singleChoiceFromConfig;
+
     }
 }

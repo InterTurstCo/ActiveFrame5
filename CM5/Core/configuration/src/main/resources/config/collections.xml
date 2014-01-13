@@ -112,7 +112,46 @@
             </criteria>
         </filter>
     </collection>
+    <collection name="Cities" idField="id">
+        <prototype>
+            <![CDATA[
+                select
+                 ci.id,   ci.name, ci.population, ci.year_of_foundation, ci.latitude, ci.longitude, ci.square
+                from
+                    city ci
+                     ::from-clause
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+        <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) вместо названий колонок -->
+        <counting-prototype>
+            select count(*) from city ci ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
 
+        <filter name="idsIncluded">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    ci.id in ({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="idsExcluded">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    ci.id not in ({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byText">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    ci.name like {0}
+                ]]>
+            </criteria>
+        </filter>
+
+    </collection>
     <collection-view name="organizations_default_view" collection="Organizations" is-default="true">
         <display>
             <column field="id" name="id" type="integer" sortable="false"/>

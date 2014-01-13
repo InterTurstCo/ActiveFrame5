@@ -32,6 +32,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
     private int popupWidth;
     private int popupHeight;
     private EventBus eventBus = new SimpleEventBus();
+    private boolean singleChoice;
 
     @Override
     public Component createNew() {
@@ -51,7 +52,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         final int widgetHeight = getSizeFromString(displayConfig.getHeight());
         popupWidth = (int) (0.7 * widgetWidth);
         popupHeight = (int) (0.7 * widgetHeight / 2);
-
+        singleChoice = state.isSingleChoice();
         view.setChosenItems(chosenItems);
         view.displayBaseWidget(widgetWidth, widgetHeight);
         view.addButtonClickHandler(new ClickHandler() {
@@ -114,13 +115,12 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         return Integer.parseInt(temp);
     }
 
-
     @Override
     public void onHierarchyBrowserCheckBoxUpdate(HierarchyBrowserCheckBoxUpdateEvent event) {
         HierarchyBrowserItem item = event.getItem();
         boolean chosen = item.isChosen();
         if (chosen) {
-            mainPopup.handleAddingChosenItem(event.getItem());
+            mainPopup.handleAddingChosenItem(event.getItem(), singleChoice);
         } else {
             mainPopup.handleRemovingChosenItem(item);
         }

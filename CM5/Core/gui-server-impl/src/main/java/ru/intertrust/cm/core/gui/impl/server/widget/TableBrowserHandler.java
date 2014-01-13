@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionPatternConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
@@ -53,7 +54,10 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
             item.setStringRepresentation(format(domainObject, matcher));
             items.add(item);
         }
-
+        SingleChoiceConfig singleChoiceConfig = widgetConfig.getSingleChoice();
+        boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
+        boolean singleChoice = isSingleChoice(context, singleChoiceFromConfig) ;
+        state.setSingleChoice(singleChoice);
         state.setSelectedItemsRepresentations(items);
         return state;
     }

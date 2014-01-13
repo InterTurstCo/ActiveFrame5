@@ -15,12 +15,23 @@ public class ListBoxConfig extends WidgetConfig implements Dto {
     @Element(name = "pattern")
     private PatternConfig patternConfig;
 
+    @Element(name = "single-choice", required = false)
+    private SingleChoiceConfig singleChoice;
+
     public PatternConfig getPatternConfig() {
         return patternConfig;
     }
 
     public void setPatternConfig(PatternConfig patternConfig) {
         this.patternConfig = patternConfig;
+    }
+
+    public SingleChoiceConfig getSingleChoice() {
+        return singleChoice;
+    }
+
+    public void setSingleChoice(SingleChoiceConfig singleChoice) {
+        this.singleChoice = singleChoice;
     }
 
     @Override
@@ -40,6 +51,11 @@ public class ListBoxConfig extends WidgetConfig implements Dto {
         if (patternConfig != null ? !patternConfig.equals(that.patternConfig) : that.patternConfig != null)  {
             return false;
         }
+
+        if (singleChoice != null ? !singleChoice.equals(that.singleChoice) : that.singleChoice != null) {
+            return false;
+        }
+
         return true;
     }
 
@@ -47,6 +63,7 @@ public class ListBoxConfig extends WidgetConfig implements Dto {
     public int hashCode() {
        int result =  super.hashCode();
        result = 31 * result + (patternConfig != null ? patternConfig.hashCode() : 0);
+       result = 31 * result + (singleChoice != null ? singleChoice.hashCode() : 0);
        return result;
     }
 

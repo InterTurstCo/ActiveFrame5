@@ -5,7 +5,7 @@
             <string name="name" length="128"/>
             <dateTime name="independence_day"/>
             <long name="population"/>
-            <boolean name = "is_country_rich"/>
+            <boolean name="is_country_rich"/>
             <decimal name="square" precision="15" scale="2"/>
             <reference name="capital" type="city"/>
             <reference name="most_famous_city" type="city"/>
@@ -98,14 +98,13 @@
     </domain-object-type>
 
 
-
-    <form name="country_form" domain-object-type="country" is-default="true" debug = "false" min-width= "900px">
+    <form name="country_form" domain-object-type="country" is-default="true" debug="false" min-width="900px">
         <markup>
             <header>
                 <!--width="800px" height="200px"-->
-                <table >
+                <table>
                     <tr>
-                        <td  h-align="right">
+                        <td h-align="right">
                             <widget id="1"/>
                         </td>
                         <!-- label (Название) -->
@@ -117,7 +116,7 @@
                 </table>
             </header>
             <body display-single-tab="false"> <!-- в теле - только закладки -->
-               <tab name="Закладки">
+                <tab name="Закладки">
                     <bookmarks> <!-- наследник от TabGroupsConfig -->
                         <tab-group name="Главная"> <!-- либо таб, либо разметка, вместе - нельзя -->
                             <table>
@@ -148,6 +147,9 @@
                                         <widget id="8"/>
                                     </td>
                                     <!-- suggest-box (Столица) -->
+                                    <td colspan="3" h-align="left">
+                                        <widget id="suggest_capital"/>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td h-align="right">
@@ -225,8 +227,12 @@
                         <tab-group name="Города">
                             <table>
                                 <tr>
-                                    <td h-align="right"> <widget id="13"/> </td>
-                                    <td h-align="left"> <widget id="14"/> </td>
+                                    <td h-align="right">
+                                        <widget id="13"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="14"/>
+                                    </td>
                                 </tr>
                             </table>
                         </tab-group>
@@ -237,7 +243,9 @@
                         <tab-group>
                             <table>
                                 <tr>
-                                    <td><widget id = "15" width = "600px"/></td>
+                                    <td>
+                                        <widget id="15" width="600px"/>
+                                    </td>
                                 </tr>
                             </table>
                         </tab-group>
@@ -248,7 +256,9 @@
                         <tab-group>
                             <table>
                                 <tr>
-                                    <td><widget id = "17a" width="600px" /></td>
+                                    <td>
+                                        <widget id="17a" width="600px"/>
+                                    </td>
                                 </tr>
                             </table>
                         </tab-group>
@@ -282,18 +292,18 @@
             <label id="7">
                 <text>Столица:</text>
             </label>
-         <!--   <list-box id="8a">
-                <field-path value="capital"/>
-                &lt;!&ndash;а для области столицы: capital . federal_unit_city^city . federal_unit . name &ndash;&gt;  &ndash;&gt;
-                <pattern value="{name} ({population} чел.)"/>
-            </list-box>-->
+            <!--   <list-box id="8a">
+                   <field-path value="capital"/>
+                   &lt;!&ndash;а для области столицы: capital . federal_unit_city^city . federal_unit . name &ndash;&gt;  &ndash;&gt;
+                   <pattern value="{name} ({population} чел.)"/>
+               </list-box>-->
 
             <label id="7a">
                 <text>Известный город:</text>
             </label>
             <suggest-box id="8a">
                 <field-path value="country_most_famous_city^country.city"/>
-               <!-- <field-path value="most_famous_city"/>-->
+                <!-- <field-path value="most_famous_city"/>-->
                 <!-- а для области столицы: capital . federal_unit_city^city . federal_unit . name -->
                 <collection-ref name="Cities"/>
 
@@ -319,6 +329,34 @@
                     Если тэг отсутствует, то используется "inline"-вариант. -->
                 <selection-style name="inline"/>
 
+            </suggest-box>
+            <suggest-box id="suggest_capital">
+                <field-path value="capital"/>
+
+                <collection-ref name="Cities"/>
+
+                <!--TODO не реализовано. название фильтра, использующегося при получении описания уже выбранных значений -->
+                <selection-filter name="idsIncluded"/>
+
+                <!-- название фильтра, отсекающего, уже выбранные значения (для того, чтобы они не показывались  списке -->
+                <selection-exclude-filter name="idsExcluded"/>
+
+                <!-- паттерн отображения значений выпадающего списка -->
+                <drop-down-pattern value="{name} {population}"/>
+
+                <!-- паттерн отображения уже выбранных значений -->
+                <selection-pattern value="{name} {population} {year_of_foundation}"/>
+
+                <!-- название фильтра по тексту, введённому пользователем -->
+                <input-text-filter name="byText"/>
+
+                <!-- количество элементов, показываемых на одной странице выпадающего списка -->
+                <page-size>30</page-size>
+
+                <!--name может принимать 2 значения inline (стиль Студии Лебедева) и table (текущая реализация).
+                    Если тэг отсутствует, то используется "inline"-вариант. -->
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
             </suggest-box>
 
             <!--<label id="best_friend_label">
@@ -352,10 +390,10 @@
             <label id="best_desc_label">
                 <text>Города (N:M)</text>
             </label>
-           <!-- <list-box id="best_friend_desc">
-                <field-path value="country_city^country.city"/>
-                <pattern value="{name} ({population} чел.)"/>
-            </list-box>-->
+            <!-- <list-box id="best_friend_desc">
+                 <field-path value="country_city^country.city"/>
+                 <pattern value="{name} ({population} чел.)"/>
+             </list-box>-->
 
             <label id="9">
                 <text>День независимости:</text>
@@ -378,14 +416,16 @@
                 <field-path value="city^country"/>
                 <!-- редактирует названи-->
                 <pattern value="{name} ({population} чел.)"/>
+               <single-choice value="true"/>
             </list-box>
             <attachment-box id="15">
-                <field-path value = "country_attachment^country"/>
+                <field-path value="country_attachment^country"/>
 
                 <!-- Впоследствии будет добавлена поддержка, тогда не обязателен станет field-path. Сейчас добавлять не надо. -->
                 <attachment-type-ref name="country_attachment"/>
                 <scanner enabled="true"/>
-                <selection-style name = "table"/>
+                <selection-style name="table"/>
+                <single-choice value="true"/>
             </attachment-box>
 
             <table-browser id="17a">
@@ -410,9 +450,9 @@
                 <!-- количество элементов, показываемых на одной странице выпадающего списка. в правом нижнем углу
                 под таблицей указатель страниц (за пример нужно взять страницы поиска в Яндексе) -->
                 <page-size>30</page-size>
-                <display-chosen-values value = "false"/>
-                <selection-style name = "table"/>
-                <single-choice value = "true"/>
+                <display-chosen-values value="false"/>
+                <selection-style name="table"/>
+                <single-choice value="true"/>
             </table-browser>
 
         </widget-config>
@@ -613,7 +653,7 @@
     </collection>
     <collection-view name="countries_default_view" collection="Countries" is-default="true">
         <display>
-            <column field="id" name="id" type="integer" sortable="false"  />
+            <column field="id" name="id" type="integer" sortable="false"/>
             <column field="name" name="Название" editable="false" type="string" sortable="true" search-filter="byName"/>
             <column field="independence_day" name="День Независимости" type="datetime" editable="false"
                     sortable="true" search-filter="byIndependenceDay"/>
@@ -621,50 +661,11 @@
                     search-filter="byPopulation"/>
             <column field="description" name="Описание" type="string" editable="false" sortable="true"
                     search-filter="byDescription"/>
-            <column field="square" name="Площадь" type="string" editable="false" sortable="true" search-filter="bySquare"/>
+            <column field="square" name="Площадь" type="string" editable="false" sortable="true"
+                    search-filter="bySquare"/>
         </display>
     </collection-view>
 
-    <collection name="Cities" idField="id">
-        <prototype>
-            <![CDATA[
-                select
-                 ci.id,   ci.name, ci.population, ci.year_of_foundation, ci.latitude, ci.longitude, ci.square
-                from
-                    city ci
-                     ::from-clause
-                where
-                    1=1 ::where-clause
-            ]]>
-        </prototype>
-        <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) вместо названий колонок -->
-        <counting-prototype>
-            select count(*) from city ci ::from-clause WHERE 1=1 ::where-clause
-        </counting-prototype>
-
-        <filter name="idsIncluded">
-            <criteria placeholder="where-clause">
-                <![CDATA[
-                    ci.id in ({0})
-                ]]>
-            </criteria>
-        </filter>
-        <filter name="idsExcluded">
-            <criteria placeholder="where-clause">
-                <![CDATA[
-                    ci.id not in ({0})
-                ]]>
-            </criteria>
-        </filter>
-        <filter name="byText">
-            <criteria placeholder="where-clause">
-                <![CDATA[
-                    ci.name like {0}
-                ]]>
-            </criteria>
-        </filter>
-
-    </collection>
     <collection-view name="cities_default_view" collection="Cities" is-default="true">
         <display>
             <column field="id" name="id" type="integer" sortable="false"/>

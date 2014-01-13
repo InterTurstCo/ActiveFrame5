@@ -20,6 +20,15 @@ public class AttachmentBoxConfig extends WidgetConfig  {
     @Element(name = "selection-style")
     private SelectionStyleConfig selectionStyle;
 
+
+    @Element(name = "single-choice", required = false)
+    private SingleChoiceConfig singleChoice;
+
+    public AttachmentBoxConfig() {
+        singleChoice = new SingleChoiceConfig();
+        singleChoice.setSingleChoice(false);
+    }
+
     public AttachmentTypeRefConfig getAttachmentType() {
         return attachmentType;
     }
@@ -42,6 +51,14 @@ public class AttachmentBoxConfig extends WidgetConfig  {
 
     public void setSelectionStyle(SelectionStyleConfig selectionStyle) {
         this.selectionStyle = selectionStyle;
+    }
+
+    public SingleChoiceConfig getSingleChoice() {
+        return singleChoice;
+    }
+
+    public void setSingleChoice(SingleChoiceConfig singleChoice) {
+        this.singleChoice = singleChoice;
     }
 
     @Override
@@ -69,6 +86,9 @@ public class AttachmentBoxConfig extends WidgetConfig  {
         if (selectionStyle != null ? !selectionStyle.equals(that.selectionStyle) : that.selectionStyle != null) {
             return false;
         }
+        if (singleChoice != null ? !singleChoice.equals(that.singleChoice) : that.singleChoice != null) {
+            return false;
+        }
 
         return true;
     }
@@ -79,6 +99,7 @@ public class AttachmentBoxConfig extends WidgetConfig  {
         result = 31 * result + (attachmentType != null ? attachmentType.hashCode() : 0);
         result = 31 * result + (scanner != null ? scanner.hashCode() : 0);
         result = 31 * result + (selectionStyle != null ? selectionStyle.hashCode() : 0);
+        result = 31 * result + (singleChoice != null ? singleChoice.hashCode() : 0);
         return result;
     }
 

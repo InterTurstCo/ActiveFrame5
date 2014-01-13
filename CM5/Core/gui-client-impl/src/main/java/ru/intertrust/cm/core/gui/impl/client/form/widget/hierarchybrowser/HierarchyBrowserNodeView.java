@@ -35,7 +35,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
     private HorizontalPanel styledActivePanel = new HorizontalPanel();
 
     public HierarchyBrowserNodeView(EventBus eventBus, int nodeHeight, Id parentId,
-                                    boolean selective,List<HierarchyBrowserItem> items) {
+                                    boolean selective, List<HierarchyBrowserItem> items) {
         this.eventBus = eventBus;
         this.parentId = parentId;
         this.selective = selective;
@@ -97,20 +97,29 @@ public class HierarchyBrowserNodeView implements IsWidget {
         final HorizontalPanel currentItemPanel = new HorizontalPanel();
         HorizontalPanel panelLeft = new HorizontalPanel();
         if (selective) {
-        final CheckBox checkBox = new CheckBox();
-        if (item.isChosen()) {
-            checkBox.setValue(true);
-        }
-        checkBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-            @Override
-            public void onValueChange(ValueChangeEvent<Boolean> event) {
-                boolean chosen = event.getValue();
-                item.setChosen(chosen);
-                eventBus.fireEvent(new HierarchyBrowserCheckBoxUpdateEvent(item));
+            final CheckBox checkBox = new CheckBox();
+            if (item.isChosen()) {
+                checkBox.setValue(true);
             }
-        });
+            checkBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+                @Override
+                public void onValueChange(ValueChangeEvent<Boolean> event) {
+                    boolean chosen = event.getValue();
+                    item.setChosen(chosen);
+                    eventBus.fireEvent(new HierarchyBrowserCheckBoxUpdateEvent(item));
+                }
+            });
+            eventBus.addHandler(HierarchyBrowserCheckBoxUpdateEvent.TYPE,new HierarchyBrowserCheckBoxUpdateEventHandler() {
+                @Override
+                public void onHierarchyBrowserCheckBoxUpdate(HierarchyBrowserCheckBoxUpdateEvent event) {
 
-        panelLeft.add(checkBox);
+                    if(item.getId().equals(event.getItem().getId())){
+                     boolean value = event.getItem().isChosen();
+                    checkBox.setValue(value);
+                    }
+                }
+            });
+            panelLeft.add(checkBox);
         }
 
         Label anchor = new Label(item.getStringRepresentation());
@@ -145,7 +154,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
         currentItemPanel.addDomHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                if (childClicked(event, id)){
+                if (childClicked(event, id)) {
                     return;
                 }
                 eventBus.fireEvent(new HierarchyBrowserNodeClickEvent(item.getNodeCollectionName(), item.getId()));
@@ -153,7 +162,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
                 currentItemPanel.addStyleName("node-item-row-active");
                 styledActivePanel = currentItemPanel;
             }
-        }, ClickEvent.getType()) ;
+        }, ClickEvent.getType());
         currentNodePanel.add(currentItemPanel);
     }
 

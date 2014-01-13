@@ -38,10 +38,12 @@ public class AttachmentBoxWidget extends BaseWidget {
 
         List<AttachmentItem> attachments = state.getAttachments();
         String selectionStyle = state.getSelectionStyle();
-
+        boolean singleChoice = state.isSingleChoice();
         AttachmentUploaderView view = (AttachmentUploaderView) impl;
         view.setAttachments(attachments);
+        view.setSingleChoice(singleChoice);
         view.initDisplayStyle(selectionStyle);
+
         view.cleanUp();
         for (AttachmentItem attachmentItem : attachments) {
             view.displayAttachmentLinkItem(attachmentItem);

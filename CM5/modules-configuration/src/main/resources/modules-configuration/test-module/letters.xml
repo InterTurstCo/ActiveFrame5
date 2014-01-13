@@ -111,17 +111,17 @@
             <label id="addressees_label">
                 <text>Адресаты:</text>
             </label>
-            <list-box id="addressees">
+            <!--<list-box id="addressees">
                 <field-path value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
                 <pattern value="{Name}"/>
-            </list-box>
+            </list-box>-->
             <hierarchy-browser id="2c">
                 <field-path value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
 
                 <!-- Определение списка/таблицы, выпадающего при раскрытии узла -->
                 <!-- Уже выбранные элементы показываются помеченными галочками -->
                 <!-- collection - название коллекции для отображения списка значений узла -->
-                <node-collection-def collection="Organizations" selective="false">
+                <node-collection-def collection="Organizations" >
                     <!-- название фильтра по тексту, введённому пользователем -->
                     <input-text-filter name="byName"/>
                     <!-- паттерн отображения уже выбранных значений -->
@@ -143,6 +143,7 @@
 
                 <!-- количество элементов, показываемых в данном узле дерева изначально -->
                 <page-size>10</page-size>
+                <single-choice value="true"/>
             </hierarchy-browser>
         </widget-config>
     </form>

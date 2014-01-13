@@ -70,7 +70,16 @@ public class HierarchyBrowserFacebookStyleView implements IsWidget {
 
     }
 
-    public void handleAddingChosenItem(HierarchyBrowserItem item) {
+    public void handleAddingChosenItem(HierarchyBrowserItem item, boolean singleChoice) {
+        if (singleChoice) {
+            if (!chosenItems.isEmpty()) {
+            HierarchyBrowserItem itemToDelete = chosenItems.get(0);
+            itemToDelete.setChosen(false);
+            eventBus.fireEvent(new HierarchyBrowserCheckBoxUpdateEvent(itemToDelete));
+            }
+            chosenItems.clear();
+            mainBoxPanel.clear();
+        }
         chosenItems.add(item);
         displayChosenItem(item);
     }

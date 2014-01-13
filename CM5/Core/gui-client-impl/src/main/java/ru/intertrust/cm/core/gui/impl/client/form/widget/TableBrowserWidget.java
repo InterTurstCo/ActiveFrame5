@@ -44,7 +44,7 @@ public class TableBrowserWidget extends BaseWidget {
     private TextBox filterEditor;
     private EventBus eventBus = new SimpleEventBus();
     private ArrayList<Id> chosenIds = new ArrayList<Id>();
-
+    private boolean singleChoice;
     private int width;
     private int height;
     private DialogBox dialogBox;
@@ -54,6 +54,7 @@ public class TableBrowserWidget extends BaseWidget {
     public void setCurrentState(WidgetState currentState) {
         TableBrowserState tableBrowserState = (TableBrowserState) currentState;
         tableBrowserConfig = tableBrowserState.getTableBrowserConfig();
+        singleChoice = tableBrowserState.isSingleChoice();
         facebookStyleView.initDisplayStyle(tableBrowserConfig.getSelectionStyleConfig().getName());
         facebookStyleView.setChosenItems(tableBrowserState.getSelectedItemsRepresentations());
         facebookStyleView.showSelectedItems();
@@ -104,7 +105,7 @@ public class TableBrowserWidget extends BaseWidget {
         collectionViewerConfig.setCollectionRefConfig(collectionRefConfig);
         collectionViewerConfig.setCollectionViewRefConfig(collectionViewRefConfig);
         collectionViewerConfig.setSearchAreaRefConfig(searchAreaRefConfig);
-        collectionViewerConfig.setSingleChoice(tableBrowserConfig.getSingleChoice().isSingleChoice());
+        collectionViewerConfig.setSingleChoice(singleChoice);
         collectionViewerConfig.setDisplayChosenValues(tableBrowserConfig.getDisplayChosenValues().isDisplayChosenValues());
         collectionViewerConfig.setExcludedIds(facebookStyleView.getChosenIds());
         return collectionViewerConfig;

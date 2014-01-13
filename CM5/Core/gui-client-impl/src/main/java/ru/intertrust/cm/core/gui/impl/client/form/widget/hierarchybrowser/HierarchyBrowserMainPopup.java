@@ -46,8 +46,8 @@ public class HierarchyBrowserMainPopup {
         return popupChosenContent.getChosenItems();
     }
 
-    public void handleAddingChosenItem(HierarchyBrowserItem item) {
-        popupChosenContent.handleAddingChosenItem(item);
+    public void handleAddingChosenItem(HierarchyBrowserItem item, boolean singleChoice) {
+        popupChosenContent.handleAddingChosenItem(item, singleChoice);
     }
 
     public void handleRemovingChosenItem(HierarchyBrowserItem item) {

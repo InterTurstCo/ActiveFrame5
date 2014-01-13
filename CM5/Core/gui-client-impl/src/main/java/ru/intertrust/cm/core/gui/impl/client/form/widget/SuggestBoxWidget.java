@@ -97,7 +97,6 @@ public class SuggestBoxWidget extends BaseWidget {
     private void initState(final SuggestBoxState state, final SuggestBox suggestBox) {
         if (isEditable()) {
             final SuggestPresenter presenter = (SuggestPresenter) impl;
-
             presenter.init(state, suggestBox);
         } else {
             final int maxWidth = impl.getElement().getParentElement().getClientWidth() - 4;
@@ -163,6 +162,7 @@ public class SuggestBoxWidget extends BaseWidget {
     private static class SuggestPresenter extends CellPanel {
 
         private final Map<Id, String> selectedSuggestions;
+        private boolean singleChoice;
         private Element container;
         private Element arrowBtn;
         private SuggestBox suggestBox;
@@ -202,7 +202,9 @@ public class SuggestBoxWidget extends BaseWidget {
         }
 
         public void init(final SuggestBoxState state, final SuggestBox suggestBox) {
-            clearContainer();
+            this.singleChoice = state.isSingleChoice();
+            clear();
+            selectedSuggestions.clear();
             this.suggestBox = suggestBox;
             if (getElement().getStyle().getProperty("maxWidth").isEmpty()) {
                 final int maxWidth = getElement().getClientWidth() - arrowBtn.getOffsetWidth();
@@ -221,14 +223,18 @@ public class SuggestBoxWidget extends BaseWidget {
             updateSuggestBoxWidth();
         }
 
-        public void clearContainer() {
-            clear();
-            selectedSuggestions.clear();
-        }
-
         public void insert(final Id itemId, final String itemName) {
             final SelectedItemComposite itemComposite = new SelectedItemComposite(itemId, itemName);
             itemComposite.setCloseBtnListener(createCloseBtnListener(itemComposite));
+            if (singleChoice) {
+                selectedSuggestions.clear();
+                for (Iterator<Widget> it = getChildren().iterator(); it.hasNext();) {
+                    final Widget widget = it.next();
+                    if (widget instanceof SelectedItemComposite) {
+                        it.remove();
+                    }
+                }
+            }
             selectedSuggestions.put(itemId, itemName);
             final int index = container.getChildCount() - 1;
             super.insert(itemComposite, container, index, true);

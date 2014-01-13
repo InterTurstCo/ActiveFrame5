@@ -37,15 +37,8 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
     @Element(name = "selection-style",required = false)
     SelectionStyleConfig selectionStyleConfig;
 
-    @Override
-    public boolean equals(Object o) {
-        return super.equals(o);
-    }
-
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
+    @Element(name = "single-choice", required = false)
+    private SingleChoiceConfig singleChoice;
 
     @Override
     public String getComponentName() {
@@ -114,6 +107,81 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
 
     public void setSelectionStyleConfig(SelectionStyleConfig selectionStyleConfig) {
         this.selectionStyleConfig = selectionStyleConfig;
+    }
+
+    public SingleChoiceConfig getSingleChoice() {
+        return singleChoice;
+    }
+
+    public void setSingleChoice(SingleChoiceConfig singleChoice) {
+        this.singleChoice = singleChoice;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+
+        SuggestBoxConfig that = (SuggestBoxConfig) o;
+
+        if (collectionRefConfig != null ? !collectionRefConfig.equals(that.collectionRefConfig) : that.
+                collectionRefConfig != null) {
+            return false;
+        }
+        if (dropdownPatternConfig != null ? !dropdownPatternConfig.equals(that.dropdownPatternConfig) : that.
+                dropdownPatternConfig != null) {
+            return false;
+        }
+        if (inputTextFilterConfig != null ? !inputTextFilterConfig.equals(that.inputTextFilterConfig) : that.
+                inputTextFilterConfig != null) {
+            return false;
+        }
+        if (pageSize != null ? !pageSize.equals(that.pageSize) : that.pageSize != null) {
+            return false;
+        }
+        if (selectionExcludeFilterConfig != null ? !selectionExcludeFilterConfig.
+                equals(that.selectionExcludeFilterConfig) : that.selectionExcludeFilterConfig != null) {
+            return false;
+        }
+        if (selectionFilterConfig != null ? !selectionFilterConfig.equals(that.selectionFilterConfig) : that.
+                selectionFilterConfig != null) {
+            return false;
+        }
+        if (selectionPatternConfig != null ? !selectionPatternConfig.equals(that.selectionPatternConfig) : that.
+                selectionPatternConfig != null) {
+            return false;
+        }
+        if (selectionStyleConfig != null ? !selectionStyleConfig.equals(that.selectionStyleConfig) : that.
+                selectionStyleConfig != null) {
+            return false;
+        }
+        if (singleChoice != null ? !singleChoice.equals(that.singleChoice) : that.singleChoice != null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (collectionRefConfig != null ? collectionRefConfig.hashCode() : 0);
+        result = 31 * result + (selectionFilterConfig != null ? selectionFilterConfig.hashCode() : 0);
+        result = 31 * result + (selectionExcludeFilterConfig != null ? selectionExcludeFilterConfig.hashCode() : 0);
+        result = 31 * result + (dropdownPatternConfig != null ? dropdownPatternConfig.hashCode() : 0);
+        result = 31 * result + (selectionPatternConfig != null ? selectionPatternConfig.hashCode() : 0);
+        result = 31 * result + (inputTextFilterConfig != null ? inputTextFilterConfig.hashCode() : 0);
+        result = 31 * result + (pageSize != null ? pageSize.hashCode() : 0);
+        result = 31 * result + (selectionStyleConfig != null ? selectionStyleConfig.hashCode() : 0);
+        result = 31 * result + (singleChoice != null ? singleChoice.hashCode() : 0);
+        return result;
     }
 }
 

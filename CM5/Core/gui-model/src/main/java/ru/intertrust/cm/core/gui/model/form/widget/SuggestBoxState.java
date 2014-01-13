@@ -48,4 +48,5 @@ public class SuggestBoxState extends LinkEditingWidgetState {
     public void setSelectedIds(ArrayList<Id> selectedIds) {
         this.selectedIds = selectedIds;
     }
+
 }

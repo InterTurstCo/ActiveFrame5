@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.GlobalSettingsConfig;
 import ru.intertrust.cm.core.config.global.AttachmentUploadTempStorageConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.AttachmentBoxConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -63,10 +64,14 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
             savedAttachments.add(attachmentItem);
         }
 
-        AttachmentBoxState result = new AttachmentBoxState();
-        result.setAttachments(savedAttachments);
-        result.setSelectionStyle(selectionStyle);
-        return result;
+        AttachmentBoxState state = new AttachmentBoxState();
+        state.setAttachments(savedAttachments);
+        state.setSelectionStyle(selectionStyle);
+        SingleChoiceConfig singleChoiceConfig = widgetConfig.getSingleChoice();
+        boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
+        boolean singleChoice = isSingleChoice(context, singleChoiceFromConfig) ;
+        state.setSingleChoice(singleChoice);
+        return state;
     }
 
     public void saveNewObjects(WidgetContext context, WidgetState state) {

@@ -17,6 +17,9 @@ public class HierarchyBrowserConfig extends WidgetConfig {
     @Element(name = "page-size",required = false)
     private Integer pageSize;
 
+    @Element(name = "single-choice", required = false)
+    private SingleChoiceConfig singleChoice;
+
     public NodeCollectionDefConfig getNodeCollectionDefConfig() {
         return nodeCollectionDefConfig;
     }
@@ -31,6 +34,14 @@ public class HierarchyBrowserConfig extends WidgetConfig {
 
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
+    }
+
+    public SingleChoiceConfig getSingleChoice() {
+        return singleChoice;
+    }
+
+    public void setSingleChoice(SingleChoiceConfig singleChoice) {
+        this.singleChoice = singleChoice;
     }
 
     @Override
@@ -54,6 +65,10 @@ public class HierarchyBrowserConfig extends WidgetConfig {
         if (pageSize != null ? !pageSize.equals(that.pageSize) : that.pageSize != null) {
             return false;
         }
+        if (singleChoice != null ? !singleChoice.equals(that.singleChoice) :
+                that.singleChoice != null) {
+            return false;
+        }
 
         return true;
     }
@@ -61,6 +76,7 @@ public class HierarchyBrowserConfig extends WidgetConfig {
     @Override
     public int hashCode() {
         int result = super.hashCode();
+        result = 31 * result + (singleChoice != null ? singleChoice.hashCode() : 0);
         result = 31 * result + (nodeCollectionDefConfig != null ? nodeCollectionDefConfig.hashCode() : 0);
         result = 31 * result + (pageSize != null ? pageSize.hashCode() : 0);
         return result;

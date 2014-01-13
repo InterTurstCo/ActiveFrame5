@@ -29,6 +29,10 @@ public class ListBoxWidget extends BaseWidget {
     }
 
     public void setCurrentState(WidgetState currentState) {
+        ListBoxState state = (ListBoxState) currentState;
+        boolean singleChoice = state.isSingleChoice();
+        ListBox listBox = (ListBox)impl;
+        listBox.setMultipleSelect(singleChoice);
         idMap = getStateHandler().setState(impl, (ListBoxState) currentState);
     }
 

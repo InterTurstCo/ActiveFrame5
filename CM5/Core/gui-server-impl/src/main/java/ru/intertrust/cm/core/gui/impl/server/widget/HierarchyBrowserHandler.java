@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionPatternConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -50,6 +51,10 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
             }
         }
         HierarchyBrowserWidgetState state = new HierarchyBrowserWidgetState();
+        SingleChoiceConfig singleChoiceConfig = widgetConfig.getSingleChoice();
+        boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
+        boolean singleChoice = isSingleChoice(context, singleChoiceFromConfig) ;
+        state.setSingleChoice(singleChoice);
         state.setHierarchyBrowserConfig(widgetConfig);
         state.setChosenItems(chosenItems);
         return state;

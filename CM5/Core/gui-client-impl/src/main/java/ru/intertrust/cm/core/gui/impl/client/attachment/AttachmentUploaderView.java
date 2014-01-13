@@ -8,6 +8,7 @@ import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.*;
+import ru.intertrust.cm.core.gui.impl.client.StyledDialogBox;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.AttachmentBoxWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.DownloadAttachmentHandler;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
@@ -31,6 +32,7 @@ public class AttachmentUploaderView extends Composite {
     private Image addFile;
     private FileUpload fileUpload;
     private FormPanel submitForm;
+    private boolean singleChoice;
     private List<AttachmentItem> attachments;
 
     public AttachmentUploaderView() {
@@ -85,6 +87,10 @@ public class AttachmentUploaderView extends Composite {
 
     public void setSelectionStyle(String selectionStyle) {
         this.selectionStyle = selectionStyle;
+    }
+
+    public void setSingleChoice(boolean singleChoice) {
+        this.singleChoice = singleChoice;
     }
 
     /**
@@ -179,9 +185,14 @@ public class AttachmentUploaderView extends Composite {
         fileUpload.addChangeHandler(new ChangeHandler() {
             @Override
             public void onChange(ChangeEvent event) {
-                submitForm.submit();
-                InputElement inputElement = fileUpload.getElement().cast();
-                inputElement.setValue("");
+              if (singleChoice && !attachments.isEmpty()) {
+                  showDialogBox();
+              } else {
+                  submitForm.submit();
+                  InputElement inputElement = fileUpload.getElement().cast();
+                  inputElement.setValue("");
+              }
+
             }
         });
 
@@ -228,4 +239,25 @@ public class AttachmentUploaderView extends Composite {
         mainBoxPanel.getElement().getStyle().setDisplay(displayStyle);
     }
 
+    private void showDialogBox() {
+       final StyledDialogBox dialogBox = new StyledDialogBox("Текущее прикрпление будет перезаписано. \nПродолжить?");
+        dialogBox.addOkButtonClickHandler(new ClickHandler() {
+            public void onClick(ClickEvent event) {
+                mainBoxPanel.clear();
+                attachments.clear();
+                submitForm.submit();
+                InputElement inputElement = fileUpload.getElement().cast();
+                inputElement.setValue("");
+                dialogBox.hide();
+            }
+        });
+
+        dialogBox.addCancelButtonClickHandler(new ClickHandler() {
+            public void onClick(ClickEvent event) {
+                dialogBox.hide();
+            }
+        });
+
+        dialogBox.showDialogBox();
+    }
 }
