@@ -1,3 +1,298 @@
+/*оформление поиска коллекшен плагин вю начало*/
+.search-container {
+
+    background: none repeat scroll 0 0 #fff;
+    border: 1px solid #b0bdce;
+    border-radius: 9px 9px 9px 9px;
+    display: inline-block;
+    font-size: 11px;
+    height: 18px;
+    line-height: 18px;
+    margin: 0 0 0 1px;
+    overflow: hidden;
+    position: relative;
+    top: 0;
+    vertical-align: top;
+    white-space: nowrap;
+    padding: 0 0 2px 0;
+    position: relative;
+    width: 117;
+
+}
+.search-box{
+    border: 0 none;
+    font-size: 11px;
+    width: 70px;
+    line-height: 18px;
+    margin: 0;
+    outline: medium none;
+    padding-left: 3px;
+    padding-top: 5px;
+    vertical-align: middle;
+
+
+
+}
+
+.search-data-box{
+
+    border: 0 none;
+    font-size: 11px;
+    width: 70px;
+    line-height: 18px;
+    margin: 0;
+    outline: medium none;
+    padding-left: 3px;
+    padding-top: 5px;
+    vertical-align: middle;
+
+
+
+}
+.search-data-box-{
+
+    border: 0 none;
+    font-size: 11px;
+    width: 70px;
+    line-height: 18px;
+    margin: 0;
+    outline: medium none;
+    padding-left: 3px;
+    padding-top: 5px;
+    vertical-align: middle;
+
+
+}
+
+
+.horizont-container{
+    background-color: #f0f4ff;
+    padding: 5px 0 0 0;
+    border: 5 none;
+    height: 32px;
+    width: 100%;
+
+}
+
+.flush-serch{
+    background: url("css/icons1.png") no-repeat scroll -32px top transparent;
+    cursor: pointer;
+    border: 0 none;
+    box-shadow: none;
+    cursor: pointer;
+    font-size: 12px;
+    margin: 0;
+    vertical-align: middle;
+    display: inline-block;
+    float: none;
+    height: 16px;
+    left: auto;
+    position: relative;
+    width: 16px;
+}
+.date-select{
+    background: url("css/icon-datepicker.png") no-repeat ;
+    cursor: pointer;
+    border: 0 none;
+    box-shadow: none;
+    cursor: pointer;
+    font-size: 12px;
+    margin: 0;
+    vertical-align: middle;
+    display: inline-block;
+    float: none;
+    height: 16px;
+    left: auto;
+    position: relative;
+    width: 16px;
+}
+
+.flush-serch:hover{
+    background: url("css/icons1.png") no-repeat scroll -48px top transparent;
+}
+
+.flush-serch-hide{
+    background: url("css/icons1.png") no-repeat scroll -100px top transparent !important;
+    cursor: default !important;
+}
+.search-button{
+    height: 23px;
+    width: 23px;
+    background-color: #f0f4ff;
+    background-image: url("css/filter-btn.png");
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    position: relative;
+    border: 1px solid #c0c4cf !important;
+    border-radius: 3px 3px 3px 3px !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+
+    float: right;
+    margin-top: -26px;
+    margin-right: 5px;
+}
+
+.datePickerDay,.datePickerWeekdayLabel,.datePickerWeekendLabel {
+    font-size: 85%;
+    text-align: center;
+    padding: 4px;
+    outline: none;
+    font-weight: bold;
+    color: #333;
+    border-right: 1px solid #EDEDED;
+    border-bottom: 1px solid #EDEDED;
+}
+
+.datePickerWeekdayLabel,.datePickerWeekendLabel {
+    background: #fff;
+    padding: 0px 4px 2px;
+    cursor: default;
+    color: #666;
+    font-size: 70%;
+    font-weight: normal;
+}
+
+.datePickerWeekendLabel {
+    color: #FF0000;
+}
+
+.datePickerDay {
+    padding: 4px 7px;
+    cursor: hand;
+    cursor: pointer;
+}
+
+.datePickerDayIsWeekend {
+    background: #f7f7f7;
+    color: #FF0000;
+}
+
+.datePickerDayIsFiller {
+    color: #999;
+    font-weight: normal;
+}
+
+.datePickerDayIsValue {
+    background: #d7dfe8;
+}
+
+.datePickerDayIsDisabled {
+    color: #AAAAAA;
+    font-style: italic;
+}
+
+.datePickerDayIsHighlighted {
+    background: #F0E68C;
+}
+
+.datePickerDayIsValueAndHighlighted {
+    background: #d7dfe8;
+}
+
+.datePickerDayIsToday {
+    padding: 3px;
+    color: #fff;
+    background: url("images/hborderN.png") repeat-x 0px -2607px;
+}
+
+.datePickerMonthSelector {
+    width: 100%;
+    padding: 1px 0 5px 0;
+    background: #fff;
+}
+
+td.datePickerMonth {
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+    font-size: 100%;
+    font-weight: bold;
+    color: #333;
+}
+
+.datePickerPreviousButton,.datePickerNextButton {
+    font-size: 120%;
+    line-height: 1em;
+    color: #3a6aad;
+    cursor: hand;
+    cursor: pointer;
+    font-weight: bold;
+    padding: 0px 4px;
+    outline: none;
+}
+
+
+
+
+/*оформление поиска коллекшен плагин вю конец*/
+
+/*простой поиск*/
+.search-field{
+    border: 0 !important;;
+    width: 250px;
+    height: 16px;
+    padding: 0 5px;
+    margin: 1px;
+}
+
+.simple-search-button{
+    background: url("css/loupe.png")no-repeat;
+    width: 18px;
+    height: 18px;
+    border: 0;
+    margin: 3px 0 0;
+    cursor: pointer;
+
+
+}
+
+.search-panel-text-and-button-container{
+    line-height: 16px;
+    height: 20px;
+    margin: 0 0 0 5px;
+    background: #fff;
+    border: 1px solid #a0a7b2;
+    border-radius: 3px;
+    display: inline-block;
+    zoom: 1;
+    font-size: 12px;
+    position: relative;
+    overflow: hidden;
+    top: 0;
+    vertical-align: top;
+    white-space: nowrap;
+}
+
+.flush-button{
+    background: url("css/icons1.png") no-repeat scroll -32px top transparent;
+    cursor: pointer;
+    border: 0 none;
+    box-shadow: none;
+    cursor: pointer;
+    font-size: 12px;
+    margin: 0;
+    vertical-align: middle;
+    display: inline-block;
+    float: none;
+    height: 16px;
+    left: auto;
+    position: relative;
+    width: 16px;
+    top: 3px;
+}
+
+.flush-button:hover{
+    background: url("css/icons1.png") no-repeat scroll -48px top transparent;
+}
+
+.simple-search-container{
+    margin: 4px;
+    float: right;
+}
+
+/*простой  поиск конец*/
+
 .style-button{
     border: solid black 1px;
 }
@@ -259,31 +554,106 @@ font-weight: bold;
     z-index: 15 !important;
 
 
-    background: #4c93c9; /* Old browsers */
-    background: -moz-linear-gradient(top, #4c93c9 0%, #3b649a 51%, #232464 100%);
-    /* FF3.6+ */
+    background: #4c93c9;
+    background: -moz-linear-gradient(top, #478BCC  0%, #3b649a 51%, #232464 100%);
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #4c93c9),
     color-stop(51%, #3b649a), color-stop(100%, #232464) );
-    /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top, #4c93c9 0%, #3b649a 51%, #232464 100%);
-    /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top, #4c93c9 0%, #3b649a 51%, #232464 100%);
-    /* Opera11.10+ */
-    background: -ms-linear-gradient(top, #4c93c9 0%, #3b649a 51%, #232464 100%);
-    /* IE10+ */
-    filter: progid:    DXImageTransform.Microsoft.gradient(
-        startColorstr=    '#4c93c9', endColorstr=    '#232464', GradientType=
+    background: -webkit-linear-gradient(top, #478BCC  0%, #3b649a 51%, #232464 100%);
+    background: -o-linear-gradient(top, #478BCC  0%, #3b649a 51%, #232464 100%);
+    background: -ms-linear-gradient(top, #478BCC  0%, #3b649a 51%, #232464 100%);
+    filter: progid: DXImageTransform.Microsoft.gradient(
+        startColorstr= '#478BCC ', endColorstr= '#232464', GradientType=
         0 );
-    /* IE6-9 */
+    background: linear-gradient(478BCC );
+
+}
+.left-section:hover{
+    box-shadow: 5px 0 5px rgba(0, 0, 0, 0.5);
+}
+.left-section-active{
+    float: left;
+    z-index: 15 !important;
+    background: #4c93c9;
+    background: -moz-linear-gradient(top, #478BCC  0%, #3b649a 51%, #232464 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #4c93c9),
+    color-stop(51%, #3b649a), color-stop(100%, #232464) );
+    background: -webkit-linear-gradient(top, #478BCC  0%, #3b649a 51%, #232464 100%);
+    background: -o-linear-gradient(top, #478BCC  0%, #3b649a 51%, #232464 100%);
+    background: -ms-linear-gradient(top, #478BCC  0%, #3b649a 51%, #232464 100%);
+    filter: progid: DXImageTransform.Microsoft.gradient(
+        startColorstr= '#478BCC ', endColorstr= '#232464', GradientType=
+        0 );
+    background: linear-gradient(top, #478BCC  0%, #3b649a 51%, #232464 100%);
+    /*
+    background: #4c93c9;
+    background: -moz-linear-gradient(top, #4c93c9 0%, #3b649a 51%, #232464 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #4c93c9),	 color-stop(51%, #3b649a), color-stop(100%, #232464) );
+    background: -webkit-linear-gradient(top, #4c93c9 0%, #3b649a 51%, #232464 100%);
+    background: -o-linear-gradient(top, #4c93c9 0%, #3b649a 51%, #232464 100%);
+    background: -ms-linear-gradient(top, #4c93c9 0%, #3b649a 51%, #232464 100%);
+    filter: progid\: DXImageTransform\.Microsoft\.gradient\( startColorstr\= "#4c93c9", endColorstr\= "#232464", GradientType\= 0 \);
     background: linear-gradient(top, #4c93c9 0%, #3b649a 51%, #232464 100%);
-    /* W3C */
+    */
+
+}
+/* aktivnue punktu v levoy kolonke */
+.gwt-TreeItem-selected .tree-label:after  {
+    content: open-quote;
+    display: block;
+    position: absolute;
+    width: 27px;
+    height: 25px;
+    background: url(images/folder-list-selected-bg.png) right top no-repeat;
+    right: -11px;
+    font-size: 0px;
+    top: -5px;
+}
+.gwt-TreeItem-selected .tree-label:before  {
+    content: open-quote;
+    display: block;
+    position: absolute;
+    height: 25px;
+    background: url(images/folder-list-selected-bg.png) left top no-repeat;
+    left: 8px;
+    right: 0;
+    top: -5px;
+    font-size: 0px;
+}
+.gwt-TreeItem-selected .tree-label{
+    text-decoration: underline !important;
+}
+.gwt-TreeItem-selected .tree-label,
+.gwt-TreeItem-selected,
+.gwt-TreeItem{
+    position: relative;
+    white-space: nowrap;
+}
+.gwt-TreeItem-selected .tree-label{
+    color: white !important;
 }
 
 .centr-inner-section{
     position: absolute !important;
     float: left;
 }
+.tree-label{
+    text-decoration: none !important;
+    float: left;
+    padding-right: 8px;
+    cursor: pointer;
+}
 
+
+/* aktivnue punktu v levoy kolonke END */
+.GLW1MH4CFK {
+    margin-left: -40px;
+}
+.GLW1MH4CJK {
+    margin-top: -38px;
+}
+.GLW1MH4CBL {
+    margin-top: -1px;
+}
 .right-section{
     float: left;
 }
@@ -357,6 +727,225 @@ td .gwt-SuggestBox {
 
 .header-section{
     height: 60px;
-    box-shadow: 0 4px 10px #2d5b7d;
-    z-index: 5;
+    box-shadow: 0 4px 10px 0px #2d5b7d;
+    z-index: 99;
+}
+
+.H-B-V-button{
+    /*padding: 20px;*/
+    /*background-color: red;*/
+    /*background: url(css/icons/icons.png) left top no-repeat;*/
+    background: url(images/tab-close.png) no-repeat 0 0;
+    top: 0;
+    right: 0px;
+    cursor: pointer;
+    height: 16px;
+    width: 16px;
+}}
+
+/* ATTACHMENTS */
+.facebook-main-box{
+    color: #000;
+    border: 1px solid #ccc;
+    overflow: auto;
+    background-color: white;
+    min-height: 30px;
+}
+.facebook-element{
+    margin: 6px 5px 2px 5px;
+    float: left;
+    padding-right: 18px;
+    position: relative;
+}
+.facebook-element .gwt-Label{
+    float: left;
+    width: auto;
+    margin-right: 6px;
+    height: auto;
+    margin-top: 4px;
+}
+.facebook-element .facebook-label,
+.facebook-element .gwt-Image{
+    float: left;
+}
+.facebook-element .gwt-Image{
+    margin-left: 11px;
+}
+.facebook-element a{
+    padding-bottom: 0px !important;
+    padding-top: 0px !important;
+    padding-left: 0;
+    margin-right: 8px;
+    display: inline-block;
+    zoom: 1;
+
+    white-space: nowrap;
+    color: #000;
+
+}
+.facebook-element .facebook-btn{
+    background: url(css/icons/icons.png) left top no-repeat;
+    top: 0;
+    right: 0px;
+    cursor: pointer;
+    height: 16px;
+    width: 16px;
+    position: absolute;
+    right: 5px;
+    top: 2px;
+    background-color: transparent !important;
+    padding: 0px !important;
+}
+.facebook-element .facebook-btn:hover{
+    background-position: -16px 0;
+}
+
+/*ext-search*/
+.ext-search-root-div{
+    background-color: white;
+    border: 1px solid;
+    border-color: black;
+    z-index: 99999999;
+    width: 682px;
+    min-height: 500px;
+    z-index: 100;
+    border: 3px solid #fff;
+    border-radius: 10px;
+    background: #356a9e;
+    background: -moz-linear-gradient(top, #356a9e 0%, #1f2b5d 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #356a9e),	 color-stop(100%, #1f2b5d) );
+    background: -webkit-linear-gradient(top, #356a9e 0%, #1f2b5d 100%);
+    background: -o-linear-gradient(top, #356a9e 0%, #1f2b5d 100%);
+    background: -ms-linear-gradient(top, #356a9e 0%, #1f2b5d 100%);
+    filter: progid\:DXImageTransform\.Microsoft\.gradient\( startColorstr\= "#356a9e", endColorstr\= "#1f2b5d", GradientType\=0 \);
+    background: linear-gradient(top, #356a9e 0%, #1f2b5d 100%);
+    color: #fff;
+    box-shadow: 0 3px 15px #555;
+}
+
+.ext-search-action-div{
+    border-bottom: 2px;
+}
+
+.ext-search-save-query-div{
+    float: left;
+    margin-left: 15px;
+    margin-top: 15px;
+    margin-bottom: 4px;
+}
+
+.ext-search-save-query-link-div{
+    float: left;
+}
+
+.ext-search-save-query-popup-button-div{
+    float: left;
+}
+
+.ext-search-extend-query-div{
+
+
+    float: right;
+    margin-right: 2px;
+    margin-top: 15px;
+}
+
+.ext-query-link-div{
+    float: left;
+}
+
+.ext-query-close-button-div{
+    float: left;
+}
+
+.ext-search-section-name{
+
+}
+
+.ext-search-scope-div ,
+.ext-search-radio-div{
+    padding: 10px 15px;
+    width: 652px;
+    float: left;
+}
+.ext-search-root-div .gwt-Label {
+    margin-left: 0px;
+    margin-bottom: 10px;
+}
+.ext-search-section-checkbox span.ext-search-section-checkbox,
+.ext-search-radio-div span.ext-search-radio-button{
+    float: left;
+    margin-right: 20px;
+    width: 197px;
+    margin-bottom: 10px;
+}
+
+.ext-search-scope-div{
+    border-top: 1px solid #8694a8;
+}
+
+.ext-search-radio-button{
+    display: block;
+}
+
+.ext-search-radio-div{
+    border-bottom: 1px solid #8694a8;
+}
+
+.ext-search-form-element{
+
+}
+
+.ext-search-form-label{
+    float: left;
+}
+
+.ext-search-form-widget{
+    float: left;
+}
+
+.ext-search-form-element{
+    display: block;
+}
+
+.ext-search-save-query-popup-button-div .gwt-Button{
+    background: url(images/button_open.png) no-repeat;
+    border: none;
+    font-size: 0px;
+    text-indent: 999px;
+    height: 19px;
+    margin-left: 5px;
+    outline: none;
+}
+.ext-query-close-button-div .gwt-Button{
+    background: url(css/icons/icon-close.png) left top no-repeat;
+    display: inline-block;
+    position: relative;
+    height: 16px;
+    width: 16px;
+    left: auto;
+    border-bottom: none !important;
+    vertical-align: bottom;
+    cursor: pointer;
+    margin-right: 16px;
+    float: right;
+    font-size: 0px;
+    border: none;
+    margin-left: 61px;
+    outline: none;
+    text-indent: 9999px;
+}
+.ext-query-link-div .gwt-Label,
+.ext-search-save-query-link-div .gwt-Label{
+    border-bottom: 1px dotted white;
+    font-weight: normal;
+    cursor: pointer;
+}
+.ext-query-link-div .gwt-Label:hover,
+.ext-search-save-query-link-div .gwt-Label:hover{
+    color: red;
+    border-bottom: 1px dotted red;
+}
+.ext-serch-form-div{
+    clear: left;
 }
