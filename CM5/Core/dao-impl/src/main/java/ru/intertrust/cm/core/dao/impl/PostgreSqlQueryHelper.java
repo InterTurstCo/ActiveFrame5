@@ -1,18 +1,49 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.config.*;
-import ru.intertrust.cm.core.dao.api.DomainObjectDao;
-
-import java.util.List;
-
-import static ru.intertrust.cm.core.dao.api.ConfigurationDao.*;
+import static ru.intertrust.cm.core.dao.api.ConfigurationDao.CONFIGURATION_TABLE;
+import static ru.intertrust.cm.core.dao.api.ConfigurationDao.CONTENT_COLUMN;
+import static ru.intertrust.cm.core.dao.api.ConfigurationDao.LOADED_DATE_COLUMN;
 import static ru.intertrust.cm.core.dao.api.DataStructureDao.AUTHENTICATION_INFO_TABLE;
 import static ru.intertrust.cm.core.dao.api.DataStructureDao.USER_UID_COLUMN;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.*;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.COMPONENT_COLUMN;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.CREATED_DATE_COLUMN;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.DOMAIN_OBJECT_ID_COLUMN;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.ID_COLUMN;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.INFO_COLUMN;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.IP_ADDRESS_COLUMN;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.OPERATION_COLUMN;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TYPE_COLUMN;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.UPDATED_DATE_COLUMN;
 import static ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao.DOMAIN_OBJECT_TYPE_ID_TABLE;
 import static ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao.NAME_COLUMN;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlAuditSequenceName;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlSequenceName;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getTimeZoneIdColumnName;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.config.BooleanFieldConfig;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.DateTimeFieldConfig;
+import ru.intertrust.cm.core.config.DateTimeWithTimeZoneFieldConfig;
+import ru.intertrust.cm.core.config.DecimalFieldConfig;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.IndexConfig;
+import ru.intertrust.cm.core.config.IndexFieldConfig;
+import ru.intertrust.cm.core.config.LongFieldConfig;
+import ru.intertrust.cm.core.config.PasswordFieldConfig;
+import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.StringFieldConfig;
+import ru.intertrust.cm.core.config.TextFieldConfig;
+import ru.intertrust.cm.core.config.TimelessDateFieldConfig;
+import ru.intertrust.cm.core.config.UniqueKeyConfig;
+import ru.intertrust.cm.core.config.UniqueKeyFieldConfig;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 
 /**
  * Класс для генерации sql запросов для {@link PostgreSqlDataStructureDaoImpl}
@@ -359,8 +390,87 @@ public class PostgreSqlQueryHelper {
         return query.toString();
     }
 
-    public static String generateCreateIndexesQuery(DomainObjectTypeConfig config) {
+    /**
+     * Генерирует SQL запрос по созданию автоматических индексов: индексов для ссылочных полей
+     * @param config конфигурация доменного объекта
+     * @return SQL запрос создания автоматических индексов
+     */
+    public static String generateCreateAutoIndexesQuery(DomainObjectTypeConfig config) {        
         return generateCreateIndexesQuery(config.getName(), config.getFieldConfigs());
+    }
+
+    /**
+     * Генерирует SQL запрос по созданию индексов, явно указанных в конфигурации доменного объекта (настроенных вручную)
+     * @param config конфигурация доменного объекта
+     * @return SQL запрос создания индексов
+     */
+    public static String generateCreateExplicitIndexesQuery(DomainObjectTypeConfig config) {
+
+        List<IndexConfig> indexConfigs = config.getIndicesConfig().getIndices();
+        return generateCreateExplicitIndexesQuery(config.getName(), indexConfigs);
+
+    }
+
+    public static String generateCreateExplicitIndexesQuery(String domainObjectName,
+            List<IndexConfig> indexConfigs) {
+        StringBuilder query = new StringBuilder();
+        String tableName = getSqlName(domainObjectName);
+        for (IndexConfig indexConfig : indexConfigs) {
+            appendComplexIndexQueryPart(query, tableName, indexConfig);
+        }
+
+        if (query.length() == 0) {
+            return null;
+        }
+
+        return query.toString();
+    }
+
+
+    
+    public static String generateDeleteExplicitIndexesQuery(String domainObjectName,
+            List<IndexConfig> indexConfigs) {
+        StringBuilder query = new StringBuilder();
+        String tableName = getSqlName(domainObjectName);
+        for (IndexConfig indexConfig : indexConfigs) {
+            appendDeleteIndexQueryPart(query, tableName, indexConfig);
+
+        }
+
+        if (query.length() == 0) {
+            return null;
+        }
+
+        return query.toString();
+    }
+    
+    private static void appendComplexIndexQueryPart(StringBuilder query, String tableName, IndexConfig indexConfig) {
+        List<String> fieldNames = new ArrayList<String>();
+        for(IndexFieldConfig indexFieldConfig : indexConfig.getIndexFieldConfigs()){
+            fieldNames.add(getSqlName(indexFieldConfig));
+        }
+        
+        String indexType = getIndexType(indexConfig);
+
+        appendIndexQueryPart(query, tableName, indexType, fieldNames);
+    }
+
+    private static void appendDeleteIndexQueryPart(StringBuilder query, String tableName, IndexConfig indexConfig) {
+        List<String> fieldNames = new ArrayList<String>();
+        for (IndexFieldConfig indexFieldConfig : indexConfig.getIndexFieldConfigs()) {
+            fieldNames.add(getSqlName(indexFieldConfig));
+        }
+
+        appendDeleteIndexQueryPart(query, tableName, fieldNames);
+    }
+
+    private static String getIndexType(IndexConfig indexConfig) {
+        String indexType = indexConfig.getType();
+
+        if (indexType == null) {
+            return IndexConfig.IndexType.BTREE.toString();
+        }
+        return indexType;
     }
 
     public static String generateCreateAuditLogIndexesQuery(DomainObjectTypeConfig config) {
@@ -396,6 +506,47 @@ public class PostgreSqlQueryHelper {
         String indexName = "i_" + tableName + "_" + fieldName;
         query.append("create index ").append(wrap(indexName)).append(" on ").append(wrap(tableName)).append(" (").
                 append(wrap(fieldName)).append(");\n");
+    }
+
+    private static void appendIndexQueryPart(StringBuilder query, String tableName, String indexType, List<String> fieldNames) {
+        String indexFieldsPart = createIndexTableFieldsPart(fieldNames);
+
+        String indexName = createExplicitIndexName(tableName, fieldNames);
+        query.append("create index ").append(wrap(indexName)).append(" on ").append(wrap(tableName)).append(" USING ").append(indexType).append(" (").
+                append(indexFieldsPart).append(");\n");
+    }
+
+    private static void appendDeleteIndexQueryPart(StringBuilder query, String tableName, List<String> fieldNames) {
+        String indexName = createExplicitIndexName(tableName, fieldNames);
+        query.append("drop index if exists ").append(wrap(indexName)).append(";\n");
+    }
+
+    private static String createExplicitIndexName(String tableName, List<String> fieldNames) {
+        String fieldsSuffix = createIndexSuffix(fieldNames);
+        String indexName = "i_" + tableName + fieldsSuffix;
+        return indexName;
+    }
+
+    public static String createIndexSuffix(List<String> fieldNames) {
+        StringBuilder fieldsSuffix = new StringBuilder();
+        for (String fieldName : fieldNames) {
+            fieldsSuffix.append("_").append(fieldName);
+        }
+        return fieldsSuffix.toString();
+    }
+
+    private static String createIndexTableFieldsPart(List<String> fieldNames) {
+        StringBuilder fieldsEnumeration = new StringBuilder();
+        
+        int index = 0; 
+        for (String fieldName : fieldNames) {
+            fieldsEnumeration.append(wrap(fieldName));
+            if (index < fieldNames.size() - 1) {
+                fieldsEnumeration.append(", ");
+            }
+            index++;
+        }
+        return fieldsEnumeration.toString();
     }
 
     private static void appendParentFKConstraintsQueryPart(StringBuilder query, String tableName,

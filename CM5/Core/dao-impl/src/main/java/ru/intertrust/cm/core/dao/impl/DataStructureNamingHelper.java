@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.dao.impl;
 import ru.intertrust.cm.core.config.DateTimeWithTimeZoneFieldConfig;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.IndexFieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 
@@ -67,7 +68,16 @@ public class DataStructureNamingHelper {
     public static String getSqlName(FieldConfig fieldConfig) {
         return convertToSqlFormat(fieldConfig.getName());
     }
-
+    
+    /**
+     * Возвращает имя поля, участвующего в индексе, в sql-виде
+     * @param indexFieldConfig конфигурация индексного поля 
+     * @return имя поля, участвующего в индексе, в sql-виде
+     */
+    public static String getSqlName(IndexFieldConfig indexFieldConfig) {
+        return convertToSqlFormat(indexFieldConfig.getName());
+    }
+    
     /**
      * Возвращает список имен полей доменных объектов в sql-виде
      * @param fieldConfigs список конфигураций полей доменных объектов

@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.*;
@@ -69,9 +70,14 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
         }
         jdbcTemplate.update(generateCreateTableQuery(config));
 
-        String createIndexesQuery = generateCreateIndexesQuery(config);
+        String createIndexesQuery = generateCreateAutoIndexesQuery(config);
         if (createIndexesQuery != null) {
             jdbcTemplate.update(createIndexesQuery);
+        }
+
+        String createExplicitIndexesQuery = generateCreateExplicitIndexesQuery(config);
+        if (createExplicitIndexesQuery != null) {
+            jdbcTemplate.update(createExplicitIndexesQuery);
         }
 
         Integer id = domainObjectTypeIdDao.insert(config);
@@ -119,6 +125,69 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
         if (createIndexesQuery != null) {
             jdbcTemplate.update(createIndexesQuery);
         }
+    }
+
+    @Override
+    public void createIndices(String domainObjectConfigName, List<IndexConfig> indexConfigsToCreate) {
+        if (domainObjectConfigName == null || ((indexConfigsToCreate == null || indexConfigsToCreate.isEmpty()))) {
+            throw new IllegalArgumentException("Invalid (null or empty) arguments");
+        }
+        String createIndexesQuery = generateCreateExplicitIndexesQuery(domainObjectConfigName, indexConfigsToCreate);
+        if (createIndexesQuery != null) {
+            jdbcTemplate.update(createIndexesQuery);
+        }
+    }
+
+    @Override    
+    public void deleteIndices(DomainObjectTypeConfig domainObjectTypeConfig, List<IndexConfig> indexConfigsToDelete){
+        skipAutoIndices(domainObjectTypeConfig, indexConfigsToDelete);
+        
+        if (domainObjectTypeConfig.getName() == null || ((indexConfigsToDelete == null || indexConfigsToDelete.isEmpty()))) {
+            throw new IllegalArgumentException("Invalid (null or empty) arguments");
+        }
+        String deleteIndexesQuery = generateDeleteExplicitIndexesQuery(domainObjectTypeConfig.getName(), indexConfigsToDelete);
+        if (deleteIndexesQuery != null) {
+            jdbcTemplate.update(deleteIndexesQuery);
+        }
+
+    }
+
+    private void skipAutoIndices(DomainObjectTypeConfig domainObjectTypeConfig, List<IndexConfig> indexConfigList) {
+        List<FieldConfig> referenceFieldConfigs = new ArrayList<FieldConfig>();
+        for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
+            if (fieldConfig instanceof ReferenceFieldConfig) {
+                referenceFieldConfigs.add(fieldConfig);
+            }
+        }
+        List<Integer> skipIndexNumbers = new ArrayList<Integer>();
+
+        int i = 0;
+        for (IndexConfig indexConfig : indexConfigList) {
+            for (FieldConfig referenceFieldConfig : referenceFieldConfigs) {
+                if (getIndexFields(indexConfig).equals(referenceFieldConfig.getName())) {
+                    skipIndexNumbers.add(i);
+                }
+            }
+            i++;
+        }
+
+        for (int skipIndexNumber : skipIndexNumbers) {
+            indexConfigList.remove(skipIndexNumber);
+        }
+    }
+
+    private String getIndexFields(IndexConfig indexConfig) {
+        StringBuilder indexFields = new StringBuilder();
+
+        int i = 0;
+        for (IndexFieldConfig indexFieldConfig : indexConfig.getIndexFieldConfigs()) {
+            if (i > 0) {
+                indexFields.append("_");
+            }
+            indexFields.append(indexFieldConfig.getName());
+            i++;
+        }
+        return indexFields.toString();
     }
 
     @Override

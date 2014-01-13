@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.dao.api;
 
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.IndexConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.UniqueKeyConfig;
 
@@ -36,6 +37,21 @@ public interface DataStructureDao {
      * @param fieldConfigList список колонок для добавления
      */
     void updateTableStructure(String domainObjectConfigName, List<FieldConfig> fieldConfigList);
+
+    /**
+     * Создает новые индексы для доменного объекта
+     * @param domainObjectConfigName название доменного объекта
+     * @param indexConfigList список конфигураций новых индексов
+     */
+    public void createIndices(String domainObjectConfigName, List<IndexConfig> indexConfigList);
+
+    /**
+     * Удаляет индексы для доменного объекта. Если один из переданных индексов является автоматическим, то индекс не
+     * удаляется.
+     * @param domainObjectTypeConfig название доменного объекта
+     * @param indexConfigList список конфигураций индексов для удаления.
+     */
+    public void deleteIndices(DomainObjectTypeConfig domainObjectTypeConfig, List<IndexConfig> indexConfigList);
 
     /**
      * Создает форен-ки и уникальные констрэйнты

@@ -23,9 +23,12 @@
             <index type="hash">
                 <field name="Registration_Number" />
                 <field name="Name" />
-            </index>
+            </index>         
             <index>
                 <field name="Name" />
+            </index>
+            <index>
+                <field name="Description" />
             </index>
         </indices>
     </domain-object-type>

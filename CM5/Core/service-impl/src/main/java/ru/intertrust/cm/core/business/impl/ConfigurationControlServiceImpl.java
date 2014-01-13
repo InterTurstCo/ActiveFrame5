@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.config.ConfigurationSerializer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.IndexConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.UniqueKeyConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
@@ -265,6 +266,30 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
                 dataStructureDao.updateTableStructure(domainObjectTypeConfig.getName(), newFieldConfigs);
                 dataStructureDao.updateTableStructure(domainObjectTypeConfig.getName() + "_LOG", newFieldConfigs);
             }
+            
+            List<IndexConfig> newIndices = new ArrayList<>();
+
+            for (IndexConfig indexConfig : domainObjectTypeConfig.getIndicesConfig().getIndices()) {
+                if (!oldDomainObjectTypeConfig.getIndicesConfig().getIndices().contains(indexConfig)) {
+                    newIndices.add(indexConfig);
+                }
+            }
+
+            if (!newIndices.isEmpty()) {
+                dataStructureDao.createIndices(domainObjectTypeConfig.getName(), newIndices);
+            }
+            
+            List<IndexConfig> indicesToDelete = new ArrayList<>();
+            for (IndexConfig oldIndexConfig : oldDomainObjectTypeConfig.getIndicesConfig().getIndices()) {
+                if (!domainObjectTypeConfig.getIndicesConfig().getIndices().contains(oldIndexConfig)) {
+                    indicesToDelete.add(oldIndexConfig);
+                }
+            }
+
+            if (!indicesToDelete.isEmpty()) {
+                dataStructureDao.deleteIndices(domainObjectTypeConfig, indicesToDelete);
+            }
+
         }
 
         private void validateForDeletedConfigurations() {
