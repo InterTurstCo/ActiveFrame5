@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class IndexConfig implements Serializable {
 
-    public enum IndexType {BTREE("btree"), HASH("hash");
+    public enum IndexType {BTREE("btree");
 
         private String value;
 

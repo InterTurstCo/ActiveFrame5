@@ -73,8 +73,7 @@
 
     <xs:simpleType name="indexTypeType">
         <xs:restriction base="xs:string">
-            <xs:enumeration value="b-tree"/>
-            <xs:enumeration value="hash"/>
+            <xs:enumeration value="btree"/>            
         </xs:restriction>
     </xs:simpleType>
 
