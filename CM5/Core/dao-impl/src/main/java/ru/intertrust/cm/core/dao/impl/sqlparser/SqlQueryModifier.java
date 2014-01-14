@@ -208,8 +208,7 @@ public class SqlQueryModifier {
 
             if (selectExpressionItem.getExpression() instanceof Column) {
                 Column column = (Column) selectExpressionItem.getExpression();
-                FieldConfig fieldConfig = configurationExplorer.getFieldConfig(getDOTypeName(plainSelect, column, false),
-                        unwrap(column.getColumnName()));
+                FieldConfig fieldConfig = getFieldConfig(plainSelect, selectExpressionItem);
 
                 if (fieldConfig instanceof ReferenceFieldConfig) {
                     selectItems.add(createReferenceFieldTypeSelectItem(selectExpressionItem));
@@ -327,8 +326,7 @@ public class SqlQueryModifier {
                         unwrap(selectExpressionItem.getAlias().toLowerCase()) : fieldName;
 
                 if (columnToConfigMap.get(columnName) == null) {
-                    FieldConfig fieldConfig =
-                            configurationExplorer.getFieldConfig(getDOTypeName(plainSelect, column, false), fieldName);
+                    FieldConfig fieldConfig = getFieldConfig(plainSelect, selectExpressionItem);
                     columnToConfigMap.put(columnName, fieldConfig);
                 }
             } else if (selectExpressionItem.getAlias() != null &&
@@ -480,6 +478,44 @@ public class SqlQueryModifier {
         
         throw new CollectionQueryException("Failed to evaluate table name for column '" +
                 column.getColumnName() + "'");
+    }
+
+    private FieldConfig getFieldConfig(PlainSelect plainSelect, SelectExpressionItem selectExpressionItem) {
+        Column column = (Column) selectExpressionItem.getExpression();
+
+        if (plainSelect.getFromItem() instanceof SubSelect) {
+            SubSelect subSelect = (SubSelect) plainSelect.getFromItem();
+            PlainSelect plainSubSelect = getPlainSelect(subSelect.getSelectBody());
+            return getFieldConfigFromSubSelect(plainSubSelect, column);
+        } else if (plainSelect.getFromItem() instanceof Table) {
+            String fieldName = unwrap(column.getColumnName().toLowerCase());
+            return configurationExplorer.getFieldConfig(getDOTypeName(plainSelect, column, false), fieldName);
+        }
+
+        return null;
+    }
+
+    private FieldConfig getFieldConfigFromSubSelect(PlainSelect plainSelect, Column upperLevelColumn) {
+        for (Object selectItem : plainSelect.getSelectItems()) {
+            if (!(selectItem instanceof SelectExpressionItem)) {
+                continue;
+            }
+
+            SelectExpressionItem selectExpressionItem = (SelectExpressionItem) selectItem;
+
+            if (upperLevelColumn.getColumnName().equals(selectExpressionItem.getAlias())) {
+                return getFieldConfig(plainSelect, selectExpressionItem);
+            }
+
+            if (selectExpressionItem.getExpression() instanceof Column) {
+                Column column = (Column) selectExpressionItem.getExpression();
+                if (upperLevelColumn.getColumnName().equals(column.getColumnName())) {
+                    return getFieldConfig(plainSelect, selectExpressionItem);
+                }
+            }
+        }
+
+        return null;
     }
 
     private static String getTableAlias(PlainSelect plainSelect) {
