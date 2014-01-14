@@ -2,6 +2,6 @@
 <configuration xmlns="https://cm5.intertrust.ru/config">
     <global-settings>
         <audit-log enable="false" />
-        <sql-trace enable="true" resolveParameters="true" minRows="1" minTime="1"/>
+        <sql-trace enable="true" resolveParameters="true" minRows="1" minTime="100"/>
     </global-settings>
 </configuration>
