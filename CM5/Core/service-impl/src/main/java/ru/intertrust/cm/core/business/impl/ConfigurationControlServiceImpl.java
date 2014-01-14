@@ -276,7 +276,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
             }
 
             if (!newIndices.isEmpty()) {
-                dataStructureDao.createIndices(domainObjectTypeConfig.getName(), newIndices);
+                dataStructureDao.createIndices(domainObjectTypeConfig, newIndices);
             }
             
             List<IndexConfig> indicesToDelete = new ArrayList<>();

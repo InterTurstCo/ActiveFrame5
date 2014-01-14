@@ -40,15 +40,15 @@ public interface DataStructureDao {
 
     /**
      * Создает новые индексы для доменного объекта
-     * @param domainObjectConfigName название доменного объекта
+     * @param domainObjectTypeConfig конфигурация доменного объекта
      * @param indexConfigList список конфигураций новых индексов
      */
-    public void createIndices(String domainObjectConfigName, List<IndexConfig> indexConfigList);
+    public void createIndices(DomainObjectTypeConfig domainObjectTypeConfig, List<IndexConfig> indexConfigList);
 
     /**
      * Удаляет индексы для доменного объекта. Если один из переданных индексов является автоматическим, то индекс не
      * удаляется.
-     * @param domainObjectTypeConfig название доменного объекта
+     * @param domainObjectTypeConfig конфигурация доменного объекта
      * @param indexConfigList список конфигураций индексов для удаления.
      */
     public void deleteIndices(DomainObjectTypeConfig domainObjectTypeConfig, List<IndexConfig> indexConfigList);

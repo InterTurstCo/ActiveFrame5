@@ -23,6 +23,7 @@ import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlSeq
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getTimeZoneIdColumnName;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
@@ -405,10 +406,54 @@ public class PostgreSqlQueryHelper {
      * @return SQL запрос создания индексов
      */
     public static String generateCreateExplicitIndexesQuery(DomainObjectTypeConfig config) {
-
         List<IndexConfig> indexConfigs = config.getIndicesConfig().getIndices();
+        skipAutoIndices(config, indexConfigs);
         return generateCreateExplicitIndexesQuery(config.getName(), indexConfigs);
 
+    }
+
+    /**
+     * Автоматически создаваемые индексы удаляются из списка индексов для создания/удаления.
+     * @param domainObjectTypeConfig конфигурация доменного объекта
+     * @param indexConfigList спсисок дескрипторов индексов
+     */
+    public static void skipAutoIndices(DomainObjectTypeConfig domainObjectTypeConfig, List<IndexConfig> indexConfigList) {
+        List<FieldConfig> referenceFieldConfigs = new ArrayList<FieldConfig>();
+        for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
+            if (fieldConfig instanceof ReferenceFieldConfig) {
+                referenceFieldConfigs.add(fieldConfig);
+            }
+        }
+        List<Integer> skipIndexNumbers = new ArrayList<Integer>();
+
+        int i = 0;
+        for (IndexConfig indexConfig : indexConfigList) {
+            for (FieldConfig referenceFieldConfig : referenceFieldConfigs) {
+                if (getIndexFields(indexConfig).equals(referenceFieldConfig.getName())) {
+                    skipIndexNumbers.add(i);
+                }
+            }
+            i++;
+        }
+
+        Collections.sort(skipIndexNumbers, Collections.reverseOrder());        
+        for (int skipIndexNumber : skipIndexNumbers) {
+            indexConfigList.remove(skipIndexNumber);
+        }
+    }
+
+    private static String getIndexFields(IndexConfig indexConfig) {
+        StringBuilder indexFields = new StringBuilder();
+
+        int i = 0;
+        for (IndexFieldConfig indexFieldConfig : indexConfig.getIndexFieldConfigs()) {
+            if (i > 0) {
+                indexFields.append("_");
+            }
+            indexFields.append(indexFieldConfig.getName());
+            i++;
+        }
+        return indexFields.toString();
     }
 
     public static String generateCreateExplicitIndexesQuery(String domainObjectName,

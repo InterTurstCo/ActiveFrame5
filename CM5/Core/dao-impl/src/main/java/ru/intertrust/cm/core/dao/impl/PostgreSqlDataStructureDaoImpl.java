@@ -128,23 +128,26 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
     }
 
     @Override
-    public void createIndices(String domainObjectConfigName, List<IndexConfig> indexConfigsToCreate) {
-        if (domainObjectConfigName == null || ((indexConfigsToCreate == null || indexConfigsToCreate.isEmpty()))) {
+    public void createIndices(DomainObjectTypeConfig domainObjectTypeConfig, List<IndexConfig> indexConfigsToCreate) {        
+        if (domainObjectTypeConfig.getName() == null || ((indexConfigsToCreate == null || indexConfigsToCreate.isEmpty()))) {
             throw new IllegalArgumentException("Invalid (null or empty) arguments");
         }
-        String createIndexesQuery = generateCreateExplicitIndexesQuery(domainObjectConfigName, indexConfigsToCreate);
+
+        skipAutoIndices(domainObjectTypeConfig, indexConfigsToCreate);
+
+        String createIndexesQuery = generateCreateExplicitIndexesQuery(domainObjectTypeConfig.getName(), indexConfigsToCreate);
         if (createIndexesQuery != null) {
             jdbcTemplate.update(createIndexesQuery);
         }
     }
 
     @Override    
-    public void deleteIndices(DomainObjectTypeConfig domainObjectTypeConfig, List<IndexConfig> indexConfigsToDelete){
-        skipAutoIndices(domainObjectTypeConfig, indexConfigsToDelete);
-        
+    public void deleteIndices(DomainObjectTypeConfig domainObjectTypeConfig, List<IndexConfig> indexConfigsToDelete){        
         if (domainObjectTypeConfig.getName() == null || ((indexConfigsToDelete == null || indexConfigsToDelete.isEmpty()))) {
             throw new IllegalArgumentException("Invalid (null or empty) arguments");
         }
+        skipAutoIndices(domainObjectTypeConfig, indexConfigsToDelete);
+
         String deleteIndexesQuery = generateDeleteExplicitIndexesQuery(domainObjectTypeConfig.getName(), indexConfigsToDelete);
         if (deleteIndexesQuery != null) {
             jdbcTemplate.update(deleteIndexesQuery);
@@ -152,44 +155,7 @@ public class PostgreSqlDataStructureDaoImpl implements DataStructureDao {
 
     }
 
-    private void skipAutoIndices(DomainObjectTypeConfig domainObjectTypeConfig, List<IndexConfig> indexConfigList) {
-        List<FieldConfig> referenceFieldConfigs = new ArrayList<FieldConfig>();
-        for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
-            if (fieldConfig instanceof ReferenceFieldConfig) {
-                referenceFieldConfigs.add(fieldConfig);
-            }
-        }
-        List<Integer> skipIndexNumbers = new ArrayList<Integer>();
-
-        int i = 0;
-        for (IndexConfig indexConfig : indexConfigList) {
-            for (FieldConfig referenceFieldConfig : referenceFieldConfigs) {
-                if (getIndexFields(indexConfig).equals(referenceFieldConfig.getName())) {
-                    skipIndexNumbers.add(i);
-                }
-            }
-            i++;
-        }
-
-        for (int skipIndexNumber : skipIndexNumbers) {
-            indexConfigList.remove(skipIndexNumber);
-        }
-    }
-
-    private String getIndexFields(IndexConfig indexConfig) {
-        StringBuilder indexFields = new StringBuilder();
-
-        int i = 0;
-        for (IndexFieldConfig indexFieldConfig : indexConfig.getIndexFieldConfigs()) {
-            if (i > 0) {
-                indexFields.append("_");
-            }
-            indexFields.append(indexFieldConfig.getName());
-            i++;
-        }
-        return indexFields.toString();
-    }
-
+    
     @Override
     public void createForeignKeyAndUniqueConstraints(String domainObjectConfigName,
                                                      List<ReferenceFieldConfig> fieldConfigList,
