@@ -5,7 +5,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
@@ -14,8 +13,6 @@ import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.TopLevelConfigurationCache;
-import ru.intertrust.cm.core.config.global.AttachmentStorageConfig;
-import ru.intertrust.cm.core.config.global.AttachmentUploadTempStorageConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.model.CrudException;
 
@@ -123,12 +120,6 @@ public class CrudServiceImplTest {
         Configuration configuration = new Configuration();
         GlobalSettingsConfig globalSettings = new GlobalSettingsConfig();
         AuditLog auditLog = new AuditLog();
-        AttachmentStorageConfig storageConfig = new AttachmentStorageConfig();
-        storageConfig.setPath("");
-        AttachmentUploadTempStorageConfig attachmentUploadTempStorageConfig = new AttachmentUploadTempStorageConfig();
-        attachmentUploadTempStorageConfig.setPath("");
-        globalSettings.setAttachmentStorageConfig(storageConfig);
-        globalSettings.setAttachmentUploadTempStorageConfig(attachmentUploadTempStorageConfig);
         globalSettings.setAuditLog(auditLog);
 
         SqlTrace sqlTrace = new SqlTrace();

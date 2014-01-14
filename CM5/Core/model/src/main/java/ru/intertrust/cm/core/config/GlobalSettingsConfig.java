@@ -3,8 +3,6 @@ package ru.intertrust.cm.core.config;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
-import ru.intertrust.cm.core.config.global.AttachmentStorageConfig;
-import ru.intertrust.cm.core.config.global.AttachmentUploadTempStorageConfig;
 
 @Root(name = "global-settings")
 public class GlobalSettingsConfig implements TopLevelConfig {
@@ -17,12 +15,6 @@ public class GlobalSettingsConfig implements TopLevelConfig {
     @Element(name = "audit-log", required = true)
     private AuditLog auditLog;
 
-    @Element(name = "attachment-storage")
-    private ru.intertrust.cm.core.config.global.AttachmentStorageConfig attachmentStorageConfig;
-
-    @Element(name = "attachment-upload-temp-storage")
-    private ru.intertrust.cm.core.config.global.AttachmentUploadTempStorageConfig attachmentUploadTempStorageConfig;
-
     @Element(name = "sql-trace", required = true)
     private SqlTrace sqlTrace;
 
@@ -33,23 +25,6 @@ public class GlobalSettingsConfig implements TopLevelConfig {
 
     public void setAuditLog(AuditLog auditLog) {
         this.auditLog = auditLog;
-    }
-
-    public AttachmentStorageConfig getAttachmentStorageConfig() {
-        return attachmentStorageConfig;
-    }
-
-    public void setAttachmentStorageConfig(AttachmentStorageConfig attachmentStorageConfig) {
-        this.attachmentStorageConfig = attachmentStorageConfig;
-    }
-
-    public AttachmentUploadTempStorageConfig getAttachmentUploadTempStorageConfig() {
-        return attachmentUploadTempStorageConfig;
-    }
-
-    public void setAttachmentUploadTempStorageConfig(AttachmentUploadTempStorageConfig
-                                                             attachmentUploadTempStorageConfig) {
-        this.attachmentUploadTempStorageConfig = attachmentUploadTempStorageConfig;
     }
 
     public SqlTrace getSqlTrace() {
@@ -71,12 +46,6 @@ public class GlobalSettingsConfig implements TopLevelConfig {
 
         GlobalSettingsConfig that = (GlobalSettingsConfig) o;
 
-        if (attachmentStorageConfig != null ? !attachmentStorageConfig.equals(that.attachmentStorageConfig) : that.attachmentStorageConfig != null) {
-            return false;
-        }
-        if (attachmentUploadTempStorageConfig != null ? !attachmentUploadTempStorageConfig.equals(that.attachmentUploadTempStorageConfig) : that.attachmentUploadTempStorageConfig != null) {
-            return false;
-        }
         if (auditLog != null ? !auditLog.equals(that.auditLog) : that.auditLog != null) {
             return false;
         }
@@ -90,8 +59,6 @@ public class GlobalSettingsConfig implements TopLevelConfig {
     @Override
     public int hashCode() {
         int result = auditLog != null ? auditLog.hashCode() : 0;
-        result = 31 * result + (attachmentStorageConfig != null ? attachmentStorageConfig.hashCode() : 0);
-        result = 31 * result + (attachmentUploadTempStorageConfig != null ? attachmentUploadTempStorageConfig.hashCode() : 0);
         result = 31 * result + (sqlTrace != null ? sqlTrace.hashCode() : 0);
         return result;
     }

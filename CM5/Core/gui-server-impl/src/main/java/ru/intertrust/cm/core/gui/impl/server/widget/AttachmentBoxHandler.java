@@ -3,13 +3,11 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 import com.healthmarketscience.rmiio.RemoteInputStreamServer;
 import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.PropertyResolver;
 import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.LongValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.GlobalSettingsConfig;
-import ru.intertrust.cm.core.config.global.AttachmentUploadTempStorageConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.AttachmentBoxConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
@@ -39,12 +37,12 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
     private static final String ATTACHMENT_DESCRIPTION = "Description";
     private static final String ATTACHMENT_MIME_TYPE = "MimeType";
     private static final String ATTACHMENT_CONTENT_LENGTH = "ContentLength";
+    private static final String TEMP_STORAGE_PATH = "${attachment.temp.storage}";
 
     @Autowired
     private AttachmentService attachmentService;
     @Autowired
-    private ConfigurationExplorer configurationExplorer;
-
+    private PropertyResolver propertyResolver;
     @Override
     public AttachmentBoxState getInitialState(WidgetContext context) {
         AttachmentBoxConfig widgetConfig = context.getWidgetConfig();
@@ -88,10 +86,7 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
             if (attachmentItem.getId() != null) {
                 continue;
             }
-            GlobalSettingsConfig globalSettingsConfig = configurationExplorer.getGlobalSettings();
-            AttachmentUploadTempStorageConfig attachmentUploadTempStorageConfig = globalSettingsConfig.
-                    getAttachmentUploadTempStorageConfig();
-            String pathForTempFilesStore = attachmentUploadTempStorageConfig.getPath();
+            String pathForTempFilesStore =  propertyResolver.resolvePlaceholders(TEMP_STORAGE_PATH);
             String filePath = pathForTempFilesStore + attachmentItem.getTemporaryName();
             File fileToSave = new File(filePath);
             long contentLength = fileToSave.length();
