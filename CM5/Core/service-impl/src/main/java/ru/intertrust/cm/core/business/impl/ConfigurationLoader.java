@@ -18,6 +18,8 @@ public class ConfigurationLoader implements ApplicationContextAware {
     @Autowired
     private ConfigurationControlService configurationControlService;
     private ApplicationContext context;
+    
+    private boolean configurationLoaded;
 
     /*
      * @Autowired private ExtensionService extensionService;
@@ -55,6 +57,8 @@ public class ConfigurationLoader implements ApplicationContextAware {
                     OnLoadConfigurationExtensionHandler.class, null);
             extension.onLoad();
         }
+        
+        configurationLoaded = true;
     }
 
     @Override
@@ -62,6 +66,14 @@ public class ConfigurationLoader implements ApplicationContextAware {
             throws BeansException {
         this.context = applicationContext;
 
+    }
+    
+    /**
+     * Метод возвращает флаг загруженности конфигурации
+     * @return
+     */
+    public boolean isConfigurationLoaded(){
+        return configurationLoaded;
     }
 
 }

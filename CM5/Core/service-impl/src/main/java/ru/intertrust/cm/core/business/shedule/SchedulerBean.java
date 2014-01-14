@@ -33,6 +33,7 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleProcessor;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleResult;
+import ru.intertrust.cm.core.business.impl.ConfigurationLoader;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
@@ -67,6 +68,9 @@ public class SchedulerBean {
     @Resource
     private EJBContext ejbContext;
 
+    @Autowired
+    private ConfigurationLoader configurationLoader;
+
     private List<StartedTask> startedTasks = new ArrayList<StartedTask>();
 
     /**
@@ -76,34 +80,41 @@ public class SchedulerBean {
     public void backgroundProcessing()
     {
         try {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Start schedule task runner");
-            }
-            AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+            if (configurationLoader.isConfigurationLoaded()) {
 
-            //Получение всех периодических заданий находящихся в статусе SLEEP
-            List<DomainObject> tasks = getTasksByStatus(ScheduleService.SCHEDULE_STATUS_SLEEP, true);
-
-            //Проверка прохождения фильтра по расписанию
-            for (DomainObject task : tasks) {
-                if (isScheduleComplete(task)) {
-                    //Устанавливаем статус ready
-                    ejbContext.getUserTransaction().begin();
-                    DomainObject savedTask =
-                            domainObjectDao.setStatus(task.getId(),
-                                    statusDao.getStatusIdByName(ScheduleService.SCHEDULE_STATUS_READY), accessToken);
-                    savedTask.setTimestamp(ScheduleService.SCHEDULE_LAST_REDY, new Date());
-                    savedTask.setTimestamp(ScheduleService.SCHEDULE_LAST_WAIT, null);
-                    savedTask.setTimestamp(ScheduleService.SCHEDULE_LAST_RUN, null);
-                    savedTask.setTimestamp(ScheduleService.SCHEDULE_LAST_END, null);
-                    savedTask.setLong(ScheduleService.SCHEDULE_LAST_RESULT, ScheduleResult.NotRun.toLong());
-                    savedTask.setString(ScheduleService.SCHEDULE_LAST_RESULT_DESCRIPTION, null);                    
-                    domainObjectDao.save(savedTask, accessToken);
-                    ejbContext.getUserTransaction().commit();
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Start schedule task runner");
                 }
-            }
+                AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
 
-            executeTasks();
+                //Получение всех периодических заданий находящихся в статусе SLEEP
+                List<DomainObject> tasks = getTasksByStatus(ScheduleService.SCHEDULE_STATUS_SLEEP, true);
+
+                //Проверка прохождения фильтра по расписанию
+                for (DomainObject task : tasks) {
+                    if (isScheduleComplete(task)) {
+                        //Устанавливаем статус ready
+                        ejbContext.getUserTransaction().begin();
+                        DomainObject savedTask =
+                                domainObjectDao
+                                        .setStatus(task.getId(),
+                                                statusDao.getStatusIdByName(ScheduleService.SCHEDULE_STATUS_READY),
+                                                accessToken);
+                        savedTask.setTimestamp(ScheduleService.SCHEDULE_LAST_REDY, new Date());
+                        savedTask.setTimestamp(ScheduleService.SCHEDULE_LAST_WAIT, null);
+                        savedTask.setTimestamp(ScheduleService.SCHEDULE_LAST_RUN, null);
+                        savedTask.setTimestamp(ScheduleService.SCHEDULE_LAST_END, null);
+                        savedTask.setLong(ScheduleService.SCHEDULE_LAST_RESULT, ScheduleResult.NotRun.toLong());
+                        savedTask.setString(ScheduleService.SCHEDULE_LAST_RESULT_DESCRIPTION, null);
+                        domainObjectDao.save(savedTask, accessToken);
+                        ejbContext.getUserTransaction().commit();
+                    }
+                }
+
+                executeTasks();
+            } else {
+                logger.warn("Can not run scheduler. Configuration is not loaded.");
+            }
         } catch (Exception ex) {
             logger.error("Error on run shedule task", ex);
             try {
@@ -128,7 +139,7 @@ public class SchedulerBean {
     private void checkTimeout() {
         try {
             AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
-            //Перебираем задачи в обратном прядке, чтоб можно было "на лету" удалять из списка
+            //Перебираем задачи в обратном порядке, чтоб можно было "на лету" удалять из списка
             for (int i = startedTasks.size() - 1; i >= 0; i--) {
                 StartedTask startedTask = startedTasks.get(i);
 
