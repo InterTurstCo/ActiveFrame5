@@ -276,18 +276,7 @@
                                   type="xs:boolean"/>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="attachment-storage">
-                <xs:complexType>
-                    <xs:attribute name="path" use="required"
-                                  type="xs:string"/>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="attachment-upload-temp-storage">
-                <xs:complexType>
-                    <xs:attribute name="path" use="optional"
-                                  type="xs:string"/>
-                </xs:complexType>
-            </xs:element>
+
             <xs:element name="sql-trace">
                 <xs:complexType>
                     <xs:attribute name="enable" use="required"

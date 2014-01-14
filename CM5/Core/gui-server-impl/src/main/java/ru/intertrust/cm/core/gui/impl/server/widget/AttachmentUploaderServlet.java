@@ -3,11 +3,11 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUpload;
 import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.PropertyResolver;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,10 +15,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import ru.intertrust.cm.core.business.api.dto.AttachmentUploadPercentage;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.GlobalSettingsConfig;
-import ru.intertrust.cm.core.config.global.AttachmentUploadTempStorageConfig;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -43,9 +41,14 @@ import java.util.logging.Logger;
 public class AttachmentUploaderServlet {
     private static final Logger log = Logger.getLogger(FileUpload.class.getName());
     private static final String SESSION_ATTRIBUTE_UPLOAD_PROGRESS = "uploadProgress";
-
+    private String pathForTempFilesStore;
     @Autowired
-    private ConfigurationExplorer configurationExplorer;
+    private PropertyResolver propertyResolver;
+
+    @PostConstruct
+    public void init() {
+        pathForTempFilesStore = propertyResolver.resolvePlaceholders("${attachment.temp.storage}");
+    }
 
     @ResponseBody
     @RequestMapping(value = "/attachment-upload")
@@ -67,24 +70,19 @@ public class AttachmentUploaderServlet {
         Iterator iterator = fileItems.iterator();
         while (iterator.hasNext()) {
             FileItem item = (FileItem) iterator.next();
-
             if (!item.isFormField()) {
 
                 log.info("Got an uploaded file: " + item.getFieldName() +
                         ", name = " + item.getName());
 
-                String filename = FilenameUtils.getName(((DiskFileItem) item).getName());
+                String filename = FilenameUtils.getName(item.getName());
                 long time = System.nanoTime();
                 savedFilename = time + "-_-" + filename;
-                GlobalSettingsConfig globalSettingsConfig = configurationExplorer.getGlobalSettings();
-                AttachmentUploadTempStorageConfig attachmentUploadTempStorageConfig = globalSettingsConfig.
-                        getAttachmentUploadTempStorageConfig();
-                String pathForTempFilesStore = attachmentUploadTempStorageConfig.getPath();
                 String pathToSave = pathForTempFilesStore + savedFilename;
                 try (
                         InputStream inputStream = item.getInputStream();
                         OutputStream outputStream = new FileOutputStream(pathToSave)) {
-                    stream(inputStream, outputStream, session);
+                    stream(inputStream, outputStream);
                 }
 
             }
@@ -94,7 +92,7 @@ public class AttachmentUploaderServlet {
         return new ResponseEntity<String>(savedFilename, headers, HttpStatus.OK);
     }
 
-    private void stream(InputStream input, OutputStream output, HttpSession session)
+    private void stream(InputStream input, OutputStream output)
             throws IOException {
 
         try (
@@ -126,4 +124,5 @@ public class AttachmentUploaderServlet {
         getUploadProgress(session).setPercentage(0);
 
     }
+
 }
