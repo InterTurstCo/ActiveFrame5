@@ -24,6 +24,11 @@ public class IndexFieldConfig implements Serializable {
     public void setName(String name) {
         this.name = name;
     }
+    
+    @Override
+    public String toString() {
+        return "IndexFieldConfig [name=" + name + "]";
+    }
 
     @Override
     public boolean equals(Object o) {

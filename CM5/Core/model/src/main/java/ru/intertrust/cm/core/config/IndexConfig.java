@@ -53,6 +53,12 @@ public class IndexConfig implements Serializable {
         }
     }
 
+    
+    @Override
+    public String toString() {
+        return "IndexConfig [type=" + type + ", indexFieldConfigs=" + indexFieldConfigs + "]";
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

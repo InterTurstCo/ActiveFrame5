@@ -26,6 +26,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.config.BooleanFieldConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
@@ -52,6 +55,8 @@ import ru.intertrust.cm.core.dao.api.DomainObjectDao;
  */
 public class PostgreSqlQueryHelper {
 
+    private static final Logger logger = LoggerFactory.getLogger(PostgreSqlQueryHelper.class);
+    
     public static final String ACL_TABLE_SUFFIX = "_acl";
 
     public static final String READ_TABLE_SUFFIX = "_read";
@@ -438,6 +443,8 @@ public class PostgreSqlQueryHelper {
 
         Collections.sort(skipIndexNumbers, Collections.reverseOrder());        
         for (int skipIndexNumber : skipIndexNumbers) {
+            logger.info("Index " + indexConfigList.get(skipIndexNumber)
+                    + " will not be created/deleted since it matches an existing auto index");
             indexConfigList.remove(skipIndexNumber);
         }
     }
