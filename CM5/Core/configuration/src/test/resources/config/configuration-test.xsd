@@ -427,7 +427,15 @@
         </xs:sequence>
         <xs:attribute type="xs:string" name="name" use="optional" />
         <xs:attribute type="xs:string" name="idField" use="optional" />
+        <xs:attribute type="con:transactionCacheType" name="transaction-cache" default="disabled" use="optional"/>
     </xs:complexType>
+
+    <xs:simpleType name="transactionCacheType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="enabled"/>
+            <xs:enumeration value="disabled"/>
+        </xs:restriction>
+    </xs:simpleType>
 
     <!-- Access configuration schema -->
     <xs:complexType name="contextType">

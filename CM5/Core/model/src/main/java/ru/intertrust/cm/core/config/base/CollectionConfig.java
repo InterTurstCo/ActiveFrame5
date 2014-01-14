@@ -22,6 +22,25 @@ public class CollectionConfig implements TopLevelConfig {
     @Attribute(required = true)
     private String idField;
 
+    public enum TransactionCacheType {
+        enabled("enabled"),
+        disabled("disabled");
+
+        private String value;
+
+        TransactionCacheType(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
+
+    @Attribute(required = false, name = "transaction-cache")
+    private TransactionCacheType transactionCache;
+
     @Element(name = "prototype", required = false, data=true)
     private String prototype;
 
@@ -49,6 +68,14 @@ public class CollectionConfig implements TopLevelConfig {
 
     public void setIdField(String idField) {
         this.idField = idField;
+    }
+
+    public TransactionCacheType getTransactionCache() {
+        return transactionCache;
+    }
+
+    public void setTransactionCache(TransactionCacheType transactionCache) {
+        this.transactionCache = transactionCache;
     }
 
     public String getPrototype() {

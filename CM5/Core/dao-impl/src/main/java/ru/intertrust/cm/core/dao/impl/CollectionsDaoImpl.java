@@ -59,6 +59,9 @@ public class CollectionsDaoImpl implements CollectionsDao {
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
 
     @Autowired
+    private CollectionsCacheServiceImpl collectionsCacheService;
+
+    @Autowired
     private CurrentUserAccessor currentUserAccessor;
 
     public void setJdbcTemplate(NamedParameterJdbcOperations jdbcTemplate) {
@@ -71,6 +74,10 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
     public void setDomainObjectTypeIdCache(DomainObjectTypeIdCache domainObjectTypeIdCache) {
         this.domainObjectTypeIdCache = domainObjectTypeIdCache;
+    }
+
+    public void setCollectionsCacheService(CollectionsCacheServiceImpl collectionsCacheService) {
+        this.collectionsCacheService = collectionsCacheService;
     }
 
     /**
@@ -94,6 +101,13 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
         CollectionConfig collectionConfig = configurationExplorer.getConfig(CollectionConfig.class, collectionName);
 
+        if (collectionConfig.getTransactionCache() == CollectionConfig.TransactionCacheType.enabled){
+            IdentifiableObjectCollection fromCache = collectionsCacheService.getCollectionFromCache(collectionName, filterValues, sortOrder, offset, limit);
+            if (fromCache != null) {
+                return fromCache;
+            }
+        }
+
         String collectionQuery =
                 getFindCollectionQuery(collectionConfig, filterValues, sortOrder, offset, limit, accessToken);
 
@@ -115,6 +129,10 @@ public class CollectionsDaoImpl implements CollectionsDao {
         IdentifiableObjectCollection collection = jdbcTemplate.query(collectionQuery, parameters,
                 new CollectionRowMapper(collectionName, columnToConfigMap, collectionConfig.getIdField(),
                         configurationExplorer, domainObjectTypeIdCache));
+
+        if (collectionConfig.getTransactionCache() == CollectionConfig.TransactionCacheType.enabled){
+            collectionsCacheService.putCollectionToCache(collection, collectionName, filterValues, sortOrder, offset, limit);
+        }
 
         return collection;
     }

@@ -59,4 +59,24 @@ public class SortCriterion implements Dto {
     public Order getOrder() {
         return order;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SortCriterion another = (SortCriterion) o;
+
+        if (!field.equals(another.field)) return false;
+        if (order != another.order) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = field.hashCode();
+        result = 31 * result + (order == Order.ASCENDING ? 29 : 17);
+        return result;
+    }
 }

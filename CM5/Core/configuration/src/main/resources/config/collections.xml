@@ -407,7 +407,7 @@
 
     </collection>
 
-    <collection name="PersonByLogin" idField="id">
+    <collection name="PersonByLogin" idField="id" transaction-cache="enabled">
 
         <prototype>
             <![CDATA[

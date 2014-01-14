@@ -71,4 +71,20 @@ public class Filter implements Dto {
         this.filter = filter;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Filter another = (Filter) o;
+
+        if (!parameterMap.equals(another.parameterMap)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return parameterMap.hashCode();
+    }
 }
