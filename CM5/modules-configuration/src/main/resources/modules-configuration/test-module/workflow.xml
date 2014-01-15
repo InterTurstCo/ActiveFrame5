@@ -10,8 +10,10 @@
                     Person_Task t 
                     inner join Assignee_Person ap on (t.id = ap.persontask)
                     inner join Person p on (ap.person = p.id)
+                    inner join Status s on (t.status = s.id)
                 where
-                    t.state in (1,2)
+                    s.name in ('Send', 'Acquired')
+                    and p.id = {CURRENT_PERSON}
             ]]>
         </prototype>
 
@@ -204,7 +206,7 @@
                 <selection-filter name="idsIncluded"/>
                 <selection-exclude-filter name="idsExcluded"/>
                 <drop-down-pattern value="{login} {firstname}"/>
-                <selection-pattern value="{Name} {department}"/>
+                <selection-pattern value="{login} {firstname}"/>
                 <input-text-filter name="byText"/>
                 <page-size>30</page-size>
                 <selection-style name="inline"/>
