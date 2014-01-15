@@ -11,6 +11,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.SearchAreaRefConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
@@ -145,7 +146,7 @@ public class TableBrowserWidget extends BaseWidget {
         initCollectionPluginPanel();
         Button okButton = new Button("OK");
         Button cancelButton = new Button("CANCEL");
-        if (tableBrowserConfig.getSingleChoice().isSingleChoice()) {
+        if (isSingleChoice()) {
             addClickHandlersForSingleChoice(okButton, cancelButton, dialogBox);
         } else {
             addClickHandlersForMultiplyChoice(okButton, cancelButton, dialogBox);
@@ -165,6 +166,11 @@ public class TableBrowserWidget extends BaseWidget {
         dialogBox.setWidth(width + "px");
         dialogBox.setHeight(height + "px");
 
+    }
+
+    private boolean isSingleChoice() {
+        final SingleChoiceConfig singleChoice = tableBrowserConfig.getSingleChoice();
+        return singleChoice != null && singleChoice.isSingleChoice();
     }
 
     private void addCancelButtonClickHandler(final Button cancelButton, final DialogBox dialogBox) {
@@ -254,7 +260,7 @@ public class TableBrowserWidget extends BaseWidget {
             public void onSuccess(Dto result) {
                 ParsedRowsList list = (ParsedRowsList) result;
                 ArrayList<FacebookStyleItem> items = list.getFilteredRows();
-                if (tableBrowserConfig.getSingleChoice().isSingleChoice()) {
+                if (isSingleChoice()) {
                     facebookStyleView.setChosenItems(items);
                 } else {
                 facebookStyleView.getChosenItems().addAll(items);
