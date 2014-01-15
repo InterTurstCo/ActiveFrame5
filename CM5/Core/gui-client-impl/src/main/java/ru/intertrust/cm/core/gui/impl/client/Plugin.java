@@ -206,12 +206,14 @@ public abstract class Plugin extends BaseComponent {
 
     private void postSetUp() {
         view = createView();
-        PluginViewCreatedEvent event = new PluginViewCreatedEvent(this);
-        for (PluginViewCreatedEventListener listener : viewCreatedEventListeners) {
-            listener.onViewCreation(event);
+        if (viewCreatedEventListeners != null) {
+            PluginViewCreatedEvent event = new PluginViewCreatedEvent(this);
+            for (PluginViewCreatedEventListener listener : viewCreatedEventListeners) {
+                listener.onViewCreation(event);
+            }
+            // just in case, make sure to produce NPE if view is "created" again. and free memory of course
+            viewCreatedEventListeners = null;
         }
-        // just in case, make sure to produce NPE if view is "created" again. and free memory of course
-        viewCreatedEventListeners = null;
 
         // owner is not implemented as PluginViewCreatedListener as we want it to be notified after all
         owner.onPluginViewCreated(this);

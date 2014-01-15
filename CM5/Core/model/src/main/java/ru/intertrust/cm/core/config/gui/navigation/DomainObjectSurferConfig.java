@@ -14,8 +14,8 @@ public class DomainObjectSurferConfig extends PluginConfig {
     @Element(name = "collection-viewer")
     private CollectionViewerConfig collectionViewerConfig;
 
-    @Element(name = "first-open-read-only", required = false)
-    private boolean firstOpenReadonly;
+    @Element(name = "toggle-edit", required = false)
+    private boolean toggleEdit;
 
     @Attribute(name = "domain-object-type-to-create", required = false)
     private String domainObjectTypeToCreate;
@@ -28,8 +28,8 @@ public class DomainObjectSurferConfig extends PluginConfig {
         this.collectionViewerConfig = collectionViewerConfig;
     }
 
-    public boolean isFirstOpenReadonly() {
-        return firstOpenReadonly;
+    public boolean isToggleEdit() {
+        return toggleEdit;
     }
 
     public String getDomainObjectTypeToCreate() {

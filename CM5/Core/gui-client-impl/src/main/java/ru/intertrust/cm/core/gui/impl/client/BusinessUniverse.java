@@ -36,7 +36,6 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     private PluginPanel centralPluginPanel;
     NavigationTreePlugin navigationTreePlugin;
     PluginPanel navigationTreePanel;
-    FlowPanel headerPanel;
     private int centralPluginWidth;
     private int centralPluginHeight;
     private int stickerPluginWidth = 30;
@@ -79,8 +78,6 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
                 center.add(left);
                 center.add(centrInner);
-
-                headerPanel = createHeaderPanel();
 
                 navigationTreePanel = new PluginPanel();
                 // todo мы должны просто класть туда панель - пустую, а nav tree plugin уже будет открывать в ней что нужно
@@ -151,12 +148,6 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         centralPluginPanel.open(domainObjectSurfer);
 
 
-    }
-
-    private FlowPanel createHeaderPanel() {
-        FlowPanel headerPanel = new FlowPanel();
-        headerPanel.setWidth("100%");
-        return headerPanel;
     }
 
     private HorizontalPanel createToolPanel() {

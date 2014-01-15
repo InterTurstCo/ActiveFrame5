@@ -27,7 +27,7 @@
 
     show-text определяет, показывать ли текст действия, или достаточно только иконки
     -->
-    <action name="start.process.action" component="start.process.action" text="Отправить на согласование" image="sign.png" show-text="false">
+    <action name="start.process.action" component="start.process.action" text="Отправить на согласование" image="sign.png">
         <before-execution>
             <!-- Текст-подтверждение перед выполнением данного действия -->
             <confirmation-message text="Отправить на согласование?"/>

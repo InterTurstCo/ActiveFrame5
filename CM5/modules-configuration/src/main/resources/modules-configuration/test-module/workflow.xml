@@ -293,7 +293,7 @@
 
     
     <action name="start-internal-document-process" component="start.process.action"
-        text="Отправить на согласование" image="sign.png" show-text="false">
+        text="Отправить на согласование" image="sign.png">
         <before-execution>
             <!-- Текст-подтверждение перед выполнением данного действия -->
             <confirmation-message text="Отправить на согласование?" />

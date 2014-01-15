@@ -27,8 +27,11 @@ public class ActionConfig implements TopLevelConfig {
     @Attribute(name="image")
     private String imageUrl;
 
-    @Attribute(name="show-text")
-    private boolean showText;
+    @Attribute(name="short-desc", required = false)
+    private String shortDesc;
+
+    @Attribute(name = "toggle", required = false)
+    private boolean toggle;
 
     @Element(name="action-settings")
     @Convert(ActionSettingsConverter.class)
@@ -77,20 +80,28 @@ public class ActionConfig implements TopLevelConfig {
         this.text = text;
     }
 
+    public String getShortDesc() {
+        return shortDesc;
+    }
+
+    public void setShortDesc(final String shortDesc) {
+        this.shortDesc = shortDesc;
+    }
+
     public String getImageUrl() {
         return imageUrl;
     }
 
+    public boolean isToggle() {
+        return toggle;
+    }
+
+    public void setToggle(final boolean checked) {
+        this.toggle = checked;
+    }
+
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
-    }
-
-    public boolean displayText() {
-        return showText;
-    }
-
-    public void setShowText(boolean showText) {
-        this.showText = showText;
     }
 
     public ActionSettings getActionSettings() {
@@ -106,7 +117,6 @@ public class ActionConfig implements TopLevelConfig {
         return "ActionConfig {" +
                 "name='" + name + '\'' +
                 ", imageUrl='" + imageUrl + '\'' +
-                ", showText=" + showText +
                 '}';
     }
 

@@ -312,7 +312,6 @@ td.datePickerMonth {
 
 .action-bar{
     box-shadow: 0 3px 10px #aaa;
-    margin-top: 11px;
     background: #fff;
     background: -moz-linear-gradient(top, #ffffff 0%, #eaeef1 100%);
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ffffff),	 color-stop(100%, #eaeef1) );
@@ -423,6 +422,15 @@ td.datePickerMonth {
     border-radius: 5px;
     background:  #fffdf0;
     outline: none;
+}
+
+.action-bar-right-side {
+    float: right;
+}
+
+.action-bar-right-side img {
+    padding: 7px 5px 7px 0;
+    cursor: pointer;
 }
 
 .decorated-action-link .action-bar-button{
@@ -634,6 +642,7 @@ font-weight: bold;
 
 .centr-inner-section{
     position: absolute !important;
+    margin-top: 11px;
     float: left;
 }
 .tree-label{

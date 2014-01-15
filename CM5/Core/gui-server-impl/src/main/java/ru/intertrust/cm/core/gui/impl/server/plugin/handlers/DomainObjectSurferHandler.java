@@ -35,8 +35,8 @@ public class DomainObjectSurferHandler extends ActivePluginHandler {
             selectedIndexes.add(Integer.valueOf(0));
             collectionPluginData.setIndexesOfSelectedItems(selectedIndexes);
         }
-        formPluginConfig.setMode(config.isFirstOpenReadonly() ? FormPluginMode.MANUAL_EDIT : FormPluginMode.EDITABLE);
-        formPluginConfig.setEditable(!config.isFirstOpenReadonly());
+        formPluginConfig.setMode(config.isToggleEdit() ? FormPluginMode.TOGGLE_EDIT : FormPluginMode.EDITABLE);
+        formPluginConfig.setEditable(!config.isToggleEdit());
         FormPluginHandler formPluginHandler = (FormPluginHandler) applicationContext.getBean("form.plugin");
         FormPluginData formPluginData = formPluginHandler.initialize(formPluginConfig);
 

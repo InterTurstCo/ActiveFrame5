@@ -69,7 +69,7 @@ public class FormPluginHandler extends ActivePluginHandler {
 //                contexts.add(new SaveToCSVContext(createActionConfig(
 //                        "save-csv.action", "save-csv.action", "Выгрузить в CSV", "icons/icon-edit.png")));
                 break;
-            case MANUAL_EDIT:
+            case TOGGLE_EDIT:
                 if (isEditable) {
                     contexts.add(new SaveActionContext(createActionConfig(
                             "save.action", "save.action", "Сохранить", "icons/ico-save.gif")));
