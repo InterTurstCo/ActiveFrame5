@@ -57,16 +57,12 @@ public class FacebookStyleView implements IsWidget {
 
     public void displayChosenRowItem(final FacebookStyleItem rowItem) {
         final AbsolutePanel element = new AbsolutePanel();
-        element.getElement().getStyle().setMarginLeft(5, Style.Unit.PX);
         element.getElement().getStyle().setDisplay(displayStyle);
         element.setStyleName("facebook-element");
         Label label = new Label(rowItem.getStringRepresentation());
         label.setStyleName("facebook-label");
         FocusPanel delBtn = new FocusPanel();
         delBtn.addStyleName("facebook-btn");
-        delBtn.getElement().getStyle().setPadding(2, Style.Unit.PX);
-        delBtn.getElement().getStyle().setBackgroundColor("red");
-
         delBtn.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {

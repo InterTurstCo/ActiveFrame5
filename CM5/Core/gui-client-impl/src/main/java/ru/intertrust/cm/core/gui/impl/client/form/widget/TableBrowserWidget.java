@@ -145,14 +145,18 @@ public class TableBrowserWidget extends BaseWidget {
         initCollectionConfig();
         initCollectionPluginPanel();
         Button okButton = new Button("OK");
+        okButton.removeStyleName("gwt-Button");
+        okButton.addStyleName("dialog-box-button buttons-fixed");
         Button cancelButton = new Button("CANCEL");
+        cancelButton.removeStyleName("gwt-Button");
+        cancelButton.addStyleName("dialog-box-button buttons-fixed position-margin-left");
         if (isSingleChoice()) {
             addClickHandlersForSingleChoice(okButton, cancelButton, dialogBox);
         } else {
             addClickHandlersForMultiplyChoice(okButton, cancelButton, dialogBox);
         }
-        HorizontalPanel buttonsContainer = new HorizontalPanel();
-        buttonsContainer.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
+        AbsolutePanel buttonsContainer = new AbsolutePanel();
+        buttonsContainer.addStyleName("table-browser-dialog-box-button-panel");
         buttonsContainer.add(okButton);
         buttonsContainer.add(cancelButton);
         FlowPanel dialogBoxContent = new FlowPanel();

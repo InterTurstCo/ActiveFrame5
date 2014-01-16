@@ -1,0 +1,13 @@
+.table-browser-dialog-box-button-panel{
+    padding-left: 10px;
+    position: absolute;
+    display: inline-block;
+    margin-bottom: 35px;
+}
+.buttons-fixed {
+    position: fixed;
+
+}
+.position-margin-left{
+    margin-left: 45px;
+}

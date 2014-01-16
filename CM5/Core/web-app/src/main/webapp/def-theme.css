@@ -741,7 +741,7 @@ td .gwt-SuggestBox {
     cursor: pointer;
     height: 16px;
     width: 16px;
-}}
+}
 
 /* ATTACHMENTS */
 .facebook-main-box{
@@ -753,8 +753,6 @@ td .gwt-SuggestBox {
 }
 .facebook-element{
     margin: 6px 5px 2px 5px;
-    float: left;
-    padding-right: 18px;
     position: relative;
 }
 .facebook-element .gwt-Label{
@@ -784,17 +782,21 @@ td .gwt-SuggestBox {
 
 }
 .facebook-element .facebook-btn{
-    background: url(css/icons/icons.png) left top no-repeat;
-    top: 0;
-    right: 0px;
+    background-attachment: scroll;
+    background-clip: border-box;
+    background-color: rgba(0, 0, 0, 0) !important;
+    background-image: url("css/icons/icons.png");
+    background-origin: padding-box;
+    background-position: left top;
+    background-repeat: no-repeat;
+    background-size: auto auto;
     cursor: pointer;
+    display: inline-block;
     height: 16px;
+    padding: 0 !important;
+    position: relative;
+    margin-top: 1px;
     width: 16px;
-    position: absolute;
-    right: 5px;
-    top: 2px;
-    background-color: transparent !important;
-    padding: 0px !important;
 }
 .facebook-element .facebook-btn:hover{
     background-position: -16px 0;
@@ -958,12 +960,7 @@ td .gwt-SuggestBox {
     background-color: white;
     min-height: 30px;
 }
-.facebook-element{
-    margin: 6px 5px 2px 5px;
-    float: left;
-    padding-right: 18px;
-    position: relative;
-}
+
 .facebook-element .gwt-Label{
     float: left;
     width: auto;
@@ -990,19 +987,7 @@ td .gwt-SuggestBox {
     color: #000;
 
 }
-.facebook-element .facebook-btn{
-    background: url(css/icons/icons.png) left top no-repeat;
-    top: 0;
-    right: 0px;
-    cursor: pointer;
-    height: 16px;
-    width: 16px;
-    position: absolute;
-    right: 5px;
-    top: 2px;
-    background-color: transparent !important;
-    padding: 0px !important;
-}
+
 .facebook-element .facebook-btn:hover{
     background-position: -16px 0;
 }
