@@ -1,11 +1,8 @@
 package ru.intertrust.cm.remoteclient.collection;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
@@ -13,11 +10,9 @@ import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.remoteclient.ClientBase;
 
 public class TestCollection extends ClientBase {
-    private CrudService.Remote crudService;
 
     private CollectionsService.Remote collectionService;
 
-    private AttachmentService.Remote attachmentService;
 
     public static void main(String[] args) {
         try {
@@ -57,6 +52,9 @@ public class TestCollection extends ClientBase {
             query += "select t.id, t.created_date as col2, t.organization as col3 from department t ";
             query += ") x";
             executeQuery(query, 3);
+
+            query = "select x.id, x.login, x.organization from (select t.id, t.login, d.organization from person t inner join department d on (d.boss = t.id)) x";
+            executeQuery(query, 3);            
             
             //TODO расскомментировать после исполнения 395
             /*List<Filter> filters = new ArrayList<Filter>();

@@ -1,12 +1,23 @@
 package ru.intertrust.cm.core.business.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.transaction.Synchronization;
+import javax.transaction.TransactionSynchronizationRegistry;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.dao.api.extension.OnLoadConfigurationExtensionHandler;
+import ru.intertrust.cm.core.dao.exception.DaoException;
 
 /**
  * Класс, предназначенный для загрузки конфигурации доменных объектов
@@ -17,7 +28,11 @@ public class ConfigurationLoader implements ApplicationContextAware {
 
     @Autowired
     private ConfigurationControlService configurationControlService;
+    
     private ApplicationContext context;
+
+    @Resource
+    private TransactionSynchronizationRegistry txReg;    
     
     private boolean configurationLoaded;
 
@@ -58,7 +73,8 @@ public class ConfigurationLoader implements ApplicationContextAware {
             extension.onLoad();
         }
         
-        configurationLoaded = true;
+        //Установка флага загруженности конфигурации
+        setLoadedFlag();
     }
 
     @Override
@@ -76,4 +92,58 @@ public class ConfigurationLoader implements ApplicationContextAware {
         return configurationLoaded;
     }
 
+    /**
+     * Установка флага доступности конфигурации. 
+     * Флаг устанавливается не сразу, а только после окончания транзакции, иначе созданные таблицы не будут доступны другим потокам
+     */
+    private void setLoadedFlag() {
+        //не обрабатываем вне транзакции
+        if (getTxReg().getTransactionKey() == null) {
+            return;
+        }
+        SetConfigurationLoaded setConfigurationLoaded =
+                (SetConfigurationLoaded) getTxReg().getResource(SetConfigurationLoaded.class);
+        if (setConfigurationLoaded == null) {
+            setConfigurationLoaded = new SetConfigurationLoaded();
+            getTxReg().putResource(SetConfigurationLoaded.class, setConfigurationLoaded);
+            getTxReg().registerInterposedSynchronization(setConfigurationLoaded);
+        }
+    }
+
+    /**
+     * Получение контекта транзакции
+     * @return
+     */
+    private TransactionSynchronizationRegistry getTxReg() {
+        if (txReg == null) {
+            try {
+                txReg =
+                        (TransactionSynchronizationRegistry) new InitialContext()
+                                .lookup("java:comp/TransactionSynchronizationRegistry");
+            } catch (NamingException e) {
+                throw new DaoException(e);
+            }
+        }
+        return txReg;
+    }
+
+    /**
+     * Класс используется для установки флага загруженности конфигурации после окончания транзакции
+     * @author larin
+     *
+     */
+    private class SetConfigurationLoaded implements Synchronization {
+
+        @Override
+        public void afterCompletion(int arg0) {
+            configurationLoaded = true;
+            
+        }
+
+        @Override
+        public void beforeCompletion() {
+        }
+    }
+    
+    
 }
