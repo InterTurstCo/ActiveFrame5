@@ -1,11 +1,9 @@
 package ru.intertrust.cm.core.business.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.annotation.Resource;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.naming.NoInitialContextException;
 import javax.transaction.Synchronization;
 import javax.transaction.TransactionSynchronizationRegistry;
 
@@ -14,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.dao.api.extension.OnLoadConfigurationExtensionHandler;
 import ru.intertrust.cm.core.dao.exception.DaoException;
@@ -98,7 +95,7 @@ public class ConfigurationLoader implements ApplicationContextAware {
      */
     private void setLoadedFlag() {
         //не обрабатываем вне транзакции
-        if (getTxReg().getTransactionKey() == null) {
+        if (getTxReg() == null || getTxReg().getTransactionKey() == null) {
             return;
         }
         SetConfigurationLoaded setConfigurationLoaded =
@@ -120,8 +117,10 @@ public class ConfigurationLoader implements ApplicationContextAware {
                 txReg =
                         (TransactionSynchronizationRegistry) new InitialContext()
                                 .lookup("java:comp/TransactionSynchronizationRegistry");
-            } catch (NamingException e) {
-                throw new DaoException(e);
+            } catch (NoInitialContextException ignoreEx) {
+                //Игнорируем ошибку. Она возникает при тестах, когда контекст не создан
+            }catch(NamingException ex){
+                throw new DaoException("Error get transaction context", ex);
             }
         }
         return txReg;
