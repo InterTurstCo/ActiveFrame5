@@ -25,7 +25,7 @@ public abstract class PluginView implements IsWidget {
     protected static Logger log = Logger.getLogger("PluginView console logger");
 
     private AbsolutePanel actionToolBar;
-    private Widget viewWidget;
+    private VerticalPanel viewWidget;
 
     /**
      * Основной конструктор
@@ -34,52 +34,40 @@ public abstract class PluginView implements IsWidget {
      */
     protected PluginView(Plugin plugin) {
         this.plugin = plugin;
-
     }
 
     public void setVisibleToolbar(final boolean visible) {
-        if (!visible && actionToolBar != null) {
-            actionToolBar.removeFromParent();
-            actionToolBar = null;
-        } else if (visible && actionToolBar == null) {
-            actionToolBar = new AbsolutePanel();
-            actionToolBar.setStyleName("action-bar");
-
-
+        if (visible != (actionToolBar.getParent() != null)) {
+            if (visible) {
+                updateActionToolBar();
+                asWidget().insert(actionToolBar, 0);
+            } else {
+                actionToolBar.removeFromParent();
+            }
         }
-    }
-
-    /**
-     * Строит "Панель действий" плагина
-     *
-     * @return возвращает виджет, отображающий "Панель действий"
-     */
-    protected void initializeActionToolBar() {
-        actionToolBar = new AbsolutePanel();
-        actionToolBar.setStyleName("action-bar");
     }
 
     protected void updateActionToolBar() {
-        AbsolutePanel leftSide = new AbsolutePanel();
-        leftSide.setStyleName("decorated-action-link");
-
-        if (!(plugin instanceof IsActive)) {
+        if (!(plugin instanceof IsActive) || actionToolBar == null) {
             return;
         }
-
         actionToolBar.clear();
         ActivePluginData initialData = plugin.getInitialData();
         if (initialData == null) {
             return;
         }
         List<ActionContext> actionContexts = initialData.getActionContexts();
-        if (actionContexts == null) {
+        if (actionContexts == null || actionContexts.isEmpty()) {
             return;
         }
+        AbsolutePanel leftSide = new AbsolutePanel();
+        leftSide.setStyleName("decorated-action-link");
         for (final ActionContext actionContext : actionContexts) {
             leftSide.add(ComponentHelper.createToolbarBtn(actionContext, plugin, true));
         }
-        actionToolBar.add(leftSide);
+        if (leftSide.getWidgetCount() > 0) {
+            actionToolBar.add(leftSide);
+        }
         final FlowPanel rightSide = new FlowPanel();
         rightSide.setStyleName("action-bar-right-side");
         rightSide.getElement().getStyle().setFloat(Style.Float.RIGHT);
@@ -87,7 +75,9 @@ public abstract class PluginView implements IsWidget {
         for (ActionContext context : actionContexts) {
             rightSide.add(ComponentHelper.createToolbarBtn(context, plugin, false));
         }
-        actionToolBar.add(rightSide);
+        if (rightSide.getWidgetCount() > 0) {
+            actionToolBar.add(rightSide);
+        }
     }
 
     /**
@@ -98,16 +88,15 @@ public abstract class PluginView implements IsWidget {
     protected abstract IsWidget getViewWidget();
 
     @Override
-    public Widget asWidget() {
+    public VerticalPanel asWidget() {
         if (viewWidget != null) {
             return viewWidget;
         }
-
         VerticalPanel panel = new VerticalPanel();
-        if (plugin instanceof IsActive) {
-            initializeActionToolBar();
+        actionToolBar = createToolbar();
+        if (plugin.displayActionToolBar() && (plugin instanceof IsActive)) {
             updateActionToolBar();
-            if (plugin.displayActionToolBar() && actionToolBar.getWidgetCount() > 0) {
+            if (actionToolBar.getWidgetCount() > 0) {
                 panel.add(actionToolBar);
             }
         }
@@ -121,6 +110,12 @@ public abstract class PluginView implements IsWidget {
      */
     public  void onPluginPanelResize(){
 
+    }
+
+    private AbsolutePanel createToolbar() {
+        final AbsolutePanel toolbar = new AbsolutePanel();
+        toolbar.setStyleName("action-bar");
+        return toolbar;
     }
 
     private List<ActionContext> getDefaultSystemContexts() {

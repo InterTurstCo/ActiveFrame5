@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.action.SaveActionData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginMode;
 
 /**
  * @author Denis Mitavskiy
@@ -24,9 +25,8 @@ public class SaveActionHandler extends ActionHandler {
         FormPluginHandler handler = (FormPluginHandler) applicationContext.getBean("form.plugin");
         FormPluginConfig config = new FormPluginConfig(rootDomainObject.getId());
         config.setMode(((SaveActionContext) context).getMode());
-        config.setEditable(true);
         SaveActionData result = new SaveActionData();
-        result.setFormPluginData((FormPluginData) handler.initialize(config));
+        result.setFormPluginData(handler.initialize(config));
         return (T) result;
     }
 }

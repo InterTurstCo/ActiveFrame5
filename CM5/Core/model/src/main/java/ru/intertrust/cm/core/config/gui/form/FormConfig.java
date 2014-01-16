@@ -33,7 +33,7 @@ public class FormConfig implements Dto, TopLevelConfig {
     private MarkupConfig markup;
 
     @Element(name = "widget-config")
-    private ru.intertrust.cm.core.config.gui.form.widget.WidgetConfigurationConfig widgetConfigurationConfig;
+    private WidgetConfigurationConfig widgetConfigurationConfig;
 
     public MarkupConfig getMarkup() {
         return markup;

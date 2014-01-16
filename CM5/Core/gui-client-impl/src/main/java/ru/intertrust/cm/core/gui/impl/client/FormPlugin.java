@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.*;
 
+import java.util.EnumSet;
 import java.util.Map;
 
 /**
@@ -21,8 +22,8 @@ import java.util.Map;
  */
 @ComponentName("form.plugin")
 public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor, PluginPanelSizeChangedEventHandler {
-     private int temporaryWidth;
-     private int temporaryHeight;
+    private int temporaryWidth;
+    private int temporaryHeight;
     // поле для локальной шины событий
     protected EventBus eventBus;
 
@@ -114,7 +115,7 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
     @Override
     public FormPluginMode getFormPluginMode() {
         final FormPluginData data = getInitialData();
-        return data == null ? FormPluginMode.EDITABLE : data.getMode();
+        return data == null ? new FormPluginMode() : data.getMode();
     }
 
     @Override

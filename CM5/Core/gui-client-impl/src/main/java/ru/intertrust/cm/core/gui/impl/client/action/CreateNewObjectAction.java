@@ -13,12 +13,12 @@ import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
 public class CreateNewObjectAction extends Action {
     @Override
     public void execute() {
-        IsDomainObjectEditor currentPlugin = (IsDomainObjectEditor) getPlugin();
-        String domainObjectTypeToCreate = currentPlugin.getRootDomainObject().getTypeName();
+        IsDomainObjectEditor editor = (IsDomainObjectEditor) getPlugin();
+        String domainObjectTypeToCreate = editor.getRootDomainObject().getTypeName();
         FormPluginConfig config = new FormPluginConfig(domainObjectTypeToCreate);
         config.setDomainObjectTypeToCreate(domainObjectTypeToCreate);
-        config.setEditable(true);
-        currentPlugin.replaceForm(config);
+        config.setMode(editor.getFormPluginMode());
+        editor.replaceForm(config);
     }
 
     @Override

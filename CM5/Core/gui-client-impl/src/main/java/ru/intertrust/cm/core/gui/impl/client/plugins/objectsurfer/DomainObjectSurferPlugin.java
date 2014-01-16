@@ -20,9 +20,7 @@ import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.plugin.*;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.logging.Logger;
 
 @ComponentName("domain.object.surfer.plugin")
@@ -92,7 +90,6 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         final FormPluginConfig newConfig = new FormPluginConfig(event.getId());
         final FormPluginData formPluginData = formPlugin.getInitialData();
         newConfig.setMode(formPluginData.getMode());
-        newConfig.setEditable(formPluginData.getFormDisplayData().isEditable());
         newFormPlugin.setConfig(newConfig);
         newFormPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {
             @Override
@@ -140,7 +137,7 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
 
     @Override
     public FormPluginMode getFormPluginMode() {
-        return formPlugin == null ? FormPluginMode.EDITABLE : formPlugin.getFormPluginMode();
+        return formPlugin == null ? new FormPluginMode() : formPlugin.getFormPluginMode();
     }
 
     @Override

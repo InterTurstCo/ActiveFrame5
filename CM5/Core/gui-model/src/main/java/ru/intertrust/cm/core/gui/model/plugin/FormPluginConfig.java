@@ -12,7 +12,6 @@ public class FormPluginConfig extends PluginConfig {
     private Id domainObjectId;
     private String domainObjectTypeToCreate;
     private FormPluginMode mode;
-    private boolean editable;
 
     public FormPluginConfig() {
     }
@@ -42,19 +41,15 @@ public class FormPluginConfig extends PluginConfig {
     }
 
     public FormPluginMode getMode() {
-        return mode == null ? FormPluginMode.EDITABLE : mode;
+        if (mode == null) {
+            mode = new FormPluginMode();
+            mode.updateMode(FormMode.EDITABLE, true);
+        }
+        return mode;
     }
 
     public void setMode(final FormPluginMode mode) {
         this.mode = mode;
-    }
-
-    public boolean isEditable() {
-        return editable;
-    }
-
-    public void setEditable(final boolean editable) {
-        this.editable = editable;
     }
 
     @Override

@@ -33,6 +33,10 @@ public class ActionConfig implements TopLevelConfig {
     @Attribute(name = "toggle", required = false)
     private boolean toggle;
 
+    private int order;
+
+    private boolean rightSide;
+
     @Element(name="action-settings")
     @Convert(ActionSettingsConverter.class)
     private ActionSettings actionSettings;
@@ -92,6 +96,10 @@ public class ActionConfig implements TopLevelConfig {
         return imageUrl;
     }
 
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
     public boolean isToggle() {
         return toggle;
     }
@@ -100,8 +108,20 @@ public class ActionConfig implements TopLevelConfig {
         this.toggle = checked;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public int getOrder() {
+        return (order > 0) ? order : Integer.MAX_VALUE;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
+    }
+
+    public boolean isRightSide() {
+        return rightSide;
+    }
+
+    public void setRightSide(boolean rightSide) {
+        this.rightSide = rightSide;
     }
 
     public ActionSettings getActionSettings() {

@@ -31,7 +31,7 @@ public class SaveActionContext extends ActionContext {
     }
 
     public FormPluginMode getMode() {
-        return mode == null ? FormPluginMode.EDITABLE : mode;
+        return mode;
     }
 
     public void setMode(final FormPluginMode mode) {

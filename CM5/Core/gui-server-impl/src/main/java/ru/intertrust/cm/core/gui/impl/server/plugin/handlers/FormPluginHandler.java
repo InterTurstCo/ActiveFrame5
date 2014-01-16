@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
+import ru.intertrust.cm.core.gui.model.plugin.FormMode;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginMode;
@@ -31,7 +32,6 @@ public class FormPluginHandler extends ActivePluginHandler {
         String domainObjectToCreate = config.getDomainObjectTypeToCreate();
         FormDisplayData form = domainObjectToCreate != null ? guiService.getForm(domainObjectToCreate)
                 : guiService.getForm(config.getDomainObjectId());
-        form.setEditable(config.isEditable());
         FormPluginData pluginData = new FormPluginData();
         pluginData.setFormDisplayData(form);
         pluginData.setMode(config.getMode());
@@ -40,7 +40,7 @@ public class FormPluginHandler extends ActivePluginHandler {
     }
 
     public List<ActionContext> getActions(FormPluginConfig config)  {
-        final List<ActionContext> actions = getActionContexts(config.getMode(), config.isEditable());
+        final List<ActionContext> actions = getActionContexts(config.getMode());
 
         final List<ActionContext> otherActions;
         if (config.getDomainObjectId() != null){
@@ -55,10 +55,25 @@ public class FormPluginHandler extends ActivePluginHandler {
         return actions;
     }
 
-    private static List<ActionContext> getActionContexts(final FormPluginMode mode, final boolean isEditable) {
+    private static List<ActionContext> getActionContexts(final FormPluginMode mode) {
         final List<ActionContext> contexts = new ArrayList<>();
-        switch (mode) {
-            case EDITABLE:
+        if (mode.hasMode(FormMode.TOGGLE_EDIT)) {
+            if (mode.hasMode(FormMode.EDITABLE)) {
+                contexts.add(new SaveActionContext(createActionConfig(
+                        "save.action", "save.action", "Сохранить", "icons/ico-save.gif")));
+                contexts.add(new ActionContext(createActionConfig("cancel.edit.action",
+                        "cancel.edit.action", "Завершить редактирование", "icons/ico-edit-close.png")));
+            } else {
+                contexts.add(new ActionContext(createActionConfig(
+                        "create.new.object.action", "create.new.object.action",
+                        "Создать новый", "icons/icon-create.png")));
+                contexts.add(new ActionContext(createActionConfig(
+                        "edit.action", "edit.action", "Редактировать", "icons/icon-edit.png")));
+                contexts.add(new SaveActionContext(createActionConfig(
+                        "delete.action", "delete.action", "Удалить", "icons/ico-delete.gif")));
+            }
+
+        } else {
                 contexts.add(new ActionContext(createActionConfig("create.new.object.action",
                         "create.new.object.action", "Создать новый", "icons/icon-create.png")));
                 contexts.add(new SaveActionContext(createActionConfig(
@@ -68,23 +83,6 @@ public class FormPluginHandler extends ActivePluginHandler {
 // Временно убрано из отображения
 //                contexts.add(new SaveToCSVContext(createActionConfig(
 //                        "save-csv.action", "save-csv.action", "Выгрузить в CSV", "icons/icon-edit.png")));
-                break;
-            case TOGGLE_EDIT:
-                if (isEditable) {
-                    contexts.add(new SaveActionContext(createActionConfig(
-                            "save.action", "save.action", "Сохранить", "icons/ico-save.gif")));
-                    contexts.add(new ActionContext(createActionConfig("cancel.edit.action",
-                            "cancel.edit.action", "Завершить редактирование", "icons/ico-edit-close.png")));
-                } else {
-                    contexts.add(new ActionContext(createActionConfig(
-                            "create.new.object.action", "create.new.object.action",
-                            "Создать новый", "icons/icon-create.png")));
-                    contexts.add(new ActionContext(createActionConfig(
-                            "edit.action", "edit.action", "Редактировать", "icons/icon-edit.png")));
-                    contexts.add(new SaveActionContext(createActionConfig(
-                            "delete.action", "delete.action", "Удалить", "icons/ico-delete.gif")));
-                }
-                break;
         }
         return contexts;
     }

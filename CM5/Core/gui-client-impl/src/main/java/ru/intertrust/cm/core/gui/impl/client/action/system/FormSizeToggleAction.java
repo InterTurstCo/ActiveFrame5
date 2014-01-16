@@ -27,6 +27,7 @@ public class FormSizeToggleAction extends ToggleAction {
         }
         final Plugin formPlugin = ((DomainObjectSurferPlugin) dosPlugin).getFormPlugin();
         if (fullScreenMode) {
+            formPlugin.getView().setVisibleToolbar(false);
 //            dosPlugin.getOwner().closeCurrentPlugin();
         } else {
             final RootLayoutPanel rootLayout = RootLayoutPanel.get();
@@ -36,6 +37,7 @@ public class FormSizeToggleAction extends ToggleAction {
             wrapper.getElement().getStyle().setPosition(Style.Position.ABSOLUTE);
             wrapper.getElement().getStyle().setPadding(10, Style.Unit.PX);
             final Widget formWidget = formPlugin.getOwner().asWidget();
+            formPlugin.getView().setVisibleToolbar(true);
             final Animation formAnimation =
                     new FormSizeAnimation(wrapper, formWidget.getAbsoluteLeft(), formWidget.getAbsoluteTop());
             formWidget.removeFromParent();

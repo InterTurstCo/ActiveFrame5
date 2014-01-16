@@ -30,18 +30,20 @@ public class FormPanel implements IsWidget {
     private boolean isHeightFromConfig;
     private boolean isWidthFromConfig;
     private List<TabConfig> tabs;
+    private final boolean editable;
 
-    public FormPanel(FormDisplayData formDisplayData, int width, int height) {
-        this(formDisplayData);
+    public FormPanel(FormDisplayData formDisplayData, final boolean editable, int width, int height) {
+        this(formDisplayData, editable);
         formWidth = width;
         formHeight = height;
 
     }
 
-    public FormPanel(FormDisplayData formDisplayData) {
+    public FormPanel(FormDisplayData formDisplayData, final boolean editable) {
+        this.formDisplayData = formDisplayData;
+        this.editable = editable;
         panel = new FlowPanel();
         panel.getElement().setId("frm-pnl");
-        this.formDisplayData = formDisplayData;
         widgets = new ArrayList<BaseWidget>(formDisplayData.getFormState().getFullWidgetsState().size());
 
     }
@@ -218,7 +220,6 @@ public class FormPanel implements IsWidget {
             int colIndex = 0;
             String rowHeight = row.getHeight();
             FormState formState = formDisplayData.getFormState();
-            boolean formEditable = formDisplayData.isEditable();
 
             for (CellConfig cell : cells) {
                 WidgetDisplayConfig displayConfig = cell.getWidgetDisplayConfig();
@@ -228,7 +229,7 @@ public class FormPanel implements IsWidget {
                 }
                 String widgetComponent = formDisplayData.getWidgetComponent(displayConfig.getId());
                 BaseWidget widget = ComponentRegistry.instance.get(widgetComponent);
-                widget.setEditable(formEditable && widgetState.isEditable());
+                widget.setEditable(editable && widgetState.isEditable());
                 widget.setDisplayConfig(displayConfig);
                 widget.setState(widgetState);
                 widgets.add(widget);

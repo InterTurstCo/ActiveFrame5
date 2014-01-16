@@ -2,6 +2,8 @@ package ru.intertrust.cm.core.gui.model.plugin;
 
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 
+import java.util.EnumSet;
+
 /**
  * @author Denis Mitavskiy
  *         Date: 23.08.13
@@ -27,7 +29,7 @@ public class FormPluginData extends ActivePluginData {
     }
 
     public FormPluginMode getMode() {
-        return mode == null ? FormPluginMode.EDITABLE : mode;
+        return mode;
     }
 
     public void setMode(final FormPluginMode mode) {

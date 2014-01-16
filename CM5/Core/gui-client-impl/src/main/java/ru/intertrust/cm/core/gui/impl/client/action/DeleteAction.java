@@ -12,7 +12,6 @@ import ru.intertrust.cm.core.gui.model.action.DeleteActionData;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginMode;
 import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
 
 import java.util.List;
@@ -63,7 +62,6 @@ public class DeleteAction extends SimpleServerAction {
                 config = new FormPluginConfig(selected.get(0));
             }
             config.setMode(editor.getFormPluginMode());
-            config.setEditable(FormPluginMode.EDITABLE == editor.getFormPluginMode());
             editor.replaceForm(config);
             Window.alert("Строка удалена!!!");
         }

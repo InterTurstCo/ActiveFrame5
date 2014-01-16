@@ -29,10 +29,6 @@ public class ListBoxWidget extends BaseWidget {
     }
 
     public void setCurrentState(WidgetState currentState) {
-        ListBoxState state = (ListBoxState) currentState;
-        boolean singleChoice = state.isSingleChoice();
-        ListBox listBox = (ListBox)impl;
-        listBox.setMultipleSelect(singleChoice);
         idMap = getStateHandler().setState(impl, (ListBoxState) currentState);
     }
 
@@ -108,6 +104,8 @@ public class ListBoxWidget extends BaseWidget {
 
         @Override
         public HashMap<String, Id> setState(final ListBox listBox, final ListBoxState state) {
+            boolean singleChoice = state.isSingleChoice();
+            listBox.setMultipleSelect(singleChoice);
             final HashSet<Id> selectedIdsSet = state.getSelectedIdsSet();
             final LinkedHashMap<Id,String> listValues = state.getListValues();
 

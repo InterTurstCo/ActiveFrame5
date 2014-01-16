@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client.action;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.plugin.FormMode;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
 
@@ -22,7 +23,8 @@ public class EditAction extends Action {
         } else {
             config = new FormPluginConfig(id);
         }
-        config.setEditable(true);
+        config.setMode(editor.getFormPluginMode());
+        config.getMode().updateMode(FormMode.EDITABLE, true);
         editor.replaceForm(config);
     }
 
