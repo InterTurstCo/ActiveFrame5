@@ -471,6 +471,11 @@ public class CollectionPluginView extends PluginView {
         });
         tableHeader.addColumn(checkColumn, "");
         tableBody.addColumn(checkColumn);
+        int numberOfColumns = 1 + domainObjectFieldsOnColumnNamesMap.keySet().size();
+        int columnWidth = (tableWidth / numberOfColumns);
+        columnWidth = columnMinWidth(columnWidth);
+        tableHeader.setColumnWidth(checkColumn, columnWidth + "px");
+        tableBody.setColumnWidth(checkColumn, columnWidth + "px");
         createTableColumnsWithoutCheckBoxes(domainObjectFieldsOnColumnNamesMap, 1);
 
     }

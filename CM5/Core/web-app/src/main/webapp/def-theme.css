@@ -792,11 +792,11 @@ td .gwt-SuggestBox {
     background-size: auto auto;
     cursor: pointer;
     display: inline-block;
-    height: 16px;
+    height: 15px;
     padding: 0 !important;
     position: relative;
-    margin-top: 1px;
-    width: 16px;
+
+    width: 15px;
 }
 .facebook-element .facebook-btn:hover{
     background-position: -16px 0;
