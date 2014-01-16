@@ -81,7 +81,9 @@ public class FormPanel implements IsWidget {
             panel.add(headerTable);
         }
         buildTabs(markup);
+        if (formWidth != 0 ) {
         panel.setWidth(formWidth-20 + "px");
+        }
         bodyTabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
             @Override
             public void onSelection(SelectionEvent<Integer> event) {

@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 import ru.intertrust.cm.core.gui.model.form.widget.NodeContentRequest;
 import ru.intertrust.cm.core.gui.model.form.widget.NodeContentResponse;
+import ru.intertrust.cm.core.gui.model.form.widget.NodeMetadata;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.ArrayList;
@@ -35,15 +36,15 @@ public class RedrawNodeContentWithMoreItemsContentManager extends RedrawNodeCont
     public void fetchNodeContent() {
         NodeContentRequest nodeContentRequest = prepareRequestDataForNodeRedraw();
         nodeContentRequest.setOffset(offset);
-        nodeContentRequest.setId(parentId);
+        nodeContentRequest.getNodeMetadata().setParentId(parentId);
         Command command = new Command("fetchNodeContent", "hierarchy-browser", nodeContentRequest);
         BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onSuccess(Dto result) {
                 NodeContentResponse nodeContent = (NodeContentResponse) result;
                 List<HierarchyBrowserItem> items = nodeContent.getNodeContent();
-                String nodeType = nodeContent.getNodeType();
-                mainPopup.redrawNodeWithMoreItems(items, nodeType);
+                NodeMetadata nodeMetadata = nodeContent.getNodeMetadata();
+                mainPopup.redrawNodeWithMoreItems(items, nodeMetadata);
 
             }
 

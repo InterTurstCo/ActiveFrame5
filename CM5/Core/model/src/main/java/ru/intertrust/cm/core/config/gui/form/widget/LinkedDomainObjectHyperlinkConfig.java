@@ -83,6 +83,6 @@ public class LinkedDomainObjectHyperlinkConfig extends WidgetConfig {
 
     @Override
     public String getComponentName() {
-        return "";  //To change body of implemented methods use File | Settings | File Templates.
+        return "linked-domain-object-hyperlink";
     }
 }

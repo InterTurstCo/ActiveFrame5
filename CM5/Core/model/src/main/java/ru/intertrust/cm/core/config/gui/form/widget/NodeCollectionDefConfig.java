@@ -21,6 +21,9 @@ public class NodeCollectionDefConfig implements Dto {
     @Attribute(name = "selective", required = false)
     private boolean selective = true;
 
+    @Attribute(name = "domain-object-type")
+    private String domainObjectType;
+
     @Element(name = "selection-pattern", required = false)
     private SelectionPatternConfig selectionPatternConfig;
 
@@ -78,6 +81,14 @@ public class NodeCollectionDefConfig implements Dto {
         this.parentFilter = parentFilter;
     }
 
+    public String getDomainObjectType() {
+        return domainObjectType;
+    }
+
+    public void setDomainObjectType(String domainObjectType) {
+        this.domainObjectType = domainObjectType;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -111,6 +122,9 @@ public class NodeCollectionDefConfig implements Dto {
         if (selective != that.selective) {
             return false;
         }
+        if (domainObjectType != null ? !domainObjectType.equals(that.domainObjectType) : that.domainObjectType != null) {
+            return false;
+        }
 
         return true;
     }
@@ -123,6 +137,7 @@ public class NodeCollectionDefConfig implements Dto {
         result = 31 * result + (parentFilter != null ? parentFilter.hashCode() : 0);
         result = 31 * result + (collection != null ? collection.hashCode() : 0);
         result = 31 * result +(selective ? 1 : 0);
+        result = 31 * result + (domainObjectType != null ? domainObjectType.hashCode() : 0);
         return result;
     }
 }

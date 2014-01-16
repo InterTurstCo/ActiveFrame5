@@ -4,17 +4,20 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.FormDialogBox;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserWidgetState;
+import ru.intertrust.cm.core.gui.model.form.widget.NodeMetadata;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 
 import java.util.ArrayList;
 
@@ -26,11 +29,9 @@ import java.util.ArrayList;
 @ComponentName("hierarchy-browser")
 public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrowserCheckBoxUpdateEventHandler,
         HierarchyBrowserItemClickEventHandler, HierarchyBrowserNodeClickEventHandler,
-        HierarchyBrowserRefreshClickEventHandler, HierarchyBrowserSearchClickEventHandler, HierarchyBrowserScrollEventHandler {
+        HierarchyBrowserRefreshClickEventHandler, HierarchyBrowserSearchClickEventHandler, HierarchyBrowserScrollEventHandler, HierarchyBrowserAddItemClickEventHandler {
     private HierarchyBrowserConfig config;
     private HierarchyBrowserMainPopup mainPopup;
-    private int popupWidth;
-    private int popupHeight;
     private EventBus eventBus = new SimpleEventBus();
     private boolean singleChoice;
 
@@ -50,8 +51,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         final ArrayList<Id> chosenIds = state.getIds();
         final int widgetWidth = getSizeFromString(displayConfig.getWidth());
         final int widgetHeight = getSizeFromString(displayConfig.getHeight());
-        popupWidth = (int) (0.7 * widgetWidth);
-        popupHeight = (int) (0.7 * widgetHeight / 2);
+
         singleChoice = state.isSingleChoice();
         view.setChosenItems(chosenItems);
         view.displayBaseWidget(widgetWidth, widgetHeight);
@@ -106,6 +106,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         eventBus.addHandler(HierarchyBrowserNodeClickEvent.TYPE, this);
         eventBus.addHandler(HierarchyBrowserRefreshClickEvent.TYPE, this);
         eventBus.addHandler(HierarchyBrowserItemClickEvent.TYPE, this);
+        eventBus.addHandler(HierarchyBrowserAddItemClickEvent.TYPE, this);
         eventBus.addHandler(HierarchyBrowserSearchClickEvent.TYPE, this);
         eventBus.addHandler(HierarchyBrowserScrollEvent.TYPE, this);
     }
@@ -129,19 +130,55 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
     @Override
     public void onHierarchyBrowserItemClick(HierarchyBrowserItemClickEvent event) {
-        String collectionName = event.getCollectionName();
-        PopupPanel popup = new PopupPanel();
-        popup.setModal(true);
-        popup.setSize(popupWidth + "px", popupHeight + "px");
-        popup.getElement().getStyle().setZIndex(10);
-        AbsolutePanel panel = new AbsolutePanel();
-        Label label = new Label(collectionName);
-        panel.add(label);
-        AbsolutePanel popupButtons = createFooterButtonPanel(popup);
-        panel.add(popupButtons);
-        popup.add(panel);
-        popup.center();
+        Id id = event.getItemId();
+        NodeMetadata nodeMetadata = event.getMetadata();
+        final String title = nodeMetadata.getDomainObjectType();
+        final FormPluginConfig config = new FormPluginConfig();
+        config.setDomainObjectId(id);
+        config.setEditable(false);
+        final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(title);
+        noneEditableFormDialogBox.initFormPlugin(config);
+        noneEditableFormDialogBox.initButton("Открыть в полном окне", new ClickHandler() {
+
+            @Override
+            public void onClick(ClickEvent event) {
+                //To change body of implemented methods use File | Settings | File Templates.
+            }
+        });
+        noneEditableFormDialogBox.initButton("Изменить", new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+
+                noneEditableFormDialogBox.hide();
+                config.setEditable(true);
+                final FormDialogBox editableFormDialogBox =
+                        new FormDialogBox("Редактирование " + title);
+
+                editableFormDialogBox.initButton("Изменить", new ClickHandler() {
+                    @Override
+                    public void onClick(ClickEvent event) {
+                                    /*ActionContext ctx;
+                            final Action action = ComponentRegistry.instance.get(ctx.getActionConfig().getComponent());
+                            action.setInitialContext(ctx);
+                            action.execute();*/
+                    }
+                });
+                editableFormDialogBox.initButton("Отмена", new ClickHandler() {
+                    @Override
+                    public void onClick(ClickEvent event) {
+
+                        editableFormDialogBox.hide();
+                        config.setEditable(false);
+                    }
+                });
+                editableFormDialogBox.initFormPlugin(config);
+            }
+
+        });
+        noneEditableFormDialogBox.initFormPlugin(config);
+
     }
+
 
     @Override
     public void onHierarchyBrowserNodeClick(HierarchyBrowserNodeClickEvent event) {
@@ -156,8 +193,9 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
     @Override
     public void onHierarchyBrowserRefreshClick(HierarchyBrowserRefreshClickEvent event) {
-        String collectionName = event.getCollectionName();
-        Id parentId = event.getParentId();
+        NodeMetadata nodeMetadata = event.getNodeMetadata();
+        String collectionName = nodeMetadata.getCollectionName();
+        Id parentId = nodeMetadata.getParentId();
         HierarchyBrowserWidgetState state = (HierarchyBrowserWidgetState) getCurrentState();
         ArrayList<Id> chosenIds = state.getIds();
         NodeContentManager nodeContentManager = new RedrawNodeContentWithNewItemContentManager(config,
@@ -167,8 +205,9 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
     @Override
     public void onHierarchyBrowserSearchClick(HierarchyBrowserSearchClickEvent event) {
-        String collectionName = event.getCollectionName();
-        Id parentId = event.getParentId();
+        NodeMetadata nodeMetadata = event.getNodeMetadata();
+        String collectionName = nodeMetadata.getCollectionName();
+        Id parentId = nodeMetadata.getParentId();
         String inputText = event.getInputText();
         HierarchyBrowserWidgetState state = (HierarchyBrowserWidgetState) getCurrentState();
         ArrayList<Id> chosenIds = state.getIds();
@@ -179,8 +218,9 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
     @Override
     public void onHierarchyBrowserScroll(HierarchyBrowserScrollEvent event) {
-        String collectionName = event.getCollectionName();
-        Id parentId = event.getParentId();
+        NodeMetadata nodeMetadata = event.getNodeMetadata();
+        String collectionName = nodeMetadata.getCollectionName();
+        Id parentId = nodeMetadata.getParentId();
         int factor = event.getFactor();
         int offset = factor * config.getPageSize();
         String inputText = event.getInputText();
@@ -191,26 +231,27 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         nodeContentManager.fetchNodeContent();
     }
 
-    private AbsolutePanel createFooterButtonPanel(final PopupPanel popup) {
-        AbsolutePanel panel = new AbsolutePanel();
-        Button okButton = new Button("OK");
-        okButton.addClickHandler(new ClickHandler() {
+    @Override
+    public void onHierarchyBrowserAddItemClick(HierarchyBrowserAddItemClickEvent event) {
+        NodeMetadata nodeMetadata = event.getMetadata();
+        String domainObjectTypeToCreate = nodeMetadata.getDomainObjectType();
+        String title = "Создать " + nodeMetadata.getDomainObjectType();
+        FormPluginConfig config = new FormPluginConfig();
+        config.setDomainObjectTypeToCreate(domainObjectTypeToCreate);
+        config.setEditable(true);
+        final FormDialogBox createItemDialogBox = new FormDialogBox(title);
+        createItemDialogBox.initFormPlugin(config);
+        createItemDialogBox.initButton("Cохранить", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                popup.hide();
-
+                //To change body of implemented methods use File | Settings | File Templates.
             }
         });
-        Button cancelButton = new Button("CANCEL");
-        cancelButton.addClickHandler(new ClickHandler() {
+        createItemDialogBox.initButton("Отмена", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                popup.hide();
+                createItemDialogBox.hide();
             }
         });
-        panel.add(okButton);
-        panel.add(cancelButton);
-        return panel;
     }
-
 }

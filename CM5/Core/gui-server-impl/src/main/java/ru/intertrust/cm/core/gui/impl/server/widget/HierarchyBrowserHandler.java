@@ -10,10 +10,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
-import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserWidgetState;
-import ru.intertrust.cm.core.gui.model.form.widget.NodeContentRequest;
-import ru.intertrust.cm.core.gui.model.form.widget.NodeContentResponse;
+import ru.intertrust.cm.core.gui.model.form.widget.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,7 +79,8 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
 
     public NodeContentResponse fetchNodeContent(Dto inputParams) {
         NodeContentRequest nodeContentRequest = (NodeContentRequest) inputParams;
-        String collectionName = nodeContentRequest.getCollectionName();
+        NodeMetadata metadata = nodeContentRequest.getNodeMetadata();
+        String collectionName = metadata.getCollectionName();
         Pattern pattern = createDefaultRegexPattern();
         Matcher selectionMatcher = pattern.matcher(nodeContentRequest.getSelectionPattern());
         int numberOfItems = nodeContentRequest.getNumberOfItemsToDisplay();
@@ -90,7 +88,8 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         ArrayList<Id> chosenIds = nodeContentRequest.getChosenIds();
         ArrayList<HierarchyBrowserItem> items = new ArrayList<HierarchyBrowserItem>();
         List<Filter> filters = new ArrayList<Filter>();
-        if (nodeContentRequest.getId() != null) {
+        Id parentId = metadata.getParentId();
+        if (parentId != null) {
             filters = addParentFilter(nodeContentRequest, filters);
         }
         String inputText = nodeContentRequest.getInputText();
@@ -99,6 +98,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         }
         IdentifiableObjectCollection collection = collectionsService.
                 findCollection(collectionName, null, filters, offset, numberOfItems);
+
         for (IdentifiableObject identifiableObject : collection) {
             HierarchyBrowserItem item = new HierarchyBrowserItem();
             Id id = identifiableObject.getId();
@@ -113,8 +113,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         }
         NodeContentResponse nodeContent = new NodeContentResponse();
         nodeContent.setNodeContent(items);
-        nodeContent.setNodeType(collectionName);
-        nodeContent.setParentId(nodeContentRequest.getId());
+        nodeContent.setNodeMetadata(metadata);
         nodeContent.setSelective(nodeContentRequest.isSelective());
         return nodeContent;
     }
@@ -124,7 +123,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
     }
 
     private List<Filter> addParentFilter(NodeContentRequest nodeContentRequest, List<Filter> filters) {
-        Id nodeId = nodeContentRequest.getId();
+        Id nodeId = nodeContentRequest.getNodeMetadata().getParentId();
         String filterName = nodeContentRequest.getParentFilterName();
         Filter parentFilter = new Filter();
         parentFilter.setFilter(filterName);
@@ -160,4 +159,5 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         NodeCollectionDefConfig childNodeConfig = nodeConfig.getNodeCollectionDefConfig();
         return getCollectionsNames(childNodeConfig, collectionNames);
     }
+
 }

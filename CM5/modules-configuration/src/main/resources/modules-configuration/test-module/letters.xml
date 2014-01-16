@@ -121,18 +121,18 @@
                 <!-- Определение списка/таблицы, выпадающего при раскрытии узла -->
                 <!-- Уже выбранные элементы показываются помеченными галочками -->
                 <!-- collection - название коллекции для отображения списка значений узла -->
-                <node-collection-def collection="Organizations" >
+                <node-collection-def collection="Organizations" domain-object-type="Organization">
                     <!-- название фильтра по тексту, введённому пользователем -->
                     <input-text-filter name="byName"/>
                     <!-- паттерн отображения уже выбранных значений -->
                     <selection-pattern value="{name}"/>
-                    <node-collection-def collection="Departments" parent-filter="byOrganization">
+                    <node-collection-def collection="Departments" parent-filter="byOrganization" domain-object-type="Department">
                         <!-- название фильтра по тексту, введённому пользователем -->
                         <input-text-filter name="byName"/>
                         <!-- паттерн отображения уже выбранных значений -->
                         <selection-pattern value="{name}"/>
                         <!-- путь к узлу верхнего уровня (относительно пути этого узла) от узла данного уровня -->
-                        <node-collection-def collection="Employees" parent-filter="byDepartment">
+                        <node-collection-def collection="Employees" parent-filter="byDepartment" domain-object-type="Employee">
                             <!-- название фильтра по тексту, введённому пользователем -->
                             <input-text-filter name="byNameAndPosition"/>
                             <!-- паттерн отображения уже выбранных значений -->
@@ -243,6 +243,9 @@
                                     <td h-align="left">
                                         <widget id="Organization"/>
                                     </td>
+                                    <td h-align="left">
+                                        <widget id="hyperlink"/>
+                                    </td>
                                 </tr>
                             </table>
                         </tab-group>
@@ -266,6 +269,11 @@
                 <field-path value="Organization"/>
                 <pattern value="{Name}"/>
             </combo-box>
+            <linked-domain-object-hyperlink id="hyperlink"> <!-- для единичного связанного объекта -->
+                <field-path value="organization"/> <!-- для связанных объектов field-path обязательно должен ссылаться на поле типа reference -->
+                <linked-form name="organization_default_form"/> <!-- форма, открывающаяся в модальном окне при нажатии на гиперссылку -->
+                <pattern value="{name}"/> <!-- в паттерне ссылки задаются относительно field-path -->
+            </linked-domain-object-hyperlink>
         </widget-config>
     </form>
 
@@ -297,4 +305,5 @@
             </text-box>
         </widget-config>
     </form>
+
 </configuration>

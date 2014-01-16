@@ -23,7 +23,7 @@
     text-shadow: none;
     background: #54b5df;
     background: -moz-linear-gradient(top, #54b5df 0%, #135ea1 50%, #3177b2 51%, #353f86 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #54b5df), color-stop(50%, #135ea1), color-stop(51%, #3177b2), color-stop(100%, #353f86));
+
     background: -webkit-linear-gradient(top, #54b5df 0%, #135ea1 50%, #3177b2 51%, #353f86 100%);
     background: -o-linear-gradient(top, #54b5df 0%, #135ea1 50%, #3177b2 51%, #353f86 100%);
     background: -ms-linear-gradient(top, #54b5df 0%, #135ea1 50%, #3177b2 51%, #353f86 100%);
@@ -47,7 +47,7 @@
     text-shadow: none;
     background: #54b5df;
     background: -moz-linear-gradient(top, #54b5df 0%, #135ea1 50%, #353f86 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #54b5df),	 color-stop(50%, #135ea1), color-stop(100%, #353f86));
+
     background: -webkit-linear-gradient(top, #54b5df 0%, #135ea1 50%,	 #353f86 100%);
     background: -o-linear-gradient(top, #54b5df 0%, #135ea1 50%,	 #353f86 100%);
     background: -ms-linear-gradient(top, #54b5df 0%, #135ea1 50%, #353f86 100%);
@@ -86,4 +86,20 @@
     margin-top: 30px;
     margin-left: 10px;
     font-family: Arial, sans-serif;
+}
+.form-dialog-box-content{
+    display: inline-block;
+
+    width: 512px;
+}
+.form-buttons-panel{
+    padding-bottom: 5px;
+    margin-left: 10px;
+    margin-top: 5px;
+}
+.form-header-message {
+
+    margin:auto;
+    font-family: Arial, sans-serif;
+    color: white;
 }

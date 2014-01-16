@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
 import ru.intertrust.cm.core.gui.model.form.widget.NodeContentRequest;
+import ru.intertrust.cm.core.gui.model.form.widget.NodeMetadata;
 
 import java.util.ArrayList;
 
@@ -27,7 +28,10 @@ public abstract class NodeContentManager {
         NodeContentRequest nodeContentRequest = new NodeContentRequest();
         nodeContentRequest.setSelectionPattern(nodeConfig.getSelectionPatternConfig().getValue());
         nodeContentRequest.setNumberOfItemsToDisplay(config.getPageSize());
-        nodeContentRequest.setCollectionName(nodeConfig.getCollection());
+        NodeMetadata nodeMetadata = new NodeMetadata();
+        nodeMetadata.setCollectionName(nodeConfig.getCollection());
+        nodeMetadata.setDomainObjectType(nodeConfig.getDomainObjectType());
+        nodeContentRequest.setNodeMetadata(nodeMetadata);
         nodeContentRequest.setInputTextFilterName(nodeConfig.getInputTextFilterConfig().getName());
         nodeContentRequest.setParentFilterName(nodeConfig.getParentFilter());
         nodeContentRequest.setChosenIds(chosenIds);

@@ -355,18 +355,18 @@
                 <!-- Определение списка/таблицы, выпадающего при раскрытии узла -->
                 <!-- Уже выбранные элементы показываются помеченными галочками -->
                 <!-- collection - название коллекции для отображения списка значений узла -->
-                <node-collection-def collection="Organizations">
+                <node-collection-def collection="Organizations" domain-object-type="Organization">
                     <!-- название фильтра по тексту, введённому пользователем -->
                     <input-text-filter name="byName"/>
                     <!-- паттерн отображения уже выбранных значений -->
                     <selection-pattern value="{name}"/>
-                    <node-collection-def collection="Departments" parent-filter="byOrganization">
+                    <node-collection-def collection="Departments" parent-filter="byOrganization" domain-object-type="Department">
                         <!-- название фильтра по тексту, введённому пользователем -->
                         <input-text-filter name="byName"/>
                         <!-- паттерн отображения уже выбранных значений -->
                         <selection-pattern value="{name}"/>
                         <!-- путь к узлу верхнего уровня (относительно пути этого узла) от узла данного уровня -->
-                        <node-collection-def collection="Employees" parent-filter="byDepartment">
+                        <node-collection-def collection="Employees" parent-filter="byDepartment" domain-object-type="Employee">
                             <!-- название фильтра по тексту, введённому пользователем -->
                             <input-text-filter name="byLastNameAndName"/>
                             <!-- паттерн отображения уже выбранных значений -->

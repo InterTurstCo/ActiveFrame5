@@ -5,8 +5,8 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.*;
-import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
+import ru.intertrust.cm.core.gui.model.form.widget.NodeMetadata;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -147,8 +147,8 @@ public class HierarchyBrowserMainPopup {
         return buttonsPanel;
     }
 
-    public void drawNewNode(List<HierarchyBrowserItem> items, String nodeType, Id parentId, boolean selective) {
-
+    public void drawNewNode(List<HierarchyBrowserItem> items, NodeMetadata nodeMetadata, boolean selective) {
+            String nodeType = nodeMetadata.getDomainObjectType();
         if (containerMap.containsKey(nodeType)) {
             nodesSection.remove(containerMap.get(nodeType));
         }
@@ -162,28 +162,30 @@ public class HierarchyBrowserMainPopup {
             }
         }
         HierarchyBrowserNodeView nodeView = new HierarchyBrowserNodeView(eventBus, nodeHeight,
-                parentId, selective, items);
+               selective);
         nodeView.asWidget().setWidth("100%");
         nodesSection.add(nodeView);
-        nodeView.drawNode(nodeType);
+        nodeView.drawNode(items,nodeMetadata);
         containerMap.put(nodeType, nodeView);
 
     }
 
-    public void redrawNodeWithMoreItems(List<HierarchyBrowserItem> items, String nodeType) {
+    public void redrawNodeWithMoreItems(List<HierarchyBrowserItem> items, NodeMetadata nodeMetadata) {
+        String nodeType = nodeMetadata.getDomainObjectType();
         HierarchyBrowserNodeView nodeView = containerMap.get(nodeType);
-        nodeView.drawMoreItems(items);
+        nodeView.drawMoreItems(items, nodeMetadata);
 
     }
 
-    public void redrawNode(List<HierarchyBrowserItem> items, String nodeType) {
+    public void redrawNode(List<HierarchyBrowserItem> items, NodeMetadata nodeMetadata) {
+        String nodeType = nodeMetadata.getDomainObjectType();
         int index = nodeTypes.indexOf(nodeType);
         List<String> children = nodeTypes.subList(index + 1, nodeTypes.size());
         for (String childType : children) {
             nodesSection.remove(containerMap.get(childType));
         }
         HierarchyBrowserNodeView nodeView = containerMap.get(nodeType);
-        nodeView.redrawNode(items);
+        nodeView.redrawNode(items, nodeMetadata);
     }
 
     public void addOkClickHandler(ClickHandler openButtonClickHandler) {

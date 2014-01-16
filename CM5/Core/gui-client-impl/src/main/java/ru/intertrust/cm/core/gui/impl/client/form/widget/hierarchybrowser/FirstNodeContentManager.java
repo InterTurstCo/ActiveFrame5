@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 import ru.intertrust.cm.core.gui.model.form.widget.NodeContentRequest;
 import ru.intertrust.cm.core.gui.model.form.widget.NodeContentResponse;
+import ru.intertrust.cm.core.gui.model.form.widget.NodeMetadata;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.ArrayList;
@@ -40,10 +41,9 @@ public class FirstNodeContentManager extends NodeContentManager {
             public void onSuccess(Dto result) {
                 NodeContentResponse nodeContent = (NodeContentResponse) result;
                 List<HierarchyBrowserItem> items = nodeContent.getNodeContent();
-                String nodeType = nodeContent.getNodeType();
-                Id parentId = nodeContent.getParentId();
+                NodeMetadata nodeMetadata = nodeContent.getNodeMetadata();
                 boolean selective = nodeContent.isSelective();
-                mainPopup.drawNewNode(items, nodeType, parentId, selective);
+                mainPopup.drawNewNode(items, nodeMetadata, selective);
 
             }
 

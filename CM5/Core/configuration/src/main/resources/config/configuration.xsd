@@ -1340,7 +1340,8 @@
         </xs:sequence>
         <xs:attribute type="xs:string" name="collection" use="optional"/>
         <xs:attribute type="xs:string" name="parent-filter" use="optional"/>
-        <xs:attribute type="xs:string" name="selective"  default="true"/>
+        <xs:attribute type="xs:boolean" name="selective"  default="true"/>
+        <xs:attribute type="xs:string" name="domain-object-type"/>
     </xs:complexType>
 
     <!-- Attachment box definitions -->

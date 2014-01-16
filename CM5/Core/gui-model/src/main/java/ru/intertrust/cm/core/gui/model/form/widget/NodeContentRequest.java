@@ -11,23 +11,23 @@ import java.util.ArrayList;
  *         Time: 13:15
  */
 public class NodeContentRequest implements Dto {
-    private Id id;
+    private NodeMetadata nodeMetadata;
     private String parentFilterName;
     private String selectionPattern;
-    private String collectionName;
+
     private String inputTextFilterName;
     private int numberOfItemsToDisplay;
     private int offset;
     private String inputText;
     private boolean selective = true;
-
     private ArrayList<Id> chosenIds = new ArrayList<Id>();
-    public Id getId() {
-        return id;
+
+    public NodeMetadata getNodeMetadata() {
+        return nodeMetadata;
     }
 
-    public void setId(Id id) {
-        this.id = id;
+    public void setNodeMetadata(NodeMetadata nodeMetadata) {
+        this.nodeMetadata = nodeMetadata;
     }
 
     public String getParentFilterName() {
@@ -44,14 +44,6 @@ public class NodeContentRequest implements Dto {
 
     public void setSelectionPattern(String selectionPattern) {
         this.selectionPattern = selectionPattern;
-    }
-
-    public String getCollectionName() {
-        return collectionName;
-    }
-
-    public void setCollectionName(String collectionName) {
-        this.collectionName = collectionName;
     }
 
     public String getInputTextFilterName() {

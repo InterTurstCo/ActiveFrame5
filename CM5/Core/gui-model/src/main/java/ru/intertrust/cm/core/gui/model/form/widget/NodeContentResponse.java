@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.Id;
 
 import java.util.ArrayList;
 
@@ -11,9 +10,9 @@ import java.util.ArrayList;
  *         Time: 13:15
  */
 public class NodeContentResponse implements Dto {
-    private String nodeType;
+    private NodeMetadata nodeMetadata;
     private ArrayList<HierarchyBrowserItem> nodeContent;
-    private Id parentId;
+
     private boolean selective = true;
     public ArrayList<HierarchyBrowserItem> getNodeContent() {
         return nodeContent;
@@ -23,20 +22,12 @@ public class NodeContentResponse implements Dto {
         this.nodeContent = nodeContent;
     }
 
-    public String getNodeType() {
-        return nodeType;
+    public NodeMetadata getNodeMetadata() {
+        return nodeMetadata;
     }
 
-    public void setNodeType(String nodeType) {
-        this.nodeType = nodeType;
-    }
-
-    public Id getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(Id parentId) {
-        this.parentId = parentId;
+    public void setNodeMetadata(NodeMetadata nodeMetadata) {
+        this.nodeMetadata = nodeMetadata;
     }
 
     public boolean isSelective() {
