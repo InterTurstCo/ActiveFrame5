@@ -199,9 +199,12 @@ public class NavigationTreePluginView extends PluginView {
                 if (currentActiveItem != null && currentActiveItem != event.getSelectedItem()) {
                     currentActiveItem.removeStyleName("synchronized");
                     currentActiveItem.setStyleName("tree-cell");
+                    currentActiveItem.getElement().getFirstChildElement().removeClassName("gwt-TreeItem-selected");
                 }
                 currentActiveItem = event.getSelectedItem();
                 event.getSelectedItem().setStyleName("synchronized");
+                currentActiveItem.getElement().getFirstChildElement().addClassName("gwt-TreeItem-selected");
+
                 Map<String, Object> treeItemUserObject = (Map<String, Object>) event.getSelectedItem().getUserObject();
                 Application.getInstance().getEventBus().fireEventFromSource(
                         new NavigationTreeItemSelectedEvent((PluginConfig) treeItemUserObject.get("pluginConfig")), plugin);
