@@ -34,7 +34,7 @@ public class LoginWindow extends DialogBox implements Component {
             }
         });
 
-        setText("Аутентификация");
+        setText(" Аутентификация");
         setAnimationEnabled(true);
         setGlassEnabled(true);
 
@@ -53,7 +53,9 @@ public class LoginWindow extends DialogBox implements Component {
             }
         }, KeyDownEvent.getType());
 
-        setWidget(dialogPanel);
+        AbsolutePanel decoratedDialogPanel = new AbsolutePanel();
+        decoratedDialogPanel.add(dialogPanel);
+        setWidget(decoratedDialogPanel);
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
@@ -67,8 +69,6 @@ public class LoginWindow extends DialogBox implements Component {
             login();
         }
     }
-
-
 
     protected void login() {
 
@@ -85,7 +85,7 @@ public class LoginWindow extends DialogBox implements Component {
 
             @Override
             public void onFailure(Throwable caught) {
-                message.setText("No way. " + caught.getMessage() );
+                message.setText("No way. " + caught.getMessage());
             }
         };
         UserUidWithPassword credentials = new UserUidWithPassword(loginField.getText(), passwordField.getText());
@@ -101,5 +101,21 @@ public class LoginWindow extends DialogBox implements Component {
     @Override
     public Component createNew() {
         return new LoginWindow();
+    }
+
+    public TextBox getLoginField() {
+        return loginField;
+    }
+
+    public void setLoginField(TextBox loginField) {
+        this.loginField = loginField;
+    }
+
+    public PasswordTextBox getPasswordField() {
+        return passwordField;
+    }
+
+    public void setPasswordField(PasswordTextBox passwordField) {
+        this.passwordField = passwordField;
     }
 }
