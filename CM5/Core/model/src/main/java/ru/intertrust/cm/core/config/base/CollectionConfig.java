@@ -143,6 +143,9 @@ public class CollectionConfig implements TopLevelConfig {
         if (renderer != null ? !renderer.equals(that.renderer) : that.renderer != null) {
             return false;
         }
+        if (transactionCache != that.transactionCache) {
+            return false;
+        }
 
         return true;
     }
@@ -151,6 +154,7 @@ public class CollectionConfig implements TopLevelConfig {
     public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (idField != null ? idField.hashCode() : 0);
+        result = 31 * result + (transactionCache == TransactionCacheType.enabled ? 71 : 0);
         return result;
     }
 }
