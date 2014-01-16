@@ -91,6 +91,10 @@ public class SuggestBoxWidget extends BaseWidget {
                 sourceObject.setFocus(true);
             }
         });
+
+        SuggestBox.DefaultSuggestionDisplay display = (SuggestBox.DefaultSuggestionDisplay) suggestBox.getSuggestionDisplay();
+        display.setPositionRelativeTo(presenter);
+
         return presenter;
     }
 
