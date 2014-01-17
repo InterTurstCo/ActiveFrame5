@@ -21,7 +21,8 @@ public class DateBoxDecorate extends Composite {
 
     private DateBox dateBox;
     private CMJDatePicker picker;
-
+    private String baloonUp;
+    private String baloonDown;
     public DateBoxDecorate(){
         AbsolutePanel root = new AbsolutePanel();
         root.setStyleName("wrap-date");
@@ -39,9 +40,6 @@ public class DateBoxDecorate extends Composite {
         textDateBox.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                String baloonUp;
-                String baloonDown;
-//                dateBox.showDatePicker();
 
                 if(dateBtn.getAbsoluteTop() > dateBox.getDatePicker().getAbsoluteTop()){
                     baloonUp =  "date-picker-baloon-up";
@@ -50,7 +48,7 @@ public class DateBoxDecorate extends Composite {
                 else{
                     baloonDown = "date-picker-baloon";
                     baloonUp =  "!!!";
-                }
+                 }
 
                 picker.toggle(baloonDown, baloonUp);
                 dateBox.showDatePicker();
@@ -59,16 +57,17 @@ public class DateBoxDecorate extends Composite {
         });
 
         dateBtn.addClickHandler(new ClickHandler() {
+
             @Override
             public void onClick(ClickEvent event) {
-                String baloonUp;
-                String baloonDown;
+                dateBox.showDatePicker();
 
                 if(dateBtn.getAbsoluteTop() > dateBox.getDatePicker().getAbsoluteTop()){
                     baloonUp =  "date-picker-baloon-up";
                     baloonDown = "!!!";
                 }
-                else{
+                else {
+                    System.out.println("down!");
                     baloonDown = "date-picker-baloon";
                     baloonUp =  "!!!";
                 }

@@ -193,7 +193,7 @@
 .datePickerDayIsToday {
     padding: 3px;
     color: #fff;
-    background: url("images/hborderN.png") repeat-x 0px -2607px;
+    background: url("css/images/hborderN.png") repeat-x 0px -2607px;
 }
 
 .datePickerMonthSelector {

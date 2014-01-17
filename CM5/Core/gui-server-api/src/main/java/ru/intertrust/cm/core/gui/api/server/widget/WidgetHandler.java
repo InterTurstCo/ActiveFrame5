@@ -7,7 +7,7 @@ import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -61,7 +61,7 @@ public abstract class WidgetHandler implements ComponentHandler {
     }
 
     protected void appendDisplayMappings(List<DomainObject> listToDisplay, String displayPattern,
-                                         LinkedHashMap<Id, String> idDisplayMapping) {
+                                         Map<Id, String> idDisplayMapping) {
         ArrayList<String> displayValues = format(listToDisplay, displayPattern);
         for (int i = 0; i < listToDisplay.size(); i++) {
             DomainObject domainObject = listToDisplay.get(i);

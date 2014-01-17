@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @author Denis Mitavskiy
@@ -27,10 +28,11 @@ public class ComboBoxWidget extends BaseWidget {
         return new ComboBoxWidget();
     }
 
+    @Override
     public void setCurrentState(WidgetState currentState) {
         ComboBoxState comboBoxState = (ComboBoxState) currentState;
         Id selectedId = comboBoxState.getId();
-        LinkedHashMap<Id,String> listValues = comboBoxState.getListValues();
+        Map<Id,String> listValues = comboBoxState.getListValues();
         if (!isEditable()) {
             if (selectedId != null) {
                 nonEditableId = selectedId;
