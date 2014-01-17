@@ -1084,10 +1084,6 @@
                         xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:collectionViewRefType" name="collection-view-ref"
                         xmlns:con="https://cm5.intertrust.ru/config" />
-            <xs:element type="con:selectionFilterReferenceType"
-                        name="selection-filter" xmlns:con="https://cm5.intertrust.ru/config" />
-            <xs:element type="con:selectionFilterReferenceType"
-                        name="selection-exclude-filter" xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:patternType" name="selection-pattern"
                         xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:selectionFilterReferenceType"
@@ -1133,10 +1129,6 @@
                 xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:collectionRefType" name="collection-ref"
                 xmlns:con="https://cm5.intertrust.ru/config" />
-            <xs:element type="con:selectionFilterReferenceType"
-                name="selection-filter" xmlns:con="https://cm5.intertrust.ru/config" />
-            <xs:element type="con:selectionFilterReferenceType"
-                name="selection-exclude-filter" xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:patternType" name="drop-down-pattern"
                 xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:patternType" name="selection-pattern"

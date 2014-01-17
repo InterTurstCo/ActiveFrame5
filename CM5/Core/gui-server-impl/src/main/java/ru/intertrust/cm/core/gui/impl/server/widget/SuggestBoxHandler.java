@@ -2,13 +2,13 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionPatternConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SuggestBoxConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
+import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilder;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.SuggestBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.SuggestionItem;
@@ -28,8 +28,7 @@ import java.util.regex.Pattern;
  */
 @ComponentName("suggest-box")
 public class SuggestBoxHandler extends LinkEditingWidgetHandler {
-    @Autowired
-    CrudService crudService;
+
     @Autowired
     CollectionsService collectionsService;
 
@@ -39,20 +38,26 @@ public class SuggestBoxHandler extends LinkEditingWidgetHandler {
         SuggestBoxConfig widgetConfig = context.getWidgetConfig();
         state.setSuggestBoxConfig(widgetConfig);
         ArrayList<Id> selectedIds = context.getAllObjectIds();
-        List<DomainObject> domainObjects;
+        IdentifiableObjectCollection domainObjects = null;
+
         if (!selectedIds.isEmpty()) {
-            domainObjects = crudService.find(selectedIds);
-        } else {
-            domainObjects = Collections.emptyList();
+            String collectionName = widgetConfig.getCollectionRefConfig().getName();
+            List<Filter> filters = new ArrayList<Filter>();
+            Set<Id> idsIncluded = new HashSet<Id>(selectedIds);
+            Filter idsIncludedFilter = FilterBuilder.prepareFilter(idsIncluded, "idsIncluded");
+            filters.add(idsIncludedFilter);
+            domainObjects = collectionsService.findCollection(collectionName, null, filters);
         }
         LinkedHashMap<Id, String> objects = new LinkedHashMap<Id, String>();
+        if (domainObjects != null) {
         SelectionPatternConfig selectionPatternConfig = widgetConfig.getSelectionPatternConfig();
         Pattern pattern = createDefaultRegexPattern();
         Matcher matcher = pattern.matcher(selectionPatternConfig.getValue());
-        for (DomainObject domainObject : domainObjects) {
+        for (IdentifiableObject domainObject : domainObjects) {
             objects.put(domainObject.getId(), format(domainObject, matcher));
         }
 
+        }
         SingleChoiceConfig singleChoiceConfig = widgetConfig.getSingleChoice();
         boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
         boolean singleChoice = isSingleChoice(context, singleChoiceFromConfig) ;
@@ -66,7 +71,7 @@ public class SuggestBoxHandler extends LinkEditingWidgetHandler {
         List<Filter> filters = new ArrayList<>();
 
         if (!suggestionRequest.getExcludeIds().isEmpty()) {
-            filters.add(prepareExcludeIdsFilter(suggestionRequest.getExcludeIds(), suggestionRequest.getIdsExclusionFilterName()));
+            filters.add(FilterBuilder.prepareFilter(suggestionRequest.getExcludeIds(), "idsExcluded"));
         }
         filters.add(prepareInputTextFilter(suggestionRequest.getText(), suggestionRequest.getInputTextFilterName()));
 
@@ -97,18 +102,6 @@ public class SuggestBoxHandler extends LinkEditingWidgetHandler {
             textFilter.addCriterion(0, new StringValue(text + "%"));
         }
         return textFilter;
-    }
-
-    private Filter prepareExcludeIdsFilter(Set<Id> excludeIds, String idsExclusionFilterName) {
-        Filter exludeIdsFilter = new Filter();
-
-        List<Value> excludeIdsCriterion = new ArrayList<>();
-        for (Id id : excludeIds) {
-            excludeIdsCriterion.add(new ReferenceValue(id));
-        }
-        exludeIdsFilter.addMultiCriterion(0, excludeIdsCriterion);
-        exludeIdsFilter.setFilter(idsExclusionFilterName);
-        return exludeIdsFilter;
     }
 
     private Pattern createDefaultRegexPattern() {

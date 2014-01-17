@@ -19,10 +19,7 @@ import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
-import ru.intertrust.cm.core.gui.impl.client.event.CheckBoxFieldUpdateEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.CheckBoxFieldUpdateEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.form.FacebookStyleView;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
 import ru.intertrust.cm.core.gui.model.Command;
@@ -118,8 +115,13 @@ public class TableBrowserWidget extends BaseWidget {
         CollectionViewerConfig collectionViewerConfig = initCollectionConfig();
         collectionPlugin.setConfig(collectionViewerConfig);
         collectionPlugin.setEventBus(eventBus);
+        collectionPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {
+            @Override
+            public void onViewCreation(PluginViewCreatedEvent source) {
+                dialogBox.center();
+            }
+        });
         pluginPanel.open(collectionPlugin);
-        dialogBox.center();
 
     }
 

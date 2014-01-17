@@ -18,12 +18,6 @@ public class TableBrowserConfig extends WidgetConfig {
     @Element(name = "collection-ref", required = false)
     private CollectionRefConfig collectionRefConfig;
 
-    @Element(name = "selection-filter", required = false)
-    private SelectionFilterConfig selectionFilterConfig;
-
-    @Element(name = "selection-exclude-filter", required = false)
-    private SelectionExcludeFilterConfig selectionExcludeFilterConfig;
-
     @Element(name = "selection-pattern", required = false)
     private SelectionPatternConfig selectionPatternConfig;
 
@@ -56,22 +50,6 @@ public class TableBrowserConfig extends WidgetConfig {
 
     public void setCollectionRefConfig(CollectionRefConfig collectionRefConfig) {
         this.collectionRefConfig = collectionRefConfig;
-    }
-
-    public SelectionFilterConfig getSelectionFilterConfig() {
-        return selectionFilterConfig;
-    }
-
-    public void setSelectionFilterConfig(SelectionFilterConfig selectionFilterConfig) {
-        this.selectionFilterConfig = selectionFilterConfig;
-    }
-
-    public SelectionExcludeFilterConfig getSelectionExcludeFilterConfig() {
-        return selectionExcludeFilterConfig;
-    }
-
-    public void setSelectionExcludeFilterConfig(SelectionExcludeFilterConfig selectionExcludeFilterConfig) {
-        this.selectionExcludeFilterConfig = selectionExcludeFilterConfig;
     }
 
     public SelectionPatternConfig getSelectionPatternConfig() {
@@ -152,14 +130,6 @@ public class TableBrowserConfig extends WidgetConfig {
             return false;
         }
 
-        if (selectionExcludeFilterConfig != null ? !selectionExcludeFilterConfig.
-                equals(that.selectionExcludeFilterConfig) : that.selectionExcludeFilterConfig != null) {
-            return false;
-        }
-        if (selectionFilterConfig != null ? !selectionFilterConfig.equals(that.selectionFilterConfig) :
-                that.selectionFilterConfig != null) {
-            return false;
-        }
         if (selectionPatternConfig != null ? !selectionPatternConfig.equals(that.selectionPatternConfig) :
                 that.selectionPatternConfig != null) {
             return false;
@@ -186,8 +156,6 @@ public class TableBrowserConfig extends WidgetConfig {
         result = 31 * result + (singleChoice != null ? singleChoice.hashCode() : 0);
         result = 31 * result + (collectionViewRefConfig != null ? collectionViewRefConfig.hashCode() : 0);
         result = 31 * result + (collectionRefConfig != null ? collectionRefConfig.hashCode() : 0);
-        result = 31 * result + (selectionFilterConfig != null ? selectionFilterConfig.hashCode() : 0);
-        result = 31 * result + (selectionExcludeFilterConfig != null ? selectionExcludeFilterConfig.hashCode() : 0);
         result = 31 * result + (selectionPatternConfig != null ? selectionPatternConfig.hashCode() : 0);
         result = 31 * result + (inputTextFilterConfig != null ? inputTextFilterConfig.hashCode() : 0);
         result = 31 * result + (pageSize != null ? pageSize.hashCode() : 0);

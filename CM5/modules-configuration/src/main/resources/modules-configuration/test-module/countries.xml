@@ -307,12 +307,6 @@
                 <!-- а для области столицы: capital . federal_unit_city^city . federal_unit . name -->
                 <collection-ref name="Cities"/>
 
-                <!--TODO не реализовано. название фильтра, использующегося при получении описания уже выбранных значений -->
-                <selection-filter name="idsIncluded"/>
-
-                <!-- название фильтра, отсекающего, уже выбранные значения (для того, чтобы они не показывались  списке -->
-                <selection-exclude-filter name="idsExcluded"/>
-
                 <!-- паттерн отображения значений выпадающего списка -->
                 <drop-down-pattern value="{name} {population}"/>
 
@@ -334,12 +328,6 @@
                 <field-path value="capital"/>
 
                 <collection-ref name="Cities"/>
-
-                <!--TODO не реализовано. название фильтра, использующегося при получении описания уже выбранных значений -->
-                <selection-filter name="idsIncluded"/>
-
-                <!-- название фильтра, отсекающего, уже выбранные значения (для того, чтобы они не показывались  списке -->
-                <selection-exclude-filter name="idsExcluded"/>
 
                 <!-- паттерн отображения значений выпадающего списка -->
                 <drop-down-pattern value="{name} {population}"/>
@@ -434,12 +422,6 @@
                 <collection-ref name="Cities"/>
 
                 <collection-view-ref name="cities_view"/>
-
-                <!-- название фильтра, использующегося при получении описания уже выбранных значений -->
-                <selection-filter name="idsIncluded"/>
-
-                <!-- название фильтра, отсекающего, уже выбранные значения (для того, чтобы они не показывались в списке -->
-                <selection-exclude-filter name="idsExcluded"/>
 
                 <!-- паттерн отображения уже выбранных значений -->
                 <selection-pattern value="{name} {population} {year_of_foundation}"/>

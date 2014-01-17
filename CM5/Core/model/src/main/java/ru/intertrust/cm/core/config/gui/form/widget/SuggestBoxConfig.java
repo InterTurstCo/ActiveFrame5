@@ -16,12 +16,6 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
     @Element(name = "collection-ref", required = false)
     CollectionRefConfig collectionRefConfig;
 
-    @Element(name = "selection-filter", required = false)
-    SelectionFilterConfig selectionFilterConfig;
-
-    @Element(name = "selection-exclude-filter", required = false)
-    SelectionExcludeFilterConfig selectionExcludeFilterConfig;
-
     @Element(name = "drop-down-pattern", required = false)
     DropdownPatternConfig dropdownPatternConfig;
 
@@ -51,22 +45,6 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
 
     public void setCollectionRefConfig(CollectionRefConfig collectionRefConfig) {
         this.collectionRefConfig = collectionRefConfig;
-    }
-
-    public SelectionFilterConfig getSelectionFilterConfig() {
-        return selectionFilterConfig;
-    }
-
-    public void setSelectionFilterConfig(SelectionFilterConfig selectionFilterConfig) {
-        this.selectionFilterConfig = selectionFilterConfig;
-    }
-
-    public SelectionExcludeFilterConfig getSelectionExcludeFilterConfig() {
-        return selectionExcludeFilterConfig;
-    }
-
-    public void setSelectionExcludeFilterConfig(SelectionExcludeFilterConfig selectionExcludeFilterConfig) {
-        this.selectionExcludeFilterConfig = selectionExcludeFilterConfig;
     }
 
     public DropdownPatternConfig getDropdownPatternConfig() {
@@ -146,14 +124,7 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
         if (pageSize != null ? !pageSize.equals(that.pageSize) : that.pageSize != null) {
             return false;
         }
-        if (selectionExcludeFilterConfig != null ? !selectionExcludeFilterConfig.
-                equals(that.selectionExcludeFilterConfig) : that.selectionExcludeFilterConfig != null) {
-            return false;
-        }
-        if (selectionFilterConfig != null ? !selectionFilterConfig.equals(that.selectionFilterConfig) : that.
-                selectionFilterConfig != null) {
-            return false;
-        }
+
         if (selectionPatternConfig != null ? !selectionPatternConfig.equals(that.selectionPatternConfig) : that.
                 selectionPatternConfig != null) {
             return false;
@@ -173,8 +144,6 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (collectionRefConfig != null ? collectionRefConfig.hashCode() : 0);
-        result = 31 * result + (selectionFilterConfig != null ? selectionFilterConfig.hashCode() : 0);
-        result = 31 * result + (selectionExcludeFilterConfig != null ? selectionExcludeFilterConfig.hashCode() : 0);
         result = 31 * result + (dropdownPatternConfig != null ? dropdownPatternConfig.hashCode() : 0);
         result = 31 * result + (selectionPatternConfig != null ? selectionPatternConfig.hashCode() : 0);
         result = 31 * result + (inputTextFilterConfig != null ? inputTextFilterConfig.hashCode() : 0);

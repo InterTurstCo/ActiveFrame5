@@ -203,8 +203,6 @@
             <suggest-box id="4">
                 <field-path value="Negotiation_Card^Parent_Document.Negotiator"/>
                 <collection-ref name="Persons"/>
-                <selection-filter name="idsIncluded"/>
-                <selection-exclude-filter name="idsExcluded"/>
                 <drop-down-pattern value="{login} {firstname}"/>
                 <selection-pattern value="{login} {firstname}"/>
                 <input-text-filter name="byText"/>

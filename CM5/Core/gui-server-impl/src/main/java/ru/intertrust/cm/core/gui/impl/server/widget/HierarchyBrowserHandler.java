@@ -9,11 +9,14 @@ import ru.intertrust.cm.core.config.gui.form.widget.SelectionPatternConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
+import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilder;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -132,14 +135,10 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         return filters;
     }
 
-    private List<Filter> addIncludeIdsFilter(List<Id> includeIds, List<Filter> filters) {
-        List<ReferenceValue> list = new ArrayList<ReferenceValue>();
-        for (Id includeId : includeIds) {
-            list.add(new ReferenceValue(includeId));
-        }
-        IdsIncludedFilter includeIdsFilter = new IdsIncludedFilter(list);
-        includeIdsFilter.setFilter("includeIds");
-        filters.add(includeIdsFilter);
+    private List<Filter> addIncludeIdsFilter(List<Id> includedIds, List<Filter> filters) {
+        Set<Id> idsIncluded= new HashSet<Id>(includedIds);
+        Filter idsIncludedFilter = FilterBuilder.prepareFilter(idsIncluded, "idsIncluded");
+        filters.add(idsIncludedFilter);
         return filters;
     }
     private List<Filter> addInputTextFilter(String name, String text, List<Filter> filters) {
