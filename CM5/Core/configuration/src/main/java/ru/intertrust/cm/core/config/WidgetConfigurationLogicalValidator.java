@@ -10,6 +10,8 @@ import ru.intertrust.cm.core.config.gui.form.widget.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -22,10 +24,13 @@ public class WidgetConfigurationLogicalValidator {
     private static final String WIDGET_SUGGEST_BOX = "suggest-box";
     private static final String WIDGET_TABLE_BROWSER = "table-browser";
     private static final String WIDGET_HIERARCHY_BROWSER = "hierarchy-browser";
+    private static final String WIDGET_RADIO_BUTTON = "radio-button";
     private static final String REFERENCE_FIELD_CONFIG_FULL_QUALIFIED_NAME =
             "ru.intertrust.cm.core.config.ReferenceFieldConfig";
 
     private final static Logger logger = LoggerFactory.getLogger(WidgetConfigurationLogicalValidator.class);
+    private static final Pattern PATTERN_VALIDATE = Pattern.compile("^[^{}]*(\\{[^{}]+\\}[^{}]*)*$");
+    private static final Pattern PATTERN_FIND_PLACEHOLDERS = Pattern.compile("\\{([^{}]+)\\}");
 
     private ConfigurationExplorer configurationExplorer;
 
@@ -58,7 +63,7 @@ public class WidgetConfigurationLogicalValidator {
             String[] split = fieldPathValue.split(",");
             for (int count = 0; count < split.length; count++) {
                 String partOfFieldPathValues = split[count].trim();
-                 widgetConfiguration.setCurrentFieldPathValue(partOfFieldPathValues);
+                widgetConfiguration.setCurrentFieldPathValue(partOfFieldPathValues);
                 prepareAndValidateWidgetConfigurationDependingOnFieldPath(data, widgetConfiguration, logicalErrors);
             }
         } else {
@@ -204,6 +209,8 @@ public class WidgetConfigurationLogicalValidator {
             validateTableBrowserWidget(widget, logicalErrors);
         } else if (thisIsHierarchyBrowserWidget(componentName)) {
             validateHierarchyBrowserWidget(widget, logicalErrors);
+        } else if (thisIsRadioButtonWidget(componentName)) {
+            validateRadioButtonWidget(widget, logicalErrors);
         }
     }
 
@@ -233,6 +240,70 @@ public class WidgetConfigurationLogicalValidator {
         widget.addValidatedMethod("validateNode");
         }
 
+    }
+
+    private void validateRadioButtonWidget(WidgetConfigurationToValidate widget, LogicalErrors logicalErrors) {
+        validatePattern(widget, logicalErrors);
+    }
+
+    private void validatePattern(WidgetConfigurationToValidate widget, LogicalErrors logicalErrors) {
+        if (widget.getNumberOfParts() > 0) {
+            return;
+        }
+        RadioButtonConfig config = (RadioButtonConfig) widget.getWidgetConfig();
+        PatternConfig patternConfig = config.getPatternConfig();
+        String pattern = patternConfig.getValue();
+
+        String widgetName = widget.getWidgetConfig().getComponentName();
+        String widgetId = widget.getWidgetConfig().getId();
+        if (pattern.isEmpty()) {
+            String error = String.format("Pattern is empty for %s with id '%s'", widgetName, widgetId);
+            logger.error(error);
+            logicalErrors.addError(error);
+        } else if (!patternFormatIsValid(pattern)) {
+            String error = String.format("Pattern format is not valid for %s with id '%s'", widgetName, widgetId);
+            logger.error(error);
+            logicalErrors.addError(error);
+        } else {
+            ReferenceFieldConfig fieldConfig = (ReferenceFieldConfig)widget.getFieldConfigToValidate();
+            String domainObjectType = fieldConfig.getType();
+
+            List<String> fieldNames = getFieldNames(domainObjectType);
+
+            List<String> placeholders = findPatternPlaceholders(pattern);
+            for (String placeholder : placeholders) {
+                if (!fieldNames.contains(placeholder)) {
+                    String error = String.format("Incorrect pattern placeholder '%s' found for domain object '%s' in %s with id '%s'", placeholder, domainObjectType,  widgetName, widgetId);
+                    logger.error(error);
+                    logicalErrors.addError(error);
+                }
+            }
+        }
+    }
+
+    private boolean patternFormatIsValid(String patternString) {
+        return PATTERN_VALIDATE.matcher(patternString).matches();
+    }
+
+    private List<String> findPatternPlaceholders(String patternString) {
+        Matcher m = PATTERN_FIND_PLACEHOLDERS.matcher(patternString);
+        List<String> placeholders = new ArrayList<String>();
+        while (m.find()) {
+            placeholders.add(m.group(1));
+        }
+        return placeholders;
+    }
+
+    private List<String> getFieldNames(String domainObjectType) {
+        DomainObjectTypeConfig domainObjectConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class,
+                domainObjectType);
+        List<FieldConfig> fieldsConfigs = domainObjectConfig.getFieldConfigs();
+
+        List<String> fieldNames = new ArrayList<>(fieldsConfigs.size());
+        for (FieldConfig fieldConfig : fieldsConfigs) {
+            fieldNames.add(fieldConfig.getName());
+        }
+        return fieldNames;
     }
 
     private void validateTableBrowserWidget(WidgetConfigurationToValidate widget, LogicalErrors logicalErrors) {
@@ -345,4 +416,9 @@ public class WidgetConfigurationLogicalValidator {
     private boolean thisIsHierarchyBrowserWidget(String componentName) {
         return WIDGET_HIERARCHY_BROWSER.equalsIgnoreCase(componentName);
     }
+
+    private boolean thisIsRadioButtonWidget(String componentName) {
+        return WIDGET_RADIO_BUTTON.equalsIgnoreCase(componentName);
+    }
+
 }

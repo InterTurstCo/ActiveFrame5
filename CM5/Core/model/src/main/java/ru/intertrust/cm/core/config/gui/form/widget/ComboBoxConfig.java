@@ -10,27 +10,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  *         Time: 12:05 PM
  */
 @Root(name = "combo-box")
-public class ComboBoxConfig extends WidgetConfig implements Dto {
-    @Element(name = "pattern")
-    private PatternConfig patternConfig;
-
-    public PatternConfig getPatternConfig() {
-        return patternConfig;
-    }
-
-    public void setPatternConfig(PatternConfig patternConfig) {
-        this.patternConfig = patternConfig;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-       return super.equals(o);
-    }
-
-    @Override
-    public int hashCode() {
-       return  super.hashCode();
-    }
+public class ComboBoxConfig extends SingleSelectionWidgetConfig implements Dto {
 
     @Override
     public String getComponentName() {

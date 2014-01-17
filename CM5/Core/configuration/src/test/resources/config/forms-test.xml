@@ -175,6 +175,10 @@
                 <!-- а для области столицы: capital . federal_unit_city^city . federal_unit . name -->
                 <pattern value="{name} ({population} чел.)"/>
             </combo-box>
+            <radio-button id="8z">
+                <field-path value="capital"/>
+                <pattern value="{name} ({population} чел.)"/>
+            </radio-button>
 
             <label id="9">
                 <text>День независимости:</text>

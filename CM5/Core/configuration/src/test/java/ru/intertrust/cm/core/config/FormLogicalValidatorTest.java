@@ -50,9 +50,13 @@ public class FormLogicalValidatorTest {
     @Test
     public void validateIncorrectForm() throws Exception {
 
-        String exceptedMessage = ("Configuration of form with name 'country_form' was validated with errors.Count: 6 Content:\n"
+        String expectedMessage = ("Configuration of form with name 'country_form' was validated with errors.Count: 10 Content:\n"
                 + "h-align 'righ' is incorrect\n"
                 + "v-align 'middle' is incorrect\n"
+                + "Pattern is empty for radio-button with id '8a'\n"
+                + "Pattern format is not valid for radio-button with id '8b'\n"
+                + "Incorrect pattern placeholder 'governor' found for domain object 'city' in radio-button with id '8c'\n"
+                + "Incorrect pattern placeholder 'governor' found for domain object 'federal_unit' in radio-button with id '8d'\n"
                 + "Field 'is_old' in  domain object 'country' isn't a boolean type\n"
                 + "Collection 'Streets' for table-browser with id '17a' wasn't found\n"
                 + "Collection view 'cities_default' for table-browser with id '17a' wasn't found\n"
@@ -71,7 +75,7 @@ public class FormLogicalValidatorTest {
        try {
            formValidator.validate();
        } catch(ConfigurationException e) {
-            assertEquals(exceptedMessage, e.getMessage());
+            assertEquals(expectedMessage, e.getMessage());
         }
     }
 

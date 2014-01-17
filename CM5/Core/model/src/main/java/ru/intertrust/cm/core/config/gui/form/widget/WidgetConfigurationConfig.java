@@ -24,6 +24,7 @@ public class WidgetConfigurationConfig implements Dto {
             @ElementList(entry = "decimal-box", type = DecimalBoxConfig.class, inline = true, required = false),
             @ElementList(entry = "date-box", type = DateBoxConfig.class, inline = true, required = false),
             @ElementList(entry = "combo-box", type = ComboBoxConfig.class, inline = true, required = false),
+            @ElementList(entry = "radio-button", type = RadioButtonConfig.class, inline = true, required = false),
             @ElementList(entry = "linked-domain-object-hyperlink",
                     type = LinkedDomainObjectHyperlinkConfig.class, inline = true, required = false),
             @ElementList(entry = "linked-domain-objects-editable-table",
