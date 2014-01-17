@@ -21,7 +21,7 @@ public class NodeCollectionDefConfig implements Dto {
     @Attribute(name = "selective", required = false)
     private boolean selective = true;
 
-    @Attribute(name = "domain-object-type")
+    @Attribute(name = "domain-object-type", required = false)
     private String domainObjectType;
 
     @Element(name = "selection-pattern", required = false)
