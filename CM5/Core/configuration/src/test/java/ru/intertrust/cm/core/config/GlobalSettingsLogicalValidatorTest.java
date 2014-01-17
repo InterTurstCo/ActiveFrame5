@@ -3,9 +3,13 @@ package ru.intertrust.cm.core.config;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.TopLevelConfigurationCache;
+import ru.intertrust.cm.core.config.module.ModuleConfiguration;
+import ru.intertrust.cm.core.config.module.ModuleService;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -49,17 +53,23 @@ public class GlobalSettingsLogicalValidatorTest {
         for(String path : configPaths) {
             configs.add(path);
         }
-        configurationSerializer.setCoreConfigurationFilePaths(configs);
-        configurationSerializer.setCoreConfigurationSchemaFilePath(CONFIGURATION_SCHEMA_PATH);
-
-        configurationSerializer.setModulesConfigurationFolder(MODULES_CONFIG_FOLDER);
-        configurationSerializer.setModulesConfigurationPath(MODULES_CONFIG_PATH);
-        configurationSerializer.setModulesConfigurationSchemaPath(MODULES_CONFIG_SCHEMA_PATH);
+        configurationSerializer.setModuleService(createModuleService(configs));
 
         Configuration configuration = configurationSerializer.deserializeConfiguration();
 
         return configuration;
     }
-
+    
+    private ModuleService createModuleService(Set<String> configs) {
+        ModuleService result = new ModuleService();
+        ModuleConfiguration conf = new ModuleConfiguration(); 
+        result.getModuleList().add(conf);
+        conf.setConfigurationPaths(new ArrayList<String>());
+        for (String config : configs) {
+            conf.getConfigurationPaths().add(config);
+        }        
+        conf.setConfigurationSchemaPath(CONFIGURATION_SCHEMA_PATH);
+        return result;
+    } 
 }
 

@@ -3,16 +3,23 @@ package ru.intertrust.cm.core.config;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.TopLevelConfigurationCache;
+import ru.intertrust.cm.core.config.module.ModuleConfiguration;
+import ru.intertrust.cm.core.config.module.ModuleService;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.powermock.api.support.membermodification.MemberMatcher.method;
 import static org.powermock.api.support.membermodification.MemberModifier.suppress;
 import static ru.intertrust.cm.core.config.Constants.*;
@@ -30,6 +37,7 @@ public class NavigationPanelLogicalValidatorTest {
             "config/navigation-panel-with-errors.xml";
 
     private static final String GLOBAL_XML_PATH = "config/global-test.xml";
+    
     /**
      * Вызов метода validatePluginHandlers исключается на время тестов
      * Для корректной работы validatePluginHandlers требуется спринг контекст
@@ -71,15 +79,7 @@ public class NavigationPanelLogicalValidatorTest {
     private ConfigurationExplorer createConfigurationExplorer(String configPath) throws Exception {
         TopLevelConfigurationCache.getInstance().build();
         ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
-
-        Set<String> configPaths = new HashSet<>(Arrays.asList(configPath, DOMAIN_OBJECTS_CONFIG_PATH, GLOBAL_XML_PATH));
-
-        configurationSerializer.setCoreConfigurationFilePaths(configPaths);
-        configurationSerializer.setCoreConfigurationSchemaFilePath(CONFIGURATION_SCHEMA_PATH);
-
-        configurationSerializer.setModulesConfigurationFolder(MODULES_CONFIG_FOLDER);
-        configurationSerializer.setModulesConfigurationPath(MODULES_CONFIG_PATH);
-        configurationSerializer.setModulesConfigurationSchemaPath(MODULES_CONFIG_SCHEMA_PATH);
+        configurationSerializer.setModuleService(createModuleService());
 
         Configuration configuration = configurationSerializer.deserializeConfiguration();
 
@@ -89,5 +89,15 @@ public class NavigationPanelLogicalValidatorTest {
         return configurationExplorer;
     }
 
+    private ModuleService createModuleService() {
+        ModuleService result = new ModuleService();
+        ModuleConfiguration conf = new ModuleConfiguration(); 
+        result.getModuleList().add(conf);
+        conf.setConfigurationPaths(new ArrayList<String>());
+        conf.getConfigurationPaths().add(DOMAIN_OBJECTS_CONFIG_PATH);
+        conf.getConfigurationPaths().add(GLOBAL_XML_PATH);
+        conf.setConfigurationSchemaPath(CONFIGURATION_SCHEMA_PATH);
+        return result;
+    }
 }
 

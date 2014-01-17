@@ -221,9 +221,9 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.jboss.as.plugins</groupId>
-                        <artifactId>jboss-as-maven-plugin</artifactId>
-                        <version>7.4.Final</version>
+                        <groupId>ru.intertrust.dev</groupId>
+                        <artifactId>maven-plugin-jboss-as-ex</artifactId>
+                        <version>0.0.2</version>
                         <configuration>
                             <hostname>localhost</hostname>
                             <port>9999</port>
@@ -268,23 +268,6 @@
                                     </resource>
                                 </configuration>
                             </execution>
-                            <!-- <execution>
-                                <id>add-instance-config</id>
-                                <phase>install</phase>
-                                <goals>
-                                    <goal>add-resource</goal>
-                                </goals>
-                                <configuration>
-                                    <address>subsystem=naming,binding=java:comp/env/search.solr.url</address>
-                                    <resource>
-                                        <enableResource>true</enableResource>
-                                        <properties>
-                                            <value>${search.solr.url}</value>
-                                            <binding-type>simple</binding-type>
-                                        </properties>
-                                    </resource>
-                                </configuration>
-                            </execution> -->
                             <execution>
                                 <id>add-security-domain</id>
                                 <phase>install</phase>
@@ -335,19 +318,6 @@
                                     </execute-commands>                                
                                 </configuration>
                             </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>ru.intertrust.dev</groupId>
-                        <artifactId>maven-plugin-jboss-as-ex</artifactId>
-                        <version>0.0.1</version>
-                        <configuration>
-                            <hostname>localhost</hostname>
-                            <port>9999</port>
-                            <skip>false</skip>
-                        </configuration>
-                
-                        <executions>
                             <execution>
                                 <id>set-server-property-location</id>
                                 <phase>install</phase>

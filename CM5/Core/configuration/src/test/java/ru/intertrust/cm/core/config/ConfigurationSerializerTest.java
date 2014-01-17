@@ -3,9 +3,12 @@ package ru.intertrust.cm.core.config;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
 import ru.intertrust.cm.core.config.base.CollectionConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.TopLevelConfigurationCache;
+import ru.intertrust.cm.core.config.module.ModuleConfiguration;
+import ru.intertrust.cm.core.config.module.ModuleService;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -134,19 +137,35 @@ public class ConfigurationSerializerTest {
         TopLevelConfigurationCache.getInstance().build(); // Инициализируем кэш конфигурации тэг-класс
 
         ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
-        Set<String> configPaths =
-                new HashSet<>(Arrays.asList(configPath, COLLECTIONS_CONFIG_PATH, GLOBAL_XML_PATH));
-
-        configurationSerializer.setCoreConfigurationFilePaths(configPaths);
-        configurationSerializer.setCoreConfigurationSchemaFilePath(CONFIGURATION_SCHEMA_PATH);
-
-        configurationSerializer.setModulesConfigurationFolder(MODULES_CONFIG_FOLDER);
-        configurationSerializer.setModulesConfigurationPath(MODULES_CONFIG_PATH);
-        configurationSerializer.setModulesConfigurationSchemaPath(MODULES_CONFIG_SCHEMA_PATH);
+        configurationSerializer.setModuleService(createModuleService(configPath));
 
         return configurationSerializer;
     }
 
+    static private ModuleService createModuleService(String configPath) {
+        ModuleService result = new ModuleService();
+        ModuleConfiguration confCore = new ModuleConfiguration();
+        confCore.setName("core");
+        result.getModuleList().add(confCore);
+        confCore.setConfigurationPaths(new ArrayList<String>());
+        confCore.getConfigurationPaths().add(configPath);
+        confCore.getConfigurationPaths().add(COLLECTIONS_CONFIG_PATH);
+        confCore.getConfigurationPaths().add(GLOBAL_XML_PATH);
+        confCore.setConfigurationSchemaPath(CONFIGURATION_SCHEMA_PATH);
+
+        ModuleConfiguration confCustom = new ModuleConfiguration(); 
+        confCustom.setName("custom");
+        result.getModuleList().add(confCustom);
+        confCustom.setConfigurationPaths(new ArrayList<String>());
+        confCustom.getConfigurationPaths().add(MODULES_CUSTOM_CONFIG);
+        confCustom.getConfigurationPaths().add(MODULES_DOMAIN_OBJECTS);
+        confCustom.setConfigurationSchemaPath(MODULES_CUSTOM_SCHEMA);
+        confCustom.setDepends(new ArrayList<String>());
+        confCustom.getDepends().add(confCore.getName());
+        
+        return result;
+    }    
+    
     private String readTextFile(String filePath) throws IOException {
        File file = new File(FileUtils.getFileURL(filePath).getFile());
 

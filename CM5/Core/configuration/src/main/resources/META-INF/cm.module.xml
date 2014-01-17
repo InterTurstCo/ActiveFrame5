@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+    <name>core</name>
+    <description>Модуль ядра</description>
+    <extension-points-packages>
+        <extension-points-package>ru/intertrust/cm</extension-points-package>
+    </extension-points-packages>
+    <configuration-schema-path>config/configuration.xsd</configuration-schema-path>
+    <configuration-paths>
+        <configuration-path>config/system-domain-objects.xml</configuration-path>
+        <configuration-path>config/domain-objects.xml</configuration-path>
+        <configuration-path>config/collections.xml</configuration-path>
+        <configuration-path>config/collection-views.xml</configuration-path>
+        <configuration-path>config/access.xml</configuration-path>
+        <configuration-path>config/search.xml</configuration-path>
+        <configuration-path>config/navigation-panel.xml</configuration-path>
+    </configuration-paths>
+    <import-files>
+        <import-file>importdata/status.csv</import-file>
+    </import-files>
+</module>

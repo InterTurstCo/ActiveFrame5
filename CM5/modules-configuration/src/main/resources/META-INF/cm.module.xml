@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+    <name>test-sed</name>
+    <description>Тестовый модуль системы электронного документооборота</description>
+    <depends>
+        <depend>core</depend>
+    </depends>
+    <extension-points-packages>
+        <extension-points-package>ru/intertrust/cm</extension-points-package>
+    </extension-points-packages>
+    <gui-components-packages>
+        <gui-components-package>ru</gui-components-package>
+        <gui-components-package>com</gui-components-package>
+    </gui-components-packages>
+    <configuration-schema-path>modules-configuration/test-module/custom-configuration.xsd</configuration-schema-path>
+    <configuration-paths>
+        <configuration-path>modules-configuration/test-module/custom-config.xml</configuration-path>
+        <configuration-path>modules-configuration/test-module/domain-objects.xml</configuration-path>
+        <configuration-path>modules-configuration/test-module/countries.xml</configuration-path>
+        <configuration-path>modules-configuration/test-module/letters.xml</configuration-path>
+        <configuration-path>modules-configuration/test-module/countries-navigation-panel.xml</configuration-path>
+        <configuration-path>modules-configuration/test-module/access.xml</configuration-path>
+        <configuration-path>modules-configuration/test-module/workflow.xml</configuration-path>
+        <configuration-path>modules-configuration/test-module/global.xml</configuration-path>
+    </configuration-paths>
+    <import-files>
+        <import-file>importdata/import-organization.csv</import-file>
+        <import-file>importdata/import-department.csv</import-file>
+        <import-file>importdata/import-employee.csv</import-file>
+        <import-file>importdata/set-organization-boss.csv</import-file>
+        <import-file>importdata/set-department-boss.csv</import-file>
+    </import-files>    
+</module>

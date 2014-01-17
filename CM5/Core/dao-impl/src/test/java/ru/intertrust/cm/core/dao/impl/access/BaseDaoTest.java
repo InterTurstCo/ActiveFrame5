@@ -100,12 +100,12 @@ public class BaseDaoTest {
                 new HashSet<>(Arrays.asList(configPath, COLLECTIONS_CONFIG_PATH, SYSTEM_DOMAIN_OBJECTS_CONFIG_PATH, ACCESS_CONFIG_PATH,
                         COLLECTIONS_VIEW_PATH, GLOBAL_XML_PATH));
 
-        configurationSerializer.setCoreConfigurationFilePaths(configPaths);
+        /*configurationSerializer.setCoreConfigurationFilePaths(configPaths);
         configurationSerializer.setCoreConfigurationSchemaFilePath(CONFIGURATION_SCHEMA_PATH);
 
         configurationSerializer.setModulesConfigurationFolder(MODULES_CONFIG_FOLDER);
         configurationSerializer.setModulesConfigurationPath(MODULES_CONFIG_PATH);
-        configurationSerializer.setModulesConfigurationSchemaPath(MODULES_CONFIG_SCHEMA_PATH);
+        configurationSerializer.setModulesConfigurationSchemaPath(MODULES_CONFIG_SCHEMA_PATH);*/
         return configurationSerializer;
     }
 
@@ -204,20 +204,20 @@ public class BaseDaoTest {
 
     @AfterClass
     public static void tearDown() throws Exception {
-        domainObjectDao.delete(savedDelegationObject.getId(), accessToken);
-
-        domainObjectDao.delete(savedEmployeeObject.getId(), accessToken);
-        domainObjectDao.delete(savedEmployeeDelegateObject.getId(), accessToken);
-
-        domainObjectDao.delete(savedPersonObject.getId(), accessToken);
-
-        domainObjectDao.delete(savedDepartmentObject.getId(), accessToken);
-
-        domainObjectDao.delete(savedOrganizationObject.getId(), accessToken);
-        domainObjectDao.delete(savedActiveStatus.getId(), accessToken);
-        domainObjectDao.delete(savedDraftStatus.getId(), accessToken);
-
-
+        if (domainObjectDao != null){
+            domainObjectDao.delete(savedDelegationObject.getId(), accessToken);
+    
+            domainObjectDao.delete(savedEmployeeObject.getId(), accessToken);
+            domainObjectDao.delete(savedEmployeeDelegateObject.getId(), accessToken);
+    
+            domainObjectDao.delete(savedPersonObject.getId(), accessToken);
+    
+            domainObjectDao.delete(savedDepartmentObject.getId(), accessToken);
+    
+            domainObjectDao.delete(savedOrganizationObject.getId(), accessToken);
+            domainObjectDao.delete(savedActiveStatus.getId(), accessToken);
+            domainObjectDao.delete(savedDraftStatus.getId(), accessToken);
+        }
     }
 
     private static void prepareInitialData() {

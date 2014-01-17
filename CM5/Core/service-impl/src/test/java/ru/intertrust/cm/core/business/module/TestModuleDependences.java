@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.business.load;
+package ru.intertrust.cm.core.business.module;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,16 +9,18 @@ import java.util.Random;
 import org.junit.Assert;
 import org.junit.Test;
 
-import ru.intertrust.cm.core.business.load.ImportSystemData.FileGraf;
-import ru.intertrust.cm.core.business.load.ImportSystemData.FileNode;
+import ru.intertrust.cm.core.config.module.ModuleConfiguration;
+import ru.intertrust.cm.core.config.module.ModuleService;
+import ru.intertrust.cm.core.config.module.ModuleService.ModuleGraf;
+import ru.intertrust.cm.core.config.module.ModuleService.ModuleNode;
 
-public class TestImportDataFileDependences {
+public class TestModuleDependences {
     private Random rnd = new Random();
     
     @Test
-    public void testImportCorrectFilesGraf() {
-        ImportSystemData importSystemData = new ImportSystemData();
-        FileGraf graf = importSystemData.new FileGraf();
+    public void testModuleOrder() {
+        ModuleService moduleService = new ModuleService();
+        ModuleGraf graf = moduleService.new ModuleGraf();
 
         String[] testBaseNodes = new String[]{"1:5", "2:1,5", "3", "4", "5:3,4", "6:2,5"};        
         Reestr reestr = fillGraf(graf, testBaseNodes);
@@ -29,7 +31,7 @@ public class TestImportDataFileDependences {
         String correctOrder2 = "345126";
         String orderedFiles = "";
         while (graf.hasMoreElements()) {
-            FileNode file = graf.nextElement();
+            ModuleNode file = graf.nextElement();
             orderedFiles += reestr.getAlias(file.getName());
         }
         Assert.assertTrue(
@@ -38,9 +40,9 @@ public class TestImportDataFileDependences {
     }
 
     @Test
-    public void testImportCyclicFilesGraf() {
-        ImportSystemData importSystemData = new ImportSystemData();
-        FileGraf graf = importSystemData.new FileGraf();
+    public void testCyclicModules() {
+        ModuleService moduleService = new ModuleService();
+        ModuleGraf graf = moduleService.new ModuleGraf();
 
         String[] testBaseNodes = new String[]{"1", "2:1", "3", "4:6", "5:3,4", "6:2,5"};        
         fillGraf(graf, testBaseNodes);
@@ -60,7 +62,7 @@ public class TestImportDataFileDependences {
      * @param graf
      * @param nodeGroups
      */
-    private Reestr fillGraf(FileGraf graf, String[]... nodeGroups) {
+    private Reestr fillGraf(ModuleGraf graf, String[]... nodeGroups) {
         Reestr reestr = new Reestr(); 
         
         List<String> items = new ArrayList<String>();
@@ -83,7 +85,9 @@ public class TestImportDataFileDependences {
                 }
             }
             
-            graf.addFileNode(reestr.getName(nodeDesc[0]) , nodeDep);
+            ModuleConfiguration conf = new ModuleConfiguration();
+            conf.setName(reestr.getName(nodeDesc[0]));
+            graf.addModuleConfiguration(conf , nodeDep);
         }        
         return reestr;
     }

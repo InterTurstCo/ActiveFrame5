@@ -3,12 +3,13 @@ package ru.intertrust.cm.core.config;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.TopLevelConfigurationCache;
+import ru.intertrust.cm.core.config.module.ModuleConfiguration;
+import ru.intertrust.cm.core.config.module.ModuleService;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
 
 import static ru.intertrust.cm.core.config.Constants.*;
 /**
@@ -55,16 +56,7 @@ public class CollectionViewLogicalValidatorTest {
     private ConfigurationExplorer createConfigurationExplorer(String configPath) throws Exception {
         TopLevelConfigurationCache.getInstance().build();
         ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
-
-        Set<String> configPaths = new HashSet<>(Arrays.
-                asList(configPath, DOMAIN_OBJECTS_CONFIG_PATH, COLLECTION_XML_PATH, GLOBAL_XML_PATH));
-
-        configurationSerializer.setCoreConfigurationFilePaths(configPaths);
-        configurationSerializer.setCoreConfigurationSchemaFilePath(CONFIGURATION_SCHEMA_PATH);
-
-        configurationSerializer.setModulesConfigurationFolder(MODULES_CONFIG_FOLDER);
-        configurationSerializer.setModulesConfigurationPath(MODULES_CONFIG_PATH);
-        configurationSerializer.setModulesConfigurationSchemaPath(MODULES_CONFIG_SCHEMA_PATH);
+        configurationSerializer.setModuleService(createModuleService(configPath));
 
         Configuration configuration = configurationSerializer.deserializeConfiguration();
 
@@ -74,5 +66,17 @@ public class CollectionViewLogicalValidatorTest {
         return configurationExplorer;
     }
 
+    private ModuleService createModuleService(String configPath) {
+        ModuleService result = new ModuleService();
+        ModuleConfiguration conf = new ModuleConfiguration(); 
+        result.getModuleList().add(conf);
+        conf.setConfigurationPaths(new ArrayList<String>());
+        conf.getConfigurationPaths().add(DOMAIN_OBJECTS_CONFIG_PATH);
+        conf.getConfigurationPaths().add(COLLECTION_XML_PATH);
+        conf.getConfigurationPaths().add(GLOBAL_XML_PATH);
+        conf.getConfigurationPaths().add(configPath);
+        conf.setConfigurationSchemaPath(CONFIGURATION_SCHEMA_PATH);
+        return result;
+    }    
 }
 

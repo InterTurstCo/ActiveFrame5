@@ -13,24 +13,10 @@
 
     <bean id="springApplicationContext" class="ru.intertrust.cm.core.util.SpringApplicationContext"/>
 
+    <bean id="moduleService" class="ru.intertrust.cm.core.config.module.ModuleService" init-method="init"/>
+
     <bean id="configurationSerializer" depends-on="topLevelConfigurationCacheInitializer"
-          class="ru.intertrust.cm.core.config.ConfigurationSerializer"
-          p:coreConfigurationSchemaFilePath="config/configuration.xsd"
-          p:modulesConfigurationSchemaPath="config/modules-configuration.xsd"
-          p:modulesConfigurationFolder="modules-configuration"
-          p:modulesConfigurationPath="/modules-configuration.xml">
-        <property name="coreConfigurationFilePaths">
-            <set>
-                <value>config/system-domain-objects.xml</value>
-                <value>config/domain-objects.xml</value>
-                <value>config/collections.xml</value>
-                <value>config/collection-views.xml</value>
-                <value>config/access.xml</value>
-                <value>config/search.xml</value>
-                <value>config/navigation-panel.xml</value>
-            </set>
-        </property>
-    </bean>
+          class="ru.intertrust.cm.core.config.ConfigurationSerializer"/>
 
     <bean id="configurationExplorer"
           class="ru.intertrust.cm.core.config.ConfigurationExplorerImpl"

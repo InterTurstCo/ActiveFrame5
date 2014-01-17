@@ -81,9 +81,7 @@
     <bean id="userGroupGlobalCache"
           class="ru.intertrust.cm.core.dao.impl.access.UserGroupGlobalCacheImpl" />
 
-    <bean id="extensionService" class="ru.intertrust.cm.core.dao.impl.ExtensionServiceImpl">
-        <property name="basePackage" value="ru/intertrust/cm" />
-    </bean>
+    <bean id="extensionService" class="ru.intertrust.cm.core.dao.impl.ExtensionServiceImpl"/>
 
     <bean id="auditServiceDao"
           class="ru.intertrust.cm.core.dao.impl.AuditLogServiceDaoImpl"/>

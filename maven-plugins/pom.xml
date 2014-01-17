@@ -4,7 +4,7 @@
 	<groupId>ru.intertrust.dev</groupId>
 	<artifactId>maven-plugins</artifactId>
 	<packaging>pom</packaging>
-	<version>0.0.1</version>
+	<version>0.0.2</version>
 
 	<modules>
 		<module>maven-plugin-jboss-as-ex</module>
