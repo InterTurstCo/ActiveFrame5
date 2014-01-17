@@ -210,9 +210,12 @@ public class CollectionsDaoImpl implements CollectionsDao {
     private void fillParameterMap(List<? extends Value> params, Map<String, Object> parameterMap) {
         int index = 0;
         for (Value value : params) {
-            // в исполняемом SQL запросе названия параметров совпадает с их номерами в начальном SQL запросе.
-            String parameterName = index + "";
-            parameterMap.put(parameterName, value.get());
+            // ссылочные параметры не добавляются в список параметров, т.к. их значения подставляются прямо в запрос
+            if (!(value instanceof ReferenceValue)) {
+                // в исполняемом SQL запросе названия параметров совпадает с их номерами в начальном SQL запросе.
+                String parameterName = index + "";
+                parameterMap.put(parameterName, value.get());
+            }
             index++;
         }
     }

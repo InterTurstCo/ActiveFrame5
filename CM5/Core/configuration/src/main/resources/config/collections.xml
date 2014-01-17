@@ -32,6 +32,22 @@
             </criteria>
         </filter>
 
+        <filter name="byDepartmentNames">
+            <reference placeholder="from-clause">
+                 <![CDATA[
+                    inner join department d on e.department = d.id
+                ]]>
+            </reference>
+
+            <!-- по умолчанию and, если перед условием нет других (только ключ. слово where), то условие опускаем -->
+            <!-- {0} - это параметр фильтра, у одного фильтра может быть несколько параметров -->
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    d.name in ({0})
+                ]]>
+            </criteria>
+        </filter>
+        
         <filter name="byName">
             <criteria placeholder="where-clause">
                 <![CDATA[

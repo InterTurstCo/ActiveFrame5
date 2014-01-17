@@ -1,7 +1,7 @@
 TYPE_NAME=Employee;KEYS=Login,Name;;;;;;
 Login;FirstName;LastName;EMail;Name;Department;Position;Phone
 person1;Иван;Иванов;ivanov@inttrast.ru;Сотрудник 1;"department.name=""Подразделение 1""";Инженер;8 (495) 777-55-01
-person2;Петр;Петров;petrov@inttrast.ru;Сотрудник 2;"department.name=""Подразделение 1""";Инженер;8 (495) 777-55-02
+person2;Петр;Петров;petrov@inttrast.ru;Сотрудник 2;"department.name=""Подразделение 2""";Инженер;8 (495) 777-55-02
 person3;Сидор;Сидоров;;Сотрудник 3;"department.name=""Подразделение 1""";Инженер;8 (495) 777-55-03
 person4;Егор;Егоров;;Сотрудник 4;"department.name=""Подразделение 1""";Инженер;8 (495) 777-55-04
 person5;Сперидон;Сперидонов;;Сотрудник 5;"department.name=""Подразделение 1""";Инженер;8 (495) 777-55-05

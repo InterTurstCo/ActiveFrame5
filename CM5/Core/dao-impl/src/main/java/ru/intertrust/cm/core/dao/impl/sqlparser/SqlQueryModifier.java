@@ -277,8 +277,7 @@ public class SqlQueryModifier {
 
                     selectItems.add(idTypeSelectExpressionItem);
                 }
-            } else if (selectExpressionItem.getAlias().endsWith(REFERENCE_POSTFIX) &&
-                    selectExpressionItem.getAlias() != null) {
+            } else if (selectExpressionItem.getAlias() != null && selectExpressionItem.getAlias().endsWith(REFERENCE_POSTFIX)) {
                 String alias = selectExpressionItem.getAlias();
                 if (selectExpressionItem.getExpression() instanceof NullValue) {
                     SelectExpressionItem referenceFieldTypeItem = new SelectExpressionItem();
