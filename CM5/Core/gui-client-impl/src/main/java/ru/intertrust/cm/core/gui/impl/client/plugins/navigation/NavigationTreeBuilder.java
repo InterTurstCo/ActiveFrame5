@@ -55,8 +55,8 @@ class NavigationTreeBuilder {
     private TreeItem composeTreeItem(String treeItemName, String displayText, LinkPluginDefinition pluginDefinition) {
         Label label = new Label();
 
-        if (displayText.length() > 24) {
-            String cutDisplayText = displayText.substring(0, 24);
+        if (displayText.length() > 21) {
+            String cutDisplayText = displayText.substring(0, 21);
             label.setText(cutDisplayText + "...");
             label.setTitle(displayText);
         }
