@@ -7,12 +7,9 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.request.ContentStreamUpdateRequest;
-import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.util.ContentStream;
-import org.apache.solr.common.util.NamedList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +37,7 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
     protected Logger log = LoggerFactory.getLogger(getClass());
 
     @Autowired
-    private SolrServer solrServer;
+    private SolrUpdateRequestQueue requestQueue;
 
     @Autowired
     private SearchConfigHelper configHelper;
@@ -90,16 +87,9 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
         if (solrDocs.size() == 0) {
             return;
         }
-        try {
-            @SuppressWarnings("unused")
-            UpdateResponse response = solrServer.add(solrDocs);
-            solrServer.commit();
-        } catch (Exception e) {
-            log.error("Error indexing document " + domainObject.getId(), e);
-            return;
-        }
+        requestQueue.addDocuments(solrDocs);
         if (log.isInfoEnabled()) {
-            log.info(Integer.toString(solrDocs.size()) + " Solr document(s) added to index");
+            log.info(Integer.toString(solrDocs.size()) + " Solr document(s) queued for indexing");
         }
     }
 
@@ -118,15 +108,12 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
         request.setParam("literal." + SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
         request.setParam("literal.id", createUniqueId(object, config));
         request.setParam("uprefix", "cm_c_");
-        request.setParam("fmap.content", "cm_content");
+        request.setParam("fmap.content", SolrFields.CONTENT);
         //request.setParam("extractOnly", "true");
-        try {
-            NamedList<?> result = solrServer.request(request);
-            if (log.isInfoEnabled()) {
-                log.info("Solr returned: " + result);
-            }
-        } catch (Exception e) {
-            log.error("Error indexing document " + object.getId(), e);
+
+        requestQueue.addRequest(request);
+        if (log.isInfoEnabled()) {
+            log.info("Attachment queued for indexing");
         }
     }
 
@@ -234,6 +221,6 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
         public Reader getReader() throws IOException {
             return new InputStreamReader(getStream());
         }
-        
+
     }
 }

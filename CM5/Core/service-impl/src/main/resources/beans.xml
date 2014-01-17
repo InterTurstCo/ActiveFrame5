@@ -95,6 +95,8 @@
           class="ru.intertrust.cm.core.business.impl.search.SolrServerFactory"/>
           <!-- factory-method="getSolrServer"/> -->
 
+    <bean id="solrUpdateQueue" class="ru.intertrust.cm.core.business.impl.search.SolrUpdateRequestQueue"/>
+
     <bean id="searchConfigHelper" class="ru.intertrust.cm.core.business.impl.search.SearchConfigHelper"/>
 
     <bean id="searchFilterImplementorFactory" class="ru.intertrust.cm.core.business.impl.search.ImplementorFactory">
