@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.gui.model.action;
 
 import ru.intertrust.cm.core.config.gui.ActionConfig;
 import ru.intertrust.cm.core.gui.model.form.FormState;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginMode;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 
 /**
  * @author Denis Mitavskiy
@@ -11,7 +11,7 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginMode;
  */
 public class SaveActionContext extends ActionContext {
     private FormState formState;
-    private FormPluginMode mode;
+    private FormPluginState pluginState;
 
     /**
      * Default constructor
@@ -30,11 +30,11 @@ public class SaveActionContext extends ActionContext {
         this.formState = formState;
     }
 
-    public FormPluginMode getMode() {
-        return mode;
+    public FormPluginState getPluginState() {
+        return pluginState;
     }
 
-    public void setMode(final FormPluginMode mode) {
-        this.mode = mode;
+    public void setPluginState(FormPluginState pluginState) {
+        this.pluginState = pluginState;
     }
 }

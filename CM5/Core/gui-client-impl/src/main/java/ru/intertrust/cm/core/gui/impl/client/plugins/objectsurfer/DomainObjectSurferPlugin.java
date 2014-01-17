@@ -60,6 +60,18 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         return new DomainObjectSurferPlugin();
     }
 
+    @Override
+    public FormPluginState getFormPluginState() {
+        final FormPluginData data = getFormPlugin().getInitialData();
+        return (FormPluginState) data.getPluginState();
+    }
+
+    @Override
+    public DomainObjectSurferPluginState getPluginState() {
+        final DomainObjectSurferPluginData data = getInitialData();
+        return (DomainObjectSurferPluginState) data.getPluginState();
+    }
+
     public Plugin getCollectionPlugin() {
         return collectionPlugin;
     }
@@ -89,7 +101,7 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         newFormPlugin.setEventBus(this.eventBus);
         final FormPluginConfig newConfig = new FormPluginConfig(event.getId());
         final FormPluginData formPluginData = formPlugin.getInitialData();
-        newConfig.setMode(formPluginData.getMode());
+        newConfig.setPluginState((FormPluginState) formPluginData.getPluginState());
         newFormPlugin.setConfig(newConfig);
         newFormPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {
             @Override
@@ -119,8 +131,10 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
 
     @Override
     public void replaceForm(FormPluginConfig formPluginConfig) {
-        FormPlugin newPlugin = ComponentRegistry.instance.get("form.plugin");
-        formPluginConfig.setMode(((FormPluginData) formPlugin.getInitialData()).getMode());
+        final FormPlugin newPlugin = ComponentRegistry.instance.get("form.plugin");
+        final FormPluginData data = formPlugin.getInitialData();
+        final FormPluginState fpState = (FormPluginState) data.getPluginState();
+        formPluginConfig.setPluginState(fpState);
         newPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {
 
             @Override
@@ -133,11 +147,6 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         formPlugin.getOwner().open(newPlugin);
         formPlugin = newPlugin;
         formPlugin.setEventBus(this.eventBus);
-    }
-
-    @Override
-    public FormPluginMode getFormPluginMode() {
-        return formPlugin == null ? new FormPluginMode() : formPlugin.getFormPluginMode();
     }
 
     @Override

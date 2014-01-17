@@ -4,12 +4,16 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.FocusPanel;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.IsWidget;
 import ru.intertrust.cm.core.config.gui.ActionConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
 import ru.intertrust.cm.core.gui.impl.client.action.ToggleAction;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
+import ru.intertrust.cm.core.gui.model.action.ToggleActionContext;
 
 /**
  * @author Sergey.Okolot
@@ -34,7 +38,9 @@ public final class ComponentHelper {
         if (config.getImageUrl() != null) {
             final String imageUrl;
             if (config.isToggle()) {
-                imageUrl = config.getImageUrl().replace(".png", ToggleAction.ON_SUFFIX);
+                final ToggleActionContext toggleCtx = (ToggleActionContext) ctx;
+                imageUrl = config.getImageUrl().replace(ToggleAction.IMAGE_SUFFIX,
+                        toggleCtx.isPushed() ? ToggleAction.OFF_SUFFIX : ToggleAction.ON_SUFFIX);
             } else {
                 imageUrl = config.getImageUrl();
             }

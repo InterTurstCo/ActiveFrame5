@@ -10,7 +10,7 @@ public abstract class ToggleAction extends Action {
 
     public static final String OFF_SUFFIX = "-off.png";
     public static final String ON_SUFFIX = "-on.png";
-    protected static final String IMAGE_SUFFIX = ".png";
+    public static final String IMAGE_SUFFIX = ".png";
 
     private Image image;
     private Anchor anchor;

@@ -2,8 +2,6 @@ package ru.intertrust.cm.core.gui.model.plugin;
 
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 
-import java.util.EnumSet;
-
 /**
  * @author Denis Mitavskiy
  *         Date: 23.08.13
@@ -11,7 +9,6 @@ import java.util.EnumSet;
  */
 public class FormPluginData extends ActivePluginData {
     private FormDisplayData formDisplayData;
-    private FormPluginMode mode;
 
     public FormPluginData() {
     }
@@ -26,22 +23,5 @@ public class FormPluginData extends ActivePluginData {
 
     public void setFormDisplayData(FormDisplayData formDisplayData) {
         this.formDisplayData = formDisplayData;
-    }
-
-    public FormPluginMode getMode() {
-        return mode;
-    }
-
-    public void setMode(final FormPluginMode mode) {
-        this.mode = mode;
-    }
-
-    @Override
-    public String toString() {
-        return "SomeActivePluginData {" +
-                "form=" + formDisplayData +
-                "mode=" + getMode() +
-                "actions=" + getActionContexts() +
-                '}';
     }
 }

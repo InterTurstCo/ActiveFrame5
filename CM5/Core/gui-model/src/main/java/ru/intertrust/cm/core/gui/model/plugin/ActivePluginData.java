@@ -13,6 +13,7 @@ import java.util.List;
  */
 public abstract class ActivePluginData extends PluginData {
     private List<ActionContext> actionContexts;
+    private PluginState pluginState;
 
     /**
      * Возвращает список конфигураций действий, отображаемых в "Панели действий"
@@ -28,5 +29,13 @@ public abstract class ActivePluginData extends PluginData {
      */
     public void setActionContexts(List<ActionContext> actionContexts) {
         this.actionContexts = actionContexts;
+    }
+
+    public PluginState getPluginState() {
+        return pluginState;
+    }
+
+    public void setPluginState(PluginState pluginState) {
+        this.pluginState = pluginState;
     }
 }

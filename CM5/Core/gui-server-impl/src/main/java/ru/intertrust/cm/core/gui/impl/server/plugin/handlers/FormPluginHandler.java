@@ -9,10 +9,9 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
-import ru.intertrust.cm.core.gui.model.plugin.FormMode;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginMode;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,13 +33,13 @@ public class FormPluginHandler extends ActivePluginHandler {
                 : guiService.getForm(config.getDomainObjectId());
         FormPluginData pluginData = new FormPluginData();
         pluginData.setFormDisplayData(form);
-        pluginData.setMode(config.getMode());
+        pluginData.setPluginState(config.getPluginState());
         pluginData.setActionContexts(getActions(config));
         return pluginData;
     }
 
-    public List<ActionContext> getActions(FormPluginConfig config)  {
-        final List<ActionContext> actions = getActionContexts(config.getMode());
+    private List<ActionContext> getActions(FormPluginConfig config)  {
+        final List<ActionContext> actions = getActionContexts(config.getPluginState());
 
         final List<ActionContext> otherActions;
         if (config.getDomainObjectId() != null){
@@ -55,20 +54,20 @@ public class FormPluginHandler extends ActivePluginHandler {
         return actions;
     }
 
-    private static List<ActionContext> getActionContexts(final FormPluginMode mode) {
+    private static List<ActionContext> getActionContexts(final FormPluginState pluginState) {
         final List<ActionContext> contexts = new ArrayList<>();
-        if (mode.hasMode(FormMode.TOGGLE_EDIT)) {
-            if (mode.hasMode(FormMode.EDITABLE)) {
+        if (pluginState.isToggleEdit()) {
+            if (pluginState.isEditable()) {
                 contexts.add(new SaveActionContext(createActionConfig(
                         "save.action", "save.action", "Сохранить", "icons/ico-save.gif")));
-                contexts.add(new ActionContext(createActionConfig("cancel.edit.action",
-                        "cancel.edit.action", "Завершить редактирование", "icons/ico-edit-close.png")));
+                contexts.add(new ActionContext(createActionConfig("toggle.edit.off.action",
+                        "toggle.edit.off.action", "Завершить редактирование", "icons/ico-edit-close.png")));
             } else {
                 contexts.add(new ActionContext(createActionConfig(
                         "create.new.object.action", "create.new.object.action",
                         "Создать новый", "icons/icon-create.png")));
                 contexts.add(new ActionContext(createActionConfig(
-                        "edit.action", "edit.action", "Редактировать", "icons/icon-edit.png")));
+                        "toggle.edit.on.action", "toggle.edit.on.action", "Редактировать", "icons/icon-edit.png")));
                 contexts.add(new SaveActionContext(createActionConfig(
                         "delete.action", "delete.action", "Удалить", "icons/ico-delete.gif")));
             }

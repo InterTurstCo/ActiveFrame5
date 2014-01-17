@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.action;
 
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
 
 /**
@@ -17,7 +18,11 @@ public class CreateNewObjectAction extends Action {
         String domainObjectTypeToCreate = editor.getRootDomainObject().getTypeName();
         FormPluginConfig config = new FormPluginConfig(domainObjectTypeToCreate);
         config.setDomainObjectTypeToCreate(domainObjectTypeToCreate);
-        config.setMode(editor.getFormPluginMode());
+        final FormPluginState state = editor.getFormPluginState();
+        if (state.isToggleEdit() && !state.isEditable()) {
+            state.setEditable(true);
+        }
+        config.setPluginState(editor.getFormPluginState());
         editor.replaceForm(config);
     }
 

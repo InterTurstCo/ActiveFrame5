@@ -12,7 +12,6 @@ import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.*;
 
-import java.util.EnumSet;
 import java.util.Map;
 
 /**
@@ -113,9 +112,14 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
     }
 
     @Override
-    public FormPluginMode getFormPluginMode() {
+    public FormPluginState getFormPluginState() {
+        return getPluginState();
+    }
+
+    @Override
+    public FormPluginState getPluginState() {
         final FormPluginData data = getInitialData();
-        return data == null ? new FormPluginMode() : data.getMode();
+        return (FormPluginState) data.getPluginState();
     }
 
     @Override

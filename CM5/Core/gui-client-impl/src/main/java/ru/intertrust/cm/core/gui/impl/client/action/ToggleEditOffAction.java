@@ -2,8 +2,8 @@ package ru.intertrust.cm.core.gui.impl.client.action;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.plugin.FormMode;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
 import ru.intertrust.cm.core.gui.model.plugin.IsIdentifiableObjectList;
@@ -13,8 +13,8 @@ import java.util.List;
 /**
  * @author Sergey.Okolot
  */
-@ComponentName("cancel.edit.action")
-public class CancelEditAction extends Action {
+@ComponentName("toggle.edit.off.action")
+public class ToggleEditOffAction extends Action {
 
     @Override
     public void execute() {
@@ -30,13 +30,15 @@ public class CancelEditAction extends Action {
         } else {
             config = new FormPluginConfig(id);
         }
-        config.setMode(editor.getFormPluginMode());
-        config.getMode().updateMode(FormMode.EDITABLE, false);
-        editor.replaceForm(config);
+        config.setPluginState(editor.getFormPluginState());
+        config.getPluginState().setEditable(false);
+        FormPlugin formPlugin = (FormPlugin) getPlugin();
+        formPlugin.getOwner().closeCurrentPlugin();
+//        editor.replaceForm(config);
     }
 
     @Override
     public Component createNew() {
-        return new CancelEditAction();
+        return new ToggleEditOffAction();
     }
 }

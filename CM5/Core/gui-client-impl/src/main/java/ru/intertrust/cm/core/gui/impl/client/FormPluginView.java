@@ -10,7 +10,7 @@ import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
-import ru.intertrust.cm.core.gui.model.plugin.FormMode;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 
 import java.util.HashMap;
 import java.util.List;
@@ -43,8 +43,8 @@ public class FormPluginView extends PluginView {
         this.eventBus = plugin.getEventBus();
         int formWidth = plugin.getOwner().getVisibleWidth();
         int formHeight = plugin.getOwner().getVisibleHeight();
-        final boolean editable = plugin.getFormPluginMode().hasMode(FormMode.EDITABLE);
-        formPanel = new FormPanel(formDisplayData, editable, formWidth, formHeight);
+        final FormPluginState pluginState = plugin.getFormPluginState();
+        formPanel = new FormPanel(formDisplayData, pluginState.isEditable(), formWidth, formHeight);
         // добавляем обработчики
 //        addHandlers();
     }

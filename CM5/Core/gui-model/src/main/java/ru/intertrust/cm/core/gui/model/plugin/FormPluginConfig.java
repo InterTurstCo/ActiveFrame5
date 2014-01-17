@@ -11,7 +11,8 @@ import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
 public class FormPluginConfig extends PluginConfig {
     private Id domainObjectId;
     private String domainObjectTypeToCreate;
-    private FormPluginMode mode;
+    private FormPluginState pluginState;
+
 
     public FormPluginConfig() {
     }
@@ -40,16 +41,12 @@ public class FormPluginConfig extends PluginConfig {
         this.domainObjectTypeToCreate = domainObjectTypeToCreate;
     }
 
-    public FormPluginMode getMode() {
-        if (mode == null) {
-            mode = new FormPluginMode();
-            mode.updateMode(FormMode.EDITABLE, true);
-        }
-        return mode;
+    public FormPluginState getPluginState() {
+        return pluginState;
     }
 
-    public void setMode(final FormPluginMode mode) {
-        this.mode = mode;
+    public void setPluginState(FormPluginState pluginState) {
+        this.pluginState = pluginState;
     }
 
     @Override

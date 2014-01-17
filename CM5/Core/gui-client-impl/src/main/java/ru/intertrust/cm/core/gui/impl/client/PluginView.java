@@ -1,17 +1,19 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import ru.intertrust.cm.core.config.gui.ActionConfig;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
+import ru.intertrust.cm.core.gui.model.action.ToggleActionContext;
 import ru.intertrust.cm.core.gui.model.plugin.ActivePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.IsActive;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
-
-//import ru.intertrust.cm.core.config.gui.ActionConfig;
 
 /**
  * Базовый класс представления плагина.
@@ -52,7 +54,7 @@ public abstract class PluginView implements IsWidget {
             return;
         }
         actionToolBar.clear();
-        ActivePluginData initialData = plugin.getInitialData();
+        final ActivePluginData initialData = plugin.getInitialData();
         if (initialData == null) {
             return;
         }
@@ -60,7 +62,7 @@ public abstract class PluginView implements IsWidget {
         if (actionContexts == null || actionContexts.isEmpty()) {
             return;
         }
-        AbsolutePanel leftSide = new AbsolutePanel();
+        final AbsolutePanel leftSide = new AbsolutePanel();
         leftSide.setStyleName("decorated-action-link");
         for (final ActionContext actionContext : actionContexts) {
             leftSide.add(ComponentHelper.createToolbarBtn(actionContext, plugin, true));
@@ -120,9 +122,12 @@ public abstract class PluginView implements IsWidget {
 
     private List<ActionContext> getDefaultSystemContexts() {
         final List<ActionContext> contexts = new ArrayList<ActionContext>();
-        contexts.add(new ActionContext(
-                createActionConfig("formsize.toggle.action", "toggle form", "icons/form-fullsize.png")));
-        contexts.add(new ActionContext(
+        final ToggleActionContext fstCtx = new ToggleActionContext(
+                createActionConfig("size.toggle.action", "toggle form", "icons/form-fullsize.png"));
+        final ActivePluginData data = plugin.getInitialData();
+        fstCtx.setPushed(data.getPluginState().isFullScreen());
+        contexts.add(fstCtx);
+        contexts.add(new ToggleActionContext(
                 createActionConfig("favorite.toggle.action", "favorites", "icons/favorite-panel.png")));
         return contexts;
     }

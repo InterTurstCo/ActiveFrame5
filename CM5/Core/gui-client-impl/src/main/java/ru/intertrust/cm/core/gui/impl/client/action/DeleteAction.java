@@ -41,7 +41,7 @@ public class DeleteAction extends SimpleServerAction {
         final SaveActionContext context = (SaveActionContext) initialContext;
         context.setRootObjectId(formState.getObjects().getRootNode().getDomainObject().getId());
         context.setFormState(formState);
-        context.setMode(editor.getFormPluginMode());
+        context.setPluginState(editor.getFormPluginState());
         return context;
     }
 
@@ -61,7 +61,7 @@ public class DeleteAction extends SimpleServerAction {
             } else {
                 config = new FormPluginConfig(selected.get(0));
             }
-            config.setMode(editor.getFormPluginMode());
+            config.setPluginState(editor.getFormPluginState());
             editor.replaceForm(config);
             Window.alert("Строка удалена!!!");
         }
