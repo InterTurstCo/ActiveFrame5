@@ -53,7 +53,16 @@ class NavigationTreeBuilder {
     }
 
     private TreeItem composeTreeItem(String treeItemName, String displayText, LinkPluginDefinition pluginDefinition) {
-        Label label = new Label(displayText);
+        Label label = new Label();
+
+        if (displayText.length() > 24) {
+            String cutDisplayText = displayText.substring(0, 24);
+            label.setText(cutDisplayText + "...");
+            label.setTitle(displayText);
+        }
+        else{
+            label.setText(displayText);
+        }
         label.addStyleName("tree-label");
         TreeItem firstLevelTreeItem = new TreeItem(label);
 
