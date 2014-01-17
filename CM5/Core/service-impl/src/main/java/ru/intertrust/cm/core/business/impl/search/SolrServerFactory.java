@@ -1,56 +1,50 @@
 package ru.intertrust.cm.core.business.impl.search;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NameNotFoundException;
-
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.tools.DynamicLoadClassFactory;
+import ru.intertrust.cm.core.util.SpringApplicationContext;
 
-public class SolrServerFactory {
+public class SolrServerFactory implements FactoryBean<SolrServer> {
 
-    public static final String SOLR_URL_ENTRY = "search.solr.url";
-    public static final String SOLR_DATA_ENTRY = "search.solr.data";
+    @Value("${search.solr.url}")
+    private String solrUrl;
 
-    private static final String ENV_ENTRY_PREFIX = "java:app/env/";
     private static final String SOLR_FACTORY_CLASS =
             "ru.intertrust.cm.core.business.impl.solr.EmbeddedSolrServerFactory";
 
-    private SolrServerFactory() { }
-
+    @Override
     @SuppressWarnings("unchecked")
-    public static SolrServer getSolrServer() {
+    public SolrServer getObject() throws Exception {
         try {
-            Context ctx = new InitialContext();
-            String url = null;
-            try {
-                url = (String) ctx.lookup(ENV_ENTRY_PREFIX + SOLR_URL_ENTRY);
-                      //"http://localhost:8080/solr";
-            } catch (NameNotFoundException e) {
-                // Нормально, будем пробовать другие варианты
+            if (solrUrl != null && !solrUrl.isEmpty()) {
+                return new HttpSolrServer(solrUrl);
             }
-            if (url != null && !url.isEmpty()) {
-                return new HttpSolrServer(url);
-            }
-            String data = null;
-            try {
-                data = (String) ctx.lookup(ENV_ENTRY_PREFIX + SOLR_DATA_ENTRY);
-            } catch (NameNotFoundException e) {
-                // Нормально, домашним каталогом будет являться текущий
-            }
-            if (data != null && !data.isEmpty()) {
-                System.setProperty("solr.data.dir", data);
-            } else {
-                System.setProperty("solr.solr.home", ".");
-            }
+
             DynamicLoadClassFactory<SolrServer> factory =
                     (DynamicLoadClassFactory<SolrServer>) Class.forName(SOLR_FACTORY_CLASS).newInstance();
+            AutowireCapableBeanFactory beanFactory =
+                    SpringApplicationContext.getContext().getAutowireCapableBeanFactory();
+            beanFactory.autowireBean(factory);
+            beanFactory.initializeBean(factory, "solrEmbeddedServerFactory");
             return factory.createInstance();
         } catch (Exception e) {
             throw new FatalException("Error initializing search engine", e);
         }
+    }
+
+    @Override
+    public Class<?> getObjectType() {
+        return SolrServer.class;
+    }
+
+    @Override
+    public boolean isSingleton() {
+        return true;
     }
 }

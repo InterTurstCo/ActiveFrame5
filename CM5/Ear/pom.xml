@@ -107,12 +107,12 @@
                                     <contextRoot>/cm-sochi</contextRoot>
                                 </webModule>
                             </modules>
-                            <packagingExcludes>META-INF/application-*.xml</packagingExcludes>
+                            <!-- <packagingExcludes>META-INF/application-*.xml</packagingExcludes>
                             <filtering>true</filtering>
                             <filters>
                                 <filter>${deploy.properties.path}</filter>
                             </filters>
-                            <applicationXml>${basedir}/src/main/application/META-INF/application-externalSolr.xml</applicationXml>
+                            <applicationXml>${basedir}/src/main/application/META-INF/application-externalSolr.xml</applicationXml> -->
                         </configuration>
                     </plugin>
                 </plugins>
@@ -145,12 +145,12 @@
                                     <contextRoot>/cm-sochi</contextRoot>
                                 </webModule>
                             </modules>
-                            <packagingExcludes>META-INF/application-*.xml</packagingExcludes>
+                            <!-- <packagingExcludes>META-INF/application-*.xml</packagingExcludes>
                             <filtering>false</filtering>
-                            <!-- <filters>
+                            <filters>
                                 <filter>${deploy.properties.path}</filter>
-                            </filters> -->
-                            <applicationXml>${basedir}/src/main/application/META-INF/application-embeddedSolr.xml</applicationXml>
+                            </filters>
+                            <applicationXml>${basedir}/src/main/application/META-INF/application-embeddedSolr.xml</applicationXml> -->
                         </configuration>
                     </plugin>
                 </plugins>
