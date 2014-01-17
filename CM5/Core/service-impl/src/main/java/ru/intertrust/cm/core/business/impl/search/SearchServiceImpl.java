@@ -10,7 +10,6 @@ import javax.interceptor.Interceptors;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -75,10 +74,18 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             e.printStackTrace();
         }*/
 
+        StringBuilder queryString = new StringBuilder()
+                .append(SolrFields.EVERYTHING)
+                .append(":")
+                .append(protectQueryString(query))
+                .append(" OR ")
+                .append(SolrFields.CONTENT)
+                .append(":")
+                .append(protectQueryString(query));
         SolrQuery solrQuery = new SolrQuery()
-                .setQuery(SolrFields.EVERYTHING + ":" + protectQueryString(query) + " OR cm_content:" + query)
+                .setQuery(queryString.toString())
                 .addFilterQuery(SolrFields.AREA + ":\"" + areaName + "\"")
-                //.addFilterQuery("cm_type:" + configHelper.getTargetObjectType(targetCollectionName))
+                //.addFilterQuery(SolrFields.TARGET_TYPE + ":" + configHelper.getTargetObjectType(targetCollectionName))
                 .addField(SolrFields.MAIN_OBJECT_ID);
 
         QueryResponse response = null;
@@ -120,7 +127,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         SolrQuery solrQuery = new SolrQuery()
                 .setQuery(queryString.toString())
                 .addFilterQuery(SolrFields.AREA + ":" + areas)
-                //.addFilterQuery("cm_type:" + configHelper.getTargetObjectType(targetCollectionName))
+                //.addFilterQuery(SolrFields.TARGET_TYPE + ":" + configHelper.getTargetObjectType(targetCollectionName))
                 .addField(SolrFields.FIELD_PREFIX + "*")
                 .addField(SolrFields.MAIN_OBJECT_ID);
 
