@@ -13,7 +13,7 @@
                                 <collection-ref name="Employees" use-default="true"/>
                                 <sort-criterion field="last_name"/>
                             </collection-viewer>
-                            <first-open-read-only>true</first-open-read-only>
+                            <toggle-edit>true</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                     <decorations>

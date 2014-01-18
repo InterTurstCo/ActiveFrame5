@@ -19,12 +19,12 @@ public class DomainObjectSurferHandler extends ActivePluginHandler {
     private ApplicationContext applicationContext;
 
     public ActivePluginData initialize(Dto params) {
-        DomainObjectSurferConfig config = (DomainObjectSurferConfig) params;
+        final DomainObjectSurferConfig config = (DomainObjectSurferConfig) params;
 
-        CollectionPluginHandler collectionPluginHandler =
+        final CollectionPluginHandler collectionPluginHandler =
                 (CollectionPluginHandler) applicationContext.getBean("collection.plugin");
-        CollectionPluginData collectionPluginData = collectionPluginHandler.initialize(config.getCollectionViewerConfig());
-        ArrayList<CollectionRowItem> items = collectionPluginData.getItems();
+        final CollectionPluginData collectionPluginData = collectionPluginHandler.initialize(config.getCollectionViewerConfig());
+        final ArrayList<CollectionRowItem> items = collectionPluginData.getItems();
 
         final FormPluginConfig formPluginConfig;
         if (items == null || items.isEmpty()) {
@@ -35,15 +35,20 @@ public class DomainObjectSurferHandler extends ActivePluginHandler {
             selectedIndexes.add(Integer.valueOf(0));
             collectionPluginData.setIndexesOfSelectedItems(selectedIndexes);
         }
-        formPluginConfig.setMode(config.isFirstOpenReadonly() ? FormPluginMode.MANUAL_EDIT : FormPluginMode.EDITABLE);
-        formPluginConfig.setEditable(!config.isFirstOpenReadonly());
-        FormPluginHandler formPluginHandler = (FormPluginHandler) applicationContext.getBean("form.plugin");
-        FormPluginData formPluginData = formPluginHandler.initialize(formPluginConfig);
+        final FormPluginState fpState = new FormPluginState();
+        formPluginConfig.setPluginState(fpState);
+        fpState.setToggleEdit(config.isToggleEdit());
+        fpState.setEditable(!config.isToggleEdit());
+        final FormPluginHandler formPluginHandler = (FormPluginHandler) applicationContext.getBean("form.plugin");
+        final FormPluginData formPluginData = formPluginHandler.initialize(formPluginConfig);
 
-        DomainObjectSurferPluginData result = new DomainObjectSurferPluginData();
+        final DomainObjectSurferPluginData result = new DomainObjectSurferPluginData();
         result.setCollectionPluginData(collectionPluginData);
         result.setFormPluginData(formPluginData);
         result.setActionContexts(getActions(params, formPluginData));
+        final DomainObjectSurferPluginState dosState = new DomainObjectSurferPluginState();
+        dosState.setToggleEdit(config.isToggleEdit());
+        result.setPluginState(dosState);
         return result;
     }
 
@@ -52,5 +57,4 @@ public class DomainObjectSurferHandler extends ActivePluginHandler {
         result.addAll(formPluginData.getActionContexts());
         return result;
     }
-
 }

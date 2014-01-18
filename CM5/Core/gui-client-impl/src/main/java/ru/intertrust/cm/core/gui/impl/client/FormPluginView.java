@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 
 import java.util.HashMap;
 import java.util.List;
@@ -39,10 +40,11 @@ public class FormPluginView extends PluginView {
     protected FormPluginView(FormPlugin plugin, FormDisplayData formDisplayData) {
         super(plugin);
         // установка локальной шины событий
-        this.eventBus = plugin.getEventBus();
+        this.eventBus = plugin.getLocalEventBus();
         int formWidth = plugin.getOwner().getVisibleWidth();
         int formHeight = plugin.getOwner().getVisibleHeight();
-        formPanel = new FormPanel(formDisplayData, formWidth, formHeight);
+        final FormPluginState pluginState = plugin.getFormPluginState();
+        formPanel = new FormPanel(formDisplayData, pluginState.isEditable(), formWidth, formHeight);
         // добавляем обработчики
 //        addHandlers();
     }

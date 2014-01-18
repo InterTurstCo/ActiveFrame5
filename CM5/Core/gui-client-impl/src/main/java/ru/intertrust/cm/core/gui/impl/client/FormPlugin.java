@@ -21,18 +21,19 @@ import java.util.Map;
  */
 @ComponentName("form.plugin")
 public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor, PluginPanelSizeChangedEventHandler {
-     private int temporaryWidth;
-     private int temporaryHeight;
+    private int temporaryWidth;
+    private int temporaryHeight;
     // поле для локальной шины событий
     protected EventBus eventBus;
 
     // установка локальной шины событий плагину
-    public void setEventBus(EventBus eventBus) {
+    public void setLocalEventBus(EventBus eventBus) {
         this.eventBus = eventBus;
     }
 
     // получение локальной шины событий плагина
-    public EventBus getEventBus() {
+    @Override
+    public EventBus getLocalEventBus() {
         return eventBus;
     }
 
@@ -112,9 +113,14 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
     }
 
     @Override
-    public FormPluginMode getFormPluginMode() {
+    public FormPluginState getFormPluginState() {
+        return getPluginState();
+    }
+
+    @Override
+    public FormPluginState getPluginState() {
         final FormPluginData data = getInitialData();
-        return data == null ? FormPluginMode.EDITABLE : data.getMode();
+        return (FormPluginState) data.getPluginState().createClone();
     }
 
     @Override

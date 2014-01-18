@@ -1,19 +1,19 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.dom.client.Style;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import ru.intertrust.cm.core.config.gui.ActionConfig;
-import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
-import ru.intertrust.cm.core.gui.impl.client.action.Action;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
+import ru.intertrust.cm.core.gui.model.action.ToggleActionContext;
 import ru.intertrust.cm.core.gui.model.plugin.ActivePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.IsActive;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
-
-//import ru.intertrust.cm.core.config.gui.ActionConfig;
 
 /**
  * Базовый класс представления плагина.
@@ -27,7 +27,7 @@ public abstract class PluginView implements IsWidget {
     protected static Logger log = Logger.getLogger("PluginView console logger");
 
     private AbsolutePanel actionToolBar;
-    private Widget viewWidget;
+    private VerticalPanel viewWidget;
 
     /**
      * Основной конструктор
@@ -36,93 +36,50 @@ public abstract class PluginView implements IsWidget {
      */
     protected PluginView(Plugin plugin) {
         this.plugin = plugin;
-
     }
 
-    /**
-     * Строит "Панель действий" плагина
-     *
-     * @return возвращает виджет, отображающий "Панель действий"
-     */
-    protected void initializeActionToolBar() {
-        actionToolBar = new AbsolutePanel();
-        actionToolBar.setStyleName("action-bar");
+    public void setVisibleToolbar(final boolean visible) {
+        if (visible != (actionToolBar.getParent() != null)) {
+            if (visible) {
+                updateActionToolBar();
+                asWidget().insert(actionToolBar, 0);
+            } else {
+                actionToolBar.removeFromParent();
+            }
+        }
     }
 
     protected void updateActionToolBar() {
-        AbsolutePanel decoratedActionLink = new AbsolutePanel();
-        decoratedActionLink.setStyleName("decorated-action-link");
-
-        if (!(plugin instanceof IsActive)) {
+        if (!(plugin instanceof IsActive) || actionToolBar == null) {
             return;
         }
-
         actionToolBar.clear();
-        ActivePluginData initialData = plugin.getInitialData();
+        final ActivePluginData initialData = plugin.getInitialData();
         if (initialData == null) {
             return;
         }
         List<ActionContext> actionContexts = initialData.getActionContexts();
-        if (actionContexts == null) {
+        if (actionContexts == null || actionContexts.isEmpty()) {
             return;
         }
+        final AbsolutePanel leftSide = new AbsolutePanel();
+        leftSide.setStyleName("decorated-action-link");
         for (final ActionContext actionContext : actionContexts) {
-            final ActionConfig actionConfig = actionContext.getActionConfig();
-            Anchor hyperlink = new Anchor(actionConfig.getText());
-            if (actionConfig.getImageUrl() != null) {
-                Image actionPic = new Image(actionConfig.getImageUrl());
-                decoratedActionLink.add(actionPic);
-                actionPic.addClickHandler(new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        String component = actionConfig.getComponent();
-                        if (component == null) {
-                            component = "generic.workflow.action";
-                        }
-                        Action action = ComponentRegistry.instance.get(component);
-                        action.setInitialContext(actionContext);
-                        action.setPlugin(plugin);
-                        action.execute();
-                    }
-                });
-            }
-            hyperlink.setStyleName("action-bar-button");
-            //actionPic.setStyleName("action-bar-button");
-            decoratedActionLink.add(hyperlink);
-
-            actionToolBar.add(decoratedActionLink);
-
-
-            hyperlink.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    String component = actionConfig.getComponent();
-                    if (component == null) {
-                        component = "generic.workflow.action";
-                    }
-                    Action action = ComponentRegistry.instance.get(component);
-                    action.setInitialContext(actionContext);
-                    action.setPlugin(plugin);
-                    action.execute();
-                }
-            });
+            leftSide.add(ComponentHelper.createToolbarBtn(actionContext, plugin, true));
         }
-
-        final FocusPanel rightButton = new FocusPanel();
-        rightButton.setStyleName("action-bar-right-button-non-active");
-        actionToolBar.add(rightButton);
-        rightButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                if(rightButton.getStyleName().equals("action-bar-right-button-non-active")){
-                    rightButton.addStyleName("action-bar-right-button-active");
-                }
-                else{
-                    rightButton.removeStyleName("action-bar-right-button-active");
-                }
-            }
-        });
-
+        if (leftSide.getWidgetCount() > 0) {
+            actionToolBar.add(leftSide);
+        }
+        final FlowPanel rightSide = new FlowPanel();
+        rightSide.setStyleName("action-bar-right-side");
+        rightSide.getElement().getStyle().setFloat(Style.Float.RIGHT);
+        actionContexts = getDefaultSystemContexts();
+        for (ActionContext context : actionContexts) {
+            rightSide.add(ComponentHelper.createToolbarBtn(context, plugin, false));
+        }
+        if (rightSide.getWidgetCount() > 0) {
+            actionToolBar.add(rightSide);
+        }
     }
 
     /**
@@ -133,16 +90,15 @@ public abstract class PluginView implements IsWidget {
     protected abstract IsWidget getViewWidget();
 
     @Override
-    public Widget asWidget() {
+    public VerticalPanel asWidget() {
         if (viewWidget != null) {
             return viewWidget;
         }
-
         VerticalPanel panel = new VerticalPanel();
-        if (plugin instanceof IsActive) {
-            initializeActionToolBar();
+        actionToolBar = createToolbar();
+        if (plugin.displayActionToolBar() && (plugin instanceof IsActive)) {
             updateActionToolBar();
-            if (plugin.displayActionToolBar() && actionToolBar.getWidgetCount() > 0) {
+            if (actionToolBar.getWidgetCount() > 0) {
                 panel.add(actionToolBar);
             }
         }
@@ -158,4 +114,29 @@ public abstract class PluginView implements IsWidget {
 
     }
 
+    private AbsolutePanel createToolbar() {
+        final AbsolutePanel toolbar = new AbsolutePanel();
+        toolbar.setStyleName("action-bar");
+        return toolbar;
+    }
+
+    private List<ActionContext> getDefaultSystemContexts() {
+        final List<ActionContext> contexts = new ArrayList<ActionContext>();
+        final ToggleActionContext fstCtx = new ToggleActionContext(
+                createActionConfig("size.toggle.action", "toggle form", "icons/form-fullsize.png"));
+        final ActivePluginData data = plugin.getInitialData();
+        fstCtx.setPushed(data.getPluginState().isFullScreen());
+        contexts.add(fstCtx);
+        contexts.add(new ToggleActionContext(
+                createActionConfig("favorite.toggle.action", "favorites", "icons/favorite-panel.png")));
+        return contexts;
+    }
+
+    private ActionConfig createActionConfig(final String componentName, final String shortDesc, final String imageUrl) {
+        final ActionConfig config = new ActionConfig(componentName, componentName);
+        config.setImageUrl(imageUrl);
+        config.setShortDesc(shortDesc);
+        config.setToggle(true);
+        return config;
+    }
 }

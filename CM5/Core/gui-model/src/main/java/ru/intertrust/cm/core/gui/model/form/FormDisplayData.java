@@ -15,19 +15,18 @@ public class FormDisplayData implements Dto {
     private MarkupConfig markup;
     private HashMap<String, String> widgetComponents;
     private boolean debug;
-    private boolean editable;
     private String minWidth;
+
     public FormDisplayData() {
     }
 
-    public FormDisplayData(FormState formState, MarkupConfig markup, HashMap<String, String> widgetComponents, String minWidth,
-                           boolean debug, boolean editable) {
+    public FormDisplayData(FormState formState, MarkupConfig markup, HashMap<String, String> widgetComponents,
+                           String minWidth, boolean debug) {
         this.minWidth = minWidth;
         this.formState = formState;
         this.markup = markup;
         this.widgetComponents = widgetComponents;
         this.debug = debug;
-        this.editable = editable;
     }
 
     public FormState getFormState() {
@@ -80,13 +79,5 @@ public class FormDisplayData implements Dto {
 
     public void setDebug(boolean debug) {
         this.debug = debug;
-    }
-
-    public boolean isEditable() {
-        return editable;
-    }
-
-    public void setEditable(boolean editable) {
-        this.editable = editable;
     }
 }

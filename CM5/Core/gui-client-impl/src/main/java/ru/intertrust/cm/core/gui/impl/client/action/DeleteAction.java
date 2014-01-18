@@ -12,7 +12,6 @@ import ru.intertrust.cm.core.gui.model.action.DeleteActionData;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginMode;
 import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
 
 import java.util.List;
@@ -42,7 +41,7 @@ public class DeleteAction extends SimpleServerAction {
         final SaveActionContext context = (SaveActionContext) initialContext;
         context.setRootObjectId(formState.getObjects().getRootNode().getDomainObject().getId());
         context.setFormState(formState);
-        context.setMode(editor.getFormPluginMode());
+        context.setPluginState(editor.getFormPluginState());
         return context;
     }
 
@@ -51,7 +50,7 @@ public class DeleteAction extends SimpleServerAction {
         if (result instanceof DeleteActionData) {
             final DomainObjectSurferPlugin dosPlugin = (DomainObjectSurferPlugin) getPlugin();
             // вызываем событие удаления из коллекции
-            dosPlugin.getEventBus().fireEvent(new DeleteCollectionRowEvent(((DeleteActionData) result).getId()));
+            dosPlugin.getLocalEventBus().fireEvent(new DeleteCollectionRowEvent(((DeleteActionData) result).getId()));
             // получаем конфигурацию для очистки формы
             final IsDomainObjectEditor editor = (IsDomainObjectEditor) plugin;
             final List<Id> selected = dosPlugin.getSelectedIds();
@@ -62,8 +61,7 @@ public class DeleteAction extends SimpleServerAction {
             } else {
                 config = new FormPluginConfig(selected.get(0));
             }
-            config.setMode(editor.getFormPluginMode());
-            config.setEditable(FormPluginMode.EDITABLE == editor.getFormPluginMode());
+            config.setPluginState(editor.getFormPluginState());
             editor.replaceForm(config);
             Window.alert("Строка удалена!!!");
         }

@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.config.gui;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -9,7 +10,7 @@ import org.simpleframework.xml.Root;
  *         Time: 12:05 PM
  */
 @Root(name = "role")
-public class RoleConfig {
+public class RoleConfig implements Dto {
     @Attribute(name = "name")
     private String name;
 

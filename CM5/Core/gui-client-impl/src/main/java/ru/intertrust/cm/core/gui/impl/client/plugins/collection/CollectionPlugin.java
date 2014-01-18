@@ -19,12 +19,16 @@ public class CollectionPlugin extends Plugin {
     protected EventBus eventBus;
 
     // установка локальной шины событий плагину
-    public void setEventBus(EventBus eventBus) {
+    public void setLocalEventBus(EventBus eventBus) {
         this.eventBus = eventBus;
     }
 
-    // получение локальной шины событий плагину
-    public EventBus getEventBus() {
+    /**
+     * получение локальной шины событий плагину.
+     * @return
+     */
+    @Override
+    public EventBus getLocalEventBus() {
         return eventBus;
     }
 

@@ -2,15 +2,18 @@ package ru.intertrust.cm.core.gui.impl.client.action;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
 
 /**
  * @author Sergey.Okolot
  */
-@ComponentName("edit.action")
-public class EditAction extends Action {
+@ComponentName("toggle.edit.on.action")
+public class ToggleEditOnAction extends ToggleAction {
 
     @Override
     public void execute() {
@@ -22,12 +25,22 @@ public class EditAction extends Action {
         } else {
             config = new FormPluginConfig(id);
         }
-        config.setEditable(true);
-        editor.replaceForm(config);
+        final FormPluginState state = editor.getFormPluginState();
+        config.setPluginState(state);
+        state.setEditable(true);
+        updateForm(config);
     }
 
     @Override
     public Component createNew() {
-        return new EditAction();
+        return new ToggleEditOnAction();
+    }
+
+    private void updateForm(final FormPluginConfig config) {
+        final FormPlugin formPlugin = ComponentRegistry.instance.get("form.plugin");
+        formPlugin.setConfig(config);
+        formPlugin.setDisplayActionToolBar(true);
+        formPlugin.setLocalEventBus(plugin.getLocalEventBus());
+        getPlugin().getOwner().openChild(formPlugin);
     }
 }

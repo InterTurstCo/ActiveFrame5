@@ -114,7 +114,7 @@ public class TableBrowserWidget extends BaseWidget {
         CollectionPlugin collectionPlugin = ComponentRegistry.instance.get("collection.plugin");
         CollectionViewerConfig collectionViewerConfig = initCollectionConfig();
         collectionPlugin.setConfig(collectionViewerConfig);
-        collectionPlugin.setEventBus(eventBus);
+        collectionPlugin.setLocalEventBus(eventBus);
         collectionPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {
             @Override
             public void onViewCreation(PluginViewCreatedEvent source) {
