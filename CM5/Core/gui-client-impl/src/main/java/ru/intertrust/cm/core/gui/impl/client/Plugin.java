@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
@@ -69,6 +70,10 @@ public abstract class Plugin extends BaseComponent {
      */
     public Dto getCurrentState() {
         return null;
+    }
+
+    public EventBus getLocalEventBus() {
+        throw new UnsupportedOperationException(getName() + " not support event bus");
     }
 
     /**

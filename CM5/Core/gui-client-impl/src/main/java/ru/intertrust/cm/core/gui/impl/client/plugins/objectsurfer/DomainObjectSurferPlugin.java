@@ -62,14 +62,13 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
 
     @Override
     public FormPluginState getFormPluginState() {
-        final FormPluginData data = getFormPlugin().getInitialData();
-        return (FormPluginState) data.getPluginState();
+        return formPlugin.getPluginState();
     }
 
     @Override
     public DomainObjectSurferPluginState getPluginState() {
         final DomainObjectSurferPluginData data = getInitialData();
-        return (DomainObjectSurferPluginState) data.getPluginState();
+        return (DomainObjectSurferPluginState) data.getPluginState().createClone();
     }
 
     public Plugin getCollectionPlugin() {
@@ -88,8 +87,8 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         this.formPlugin = formPlugin;
     }
 
-    //@Override
-    public EventBus getLocalPluginEventBus() {
+    @Override
+    public EventBus getLocalEventBus() {
         return eventBus;
     }
 
@@ -98,7 +97,7 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         formPluginPanel = formPlugin.getOwner();
         final FormPlugin newFormPlugin = ComponentRegistry.instance.get("form.plugin");
         // после обновления формы ей снова "нужно дать" локальную шину событий
-        newFormPlugin.setEventBus(this.eventBus);
+        newFormPlugin.setLocalEventBus(this.eventBus);
         final FormPluginConfig newConfig = new FormPluginConfig(event.getId());
         final FormPluginData formPluginData = formPlugin.getInitialData();
         newConfig.setPluginState((FormPluginState) formPluginData.getPluginState());
@@ -146,7 +145,7 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         newPlugin.setConfig(formPluginConfig);
         formPlugin.getOwner().open(newPlugin);
         formPlugin = newPlugin;
-        formPlugin.setEventBus(this.eventBus);
+        formPlugin.setLocalEventBus(this.eventBus);
     }
 
     @Override
@@ -164,14 +163,14 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
             this.collectionPlugin = ComponentRegistry.instance.get("collection.plugin");
         }
         this.collectionPlugin.setInitialData(initialData.getCollectionPluginData());
-        this.collectionPlugin.setEventBus(eventBus);
+        this.collectionPlugin.setLocalEventBus(eventBus);
 
         if (this.formPlugin == null) {
             this.formPlugin = ComponentRegistry.instance.get("form.plugin");
             this.formPlugin.setDisplayActionToolBar(false);
         }
         this.formPlugin.setInitialData(initialData.getFormPluginData());
-        this.formPlugin.setEventBus(eventBus);
+        this.formPlugin.setLocalEventBus(eventBus);
     }
 
     @Override
@@ -186,10 +185,5 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         getView().onPluginPanelResize();
         collectionPlugin.getView().onPluginPanelResize();
         formPlugin.getView().onPluginPanelResize();
-    }
-
-    // получение локальной шины событий плагина
-    public EventBus getEventBus() {
-        return eventBus;
     }
 }

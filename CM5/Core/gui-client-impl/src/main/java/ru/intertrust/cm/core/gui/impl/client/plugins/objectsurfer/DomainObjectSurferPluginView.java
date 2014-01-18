@@ -46,7 +46,7 @@ public class DomainObjectSurferPluginView extends PluginView {
         splitterPanel.add(formFlowPanel);
         splitterSetSize();
         formFlowPanel.getElement().getStyle().setOverflow(Style.Overflow.AUTO);
-        eventBus = domainObjectSurferPlugin.getLocalPluginEventBus();
+        eventBus = domainObjectSurferPlugin.getLocalEventBus();
 
 
         addSplitterWidgetResizeHandler();
@@ -54,7 +54,7 @@ public class DomainObjectSurferPluginView extends PluginView {
     }
 
     private void initSplitter() {
-        splitterPanel = new SplitterEx(8, domainObjectSurferPlugin.getLocalPluginEventBus()) {
+        splitterPanel = new SplitterEx(8, domainObjectSurferPlugin.getLocalEventBus()) {
             @Override
             public void onResize() {
                 super.onResize();

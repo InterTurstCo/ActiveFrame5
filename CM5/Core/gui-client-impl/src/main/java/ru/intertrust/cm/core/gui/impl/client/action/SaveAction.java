@@ -4,7 +4,6 @@ import com.google.gwt.user.client.Window;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEvent;
-import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
@@ -47,12 +46,13 @@ public class SaveAction extends SimpleServerAction {
     protected void onSuccess(ActionData result) {
         FormPluginData formPluginData = ((SaveActionData) result).getFormPluginData();
         Plugin plugin = getPlugin();
-        ((IsDomainObjectEditor) plugin).setFormState(formPluginData.getFormDisplayData().getFormState());
-        plugin.setActionContexts(formPluginData.getActionContexts());
-
-        // вызываем событие обновления коллекции
-        ((DomainObjectSurferPlugin) plugin).getEventBus().fireEvent(new UpdateCollectionEvent(
-                formPluginData.getFormDisplayData().getFormState().getObjects().getRootNode().getDomainObject()));
+        if (plugin.getLocalEventBus() != null) {
+            ((IsDomainObjectEditor) plugin).setFormState(formPluginData.getFormDisplayData().getFormState());
+            plugin.setActionContexts(formPluginData.getActionContexts());
+            // вызываем событие обновления коллекции
+            plugin.getLocalEventBus().fireEvent(new UpdateCollectionEvent(
+                    formPluginData.getFormDisplayData().getFormState().getObjects().getRootNode().getDomainObject()));
+        }
 
         Window.alert("Saved!!!");
     }

@@ -85,7 +85,7 @@ public class CollectionPluginView extends PluginView {
     protected CollectionPluginView(CollectionPlugin plugin) {
         super(plugin);
         this.plugin = plugin;
-        this.eventBus = plugin.getEventBus();
+        this.eventBus = plugin.getLocalEventBus();
         adapter = new DGCellTableResourceAdapter(CellTableResourcesEx.I);
         tableHeader = new CellTable<CollectionRowItem>(999, adapter.getResources());
         tableBody = new CellTable<CollectionRowItem>(999, adapter.getResources());

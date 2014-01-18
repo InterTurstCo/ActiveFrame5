@@ -40,7 +40,7 @@ public class FormPluginView extends PluginView {
     protected FormPluginView(FormPlugin plugin, FormDisplayData formDisplayData) {
         super(plugin);
         // установка локальной шины событий
-        this.eventBus = plugin.getEventBus();
+        this.eventBus = plugin.getLocalEventBus();
         int formWidth = plugin.getOwner().getVisibleWidth();
         int formHeight = plugin.getOwner().getVisibleHeight();
         final FormPluginState pluginState = plugin.getFormPluginState();

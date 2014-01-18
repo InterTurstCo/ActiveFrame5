@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
+import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
@@ -19,11 +21,17 @@ public class CreateNewObjectAction extends Action {
         FormPluginConfig config = new FormPluginConfig(domainObjectTypeToCreate);
         config.setDomainObjectTypeToCreate(domainObjectTypeToCreate);
         final FormPluginState state = editor.getFormPluginState();
-        if (state.isToggleEdit() && !state.isEditable()) {
+        config.setPluginState(state);
+        if (state.isToggleEdit()) {
             state.setEditable(true);
+            final FormPlugin formPlugin = ComponentRegistry.instance.get("form.plugin");
+            formPlugin.setConfig(config);
+            formPlugin.setDisplayActionToolBar(true);
+            formPlugin.setLocalEventBus(plugin.getLocalEventBus());
+            getPlugin().getOwner().openChild(formPlugin);
+        } else {
+            editor.replaceForm(config);
         }
-        config.setPluginState(editor.getFormPluginState());
-        editor.replaceForm(config);
     }
 
     @Override

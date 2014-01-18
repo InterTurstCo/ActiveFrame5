@@ -13,4 +13,12 @@ public class DomainObjectSurferPluginState extends PluginState {
     public void setToggleEdit(boolean toggleEdit) {
         this.toggleEdit = toggleEdit;
     }
+
+    @Override
+    public DomainObjectSurferPluginState createClone() {
+        final DomainObjectSurferPluginState clone = new DomainObjectSurferPluginState();
+        clone.toggleEdit = this.toggleEdit;
+        fillCloneSuperData(clone);
+        return clone;
+    }
 }

@@ -7,7 +7,7 @@ import java.io.Serializable;
  *
  * @author Sergey.Okolot
  */
-public class PluginState implements Serializable {
+public class PluginState implements Serializable, Cloneable {
 
     private boolean fullScreen;
 
@@ -17,5 +17,15 @@ public class PluginState implements Serializable {
 
     public void setFullScreen(boolean fullScreen) {
         this.fullScreen = fullScreen;
+    }
+
+    public PluginState createClone() {
+        final PluginState clone = new PluginState();
+        clone.fullScreen = this.fullScreen;
+        return clone;
+    }
+
+    protected void fillCloneSuperData(final PluginState clone) {
+        clone.fullScreen = this.fullScreen;
     }
 }

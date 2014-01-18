@@ -23,4 +23,13 @@ public class FormPluginState extends PluginState {
     public void setToggleEdit(boolean toggleEdit) {
         this.toggleEdit = toggleEdit;
     }
+
+    @Override
+    public FormPluginState createClone() {
+        final FormPluginState clone = new FormPluginState();
+        clone.editable = this.editable;
+        clone.toggleEdit = this.toggleEdit;
+        fillCloneSuperData(clone);
+        return clone;
+    }
 }

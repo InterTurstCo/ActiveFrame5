@@ -50,7 +50,7 @@ public class DeleteAction extends SimpleServerAction {
         if (result instanceof DeleteActionData) {
             final DomainObjectSurferPlugin dosPlugin = (DomainObjectSurferPlugin) getPlugin();
             // вызываем событие удаления из коллекции
-            dosPlugin.getEventBus().fireEvent(new DeleteCollectionRowEvent(((DeleteActionData) result).getId()));
+            dosPlugin.getLocalEventBus().fireEvent(new DeleteCollectionRowEvent(((DeleteActionData) result).getId()));
             // получаем конфигурацию для очистки формы
             final IsDomainObjectEditor editor = (IsDomainObjectEditor) plugin;
             final List<Id> selected = dosPlugin.getSelectedIds();

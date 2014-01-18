@@ -4,12 +4,8 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
-import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
-import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
 
@@ -29,10 +25,10 @@ public class ToggleEditOnAction extends ToggleAction {
         } else {
             config = new FormPluginConfig(id);
         }
-        config.setPluginState(editor.getFormPluginState());
-        config.getPluginState().setEditable(true);
+        final FormPluginState state = editor.getFormPluginState();
+        config.setPluginState(state);
+        state.setEditable(true);
         updateForm(config);
-//        editor.replaceForm(config);
     }
 
     @Override
@@ -41,11 +37,10 @@ public class ToggleEditOnAction extends ToggleAction {
     }
 
     private void updateForm(final FormPluginConfig config) {
-        final DomainObjectSurferPlugin dosPlugin = (DomainObjectSurferPlugin) getPlugin();
         final FormPlugin formPlugin = ComponentRegistry.instance.get("form.plugin");
         formPlugin.setConfig(config);
         formPlugin.setDisplayActionToolBar(true);
-        Object view = formPlugin.getView();
-        dosPlugin.getOwner().openChild(formPlugin);
+        formPlugin.setLocalEventBus(plugin.getLocalEventBus());
+        getPlugin().getOwner().openChild(formPlugin);
     }
 }

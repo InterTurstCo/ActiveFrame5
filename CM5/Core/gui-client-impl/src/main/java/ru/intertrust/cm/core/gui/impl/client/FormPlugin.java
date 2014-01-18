@@ -27,12 +27,13 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
     protected EventBus eventBus;
 
     // установка локальной шины событий плагину
-    public void setEventBus(EventBus eventBus) {
+    public void setLocalEventBus(EventBus eventBus) {
         this.eventBus = eventBus;
     }
 
     // получение локальной шины событий плагина
-    public EventBus getEventBus() {
+    @Override
+    public EventBus getLocalEventBus() {
         return eventBus;
     }
 
@@ -119,7 +120,7 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
     @Override
     public FormPluginState getPluginState() {
         final FormPluginData data = getInitialData();
-        return (FormPluginState) data.getPluginState();
+        return (FormPluginState) data.getPluginState().createClone();
     }
 
     @Override
