@@ -51,7 +51,7 @@
                             <collection-viewer>
                                 <collection-ref name="Employees" use-default="true"/>
                                 <sort-criteria>
-                                    <sort-criterion field="last_name"/>
+                                    <sort-criterion field="name"/>
                                 </sort-criteria>
                             </collection-viewer>
                             <toggle-edit>true</toggle-edit>
@@ -150,7 +150,7 @@
                             <collection-viewer>
                                 <collection-ref name="Letters"/>
                                 <sort-criteria>
-                                    <sort-criterion field="name" order="asc"/>
+                                    <sort-criterion field="subject" order="asc"/>
                                 </sort-criteria>
                             </collection-viewer>
                         </domain-object-surfer>

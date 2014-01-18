@@ -22,7 +22,7 @@ public class SortCriterionConfig implements Dto {
 
     public SortCriterion.Order getOrder() {
 
-        if (order.equalsIgnoreCase(DESCENDING)) {
+        if (DESCENDING.equalsIgnoreCase(order)) {
             return SortCriterion.Order.DESCENDING;
         }
 
