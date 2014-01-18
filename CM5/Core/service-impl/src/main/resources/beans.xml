@@ -44,6 +44,9 @@
     <jee:local-slsb id="attachmentService"
                     jndi-name="java:module/AttachmentServiceImpl!ru.intertrust.cm.core.business.api.AttachmentService"
                     business-interface="ru.intertrust.cm.core.business.api.AttachmentService"/>
+    <jee:local-slsb id="searchService"
+                    jndi-name="java:module/SearchService!ru.intertrust.cm.core.business.api.SearchService"
+                    business-interface="ru.intertrust.cm.core.business.api.SearchService"/>
 
     <bean id="authenticationService"
           class="ru.intertrust.cm.core.business.impl.AuthenticationServiceImpl"
@@ -89,7 +92,7 @@
     <bean id="formService" factory-bean="processEngine" factory-method="getFormService"/>
     <!-- Интеграция с Activiti -->
 
-    <bean id="searchService" class="ru.intertrust.cm.core.business.impl.search.SearchServiceImpl"/>
+    <!--<bean id="searchService" class="ru.intertrust.cm.core.business.impl.search.SearchServiceImpl"/>-->
 
     <bean id="solrServer"
           class="ru.intertrust.cm.core.business.impl.search.SolrServerFactory"/>
