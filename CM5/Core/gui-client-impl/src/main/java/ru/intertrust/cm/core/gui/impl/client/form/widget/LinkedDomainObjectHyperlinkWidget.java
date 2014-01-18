@@ -46,7 +46,7 @@ public class LinkedDomainObjectHyperlinkWidget extends BaseWidget {
                     public void onClick(ClickEvent event) {
 
                         noneEditableFormDialogBox.hide();
-                        config.setEditable(true);
+                        config.getPluginState().setEditable(true);
                         final FormDialogBox editableFormDialogBox =
                                 new FormDialogBox("Редактирование " + domainObjectType);
 
@@ -64,7 +64,7 @@ public class LinkedDomainObjectHyperlinkWidget extends BaseWidget {
                             public void onClick(ClickEvent event) {
 
                                 editableFormDialogBox.hide();
-                                config.setEditable(false);
+                                config.getPluginState().setEditable(false);
                             }
                         });
                         editableFormDialogBox.initFormPlugin(config);

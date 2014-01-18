@@ -42,6 +42,9 @@ public class FormPluginConfig extends PluginConfig {
     }
 
     public FormPluginState getPluginState() {
+        if (pluginState == null) {
+            pluginState = new FormPluginState();
+        }
         return pluginState;
     }
 

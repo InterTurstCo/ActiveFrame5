@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.LinkedDomainObjectHyperlinkState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -52,8 +53,8 @@ public class LinkedDomainObjectHyperlinkHandler extends LinkEditingWidgetHandler
 
     private FormPluginConfig getFormPluginConfig(Id id) {
         FormPluginConfig formConfig = new FormPluginConfig();
+        formConfig.getPluginState().setEditable(false);
         formConfig.setDomainObjectId(id);
-        formConfig.setEditable(false);
         return formConfig;
     }
 

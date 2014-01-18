@@ -18,6 +18,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.NodeMetadata;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 
 import java.util.ArrayList;
 
@@ -135,7 +136,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         final String title = nodeMetadata.getDomainObjectType();
         final FormPluginConfig config = new FormPluginConfig();
         config.setDomainObjectId(id);
-        config.setEditable(false);
+        config.getPluginState().setEditable(false);
         final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(title);
         noneEditableFormDialogBox.initFormPlugin(config);
         noneEditableFormDialogBox.initButton("Открыть в полном окне", new ClickHandler() {
@@ -150,7 +151,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
             public void onClick(ClickEvent event) {
 
                 noneEditableFormDialogBox.hide();
-                config.setEditable(true);
+                config.getPluginState().setEditable(true);
                 final FormDialogBox editableFormDialogBox =
                         new FormDialogBox("Редактирование " + title);
 
@@ -168,7 +169,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
                     public void onClick(ClickEvent event) {
 
                         editableFormDialogBox.hide();
-                        config.setEditable(false);
+                        config.getPluginState().setEditable(false);
                     }
                 });
                 editableFormDialogBox.initFormPlugin(config);
@@ -238,7 +239,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         String title = "Создать " + nodeMetadata.getDomainObjectType();
         FormPluginConfig config = new FormPluginConfig();
         config.setDomainObjectTypeToCreate(domainObjectTypeToCreate);
-        config.setEditable(true);
+        config.getPluginState().setEditable(true);
         final FormDialogBox createItemDialogBox = new FormDialogBox(title);
         createItemDialogBox.initFormPlugin(config);
         createItemDialogBox.initButton("Cохранить", new ClickHandler() {
