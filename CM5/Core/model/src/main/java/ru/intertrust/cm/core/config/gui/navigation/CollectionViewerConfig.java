@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.config.gui.navigation;
 
 import org.simpleframework.xml.Element;
-import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.SearchAreaRefConfig;
@@ -29,8 +28,8 @@ public class CollectionViewerConfig extends PluginConfig{
     @Element(name = "search-collection-ref", required = false)
     private SearchCollectionRefConfig searchCollectionRefConfig;
 
-    @ElementList(inline = true)
-    private List<SortCriterionConfig> sortCriterionConfigList = new ArrayList<SortCriterionConfig>();
+    @Element(name = "sort-criteria", required = false)
+    private SortCriteriaConfig sortCriteriaConfig;
 
     private List<Id> excludedIds = new ArrayList<Id>();
 
@@ -46,12 +45,12 @@ public class CollectionViewerConfig extends PluginConfig{
         this.collectionRefConfig = collectionRefConfig;
     }
 
-    public List<SortCriterionConfig> getSortCriterionConfigList() {
-        return sortCriterionConfigList;
+    public SortCriteriaConfig getSortCriteriaConfig() {
+        return sortCriteriaConfig;
     }
 
-    public void setSortCriterionConfigList(List<SortCriterionConfig> sortCriterionConfigList) {
-        this.sortCriterionConfigList = sortCriterionConfigList;
+    public void setSortCriteriaConfig(SortCriteriaConfig sortCriteriaConfig) {
+        this.sortCriteriaConfig = sortCriteriaConfig;
     }
 
     public CollectionViewRefConfig getCollectionViewRefConfig() {
@@ -113,8 +112,9 @@ public class CollectionViewerConfig extends PluginConfig{
 
         CollectionViewerConfig that = (CollectionViewerConfig) o;
 
-        if (sortCriterionConfigList != null ? !sortCriterionConfigList.equals(that.getSortCriterionConfigList()) : that.
-                getSortCriterionConfigList() != null) {
+        if (sortCriteriaConfig != null ? !sortCriteriaConfig.equals(that.sortCriteriaConfig) : that.
+                sortCriteriaConfig != null) {
+
             return false;
         }
 
@@ -143,7 +143,7 @@ public class CollectionViewerConfig extends PluginConfig{
     public int hashCode() {
         int result = collectionRefConfig != null ? collectionRefConfig.hashCode() : 0;
         result = 31 * result + (collectionViewRefConfig != null ? collectionViewRefConfig.hashCode() : 0);
-        result = 31 * result + (sortCriterionConfigList != null ? sortCriterionConfigList.hashCode() : 0);
+        result = 31 * result + (sortCriteriaConfig != null ? sortCriteriaConfig.hashCode() : 0);
         result = 31 * result + (searchAreaRefConfig != null ? searchAreaRefConfig.hashCode() : 0);
         result = 31 * result + (searchCollectionRefConfig != null ? searchCollectionRefConfig.hashCode() : 0);
         return result;

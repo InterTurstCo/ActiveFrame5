@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.SearchAreaRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
+import ru.intertrust.cm.core.config.gui.navigation.SortCriterionConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilder;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -72,7 +73,7 @@ public class CollectionPluginHandler extends PluginHandler {
         }
 
         List<Filter> filters = new ArrayList<Filter>();
-
+         SortOrder order = getSortOrder(collectionViewerConfig);
         // todo не совсем верная логика. а в каком режиме обычная коллекция открывается? single choice? display chosen values?
         // todo: по-моему условие singleChoice && !displayChosenValues вполне говорит само за себя :) в следующем условии тоже
         if ((singleChoice && !displayChosenValues) || (!singleChoice && !displayChosenValues)) {
@@ -80,7 +81,7 @@ public class CollectionPluginHandler extends PluginHandler {
             filters = addFilterByText(collectionViewerConfig, filters);
             filters = addFilterExcludeIds(collectionViewerConfig, filters);
             ArrayList<CollectionRowItem> items = generateTableRowsForPluginInitialization(collectionName,
-                    map.keySet(), 0, 70, filters);
+                    map.keySet(), 0, 70, filters, order);
             pluginData.setItems(items);
         }
 
@@ -88,7 +89,7 @@ public class CollectionPluginHandler extends PluginHandler {
 
             filters = addFilterByText(collectionViewerConfig, filters);
             ArrayList<CollectionRowItem> items = generateTableRowsForPluginInitialization(collectionName,
-                    map.keySet(), 0, 70, filters);
+                    map.keySet(), 0, 70, filters, order);
             List<Id> chosenIds = collectionViewerConfig.getExcludedIds();
             pluginData.setIndexesOfSelectedItems(getListOfAlreadyChosenItems(chosenIds, items));
             pluginData.setItems(items);
@@ -229,10 +230,10 @@ public class CollectionPluginHandler extends PluginHandler {
     }
 
     public ArrayList<CollectionRowItem> generateTableRowsForPluginInitialization
-            (String collectionName, Set<String> fields, int offset, int count, List<Filter> filters) {
+            (String collectionName, Set<String> fields, int offset, int count, List<Filter> filters, SortOrder sortOrder) {
         ArrayList<CollectionRowItem> items = new ArrayList<CollectionRowItem>();
         IdentifiableObjectCollection collection = collectionsService.
-                findCollection(collectionName, null, filters, offset, count);
+                findCollection(collectionName, sortOrder, filters, offset, count);
         for (IdentifiableObject identifiableObject : collection) {
             items.add(generateCollectionRowItem(identifiableObject, fields));
         }
@@ -291,7 +292,7 @@ public class CollectionPluginHandler extends PluginHandler {
                 list = generateTableRowsForPluginInitialization(
                         collectionRowsRequest.getCollectionName(),
                         collectionRowsRequest.getFields().keySet(), collectionRowsRequest.getOffset(),
-                        collectionRowsRequest.getLimit(), collectionRowsRequest.getFilterList());
+                        collectionRowsRequest.getLimit(), collectionRowsRequest.getFilterList(), null);
                 CollectionRowItemList collectionRowItemList = new CollectionRowItemList();
                 collectionRowItemList.setCollectionRows(list);
             }
@@ -320,5 +321,16 @@ public class CollectionPluginHandler extends PluginHandler {
             }
         }
         return indexesOfChosenItems;
+    }
+
+    private SortOrder getSortOrder(CollectionViewerConfig collectionViewerConfig) {
+        SortOrder sortOrder = new SortOrder();
+        List<SortCriterionConfig> sortCriterions = collectionViewerConfig.getSortCriteriaConfig().getSortCriterionConfigs();
+        for (SortCriterionConfig criterionConfig : sortCriterions) {
+            String field = criterionConfig.getField();
+            SortCriterion.Order order = criterionConfig.getOrder();
+            sortOrder.add(new SortCriterion(field, order));
+        }
+        return sortOrder;
     }
 }

@@ -707,10 +707,11 @@
                             name="collection-view-ref" minOccurs="0"
                             xmlns:con="https://cm5.intertrust.ru/config"/>
             </xs:choice>
-            <xs:element type="con:sortCriterionType" name="sort-criterion"
+            <xs:element type="con:sortCriteriaType" name="sort-criteria"
                         maxOccurs="unbounded" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
+
             <xs:element type="con:searchAreaRefType" name="search-area-ref"
                         maxOccurs="unbounded" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config">
@@ -775,6 +776,14 @@
                               use="optional"/>
             </xs:extension>
         </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="sortCriteriaType">
+        <xs:sequence>
+        <xs:element type="con:sortCriterionType" name="sort-criterion"
+                    maxOccurs="unbounded" minOccurs="0"
+                    xmlns:con="https://cm5.intertrust.ru/config">
+        </xs:element>
+        </xs:sequence>
     </xs:complexType>
 
     <xs:complexType name="attributeType" mixed="true">

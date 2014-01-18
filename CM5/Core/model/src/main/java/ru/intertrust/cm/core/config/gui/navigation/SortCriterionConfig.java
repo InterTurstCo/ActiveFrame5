@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.gui.navigation;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -11,14 +12,21 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  */
 @Root(name = "sort-criterion")
 public class SortCriterionConfig implements Dto {
+
+    private static final String DESCENDING = "desc";
     @Attribute(name = "field", required = false)
     private String field;
 
     @Attribute(name = "order", required = false)
     private String order;
 
-    public String getOrder() {
-        return order;
+    public SortCriterion.Order getOrder() {
+
+        if (order.equalsIgnoreCase(DESCENDING)) {
+            return SortCriterion.Order.DESCENDING;
+        }
+
+        return SortCriterion.Order.ASCENDING;
     }
 
     public void setOrder(String order) {
