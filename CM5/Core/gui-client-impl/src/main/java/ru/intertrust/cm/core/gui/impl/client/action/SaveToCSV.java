@@ -15,18 +15,19 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
  * To change this template use File | Settings | File Templates.
  */
 @ComponentName("save-csv.action")
-public class SaveToCsv extends Action {
+public class SaveToCSV extends Action {
     EventBus eventBus;
 
     @Override
     public Component createNew() {
-        return new SaveToCsv();
+        return new SaveToCSV();
     }
 
     @Override
     public void execute() {
         eventBus = plugin.getLocalEventBus();
         eventBus.fireEvent(new SaveToCsvEvent());
+
 
     }
 
