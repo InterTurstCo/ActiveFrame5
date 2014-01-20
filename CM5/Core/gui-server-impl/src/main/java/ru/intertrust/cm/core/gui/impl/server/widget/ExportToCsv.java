@@ -71,7 +71,7 @@ public class ExportToCsv {
 
         if (filterQuery != null && filterQuery.length() > 0){
             System.out.println("filter "+filterQuery);
-            // createFilterList(filterQuery,filters);
+             createFilterList(filterQuery,filters);
         }
 
         IdentifiableObjectCollection collections;
@@ -152,9 +152,10 @@ public class ExportToCsv {
     }
 
     private void createFilterList(String filterQuery, ArrayList filterList){
+
         String []arr = filterQuery.split(":");
         System.out.println("size");
-                for (int i = 0; i <arr.length; i =+2){
+                for (int i = 0; i <arr.length; i = i+2){
                 Filter filter = new Filter();
                 Value value;
                 filter.setFilter(arr[i]);
@@ -162,6 +163,7 @@ public class ExportToCsv {
                 filter.addCriterion(0,value);
                 filterList.add(filter);
                 }
+
 
 
     }
