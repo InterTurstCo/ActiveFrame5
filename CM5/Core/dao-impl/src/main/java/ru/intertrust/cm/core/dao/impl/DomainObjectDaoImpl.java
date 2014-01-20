@@ -1252,12 +1252,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         String childAclReadTable = AccessControlUtility
                 .getAclReadTableNameFor(linkedType);
         query.append(" and exists (select r.object_id from ").append(childAclReadTable).append(" r ");
-        //TODO replace latter by this
-//        query.append(" and exists (select r.").append(wrap("object_id")).append(" from ")
-//                .append(wrap(childAclReadTable)).append(" r ");
-//        query.append("inner join ").append(wrap("group_member")).append(" gm on r.").append(wrap("group_id")).
-//                append(" = gm.").append(wrap("usergroup")).append(" where gm.").append(wrap("person_id")).
-//                append(" = :user_id and r.").append(wrap("object_id")).append(" = t.").append(wrap(ID_COLUMN)).append(")");
+        //TODO wrap person_id, object_id
 
         query.append(" and exists (select r.object_id from ").append(childAclReadTable).append(" r ");
 
