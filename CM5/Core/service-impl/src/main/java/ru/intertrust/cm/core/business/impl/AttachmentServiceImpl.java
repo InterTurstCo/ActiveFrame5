@@ -43,7 +43,7 @@ public class AttachmentServiceImpl implements AttachmentService {
 
     final static org.slf4j.Logger logger = LoggerFactory.getLogger(AttachmentServiceImpl.class);
 
-    final static private String PATH_NAME = "Path";
+    final static public String PATH_NAME = "Path";
 
     @Autowired
     private AttachmentContentDao attachmentContentDao;

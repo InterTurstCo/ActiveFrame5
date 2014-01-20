@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
+import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.model.FatalException;
@@ -35,14 +36,18 @@ public class ImportSystemData {
     private AccessControlService accessControlService;
     @Autowired
     private ModuleService moduleService;
+    @Autowired
+    private AttachmentContentDao attachmentContentDao;
 
     public void onLoad() {
         try {
 
             for (ModuleConfiguration moduleConfiguration : moduleService.getModuleList()) {
                 for (String importFile : moduleConfiguration.getImportFiles()) {
-                    ImportData importData = new ImportData(
-                            collectionsDao, configurationExplorer, domainObjectDao, accessControlService, null);
+                    ImportData importData =
+                            new ImportData(
+                                    collectionsDao, configurationExplorer, domainObjectDao, accessControlService,
+                                    attachmentContentDao, null);
 
                     URL fileUrl = this.getClass().getClassLoader().getResource(importFile);
                     importData.importData(readFile(fileUrl));

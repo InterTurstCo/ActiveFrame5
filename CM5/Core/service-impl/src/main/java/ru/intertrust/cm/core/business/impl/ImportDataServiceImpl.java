@@ -14,6 +14,7 @@ import ru.intertrust.cm.core.business.api.ImportDataService;
 import ru.intertrust.cm.core.business.load.ImportData;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
+import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.model.FatalException;
@@ -32,13 +33,17 @@ public class ImportDataServiceImpl implements ImportDataService {
     private AccessControlService accessControlService;
     @Autowired
     private DomainObjectDao domainObjectDao;
+    @Autowired
+    private AttachmentContentDao attachmentContentDao;
     @Resource
     private EJBContext context;
-    
+
     @Override
     public void importData(byte[] loadFileAsByteArray) {
         try {
-            ImportData ImportData = new ImportData(collectionsDao, configurationExplorer, domainObjectDao, accessControlService, context.getCallerPrincipal().getName());
+            ImportData ImportData =
+                    new ImportData(collectionsDao, configurationExplorer, domainObjectDao, accessControlService,
+                            attachmentContentDao, context.getCallerPrincipal().getName());
             ImportData.importData(loadFileAsByteArray);
         } catch (Exception ex) {
             throw new FatalException("Error load data", ex);

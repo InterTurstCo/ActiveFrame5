@@ -2,9 +2,12 @@ package ru.intertrust.cm.core.business.load;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
+import java.rmi.RemoteException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -21,31 +24,37 @@ import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.impl.AttachmentServiceImpl;
+import ru.intertrust.cm.core.config.AttachmentTypeConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.dao.access.AccessType;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
+import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.model.FatalException;
 
 /**
- * Класс импорртирования одного файла
+ * Класс импортирования одного файла
  * @author larin
- *
+ * 
  */
 public class ImportData {
 
+    public static final String ATTACHMENT_FIELD_NAME = "_ATTACHMENT_";
     private String typeName;
     private String[] keys;
     private String[] fields;
     private CollectionsDao collectionsDao;
     private ConfigurationExplorer configurationExplorer;
     private DomainObjectDao domainObjectDao;
+    private AttachmentContentDao attachmentContentDao;
     private SimpleDateFormat dateFofmat = new SimpleDateFormat("dd.MM.yyyy");
     private SimpleDateFormat timeFofmat = new SimpleDateFormat("dd.MM.yyyy hh:mm:ss");
     private AccessControlService accessService;
@@ -61,11 +70,14 @@ public class ImportData {
      * @param login
      */
     public ImportData(CollectionsDao collectionsDao, ConfigurationExplorer configurationExplorer,
-            DomainObjectDao domainObjectDao, AccessControlService accessService, String login) {
+            DomainObjectDao domainObjectDao, AccessControlService accessService,
+            AttachmentContentDao attachmentContentDao,
+            String login) {
         this.collectionsDao = collectionsDao;
         this.configurationExplorer = configurationExplorer;
         this.domainObjectDao = domainObjectDao;
         this.accessService = accessService;
+        this.attachmentContentDao = attachmentContentDao;
         this.login = login;
     }
 
@@ -146,8 +158,9 @@ public class ImportData {
      * @param keys
      * @param fields
      * @throws ParseException
+     * @throws RemoteException
      */
-    private void importLine(String line) throws ParseException {
+    private void importLine(String line) throws ParseException, RemoteException {
         AccessToken accessToken = null;
         //Разделяем строку на значения
         String[] fieldValues = line.split(";");
@@ -169,80 +182,161 @@ public class ImportData {
             //Создание доменного объекта
             domainObject = createDomainObject(typeName);
         }
+
+        String attachments = null;
         //Установка полей
         for (int i = 0; i < fields.length; i++) {
             String fieldName = fields[i];
-            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(typeName, fieldName);
-            if (fieldConfig != null) {
-                if (fieldConfig.getFieldType() == FieldType.BOOLEAN) {
-                    if (fieldValues[i].length() == 0){
-                        domainObject.setBoolean(fieldName, null);
-                    }else{
-                        domainObject.setBoolean(fieldName, Boolean.valueOf(fieldValues[i]));
-                    }
-                } else if (fieldConfig.getFieldType() == FieldType.DATETIME) {
-                    if (fieldValues[i].length() == 0){
-                        domainObject.setTimestamp(fieldName, null);
-                    }else{
-                        domainObject.setTimestamp(fieldName, timeFofmat.parse(fieldValues[i]));
-                    }
-                } else if (fieldConfig.getFieldType() == FieldType.DATETIMEWITHTIMEZONE) {
-                    if (fieldValues[i].length() == 0){
-                        domainObject.setDateTimeWithTimeZone(fieldName, null);
-                    }else{
-                        Date date = timeFofmat.parse(fieldValues[i]);
-                        Calendar calendar = Calendar.getInstance();
-                        calendar.setTime(date);
-                        DateTimeWithTimeZone dateTimeWithTimeZone = new DateTimeWithTimeZone(
-                                calendar.get(Calendar.YEAR),
-                                calendar.get(Calendar.MONTH),
-                                calendar.get(Calendar.DAY_OF_MONTH),
-                                calendar.get(Calendar.HOUR),
-                                calendar.get(Calendar.MINUTE),
-                                calendar.get(Calendar.SECOND)
-                                );
-                        domainObject.setDateTimeWithTimeZone(fieldName, dateTimeWithTimeZone);
-                    }
-                } else if (fieldConfig.getFieldType() == FieldType.DECIMAL) {
-                    if (fieldValues[i].length() == 0){
-                        domainObject.setDecimal(fieldName, null);
-                    }else{
-                        domainObject.setDecimal(fieldName, new BigDecimal(fieldValues[i]));
-                    }
-                } else if (fieldConfig.getFieldType() == FieldType.LONG) {
-                    if (fieldValues[i].length() == 0){
-                        domainObject.setLong(fieldName, null);
-                    }else{
-                        domainObject.setLong(fieldName, Long.parseLong(fieldValues[i]));
-                    }
-                } else if (fieldConfig.getFieldType() == FieldType.REFERENCE) {
-                    //Здесь будут выражения в формате type.field="Значение поля" или field="Значение поля" или запрос
-                    domainObject.setReference(fieldName, getReference(fieldName, fieldValues[i]));
-                } else if (fieldConfig.getFieldType() == FieldType.TIMELESSDATE) {
-                    if (fieldValues[i].length() == 0){
-                        domainObject.setTimestamp(fieldName, null);
-                    }else{
-                        domainObject.setTimestamp(fieldName, dateFofmat.parse(fieldValues[i]));
-                    }
-                } else {
-                    //В остальных случаях считаем строкой
-                    if (fieldValues[i].length() == 0){
-                        domainObject.setString(fieldName, null);
-                    }else{
-                        domainObject.setString(fieldName, fieldValues[i]);
-                    }
+            //Обрабатываем ключевое поле вложения
+            if (ATTACHMENT_FIELD_NAME.equals(fieldName)) {
+                if (!fieldValues[i].isEmpty()) {
+                    attachments = fieldValues[i];
                 }
             } else {
-                throw new FatalException("Fileld " + fieldName + " not found in type " + typeName);
+
+                FieldConfig fieldConfig = configurationExplorer.getFieldConfig(typeName, fieldName);
+                if (fieldConfig != null) {
+                    if (fieldConfig.getFieldType() == FieldType.BOOLEAN) {
+                        if (fieldValues[i].length() == 0) {
+                            domainObject.setBoolean(fieldName, null);
+                        } else {
+                            domainObject.setBoolean(fieldName, Boolean.valueOf(fieldValues[i]));
+                        }
+                    } else if (fieldConfig.getFieldType() == FieldType.DATETIME) {
+                        if (fieldValues[i].length() == 0) {
+                            domainObject.setTimestamp(fieldName, null);
+                        } else {
+                            domainObject.setTimestamp(fieldName, timeFofmat.parse(fieldValues[i]));
+                        }
+                    } else if (fieldConfig.getFieldType() == FieldType.DATETIMEWITHTIMEZONE) {
+                        if (fieldValues[i].length() == 0) {
+                            domainObject.setDateTimeWithTimeZone(fieldName, null);
+                        } else {
+                            Date date = timeFofmat.parse(fieldValues[i]);
+                            Calendar calendar = Calendar.getInstance();
+                            calendar.setTime(date);
+                            DateTimeWithTimeZone dateTimeWithTimeZone = new DateTimeWithTimeZone(
+                                    calendar.get(Calendar.YEAR),
+                                    calendar.get(Calendar.MONTH),
+                                    calendar.get(Calendar.DAY_OF_MONTH),
+                                    calendar.get(Calendar.HOUR),
+                                    calendar.get(Calendar.MINUTE),
+                                    calendar.get(Calendar.SECOND)
+                                    );
+                            domainObject.setDateTimeWithTimeZone(fieldName, dateTimeWithTimeZone);
+                        }
+                    } else if (fieldConfig.getFieldType() == FieldType.DECIMAL) {
+                        if (fieldValues[i].length() == 0) {
+                            domainObject.setDecimal(fieldName, null);
+                        } else {
+                            domainObject.setDecimal(fieldName, new BigDecimal(fieldValues[i]));
+                        }
+                    } else if (fieldConfig.getFieldType() == FieldType.LONG) {
+                        if (fieldValues[i].length() == 0) {
+                            domainObject.setLong(fieldName, null);
+                        } else {
+                            domainObject.setLong(fieldName, Long.parseLong(fieldValues[i]));
+                        }
+                    } else if (fieldConfig.getFieldType() == FieldType.REFERENCE) {
+                        //Здесь будут выражения в формате type.field="Значение поля" или field="Значение поля" или запрос
+                        domainObject.setReference(fieldName, getReference(fieldName, fieldValues[i]));
+                    } else if (fieldConfig.getFieldType() == FieldType.TIMELESSDATE) {
+                        if (fieldValues[i].length() == 0) {
+                            domainObject.setTimestamp(fieldName, null);
+                        } else {
+                            domainObject.setTimestamp(fieldName, dateFofmat.parse(fieldValues[i]));
+                        }
+                    } else {
+                        //В остальных случаях считаем строкой
+                        if (fieldValues[i].length() == 0) {
+                            domainObject.setString(fieldName, null);
+                        } else {
+                            domainObject.setString(fieldName, fieldValues[i]);
+                        }
+                    }
+                } else {
+                    throw new FatalException("Fileld " + fieldName + " not found in type " + typeName);
+                }
             }
         }
-        if (login == null || domainObject.isNew()){
+        if (login == null || domainObject.isNew()) {
             accessToken = accessService.createSystemAccessToken(this.getClass().getName());
-        }else{
+        } else {
             accessToken = accessService.createAccessToken(login, domainObject.getId(), DomainObjectAccessType.WRITE);
         }
-        
-        domainObjectDao.save(domainObject, accessToken);
+
+        domainObject = domainObjectDao.save(domainObject, accessToken);
+
+        //Создаем вложения если необходимо
+        if (attachments != null) {
+            String[] attachementsList = attachments.split(",");
+            for (int j = 0; j < attachementsList.length; j++) {
+                createAttachment(domainObject, attachementsList[j]);
+            }
+        }
+    }
+
+    /**
+     * Создание вложения для переданного доменного объекта
+     * @param domainObject
+     * @param string
+     * @throws RemoteException
+     */
+    private DomainObject createAttachment(DomainObject domainObject, String filePath) throws RemoteException {
+        DomainObject result = null;
+        AccessToken accessToken = accessService.createSystemAccessToken(this.getClass().getName());
+        //Получение типа доменного объекта вложения
+        AttachmentTypeInfo attachmentTypeInfo = getAttachmentTypeInfo(typeName);
+
+        //Проверка наличия вложения у типа
+        if (attachmentTypeInfo != null) {
+
+            //Получение имени вложения
+            File attachmentFile = new File(filePath);
+
+            //Получение вложения по имени
+            DomainObject attachment = null;
+            List<DomainObject> attachments = domainObjectDao.findLinkedDomainObjects(domainObject.getId(),
+                    attachmentTypeInfo.attachmentTypeConfig.getName(), attachmentTypeInfo.refAttrName, accessToken);
+            for (DomainObject existsAttachment : attachments) {
+                if (existsAttachment.getString("Name").equals(attachmentFile.getName())) {
+                    attachment = existsAttachment;
+                }
+            }
+
+            //Если вложение не найдено то создание объекта вложения
+            if (attachment == null) {
+                attachment = createAttachmentDomainObjectFor(domainObject, attachmentTypeInfo);
+                attachment.setString("Name", attachmentFile.getName());
+            }
+
+            //Установка контента вложения
+            InputStream stream = this.getClass().getClassLoader().getResourceAsStream(filePath);
+            result = saveAttachment(stream, attachment);
+        }
+        return result;
+    }
+
+    private AttachmentTypeInfo getAttachmentTypeInfo(String type) {
+        AttachmentTypeInfo result = null;
+        //Получение типа доменного объекта вложения
+        DomainObjectTypeConfig typeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, type);
+
+        //Проверка наличия вложения у типа
+        if (typeConfig.getAttachmentTypesConfig() != null &&
+                typeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs() != null &&
+                typeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs().size() > 0) {
+            result = new AttachmentTypeInfo();
+            result.attachmentTypeConfig = typeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs().get(0);
+            result.refAttrName = type;
+        }
+
+        //Если нет конфигурации вложения проверяем наличия супертипа
+        if (result == null && typeConfig.getExtendsAttribute() != null) {
+            //Если супертип есть, то проверяем наличие вложения у него
+            result = getAttachmentTypeInfo(typeConfig.getExtendsAttribute());
+        }
+        return result;
     }
 
     /**
@@ -302,7 +396,7 @@ public class ImportData {
             value = "'" + getNormalizationField(field[1]) + "'";
         }
 
-        String query = getQuery(type, new String[]{fieldName}, new String[]{value}) ;
+        String query = getQuery(type, new String[] { fieldName }, new String[] { value });
         return getReferenceFromSelect(query);
     }
 
@@ -313,9 +407,9 @@ public class ImportData {
      */
     private Id getReferenceFromSelect(String query) {
         AccessToken accessToken = null;
-        if (login == null){
+        if (login == null) {
             accessToken = accessService.createSystemAccessToken(this.getClass().getName());
-        }else{
+        } else {
             accessToken = accessService.createCollectionAccessToken(login);
         }
         IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, 0, 1000, accessToken);
@@ -339,9 +433,9 @@ public class ImportData {
 
         String query = getQuery(typeName, keys, values);
         AccessToken accessToken = null;
-        if (login == null){
+        if (login == null) {
             accessToken = accessService.createSystemAccessToken(this.getClass().getName());
-        }else{
+        } else {
             accessToken = accessService.createCollectionAccessToken(login);
         }
         IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, 0, 1000, accessToken);
@@ -425,9 +519,9 @@ public class ImportData {
         String result = null;
         if (fieldConfig.getFieldType() == FieldType.LONG) {
             result = valueAsString;
-        }else if (fieldConfig.getFieldType() == FieldType.REFERENCE) {
-            result = String.valueOf(((RdbmsId)getReference(fieldName, valueAsString)).getId());
-        }else {
+        } else if (fieldConfig.getFieldType() == FieldType.REFERENCE) {
+            result = String.valueOf(((RdbmsId) getReference(fieldName, valueAsString)).getId());
+        } else {
             result = "'" + valueAsString + "'";
         }
         return result;
@@ -445,6 +539,53 @@ public class ImportData {
         domainObject.setCreatedDate(currentDate);
         domainObject.setModifiedDate(currentDate);
         return domainObject;
+    }
+
+    private DomainObject createAttachmentDomainObjectFor(DomainObject objectId, AttachmentTypeInfo attachmentTypeInfo) {
+        DomainObject attachmentDomainObject =
+                (GenericDomainObject) createDomainObject(attachmentTypeInfo.attachmentTypeConfig.getName());
+
+        attachmentDomainObject.setReference(attachmentTypeInfo.refAttrName, objectId);
+        return attachmentDomainObject;
+    }
+
+    private DomainObject saveAttachment(InputStream inputStream, DomainObject attachmentDomainObject) {
+        AccessToken accessToken = accessService.createSystemAccessToken(this.getClass().getName());
+
+        StringValue newFilePathValue = null;
+        DomainObject savedDoaminObject = null;
+        try {
+            String newFilePath = attachmentContentDao.saveContent(inputStream);
+            //если newFilePath is null или empty не обрабатываем
+            if (newFilePath == null || newFilePath.isEmpty()) {
+                throw new DaoException("File isn't created");
+            }
+            newFilePathValue = new StringValue(newFilePath);
+            StringValue oldFilePathValue = (StringValue) attachmentDomainObject.getValue("path");
+            attachmentDomainObject.setValue(AttachmentServiceImpl.PATH_NAME, new StringValue(newFilePath));
+
+            savedDoaminObject = domainObjectDao.save(attachmentDomainObject, accessToken);
+
+            //предыдущий файл удаляем
+            if (oldFilePathValue != null && !oldFilePathValue.isEmpty()) {
+                //файл может быть и не удален, в случае если заблокирован
+                attachmentDomainObject.setValue(AttachmentServiceImpl.PATH_NAME, oldFilePathValue);
+                attachmentContentDao.deleteContent(attachmentDomainObject);
+            }
+            savedDoaminObject.setValue("path", newFilePathValue);
+            return savedDoaminObject;
+        } catch (Exception ex) {
+            if (newFilePathValue != null && !newFilePathValue.isEmpty()) {
+                attachmentDomainObject.setValue(AttachmentServiceImpl.PATH_NAME, newFilePathValue);
+                attachmentContentDao.deleteContent(attachmentDomainObject);
+            }
+            throw new FatalException("Error save attachment", ex);
+        }
+    }
+
+    private class AttachmentTypeInfo {
+        private AttachmentTypeConfig attachmentTypeConfig;
+        private String refAttrName;
     }
 
 }

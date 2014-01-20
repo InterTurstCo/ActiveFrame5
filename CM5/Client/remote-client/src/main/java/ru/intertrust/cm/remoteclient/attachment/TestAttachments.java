@@ -6,10 +6,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.healthmarketscience.rmiio.RemoteInputStream;
-import com.healthmarketscience.rmiio.RemoteInputStreamClient;
-import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
-
 import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
@@ -17,14 +13,17 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.model.ReportServiceException;
 import ru.intertrust.cm.remoteclient.ClientBase;
 
+import com.healthmarketscience.rmiio.RemoteInputStream;
+import com.healthmarketscience.rmiio.RemoteInputStreamClient;
+import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
+
 public class TestAttachments extends ClientBase {
     private CrudService.Remote crudService;
 
     private CollectionsService.Remote collectionService;
 
     private AttachmentService.Remote attachmentService;
-    
-    
+
     public static void main(String[] args) {
         try {
             TestAttachments test = new TestAttachments();
@@ -46,22 +45,22 @@ public class TestAttachments extends ClientBase {
 
             attachmentService = (AttachmentService.Remote) getService(
                     "AttachmentServiceImpl", AttachmentService.Remote.class);
-            
+
             DomainObject person = createPerson();
             //Добавляем вложение 2 раза. Одно потом удалим второе оставим
             byte[] saveContent = readFile(new File("test.pdf"));
-            
+
             DomainObject firstAttachment = setAttachment(person, new File("test.pdf"));
             DomainObject secondAttachment = setAttachment(person, new File("test.pdf"));
             System.out.println("Save OK");
-            
+
             byte[] loadContent = getAttachmentContent(firstAttachment);
             boolean compareResult = compareContent(saveContent, loadContent);
             System.out.println("Load OK=" + compareResult);
-            
+
             attachmentService.deleteAttachment(secondAttachment.getId());
             System.out.println("Delete OK");
-            
+
         } finally {
             writeLog();
         }
@@ -77,8 +76,9 @@ public class TestAttachments extends ClientBase {
             }
         }
         return true;
-    }    
-    private DomainObject createPerson(){
+    }
+
+    private DomainObject createPerson() {
         DomainObject person = crudService.createDomainObject("Person");
         person.setString("Login", "person" + System.currentTimeMillis());
         person.setString("FirstName", "Person" + System.currentTimeMillis());
@@ -87,8 +87,8 @@ public class TestAttachments extends ClientBase {
         person = crudService.save(person);
         return person;
     }
-    
-    private DomainObject setAttachment(DomainObject domainObject, File file) throws IOException{        
+
+    private DomainObject setAttachment(DomainObject domainObject, File file) throws IOException {
         DomainObject attachment =
                 attachmentService.createAttachmentDomainObjectFor(domainObject.getId(),
                         "report_template_attachment");
@@ -101,7 +101,7 @@ public class TestAttachments extends ClientBase {
         DomainObject result = attachmentService.saveAttachment(remoteInputStream, attachment);
         return result;
     }
-    
+
     protected byte[] getAttachmentContent(DomainObject attachment) {
         InputStream contentStream = null;
         RemoteInputStream inputStream = null;
@@ -109,10 +109,10 @@ public class TestAttachments extends ClientBase {
             inputStream = attachmentService.loadAttachment(attachment.getId());
             contentStream = RemoteInputStreamClient.wrap(inputStream);
             ByteArrayOutputStream attachmentBytes = new ByteArrayOutputStream();
-            
+
             int read = 0;
             byte[] buffer = new byte[1024];
-            while ((read = contentStream.read(buffer)) > 0){
+            while ((read = contentStream.read(buffer)) > 0) {
                 attachmentBytes.write(buffer, 0, read);
             }
             return attachmentBytes.toByteArray();
@@ -125,5 +125,5 @@ public class TestAttachments extends ClientBase {
             } catch (IOException ignoreEx) {
             }
         }
-    }    
+    }
 }
