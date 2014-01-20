@@ -1,0 +1,4 @@
+TYPE_NAME=country;KEYS=name;;
+name;population;description;_ATTACHMENT_
+Россия;143548980;Российская Федерация;importdata/contents/russia-map.png
+Украина;45469800;Украина;importdata/contents/ukraine-map.png

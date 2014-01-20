@@ -29,5 +29,6 @@
         <import-file>importdata/import-employee.csv</import-file>
         <import-file>importdata/set-organization-boss.csv</import-file>
         <import-file>importdata/set-department-boss.csv</import-file>
+        <import-file>importdata/import-country.csv</import-file>
     </import-files>    
 </module>
