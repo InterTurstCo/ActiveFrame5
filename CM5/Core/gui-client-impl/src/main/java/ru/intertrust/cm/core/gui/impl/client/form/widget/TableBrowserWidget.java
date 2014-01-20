@@ -16,6 +16,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
+import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
@@ -100,6 +101,8 @@ public class TableBrowserWidget extends BaseWidget {
         collectionViewRefConfig.setName(tableBrowserConfig.getCollectionViewRefConfig().getName());
         CollectionRefConfig collectionRefConfig = new CollectionRefConfig();
         collectionRefConfig.setName(tableBrowserConfig.getCollectionRefConfig().getName());
+        SortCriteriaConfig sortCriteriaConfig = new SortCriteriaConfig();
+        collectionViewerConfig.setSortCriteriaConfig(sortCriteriaConfig);
         collectionViewerConfig.setCollectionRefConfig(collectionRefConfig);
         collectionViewerConfig.setCollectionViewRefConfig(collectionViewRefConfig);
         collectionViewerConfig.setSearchAreaRefConfig(searchAreaRefConfig);
