@@ -18,6 +18,10 @@
                     jndi-name="java:module/ProcessService!ru.intertrust.cm.core.business.api.ProcessService"
                     business-interface="ru.intertrust.cm.core.business.api.ProcessService"/>
 
+    <jee:local-slsb id="searchService"
+                    jndi-name="java:module/SearchService!ru.intertrust.cm.core.business.api.SearchService"
+                    business-interface="ru.intertrust.cm.core.business.api.SearchService"/>
+
 
     <bean id="formRetriever" class="ru.intertrust.cm.core.gui.impl.server.form.FormRetriever" scope="prototype">
         <constructor-arg value=""/>

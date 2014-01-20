@@ -73,12 +73,12 @@ public class FormPluginHandler extends ActivePluginHandler {
             }
 
         } else {
-                contexts.add(new ActionContext(createActionConfig("create.new.object.action",
-                        "create.new.object.action", "Создать новый", "icons/icon-create.png")));
-                contexts.add(new SaveActionContext(createActionConfig(
-                        "save.action", "save.action", "Сохранить", "icons/ico-save.gif")));
-                contexts.add(new SaveActionContext(createActionConfig(
-                        "delete.action", "delete.action", "Удалить", "icons/ico-delete.gif")));
+            contexts.add(new ActionContext(createActionConfig("create.new.object.action",
+                    "create.new.object.action", "Создать новый", "icons/icon-create.png")));
+            contexts.add(new SaveActionContext(createActionConfig(
+                    "save.action", "save.action", "Сохранить", "icons/ico-save.gif")));
+            contexts.add(new SaveActionContext(createActionConfig(
+                    "delete.action", "delete.action", "Удалить", "icons/ico-delete.gif")));
 // Временно убрано из отображения
 //                contexts.add(new SaveToCSVContext(createActionConfig(
 //                        "save-csv.action", "save-csv.action", "Выгрузить в CSV", "icons/icon-edit.png")));
@@ -87,7 +87,7 @@ public class FormPluginHandler extends ActivePluginHandler {
     }
 
     private static ActionConfig createActionConfig(final String name, final String component,
-                                                     final String label, final String imageUrl) {
+                                                   final String label, final String imageUrl) {
         final ActionConfig config = new ActionConfig(name, component);
         config.setText(label);
         config.setImageUrl(imageUrl);

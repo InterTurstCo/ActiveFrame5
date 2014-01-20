@@ -10,8 +10,7 @@ import ru.intertrust.cm.core.config.gui.ActionConfig;
  * To change this template use File | Settings | File Templates.
  */
 public class SaveToCSVContext extends ActionContext {
-    private int id;
-    private String collectionName;
+
 
 
 
@@ -22,19 +21,4 @@ public class SaveToCSVContext extends ActionContext {
         super(actionConfig);
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getCollectionName() {
-        return collectionName;
-    }
-
-    public void setCollectionName(String collectionName) {
-        this.collectionName = collectionName;
-    }
 }

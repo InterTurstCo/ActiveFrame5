@@ -10,6 +10,7 @@ import com.google.gwt.event.dom.client.ScrollEvent;
 import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.RowStyles;
@@ -67,10 +68,11 @@ public class CollectionPluginView extends PluginView {
     private Button filterButton = new Button();
     private HorizontalPanel searchPanel = new HorizontalPanel();
     private ArrayList<Filter> filterList;
-    private ArrayList<CollectionSearchBox> searchBoxList = new ArrayList<CollectionSearchBox>();
+    private ArrayList<CollectionSearchBox> searchBoxList =  new ArrayList<CollectionSearchBox>();
     private HorizontalPanel treeLinkWidget = new HorizontalPanel();
     private String simpleSearchQuery = "";
     private String searchArea = "";
+
 
     // локальная шина событий
     private EventBus eventBus;
@@ -201,6 +203,7 @@ public class CollectionPluginView extends PluginView {
             }
         });
 
+
         scrollTableBody.addScrollHandler(new ScrollHandler() {
             @Override
             public void onScroll(ScrollEvent event) {
@@ -266,6 +269,8 @@ public class CollectionPluginView extends PluginView {
                 }
             }
         });
+
+
         //событие которое инициализирует поиск по колонкам таблицы
         eventBus.addHandler(TableSearchEvent.TYPE, new TableSearchEventHandler() {
             @Override
@@ -283,6 +288,7 @@ public class CollectionPluginView extends PluginView {
 
                             Date date = new Date();
                             date = searchBoxList.get(i).getDate();
+
                             value = new TimestampValue(date);
 
                         } else {
@@ -290,14 +296,74 @@ public class CollectionPluginView extends PluginView {
                         }
                         filter.addCriterion(0, value);
                         filterList.add(filter);
+
+
                     }
                 }
 
                 items.clear();
                 listCount = 0;
                 collectionData();
+
+
             }
         });
+
+        // экспорт в csv
+        eventBus.addHandler(SaveToCsvEvent.TYPE, new SaveToCsvEventHandler() {
+            @Override
+            public void saveToCsv(SaveToCsvEvent saveToCsvEvent) {
+                //To change body of implemented methods use File | Settings | File Templates.
+
+
+                StringBuilder sb = new StringBuilder();
+
+                sb.append("collectionName=");
+                sb.append(collectionName);
+
+
+                if(sortCollectionState !=null && sortCollectionState.isSortable()){
+                    sb.append("&");
+                    sb.append("ColumnName=");
+                    sb.append(fieldMap.get(sortCollectionState.getColumnName()));
+                    sb.append("&");
+                    sb.append("Sortable=");
+                    sb.append(sortCollectionState.isSortDirection());
+
+                }
+
+                if (simpleSearchQuery != null && simpleSearchQuery.length()>0){
+                    sb.append("&");
+                    sb.append("simpleSearchQuery=");
+                    sb.append(simpleSearchQuery);
+                    sb.append("&");
+                    sb.append("searchArea=");
+                    sb.append(searchArea);
+
+
+                }  else {
+                    sb.append("&");
+                    sb.append("filterName=");
+                    for (int i = 0; i < filterList.size(); i++){
+                         if (filterList.get(i).getCriterion(0) != null && !filterList.get(i).getCriterion(0).isEmpty())
+                         sb.append(filterList.get(i).getFilter());
+                         sb.append(":");
+                         sb.append(filterList.get(i).getCriterion(0));
+                         sb.append(":");
+
+                    }
+                }
+
+                String msg = sb.toString().replaceAll("%", "");
+                String query = GWT.getHostPageBaseURL() + "export-to-csv?"+msg;
+
+                Window.open(URL.encode(query) , "Export to CSV", "");
+
+            }
+        });
+
+
+
 
     }
 
@@ -348,8 +414,8 @@ public class CollectionPluginView extends PluginView {
         CollectionRowItem item = new CollectionRowItem();
         LinkedHashMap<String, Value> rowValues = new LinkedHashMap<String, Value>();
         for (String field : columnNamesOnDoFieldsMap.keySet()) {
-            Value value = null;
-            value = collectionObject.getValue(field);
+             Value value = null;
+             value = collectionObject.getValue(field);
 
             if (field.equalsIgnoreCase("id")) {
                 value = new StringValue(collectionObject.getId().toStringRepresentation());
@@ -437,6 +503,8 @@ public class CollectionPluginView extends PluginView {
         if (searchArea != null && searchArea.length() > 0) {
             SimpleSearchPanel simpleSearchPanel = new SimpleSearchPanel(simpleSearch, eventBus);
             treeLinkWidget.add(simpleSearchPanel);
+
+
         }
         headerPanel.add(tableHeader);
         headerPanel.add(filterButton);
@@ -444,13 +512,19 @@ public class CollectionPluginView extends PluginView {
         filterButton.addStyleName("search-button");
         headerPanel.add(searchPanel);
         searchPanel.setVisible(false);
+
+
+
         bodyPanel.add(tableBody);
         verticalPanel.add(headerPanel);
+
         scrollTableBody.getElement().getStyle().setOverflowX(Style.Overflow.HIDDEN);
+
         scrollTableBody.setHeight(tableHeight + "px");
         scrollTableBody.add(bodyPanel);
         verticalPanel.add(scrollTableBody);
         root.add(verticalPanel);
+
 
     }
 
@@ -485,10 +559,12 @@ public class CollectionPluginView extends PluginView {
         int columnWidth = (tableWidth / numberOfColumns);
         columnWidth = columnMinWidth(columnWidth);
         for (String field : domainObjectFieldsOnColumnNamesMap.keySet()) {
+
             Column<CollectionRowItem, String> column = buildNameColumn(field);
             String columnName = domainObjectFieldsOnColumnNamesMap.get(field);
             String type = filterNameMap.get(field);
             column.setDataStoreName(columnName);
+
             tableHeader.addColumn(column, columnName);
             tableHeader.setColumnWidth(column, columnWidth + "px");
             CollectionSearchBox box;
@@ -498,6 +574,7 @@ public class CollectionPluginView extends PluginView {
                 box = new CollectionSearchBox(new TextBox(), type, eventBus);
             }
             searchBoxList.add(box);
+
             box.setWidth(columnWidth + "px");
             searchPanel.add(box);
             tableBody.addColumn(column);
@@ -510,6 +587,7 @@ public class CollectionPluginView extends PluginView {
     }
 
     public void insertRows(List<CollectionRowItem> list) {
+
         tableBody.setRowData(list);
         listCount = items.size();
     }

@@ -236,6 +236,7 @@ public class CollectionPluginHandler extends PluginHandler {
                 findCollection(collectionName, sortOrder, filters, offset, count);
         for (IdentifiableObject identifiableObject : collection) {
             items.add(generateCollectionRowItem(identifiableObject, fields));
+
         }
         return items;
     }
