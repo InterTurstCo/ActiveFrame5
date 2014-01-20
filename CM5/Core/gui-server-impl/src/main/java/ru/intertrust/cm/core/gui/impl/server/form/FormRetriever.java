@@ -69,6 +69,7 @@ public class FormRetriever {
         // a^b.c - link defining N:M relationship (widgets changing attributes can't have such field path)
         FormConfig formConfig = formResolver.findFormConfig(root, userUid);
         List<WidgetConfig> widgetConfigs = formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
+        HashMap<String, WidgetConfig> widgetConfigsById = buildWidgetConfigsById(widgetConfigs);
         HashMap<String, WidgetState> widgetStateMap = new HashMap<>(widgetConfigs.size());
         HashMap<String, String> widgetComponents = new HashMap<>(widgetConfigs.size());
         FormObjects formObjects = new FormObjects();
@@ -84,7 +85,7 @@ public class FormRetriever {
                 }
 
                 //todo refactor
-                WidgetContext widgetContext = new WidgetContext(config, formObjects);
+                WidgetContext widgetContext = new WidgetContext(config, formObjects, widgetConfigsById);
                 WidgetHandler componentHandler = (WidgetHandler) applicationContext.getBean(config.getComponentName());
                 WidgetState initialState = componentHandler.getInitialState(widgetContext);
                 widgetStateMap.put(widgetId, initialState);
@@ -117,7 +118,7 @@ public class FormRetriever {
                 }
             }
 
-            WidgetContext widgetContext = new WidgetContext(config, formObjects);
+            WidgetContext widgetContext = new WidgetContext(config, formObjects, widgetConfigsById);
             WidgetHandler componentHandler = (WidgetHandler) applicationContext.getBean(config.getComponentName());
             WidgetState initialState = componentHandler.getInitialState(widgetContext);
             initialState.setEditable(true);
@@ -169,5 +170,13 @@ public class FormRetriever {
                 ? new ArrayList<DomainObject>()
                 : crudService.findLinkedDomainObjects(parentDomainObject.getId(), linkedType, referenceField);
         return new MultiObjectNode(linkedType, linkedDomainObjects);
+    }
+
+    private HashMap<String, WidgetConfig> buildWidgetConfigsById(List<WidgetConfig> widgetConfigs) {
+        HashMap<String, WidgetConfig> widgetConfigsById = new HashMap<>(widgetConfigs.size());
+        for (WidgetConfig config : widgetConfigs) {
+            widgetConfigsById.put(config.getId(), config);
+        }
+        return widgetConfigsById;
     }
 }

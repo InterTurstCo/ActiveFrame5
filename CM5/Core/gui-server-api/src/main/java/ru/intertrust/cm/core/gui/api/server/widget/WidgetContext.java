@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.FormObjects;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * @author Denis Mitavskiy
@@ -18,9 +19,10 @@ import java.util.ArrayList;
 public class WidgetContext implements Dto {
     private static final FieldPath[] NOT_INITIALIZED_FIELD_PATHS = new FieldPath[0];
     private static final FieldPath[] EMPTY_PATHS = new FieldPath[1];
-
     private WidgetConfig widgetConfig;
+
     private FormObjects formObjects;
+    private transient Map<String, WidgetConfig> widgetConfigsById;
     private transient FieldPath[] fieldPaths = NOT_INITIALIZED_FIELD_PATHS;
 
     public WidgetContext() {
@@ -31,12 +33,22 @@ public class WidgetContext implements Dto {
         this.formObjects = formObjects;
     }
 
+    public WidgetContext(WidgetConfig widgetConfig, FormObjects formObjects, Map<String, WidgetConfig> widgetConfigsById) {
+        this.widgetConfig = widgetConfig;
+        this.formObjects = formObjects;
+        this.widgetConfigsById = widgetConfigsById;
+    }
+
     public <T extends WidgetConfig> T getWidgetConfig() {
         return (T) widgetConfig;
     }
 
     public void setWidgetConfig(WidgetConfig widgetConfig) {
         this.widgetConfig = widgetConfig;
+    }
+
+    public <T extends WidgetConfig> T getWidgetConfigById(String widgetId) {
+        return widgetConfigsById == null ? null : (T) widgetConfigsById.get(widgetId);
     }
 
     public FormObjects getFormObjects() {

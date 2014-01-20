@@ -48,8 +48,8 @@ public class ListBoxWidget extends BaseWidget {
         return new Label();
     }
 
-    private StateHandler getStateHandler() {
-        return isEditable ? new ListBoxStateHandler() : new LabelStateHandler();
+    private <T extends Widget> StateHandler<T> getStateHandler() {
+        return (StateHandler<T>) (isEditable ? new ListBoxStateHandler() : new LabelStateHandler());
     }
 
     private interface StateHandler<T extends Widget> {
