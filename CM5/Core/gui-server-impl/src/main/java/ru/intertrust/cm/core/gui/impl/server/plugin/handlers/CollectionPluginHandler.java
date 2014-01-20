@@ -15,6 +15,7 @@ import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriterionConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilder;
+import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowItemList;
@@ -56,22 +57,19 @@ public class CollectionPluginHandler extends PluginHandler {
 
         LinkedHashMap<String, String> map = getDomainObjectFieldOnColumnNameMap(collectionViewConfig);
         pluginData.setDomainObjectFieldOnColumnNameMap(map);
-        HashMap<String, String> fieldMap = new HashMap<String, String>();
-        HashMap<String, String> fieldMapDisplay = new HashMap<String, String>();
-        HashMap<String, String> fieldFilter = new HashMap<String, String>();
-        List<CollectionColumnConfig> config = collectionViewConfig.getCollectionDisplayConfig().getColumnConfig();
-        for (int i = 0; i < config.size(); i++) {
-            if (!collectionViewConfig.getCollectionDisplayConfig().getColumnConfig().get(i).isHidden()) {
-                fieldMap.put(collectionViewConfig.getCollectionDisplayConfig().getColumnConfig().get(i).getName(),
-                        collectionViewConfig.getCollectionDisplayConfig().getColumnConfig().get(i).getField());
-                fieldMapDisplay.put(collectionViewConfig.getCollectionDisplayConfig().getColumnConfig().get(i).getName(),
-                        collectionViewConfig.getCollectionDisplayConfig().getColumnConfig().get(i).getType());
-                fieldFilter.put(collectionViewConfig.getCollectionDisplayConfig().getColumnConfig().get(i).getField(),
-                        collectionViewConfig.getCollectionDisplayConfig().getColumnConfig().get(i).getSearchFilter());
-
+        HashMap<String, CollectionColumnProperties> propertiesMap = new HashMap<String, CollectionColumnProperties>();
+        List<CollectionColumnConfig> configList = collectionViewConfig.getCollectionDisplayConfig().getColumnConfig();
+        for (CollectionColumnConfig config : configList) {
+            if (!config.isHidden()) {
+            final String key = config.getName();
+                final CollectionColumnProperties properties = new CollectionColumnProperties();
+                properties.addProperty(CollectionColumnProperties.FIELD_KEY, config.getField())
+                        .addProperty(CollectionColumnProperties.TYPE_KEY, config.getType())
+                        .addProperty(CollectionColumnProperties.SEARCH_FILTER_KEY, config.getSearchFilter())
+                        .addProperty(CollectionColumnProperties.PATTERN_KEY, config.getPattern());
+                propertiesMap.put(key, properties);
             }
         }
-
         List<Filter> filters = new ArrayList<Filter>();
          SortOrder order = getSortOrder(collectionViewerConfig);
         // todo не совсем верная логика. а в каком режиме обычная коллекция открывается? single choice? display chosen values?
@@ -96,10 +94,7 @@ public class CollectionPluginHandler extends PluginHandler {
         }
 
         pluginData.setCollectionName(collectionName);
-        pluginData.setFieldMap(fieldMap);
-        pluginData.setFieldMapDisplay(fieldMapDisplay);
-        pluginData.setFieldFilter(fieldFilter);
-
+        pluginData.setPropertiesMap(propertiesMap);
         if (collectionViewerConfig.getSearchAreaRefConfig() != null) {
             pluginData.setSearchArea(collectionViewerConfig.getSearchAreaRefConfig().getName());
         } else {

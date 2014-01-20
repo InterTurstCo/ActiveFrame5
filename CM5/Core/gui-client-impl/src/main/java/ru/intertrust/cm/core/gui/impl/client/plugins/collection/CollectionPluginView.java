@@ -31,6 +31,7 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.Check
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.TableController;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.resources.CellTableResourcesEx;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.resources.DGCellTableResourceAdapter;
+import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowItemList;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
@@ -51,10 +52,8 @@ public class CollectionPluginView extends PluginView {
     private ScrollPanel scrollTableBody = new ScrollPanel();
     private TableController tableController;
     private ArrayList<CollectionRowItem> items;
-    private HashMap<String, String> fieldMap;
-    private HashMap<String, String> fieldMapDisplay;
+    private HashMap<String, CollectionColumnProperties> propertyMap;
     private HashMap<String, String> columnNamesOnDoFieldsMap;
-    private HashMap<String, String> filterNameMap;
     private FlowPanel headerPanel = new FlowPanel();
     private FlowPanel bodyPanel = new FlowPanel();
     private VerticalPanel verticalPanel = new VerticalPanel();
@@ -112,11 +111,9 @@ public class CollectionPluginView extends PluginView {
     protected IsWidget getViewWidget() {
 
         CollectionPluginData collectionPluginData = plugin.getInitialData();
-        fieldMapDisplay = collectionPluginData.getFieldMapDisplay();
-        fieldMap = collectionPluginData.getFieldMap();
+        propertyMap = collectionPluginData.getPropertiesMap();
         collectionName = collectionPluginData.getCollectionName();
         columnNamesOnDoFieldsMap = collectionPluginData.getDomainObjectFieldOnColumnNameMap();
-        filterNameMap = collectionPluginData.getFieldFilter();
         items = collectionPluginData.getItems();
         singleChoice = collectionPluginData.isSingleChoice();
         searchArea = collectionPluginData.getSearchArea();
@@ -562,16 +559,17 @@ public class CollectionPluginView extends PluginView {
 
             Column<CollectionRowItem, String> column = buildNameColumn(field);
             String columnName = domainObjectFieldsOnColumnNamesMap.get(field);
-            String type = filterNameMap.get(field);
+            final String filterType = (String) propertyMap.get(columnName)
+                    .getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
             column.setDataStoreName(columnName);
 
             tableHeader.addColumn(column, columnName);
             tableHeader.setColumnWidth(column, columnWidth + "px");
             CollectionSearchBox box;
-            if (fieldMapDisplay.get(columnName).equals("datetime")) {
-                box = new CollectionSearchBox(new DateBox(), type, eventBus);
+            if (propertyMap.get(columnName).getProperty(CollectionColumnProperties.TYPE_KEY).equals("datetime")) {
+                box = new CollectionSearchBox(new DateBox(), filterType, eventBus);
             } else {
-                box = new CollectionSearchBox(new TextBox(), type, eventBus);
+                box = new CollectionSearchBox(new TextBox(), filterType, eventBus);
             }
             searchBoxList.add(box);
 
@@ -657,14 +655,15 @@ public class CollectionPluginView extends PluginView {
 
     private void createSortedCollectionData() {
 
-
+        final String field = (String) propertyMap.get(sortCollectionState.getColumnName())
+                .getProperty(CollectionColumnProperties.FIELD_KEY);
         CollectionRowsRequest collectionRowsRequest;
         if (sortCollectionState.isResetCollection()) {
             items.clear();
             collectionRowsRequest = new CollectionRowsRequest(sortCollectionState.getCount(),
                     sortCollectionState.getOffset(), collectionName, columnNamesOnDoFieldsMap,
                     sortCollectionState.isSortDirection(), sortCollectionState.getColumnName(),
-                    fieldMap.get(sortCollectionState.getColumnName()), filterList);
+                    field, filterList);
 
             scrollTableBody.scrollToTop();
             sortCollectionState.setResetCollection(false);
@@ -673,7 +672,7 @@ public class CollectionPluginView extends PluginView {
             collectionRowsRequest = new CollectionRowsRequest(listCount,
                     70, collectionName, columnNamesOnDoFieldsMap,
                     sortCollectionState.isSortDirection(), sortCollectionState.getColumnName(),
-                    fieldMap.get(sortCollectionState.getColumnName()), filterList);
+                    field, filterList);
         }
         collectionRowRequestCommand(collectionRowsRequest);
     }

@@ -8,7 +8,6 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  * @author atsvetkov
  *
  */
-
 public class CollectionColumnConfig implements Dto {
 
     @Attribute(required = true)
@@ -29,16 +28,14 @@ public class CollectionColumnConfig implements Dto {
     @Attribute(required = true)
     private String type;
 
+    @Attribute(name = "pattern", required = false)
+    private String pattern;
+
+    @Attribute(name = "time-zone-id", required = false)
+    private String timeZoneId;
+
     @Attribute(name = "search-filter", required = false)
     private String searchFilter;
-
-    public String getSearchFilter() {
-        return searchFilter;
-    }
-
-    public void setSearchFilter(String searchFilter) {
-        this.searchFilter = searchFilter;
-    }
 
     public String getField() {
         return field;
@@ -88,6 +85,22 @@ public class CollectionColumnConfig implements Dto {
         this.type = type;
     }
 
+    public String getPattern() {
+        return pattern;
+    }
+
+    public String getTimeZoneId() {
+        return timeZoneId;
+    }
+
+    public String getSearchFilter() {
+        return searchFilter;
+    }
+
+    public void setSearchFilter(String searchFilter) {
+        this.searchFilter = searchFilter;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -96,26 +109,12 @@ public class CollectionColumnConfig implements Dto {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         CollectionColumnConfig that = (CollectionColumnConfig) o;
 
         if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
         }
-        if (field != null ? !field.equals(that.field) : that.field != null) {
-            return false;
-        }
-        if (editable != that.editable) {
-            return false;
-        }
-        if (hidden != that.hidden) {
-            return false;
-        }
-        if (sortable != that.sortable) {
-            return false;
-        }
-
-        return true;
+        return field == null ? that.field == null : field.equals(that.field);
     }
 
     @Override

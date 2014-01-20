@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.model.plugin;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,10 +17,7 @@ public class CollectionPluginData extends PluginData {
 
 
     private String collectionName;
-    private HashMap<String, String> fieldMap = new HashMap<String, String>();
-    private HashMap<String, String> fieldMapDisplay = new HashMap<String, String>();
-    private HashMap<String, String> fieldFilter = new HashMap<String, String>();
-
+    private HashMap<String, CollectionColumnProperties> propertiesMap;
     private boolean singleChoice;
     private boolean displayChosenValues;
     private ArrayList<CollectionRowItem> items = new ArrayList<CollectionRowItem>();
@@ -29,8 +27,7 @@ public class CollectionPluginData extends PluginData {
     private String searchArea;
 
     public CollectionPluginData() {
-
-
+        propertiesMap = new HashMap<String, CollectionColumnProperties>();
     }
 
     public boolean isSingleChoice() {
@@ -89,28 +86,12 @@ public class CollectionPluginData extends PluginData {
         this.chosenIds = chosenIds;
     }
 
-    public HashMap<String, String> getFieldMap() {
-        return fieldMap;
+    public HashMap<String, CollectionColumnProperties> getPropertiesMap() {
+        return propertiesMap;
     }
 
-    public void setFieldMap(HashMap<String, String> fieldMap) {
-        this.fieldMap = fieldMap;
-    }
-
-    public HashMap<String, String> getFieldMapDisplay() {
-        return fieldMapDisplay;
-    }
-
-    public void setFieldMapDisplay(HashMap<String, String> fieldMapDisplay) {
-        this.fieldMapDisplay = fieldMapDisplay;
-    }
-
-    public HashMap<String, String> getFieldFilter() {
-        return fieldFilter;
-    }
-
-    public void setFieldFilter(HashMap<String, String> fieldFilter) {
-        this.fieldFilter = fieldFilter;
+    public void setPropertiesMap(HashMap<String, CollectionColumnProperties> propertiesMap) {
+        this.propertiesMap = propertiesMap;
     }
 
     public String getSearchArea() {

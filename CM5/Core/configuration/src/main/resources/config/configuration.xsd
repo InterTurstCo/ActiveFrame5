@@ -73,7 +73,7 @@
 
     <xs:simpleType name="indexTypeType">
         <xs:restriction base="xs:string">
-            <xs:enumeration value="btree"/>            
+            <xs:enumeration value="btree"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -307,7 +307,7 @@
             </xs:element>
         </xs:sequence>
     </xs:complexType>
-    
+
     <xs:complexType name="indexType">
         <xs:sequence maxOccurs="unbounded">
             <xs:element type="con:fieldType" name="field"
@@ -1534,6 +1534,8 @@
                               use="required"/>
                 <xs:attribute type="xs:string" name="search-filter"
                               use="optional"/>
+                <xs:attribute type="xs:string" name="pattern" use="optional"/>
+                <xs:attribute type="xs:string" name="time-zone-id" use="optional"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
