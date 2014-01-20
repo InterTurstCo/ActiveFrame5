@@ -160,6 +160,6 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
     private String protectQueryString(String query) {
         //TODO Экранировать символы, нарушающие структуру запроса
-        return query;
+        return "\"" + query + "\"";
     }
 }
