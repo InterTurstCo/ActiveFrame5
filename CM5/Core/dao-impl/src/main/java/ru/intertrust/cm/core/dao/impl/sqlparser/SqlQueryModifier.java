@@ -9,7 +9,6 @@ import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getServic
 import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.unwrap;
 import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.wrap;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;

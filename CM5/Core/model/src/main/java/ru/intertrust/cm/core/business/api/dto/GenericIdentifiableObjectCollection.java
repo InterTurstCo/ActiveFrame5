@@ -26,6 +26,10 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
     public GenericIdentifiableObjectCollection() {
     }
 
+    public void setFields(List<String> fields) {
+
+    }
+
     @Override
     public void setFieldsConfiguration(List<FieldConfig> fieldConfigs) {
         // todo: это было сделано для того, чтобы в коллекцию можно было добавить новые поля. Надо расширить интерфейс
