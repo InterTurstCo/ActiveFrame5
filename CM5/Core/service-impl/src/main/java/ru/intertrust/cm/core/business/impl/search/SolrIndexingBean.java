@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.business.impl.search;
 
+import javax.annotation.PreDestroy;
 import javax.ejb.Schedule;
 import javax.ejb.Singleton;
 import javax.interceptor.Interceptors;
@@ -26,7 +27,7 @@ public class SolrIndexingBean {
     @Autowired
     private SolrServer solrServer;
 
-    @Schedule(hour = "*", minute = "*", second = "*/15")
+    @Schedule(hour = "*", minute = "*", second = "*/20", persistent = false)
     public void processTimer() {
         if (active) {
             return;
@@ -67,5 +68,10 @@ public class SolrIndexingBean {
         if (log.isTraceEnabled()) {
             log.trace("Solr request queue processing finished");
         }
+    }
+
+    @PreDestroy
+    public void shutdown() {
+        solrServer.shutdown();
     }
 }
