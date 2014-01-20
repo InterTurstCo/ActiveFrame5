@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Enumeration;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,13 +45,12 @@ public class ImportSystemData {
 
             for (ModuleConfiguration moduleConfiguration : moduleService.getModuleList()) {
                 for (String importFile : moduleConfiguration.getImportFiles()) {
-                    ImportData importData =
-                            new ImportData(
-                                    collectionsDao, configurationExplorer, domainObjectDao, accessControlService,
-                                    attachmentContentDao, null);
 
-                    URL fileUrl = this.getClass().getClassLoader().getResource(importFile);
-                    importData.importData(readFile(fileUrl));
+
+                    ImportData importData = new ImportData(collectionsDao, 
+                            configurationExplorer, domainObjectDao, accessControlService, attachmentContentDao, null);
+
+                    importData.importData(readFile(new URL(moduleConfiguration.getModuleUrl().toString() + importFile)));
                     logger.info("Import system data from file " + importFile);
                 }
             }

@@ -1,7 +1,9 @@
 package ru.intertrust.cm.core.config;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,7 +86,8 @@ public class ConfigurationSerializer {
             }
             if (moduleConfiguration.getConfigurationPaths() != null) {
                 for (String configurationFilePath : moduleConfiguration.getConfigurationPaths()) {
-                    Configuration partialConfiguration = deserializeConfiguration(configurationFilePath, schemaPaths);
+                    Configuration partialConfiguration = deserializeConfiguration(configurationFilePath, schemaPaths,
+                            moduleConfiguration.getModuleUrl());
                     combineConfigurations(partialConfiguration, combinedConfiguration);
                 }
             }
@@ -113,7 +116,7 @@ public class ConfigurationSerializer {
      * @throws Exception
      */
     private Configuration deserializeConfiguration(String configurationFilePath,
-            List<String> configurationSchemaFilePath)
+            List<String> configurationSchemaFilePath, URL moduleUrl)
             throws Exception {
         try {
             InputStream[] schemaInputStreams = new InputStream[configurationSchemaFilePath.size()];
@@ -123,12 +126,12 @@ public class ConfigurationSerializer {
             }
 
             ConfigurationSchemaValidator schemaValidator =
-                    new ConfigurationSchemaValidator(FileUtils.getFileInputStream(configurationFilePath),
+                    new ConfigurationSchemaValidator(getStreamFromUrl(moduleUrl, configurationFilePath),
                             schemaInputStreams);
             schemaValidator.validate();
 
             return createSerializerInstance().read(Configuration.class,
-                    FileUtils.getFileInputStream(configurationFilePath));
+                    getStreamFromUrl(moduleUrl, configurationFilePath));
         } catch (Exception ex) {
             throw new ConfigurationException("Error load " + configurationFilePath, ex);
         }
@@ -143,4 +146,9 @@ public class ConfigurationSerializer {
         this.moduleService = moduleService;
     }
 
+    private InputStream getStreamFromUrl(URL baseUrl, String path) throws IOException{
+        URL resultUrl = new URL(baseUrl.toString() + path);
+        return resultUrl.openStream();
+    }
+    
 }

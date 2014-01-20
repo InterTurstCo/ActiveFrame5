@@ -29,10 +29,11 @@ public class ModuleService {
             fileGraf = new ModuleGraf();
             //Получение ресурсов описания модулей и добавление их в граф для сортировки с учетом зависимостей
             Enumeration<URL> urlEnum =
-                    this.getClass().getClassLoader().getResources("META-INF/cm.module.xml");
+                    this.getClass().getClassLoader().getResources("META-INF/cm-module.xml");
             while (urlEnum.hasMoreElements()) {
                 URL url = (URL) urlEnum.nextElement();
                 ModuleConfiguration config = loadModule(url);
+                config.setModuleUrl(new URL(url.toString().substring(0, url.toString().indexOf("META-INF"))));
                 fileGraf.addModuleConfiguration(config, config.getDepends());
             }
 

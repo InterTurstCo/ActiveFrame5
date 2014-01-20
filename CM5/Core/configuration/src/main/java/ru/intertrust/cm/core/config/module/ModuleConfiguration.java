@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.config.module;
 
+import java.net.URL;
 import java.util.List;
 
 import org.simpleframework.xml.Element;
@@ -32,6 +33,8 @@ public class ModuleConfiguration {
     
     @ElementList(entry="configuration-path", required=false, name="configuration-paths")
     private List<String> configurationPaths;
+
+    private URL moduleUrl;
     
     public String getName() {
         return name;
@@ -80,6 +83,12 @@ public class ModuleConfiguration {
     }
     public void setImportFiles(List<String> importFiles) {
         this.importFiles = importFiles;
+    }
+    public URL getModuleUrl() {
+        return moduleUrl;
+    }
+    public void setModuleUrl(URL moduleUrl) {
+        this.moduleUrl = moduleUrl;
     }
     
 }
