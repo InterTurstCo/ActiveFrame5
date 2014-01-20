@@ -156,6 +156,13 @@ public class BasicRowMapper extends ValueReader {
             fillObjectValue(object, valueModel, fieldConfig);
         }
 
+        if (object.getId() != null) {
+            String typeName = domainObjectTypeIdCache.getName(object.getId());
+            if (typeName != null) {
+                object.setTypeName(typeName);
+            }
+        }
+
         // TODO добавлено Лариным. М. после выноса системных арибутов в
         // родительский класс надо будет убрать эти 3 строчки
         object.setCreatedDate(object.getTimestamp("created_date"));

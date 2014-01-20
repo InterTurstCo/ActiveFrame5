@@ -17,6 +17,7 @@ import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserSubject;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.impl.utils.MultipleObjectRowMapper;
 
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 /**
@@ -53,6 +55,9 @@ public class DomainObjectDaoImplTest {
     private DomainObjectCacheServiceImpl domainObjectCacheService;
 
     @Mock
+    private DomainObjectTypeIdCache domainObjectTypeIdCache;
+
+    @Mock
     private ApplicationContext context;
 
     private DomainObjectTypeConfig domainObjectTypeConfig;
@@ -65,7 +70,6 @@ public class DomainObjectDaoImplTest {
         AccessToken mockAccessToken = createMockAccessToken();
         when(accessControlService.createSystemAccessToken(anyString())).thenReturn(mockAccessToken);
         domainObjectDaoImpl.setAccessControlService(accessControlService);
-
     }
 
     @Test
@@ -352,34 +356,37 @@ public class DomainObjectDaoImplTest {
         ArrayList<DomainObject> result = mock(ArrayList.class);
         when(result.size()).thenReturn(2);
 
+        Id id1 = new RdbmsId(1, 1);
+        Id id2 = new RdbmsId(1, 2);
+
         GenericDomainObject domainObject = new GenericDomainObject();
         domainObject.setTypeName("Person1_Attachment");
-        domainObject.setId(new RdbmsId(1, 1));
+        domainObject.setId(id1);
         when(result.get(0)).thenReturn(domainObject);
 
         domainObject = new GenericDomainObject();
         domainObject.setTypeName("Person1_Attachment");
-        domainObject.setId(new RdbmsId(1, 2));
+        domainObject.setId(id2);
         when(result.get(1)).thenReturn(domainObject);
 
-        any(MultipleObjectRowMapper.class);
-
-        when(jdbcTemplate.query("select t.* from PERSON1_ATTACHMENT t where usergroup = :usergroup",
+        when(jdbcTemplate.query(eq("select person1_attachment.* from \"person1_attachment\" person1_attachment where " +
+                "person1_attachment.\"person\" = :domain_object_id"),
                 any(HashMap.class),
                 any(MultipleObjectRowMapper.class))).thenReturn(result);
 
-        DomainObjectDaoImpl domainObjectDao = new DomainObjectDaoImpl();
-        domainObjectDao.setConfigurationExplorer(configurationExplorer);
         domainObjectDaoImpl.setConfigurationExplorer(configurationExplorer);
 
         when(domainObjectCacheService.getObjectToCache(any(Id.class),
                 any(String.class), any(String.class), any(String.class), any(String.class))).thenReturn(null);
-        domainObjectDao.setDomainObjectCacheService(domainObjectCacheService);
-        ReflectionTestUtils.setField(domainObjectDao, "jdbcTemplate", jdbcTemplate);
+
+        when(domainObjectTypeIdCache.getName(id1)).thenReturn("Person1_Attachment");
+        when(domainObjectTypeIdCache.getName(id2)).thenReturn("Person1_Attachment");
+
+        ReflectionTestUtils.setField(domainObjectDaoImpl, "jdbcTemplate", jdbcTemplate);
 
         AccessToken accessToken = createMockAccessToken();
 
-        List<DomainObject> l = domainObjectDao.findLinkedDomainObjects(new RdbmsId(1, 1), "Person1_Attachment",
+        List<DomainObject> l = domainObjectDaoImpl.findLinkedDomainObjects(new RdbmsId(1, 1), "Person1_Attachment",
                 "Person", accessToken);
         Assert.assertEquals(1, ((RdbmsId) l.get(0).getId()).getId());
         Assert.assertEquals(2, ((RdbmsId) l.get(1).getId()).getId());

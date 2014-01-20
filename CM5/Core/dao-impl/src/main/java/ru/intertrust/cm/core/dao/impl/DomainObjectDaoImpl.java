@@ -738,6 +738,19 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         domainObjectCacheService.putObjectToCache(domainObjectId,
                 domainObjects, cacheKey);
 
+        if (domainObjects == null || domainObjects.isEmpty()) {
+            return domainObjects;
+        }
+
+        // Если тип доменного объекта является наследником linkedType, то необходимо извлечь доменный объект этого типа
+        for (int i = 0; i < domainObjects.size(); i ++) {
+            DomainObject domainObject = domainObjects.get(i);
+            if (!linkedType.equals(domainObject.getTypeName())) {
+                domainObjectCacheService.removeObjectFromCache(domainObject.getId());
+                domainObjects.set(i, find(domainObject.getId(), accessToken));
+            }
+        }
+
         return domainObjects;
     }
 
