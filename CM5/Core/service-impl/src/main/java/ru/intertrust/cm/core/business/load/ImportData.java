@@ -524,6 +524,7 @@ public class ImportData {
         } else if (fieldConfig.getFieldType() == FieldType.REFERENCE) {
             result = String.valueOf(((RdbmsId) getReference(fieldName, valueAsString)).getId());
         } else {
+            valueAsString = valueAsString.replace("'", "''");
             result = "'" + valueAsString + "'";
         }
         return result;
