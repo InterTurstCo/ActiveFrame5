@@ -14,6 +14,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.impl.client.event.TableControllerSortEvent;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.SortCollectionState;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 
@@ -124,7 +125,7 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
     }
 
     private void fireSortEvent(){
-        Column column = getSortedColumn();
+        CollectionColumn column = (CollectionColumn) getSortedColumn();
 
         String colDataStoreName = column.getDataStoreName().replaceAll("([↓↑])", "");
 
@@ -146,7 +147,7 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
             sortDirection = false;
         }
         eventBus.fireEvent(new TableControllerSortEvent(colDataStoreName, new SortCollectionState(
-                70, 0, colDataStoreName, sortDirection ,true )));
+                70, 0, colDataStoreName, sortDirection ,true, column.getFieldName())));
 
            lastColumn = column;
 

@@ -19,10 +19,10 @@ public class CollectionRowsRequest implements Dto {
     private int limit;
     private String collectionName;
     private HashMap<String, String> fields = new HashMap<String, String>();
-    private boolean sortType;
+    private boolean isSortAscending;
     private String columnName;
     private boolean sortable;
-    private String field;
+    private String sortedField;
     List<Filter> filterList;
     private String simpleSearchQuery;
     private String searchArea;
@@ -40,15 +40,15 @@ public class CollectionRowsRequest implements Dto {
     }
 
     public CollectionRowsRequest(int offset, int limit, String collectionName, HashMap<String, String> fields,
-                                 boolean sortType, String columnName, String field,  List<Filter> filterList) {
+                                 boolean isSortAscending, String columnName, String sortedField,  List<Filter> filterList) {
         this.offset = offset;
         this.limit = limit;
         this.collectionName = collectionName;
         this.fields = fields;
-        this.sortType = sortType;
+        this.isSortAscending = isSortAscending;
         this.columnName = columnName;
         this.sortable = true;
-        this.field = field;
+        this.sortedField = sortedField;
         this.filterList = filterList;
     }
 
@@ -87,12 +87,12 @@ public class CollectionRowsRequest implements Dto {
         return fields;
     }
 
-    public boolean isSortType() {
-        return sortType;
+    public boolean isSortAscending() {
+        return isSortAscending;
     }
 
-    public void setSortType(boolean sortType) {
-        this.sortType = sortType;
+    public void setSortAscending(boolean sortAscending) {
+        this.isSortAscending = sortAscending;
     }
 
     public String getColumnName() {
@@ -111,12 +111,12 @@ public class CollectionRowsRequest implements Dto {
         this.sortable = sortable;
     }
 
-    public String getField() {
-        return field;
+    public String getSortedField() {
+        return sortedField;
     }
 
-    public void setField(String field) {
-        this.field = field;
+    public void setSortedField(String sortedField) {
+        this.sortedField = sortedField;
     }
 
     public List<Filter> getFilterList() {

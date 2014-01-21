@@ -18,13 +18,14 @@ public class SortCollectionState {
     private boolean sortable;
     private String field;
 
-    public SortCollectionState(int offset, int count, String columnName, boolean sortDirection, boolean resetCollection) {
+    public SortCollectionState(int offset, int count, String columnName, boolean sortDirection, boolean resetCollection, String field) {
         this.offset = offset;
         this.count = count;
         this.columnName = columnName;
         this.sortDirection = sortDirection;
         this.resetCollection = resetCollection;
         this.sortable = true;
+        this.field = field;
     }
 
     public int getOffset() {

@@ -66,7 +66,7 @@ public class CollectionPluginHandler extends PluginHandler {
 
             filters = addFilterByText(collectionViewerConfig, filters);
             filters = addFilterExcludeIds(collectionViewerConfig, filters);
-            ArrayList<CollectionRowItem> items = generateTableRowsForPluginInitialization(collectionName,
+            ArrayList<CollectionRowItem> items = getRows(collectionName,
                     map.keySet(), 0, 70, filters, order);
             pluginData.setItems(items);
         }
@@ -74,7 +74,7 @@ public class CollectionPluginHandler extends PluginHandler {
         if ((singleChoice && displayChosenValues) || (!singleChoice && displayChosenValues)) {
 
             filters = addFilterByText(collectionViewerConfig, filters);
-            ArrayList<CollectionRowItem> items = generateTableRowsForPluginInitialization(collectionName,
+            ArrayList<CollectionRowItem> items = getRows(collectionName,
                     map.keySet(), 0, 70, filters, order);
             List<Id> chosenIds = collectionViewerConfig.getExcludedIds();
             pluginData.setIndexesOfSelectedItems(getListOfAlreadyChosenItems(chosenIds, items));
@@ -214,8 +214,9 @@ public class CollectionPluginHandler extends PluginHandler {
 
     }
 
-    public ArrayList<CollectionRowItem> generateTableRowsForPluginInitialization
-            (String collectionName, Set<String> fields, int offset, int count, List<Filter> filters, SortOrder sortOrder) {
+    public ArrayList<CollectionRowItem> getRows(
+            String collectionName, Set<String> fields, int offset, int count, List<Filter> filters, SortOrder sortOrder) {
+
         ArrayList<CollectionRowItem> items = new ArrayList<CollectionRowItem>();
         IdentifiableObjectCollection collection = collectionsService.
                 findCollection(collectionName, sortOrder, filters, offset, count);
@@ -226,8 +227,8 @@ public class CollectionPluginHandler extends PluginHandler {
         return items;
     }
 
-    public ArrayList<CollectionRowItem> generateTableRowForSimpleSearch(String collectionName, Set<String> fields,
-                                                                        int offset, int count, List<Filter> filters, String simpleSearchQuery, String searchArea) {
+    public ArrayList<CollectionRowItem> getSimpleSearchRows(String collectionName, Set<String> fields,
+                                                            int offset, int count, List<Filter> filters, String simpleSearchQuery, String searchArea) {
         ArrayList<CollectionRowItem> items = new ArrayList<CollectionRowItem>();
 
         IdentifiableObjectCollection collection = searchService.search(simpleSearchQuery, searchArea, collectionName, 200);
@@ -239,46 +240,23 @@ public class CollectionPluginHandler extends PluginHandler {
         return items;
     }
 
-    public ArrayList<CollectionRowItem> generateSortTableRowsForPluginInitialization
-            (String collectionName, Set<String> fields, int offset, int count, List<Filter> filters, String field, boolean sortableColumn) {
-        ArrayList<CollectionRowItem> items = new ArrayList<CollectionRowItem>();
-        SortCriterion.Order order;
-        if (sortableColumn) {
-            order = SortCriterion.Order.ASCENDING;
-        } else {
-            order = SortCriterion.Order.DESCENDING;
-        }
-
-        SortOrder sortOrder = new SortOrder();
-        sortOrder.add(new SortCriterion(field, order));
-
-        IdentifiableObjectCollection collection = collectionsService.
-                findCollection(collectionName, sortOrder, filters, offset, count);
-        for (IdentifiableObject identifiableObject : collection) {
-            items.add(generateCollectionRowItem(identifiableObject, fields));
-        }
-        return items;
-    }
-
     public Dto generateCollectionRowItems(Dto dto) {
+        // 21.01 12:50 (DB) -> if 21.01 selected -> it's a date between 21.01 00:00 and 22.01 00:00
         CollectionRowsRequest collectionRowsRequest = (CollectionRowsRequest) dto;
         ArrayList<CollectionRowItem> list;
-        if (((CollectionRowsRequest) dto).isSortable()) {
-            list = generateSortTableRowsForPluginInitialization(collectionRowsRequest.getCollectionName(),
-                    collectionRowsRequest.getFields().keySet(), collectionRowsRequest.getOffset(),
-                    collectionRowsRequest.getLimit(), collectionRowsRequest.getFilterList(), ((CollectionRowsRequest) dto).getField(),
-                    ((CollectionRowsRequest) dto).isSortType());
+        final String collectionName = collectionRowsRequest.getCollectionName();
+        final Set<String> fields = collectionRowsRequest.getFields().keySet();
+        final int offset = collectionRowsRequest.getOffset();
+        final int limit = collectionRowsRequest.getLimit();
+        final List<Filter> filters = transformDateFilters(collectionRowsRequest.getFilterList());
+        if (collectionRowsRequest.isSortable()) {
+            list = getRows(collectionName, fields, offset, limit, filters, getSortOrder(collectionRowsRequest));
         } else {
             if (collectionRowsRequest.getSimpleSearchQuery().length() > 0) {
-                list = generateTableRowForSimpleSearch(collectionRowsRequest.getCollectionName(),
-                        collectionRowsRequest.getFields().keySet(), collectionRowsRequest.getOffset(),
-                        collectionRowsRequest.getLimit(), collectionRowsRequest.getFilterList(),
+                list = getSimpleSearchRows(collectionName, fields, offset, limit, filters,
                         collectionRowsRequest.getSimpleSearchQuery(), collectionRowsRequest.getSearchArea());
             } else {
-                list = generateTableRowsForPluginInitialization(
-                        collectionRowsRequest.getCollectionName(),
-                        collectionRowsRequest.getFields().keySet(), collectionRowsRequest.getOffset(),
-                        collectionRowsRequest.getLimit(), collectionRowsRequest.getFilterList(), null);
+                list = getRows(collectionName, fields, offset, limit, filters, null);
                 CollectionRowItemList collectionRowItemList = new CollectionRowItemList();
                 collectionRowItemList.setCollectionRows(list);
             }
@@ -288,6 +266,52 @@ public class CollectionPluginHandler extends PluginHandler {
         collectionRowItemList.setCollectionRows(list);
 
         return collectionRowItemList;
+    }
+
+    private ArrayList<Filter> transformDateFilters(List<Filter> filters) {
+        if (filters == null || filters.isEmpty()) {
+            return new ArrayList<>(0);
+        }
+        Calendar cal = Calendar.getInstance();
+        ArrayList<Filter> result = new ArrayList<>(filters);
+        for (int i = 0; i < result.size(); ++i) {
+            Filter filter = result.get(i);
+            final Value criterion = filter.getCriterion(0);
+            if (criterion instanceof TimestampValue) {
+                cal.setTime((Date) criterion.get());
+                cal.set(Calendar.HOUR_OF_DAY, 0);
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+                Date rangeStart = cal.getTime();
+
+                cal.set(Calendar.HOUR_OF_DAY, 23);
+                cal.set(Calendar.MINUTE, 59);
+                cal.set(Calendar.SECOND, 59);
+                cal.set(Calendar.MILLISECOND, 999);
+                Date rangeEnd = cal.getTime();
+                Filter timestampFilter = new Filter();
+                timestampFilter.setFilter(filter.getFilter());
+                timestampFilter.addCriterion(0, new TimestampValue(rangeStart));
+                timestampFilter.addCriterion(1, new TimestampValue(rangeEnd));
+
+                result.set(i, timestampFilter);
+            }
+        }
+        return result;
+    }
+
+    private SortOrder getSortOrder(CollectionRowsRequest request) {
+        SortCriterion.Order order;
+        if (request.isSortAscending()) {
+            order = SortCriterion.Order.ASCENDING;
+        } else {
+            order = SortCriterion.Order.DESCENDING;
+        }
+
+        SortOrder sortOrder = new SortOrder();
+        sortOrder.add(new SortCriterion(request.getSortedField(), order));
+        return sortOrder;
     }
 
     private Filter prepareInputTextFilter(String name, String text) {

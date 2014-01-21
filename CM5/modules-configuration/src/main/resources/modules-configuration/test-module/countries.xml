@@ -652,9 +652,7 @@
         <filter name="byIndependenceDay">
             <criteria placeholder="where-clause">
                 <![CDATA[
-                   co.independence_day = {0}
-
-
+                   co.independence_day between {0} and {1}
                 ]]>
             </criteria>
         </filter>

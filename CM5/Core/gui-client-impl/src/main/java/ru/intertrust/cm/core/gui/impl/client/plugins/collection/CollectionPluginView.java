@@ -14,7 +14,6 @@ import com.google.gwt.http.client.URL;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.RowStyles;
-import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
@@ -480,17 +479,6 @@ public class CollectionPluginView extends PluginView {
         tableBody.flush();
     }
 
-    private TextColumn<CollectionRowItem> buildNameColumn(final String string) {
-
-        return new TextColumn<CollectionRowItem>() {
-            @Override
-            public String getValue(CollectionRowItem object) {
-                final ValueConverter converter = converterMap.get(string);
-                return converter.valueToString(object.getRowValue(string));
-            }
-        };
-    }
-
     private void buildPanel() {
         searchPanel.addStyleName("horizont-container");
         headerPanel.add(treeLinkWidget);
@@ -557,11 +545,15 @@ public class CollectionPluginView extends PluginView {
         int columnWidth = (tableWidth / numberOfColumns);
         columnWidth = columnMinWidth(columnWidth);
         for (String field : domainObjectFieldPropertiesMap.keySet()) {
-            final Column<CollectionRowItem, String> column = buildNameColumn(field);
             final CollectionColumnProperties columnProperties = domainObjectFieldPropertiesMap.get(field);
             final String filterType =
                     (String) columnProperties.getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
             final String fieldType = (String) columnProperties.getProperty(CollectionColumnProperties.TYPE_KEY);
+            final ValueConverter converter = ValueConverterFactory.getConverter(fieldType);
+            converter.init(columnProperties.getProperties());
+            converterMap.put(field, converter);
+
+            final Column<CollectionRowItem, String> column = new CollectionColumn(field, converter);
             column.setDataStoreName((String) columnProperties.getProperty(CollectionColumnProperties.NAME_KEY));
             tableHeader.addColumn(column, (String) columnProperties.getProperty(CollectionColumnProperties.NAME_KEY));
             tableHeader.setColumnWidth(column, columnWidth + "px");
@@ -580,9 +572,6 @@ public class CollectionPluginView extends PluginView {
             if(startNumberOfColumns != 0) {
                 searchPanel.getElement().getStyle().setPaddingLeft(columnWidth * startNumberOfColumns, Style.Unit.PX);
             }
-            final ValueConverter converter = ValueConverterFactory.getConverter(fieldType);
-            converter.init(columnProperties.getProperties());
-            converterMap.put(field, converter);
         }
     }
 
