@@ -321,7 +321,7 @@ public class CollectionPluginView extends PluginView {
                 if(sortCollectionState !=null && sortCollectionState.isSortable()){
                     sb.append("&");
                     sb.append("ColumnName=");
-                    sb.append(fieldMap.get(sortCollectionState.getColumnName()));
+                    sb.append(sortCollectionState.getField());
                     sb.append("&");
                     sb.append("Sortable=");
                     sb.append(sortCollectionState.isSortDirection());
@@ -557,7 +557,7 @@ public class CollectionPluginView extends PluginView {
         int columnWidth = (tableWidth / numberOfColumns);
         columnWidth = columnMinWidth(columnWidth);
         for (String field : domainObjectFieldPropertiesMap.keySet()) {
-
+            final Column<CollectionRowItem, String> column = buildNameColumn(field);
             final CollectionColumnProperties columnProperties = domainObjectFieldPropertiesMap.get(field);
             final String filterType =
                     (String) columnProperties.getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
