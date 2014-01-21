@@ -1253,7 +1253,7 @@
             </xs:element>
         </xs:sequence>
         <xs:attribute type="xs:string" name="name" use="optional"/>
-        <xs:attribute type="xs:string" name="initial-state" use="optional" default="closed"/>
+        <xs:attribute type="con:initialStateType" name="initial-state" use="optional" default="expanded" />
     </xs:complexType>
     <xs:complexType name="rolesType">
         <xs:sequence>
@@ -1261,6 +1261,12 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
     </xs:complexType>
+    <xs:simpleType name="initialStateType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="expanded" />
+            <xs:enumeration value="closed" />
+        </xs:restriction>
+    </xs:simpleType>
 
     <xs:complexType name="fieldPathsType">
         <xs:sequence>
