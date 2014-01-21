@@ -13,10 +13,10 @@ public class CollectionColumnProperties implements Dto {
      */
     private static final long serialVersionUID = 1L;
 
-    public static final String FIELD_KEY = "field";
     public static final String TYPE_KEY = "type";
     public static final String SEARCH_FILTER_KEY = "searchFilter";
     public static final String PATTERN_KEY = "pattern";
+    public static final String NAME_KEY = "name";
 
     private HashMap<String, Object> properties = new HashMap<String, Object>();
 
@@ -31,5 +31,9 @@ public class CollectionColumnProperties implements Dto {
 
     public Object getProperty(final String name) {
         return properties.get(name);
+    }
+
+    public HashMap<String, Object> getProperties() {
+        return new HashMap<String, Object>(properties);
     }
 }

@@ -17,17 +17,16 @@ public class CollectionPluginData extends PluginData {
 
 
     private String collectionName;
-    private HashMap<String, CollectionColumnProperties> propertiesMap;
     private boolean singleChoice;
     private boolean displayChosenValues;
     private ArrayList<CollectionRowItem> items = new ArrayList<CollectionRowItem>();
-    private HashMap<String, String> domainObjectFieldOnColumnNameMap = new HashMap<String, String>();
+    private LinkedHashMap<String, CollectionColumnProperties> domainObjectFieldPropertiesMap;
     private ArrayList<Integer> indexesOfSelectedItems = new ArrayList<Integer>();
     private List<Id> chosenIds = new ArrayList<Id>();
     private String searchArea;
 
     public CollectionPluginData() {
-        propertiesMap = new HashMap<String, CollectionColumnProperties>();
+        domainObjectFieldPropertiesMap = new LinkedHashMap<String, CollectionColumnProperties>();
     }
 
     public boolean isSingleChoice() {
@@ -54,12 +53,13 @@ public class CollectionPluginData extends PluginData {
         this.items = items;
     }
 
-    public HashMap<String, String> getDomainObjectFieldOnColumnNameMap() {
-        return domainObjectFieldOnColumnNameMap;
+    public LinkedHashMap<String, CollectionColumnProperties> getDomainObjectFieldPropertiesMap() {
+        return domainObjectFieldPropertiesMap;
     }
 
-    public void setDomainObjectFieldOnColumnNameMap(LinkedHashMap<String, String> domainObjectFieldOnColumnNameMap) {
-        this.domainObjectFieldOnColumnNameMap = domainObjectFieldOnColumnNameMap;
+    public void setDomainObjectFieldPropertiesMap(
+            final LinkedHashMap<String, CollectionColumnProperties> domainObjectFieldPropertiesMap) {
+        this.domainObjectFieldPropertiesMap = domainObjectFieldPropertiesMap;
     }
 
     public String getCollectionName() {
@@ -84,14 +84,6 @@ public class CollectionPluginData extends PluginData {
 
     public void setChosenIds(List<Id> chosenIds) {
         this.chosenIds = chosenIds;
-    }
-
-    public HashMap<String, CollectionColumnProperties> getPropertiesMap() {
-        return propertiesMap;
-    }
-
-    public void setPropertiesMap(HashMap<String, CollectionColumnProperties> propertiesMap) {
-        this.propertiesMap = propertiesMap;
     }
 
     public String getSearchArea() {

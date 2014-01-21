@@ -25,6 +25,8 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
+import ru.intertrust.cm.core.gui.impl.client.converter.ValueConverter;
+import ru.intertrust.cm.core.gui.impl.client.converter.ValueConverterFactory;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CellTableEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.CheckedSelectionModel;
@@ -52,8 +54,7 @@ public class CollectionPluginView extends PluginView {
     private ScrollPanel scrollTableBody = new ScrollPanel();
     private TableController tableController;
     private ArrayList<CollectionRowItem> items;
-    private HashMap<String, CollectionColumnProperties> propertyMap;
-    private HashMap<String, String> columnNamesOnDoFieldsMap;
+    private LinkedHashMap<String, CollectionColumnProperties> fieldPropertiesMap;
     private FlowPanel headerPanel = new FlowPanel();
     private FlowPanel bodyPanel = new FlowPanel();
     private VerticalPanel verticalPanel = new VerticalPanel();
@@ -71,6 +72,7 @@ public class CollectionPluginView extends PluginView {
     private HorizontalPanel treeLinkWidget = new HorizontalPanel();
     private String simpleSearchQuery = "";
     private String searchArea = "";
+    private HashMap<String, ValueConverter> converterMap = new HashMap<String, ValueConverter>();
 
 
     // локальная шина событий
@@ -93,7 +95,6 @@ public class CollectionPluginView extends PluginView {
         filterList = new ArrayList<Filter>();
         tableController = new TableController(tableHeader, tableBody, eventBus, searchPanel);
         updateSizes();
-
     }
 
     public CellTable getTableBody() {
@@ -109,11 +110,9 @@ public class CollectionPluginView extends PluginView {
 
     @Override
     protected IsWidget getViewWidget() {
-
         CollectionPluginData collectionPluginData = plugin.getInitialData();
-        propertyMap = collectionPluginData.getPropertiesMap();
         collectionName = collectionPluginData.getCollectionName();
-        columnNamesOnDoFieldsMap = collectionPluginData.getDomainObjectFieldOnColumnNameMap();
+        fieldPropertiesMap = collectionPluginData.getDomainObjectFieldPropertiesMap();
         items = collectionPluginData.getItems();
         singleChoice = collectionPluginData.isSingleChoice();
         searchArea = collectionPluginData.getSearchArea();
@@ -146,9 +145,9 @@ public class CollectionPluginView extends PluginView {
 
     private void createTableColumns() {
         if (singleChoice) {
-            createTableColumnsWithoutCheckBoxes(columnNamesOnDoFieldsMap, 0);
+            createTableColumnsWithoutCheckBoxes(fieldPropertiesMap, 0);
         } else {
-            createTableColumnsWithCheckBoxes(columnNamesOnDoFieldsMap);
+            createTableColumnsWithCheckBoxes(fieldPropertiesMap);
         }
     }
 
@@ -410,7 +409,7 @@ public class CollectionPluginView extends PluginView {
     public void refreshCollection(IdentifiableObject collectionObject) {
         CollectionRowItem item = new CollectionRowItem();
         LinkedHashMap<String, Value> rowValues = new LinkedHashMap<String, Value>();
-        for (String field : columnNamesOnDoFieldsMap.keySet()) {
+        for (String field : fieldPropertiesMap.keySet()) {
              Value value = null;
              value = collectionObject.getValue(field);
 
@@ -486,7 +485,8 @@ public class CollectionPluginView extends PluginView {
         return new TextColumn<CollectionRowItem>() {
             @Override
             public String getValue(CollectionRowItem object) {
-                return object.getStringValue(string);
+                final ValueConverter converter = converterMap.get(string);
+                return converter.valueToString(object.getRowValue(string));
             }
         };
     }
@@ -525,7 +525,8 @@ public class CollectionPluginView extends PluginView {
 
     }
 
-    private void createTableColumnsWithCheckBoxes(HashMap<String, String> domainObjectFieldsOnColumnNamesMap) {
+    private void createTableColumnsWithCheckBoxes(
+            final LinkedHashMap<String, CollectionColumnProperties> domainObjectFieldsOnColumnNamesMap) {
         checkColumn = new Column<CollectionRowItem, Boolean>(
                 new CheckboxCell(true, true)) {
             @Override
@@ -533,7 +534,6 @@ public class CollectionPluginView extends PluginView {
                 return selectionModel.isSelected(object);
             }
         };
-
         checkColumn.setFieldUpdater(new FieldUpdater<CollectionRowItem, Boolean>() {
             @Override
             public void update(int index, CollectionRowItem object, Boolean value) {
@@ -548,25 +548,25 @@ public class CollectionPluginView extends PluginView {
         tableHeader.setColumnWidth(checkColumn, columnWidth + "px");
         tableBody.setColumnWidth(checkColumn, columnWidth + "px");
         createTableColumnsWithoutCheckBoxes(domainObjectFieldsOnColumnNamesMap, 1);
-
     }
 
-    private void createTableColumnsWithoutCheckBoxes(HashMap<String, String> domainObjectFieldsOnColumnNamesMap, int startNumberOfColumns) {
-        int numberOfColumns = startNumberOfColumns + domainObjectFieldsOnColumnNamesMap.keySet().size();
+    private void createTableColumnsWithoutCheckBoxes(
+            final LinkedHashMap<String, CollectionColumnProperties> domainObjectFieldPropertiesMap,
+            final int startNumberOfColumns) {
+        int numberOfColumns = startNumberOfColumns + domainObjectFieldPropertiesMap.keySet().size();
         int columnWidth = (tableWidth / numberOfColumns);
         columnWidth = columnMinWidth(columnWidth);
-        for (String field : domainObjectFieldsOnColumnNamesMap.keySet()) {
+        for (String field : domainObjectFieldPropertiesMap.keySet()) {
 
-            Column<CollectionRowItem, String> column = buildNameColumn(field);
-            String columnName = domainObjectFieldsOnColumnNamesMap.get(field);
-            final String filterType = (String) propertyMap.get(columnName)
-                    .getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
-            column.setDataStoreName(columnName);
-
-            tableHeader.addColumn(column, columnName);
+            final CollectionColumnProperties columnProperties = domainObjectFieldPropertiesMap.get(field);
+            final String filterType =
+                    (String) columnProperties.getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
+            final String fieldType = (String) columnProperties.getProperty(CollectionColumnProperties.TYPE_KEY);
+            column.setDataStoreName((String) columnProperties.getProperty(CollectionColumnProperties.NAME_KEY));
+            tableHeader.addColumn(column, (String) columnProperties.getProperty(CollectionColumnProperties.NAME_KEY));
             tableHeader.setColumnWidth(column, columnWidth + "px");
             CollectionSearchBox box;
-            if (propertyMap.get(columnName).getProperty(CollectionColumnProperties.TYPE_KEY).equals("datetime")) {
+            if (fieldType.equals("datetime")) {
                 box = new CollectionSearchBox(new DateBox(), filterType, eventBus);
             } else {
                 box = new CollectionSearchBox(new TextBox(), filterType, eventBus);
@@ -580,8 +580,10 @@ public class CollectionPluginView extends PluginView {
             if(startNumberOfColumns != 0) {
                 searchPanel.getElement().getStyle().setPaddingLeft(columnWidth * startNumberOfColumns, Style.Unit.PX);
             }
+            final ValueConverter converter = ValueConverterFactory.getConverter(fieldType);
+            converter.init(columnProperties.getProperties());
+            converterMap.put(field, converter);
         }
-
     }
 
     public void insertRows(List<CollectionRowItem> list) {
@@ -648,33 +650,39 @@ public class CollectionPluginView extends PluginView {
 
     private void createCollectionData() {
         CollectionRowsRequest collectionRowsRequest = new CollectionRowsRequest(listCount, 70,
-                collectionName, columnNamesOnDoFieldsMap, filterList, simpleSearchQuery, searchArea);
+                collectionName, getFieldToNameMap(), filterList, simpleSearchQuery, searchArea);
 
         collectionRowRequestCommand(collectionRowsRequest);
     }
 
     private void createSortedCollectionData() {
-
-        final String field = (String) propertyMap.get(sortCollectionState.getColumnName())
-                .getProperty(CollectionColumnProperties.FIELD_KEY);
         CollectionRowsRequest collectionRowsRequest;
         if (sortCollectionState.isResetCollection()) {
             items.clear();
             collectionRowsRequest = new CollectionRowsRequest(sortCollectionState.getCount(),
-                    sortCollectionState.getOffset(), collectionName, columnNamesOnDoFieldsMap,
+                    sortCollectionState.getOffset(), collectionName, getFieldToNameMap(),
                     sortCollectionState.isSortDirection(), sortCollectionState.getColumnName(),
-                    field, filterList);
+                    sortCollectionState.getField(), filterList);
 
             scrollTableBody.scrollToTop();
             sortCollectionState.setResetCollection(false);
             listCount = 0;
         } else {
             collectionRowsRequest = new CollectionRowsRequest(listCount,
-                    70, collectionName, columnNamesOnDoFieldsMap,
+                    70, collectionName, getFieldToNameMap(),
                     sortCollectionState.isSortDirection(), sortCollectionState.getColumnName(),
-                    field, filterList);
+                    sortCollectionState.getField(), filterList);
         }
         collectionRowRequestCommand(collectionRowsRequest);
+    }
+
+    private HashMap<String, String> getFieldToNameMap() {
+        final HashMap<String, String> fieldToNameMap = new HashMap<String, String>();
+        for (Map.Entry<String, CollectionColumnProperties> entry : fieldPropertiesMap.entrySet()) {
+            fieldToNameMap.put(entry.getKey(),
+                    (String) entry.getValue().getProperty(CollectionColumnProperties.NAME_KEY));
+        }
+        return fieldToNameMap;
     }
 
     private void collectionRowRequestCommand(CollectionRowsRequest collectionRowsRequest) {

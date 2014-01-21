@@ -55,21 +55,9 @@ public class CollectionPluginHandler extends PluginHandler {
         CollectionViewConfig collectionViewConfig = getViewForCurrentCollection(collectionViewerConfig, collectionName);
         collectionViewerConfig.getSearchAreaRefConfig();
 
-        LinkedHashMap<String, String> map = getDomainObjectFieldOnColumnNameMap(collectionViewConfig);
-        pluginData.setDomainObjectFieldOnColumnNameMap(map);
-        HashMap<String, CollectionColumnProperties> propertiesMap = new HashMap<String, CollectionColumnProperties>();
-        List<CollectionColumnConfig> configList = collectionViewConfig.getCollectionDisplayConfig().getColumnConfig();
-        for (CollectionColumnConfig config : configList) {
-            if (!config.isHidden()) {
-            final String key = config.getName();
-                final CollectionColumnProperties properties = new CollectionColumnProperties();
-                properties.addProperty(CollectionColumnProperties.FIELD_KEY, config.getField())
-                        .addProperty(CollectionColumnProperties.TYPE_KEY, config.getType())
-                        .addProperty(CollectionColumnProperties.SEARCH_FILTER_KEY, config.getSearchFilter())
-                        .addProperty(CollectionColumnProperties.PATTERN_KEY, config.getPattern());
-                propertiesMap.put(key, properties);
-            }
-        }
+        LinkedHashMap<String, CollectionColumnProperties> map =
+                getDomainObjectFieldPropertiesMap(collectionViewConfig);
+        pluginData.setDomainObjectFieldPropertiesMap(map);
         List<Filter> filters = new ArrayList<Filter>();
          SortOrder order = getSortOrder(collectionViewerConfig);
         // todo не совсем верная логика. а в каком режиме обычная коллекция открывается? single choice? display chosen values?
@@ -94,7 +82,6 @@ public class CollectionPluginHandler extends PluginHandler {
         }
 
         pluginData.setCollectionName(collectionName);
-        pluginData.setPropertiesMap(propertiesMap);
         if (collectionViewerConfig.getSearchAreaRefConfig() != null) {
             pluginData.setSearchArea(collectionViewerConfig.getSearchAreaRefConfig().getName());
         } else {
@@ -194,25 +181,28 @@ public class CollectionPluginHandler extends PluginHandler {
 
     }
 
-    private LinkedHashMap<String, String> getDomainObjectFieldOnColumnNameMap(CollectionViewConfig collectionViewConfig) {
-        LinkedHashMap<String, String> columnNames = new LinkedHashMap<String, String>();
+    private LinkedHashMap<String, CollectionColumnProperties> getDomainObjectFieldPropertiesMap(
+            final CollectionViewConfig collectionViewConfig) {
+        LinkedHashMap<String, CollectionColumnProperties> columnPropertiesMap =
+                new LinkedHashMap<String, CollectionColumnProperties>();
         CollectionDisplayConfig collectionDisplay = collectionViewConfig.getCollectionDisplayConfig();
 
         if (collectionDisplay != null) {
             List<CollectionColumnConfig> columnConfigs = collectionDisplay.getColumnConfig();
-            for (CollectionColumnConfig collectionColumnConfig : columnConfigs) {
-                if (!collectionColumnConfig.isHidden()) {
-
-                    String columnName = collectionColumnConfig.getName();
-                    String columnField = collectionColumnConfig.getField();
-                    columnNames.put(columnField, columnName);
+            for (CollectionColumnConfig columnConfig : columnConfigs) {
+                if (!columnConfig.isHidden()) {
+                    final String field = columnConfig.getField();
+                    final CollectionColumnProperties properties = new CollectionColumnProperties();
+                    properties.addProperty(CollectionColumnProperties.NAME_KEY, columnConfig.getName())
+                            .addProperty(CollectionColumnProperties.TYPE_KEY, columnConfig.getType())
+                            .addProperty(CollectionColumnProperties.SEARCH_FILTER_KEY, columnConfig.getSearchFilter())
+                            .addProperty(CollectionColumnProperties.PATTERN_KEY, columnConfig.getPattern());
+                    columnPropertiesMap.put(field, properties);
                 }
-
             }
-            return columnNames;
+            return columnPropertiesMap;
 
         } else throw new GuiException("Collection view config has no display tags configured ");
-
     }
 
     private CollectionRowItem generateCollectionRowItem(IdentifiableObject identifiableObject, Set<String> fields) {
@@ -277,7 +267,7 @@ public class CollectionPluginHandler extends PluginHandler {
             list = generateSortTableRowsForPluginInitialization(collectionRowsRequest.getCollectionName(),
                     collectionRowsRequest.getFields().keySet(), collectionRowsRequest.getOffset(),
                     collectionRowsRequest.getLimit(), collectionRowsRequest.getFilterList(), ((CollectionRowsRequest) dto).getField(),
-                    ((CollectionRowsRequest) dto).isSotrType());
+                    ((CollectionRowsRequest) dto).isSortType());
         } else {
             if (collectionRowsRequest.getSimpleSearchQuery().length() > 0) {
                 list = generateTableRowForSimpleSearch(collectionRowsRequest.getCollectionName(),

@@ -19,7 +19,7 @@ public class CollectionRowsRequest implements Dto {
     private int limit;
     private String collectionName;
     private HashMap<String, String> fields = new HashMap<String, String>();
-    private boolean sotrType;
+    private boolean sortType;
     private String columnName;
     private boolean sortable;
     private String field;
@@ -40,12 +40,12 @@ public class CollectionRowsRequest implements Dto {
     }
 
     public CollectionRowsRequest(int offset, int limit, String collectionName, HashMap<String, String> fields,
-                                 boolean sotrType, String columnName, String field,  List<Filter> filterList) {
+                                 boolean sortType, String columnName, String field,  List<Filter> filterList) {
         this.offset = offset;
         this.limit = limit;
         this.collectionName = collectionName;
         this.fields = fields;
-        this.sotrType = sotrType;
+        this.sortType = sortType;
         this.columnName = columnName;
         this.sortable = true;
         this.field = field;
@@ -87,12 +87,12 @@ public class CollectionRowsRequest implements Dto {
         return fields;
     }
 
-    public boolean isSotrType() {
-        return sotrType;
+    public boolean isSortType() {
+        return sortType;
     }
 
-    public void setSotrType(boolean sotrType) {
-        this.sotrType = sotrType;
+    public void setSortType(boolean sortType) {
+        this.sortType = sortType;
     }
 
     public String getColumnName() {

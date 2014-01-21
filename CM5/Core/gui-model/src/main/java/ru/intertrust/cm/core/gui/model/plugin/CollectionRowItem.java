@@ -15,10 +15,6 @@ public class CollectionRowItem implements Dto{
     private Id id;
     private  HashMap<String, Value> row;
 
-    public CollectionRowItem(HashMap<String, Value> row) {
-        this.row = row;
-    }
-
     public CollectionRowItem() {
     }
 
@@ -35,6 +31,10 @@ public class CollectionRowItem implements Dto{
         return value == null || value.get() == null ? "" : value.toString();
     }
 
+    public Value getRowValue(String key) {
+        return row.get(key);
+    }
+
     public void setRow(HashMap<String, Value> row) {
         this.row = row;
     }
@@ -44,22 +44,19 @@ public class CollectionRowItem implements Dto{
     }
 
     @Override
+    public int hashCode() {
+        return getId() == null ? System.identityHashCode(this) : getId().hashCode();
+    }
+
+    @Override
     public boolean equals(Object obj) {
-        if(obj == this)
+        if(obj == this) {
             return true;
-
-        if(obj == null)
-            return false;
-
-        /* Удостоверимся, что ссылки имеют тот же самый тип */
-        if(!(getClass() == obj.getClass()))
-            return false;
-        else {
-            CollectionRowItem tmp = (CollectionRowItem)obj;
-            if(tmp.getId() == this.getId())
-                return true;
-            else
-                return false;
         }
+        if(obj == null || !(getClass() == obj.getClass())) {
+            return false;
+        }
+        CollectionRowItem other = (CollectionRowItem) obj;
+        return (getId() == null ? other.getId() == null : getId().equals(other.getId()));
     }
 }
