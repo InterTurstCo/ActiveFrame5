@@ -19,7 +19,7 @@ import java.util.Date;
 @ComponentName("date-box")
 public class DateBoxWidget extends BaseWidget {
 
-    public static final DateTimeFormat DATE_TIME_FORMAT = DateTimeFormat.getFormat("dd/MM/yyyy HH:mm:ss");
+    public static final DateTimeFormat DATE_TIME_FORMAT = DateTimeFormat.getFormat("dd.MM.yyyy");
 
     @Override
     public Component createNew() {
