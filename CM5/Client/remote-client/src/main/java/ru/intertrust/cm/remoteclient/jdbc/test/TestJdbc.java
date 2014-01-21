@@ -1,24 +1,24 @@
 package ru.intertrust.cm.remoteclient.jdbc.test;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Calendar;
+
 import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.RdbmsId;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.jdbc.JdbcDriver;
 import ru.intertrust.cm.remoteclient.ClientBase;
-
-import java.sql.*;
-import java.util.Calendar;
-import java.util.Collection;
 
 public class TestJdbc extends ClientBase {
 
     private CrudService.Remote crudService;
     private CollectionsService.Remote collectionService;
-    private ConfigurationService configService;
 
     public static void main(String[] args) {
         try {
@@ -38,9 +38,6 @@ public class TestJdbc extends ClientBase {
         collectionService = (CollectionsService.Remote) getService(
                 "CollectionsServiceImpl", CollectionsService.Remote.class);
 
-        configService = (ConfigurationService) getService(
-                "ConfigurationServiceImpl", ConfigurationService.Remote.class);
-
         //Создаем тестовый доменный объект
         DomainObject outgoingDocument = createOutgoingDocument();
 
@@ -58,8 +55,10 @@ public class TestJdbc extends ClientBase {
 
         Calendar fromDate = Calendar.getInstance();
         fromDate.set(2000, 0, 1);
+        Calendar toDate = Calendar.getInstance();
+        toDate.set(toDate.get(Calendar.YEAR) + 1, 0, 1);
         prepareStatement.setTimestamp(1, new java.sql.Timestamp(fromDate.getTime().getTime()));
-        prepareStatement.setTimestamp(2, new java.sql.Timestamp(System.currentTimeMillis()));
+        prepareStatement.setTimestamp(2, new java.sql.Timestamp(toDate.getTime().getTime()));
         prepareStatement.setString(3, "Outgoing_Document");
         prepareStatement.setString(4, outgoingDocument.getReference("Author").toStringRepresentation());
         prepareStatement.setLong(5, 10);

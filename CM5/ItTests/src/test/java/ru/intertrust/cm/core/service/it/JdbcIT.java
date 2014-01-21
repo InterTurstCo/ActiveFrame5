@@ -90,10 +90,12 @@ public class JdbcIT extends IntegrationTestBase {
 
             Calendar fromDate = Calendar.getInstance();
             fromDate.set(2000, 0, 1);
+            Calendar toDate = Calendar.getInstance();
+            toDate.set(toDate.get(Calendar.YEAR) + 1, 0, 1);            
             prepareStatement.setTimestamp(1, new java.sql.Timestamp(fromDate.getTime().getTime()));
-            prepareStatement.setTimestamp(2, new java.sql.Timestamp(System.currentTimeMillis()));
+            prepareStatement.setTimestamp(2, new java.sql.Timestamp(toDate.getTime().getTime()));
             prepareStatement.setString(3, "Outgoing_Document");
-            prepareStatement.setLong(4, ((RdbmsId) outgoingDocument.getReference("Author")).getId());
+            prepareStatement.setString(4, outgoingDocument.getReference("Author").toStringRepresentation());
             prepareStatement.setLong(5, 10);
             resultset = prepareStatement.executeQuery();
 
