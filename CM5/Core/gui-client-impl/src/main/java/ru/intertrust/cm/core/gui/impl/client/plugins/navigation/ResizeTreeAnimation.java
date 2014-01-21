@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.navigation;
 
 import com.google.gwt.animation.client.Animation;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.FocusPanel;
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,10 +14,10 @@ import com.google.gwt.user.client.ui.FlowPanel;
 public class ResizeTreeAnimation extends Animation {
     private int startWidth = 0;
     private int desiredWidth = 0;
-    private FlowPanel resizedWidget;
+    private FocusPanel resizedWidget;
 
 
-    public ResizeTreeAnimation(int desiredWidth, FlowPanel resizedWidget) {
+    public ResizeTreeAnimation(int desiredWidth, FocusPanel resizedWidget) {
         this.resizedWidget = resizedWidget;
         this.startWidth = resizedWidget.getOffsetWidth();
         this.desiredWidth = desiredWidth;
@@ -35,7 +35,7 @@ public class ResizeTreeAnimation extends Animation {
         return outWidth;
     }
 
-    public FlowPanel getResizedWidget() {
+    public FocusPanel getResizedWidget() {
         return resizedWidget;
     }
 

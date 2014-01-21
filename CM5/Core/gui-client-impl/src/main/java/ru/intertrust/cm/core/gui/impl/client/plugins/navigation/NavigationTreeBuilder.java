@@ -15,26 +15,50 @@ class NavigationTreeBuilder {
 
     private TreeImages images;
     private String childToOpenName;
-    private LinkConfig linkConfig;
-    private TreeItem treeItem;
+    private List<LinkConfig> linkConfigs;
+    private String groupName;
     private Tree tree;
     private List<SelectionHandler<TreeItem>> handlers = new ArrayList<SelectionHandler<TreeItem>>();
 
-    public NavigationTreeBuilder(LinkConfig linkConfig) {
-        this.linkConfig = linkConfig;
+    public NavigationTreeBuilder(List<LinkConfig> linkConfigs, String groupName) {
+        this.linkConfigs = linkConfigs;
+        this.groupName = groupName;
     }
 
     public Tree toTree() {
-        treeItem = composeTreeItem(linkConfig.getName(), linkConfig.getDisplayText(), linkConfig.getPluginDefinition());
-        addChildTreeItems(treeItem, linkConfig);
         tree = createTreeWidget(images);
         addSelectionEventToTree(tree, handlers);
+        if (groupName != null) {
+            TreeItem group = composeGroupItem(groupName);
+            for (LinkConfig linkConfig : linkConfigs) {
+                buildGroup(linkConfig, group);
+            }
+        } else {
+            for (LinkConfig linkConfig : linkConfigs) {
+                buildTree(linkConfig);
+            }
+            fireEventsOnChildsToOpen();
+        }
+        return tree;
+    }
+
+    private void buildGroup(LinkConfig linkConfig, TreeItem group) {
+        tree.addItem(group);
+        TreeItem treeItem = composeTreeItem(linkConfig.getName(), linkConfig.getDisplayText(), linkConfig.getPluginDefinition());
+        addChildrenTreeItems(treeItem, linkConfig);
+        group.addItem(treeItem);
+        if (linkConfig.getName().equals(childToOpenName)) {
+            treeItem.setSelected(true);
+        }
+    }
+
+    private void buildTree(LinkConfig linkConfig) {
+        TreeItem treeItem = composeTreeItem(linkConfig.getName(), linkConfig.getDisplayText(), linkConfig.getPluginDefinition());
+        addChildrenTreeItems(treeItem, linkConfig);
         tree.addItem(treeItem);
         if (linkConfig.getName().equals(childToOpenName)) {
             treeItem.setSelected(true);
         }
-        fireEventsOnChildsToOpen();
-        return tree;
     }
 
     public NavigationTreeBuilder addSelectionHandler(SelectionHandler<TreeItem> handler) {
@@ -51,6 +75,20 @@ class NavigationTreeBuilder {
         this.images = images;
         return this;
     }
+    private TreeItem composeGroupItem(String displayText) {
+        Label label = new Label();
+        if (displayText.length() > 21) {
+            String cutDisplayText = displayText.substring(0, 21);
+            label.setText(cutDisplayText + "...");
+            label.setTitle(displayText);
+        } else {
+            label.setText(displayText);
+        }
+        label.addStyleName("tree-label");
+        TreeItem treeItem = new TreeItem(label);
+        treeItem.removeStyleName("gwt-Label");
+        return treeItem;
+    }
 
     private TreeItem composeTreeItem(String treeItemName, String displayText, LinkPluginDefinition pluginDefinition) {
         Label label = new Label();
@@ -59,20 +97,19 @@ class NavigationTreeBuilder {
             String cutDisplayText = displayText.substring(0, 21);
             label.setText(cutDisplayText + "...");
             label.setTitle(displayText);
-        }
-        else{
+        } else {
             label.setText(displayText);
         }
         label.addStyleName("tree-label");
-        TreeItem firstLevelTreeItem = new TreeItem(label);
-
+        TreeItem treeItem = new TreeItem(label);
+        treeItem.removeStyleName("gwt-Label");
         Map<String, Object> treeUserObjects = new HashMap<String, Object>();
         treeUserObjects.put("name", treeItemName);
         if (pluginDefinition != null) {
             treeUserObjects.put("pluginConfig", pluginDefinition.getPluginConfig());
         }
-        firstLevelTreeItem.setUserObject(treeUserObjects);
-        return firstLevelTreeItem;
+        treeItem.setUserObject(treeUserObjects);
+        return treeItem;
     }
 
     private void fireEventsOnChildsToOpen() {
@@ -88,7 +125,8 @@ class NavigationTreeBuilder {
     private Tree createTreeWidget(TreeImages images) {
         Tree firstLevelTree = new Tree(images);
         firstLevelTree.setAnimationEnabled(true);
-        firstLevelTree.setStyleName("folder-list");
+        firstLevelTree.removeStyleName("folder-list");
+        firstLevelTree.addStyleName("group-tree");
         firstLevelTree.setWidth("100px");
         return firstLevelTree;
     }
@@ -99,17 +137,16 @@ class NavigationTreeBuilder {
         }
     }
 
-    private void addChildTreeItems(TreeItem parentTreeItem, LinkConfig parentLinkConfig) {
-        if (!parentLinkConfig.getChildLinksConfigList().isEmpty()) {
-            ChildLinksConfig next = parentLinkConfig.getChildLinksConfigList().iterator().next();
-            List<LinkConfig> linkConfigList = next.getLinkConfigList();
+    private void addChildrenTreeItems(TreeItem parentTreeItem, LinkConfig parentLinkConfig) {
+        List<ChildLinksConfig> childLinksConfigs = parentLinkConfig.getChildLinksConfigList();
+        for (ChildLinksConfig childLinksConfig : childLinksConfigs) {
+            List<LinkConfig> linkConfigList = childLinksConfig.getLinkConfigList();
             for (LinkConfig linkConfig : linkConfigList) {
                 TreeItem item = composeTreeItem(linkConfig.getName(), linkConfig.getDisplayText(), linkConfig.getPluginDefinition());
-                if (linkConfig.getName().equals(childToOpenName)) {
-                    treeItem.setState(true);
-                }
-                addChildTreeItems(item, linkConfig);
+                item.removeStyleName("gwt-Label");
                 parentTreeItem.addItem(item);
+                addChildrenTreeItems(item, linkConfig);
+
             }
         }
     }

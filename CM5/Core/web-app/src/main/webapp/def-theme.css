@@ -19,7 +19,8 @@
     width: 117;
 
 }
-.search-box{
+
+.search-box {
     border: 0 none;
     font-size: 11px;
     width: 70px;
@@ -30,11 +31,9 @@
     padding-top: 5px;
     vertical-align: middle;
 
-
-
 }
 
-.search-data-box{
+.search-data-box {
 
     border: 0 none;
     font-size: 11px;
@@ -74,7 +73,7 @@
 
 }
 
-.flush-serch{
+.flush-serch {
     background: url("css/icons1.png") no-repeat scroll -32px top transparent;
     cursor: pointer;
     border: 0 none;
@@ -90,8 +89,9 @@
     position: relative;
     width: 16px;
 }
-.date-select{
-    background: url("css/icon-datepicker.png") no-repeat ;
+
+.date-select {
+    background: url("css/icon-datepicker.png") no-repeat;
     cursor: pointer;
     border: 0 none;
     box-shadow: none;
@@ -107,15 +107,16 @@
     width: 16px;
 }
 
-.flush-serch:hover{
+.flush-serch:hover {
     background: url("css/icons1.png") no-repeat scroll -48px top transparent;
 }
 
-.flush-serch-hide{
+.flush-serch-hide {
     background: url("css/icons1.png") no-repeat scroll -100px top transparent !important;
     cursor: default !important;
 }
-.search-button{
+
+.search-button {
     height: 23px;
     width: 23px;
     background-color: #f0f4ff;
@@ -133,7 +134,7 @@
     margin-right: 5px;
 }
 
-.datePickerDay,.datePickerWeekdayLabel,.datePickerWeekendLabel {
+.datePickerDay, .datePickerWeekdayLabel, .datePickerWeekendLabel {
     font-size: 85%;
     text-align: center;
     padding: 4px;
@@ -144,7 +145,7 @@
     border-bottom: 1px solid #EDEDED;
 }
 
-.datePickerWeekdayLabel,.datePickerWeekendLabel {
+.datePickerWeekdayLabel, .datePickerWeekendLabel {
     background: #fff;
     padding: 0px 4px 2px;
     cursor: default;
@@ -211,7 +212,7 @@ td.datePickerMonth {
     color: #333;
 }
 
-.datePickerPreviousButton,.datePickerNextButton {
+.datePickerPreviousButton, .datePickerNextButton {
     font-size: 120%;
     line-height: 1em;
     color: #3a6aad;
@@ -222,13 +223,10 @@ td.datePickerMonth {
     outline: none;
 }
 
-
-
-
 /*оформление поиска коллекшен плагин вю конец*/
 
 /*простой поиск*/
-.search-field{
+.search-field {
     border: 0 !important;;
     width: 250px;
     height: 16px;
@@ -236,18 +234,17 @@ td.datePickerMonth {
     margin: 1px;
 }
 
-.simple-search-button{
-    background: url("css/loupe.png")no-repeat;
+.simple-search-button {
+    background: url("css/loupe.png") no-repeat;
     width: 18px;
     height: 18px;
     border: 0;
     margin: 3px 0 0;
     cursor: pointer;
 
-
 }
 
-.search-panel-text-and-button-container{
+.search-panel-text-and-button-container {
     line-height: 16px;
     height: 20px;
     margin: 0 0 0 5px;
@@ -264,7 +261,7 @@ td.datePickerMonth {
     white-space: nowrap;
 }
 
-.flush-button{
+.flush-button {
     background: url("css/icons1.png") no-repeat scroll -32px top transparent;
     cursor: pointer;
     border: 0 none;
@@ -282,39 +279,38 @@ td.datePickerMonth {
     top: 3px;
 }
 
-.flush-button:hover{
+.flush-button:hover {
     background: url("css/icons1.png") no-repeat scroll -48px top transparent;
 }
 
-.simple-search-container{
+.simple-search-container {
     margin: 4px;
     float: right;
 }
 
 /*простой  поиск конец*/
 
-.style-button{
+.style-button {
     border: solid black 1px;
 }
 
-.action-bar-button{
+.action-bar-button {
 
 }
 
-.action-bar-right-button-active{
+.action-bar-right-button-active {
 
 }
 
-.action-bar-right-button-non-active{
+.action-bar-right-button-non-active {
 
 }
 
-
-.action-bar{
+.action-bar {
     box-shadow: 0 3px 10px #aaa;
     background: #fff;
     background: -moz-linear-gradient(top, #ffffff 0%, #eaeef1 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ffffff),	 color-stop(100%, #eaeef1) );
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ffffff), color-stop(100%, #eaeef1));
     background: -webkit-linear-gradient(top, #ffffff 0%, #eaeef1 100%);
     background: -o-linear-gradient(top, #ffffff 0%, #eaeef1 100%);
     background: -ms-linear-gradient(top, #ffffff 0%, #eaeef1 100%);
@@ -323,27 +319,29 @@ td.datePickerMonth {
     height: 40px;
 }
 
-.action-bar-button-active{
+.action-bar-button-active {
 
 }
 
-.action-bar-button-non-active{
+.action-bar-button-non-active {
 
 }
 
 /* SUGGEST BOX  */
-.root-suggest-div{
+.root-suggest-div {
     position: relative;
     width: 100%;
 }
-.decorated-suggest-box{
+
+.decorated-suggest-box {
     width: 100%;
     height: 15px;
     position: relative;
     overflow: hidden;
     font: 13px/ 15px Arial;
 }
-.decorated-list-suggest-box{
+
+.decorated-list-suggest-box {
     height: 15px;
     padding: 9px 25px 9px 35px;
     position: relative;
@@ -353,7 +351,7 @@ td.datePickerMonth {
     border-radius: 5px;
 }
 
-.header-first-action-button{
+.header-first-action-button {
     background: url(images/matugalnik.png) no-repeat scroll 4px 4px;
     cursor: pointer;
     height: 30px;
@@ -365,11 +363,11 @@ td.datePickerMonth {
     outline: none;
 }
 
-.header-first-action-button-mute{
+.header-first-action-button-mute {
     background: url(images/matugalnik_dis.png) no-repeat scroll 4px 4px !important;
 }
 
-.header-second-action-button{
+.header-second-action-button {
     width: 28px;
     height: 35px;
     position: absolute;
@@ -380,14 +378,14 @@ td.datePickerMonth {
     cursor: pointer;
     outline: none;
 }
-.section-suggest-box{
+
+.section-suggest-box {
     position: initial !important;
     overflow: visible !important;
 }
 
-
-.H_td_ExtSearch  .header-third-action-button{
-    background: url(css/i/ext-search.png) no-repeat scroll center center ;
+.H_td_ExtSearch  .header-third-action-button {
+    background: url(css/i/ext-search.png) no-repeat scroll center center;
     cursor: pointer;
     float: right;
     height: 32px;
@@ -401,16 +399,14 @@ td.datePickerMonth {
     outline: none;
 }
 
-
-.H_td_ExtSearch  .header-third-action-button:hover{
-    background: url(css/i/ext-search.png) center center no-repeat  #fffdf0;
+.H_td_ExtSearch  .header-third-action-button:hover {
+    background: url(css/i/ext-search.png) center center no-repeat #fffdf0;
     border: 1px solid;
     border-color: #fff1ca #ffedbe #ffedbe;
     border-radius: 5px;
 }
 
-
-.upper-suggestbox{
+.upper-suggestbox {
     width: 100%;
     height: 15px;
     position: relative;
@@ -418,9 +414,9 @@ td.datePickerMonth {
     font: 13px/ 15px Arial;
 
     position: relative;
-    border:none;
+    border: none;
     border-radius: 5px;
-    background:  #fffdf0;
+    background: #fffdf0;
     outline: none;
 }
 
@@ -433,13 +429,14 @@ td.datePickerMonth {
     cursor: pointer;
 }
 
-.decorated-action-link .action-bar-button{
+.decorated-action-link .action-bar-button {
     float: left;
     margin-left: 3px;
     margin-top: 10px;
     border-bottom: 1px dotted black;
 }
-.decorated-action-link img{
+
+.decorated-action-link img {
     border: none !important;
     position: relative;
     top: 2px;
@@ -448,10 +445,12 @@ td.datePickerMonth {
     margin-left: 10px;
     cursor: pointer;
 }
-.decorated-action-link{
+
+.decorated-action-link {
     float: left;
 }
-.decorated-action-link .action-bar-button a{
+
+.decorated-action-link .action-bar-button a {
     text-decoration: none;
 
     cursor: pointer;
@@ -459,16 +458,19 @@ td.datePickerMonth {
     color: black;
 
 }
+
 .decorated-action-link .action-bar-button a:hover,
 .decorated-action-link .action-bar-button:hover {
     color: #f00;
     border-bottom: 1px dotted red;
 }
-.centerTopBottomDividerRoot{
+
+.centerTopBottomDividerRoot {
     margin-top: 0px !important;
     margin-right: 0px !important;
 }
-.H_td_user .gwt-Hyperlink a{
+
+.H_td_user .gwt-Hyperlink a {
     font: bold 14px Arial;
     cursor: pointer;
     text-decoration: underline;
@@ -476,7 +478,8 @@ td.datePickerMonth {
     padding-right: 20px;
     background: url(images/user.png) no-repeat right center;
 }
-.H_td_links .gwt-Anchor{
+
+.H_td_links .gwt-Anchor {
     width: 32px;
     height: 32px;
     cursor: pointer;
@@ -487,12 +490,15 @@ td.datePickerMonth {
     text-indent: 9999px;
     overflow: hidden;
 }
-.H_td_links .decorated-settings .gwt-Anchor{
+
+.H_td_links .decorated-settings .gwt-Anchor {
     background: url(images/settings.png) no-repeat scroll 0 0 transparent;
 }
-.H_td_links .decorated-help .gwt-Anchor{
+
+.H_td_links .decorated-help .gwt-Anchor {
     background: url(images/help.png) no-repeat scroll 0 0 transparent;
 }
+
 .H_td_logout a {
     white-space: nowrap;
     padding: 9px 9px 8px 18px;
@@ -506,7 +512,8 @@ td.datePickerMonth {
     color: black !important;
     text-decoration: none;
 }
-.action-bar-right-button-non-active{
+
+.action-bar-right-button-non-active {
     float: right;
     width: 36px;
     height: 31px;
@@ -519,79 +526,76 @@ td.datePickerMonth {
     z-index: 99;
     margin-top: 7px;
 }
+
 .action-bar-right-button-non-active.action-bar-right-button-active,
 .action-bar-right-button-non-active:hover {
     background: url(images/frameset/show-panel-hover.png) no-repeat 0 0;
 }
 
-
-.decorated-suggest-box{
-
-}
-
-.section-suggest-box{
+.decorated-suggest-box {
 
 }
 
-.gwt-TextBox ,
+.section-suggest-box {
+
+}
+
+.gwt-TextBox,
 .gwt-ListBox,
-.gwt-TextArea{
-padding: 7px !important;
-border: 1px solid #ccc;
-margin: 0px;
-font-family: arial;
+.gwt-TextArea {
+    padding: 7px !important;
+    border: 1px solid #ccc;
+    margin: 0px;
+    font-family: arial;
 }
-.gwt-ListBox{
-width: 165px;
+
+.gwt-ListBox {
+    width: 165px;
 }
+
 .gwt-Label {
-font-weight: bold;
+    font-weight: bold;
 }
 
 /*актуальная верстка*/
-.header-section{
+.header-section {
 
 }
 
-.action-section{
+.action-section {
 
 }
 
-.left-section{
+.left-section {
     float: left;
     z-index: 15 !important;
 
-
     background: #4c93c9;
-    background: -moz-linear-gradient(top, #478BCC  0%, #3b649a 51%, #232464 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #4c93c9),
-    color-stop(51%, #3b649a), color-stop(100%, #232464) );
-    background: -webkit-linear-gradient(top, #478BCC  0%, #3b649a 51%, #232464 100%);
-    background: -o-linear-gradient(top, #478BCC  0%, #3b649a 51%, #232464 100%);
-    background: -ms-linear-gradient(top, #478BCC  0%, #3b649a 51%, #232464 100%);
-    filter: progid: DXImageTransform.Microsoft.gradient(
-        startColorstr= '#478BCC ', endColorstr= '#232464', GradientType=
-        0 );
-    background: linear-gradient(478BCC );
+    background: -moz-linear-gradient(top, #478BCC 0%, #3b649a 51%, #232464 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #4c93c9), color-stop(51%, #3b649a), color-stop(100%, #232464));
+    background: -webkit-linear-gradient(top, #478BCC 0%, #3b649a 51%, #232464 100%);
+    background: -o-linear-gradient(top, #478BCC 0%, #3b649a 51%, #232464 100%);
+    background: -ms-linear-gradient(top, #478BCC 0%, #3b649a 51%, #232464 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#478BCC ', endColorstr='#232464', GradientType=0);
+    background: linear-gradient(478 BCC);
 
 }
-.left-section:hover{
+
+.left-section:hover {
     box-shadow: 5px 0 5px rgba(0, 0, 0, 0.5);
 }
-.left-section-active{
+
+.left-section-active {
     float: left;
     z-index: 15 !important;
     background: #4c93c9;
-    background: -moz-linear-gradient(top, #478BCC  0%, #3b649a 51%, #232464 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #4c93c9),
-    color-stop(51%, #3b649a), color-stop(100%, #232464) );
-    background: -webkit-linear-gradient(top, #478BCC  0%, #3b649a 51%, #232464 100%);
-    background: -o-linear-gradient(top, #478BCC  0%, #3b649a 51%, #232464 100%);
-    background: -ms-linear-gradient(top, #478BCC  0%, #3b649a 51%, #232464 100%);
-    filter: progid: DXImageTransform.Microsoft.gradient(
-        startColorstr= '#478BCC ', endColorstr= '#232464', GradientType=
-        0 );
-    background: linear-gradient(top, #478BCC  0%, #3b649a 51%, #232464 100%);
+    background: -moz-linear-gradient(top, #478BCC 0%, #3b649a 51%, #232464 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #4c93c9), color-stop(51%, #3b649a), color-stop(100%, #232464));
+    background: -webkit-linear-gradient(top, #478BCC 0%, #3b649a 51%, #232464 100%);
+    background: -o-linear-gradient(top, #478BCC 0%, #3b649a 51%, #232464 100%);
+    background: -ms-linear-gradient(top, #478BCC 0%, #3b649a 51%, #232464 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#478BCC ', endColorstr='#232464', GradientType=0);
+    background: linear-gradient(top, #478BCC 0%, #3b649a 51%, #232464 100%);
     /*
     background: #4c93c9;
     background: -moz-linear-gradient(top, #4c93c9 0%, #3b649a 51%, #232464 100%);
@@ -604,7 +608,9 @@ font-weight: bold;
     */
 
 }
+
 /* aktivnue punktu v levoy kolonke */
+/*
 .gwt-TreeItem-selected .tree-label:after  {
     content: open-quote;
     display: block;
@@ -614,8 +620,10 @@ font-weight: bold;
     background: url(images/folder-list-selected-bg.png) right top no-repeat;
     right: -11px;
     font-size: 0px;
-    top: -5px;
+    top: 4px;
+    margin-left: 5px;
 }
+
 .gwt-TreeItem-selected .tree-label:before  {
     content: open-quote;
     display: block;
@@ -624,63 +632,123 @@ font-weight: bold;
     background: url(images/folder-list-selected-bg.png) left top no-repeat;
     left: 8px;
     right: 0;
-    top: -5px;
+    top: 4px;
     font-size: 0px;
+    margin-left: 5px;
+}   */
+.gwt-custom-TreeItem-selected .tree-label:after {
+    content: open-quote;
+    display: block;
+    position: absolute;
+    width: 27px;
+    height: 25px;
+    background: url(images/folder-list-selected-bg.png) right top no-repeat;
+    right: -11px;
+    font-size: 0px;
+    top: 4px;
+    margin-left: 5px;
 }
-.gwt-TreeItem-selected .tree-label{
+
+.gwt-custom-TreeItem-selected .tree-label:before {
+    content: open-quote;
+    display: block;
+    position: absolute;
+    height: 25px;
+    background: url(images/folder-list-selected-bg.png) left top no-repeat;
+    left: 8px;
+    right: 0;
+    top: 4px;
+    font-size: 0px;
+    margin-left: 5px;
+}
+
+.gwt-custom-TreeItem-selected .tree-label {
     text-decoration: underline !important;
 }
-.gwt-TreeItem-selected .tree-label,
-.gwt-TreeItem-selected,
-.gwt-TreeItem{
+
+.gwt-custom-TreeItem-selected .tree-label,
+.gwt-custom-TreeItem-selected,
+.gwt-TreeItem {
     position: relative;
     white-space: nowrap;
+
 }
-.gwt-TreeItem-selected .tree-label{
+
+.navigation-dynamic-panel {
+    left: 15px;
+    padding-top: 20px;
+    width: 130px;
+}
+
+.group-tree td {
+    vertical-align: bottom !important;
+}
+
+.gwt-custom-TreeItem-selected td {
+    vertical-align: bottom;
+}
+
+.group-tree {
+
+    font-weight: bold;
+    margin-left: 124px;
+    margin-top: 10px;
+    padding: 0 0 15px;
+    display: block;
+}
+
+.gwt-custom-TreeItem-selected .tree-label {
     color: white !important;
 }
 
-.centr-inner-section{
+.gwt-custom-white {
+    color: white !important;
+}
+
+.centr-inner-section {
     position: absolute !important;
     margin-top: 11px;
     float: left;
 }
-
 .tree-label{
     text-decoration: none !important;
     float: left;
     padding-right: 8px;
     cursor: pointer;
-}
+    padding-top: 8px;
 
+}
 
 /* aktivnue punktu v levoy kolonke END */
 .GLW1MH4CFK {
     margin-left: -40px;
 }
+
 .GLW1MH4CJK {
     margin-top: -38px;
 }
+
 .GLW1MH4CBL {
     margin-top: -1px;
 }
-.right-section{
+
+.right-section {
     float: left;
 }
 
-.footer-section{
+.footer-section {
 
 }
 
-.center-section{
+.center-section {
 
 }
 
-.root-section{
+.root-section {
 
 }
 
-.popup-content{
+.popup-content {
     padding: 40px;
 }
 
@@ -704,9 +772,8 @@ font-weight: bold;
     display: inline-block;
 }
 
-
 /*.suggest-choose:hover {*/
-    /*border: 1px solid #f7c137;*/
+/*border: 1px solid #f7c137;*/
 /*}*/
 
 .suggest-choose-close {
@@ -735,13 +802,13 @@ td .gwt-SuggestBox {
     width: 100%;
 }
 
-.header-section{
+.header-section {
     height: 60px;
     box-shadow: 0 4px 10px 0px #2d5b7d;
     z-index: 99;
 }
 
-.H-B-V-button{
+.H-B-V-button {
     /*padding: 20px;*/
     /*background-color: red;*/
     /*background: url(css/icons/icons.png) left top no-repeat;*/
@@ -754,32 +821,37 @@ td .gwt-SuggestBox {
 }
 
 /* ATTACHMENTS */
-.facebook-main-box{
+.facebook-main-box {
     color: #000;
     border: 1px solid #ccc;
     overflow: auto;
     background-color: white;
     min-height: 30px;
 }
-.facebook-element{
+
+.facebook-element {
     margin: 6px 5px 2px 5px;
     position: relative;
 }
-.facebook-element .gwt-Label{
+
+.facebook-element .gwt-Label {
     float: left;
     width: auto;
     margin-right: 6px;
     height: auto;
     margin-top: 4px;
 }
+
 .facebook-element .facebook-label,
-.facebook-element .gwt-Image{
+.facebook-element .gwt-Image {
     float: left;
 }
-.facebook-element .gwt-Image{
+
+.facebook-element .gwt-Image {
     margin-left: 11px;
 }
-.facebook-element a{
+
+.facebook-element a {
     padding-bottom: 0px !important;
     padding-top: 0px !important;
     padding-left: 0;
@@ -791,7 +863,8 @@ td .gwt-SuggestBox {
     color: #000;
 
 }
-.facebook-element .facebook-btn{
+
+.facebook-element .facebook-btn {
     background-attachment: scroll;
     background-clip: border-box;
     background-color: rgba(0, 0, 0, 0) !important;
@@ -808,12 +881,13 @@ td .gwt-SuggestBox {
 
     width: 15px;
 }
-.facebook-element .facebook-btn:hover{
+
+.facebook-element .facebook-btn:hover {
     background-position: -16px 0;
 }
 
 /*ext-search*/
-.ext-search-root-div{
+.ext-search-root-div {
     background-color: white;
     border: 1px solid;
     border-color: black;
@@ -825,7 +899,7 @@ td .gwt-SuggestBox {
     border-radius: 10px;
     background: #356a9e;
     background: -moz-linear-gradient(top, #356a9e 0%, #1f2b5d 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #356a9e),	 color-stop(100%, #1f2b5d) );
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #356a9e), color-stop(100%, #1f2b5d));
     background: -webkit-linear-gradient(top, #356a9e 0%, #1f2b5d 100%);
     background: -o-linear-gradient(top, #356a9e 0%, #1f2b5d 100%);
     background: -ms-linear-gradient(top, #356a9e 0%, #1f2b5d 100%);
@@ -835,92 +909,93 @@ td .gwt-SuggestBox {
     box-shadow: 0 3px 15px #555;
 }
 
-.ext-search-action-div{
+.ext-search-action-div {
     border-bottom: 2px;
 }
 
-.ext-search-save-query-div{
+.ext-search-save-query-div {
     float: left;
     margin-left: 15px;
     margin-top: 15px;
     margin-bottom: 4px;
 }
 
-.ext-search-save-query-link-div{
+.ext-search-save-query-link-div {
     float: left;
 }
 
-.ext-search-save-query-popup-button-div{
+.ext-search-save-query-popup-button-div {
     float: left;
 }
 
-.ext-search-extend-query-div{
-
+.ext-search-extend-query-div {
 
     float: right;
     margin-right: 2px;
     margin-top: 15px;
 }
 
-.ext-query-link-div{
+.ext-query-link-div {
     float: left;
 }
 
-.ext-query-close-button-div{
+.ext-query-close-button-div {
     float: left;
 }
 
-.ext-search-section-name{
+.ext-search-section-name {
 
 }
 
-.ext-search-scope-div ,
-.ext-search-radio-div{
+.ext-search-scope-div,
+.ext-search-radio-div {
     padding: 10px 15px;
     width: 652px;
     float: left;
 }
+
 .ext-search-root-div .gwt-Label {
     margin-left: 0px;
     margin-bottom: 10px;
 }
+
 .ext-search-section-checkbox span.ext-search-section-checkbox,
-.ext-search-radio-div span.ext-search-radio-button{
+.ext-search-radio-div span.ext-search-radio-button {
     float: left;
     margin-right: 20px;
     width: 197px;
     margin-bottom: 10px;
 }
 
-.ext-search-scope-div{
+.ext-search-scope-div {
     border-top: 1px solid #8694a8;
 }
 
-.ext-search-radio-button{
+.ext-search-radio-button {
     display: block;
 }
 
-.ext-search-radio-div{
+.ext-search-radio-div {
     border-bottom: 1px solid #8694a8;
 }
 
-.ext-search-form-element{
+.ext-search-form-element {
 
 }
 
-.ext-search-form-label{
+.ext-search-form-label {
     float: left;
 }
 
-.ext-search-form-widget{
+.ext-search-form-widget {
     float: left;
 }
 
-.ext-search-form-element{
+.ext-search-form-element {
     display: block;
 }
 
-.ext-search-save-query-popup-button-div .gwt-Button{
+.ext-search-save-query-popup-button-div .gwt-Button {
     background: url(images/button_open.png) no-repeat;
     border: none;
     font-size: 0px;
@@ -929,7 +1004,8 @@ td .gwt-SuggestBox {
     margin-left: 5px;
     outline: none;
 }
-.ext-query-close-button-div .gwt-Button{
+
+.ext-query-close-button-div .gwt-Button {
     background: url(css/icons/icon-close.png) left top no-repeat;
     display: inline-block;
     position: relative;
@@ -947,17 +1023,20 @@ td .gwt-SuggestBox {
     outline: none;
     text-indent: 9999px;
 }
+
 .ext-query-link-div .gwt-Label,
-.ext-search-save-query-link-div .gwt-Label{
+.ext-search-save-query-link-div .gwt-Label {
     border-bottom: 1px dotted white;
     font-weight: normal;
     cursor: pointer;
 }
+
 .ext-query-link-div .gwt-Label:hover,
-.ext-search-save-query-link-div .gwt-Label:hover{
+.ext-search-save-query-link-div .gwt-Label:hover {
     color: red;
     border-bottom: 1px dotted red;
 }
-.ext-serch-form-div{
+
+.ext-serch-form-div {
     clear: left;
 }

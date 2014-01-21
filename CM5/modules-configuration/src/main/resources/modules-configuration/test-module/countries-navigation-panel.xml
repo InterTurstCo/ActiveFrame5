@@ -158,6 +158,74 @@
                 </link>
             </child-links>
         </link>
+        <link name="InboxTest" display-text="Входящие тест" image="images/meetings.png" child-to-open="TasksTest">
+            <child-links group-name="Группа">
+                <link name="TasksTest" display-text="Задачи" >
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="Internal_Document">
+                            <collection-viewer>
+                                <collection-ref name="Tasks"/>
+                                <sort-criteria>
+                                    <sort-criterion field="name" order="asc"/>
+                                </sort-criteria>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                    <child-links>
+                        <link name="TasksHigh" display-text="Задачи высокого приоритета">
+                            <plugin>
+                                <domain-object-surfer domain-object-type-to-create="Internal_Document">
+                                    <collection-viewer>
+                                        <collection-ref name="Tasks"/>
+                                        <sort-criteria>
+                                            <sort-criterion field="name" order="asc"/>
+                                        </sort-criteria>
+                                    </collection-viewer>
+                                </domain-object-surfer>
+                            </plugin>
+                        </link>
+                        <link name="TasksLow" display-text="Задачи низкого приориете">
+                            <plugin>
+                                <domain-object-surfer domain-object-type-to-create="Internal_Document">
+                                    <collection-viewer>
+                                        <collection-ref name="Tasks"/>
+                                        <sort-criteria>
+                                            <sort-criterion field="name" order="asc"/>
+                                        </sort-criteria>
+                                    </collection-viewer>
+                                </domain-object-surfer>
+                            </plugin>
+                        </link>
+                    </child-links>
+                </link>
+                <link name="TasksTestTest" display-text="ЗадачиЗадачи">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="Internal_Document">
+                            <collection-viewer>
+                                <collection-ref name="Tasks"/>
+                                <sort-criteria>
+                                    <sort-criterion field="name" order="asc"/>
+                                </sort-criteria>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+            </child-links>
+            <child-links>
+                <link name="LettersTest" display-text="ПисьмаТест">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="Letter">
+                            <collection-viewer>
+                                <collection-ref name="Letters"/>
+                                <sort-criteria>
+                                    <sort-criterion field="subject" order="asc"/>
+                                </sort-criteria>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
 
+            </child-links>
+        </link>
     </navigation>
 </configuration>

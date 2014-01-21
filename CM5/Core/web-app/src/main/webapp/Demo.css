@@ -181,6 +181,15 @@ h1 {
 */
     z-index: 3;
 }
+#sidebar .non-selected {
+
+    width: 100px;
+    height: 83px;
+    /*
+    position: fixed;
+*/
+    z-index: 3;
+}
 
 #sidebar li a {
     position: relative;
@@ -298,16 +307,19 @@ h1 {
 .synchronized {
     color: #72CCFF;
     text-decoration: underline;
+
 }
+
 
 .folder-list,.folder-list * {
     font-size: 9pt;
     font-weight: bold;
 }
 
+
 .folder-list {
     /* margin: 10px 10px 10px 20px; */
-    margin: 10px 0px 0px 0px;
+    margin-top: 25px;
     padding: 0 0 10px 0;
 }
 
@@ -549,7 +561,9 @@ h1 {
     font: 16px/16px Arial;
 }
 
-
+.custom-tree-item{
+ /*  padding-top: 8px;*/
+}
 
 /*
 .gwt-Label{
