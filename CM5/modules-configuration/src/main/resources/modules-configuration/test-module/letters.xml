@@ -194,6 +194,7 @@
             <label id="Name-Label">
                 <field-path/>
                 <text>Название:</text>
+                <relates-to widget-id="Name"/>
             </label>
             <text-box id="Name">
                 <field-path value="Name"/>
@@ -201,6 +202,7 @@
 
             <label id="Department-Label">
                 <text>Департамент:</text>
+                <relates-to widget-id="Department"/>
             </label>
             <combo-box id="Department">
                 <field-path value="Department"/>
@@ -208,7 +210,8 @@
             </combo-box>
 
             <label id="positionLabel">
-                <text>Должность(*):</text>
+                <text>Должность:</text>
+                <relates-to widget-id="position" />
             </label>
             <text-box id="position">
                 <field-path value="Position"/>
@@ -257,6 +260,7 @@
             <label id="Name-Label">
                 <field-path/>
                 <text>Название:</text>
+                <relates-to widget-id="Name"/>
             </label>
             <text-box id="Name">
                 <field-path value="Name"/>
@@ -264,6 +268,7 @@
 
             <label id="Organization-Label">
                 <text>Организация:</text>
+                <relates-to widget-id="Organization"/>
             </label>
             <combo-box id="Organization">
                 <field-path value="Organization"/>
@@ -299,6 +304,7 @@
             <label id="Name-Label">
                 <field-path/>
                 <text>Название:</text>
+                <relates-to widget-id="Name" />
             </label>
             <text-box id="Name">
                 <field-path value="Name"/>

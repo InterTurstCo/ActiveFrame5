@@ -1416,6 +1416,7 @@
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
+
     <xs:complexType name="labelType">
         <xs:sequence>
             <xs:element name="field-path" minOccurs="0">
@@ -1433,6 +1434,16 @@
                     <xs:restriction base="xs:string">
                     </xs:restriction>
                 </xs:simpleType>
+            </xs:element>
+            <xs:element name="relates-to" minOccurs="0">
+                <xs:complexType>
+                    <xs:simpleContent>
+                        <xs:extension base="xs:string">
+                            <xs:attribute name="widget-id"
+                                          type="xs:string" use="required"/>
+                        </xs:extension>
+                    </xs:simpleContent>
+                </xs:complexType>
             </xs:element>
         </xs:sequence>
         <xs:attribute type="xs:string" name="id" use="optional"/>

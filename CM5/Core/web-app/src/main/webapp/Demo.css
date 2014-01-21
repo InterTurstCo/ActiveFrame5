@@ -593,6 +593,12 @@ div.gwt-Good-Label {
     font-weight: bold;
 }
 
+.gwt-Red-Label {
+    color: red;
+    vertical-align: super;
+    font-weight: bold;
+}
+
 .tree-label{
     margin-left: -20px !important;
     padding-left: 20px !important;

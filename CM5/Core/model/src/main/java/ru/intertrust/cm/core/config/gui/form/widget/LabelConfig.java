@@ -14,6 +14,9 @@ public class LabelConfig extends WidgetConfig implements Dto {
     @Element(name = "text", required = false)
     private String text;
 
+    @Element(name = "relates-to", required = false)
+    private RelatesToConfig relatesTo;
+
     public String getText() {
         return text;
     }
@@ -21,6 +24,15 @@ public class LabelConfig extends WidgetConfig implements Dto {
     public void setText(String text) {
         this.text = text;
     }
+
+    public RelatesToConfig getRelatesTo() {
+        return relatesTo;
+    }
+
+    public void setRelatesTo(RelatesToConfig relatesTo) {
+        this.relatesTo = relatesTo;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -34,6 +46,10 @@ public class LabelConfig extends WidgetConfig implements Dto {
         }
 
         LabelConfig that = (LabelConfig) o;
+
+        if (relatesTo != null ? !relatesTo.equals(that.relatesTo) : that.relatesTo != null) {
+            return false;
+        }
         if (text != null ? !text.equals(that.text) : that.text != null) {
             return false;
         }
@@ -45,11 +61,13 @@ public class LabelConfig extends WidgetConfig implements Dto {
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (text != null ? text.hashCode() : 0);
+        result = 31 * result + (relatesTo != null ? relatesTo.hashCode() : 0);
         return result;
     }
 
     @Override
     public String getComponentName() {
+
         return "label";
     }
 }

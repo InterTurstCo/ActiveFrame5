@@ -7,6 +7,7 @@ package ru.intertrust.cm.core.gui.model.form.widget;
  */
 public class LabelState extends WidgetState {
     private String label;
+    private boolean relatedToRequiredField;
 
     public LabelState() {
     }
@@ -23,8 +24,24 @@ public class LabelState extends WidgetState {
         this.label = label;
     }
 
+    public boolean isRelatedToRequiredField() {
+        return relatedToRequiredField;
+    }
+
+    public void setRelatedToRequiredField(boolean relatedToRequiredField) {
+        this.relatedToRequiredField = relatedToRequiredField;
+    }
+
+    @Override
+    // modified to return true always, so to make isEditable() method of LabelWidget
+    // to indicate whether containing panel is editable or not.
+    public boolean isEditable() {
+        return true;
+    }
+
     @Override
     public boolean equals(Object obj) {
         return super.equals(obj);
     }
+
 }
