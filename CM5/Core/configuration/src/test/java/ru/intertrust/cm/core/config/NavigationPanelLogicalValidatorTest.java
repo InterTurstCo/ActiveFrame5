@@ -12,6 +12,8 @@ import ru.intertrust.cm.core.config.converter.TopLevelConfigurationCache;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -89,7 +91,7 @@ public class NavigationPanelLogicalValidatorTest {
         return configurationExplorer;
     }
 
-    private ModuleService createModuleService() {
+    private ModuleService createModuleService() throws MalformedURLException {
         ModuleService result = new ModuleService();
         ModuleConfiguration conf = new ModuleConfiguration(); 
         result.getModuleList().add(conf);
@@ -97,6 +99,9 @@ public class NavigationPanelLogicalValidatorTest {
         conf.getConfigurationPaths().add(DOMAIN_OBJECTS_CONFIG_PATH);
         conf.getConfigurationPaths().add(GLOBAL_XML_PATH);
         conf.setConfigurationSchemaPath(CONFIGURATION_SCHEMA_PATH);
+        URL schemaUrl = getClass().getClassLoader().getResource(CONFIGURATION_SCHEMA_PATH);
+        URL moduleUrl = new URL(schemaUrl.toString().substring(0, schemaUrl.toString().indexOf(CONFIGURATION_SCHEMA_PATH)));
+        conf.setModuleUrl(moduleUrl);
         return result;
     }
 }

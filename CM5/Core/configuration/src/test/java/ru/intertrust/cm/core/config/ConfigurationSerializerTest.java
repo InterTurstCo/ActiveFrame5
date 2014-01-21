@@ -14,6 +14,8 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.*;
@@ -142,7 +144,10 @@ public class ConfigurationSerializerTest {
         return configurationSerializer;
     }
 
-    static private ModuleService createModuleService(String configPath) {
+    static private ModuleService createModuleService(String configPath) throws MalformedURLException {
+        URL schemaUrl = ConfigurationSerializerTest.class.getClassLoader().getResource(CONFIGURATION_SCHEMA_PATH);
+        URL moduleUrl = new URL(schemaUrl.toString().substring(0, schemaUrl.toString().indexOf(CONFIGURATION_SCHEMA_PATH)));
+        
         ModuleService result = new ModuleService();
         ModuleConfiguration confCore = new ModuleConfiguration();
         confCore.setName("core");
@@ -152,6 +157,7 @@ public class ConfigurationSerializerTest {
         confCore.getConfigurationPaths().add(COLLECTIONS_CONFIG_PATH);
         confCore.getConfigurationPaths().add(GLOBAL_XML_PATH);
         confCore.setConfigurationSchemaPath(CONFIGURATION_SCHEMA_PATH);
+        confCore.setModuleUrl(moduleUrl);
 
         ModuleConfiguration confCustom = new ModuleConfiguration(); 
         confCustom.setName("custom");
@@ -162,6 +168,7 @@ public class ConfigurationSerializerTest {
         confCustom.setConfigurationSchemaPath(MODULES_CUSTOM_SCHEMA);
         confCustom.setDepends(new ArrayList<String>());
         confCustom.getDepends().add(confCore.getName());
+        confCustom.setModuleUrl(moduleUrl);
         
         return result;
     }    
