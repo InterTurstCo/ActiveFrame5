@@ -41,10 +41,8 @@ public class TestJdbc extends ClientBase {
         configService = (ConfigurationService) getService(
                 "ConfigurationServiceImpl", ConfigurationService.Remote.class);
 
-        Collection<DomainObjectTypeConfig> configs = configService.getConfigs(DomainObjectTypeConfig.class);
-
         //Создаем тестовый доменный объект
-        DomainObject outgoingDocument = greateOutgoingDocument();
+        DomainObject outgoingDocument = createOutgoingDocument();
 
         //Выполняем запрос с помощью JDBC
         Class.forName(JdbcDriver.class.getName());
@@ -102,10 +100,10 @@ public class TestJdbc extends ClientBase {
 
     }
 
-    private DomainObject greateOutgoingDocument() {
+    private DomainObject createOutgoingDocument() {
         DomainObject document = crudService.createDomainObject("Outgoing_Document");
         document.setString("Name", "Outgoing_Document");
-        document.setReference("Author", findDomainObject("Employee", "Name", "Employee-1"));
+        document.setReference("Author", findDomainObject("Employee", "Login", "person1"));
         document.setLong("Long_Field", 10L);
 
         document = crudService.save(document);
