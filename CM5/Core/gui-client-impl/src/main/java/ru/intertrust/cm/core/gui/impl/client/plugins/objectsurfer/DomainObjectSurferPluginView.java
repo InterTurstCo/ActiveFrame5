@@ -196,9 +196,6 @@ public class DomainObjectSurferPluginView extends PluginView {
                     formPluginPanel.open(formPlugin);
                     splitterFirstWidget.add(this.asWidget());
 
-                    formFlowPanel.setStyleName("tab-content");
-                    formFlowPanel.setSize("100%", "100%");
-
                     formFlowPanel.add(formPluginPanel.asWidget());
 
                 }

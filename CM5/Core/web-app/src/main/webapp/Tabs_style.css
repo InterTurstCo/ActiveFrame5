@@ -1,6 +1,9 @@
-.gwt-TabLayoutPanel
-{
-    /*height: 300px !important;*/
+.gwt-TabLayoutPanel {
+    margin-bottom: 35px;
+}
+
+.form-dialog-box-content .gwt-TabLayoutPanel {
+    margin-bottom: 0px;
 }
 
 .gwt-TabLayoutPanelTabs{

@@ -121,6 +121,66 @@
                         <tab-group name="Главная"> <!-- либо таб, либо разметка, вместе - нельзя -->
                             <table>
                                 <tr>
+                                    <td h-align="left">
+                                        <widget id="001"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="002"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="003"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="004"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="005"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="006"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="101"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="102"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="103"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="104"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="105"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="106"/>
+                                    </td>
+                                </tr>
+                                <tr>
                                     <td h-align="center" v-align="center">
                                         <widget id="3"/>
                                     </td>
@@ -267,6 +327,56 @@
             </body>
         </markup>
         <widget-config>
+            <label id="001">
+                <field-path/>
+                <text>Название:</text>
+            </label>
+            <label id="002">
+                <field-path/>
+                <text>Название:</text>
+            </label>
+            <label id="003">
+                <field-path/>
+                <text>Название:</text>
+            </label>
+            <label id="004">
+                <field-path/>
+                <text>Название:</text>
+            </label>
+            <label id="005">
+                <field-path/>
+                <text>Название:</text>
+            </label>
+            <label id="006">
+                <field-path/>
+                <text>Название:</text>
+            </label>
+            <label id="101">
+                <field-path/>
+                <text>Название:</text>
+            </label>
+            <label id="102">
+                <field-path/>
+                <text>Название:</text>
+            </label>
+            <label id="103">
+                <field-path/>
+                <text>Название:</text>
+            </label>
+            <label id="104">
+                <field-path/>
+                <text>Название:</text>
+            </label>
+            <label id="105">
+                <field-path/>
+                <text>Название:</text>
+            </label>
+            <label id="106">
+                <field-path/>
+                <text>Название:</text>
+            </label>
+
+
             <label id="1">
                 <field-path/>
                 <text>Название:</text>

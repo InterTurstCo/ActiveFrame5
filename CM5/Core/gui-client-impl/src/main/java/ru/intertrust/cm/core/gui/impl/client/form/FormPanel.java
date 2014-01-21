@@ -44,6 +44,7 @@ public class FormPanel implements IsWidget {
         this.editable = editable;
         panel = new FlowPanel();
         panel.getElement().setId("frm-pnl");
+        panel.getElement().setClassName("tab-content");
         widgets = new ArrayList<BaseWidget>(formDisplayData.getFormState().getFullWidgetsState().size());
 
     }
