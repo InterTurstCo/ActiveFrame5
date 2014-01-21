@@ -24,13 +24,7 @@ import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
-import net.sf.jsqlparser.statement.select.FromItem;
-import net.sf.jsqlparser.statement.select.Join;
-import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.SelectBody;
-import net.sf.jsqlparser.statement.select.SelectExpressionItem;
-import net.sf.jsqlparser.statement.select.SetOperationList;
-import net.sf.jsqlparser.statement.select.SubSelect;
+import net.sf.jsqlparser.statement.select.*;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DateTimeWithTimeZoneFieldConfig;
@@ -500,7 +494,10 @@ public class SqlQueryModifier {
 
     private FieldConfig getFieldConfigFromSubSelect(PlainSelect plainSelect, Column upperLevelColumn) {
         for (Object selectItem : plainSelect.getSelectItems()) {
-            if (!(selectItem instanceof SelectExpressionItem)) {
+            if (selectItem instanceof AllColumns) {
+                String fieldName = unwrap(upperLevelColumn.getColumnName().toLowerCase());
+                return configurationExplorer.getFieldConfig(getDOTypeName(plainSelect, upperLevelColumn, true), fieldName);
+            } else if (!(selectItem instanceof SelectExpressionItem)) {
                 continue;
             }
 
