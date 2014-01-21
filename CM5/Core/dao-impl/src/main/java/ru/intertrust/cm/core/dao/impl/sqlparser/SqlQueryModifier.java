@@ -480,6 +480,10 @@ public class SqlQueryModifier {
     }
 
     private FieldConfig getFieldConfig(PlainSelect plainSelect, SelectExpressionItem selectExpressionItem) {
+        if (!(selectExpressionItem.getExpression() instanceof Column)) {
+            return null;
+        }
+
         Column column = (Column) selectExpressionItem.getExpression();
 
         if (plainSelect.getFromItem() instanceof SubSelect) {
