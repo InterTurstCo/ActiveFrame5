@@ -16,6 +16,7 @@ import com.google.gwt.user.client.ui.Widget;
  */
 
 public class HiddenGroupHelper implements IsWidget {
+    private static final String EXPANDED = "expanded";
     private AbsolutePanel rootPanel;
 
     public HiddenGroupHelper() {
@@ -23,7 +24,7 @@ public class HiddenGroupHelper implements IsWidget {
         rootPanel.setStyleName("hidden-group-root-div");
     }
 
-    public void add(String title, IsWidget widget) {
+    public void add(String title, String initialSate, IsWidget widget) {
         AbsolutePanel titlePanel = new AbsolutePanel();
         titlePanel.setStyleName("hidden-group-title-panel");
         final AbsolutePanel contentPanel = new AbsolutePanel();
@@ -42,7 +43,10 @@ public class HiddenGroupHelper implements IsWidget {
         elementPanel.add(titlePanel);
         elementPanel.add(contentPanel);
         rootPanel.add(elementPanel);
-
+         if (EXPANDED.equalsIgnoreCase(initialSate)) {
+             label.setStyleName("hidden-group-select");
+             contentPanel.setVisible(true);
+         }
         label.addClickHandler(new ClickHandler() {
 
             @Override

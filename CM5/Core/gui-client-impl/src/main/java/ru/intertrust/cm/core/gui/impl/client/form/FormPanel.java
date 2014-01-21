@@ -118,7 +118,6 @@ public class FormPanel implements IsWidget {
         tabs = body.getTabs();
 
         if (body.isDisplaySingleTab() == false && tabs.size() == 1) {
-
             bodyTabPanel = new TabLayoutPanel(0, Style.Unit.PX);
             bodyTabPanel.add(buildTabContent(tabs.get(0)));
         }
@@ -182,7 +181,8 @@ public class FormPanel implements IsWidget {
             HiddenGroupHelper bodyTabPanel = new HiddenGroupHelper();
             List<TabGroupConfig> bookmarkTabs = ((HidingGroupListConfig) groupList).getTabGroupConfigs();
             for (TabGroupConfig tab : bookmarkTabs) {
-                bodyTabPanel.add(tab.getName(), hidingGroupListTabContent(tab));
+                String initialSate = tab.getInitialState();
+                bodyTabPanel.add(tab.getName(), initialSate, hidingGroupListTabContent(tab));
             }
             panel.add(bodyTabPanel);
         }
@@ -192,7 +192,6 @@ public class FormPanel implements IsWidget {
 
     private IsWidget hidingGroupListTabContent(TabGroupConfig tabGroupConfig) {
         FlowPanel panel = new FlowPanel();
-
         IsWidget table = buildTable(tabGroupConfig.getLayout());
         panel.add(table);
         return panel;

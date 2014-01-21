@@ -251,7 +251,7 @@
                 </tab>
                 <tab name="Города и Друзья">
                     <hiding-groups>
-                        <tab-group name="Друзья">
+                        <tab-group name="Друзья" initial-state="closed">
                             <table>
                                 <tr>
                                     <td>
@@ -284,7 +284,7 @@
                                 </tr>
                             </table>
                         </tab-group>
-                        <tab-group name="Города">
+                        <tab-group name="Города" initial-state="expanded">
                             <table>
                                 <tr>
                                     <td h-align="right">

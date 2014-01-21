@@ -15,6 +15,9 @@ public class TabGroupConfig implements Dto {
     @Attribute(name = "name", required = false)
     private String name;
 
+    @Attribute(name = "initial-state", required = false)
+    private String initialState;
+
     @Element(name = "table")
     private TableLayoutConfig tableLayout;
 
@@ -24,6 +27,14 @@ public class TabGroupConfig implements Dto {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getInitialState() {
+        return initialState;
+    }
+
+    public void setInitialState(String initialState) {
+        this.initialState = initialState;
     }
 
     public TableLayoutConfig getLayout() {
@@ -51,6 +62,9 @@ public class TabGroupConfig implements Dto {
         if (tableLayout != null ? !tableLayout.equals(that.tableLayout) : that.tableLayout != null) {
             return false;
         }
+        if (initialState != null ? !initialState.equals(that.initialState) : that.initialState != null) {
+            return false;
+        }
 
         return true;
     }
@@ -59,6 +73,7 @@ public class TabGroupConfig implements Dto {
     public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (tableLayout != null ? tableLayout.hashCode() : 0);
+        result = 31 * result + (initialState != null ? initialState.hashCode() : 0);
         return result;
     }
 }
