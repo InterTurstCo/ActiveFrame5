@@ -116,7 +116,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             } else {
                 queryString.append(SolrFields.FIELD_PREFIX).append(filter.getFieldName().toLowerCase());
             }
-            queryString.append(":").append(filterValue);
+            queryString.append(":").append(protectQueryString(filterValue));
         }
         StringBuilder areas = new StringBuilder();
         for (String areaName : query.getAreas()) {
@@ -160,6 +160,6 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
     private String protectQueryString(String query) {
         //TODO Экранировать символы, нарушающие структуру запроса
-        return "\"" + query + "\"";
+        return "(" + query + ")";
     }
 }
