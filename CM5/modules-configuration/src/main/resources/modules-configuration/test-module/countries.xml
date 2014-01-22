@@ -171,6 +171,16 @@
                                     </td>
                                     <!-- date-box (День независимости) -->
                                 </tr>
+                                <tr>
+                                    <!-- label (Информация) -->
+                                    <td h-align="right">
+                                        <widget id="summary_label"/>
+                                    </td>
+                                    <!-- label (Сама информация) -->
+                                    <td colspan="3" h-align="left">
+                                        <widget id="summary"/>
+                                    </td>
+                                </tr>
                             </table>
                         </tab-group>
                         <tab-group name="Описание"> <!-- либо таб, либо разметка, вместе - нельзя -->
@@ -439,6 +449,18 @@
             <date-box id="10">
                 <field-path value="independence_day"/>
             </date-box>
+
+            <label id="summary_label">
+                <text>Информация:</text>
+            </label>
+            <!--
+            font-size: 15em
+            font-style: normal | italic | oblique
+            font-weight: bold | bolder | lighter | normal
+            -->
+            <label id="summary" pattern="{name}, {population}. День независимости: {independence_day}, столица: {capital.name}" font-weight="bolder" font-style="italic" font-size="8px">
+                <field-path value="name, population, independence_day, capital.name"/>
+            </label>
 
             <label id="11">
                 <text>Описание:</text>

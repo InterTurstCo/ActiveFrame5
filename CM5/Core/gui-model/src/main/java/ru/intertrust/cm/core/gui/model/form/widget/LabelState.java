@@ -8,6 +8,10 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 public class LabelState extends WidgetState {
     private String label;
     private boolean relatedToRequiredField;
+    private String pattern;
+    private String fontWeight;
+    private String fontStyle;
+    private String fontSize;
 
     public LabelState() {
     }
@@ -30,6 +34,38 @@ public class LabelState extends WidgetState {
 
     public void setRelatedToRequiredField(boolean relatedToRequiredField) {
         this.relatedToRequiredField = relatedToRequiredField;
+    }
+
+    public String getPattern() {
+        return pattern;
+    }
+
+    public void setPattern(String pattern) {
+        this.pattern = pattern;
+    }
+
+    public String getFontWeight() {
+        return fontWeight;
+    }
+
+    public void setFontWeight(String fontWeight) {
+        this.fontWeight = fontWeight;
+    }
+
+    public String getFontStyle() {
+        return fontStyle;
+    }
+
+    public void setFontStyle(String fontStyle) {
+        this.fontStyle = fontStyle;
+    }
+
+    public String getFontSize() {
+        return fontSize;
+    }
+
+    public void setFontSize(String fontSize) {
+        this.fontSize = fontSize;
     }
 
     @Override

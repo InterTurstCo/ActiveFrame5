@@ -1404,7 +1404,26 @@
             </xs:element>
         </xs:sequence>
         <xs:attribute type="xs:string" name="id" use="optional" />
+        <xs:attribute type="con:fontWeightType" name="font-weight" use="optional"/>
+        <xs:attribute type="con:fontStyleType" name="font-style" use="optional"/>
+        <xs:attribute type="xs:string" name="font-size" use="optional"/>
+        <xs:attribute type="xs:string" name="pattern" use="optional"/>
     </xs:complexType>
+    <xs:simpleType name="fontWeightType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="normal" />
+            <xs:enumeration value="bold" />
+            <xs:enumeration value="bolder" />
+            <xs:enumeration value="lighter" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="fontStyleType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="normal" />
+            <xs:enumeration value="italic" />
+            <xs:enumeration value="oblique" />
+        </xs:restriction>
+    </xs:simpleType>
     <xs:complexType name="tableType">
         <xs:sequence>
             <xs:element type="con:trType" name="tr"

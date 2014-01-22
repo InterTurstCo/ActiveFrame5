@@ -76,9 +76,37 @@ public class WidgetContext implements Dto {
         return (T) formObjects.getFieldValue(getFieldPaths()[0]);
     }
 
+    public <T extends Value> T getValue(FieldPath fieldPath) {
+        return (T) formObjects.getFieldValue(fieldPath);
+    }
+
+    public Value[] getValues() {
+        final FieldPath[] fieldPaths = getFieldPaths();
+        Value[] result = new Value[fieldPaths.length];
+        for (int i = 0; i < fieldPaths.length; ++i) {
+            result[i] = formObjects.getFieldValue(fieldPaths[i]);
+        }
+        return result;
+    }
+
     public <T> T getFieldPlainValue() {
         Value fieldValue = getValue();
         return fieldValue == null ? null : (T) fieldValue.get();
+    }
+
+    public <T> T getFieldPlainValue(FieldPath fieldPath) {
+        Value fieldValue = getValue(fieldPath);
+        return fieldValue == null ? null : (T) fieldValue.get();
+    }
+
+    public Object[] getFieldPlainValues() {
+        final Value[] values = getValues();
+        final Object[] result = new Object[values.length];
+        for (int i = 0; i < values.length; ++i) {
+            Value value = values[i];
+            result[i] = value == null ? null : value.get();
+        }
+        return result;
     }
 
     public ArrayList<Id> getAllObjectIds() {

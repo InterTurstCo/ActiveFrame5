@@ -39,6 +39,8 @@ public class TextBoxWidget extends BaseWidget {
 
     @Override
     protected Widget asNonEditableWidget() {
-        return new Label();
+        final Label label = new Label();
+        label.setStyleName("");
+        return label;
     }
 }

@@ -166,7 +166,7 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
         return getElements().length;
     }
 
-    private String getPath() {
+    public String getPath() {
         if (this.path != null) {
             return this.path;
         }

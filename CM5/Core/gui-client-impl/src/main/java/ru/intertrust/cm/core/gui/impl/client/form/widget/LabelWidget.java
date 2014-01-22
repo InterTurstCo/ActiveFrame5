@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
@@ -31,23 +32,31 @@ public class LabelWidget extends BaseWidget {
         Iterator<Widget> iterator = panel.iterator();
         Label redAsteriskLabel = (Label)iterator.next();
         Label label = (Label)iterator.next();
+
         setTrimmedText(label, labelState.getLabel());
+        applyFontStyle(label, labelState);
 
         boolean showRedAsterisk = labelState.isRelatedToRequiredField() && isEditable;
         redAsteriskLabel.setText(showRedAsterisk ? "*" : "");
+        applyFontStyle(redAsteriskLabel, labelState);
     }
 
     @Override
     public WidgetState getCurrentState() {
-        LabelState data = new LabelState();
+        final LabelState initialState = getInitialData();
+        LabelState state = new LabelState();
         Panel panel = (Panel)impl;
-        Label redAsteriskLabel = (Label)panel.iterator().next();
-        Label label = (Label)panel.iterator().next();
-        data.setLabel(getTrimmedText(label));
+        final Iterator<Widget> iterator = panel.iterator();
+        Label redAsteriskLabel = (Label) iterator.next();
+        Label label = (Label) iterator.next();
+        state.setLabel(getTrimmedText(label));
+        state.setRelatedToRequiredField(!redAsteriskLabel.getText().isEmpty());
+        state.setPattern(initialState.getPattern());
+        state.setFontWeight(initialState.getFontWeight());
+        state.setFontStyle(initialState.getFontStyle());
+        state.setFontSize(initialState.getFontSize());
 
-        data.setRelatedToRequiredField(!redAsteriskLabel.getText().isEmpty());
-
-        return data;
+        return state;
     }
 
     @Override
@@ -68,4 +77,23 @@ public class LabelWidget extends BaseWidget {
         return asEditableWidget();
     }
 
+    private void applyFontStyle(Label label, LabelState state) {
+        final String fontWeight = state.getFontWeight();
+        final String fontStyle = state.getFontStyle();
+        final String fontSize = state.getFontSize();
+        /*if (fontWeight == null && fontStyle == null && fontSize == null) {
+            return;
+        }
+        label.setStyleName("");*/
+        final Style style = label.getElement().getStyle();
+        if (fontWeight != null) {
+            style.setProperty("fontWeight", fontWeight);
+        }
+        if (fontStyle != null) {
+            style.setProperty("fontStyle", fontStyle);
+        }
+        if (fontSize != null) {
+            style.setProperty("fontSize", fontSize);
+        }
+    }
 }

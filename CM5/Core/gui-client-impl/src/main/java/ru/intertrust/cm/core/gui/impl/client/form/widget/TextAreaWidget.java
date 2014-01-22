@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
 import com.google.gwt.user.client.ui.HasText;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -30,10 +29,4 @@ public class TextAreaWidget extends TextBoxWidget {
     protected Widget asEditableWidget() {
         return new TextArea();
     }
-
-    @Override
-    protected Widget asNonEditableWidget() {
-        return new Label();
-    }
-
 }
