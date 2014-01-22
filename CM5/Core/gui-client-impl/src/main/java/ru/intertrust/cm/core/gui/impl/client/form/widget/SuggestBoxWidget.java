@@ -45,7 +45,7 @@ public class SuggestBoxWidget extends BaseWidget {
                     }
                 }
             };
-            timer.scheduleRepeating(500);
+            timer.scheduleRepeating(100);
         }
     }
 
