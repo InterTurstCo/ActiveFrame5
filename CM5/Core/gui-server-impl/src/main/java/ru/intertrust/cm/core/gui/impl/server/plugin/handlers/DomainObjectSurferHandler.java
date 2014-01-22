@@ -57,8 +57,7 @@ public class DomainObjectSurferHandler extends ActivePluginHandler {
     public List<ActionContext> getActions(Dto initialData, FormPluginData formPluginData)  {
         ArrayList<ActionContext> result = new ArrayList<>();
         result.addAll(formPluginData.getActionContexts());
-        result.add(new SaveToCSVContext(createActionConfig(
-                "save-csv.action", "save-csv.action", "Выгрузить в CSV", "icons/icon-edit.png")));
+        result.add(new SaveToCSVContext(createActionConfig("save-csv.action", "save-csv.action", "Выгрузить в CSV", "icons/icon-csv_download.png")));
         return result;
     }
 
