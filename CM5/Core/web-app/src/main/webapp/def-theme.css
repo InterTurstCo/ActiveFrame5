@@ -34,7 +34,7 @@
 }
 
 .search-data-box {
-
+    display: inline-block;
     border: 0 none;
     font-size: 11px;
     width: 70px;
@@ -97,9 +97,9 @@
     box-shadow: none;
     cursor: pointer;
     font-size: 12px;
-    margin: 0;
     vertical-align: middle;
     display: inline-block;
+    margin: 1px 5px 0 0;
     float: none;
     height: 16px;
     left: auto;
@@ -114,6 +114,7 @@
 .flush-serch-hide {
     background: url("css/icons1.png") no-repeat scroll -100px top transparent !important;
     cursor: default !important;
+    display: inline-block;
 }
 
 .search-button {
@@ -232,6 +233,9 @@ td.datePickerMonth {
     height: 16px;
     padding: 0 5px;
     margin: 1px;
+    display: block;
+    float: left;
+    margin-top: 3px;
 }
 
 .simple-search-button {
@@ -241,6 +245,8 @@ td.datePickerMonth {
     border: 0;
     margin: 3px 0 0;
     cursor: pointer;
+    display: block;
+    float: right;
 
 }
 
@@ -270,7 +276,7 @@ td.datePickerMonth {
     font-size: 12px;
     margin: 0;
     vertical-align: middle;
-    display: inline-block;
+    display: block;
     float: none;
     height: 16px;
     left: auto;
@@ -441,7 +447,7 @@ td.datePickerMonth {
     position: relative;
     top: 2px;
     float: left;
-    margin-top: 10px;
+    margin-top: 7px;
     margin-left: 10px;
     cursor: pointer;
 }

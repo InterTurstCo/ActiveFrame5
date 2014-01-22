@@ -17,45 +17,132 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationServiceAs
  *         Time: 14:47
  */
 @ComponentName("login.window")
-public class LoginWindow extends DialogBox implements Component {
+public class LoginWindow implements Component{
+    private DialogBox loginDialog;
     protected TextBox loginField;
     protected PasswordTextBox passwordField;
     private Label message;
-    private Button loginButton;
+    //private Button loginButton;
+    private FocusPanel loginButton;
+    public DialogBox getLoginDialog() {
+        return loginDialog;
+    }
+
+    public void setLoginDialog(DialogBox loginDialog) {
+        this.loginDialog = loginDialog;
+    }
+
+    public void show(){
+        loginDialog.show();
+    }
+
+    public void center(){
+        loginDialog.center();
+    }
 
     public LoginWindow() {
+
+
+        String version = "cm-sochi";
+        loginDialog = new DialogBox();
+        loginDialog.getElement().addClassName("auth-DialogBox");
+        loginDialog.setHTML("<span class = 'auth_small_logo'> </span>" + "<span class = 'auth_version'>" + version + "</span>");
+
+        //loginDialog.setText(" Аутентификация");
         loginField = new TextBox();
+        loginField.getElement().setId("id_login");
         passwordField = new PasswordTextBox();
+        //error message
         message = new Label();
-        loginButton = new Button("Войти");
+        message.getElement().addClassName("auth-error-label");
+        Label loginName = new Label("Имя пользователя");
+        loginName.getElement().removeClassName(".gwt-Label");
+        loginName.getElement().addClassName("auth-Label");
+        Label passwordLabel = new Label("Пароль");
+        passwordLabel.getElement().removeClassName(".gwt-Label");
+        passwordLabel.getElement().addClassName("auth-Label");
+        loginField.setWidth("140px");
+        passwordField.setWidth("140px");
+
+        //loginButton = new Button("Войти");
+        loginButton = new FocusPanel();
+
+        Label titleLogin = new Label("Войти");
+        titleLogin.getElement().addClassName("auth_button_title");
+        loginButton.add(titleLogin);
         loginButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 login();
             }
         });
 
-        setText(" Аутентификация");
-        setAnimationEnabled(true);
-        setGlassEnabled(true);
+        //setText(" Аутентификация");
+        loginDialog.setAnimationEnabled(true);
+        loginDialog.setGlassEnabled(true);
 
-        VerticalPanel dialogPanel = new VerticalPanel();
-        dialogPanel.add(message);
-        dialogPanel.add(new Label("Имя пользователя"));
-        dialogPanel.add(loginField);
-        dialogPanel.add(new Label("Пароль"));
-        dialogPanel.add(passwordField);
-        dialogPanel.add(loginButton);
+        AbsolutePanel rootPanel = new AbsolutePanel();
+        rootPanel.setStyleName("auth_LoginPage_wrapper");
+        AbsolutePanel decoratedContentPanel = new AbsolutePanel();
+        decoratedContentPanel.setStyleName("auth_LoginPage_block");
+        AbsolutePanel loginAndPasswordPanel = new AbsolutePanel();
+        loginAndPasswordPanel.setStyleName("auth_wrapper");
+        AbsolutePanel settingsPanel = new AbsolutePanel();
+        settingsPanel.setStyleName("auth_add_settings");
+        AbsolutePanel labelLoginPanel = new AbsolutePanel();
+        labelLoginPanel.setStyleName("auth_login");
+        AbsolutePanel labelPasswordPanel = new AbsolutePanel();
+        labelPasswordPanel.setStyleName("auth_pass");
+        AbsolutePanel memoryPanel = new AbsolutePanel();
+        memoryPanel.setStyleName("auth_remember");
 
-        addDomHandler(new KeyDownHandler() {
+        Label labelCheckBox = new Label("Запомнить меня");
+        labelCheckBox.setStyleName("auth_checkbox_title");
+        AbsolutePanel enterPanel = new AbsolutePanel();
+        enterPanel.setStyleName("auth_enter-button");
+        AbsolutePanel languagePanel = new AbsolutePanel();
+        languagePanel.setStyleName("auth_language");
+
+        rootPanel.add(decoratedContentPanel);
+        decoratedContentPanel.add(message);
+
+        decoratedContentPanel.add(loginAndPasswordPanel);
+        decoratedContentPanel.add(settingsPanel);
+
+        loginAndPasswordPanel.add(labelLoginPanel);
+        loginAndPasswordPanel.add(labelPasswordPanel);
+        loginAndPasswordPanel.add(memoryPanel);
+        loginAndPasswordPanel.add(enterPanel);
+        loginAndPasswordPanel.add(languagePanel);
+
+        labelLoginPanel.add(loginName);
+        labelLoginPanel.add(loginField);
+        loginField.getElement().setId("focus");
+        labelPasswordPanel.add(passwordLabel);
+        labelPasswordPanel.add(passwordField);
+        CheckBox memoryCheckbox = new CheckBox();
+        memoryCheckbox.getElement().addClassName("auth-CheckBox");
+        memoryPanel.add(memoryCheckbox);
+
+        memoryPanel.add(labelCheckBox);
+        enterPanel.add(loginButton);
+
+        ListBox languageListBox = new ListBox();
+        languageListBox.getElement().addClassName("auth-ListBox");
+
+        languagePanel.add(languageListBox);
+
+        loginDialog.add(rootPanel);
+
+        loginDialog.addDomHandler(new KeyDownHandler() {
             @Override
             public void onKeyDown(KeyDownEvent event) {
                 checkEnterKey(event);
             }
         }, KeyDownEvent.getType());
 
-        AbsolutePanel decoratedDialogPanel = new AbsolutePanel();
-        decoratedDialogPanel.add(dialogPanel);
-        setWidget(decoratedDialogPanel);
+
+        //setWidget(loginDialog);
+
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {

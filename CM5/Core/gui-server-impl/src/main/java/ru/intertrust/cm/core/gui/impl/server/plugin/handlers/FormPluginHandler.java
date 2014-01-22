@@ -59,9 +59,9 @@ public class FormPluginHandler extends ActivePluginHandler {
         if (pluginState.isToggleEdit()) {
             if (pluginState.isEditable()) {
                 contexts.add(new SaveActionContext(createActionConfig(
-                        "save.action", "save.action", "Сохранить", "icons/ico-save.gif")));
+                        "save.action", "save.action", "Сохранить", "icons/icon-save.png")));
                 contexts.add(new ActionContext(createActionConfig("toggle.edit.off.action",
-                        "toggle.edit.off.action", "Завершить редактирование", "icons/ico-edit-close.png")));
+                        "toggle.edit.off.action", "Завершить редактирование", "icons/icon-edit-close.png")));
             } else {
                 contexts.add(new ActionContext(createActionConfig(
                         "create.new.object.action", "create.new.object.action",
@@ -69,16 +69,16 @@ public class FormPluginHandler extends ActivePluginHandler {
                 contexts.add(new ActionContext(createActionConfig(
                         "toggle.edit.on.action", "toggle.edit.on.action", "Редактировать", "icons/icon-edit.png")));
                 contexts.add(new SaveActionContext(createActionConfig(
-                        "delete.action", "delete.action", "Удалить", "icons/ico-delete.gif")));
+                        "delete.action", "delete.action", "Удалить", "icons/icon-delete.png")));
             }
 
         } else {
             contexts.add(new ActionContext(createActionConfig("create.new.object.action",
                     "create.new.object.action", "Создать новый", "icons/icon-create.png")));
             contexts.add(new SaveActionContext(createActionConfig(
-                    "save.action", "save.action", "Сохранить", "icons/ico-save.gif")));
+                    "save.action", "save.action", "Сохранить", "icons/icon-save.png")));
             contexts.add(new SaveActionContext(createActionConfig(
-                    "delete.action", "delete.action", "Удалить", "icons/ico-delete.gif")));
+                    "delete.action", "delete.action", "Удалить", "icons/icon-delete.png")));
 // Временно убрано из отображения
 //                contexts.add(new SaveToCSVContext(createActionConfig(
 //                        "save-csv.action", "save-csv.action", "Выгрузить в CSV", "icons/icon-edit.png")));

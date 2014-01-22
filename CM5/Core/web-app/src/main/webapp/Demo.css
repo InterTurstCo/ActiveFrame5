@@ -1455,67 +1455,67 @@ td.datePickerMonth {
  /*оформление поиска коллекшен плагин вю конец*/
 
 /*простой поиск*/
-.search-field{
-    border: 0 !important;;
-    width: 250px;
-    height: 16px;
-    padding: 0 5px;
-    margin: 1px;
-}
+/*.search-field{*/
+    /*border: 0 !important;;*/
+    /*width: 250px;*/
+    /*height: 16px;*/
+    /*padding: 0 5px;*/
+    /*margin: 1px;*/
+/*}*/
 
-.simple-search-button{
-    background: url("css/loupe.png")no-repeat;
-    width: 18px;
-    height: 18px;
-    border: 0;
-    margin: 3px 0 0;
-    cursor: pointer;
+/*.simple-search-button{*/
+    /*background: url("css/loupe.png")no-repeat;*/
+    /*width: 18px;*/
+    /*height: 18px;*/
+    /*border: 0;*/
+    /*margin: 3px 0 0;*/
+    /*cursor: pointer;*/
 
 
-}
+/*}*/
 
-.search-panel-text-and-button-container{
-    line-height: 16px;
-    height: 20px;
-    margin: 0 0 0 5px;
-    background: #fff;
-    border: 1px solid #a0a7b2;
-    border-radius: 3px;
-    display: inline-block;
-    zoom: 1;
-    font-size: 12px;
-    position: relative;
-    overflow: hidden;
-    top: 0;
-    vertical-align: top;
-    white-space: nowrap;
-}
+/*.search-panel-text-and-button-container{*/
+    /*line-height: 16px;*/
+    /*height: 20px;*/
+    /*margin: 0 0 0 5px;*/
+    /*background: #fff;*/
+    /*border: 1px solid #a0a7b2;*/
+    /*border-radius: 3px;*/
+    /*display: inline-block;*/
+    /*zoom: 1;*/
+    /*font-size: 12px;*/
+    /*position: relative;*/
+    /*overflow: hidden;*/
+    /*top: 0;*/
+    /*vertical-align: top;*/
+    /*white-space: nowrap;*/
+/*}*/
 
-.flush-button{
-    background: url("css/icons1.png") no-repeat scroll -32px top transparent;
-    cursor: pointer;
-    border: 0 none;
-    box-shadow: none;
-    cursor: pointer;
-    font-size: 12px;
-    margin: 0;
-    vertical-align: middle;
-    display: inline-block;
-    float: none;
-    height: 16px;
-    left: auto;
-    position: relative;
-    width: 16px;
-    top: 3px;
-}
+/*.flush-button{*/
+    /*background: url("css/icons1.png") no-repeat scroll -32px top transparent;*/
+    /*cursor: pointer;*/
+    /*border: 0 none;*/
+    /*box-shadow: none;*/
+    /*cursor: pointer;*/
+    /*font-size: 12px;*/
+    /*margin: 0;*/
+    /*vertical-align: middle;*/
+    /*display: inline-block;*/
+    /*float: none;*/
+    /*height: 16px;*/
+    /*left: auto;*/
+    /*position: relative;*/
+    /*width: 16px;*/
+    /*top: 3px;*/
+/*}*/
 
-.flush-button:hover{
-    background: url("css/icons1.png") no-repeat scroll -48px top transparent;
-}
+/*.flush-button:hover{*/
+    /*background: url("css/icons1.png") no-repeat scroll -48px top transparent;*/
+/*}*/
 
-.simple-search-container{
-    margin: 4px;
-    float: right;
-}
+/*.simple-search-container{*/
+    /*margin: 4px;*/
+    /*float: right;*/
+/*}*/
 
 /*простой  поиск конец*/
