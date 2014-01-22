@@ -20,6 +20,10 @@ import ru.intertrust.cm.core.gui.model.action.ToggleActionContext;
  */
 public final class ComponentHelper {
 
+    public static final String HEADER_ID = "header_pnl";
+    public static final String LEFT_ID = "left_pnl";
+    public static final String CENTER_ID = "center_pnl";
+
     /**
      * Don't create instance of helper class.
      */

@@ -124,6 +124,12 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
     }
 
     @Override
+    public void setPluginState(PluginState pluginState) {
+        final FormPluginData data = getInitialData();
+        data.setPluginState(pluginState);
+    }
+
+    @Override
     public void updateSizes() {
       getView().onPluginPanelResize();
 

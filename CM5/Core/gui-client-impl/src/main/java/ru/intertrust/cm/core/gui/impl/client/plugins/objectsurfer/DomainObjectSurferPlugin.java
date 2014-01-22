@@ -71,6 +71,13 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         return (DomainObjectSurferPluginState) data.getPluginState().createClone();
     }
 
+    @Override
+
+    public void setPluginState(PluginState pluginState) {
+        final DomainObjectSurferPluginData data = getInitialData();
+        data.setPluginState(pluginState);
+    }
+
     public Plugin getCollectionPlugin() {
         return collectionPlugin;
     }

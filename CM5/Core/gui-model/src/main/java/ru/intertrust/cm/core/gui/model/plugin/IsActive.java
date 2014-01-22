@@ -10,4 +10,6 @@ package ru.intertrust.cm.core.gui.model.plugin;
 public interface IsActive {
 
     <E extends PluginState> E getPluginState();
+
+    void setPluginState(PluginState pluginState);
 }

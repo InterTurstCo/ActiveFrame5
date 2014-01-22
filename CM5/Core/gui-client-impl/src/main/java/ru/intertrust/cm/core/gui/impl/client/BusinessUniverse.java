@@ -51,18 +51,21 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
             public void onSuccess(BusinessUniverseInitialization result) {
                 AbsolutePanel header = new AbsolutePanel();
                 header.setStyleName("header-section");
+                header.getElement().setId(ComponentHelper.HEADER_ID);
                 AbsolutePanel action = new AbsolutePanel();
                 action.setStyleName("action-section");
 
                 left = new AbsolutePanel();
                 left.setStyleName("left-section-active");
                 left.getElement().getStyle().setWidth(130, Style.Unit.PX);
+                left.getElement().setId(ComponentHelper.LEFT_ID);
                 final AbsolutePanel centrInner = new AbsolutePanel();
                 centrInner.setStyleName("centr-inner-section");
                 centrInner.getElement().getStyle().setLeft(130, Style.Unit.PX);
 
                 AbsolutePanel center = new AbsolutePanel();
                 center.setStyleName("center-section");
+                center.getElement().setId(ComponentHelper.CENTER_ID);
                 AbsolutePanel right = new AbsolutePanel();
                 right.setStyleName("right-section");
                 AbsolutePanel footer = new AbsolutePanel();
