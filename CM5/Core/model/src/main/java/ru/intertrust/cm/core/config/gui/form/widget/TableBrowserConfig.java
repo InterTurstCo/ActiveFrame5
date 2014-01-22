@@ -36,6 +36,9 @@ public class TableBrowserConfig extends WidgetConfig {
     @Element(name = "single-choice", required = false)
     private SingleChoiceConfig singleChoice;
 
+    @Element(name = "clear-all-button", required = false)
+    ClearAllButtonConfig clearAllButtonConfig;
+
     public CollectionViewRefConfig getCollectionViewRefConfig() {
         return collectionViewRefConfig;
     }
@@ -100,6 +103,14 @@ public class TableBrowserConfig extends WidgetConfig {
         this.singleChoice = singleChoice;
     }
 
+    public ClearAllButtonConfig getClearAllButtonConfig() {
+        return clearAllButtonConfig;
+    }
+
+    public void setClearAllButtonConfig(ClearAllButtonConfig clearAllButtonConfig) {
+        this.clearAllButtonConfig = clearAllButtonConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -147,6 +158,11 @@ public class TableBrowserConfig extends WidgetConfig {
                 that.singleChoice != null) {
             return false;
         }
+
+        if (clearAllButtonConfig != null ? !clearAllButtonConfig.equals(that.clearAllButtonConfig) :
+                that.clearAllButtonConfig != null) {
+            return false;
+        }
         return true;
     }
 
@@ -161,6 +177,7 @@ public class TableBrowserConfig extends WidgetConfig {
         result = 31 * result + (pageSize != null ? pageSize.hashCode() : 0);
         result = 31 * result + (displayChosenValues != null ? displayChosenValues.hashCode() : 0);
         result = 31 * result + (selectionStyleConfig != null ? selectionStyleConfig.hashCode() : 0);
+        result = 31 * result + (clearAllButtonConfig != null ? clearAllButtonConfig.hashCode() : 0);
         return result;
     }
 

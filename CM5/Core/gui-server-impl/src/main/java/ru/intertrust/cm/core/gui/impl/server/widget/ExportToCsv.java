@@ -165,7 +165,6 @@ public class ExportToCsv {
                 }
 
 
-
     }
 
     private Collection<CollectionViewConfig> getCollectionOfViewConfigs() {

@@ -37,6 +37,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         HierarchyBrowserScrollEventHandler, HierarchyBrowserAddItemClickEventHandler {
     private HierarchyBrowserConfig config;
     private HierarchyBrowserMainPopup mainPopup;
+    private HierarchyBrowserView hierarchyBrowserView;
     private EventBus eventBus = new SimpleEventBus();
     private boolean singleChoice;
 
@@ -51,6 +52,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         HierarchyBrowserWidgetState state = (HierarchyBrowserWidgetState) currentState;
         config = state.getHierarchyBrowserConfig();
         HierarchyBrowserView view = (HierarchyBrowserView) impl;
+        hierarchyBrowserView.drawClearButtonIfItIs(config.getClearAllButtonConfig());
         WidgetDisplayConfig displayConfig = getDisplayConfig();
         final ArrayList<HierarchyBrowserItem> chosenItems = state.getChosenItems();
         final ArrayList<Id> chosenIds = state.getIds();
@@ -98,7 +100,8 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
     @Override
     protected Widget asEditableWidget() {
-        return new HierarchyBrowserView(eventBus);
+         hierarchyBrowserView = new HierarchyBrowserView(eventBus);
+        return hierarchyBrowserView;
     }
 
     @Override

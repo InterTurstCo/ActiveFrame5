@@ -282,6 +282,7 @@ h1 {
     position: relative;
     margin: 0px;
     background-image: url("css/icons/icon-sidebar-buttons.png");
+
     background-repeat: no-repeat;
 }
 

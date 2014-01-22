@@ -40,6 +40,7 @@ public class TableBrowserWidget extends BaseWidget {
     private TableBrowserConfig tableBrowserConfig;
     private PluginPanel pluginPanel;
     private Button openDialogButton;
+    private Button clearButton;
     private TextBox filterEditor;
     private EventBus eventBus = new SimpleEventBus();
     private ArrayList<Id> chosenIds = new ArrayList<Id>();
@@ -48,6 +49,7 @@ public class TableBrowserWidget extends BaseWidget {
     private int height;
     private DialogBox dialogBox;
     private FacebookStyleView facebookStyleView;
+    FlowPanel root = new FlowPanel();
 
     @Override
     public void setCurrentState(WidgetState currentState) {
@@ -59,6 +61,7 @@ public class TableBrowserWidget extends BaseWidget {
         facebookStyleView.showSelectedItems();
         initSizes();
         initDialogView();
+        createClearAllButton();
     }
 
     @Override
@@ -129,7 +132,6 @@ public class TableBrowserWidget extends BaseWidget {
     }
 
     private FlowPanel initWidgetView() {
-        FlowPanel root = new FlowPanel();
         facebookStyleView = new FacebookStyleView();
         filterEditor = new TextBox();
         filterEditor.getElement().setClassName("table-browser-filter-editor");
@@ -141,6 +143,34 @@ public class TableBrowserWidget extends BaseWidget {
         root.add(facebookStyleView);
 
         return root;
+    }
+
+    private void createClearAllButton(){
+         if (tableBrowserConfig.getClearAllButtonConfig() != null ){
+             if (tableBrowserConfig.getClearAllButtonConfig().getImage() == null){
+                 tableBrowserConfig.getClearAllButtonConfig().setImage("");
+             }
+             if (tableBrowserConfig.getClearAllButtonConfig().getText() == null){
+                 tableBrowserConfig.getClearAllButtonConfig().setText("");
+             }
+             clearButton = new Button("<img src="+tableBrowserConfig.getClearAllButtonConfig().getImage()+" alt="+tableBrowserConfig.getClearAllButtonConfig().getText()+">");
+
+             root.insert(clearButton, 2);
+             clearButton.getElement().setClassName("table-browser-add-button");
+
+             clearButton.addClickHandler(new ClickHandler() {
+                 @Override
+                 public void onClick(ClickEvent event) {
+                     chosenIds.clear();
+                     facebookStyleView.getChosenItems().clear();
+                     facebookStyleView.showSelectedItems();
+
+                 }
+             });
+
+         }
+
+
     }
 
     private void initDialogView() {
