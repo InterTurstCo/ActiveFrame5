@@ -44,7 +44,7 @@ public class LoginWindow implements Component{
     public LoginWindow() {
 
 
-        String version = "cm-sochi";
+        String version = "";
         loginDialog = new DialogBox();
         loginDialog.getElement().addClassName("auth-DialogBox");
         loginDialog.setHTML("<span class = 'auth_small_logo'> </span>" + "<span class = 'auth_version'>" + version + "</span>");
@@ -130,7 +130,7 @@ public class LoginWindow implements Component{
         ListBox languageListBox = new ListBox();
         languageListBox.getElement().addClassName("auth-ListBox");
 
-        languagePanel.add(languageListBox);
+        //languagePanel.add(languageListBox);
 
         loginDialog.add(rootPanel);
 

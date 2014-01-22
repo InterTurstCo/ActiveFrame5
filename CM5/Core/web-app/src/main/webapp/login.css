@@ -5,7 +5,7 @@ body {
 .auth_small_logo{
     background-image: url(css/images/cm-logo.png);
     height: 20px;
-    width: 132px;
+    width: 150px;
     top: 5px;
     display: inline-block;
     float: left;
@@ -55,7 +55,7 @@ body {
 }
 
 .auth-error-label{
- width: 265px;
+ width: 270px;
 }
 
 .auth_pass{
@@ -63,7 +63,7 @@ body {
 
 .auth_remember{
 	width: 144px;
-	margin: 5px 0 5px 115px;
+	margin: 5px 0 5px 126px;
 }
 .auth-CheckBox {
 	float: left;
