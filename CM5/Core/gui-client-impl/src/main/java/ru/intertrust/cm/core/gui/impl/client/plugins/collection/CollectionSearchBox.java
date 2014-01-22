@@ -23,7 +23,6 @@ import java.util.Date;
 public class CollectionSearchBox extends Composite implements IsWidget {
 
 
-
     public static enum Type {
 
         TEXTBOX, DATEBOX, CHECKBOX
@@ -34,7 +33,7 @@ public class CollectionSearchBox extends Composite implements IsWidget {
     private FlowPanel boxContainer = new FlowPanel();
     private TextBox textBox;
     private DateBox dateBox;
-    private Button close;
+    private FocusPanel close;
     private Button dateSet;
     private DatePicker datePicker;
     private Type type;
@@ -43,8 +42,6 @@ public class CollectionSearchBox extends Composite implements IsWidget {
     private String text = "";
     private Date date;
     private EventBus eventBus;
-
-
 
 
     public CollectionSearchBox(TextBox textBox, String filterType, EventBus eventBus) {
@@ -69,7 +66,7 @@ public class CollectionSearchBox extends Composite implements IsWidget {
 
     }
 
-    private void configDateBoxElement(){
+    private void configDateBoxElement() {
         boxContainer.add(dateBox);
         boxContainer.add(close);
         boxContainer.add(dateSet);
@@ -77,7 +74,7 @@ public class CollectionSearchBox extends Composite implements IsWidget {
         dateSet.removeStyleName("gwt-Button");
         dateBox.addStyleName("search-data-box");
 
-       DateTimeFormat format = DateTimeFormat.getFormat("dd.MM.yyyy");
+        DateTimeFormat format = DateTimeFormat.getFormat("dd.MM.yyyy");
         dateBox.setFormat(new DateBox.DefaultFormat(format));
 
         close.addClickHandler(new ClickHandler() {
@@ -95,41 +92,41 @@ public class CollectionSearchBox extends Composite implements IsWidget {
             @Override
             public void onClick(ClickEvent event) {
                 dateBox.showDatePicker();
-                dateBox.getDatePicker().getParent().getElement().getStyle().setLeft(dateBox.getAbsoluteLeft()+78, Style.Unit.PX);
-                dateBox.getDatePicker().getParent().getElement().getStyle().setTop(dateBox.getAbsoluteTop() -1, Style.Unit.PX);
+                dateBox.getDatePicker().getParent().getElement().getStyle().setLeft(dateBox.getAbsoluteLeft() + 78, Style.Unit.PX);
+                dateBox.getDatePicker().getParent().getElement().getStyle().setTop(dateBox.getAbsoluteTop() - 1, Style.Unit.PX);
 
 
             }
         });
-      dateBox.getDatePicker().addValueChangeHandler(new ValueChangeHandler<Date>() {
-          @Override
-          public void onValueChange(ValueChangeEvent<Date> event) {
-              date = dateBox.getValue();
-              text = dateBox.getTextBox().getValue();
-              close.removeStyleName("flush-serch-hide");
-          }
-      });
+        dateBox.getDatePicker().addValueChangeHandler(new ValueChangeHandler<Date>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<Date> event) {
+                date = dateBox.getValue();
+                text = dateBox.getTextBox().getValue();
+                close.removeStyleName("flush-serch-hide");
+            }
+        });
 
 
-       dateBox.addHandler(new KeyDownHandler() {
-           @Override
-           public void onKeyDown(KeyDownEvent event) {
-               if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
-                  fireEnterKey();
-               }
-           }
-       }, KeyDownEvent.getType());
+        dateBox.addHandler(new KeyDownHandler() {
+            @Override
+            public void onKeyDown(KeyDownEvent event) {
+                if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+                    fireEnterKey();
+                }
+            }
+        }, KeyDownEvent.getType());
 
 
     }
 
-    private void fireEnterKey(){
+    private void fireEnterKey() {
 
-            eventBus.fireEvent(new TableSearchEvent(this));
+        eventBus.fireEvent(new TableSearchEvent(this));
 
     }
 
-    private void configTextBoxElement(){
+    private void configTextBoxElement() {
 
         textBox.addStyleName("search-box");
         textBox.removeStyleName("gwt-TextBox");
@@ -170,11 +167,10 @@ public class CollectionSearchBox extends Composite implements IsWidget {
 
     }
 
-    private void confCloseButton(){
+    private void confCloseButton() {
 
         close.addStyleName("flush-serch");
         close.removeStyleName("gwt-Button");
-
 
 
     }
@@ -183,12 +179,10 @@ public class CollectionSearchBox extends Composite implements IsWidget {
         container.add(boxContainer);
         boxContainer.addStyleName("search-container");
         initWidget(container);
-        close = new Button();
+        close = new FocusPanel();
         close.addStyleName("flush-serch-hide");
         confCloseButton();
     }
-
-
 
 
     public FlowPanel getContainer() {
@@ -215,11 +209,11 @@ public class CollectionSearchBox extends Composite implements IsWidget {
         this.dateBox = dateBox;
     }
 
-    public Button getClose() {
+    public FocusPanel getClose() {
         return close;
     }
 
-    public void setClose(Button close) {
+    public void setClose(FocusPanel close) {
         this.close = close;
     }
 

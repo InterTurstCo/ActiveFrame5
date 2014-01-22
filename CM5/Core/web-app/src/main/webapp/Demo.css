@@ -1260,9 +1260,11 @@ my-suggest-box  {
 
 
 }
+.search-box::-ms-clear {
+    display: none;
+}
 
 .search-data-box{
-
     border: 0 none;
     font-size: 11px;
     width: 70px;
@@ -1272,10 +1274,12 @@ my-suggest-box  {
     padding-left: 3px;
     padding-top: 5px;
     vertical-align: middle;
-
-
-
 }
+
+.search-data-box::-ms-clear {
+    display: none;
+}
+
 .search-data-box-{
 
     border: 0 none;

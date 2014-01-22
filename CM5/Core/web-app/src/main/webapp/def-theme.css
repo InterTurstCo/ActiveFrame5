@@ -73,22 +73,22 @@
 
 }
 
-.flush-serch {
-    background: url("css/icons1.png") no-repeat scroll -32px top transparent;
-    cursor: pointer;
-    border: 0 none;
-    box-shadow: none;
-    cursor: pointer;
-    font-size: 12px;
-    margin: 0;
-    vertical-align: middle;
-    display: inline-block;
-    float: none;
-    height: 16px;
-    left: auto;
-    position: relative;
-    width: 16px;
-}
+/*.flush-serch {*/
+    /*background: url("css/icons1.png") no-repeat scroll -32px top transparent;*/
+    /*cursor: pointer;*/
+    /*border: 0 none;*/
+    /*box-shadow: none;*/
+    /*cursor: pointer;*/
+    /*font-size: 12px;*/
+    /*margin: 0;*/
+    /*vertical-align: middle;*/
+    /*display: inline-block;*/
+    /*float: none;*/
+    /*height: 16px;*/
+    /*left: auto;*/
+    /*position: relative;*/
+    /*width: 16px;*/
+/*}*/
 
 .date-select {
     background: url("css/icon-datepicker.png") no-repeat;
@@ -111,11 +111,11 @@
     background: url("css/icons1.png") no-repeat scroll -48px top transparent;
 }
 
-.flush-serch-hide {
-    background: url("css/icons1.png") no-repeat scroll -100px top transparent !important;
-    cursor: default !important;
-    display: inline-block;
-}
+/*.flush-serch-hide {*/
+    /*background: url("css/icons1.png") no-repeat scroll -100px top transparent !important;*/
+    /*cursor: default !important;*/
+    /*display: inline-block;*/
+/*}*/
 
 .search-button {
     height: 23px;
