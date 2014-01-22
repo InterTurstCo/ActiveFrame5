@@ -155,8 +155,9 @@ public class LoginWindow implements Component{
                     final String activeElement = getActiveElement();
                     if (activeElement.equals("focus_field")) {
                         this.cancel();
+                    } else {
+                        loginField.getElement().focus();
                     }
-                    loginField.getElement().focus();
                 } catch (Throwable throwable) {
                     this.cancel();
                 }
