@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.authentication;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.*;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
@@ -116,7 +117,7 @@ public class LoginWindow implements Component{
 
         labelLoginPanel.add(loginName);
         labelLoginPanel.add(loginField);
-        loginField.getElement().setId("focus");
+        loginField.getElement().setId("focus_field");
         labelPasswordPanel.add(passwordLabel);
         labelPasswordPanel.add(passwordField);
         CheckBox memoryCheckbox = new CheckBox();
@@ -141,15 +142,32 @@ public class LoginWindow implements Component{
         }, KeyDownEvent.getType());
 
 
-        //setWidget(loginDialog);
-
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
-                loginField.setFocus(true);
+                loginField.getElement().focus();
             }
         });
+        final Timer timer = new Timer() {
+            @Override
+            public void run() {
+                try {
+                    final String activeElement = getActiveElement();
+                    if (activeElement.equals("focus_field")) {
+                        this.cancel();
+                    }
+                    loginField.getElement().focus();
+                } catch (Throwable throwable) {
+                    this.cancel();
+                }
+            }
+        };
+        timer.scheduleRepeating(100);
     }
+
+    public static native String getActiveElement() /*-{
+        return $doc.activeElement.id;
+    }-*/;
 
     protected void checkEnterKey(KeyDownEvent event) {
         if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
