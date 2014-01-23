@@ -62,7 +62,7 @@ public class SuggestBoxHandler extends LinkEditingWidgetHandler {
         boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
         boolean singleChoice = isSingleChoice(context, singleChoiceFromConfig) ;
         state.setSingleChoice(singleChoice);
-        state.setObjects(objects);
+        state.setListValues(objects);
         return state;
     }
 

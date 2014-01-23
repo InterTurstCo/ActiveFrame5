@@ -18,7 +18,6 @@ public class ListBoxState extends LinkEditingWidgetState {
     private LinkedHashMap<Id, String> listValues;
     private HashMap<Id, Integer> idFieldPathIndexMapping;
     private FieldPath[] fieldPaths;
-    private boolean singleChoice;
 
     public ArrayList<ArrayList<Id>> getSelectedIds() {
         return selectedIds;
@@ -44,14 +43,6 @@ public class ListBoxState extends LinkEditingWidgetState {
         this.fieldPaths = fieldPaths;
     }
 
-    public boolean isSingleChoice() {
-        return singleChoice;
-    }
-
-    public void setSingleChoice(boolean singleChoice) {
-        this.singleChoice = singleChoice;
-    }
-
     @Override
     public ArrayList<Id> getIds() {
         ArrayList<Id> result = new ArrayList<Id>();
@@ -64,7 +55,7 @@ public class ListBoxState extends LinkEditingWidgetState {
         return result;
     }
 
-    public ArrayList<ArrayList<Id>> getFieldPathsIds() {
+    private ArrayList<ArrayList<Id>> getFieldPathsIds() {
         return selectedIds;
     }
 

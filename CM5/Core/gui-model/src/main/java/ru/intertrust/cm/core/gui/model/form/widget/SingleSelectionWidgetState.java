@@ -12,27 +12,27 @@ import java.util.Map;
  *
  *  Состояние виджета, позволяющего выбирать одно значение из нескольких возможных (combo-box, radio-button group).
  */
-public class SingleSelectionWidgetState extends ValueEditingWidgetState {
-    private Id id;
+public abstract class SingleSelectionWidgetState extends ValueEditingWidgetState {
+    private Id selectedId;
     private LinkedHashMap<Id, String> listValues; //declared as LinkedHashMap (rather then Map) intentionally, to emphasize that items order is important
 
     public SingleSelectionWidgetState() {
     }
 
-    public SingleSelectionWidgetState(Id id) {
-        this.id = id;
+    public SingleSelectionWidgetState(Id selectedId) {
+        this.selectedId = selectedId;
     }
 
     public SingleSelectionWidgetState(LinkedHashMap<Id, String> listValues) {
         this.listValues = listValues;
     }
 
-    public Id getId() {
-        return id;
+    public Id getSelectedId() {
+        return selectedId;
     }
 
-    public void setId(Id id) {
-        this.id = id;
+    public void setSelectedId(Id selectedId) {
+        this.selectedId = selectedId;
     }
 
     public Map<Id, String> getListValues() {

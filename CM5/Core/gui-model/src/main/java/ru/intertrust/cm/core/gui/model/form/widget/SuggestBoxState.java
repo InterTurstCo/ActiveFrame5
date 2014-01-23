@@ -14,19 +14,25 @@ import java.util.LinkedHashMap;
  * To change this template use File | Settings | File Templates.
  */
 public class SuggestBoxState extends LinkEditingWidgetState {
-
+    private LinkedHashMap<Id, String> listValues;
+    private ArrayList<Id> selectedIds;
     private SuggestBoxConfig suggestBoxConfig;
 
-    public LinkedHashMap<Id, String> getObjects() {
-        return objects;
+    public LinkedHashMap<Id, String> getListValues() {
+        return listValues;
+    }
+
+    public void setListValues(LinkedHashMap<Id, String> listValues) {
+        this.listValues = listValues;
     }
 
     public ArrayList<Id> getSelectedIds() {
         return selectedIds;
     }
 
-    private LinkedHashMap<Id, String> objects;
-    private ArrayList<Id> selectedIds;
+    public void setSelectedIds(ArrayList<Id> selectedIds) {
+        this.selectedIds = selectedIds;
+    }
 
     @Override
     public ArrayList<Id> getIds() {
@@ -39,14 +45,6 @@ public class SuggestBoxState extends LinkEditingWidgetState {
 
     public void setSuggestBoxConfig(SuggestBoxConfig suggestBoxConfig) {
         this.suggestBoxConfig = suggestBoxConfig;
-    }
-
-    public void setObjects(LinkedHashMap<Id, String> objects) {
-        this.objects = objects;
-    }
-
-    public void setSelectedIds(ArrayList<Id> selectedIds) {
-        this.selectedIds = selectedIds;
     }
 
 }

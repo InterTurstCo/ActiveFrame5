@@ -17,7 +17,6 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Lesia Puhova
@@ -41,7 +40,7 @@ public abstract class SingleSelectionWidgetHandler extends SingleObjectWidgetHan
         String objectType = context.getFormObjects().getNode(fieldPath.getParentPath()).getType();
         ReferenceFieldConfig fieldConfig = (ReferenceFieldConfig) configurationService.getFieldConfig(objectType, field);
         // todo: find LINKED: only cities of that country
-        // List<DomainObject> listToDisplay = getCrudService().findLinkedDomainObjects(rootObjectForComboBoxField.getId(), "city", "country");
+        // List<DomainObject> listToDisplay = getCrudService().findLinkedDomainObjects(rootObjectForComboBoxField.getSelectedId(), "city", "country");
         List<DomainObject> listToDisplay = crudService.findAll(fieldConfig.getType());
         LinkedHashMap<Id, String> idDisplayMapping = new LinkedHashMap<>();
         widgetState.setListValues(idDisplayMapping);
@@ -49,12 +48,12 @@ public abstract class SingleSelectionWidgetHandler extends SingleObjectWidgetHan
         if (listToDisplay != null) {
             appendDisplayMappings(listToDisplay, widgetConfig.getPatternConfig().getValue(), idDisplayMapping);
             Id selectedId = context.getFieldPlainValue();
-            widgetState.setId(selectedId);
+            widgetState.setSelectedId(selectedId);
         }
     }
 
     @Override
     public Value getValue(WidgetState state) {
-        return new ReferenceValue(((SingleSelectionWidgetState) state).getId());
+        return new ReferenceValue(((SingleSelectionWidgetState) state).getSelectedId());
     }
 }
