@@ -1,8 +1,11 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
+import ru.intertrust.cm.core.gui.api.client.Application;
+import ru.intertrust.cm.core.gui.api.client.CompactModeState;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEventHandler;
 
 import java.util.ArrayList;
@@ -83,9 +86,18 @@ public class PluginPanel implements IsWidget {
         if (currentPluginToClose == null) {
             return;
         }
-
         Plugin parentPlugin = getCurrentPlugin(); // current plugin is already a different one
         if (parentPlugin != null) { // there's a parent plugin to display after closing previous
+            final CompactModeState state = Application.getInstance().getCompactModeState();
+            if (state.isExpanded()) {
+                final int clientWidth = Window.getClientWidth();
+                final int clientHeight = Window.getClientHeight();
+                parentPlugin.getOwner().setVisibleWidth(clientWidth);
+                parentPlugin.getOwner().setVisibleHeight(clientHeight);
+                if (parentPlugin instanceof PluginPanelSizeChangedEventHandler) {
+                    ((PluginPanelSizeChangedEventHandler) parentPlugin).updateSizes();
+                }
+            }
             impl.setWidget(parentPlugin.getView());
         } else {
             impl.remove(currentPluginToClose.getView());

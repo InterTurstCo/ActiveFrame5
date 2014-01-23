@@ -54,8 +54,6 @@ public class SizeToggleAction extends ToggleAction {
                 .getElement().getStyle().setLeft(leftPosition, Style.Unit.PX);
         final int clientWidth = Window.getClientWidth() - leftWidth;
         final int clientHeight = Window.getClientHeight() - headerHeight;
-        getPlugin().getView().asWidget().getElement().getStyle().setWidth(clientWidth, Style.Unit.PX);
-        getPlugin().getView().asWidget().getElement().getStyle().setHeight(clientHeight, Style.Unit.PX);
         getPlugin().getOwner().setVisibleWidth(clientWidth);
         getPlugin().getOwner().setVisibleHeight(clientHeight);
         if (getPlugin() instanceof PluginPanelSizeChangedEventHandler) {
