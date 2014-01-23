@@ -37,13 +37,13 @@ public class HeaderContainer extends SimplePanel {
             }
         });
 
-        FocusPanel thirdImage = new FocusPanel();
+        final FocusPanel thirdImage = new FocusPanel();
         thirdImage.setStyleName("header-third-action-button");
         headTable.setWidget(FIRST_ROW, 2, thirdImage);
         headTable.getFlexCellFormatter().setStyleName(FIRST_ROW, 2, "H_td_ExtSearch");
 
 
-        InlineLabel userPosition = new InlineLabel("Head of department");
+        InlineLabel userPosition = new InlineLabel("Администратор");
         userPosition.addStyleName("HeadUserPost");
 
         FlowPanel userInfoPanel = new FlowPanel();
