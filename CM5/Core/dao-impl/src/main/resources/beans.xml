@@ -6,6 +6,7 @@
        xmlns:jee="http://www.springframework.org/schema/jee"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:cache="http://www.springframework.org/schema/cache"
        xsi:schemaLocation="
      http://www.springframework.org/schema/beans
      http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
@@ -14,7 +15,22 @@
      http://www.springframework.org/schema/context
      http://www.springframework.org/schema/context/spring-context-3.2.xsd
      http://www.springframework.org/schema/aop
-     http://www.springframework.org/schema/aop/spring-aop.xsd">
+     http://www.springframework.org/schema/aop/spring-aop.xsd
+     http://www.springframework.org/schema/cache
+     http://www.springframework.org/schema/cache/spring-cache.xsd
+     ">
+
+    <cache:annotation-driven />
+
+    <!-- generic cache manager -->
+    <bean id="cacheManager" class="org.springframework.cache.support.SimpleCacheManager">
+        <property name="caches">
+            <set>
+                <bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="default"/>
+                <bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="persons"/>
+            </set>
+        </property>
+    </bean>
 
     <aop:aspectj-autoproxy/>
 
@@ -77,6 +93,9 @@
 
     <bean id="personManagement"
           class="ru.intertrust.cm.core.dao.impl.PersonManagementServiceDaoImpl" />
+
+    <bean id="personServiceDao"
+          class="ru.intertrust.cm.core.dao.impl.PersonServiceDaoImpl" />
 
     <bean id="userGroupGlobalCache"
           class="ru.intertrust.cm.core.dao.impl.access.UserGroupGlobalCacheImpl" />

@@ -1,0 +1,28 @@
+package ru.intertrust.cm.core.business.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.business.api.PersonService;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
+import ru.intertrust.cm.core.dao.api.PersonServiceDao;
+
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
+
+@Stateless(name = "PersonService")
+@Local(PersonService.class)
+@Remote(PersonService.Remote.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
+public class PersonServiceImpl implements PersonService {
+
+    @Autowired
+    private PersonServiceDao personServiceDao;
+
+    @Override
+    public DomainObject findPersonByLogin(String login) {
+        return personServiceDao.findPersonByLogin(login);
+    }
+}

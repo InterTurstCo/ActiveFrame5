@@ -47,6 +47,9 @@
     <jee:local-slsb id="searchService"
                     jndi-name="java:module/SearchService!ru.intertrust.cm.core.business.api.SearchService"
                     business-interface="ru.intertrust.cm.core.business.api.SearchService"/>
+    <jee:local-slsb id="personService"
+                    jndi-name="java:module/PersonService!ru.intertrust.cm.core.business.api.PersonService"
+                    business-interface="ru.intertrust.cm.core.business.api.PersonService"/>
 
     <bean id="authenticationService"
           class="ru.intertrust.cm.core.business.impl.AuthenticationServiceImpl"

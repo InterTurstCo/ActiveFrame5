@@ -17,6 +17,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
+import ru.intertrust.cm.core.dao.api.PersonServiceDao;
 
 /**
  * Сервис получения прав пользователя на доменные объекты
@@ -35,13 +36,13 @@ public class PermissionServiceImpl implements PermissionService {
     private SessionContext context;    
     
     @Autowired
-    private PersonManagementServiceDao personManagerService;
+    private PersonServiceDao personServiceDao;
     
     
     @Override
     public DomainObjectPermission getObjectPermission(Id domainObjectId) {
         String personLogin = context.getCallerPrincipal().getName();
-        Id personId = personManagerService.getPersonId(personLogin);
+        Id personId = personServiceDao.findPersonByLogin(personLogin).getId();
         
         return permissionServiceDao.getObjectPermission(domainObjectId, personId);
     }

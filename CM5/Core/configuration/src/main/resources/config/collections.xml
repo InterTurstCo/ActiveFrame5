@@ -423,29 +423,6 @@
 
     </collection>
 
-    <collection name="PersonByLogin" idField="id" transaction-cache="enabled">
-
-        <prototype>
-            <![CDATA[
-                select
-                    s.id, s.login
-                from
-                    Person s
-                     ::from-clause
-                where
-                    1=1 ::where-clause
-            ]]>
-        </prototype>
-
-        <filter name="byLogin">
-            <criteria placeholder="where-clause">
-                <![CDATA[
-                    s.login = {0}
-                ]]>
-            </criteria>
-        </filter>
-    </collection>
-
     <collection name="GroupByName" idField="id">
 
         <prototype>

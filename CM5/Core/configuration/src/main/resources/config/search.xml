@@ -70,7 +70,7 @@
             <indexed-field name="Organization_Name">
                 <doel>Department.Organization.Name</doel>
             </indexed-field>
-            <target-collection name="PersonByLogin"/>
+            <target-collection name="Employees"/>
         </target-domain-object>
         <target-domain-object type="Department">
             <indexed-field name="Name"/>

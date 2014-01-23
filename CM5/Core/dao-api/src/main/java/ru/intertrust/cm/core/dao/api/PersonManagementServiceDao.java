@@ -11,12 +11,6 @@ import ru.intertrust.cm.core.business.api.dto.Id;
  * 
  */
 public interface PersonManagementServiceDao {
-    /**
-     * Получение идентификатора персоны по его логину
-     * @param login
-     * @return
-     */
-    Id getPersonId(String login);
 
     /**
      * Получение списка персон, входящих в группу

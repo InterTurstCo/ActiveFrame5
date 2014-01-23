@@ -3,8 +3,9 @@ package ru.intertrust.cm.core.gui.rpc.server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.PersonManagementService;
+import ru.intertrust.cm.core.business.api.PersonService;
 import ru.intertrust.cm.core.business.api.dto.AttachmentUploadPercentage;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
@@ -36,7 +37,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     CrudService crudServiceImpl;
 
     @EJB
-    PersonManagementService personManagementService;
+    PersonService personService;
 
     @Override
     public BusinessUniverseInitialization getBusinessUniverseInitialization() {
@@ -47,11 +48,11 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
 
     public BusinessUniverseInitialization addInformationToInitializationObject(BusinessUniverseInitialization businessUniverseInitialization){
         String currentLogin = guiService.getSessionContext().getCallerPrincipal().getName();
-        Id personId = personManagementService.getPersonId(currentLogin);
+        DomainObject person = personService.findPersonByLogin(currentLogin);
         businessUniverseInitialization.setCurrentLogin(currentLogin);
-        businessUniverseInitialization.setFirstName(crudServiceImpl.find(personId).getString("FirstName"));
-        businessUniverseInitialization.setLastName(crudServiceImpl.find(personId).getString("LastName"));
-        businessUniverseInitialization.seteMail(crudServiceImpl.find(personId).getString("EMail"));
+        businessUniverseInitialization.setFirstName(person.getString("FirstName"));
+        businessUniverseInitialization.setLastName(person.getString("LastName"));
+        businessUniverseInitialization.seteMail(person.getString("EMail"));
         return businessUniverseInitialization;
     }
 
