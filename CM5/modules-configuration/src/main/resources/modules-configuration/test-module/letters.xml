@@ -145,6 +145,7 @@
                 <page-size>10</page-size>
                 <single-choice value="true"/>
                 <clear-all-button image="css/images/clear.png" text="Очистить"/>
+                <add-button image="..." text="..."/>
             </hierarchy-browser>
         </widget-config>
     </form>

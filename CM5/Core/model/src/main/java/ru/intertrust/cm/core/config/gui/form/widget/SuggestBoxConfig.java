@@ -37,6 +37,9 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
     @Element(name = "clear-all-button", required = false)
     ClearAllButtonConfig clearAllButtonConfig;
 
+    @Element(name = "add-button", required = false)
+    AddButtonConfig addButtonConfig;
+
     @Override
     public String getComponentName() {
         return "suggest-box";
@@ -106,6 +109,14 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
         this.clearAllButtonConfig = clearAllButtonConfig;
     }
 
+    public AddButtonConfig getAddButtonConfig() {
+        return addButtonConfig;
+    }
+
+    public void setAddButtonConfig(AddButtonConfig addButtonConfig) {
+        this.addButtonConfig = addButtonConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -152,6 +163,10 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
             return false;
         }
 
+        if (addButtonConfig != null ? !addButtonConfig.equals(that.addButtonConfig) : that.addButtonConfig != null) {
+            return false;
+        }
+
         return true;
     }
 
@@ -166,6 +181,7 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
         result = 31 * result + (selectionStyleConfig != null ? selectionStyleConfig.hashCode() : 0);
         result = 31 * result + (singleChoice != null ? singleChoice.hashCode() : 0);
         result = 31 * result + (clearAllButtonConfig != null ? clearAllButtonConfig.hashCode() : 0);
+        result = 31 * result + (addButtonConfig != null ? addButtonConfig.hashCode() : 0);
         return result;
     }
 }

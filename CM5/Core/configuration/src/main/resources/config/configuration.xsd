@@ -1145,6 +1145,8 @@
                         xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
             <xs:element type="con:clearAllButtonType" name="clear-all-button"
                         xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
+            <xs:element type="con:addButtonType" name="add-button"
+                        xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
         </xs:sequence>
         <xs:attribute type="xs:string" name="id"/>
     </xs:complexType>
@@ -1196,6 +1198,14 @@
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
+    <xs:complexType name="addButtonType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="image" />
+                <xs:attribute type="xs:string" name="text" />
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
     <xs:simpleType name="selectionStyleAttr">
         <xs:restriction base="xs:string">
             <xs:enumeration value="inline"/>
@@ -1221,6 +1231,8 @@
             <xs:element type="con:singleChoiceType" name="single-choice"
                         xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
             <xs:element type="con:clearAllButtonType" name="clear-all-button"
+                        xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
+            <xs:element type="con:addButtonType" name="add-button"
                         xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
         </xs:sequence>
         <xs:attribute type="xs:string" name="id"/>
@@ -1375,6 +1387,8 @@
             <xs:element type="con:singleChoiceType" name="single-choice"
                         xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
             <xs:element type="con:clearAllButtonType" name="clear-all-button"
+                        xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
+            <xs:element type="con:addButtonType" name="add-button"
                         xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
         </xs:sequence>
         <xs:attribute type="xs:string" name="id"/>

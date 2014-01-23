@@ -39,6 +39,9 @@ public class TableBrowserConfig extends WidgetConfig {
     @Element(name = "clear-all-button", required = false)
     ClearAllButtonConfig clearAllButtonConfig;
 
+    @Element(name = "add-button", required = false)
+    AddButtonConfig addButtonConfig;
+
     public CollectionViewRefConfig getCollectionViewRefConfig() {
         return collectionViewRefConfig;
     }
@@ -111,6 +114,14 @@ public class TableBrowserConfig extends WidgetConfig {
         this.clearAllButtonConfig = clearAllButtonConfig;
     }
 
+    public AddButtonConfig getAddButtonConfig() {
+        return addButtonConfig;
+    }
+
+    public void setAddButtonConfig(AddButtonConfig addButtonConfig) {
+        this.addButtonConfig = addButtonConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -163,6 +174,11 @@ public class TableBrowserConfig extends WidgetConfig {
                 that.clearAllButtonConfig != null) {
             return false;
         }
+
+        if (addButtonConfig != null ? !addButtonConfig.equals(that.addButtonConfig) :
+                that.addButtonConfig != null) {
+            return false;
+        }
         return true;
     }
 
@@ -178,6 +194,7 @@ public class TableBrowserConfig extends WidgetConfig {
         result = 31 * result + (displayChosenValues != null ? displayChosenValues.hashCode() : 0);
         result = 31 * result + (selectionStyleConfig != null ? selectionStyleConfig.hashCode() : 0);
         result = 31 * result + (clearAllButtonConfig != null ? clearAllButtonConfig.hashCode() : 0);
+        result = 31 * result + (addButtonConfig != null ? addButtonConfig.hashCode() : 0);
         return result;
     }
 

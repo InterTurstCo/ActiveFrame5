@@ -383,6 +383,7 @@
                     Если тэг отсутствует, то используется "inline"-вариант. -->
                 <selection-style name="inline"/>
                 <clear-all-button image="css/images/clear.png" text="Очистить"/>
+                <add-button image="..." text="..."/>
 
             </suggest-box>
             <suggest-box id="suggest_capital">
@@ -509,6 +510,7 @@
                 <selection-style name="inline"/>
                 <single-choice value="false"/>
                 <clear-all-button image="css/images/clear.png" text="Очистить"/>
+                <add-button image="..." text="..."/>
             </table-browser>
 
         </widget-config>
