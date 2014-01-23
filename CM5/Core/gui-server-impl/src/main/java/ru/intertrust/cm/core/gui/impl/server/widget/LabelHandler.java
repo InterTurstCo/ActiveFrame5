@@ -45,7 +45,7 @@ public class LabelHandler extends SingleObjectWidgetHandler {
             return state;
         } else {
             state.setLabel(labelConfig.getText());
-            state.setRelatedToRequiredField(findRelatedField(context, labelConfig));
+            state.setRelatedToRequiredField(isRelatedFieldRequired(context, labelConfig));
 
             return state;
         }
@@ -106,7 +106,7 @@ public class LabelHandler extends SingleObjectWidgetHandler {
         return pattern.toString();
     }
 
-    private boolean findRelatedField(WidgetContext context, LabelConfig labelConfig) {
+    private boolean isRelatedFieldRequired(WidgetContext context, LabelConfig labelConfig) {
         if (labelConfig.getRelatesTo() != null) {
             String relatedWidgetId = labelConfig.getRelatesTo().getWidgetId();
             WidgetConfig relatedConfig = context.getWidgetConfigById(relatedWidgetId);
