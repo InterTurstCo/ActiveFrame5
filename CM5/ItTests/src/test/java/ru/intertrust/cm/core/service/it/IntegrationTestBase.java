@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.service.it;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -10,6 +11,8 @@ import javax.ejb.EJB;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
@@ -38,9 +41,10 @@ public class IntegrationTestBase {
      */
     public static Archive<EnterpriseArchive> createDeployment(Class<?>[] classesForDeploy, String[] resourcesForDeploy) {
 
+        String version = getArtifactVersion();
         File ear = Maven.resolver()
                 .loadPomFromFile("pom.xml")
-                .resolve("ru.intertrust.cm-sochi:ear:ear:?")
+                .resolve("ru.intertrust.cm-sochi:ear:ear:" + version)
                 .withoutTransitivity()
                 .asSingleFile();
 
@@ -51,7 +55,7 @@ public class IntegrationTestBase {
                 .addClasses(LoginPasswordCallbackHandler.class, IntegrationTestBase.class);
 
         testArchive.addAsManifestResource(EmptyAsset.INSTANCE, "beans.xml");
-        
+
         if (classesForDeploy != null) {
             for (int i = 0; i < classesForDeploy.length; i++) {
                 testArchive.addClass(classesForDeploy[i]);
@@ -68,6 +72,27 @@ public class IntegrationTestBase {
         webApp.addAsLibraries(testArchive);
 
         return archive;
+    }
+
+    /**
+     * Получение версии артифакта
+     * @return
+     */
+    private static String getArtifactVersion() {
+        FileInputStream stream = null;
+        try {
+            MavenXpp3Reader mavenreader = new MavenXpp3Reader();
+            stream = new FileInputStream("pom.xml");
+            Model model = mavenreader.read(stream);
+            return model.getParent().getVersion();
+        } catch (Exception ex) {
+            throw new RuntimeException("Error get artifact version", ex);
+        } finally {
+            try {
+                stream.close();
+            } catch (Exception ignoreEx) {
+            }
+        }
     }
 
     /**

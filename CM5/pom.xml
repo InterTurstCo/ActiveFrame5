@@ -632,6 +632,10 @@
             <id>central</id>
             <name>Central Repository</name>
         </pluginRepository>
+        <pluginRepository>
+            <id>intertrust.releases</id>
+            <url>https://nexus.inttrust.ru/nexus/content/groups/public/</url>
+        </pluginRepository>        
     </pluginRepositories>
 
     <distributionManagement>
