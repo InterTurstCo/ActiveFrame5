@@ -4,6 +4,7 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.*;
+import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.config.gui.form.*;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
@@ -31,17 +32,18 @@ public class FormPanel implements IsWidget {
     private boolean isWidthFromConfig;
     private List<TabConfig> tabs;
     private final boolean editable;
-
-    public FormPanel(FormDisplayData formDisplayData, final boolean editable, int width, int height) {
-        this(formDisplayData, editable);
+    private EventBus eventBus;
+    public FormPanel(FormDisplayData formDisplayData, final boolean editable, int width, int height, EventBus eventBus) {
+        this(formDisplayData, editable, eventBus);
         formWidth = width;
         formHeight = height;
 
     }
 
-    public FormPanel(FormDisplayData formDisplayData, final boolean editable) {
+    public FormPanel(FormDisplayData formDisplayData, final boolean editable, EventBus eventBus) {
         this.formDisplayData = formDisplayData;
         this.editable = editable;
+        this.eventBus = eventBus;
         panel = new FlowPanel();
         panel.getElement().setId("frm-pnl");
         panel.getElement().setClassName("tab-content");
@@ -234,6 +236,7 @@ public class FormPanel implements IsWidget {
                 widget.setEditable(editable && widgetState.isEditable());
                 widget.setDisplayConfig(displayConfig);
                 widget.setState(widgetState);
+                widget.setEventBus(eventBus);
                 widgets.add(widget);
                 table.setWidget(rowIndex, colIndex, widget);
 

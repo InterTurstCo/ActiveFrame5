@@ -18,7 +18,7 @@ public class FormDialogBox extends PopupPanel {
    private PluginPanel formPluginPanel;
    private  AbsolutePanel buttonsPanel;
 
-   public FormDialogBox(String headerTitle){
+    public FormDialogBox(String headerTitle){
         init(headerTitle);
     }
 
@@ -58,16 +58,20 @@ public class FormDialogBox extends PopupPanel {
         buttonsPanel.add(button);
     }
 
-    public void initFormPlugin(FormPluginConfig config){
-        FormPlugin formPlugin = ComponentRegistry.instance.get("form.plugin");
+
+    public FormPlugin initFormPlugin(FormPluginConfig config){
+        final FormPlugin formPlugin = ComponentRegistry.instance.get("form.plugin");
         formPlugin.setConfig(config);
         formPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {
             @Override
             public void onViewCreation(PluginViewCreatedEvent source) {
                 showDialogBox();
+
             }
         });
         formPluginPanel.open(formPlugin);
+        return formPlugin;
 
     }
+
 }

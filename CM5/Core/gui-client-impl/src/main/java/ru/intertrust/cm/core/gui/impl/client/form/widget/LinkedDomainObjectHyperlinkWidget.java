@@ -3,10 +3,17 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Widget;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
+import ru.intertrust.cm.core.gui.impl.client.action.SaveAction;
+import ru.intertrust.cm.core.gui.impl.client.event.ActionSuccessListener;
+import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.FormDialogBox;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.LinkedDomainObjectHyperlinkItem;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.form.widget.LinkedDomainObjectHyperlinkState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
@@ -26,14 +33,17 @@ public class LinkedDomainObjectHyperlinkWidget extends BaseWidget {
     }
 
     public void setCurrentState(WidgetState currentState) {
-        LinkedDomainObjectHyperlinkState state = (LinkedDomainObjectHyperlinkState) currentState;
+        final LinkedDomainObjectHyperlinkState state = (LinkedDomainObjectHyperlinkState) currentState;
         final FormPluginConfig config = state.getConfig();
         final String domainObjectType = state.getDomainObjectType();
+        final Id id = state.getId();
+        final Id parentId = state.getParentId();
         hyperlinkItem.setText(state.getStringRepresentation());
         hyperlinkItem.addItemClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(domainObjectType);
+                noneEditableFormDialogBox.initFormPlugin(config);
                 noneEditableFormDialogBox.initButton("Открыть в полном окне", new ClickHandler() {
 
                     @Override
@@ -44,19 +54,28 @@ public class LinkedDomainObjectHyperlinkWidget extends BaseWidget {
                 noneEditableFormDialogBox.initButton("Изменить", new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
-
                         noneEditableFormDialogBox.hide();
                         config.getPluginState().setEditable(true);
                         final FormDialogBox editableFormDialogBox =
                                 new FormDialogBox("Редактирование " + domainObjectType);
-
+                        final FormPlugin formPluginEditable = editableFormDialogBox.initFormPlugin(config);
                         editableFormDialogBox.initButton("Изменить", new ClickHandler() {
                             @Override
                             public void onClick(ClickEvent event) {
-                                    /*ActionContext ctx;
-                            final Action action = ComponentRegistry.instance.get(ctx.getActionConfig().getComponent());
-                            action.setInitialContext(ctx);
-                            action.execute();*/
+                                final SaveAction action = ComponentRegistry.instance.get("save.action");
+                                SaveActionContext saveActionContext = new SaveActionContext();
+                                saveActionContext.setRootObjectId(id);
+                                action.setInitialContext(saveActionContext);
+                                action.setPlugin(formPluginEditable);
+                                action.addActionSuccessListener(new ActionSuccessListener() {
+                                    @Override
+                                    public void onSuccess() {
+                                        editableFormDialogBox.hide();
+                                        eventBus.fireEvent(new CollectionRowSelectedEvent(parentId));
+                                    }
+                                });
+                                action.execute();
+
                             }
                         });
                         editableFormDialogBox.initButton("Отмена", new ClickHandler() {
@@ -67,11 +86,10 @@ public class LinkedDomainObjectHyperlinkWidget extends BaseWidget {
                                 config.getPluginState().setEditable(false);
                             }
                         });
-                        editableFormDialogBox.initFormPlugin(config);
+
                     }
 
                 });
-                noneEditableFormDialogBox.initFormPlugin(config);
 
             }
         });

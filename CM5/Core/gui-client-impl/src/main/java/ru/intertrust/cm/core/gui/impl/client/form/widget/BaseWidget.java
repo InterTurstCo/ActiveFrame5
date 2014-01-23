@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
@@ -16,7 +17,7 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget {
     protected WidgetState initialData;
     protected WidgetDisplayConfig displayConfig;
     protected boolean isEditable = true;
-
+    protected EventBus eventBus;
     protected Widget impl;
 
     public <T extends WidgetState> T getInitialData() {
@@ -41,6 +42,14 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget {
 
     public void setEditable(boolean editable) {
         isEditable = editable;
+    }
+
+    public EventBus getEventBus() {
+        return eventBus;
+    }
+
+    public void setEventBus(EventBus eventBus) {
+        this.eventBus = eventBus;
     }
 
     @Override

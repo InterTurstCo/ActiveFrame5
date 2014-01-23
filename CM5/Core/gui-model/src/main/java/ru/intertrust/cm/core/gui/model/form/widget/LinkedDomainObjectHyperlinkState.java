@@ -15,6 +15,7 @@ public class LinkedDomainObjectHyperlinkState extends LinkEditingWidgetState {
     private Id id;
     private FormPluginConfig config;
     private String domainObjectType;
+    private Id parentId;
     public String getStringRepresentation() {
         return stringRepresentation;
     }
@@ -29,6 +30,14 @@ public class LinkedDomainObjectHyperlinkState extends LinkEditingWidgetState {
 
     public void setId(Id id) {
         this.id = id;
+    }
+
+    public Id getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Id parentId) {
+        this.parentId = parentId;
     }
 
     public FormPluginConfig getConfig() {
