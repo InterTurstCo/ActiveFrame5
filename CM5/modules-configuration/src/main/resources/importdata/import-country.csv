@@ -1,4 +1,4 @@
 TYPE_NAME=country;KEYS=name;;
-name;population;description;_ATTACHMENT_
-Россия;143548980;Российская Федерация;importdata/contents/russia-map.png
-Украина;45469800;Украина;importdata/contents/ukraine-map.png
+name;population;description;independence_day;_ATTACHMENT_
+Россия;143548980;Российская Федерация;12.06.1990 00:00:00;importdata/contents/russia-map.png,importdata/contents/HierarchicalBrowser.png
+Украина;45469800;Украина;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
