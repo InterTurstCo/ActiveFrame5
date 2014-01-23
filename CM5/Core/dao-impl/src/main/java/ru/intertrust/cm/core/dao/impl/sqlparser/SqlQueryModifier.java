@@ -391,6 +391,15 @@ public class SqlQueryModifier {
                 }
             }
 
+            // Пустой фильтр разрешенных идентификаторов, поэтому используем условие, гарантирующее пустой результат
+            if (expression == null && filter instanceof IdsIncludedFilter) {
+                EqualsTo emptyResultExpression = new EqualsTo();
+                emptyResultExpression.setLeftExpression(new LongValue("0"));
+                emptyResultExpression.setRightExpression(new LongValue("1"));
+
+                expression = emptyResultExpression;
+            }
+
             if (expression != null) {
                 if (!(expression instanceof Parenthesis)) {
                     expression = new Parenthesis(expression);
