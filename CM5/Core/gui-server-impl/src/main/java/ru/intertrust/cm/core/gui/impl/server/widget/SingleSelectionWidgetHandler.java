@@ -43,7 +43,7 @@ public abstract class SingleSelectionWidgetHandler extends SingleObjectWidgetHan
         // todo: find LINKED: only cities of that country
         // List<DomainObject> listToDisplay = getCrudService().findLinkedDomainObjects(rootObjectForComboBoxField.getId(), "city", "country");
         List<DomainObject> listToDisplay = crudService.findAll(fieldConfig.getType());
-        Map<Id, String> idDisplayMapping = new LinkedHashMap<>();
+        LinkedHashMap<Id, String> idDisplayMapping = new LinkedHashMap<>();
         widgetState.setListValues(idDisplayMapping);
 
         if (listToDisplay != null) {

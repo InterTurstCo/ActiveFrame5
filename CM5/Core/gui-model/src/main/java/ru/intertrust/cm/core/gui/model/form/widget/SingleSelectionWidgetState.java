@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -13,7 +14,7 @@ import java.util.Map;
  */
 public class SingleSelectionWidgetState extends ValueEditingWidgetState {
     private Id id;
-    private Map<Id, String> listValues;
+    private LinkedHashMap<Id, String> listValues; //declared as LinkedHashMap (rather then Map) intentionally, to emphasize that items order is important
 
     public SingleSelectionWidgetState() {
     }
@@ -22,7 +23,7 @@ public class SingleSelectionWidgetState extends ValueEditingWidgetState {
         this.id = id;
     }
 
-    public SingleSelectionWidgetState(Map<Id, String> listValues) {
+    public SingleSelectionWidgetState(LinkedHashMap<Id, String> listValues) {
         this.listValues = listValues;
     }
 
@@ -38,7 +39,7 @@ public class SingleSelectionWidgetState extends ValueEditingWidgetState {
         return listValues;
     }
 
-    public void setListValues(Map<Id, String> listValues) {
+    public void setListValues(LinkedHashMap<Id, String> listValues) {
         this.listValues = listValues;
     }
 
