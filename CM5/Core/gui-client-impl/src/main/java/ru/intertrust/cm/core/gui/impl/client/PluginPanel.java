@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEventHandler;
 
 import java.util.ArrayList;
 
@@ -109,7 +110,6 @@ public class PluginPanel implements IsWidget {
         this.plugins.add(plugin);
         beforePluginOpening();
         impl.setWidget(plugin.getView());
-
     }
 
     @Override

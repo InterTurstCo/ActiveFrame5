@@ -90,10 +90,6 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         return formPlugin;
     }
 
-    public void setFormPlugin(FormPlugin formPlugin) {
-        this.formPlugin = formPlugin;
-    }
-
     @Override
     public EventBus getLocalEventBus() {
         return eventBus;
@@ -188,7 +184,7 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         collectionPlugin.getOwner().setVisibleWidth(width);
         collectionPlugin.getOwner().setVisibleHeight(height / 2);
         formPlugin.setTemporaryWidth(width);
-         formPlugin.setTemporaryHeight(height / 2);
+        formPlugin.setTemporaryHeight(height / 2);
         getView().onPluginPanelResize();
         collectionPlugin.getView().onPluginPanelResize();
         formPlugin.getView().onPluginPanelResize();

@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.gui.model.plugin;
 /**
  * @author Sergey.Okolot
  */
-public class FormPluginState extends PluginState {
+public class FormPluginState implements PluginState {
 
     private boolean editable;
     private boolean toggleEdit;
@@ -29,7 +29,6 @@ public class FormPluginState extends PluginState {
         final FormPluginState clone = new FormPluginState();
         clone.editable = this.editable;
         clone.toggleEdit = this.toggleEdit;
-        fillCloneSuperData(clone);
         return clone;
     }
 }

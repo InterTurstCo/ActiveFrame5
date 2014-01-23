@@ -1,21 +1,17 @@
 package ru.intertrust.cm.core.gui.impl.client.action.system;
 
-import com.google.gwt.animation.client.Animation;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.gui.api.client.Application;
+import ru.intertrust.cm.core.gui.api.client.CompactModeState;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.ComponentHelper;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.action.ToggleAction;
-import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEventHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.plugin.IsActive;
-import ru.intertrust.cm.core.gui.model.plugin.PluginState;
 
 /**
  * @author Sergey.Okolot
@@ -25,33 +21,30 @@ public class SizeToggleAction extends ToggleAction {
 
     @Override
     public void execute() {
-        final IsActive active = (IsActive) getPlugin();
-        final PluginState state = active.getPluginState();
-        final boolean fullScreen = state.isFullScreen();
+        final CompactModeState compactModeState = Application.getInstance().getCompactModeState();
         final String imageUrl;
-        if (fullScreen) {
+        if (compactModeState.isExpanded()) {
             imageUrl = getInitialContext().getActionConfig().getImageUrl().replace(IMAGE_SUFFIX, ON_SUFFIX);
         } else {
             final Element header = DOM.getElementById(ComponentHelper.HEADER_ID);
             final Element left = DOM.getElementById(ComponentHelper.LEFT_ID);
-            state.setHeaderHeight(header.getOffsetHeight());
-            state.setLeftWidth(left.getOffsetWidth());
+            compactModeState.setTop(header.getOffsetHeight());
+            compactModeState.setLeft(left.getOffsetWidth());
             imageUrl = getInitialContext().getActionConfig().getImageUrl().replace(IMAGE_SUFFIX, OFF_SUFFIX);
         }
-        state.setFullScreen(!fullScreen);
+        compactModeState.setExpanded(!compactModeState.isExpanded());
         getImage().setUrl(imageUrl);
-        active.setPluginState(state);
-        updateSize(state);
+        updateSize(compactModeState);
     }
 
-    private void updateSize(final PluginState state) {
+    private void updateSize(final CompactModeState state) {
         final int leftPosition, headerHeight, leftWidth;
-        if (state.isFullScreen()) {
+        if (state.isExpanded()) {
             leftPosition = headerHeight = leftWidth = 0;
         } else {
             leftPosition = 130;
-            headerHeight = state.getHeaderHeight();
-            leftWidth = state.getLeftWidth();
+            headerHeight = state.getTop();
+            leftWidth = state.getLeft();
         }
         final Element header = DOM.getElementById(ComponentHelper.HEADER_ID);
         final Element left = DOM.getElementById(ComponentHelper.LEFT_ID);

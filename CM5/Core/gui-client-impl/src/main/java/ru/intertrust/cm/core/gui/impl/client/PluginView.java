@@ -6,6 +6,7 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import ru.intertrust.cm.core.config.gui.ActionConfig;
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ToggleActionContext;
 import ru.intertrust.cm.core.gui.model.plugin.ActivePluginData;
@@ -124,8 +125,7 @@ public abstract class PluginView implements IsWidget {
         final List<ActionContext> contexts = new ArrayList<ActionContext>();
         final ToggleActionContext fstCtx = new ToggleActionContext(
                 createActionConfig("size.toggle.action", "toggle form", "icons/form-fullsize.png"));
-        final ActivePluginData data = plugin.getInitialData();
-        fstCtx.setPushed(data.getPluginState().isFullScreen());
+        fstCtx.setPushed(Application.getInstance().getCompactModeState().isExpanded());
         contexts.add(fstCtx);
         contexts.add(new ToggleActionContext(
                 createActionConfig("favorite.toggle.action", "favorites", "icons/favorite-panel.png")));

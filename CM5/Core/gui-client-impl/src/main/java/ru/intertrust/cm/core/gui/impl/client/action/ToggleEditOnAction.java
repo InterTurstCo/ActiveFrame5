@@ -40,6 +40,8 @@ public class ToggleEditOnAction extends ToggleAction {
         final FormPlugin formPlugin = ComponentRegistry.instance.get("form.plugin");
         formPlugin.setConfig(config);
         formPlugin.setDisplayActionToolBar(true);
+        formPlugin.setTemporaryWidth(getPlugin().getOwner().getVisibleWidth());
+        formPlugin.setTemporaryHeight(getPlugin().getOwner().getVisibleHeight());
         formPlugin.setLocalEventBus(plugin.getLocalEventBus());
         getPlugin().getOwner().openChild(formPlugin);
     }
