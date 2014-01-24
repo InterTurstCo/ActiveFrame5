@@ -12,9 +12,12 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.context.support.AbstractRefreshableApplicationContext;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
@@ -81,10 +84,9 @@ public class ExtensionServiceImpl implements ExtensionService, ApplicationContex
         try {
             if (!isInit) {
                 List<String> basePackages = getUniqueBasePackages();
+                reestr = new Hashtable<Class<? extends ExtentionInvocationHandler>,
+                        Hashtable<String, List<ExtensionPointHandler>>>();
                 for (String basePackage : basePackages) {
-
-                    reestr = new Hashtable<Class<? extends ExtentionInvocationHandler>,
-                            Hashtable<String, List<ExtensionPointHandler>>>();
 
                     // Сканирование класспаса
                     ClassPathScanningCandidateComponentProvider scanner =
@@ -132,6 +134,10 @@ public class ExtensionServiceImpl implements ExtensionService, ApplicationContex
                                             extentionPoint = (ExtensionPointHandler) applicationContext
                                                     .getAutowireCapableBeanFactory().createBean(extentionPointClass,
                                                             AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, false);
+
+                                            ((AbstractRefreshableApplicationContext) applicationContext)
+                                                    .getBeanFactory().registerSingleton(extentionPointClass.getName(),
+                                                            extentionPoint);
                                         }
                                     }
 
@@ -150,11 +156,11 @@ public class ExtensionServiceImpl implements ExtensionService, ApplicationContex
                                         oneTypeExtensions.put(filter, filteredExtension);
                                     }
                                     //Если ранее не регистрировался данный класс то регистрируем его
-                                    if (!filteredExtension.contains(extentionPoint)){
+                                    if (!filteredExtension.contains(extentionPoint)) {
                                         filteredExtension.add(extentionPoint);
+                                        logger.info("Register extensionPoint " + interfaceClass.getName()
+                                                + "(" + filter + ") = " + extentionPoint.getClass().getName());
                                     }
-                                    logger.info("Register extensionPoint " + interfaceClass.getName()
-                                            + "(" + filter + ") = " + extentionPoint.getClass().getName());
                                 }
                             }
                         }
@@ -178,7 +184,9 @@ public class ExtensionServiceImpl implements ExtensionService, ApplicationContex
         for (ModuleConfiguration moduleConfiguration : moduleService.getModuleList()) {
             if (moduleConfiguration.getExtensionPointsPackages() != null) {
                 for (String extensionPointsPackage : moduleConfiguration.getExtensionPointsPackages()) {
-                    result.add(extensionPointsPackage);
+                    if (!result.contains(extensionPointsPackage)) {
+                        result.add(extensionPointsPackage);
+                    }
                 }
             }
         }
