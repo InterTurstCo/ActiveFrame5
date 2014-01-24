@@ -25,8 +25,4 @@ public abstract class LinkEditingWidgetState extends ValueEditingWidgetState {
 
     public abstract ArrayList<Id> getIds();
 
-    //TODO: [lesya] this method is used only in ListBoxState. Looks like it can be removed from here
-//    public ArrayList<ArrayList<Id>> getFieldPathsIds() {
-//        return null;
-//    }
 }

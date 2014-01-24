@@ -2,8 +2,7 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
 
 /**
  * @author Lesia Puhova
@@ -12,20 +11,8 @@ import java.util.Map;
  *
  *  Состояние виджета, позволяющего выбирать одно значение из нескольких возможных (combo-box, radio-button group).
  */
-public abstract class SingleSelectionWidgetState extends ValueEditingWidgetState {
+public abstract class SingleSelectionWidgetState extends ValueListWidgetState {
     private Id selectedId;
-    private LinkedHashMap<Id, String> listValues; //declared as LinkedHashMap (rather then Map) intentionally, to emphasize that items order is important
-
-    public SingleSelectionWidgetState() {
-    }
-
-    public SingleSelectionWidgetState(Id selectedId) {
-        this.selectedId = selectedId;
-    }
-
-    public SingleSelectionWidgetState(LinkedHashMap<Id, String> listValues) {
-        this.listValues = listValues;
-    }
 
     public Id getSelectedId() {
         return selectedId;
@@ -35,12 +22,16 @@ public abstract class SingleSelectionWidgetState extends ValueEditingWidgetState
         this.selectedId = selectedId;
     }
 
-    public Map<Id, String> getListValues() {
-        return listValues;
+    @Override
+    public boolean isSingleChoice() {
+        return true;
     }
 
-    public void setListValues(LinkedHashMap<Id, String> listValues) {
-        this.listValues = listValues;
+    @Override
+    public ArrayList<Id> getIds() {
+        ArrayList<Id> list = new ArrayList<Id>();
+        list.add(selectedId);
+        return list;
     }
 
     @Override

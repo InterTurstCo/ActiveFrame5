@@ -6,16 +6,14 @@ import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 
 /**
  * @author Denis Mitavskiy
  *         Date: 15.10.13
  *         Time: 19:48
  */
-public class ListBoxState extends LinkEditingWidgetState {
+public class ListBoxState extends ValueListWidgetState {
     private ArrayList<ArrayList<Id>> selectedIds;
-    private LinkedHashMap<Id, String> listValues;
     private HashMap<Id, Integer> idFieldPathIndexMapping;
     private FieldPath[] fieldPaths;
 
@@ -25,14 +23,6 @@ public class ListBoxState extends LinkEditingWidgetState {
 
     public void setSelectedIds(ArrayList<ArrayList<Id>> selectedIds) {
         this.selectedIds = selectedIds;
-    }
-
-    public LinkedHashMap<Id, String> getListValues() {
-        return listValues;
-    }
-
-    public void setListValues(LinkedHashMap<Id, String> listValues) {
-        this.listValues = listValues;
     }
 
     public FieldPath[] getFieldPaths() {

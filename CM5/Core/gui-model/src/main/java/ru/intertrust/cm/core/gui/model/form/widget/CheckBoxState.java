@@ -5,7 +5,7 @@ package ru.intertrust.cm.core.gui.model.form.widget;
  *         Date: 06.10.13
  *         Time: 12:41
  */
-public class CheckBoxState extends ValueEditingWidgetState {
+public class CheckBoxState extends SingleObjectWidgetState {
     private Boolean isSelected;
 
     public CheckBoxState() {

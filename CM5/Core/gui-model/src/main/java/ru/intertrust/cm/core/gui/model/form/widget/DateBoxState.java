@@ -7,7 +7,7 @@ import java.util.Date;
  *         Date: 26.09.13
  *         Time: 12:29
  */
-public class DateBoxState extends ValueEditingWidgetState {
+public class DateBoxState extends SingleObjectWidgetState {
     private Date date;
 
     public DateBoxState() {

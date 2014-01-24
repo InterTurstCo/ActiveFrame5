@@ -5,7 +5,7 @@ import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.gui.api.server.widget.SingleObjectWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.form.widget.TextBoxState;
+import ru.intertrust.cm.core.gui.model.form.widget.TextState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 /**
@@ -16,12 +16,12 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 @ComponentName("text-box")
 public class TextBoxHandler extends SingleObjectWidgetHandler {
     @Override
-    public TextBoxState getInitialState(WidgetContext context) {
-        return new TextBoxState(context.<String>getFieldPlainValue());
+    public TextState getInitialState(WidgetContext context) {
+        return new TextState(context.<String>getFieldPlainValue());
     }
 
     @Override
     public Value getValue(WidgetState state) {
-        return new StringValue(((TextBoxState) state).getText());
+        return new StringValue(((TextState) state).getText());
     }
 }
