@@ -5,15 +5,11 @@ import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SingleSelectionWidgetConfig;
-import ru.intertrust.cm.core.gui.api.server.widget.SingleObjectWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.widget.SingleSelectionWidgetState;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -26,7 +22,7 @@ import java.util.List;
  *  Обработчик для виджета, позволяющего выбирать одно значение из нескольких возможных.
  *  Является супер-классом для конкретных обработчиков, таких как ComboBoxHandler и RadioButtonHandler.
  */
-public abstract class SingleSelectionWidgetHandler extends SingleObjectWidgetHandler {
+public abstract class SingleSelectionWidgetHandler extends ValueListWidgetHandler {
     @Autowired
     protected CrudService crudService;
     @Autowired
@@ -52,8 +48,4 @@ public abstract class SingleSelectionWidgetHandler extends SingleObjectWidgetHan
         }
     }
 
-    @Override
-    public Value getValue(WidgetState state) {
-        return new ReferenceValue(((SingleSelectionWidgetState) state).getSelectedId());
-    }
 }

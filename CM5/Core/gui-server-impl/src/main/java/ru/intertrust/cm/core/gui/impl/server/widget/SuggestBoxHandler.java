@@ -6,7 +6,6 @@ import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionPatternConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SuggestBoxConfig;
-import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilder;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -27,7 +26,7 @@ import java.util.regex.Pattern;
  * To change this template use File | Settings | File Templates.
  */
 @ComponentName("suggest-box")
-public class SuggestBoxHandler extends LinkEditingWidgetHandler {
+public class SuggestBoxHandler extends ValueListWidgetHandler {
 
     @Autowired
     CollectionsService collectionsService;
