@@ -28,8 +28,10 @@ public class SizeToggleAction extends ToggleAction {
         } else {
             final Element header = DOM.getElementById(ComponentHelper.HEADER_ID);
             final Element left = DOM.getElementById(ComponentHelper.LEFT_ID);
-            compactModeState.setTop(header.getOffsetHeight());
-            compactModeState.setLeft(left.getOffsetWidth());
+            compactModeState.setTopOffset(header.getOffsetHeight());
+            compactModeState.setLeftOffset(left.getOffsetWidth());
+            compactModeState.setLeft(getPlugin().getView().asWidget().getParent().getParent()
+                    .getElement().getOffsetLeft());
             imageUrl = getInitialContext().getActionConfig().getImageUrl().replace(IMAGE_SUFFIX, OFF_SUFFIX);
         }
         compactModeState.setExpanded(!compactModeState.isExpanded());
@@ -42,9 +44,9 @@ public class SizeToggleAction extends ToggleAction {
         if (state.isExpanded()) {
             leftPosition = headerHeight = leftWidth = 0;
         } else {
-            leftPosition = 130;
-            headerHeight = state.getTop();
-            leftWidth = state.getLeft();
+            leftPosition = state.getLeft();
+            headerHeight = state.getTopOffset();
+            leftWidth = state.getLeftOffset();
         }
         final Element header = DOM.getElementById(ComponentHelper.HEADER_ID);
         final Element left = DOM.getElementById(ComponentHelper.LEFT_ID);

@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.gui.api.client;
 
 /**
- * Defines recovery point for all plugins with support full screen mode
+ * Defines full screen state and recovery point for all plugins which support full screen mode
  *
  * @author Sergey.Okolot
  *         Created on 23.01.14 9:38.
@@ -9,16 +9,9 @@ package ru.intertrust.cm.core.gui.api.client;
 public class CompactModeState {
 
     private int left;
-    private int top;
+    private int leftOffset;
+    private int topOffset;
     private boolean expanded;
-
-    public int getTop() {
-        return top;
-    }
-
-    public void setTop(int top) {
-        this.top = top;
-    }
 
     public int getLeft() {
         return left;
@@ -26,6 +19,22 @@ public class CompactModeState {
 
     public void setLeft(int left) {
         this.left = left;
+    }
+
+    public int getLeftOffset() {
+        return leftOffset;
+    }
+
+    public void setLeftOffset(int leftOffset) {
+        this.leftOffset = leftOffset;
+    }
+
+    public int getTopOffset() {
+        return topOffset;
+    }
+
+    public void setTopOffset(int topOffset) {
+        this.topOffset = topOffset;
     }
 
     public boolean isExpanded() {

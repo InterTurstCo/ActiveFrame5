@@ -43,7 +43,7 @@ public class LinkedDomainObjectHyperlinkWidget extends BaseWidget {
             @Override
             public void onClick(ClickEvent event) {
                 final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(domainObjectType);
-                noneEditableFormDialogBox.initFormPlugin(config);
+                final FormPlugin plugin = noneEditableFormDialogBox.initFormPlugin(config);
                 noneEditableFormDialogBox.initButton("Открыть в полном окне", new ClickHandler() {
 
                     @Override
