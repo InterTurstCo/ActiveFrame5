@@ -8,6 +8,7 @@ import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
@@ -145,12 +146,18 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         config.setDomainObjectId(id);
         config.getPluginState().setEditable(false);
         final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(title);
-        noneEditableFormDialogBox.initFormPlugin(config);
+        config.getPluginState().setToggleEdit(true);
+        config.getPluginState().setInCentralPanel(true);
+        final FormPlugin formPlugin = noneEditableFormDialogBox.createFormPlugin(config);
         noneEditableFormDialogBox.initButton("Открыть в полном окне", new ClickHandler() {
 
             @Override
             public void onClick(ClickEvent event) {
-                //To change body of implemented methods use File | Settings | File Templates.
+                formPlugin.setDisplayActionToolBar(true);
+                formPlugin.setLocalEventBus(getEventBus());
+                Application.getInstance().getEventBus()
+                        .fireEvent(new CentralPluginChildOpeningRequestedEvent(formPlugin));
+                noneEditableFormDialogBox.hide();
             }
         });
         noneEditableFormDialogBox.initButton("Изменить", new ClickHandler() {
@@ -161,7 +168,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
                 config.getPluginState().setEditable(true);
                 final FormDialogBox editableFormDialogBox =
                         new FormDialogBox("Редактирование " + title);
-                final FormPlugin editableFormPlugin = editableFormDialogBox.initFormPlugin(config);
+                final FormPlugin editableFormPlugin = editableFormDialogBox.createFormPlugin(config);
                 editableFormDialogBox.initButton("Изменить", new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
@@ -263,7 +270,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         config.setDomainObjectTypeToCreate(domainObjectTypeToCreate);
         config.getPluginState().setEditable(true);
         final FormDialogBox createItemDialogBox = new FormDialogBox(title);
-        final FormPlugin createFormPlugin = createItemDialogBox.initFormPlugin(config);
+        final FormPlugin createFormPlugin = createItemDialogBox.createFormPlugin(config);
         createItemDialogBox.initButton("Cохранить", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {

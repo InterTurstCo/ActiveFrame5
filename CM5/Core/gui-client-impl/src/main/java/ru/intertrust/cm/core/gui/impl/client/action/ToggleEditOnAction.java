@@ -1,9 +1,11 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
+import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedEvent;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
@@ -28,7 +30,13 @@ public class ToggleEditOnAction extends ToggleAction {
         final FormPluginState state = editor.getFormPluginState();
         config.setPluginState(state);
         state.setEditable(true);
-        updateForm(config);
+        final FormPlugin formPlugin = createFormPlugin(config);
+        if (state.isInCentralPanel()) {
+            getPlugin().getOwner().closeCurrentPlugin();
+        } else {
+            state.setInCentralPanel(true);
+        }
+        Application.getInstance().getEventBus().fireEvent(new CentralPluginChildOpeningRequestedEvent(formPlugin));
     }
 
     @Override
@@ -36,13 +44,13 @@ public class ToggleEditOnAction extends ToggleAction {
         return new ToggleEditOnAction();
     }
 
-    private void updateForm(final FormPluginConfig config) {
+    private FormPlugin createFormPlugin(final FormPluginConfig config) {
         final FormPlugin formPlugin = ComponentRegistry.instance.get("form.plugin");
         formPlugin.setConfig(config);
         formPlugin.setDisplayActionToolBar(true);
         formPlugin.setTemporaryWidth(getPlugin().getOwner().getVisibleWidth());
         formPlugin.setTemporaryHeight(getPlugin().getOwner().getVisibleHeight());
         formPlugin.setLocalEventBus(plugin.getLocalEventBus());
-        getPlugin().getOwner().openChild(formPlugin);
+        return formPlugin;
     }
 }

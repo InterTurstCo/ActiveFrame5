@@ -7,6 +7,7 @@ public class FormPluginState implements PluginState {
 
     private boolean editable;
     private boolean toggleEdit;
+    private boolean inCentralPanel;
 
     public boolean isEditable() {
         return editable;
@@ -24,11 +25,20 @@ public class FormPluginState implements PluginState {
         this.toggleEdit = toggleEdit;
     }
 
+    public boolean isInCentralPanel() {
+        return inCentralPanel;
+    }
+
+    public void setInCentralPanel(boolean inCentralPanel) {
+        this.inCentralPanel = inCentralPanel;
+    }
+
     @Override
     public FormPluginState createClone() {
         final FormPluginState clone = new FormPluginState();
         clone.editable = this.editable;
         clone.toggleEdit = this.toggleEdit;
+        clone.inCentralPanel = this.inCentralPanel;
         return clone;
     }
 }

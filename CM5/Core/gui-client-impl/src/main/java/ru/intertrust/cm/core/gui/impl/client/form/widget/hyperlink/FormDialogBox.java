@@ -59,7 +59,7 @@ public class FormDialogBox extends PopupPanel {
     }
 
 
-    public FormPlugin initFormPlugin(FormPluginConfig config){
+    public FormPlugin createFormPlugin(FormPluginConfig config){
         final FormPlugin formPlugin = ComponentRegistry.instance.get("form.plugin");
         formPlugin.setConfig(config);
         formPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {
