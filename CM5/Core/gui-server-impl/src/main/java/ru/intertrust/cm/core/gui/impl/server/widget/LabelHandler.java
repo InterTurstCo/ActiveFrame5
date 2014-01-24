@@ -80,22 +80,23 @@ public class LabelHandler extends SingleObjectWidgetHandler {
             String group = matcher.group();
             FieldPath fieldPath = new FieldPath(group.substring(1, group.length() - 1));
             Value value = context.getValue(fieldPath);
-            String displayValue = "";
+            String displayValueUnescaped = "";
             if (value != null) {
                 Object primitiveValue = value.get();
                 if (primitiveValue == null) {
                     if (value instanceof LongValue || value instanceof DecimalValue) {
-                        displayValue = "0";
+                        displayValueUnescaped = "0";
                     }
                 } else {
                     allEmpty = false;
                     if (value instanceof TimestampValue) {
-                        displayValue = DATE_FORMATTER.format(primitiveValue);
+                        displayValueUnescaped = DATE_FORMATTER.format(primitiveValue);
                     } else {
-                        displayValue = primitiveValue.toString();
+                        displayValueUnescaped = primitiveValue.toString();
                     }
                 }
             }
+            String displayValue = displayValueUnescaped.replaceAll( "\\\\", "\\\\\\\\").replaceAll("\\$", "\\\\\\$");
             matcher.appendReplacement(replacement, displayValue);
         }
         if (allEmpty) {
