@@ -152,15 +152,19 @@
         </markup>
         <widget-config>
             <label id="1">
-                <field-path/>
+                <field-path value="capital"/>
                 <text>Название:</text>
+                <pattern value="{name} {last_name}"/>
+                <renderer component-name="test.renderer"/>
             </label>
             <text-box id="2">
                 <field-path value="name"/>
             </text-box>
 
             <label id="3">
-                <text>Население:</text>
+                <field-path value="capital"/>
+                <pattern value="{name} {last_name}"/>
+                <renderer component-name="test.renderer"/>
             </label>
             <integer-box id="4">
                 <field-path value="population"/>
@@ -316,7 +320,7 @@
         <widget-config>
             <label id="1">
                 <field-path/>
-                <text>Название:</text>
+
             </label>
             <text-box id="2">
                 <field-path value="name"/>

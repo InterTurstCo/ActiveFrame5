@@ -1453,41 +1453,47 @@
     </xs:complexType>
 
     <xs:complexType name="labelType">
-        <xs:sequence>
-            <xs:element name="field-path" minOccurs="0">
-                <xs:complexType>
-                    <xs:simpleContent>
-                        <xs:extension base="xs:string">
-                            <xs:attribute type="xs:string"
-                                          name="value" use="optional"/>
-                        </xs:extension>
-                    </xs:simpleContent>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="text" minOccurs="0">
-                <xs:simpleType>
-                    <xs:restriction base="xs:string">
-                    </xs:restriction>
-                </xs:simpleType>
-            </xs:element>
-            <xs:element name="relates-to" minOccurs="0">
-                <xs:complexType>
-                    <xs:simpleContent>
-                        <xs:extension base="xs:string">
-                            <xs:attribute name="widget-id"
-                                          type="xs:string" use="required"/>
-                        </xs:extension>
-                    </xs:simpleContent>
-                </xs:complexType>
-            </xs:element>
-        </xs:sequence>
-        <xs:attribute type="xs:string" name="id" use="optional"/>
-        <xs:attribute type="con:fontWeightType" name="font-weight" use="optional"/>
-        <xs:attribute type="con:fontStyleType" name="font-style" use="optional"/>
-        <xs:attribute type="xs:string" name="font-size" use="optional"/>
-        <xs:attribute type="xs:string" name="pattern" use="optional"/>
+        <xs:choice maxOccurs="unbounded" minOccurs="0">
+            <xs:element type="con:fieldPathType" name="field-path"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:fontWeightType" name="font-weight"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:fontStyleType" name="font-style"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:fontSizeType" name="font-size"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:relatesToType" name="relates-to"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element name="text"/>
+            <xs:element type="con:patternType" name="pattern"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:allElementsEmptyMessageType" name="all-values-empty-message"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:rendererLabelType" name="renderer"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:choice>
+        <xs:attribute type="xs:string" name="id"/>
     </xs:complexType>
-    <xs:simpleType name="fontWeightType">
+    <xs:complexType name="relatesToType">
+        <xs:attribute type="xs:string"
+                      name="widget-id" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="rendererLabelType">
+        <xs:attribute type="xs:string" name="component-name"/>
+    </xs:complexType>
+    <xs:complexType name="allElementsEmptyMessageType">
+        <xs:attribute type="xs:string" name="value"/>
+    </xs:complexType>
+    <xs:complexType name="fontWeightType">
+        <xs:attribute type="con:fontWeightValueType" name="value" />
+    </xs:complexType>
+    <xs:complexType name="fontSizeType">
+        <xs:attribute type="xs:string" name="value" />
+    </xs:complexType>
+    <xs:complexType name="fontStyleType">
+        <xs:attribute type="con:fontStyleValueType" name="value" />
+    </xs:complexType>
+    <xs:simpleType name="fontWeightValueType">
         <xs:restriction base="xs:string">
             <xs:enumeration value="normal" />
             <xs:enumeration value="bold" />
@@ -1495,7 +1501,7 @@
             <xs:enumeration value="lighter" />
         </xs:restriction>
     </xs:simpleType>
-    <xs:simpleType name="fontStyleType">
+    <xs:simpleType name="fontStyleValueType">
         <xs:restriction base="xs:string">
             <xs:enumeration value="normal" />
             <xs:enumeration value="italic" />

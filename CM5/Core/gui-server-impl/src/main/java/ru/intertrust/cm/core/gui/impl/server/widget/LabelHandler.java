@@ -1,14 +1,15 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.DecimalValue;
 import ru.intertrust.cm.core.business.api.dto.LongValue;
 import ru.intertrust.cm.core.business.api.dto.TimestampValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.LabelConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.*;
+import ru.intertrust.cm.core.gui.api.server.widget.LabelRenderer;
 import ru.intertrust.cm.core.gui.api.server.widget.SingleObjectWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -31,24 +32,36 @@ public class LabelHandler extends SingleObjectWidgetHandler {
     @Autowired
     protected ConfigurationService configurationService;
 
+    @Autowired
+    private ApplicationContext applicationContext;
+
     @Override
     public LabelState getInitialState(WidgetContext context) {
         FieldPath[] fieldPaths = context.getFieldPaths();
         LabelConfig labelConfig = context.getWidgetConfig();
         LabelState state = new LabelState();
-        state.setFontSize(labelConfig.getFontSize());
-        state.setFontStyle(labelConfig.getFontStyle());
-        state.setFontWeight(labelConfig.getFontWeight());
-        if (fieldPaths[0] != null) {
-            String formattedString = format(labelConfig.getPattern(), fieldPaths, context);
-            state.setLabel(formattedString);
-            return state;
-        } else {
-            state.setLabel(labelConfig.getText());
-            state.setRelatedToRequiredField(isRelatedFieldRequired(context, labelConfig));
-
-            return state;
+        setStylesFromConfig(labelConfig, state);
+        String textFromConfig = labelConfig.getText();
+        if (textFromConfig != null) {
+            state.setLabel(textFromConfig);
         }
+        if (fieldPaths[0] != null) {
+            RendererConfig renderer = labelConfig.getRenderer();
+            String rendererName = renderer == null ? null : renderer.getValue();
+            if (rendererName != null){
+                LabelRenderer customLabelRenderer = (LabelRenderer) applicationContext.getBean(rendererName);
+                String composedText = customLabelRenderer.composeString(fieldPaths, context);
+                state.setLabel(composedText);
+            } else {
+            AllValuesEmptyMessageConfig allValuesEmptyMessage = labelConfig.getAllValuesEmptyMessage();
+            String allValuesEmpty = allValuesEmptyMessage == null ? "" : allValuesEmptyMessage.getValue();
+            String formattedString = format(labelConfig.getPattern().getValue(), fieldPaths, context, allValuesEmpty);
+            state.setLabel(formattedString);
+            }
+
+        }
+        state.setRelatedToRequiredField(isRelatedFieldRequired(context, labelConfig));
+        return state;
     }
 
     @Override
@@ -56,7 +69,7 @@ public class LabelHandler extends SingleObjectWidgetHandler {
         return null;
     }
 
-    private String format(String configPattern, FieldPath[] fieldPaths, WidgetContext context) {
+    private String format(String configPattern, FieldPath[] fieldPaths, WidgetContext context, String allValuesEmpty ) {
         final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("dd.MM.yyyy");
         String displayPattern = configPattern == null ? buildDefaultPattern(fieldPaths) : configPattern;
         Pattern pattern = Pattern.compile("\\{[\\w.]+\\}");
@@ -86,7 +99,7 @@ public class LabelHandler extends SingleObjectWidgetHandler {
             matcher.appendReplacement(replacement, displayValue);
         }
         if (allEmpty) {
-            return "";
+            return allValuesEmpty;
         }
 
         matcher.appendTail(replacement);
@@ -119,5 +132,18 @@ public class LabelHandler extends SingleObjectWidgetHandler {
             }
         }
         return false;
+    }
+
+    private void setStylesFromConfig(LabelConfig labelConfig, LabelState state) {
+        FontStyleConfig fontStyleConfig = labelConfig.getFontStyle();
+        FontWeightConfig fontWeightConfig = labelConfig.getFontWeight();
+        FontSizeConfig fontSizeConfig = labelConfig.getFontSize();
+        String fontSize = fontSizeConfig == null ? null : fontSizeConfig.getValue();
+        String fontStyle = fontStyleConfig == null ? null : fontStyleConfig.getValue();
+        String fontWeight = fontWeightConfig == null ? null : fontWeightConfig.getValue();
+        state.setFontSize(fontSize);
+        state.setFontStyle(fontStyle);
+        state.setFontWeight(fontWeight);
+
     }
 }

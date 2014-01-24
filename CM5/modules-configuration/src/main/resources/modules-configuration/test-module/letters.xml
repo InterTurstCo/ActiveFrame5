@@ -111,6 +111,7 @@
             <label id="addressees_label">
                 <text>Адресаты:</text>
             </label>
+
             <!--<list-box id="addressees">
                 <field-path value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
                 <pattern value="{Name}"/>
@@ -188,6 +189,9 @@
                                     <td h-align="left">
                                         <widget id="hyperlink"/>
                                     </td>
+                                    <td h-align="left">
+                                        <widget id="label_empty_values"/>
+                                    </td>
                                 </tr>
                             </table>
                         </tab-group>
@@ -198,16 +202,16 @@
         <widget-config>
             <label id="Name-Label">
                 <field-path/>
-                <text>Название:</text>
                 <relates-to widget-id="Name"/>
+                <text>Название:</text>
             </label>
             <text-box id="Name">
                 <field-path value="Name"/>
             </text-box>
 
             <label id="Department-Label">
-                <text>Департамент:</text>
                 <relates-to widget-id="Department"/>
+                <text>Департамент:</text>
             </label>
             <combo-box id="Department">
                 <field-path value="Department"/>
@@ -215,8 +219,8 @@
             </combo-box>
 
             <label id="positionLabel">
-                <text>Должность:</text>
                 <relates-to widget-id="position" />
+                <text>Должность:</text>
             </label>
             <text-box id="position">
                 <field-path value="Position"/>
@@ -226,6 +230,14 @@
                 <linked-form name="organization_default_form"/> <!-- форма, открывающаяся в модальном окне при нажатии на гиперссылку -->
                 <pattern value="{name}"/> <!-- в паттерне ссылки задаются относительно field-path -->
             </linked-domain-object-hyperlink>
+            <label id="label_empty_values">
+                <field-path value="phone, certificate"/>
+                <font-weight value="bolder"/>
+                <font-style value="italic"/>
+                <font-size value="8px"/>
+                <pattern value="{phone}, {certificate}"/>
+                <all-values-empty-message value="Номер телефона: сертификат:"/>
+            </label>
         </widget-config>
     </form>
 
@@ -266,16 +278,16 @@
         <widget-config>
             <label id="Name-Label">
                 <field-path/>
-                <text>Название:</text>
                 <relates-to widget-id="Name"/>
+                <text>Название:</text>
             </label>
             <text-box id="Name">
                 <field-path value="Name"/>
             </text-box>
 
             <label id="Organization-Label">
-                <text>Организация:</text>
                 <relates-to widget-id="Organization"/>
+                <text>Организация:</text>
             </label>
             <combo-box id="Organization">
                 <field-path value="Organization"/>
@@ -305,8 +317,8 @@
         <widget-config>
             <label id="Name-Label">
                 <field-path/>
-                <text>Название:</text>
                 <relates-to widget-id="Name" />
+                <text>Название:</text>
             </label>
             <text-box id="Name">
                 <field-path value="Name"/>

@@ -718,7 +718,6 @@ td.datePickerMonth {
 }
 .tree-label{
     text-decoration: none !important;
-    float: left;
     padding-right: 8px;
     cursor: pointer;
     padding-top: 8px;
