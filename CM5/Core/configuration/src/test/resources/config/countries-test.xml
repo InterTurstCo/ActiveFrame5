@@ -3,7 +3,7 @@
     <domain-object-type name="country">
         <fields>
             <string name="name" length="128" />
-            <dateTime name="independence_day"/>
+            <date-time name="independence_day"/>
             <long name="population"/>
             <decimal name="square" precision="9" scale="2"/>
             <reference name="capital" type="city"/>

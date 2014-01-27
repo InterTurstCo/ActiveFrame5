@@ -85,7 +85,7 @@
             <xs:element type="con:textType"
                         name="text" xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
-            <xs:element type="con:dateTimeType" name="dateTime"
+            <xs:element type="con:dateTimeType" name="date-time"
                         xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
             <xs:element type="con:dateTimeWithTimeZoneType"
