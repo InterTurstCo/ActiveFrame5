@@ -4,7 +4,7 @@
     <domain-object-type name="Outgoing_Document"> <!-- OUTGOING_DOCUMENT table -->
         <fields>
             <string name="Registration_Number" length="128" /> <!-- REGISTRATION_NUMBER column -->
-            <dateTime name="Registration_Date"/>
+            <date-time name="Registration_Date"/>
             <string name="Name" length="128" />
             <string name="Description" length="128" />
             <long name="Long_Field"/> <!-- mapping to LONG_FIELD column -->

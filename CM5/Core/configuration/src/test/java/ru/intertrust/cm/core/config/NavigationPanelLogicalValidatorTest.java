@@ -3,25 +3,20 @@ package ru.intertrust.cm.core.config;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import ru.intertrust.cm.core.config.base.Configuration;
-import ru.intertrust.cm.core.config.converter.TopLevelConfigurationCache;
+import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.powermock.api.support.membermodification.MemberMatcher.method;
 import static org.powermock.api.support.membermodification.MemberModifier.suppress;
 import static ru.intertrust.cm.core.config.Constants.*;
@@ -79,7 +74,7 @@ public class NavigationPanelLogicalValidatorTest {
     }
 
     private ConfigurationExplorer createConfigurationExplorer(String configPath) throws Exception {
-        TopLevelConfigurationCache.getInstance().build();
+        ConfigurationClassesCache.getInstance().build();
         ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
         configurationSerializer.setModuleService(createModuleService());
 

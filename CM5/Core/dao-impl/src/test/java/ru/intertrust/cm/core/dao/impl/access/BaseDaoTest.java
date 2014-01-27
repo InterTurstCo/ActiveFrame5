@@ -18,7 +18,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
-import ru.intertrust.cm.core.config.converter.TopLevelConfigurationCache;
+import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
@@ -94,7 +94,7 @@ public class BaseDaoTest {
     private static TransactionSynchronizationRegistry transactionSynchronizationRegistry = Mockito.mock(TransactionSynchronizationRegistry.class);
 
     protected static ConfigurationSerializer createConfigurationSerializer(String configPath) throws Exception {
-        TopLevelConfigurationCache.getInstance().build();
+        ConfigurationClassesCache.getInstance().build();
         ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
         Set<String> configPaths =
                 new HashSet<>(Arrays.asList(configPath, COLLECTIONS_CONFIG_PATH, SYSTEM_DOMAIN_OBJECTS_CONFIG_PATH, ACCESS_CONFIG_PATH,

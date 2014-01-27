@@ -2,7 +2,7 @@
    <domain-object-type name="Outgoing_Document">
       <fields>
          <string name="Registration_Number" not-null="false" length="128"/>
-         <dateTime name="Registration_Date" not-null="false"/>
+         <date-time name="Registration_Date" not-null="false"/>
          <string name="Name" not-null="false" length="128"/>
          <string name="Description" not-null="false" length="128"/>
          <reference name="Author" not-null="false" type="Employee"/>
@@ -162,7 +162,7 @@
    <domain-object-type name="Incoming_Document">
       <fields>
          <string name="Registration_Number" not-null="false" length="128"/>
-         <dateTime name="Registration_Date" not-null="false"/>
+         <date-time name="Registration_Date" not-null="false"/>
          <string name="Name" not-null="false" length="128"/>
          <string name="Description" not-null="false" length="128"/>
          <reference name="Author" not-null="false" type="Employee"/>
@@ -179,7 +179,7 @@
    <domain-object-type name="Incoming_Document2">
       <fields>
          <string name="Registration_Number" not-null="false" length="128"/>
-         <dateTime name="Registration_Date" not-null="false"/>
+         <date-time name="Registration_Date" not-null="false"/>
          <string name="Name" not-null="false" length="128"/>
          <string name="Description" not-null="false" length="128"/>
          <reference name="Author" not-null="false" type="Employee"/>

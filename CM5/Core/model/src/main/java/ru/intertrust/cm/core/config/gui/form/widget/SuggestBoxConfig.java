@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.config.gui.form.widget;
 
 import org.simpleframework.xml.Element;
+import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 
@@ -11,6 +12,7 @@ import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
  * Time: 16:02
  * To change this template use File | Settings | File Templates.
  */
+@Root(name = "suggest-box")
 public class SuggestBoxConfig extends WidgetConfig implements Dto {
 
     @Element(name = "collection-ref", required = false)

@@ -19,7 +19,7 @@
 			<string length="3"/>
 			<string name="Registration_Number" length="10"/>
 			<string name="Description" minLength="0" maxLength="20"/>
-			<dateTime name="Registration_Date" minValue="2010-02-13T00:00:00+03:00" maxValue="2014-02-13T00:00:00+03:00"/>
+			<date-time name="Registration_Date" minValue="2010-02-13T00:00:00+03:00" maxValue="2014-02-13T00:00:00+03:00"/>
 			<reference name="Author" type="Employee" />
 			<reference name="Attachment">
 				<object type="Attachment">

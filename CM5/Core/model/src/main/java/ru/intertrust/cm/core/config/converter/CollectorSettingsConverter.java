@@ -15,11 +15,11 @@ public class CollectorSettingsConverter implements Converter<CollectorSettings> 
     public CollectorSettings read(InputNode node) throws Exception {
         Strategy strategy = new AnnotationStrategy();
         Serializer serializer = new Persister(strategy);
-        TopLevelConfigurationCache topLevelConfigurationCache = TopLevelConfigurationCache.getInstance();
+        ConfigurationClassesCache configurationClassesCache = ConfigurationClassesCache.getInstance();
 
         InputNode customSettings = node.getNext();
 
-        Class collectorSettingsClass = topLevelConfigurationCache.getClassByTagName(customSettings.getName());
+        Class collectorSettingsClass = configurationClassesCache.getClassByTagName(customSettings.getName());
         return (CollectorSettings) serializer.read(collectorSettingsClass, customSettings);
     }
 

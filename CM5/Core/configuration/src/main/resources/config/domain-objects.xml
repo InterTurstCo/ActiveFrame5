@@ -6,7 +6,7 @@
     <domain-object-type name="Outgoing_Document" audit-log="true" initial-status="Active"> <!-- OUTGOING_DOCUMENT table -->
         <fields>
             <string name="Registration_Number" length="128" /> <!-- REGISTRATION_NUMBER column -->
-            <dateTime name="Registration_Date"/>
+            <date-time name="Registration_Date"/>
             <string name="Name" length="128" />
             <string name="Description" length="128" />
             <reference name="Author" type="Employee"/> <!-- ID of employee in fact -->
@@ -246,7 +246,7 @@
     <domain-object-type name="test_process_attachment">
         <fields>
             <string name="test_text" length="512"/>
-            <dateTime name="test_date"/>
+            <date-time name="test_date"/>
             <long name="test_long"/>
             <decimal name="test_decimal" precision="10" scale="2"/>
             <string name="new_field" length="512"/>
@@ -297,7 +297,7 @@
             <reference name="template_id" type="report_template"
                 not-null="true" />
             <reference name="owner" type="Person" not-null="false" />
-            <dateTime name="keep_to" not-null="false" />
+            <date-time name="keep_to" not-null="false" />
         </fields>
         <attachment-types>
             <attachment-type name="report_result_attachment"/>
@@ -322,10 +322,10 @@
             <long name="last_result" not-null="false"/>
             <text name="last_result_description" not-null="false"/>
             <long name="active" not-null="true"/>
-            <dateTime name="last_redy" not-null="false"/>
-            <dateTime name="last_wait" not-null="false"/>
-            <dateTime name="last_run" not-null="false"/>
-            <dateTime name="last_end" not-null="false"/>
+            <date-time name="last_redy" not-null="false"/>
+            <date-time name="last_wait" not-null="false"/>
+            <date-time name="last_run" not-null="false"/>
+            <date-time name="last_end" not-null="false"/>
         </fields>
         <uniqueKey>
             <field name="name" />
