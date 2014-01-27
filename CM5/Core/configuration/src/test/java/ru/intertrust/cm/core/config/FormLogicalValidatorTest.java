@@ -6,7 +6,7 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import ru.intertrust.cm.core.config.base.Configuration;
-import ru.intertrust.cm.core.config.converter.TopLevelConfigurationCache;
+import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
 
@@ -86,7 +86,7 @@ public class FormLogicalValidatorTest {
     }
 
     private ConfigurationExplorer createConfigurationExplorer(String configPath) throws Exception {
-        TopLevelConfigurationCache.getInstance().build();
+        ConfigurationClassesCache.getInstance().build();
         ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
         
         configurationSerializer.setModuleService(createModuleService(configPath));

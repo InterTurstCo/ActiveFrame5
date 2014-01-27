@@ -16,11 +16,11 @@ public class ScheduleTaskParametersConverter implements Converter<ScheduleTaskPa
     public ScheduleTaskParameters read(InputNode node) throws Exception {
         Strategy strategy = new AnnotationStrategy();
         Serializer serializer = new Persister(strategy);
-        TopLevelConfigurationCache topLevelConfigurationCache = TopLevelConfigurationCache.getInstance();
+        ConfigurationClassesCache configurationClassesCache = ConfigurationClassesCache.getInstance();
 
         InputNode customParameters = node.getNext();
 
-        Class<? extends ScheduleTaskParameters> parametersClass = topLevelConfigurationCache.getClassByTagName(customParameters.getName());
+        Class<? extends ScheduleTaskParameters> parametersClass = configurationClassesCache.getClassByTagName(customParameters.getName());
         return (ScheduleTaskParameters) serializer.read(parametersClass, customParameters);
     }
 

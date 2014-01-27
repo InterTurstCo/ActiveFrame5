@@ -12,7 +12,7 @@ import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.AuthenticationService;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
-import ru.intertrust.cm.core.config.converter.TopLevelConfigurationCache;
+import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 
@@ -49,7 +49,7 @@ public class ConfigurationControlServiceImplTest {
 
     @Before
     public void setUp() throws Exception {
-        TopLevelConfigurationCache.getInstance().build();
+        ConfigurationClassesCache.getInstance().build();
 
         configuration = createConfiguration();
         configurationService.setConfigurationExplorer(new ConfigurationExplorerImpl(configuration));
