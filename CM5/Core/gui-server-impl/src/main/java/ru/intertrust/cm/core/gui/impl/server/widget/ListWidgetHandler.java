@@ -10,5 +10,5 @@ import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
  *         Time: 04:59:31
  */
 
-public abstract class ValueListWidgetHandler extends LinkEditingWidgetHandler {
+public abstract class ListWidgetHandler extends LinkEditingWidgetHandler {
 }

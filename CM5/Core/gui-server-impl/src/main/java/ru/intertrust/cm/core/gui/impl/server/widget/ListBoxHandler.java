@@ -22,7 +22,7 @@ import java.util.List;
  *         Time: 16:25
  */
 @ComponentName("list-box")
-public class ListBoxHandler extends ValueListWidgetHandler {
+public class ListBoxHandler extends ListWidgetHandler {
     @Autowired
     protected CrudService crudService;
 

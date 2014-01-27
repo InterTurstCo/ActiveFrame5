@@ -10,7 +10,7 @@ import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.gui.api.server.widget.LabelRenderer;
-import ru.intertrust.cm.core.gui.api.server.widget.SingleObjectWidgetHandler;
+import ru.intertrust.cm.core.gui.api.server.widget.ValueEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
  *         Time: 17:04
  */
 @ComponentName("label")
-public class LabelHandler extends SingleObjectWidgetHandler {
+public class LabelHandler extends ValueEditingWidgetHandler {
 
     @Autowired
     protected ConfigurationService configurationService;

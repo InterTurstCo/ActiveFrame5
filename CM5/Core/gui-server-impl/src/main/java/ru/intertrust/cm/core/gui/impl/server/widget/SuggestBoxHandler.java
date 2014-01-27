@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
  * To change this template use File | Settings | File Templates.
  */
 @ComponentName("suggest-box")
-public class SuggestBoxHandler extends ValueListWidgetHandler {
+public class SuggestBoxHandler extends ListWidgetHandler {
 
     @Autowired
     CollectionsService collectionsService;
