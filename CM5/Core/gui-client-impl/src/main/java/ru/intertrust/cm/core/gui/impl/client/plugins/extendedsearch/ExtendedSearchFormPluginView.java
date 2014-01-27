@@ -2,6 +2,8 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.extendedsearch;
 
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.IsWidget;
+import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.form.FormPanel;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
@@ -23,6 +25,7 @@ import java.util.Map;
 public class ExtendedSearchFormPluginView extends PluginView {
 
     private FormPanel extendedSearchFormPanel;
+    private EventBus eventBus;
 
     public FormPanel getExtendedSearchFormPanel() {
         return extendedSearchFormPanel;
@@ -30,7 +33,8 @@ public class ExtendedSearchFormPluginView extends PluginView {
 
     public ExtendedSearchFormPluginView(ExtendedSearchFormPlugin extendedSearchFormPlugin, FormDisplayData formDisplayData) {
         super(extendedSearchFormPlugin);
-        extendedSearchFormPanel = new FormPanel(formDisplayData, true);
+        extendedSearchFormPanel = new FormPanel(formDisplayData, true, Application.getInstance().getEventBus());
+
     }
 
     public Map<String, WidgetState> getWidgetsState() {
