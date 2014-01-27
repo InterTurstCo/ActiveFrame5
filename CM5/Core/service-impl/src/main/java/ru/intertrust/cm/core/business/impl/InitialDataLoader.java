@@ -26,6 +26,7 @@ import ru.intertrust.cm.core.dao.access.DynamicGroupService;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
+import ru.intertrust.cm.core.dao.api.PersonServiceDao;
 
 /**
  * Класс, предназначенный для загрузки конфигурации доменных объектов
@@ -52,6 +53,9 @@ public class InitialDataLoader {
     
     @Autowired
     private PersonManagementServiceDao personManagementServiceDao;
+
+    @Autowired
+    private PersonServiceDao personServiceDao;
 
     @Autowired
     private DynamicGroupService dynamicGroupService;
@@ -176,7 +180,7 @@ public class InitialDataLoader {
     }
 
     private void addAdminUserToSuperUsers() {
-        Id adminId = personManagementServiceDao.getPersonId(ADMIN_LOGIN);
+        Id adminId = personServiceDao.findPersonByLogin(ADMIN_LOGIN).getId();
         Id superUsersGroupId = dynamicGroupService.getUserGroupByGroupName(GenericDomainObject.SUPER_USERS_STATIC_GROUP);
         if (adminId == null || superUsersGroupId == null) {
             throw new IllegalArgumentException("User admin or user group SuperUsers does't exists");

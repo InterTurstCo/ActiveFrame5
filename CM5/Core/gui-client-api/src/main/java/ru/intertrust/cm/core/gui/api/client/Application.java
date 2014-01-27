@@ -18,6 +18,7 @@ public class Application {
      * Шина событий приложения
      */
     private EventBus eventBus = null;
+    private CompactModeState compactModeState;
 
     /*
      * Метод получения экземпляра класса
@@ -36,8 +37,13 @@ public class Application {
         return eventBus;
     }
 
+    public CompactModeState getCompactModeState() {
+        return compactModeState;
+    }
+
     private Application() {
         // создаем шину сообщений
         eventBus = GWT.create(SimpleEventBus.class);
+        compactModeState = new CompactModeState();
     }
 }

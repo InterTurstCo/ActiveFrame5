@@ -42,31 +42,6 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
         this.accessControlService = accessControlService;
     }
 
-    /**
-     * Получение идентификатора персоны по логину
-     */
-    @Override
-    public Id getPersonId(String login) {
-        Filter filter = new Filter();
-        filter.setFilter("byLogin");
-        StringValue sv = new StringValue(login);
-        filter.addCriterion(0, sv);
-        List<Filter> filters = new ArrayList<>();
-        filters.add(filter);
-
-        AccessToken accessToken = accessControlService
-                .createSystemAccessToken("PersonManagementService");
-
-        IdentifiableObjectCollection collection = collectionsDao
-                .findCollection("PersonByLogin", filters, null, 0, 0,
-                        accessToken);
-        Id result = null;
-        if (collection.size() > 0) {
-            IdentifiableObject io = collection.get(0);
-            result = io.getId();
-        }
-        return result;
-    }
 
     /**
      * Получение персон входящих непосредственно в группу

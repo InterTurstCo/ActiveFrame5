@@ -6,19 +6,16 @@ import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 
 /**
  * @author Denis Mitavskiy
  *         Date: 15.10.13
  *         Time: 19:48
  */
-public class ListBoxState extends LinkEditingWidgetState {
+public class ListBoxState extends ListWidgetState {
     private ArrayList<ArrayList<Id>> selectedIds;
-    private LinkedHashMap<Id, String> listValues;
     private HashMap<Id, Integer> idFieldPathIndexMapping;
     private FieldPath[] fieldPaths;
-    private boolean singleChoice;
 
     public ArrayList<ArrayList<Id>> getSelectedIds() {
         return selectedIds;
@@ -28,28 +25,12 @@ public class ListBoxState extends LinkEditingWidgetState {
         this.selectedIds = selectedIds;
     }
 
-    public LinkedHashMap<Id, String> getListValues() {
-        return listValues;
-    }
-
-    public void setListValues(LinkedHashMap<Id, String> listValues) {
-        this.listValues = listValues;
-    }
-
     public FieldPath[] getFieldPaths() {
         return fieldPaths;
     }
 
     public void setFieldPaths(FieldPath[] fieldPaths) {
         this.fieldPaths = fieldPaths;
-    }
-
-    public boolean isSingleChoice() {
-        return singleChoice;
-    }
-
-    public void setSingleChoice(boolean singleChoice) {
-        this.singleChoice = singleChoice;
     }
 
     @Override
@@ -64,7 +45,7 @@ public class ListBoxState extends LinkEditingWidgetState {
         return result;
     }
 
-    public ArrayList<ArrayList<Id>> getFieldPathsIds() {
+    private ArrayList<ArrayList<Id>> getFieldPathsIds() {
         return selectedIds;
     }
 

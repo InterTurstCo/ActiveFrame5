@@ -286,6 +286,7 @@ public class CollectionPluginView extends PluginView {
 
                             value = new TimestampValue(date);
 
+
                         } else {
                             value = new StringValue("%" + searchBoxList.get(i).getText() + "%");
                         }

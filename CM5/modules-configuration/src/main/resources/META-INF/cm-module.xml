@@ -6,7 +6,7 @@
         <depend>core</depend>
     </depends>
     <extension-points-packages>
-        <extension-points-package>ru/intertrust/cm</extension-points-package>
+        <extension-points-package>ru/intertrust/cm/test</extension-points-package>
     </extension-points-packages>
     <gui-components-packages>
         <gui-components-package>ru</gui-components-package>

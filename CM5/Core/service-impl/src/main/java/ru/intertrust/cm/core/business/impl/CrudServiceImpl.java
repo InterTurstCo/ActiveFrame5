@@ -3,28 +3,33 @@ package ru.intertrust.cm.core.business.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.xml.sax.SAXException;
-
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.api.ExtensionService;
+import ru.intertrust.cm.core.dao.api.extension.AfterCreateExtentionHandler;
+import ru.intertrust.cm.core.dao.api.extension.BeforeDeleteExtensionHandler;
 import ru.intertrust.cm.core.model.CrudException;
 import ru.intertrust.cm.core.model.SystemException;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
-
 import javax.interceptor.Interceptors;
+
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -54,6 +59,10 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     @Autowired
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
+
+    @Autowired
+    private ExtensionService extensionService;
+    
     
     public void setCurrentUserAccessor(CurrentUserAccessor currentUserAccessor) {
         this.currentUserAccessor = currentUserAccessor;
@@ -89,9 +98,34 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         domainObject.setCreatedDate(currentDate);
         domainObject.setModifiedDate(currentDate);
 
+        //Точка расширения после создания
+        List<String> parentTypes = getAllParentTypes(name);
+        for (String typeName : parentTypes) {
+            AfterCreateExtentionHandler extension = extensionService.getExtentionPoint(AfterCreateExtentionHandler.class, typeName);
+            extension.onAfterCreate(domainObject);
+        }
+        
         return domainObject;
     }
 
+    /**
+     * Получение всей цепочки родительских типов начиная от переданноготв параметре
+     * @param name
+     * @return
+     */
+    private List<String> getAllParentTypes(String name) {
+        List<String> result = new ArrayList<String>();
+        result.add(name);
+
+        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
+                .getConfig(DomainObjectTypeConfig.class, name);
+        if (domainObjectTypeConfig.getExtendsAttribute() != null) {
+            result.addAll(getAllParentTypes(domainObjectTypeConfig.getExtendsAttribute()));
+        }
+
+        return result;
+    }    
+    
     @Override
     public DomainObject save(DomainObject domainObject) {
         checkForAttachment(domainObject.getTypeName());

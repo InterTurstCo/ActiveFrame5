@@ -10,7 +10,6 @@ import ru.intertrust.cm.core.gui.model.form.widget.ComboBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -31,7 +30,7 @@ public class ComboBoxWidget extends BaseWidget {
     @Override
     public void setCurrentState(WidgetState currentState) {
         ComboBoxState comboBoxState = (ComboBoxState) currentState;
-        Id selectedId = comboBoxState.getId();
+        Id selectedId = comboBoxState.getSelectedId();
         Map<Id,String> listValues = comboBoxState.getListValues();
         if (!isEditable()) {
             if (selectedId != null) {
@@ -59,14 +58,14 @@ public class ComboBoxWidget extends BaseWidget {
     public WidgetState getCurrentState() {
         ComboBoxState state = new ComboBoxState();
         if (!isEditable()) {
-            state.setId(nonEditableId);
+            state.setSelectedId(nonEditableId);
             return state;
         }
         ListBox listBox = (ListBox) impl;
         if (listBox.getItemCount() == 0) {
             return state;
         }
-        state.setId(idMap.get(listBox.getValue(listBox.getSelectedIndex())));
+        state.setSelectedId(idMap.get(listBox.getValue(listBox.getSelectedIndex())));
         return state;
     }
 

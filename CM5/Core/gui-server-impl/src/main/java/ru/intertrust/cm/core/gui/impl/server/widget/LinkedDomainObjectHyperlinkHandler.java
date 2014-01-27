@@ -5,14 +5,16 @@ import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedDomainObjectHyperlinkConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.PatternConfig;
-import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
+import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.LinkedDomainObjectHyperlinkState;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -24,17 +26,23 @@ import java.util.regex.Pattern;
  *         Time: 10:25
  */
 @ComponentName("linked-domain-object-hyperlink")
-public class LinkedDomainObjectHyperlinkHandler extends LinkEditingWidgetHandler {
+public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
     @Autowired
     ConfigurationService configurationService;
     @Autowired
     private CrudService crudService;
 
     @Override
+    public Value getValue(WidgetState state) {
+        Id id = ((LinkedDomainObjectHyperlinkState) state).getId();
+        return id == null ? null : new ReferenceValue(id);
+    }
+
+    @Override
     public LinkedDomainObjectHyperlinkState getInitialState(WidgetContext context) {
         LinkedDomainObjectHyperlinkConfig widgetConfig = context.getWidgetConfig();
+        Id parentId = context.getFormObjects().getRootNode().getDomainObject().getId();
         LinkedDomainObjectHyperlinkState state = new LinkedDomainObjectHyperlinkState();
-
         ArrayList<Id> selectedIds = context.getAllObjectIds();
         if (!selectedIds.isEmpty()) {
             Id id = selectedIds.get(0);
@@ -48,6 +56,7 @@ public class LinkedDomainObjectHyperlinkHandler extends LinkEditingWidgetHandler
             state.setConfig(config);
             state.setDomainObjectType(domainObject.getTypeName());
         }
+        state.setParentId(parentId);
         return state;
     }
 

@@ -8,17 +8,21 @@ import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
+import ru.intertrust.cm.core.gui.impl.client.action.SaveAction;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.FormDialogBox;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.NodeMetadata;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 
 import java.util.ArrayList;
 
@@ -30,9 +34,11 @@ import java.util.ArrayList;
 @ComponentName("hierarchy-browser")
 public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrowserCheckBoxUpdateEventHandler,
         HierarchyBrowserItemClickEventHandler, HierarchyBrowserNodeClickEventHandler,
-        HierarchyBrowserRefreshClickEventHandler, HierarchyBrowserSearchClickEventHandler, HierarchyBrowserScrollEventHandler, HierarchyBrowserAddItemClickEventHandler {
+        HierarchyBrowserRefreshClickEventHandler, HierarchyBrowserSearchClickEventHandler,
+        HierarchyBrowserScrollEventHandler, HierarchyBrowserAddItemClickEventHandler {
     private HierarchyBrowserConfig config;
     private HierarchyBrowserMainPopup mainPopup;
+    private HierarchyBrowserView hierarchyBrowserView;
     private EventBus eventBus = new SimpleEventBus();
     private boolean singleChoice;
 
@@ -47,6 +53,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         HierarchyBrowserWidgetState state = (HierarchyBrowserWidgetState) currentState;
         config = state.getHierarchyBrowserConfig();
         HierarchyBrowserView view = (HierarchyBrowserView) impl;
+        hierarchyBrowserView.drawClearButtonIfItIs(config.getClearAllButtonConfig());
         WidgetDisplayConfig displayConfig = getDisplayConfig();
         final ArrayList<HierarchyBrowserItem> chosenItems = state.getChosenItems();
         final ArrayList<Id> chosenIds = state.getIds();
@@ -94,7 +101,8 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
     @Override
     protected Widget asEditableWidget() {
-        return new HierarchyBrowserView(eventBus);
+         hierarchyBrowserView = new HierarchyBrowserView(eventBus);
+        return hierarchyBrowserView;
     }
 
     @Override
@@ -131,19 +139,25 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
     @Override
     public void onHierarchyBrowserItemClick(HierarchyBrowserItemClickEvent event) {
-        Id id = event.getItemId();
-        NodeMetadata nodeMetadata = event.getMetadata();
+        final Id id = event.getItemId();
+        final NodeMetadata nodeMetadata = event.getMetadata();
         final String title = nodeMetadata.getDomainObjectType();
         final FormPluginConfig config = new FormPluginConfig();
         config.setDomainObjectId(id);
         config.getPluginState().setEditable(false);
         final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(title);
-        noneEditableFormDialogBox.initFormPlugin(config);
+        config.getPluginState().setToggleEdit(true);
+        config.getPluginState().setInCentralPanel(true);
+        final FormPlugin formPlugin = noneEditableFormDialogBox.createFormPlugin(config);
         noneEditableFormDialogBox.initButton("Открыть в полном окне", new ClickHandler() {
 
             @Override
             public void onClick(ClickEvent event) {
-                //To change body of implemented methods use File | Settings | File Templates.
+                formPlugin.setDisplayActionToolBar(true);
+                formPlugin.setLocalEventBus(getEventBus());
+                Application.getInstance().getEventBus()
+                        .fireEvent(new CentralPluginChildOpeningRequestedEvent(formPlugin));
+                noneEditableFormDialogBox.hide();
             }
         });
         noneEditableFormDialogBox.initButton("Изменить", new ClickHandler() {
@@ -154,14 +168,24 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
                 config.getPluginState().setEditable(true);
                 final FormDialogBox editableFormDialogBox =
                         new FormDialogBox("Редактирование " + title);
-
+                final FormPlugin editableFormPlugin = editableFormDialogBox.createFormPlugin(config);
                 editableFormDialogBox.initButton("Изменить", new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
-                                    /*ActionContext ctx;
-                            final Action action = ComponentRegistry.instance.get(ctx.getActionConfig().getComponent());
-                            action.setInitialContext(ctx);
-                            action.execute();*/
+                        final SaveAction action = ComponentRegistry.instance.get("save.action");
+                        SaveActionContext saveActionContext = new SaveActionContext();
+                        saveActionContext.setRootObjectId(id);
+                        action.setInitialContext(saveActionContext);
+                        action.setPlugin(editableFormPlugin);
+                        action.addActionSuccessListener(new ActionSuccessListener() {
+                            @Override
+                            public void onSuccess() {
+                                editableFormDialogBox.hide();
+                                eventBus.fireEvent(new HierarchyBrowserRefreshClickEvent(nodeMetadata));
+                            }
+                        });
+                        action.execute();
+
                     }
                 });
                 editableFormDialogBox.initButton("Отмена", new ClickHandler() {
@@ -172,14 +196,18 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
                         config.getPluginState().setEditable(false);
                     }
                 });
-                editableFormDialogBox.initFormPlugin(config);
+
             }
 
         });
-        noneEditableFormDialogBox.initFormPlugin(config);
+      noneEditableFormDialogBox.initButton("Отмена", new ClickHandler() {
+          @Override
+          public void onClick(ClickEvent event) {
+             noneEditableFormDialogBox.hide();
+          }
+      });
 
     }
-
 
     @Override
     public void onHierarchyBrowserNodeClick(HierarchyBrowserNodeClickEvent event) {
@@ -234,18 +262,32 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
     @Override
     public void onHierarchyBrowserAddItemClick(HierarchyBrowserAddItemClickEvent event) {
-        NodeMetadata nodeMetadata = event.getMetadata();
+        final NodeMetadata nodeMetadata = event.getMetadata();
+        final Id parentId = nodeMetadata.getParentId();
         String domainObjectTypeToCreate = nodeMetadata.getDomainObjectType();
         String title = "Создать " + nodeMetadata.getDomainObjectType();
         FormPluginConfig config = new FormPluginConfig();
         config.setDomainObjectTypeToCreate(domainObjectTypeToCreate);
         config.getPluginState().setEditable(true);
         final FormDialogBox createItemDialogBox = new FormDialogBox(title);
-        createItemDialogBox.initFormPlugin(config);
+        final FormPlugin createFormPlugin = createItemDialogBox.createFormPlugin(config);
         createItemDialogBox.initButton("Cохранить", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                //To change body of implemented methods use File | Settings | File Templates.
+                final SaveAction action = ComponentRegistry.instance.get("save.action");
+                SaveActionContext saveActionContext = new SaveActionContext();
+                saveActionContext.setRootObjectId(parentId);
+                action.setInitialContext(saveActionContext);
+                action.setPlugin(createFormPlugin);
+                action.addActionSuccessListener(new ActionSuccessListener() {
+                    @Override
+                    public void onSuccess() {
+                        createItemDialogBox.hide();
+                        eventBus.fireEvent(new HierarchyBrowserRefreshClickEvent(nodeMetadata));
+                    }
+                });
+                action.execute();
+
             }
         });
         createItemDialogBox.initButton("Отмена", new ClickHandler() {

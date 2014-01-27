@@ -56,12 +56,14 @@ public class FormPluginHandler extends ActivePluginHandler {
 
     private static List<ActionContext> getActionContexts(final FormPluginState pluginState) {
         final List<ActionContext> contexts = new ArrayList<>();
+        if (pluginState.isInCentralPanel()) {
+            contexts.add(new ActionContext(createActionConfig("close.in.central.panel.action",
+                    "close.in.central.panel.action", "Закрыть", "icons/icon-edit-close.png")));
+        }
         if (pluginState.isToggleEdit()) {
             if (pluginState.isEditable()) {
                 contexts.add(new SaveActionContext(createActionConfig(
                         "save.action", "save.action", "Сохранить", "icons/icon-save.png")));
-                contexts.add(new ActionContext(createActionConfig("toggle.edit.off.action",
-                        "toggle.edit.off.action", "Завершить редактирование", "icons/icon-edit-close.png")));
             } else {
                 contexts.add(new ActionContext(createActionConfig(
                         "create.new.object.action", "create.new.object.action",
@@ -79,9 +81,6 @@ public class FormPluginHandler extends ActivePluginHandler {
                     "save.action", "save.action", "Сохранить", "icons/icon-save.png")));
             contexts.add(new SaveActionContext(createActionConfig(
                     "delete.action", "delete.action", "Удалить", "icons/icon-delete.png")));
-// Временно убрано из отображения
-//                contexts.add(new SaveToCSVContext(createActionConfig(
-//                        "save-csv.action", "save-csv.action", "Выгрузить в CSV", "icons/icon-edit.png")));
         }
         return contexts;
     }

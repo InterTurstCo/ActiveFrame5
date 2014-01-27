@@ -12,7 +12,7 @@ import org.springframework.context.ApplicationContext;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
-import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
+import ru.intertrust.cm.core.dao.api.PersonServiceDao;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 /**
@@ -21,8 +21,6 @@ import ru.intertrust.cm.core.util.SpringApplicationContext;
  *
  */
 public class CurrentUserAccessorImpl implements CurrentUserAccessor {
-
-    private Map<String, Id> personByLogin = new HashMap<String, Id>();
 
     private EJBContext ejbContext;
 
@@ -44,21 +42,13 @@ public class CurrentUserAccessorImpl implements CurrentUserAccessor {
     }
     
     public Id getCurrentUserId() {
-        Id personId = null;
         String login = getCurrentUser();
-        if (personByLogin.get(login) == null) {
-            personId = getPersonManagementServiceDao().getPersonId(login);
-            personByLogin.put(login, personId);
-        } else {
-            personId = personByLogin.get(login);
-
-        }
-        return personId;
+        return getPersonServiceDao().findPersonByLogin(login).getId();
     }
     
-    private PersonManagementServiceDao getPersonManagementServiceDao() {
+    private PersonServiceDao getPersonServiceDao() {
         ApplicationContext ctx = SpringApplicationContext.getContext();
-        return ctx.getBean(PersonManagementServiceDao.class);
+        return ctx.getBean(PersonServiceDao.class);
     }
 
     

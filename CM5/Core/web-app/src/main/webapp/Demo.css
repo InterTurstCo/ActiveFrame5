@@ -282,6 +282,7 @@ h1 {
     position: relative;
     margin: 0px;
     background-image: url("css/icons/icon-sidebar-buttons.png");
+
     background-repeat: no-repeat;
 }
 
@@ -1253,8 +1254,7 @@ my-suggest-box  {
     line-height: 18px;
     margin: 0;
     outline: medium none;
-    padding-left: 3px;
-    padding-top: 5px;
+    padding: 0 0 0 7px;
     vertical-align: middle;
 
 
@@ -1271,9 +1271,9 @@ my-suggest-box  {
     line-height: 18px;
     margin: 0;
     outline: medium none;
-    padding-left: 3px;
-    padding-top: 5px;
+    padding: 0 0 0 7px;
     vertical-align: middle;
+
 }
 
 .search-data-box::-ms-clear {

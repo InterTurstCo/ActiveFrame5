@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.config.gui.form.widget;
 
-import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
@@ -18,17 +17,23 @@ public class LabelConfig extends WidgetConfig implements Dto {
     @Element(name = "relates-to", required = false)
     private RelatesToConfig relatesTo;
 
-    @Attribute(name = "pattern", required = false)
-    private String pattern;
+    @Element(name = "pattern", required = false)
+    private PatternConfig pattern;
 
-    @Attribute(name = "font-weight", required = false)
-    private String fontWeight;
+    @Element(name = "font-weight", required = false)
+    private FontWeightConfig fontWeight;
 
-    @Attribute(name = "font-style", required = false)
-    private String fontStyle;
+    @Element(name = "font-style", required = false)
+    private FontStyleConfig fontStyle;
 
-    @Attribute(name = "font-size", required = false)
-    private String fontSize;
+    @Element(name = "font-size", required = false)
+    private FontSizeConfig fontSize;
+
+    @Element(name = "renderer", required = false)
+    private RendererConfig renderer;
+
+    @Element(name = "all-values-empty-message", required = false)
+    private AllValuesEmptyMessageConfig allValuesEmptyMessage;
 
     public String getText() {
         return text;
@@ -46,36 +51,52 @@ public class LabelConfig extends WidgetConfig implements Dto {
         this.relatesTo = relatesTo;
     }
 
-    public String getPattern() {
-        return pattern;
-    }
-
-    public void setPattern(String pattern) {
-        this.pattern = pattern;
-    }
-
-    public String getFontWeight() {
+    public FontWeightConfig getFontWeight() {
         return fontWeight;
     }
 
-    public void setFontWeight(String fontWeight) {
+    public void setFontWeight(FontWeightConfig fontWeight) {
         this.fontWeight = fontWeight;
     }
 
-    public String getFontStyle() {
+    public FontStyleConfig getFontStyle() {
         return fontStyle;
     }
 
-    public void setFontStyle(String fontStyle) {
+    public void setFontStyle(FontStyleConfig fontStyle) {
         this.fontStyle = fontStyle;
     }
 
-    public String getFontSize() {
+    public PatternConfig getPattern() {
+        return pattern;
+    }
+
+    public void setPattern(PatternConfig pattern) {
+        this.pattern = pattern;
+    }
+
+    public FontSizeConfig getFontSize() {
         return fontSize;
     }
 
-    public void setFontSize(String fontSize) {
+    public void setFontSize(FontSizeConfig fontSize) {
         this.fontSize = fontSize;
+    }
+
+    public RendererConfig getRenderer() {
+        return renderer;
+    }
+
+    public void setRenderer(RendererConfig renderer) {
+        this.renderer = renderer;
+    }
+
+    public AllValuesEmptyMessageConfig getAllValuesEmptyMessage() {
+        return allValuesEmptyMessage;
+    }
+
+    public void setAllValuesEmptyMessage(AllValuesEmptyMessageConfig allValuesEmptyMessage) {
+        this.allValuesEmptyMessage = allValuesEmptyMessage;
     }
 
     @Override
@@ -110,6 +131,13 @@ public class LabelConfig extends WidgetConfig implements Dto {
         if (text != null ? !text.equals(that.text) : that.text != null) {
             return false;
         }
+        if (renderer != null ? !renderer.equals(that.renderer) : that.renderer != null) {
+            return false;
+        }
+        if (allValuesEmptyMessage != null ? !allValuesEmptyMessage.equals(that.allValuesEmptyMessage) : that.
+                allValuesEmptyMessage != null) {
+            return false;
+        }
 
         return true;
     }
@@ -120,6 +148,8 @@ public class LabelConfig extends WidgetConfig implements Dto {
         result = 31 * result + (text != null ? text.hashCode() : 0);
         result = 31 * result + (relatesTo != null ? relatesTo.hashCode() : 0);
         result = 31 * result + (pattern != null ? pattern.hashCode() : 0);
+        result = 31 * result + (renderer != null ? renderer.hashCode() : 0);
+        result = 31 * result + (allValuesEmptyMessage != null ? allValuesEmptyMessage.hashCode() : 0);
         result = 31 * result + (fontWeight != null ? fontWeight.hashCode() : 0);
         result = 31 * result + (fontStyle != null ? fontStyle.hashCode() : 0);
         result = 31 * result + (fontSize != null ? fontSize.hashCode() : 0);

@@ -20,34 +20,34 @@
 
 }
 
-.search-box {
-    border: 0 none;
-    font-size: 11px;
-    width: 70px;
-    line-height: 18px;
-    margin: 0;
-    outline: medium none;
-    padding-left: 3px;
-    padding-top: 5px;
-    vertical-align: middle;
+/*.search-box {*/
+    /*border: 0 none;*/
+    /*font-size: 11px;*/
+    /*width: 70px;*/
+    /*line-height: 18px;*/
+    /*margin: 0;*/
+    /*outline: medium none;*/
+    /*padding-left: 3px;*/
+    /*padding-top: 5px;*/
+    /*vertical-align: middle;*/
 
-}
+/*}*/
 
-.search-data-box {
-    display: inline-block;
-    border: 0 none;
-    font-size: 11px;
-    width: 70px;
-    line-height: 18px;
-    margin: 0;
-    outline: medium none;
-    padding-left: 3px;
-    padding-top: 5px;
-    vertical-align: middle;
+/*.search-data-box {*/
+    /*display: inline-block;*/
+    /*border: 0 none;*/
+    /*font-size: 11px;*/
+    /*width: 70px;*/
+    /*line-height: 18px;*/
+    /*margin: 0;*/
+    /*outline: medium none;*/
+    /*padding-left: 3px;*/
+    /*padding-top: 5px;*/
+    /*vertical-align: middle;*/
 
 
 
-}
+/*}*/
 .search-data-box-{
 
     border: 0 none;
@@ -718,7 +718,6 @@ td.datePickerMonth {
 }
 .tree-label{
     text-decoration: none !important;
-    float: left;
     padding-right: 8px;
     cursor: pointer;
     padding-top: 8px;

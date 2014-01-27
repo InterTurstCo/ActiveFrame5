@@ -168,7 +168,7 @@
             </label>
 
             <label id="7">
-                <text>Столица:</text>
+                <renderer component-name="test.renderer"/>
             </label>
             <combo-box id="8">
                 <field-path value="capital"/>
@@ -232,6 +232,10 @@
                 <!-- количество элементов, показываемых в данном узле дерева изначально -->
                 <page-size>30</page-size>
             </hierarchy-browser>
+            <label id="15">
+                <field-path value="is_country_rich"/>
+                <pattern value="{name} {last_name}"/>
+            </label>
         </widget-config>
     </form>
     <form name="city_form" domain-object-type="city" is-default="true">

@@ -14,6 +14,7 @@ import ru.intertrust.cm.core.business.api.PersonManagementService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
+import ru.intertrust.cm.core.dao.api.PersonServiceDao;
 
 @Stateless(name = "PersonManagementService")
 @Local(PersonManagementService.class)
@@ -24,9 +25,12 @@ public class PersonManagementServiceImpl implements PersonManagementService {
     @Autowired
     private PersonManagementServiceDao personManagementServiceDao;
 
+    @Autowired
+    private PersonServiceDao personServiceDao;
+
     @Override
     public Id getPersonId(String login) {
-        return personManagementServiceDao.getPersonId(login);
+        return personServiceDao.findPersonByLogin(login).getId();
     }
 
     @Override

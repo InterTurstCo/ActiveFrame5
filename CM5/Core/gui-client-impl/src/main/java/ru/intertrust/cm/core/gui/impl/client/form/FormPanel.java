@@ -4,6 +4,7 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.*;
+import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.config.gui.form.*;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
@@ -31,17 +32,18 @@ public class FormPanel implements IsWidget {
     private boolean isWidthFromConfig;
     private List<TabConfig> tabs;
     private final boolean editable;
-
-    public FormPanel(FormDisplayData formDisplayData, final boolean editable, int width, int height) {
-        this(formDisplayData, editable);
+    private EventBus eventBus;
+    public FormPanel(FormDisplayData formDisplayData, final boolean editable, int width, int height, EventBus eventBus) {
+        this(formDisplayData, editable, eventBus);
         formWidth = width;
         formHeight = height;
 
     }
 
-    public FormPanel(FormDisplayData formDisplayData, final boolean editable) {
+    public FormPanel(FormDisplayData formDisplayData, final boolean editable, EventBus eventBus) {
         this.formDisplayData = formDisplayData;
         this.editable = editable;
+        this.eventBus = eventBus;
         panel = new FlowPanel();
         panel.getElement().setId("frm-pnl");
         panel.getElement().setClassName("tab-content");
@@ -50,7 +52,7 @@ public class FormPanel implements IsWidget {
     }
 
     public void updateSizes(int width, int height) {
-        panel.setSize(width -20 + "px", height + "px");
+        panel.setSize(width + "px", height + "px");
 
     }
 
@@ -77,15 +79,18 @@ public class FormPanel implements IsWidget {
 
 
     private FlowPanel build() {
-
         MarkupConfig markup = formDisplayData.getMarkup();
         if(markup.getHeader().getTableLayout() != null){
             IsWidget headerTable = buildHeader(markup);
             panel.add(headerTable);
         }
         buildTabs(markup);
-        if (formWidth != 0 ) {
-        panel.setWidth(formWidth-20 + "px");
+        if (formWidth > 0) {
+            panel.getElement().getStyle().setWidth(formWidth, Style.Unit.PX);
+        }
+        setFormMinWidth();
+        if (formHeight > 0) {
+            panel.getElement().getStyle().setHeight(formHeight, Style.Unit.PX);
         }
         bodyTabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
             @Override
@@ -120,16 +125,12 @@ public class FormPanel implements IsWidget {
         if (body.isDisplaySingleTab() == false && tabs.size() == 1) {
             bodyTabPanel = new TabLayoutPanel(0, Style.Unit.PX);
             bodyTabPanel.add(buildTabContent(tabs.get(0)));
-        }
-        else{
-
+        } else{
             bodyTabPanel = new TabLayoutPanel(35, Style.Unit.PX);
             for (TabConfig tab : tabs) {
                 bodyTabPanel.add(buildTabContent(tab), tab.getName());
             }
         }
-
-        setFormMinWidth();
         if (!tabs.isEmpty()) {
             bodyTabPanel.selectTab(0);
             bodyTabPanel.getTabWidget(0).getElement().getStyle().setProperty("backgroundColor", "white");
@@ -234,6 +235,7 @@ public class FormPanel implements IsWidget {
                 widget.setEditable(editable && widgetState.isEditable());
                 widget.setDisplayConfig(displayConfig);
                 widget.setState(widgetState);
+                widget.setEventBus(eventBus);
                 widgets.add(widget);
                 table.setWidget(rowIndex, colIndex, widget);
 

@@ -33,7 +33,7 @@ public class RadioButtonWidget extends BaseWidget {
     @Override
     public void setCurrentState(WidgetState currentState) {
         RadioButtonState radioButtonState = (RadioButtonState) currentState;
-        Id selectedId = radioButtonState.getId();
+        Id selectedId = radioButtonState.getSelectedId();
         Map<Id,String> listValues = radioButtonState.getListValues();
         layout = radioButtonState.getLayout();
         if (!isEditable()) {
@@ -71,7 +71,7 @@ public class RadioButtonWidget extends BaseWidget {
         RadioButtonState state = new RadioButtonState();
         state.setLayout(layout);
         if (!isEditable()) {
-            state.setId(nonEditableId);
+            state.setSelectedId(nonEditableId);
             return state;
         }
         Panel panel = (Panel) impl;
@@ -82,7 +82,7 @@ public class RadioButtonWidget extends BaseWidget {
         }
         for (RadioButton radioButton : radioButtons) {
             if (radioButton.getValue()) { // is selected
-                state.setId(idMap.get(radioButton.getText()));
+                state.setSelectedId(idMap.get(radioButton.getText()));
             }
         }
         return state;

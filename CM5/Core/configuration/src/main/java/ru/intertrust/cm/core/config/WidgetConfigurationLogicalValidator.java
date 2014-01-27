@@ -25,6 +25,7 @@ public class WidgetConfigurationLogicalValidator {
     private static final String WIDGET_TABLE_BROWSER = "table-browser";
     private static final String WIDGET_HIERARCHY_BROWSER = "hierarchy-browser";
     private static final String WIDGET_RADIO_BUTTON = "radio-button";
+    private static final String WIDGET_LABEL = "label";
     private static final String REFERENCE_FIELD_CONFIG_FULL_QUALIFIED_NAME =
             "ru.intertrust.cm.core.config.ReferenceFieldConfig";
 
@@ -211,7 +212,10 @@ public class WidgetConfigurationLogicalValidator {
             validateHierarchyBrowserWidget(widget, logicalErrors);
         } else if (thisIsRadioButtonWidget(componentName)) {
             validateRadioButtonWidget(widget, logicalErrors);
+        }  else if (thisIsLabelWidget(componentName)) {
+            validateLabelWidget(widget, logicalErrors);
         }
+
     }
 
     private void validateCheckBoxWidget(WidgetConfigurationToValidate widget, LogicalErrors logicalErrors) {
@@ -232,6 +236,10 @@ public class WidgetConfigurationLogicalValidator {
 
     }
 
+    private void validateLabelWidget(WidgetConfigurationToValidate widget, LogicalErrors logicalErrors) {
+        validateAllowedCombinationOfTags(widget, logicalErrors);
+    }
+
     private void validateHierarchyBrowserWidget(WidgetConfigurationToValidate widget, LogicalErrors logicalErrors) {
         HierarchyBrowserConfig config = (HierarchyBrowserConfig) widget.getWidgetConfig();
         NodeCollectionDefConfig nodeConfig = config.getNodeCollectionDefConfig();
@@ -244,6 +252,32 @@ public class WidgetConfigurationLogicalValidator {
 
     private void validateRadioButtonWidget(WidgetConfigurationToValidate widget, LogicalErrors logicalErrors) {
         validatePattern(widget, logicalErrors);
+    }
+
+    private void validateAllowedCombinationOfTags(WidgetConfigurationToValidate widget, LogicalErrors logicalErrors){
+        LabelConfig labelConfig = (LabelConfig) widget.getWidgetConfig();
+        String text = labelConfig.getText();
+        PatternConfig patternConfig = labelConfig.getPattern();
+        RendererConfig rendererConfig = labelConfig.getRenderer();
+        if (text != null && patternConfig != null){
+            String error = String.format("Widget with id '%s' has redundant tag <pattern>",
+                    labelConfig.getId());
+            logger.error(error);
+            logicalErrors.addError(error);
+        }
+        if (text != null && rendererConfig != null){
+            String error = String.format("Widget with id '%s' has redundant tag <renderer>",
+                    labelConfig.getId());
+            logger.error(error);
+            logicalErrors.addError(error);
+        }
+        if (text == null && rendererConfig != null && patternConfig != null){
+            String error = String.format("Widget with id '%s' has redundant tag <pattern>",
+                    labelConfig.getId());
+            logger.error(error);
+            logicalErrors.addError(error);
+        }
+
     }
 
     private void validatePattern(WidgetConfigurationToValidate widget, LogicalErrors logicalErrors) {
@@ -366,16 +400,6 @@ public class WidgetConfigurationLogicalValidator {
             }
     }
 
-    private List<String> getFiltersFromWidgetConfig(NodeCollectionDefConfig nodeConfig, List<String> filters) {
-      if (nodeConfig == null) {
-          return filters;
-      }
-      String filter = nodeConfig.getParentFilter();
-        filters.add(filter);
-        return  getFiltersFromWidgetConfig(nodeConfig.getNodeCollectionDefConfig(), filters);
-
-    }
-
     private List<String> getFiltersFromCollectionConfig(CollectionConfig config){
         List<String> filtersFromCollectionConfig = new ArrayList<String>();
         List<CollectionFilterConfig> filterConfigs = config.getFilters();
@@ -419,6 +443,9 @@ public class WidgetConfigurationLogicalValidator {
 
     private boolean thisIsRadioButtonWidget(String componentName) {
         return WIDGET_RADIO_BUTTON.equalsIgnoreCase(componentName);
+    }
+    private boolean thisIsLabelWidget(String componentName) {
+        return WIDGET_LABEL.equalsIgnoreCase(componentName);
     }
 
 }

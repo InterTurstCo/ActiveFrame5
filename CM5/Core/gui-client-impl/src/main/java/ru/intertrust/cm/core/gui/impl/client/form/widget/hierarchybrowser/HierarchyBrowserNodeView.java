@@ -52,16 +52,18 @@ public class HierarchyBrowserNodeView implements IsWidget {
         for (HierarchyBrowserItem item : items) {
             drawNodeChild(item, metadata);
         }
-        scroll.setHorizontalScrollPosition(0);
+
     }
 
     public void redrawNode(List<HierarchyBrowserItem> items, NodeMetadata nodeMetadata) {
+        scroll.setHorizontalScrollPosition(0);
         this.items = items;
         currentNodePanel.clear();
         for (HierarchyBrowserItem item : items) {
             drawNodeChild(item, nodeMetadata);
         }
-        scroll.setHorizontalScrollPosition(0);
+        factor = 0;
+
     }
 
 
@@ -127,7 +129,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
         anchor.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                eventBus.fireEvent(new HierarchyBrowserItemClickEvent(nodeMetadata,item.getId()));
+                eventBus.fireEvent(new HierarchyBrowserItemClickEvent(nodeMetadata, item.getId()));
 
             }
         });

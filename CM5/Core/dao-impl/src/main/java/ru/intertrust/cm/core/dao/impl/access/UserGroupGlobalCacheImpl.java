@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
+import ru.intertrust.cm.core.dao.api.PersonServiceDao;
 
 /**
  * Глобальный кеш. Кеширует информацию о пользователях: идентификатор пользователя для данного логина, вхождение
@@ -19,7 +20,7 @@ import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
  */
 public class UserGroupGlobalCacheImpl implements UserGroupGlobalCache {
 
-    private Map<String, Id> loginToUserIdCache = new HashMap<String, Id>();
+//    private Map<String, Id> loginToUserIdCache = new HashMap<String, Id>();
     
     private Map<Id, Boolean> personIdToIsSuperUserCache = new HashMap<Id, Boolean>();
     
@@ -28,20 +29,16 @@ public class UserGroupGlobalCacheImpl implements UserGroupGlobalCache {
     @Autowired    
     private PersonManagementServiceDao personManagementService;
 
+    @Autowired
+    private PersonServiceDao personService;
+
     public void setPersonManagementService(PersonManagementServiceDao personManagementService) {
         this.personManagementService = personManagementService;
     }
 
     @Override
     public Id getUserIdByLogin(String login) {
-        Id personId = null;
-        if (loginToUserIdCache.get(login) != null) {
-            personId = loginToUserIdCache.get(login);
-        } else {
-            personId = personManagementService.getPersonId(login);
-            loginToUserIdCache.put(login, personId);
-        }
-        return personId;
+        return personService.findPersonByLogin(login).getId();
     }
 
     private Id getSuperUsersGroupId() {
@@ -68,7 +65,6 @@ public class UserGroupGlobalCacheImpl implements UserGroupGlobalCache {
     @Override
     public void cleanCache() {
         personIdToIsSuperUserCache.clear();
-        loginToUserIdCache.clear();
     }
 
 }

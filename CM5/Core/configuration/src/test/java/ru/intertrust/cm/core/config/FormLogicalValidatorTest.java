@@ -5,7 +5,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.TopLevelConfigurationCache;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
@@ -14,14 +13,12 @@ import ru.intertrust.cm.core.config.module.ModuleService;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.powermock.api.support.membermodification.MemberMatcher.method;
 import static org.powermock.api.support.membermodification.MemberModifier.suppress;
-import static ru.intertrust.cm.core.config.Constants.*;
+import static ru.intertrust.cm.core.config.Constants.CONFIGURATION_SCHEMA_PATH;
+import static ru.intertrust.cm.core.config.Constants.DOMAIN_OBJECTS_CONFIG_PATH;
 /**
  * @author Yaroslav Bondacrhuk
  *         Date: 13/9/13
@@ -56,9 +53,12 @@ public class FormLogicalValidatorTest {
     @Test
     public void validateIncorrectForm() throws Exception {
 
-        String expectedMessage = ("Configuration of form with name 'country_form' was validated with errors.Count: 10 Content:\n"
+        String expectedMessage = ("Configuration of form with name 'country_form' was validated with errors.Count: 13 Content:\n"
                 + "h-align 'righ' is incorrect\n"
                 + "v-align 'middle' is incorrect\n"
+                + "Widget with id '1' has redundant tag <pattern>\n"
+                + "Widget with id '1' has redundant tag <renderer>\n"
+                + "Widget with id '3' has redundant tag <pattern>\n"
                 + "Pattern is empty for radio-button with id '8a'\n"
                 + "Pattern format is not valid for radio-button with id '8b'\n"
                 + "Incorrect pattern placeholder 'governor' found for domain object 'city' in radio-button with id '8c'\n"

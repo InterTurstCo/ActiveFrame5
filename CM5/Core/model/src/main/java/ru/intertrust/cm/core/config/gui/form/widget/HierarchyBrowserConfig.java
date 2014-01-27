@@ -20,6 +20,12 @@ public class HierarchyBrowserConfig extends WidgetConfig {
     @Element(name = "single-choice", required = false)
     private SingleChoiceConfig singleChoice;
 
+    @Element(name = "clear-all-button", required = false)
+    ClearAllButtonConfig clearAllButtonConfig;
+
+    @Element(name = "add-button", required = false)
+    AddButtonConfig addButtonConfig;
+
     public NodeCollectionDefConfig getNodeCollectionDefConfig() {
         return nodeCollectionDefConfig;
     }
@@ -42,6 +48,22 @@ public class HierarchyBrowserConfig extends WidgetConfig {
 
     public void setSingleChoice(SingleChoiceConfig singleChoice) {
         this.singleChoice = singleChoice;
+    }
+
+    public ClearAllButtonConfig getClearAllButtonConfig() {
+        return clearAllButtonConfig;
+    }
+
+    public void setClearAllButtonConfig(ClearAllButtonConfig clearAllButtonConfig) {
+        this.clearAllButtonConfig = clearAllButtonConfig;
+    }
+
+    public AddButtonConfig getAddButtonConfig() {
+        return addButtonConfig;
+    }
+
+    public void setAddButtonConfig(AddButtonConfig addButtonConfig) {
+        this.addButtonConfig = addButtonConfig;
     }
 
     @Override
@@ -70,6 +92,16 @@ public class HierarchyBrowserConfig extends WidgetConfig {
             return false;
         }
 
+        if (clearAllButtonConfig != null ? !clearAllButtonConfig.equals(that.clearAllButtonConfig) :
+                that.clearAllButtonConfig != null) {
+            return false;
+        }
+
+        if (addButtonConfig != null ? !addButtonConfig.equals(that.addButtonConfig) :
+                that.addButtonConfig != null) {
+            return false;
+        }
+
         return true;
     }
 
@@ -79,6 +111,8 @@ public class HierarchyBrowserConfig extends WidgetConfig {
         result = 31 * result + (singleChoice != null ? singleChoice.hashCode() : 0);
         result = 31 * result + (nodeCollectionDefConfig != null ? nodeCollectionDefConfig.hashCode() : 0);
         result = 31 * result + (pageSize != null ? pageSize.hashCode() : 0);
+        result = 31 * result + (clearAllButtonConfig != null ? clearAllButtonConfig.hashCode() : 0);
+        result = 31 * result + (addButtonConfig != null ? addButtonConfig.hashCode() : 0);
         return result;
     }
 

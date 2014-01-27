@@ -39,10 +39,7 @@ import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.dao.api.CollectionsDao;
-import ru.intertrust.cm.core.dao.api.DomainObjectDao;
-import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
-import ru.intertrust.cm.core.dao.api.StatusDao;
+import ru.intertrust.cm.core.dao.api.*;
 import ru.intertrust.cm.core.model.ProcessException;
 import ru.intertrust.cm.core.tools.DomainObjectAccessor;
 import ru.intertrust.cm.core.tools.Session;
@@ -71,8 +68,9 @@ public class ProcessServiceImpl implements ProcessService {
     @Autowired
     private DomainObjectDao domainObjectDao;
 
+
     @Autowired
-    private PersonManagementServiceDao personManagerService;
+    private PersonServiceDao personService;
 
     @Autowired
     private CollectionsDao collectionsDao;
@@ -170,7 +168,7 @@ public class ProcessServiceImpl implements ProcessService {
     public List<DomainObject> getUserTasks() {
         List<DomainObject> result = new ArrayList<DomainObject>();
         String personLogin = context.getCallerPrincipal().getName();
-        Id personId = personManagerService.getPersonId(personLogin);
+        Id personId = personService.findPersonByLogin(personLogin).getId();
         result = getUserTasks(personId);
         return result;
 
@@ -180,7 +178,8 @@ public class ProcessServiceImpl implements ProcessService {
     public List<DomainObject> getUserDomainObjectTasks(Id attachedObjectId) {
         List<DomainObject> result = new ArrayList<DomainObject>();
         String personLogin = context.getCallerPrincipal().getName();
-        Id personId = personManagerService.getPersonId(personLogin);
+        DomainObject personByLogin = personService.findPersonByLogin(personLogin);
+        Id personId = personByLogin.getId();
         if (personId != null){
             result = getUserDomainObjectTasks(attachedObjectId, personId);
         }
@@ -192,7 +191,7 @@ public class ProcessServiceImpl implements ProcessService {
             List<ProcessVariable> variables, String action) {
 
         String personLogin = context.getCallerPrincipal().getName();
-        Id personId = personManagerService.getPersonId(personLogin);
+        Id personId = personService.findPersonByLogin(personLogin).getId();
         // Костыль, нужно избавлятся от использования идентификатора как int или
         // long
         /*

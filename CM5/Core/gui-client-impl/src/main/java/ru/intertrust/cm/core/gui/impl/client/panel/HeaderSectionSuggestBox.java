@@ -53,12 +53,12 @@ public class HeaderSectionSuggestBox implements IsWidget{
         suggestBox.setStyleName("upper-suggestbox");
 
         sectionSuggestBox.add(decoratedSuggestBox);
-        sectionSuggestBox.add(secondImage);
+        //sectionSuggestBox.add(secondImage);
         decoratedSuggestBox.add(suggestBox);
 
         decoratedListSuggestBox.add(firstImage);
         decoratedListSuggestBox.add(sectionSuggestBox);
-
+        decoratedListSuggestBox.add(secondImage);
         rootSuggestDiv.add(decoratedListSuggestBox);
 
 

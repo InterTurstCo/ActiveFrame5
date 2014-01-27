@@ -106,7 +106,7 @@ public class SuggestBoxWidget extends BaseWidget {
             final int maxWidth = impl.getElement().getParentElement().getClientWidth() - 4;
             impl.getElement().getStyle().setProperty("maxWidth", maxWidth, Style.Unit.PX);
             final StringBuilder builder = new StringBuilder();
-            final HashMap<Id, String> listValues = state.getObjects();
+            final HashMap<Id, String> listValues = state.getListValues();
             for (final Map.Entry<Id, String> listEntry : listValues.entrySet()) {
                 builder.append(listEntry.getValue()).append(", ");
             }
@@ -214,7 +214,7 @@ public class SuggestBoxWidget extends BaseWidget {
                 getElement().getStyle().setProperty("maxWidth", maxWidth, Style.Unit.PX);
                 container.getStyle().setWidth(100, Style.Unit.PCT);
             }
-            final HashMap<Id, String> listValues = state.getObjects();
+            final HashMap<Id, String> listValues = state.getListValues();
             for (final Map.Entry<Id, String> listEntry : listValues.entrySet()) {
                 final SelectedItemComposite itemComposite =
                         new SelectedItemComposite(listEntry.getKey(), listEntry.getValue());

@@ -41,10 +41,10 @@ public class FormPluginView extends PluginView {
         super(plugin);
         // установка локальной шины событий
         this.eventBus = plugin.getLocalEventBus();
-        int formWidth = plugin.getOwner().getVisibleWidth();
-        int formHeight = plugin.getOwner().getVisibleHeight();
+        int formWidth = plugin.getOwner().asWidget().getElement().getClientWidth();
+        int formHeight = plugin.getOwner().asWidget().getElement().getClientHeight();
         final FormPluginState pluginState = plugin.getFormPluginState();
-        formPanel = new FormPanel(formDisplayData, pluginState.isEditable(), formWidth, formHeight);
+        formPanel = new FormPanel(formDisplayData, pluginState.isEditable(), formWidth, formHeight, eventBus);
         // добавляем обработчики
 //        addHandlers();
     }
@@ -78,6 +78,7 @@ public class FormPluginView extends PluginView {
             }
             String id = widget.getDisplayConfig().getId();
             if (widget.isEditable()) {
+
                 try {
                     WidgetState state = widget.getCurrentState();
                     result.put(id, state);

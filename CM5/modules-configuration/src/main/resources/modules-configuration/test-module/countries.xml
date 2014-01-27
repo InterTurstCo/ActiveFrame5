@@ -343,6 +343,7 @@
             </integer-box>
 
             <label id="5">
+                <field-path/>
                 <text>Площадь:</text>
             </label>
             <decimal-box id="6">
@@ -382,6 +383,8 @@
                 <!--name может принимать 2 значения inline (стиль Студии Лебедева) и table (текущая реализация).
                     Если тэг отсутствует, то используется "inline"-вариант. -->
                 <selection-style name="inline"/>
+                <clear-all-button image="css/images/clear.png" text="Очистить"/>
+                <add-button image="..." text="..."/>
 
             </suggest-box>
             <suggest-box id="suggest_capital">
@@ -461,12 +464,18 @@
             font-style: normal | italic | oblique
             font-weight: bold | bolder | lighter | normal
             -->
-            <label id="summary" pattern="{name}, {population}. День независимости: {independence_day}, столица: {capital.name}" font-weight="bolder" font-style="italic" font-size="8px">
+            <label id="summary">
                 <field-path value="name, population, independence_day, capital.name"/>
+                <font-weight value="bolder"/>
+                <font-style value="italic"/>
+                <font-size value="8px"/>
+                <pattern value="{name}, {population}. День независимости: {independence_day}, столица: {capital.name}"/>
+                <all-values-empty-message value="День независимости: столица:"/>
             </label>
 
             <label id="11">
-                <text>Описание:</text>
+                <field-path value="name, population, independence_day, capital.name"/>
+                <renderer component-name="country.summary.message.renderer"/>
             </label>
             <text-area id="12">
                 <field-path value="description"/>
@@ -510,6 +519,8 @@
                 <display-chosen-values value="false"/>
                 <selection-style name="inline"/>
                 <single-choice value="false"/>
+                <clear-all-button image="css/images/clear.png" text="Очистить"/>
+                <add-button image="..." text="..."/>
             </table-browser>
 
         </widget-config>

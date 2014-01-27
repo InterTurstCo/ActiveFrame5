@@ -5,13 +5,13 @@ package ru.intertrust.cm.core.gui.model.form.widget;
  *         Date: 14.09.13
  *         Time: 11:42
  */
-public class TextBoxState extends ValueEditingWidgetState {
+public class TextState extends ValueEditingWidgetState {
     private String text;
 
-    public TextBoxState() {
+    public TextState() {
     }
 
-    public TextBoxState(String text) {
+    public TextState(String text) {
         this.text = text;
     }
 

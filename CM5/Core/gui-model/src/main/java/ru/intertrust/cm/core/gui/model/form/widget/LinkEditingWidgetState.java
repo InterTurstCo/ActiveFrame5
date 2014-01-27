@@ -13,7 +13,7 @@ import java.util.ArrayList;
  *         Time: 22:13
  */
 public abstract class LinkEditingWidgetState extends ValueEditingWidgetState {
-    protected boolean singleChoice;
+    private boolean singleChoice;
 
     public boolean isSingleChoice() {
         return singleChoice;
@@ -25,7 +25,4 @@ public abstract class LinkEditingWidgetState extends ValueEditingWidgetState {
 
     public abstract ArrayList<Id> getIds();
 
-    public ArrayList<ArrayList<Id>> getFieldPathsIds() {
-        return null;
-    }
 }

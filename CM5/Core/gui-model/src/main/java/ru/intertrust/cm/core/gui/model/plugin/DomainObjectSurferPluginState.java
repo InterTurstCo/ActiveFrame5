@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.gui.model.plugin;
 /**
  * @author Sergey.Okolot
  */
-public class DomainObjectSurferPluginState extends PluginState {
+public class DomainObjectSurferPluginState implements PluginState {
     private boolean toggleEdit;
 
     public boolean isToggleEdit() {
@@ -18,7 +18,6 @@ public class DomainObjectSurferPluginState extends PluginState {
     public DomainObjectSurferPluginState createClone() {
         final DomainObjectSurferPluginState clone = new DomainObjectSurferPluginState();
         clone.toggleEdit = this.toggleEdit;
-        fillCloneSuperData(clone);
         return clone;
     }
 }

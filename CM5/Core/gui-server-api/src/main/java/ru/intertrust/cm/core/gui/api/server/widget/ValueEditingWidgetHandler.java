@@ -5,5 +5,5 @@ package ru.intertrust.cm.core.gui.api.server.widget;
  *         Date: 14.10.13
  *         Time: 14:58
  */
-public abstract class SingleObjectWidgetHandler extends WidgetHandler {
+public abstract class ValueEditingWidgetHandler extends WidgetHandler {
 }

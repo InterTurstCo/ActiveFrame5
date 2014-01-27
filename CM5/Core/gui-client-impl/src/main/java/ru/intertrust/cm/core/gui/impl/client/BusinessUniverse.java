@@ -34,7 +34,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     static Logger logger = Logger.getLogger("Business universe");
     // глобальная шина событий - доступна во всем приложении
     private static EventBus eventBus = Application.getInstance().getEventBus();
-    private PluginPanel centralPluginPanel;
+    private CentralPluginPanel centralPluginPanel;
     NavigationTreePlugin navigationTreePlugin;
     PluginPanel navigationTreePanel;
     private int centralPluginWidth;
@@ -93,7 +93,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 // данному плагину устанавливается глобальная шина событий
                 navigationTreePlugin.setEventBus(eventBus);
 
-                centralPluginPanel = new PluginPanel();
+                centralPluginPanel = new CentralPluginPanel();
                 centralPluginWidth = Window.getClientWidth() - 130;
                 centralPluginHeight = Window.getClientHeight() - 120;
                 // header 60 ;
@@ -104,6 +104,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
                 centralPluginPanel.setVisibleWidth(centralPluginWidth);
                 centralPluginPanel.setVisibleHeight(centralPluginHeight);
+                eventBus.addHandler(CentralPluginChildOpeningRequestedEvent.TYPE, centralPluginPanel);
                 eventBus.addHandler(NavigationTreeItemSelectedEvent.TYPE, BusinessUniverse.this);
                 navigationTreePanel.setVisibleWidth(130);
                 navigationTreePanel.open(navigationTreePlugin);
@@ -266,6 +267,14 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     @Override
     public Component createNew() {
         return new BusinessUniverse();
+    }
+
+    private static class CentralPluginPanel extends PluginPanel implements CentralPluginChildOpeningRequestedHandler {
+        @Override
+        public void openChildPlugin(CentralPluginChildOpeningRequestedEvent event) {
+            final Plugin child = event.getOpeningChildPlugin();
+            this.openChild(child);
+        }
     }
 
 }

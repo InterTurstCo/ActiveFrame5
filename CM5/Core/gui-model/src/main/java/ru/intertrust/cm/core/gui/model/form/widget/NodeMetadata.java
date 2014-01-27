@@ -4,11 +4,9 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 
 /**
- * Created with IntelliJ IDEA.
- * User: User
- * Date: 15.01.14
- * Time: 19:10
- * To change this template use File | Settings | File Templates.
+ * @author Yaroslav Bondarchuk
+ *         Date: 26.12.13
+ *         Time: 11:15
  */
 public class NodeMetadata implements Dto{
     private String collectionName;

@@ -1524,6 +1524,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             if (fieldConfig instanceof ReferenceFieldConfig) {
                 query.append(", ").append(tableAlias).append(".")
                         .append(wrap(getReferenceTypeColumnName(fieldConfig.getName())));
+            } else if (fieldConfig instanceof DateTimeWithTimeZoneFieldConfig) {
+                query.append(", ").append(tableAlias).append(".")
+                        .append(wrap(getTimeZoneIdColumnName(fieldConfig.getName())));
             }
         }
 

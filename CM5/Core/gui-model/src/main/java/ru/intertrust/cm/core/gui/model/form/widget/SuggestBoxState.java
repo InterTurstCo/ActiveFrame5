@@ -4,7 +4,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.SuggestBoxConfig;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,20 +13,17 @@ import java.util.LinkedHashMap;
  * Time: 16:22
  * To change this template use File | Settings | File Templates.
  */
-public class SuggestBoxState extends LinkEditingWidgetState {
-
+public class SuggestBoxState extends ListWidgetState {
+    private ArrayList<Id> selectedIds;
     private SuggestBoxConfig suggestBoxConfig;
-
-    public LinkedHashMap<Id, String> getObjects() {
-        return objects;
-    }
 
     public ArrayList<Id> getSelectedIds() {
         return selectedIds;
     }
 
-    private LinkedHashMap<Id, String> objects;
-    private ArrayList<Id> selectedIds;
+    public void setSelectedIds(ArrayList<Id> selectedIds) {
+        this.selectedIds = selectedIds;
+    }
 
     @Override
     public ArrayList<Id> getIds() {
@@ -39,14 +36,6 @@ public class SuggestBoxState extends LinkEditingWidgetState {
 
     public void setSuggestBoxConfig(SuggestBoxConfig suggestBoxConfig) {
         this.suggestBoxConfig = suggestBoxConfig;
-    }
-
-    public void setObjects(LinkedHashMap<Id, String> objects) {
-        this.objects = objects;
-    }
-
-    public void setSelectedIds(ArrayList<Id> selectedIds) {
-        this.selectedIds = selectedIds;
     }
 
 }

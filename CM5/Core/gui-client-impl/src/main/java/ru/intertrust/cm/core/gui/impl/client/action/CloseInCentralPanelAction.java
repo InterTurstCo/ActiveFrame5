@@ -9,8 +9,8 @@ import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
 /**
  * @author Sergey.Okolot
  */
-@ComponentName("toggle.edit.off.action")
-public class ToggleEditOffAction extends Action {
+@ComponentName("close.in.central.panel.action")
+public class CloseInCentralPanelAction extends Action {
 
     @Override
     public void execute() {
@@ -24,6 +24,6 @@ public class ToggleEditOffAction extends Action {
 
     @Override
     public Component createNew() {
-        return new ToggleEditOffAction();
+        return new CloseInCentralPanelAction();
     }
 }
