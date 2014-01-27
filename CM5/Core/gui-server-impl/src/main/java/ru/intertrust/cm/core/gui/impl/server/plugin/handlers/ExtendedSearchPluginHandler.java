@@ -158,7 +158,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
 
                 if (plainValue != null) {
                     // проверка по виджетам (для отладки получения значений от полей формы поиска) ВРЕМЕННО !!!
-                    if (widgetState instanceof TextBoxState)
+                    if (widgetState instanceof TextState)
                         extendedSearchData.getSearchQuery().addFilter(new TextSearchFilter(key, value.toString()));
                     if (widgetState instanceof ComboBoxState) {
                         OneOfListFilter filter = new OneOfListFilter(key);
