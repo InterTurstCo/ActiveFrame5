@@ -10,7 +10,7 @@ import java.util.ArrayList;
  *         Date: 14.01.14
  *         Time: 10:25
  */
-public class LinkedDomainObjectHyperlinkState extends ValueEditingWidgetState {
+public class LinkedDomainObjectHyperlinkState extends LinkEditingWidgetState {
     private String stringRepresentation;
     private Id id;
     private FormPluginConfig config;
@@ -56,4 +56,8 @@ public class LinkedDomainObjectHyperlinkState extends ValueEditingWidgetState {
         this.domainObjectType = domainObjectType;
     }
 
+    @Override
+    public ArrayList<Id> getIds() {
+        return null;
+    }
 }

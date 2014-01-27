@@ -47,7 +47,6 @@ public class LinkedDomainObjectHyperlinkWidget extends BaseWidget {
             public void onClick(ClickEvent event) {
                 final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(domainObjectType);
                 final FormPluginConfig config = new FormPluginConfig();
-                config.setDomainObjectTypeToCreate(domainObjectType);
                 config.setDomainObjectId(id);
                 config.getPluginState().setToggleEdit(true);
                 config.getPluginState().setInCentralPanel(true);
@@ -69,7 +68,6 @@ public class LinkedDomainObjectHyperlinkWidget extends BaseWidget {
                         noneEditableFormDialogBox.hide();
 
                         final FormPluginConfig config = new FormPluginConfig();
-                        config.setDomainObjectTypeToCreate(domainObjectType);
                         config.setDomainObjectId(id);
                         config.getPluginState().setEditable(true);
                         final FormDialogBox editableFormDialogBox =

@@ -183,7 +183,7 @@ public class NavigationTreePluginView extends PluginView {
                 TreeItem tempItem = event.getSelectedItem();
                 if (previousSelectedItem != null && previousSelectedItem != tempItem) {
                     previousSelectedItem.removeStyleName("synchronized");
-                    previousSelectedItem.getElement().getFirstChildElement().removeClassName("gwt-custom-TreeItem-selected");
+                    previousSelectedItem.removeStyleName("gwt-custom-TreeItem-selected");
                 }
                 TreeItem parent = tempItem.getParentItem();
                 tempItem.getTree().setSelectedItem(parent, false);
@@ -199,7 +199,7 @@ public class NavigationTreePluginView extends PluginView {
                     }
                 }
                 tempItem.addStyleName("gwt-custom-white");
-                tempItem.getElement().getFirstChildElement().addClassName("gwt-custom-TreeItem-selected");
+                tempItem.addStyleName("gwt-custom-TreeItem-selected");
                 Map<String, Object> treeItemUserObject = (Map<String, Object>) tempItem.getUserObject();
                 if (treeItemUserObject != null) {
                 Application.getInstance().getEventBus().fireEventFromSource(

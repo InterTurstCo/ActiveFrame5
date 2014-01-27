@@ -475,7 +475,7 @@
 
             <label id="11">
                 <field-path value="name, population, independence_day, capital.name"/>
-                <renderer component-name="country.summary.message.renderer"/>
+                <renderer component-name="custom.renderer"/>
             </label>
             <text-area id="12">
                 <field-path value="description"/>
