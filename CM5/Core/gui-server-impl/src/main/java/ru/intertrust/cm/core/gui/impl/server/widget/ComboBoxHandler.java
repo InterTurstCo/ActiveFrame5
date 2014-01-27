@@ -11,7 +11,6 @@ import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.widget.ComboBoxState;
-import ru.intertrust.cm.core.gui.model.form.widget.SingleSelectionWidgetState;
 
 import java.util.LinkedHashMap;
 import java.util.List;
