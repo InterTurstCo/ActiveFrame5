@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import ru.intertrust.cm.core.business.api.dto.DecimalValue;
 import ru.intertrust.cm.core.business.api.dto.LongValue;
-import ru.intertrust.cm.core.business.api.dto.TimestampValue;
+import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.gui.api.server.widget.LabelRenderer;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
@@ -36,7 +36,7 @@ public class CountryLabelRenderer extends LabelRenderer {
                     }
                 } else {
 
-                    if (value instanceof TimestampValue) {
+                    if (value instanceof DateTimeValue) {
                         displayValue = DATE_FORMATTER.format(primitiveValue);
                         sb.append(displayValue);
                         sb.append(" ");

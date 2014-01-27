@@ -53,8 +53,8 @@ public class GenericIdentifiableObjectTest {
         calendar.set(2000, 02, 12);
         object.setTimestamp("field", calendar.getTime());
         Assert.assertEquals(calendar.getTime(), object.getTimestamp("field"));
-        Assert.assertTrue(object.getValue("field") instanceof TimestampValue);
-        Assert.assertEquals(new TimestampValue(calendar.getTime()), object.getValue("field"));
+        Assert.assertTrue(object.getValue("field") instanceof DateTimeValue);
+        Assert.assertEquals(new DateTimeValue(calendar.getTime()), object.getValue("field"));
     }
 
     @Test

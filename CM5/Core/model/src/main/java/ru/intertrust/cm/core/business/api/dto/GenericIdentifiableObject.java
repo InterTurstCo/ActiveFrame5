@@ -152,7 +152,7 @@ public class GenericIdentifiableObject implements IdentifiableObject {
     @Override
     public void setTimestamp(String field, Date value) {
         if (value != null) {
-            fieldValues.put(getLowerCaseKey(field), new TimestampValue(value));
+            fieldValues.put(getLowerCaseKey(field), new DateTimeValue(value));
             originalKeys.add(field);
         } else {
             fieldValues.remove(getLowerCaseKey(field));
@@ -163,7 +163,7 @@ public class GenericIdentifiableObject implements IdentifiableObject {
 
     @Override
     public Date getTimestamp(String field) {
-        TimestampValue value = getValue(field);
+        DateTimeValue value = getValue(field);
         return value == null ? null : value.get();
     }
 

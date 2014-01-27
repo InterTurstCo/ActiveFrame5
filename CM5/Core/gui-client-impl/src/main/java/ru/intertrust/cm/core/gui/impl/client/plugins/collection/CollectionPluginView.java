@@ -284,7 +284,7 @@ public class CollectionPluginView extends PluginView {
                             Date date = new Date();
                             date = searchBoxList.get(i).getDate();
 
-                            value = new TimestampValue(date);
+                            value = new DateTimeValue(date);
 
 
                         } else {

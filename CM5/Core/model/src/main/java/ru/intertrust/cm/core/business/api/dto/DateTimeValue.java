@@ -8,20 +8,20 @@ import java.util.Date;
  * Date: 19.05.13
  * Time: 16:20
  */
-public class TimestampValue extends Value {
+public class DateTimeValue extends Value {
     private Date value;
 
     /**
      * Создаёт пустое значение поля доменного объекта, определяющее дату и время
      */
-    public TimestampValue() {
+    public DateTimeValue() {
     }
 
     /**
      * Создаёт значение поля доменного объекта, определяющее дату и время
      * @param value значение
      */
-    public TimestampValue(Date value) {
+    public DateTimeValue(Date value) {
         this.value = value;
     }
 

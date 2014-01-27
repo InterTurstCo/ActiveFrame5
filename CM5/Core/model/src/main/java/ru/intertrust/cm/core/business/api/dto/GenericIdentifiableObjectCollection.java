@@ -289,18 +289,18 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
 
         @Override
         public void setTimestamp(String field, Date value) {
-            fieldValues.set(collection.getFieldIndex(field), new TimestampValue(value));
+            fieldValues.set(collection.getFieldIndex(field), new DateTimeValue(value));
             dirty = true;
         }
 
         public void setTimestamp(int index, Date value) {
-            fieldValues.set(index, new TimestampValue(value));
+            fieldValues.set(index, new DateTimeValue(value));
             dirty = true;
         }
 
         @Override
         public Date getTimestamp(String field) {
-            return this.<TimestampValue>getValue(field).get();
+            return this.<DateTimeValue>getValue(field).get();
         }
 
         @Override
@@ -320,7 +320,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         }
 
         public Date getTimestamp(int index) {
-            return this.<TimestampValue>getValue(index).get();
+            return this.<DateTimeValue>getValue(index).get();
         }
 
         @Override

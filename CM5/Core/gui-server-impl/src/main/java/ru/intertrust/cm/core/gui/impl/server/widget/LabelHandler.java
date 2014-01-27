@@ -3,9 +3,9 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
+import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
 import ru.intertrust.cm.core.business.api.dto.DecimalValue;
 import ru.intertrust.cm.core.business.api.dto.LongValue;
-import ru.intertrust.cm.core.business.api.dto.TimestampValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.*;
@@ -89,7 +89,7 @@ public class LabelHandler extends ValueEditingWidgetHandler {
                     }
                 } else {
                     allEmpty = false;
-                    if (value instanceof TimestampValue) {
+                    if (value instanceof DateTimeValue) {
                         displayValueUnescaped = DATE_FORMATTER.format(primitiveValue);
                     } else {
                         displayValueUnescaped = primitiveValue.toString();

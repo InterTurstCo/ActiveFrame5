@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
-import ru.intertrust.cm.core.business.api.dto.TimestampValue;
+import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.gui.api.server.widget.ValueEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
@@ -24,6 +24,6 @@ public class DateBoxHandler extends ValueEditingWidgetHandler {
 
     @Override
     public Value getValue(WidgetState state) {
-        return new TimestampValue(((DateBoxState) state).getDate());
+        return new DateTimeValue(((DateBoxState) state).getDate());
     }
 }

@@ -24,11 +24,8 @@ import java.util.Calendar;
 import java.util.Hashtable;
 import java.util.List;
 
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.LongValue;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.business.api.dto.TimestampValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
 import ru.intertrust.cm.core.jdbc.JdbcDriver.ConnectMode;
 
 public class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
@@ -73,9 +70,9 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
             } else if (value instanceof Long) {
                 parameter = new LongValue((Long)value);
             } else if (value instanceof Timestamp) {
-                parameter = new TimestampValue(new Date(((Timestamp)value).getTime()));
+                parameter = new DateTimeValue(new Date(((Timestamp)value).getTime()));
             } else if (value instanceof Date) {
-                parameter = new TimestampValue((Date)value);
+                parameter = new DateTimeValue((Date)value);
             } else {
                 parameter = new StringValue(value.toString());
             } 

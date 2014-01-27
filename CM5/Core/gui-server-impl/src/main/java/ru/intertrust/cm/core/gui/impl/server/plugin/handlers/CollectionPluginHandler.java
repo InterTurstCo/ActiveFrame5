@@ -300,7 +300,7 @@ public class CollectionPluginHandler extends PluginHandler {
         for (int i = 0; i < result.size(); ++i) {
             Filter filter = result.get(i);
             final Value criterion = filter.getCriterion(0);
-            if (criterion instanceof TimestampValue) {
+            if (criterion instanceof DateTimeValue) {
                 cal.setTime((Date) criterion.get());
                 cal.set(Calendar.HOUR_OF_DAY, 0);
                 cal.set(Calendar.MINUTE, 0);
@@ -315,8 +315,8 @@ public class CollectionPluginHandler extends PluginHandler {
                 Date rangeEnd = cal.getTime();
                 Filter timestampFilter = new Filter();
                 timestampFilter.setFilter(filter.getFilter());
-                timestampFilter.addCriterion(0, new TimestampValue(rangeStart));
-                timestampFilter.addCriterion(1, new TimestampValue(rangeEnd));
+                timestampFilter.addCriterion(0, new DateTimeValue(rangeStart));
+                timestampFilter.addCriterion(1, new DateTimeValue(rangeEnd));
 
                 result.set(i, timestampFilter);
             }

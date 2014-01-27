@@ -92,7 +92,7 @@ public class DaoUtils {
             parameters.put(parameterName, rdbmsId.getId());
             parameterName = generateParameter(getReferenceTypeColumnName(parameterName));
             parameters.put(parameterName, rdbmsId.getTypeId());
-        } else if (value instanceof TimestampValue) {
+        } else if (value instanceof DateTimeValue) {
             parameters.put(parameterName, getGMTDate((Date) value.get()));
         } else if (value instanceof DateTimeWithTimeZoneValue) {
             parameters.put(parameterName, getGMTDate((DateTimeWithTimeZone) value.get()));

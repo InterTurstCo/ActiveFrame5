@@ -113,9 +113,9 @@ public class BasicRowMapper extends ValueReader {
         valueModel.setValue(value);
 
         if (CREATED_DATE_COLUMN.equalsIgnoreCase(columnName) && value != null && value.get() != null) {
-            valueModel.setCreatedDate(((TimestampValue) value).get());
+            valueModel.setCreatedDate(((DateTimeValue) value).get());
         } else if (UPDATED_DATE_COLUMN.equalsIgnoreCase(columnName) && value != null && value.get() != null) {
-            valueModel.setModifiedDate(((TimestampValue) value).get());
+            valueModel.setModifiedDate(((DateTimeValue) value).get());
         }
     }
 

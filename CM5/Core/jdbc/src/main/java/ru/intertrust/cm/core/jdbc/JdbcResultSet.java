@@ -22,12 +22,7 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Map;
 
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.LongValue;
-import ru.intertrust.cm.core.business.api.dto.RdbmsId;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.TimestampValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 
 public class JdbcResultSet implements ResultSet {
 
@@ -347,8 +342,8 @@ public class JdbcResultSet implements ResultSet {
                 result = ((LongValue) value).get();
             } else if (value instanceof ReferenceValue) {
                 result = ((ReferenceValue) value).get().toStringRepresentation();
-            } else if (value instanceof TimestampValue) {
-                result = ((TimestampValue) value).get();
+            } else if (value instanceof DateTimeValue) {
+                result = ((DateTimeValue) value).get();
             }else{
                 result = value.toString();
             }

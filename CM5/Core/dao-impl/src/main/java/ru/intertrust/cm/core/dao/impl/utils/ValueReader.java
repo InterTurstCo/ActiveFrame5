@@ -40,7 +40,7 @@ public class ValueReader {
         } else if (fieldConfig != null && ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
             value = readReferenceValue(rs, columnName, (ReferenceFieldConfig) fieldConfig);
         } else if (fieldConfig != null && DateTimeFieldConfig.class.equals(fieldConfig.getClass())) {
-            value = readTimestampValue(rs, columnName);
+            value = readDateTimeValue(rs, columnName);
         } else if (fieldConfig != null && DateTimeWithTimeZoneFieldConfig.class.equals(fieldConfig.getClass())) {
             value = readDateTimeWithTimeZoneValue(rs, columnName, (DateTimeWithTimeZoneFieldConfig) fieldConfig);
         } else if (fieldConfig != null && TimelessDateFieldConfig.class.equals(fieldConfig.getClass())) {
@@ -95,16 +95,16 @@ public class ValueReader {
         }
     }
 
-    protected TimestampValue readTimestampValue(ResultSet rs, String columnName) throws SQLException {
+    protected DateTimeValue readDateTimeValue(ResultSet rs, String columnName) throws SQLException {
         Calendar gmtCalendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         Timestamp timestamp = rs.getTimestamp(columnName, gmtCalendar);
 
-        TimestampValue value;
+        DateTimeValue value;
         if (!rs.wasNull()) {
             Date date = new Date(timestamp.getTime());
-            value = new TimestampValue(date);
+            value = new DateTimeValue(date);
         } else {
-            value = new TimestampValue();
+            value = new DateTimeValue();
         }
 
         return value;

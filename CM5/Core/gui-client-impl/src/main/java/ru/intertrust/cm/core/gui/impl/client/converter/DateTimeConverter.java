@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.converter;
 
 import com.google.gwt.i18n.client.DateTimeFormat;
-import ru.intertrust.cm.core.business.api.dto.TimestampValue;
+import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 
 import java.util.Date;
@@ -26,7 +26,7 @@ public class DateTimeConverter implements ValueConverter {
             } catch (IllegalArgumentException iaex) {
                 throw new ValueConverterException(iaex.getMessage());
             }
-            return new TimestampValue(date);
+            return new DateTimeValue(date);
         }
     }
 
