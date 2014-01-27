@@ -22,6 +22,7 @@ import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.form.FacebookStyleView;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonConstructor;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -39,8 +40,8 @@ import java.util.ArrayList;
 public class TableBrowserWidget extends BaseWidget {
     private TableBrowserConfig tableBrowserConfig;
     private PluginPanel pluginPanel;
-    private Button openDialogButton;
-    private Button clearButton;
+    private FocusPanel openDialogButton;
+    private FocusPanel clearButton;
     private TextBox filterEditor;
     private EventBus eventBus = new SimpleEventBus();
     private ArrayList<Id> chosenIds = new ArrayList<Id>();
@@ -61,6 +62,7 @@ public class TableBrowserWidget extends BaseWidget {
         facebookStyleView.showSelectedItems();
         initSizes();
         initDialogView();
+        createAddButton();
         createClearAllButton();
     }
 
@@ -135,8 +137,8 @@ public class TableBrowserWidget extends BaseWidget {
         facebookStyleView = new FacebookStyleView();
         filterEditor = new TextBox();
         filterEditor.getElement().setClassName("table-browser-filter-editor");
-        openDialogButton = new Button("ADD");
-        openDialogButton.getElement().setClassName("table-browser-add-button");
+        openDialogButton = new FocusPanel();
+
         openDialogButton.addClickHandler(new FetchFilteredRowsClickHandler());
         root.add(filterEditor);
         root.add(openDialogButton);
@@ -145,18 +147,33 @@ public class TableBrowserWidget extends BaseWidget {
         return root;
     }
 
-    private void createClearAllButton(){
-         if (tableBrowserConfig.getClearAllButtonConfig() != null ){
-             if (tableBrowserConfig.getClearAllButtonConfig().getImage() == null){
-                 tableBrowserConfig.getClearAllButtonConfig().setImage("");
-             }
-             if (tableBrowserConfig.getClearAllButtonConfig().getText() == null){
-                 tableBrowserConfig.getClearAllButtonConfig().setText("");
-             }
-             clearButton = new Button("<img src="+tableBrowserConfig.getClearAllButtonConfig().getImage()+" alt="+tableBrowserConfig.getClearAllButtonConfig().getText()+">");
+    private void createAddButton(){
+        ButtonConstructor buttonConstructor;
+        if (tableBrowserConfig.getClearAllButtonConfig() != null ){
+            String img = tableBrowserConfig.getAddButtonConfig().getImage();
+            String text = tableBrowserConfig.getAddButtonConfig().getText();
+            if (text == null || text.equals("...") || text.length() == 0 ){
+                text = "Добавить";
+            }
+            buttonConstructor = new ButtonConstructor(openDialogButton, img, text);
+        }   else {
+            buttonConstructor = new ButtonConstructor(openDialogButton, null, "Добавить");
+        }
 
+        openDialogButton.add(buttonConstructor);
+    }
+
+    private void createClearAllButton(){
+        if (tableBrowserConfig.getClearAllButtonConfig() != null ){
+        String img = tableBrowserConfig.getClearAllButtonConfig().getImage();
+        String text = tableBrowserConfig.getClearAllButtonConfig().getText();
+
+             clearButton = new FocusPanel();
+             ButtonConstructor buttonConstructor = new ButtonConstructor(clearButton, img, text );
+
+             clearButton.add(buttonConstructor);
              root.insert(clearButton, 2);
-             clearButton.getElement().setClassName("table-browser-add-button");
+
 
              clearButton.addClickHandler(new ClickHandler() {
                  @Override

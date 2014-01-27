@@ -4,7 +4,9 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.*;
+import ru.intertrust.cm.core.config.gui.form.widget.AddButtonConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.ClearAllButtonConfig;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonConstructor;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 
 import java.util.ArrayList;
@@ -45,6 +47,7 @@ public class HierarchyBrowserView extends Composite {
     }
 
     private AbsolutePanel initWidgetContent() {
+        openPopupButton = new FocusPanel();
         widgetContainer = new AbsolutePanel();
         widgetContainer.setStyleName("hierarh-browser-inline");
         buttonActionPanel = new VerticalPanel();
@@ -53,13 +56,6 @@ public class HierarchyBrowserView extends Composite {
         label.setStyleName("hierarh-browser-inline");
         widgetChosenContent = new HierarchyBrowserFacebookStyleView(eventBus);
         widgetChosenContent.asWidget().setStyleName("hierarh-browser-inline hierarh-browser-border");
-
-        openPopupButton = new FocusPanel();
-        Image plus = new Image("images/green-plus.png");
-        Label text = new Label("Выбрать");
-        AbsolutePanel buttonPanel = setStyleButton(plus, text, openPopupButton);
-
-        openPopupButton.add(buttonPanel);
 
         widgetContainer.add(label);
         widgetContainer.add(widgetChosenContent);
@@ -78,28 +74,31 @@ public class HierarchyBrowserView extends Composite {
         widgetChosenContent.handleAddingChosenItems(chosenItems);
     }
 
-     public void drawClearButtonIfItIs(ClearAllButtonConfig config){
+    public void drawAddButton(AddButtonConfig config){
+        ButtonConstructor buttonConstructor;
+        String text = config.getText();
+        if (text.equals("...")) {
+            text = "Выбрать";
+
+        }
+        if (config != null){
+            buttonConstructor = new ButtonConstructor(openPopupButton, config.getImage(), text);
+        }else {
+            buttonConstructor = new ButtonConstructor(openPopupButton, "images/green-plus.png", text);
+        }
+
+
+        openPopupButton.add(buttonConstructor);
+        widgetContainer.add(openPopupButton);
+    }
+
+    public void drawClearButtonIfItIs(ClearAllButtonConfig config){
 
          if (config != null){
              clearButton = new FocusPanel();
-             Image img;
-             Label text;
-             if (config.getImage() != null){
-                 img = new Image(config.getImage());
-             } else {
-                 img = new Image("");
-             }
-
-             if (config.getText() != null){
-                 text = new Label(config.getText());
-             }    else {
-                 text = new Label("");
-             }
-             AbsolutePanel buttonPanel = setStyleButton(img, text, clearButton);
-
-             clearButton.add(buttonPanel);
-
-
+             ButtonConstructor buttonConstructor = new ButtonConstructor(clearButton, config.getImage(), config.getText());
+             clearButton.add(buttonConstructor);
+             widgetContainer.add(clearButton);
              clearButton.addClickHandler(new ClickHandler() {
                  @Override
                  public void onClick(ClickEvent event) {
@@ -116,18 +115,5 @@ public class HierarchyBrowserView extends Composite {
 
      }
 
-    private AbsolutePanel setStyleButton(Image img, Label text, FocusPanel focusPanel){
-        AbsolutePanel buttonPanel = new AbsolutePanel();
-        focusPanel.setStyleName("hierarh-browser-inline composite-button");
-        buttonPanel.setStyleName("hierarh-browser-button");
-        img.setStyleName("hierarh-browser-inline-margin-left");
-        text.setStyleName("hierarh-browser-inline-margin-left");
-        buttonPanel.add(img);
-        buttonPanel.add(text);
-        buttonActionPanel.add(focusPanel);
 
-
-        return buttonPanel;
-
-    }
 }

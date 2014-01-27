@@ -10,7 +10,6 @@ import com.google.gwt.event.dom.client.ScrollEvent;
 import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
-import com.google.gwt.http.client.URL;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.RowStyles;
@@ -334,6 +333,7 @@ public class CollectionPluginView extends PluginView {
                     sb.append(simpleSearchQuery);
                     sb.append("&");
                     sb.append("searchArea=");
+
                     sb.append(searchArea);
 
 
@@ -353,7 +353,7 @@ public class CollectionPluginView extends PluginView {
                 String msg = sb.toString().replaceAll("%", "");
                 String query = GWT.getHostPageBaseURL() + "export-to-csv?"+msg;
 
-                Window.open(URL.encode(query) , "Export to CSV", "");
+                Window.open(query , "Export to CSV", "");
 
             }
         });

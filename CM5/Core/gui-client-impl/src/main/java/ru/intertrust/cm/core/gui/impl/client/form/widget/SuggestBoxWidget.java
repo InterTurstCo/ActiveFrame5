@@ -2,6 +2,8 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.*;
@@ -13,6 +15,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.SuggestBoxConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonConstructor;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.support.MultiWordIdentifiableSuggestion;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -25,7 +28,9 @@ import java.util.*;
 public class SuggestBoxWidget extends BaseWidget {
 
     private SuggestBox suggestBox;
+   // private
     private final HashMap<Id, String> allSuggestions = new HashMap<Id, String>();
+
 
     public SuggestBoxWidget() {
     }
@@ -168,18 +173,19 @@ public class SuggestBoxWidget extends BaseWidget {
         private boolean singleChoice;
         private Element container;
         private Element arrowBtn;
+        private Element clearAllButton;
         private SuggestBox suggestBox;
 
-        private SuggestPresenter() {
+          private SuggestPresenter() {
+            Element row = DOM.createTR();
             this.selectedSuggestions = new HashMap<Id, String>();
             setStyleName("suggest-container");
-            final Element row = DOM.createTR();
             container = DOM.createTD();
             DOM.appendChild(row, container);
             DOM.appendChild(getBody(), row);
             arrowBtn = DOM.createTD();
             arrowBtn.setClassName("arrow-suggest-btn");
-            DOM.appendChild(row, arrowBtn);
+           // DOM.appendChild(row, arrowBtn);
             DOM.setEventListener(arrowBtn, new EventListener() {
                 @Override
                 public void onBrowserEvent(Event event) {
@@ -188,6 +194,12 @@ public class SuggestBoxWidget extends BaseWidget {
                     suggestBox.setText("");
                 }
             });
+
+            DOM.appendChild(row, arrowBtn);
+            clearAllButton = DOM.createTD();
+            clearAllButton.getStyle().setMarginRight(-69, Style.Unit.PX);
+            clearAllButton.getStyle().setDisplay(Style.Display.BLOCK);
+            DOM.appendChild(row, clearAllButton );
             DOM.sinkEvents(arrowBtn, Event.ONCLICK);
             DOM.setEventListener(container, new EventListener() {
                 @Override
@@ -210,7 +222,7 @@ public class SuggestBoxWidget extends BaseWidget {
             selectedSuggestions.clear();
             this.suggestBox = suggestBox;
             if (getElement().getStyle().getProperty("maxWidth").isEmpty()) {
-                final int maxWidth = getElement().getClientWidth() - arrowBtn.getOffsetWidth();
+                final int maxWidth = getElement().getClientWidth() - arrowBtn.getOffsetWidth()- clearAllButton.getOffsetWidth();
                 getElement().getStyle().setProperty("maxWidth", maxWidth, Style.Unit.PX);
                 container.getStyle().setWidth(100, Style.Unit.PCT);
             }
@@ -223,6 +235,25 @@ public class SuggestBoxWidget extends BaseWidget {
                 selectedSuggestions.put(listEntry.getKey(), listEntry.getValue());
             }
             super.add(suggestBox, container);
+            if (state.getSuggestBoxConfig().getClearAllButtonConfig() != null){
+            FocusPanel focusPanel = new FocusPanel();
+            ButtonConstructor clearButton = new ButtonConstructor(focusPanel,
+                    state.getSuggestBoxConfig().getClearAllButtonConfig().getImage(),
+                    state.getSuggestBoxConfig().getClearAllButtonConfig().getText());
+            focusPanel.add(clearButton);
+            focusPanel.getElement().getStyle().setLeft(10, Style.Unit.PX);
+            super.add(focusPanel, clearAllButton);
+            focusPanel.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    for (int i = selectedSuggestions.size() - 1; i >= 0; i--) {
+                        remove(i);
+                    }
+                    selectedSuggestions.clear();
+                }
+            });
+            }
+
             updateSuggestBoxWidth();
         }
 
@@ -245,13 +276,13 @@ public class SuggestBoxWidget extends BaseWidget {
         }
 
         private void updateSuggestBoxWidth() {
-            final int parentWidth = getElement().getClientWidth() - arrowBtn.getOffsetWidth() - 26;
+            final int parentWidth = (getElement().getClientWidth()  - arrowBtn.getOffsetWidth() -26 - clearAllButton.getOffsetWidth() );
             int childWidth = 0;
             for (int index = 0; index < getWidgetCount(); index++) {
                 final Widget child = getWidget(index);
                 if (child instanceof SelectedItemComposite) {
                     childWidth += child.getOffsetWidth();
-                    if (childWidth > parentWidth) {
+                    if (childWidth > parentWidth ) {
                         childWidth = child.getOffsetWidth();
                     }
                 } else {

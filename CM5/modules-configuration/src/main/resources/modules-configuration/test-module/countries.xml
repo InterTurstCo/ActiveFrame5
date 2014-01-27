@@ -384,7 +384,6 @@
                     Если тэг отсутствует, то используется "inline"-вариант. -->
                 <selection-style name="inline"/>
                 <clear-all-button image="css/images/clear.png" text="Очистить"/>
-                <add-button image="..." text="..."/>
 
             </suggest-box>
             <suggest-box id="suggest_capital">
@@ -408,6 +407,7 @@
                     Если тэг отсутствует, то используется "inline"-вариант. -->
                 <selection-style name="inline"/>
                 <single-choice value="true"/>
+                <clear-all-button image="css/images/clear.png" text="Очистить"/>
             </suggest-box>
 
             <!--<label id="best_friend_label">
