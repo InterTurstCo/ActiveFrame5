@@ -148,6 +148,7 @@ public class TableBrowserWidget extends BaseWidget {
     }
 
     private void createAddButton(){
+        openDialogButton.clear();
         ButtonConstructor buttonConstructor;
         if (tableBrowserConfig.getClearAllButtonConfig() != null ){
             String img = tableBrowserConfig.getAddButtonConfig().getImage();
