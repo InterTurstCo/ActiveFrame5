@@ -7,7 +7,7 @@ import java.math.BigDecimal;
  *         Date: 26.09.13
  *         Time: 11:40
  */
-public class DecimalBoxState extends SingleObjectWidgetState {
+public class DecimalBoxState extends ValueEditingWidgetState {
     private BigDecimal number;
 
     public DecimalBoxState() {

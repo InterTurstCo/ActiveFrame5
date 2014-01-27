@@ -31,7 +31,7 @@ public class RadioButtonHandler extends ListWidgetHandler {
     protected ConfigurationService configurationService;
 
     @Override
-    public SingleSelectionWidgetState getInitialState(WidgetContext context) {
+    public RadioButtonState getInitialState(WidgetContext context) {
         RadioButtonState widgetState = new RadioButtonState();
         setupInitialState(widgetState, context);
 
@@ -45,7 +45,7 @@ public class RadioButtonHandler extends ListWidgetHandler {
         return widgetState;
     }
 
-    private void setupInitialState(SingleSelectionWidgetState widgetState, WidgetContext context) {
+    private void setupInitialState(RadioButtonState widgetState, WidgetContext context) {
         SingleSelectionWidgetConfig widgetConfig = context.getWidgetConfig();
         FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
 

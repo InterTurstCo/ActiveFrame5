@@ -12,7 +12,7 @@ import java.util.HashSet;
  *         Date: 15.10.13
  *         Time: 19:48
  */
-public class ListBoxState extends ValueListWidgetState {
+public class ListBoxState extends ListWidgetState {
     private ArrayList<ArrayList<Id>> selectedIds;
     private HashMap<Id, Integer> idFieldPathIndexMapping;
     private FieldPath[] fieldPaths;

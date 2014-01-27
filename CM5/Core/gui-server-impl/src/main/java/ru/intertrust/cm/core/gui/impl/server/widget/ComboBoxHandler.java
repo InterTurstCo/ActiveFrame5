@@ -31,7 +31,7 @@ public class ComboBoxHandler extends ListWidgetHandler {
     protected ConfigurationService configurationService;
 
     @Override
-    public SingleSelectionWidgetState getInitialState(WidgetContext context) {
+    public ComboBoxState getInitialState(WidgetContext context) {
         ComboBoxState widgetState = new ComboBoxState();
         setupInitialState(widgetState, context);
 
@@ -41,7 +41,7 @@ public class ComboBoxHandler extends ListWidgetHandler {
         return widgetState;
     }
 
-    private void setupInitialState(SingleSelectionWidgetState widgetState, WidgetContext context) {
+    private void setupInitialState(ComboBoxState widgetState, WidgetContext context) {
         SingleSelectionWidgetConfig widgetConfig = context.getWidgetConfig();
         FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
 

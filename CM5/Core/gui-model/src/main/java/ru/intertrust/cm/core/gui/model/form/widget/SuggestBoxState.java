@@ -13,7 +13,7 @@ import java.util.ArrayList;
  * Time: 16:22
  * To change this template use File | Settings | File Templates.
  */
-public class SuggestBoxState extends ValueListWidgetState {
+public class SuggestBoxState extends ListWidgetState {
     private ArrayList<Id> selectedIds;
     private SuggestBoxConfig suggestBoxConfig;
 

@@ -12,7 +12,7 @@ import java.util.LinkedHashMap;
  *         Time: 11:52:44
  */
 
-public abstract class ValueListWidgetState extends LinkEditingWidgetState {
+public abstract class ListWidgetState extends LinkEditingWidgetState {
     private LinkedHashMap<Id, String> listValues; //declared as LinkedHashMap (rather than Map) intentionally, to emphasize that items order is important
 
     public LinkedHashMap<Id, String> getListValues() {

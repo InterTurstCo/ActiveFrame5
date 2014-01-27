@@ -5,7 +5,7 @@ package ru.intertrust.cm.core.gui.model.form.widget;
  *         Date: 14.09.13
  *         Time: 15:09
  */
-public class IntegerBoxState extends SingleObjectWidgetState {
+public class IntegerBoxState extends ValueEditingWidgetState {
     private Long number;
 
     public IntegerBoxState() {
