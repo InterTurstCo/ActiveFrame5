@@ -6,6 +6,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.impl.client.form.FormPanel;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.LabelWidget;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.LinkedDomainObjectHyperlinkWidget;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
@@ -73,7 +74,7 @@ public class FormPluginView extends PluginView {
         List<BaseWidget> widgets = formPanel.getWidgets();
         HashMap<String, WidgetState> result = new HashMap<String, WidgetState>(widgets.size());
         for (BaseWidget widget : widgets) {
-            if (widget instanceof LabelWidget) {
+            if (widget instanceof LabelWidget || widget instanceof LinkedDomainObjectHyperlinkWidget) {
                 continue;
             }
             String id = widget.getDisplayConfig().getId();
