@@ -1,14 +1,9 @@
 package ru.intertrust.cm.core.config.converter;
 
-import org.simpleframework.xml.Serializer;
-import org.simpleframework.xml.convert.AnnotationStrategy;
-import org.simpleframework.xml.core.Persister;
-import org.simpleframework.xml.strategy.Strategy;
-import org.simpleframework.xml.stream.InputNode;
-import org.simpleframework.xml.stream.OutputNode;
-
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
+
+import java.util.List;
 
 /**
  * Конвертер для сериализации конфигурации
@@ -16,46 +11,15 @@ import ru.intertrust.cm.core.config.base.TopLevelConfig;
  *         Date: 7/11/13
  *         Time: 8:26 PM
  */
-public class ConfigurationConverter implements org.simpleframework.xml.convert.Converter<Configuration> {
+public class ConfigurationConverter extends ListConverter<Configuration> {
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public Configuration read(InputNode inputNode) throws Exception {
-        Configuration configuration = new Configuration();
-
-        TopLevelConfigurationCache topLevelConfigurationCache = TopLevelConfigurationCache.getInstance();
-        Strategy strategy = new AnnotationStrategy();
-        Serializer serializer = new Persister(strategy);
-        InputNode nexNode;
-
-        while ((nexNode = inputNode.getNext()) != null) {
-            Class nodeClass = topLevelConfigurationCache.getClassByTagName(nexNode.getName());
-            if (nodeClass == null) {
-                continue;
-            }
-
-            configuration.getConfigurationList().add((TopLevelConfig) serializer.read(nodeClass, nexNode));
-        }
-
-        return configuration;
+    public Configuration create() {
+        return new Configuration();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void write(OutputNode outputNode, Configuration configuration) throws Exception {
-        if (configuration == null) {
-            return;
-        }
-
-        Strategy strategy = new AnnotationStrategy();
-        Serializer serializer = new Persister(strategy);
-
-        for(Object configItem : configuration.getConfigurationList()) {
-            serializer.write(configItem, outputNode);
-        }
+    public List<TopLevelConfig> getList(Configuration configuration) {
+        return configuration.getConfigurationList();
     }
 }

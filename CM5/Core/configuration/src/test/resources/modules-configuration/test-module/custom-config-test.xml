@@ -5,7 +5,7 @@
     <domain-object-type name="Incoming_Document"> <!-- INCOMING_DOCUMENT table -->
         <fields>
             <string name="Registration_Number" length="128" /> <!-- REGISTRATION_NUMBER column -->
-            <dateTime name="Registration_Date"/>
+            <date-time name="Registration_Date"/>
             <string name="Name" length="128" />
             <string name="Description" length="128" />
             <reference name="Author" type="Employee"/> <!-- ID of employee in fact -->

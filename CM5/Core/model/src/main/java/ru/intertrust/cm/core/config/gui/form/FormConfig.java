@@ -29,11 +29,22 @@ public class FormConfig implements Dto, TopLevelConfig {
     @Attribute(name = "min-width",required = false)
     private String minWidth;
 
+    @Attribute(name = "type",required = false)
+    private String extSearchType;
+
     @Element(name = "markup")
     private MarkupConfig markup;
 
     @Element(name = "widget-config")
     private WidgetConfigurationConfig widgetConfigurationConfig;
+
+    public String getExtSearchType() {
+        return extSearchType;
+    }
+
+    public void setExtSearchType(String extSearchType) {
+        this.extSearchType = extSearchType;
+    }
 
     public MarkupConfig getMarkup() {
         return markup;
@@ -117,6 +128,10 @@ public class FormConfig implements Dto, TopLevelConfig {
         if (minWidth != null ? !minWidth.equals(that.minWidth) : that.minWidth != null) {
             return false;
         }
+
+        if (extSearchType != null ? !extSearchType.equals(that.extSearchType) : that.extSearchType != null) {
+            return false;
+        }
         if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
         }
@@ -136,6 +151,7 @@ public class FormConfig implements Dto, TopLevelConfig {
         result = 31 * result + (debug ? 1 : 0);
         result = 31 * result + (markup != null ? markup.hashCode() : 0);
         result = 31 * result + (minWidth != null ? minWidth.hashCode() : 0);
+        result = 31 * result + (extSearchType != null ? extSearchType.hashCode() : 0);
         result = 31 * result + (widgetConfigurationConfig != null ? widgetConfigurationConfig.hashCode() : 0);
         return result;
     }

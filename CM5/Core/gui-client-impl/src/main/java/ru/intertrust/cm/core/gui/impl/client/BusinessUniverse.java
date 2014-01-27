@@ -19,6 +19,7 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.navigation.NavigationTreePl
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.logging.Logger;
@@ -112,7 +113,6 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 left.add(navigationTreePanel);
                 left.setHeight(Window.getClientHeight() + "px");
 
-
                 eventBus.addHandler(SideBarResizeEvent.TYPE, new SideBarResizeEventHandler() {
                     @Override
                     public void sideBarFixPositionEvent(SideBarResizeEvent event) {
@@ -133,6 +133,13 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                     }
                 });
 
+                // обработчик окончания расширенного поиска
+                eventBus.addHandler(ExtendedSearchCompleteEvent.TYPE, new ExtendedSearchCompleteEventHandler() {
+                    @Override
+                    public void onExtendedSearchComplete(ExtendedSearchCompleteEvent event) {
+                        extendedSearchComplete(event.getDomainObjectSurferPluginData());
+                    }
+                });
 
                 addStickerPanel(root);
                 centrInner.add(centralPluginPanel);
@@ -158,7 +165,16 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
         centralPluginPanel.open(domainObjectSurfer);
 
+    }
 
+    // вывод результатов расширенного поиска
+    public void extendedSearchComplete(DomainObjectSurferPluginData domainObjectSurferPluginData) {
+        DomainObjectSurferPlugin domainObjectSurfer = ComponentRegistry.instance.get("domain.object.surfer.plugin");
+        domainObjectSurfer.setConfig(domainObjectSurferPluginData.getDomainObjectSurferConfig());
+        domainObjectSurfer.setInitialData(domainObjectSurferPluginData);
+        domainObjectSurfer.setDisplayActionToolBar(true);
+
+        centralPluginPanel.open(domainObjectSurfer);
     }
 
     private HorizontalPanel createToolPanel() {

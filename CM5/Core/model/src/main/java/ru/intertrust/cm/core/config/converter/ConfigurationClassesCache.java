@@ -20,22 +20,22 @@ import java.util.concurrent.ConcurrentHashMap;
  *         Date: 7/12/13
  *         Time: 7:37 PM
  */
-public class TopLevelConfigurationCache {
+public class ConfigurationClassesCache {
 
     private static final String SEARCH_CLASS_PATH = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + "**/*.class";
 
-    private static TopLevelConfigurationCache instance = new TopLevelConfigurationCache();
+    private static ConfigurationClassesCache instance = new ConfigurationClassesCache();
     private Map<String, Class> tagToClassMap = new ConcurrentHashMap<>();
 
     /**
-     * Возврящает экземпляр {@link TopLevelConfigurationCache}
+     * Возврящает экземпляр {@link ConfigurationClassesCache}
      * @return
      */
-    public static TopLevelConfigurationCache getInstance() {
+    public static ConfigurationClassesCache getInstance() {
         return instance;
     }
 
-    private TopLevelConfigurationCache() {
+    private ConfigurationClassesCache() {
 
     }
 
@@ -83,11 +83,6 @@ public class TopLevelConfigurationCache {
             }
 
             Class clazz = Class.forName(metadataReader.getClassMetadata().getClassName());
-            //Понадобилось не только для конфигурации верхнего уровня, поэтому стоит переименовать класс в ConfigurationCache
-            /*if (!TopLevelConfig.class.isAssignableFrom(clazz)) {
-                return;
-            }*/
-
             Root rootAnnotation =  (Root) clazz.getAnnotation(Root.class);
             if (rootAnnotation != null && rootAnnotation.name() != null && !rootAnnotation.name().isEmpty()) {
                 tagToClassMap.put(rootAnnotation.name(), clazz);

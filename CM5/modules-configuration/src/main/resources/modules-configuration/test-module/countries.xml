@@ -3,7 +3,7 @@
     <domain-object-type name="country" initial-status="Active">
         <fields>
             <string name="name" length="128"/>
-            <dateTime name="independence_day"/>
+            <date-time name="independence_day"/>
             <long name="population"/>
             <boolean name="is_country_rich"/>
             <decimal name="square" precision="15" scale="2"/>
@@ -448,6 +448,9 @@
 
             <label id="9">
                 <text>День независимости:</text>
+            </label>
+            <label id="test">
+                <text>TEST</text>
             </label>
             <date-box id="10">
                 <field-path value="independence_day"/>

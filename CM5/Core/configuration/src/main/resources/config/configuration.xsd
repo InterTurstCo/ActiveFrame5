@@ -85,7 +85,7 @@
             <xs:element type="con:textType"
                         name="text" xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
-            <xs:element type="con:dateTimeType" name="dateTime"
+            <xs:element type="con:dateTimeType" name="date-time"
                         xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
             <xs:element type="con:dateTimeWithTimeZoneType"
@@ -626,6 +626,16 @@
                       use="optional"/>
     </xs:complexType>
 
+    <!-- Конфигурация области поиска  -->
+    <xs:complexType name="defaultSearchAreasType">
+        <xs:sequence>
+            <xs:element type="con:searchAreaRefType" name="search-area-ref"
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="name"
+                      use="optional"/>
+    </xs:complexType>
 
     <xs:complexType name="linkType">
         <xs:sequence minOccurs="0" maxOccurs="3">
@@ -637,6 +647,9 @@
                             minOccurs="0" maxOccurs="1"
                             xmlns:con="https://cm5.intertrust.ru/config"/>
                 <xs:element type="con:pluginType" name="plugin"
+                            minOccurs="0" maxOccurs="1"
+                            xmlns:con="https://cm5.intertrust.ru/config"/>
+                <xs:element type="con:defaultSearchAreasType" name="default-search-areas"
                             minOccurs="0" maxOccurs="1"
                             xmlns:con="https://cm5.intertrust.ru/config"/>
             </xs:choice>
@@ -875,6 +888,7 @@
         <xs:attribute type="xs:boolean" name="is-default"/>
         <xs:attribute type="xs:boolean" name="debug"/>
         <xs:attribute type="xs:string" name="min-width"/>
+        <xs:attribute type="xs:string" name="type"/>
     </xs:complexType>
 
     <xs:complexType name="columnFromType" mixed="true">

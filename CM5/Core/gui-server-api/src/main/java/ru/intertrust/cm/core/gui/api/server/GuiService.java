@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 
 import javax.ejb.SessionContext;
+import java.util.HashSet;
 
 /**
  * Данный класс-служба содержит операции, относящиеся к клиентскому приложению. Клиентское приложение может быть
@@ -40,6 +41,9 @@ public interface GuiService {
     FormDisplayData getForm(String domainObjectType);
 
     FormDisplayData getForm(Id domainObjectId);
+
+    // получение формы расширенного поиска
+    FormDisplayData getSearchForm(String domainObjectType, HashSet<String> formFields);
 
     DomainObject saveForm(FormState formState);
 

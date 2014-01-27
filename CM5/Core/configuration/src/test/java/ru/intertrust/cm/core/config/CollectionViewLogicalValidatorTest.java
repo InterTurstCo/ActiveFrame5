@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import ru.intertrust.cm.core.config.base.Configuration;
-import ru.intertrust.cm.core.config.converter.TopLevelConfigurationCache;
+import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
 
@@ -56,7 +56,7 @@ public class CollectionViewLogicalValidatorTest {
     }
 
     private ConfigurationExplorer createConfigurationExplorer(String configPath) throws Exception {
-        TopLevelConfigurationCache.getInstance().build();
+        ConfigurationClassesCache.getInstance().build();
         ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
         configurationSerializer.setModuleService(createModuleService(configPath));
 

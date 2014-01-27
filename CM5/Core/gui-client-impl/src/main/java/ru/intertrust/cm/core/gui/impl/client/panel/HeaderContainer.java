@@ -6,7 +6,10 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
+import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.CurrentUserInfo;
+import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
+import ru.intertrust.cm.core.gui.impl.client.plugins.extendedsearch.ExtendedSearchPlugin;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationServiceAsync;
 
 /**
@@ -16,6 +19,10 @@ public class HeaderContainer extends SimplePanel {
 
     public static final int FIRST_ROW = 0;
     InformationDialogBox dialogBox;
+    private int centralPluginWidth;
+    private int entralPluginHeight;
+    private PluginPanel extendSearchPluginPanel;
+    private ExtendedSearchPlugin extendedSearchPlugin;
 
     public HeaderContainer(CurrentUserInfo currentUserInfo) {
         addUserInfoToDialog(currentUserInfo);
@@ -39,6 +46,12 @@ public class HeaderContainer extends SimplePanel {
 
         final FocusPanel thirdImage = new FocusPanel();
         thirdImage.setStyleName("header-third-action-button");
+        thirdImage.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                getExtendedSearchPanel();
+            }
+        });
         headTable.setWidget(FIRST_ROW, 2, thirdImage);
         headTable.getFlexCellFormatter().setStyleName(FIRST_ROW, 2, "H_td_ExtSearch");
 
@@ -79,6 +92,25 @@ public class HeaderContainer extends SimplePanel {
         });
         headTable.getCellFormatter().setStyleName(FIRST_ROW, 5, "H_td_logout");
         head.add(headTable);
+    }
+
+    // вызываем окно расширенного поиска
+    private void getExtendedSearchPanel() {
+        extendSearchPluginPanel = new PluginPanel();
+        extendedSearchPlugin = ComponentRegistry.instance.get("extended.search.plugin");
+
+        extendSearchPluginPanel.open(extendedSearchPlugin);
+        extendSearchPluginPanel.setSize("800px", "400px");
+
+        PopupPanel popupPanel = new PopupPanel();
+        popupPanel.isAnimationEnabled();
+        popupPanel.add(extendSearchPluginPanel);
+        popupPanel.center();
+        popupPanel.setSize("800px", "400px");
+        popupPanel.show();
+        popupPanel.getElement().getStyle().setZIndex(9);
+        popupPanel.getElement().setAttribute("id", "search-popup");
+
     }
 
     private void logout(){

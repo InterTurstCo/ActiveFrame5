@@ -3,7 +3,9 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.ElementListUnion;
 import org.simpleframework.xml.Root;
+import org.simpleframework.xml.convert.Convert;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.converter.WidgetConfigurationConfigConverter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +16,7 @@ import java.util.List;
  *         Time: 12:05 PM
  */
 @Root(name = "widget-config")
+@Convert(WidgetConfigurationConfigConverter.class)
 public class WidgetConfigurationConfig implements Dto {
     @ElementListUnion({
             @ElementList(entry = "label", type = LabelConfig.class, inline = true, required = false),
@@ -40,6 +43,7 @@ public class WidgetConfigurationConfig implements Dto {
             @ElementList(entry = "attachment-box", type = AttachmentBoxConfig.class, inline = true, required = false),
             @ElementList(entry = "hierarchy-browser", type = HierarchyBrowserConfig.class, inline = true, required = false)
     })
+    @ElementList(type=WidgetConfig.class, inline=true)
     private List<WidgetConfig> widgetConfigList = new ArrayList<WidgetConfig>();
 
     public List<WidgetConfig> getWidgetConfigList() {

@@ -15,7 +15,7 @@
 
     <bean id="moduleService" class="ru.intertrust.cm.core.config.module.ModuleService" init-method="init"/>
 
-    <bean id="configurationSerializer" depends-on="topLevelConfigurationCacheInitializer"
+    <bean id="configurationSerializer" depends-on="configurationClassesCacheInitializer"
           class="ru.intertrust.cm.core.config.ConfigurationSerializer"/>
 
     <bean id="configurationExplorer"
@@ -27,8 +27,8 @@
         </constructor-arg>
     </bean>
 
-    <bean id="topLevelConfigurationCacheInitializer"
-          class="ru.intertrust.cm.core.config.TopLevelConfigurationCacheInitializer" init-method="init"/>
+    <bean id="configurationClassesCacheInitializer"
+          class="ru.intertrust.cm.core.config.ConfigurationClassesCacheInitializer" init-method="init"/>
 
     <bean id="formLogicalValidator"
           class="ru.intertrust.cm.core.config.FormLogicalValidator"/>

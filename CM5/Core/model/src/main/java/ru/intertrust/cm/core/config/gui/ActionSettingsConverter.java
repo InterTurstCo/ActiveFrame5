@@ -7,7 +7,7 @@ import org.simpleframework.xml.core.Persister;
 import org.simpleframework.xml.strategy.Strategy;
 import org.simpleframework.xml.stream.InputNode;
 import org.simpleframework.xml.stream.OutputNode;
-import ru.intertrust.cm.core.config.converter.TopLevelConfigurationCache;
+import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 
 public class ActionSettingsConverter implements Converter<ActionSettings> {
 
@@ -15,9 +15,9 @@ public class ActionSettingsConverter implements Converter<ActionSettings> {
     public ActionSettings read(InputNode node) throws Exception {
         Strategy strategy = new AnnotationStrategy();
         Serializer serializer = new Persister(strategy);
-        TopLevelConfigurationCache topLevelConfigurationCache = TopLevelConfigurationCache.getInstance();
+        ConfigurationClassesCache configurationClassesCache = ConfigurationClassesCache.getInstance();
         InputNode customSettings = node.getNext();
-        Class actionSettingsClass = topLevelConfigurationCache.getClassByTagName(customSettings.getName());
+        Class actionSettingsClass = configurationClassesCache.getClassByTagName(customSettings.getName());
         return (ActionSettings) serializer.read(actionSettingsClass, customSettings);
     }
 

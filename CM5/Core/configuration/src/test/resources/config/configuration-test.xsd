@@ -87,7 +87,7 @@
             <xs:element type="con:textType"
                         name="text" xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
-            <xs:element type="con:dateTimeType" name="dateTime"
+            <xs:element type="con:dateTimeType" name="date-time"
                         xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
             <xs:element type="con:dateTimeWithTimeZoneType"
@@ -862,6 +862,7 @@
         <xs:attribute type="xs:boolean" name="is-default" />
         <xs:attribute type="xs:boolean" name="debug" />
         <xs:attribute type="xs:string" name="min-width" />
+        <xs:attribute type="xs:string" name="type"/>
     </xs:complexType>
 
     <xs:complexType name="columnFromType" mixed="true">

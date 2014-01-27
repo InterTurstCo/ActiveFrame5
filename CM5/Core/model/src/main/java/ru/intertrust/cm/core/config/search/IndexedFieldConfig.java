@@ -1,9 +1,9 @@
 package ru.intertrust.cm.core.config.search;
 
-import java.io.Serializable;
-
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
+
+import java.io.Serializable;
 
 public class IndexedFieldConfig implements Serializable {
 

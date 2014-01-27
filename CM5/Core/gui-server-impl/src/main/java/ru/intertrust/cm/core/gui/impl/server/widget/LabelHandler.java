@@ -124,6 +124,9 @@ public class LabelHandler extends ValueEditingWidgetHandler {
         if (labelConfig.getRelatesTo() != null) {
             String relatedWidgetId = labelConfig.getRelatesTo().getWidgetId();
             WidgetConfig relatedConfig = context.getWidgetConfigById(relatedWidgetId);
+            if (relatedConfig == null) {
+                return false;
+            }
             FieldPath relatedFieldPath = new FieldPath(relatedConfig.getFieldPathConfig().getValue());
             String field = relatedFieldPath.getFieldName();
             String objectType = context.getFormObjects().getNode(relatedFieldPath.getParentPath()).getType();

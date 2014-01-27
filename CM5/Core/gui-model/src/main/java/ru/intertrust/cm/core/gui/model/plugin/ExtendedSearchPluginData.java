@@ -15,6 +15,16 @@ public class ExtendedSearchPluginData extends PluginData {
     private HashMap<String, ArrayList<String>> searchAreasData = new HashMap<String, ArrayList<String>>();
     // Поле для получения конфигурации целевого ДО и его полей для поиска(выбираются индексируемые поля)
     private HashMap<String, ArrayList<String>> searchFieldsData = new HashMap<String, ArrayList<String>>();
+    // Поле для получения карты: имя доменного объекта - имя коллекции, возвращаемой при поиске
+    private HashMap<String, String> targetCollectionNames;
+
+    public HashMap<String, String> getTargetCollectionNames() {
+        return targetCollectionNames;
+    }
+
+    public void setTargetCollectionNames(HashMap<String, String> targetCollectionNames) {
+        this.targetCollectionNames = targetCollectionNames;
+    }
 
     public HashMap<String, ArrayList<String>> getSearchFieldsData() {
         return searchFieldsData;
