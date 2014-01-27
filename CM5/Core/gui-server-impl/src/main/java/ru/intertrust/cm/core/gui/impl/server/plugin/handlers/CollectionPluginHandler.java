@@ -91,6 +91,29 @@ public class CollectionPluginHandler extends PluginHandler {
         return pluginData;
     }
 
+    public CollectionPluginData getExtendedCollectionPluginData(String collectionName, ArrayList<CollectionRowItem> items) {
+        CollectionRefConfig refConfig = new CollectionRefConfig();
+        refConfig.setName(collectionName);
+
+        CollectionViewerConfig collectionViewerConfig = new CollectionViewerConfig();
+        collectionViewerConfig.setCollectionRefConfig(refConfig);
+
+        boolean singleChoice = true;
+        boolean displayChosenValues = false;
+        CollectionPluginData pluginData = new CollectionPluginData();
+        pluginData.setSingleChoice(singleChoice);
+        pluginData.setDisplayChosenValues(displayChosenValues);
+        CollectionViewConfig collectionViewConfig = getViewForCurrentCollection(collectionViewerConfig, collectionName);
+
+        LinkedHashMap<String, CollectionColumnProperties> map = getDomainObjectFieldPropertiesMap(collectionViewConfig);
+        pluginData.setDomainObjectFieldPropertiesMap(map);
+        pluginData.setItems(items);
+        pluginData.setCollectionName(collectionName);
+        pluginData.setDomainObjectFieldPropertiesMap(map);
+
+        return pluginData;
+    }
+
     private Collection<CollectionViewConfig> getCollectionOfViewConfigs() {
         Collection<CollectionViewConfig> viewConfigs = configurationService.
                 getConfigs(CollectionViewConfig.class);
@@ -205,7 +228,7 @@ public class CollectionPluginHandler extends PluginHandler {
         } else throw new GuiException("Collection view config has no display tags configured ");
     }
 
-    private CollectionRowItem generateCollectionRowItem(IdentifiableObject identifiableObject, Set<String> fields) {
+    public CollectionRowItem generateCollectionRowItem(IdentifiableObject identifiableObject, Set<String> fields) {
         CollectionRowItem item = new CollectionRowItem();
         LinkedHashMap<String, Value> row = getRowValues(identifiableObject, fields);
         item.setId(identifiableObject.getId());

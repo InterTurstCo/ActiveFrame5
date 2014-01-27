@@ -1,11 +1,18 @@
 package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.SearchService;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.plugin.ExtendedSearchData;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
+
+import java.util.HashSet;
 
 /**
  * User: IPetrov
@@ -15,14 +22,33 @@ import ru.intertrust.cm.core.gui.model.plugin.ExtendedSearchData;
  */
 @ComponentName("extended.search.form.plugin")
 public class ExtendedSearchFormPluginHandler extends PluginHandler {
+
     @Autowired
     SearchService searchService;
+    @Autowired
+    private GuiService guiService;
+    @Autowired
+    private ApplicationContext applicationContext;
 
-    // запрос на поиск
-    public IdentifiableObjectCollection extendedSearch(ExtendedSearchData extendedSearchData) {
+    public FormPluginData initialize(Dto initialData) {
+        ExtendedSearchData extendedSearchData= (ExtendedSearchData) initialData;
+        String targetDomainObject = extendedSearchData.getSearchQuery().getTargetObjectType();
+        final FormPluginConfig formPluginConfig;
+        formPluginConfig = new FormPluginConfig(targetDomainObject);
+        //formPluginConfig.setMode(FormPluginMode.EDITABLE);
+        //formPluginConfig.setEditable(true);
 
-        return searchService.search(extendedSearchData.getSearchQuery(),
-                         extendedSearchData.getSearchQuery().getTargetObjectType(), extendedSearchData.getMaxResults());
+        ExtendedSearchPluginHandler extendedSearchPluginHandler = (ExtendedSearchPluginHandler)
+                                                                    applicationContext.getBean("extended.search.plugin");
+        extendedSearchPluginHandler.initialize(initialData);
+
+        HashSet<String> searchFormFields = extendedSearchPluginHandler.selectSearchFormFields(targetDomainObject);
+        FormDisplayData form = guiService.getSearchForm(targetDomainObject, searchFormFields);
+        //form.setEditable(true);
+        FormPluginData formPluginData = new FormPluginData();
+        formPluginData.setFormDisplayData(form);
+        //formPluginData.setMode(FormPluginMode.EDITABLE);
+
+        return formPluginData;
     }
-
 }

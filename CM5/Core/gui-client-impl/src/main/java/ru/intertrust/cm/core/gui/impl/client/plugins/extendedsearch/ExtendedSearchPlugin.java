@@ -1,11 +1,14 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.extendedsearch;
 
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.ExtendedSearchPluginData;
+
+import java.util.logging.Logger;
 
 /*
 * @author IPetrov
@@ -17,9 +20,19 @@ import ru.intertrust.cm.core.gui.model.plugin.ExtendedSearchPluginData;
 @ComponentName("extended.search.plugin")
 public class ExtendedSearchPlugin extends Plugin {
 
-    private ExtendedSearchFormPlugin extendedSearchFormPlugin;
-    private PluginPanel extendedSearchPluginPanel;
     private ExtendedSearchPluginData extendedSearchPluginData;
+    private FormPlugin extendedSearchFormPlugin;
+    private PluginPanel extendedSearchPluginPanel;
+
+    static Logger log = Logger.getLogger("extended.search.plugin");
+
+    public FormPlugin getExtendedSearchFormPlugin() {
+        return extendedSearchFormPlugin;
+    }
+
+    public void setExtendedSearchFormPlugin(FormPlugin extendedSearchFormPlugin) {
+        this.extendedSearchFormPlugin = extendedSearchFormPlugin;
+    }
 
     public ExtendedSearchPluginData getExtendedSearchPluginData() {
         return extendedSearchPluginData;
@@ -31,14 +44,6 @@ public class ExtendedSearchPlugin extends Plugin {
 
     public void setExtendedSearchPluginPanel(PluginPanel extendedSearchPluginPanel) {
         this.extendedSearchPluginPanel = extendedSearchPluginPanel;
-    }
-
-    public ExtendedSearchFormPlugin getExtendedSearchFormPlugin() {
-        return extendedSearchFormPlugin;
-    }
-
-    public void setExtendedSearchFormPlugin(ExtendedSearchFormPlugin extendedSearchFormPlugin) {
-        this.extendedSearchFormPlugin = extendedSearchFormPlugin;
     }
 
     @Override

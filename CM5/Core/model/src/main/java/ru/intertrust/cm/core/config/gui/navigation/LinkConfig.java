@@ -32,6 +32,10 @@ public class LinkConfig implements Dto {
     @Element(name = "plugin", required = false)
     private LinkPluginDefinition pluginDefinition;
 
+    // Области поиска для расширенного поиска
+    @Element(name = "default-search-areas", required = false)
+    private DefaultSearchAreasConfig defaultSearchAreasConfig;
+
     @ElementList(inline = true, required = false)
     private List<ChildLinksConfig> childLinksConfigList = new ArrayList<ChildLinksConfig>();
 
@@ -76,6 +80,14 @@ public class LinkConfig implements Dto {
 
     public void setPluginDefinition(LinkPluginDefinition pluginDefinition) {
         this.pluginDefinition = pluginDefinition;
+    }
+
+    public DefaultSearchAreasConfig getDefaultSearchAreasConfig() {
+        return defaultSearchAreasConfig;
+    }
+
+    public void setDefaultSearchAreasConfig(DefaultSearchAreasConfig defaultSearchAreasConfig) {
+        this.defaultSearchAreasConfig = defaultSearchAreasConfig;
     }
 
     public List<ChildLinksConfig> getChildLinksConfigList() {

@@ -1,12 +1,12 @@
 package ru.intertrust.cm.core.config.search;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 abstract public class IndexedDomainObjectConfig implements Serializable {
 

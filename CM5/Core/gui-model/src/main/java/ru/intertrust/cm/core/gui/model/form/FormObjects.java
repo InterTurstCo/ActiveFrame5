@@ -70,6 +70,9 @@ public class FormObjects implements Dto {
         }
 
         MultiObjectNode fieldPathNode = (MultiObjectNode) fieldPathNodes.get(fieldPath);
+        if (fieldPathNode == null) {
+            return new ArrayList<Id>(0);
+        }
         if (fieldPath.isOneToManyReference()) {
             ArrayList<Id> result = new ArrayList<Id>(fieldPathNode.size());
             for (DomainObject domainObject : fieldPathNode) {

@@ -12,9 +12,9 @@ import java.util.List;
 */
 public class SearchQuery implements Dto {
 
-    private ArrayList<String> areas = new ArrayList<>();
+    private ArrayList<String> areas = new ArrayList<String>();
     private String targetObjectType;
-    private HashMap<String, SearchFilter> filters = new HashMap<>();
+    private HashMap<String, SearchFilter> filters = new HashMap<String, SearchFilter>();
 
     public List<String> getAreas() {
         return areas;
@@ -33,7 +33,7 @@ public class SearchQuery implements Dto {
     }
 
     public void clearAreas() {
-        areas = new ArrayList<>();
+        areas = new ArrayList<String>();
     }
 
     public String getTargetObjectType() {
@@ -63,6 +63,6 @@ public class SearchQuery implements Dto {
     }
 
     public void clearFilters() {
-        filters = new HashMap<>();
+        filters = new HashMap<String, SearchFilter>();
     }
 }

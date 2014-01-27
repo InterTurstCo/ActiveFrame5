@@ -446,6 +446,9 @@
             <label id="9">
                 <text>День независимости:</text>
             </label>
+            <label id="test">
+                <text>TEST</text>
+            </label>
             <date-box id="10">
                 <field-path value="independence_day"/>
             </date-box>

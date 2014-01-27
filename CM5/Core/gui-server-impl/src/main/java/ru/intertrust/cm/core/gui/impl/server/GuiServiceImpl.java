@@ -22,6 +22,7 @@ import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashSet;
 
 /**
  * Базовая реализация сервиса GUI
@@ -82,6 +83,12 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
         FormRetriever formRetriever = (FormRetriever)
                 applicationContext.getBean("formRetriever", sessionContext.getCallerPrincipal().getName());
         return formRetriever.getForm(domainObjectId);
+    }
+
+    public FormDisplayData getSearchForm(String domainObjectType, HashSet<String> formFields) {
+        FormRetriever formRetriever = (FormRetriever)
+                applicationContext.getBean("formRetriever", sessionContext.getCallerPrincipal().getName());
+        return formRetriever.getSearchForm(domainObjectType, formFields);
     }
 
     public DomainObject saveForm(FormState formState) {

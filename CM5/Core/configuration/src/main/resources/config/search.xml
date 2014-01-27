@@ -70,7 +70,7 @@
             <indexed-field name="Organization_Name">
                 <doel>Department.Organization.Name</doel>
             </indexed-field>
-            <target-collection name="PersonByLogin"/>
+            <target-collection name="Employees"/>
         </target-domain-object>
         <target-domain-object type="Department">
             <indexed-field name="Name"/>
@@ -97,12 +97,12 @@
         </target-domain-object>
     </search-area>
 
-    <search-area name="Countries-Search-Area">
+    <!--<search-area name="Countries-Search-Area">
         <target-domain-object type="Country">
             <indexed-field name="name"/>
             <indexed-field name="independence_day"/>
             <indexed-field name="description"/>
-            <target-collection name="Country"/>
+            <target-collection name="Countries"/>
         </target-domain-object>
-    </search-area>
+    </search-area>-->
 </configuration>

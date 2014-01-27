@@ -19,10 +19,7 @@ import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.*;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Denis Mitavskiy
@@ -59,6 +56,46 @@ public class FormRetriever {
             throw new GuiException("Object with id: " + domainObjectId.toStringRepresentation() + " doesn't exist");
         }
         return buildDomainObjectForm(root);
+    }
+
+    // форма поиска для доменного объекта указанного типа
+    public FormDisplayData getSearchForm(String domainObjectType, HashSet<String> formFields) {
+        DomainObject root = crudService.createDomainObject(domainObjectType);
+        return buildExtendedSearchForm(root, formFields);
+    }
+
+    private FormDisplayData buildExtendedSearchForm(DomainObject root, HashSet<String> formFields) {
+        FormConfig formConfig = formResolver.findFormConfig(root, userUid);
+        List<WidgetConfig> widgetConfigs = formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
+        HashMap<String, WidgetState> widgetStateMap = new HashMap<>(widgetConfigs.size());
+        HashMap<String, String> widgetComponents = new HashMap<>(widgetConfigs.size());
+        HashMap<String, WidgetConfig> idToConfigMap;
+
+        FormObjects formObjects = new FormObjects();
+        Iterator it = widgetConfigs.iterator();
+
+        final ObjectsNode ROOT_NODE = new SingleObjectNode(root);
+        formObjects.setRootNode(ROOT_NODE);
+
+        try {
+        while(it.hasNext()) {
+
+            WidgetConfig config = (WidgetConfig) it.next();
+            String widgetId = config.getId();
+
+            WidgetContext widgetContext = new WidgetContext(config, formObjects);
+            WidgetHandler componentHandler = (WidgetHandler) applicationContext.getBean(config.getComponentName());
+            WidgetState initialState = componentHandler.getInitialState(widgetContext);
+            initialState.setEditable(true);
+            widgetStateMap.put(widgetId, initialState);
+            widgetComponents.put(widgetId, config.getComponentName());
+        }
+
+        } catch (ConcurrentModificationException cme) {}
+
+        FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects);
+        return new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents,
+                formConfig.getMinWidth(), formConfig.getDebug()/*, true, formConfig.getExtSearchType()*/);
     }
 
     private FormDisplayData buildDomainObjectForm(DomainObject root) {
