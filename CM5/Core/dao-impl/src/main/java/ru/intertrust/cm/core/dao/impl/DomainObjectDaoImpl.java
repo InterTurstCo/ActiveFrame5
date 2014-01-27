@@ -1266,6 +1266,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 .getAclReadTableNameFor(linkedType);
         query.append(" and exists (select r.object_id from ").append(childAclReadTable).append(" r ");
         //TODO wrap person_id, object_id
+
         query.append(" inner join ").append(wrap("group_group")).append(" gg on r.").append(wrap("group_id"))
                 .append(" = gg.").append(wrap("parent_group_id"));
         query.append(" inner join ").append(wrap("group_member")).append(" gm on gg.")
@@ -1370,6 +1371,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         return result;
     }
 
+    
     /**
      * Запись информации аудит лог в базу
      *

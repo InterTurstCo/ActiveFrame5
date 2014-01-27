@@ -18,7 +18,6 @@ import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TYPE_COLUMN;
 public class SqlQueryModifierTest {
 
     private static final String ID_FIELD = "id";
-
     private static final String UNION_QUERY = "SELECT * FROM EMPLOYEE e, Department d where 1 = 1 and e.id = 1 " +
             "union SELECT * FROM EMPLOYEE e, Department d where 1 = 1 and e.id = 2";
 
