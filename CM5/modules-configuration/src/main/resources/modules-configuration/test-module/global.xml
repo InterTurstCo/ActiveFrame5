@@ -4,4 +4,7 @@
         <audit-log enable="false" />
         <sql-trace enable="true" resolveParameters="true" minRows="1" minTime="100"/>
     </global-settings>
+    <business-universe>
+        <logo image="logo.gif"/>
+    </business-universe>
 </configuration>

@@ -202,8 +202,21 @@
                 <xs:element name="action-context" type="con:actionСontextType"
                     maxOccurs="unbounded" minOccurs="0"
                     xmlns:con="https://cm5.intertrust.ru/config" />
+                <xs:element name="business-universe" type="con:businessUniverseType"
+                            maxOccurs="1" minOccurs="0"
+                            xmlns:con="https://cm5.intertrust.ru/config" />
             </xs:choice>
+    </xs:complexType>
 
+    <xs:complexType name="businessUniverseType">
+        <xs:choice>
+            <xs:element name="logo" type="con:logoType"
+                        maxOccurs="1" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config" />
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="logoType">
+        <xs:attribute name="image" use="required" type="xs:string"/>
     </xs:complexType>
 
     <xs:complexType name="actionType">

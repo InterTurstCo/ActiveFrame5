@@ -12,6 +12,7 @@ public class BusinessUniverseInitialization implements Dto {
     private String firstName;
     private String lastName;
     private String eMail;
+    private String logoImagePath;
 
     public String getCurrentLogin() {
         return currentLogin;
@@ -58,4 +59,14 @@ public class BusinessUniverseInitialization implements Dto {
         this.firstName = firstName;
     }
 
+    public String getLogoImagePath() {
+        if (logoImagePath == null) {
+            logoImagePath = "logo.gif";
+        }
+        return logoImagePath;
+    }
+
+    public void setLogoImagePath(String logoImagePath) {
+        this.logoImagePath = logoImagePath;
+    }
 }

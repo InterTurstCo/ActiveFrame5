@@ -108,7 +108,9 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 eventBus.addHandler(NavigationTreeItemSelectedEvent.TYPE, BusinessUniverse.this);
                 navigationTreePanel.setVisibleWidth(130);
                 navigationTreePanel.open(navigationTreePlugin);
-                header.add(new HeaderContainer(getUserInfo(result)));
+                String logoImagePath = result.getLogoImagePath();
+                CurrentUserInfo currentUserInfo = getUserInfo(result);
+                header.add(new HeaderContainer(currentUserInfo, logoImagePath));
                 action.add(centralPluginPanel);
                 left.add(navigationTreePanel);
                 left.setHeight(Window.getClientHeight() + "px");

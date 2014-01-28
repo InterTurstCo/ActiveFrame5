@@ -2,12 +2,14 @@ package ru.intertrust.cm.core.gui.rpc.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.PersonService;
 import ru.intertrust.cm.core.business.api.dto.AttachmentUploadPercentage;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.BusinessUniverseConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.impl.server.widget.AttachmentUploaderServlet;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
@@ -39,10 +41,13 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     @EJB
     PersonService personService;
 
+    @EJB
+    private ConfigurationService configurationService;
     @Override
     public BusinessUniverseInitialization getBusinessUniverseInitialization() {
         BusinessUniverseInitialization initialization = new BusinessUniverseInitialization();
         addInformationToInitializationObject(initialization);
+        addLogoImagePath(initialization);
         return initialization;
     }
 
@@ -53,6 +58,16 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         businessUniverseInitialization.setFirstName(person.getString("FirstName"));
         businessUniverseInitialization.setLastName(person.getString("LastName"));
         businessUniverseInitialization.seteMail(person.getString("EMail"));
+        return businessUniverseInitialization;
+    }
+
+    private BusinessUniverseInitialization addLogoImagePath(BusinessUniverseInitialization businessUniverseInitialization) {
+        BusinessUniverseConfig businessUniverseConfig = configurationService.getConfig(BusinessUniverseConfig.class, "business_universe");
+        if (businessUniverseConfig == null) {
+            return businessUniverseInitialization;
+        }
+        String logoImagePath = businessUniverseConfig.getLogoConfig().getImage();
+        businessUniverseInitialization.setLogoImagePath(logoImagePath);
         return businessUniverseInitialization;
     }
 

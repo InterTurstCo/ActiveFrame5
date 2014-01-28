@@ -24,14 +24,14 @@ public class HeaderContainer extends SimplePanel {
     private PluginPanel extendSearchPluginPanel;
     private ExtendedSearchPlugin extendedSearchPlugin;
 
-    public HeaderContainer(CurrentUserInfo currentUserInfo) {
+    public HeaderContainer(CurrentUserInfo currentUserInfo, String logoImagePath) {
         addUserInfoToDialog(currentUserInfo);
 
         this.getElement().setId("container");
         this.getElement().getStyle().setProperty("position", "relative");
 
         SimplePanel head = createHeadPanel(this);
-        FlexTable headTable = createHeadTable();
+        FlexTable headTable = createHeadTable(logoImagePath);
 
         headTable.setWidget(FIRST_ROW, 1, new HeaderSectionSuggestBox());
         headTable.getFlexCellFormatter().setStyleName(FIRST_ROW, 1, "H_td_notes");
@@ -127,11 +127,11 @@ public class HeaderContainer extends SimplePanel {
         BusinessUniverseAuthenticationServiceAsync.Impl.getInstance().logout(callback);
     }
 
-    private FlexTable createHeadTable() {
+    private FlexTable createHeadTable(String logoImagePath) {
         FlexTable headTable = new FlexTable();
         headTable.addStyleName("HeadTable");
         headTable.getFlexCellFormatter().setStyleName(FIRST_ROW, 0, "H_td_logo");
-        headTable.setWidget(FIRST_ROW, 0, new Image("logo.gif"));
+        headTable.setWidget(FIRST_ROW, 0, new Image(logoImagePath));
         return headTable;
     }
 
