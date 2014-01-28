@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Application;
@@ -28,7 +29,7 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 @ComponentName("linked-domain-object-hyperlink")
 public class LinkedDomainObjectHyperlinkWidget extends BaseWidget {
     private LinkedDomainObjectHyperlinkItem hyperlinkItem;
-
+    private Label noneEditableWidget;
     @Override
     public Component createNew() {
         return new LinkedDomainObjectHyperlinkWidget();
@@ -36,7 +37,10 @@ public class LinkedDomainObjectHyperlinkWidget extends BaseWidget {
 
     public void setCurrentState(WidgetState currentState) {
         final LinkedDomainObjectHyperlinkState state = (LinkedDomainObjectHyperlinkState) currentState;
-
+         if (!isEditable()) {
+             noneEditableWidget.setText(state.getStringRepresentation());
+             return;
+         }
         final FormPluginConfig originConfig = state.getConfig();
         final String domainObjectType = state.getDomainObjectType();
         final Id id = state.getId();
@@ -104,9 +108,15 @@ public class LinkedDomainObjectHyperlinkWidget extends BaseWidget {
                     }
 
                 });
-
+                  noneEditableFormDialogBox.initButton("Отмена", new ClickHandler() {
+                      @Override
+                      public void onClick(ClickEvent event) {
+                          noneEditableFormDialogBox.hide();
+                      }
+                  });
             }
         });
+
     }
 
     @Override
@@ -123,7 +133,8 @@ public class LinkedDomainObjectHyperlinkWidget extends BaseWidget {
 
     @Override
     protected Widget asNonEditableWidget() {
-        return asEditableWidget();
+        noneEditableWidget = new Label();
+        return noneEditableWidget;
     }
 }
 

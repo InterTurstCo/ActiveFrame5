@@ -150,16 +150,17 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(title);
         config.getPluginState().setToggleEdit(true);
         config.getPluginState().setInCentralPanel(true);
-        final FormPlugin formPlugin = noneEditableFormDialogBox.createFormPlugin(config);
+        final FormPlugin noneEditableFormPlugin = noneEditableFormDialogBox.createFormPlugin(config);
         noneEditableFormDialogBox.initButton("Открыть в полном окне", new ClickHandler() {
 
             @Override
             public void onClick(ClickEvent event) {
-                formPlugin.setDisplayActionToolBar(true);
-                formPlugin.setLocalEventBus(getEventBus());
+                noneEditableFormPlugin.setDisplayActionToolBar(true);
+                noneEditableFormPlugin.setLocalEventBus(getEventBus());
                 Application.getInstance().getEventBus()
-                        .fireEvent(new CentralPluginChildOpeningRequestedEvent(formPlugin));
+                        .fireEvent(new CentralPluginChildOpeningRequestedEvent(noneEditableFormPlugin));
                 noneEditableFormDialogBox.hide();
+                mainPopup.hidePopup();
             }
         });
         noneEditableFormDialogBox.initButton("Изменить", new ClickHandler() {
