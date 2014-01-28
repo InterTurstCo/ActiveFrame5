@@ -101,7 +101,7 @@ public class RadioButtonWidget extends BaseWidget {
 
     @Override
     protected Widget asEditableWidget() {
-        return new FlowPanel();
+        return new ScrollPanel();
     }
 
     @Override
