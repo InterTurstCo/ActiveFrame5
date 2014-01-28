@@ -34,6 +34,12 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
     @Element(name = "selection-style",required = false)
     private SelectionStyleConfig selectionStyleConfig;
 
+    @Element(name = "max-drop-down-width", required = false)
+    Integer maxDropDownWidth;
+
+    @Element(name = "max-drop-down-height", required = false)
+    Integer maxDropDownHeight;
+
     @Element(name = "single-choice", required = false)
     private SingleChoiceConfig singleChoice;
 
@@ -116,6 +122,23 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
         return sortCriteriaConfig;
     }
 
+
+    public Integer getMaxDropDownWidth() {
+        return maxDropDownWidth;
+    }
+
+    public void setMaxDropDownWidth(Integer maxDropDownWidth) {
+        this.maxDropDownWidth = maxDropDownWidth;
+    }
+
+    public Integer getMaxDropDownHeight() {
+        return maxDropDownHeight;
+    }
+
+    public void setMaxDropDownHeight(Integer maxDropDownHeight) {
+        this.maxDropDownHeight = maxDropDownHeight;
+    }
+
     public void setSortCriteriaConfig(SortCriteriaConfig sortCriteriaConfig) {
         this.sortCriteriaConfig = sortCriteriaConfig;
     }
@@ -176,6 +199,13 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
             return false;
         }
 
+        if (maxDropDownWidth != null ? !maxDropDownWidth.equals(that.maxDropDownWidth) : that.maxDropDownWidth != null) {
+            return false;
+        }
+
+        if (maxDropDownHeight != null ? !maxDropDownHeight.equals(that.maxDropDownHeight) : that.maxDropDownHeight != null) {
+            return false;
+        }
         return true;
     }
 
@@ -190,6 +220,8 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
         result = 31 * result + (selectionStyleConfig != null ? selectionStyleConfig.hashCode() : 0);
         result = 31 * result + (singleChoice != null ? singleChoice.hashCode() : 0);
         result = 31 * result + (clearAllButtonConfig != null ? clearAllButtonConfig.hashCode() : 0);
+        result = 31 * result + (maxDropDownWidth != null ? maxDropDownWidth.hashCode() : 0);
+        result = 31 * result + (maxDropDownHeight != null ? maxDropDownHeight.hashCode() : 0);
         result = 31 * result + (sortCriteriaConfig != null ? sortCriteriaConfig.hashCode() : 0);
         return result;
     }

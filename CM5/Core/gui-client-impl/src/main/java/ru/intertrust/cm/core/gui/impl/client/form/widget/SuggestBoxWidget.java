@@ -30,7 +30,7 @@ public class SuggestBoxWidget extends BaseWidget {
     private SuggestBox suggestBox;
    // private
     private final HashMap<Id, String> allSuggestions = new HashMap<Id, String>();
-
+    CmjDefaultSuggestionDisplay display;
 
     public SuggestBoxWidget() {
     }
@@ -79,11 +79,21 @@ public class SuggestBoxWidget extends BaseWidget {
         return label;
     }
 
+    public class CmjDefaultSuggestionDisplay extends SuggestBox.DefaultSuggestionDisplay {
+        public PopupPanel getSuggestionPopup() {
+            return this.getPopupPanel();
+        }
+
+    }
+
     @Override
     protected Widget asEditableWidget() {
         final SuggestPresenter presenter = new SuggestPresenter();
+        //presenter.setSuggestMaxDropDownWidth(suggestMaxDropDownWidth);
+
         MultiWordSuggestOracle oracle = buildDynamicMultiWordOracle();
-        suggestBox = new SuggestBox(oracle);
+        //suggestBox = new SuggestBox(oracle);
+        suggestBox = new SuggestBox(oracle, new TextBox(), new CmjDefaultSuggestionDisplay());
         suggestBox.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
 
             public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
@@ -97,8 +107,21 @@ public class SuggestBoxWidget extends BaseWidget {
             }
         });
 
-        SuggestBox.DefaultSuggestionDisplay display = (SuggestBox.DefaultSuggestionDisplay) suggestBox.getSuggestionDisplay();
+//        SuggestBox.DefaultSuggestionDisplay display = (SuggestBox.DefaultSuggestionDisplay) suggestBox.getSuggestionDisplay();
+//        display.setPositionRelativeTo(presenter);
+
+
+        display = (CmjDefaultSuggestionDisplay) suggestBox.getSuggestionDisplay();
+
         display.setPositionRelativeTo(presenter);
+//+------------------------------------------------------
+//|.gwt-SuggestBoxPopup
+//+------------------------------------------------------
+//        display.getSuggestionPopup().getElement().getStyle().setWidth(700, Style.Unit.PX);
+//        display.getSuggestionPopup().getElement().getStyle().setHeight(100, Style.Unit.PX);
+
+
+        display.getSuggestionPopup().getElement().getStyle().setZIndex(999999999);
 
         return presenter;
     }
@@ -175,6 +198,8 @@ public class SuggestBoxWidget extends BaseWidget {
         private Element arrowBtn;
         private Element clearAllButton;
         private SuggestBox suggestBox;
+        private Integer maxDropDownWidth;
+        private Integer maxDropDownHeight;
 
           private SuggestPresenter() {
             Element row = DOM.createTR();
@@ -185,11 +210,51 @@ public class SuggestBoxWidget extends BaseWidget {
             DOM.appendChild(getBody(), row);
             arrowBtn = DOM.createTD();
             arrowBtn.setClassName("arrow-suggest-btn");
+     //       DOM.appendChild(row, arrowBtn);
             DOM.setEventListener(arrowBtn, new EventListener() {
                 @Override
                 public void onBrowserEvent(Event event) {
+                    final CmjDefaultSuggestionDisplay display = (CmjDefaultSuggestionDisplay) suggestBox.getSuggestionDisplay();
+
+
+                    Element e = (Element) display.getSuggestionPopup().getElement().getFirstChild().getFirstChild().getFirstChild().getChild(1).getChild(1).getFirstChild();
+
+
                     suggestBox.setText("*");
-                    suggestBox.showSuggestionList();
+                    //suggestBox.showSuggestionList();
+                    //max-width drop down suggest
+                    if (getMaxDropDownWidth() != null) {
+                        e.getStyle().setWidth(getMaxDropDownWidth(), Style.Unit.PX);
+                    } else {
+                        e.getStyle().setWidth((Window.getClientWidth() - 15) - suggestBox.getAbsoluteLeft(), Style.Unit.PX);
+                    }
+                    //end max-width drop down suggest
+
+                    //max-height drop down suggest
+
+                    if (getMaxDropDownHeight() != null) {
+                        e.getStyle().setHeight(getMaxDropDownHeight(), Style.Unit.PX);
+                        e.getStyle().setOverflowY(Style.Overflow.SCROLL);
+                    }
+                    else {
+//                        //если вверху
+//                        suggestBox.showSuggestionList();
+//                        if(suggestBox.getAbsoluteTop() < ((CmjDefaultSuggestionDisplay) suggestBox.getSuggestionDisplay()).getSuggestionPopup().getAbsoluteTop()){
+//
+//                            e.getStyle().setHeight(suggestBox.getAbsoluteTop() - suggestBox.getOffsetHeight(), Style.Unit.PX);
+//                            e.getStyle().setOverflowY(Style.Overflow.SCROLL);
+//                        }
+//                        //усли внизу
+                        suggestBox.showSuggestionList();
+                        e.getStyle().setHeight(Window.getClientHeight()- suggestBox.getAbsoluteTop() - suggestBox.getOffsetHeight() - 25, Style.Unit.PX);
+                        e.getStyle().setOverflowY(Style.Overflow.SCROLL);
+                    }
+
+                    //end max-height drop down suggest
+                    if (!((CmjDefaultSuggestionDisplay) suggestBox.getSuggestionDisplay()).getSuggestionPopup().isShowing()) {
+                        suggestBox.showSuggestionList();
+                    }
+
                     suggestBox.setText("");
                 }
             });
@@ -198,7 +263,7 @@ public class SuggestBoxWidget extends BaseWidget {
             clearAllButton = DOM.createTD();
             clearAllButton.getStyle().setMarginRight(-69, Style.Unit.PX);
             clearAllButton.getStyle().setDisplay(Style.Display.BLOCK);
-            DOM.appendChild(row, clearAllButton );
+            DOM.appendChild(row, clearAllButton);
             DOM.sinkEvents(arrowBtn, Event.ONCLICK);
             DOM.setEventListener(container, new EventListener() {
                 @Override
@@ -215,7 +280,38 @@ public class SuggestBoxWidget extends BaseWidget {
             return selectedSuggestions.keySet();
         }
 
+        private Integer getMaxDropDownWidth() {
+            return maxDropDownWidth;
+        }
+
+        private void setMaxDropDownWidth(Integer maxDropDownWidth) {
+            this.maxDropDownWidth = maxDropDownWidth;
+        }
+
+        private Integer getMaxDropDownHeight() {
+            return maxDropDownHeight;
+        }
+
+        private void setMaxDropDownHeight(Integer maxDropDownHeight) {
+            this.maxDropDownHeight = maxDropDownHeight;
+        }
+
+        private int getNumberFromSizeString(String sizeString) {
+            if (sizeString == null || sizeString.equalsIgnoreCase("")) {
+                return 0;
+            }
+            int UnitPx = 2;
+            return Integer.parseInt(sizeString.substring(0, sizeString.length() - UnitPx));
+        }
+
         public void init(final SuggestBoxState state, final SuggestBox suggestBox) {
+            if (state.getSuggestBoxConfig().getMaxDropDownWidth() != null) {
+                this.maxDropDownWidth = state.getSuggestBoxConfig().getMaxDropDownWidth();
+            }
+            if (state.getSuggestBoxConfig().getMaxDropDownHeight() != null) {
+                this.maxDropDownHeight = state.getSuggestBoxConfig().getMaxDropDownHeight();
+            }
+
             this.singleChoice = state.isSingleChoice();
             clear();
             selectedSuggestions.clear();
@@ -261,7 +357,7 @@ public class SuggestBoxWidget extends BaseWidget {
             itemComposite.setCloseBtnListener(createCloseBtnListener(itemComposite));
             if (singleChoice) {
                 selectedSuggestions.clear();
-                for (Iterator<Widget> it = getChildren().iterator(); it.hasNext();) {
+                for (Iterator<Widget> it = getChildren().iterator(); it.hasNext(); ) {
                     final Widget widget = it.next();
                     if (widget instanceof SelectedItemComposite) {
                         it.remove();
@@ -281,7 +377,7 @@ public class SuggestBoxWidget extends BaseWidget {
                 final Widget child = getWidget(index);
                 if (child instanceof SelectedItemComposite) {
                     childWidth += child.getOffsetWidth();
-                    if (childWidth > parentWidth ) {
+                    if (childWidth > parentWidth) {
                         childWidth = child.getOffsetWidth();
                     }
                 } else {
