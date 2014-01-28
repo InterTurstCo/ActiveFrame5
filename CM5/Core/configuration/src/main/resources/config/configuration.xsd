@@ -1426,29 +1426,9 @@
         <xs:attribute type="xs:boolean" name="selective"  default="true"/>
         <xs:attribute type="xs:string" name="domain-object-type"/>
     </xs:complexType>
-    <xs:complexType name="selectionStyleType">
-        <xs:simpleContent>
-            <xs:extension base="xs:string">
-                <xs:attribute name="name" type="con:selectionStyleAttr" default="inline"/>
-            </xs:extension>
-        </xs:simpleContent>
-    </xs:complexType>
-    <xs:complexType name="clearAllButtonType">
-        <xs:simpleContent>
-            <xs:extension base="xs:string">
-                <xs:attribute type="xs:string" name="image" />
-                <xs:attribute type="xs:string" name="text" />
-            </xs:extension>
-        </xs:simpleContent>
-    </xs:complexType>
-    <xs:complexType name="addButtonType">
-        <xs:simpleContent>
-            <xs:extension base="xs:string">
-                <xs:attribute type="xs:string" name="image" />
-                <xs:attribute type="xs:string" name="text" />
-            </xs:extension>
-        </xs:simpleContent>
-    </xs:complexType>
+
+
+
     <!-- Attachment box definitions -->
     <xs:complexType name="attachmentBoxType">
         <xs:choice maxOccurs="unbounded" minOccurs="0">
