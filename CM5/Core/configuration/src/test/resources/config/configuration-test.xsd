@@ -1112,21 +1112,56 @@
         <xs:attribute type="xs:string" name="id" />
     </xs:complexType>
     <xs:complexType name="tableBrowserType">
-        <xs:sequence>
+        <xs:choice maxOccurs="unbounded">
             <xs:element type="con:fieldPathType" name="field-path"
-                        xmlns:con="https://cm5.intertrust.ru/config" />
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:collectionRefType" name="collection-ref"
-                        xmlns:con="https://cm5.intertrust.ru/config" />
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:collectionViewRefType" name="collection-view-ref"
-                        xmlns:con="https://cm5.intertrust.ru/config" />
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:patternType" name="selection-pattern"
-                        xmlns:con="https://cm5.intertrust.ru/config" />
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:selectionFilterReferenceType"
-                        name="input-text-filter" xmlns:con="https://cm5.intertrust.ru/config" />
+                        name="input-text-filter" xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="xs:integer" name="page-size"
-                        nillable="false" xmlns:con="https://cm5.intertrust.ru/config" />
-        </xs:sequence>
+                        nillable="false" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:displayChosenValuesType" name="display-chosen-values"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:selectionStyleType" name="selection-style"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:singleChoiceType" name="single-choice"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:clearAllButtonType" name="clear-all-button"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:addButtonType" name="add-button"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:sortCriteriaType" name="sort-criteria"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:choice>
         <xs:attribute type="xs:string" name="id" />
+    </xs:complexType>
+    <xs:complexType name="selectionStyleType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="name" type="con:selectionStyleAttr" default="inline"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="clearAllButtonType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="image" />
+                <xs:attribute type="xs:string" name="text" />
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="addButtonType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="image" />
+                <xs:attribute type="xs:string" name="text" />
+            </xs:extension>
+        </xs:simpleContent>
     </xs:complexType>
     <xs:complexType name="listBoxType">
         <xs:sequence>

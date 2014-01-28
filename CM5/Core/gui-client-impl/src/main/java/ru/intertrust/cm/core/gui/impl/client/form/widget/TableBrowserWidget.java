@@ -106,7 +106,7 @@ public class TableBrowserWidget extends BaseWidget {
         collectionViewRefConfig.setName(tableBrowserConfig.getCollectionViewRefConfig().getName());
         CollectionRefConfig collectionRefConfig = new CollectionRefConfig();
         collectionRefConfig.setName(tableBrowserConfig.getCollectionRefConfig().getName());
-        SortCriteriaConfig sortCriteriaConfig = new SortCriteriaConfig();
+        SortCriteriaConfig sortCriteriaConfig = tableBrowserConfig.getSortCriteriaConfig();
         collectionViewerConfig.setSortCriteriaConfig(sortCriteriaConfig);
         collectionViewerConfig.setCollectionRefConfig(collectionRefConfig);
         collectionViewerConfig.setCollectionViewRefConfig(collectionViewRefConfig);

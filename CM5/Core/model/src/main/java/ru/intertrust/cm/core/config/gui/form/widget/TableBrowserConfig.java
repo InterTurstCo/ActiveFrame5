@@ -4,6 +4,7 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
+import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -37,10 +38,13 @@ public class TableBrowserConfig extends WidgetConfig {
     private SingleChoiceConfig singleChoice;
 
     @Element(name = "clear-all-button", required = false)
-    ClearAllButtonConfig clearAllButtonConfig;
+    private ClearAllButtonConfig clearAllButtonConfig;
 
     @Element(name = "add-button", required = false)
-    AddButtonConfig addButtonConfig;
+    private AddButtonConfig addButtonConfig;
+
+    @Element(name = "sort-criteria", required = false)
+    private SortCriteriaConfig sortCriteriaConfig;
 
     public CollectionViewRefConfig getCollectionViewRefConfig() {
         return collectionViewRefConfig;
@@ -122,6 +126,14 @@ public class TableBrowserConfig extends WidgetConfig {
         this.addButtonConfig = addButtonConfig;
     }
 
+    public SortCriteriaConfig getSortCriteriaConfig() {
+        return sortCriteriaConfig;
+    }
+
+    public void setSortCriteriaConfig(SortCriteriaConfig sortCriteriaConfig) {
+        this.sortCriteriaConfig = sortCriteriaConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -165,8 +177,7 @@ public class TableBrowserConfig extends WidgetConfig {
                 that.selectionPatternConfig != null) {
             return false;
         }
-        if (singleChoice != null ? !singleChoice.equals(that.singleChoice) :
-                that.singleChoice != null) {
+        if (singleChoice != null ? !singleChoice.equals(that.singleChoice) : that.singleChoice != null) {
             return false;
         }
 
@@ -175,8 +186,12 @@ public class TableBrowserConfig extends WidgetConfig {
             return false;
         }
 
-        if (addButtonConfig != null ? !addButtonConfig.equals(that.addButtonConfig) :
-                that.addButtonConfig != null) {
+        if (addButtonConfig != null ? !addButtonConfig.equals(that.addButtonConfig) : that.addButtonConfig != null) {
+            return false;
+        }
+
+        if (sortCriteriaConfig != null ? !sortCriteriaConfig.equals(that.sortCriteriaConfig) :
+                that.sortCriteriaConfig != null) {
             return false;
         }
         return true;
@@ -195,6 +210,7 @@ public class TableBrowserConfig extends WidgetConfig {
         result = 31 * result + (selectionStyleConfig != null ? selectionStyleConfig.hashCode() : 0);
         result = 31 * result + (clearAllButtonConfig != null ? clearAllButtonConfig.hashCode() : 0);
         result = 31 * result + (addButtonConfig != null ? addButtonConfig.hashCode() : 0);
+        result = 31 * result + (sortCriteriaConfig != null ? sortCriteriaConfig.hashCode() : 0);
         return result;
     }
 
