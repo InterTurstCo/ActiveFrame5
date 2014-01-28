@@ -6,7 +6,7 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.config.gui.form.widget.AddButtonConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.ClearAllButtonConfig;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonConstructor;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonForm;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 
 import java.util.ArrayList;
@@ -74,30 +74,30 @@ public class HierarchyBrowserView extends Composite {
         widgetChosenContent.handleAddingChosenItems(chosenItems);
     }
 
-    public void drawAddButton(AddButtonConfig config){
-        ButtonConstructor buttonConstructor;
+    public void initAddButton(AddButtonConfig config){
+        ButtonForm buttonForm;
         String text = config.getText();
         if (text.equals("...")) {
             text = "Выбрать";
 
         }
         if (config != null){
-            buttonConstructor = new ButtonConstructor(openPopupButton, config.getImage(), text);
+            buttonForm = new ButtonForm(openPopupButton, config.getImage(), text);
         }else {
-            buttonConstructor = new ButtonConstructor(openPopupButton, "images/green-plus.png", text);
+            buttonForm = new ButtonForm(openPopupButton, "images/green-plus.png", text);
         }
 
 
-        openPopupButton.add(buttonConstructor);
+        openPopupButton.add(buttonForm);
         widgetContainer.add(openPopupButton);
     }
 
-    public void drawClearButtonIfItIs(ClearAllButtonConfig config){
+    public void initClearButtonIfItIs(ClearAllButtonConfig config){
 
          if (config != null){
              clearButton = new FocusPanel();
-             ButtonConstructor buttonConstructor = new ButtonConstructor(clearButton, config.getImage(), config.getText());
-             clearButton.add(buttonConstructor);
+             ButtonForm buttonForm = new ButtonForm(clearButton, config.getImage(), config.getText());
+             clearButton.add(buttonForm);
              widgetContainer.add(clearButton);
              clearButton.addClickHandler(new ClickHandler() {
                  @Override

@@ -15,7 +15,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.SuggestBoxConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonConstructor;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonForm;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.support.MultiWordIdentifiableSuggestion;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -185,7 +185,6 @@ public class SuggestBoxWidget extends BaseWidget {
             DOM.appendChild(getBody(), row);
             arrowBtn = DOM.createTD();
             arrowBtn.setClassName("arrow-suggest-btn");
-           // DOM.appendChild(row, arrowBtn);
             DOM.setEventListener(arrowBtn, new EventListener() {
                 @Override
                 public void onBrowserEvent(Event event) {
@@ -237,7 +236,7 @@ public class SuggestBoxWidget extends BaseWidget {
             super.add(suggestBox, container);
             if (state.getSuggestBoxConfig().getClearAllButtonConfig() != null){
             FocusPanel focusPanel = new FocusPanel();
-            ButtonConstructor clearButton = new ButtonConstructor(focusPanel,
+            ButtonForm clearButton = new ButtonForm(focusPanel,
                     state.getSuggestBoxConfig().getClearAllButtonConfig().getImage(),
                     state.getSuggestBoxConfig().getClearAllButtonConfig().getText());
             focusPanel.add(clearButton);

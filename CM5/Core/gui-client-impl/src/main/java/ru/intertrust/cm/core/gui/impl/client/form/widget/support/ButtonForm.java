@@ -10,19 +10,19 @@ import com.google.gwt.user.client.ui.*;
  * Time: 11:25
  * To change this template use File | Settings | File Templates.
  */
-public class ButtonConstructor extends Composite{
+public class ButtonForm extends Composite{
 
     private AbsolutePanel buttonPanel = new AbsolutePanel();
     private FocusPanel focusPanel;
     private String image;
     private String text;
 
-    public ButtonConstructor(FocusPanel focusPanel){
+    public ButtonForm(FocusPanel focusPanel){
         this.focusPanel = focusPanel;
         init();
     }
 
-    public ButtonConstructor(FocusPanel focusPanel, String image, String text) {
+    public ButtonForm(FocusPanel focusPanel, String image, String text) {
         this.focusPanel = focusPanel;
         this.image = image;
         this.text = text;
@@ -50,10 +50,7 @@ public class ButtonConstructor extends Composite{
     private void createStyle(){
         focusPanel.setStyleName("hierarh-browser-inline composite-button");
         buttonPanel.setStyleName("hierarh-browser-button");
-        buttonPanel.getElement().getStyle().setHeight(20, Style.Unit.PX);
-
-
-
+        buttonPanel.getElement().getStyle().setHeight(16, Style.Unit.PX);
     }
 
 

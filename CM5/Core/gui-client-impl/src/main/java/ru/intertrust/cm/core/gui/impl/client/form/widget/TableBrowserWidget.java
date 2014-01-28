@@ -22,7 +22,7 @@ import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.form.FacebookStyleView;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonConstructor;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonForm;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -62,8 +62,8 @@ public class TableBrowserWidget extends BaseWidget {
         facebookStyleView.showSelectedItems();
         initSizes();
         initDialogView();
-        createAddButton();
-        createClearAllButton();
+        initAddButton();
+        initClearAllButton();
     }
 
     @Override
@@ -147,32 +147,32 @@ public class TableBrowserWidget extends BaseWidget {
         return root;
     }
 
-    private void createAddButton(){
+    private void initAddButton(){
         openDialogButton.clear();
-        ButtonConstructor buttonConstructor;
+        ButtonForm addButton;
         if (tableBrowserConfig.getClearAllButtonConfig() != null ){
             String img = tableBrowserConfig.getAddButtonConfig().getImage();
             String text = tableBrowserConfig.getAddButtonConfig().getText();
             if (text == null || text.equals("...") || text.length() == 0 ){
                 text = "Добавить";
             }
-            buttonConstructor = new ButtonConstructor(openDialogButton, img, text);
+            addButton = new ButtonForm(openDialogButton, img, text);
         }   else {
-            buttonConstructor = new ButtonConstructor(openDialogButton, null, "Добавить");
+            addButton = new ButtonForm(openDialogButton, null, "Добавить");
         }
 
-        openDialogButton.add(buttonConstructor);
+        openDialogButton.add(addButton);
     }
 
-    private void createClearAllButton(){
+    private void initClearAllButton(){
         if (tableBrowserConfig.getClearAllButtonConfig() != null ){
         String img = tableBrowserConfig.getClearAllButtonConfig().getImage();
         String text = tableBrowserConfig.getClearAllButtonConfig().getText();
 
              clearButton = new FocusPanel();
-             ButtonConstructor buttonConstructor = new ButtonConstructor(clearButton, img, text );
+             ButtonForm buttonForm = new ButtonForm(clearButton, img, text );
 
-             clearButton.add(buttonConstructor);
+             clearButton.add(buttonForm);
              root.insert(clearButton, 2);
 
 
