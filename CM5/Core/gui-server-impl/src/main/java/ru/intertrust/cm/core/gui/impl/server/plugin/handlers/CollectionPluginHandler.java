@@ -12,9 +12,10 @@ import ru.intertrust.cm.core.config.gui.form.widget.SearchAreaRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
-import ru.intertrust.cm.core.config.gui.navigation.SortCriterionConfig;
+import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilder;
+import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
@@ -59,7 +60,8 @@ public class CollectionPluginHandler extends PluginHandler {
                 getDomainObjectFieldPropertiesMap(collectionViewConfig);
         pluginData.setDomainObjectFieldPropertiesMap(map);
         List<Filter> filters = new ArrayList<Filter>();
-         SortOrder order = getSortOrder(collectionViewerConfig);
+        SortCriteriaConfig sortCriteriaConfig = collectionViewerConfig.getSortCriteriaConfig();
+        SortOrder order = SortOrderBuilder.getSortOrder(sortCriteriaConfig);
         // todo не совсем верная логика. а в каком режиме обычная коллекция открывается? single choice? display chosen values?
         // todo: по-моему условие singleChoice && !displayChosenValues вполне говорит само за себя :) в следующем условии тоже
         if ((singleChoice && !displayChosenValues) || (!singleChoice && !displayChosenValues)) {
@@ -356,14 +358,4 @@ public class CollectionPluginHandler extends PluginHandler {
         return indexesOfChosenItems;
     }
 
-    private SortOrder getSortOrder(CollectionViewerConfig collectionViewerConfig) {
-        SortOrder sortOrder = new SortOrder();
-        List<SortCriterionConfig> sortCriterions = collectionViewerConfig.getSortCriteriaConfig().getSortCriterionConfigs();
-        for (SortCriterionConfig criterionConfig : sortCriterions) {
-            String field = criterionConfig.getField();
-            SortCriterion.Order order = criterionConfig.getOrder();
-            sortOrder.add(new SortCriterion(field, order));
-        }
-        return sortOrder;
-    }
 }

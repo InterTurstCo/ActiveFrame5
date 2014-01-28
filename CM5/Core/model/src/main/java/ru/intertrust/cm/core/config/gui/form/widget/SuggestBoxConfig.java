@@ -4,6 +4,7 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
+import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,30 +17,31 @@ import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 public class SuggestBoxConfig extends WidgetConfig implements Dto {
 
     @Element(name = "collection-ref", required = false)
-    CollectionRefConfig collectionRefConfig;
+    private CollectionRefConfig collectionRefConfig;
 
     @Element(name = "drop-down-pattern", required = false)
-    DropdownPatternConfig dropdownPatternConfig;
+    private DropdownPatternConfig dropdownPatternConfig;
 
     @Element(name = "selection-pattern", required = false)
-    SelectionPatternConfig selectionPatternConfig;
+    private SelectionPatternConfig selectionPatternConfig;
 
     @Element(name = "input-text-filter", required = false)
-    InputTextFilterConfig inputTextFilterConfig;
+    private InputTextFilterConfig inputTextFilterConfig;
 
     @Element(name = "page-size",required = false)
-    Integer pageSize;
+    private Integer pageSize;
 
     @Element(name = "selection-style",required = false)
-    SelectionStyleConfig selectionStyleConfig;
+    private SelectionStyleConfig selectionStyleConfig;
 
     @Element(name = "single-choice", required = false)
     private SingleChoiceConfig singleChoice;
 
     @Element(name = "clear-all-button", required = false)
-    ClearAllButtonConfig clearAllButtonConfig;
+    private ClearAllButtonConfig clearAllButtonConfig;
 
-
+    @Element(name = "sort-criteria", required = false)
+    private SortCriteriaConfig sortCriteriaConfig;
 
     @Override
     public String getComponentName() {
@@ -110,6 +112,13 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
         this.clearAllButtonConfig = clearAllButtonConfig;
     }
 
+    public SortCriteriaConfig getSortCriteriaConfig() {
+        return sortCriteriaConfig;
+    }
+
+    public void setSortCriteriaConfig(SortCriteriaConfig sortCriteriaConfig) {
+        this.sortCriteriaConfig = sortCriteriaConfig;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -129,14 +138,17 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
                 collectionRefConfig != null) {
             return false;
         }
+
         if (dropdownPatternConfig != null ? !dropdownPatternConfig.equals(that.dropdownPatternConfig) : that.
                 dropdownPatternConfig != null) {
             return false;
         }
+
         if (inputTextFilterConfig != null ? !inputTextFilterConfig.equals(that.inputTextFilterConfig) : that.
                 inputTextFilterConfig != null) {
             return false;
         }
+
         if (pageSize != null ? !pageSize.equals(that.pageSize) : that.pageSize != null) {
             return false;
         }
@@ -149,14 +161,20 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
                 selectionStyleConfig != null) {
             return false;
         }
+
         if (singleChoice != null ? !singleChoice.equals(that.singleChoice) : that.singleChoice != null) {
             return false;
         }
 
-        if (clearAllButtonConfig != null ? !clearAllButtonConfig.equals(that.clearAllButtonConfig) : that.clearAllButtonConfig != null) {
+        if (clearAllButtonConfig != null ? !clearAllButtonConfig.equals(that.clearAllButtonConfig) :
+                that.clearAllButtonConfig != null) {
             return false;
         }
 
+        if (sortCriteriaConfig != null ? !sortCriteriaConfig.equals(that.sortCriteriaConfig) :
+                that.sortCriteriaConfig != null) {
+            return false;
+        }
 
         return true;
     }
@@ -172,6 +190,7 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
         result = 31 * result + (selectionStyleConfig != null ? selectionStyleConfig.hashCode() : 0);
         result = 31 * result + (singleChoice != null ? singleChoice.hashCode() : 0);
         result = 31 * result + (clearAllButtonConfig != null ? clearAllButtonConfig.hashCode() : 0);
+        result = 31 * result + (sortCriteriaConfig != null ? sortCriteriaConfig.hashCode() : 0);
         return result;
     }
 }

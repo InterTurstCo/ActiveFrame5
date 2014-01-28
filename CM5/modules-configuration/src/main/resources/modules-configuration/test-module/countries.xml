@@ -408,6 +408,9 @@
                 <selection-style name="inline"/>
                 <single-choice value="true"/>
                 <clear-all-button image="css/images/clear.png" text="Очистить"/>
+                <sort-criteria>
+                    <sort-criterion field="name" order="asc"/>
+                </sort-criteria>
             </suggest-box>
 
             <!--<label id="best_friend_label">

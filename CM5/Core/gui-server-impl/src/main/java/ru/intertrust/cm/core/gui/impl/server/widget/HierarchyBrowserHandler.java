@@ -7,9 +7,11 @@ import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionPatternConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
+import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilder;
+import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 
@@ -99,8 +101,10 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         if (inputText != null && !inputText.equalsIgnoreCase("")) {
             filters =  addInputTextFilter(nodeContentRequest.getInputTextFilterName(), inputText, filters);
         }
+        SortCriteriaConfig sortCriteriaConfig = nodeContentRequest.getSortCriteriaConfig();
+        SortOrder sortOrder = SortOrderBuilder.getSortOrder(sortCriteriaConfig);
         IdentifiableObjectCollection collection = collectionsService.
-                findCollection(collectionName, null, filters, offset, numberOfItems);
+                findCollection(collectionName, sortOrder, filters, offset, numberOfItems);
 
         for (IdentifiableObject identifiableObject : collection) {
             HierarchyBrowserItem item = new HierarchyBrowserItem();

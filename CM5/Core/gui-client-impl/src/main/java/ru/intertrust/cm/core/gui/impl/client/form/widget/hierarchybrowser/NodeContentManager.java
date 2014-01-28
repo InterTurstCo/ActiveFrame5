@@ -36,6 +36,7 @@ public abstract class NodeContentManager {
         nodeContentRequest.setParentFilterName(nodeConfig.getParentFilter());
         nodeContentRequest.setChosenIds(chosenIds);
         nodeContentRequest.setSelective(nodeConfig.isSelective());
+        nodeContentRequest.setSortCriteriaConfig(nodeConfig.getSortCriteriaConfig());
         return nodeContentRequest;
     }
     public abstract void fetchNodeContent() ;

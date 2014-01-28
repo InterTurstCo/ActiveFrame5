@@ -140,7 +140,7 @@ public class SuggestBoxWidget extends BaseWidget {
                 final SuggestPresenter presenter = (SuggestPresenter) impl;
                 suggestionRequest.setExcludeIds(new LinkedHashSet<Id>(presenter.getSelectedKeys()));
                 suggestionRequest.setInputTextFilterName(suggestBoxConfig.getInputTextFilterConfig().getName());
-
+                suggestionRequest.setSortCriteriaConfig(suggestBoxConfig.getSortCriteriaConfig());
                 Command command = new Command("obtainSuggestions", SuggestBoxWidget.this.getName(), suggestionRequest);
                 BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, new AsyncCallback<Dto>() {
                     @Override

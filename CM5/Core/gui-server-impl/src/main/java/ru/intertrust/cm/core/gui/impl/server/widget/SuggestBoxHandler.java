@@ -6,8 +6,10 @@ import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionPatternConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SuggestBoxConfig;
+import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilder;
+import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.SuggestBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.SuggestionItem;
@@ -73,8 +75,10 @@ public class SuggestBoxHandler extends ListWidgetHandler {
             filters.add(FilterBuilder.prepareFilter(suggestionRequest.getExcludeIds(), "idsExcluded"));
         }
         filters.add(prepareInputTextFilter(suggestionRequest.getText(), suggestionRequest.getInputTextFilterName()));
-
-        IdentifiableObjectCollection collection = collectionsService.findCollection(suggestionRequest.getCollectionName(), null, filters);
+        SortCriteriaConfig sortCriteriaConfig = suggestionRequest.getSortCriteriaConfig();
+        SortOrder sortOrder = SortOrderBuilder.getSortOrder(sortCriteriaConfig);
+        IdentifiableObjectCollection collection = collectionsService.findCollection(suggestionRequest.getCollectionName(),
+                sortOrder, filters);
         Pattern pattern = createDefaultRegexPattern();
         Matcher dropDownMatcher = pattern.matcher(suggestionRequest.getDropdownPattern());
         Matcher selectionMatcher = pattern.matcher(suggestionRequest.getSelectionPattern());

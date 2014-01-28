@@ -103,7 +103,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
     @Override
     protected Widget asEditableWidget() {
-         hierarchyBrowserView = new HierarchyBrowserView(eventBus);
+        hierarchyBrowserView = new HierarchyBrowserView(eventBus);
         return hierarchyBrowserView;
     }
 
@@ -203,12 +203,12 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
             }
 
         });
-      noneEditableFormDialogBox.initButton("Отмена", new ClickHandler() {
-          @Override
-          public void onClick(ClickEvent event) {
-             noneEditableFormDialogBox.hide();
-          }
-      });
+        noneEditableFormDialogBox.initButton("Отмена", new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                noneEditableFormDialogBox.hide();
+            }
+        });
 
     }
 

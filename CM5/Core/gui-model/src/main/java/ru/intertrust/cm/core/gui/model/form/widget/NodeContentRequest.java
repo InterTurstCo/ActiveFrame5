@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 
 import java.util.ArrayList;
 
@@ -14,7 +15,7 @@ public class NodeContentRequest implements Dto {
     private NodeMetadata nodeMetadata;
     private String parentFilterName;
     private String selectionPattern;
-
+    private SortCriteriaConfig sortCriteriaConfig;
     private String inputTextFilterName;
     private int numberOfItemsToDisplay;
     private int offset;
@@ -92,5 +93,13 @@ public class NodeContentRequest implements Dto {
 
     public void setSelective(boolean selective) {
         this.selective = selective;
+    }
+
+    public SortCriteriaConfig getSortCriteriaConfig() {
+        return sortCriteriaConfig;
+    }
+
+    public void setSortCriteriaConfig(SortCriteriaConfig sortCriteriaConfig) {
+        this.sortCriteriaConfig = sortCriteriaConfig;
     }
 }

@@ -1199,29 +1199,6 @@
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
-    <xs:complexType name="selectionStyleType">
-        <xs:simpleContent>
-            <xs:extension base="xs:string">
-                <xs:attribute name="name" type="con:selectionStyleAttr" default="inline"/>
-            </xs:extension>
-        </xs:simpleContent>
-    </xs:complexType>
-    <xs:complexType name="clearAllButtonType">
-        <xs:simpleContent>
-            <xs:extension base="xs:string">
-                <xs:attribute type="xs:string" name="image" />
-                <xs:attribute type="xs:string" name="text" />
-            </xs:extension>
-        </xs:simpleContent>
-    </xs:complexType>
-    <xs:complexType name="addButtonType">
-        <xs:simpleContent>
-            <xs:extension base="xs:string">
-                <xs:attribute type="xs:string" name="image" />
-                <xs:attribute type="xs:string" name="text" />
-            </xs:extension>
-        </xs:simpleContent>
-    </xs:complexType>
     <xs:simpleType name="selectionStyleAttr">
         <xs:restriction base="xs:string">
             <xs:enumeration value="inline"/>
@@ -1229,7 +1206,7 @@
         </xs:restriction>
     </xs:simpleType>
     <xs:complexType name="suggestBoxType">
-        <xs:sequence>
+        <xs:choice maxOccurs="unbounded">
             <xs:element type="con:fieldPathType" name="field-path"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:collectionRefType" name="collection-ref"
@@ -1248,7 +1225,9 @@
                         xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
             <xs:element type="con:clearAllButtonType" name="clear-all-button"
                         xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
-        </xs:sequence>
+            <xs:element type="con:sortCriteriaType" name="sort-criteria"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:choice>
         <xs:attribute type="xs:string" name="id"/>
     </xs:complexType>
     <xs:complexType name="linkedDomainObjectHyperlinkType">
@@ -1408,19 +1387,43 @@
         <xs:attribute type="xs:string" name="id"/>
     </xs:complexType>
     <xs:complexType name="nodeCollectionDefType">
-        <xs:sequence>
+        <xs:choice maxOccurs="unbounded">
             <xs:element type="con:selectionFilterReferenceType" name="input-text-filter" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:patternType" name="selection-pattern" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:sortCriteriaType" name="sort-criteria"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:nodeCollectionDefType" name="node-collection-def" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
-        </xs:sequence>
+        </xs:choice>
         <xs:attribute type="xs:string" name="collection" use="optional"/>
         <xs:attribute type="xs:string" name="parent-filter" use="optional"/>
         <xs:attribute type="xs:boolean" name="selective"  default="true"/>
         <xs:attribute type="xs:string" name="domain-object-type"/>
     </xs:complexType>
-
+    <xs:complexType name="selectionStyleType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="name" type="con:selectionStyleAttr" default="inline"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="clearAllButtonType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="image" />
+                <xs:attribute type="xs:string" name="text" />
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="addButtonType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="image" />
+                <xs:attribute type="xs:string" name="text" />
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
     <!-- Attachment box definitions -->
     <xs:complexType name="attachmentBoxType">
         <xs:choice maxOccurs="unbounded" minOccurs="0">
@@ -1437,6 +1440,7 @@
         </xs:choice>
         <xs:attribute type="xs:string" name="id" use="required"/>
     </xs:complexType>
+
     <xs:complexType name="scannerType">
         <xs:simpleContent>
             <xs:extension base="xs:string">

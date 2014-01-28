@@ -4,6 +4,7 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -29,6 +30,9 @@ public class NodeCollectionDefConfig implements Dto {
 
     @Element(name = "input-text-filter", required = false)
     private InputTextFilterConfig inputTextFilterConfig;
+
+    @Element(name = "sort-criteria", required = false)
+    private SortCriteriaConfig sortCriteriaConfig;
 
     @Element(name = "node-collection-def", required = false)
     private NodeCollectionDefConfig nodeCollectionDefConfig;
@@ -89,6 +93,14 @@ public class NodeCollectionDefConfig implements Dto {
         this.domainObjectType = domainObjectType;
     }
 
+    public SortCriteriaConfig getSortCriteriaConfig() {
+        return sortCriteriaConfig;
+    }
+
+    public void setSortCriteriaConfig(SortCriteriaConfig sortCriteriaConfig) {
+        this.sortCriteriaConfig = sortCriteriaConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -125,7 +137,9 @@ public class NodeCollectionDefConfig implements Dto {
         if (domainObjectType != null ? !domainObjectType.equals(that.domainObjectType) : that.domainObjectType != null) {
             return false;
         }
-
+        if (sortCriteriaConfig != null ? !sortCriteriaConfig.equals(that.sortCriteriaConfig) : that.sortCriteriaConfig != null) {
+            return false;
+        }
         return true;
     }
 
@@ -138,6 +152,7 @@ public class NodeCollectionDefConfig implements Dto {
         result = 31 * result + (collection != null ? collection.hashCode() : 0);
         result = 31 * result +(selective ? 1 : 0);
         result = 31 * result + (domainObjectType != null ? domainObjectType.hashCode() : 0);
+        result = 31 * result + (sortCriteriaConfig != null ? sortCriteriaConfig.hashCode() : 0);
         return result;
     }
 }
