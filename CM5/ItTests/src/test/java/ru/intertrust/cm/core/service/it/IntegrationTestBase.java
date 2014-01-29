@@ -13,6 +13,7 @@ import javax.security.auth.login.LoginException;
 
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
@@ -23,6 +24,7 @@ import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 
 import ru.intertrust.cm.core.business.api.ImportDataService;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 
 /**
  * Базовый класс для интеграционных тестов
@@ -33,6 +35,9 @@ public class IntegrationTestBase {
 
     @EJB
     protected ImportDataService.Remote importService;
+
+    @Inject
+    protected DomainObjectTypeIdCache domainObjectTypeIdCache;
 
     /**
      * Получение ear архива для установки на сервер приложений

@@ -1,0 +1,12 @@
+TYPE_NAME=Status; KEYS=Name
+Name
+"Active	";
+"Draft	";
+"Negotiation	";
+"Agree	";
+"Sign	";
+"Registration	";
+"Registred	";
+"Acquired	";
+"Complete	";
+"Pretermit	";
