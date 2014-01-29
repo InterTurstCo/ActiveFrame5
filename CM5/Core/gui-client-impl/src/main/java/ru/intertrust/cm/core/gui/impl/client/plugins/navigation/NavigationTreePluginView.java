@@ -28,7 +28,8 @@ public class NavigationTreePluginView extends PluginView {
 
     private static EventBus eventBus = Application.getInstance().getEventBus();
     private final int DURATION = 500;
-    private int END_WIDGET_WIDTH = 380;
+//    private int END_WIDGET_WIDTH = 380;
+    private int END_WIDGET_WIDTH = 349;
     private int START_WIDGET_WIDTH = 130;
     private boolean pinButtonClick = false;
     private TreeItem previousSelectedItem;
@@ -51,8 +52,10 @@ public class NavigationTreePluginView extends PluginView {
     protected IsWidget getViewWidget() {
         NavigationTreePluginData navigationTreePluginData = plugin.getInitialData();
         final HTML pinButton = new HTML();
-        pinButton.getElement().getStyle().setLeft(150, Style.Unit.PX);
-        pinButton.getElement().getStyle().setTop(20, Style.Unit.PX);
+//        pinButton.getElement().getStyle().setLeft(150, Style.Unit.PX);
+//        pinButton.getElement().getStyle().setTop(20, Style.Unit.PX);
+//        pinButton.getElement().getStyle().setLeft(140, Style.Unit.PX);
+//        pinButton.getElement().getStyle().setTop(10, Style.Unit.PX);
 
         navigationTreesPanel.addStyleName("navigation-dynamic-panel");
         final HorizontalPanel navigationTreeContainer = new HorizontalPanel();

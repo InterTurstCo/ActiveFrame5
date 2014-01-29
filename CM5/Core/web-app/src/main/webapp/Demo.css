@@ -1011,7 +1011,9 @@ a:active .icon.back {
     float: none;
     height: 16px;
     width: 16px;
-    left: auto;
+    /*left: auto;*/
+    left: 140px !important;
+    top: 10px !important;
     border-bottom: none !important;
     background-position: center center;
     background-repeat: no-repeat; /*//
@@ -1019,6 +1021,7 @@ a:active .icon.back {
 	zoom: 1; //
 	top: 0px;*/
     vertical-align: bottom;
+
 }
 
 .icon-close {
