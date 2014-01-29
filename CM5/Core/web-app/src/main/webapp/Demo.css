@@ -52,10 +52,19 @@ h1 {
 .H_td_logo {
     width: 138px;
     padding: 0 10px;
+    height: 55px;
+    overflow: hidden;
+
 }
 
 .H_td_logo img, .H_td_logo a {
     border: none;
+}
+.H_td_logo img{
+    max-height: 100%;
+  /*  max-width: 100%;*/
+    margin: auto;
+    display: block;
 }
 .H_td_notes {
     width: 100%;

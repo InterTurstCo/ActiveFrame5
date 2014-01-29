@@ -129,6 +129,9 @@ public class HeaderContainer extends SimplePanel {
 
     private FlexTable createHeadTable(String logoImagePath) {
         FlexTable headTable = new FlexTable();
+        HTMLTable.CellFormatter formatter = headTable.getCellFormatter();
+        formatter.setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
+        formatter.setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
         headTable.addStyleName("HeadTable");
         headTable.getFlexCellFormatter().setStyleName(FIRST_ROW, 0, "H_td_logo");
         headTable.setWidget(FIRST_ROW, 0, new Image(logoImagePath));

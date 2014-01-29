@@ -11,7 +11,7 @@ import ru.intertrust.cm.core.config.base.TopLevelConfig;
  */
 @Root(name = "business-universe")
 public class BusinessUniverseConfig implements TopLevelConfig {
-    @Element(name = "logo", required = true)
+    @Element(name = "logo", required = false)
     private LogoConfig logoConfig;
 
     public LogoConfig getLogoConfig() {

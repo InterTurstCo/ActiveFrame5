@@ -847,6 +847,13 @@ td .gwt-SuggestBox {
     float: left;
 }
 
+.facebook-label-none-editable {
+    margin-left: 5px;
+    margin-top: 2px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 2px 2px 2px 2px;
+}
 .facebook-element .gwt-Image {
     margin-left: 11px;
 }

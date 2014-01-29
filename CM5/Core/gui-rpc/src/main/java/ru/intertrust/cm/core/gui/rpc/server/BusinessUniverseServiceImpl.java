@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.BusinessUniverseConfig;
+import ru.intertrust.cm.core.config.LogoConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.impl.server.widget.AttachmentUploaderServlet;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
@@ -30,7 +31,7 @@ import javax.servlet.http.HttpSession;
 @WebServlet(name = "BusinessUniverseService",
         urlPatterns = "/remote/BusinessUniverseService")
 public class BusinessUniverseServiceImpl extends BaseService implements BusinessUniverseService {
-    private static  final String SESSION_ATTRIBUTE_UPLOAD_PROGRESS = "uploadIsCanceled";
+    private static final String DEFAULT_LOGO_PATH = "logo.gif";
     private static final Logger LOGGER = LoggerFactory.getLogger(BusinessUniverseServiceImpl.class);
     @EJB
     private GuiService guiService;
@@ -43,6 +44,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
 
     @EJB
     private ConfigurationService configurationService;
+
     @Override
     public BusinessUniverseInitialization getBusinessUniverseInitialization() {
         BusinessUniverseInitialization initialization = new BusinessUniverseInitialization();
@@ -64,9 +66,15 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     private BusinessUniverseInitialization addLogoImagePath(BusinessUniverseInitialization businessUniverseInitialization) {
         BusinessUniverseConfig businessUniverseConfig = configurationService.getConfig(BusinessUniverseConfig.class, "business_universe");
         if (businessUniverseConfig == null) {
+            businessUniverseInitialization.setLogoImagePath(DEFAULT_LOGO_PATH);
             return businessUniverseInitialization;
         }
-        String logoImagePath = businessUniverseConfig.getLogoConfig().getImage();
+        LogoConfig logoConfig = businessUniverseConfig.getLogoConfig();
+        if (logoConfig == null) {
+            businessUniverseInitialization.setLogoImagePath(DEFAULT_LOGO_PATH);
+            return  businessUniverseInitialization;
+        }
+        String logoImagePath = logoConfig.getImage();
         businessUniverseInitialization.setLogoImagePath(logoImagePath);
         return businessUniverseInitialization;
     }
