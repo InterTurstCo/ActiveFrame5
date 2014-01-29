@@ -20,6 +20,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.context.ApplicationContext;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.Filter;
@@ -32,6 +33,7 @@ import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.webcontext.ApplicationContextProvider;
 
 /**
  * Интеграционный тест работы с коллекциями.
@@ -40,6 +42,8 @@ import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
  */
 @RunWith(Arquillian.class)
 public class CollectionsIT extends IntegrationTestBase {
+
+    private static final String DEPARTMENT_TYPE = "Department";
 
     private static final String DEPARTMENT_2 = "Подразделение 2";
 
@@ -51,16 +55,22 @@ public class CollectionsIT extends IntegrationTestBase {
     private CollectionsService.Remote collectionService;
 
     @Inject
-    private DomainObjectTypeIdCache domainObjectTypeIdCache;
+    protected DomainObjectTypeIdCache domainObjectTypeIdCache;
 
+    /**
+     * Предотвращает загрузку данных для каждого теста. Данные загружаются один раз для всех тестов в данном классе.
+     */
     private boolean isDataLoaded = false;
+        
     @Deployment
     public static Archive<EnterpriseArchive> createDeployment() {
-        return createDeployment(new Class[] {CollectionsIT.class }, new String[] {"test-data/import-department.csv",
+        return createDeployment(new Class[] {CollectionsIT.class, ApplicationContextProvider.class }, new String[] {
+                "test-data/import-department.csv",
                 "test-data/import-organization.csv",
-                "test-data/import-employee.csv" });
+                "test-data/import-employee.csv",
+                "beans.xml" });
     }
-
+    
     @Test
     public void testArquillianInjection() {
         Assert.assertNotNull(collectionService);
@@ -80,6 +90,13 @@ public class CollectionsIT extends IntegrationTestBase {
         } finally {
             lc.logout();
         }
+        
+        initializeSpringBeans();
+    }
+
+    private void initializeSpringBeans() {
+        ApplicationContext applicationContext = ApplicationContextProvider.getApplicationContext();
+        domainObjectTypeIdCache = applicationContext.getBean(DomainObjectTypeIdCache.class);
     }
     
     @Test
@@ -94,14 +111,15 @@ public class CollectionsIT extends IntegrationTestBase {
     public void testFindCollectionByQueryWithParams() {
         String query = "select * from Employee e where e.department = {0} and name = {1}";
         List<Value> params = new ArrayList<Value>();
-        params.add(new StringValue(new RdbmsId(5013, 1).toStringRepresentation()));
+        Integer departmentTypeid = domainObjectTypeIdCache.getId(DEPARTMENT_TYPE);        
+        params.add(new StringValue(new RdbmsId(departmentTypeid, 1).toStringRepresentation()));
         params.add(new StringValue(EMPLOYEE_1_NAME));
 
-/*        IdentifiableObjectCollection collection = collectionService.findCollectionByQuery(query, params);
+        IdentifiableObjectCollection collection = collectionService.findCollectionByQuery(query, params);
 
         assertNotNull(collection);
         assertTrue(collection.size() >= 1);
-*/
+
     }
     
     @Test

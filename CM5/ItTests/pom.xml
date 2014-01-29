@@ -10,6 +10,10 @@
         <artifactId>cm-sochi</artifactId>
         <version>0.5.6-1-SNAPSHOT</version>
     </parent>
+
+    <properties>
+        <spring.version>3.2.4.RELEASE</spring.version>
+    </properties>
     
     <dependencies>
         <dependency>
@@ -38,6 +42,17 @@
             <scope>test</scope>
             <type>pom</type>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        
         <dependency>
             <groupId>org.jboss.spec</groupId>
             <artifactId>jboss-javaee-6.0</artifactId>
