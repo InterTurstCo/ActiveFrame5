@@ -38,13 +38,13 @@ public class FormPluginHandler extends ActivePluginHandler {
         return pluginData;
     }
 
-    private List<ActionContext> getActions(FormPluginConfig config)  {
+    private List<ActionContext> getActions(FormPluginConfig config) {
         final List<ActionContext> actions = getActionContexts(config.getPluginState());
 
         final List<ActionContext> otherActions;
-        if (config.getDomainObjectId() != null){
+        if (config.getDomainObjectId() != null) {
             otherActions = actionService.getActions(config.getDomainObjectId());
-        }else{
+        } else {
             otherActions = actionService.getActions(config.getDomainObjectTypeToCreate());
         }
         if (otherActions != null && !otherActions.isEmpty()) {
@@ -62,6 +62,8 @@ public class FormPluginHandler extends ActivePluginHandler {
         }
         if (pluginState.isToggleEdit()) {
             if (pluginState.isEditable()) {
+                contexts.add(new ActionContext(createActionConfig("close.in.central.panel.action",
+                        "close.in.central.panel.action", "Закрыть", "icons/icon-edit-close.png")));
                 contexts.add(new SaveActionContext(createActionConfig(
                         "save.action", "save.action", "Сохранить", "icons/icon-save.png")));
             } else {
