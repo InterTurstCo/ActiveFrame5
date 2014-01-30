@@ -2,8 +2,6 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.extendedsearch;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
@@ -26,7 +24,7 @@ import java.util.*;
 
 // визуализация плагина расширенного поиска
 public class ExtendedSearchPluginView extends PluginView {
-
+      private AbsolutePanel buttonsPanel;
     // визуализация окна расширенного поиска
     private VerticalPanel container;
     // области поиска
@@ -39,9 +37,11 @@ public class ExtendedSearchPluginView extends PluginView {
     private HashSet<RadioButton> targetDomainObjectsRadioButtons;
     // кнопка для поиска
     private Button search = new Button("Найти");
+    private Button closeSearch = new Button("Закрыть");
     private CheckBox cb;    // для выбора области поиска
     private RadioButton rb; // для выбора целевого доменного объекта
     private ExtendedSearchFormPlugin extendedSearchFormPlugin;
+    private ScrollPanel scrollSearchForm; // для формы поиска
     private PluginPanel extendSearchFormPluginPanel;
     // данные о конфигурации областей поиска и доменных объектах
     private HashMap<String, ArrayList<String>> searchAreasData = new HashMap<String, ArrayList<String>>();
@@ -51,18 +51,30 @@ public class ExtendedSearchPluginView extends PluginView {
     private SearchQuery searchQuery = new SearchQuery();
     // данные условий расширенного поиска
     private ExtendedSearchData searchFormData = new ExtendedSearchData();
+    private SearchPopup searchPopup;
 
     public ExtendedSearchPluginView(Plugin plugin, ExtendedSearchPluginData extendedSearchPluginData) {
         super(plugin);
         container = new VerticalPanel();
         container.setWidth("800px");
-        //container.setHeight("500px");
-        // создадим плагин
-        extendedSearchFormPlugin = ComponentRegistry.instance.get("extended.search.form.plugin");
 
-        // создание панелей для чек-боксов и радио-кнопок, определяющих условий поиска
+        // создание панелей для чек-боксов и радио-кнопок, определяющих условия поиска
         searchAreass = new HorizontalPanel();
         domainObjects = new HorizontalPanel();
+        scrollSearchForm = new ScrollPanel();
+        scrollSearchForm.setHeight("340px");
+        scrollSearchForm.setWidth("700px");
+
+        // закрытие формы поиска
+     closeSearch.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                // удаляем окно поиска
+                //Element searchWindow = DOM.getElementById("search-popup");
+                //searchWindow.removeFromParent();
+                searchPopup.hide();
+            }
+        });
 
         // собираем данные для поиска и отправляем в поисковый сервис
         search.addClickHandler(new ClickHandler() {
@@ -138,8 +150,27 @@ public class ExtendedSearchPluginView extends PluginView {
                 domainObjects.add(rb);
             }
         }
-        container.add(searchAreass);
+
+       container.add(searchAreass);
         container.add(domainObjects);
+        container.add(scrollSearchForm);
+        buttonsPanel = new AbsolutePanel();
+        buttonsPanel.addStyleName("buttons-panel");
+        applyButtonStyles(search);
+        applyButtonStyles(closeSearch);
+        buttonsPanel.add(search);
+        buttonsPanel.add(closeSearch);
+        container.add(buttonsPanel);
+        container.getElement().getStyle().clearOverflow();
+        //  container.add(closeSearch);
+    }
+
+    public SearchPopup getSearchPopup() {
+        return searchPopup;
+    }
+
+    public void setSearchPopup(SearchPopup searchPopup) {
+        this.searchPopup = searchPopup;
     }
 
     // отправка данных в поисковый сервис
@@ -149,9 +180,7 @@ public class ExtendedSearchPluginView extends PluginView {
             public void onSuccess(Dto extendedSearchData) {
                 //Window.alert(" Данные расширенного поиска ОТПРАВЛЕНЫ !");
                 // удаляем окно поиска
-                Element searchWindow = DOM.getElementById("search-popup");
-                searchWindow.removeFromParent();
-
+                searchPopup.hide();
                 Application.getInstance().getEventBus().fireEvent(
                                      new ExtendedSearchCompleteEvent((DomainObjectSurferPluginData)extendedSearchData));
             }
@@ -168,22 +197,30 @@ public class ExtendedSearchPluginView extends PluginView {
     // Вызов формы поиска, которая соответствует целевому доменному объекту и всем условиям поиска
     public void invokeSearchForm(SearchQuery searchQuery) {
         // удаляем прошлую форму поиска
-        if (extendSearchFormPluginPanel != null)
-            container.remove(extendSearchFormPluginPanel);
+      //  if (extendSearchFormPluginPanel != null)
+           // container.remove(extendSearchFormPluginPanel);
+     /*   if (scrollSearchForm != null)
+            container.remove(scrollSearchForm) ;*/
 
         ExtendedSearchData extendedSearchData = new ExtendedSearchData();
         extendedSearchData.setSearchQuery(searchQuery);
         extendSearchFormPluginPanel = new PluginPanel();
-        //extendSearchFormPluginPanel.setSize("600px", "400px");
+
         extendedSearchFormPlugin = ComponentRegistry.instance.get("extended.search.form.plugin");
         extendedSearchFormPlugin.setConfig(extendedSearchData);
         extendSearchFormPluginPanel.open(extendedSearchFormPlugin);
-        container.add(extendSearchFormPluginPanel);
-        container.add(search);
-    }
+
+        extendSearchFormPluginPanel.asWidget().getElement().getStyle().clearOverflow();
+        scrollSearchForm.clear();
+        scrollSearchForm.add(extendSearchFormPluginPanel);
+}
 
     @Override
     public IsWidget getViewWidget() {
         return container;
+    }
+    private void applyButtonStyles(Button button) {
+        button.addStyleName("dialog-box-button");
+        button.removeStyleName("gwt-Button");
     }
 }

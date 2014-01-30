@@ -1,10 +1,10 @@
 package ru.intertrust.cm.core.business.impl.search;
 
-import java.util.List;
-
 import ru.intertrust.cm.core.business.api.dto.OneOfListFilter;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.SearchFilter;
+
+import java.util.List;
 
 public class OneOfListFilterAdapter implements FilterAdapter {
 

@@ -34,7 +34,6 @@ public class ExtendedSearchFormPluginView extends PluginView {
     public ExtendedSearchFormPluginView(ExtendedSearchFormPlugin extendedSearchFormPlugin, FormDisplayData formDisplayData) {
         super(extendedSearchFormPlugin);
         extendedSearchFormPanel = new FormPanel(formDisplayData, true, Application.getInstance().getEventBus());
-
     }
 
     public Map<String, WidgetState> getWidgetsState() {

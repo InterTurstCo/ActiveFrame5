@@ -62,12 +62,13 @@ public class FormObjects implements Dto {
             String fieldName = isField ? fieldPath.getFieldName() : fieldPath.getOneToOneReferenceName();
             SingleObjectNode fieldPathNode = (SingleObjectNode) getParentNode(fieldPath);
             ArrayList<Id> result = new ArrayList<Id>(1);
-            final DomainObject domainObject = fieldPathNode.getDomainObject();
-            if (domainObject != null) {
-                Id referenceId = domainObject.getReference(fieldName);
-                if (referenceId != null) {
-                    result.add(referenceId);
-                }
+            DomainObject domainObject = fieldPathNode.getDomainObject();
+            if (domainObject == null) { // it can happen in search, for example, when form objects aren't filled initially
+                return null;
+            }
+            Id referenceId = domainObject.getReference(fieldName);
+            if (referenceId != null) {
+                result.add(referenceId);
             }
             return result;
         }

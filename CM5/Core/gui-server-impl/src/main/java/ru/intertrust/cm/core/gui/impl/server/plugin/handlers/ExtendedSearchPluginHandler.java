@@ -136,14 +136,20 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         DomainObject domainObject = crudService.createDomainObject(extendedSearchData.getSearchQuery().getTargetObjectType());
         FormConfig formConfig = formResolver.findFormConfig(domainObject, userUid);
         List<WidgetConfig> widgetConfigs = formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
+        // данные из полей формы поиска
         Map<String, WidgetState> formWidgetsData = extendedSearchData.getFormWidgetsData();
+        ArrayList<Id> idsWidgetObjects = null;
         Map<String, WidgetConfig> widgetConfigById = new HashMap<>();
         for (WidgetConfig config : widgetConfigs) {
             widgetConfigById.put(config.getId(), config);
         }
-
+        // проходим по полям формы поиска, собираем данные и строим поисковые фильтры
         for (String key : formWidgetsData.keySet()) {
+            // список идентификаторов объектов в виджете
+            if (idsWidgetObjects == null)
+            idsWidgetObjects = new ArrayList<Id>();
             WidgetState widgetState = formWidgetsData.get(key);
+            // состояние меток и гиперссылок для поиска не важны
             if (widgetState instanceof LabelState) {
                 continue;
             }
@@ -151,31 +157,37 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
                 continue;
             }
 
+            // для создания поисковых фильтров нужны Id доменных объектов - получаем их
+            if (widgetState instanceof LinkEditingWidgetState) {
+                idsWidgetObjects = ((LinkEditingWidgetState) widgetState).getIds();
+            }
+
+            // получить значение поля формы поиска можно из хэндлера виджета
             WidgetHandler widgetHandler = (WidgetHandler) applicationContext.getBean(widgetConfigById.get(key).getComponentName());
             Value value = widgetHandler.getValue(widgetState);
             try {
                 Object plainValue = value.get();
 
                 if (plainValue != null) {
-                    // проверка по виджетам (для отладки получения значений от полей формы поиска) ВРЕМЕННО !!!
+                    // создание фильтров для поиска на основе виджетов формы
                     if (widgetState instanceof TextState)
-                        extendedSearchData.getSearchQuery().addFilter(new TextSearchFilter(key, value.toString()));
-                    if (widgetState instanceof ComboBoxState) {
-                        OneOfListFilter filter = new OneOfListFilter(key);
-                        filter.addValue(domainObject.getId());
-                        extendedSearchData.getSearchQuery().addFilter(filter);
-                    }
-                    if (widgetState instanceof ListBoxState) {
-                        OneOfListFilter filter = new OneOfListFilter(key);
-                        filter.addValue(domainObject.getId());
-                        extendedSearchData.getSearchQuery().addFilter(filter);
-                    }
-                    if (widgetState instanceof SuggestBoxState) {
-                        OneOfListFilter filter = new OneOfListFilter(key);
-                        filter.addValue(domainObject.getId());
-                        extendedSearchData.getSearchQuery().addFilter(filter);
+                        extendedSearchData.getSearchQuery().addFilter(new TextSearchFilter(/*key*/
+                                          widgetConfigById.get(key).getFieldPathConfig().getValue(), value.toString()));
+
+                    if (widgetState instanceof LinkEditingWidgetState) {
+                        if (!idsWidgetObjects.isEmpty()) {
+                            OneOfListFilter filter = new OneOfListFilter(widgetConfigById.get(key).getFieldPathConfig().getValue());
+                            for(Id formWidgetId : idsWidgetObjects){
+                                filter.addValue(formWidgetId);
+                            }
+                            extendedSearchData.getSearchQuery().addFilter(filter);
+                        } else {
+                            continue;
+                        }
+                        idsWidgetObjects.clear();
                     }
                 }
+
                 if (plainValue == null)
                     continue;
 
@@ -217,8 +229,17 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         }
 
         formPluginConfig.setDomainObjectTypeToCreate(domainObject.getTypeName());
+
         FormPluginHandler formPluginHandler = (FormPluginHandler) applicationContext.getBean("form.plugin");
-        FormPluginData formPluginData = formPluginHandler.initialize(formPluginConfig);
+        List<ActionContext> actionContexts = formPluginHandler.initialize(formPluginConfig).getActionContexts();
+
+        // нужно получить инициализацию формы поиска
+        ExtendedSearchFormPluginHandler extendedSearchFormPluginHandler = (ExtendedSearchFormPluginHandler)
+                                                              applicationContext.getBean("extended.search.form.plugin");
+
+        FormPluginData formPluginData = (FormPluginData)extendedSearchFormPluginHandler.initialize(extendedSearchData/*formPluginConfig*/);
+        formPluginData.setPluginState(formPluginConfig.getPluginState());
+        formPluginData.setActionContexts(actionContexts);
 
         DomainObjectSurferPluginData result = new DomainObjectSurferPluginData();
         DomainObjectSurferConfig domainObjectSurferConfig = new DomainObjectSurferConfig();
@@ -235,7 +256,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         result.setDomainObjectSurferConfig(domainObjectSurferConfig);
         result.setCollectionPluginData(collectionPluginData);
         result.setFormPluginData(formPluginData);
-        result.setActionContexts(getActions(formPluginData));
+        result.setActionContexts(actionContexts);
         final DomainObjectSurferPluginState dosState = new DomainObjectSurferPluginState();
         dosState.setToggleEdit(true);
         result.setPluginState(dosState);
@@ -249,20 +270,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
                              extendedSearchData.getTargetCollectionNames().
                              get(extendedSearchData.getSearchQuery().getTargetObjectType()), extendedSearchData.getMaxResults());
         } catch (Exception ge) {
-            throw new GuiException("Ошибка при поиске = " + ge.getMessage());
+            throw new GuiException("Ошибка при поиске: \n" + ge.getMessage());
         }
-    }
-
-    public CollectionPluginData getSearchResultsCollection (CollectionPluginHandler collectionPluginHandler,
-                                                            ExtendedSearchData extendedSearchData,
-                                                            ArrayList<CollectionRowItem> searchResultRowItems) {
-        return collectionPluginHandler.getExtendedCollectionPluginData(extendedSearchData.getTargetCollectionNames().
-                get(extendedSearchData.getSearchQuery().getTargetObjectType()), searchResultRowItems);
-    }
-
-    public List<ActionContext> getActions(FormPluginData formPluginData)  {
-        ArrayList<ActionContext> result = new ArrayList<>();
-        result.addAll(formPluginData.getActionContexts());
-        return result;
     }
 }

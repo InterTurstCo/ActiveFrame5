@@ -69,7 +69,6 @@ public class FormRetriever {
         List<WidgetConfig> widgetConfigs = formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
         HashMap<String, WidgetState> widgetStateMap = new HashMap<>(widgetConfigs.size());
         HashMap<String, String> widgetComponents = new HashMap<>(widgetConfigs.size());
-        HashMap<String, WidgetConfig> idToConfigMap;
 
         FormObjects formObjects = new FormObjects();
         Iterator it = widgetConfigs.iterator();
@@ -77,21 +76,24 @@ public class FormRetriever {
         final ObjectsNode ROOT_NODE = new SingleObjectNode(root);
         formObjects.setRootNode(ROOT_NODE);
 
-        try {
+        //try {
         while(it.hasNext()) {
-
+            try {
             WidgetConfig config = (WidgetConfig) it.next();
             String widgetId = config.getId();
 
             WidgetContext widgetContext = new WidgetContext(config, formObjects);
             WidgetHandler componentHandler = (WidgetHandler) applicationContext.getBean(config.getComponentName());
             WidgetState initialState = componentHandler.getInitialState(widgetContext);
+
             initialState.setEditable(true);
             widgetStateMap.put(widgetId, initialState);
             widgetComponents.put(widgetId, config.getComponentName());
+            } catch (NullPointerException npe) {continue;}
         }
 
-        } catch (ConcurrentModificationException cme) {}
+        //} catch (ConcurrentModificationException cme) {}
+
 
         FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects);
         return new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents,
@@ -158,6 +160,9 @@ public class FormRetriever {
             WidgetContext widgetContext = new WidgetContext(config, formObjects, widgetConfigsById);
             WidgetHandler componentHandler = (WidgetHandler) applicationContext.getBean(config.getComponentName());
             WidgetState initialState = componentHandler.getInitialState(widgetContext);
+
+            // test
+            //if (!(initialState instanceof ComboBoxState))
             initialState.setEditable(true);
             widgetStateMap.put(widgetId, initialState);
             widgetComponents.put(widgetId, config.getComponentName());

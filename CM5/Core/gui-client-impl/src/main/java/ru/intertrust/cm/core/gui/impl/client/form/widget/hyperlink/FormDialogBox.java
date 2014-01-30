@@ -26,14 +26,14 @@ public class FormDialogBox extends PopupPanel {
         // Enable animation.
         this.setAnimationEnabled(true);
         this.setModal(true);
-        this.addStyleName("dialog-box-body");
+        this.addStyleName("search-popup-body");
 
         this.removeStyleName("gwt-PopupPanel");
         Label label = new Label(headerTitle);
         label.addStyleName("form-header-message");
         label.removeStyleName("gwt-Label");
         AbsolutePanel panel = new AbsolutePanel();
-        panel.addStyleName("form-dialog-box-content");
+       // panel.addStyleName("search-popup-content");
         SimplePanel header = new SimplePanel();
         header.addStyleName("dialog-box-header");
         header.add(label);

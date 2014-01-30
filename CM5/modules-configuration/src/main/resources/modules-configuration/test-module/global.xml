@@ -2,7 +2,7 @@
 <configuration xmlns="https://cm5.intertrust.ru/config">
     <global-settings>
         <audit-log enable="false" />
-        <sql-trace enable="true" resolveParameters="true" minRows="1" minTime="100"/>
+        <sql-trace enable="false" resolveParameters="true" minRows="1" minTime="1000"/>
     </global-settings>
     <business-universe>
         <logo image="logo.gif"/>

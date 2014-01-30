@@ -9,7 +9,6 @@ import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.plugin.ExtendedSearchData;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 
 import java.util.HashSet;
@@ -33,21 +32,19 @@ public class ExtendedSearchFormPluginHandler extends PluginHandler {
     public FormPluginData initialize(Dto initialData) {
         ExtendedSearchData extendedSearchData= (ExtendedSearchData) initialData;
         String targetDomainObject = extendedSearchData.getSearchQuery().getTargetObjectType();
-        final FormPluginConfig formPluginConfig;
-        formPluginConfig = new FormPluginConfig(targetDomainObject);
-        //formPluginConfig.setMode(FormPluginMode.EDITABLE);
-        //formPluginConfig.setEditable(true);
 
-        ExtendedSearchPluginHandler extendedSearchPluginHandler = (ExtendedSearchPluginHandler)
+        //FormPluginConfig extendedSearchFormPluginConfig = (FormPluginConfig) initialData;
+        //String targetDomainObject = extendedSearchFormPluginConfig.getDomainObjectTypeToCreate();
+        //final FormPluginConfig formPluginConfig = new FormPluginConfig(targetDomainObject);
+
+                ExtendedSearchPluginHandler extendedSearchPluginHandler = (ExtendedSearchPluginHandler)
                                                                     applicationContext.getBean("extended.search.plugin");
         extendedSearchPluginHandler.initialize(initialData);
 
         HashSet<String> searchFormFields = extendedSearchPluginHandler.selectSearchFormFields(targetDomainObject);
         FormDisplayData form = guiService.getSearchForm(targetDomainObject, searchFormFields);
-        //form.setEditable(true);
         FormPluginData formPluginData = new FormPluginData();
         formPluginData.setFormDisplayData(form);
-        //formPluginData.setMode(FormPluginMode.EDITABLE);
 
         return formPluginData;
     }
