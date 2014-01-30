@@ -11,6 +11,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.SearchAreaRefConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
@@ -30,6 +31,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -55,10 +57,18 @@ public class TableBrowserWidget extends BaseWidget {
     @Override
     public void setCurrentState(WidgetState currentState) {
         TableBrowserState tableBrowserState = (TableBrowserState) currentState;
-        tableBrowserConfig = tableBrowserState.getTableBrowserConfig();
-        singleChoice = tableBrowserState.isSingleChoice();
+        if (isEditable()) {
+            setCurrentStateForEditableWidget(tableBrowserState);
+        } else {
+            setCurrentStateForNoneEditableWidget(tableBrowserState);
+        }
+    }
+
+    private void setCurrentStateForEditableWidget(TableBrowserState state) {
+        tableBrowserConfig = state.getTableBrowserConfig();
+        singleChoice = state.isSingleChoice();
         facebookStyleView.initDisplayStyle(tableBrowserConfig.getSelectionStyleConfig().getName());
-        facebookStyleView.setChosenItems(tableBrowserState.getSelectedItemsRepresentations());
+        facebookStyleView.setChosenItems(state.getSelectedItemsRepresentations());
         facebookStyleView.showSelectedItems();
         initSizes();
         initDialogView();
@@ -66,12 +76,24 @@ public class TableBrowserWidget extends BaseWidget {
         initClearAllButton();
     }
 
+    private void setCurrentStateForNoneEditableWidget(TableBrowserState state) {
+        TableBrowserNoneEditablePanel noneEditablePanel = (TableBrowserNoneEditablePanel) impl;
+        List<TableBrowserItem> tableBrowserItems = state.getSelectedItemsRepresentations();
+        SelectionStyleConfig selectionStyleConfig = state.getTableBrowserConfig().getSelectionStyleConfig();
+        String howToDisplay = selectionStyleConfig == null ? null : selectionStyleConfig.getName();
+        noneEditablePanel.setTableBrowserItems(tableBrowserItems);
+        noneEditablePanel.showSelectedItems(howToDisplay);
+    }
+
     @Override
     public TableBrowserState getCurrentState() {
-        TableBrowserState state = new TableBrowserState();
-        state.setSelectedItemsRepresentations(facebookStyleView.getChosenItems());
-
-        return state;
+        if (isEditable()) {
+            TableBrowserState state = new TableBrowserState();
+            state.setSelectedItemsRepresentations(facebookStyleView.getChosenItems());
+            return state;
+        } else {
+            return getInitialData();
+        }
     }
 
     @Override
@@ -82,7 +104,7 @@ public class TableBrowserWidget extends BaseWidget {
 
     @Override
     protected Widget asNonEditableWidget() {
-        return asEditableWidget();
+        return new TableBrowserNoneEditablePanel();
     }
 
     @Override
@@ -147,47 +169,46 @@ public class TableBrowserWidget extends BaseWidget {
         return root;
     }
 
-    private void initAddButton(){
+    private void initAddButton() {
         openDialogButton.clear();
         ButtonForm addButton;
-        if (tableBrowserConfig.getClearAllButtonConfig() != null ){
+        if (tableBrowserConfig.getClearAllButtonConfig() != null) {
             String img = tableBrowserConfig.getAddButtonConfig().getImage();
             String text = tableBrowserConfig.getAddButtonConfig().getText();
-            if (text == null || text.equals("...") || text.length() == 0 ){
+            if (text == null || text.equals("...") || text.length() == 0) {
                 text = "Добавить";
             }
             addButton = new ButtonForm(openDialogButton, img, text);
-        }   else {
+        } else {
             addButton = new ButtonForm(openDialogButton, null, "Добавить");
         }
 
         openDialogButton.add(addButton);
     }
 
-    private void initClearAllButton(){
-        if (tableBrowserConfig.getClearAllButtonConfig() != null ){
-        String img = tableBrowserConfig.getClearAllButtonConfig().getImage();
-        String text = tableBrowserConfig.getClearAllButtonConfig().getText();
+    private void initClearAllButton() {
+        if (tableBrowserConfig.getClearAllButtonConfig() != null) {
+            String img = tableBrowserConfig.getClearAllButtonConfig().getImage();
+            String text = tableBrowserConfig.getClearAllButtonConfig().getText();
 
-             clearButton = new FocusPanel();
-             ButtonForm buttonForm = new ButtonForm(clearButton, img, text );
+            clearButton = new FocusPanel();
+            ButtonForm buttonForm = new ButtonForm(clearButton, img, text);
 
-             clearButton.add(buttonForm);
-             root.insert(clearButton, 2);
+            clearButton.add(buttonForm);
+            root.insert(clearButton, 2);
 
 
-             clearButton.addClickHandler(new ClickHandler() {
-                 @Override
-                 public void onClick(ClickEvent event) {
-                     chosenIds.clear();
-                     facebookStyleView.getChosenItems().clear();
-                     facebookStyleView.showSelectedItems();
+            clearButton.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    chosenIds.clear();
+                    facebookStyleView.getChosenItems().clear();
+                    facebookStyleView.showSelectedItems();
 
-                 }
-             });
+                }
+            });
 
-         }
-
+        }
 
     }
 
@@ -316,11 +337,11 @@ public class TableBrowserWidget extends BaseWidget {
             @Override
             public void onSuccess(Dto result) {
                 ParsedRowsList list = (ParsedRowsList) result;
-                ArrayList<FacebookStyleItem> items = list.getFilteredRows();
+                ArrayList<TableBrowserItem> items = list.getFilteredRows();
                 if (isSingleChoice()) {
                     facebookStyleView.setChosenItems(items);
                 } else {
-                facebookStyleView.getChosenItems().addAll(items);
+                    facebookStyleView.getChosenItems().addAll(items);
                 }
                 facebookStyleView.showSelectedItems();
                 chosenIds.clear();

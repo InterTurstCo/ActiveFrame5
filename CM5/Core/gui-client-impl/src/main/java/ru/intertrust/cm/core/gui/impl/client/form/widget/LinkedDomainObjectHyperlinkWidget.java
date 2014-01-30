@@ -28,8 +28,7 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
  */
 @ComponentName("linked-domain-object-hyperlink")
 public class LinkedDomainObjectHyperlinkWidget extends BaseWidget {
-    private LinkedDomainObjectHyperlinkItem hyperlinkItem;
-    private Label noneEditableWidget;
+
     @Override
     public Component createNew() {
         return new LinkedDomainObjectHyperlinkWidget();
@@ -37,18 +36,48 @@ public class LinkedDomainObjectHyperlinkWidget extends BaseWidget {
 
     public void setCurrentState(WidgetState currentState) {
         final LinkedDomainObjectHyperlinkState state = (LinkedDomainObjectHyperlinkState) currentState;
-         if (!isEditable()) {
+         if (isEditable()) {
+             LinkedDomainObjectHyperlinkItem hyperlinkItem = (LinkedDomainObjectHyperlinkItem)impl;
+             hyperlinkItem.setText(state.getStringRepresentation());
+             hyperlinkItem.addItemClickHandler( new HyperlinkClickHandler(state));
+         } else {
+             Label noneEditableWidget = (Label)impl;
              noneEditableWidget.setText(state.getStringRepresentation());
+             noneEditableWidget.addClickHandler(new HyperlinkClickHandler(state));
              return;
          }
-        final FormPluginConfig originConfig = state.getConfig();
-        final String domainObjectType = state.getDomainObjectType();
-        final Id id = state.getId();
-        final Id parentId = state.getParentId();
-        hyperlinkItem.setText(state.getStringRepresentation());
-        hyperlinkItem.addItemClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
+    }
+
+    @Override
+    public WidgetState getCurrentState() {
+        LinkedDomainObjectHyperlinkState state = new LinkedDomainObjectHyperlinkState();
+        return state;
+    }
+
+    @Override
+    protected Widget asEditableWidget() {
+        return new LinkedDomainObjectHyperlinkItem();
+    }
+
+    @Override
+    protected Widget asNonEditableWidget() {
+        Label noneEditableWidget = new Label();
+        noneEditableWidget.addStyleName("hyperlink-label-none-editable");
+        noneEditableWidget.removeStyleName("gwt-Label");
+        return noneEditableWidget;
+    }
+
+    private class HyperlinkClickHandler implements ClickHandler {
+         private LinkedDomainObjectHyperlinkState state;
+         public HyperlinkClickHandler(LinkedDomainObjectHyperlinkState state) {
+            this.state = state;
+        }
+        @Override
+        public void onClick(ClickEvent event) {
+            final FormPluginConfig originConfig = state.getConfig();
+            final String domainObjectType = state.getDomainObjectType();
+            final Id id = state.getId();
+            final Id parentId = state.getParentId();
                 final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(domainObjectType);
                 final FormPluginConfig config = new FormPluginConfig();
                 config.setDomainObjectId(id);
@@ -108,33 +137,15 @@ public class LinkedDomainObjectHyperlinkWidget extends BaseWidget {
                     }
 
                 });
-                  noneEditableFormDialogBox.initButton("Отмена", new ClickHandler() {
-                      @Override
-                      public void onClick(ClickEvent event) {
-                          noneEditableFormDialogBox.hide();
-                      }
-                  });
-            }
-        });
+                noneEditableFormDialogBox.initButton("Отмена", new ClickHandler() {
+                    @Override
+                    public void onClick(ClickEvent event) {
+                        noneEditableFormDialogBox.hide();
+                    }
+                });
 
-    }
 
-    @Override
-    public WidgetState getCurrentState() {
-        LinkedDomainObjectHyperlinkState state = new LinkedDomainObjectHyperlinkState();
-        return state;
-    }
-
-    @Override
-    protected Widget asEditableWidget() {
-        hyperlinkItem = new LinkedDomainObjectHyperlinkItem();
-        return hyperlinkItem.asWidget();
-    }
-
-    @Override
-    protected Widget asNonEditableWidget() {
-        noneEditableWidget = new Label();
-        return noneEditableWidget;
+        }
     }
 }
 

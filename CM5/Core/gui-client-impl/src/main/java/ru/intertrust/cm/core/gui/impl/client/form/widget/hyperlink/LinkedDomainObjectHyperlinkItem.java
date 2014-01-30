@@ -1,31 +1,33 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink;
 
-import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.FocusPanel;
+import com.google.gwt.user.client.ui.Label;
 
 /**
  * @author Yaroslav Bondarchuk
  *         Date: 14.01.14
  *         Time: 10:25
  */
-public class LinkedDomainObjectHyperlinkItem implements IsWidget{
+public class LinkedDomainObjectHyperlinkItem extends Composite {
 
     private Label label;
 
-    public AbsolutePanel initWidget() {
-        final AbsolutePanel element = new AbsolutePanel();
-        element.getElement().getStyle().setMarginLeft(5, Style.Unit.PX);
+    public LinkedDomainObjectHyperlinkItem() {
+        createWidget();
+    }
 
+    public void createWidget() {
+        final AbsolutePanel element = new AbsolutePanel();
         element.setStyleName("facebook-element");
         label = new Label();
-        label.setStyleName("facebook-label");
+        label.setStyleName("hyperlink-editable");
+
         FocusPanel delBtn = new FocusPanel();
         delBtn.addStyleName("facebook-btn");
-        delBtn.getElement().getStyle().setPadding(2, Style.Unit.PX);
-        delBtn.getElement().getStyle().setBackgroundColor("red");
-
         delBtn.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -35,17 +37,17 @@ public class LinkedDomainObjectHyperlinkItem implements IsWidget{
         });
         element.add(label);
         element.add(delBtn);
-        return element;
+        initWidget(element);
+
     }
-    public void addItemClickHandler(ClickHandler clickHandler){
+
+    public void addItemClickHandler(ClickHandler clickHandler) {
         label.addClickHandler(clickHandler);
     }
-    public void setText(String text){
+
+    public void setText(String text) {
         label.setText(text);
     }
 
-    @Override
-    public Widget asWidget() {
-        return initWidget();
-    }
+
 }

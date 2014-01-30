@@ -11,9 +11,9 @@ import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.form.widget.FacebookStyleItem;
 import ru.intertrust.cm.core.gui.model.form.widget.FormatRowsRequest;
 import ru.intertrust.cm.core.gui.model.form.widget.ParsedRowsList;
+import ru.intertrust.cm.core.gui.model.form.widget.TableBrowserItem;
 import ru.intertrust.cm.core.gui.model.form.widget.TableBrowserState;
 
 import java.util.ArrayList;
@@ -44,12 +44,12 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
         } else {
             domainObjects = Collections.emptyList();
         }
-        ArrayList<FacebookStyleItem> items = new ArrayList<FacebookStyleItem>();
+        ArrayList<TableBrowserItem> items = new ArrayList<TableBrowserItem>();
         SelectionPatternConfig selectionPatternConfig = widgetConfig.getSelectionPatternConfig();
         Pattern pattern = createDefaultRegexPattern();
         Matcher matcher = pattern.matcher(selectionPatternConfig.getValue());
         for (DomainObject domainObject : domainObjects) {
-            FacebookStyleItem item = new FacebookStyleItem();
+            TableBrowserItem item = new TableBrowserItem();
             item.setId(domainObject.getId());
             item.setStringRepresentation(format(domainObject, matcher));
             items.add(item);
@@ -70,10 +70,10 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
 
         Matcher selectionMatcher = pattern.matcher(formatRowsRequest.getSelectionPattern());
 
-        ArrayList<FacebookStyleItem> items = new ArrayList<>();
+        ArrayList<TableBrowserItem> items = new ArrayList<>();
 
         for (DomainObject domainObject : domainObjects) {
-            FacebookStyleItem item = new FacebookStyleItem();
+            TableBrowserItem item = new TableBrowserItem();
             item.setId(domainObject.getId());
             item.setStringRepresentation(format(domainObject, selectionMatcher));
             items.add(item);

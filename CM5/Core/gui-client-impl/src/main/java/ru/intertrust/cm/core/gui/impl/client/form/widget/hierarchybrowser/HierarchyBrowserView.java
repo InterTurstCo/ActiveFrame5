@@ -75,6 +75,7 @@ public class HierarchyBrowserView extends Composite {
     }
 
     public void initAddButton(AddButtonConfig config){
+        openPopupButton.clear();
         ButtonForm buttonForm;
         String text = config.getText();
         if (text.equals("...")) {

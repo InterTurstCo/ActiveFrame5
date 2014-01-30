@@ -90,7 +90,7 @@
                             <table>
                                 <tr>
                                     <td>
-                                        <widget width = "800px" height= "300px" id="2c"/>
+                                        <widget id="2c"/>
                                     </td>
                                 </tr>
                             </table>

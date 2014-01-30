@@ -21,10 +21,13 @@ public class HierarchyBrowserConfig extends WidgetConfig {
     private SingleChoiceConfig singleChoice;
 
     @Element(name = "clear-all-button", required = false)
-    ClearAllButtonConfig clearAllButtonConfig;
+    private ClearAllButtonConfig clearAllButtonConfig;
 
     @Element(name = "add-button", required = false)
-    AddButtonConfig addButtonConfig;
+    private AddButtonConfig addButtonConfig;
+
+    @Element(name = "selection-style", required = false)
+    private SelectionStyleConfig selectionStyleConfig;
 
     public NodeCollectionDefConfig getNodeCollectionDefConfig() {
         return nodeCollectionDefConfig;
@@ -66,6 +69,14 @@ public class HierarchyBrowserConfig extends WidgetConfig {
         this.addButtonConfig = addButtonConfig;
     }
 
+    public SelectionStyleConfig getSelectionStyleConfig() {
+        return selectionStyleConfig;
+    }
+
+    public void setSelectionStyleConfig(SelectionStyleConfig selectionStyleConfig) {
+        this.selectionStyleConfig = selectionStyleConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -102,6 +113,11 @@ public class HierarchyBrowserConfig extends WidgetConfig {
             return false;
         }
 
+        if (selectionStyleConfig != null ? !selectionStyleConfig.equals(that.selectionStyleConfig) :
+                that.selectionStyleConfig != null) {
+            return false;
+        }
+
         return true;
     }
 
@@ -113,6 +129,7 @@ public class HierarchyBrowserConfig extends WidgetConfig {
         result = 31 * result + (pageSize != null ? pageSize.hashCode() : 0);
         result = 31 * result + (clearAllButtonConfig != null ? clearAllButtonConfig.hashCode() : 0);
         result = 31 * result + (addButtonConfig != null ? addButtonConfig.hashCode() : 0);
+        result = 31 * result + (selectionStyleConfig != null ? selectionStyleConfig.hashCode() : 0);
         return result;
     }
 

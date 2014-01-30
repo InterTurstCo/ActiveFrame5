@@ -58,6 +58,8 @@ public class DateBoxWidget extends BaseWidget {
 
     @Override
     protected Widget asNonEditableWidget() {
-        return new Label();
+        Label noneEditableWidget = new Label();
+        noneEditableWidget.removeStyleName("gwt-Label");
+        return noneEditableWidget;
     }
 }

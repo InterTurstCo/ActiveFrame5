@@ -13,15 +13,15 @@ import java.util.LinkedHashMap;
  */
 public class TableBrowserState extends LinkEditingWidgetState {
 
-    private ArrayList<FacebookStyleItem> selectedItemsRepresentations;
+    private ArrayList<TableBrowserItem> selectedItemsRepresentations;
     private LinkedHashMap<String, String> domainFieldOnColumnNameMap;
     private TableBrowserConfig tableBrowserConfig;
 
-    public ArrayList<FacebookStyleItem> getSelectedItemsRepresentations() {
+    public ArrayList<TableBrowserItem> getSelectedItemsRepresentations() {
         return selectedItemsRepresentations;
     }
 
-    public void setSelectedItemsRepresentations(ArrayList<FacebookStyleItem> selectedItemsRepresentations) {
+    public void setSelectedItemsRepresentations(ArrayList<TableBrowserItem> selectedItemsRepresentations) {
         this.selectedItemsRepresentations = selectedItemsRepresentations;
     }
 
@@ -44,8 +44,8 @@ public class TableBrowserState extends LinkEditingWidgetState {
     @Override
     public ArrayList<Id> getIds() {
         ArrayList<Id> selectedIds = new ArrayList<Id>();
-        for (FacebookStyleItem model : selectedItemsRepresentations) {
-            selectedIds.add(model.getId());
+        for (TableBrowserItem tableBrowserItem : selectedItemsRepresentations) {
+            selectedIds.add(tableBrowserItem.getId());
         }
 
         return selectedIds;

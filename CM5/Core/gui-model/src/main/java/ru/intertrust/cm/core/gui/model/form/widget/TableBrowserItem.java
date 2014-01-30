@@ -8,7 +8,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
  *         Date: 09.11.13
  *         Time: 16:15
  */
-public class FacebookStyleItem implements Dto {
+public class TableBrowserItem implements Dto {
 
     private Id id;
     private String stringRepresentation;
@@ -40,7 +40,7 @@ public class FacebookStyleItem implements Dto {
             return false;
         }
 
-        FacebookStyleItem that = (FacebookStyleItem) o;
+        TableBrowserItem that = (TableBrowserItem) o;
 
         if (id != null ? !id.equals(that.id) :
                 that.id != null) {

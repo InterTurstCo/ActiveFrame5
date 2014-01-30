@@ -65,10 +65,10 @@ public class HierarchyBrowserMainPopup {
         title.addStyleName("header-title");
         root.add(title);
         HorizontalPanel linksAndNodesSection = new HorizontalPanel();
+        linksAndNodesSection.addStyleName("grey-background");
         VerticalPanel linksSection = new VerticalPanel();
         linksSection.setWidth(0.2 * popupWidth + "px");
-        linksSection.addStyleName("grey-background");
-        linksSection.setHeight(0.905 * popupHeight + "px");
+
         popupChosenContent = new HierarchyBrowserFacebookStyleView(eventBus);
         popupChosenContent.asWidget().setHeight(0.1 * popupHeight + "px");
         popupChosenContent.asWidget().addStyleName("popup-chosen-content");
@@ -76,7 +76,7 @@ public class HierarchyBrowserMainPopup {
         scrollPanel.addStyleName("node-section-scroll");
         scrollPanel.getElement().getStyle().setOverflowX(Style.Overflow.SCROLL);
         nodesSection = new HorizontalPanel();
-        nodesSection.setWidth(0.80 * popupWidth + "px");
+        scrollPanel.setWidth(0.80 * popupWidth + "px");
         nodesSection.addStyleName("node-section");
         scrollPanel.add(nodesSection);
         addNodeLink("link", linksSection);
@@ -117,6 +117,7 @@ public class HierarchyBrowserMainPopup {
         popup.setModal(true);
         popup.add(initPopup());
         popup.setHeight(popupHeight + "px");
+        popup.setWidth(popupWidth+ "px");
         popup.center();
     }
 
@@ -143,7 +144,7 @@ public class HierarchyBrowserMainPopup {
         });
         buttonsPanel.add(okButton);
         buttonsPanel.add(cancelButton);
-        buttonsPanel.setHeight(0.2 * popupHeight + "px");
+
         return buttonsPanel;
     }
 

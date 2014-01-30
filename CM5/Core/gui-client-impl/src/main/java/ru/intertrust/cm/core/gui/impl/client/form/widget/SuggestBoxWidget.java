@@ -76,6 +76,7 @@ public class SuggestBoxWidget extends BaseWidget {
     protected Widget asNonEditableWidget() {
         final Label label = new Label();
         label.setStyleName("suggest-choose-lbl");
+        label.removeStyleName("gwt-Label");
         return label;
     }
 

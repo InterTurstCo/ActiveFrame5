@@ -153,6 +153,7 @@
                                     <sort-criterion field="subject" order="asc"/>
                                 </sort-criteria>
                             </collection-viewer>
+                            <toggle-edit>true</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                 </link>

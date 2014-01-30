@@ -499,7 +499,7 @@
                 <!-- Впоследствии будет добавлена поддержка, тогда не обязателен станет field-path. Сейчас добавлять не надо. -->
                 <attachment-type-ref name="country_attachment"/>
                 <scanner enabled="true"/>
-                <selection-style name="table"/>
+                <selection-style name="inline"/>
                 <single-choice value="true"/>
             </attachment-box>
 

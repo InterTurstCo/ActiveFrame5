@@ -7,6 +7,7 @@ import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
@@ -15,6 +16,7 @@ import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.action.SaveAction;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.HierarchyBrowserNoneEditablePanel;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.FormDialogBox;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
@@ -25,6 +27,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -51,17 +54,23 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
     public void setCurrentState(WidgetState currentState) {
         HierarchyBrowserWidgetState state = (HierarchyBrowserWidgetState) currentState;
+        if (isEditable()) {
+            setCurrentStateForEditableWidget(state);
+        } else {
+            setCurrentStateForNoneEditableWidget(state);
+        }
+    }
+
+    private void setCurrentStateForEditableWidget(HierarchyBrowserWidgetState state) {
         config = state.getHierarchyBrowserConfig();
         HierarchyBrowserView view = (HierarchyBrowserView) impl;
         hierarchyBrowserView.initAddButton(config.getAddButtonConfig());
         hierarchyBrowserView.initClearButtonIfItIs(config.getClearAllButtonConfig());
-
         WidgetDisplayConfig displayConfig = getDisplayConfig();
         final ArrayList<HierarchyBrowserItem> chosenItems = state.getChosenItems();
         final ArrayList<Id> chosenIds = state.getIds();
         final int widgetWidth = getSizeFromString(displayConfig.getWidth());
         final int widgetHeight = getSizeFromString(displayConfig.getHeight());
-
         singleChoice = state.isSingleChoice();
         view.setChosenItems(chosenItems);
         view.displayBaseWidget(widgetWidth, widgetHeight);
@@ -93,12 +102,27 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         });
     }
 
+    private void setCurrentStateForNoneEditableWidget(HierarchyBrowserWidgetState state) {
+        List<HierarchyBrowserItem> hierarchyBrowserItems = state.getChosenItems();
+        SelectionStyleConfig selectionStyleConfig = state.getHierarchyBrowserConfig().getSelectionStyleConfig();
+        String howToDisplay = selectionStyleConfig == null ? null : selectionStyleConfig.getName();
+        HierarchyBrowserNoneEditablePanel noneEditablePanel = (HierarchyBrowserNoneEditablePanel) impl;
+        noneEditablePanel.setHierarchyBrowserItems(hierarchyBrowserItems);
+        noneEditablePanel.showSelectedItems(howToDisplay);
+
+    }
+
     @Override
     public WidgetState getCurrentState() {
+        if (isEditable()) {
         HierarchyBrowserWidgetState state = new HierarchyBrowserWidgetState();
         HierarchyBrowserView view = (HierarchyBrowserView) impl;
         state.setChosenItems(view.getChosenItems());
         return state;
+        } else {
+            return getInitialData();
+        }
+
     }
 
     @Override
@@ -109,7 +133,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
     @Override
     protected Widget asNonEditableWidget() {
-        return asEditableWidget();
+        return new HierarchyBrowserNoneEditablePanel();
     }
 
     private void registerEventsHandling() {
@@ -123,6 +147,9 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
     }
 
     private int getSizeFromString(String size) {
+        if (size == null) {
+            return 600;
+        }
         String temp = size.replaceAll("\\D", "");
         return Integer.parseInt(temp);
     }

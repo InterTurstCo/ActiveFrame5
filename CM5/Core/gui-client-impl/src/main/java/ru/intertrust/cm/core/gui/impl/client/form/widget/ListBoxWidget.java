@@ -45,7 +45,9 @@ public class ListBoxWidget extends BaseWidget {
 
     @Override
     protected Widget asNonEditableWidget() {
-        return new Label();
+        Label noneEditableWidget = new Label();
+        noneEditableWidget.removeStyleName("gwt-Label");
+        return noneEditableWidget;
     }
 
     private <T extends Widget> StateHandler<T> getStateHandler() {

@@ -35,30 +35,48 @@ public class AttachmentBoxWidget extends BaseWidget {
 
     public void setCurrentState(WidgetState currentState) {
         AttachmentBoxState state = (AttachmentBoxState) currentState;
+        if (isEditable()) {
+            setCurrentStateForEditableWidget(state);
+        } else {
+            setCurrentStateForNoneEditableWidget(state);
+        }
 
+    }
+
+    private void setCurrentStateForEditableWidget(AttachmentBoxState state) {
+        AttachmentUploaderView view = (AttachmentUploaderView) impl;
         List<AttachmentItem> attachments = state.getAttachments();
         String selectionStyle = state.getSelectionStyle();
         boolean singleChoice = state.isSingleChoice();
-        AttachmentUploaderView view = (AttachmentUploaderView) impl;
         view.setAttachments(attachments);
         view.setSingleChoice(singleChoice);
         view.initDisplayStyle(selectionStyle);
-
         view.cleanUp();
         for (AttachmentItem attachmentItem : attachments) {
             view.displayAttachmentLinkItem(attachmentItem);
         }
+    }
+
+    private void setCurrentStateForNoneEditableWidget(AttachmentBoxState state) {
+        List<AttachmentItem> attachments = state.getAttachments();
+        String selectionStyle = state.getSelectionStyle();
+        AttachmentNoneEditablePanel noneEditablePanel = (AttachmentNoneEditablePanel) impl;
+        noneEditablePanel.setAttachmentItems(attachments);
+        noneEditablePanel.showSelectedItems(selectionStyle);
 
     }
 
     @Override
     public WidgetState getCurrentState() {
-        AttachmentBoxState state = new AttachmentBoxState();
-        AttachmentUploaderView attachmentUploaderView = (AttachmentUploaderView) impl;
-        List<AttachmentItem> attachments = attachmentUploaderView.getAttachments();
-        state.setAttachments(attachments);
-
-        return state;
+        if (isEditable()) {
+            AttachmentBoxState currentState = new AttachmentBoxState();
+            AttachmentUploaderView attachmentUploaderView = (AttachmentUploaderView) impl;
+            List<AttachmentItem> attachmentsEditable = attachmentUploaderView.getAttachments();
+            currentState.setAttachments(attachmentsEditable);
+            return currentState;
+        } else {
+            return getInitialData();
+        }
     }
 
     @Override
@@ -71,7 +89,7 @@ public class AttachmentBoxWidget extends BaseWidget {
 
     @Override
     protected Widget asNonEditableWidget() {
-        return asEditableWidget();
+        return new AttachmentNoneEditablePanel();
     }
 
     private AttachmentItem handleFileNameFromServer(String filePath) {
@@ -116,7 +134,7 @@ public class AttachmentBoxWidget extends BaseWidget {
 
             AttachmentUploaderView view = (AttachmentUploaderView) impl;
             String browserFilename = view.getFileUpload().getFilename();
-            if ("".equalsIgnoreCase(browserFilename)){
+            if ("".equalsIgnoreCase(browserFilename)) {
                 return;
             }
 
@@ -171,9 +189,7 @@ public class AttachmentBoxWidget extends BaseWidget {
                 cancelTimer();
                 AttachmentUploaderView view = (AttachmentUploaderView) impl;
                 view.reinitSubmitForm();
-
                 view.addFormSubmitCompleteHandler(new FormSubmitCompleteHandler());
-
             }
 
         }

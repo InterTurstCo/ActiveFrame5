@@ -847,12 +847,30 @@ td .gwt-SuggestBox {
     float: left;
 }
 
+.hyperlink-label-none-editable {
+    cursor: pointer!important;
+    font-family: Arial;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.hyperlink-editable {
+    cursor: pointer!important;
+    font-family: Arial;
+    font-size: 13px;
+    margin-left: 5px;
+    float: left;
+}
+
 .facebook-label-none-editable {
     margin-left: 5px;
     margin-top: 2px;
     border: 1px solid #ccc;
     border-radius: 3px;
     padding: 2px 2px 2px 2px;
+    color: rgb(103, 103, 103);
+    cursor: default;
+    text-decoration: none;
 }
 .facebook-element .gwt-Image {
     margin-left: 11px;
