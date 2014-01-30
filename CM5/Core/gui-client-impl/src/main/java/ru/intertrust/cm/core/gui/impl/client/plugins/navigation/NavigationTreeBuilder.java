@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.navigation;
 
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Tree;
@@ -77,8 +78,11 @@ class NavigationTreeBuilder {
     }
     private TreeItem composeGroupItem(String displayText) {
         Label label = new Label();
-        if (displayText.length() > 21) {
-            String cutDisplayText = displayText.substring(0, 21);
+        label.getElement().getStyle().setFloat(Style.Float.LEFT);
+        label.getElement().getStyle().setMarginRight(120, Style.Unit.PX);
+
+        if (displayText.length() > 18) {
+            String cutDisplayText = displayText.substring(0, 18);
             label.setText(cutDisplayText + "...");
             label.setTitle(displayText);
         } else {
@@ -92,9 +96,11 @@ class NavigationTreeBuilder {
 
     private TreeItem composeTreeItem(String treeItemName, String displayText, LinkPluginDefinition pluginDefinition) {
         Label label = new Label();
+        label.getElement().getStyle().setFloat(Style.Float.LEFT);
+        label.getElement().getStyle().setMarginRight(120, Style.Unit.PX);
 
-        if (displayText.length() > 21) {
-            String cutDisplayText = displayText.substring(0, 21);
+        if (displayText.length() > 18) {
+            String cutDisplayText = displayText.substring(0, 18);
             label.setText(cutDisplayText + "...");
             label.setTitle(displayText);
         } else {
@@ -127,7 +133,6 @@ class NavigationTreeBuilder {
         firstLevelTree.setAnimationEnabled(true);
         firstLevelTree.removeStyleName("folder-list");
         firstLevelTree.addStyleName("group-tree");
-        firstLevelTree.setWidth("100px");
         return firstLevelTree;
     }
 

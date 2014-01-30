@@ -28,7 +28,6 @@ public class NavigationTreePluginView extends PluginView {
 
     private static EventBus eventBus = Application.getInstance().getEventBus();
     private final int DURATION = 500;
-//    private int END_WIDGET_WIDTH = 380;
     private int END_WIDGET_WIDTH = 349;
     private int START_WIDGET_WIDTH = 130;
     private boolean pinButtonClick = false;
@@ -52,11 +51,6 @@ public class NavigationTreePluginView extends PluginView {
     protected IsWidget getViewWidget() {
         NavigationTreePluginData navigationTreePluginData = plugin.getInitialData();
         final HTML pinButton = new HTML();
-//        pinButton.getElement().getStyle().setLeft(150, Style.Unit.PX);
-//        pinButton.getElement().getStyle().setTop(20, Style.Unit.PX);
-//        pinButton.getElement().getStyle().setLeft(140, Style.Unit.PX);
-//        pinButton.getElement().getStyle().setTop(10, Style.Unit.PX);
-
         navigationTreesPanel.addStyleName("navigation-dynamic-panel");
         final HorizontalPanel navigationTreeContainer = new HorizontalPanel();
         decorateNavigationTreeContainer(navigationTreeContainer);
@@ -186,11 +180,12 @@ public class NavigationTreePluginView extends PluginView {
                 TreeItem tempItem = event.getSelectedItem();
                 if (previousSelectedItem != null && previousSelectedItem != tempItem) {
                     previousSelectedItem.removeStyleName("synchronized");
-                    previousSelectedItem.removeStyleName("gwt-custom-TreeItem-selected");
+                    previousSelectedItem.getElement().getFirstChildElement().removeClassName("gwt-custom-TreeItem-selected");
                 }
                 TreeItem parent = tempItem.getParentItem();
                 tempItem.getTree().setSelectedItem(parent, false);
                 tempItem.removeStyleName("gwt-TreeItem-selected");
+                tempItem.removeStyleName("gwt-custom-TreeItem-selected");
                 previousSelectedItem = tempItem;
                 boolean state = tempItem.getState();
                 tempItem.setState(!state, false);
@@ -202,11 +197,11 @@ public class NavigationTreePluginView extends PluginView {
                     }
                 }
                 tempItem.addStyleName("gwt-custom-white");
-                tempItem.addStyleName("gwt-custom-TreeItem-selected");
+                tempItem.getElement().getFirstChildElement().addClassName("gwt-custom-TreeItem-selected");
                 Map<String, Object> treeItemUserObject = (Map<String, Object>) tempItem.getUserObject();
                 if (treeItemUserObject != null) {
-                Application.getInstance().getEventBus().fireEventFromSource(
-                        new NavigationTreeItemSelectedEvent((PluginConfig) treeItemUserObject.get("pluginConfig")), plugin);
+                    Application.getInstance().getEventBus().fireEventFromSource(
+                            new NavigationTreeItemSelectedEvent((PluginConfig) treeItemUserObject.get("pluginConfig")), plugin);
                 }
 
             }
