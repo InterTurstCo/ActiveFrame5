@@ -132,8 +132,8 @@ public class SuggestBoxWidget extends BaseWidget {
             final SuggestPresenter presenter = (SuggestPresenter) impl;
             presenter.init(state, suggestBox);
         } else {
-            final int maxWidth = impl.getElement().getParentElement().getClientWidth() - 4;
-            impl.getElement().getStyle().setProperty("maxWidth", maxWidth, Style.Unit.PX);
+//            final int maxWidth = impl.getElement().getParentElement().getClientWidth() - 4;
+//            impl.getElement().getStyle().setProperty("maxWidth", maxWidth, Style.Unit.PX);
             final StringBuilder builder = new StringBuilder();
             final HashMap<Id, String> listValues = state.getListValues();
             for (final Map.Entry<Id, String> listEntry : listValues.entrySet()) {
@@ -201,6 +201,7 @@ public class SuggestBoxWidget extends BaseWidget {
         private SuggestBox suggestBox;
         private Integer maxDropDownWidth;
         private Integer maxDropDownHeight;
+        private int preferableWidth;
 
           private SuggestPresenter() {
             Element row = DOM.createTR();
@@ -245,7 +246,7 @@ public class SuggestBoxWidget extends BaseWidget {
 //                            e.getStyle().setHeight(suggestBox.getAbsoluteTop() - suggestBox.getOffsetHeight(), Style.Unit.PX);
 //                            e.getStyle().setOverflowY(Style.Overflow.SCROLL);
 //                        }
-//                        //усли внизу
+//                        //если внизу
                         suggestBox.showSuggestionList();
                         e.getStyle().setHeight(Window.getClientHeight()- suggestBox.getAbsoluteTop() - suggestBox.getOffsetHeight() - 25, Style.Unit.PX);
                         e.getStyle().setOverflowY(Style.Overflow.SCROLL);
@@ -318,8 +319,11 @@ public class SuggestBoxWidget extends BaseWidget {
             selectedSuggestions.clear();
             this.suggestBox = suggestBox;
             if (getElement().getStyle().getProperty("maxWidth").isEmpty()) {
-                final int maxWidth = getElement().getClientWidth() - arrowBtn.getOffsetWidth()- clearAllButton.getOffsetWidth();
-                getElement().getStyle().setProperty("maxWidth", maxWidth, Style.Unit.PX);
+                preferableWidth = getElement().getClientWidth();
+                if (state.getSuggestBoxConfig().getClearAllButtonConfig() != null){
+                    int clearButtonWidth = 48; // using hardcode as clearAllButton.getClientWidth() returns wrong value (because of rightMargin = -69)
+                    preferableWidth = preferableWidth - clearButtonWidth;
+                }
                 container.getStyle().setWidth(100, Style.Unit.PCT);
             }
             final HashMap<Id, String> listValues = state.getListValues();
@@ -346,6 +350,7 @@ public class SuggestBoxWidget extends BaseWidget {
                         remove(i);
                     }
                     selectedSuggestions.clear();
+                    updateSuggestBoxWidth();
                 }
             });
             }
@@ -372,24 +377,19 @@ public class SuggestBoxWidget extends BaseWidget {
         }
 
         private void updateSuggestBoxWidth() {
-            final int parentWidth = (getElement().getClientWidth()  - arrowBtn.getOffsetWidth() -26 - clearAllButton.getOffsetWidth() );
-            int childWidth = 0;
-            for (int index = 0; index < getWidgetCount(); index++) {
-                final Widget child = getWidget(index);
+            getElement().getStyle().setProperty("width", preferableWidth, Style.Unit.PX);
+            int  maxChildWidth = 0;
+            for (Widget child : this) {
                 if (child instanceof SelectedItemComposite) {
-                    childWidth += child.getOffsetWidth();
-                    if (childWidth > parentWidth) {
-                        childWidth = child.getOffsetWidth();
+                    if (child.getOffsetWidth() > maxChildWidth ) {
+                        maxChildWidth = child.getOffsetWidth();
                     }
-                } else {
-                    break;
                 }
             }
-            childWidth = parentWidth - childWidth;
-            if (childWidth < 40) {
-                childWidth = parentWidth;
+            maxChildWidth = maxChildWidth + arrowBtn.getOffsetWidth() + 25;
+            if (maxChildWidth > preferableWidth) {
+                getElement().getStyle().setProperty("width", maxChildWidth, Style.Unit.PX);
             }
-            suggestBox.getElement().getStyle().setWidth(childWidth, Style.Unit.PX);
         }
 
         private EventListener createCloseBtnListener(final SelectedItemComposite itemComposite) {
