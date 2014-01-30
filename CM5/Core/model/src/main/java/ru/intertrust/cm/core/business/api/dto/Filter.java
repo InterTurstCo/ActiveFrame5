@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.Date;
 
 /**
  * Фильтр, используемый в основном для отсеивания результатов коллекций
@@ -27,6 +28,30 @@ public class Filter implements Dto {
         list.add(value);
         parameterMap.put(index, list);
         isSingleParameterMap.put(index, Boolean.TRUE);
+    }
+
+    public void addStringCriterion(int index, String value) {
+        addCriterion(index, new StringValue(value));
+    }
+
+    /**
+     * Добавляет дату в критерий
+     * @param index индекс
+     * @param value дата
+     */
+    public void addDateCriterion(int index, Date value) {
+        DateTimeValue dateTimeValue = new DateTimeValue(value);
+        addCriterion(index, dateTimeValue);
+    }
+
+    /**
+     * Добавляет дату без времени в критерий
+     * @param index индекс
+     * @param timelessDate дата
+     */
+    public void addTimelessDateCriterion(int index, TimelessDate timelessDate) {
+        TimelessDateValue timelessDateValue = new TimelessDateValue(timelessDate);
+        addCriterion(index, timelessDateValue);
     }
 
     public Set<Integer> getCriterionKeys() {
