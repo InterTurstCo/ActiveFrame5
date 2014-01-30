@@ -50,11 +50,11 @@ h1 {
 }
 
 .H_td_logo {
-    width: 138px;
+  /*  width: 138px;*/
     padding: 0 10px;
-    height: 55px;
+    /*height: 55px;*/
     overflow: hidden;
-
+   /*  display: block;*/
 }
 
 .H_td_logo img, .H_td_logo a {
@@ -62,13 +62,17 @@ h1 {
 }
 .H_td_logo img{
     max-height: 100%;
-  /*  max-width: 100%;*/
+ max-width: 100%;
     margin: auto;
     display: block;
 }
 .H_td_notes {
     width: 100%;
     padding: 0 10px;
+}
+.header-logo-container {
+        width: 138px;
+    display: block;
 }
 
 .H_td_user {

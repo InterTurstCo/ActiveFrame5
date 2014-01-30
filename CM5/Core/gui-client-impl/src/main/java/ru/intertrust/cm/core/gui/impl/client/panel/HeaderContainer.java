@@ -134,7 +134,10 @@ public class HeaderContainer extends SimplePanel {
         formatter.setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_MIDDLE);
         headTable.addStyleName("HeadTable");
         headTable.getFlexCellFormatter().setStyleName(FIRST_ROW, 0, "H_td_logo");
-        headTable.setWidget(FIRST_ROW, 0, new Image(logoImagePath));
+        AbsolutePanel imageContainer = new AbsolutePanel();
+        imageContainer.addStyleName("header-logo-container");
+        imageContainer.add(new Image(logoImagePath));
+        headTable.setWidget(FIRST_ROW, 0, imageContainer);
         return headTable;
     }
 
