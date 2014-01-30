@@ -5,7 +5,7 @@
            xmlns:core="https://cm5.intertrust.ru/config"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-    <xs:import namespace="https://cm5.intertrust.ru/config" schemaLocation="../../config/configuration-test.xsd"/>
+    <xs:import namespace="https://cm5.intertrust.ru/config" schemaLocation="configuration.xsd"/>
 
     <xs:element name="configuration" type="custom:configurationType"/>
 
@@ -53,6 +53,16 @@
         <xs:sequence>
             <xs:element type="custom:test-fieldType" name="test-field" maxOccurs="unbounded" minOccurs="0"/>
         </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="test-space-bar" type="custom:testSpaceBarType" substitutionGroup="core:widget"/>
+
+    <xs:complexType name="testSpaceBarType">
+        <xs:complexContent>
+            <xs:extension base="core:abstractWidgetType">
+                <xs:attribute type="xs:string" name="name" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
 
 </xs:schema>

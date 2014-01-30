@@ -236,7 +236,7 @@
                 <collection-view-ref name="cities_default"/>
 
                 <!-- паттерн отображения уже выбранных значений -->
-                <selection-pattern value="{name} {population} {year_of_foundation} "/>
+                <selection-pattern value="{name} {population} {year_of_foundation}"/>
 
                 <!-- название фильтра по тексту, введённому пользователем -->
                 <input-text-filter name="byText"/>
@@ -244,7 +244,11 @@
                 <!-- количество элементов, показываемых на одной странице выпадающего списка. в правом нижнем углу
                 под таблицей указатель страниц (за пример нужно взять страницы поиска в Яндексе) -->
                 <page-size>30</page-size>
-
+                <display-chosen-values value="false"/>
+                <selection-style name="inline"/>
+                <single-choice value="false"/>
+                <clear-all-button image="css/images/clear.png" text="Очистить"/>
+                <add-button image="..." text="..."/>
             </table-browser>
             <suggest-box id="8a">
                 <field-path value="federal_unit^country"/>

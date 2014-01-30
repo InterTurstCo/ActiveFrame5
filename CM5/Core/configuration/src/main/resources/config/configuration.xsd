@@ -5,6 +5,10 @@
     <xs:element name="configuration" type="con:configurationType"
                 xmlns:con="https://cm5.intertrust.ru/config"/>
 
+    <xs:element name="widget" type="con:abstractWidgetType"/>
+
+    <xs:complexType name="abstractWidgetType" abstract="true"/>
+
     <xs:complexType name="longType">
         <xs:simpleContent>
             <xs:extension base="xs:string">
@@ -941,31 +945,43 @@
         <xs:attribute type="xs:string" name="domain-object-type"/>
         <xs:attribute type="xs:string" name="form"/>
     </xs:complexType>
+
+    <xs:element type="con:richTextAreaType" name="rich-text-area" substitutionGroup="con:widget"/>
     <xs:complexType name="richTextAreaType">
-        <xs:sequence>
-            <xs:element type="con:fieldPathType" name="field-path"
-                        minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element name="text" minOccurs="0">
-                <xs:simpleType>
-                    <xs:restriction base="xs:string">
-                    </xs:restriction>
-                </xs:simpleType>
-            </xs:element>
-        </xs:sequence>
-        <xs:attribute type="xs:string" name="id" use="optional"/>
+        <xs:complexContent>
+            <xs:extension base="con:abstractWidgetType">
+                <xs:sequence>
+                    <xs:element type="con:fieldPathType" name="field-path"
+                                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element name="text" minOccurs="0">
+                        <xs:simpleType>
+                            <xs:restriction base="xs:string">
+                            </xs:restriction>
+                        </xs:simpleType>
+                    </xs:element>
+                </xs:sequence>
+                <xs:attribute type="xs:string" name="id" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
+
+    <xs:element type="con:textAreaType" name="text-area" substitutionGroup="con:widget"/>
     <xs:complexType name="textAreaType">
-        <xs:sequence>
-            <xs:element type="con:fieldPathType" name="field-path"
-                        minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element name="text" minOccurs="0">
-                <xs:simpleType>
-                    <xs:restriction base="xs:string">
-                    </xs:restriction>
-                </xs:simpleType>
-            </xs:element>
-        </xs:sequence>
-        <xs:attribute type="xs:string" name="id" use="optional"/>
+        <xs:complexContent>
+            <xs:extension base="con:abstractWidgetType">
+                <xs:sequence>
+                    <xs:element type="con:fieldPathType" name="field-path"
+                                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element name="text" minOccurs="0">
+                        <xs:simpleType>
+                            <xs:restriction base="xs:string">
+                            </xs:restriction>
+                        </xs:simpleType>
+                    </xs:element>
+                </xs:sequence>
+                <xs:attribute type="xs:string" name="id" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
     <xs:complexType name="usersType">
         <xs:sequence>
@@ -1075,16 +1091,23 @@
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
+
+    <xs:element type="con:linkedDomainObjectsTableType"
+                name="linked-domain-objects-table" substitutionGroup="con:widget"/>
     <xs:complexType name="linkedDomainObjectsTableType">
-        <xs:sequence>
-            <xs:element type="con:fieldPathType" name="field-path"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:linkedFormType" name="linked-form"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:summaryTableType" name="summary-table"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-        </xs:sequence>
-        <xs:attribute type="xs:string" name="id" use="required"/>
+        <xs:complexContent>
+            <xs:extension base="con:abstractWidgetType">
+                <xs:sequence>
+                    <xs:element type="con:fieldPathType" name="field-path"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:linkedFormType" name="linked-form"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:summaryTableType" name="summary-table"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                </xs:sequence>
+                <xs:attribute type="xs:string" name="id" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
     <xs:complexType name="summaryTableType">
         <xs:sequence>
@@ -1094,100 +1117,154 @@
         </xs:sequence>
         <xs:attribute type="xs:string" name="form-name"/>
     </xs:complexType>
+
+    <xs:element type="con:textBoxType" name="text-box" substitutionGroup="con:widget"/>
     <xs:complexType name="textBoxType">
-        <xs:sequence>
-            <xs:element type="con:fieldPathType" name="field-path"
-                        minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
-        </xs:sequence>
-        <xs:attribute type="xs:string" name="id" use="optional"/>
+        <xs:complexContent>
+            <xs:extension base="con:abstractWidgetType">
+                <xs:sequence>
+                    <xs:element type="con:fieldPathType" name="field-path"
+                                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                </xs:sequence>
+                <xs:attribute type="xs:string" name="id" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
+
+    <xs:element type="con:integerBoxType" name="integer-box" substitutionGroup="con:widget"/>
     <xs:complexType name="integerBoxType">
-        <xs:sequence>
-            <xs:element type="con:fieldPathType" name="field-path"
-                        minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
-        </xs:sequence>
-        <xs:attribute type="xs:string" name="id" use="optional"/>
+        <xs:complexContent>
+            <xs:extension base="con:abstractWidgetType">
+                <xs:sequence>
+                    <xs:element type="con:fieldPathType" name="field-path"
+                                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                </xs:sequence>
+                <xs:attribute type="xs:string" name="id" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
+
+    <xs:element type="con:decimalBoxType" name="decimal-box" substitutionGroup="con:widget"/>
     <xs:complexType name="decimalBoxType">
-        <xs:sequence>
-            <xs:element type="con:fieldPathType" name="field-path"
-                        minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
-        </xs:sequence>
-        <xs:attribute type="xs:string" name="id" use="optional"/>
+        <xs:complexContent>
+            <xs:extension base="con:abstractWidgetType">
+                <xs:sequence>
+                    <xs:element type="con:fieldPathType" name="field-path"
+                                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                </xs:sequence>
+                <xs:attribute type="xs:string" name="id" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
+
+    <xs:element type="con:dateBoxType" name="date-box" substitutionGroup="con:widget"/>
     <xs:complexType name="dateBoxType">
-        <xs:sequence>
-            <xs:element type="con:fieldPathType" name="field-path"
-                        minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
-        </xs:sequence>
-        <xs:attribute type="xs:string" name="id" use="optional"/>
+        <xs:complexContent>
+            <xs:extension base="con:abstractWidgetType">
+                <xs:sequence>
+                    <xs:element type="con:fieldPathType" name="field-path"
+                                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                </xs:sequence>
+                <xs:attribute type="xs:string" name="id" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
+
+    <xs:element type="con:comboBoxType" name="combo-box" substitutionGroup="con:widget"/>
     <xs:complexType name="comboBoxType">
-        <xs:sequence>
-            <xs:element type="con:fieldPathType" name="field-path"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:patternType" name="pattern"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-        </xs:sequence>
-        <xs:attribute type="xs:string" name="id"/>
+        <xs:complexContent>
+            <xs:extension base="con:abstractWidgetType">
+                <xs:sequence>
+                    <xs:element type="con:fieldPathType" name="field-path"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:patternType" name="pattern"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                </xs:sequence>
+                <xs:attribute type="xs:string" name="id"/>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
+
+    <xs:element type="con:radioButtonType" name="radio-button" substitutionGroup="con:widget"/>
     <xs:complexType name="radioButtonType">
-        <xs:sequence>
-            <xs:element type="con:fieldPathType" name="field-path"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:patternType" name="pattern"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:layoutType" name="layout"
-                        xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
-        </xs:sequence>
-        <xs:attribute type="xs:string" name="id"/>
+        <xs:complexContent>
+            <xs:extension base="con:abstractWidgetType">
+                <xs:sequence>
+                    <xs:element type="con:fieldPathType" name="field-path"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:patternType" name="pattern"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:layoutType" name="layout"
+                                xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
+                </xs:sequence>
+                <xs:attribute type="xs:string" name="id"/>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
+
+    <xs:element type="con:checkBoxType" name="check-box" substitutionGroup="con:widget"/>
     <xs:complexType name="checkBoxType">
-        <xs:sequence>
-            <xs:element type="con:fieldPathType" name="field-path"
-                        maxOccurs="1" xmlns:con="https://cm5.intertrust.ru/config"/>
-        </xs:sequence>
-        <xs:attribute type="xs:string" name="id"/>
+        <xs:complexContent>
+            <xs:extension base="con:abstractWidgetType">
+                <xs:sequence>
+                    <xs:element type="con:fieldPathType" name="field-path"
+                                maxOccurs="1" xmlns:con="https://cm5.intertrust.ru/config"/>
+                </xs:sequence>
+                <xs:attribute type="xs:string" name="id"/>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
+
+    <xs:element type="con:tableBrowserType" name="table-browser" substitutionGroup="con:widget"/>
     <xs:complexType name="tableBrowserType">
-        <xs:choice maxOccurs="unbounded">
-            <xs:element type="con:fieldPathType" name="field-path"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:collectionRefType" name="collection-ref"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:collectionViewRefType" name="collection-view-ref"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:patternType" name="selection-pattern"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:selectionFilterReferenceType"
-                        name="input-text-filter" xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="xs:integer" name="page-size"
-                        nillable="false" xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:displayChosenValuesType" name="display-chosen-values"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:selectionStyleType" name="selection-style"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:singleChoiceType" name="single-choice"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:clearAllButtonType" name="clear-all-button"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:addButtonType" name="add-button"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:sortCriteriaType" name="sort-criteria"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-        </xs:choice>
-        <xs:attribute type="xs:string" name="id"/>
+        <xs:complexContent>
+            <xs:extension base="con:abstractWidgetType">
+                <xs:choice maxOccurs="unbounded">
+                    <xs:element type="con:fieldPathType" name="field-path"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:collectionRefType" name="collection-ref"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:collectionViewRefType" name="collection-view-ref"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:patternType" name="selection-pattern"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:selectionFilterReferenceType"
+                                name="input-text-filter" xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="xs:integer" name="page-size"
+                                nillable="false" xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:displayChosenValuesType" name="display-chosen-values"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:selectionStyleType" name="selection-style"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:singleChoiceType" name="single-choice"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:clearAllButtonType" name="clear-all-button"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:addButtonType" name="add-button"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:sortCriteriaType" name="sort-criteria"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                </xs:choice>
+                <xs:attribute type="xs:string" name="id"/>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
+
+    <xs:element type="con:listBoxType" name="list-box" substitutionGroup="con:widget"/>
     <xs:complexType name="listBoxType">
-        <xs:sequence>
-            <xs:element type="con:fieldPathType" name="field-path"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:patternType" name="pattern"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:singleChoiceType" name="single-choice"
-                        xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
-        </xs:sequence>
-        <xs:attribute type="xs:string" name="id"/>
+        <xs:complexContent>
+            <xs:extension base="con:abstractWidgetType">
+                <xs:sequence>
+                    <xs:element type="con:fieldPathType" name="field-path"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:patternType" name="pattern"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:singleChoiceType" name="single-choice"
+                                xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
+                </xs:sequence>
+                <xs:attribute type="xs:string" name="id"/>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
 
     <xs:complexType name="selectionFilterReferenceType">
@@ -1240,44 +1317,57 @@
             <xs:enumeration value="table"/>
         </xs:restriction>
     </xs:simpleType>
+
+    <xs:element type="con:suggestBoxType" name="suggest-box" substitutionGroup="con:widget"/>
     <xs:complexType name="suggestBoxType">
-        <xs:choice maxOccurs="unbounded">
-            <xs:element type="con:fieldPathType" name="field-path"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:collectionRefType" name="collection-ref"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:patternType" name="drop-down-pattern"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:patternType" name="selection-pattern"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:selectionFilterReferenceType"
-                        name="input-text-filter" xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="xs:integer" name="page-size"
-                        nillable="false" xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:selectionStyleType" name="selection-style"
-                        xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
-            <xs:element type="xs:integer" name="max-drop-down-width" minOccurs="0"/>
-            <xs:element type="xs:integer" name="max-drop-down-height" minOccurs="0"/>
-            <xs:element type="con:singleChoiceType" name="single-choice"
-                        xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
-            <xs:element type="con:clearAllButtonType" name="clear-all-button"
-                        xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
-            <xs:element type="con:sortCriteriaType" name="sort-criteria"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-        </xs:choice>
-        <xs:attribute type="xs:string" name="id"/>
+        <xs:complexContent>
+            <xs:extension base="con:abstractWidgetType">
+                <xs:choice maxOccurs="unbounded">
+                    <xs:element type="con:fieldPathType" name="field-path"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:collectionRefType" name="collection-ref"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:patternType" name="drop-down-pattern"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:patternType" name="selection-pattern"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:selectionFilterReferenceType"
+                                name="input-text-filter" xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="xs:integer" name="page-size"
+                                nillable="false" xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:selectionStyleType" name="selection-style"
+                                xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
+                    <xs:element type="xs:integer" name="max-drop-down-width" minOccurs="0"/>
+                    <xs:element type="xs:integer" name="max-drop-down-height" minOccurs="0"/>
+                    <xs:element type="con:singleChoiceType" name="single-choice"
+                                xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
+                    <xs:element type="con:clearAllButtonType" name="clear-all-button"
+                                xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
+                    <xs:element type="con:sortCriteriaType" name="sort-criteria"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                </xs:choice>
+                <xs:attribute type="xs:string" name="id"/>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
+
+    <xs:element type="con:linkedDomainObjectHyperlinkType"
+                name="linked-domain-object-hyperlink" substitutionGroup="con:widget"/>
     <xs:complexType name="linkedDomainObjectHyperlinkType">
-        <xs:sequence>
-            <xs:element type="con:fieldPathType" name="field-path"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:linkedFormType" name="linked-form"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:patternType" name="pattern"
-                        xmlns:con="https://cm5.intertrust.ru/config">
-            </xs:element>
-        </xs:sequence>
-        <xs:attribute type="xs:string" name="id" use="required"/>
+        <xs:complexContent>
+            <xs:extension base="con:abstractWidgetType">
+                <xs:sequence>
+                    <xs:element type="con:fieldPathType" name="field-path"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:linkedFormType" name="linked-form"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:patternType" name="pattern"
+                                xmlns:con="https://cm5.intertrust.ru/config">
+                    </xs:element>
+                </xs:sequence>
+                <xs:attribute type="xs:string" name="id" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
     <xs:complexType name="hidingGroupsType">
         <xs:sequence>
@@ -1357,73 +1447,50 @@
     </xs:complexType>
     <xs:complexType name="widgetConfigType">
         <xs:choice maxOccurs="unbounded" minOccurs="0">
-            <xs:element type="con:labelType" name="label"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:richTextAreaType" name="rich-text-area"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:textBoxType" name="text-box"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:textAreaType" name="text-area"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:integerBoxType" name="integer-box"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:decimalBoxType" name="decimal-box"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:dateBoxType" name="date-box"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:comboBoxType" name="combo-box"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:radioButtonType" name="radio-button"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:checkBoxType" name="check-box"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:tableBrowserType" name="table-browser"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:listBoxType" name="list-box"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:suggestBoxType" name="suggest-box"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:attachmentBoxType" name="attachment-box"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:linkedDomainObjectHyperlinkType"
-                        name="linked-domain-object-hyperlink" xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:linkedDomainObjectsTableType"
-                        name="linked-domain-objects-table" xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:linkedDomainObjectsEditableTableType"
-                        name="linked-domain-objects-editable-table" xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:templateBasedWidgetType"
-                        name="template-based-widget" xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:hierarchyBrowserType"
-                        name="hierarchy-browser" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element ref="con:widget" maxOccurs="unbounded"/>
         </xs:choice>
     </xs:complexType>
+
+    <xs:element type="con:templateBasedWidgetType"
+                name="template-based-widget" substitutionGroup="con:widget"/>
     <xs:complexType name="templateBasedWidgetType">
-        <xs:sequence>
-            <xs:element type="con:fieldPathType" name="field-path"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-        </xs:sequence>
-        <xs:attribute type="xs:string" name="id" use="optional"/>
-        <xs:attribute type="xs:string" name="template-name"/>
+        <xs:complexContent>
+            <xs:extension base="con:abstractWidgetType">
+                <xs:sequence>
+                    <xs:element type="con:fieldPathType" name="field-path"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                </xs:sequence>
+                <xs:attribute type="xs:string" name="id" use="optional"/>
+                <xs:attribute type="xs:string" name="template-name"/>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
+
+    <xs:element type="con:hierarchyBrowserType"
+                name="hierarchy-browser" substitutionGroup="con:widget"/>
     <!-- Hierarchy browser definitions -->
     <xs:complexType name="hierarchyBrowserType">
-        <xs:choice maxOccurs="unbounded">
-            <xs:element type="con:fieldPathType" name="field-path" xmlns:con="https://cm5.intertrust.ru/config"/>
+        <xs:complexContent>
+            <xs:extension base="con:abstractWidgetType">
+                <xs:choice maxOccurs="unbounded">
+                    <xs:element type="con:fieldPathType" name="field-path" xmlns:con="https://cm5.intertrust.ru/config"/>
 
-            <xs:element type="con:nodeCollectionDefType" name="node-collection-def"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="xs:string" name="page-size">
-            </xs:element>
-            <xs:element type="con:singleChoiceType" name="single-choice"
-                        xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
-            <xs:element type="con:clearAllButtonType" name="clear-all-button"
-                        xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
-            <xs:element type="con:addButtonType" name="add-button"
-                        xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
-            <xs:element type="con:selectionStyleType" name="selection-style"
-                        xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
-        </xs:choice>
-        <xs:attribute type="xs:string" name="id"/>
+                    <xs:element type="con:nodeCollectionDefType" name="node-collection-def"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="xs:string" name="page-size">
+                    </xs:element>
+                    <xs:element type="con:singleChoiceType" name="single-choice"
+                                xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
+                    <xs:element type="con:clearAllButtonType" name="clear-all-button"
+                                xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
+                    <xs:element type="con:addButtonType" name="add-button"
+                                xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
+                    <xs:element type="con:selectionStyleType" name="selection-style"
+                                xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
+                </xs:choice>
+                <xs:attribute type="xs:string" name="id"/>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
     <xs:complexType name="nodeCollectionDefType">
         <xs:choice maxOccurs="unbounded">
@@ -1443,21 +1510,26 @@
 
 
 
+    <xs:element type="con:attachmentBoxType" name="attachment-box" substitutionGroup="con:widget"/>
     <!-- Attachment box definitions -->
     <xs:complexType name="attachmentBoxType">
-        <xs:choice maxOccurs="unbounded" minOccurs="0">
-            <xs:element type="con:fieldPathType" name="field-path"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:scannerType" name="scanner"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:attachmentTypeRefType"
-                        name="attachment-type-ref" xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:selectionStyleType"
-                        name="selection-style" xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:singleChoiceType" name="single-choice"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-        </xs:choice>
-        <xs:attribute type="xs:string" name="id" use="required"/>
+        <xs:complexContent>
+            <xs:extension base="con:abstractWidgetType">
+                <xs:choice maxOccurs="unbounded" minOccurs="0">
+                    <xs:element type="con:fieldPathType" name="field-path"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:scannerType" name="scanner"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:attachmentTypeRefType"
+                                name="attachment-type-ref" xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:selectionStyleType"
+                                name="selection-style" xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:singleChoiceType" name="single-choice"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                </xs:choice>
+                <xs:attribute type="xs:string" name="id" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
     <xs:complexType name="scannerType">
         <xs:simpleContent>
@@ -1488,27 +1560,32 @@
         </xs:simpleContent>
     </xs:complexType>
 
+    <xs:element type="con:labelType" name="label" substitutionGroup="con:widget"/>
     <xs:complexType name="labelType">
-        <xs:choice maxOccurs="unbounded" minOccurs="0">
-            <xs:element type="con:fieldPathType" name="field-path"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:fontWeightType" name="font-weight"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:fontStyleType" name="font-style"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:fontSizeType" name="font-size"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:relatesToType" name="relates-to"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element name="text"/>
-            <xs:element type="con:patternType" name="pattern"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:allElementsEmptyMessageType" name="all-values-empty-message"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:rendererLabelType" name="renderer"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-        </xs:choice>
-        <xs:attribute type="xs:string" name="id"/>
+        <xs:complexContent>
+            <xs:extension base="con:abstractWidgetType">
+                <xs:choice maxOccurs="unbounded" minOccurs="0">
+                    <xs:element type="con:fieldPathType" name="field-path"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:fontWeightType" name="font-weight"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:fontStyleType" name="font-style"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:fontSizeType" name="font-size"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:relatesToType" name="relates-to"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element name="text"/>
+                    <xs:element type="con:patternType" name="pattern"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:allElementsEmptyMessageType" name="all-values-empty-message"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:rendererLabelType" name="renderer"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                </xs:choice>
+                <xs:attribute type="xs:string" name="id"/>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
     <xs:complexType name="relatesToType">
         <xs:attribute type="xs:string"
@@ -1567,16 +1644,23 @@
         <xs:attribute type="xs:string" name="pattern"/>
         <xs:attribute type="xs:string" name="style"/>
     </xs:complexType>
+
+    <xs:element type="con:linkedDomainObjectsEditableTableType"
+                name="linked-domain-objects-editable-table" substitutionGroup="con:widget"/>
     <xs:complexType name="linkedDomainObjectsEditableTableType">
-        <xs:sequence>
-            <xs:element type="con:fieldPathType" name="field-path"
-                        minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:linkedFormType" name="linked-form"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:formTableType" name="form-table"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-        </xs:sequence>
-        <xs:attribute type="xs:string" name="id" use="required"/>
+        <xs:complexContent>
+            <xs:extension base="con:abstractWidgetType">
+                <xs:sequence>
+                    <xs:element type="con:fieldPathType" name="field-path"
+                                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:linkedFormType" name="linked-form"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:formTableType" name="form-table"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                </xs:sequence>
+                <xs:attribute type="xs:string" name="id" use="required"/>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
     <xs:complexType name="summaryTableColumnType">
         <xs:sequence>

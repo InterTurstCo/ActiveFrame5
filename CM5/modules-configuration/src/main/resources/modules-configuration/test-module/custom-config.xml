@@ -20,6 +20,75 @@
         </uniqueKey>
     </domain-object-type>
 
+    <form name="test_country_form" domain-object-type="country" is-default="false" debug="false" min-width="900px">
+        <markup>
+            <header>
+                <!--width="800px" height="200px"-->
+                <table>
+                    <tr>
+                        <td h-align="right">
+                            <widget id="1"/>
+                        </td>
+                        <!-- label (????????) -->
+                        <td width="100%" h-align="left">
+                            <widget id="2"/>
+                        </td>
+                        <!-- text-box (????????) -->
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false"> <!-- ? ???? - ?????? ???????? -->
+                <tab name="Table Browser">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="17a" width="600px"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+
+            <custom:test-space-bar name="spaceBar1"/>
+
+            <label id="7a">
+                <text>Известный город:</text>
+            </label>
+            <suggest-box id="suggest_capital">
+                <field-path value="capital"/>
+
+                <collection-ref name="Cities"/>
+
+                <!-- паттерн отображения значений выпадающего списка -->
+                <drop-down-pattern value="{name} {population}"/>
+
+                <!-- паттерн отображения уже выбранных значений -->
+                <selection-pattern value="{name} {population} {year_of_foundation}"/>
+
+                <!-- название фильтра по тексту, введённому пользователем -->
+                <input-text-filter name="byText"/>
+
+                <!-- количество элементов, показываемых на одной странице выпадающего списка -->
+                <page-size>30</page-size>
+
+                <!--name может принимать 2 значения inline (стиль Студии Лебедева) и table (текущая реализация).
+                    Если тэг отсутствует, то используется "inline"-вариант. -->
+                <selection-style name="inline"/>
+            </suggest-box>
+
+            <date-box id="10">
+                <field-path value="independence_day"/>
+            </date-box>
+
+        </widget-config>
+    </form>
+
     <custom:test-type name="Test_Config">
         <custom:test-fields>
             <custom:test-field name="Role"/>
