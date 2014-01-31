@@ -71,7 +71,7 @@ public class CollectionPluginView extends PluginView {
     private String simpleSearchQuery = "";
     private String searchArea = "";
     private HashMap<String, ValueConverter> converterMap = new HashMap<String, ValueConverter>();
-
+    private FlowPanel simpleSearch = new FlowPanel();
 
     // локальная шина событий
     private EventBus eventBus;
@@ -101,8 +101,9 @@ public class CollectionPluginView extends PluginView {
 
 
     private void updateSizes() {
-        tableWidth = plugin.getOwner().getVisibleWidth();
+        tableWidth = plugin.getOwner().getVisibleWidth()-5;
         tableHeight = plugin.getOwner().getVisibleHeight();
+        tableController.setOwnerWidth(tableWidth);
 
     }
 
@@ -158,7 +159,8 @@ public class CollectionPluginView extends PluginView {
 
     public void onPluginPanelResize() {
         updateSizes();
-        tableController.columnWindowResize(columnMinWidth(tableWidth / tableHeader.getColumnCount()));
+        //         plugin.getOwner().getVisibleWidth();
+        tableController.columnWindowResizeOnPercentage(tableWidth /*/ tableHeader.getColumnCount()*/);
         scrollTableBody.setHeight(tableHeight + "px");
     }
 
@@ -485,7 +487,8 @@ public class CollectionPluginView extends PluginView {
         headerPanel.add(treeLinkWidget);
         treeLinkWidget.setWidth("100%");
         treeLinkWidget.getElement().getStyle().setBackgroundColor("white");
-        FlowPanel simpleSearch = new FlowPanel();
+
+     //   simpleSearch.getElement().getStyle().setHeight(30, Style.Unit.PX);
         if (searchArea != null && searchArea.length() > 0) {
             SimpleSearchPanel simpleSearchPanel = new SimpleSearchPanel(simpleSearch, eventBus);
             treeLinkWidget.add(simpleSearchPanel);
@@ -700,8 +703,8 @@ public class CollectionPluginView extends PluginView {
             @Override
             public void onResize(ResizeEvent event) {
 
-                tableController.columnWindowResize(columnMinWidth(tableWidth / tableHeader.getColumnCount()));
-                scrollTableBody.setHeight(tableHeight + "px");
+//                tableController.columnWindowResizeOnPercentage(tableWidth);
+               // scrollTableBody.setHeight(tableHeight + "px");
             }
         });
     }

@@ -9,7 +9,6 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
@@ -27,10 +26,10 @@ import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
  */
 public class TableController implements MouseDownHandler, MouseUpHandler, MouseMoveHandler, MouseOverHandler  {
 
-    private FlowPanel           tablePanelWinth;
+    private int ownerWidth ;
     private int                 resizeModifier;
     private EventBus eventBus;
-    static final int            COLUMN_MIN_WIDTH = 100;
+    static final int            COLUMN_MIN_WIDTH = 120;
     private Point               startResizePoint;
     private Point               startMovePoint;
     private int                 mouseDownSortPoint;
@@ -67,7 +66,7 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
 
 
     }
-
+    // изменение ширины столбцов на ровные части
     public void columnWindowResize(int width){
         int count = header.getColumnCount();
         for (int i = 0; i <count; i++ ){
@@ -80,9 +79,79 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
 
         searchPanelResize();
 
+    }
+    
+    //изменение ширины столбцов таблицы согласно пропорции
+    public void columnWindowResizeOnPercentage(int width){
+        double modulo = 0;
+        double count = header.getColumnCount();
+        double oldWidth = getOldTableWidth();
+        double newWidth = 0;
+
+        for (int i = 0; i <count; i++ ){
+            Column headCol = header.getColumn(i);
+            Column bodyCol = body.getColumn(i);
+            //использование -5 это компенсация погрешности из результата округлений размеров в double
+            newWidth += reducingColumnWidthInPercentage(oldWidth, width-5, headCol, bodyCol);
+        }
+
+        if (width > newWidth && newWidth >0){
+            modulo += width -newWidth;
+
+        } else {
+            modulo += newWidth - width;
+        }
+
+        while(modulo> 0) {
+                for (int i = 0; i < count; i++){
+                    if (modulo <= 0){
+                        break;
+                    }
+                    Column headCol = header.getColumn(i);
+                    Column bodyCol = body.getColumn(i);
+                    double columnWidth = getColumnWidth(headCol);
+                    columnWidth+=2;
+                    header.setColumnWidth(headCol,columnWidth +"px");
+                    body.setColumnWidth(bodyCol, columnWidth + "px");
+                    modulo -= 2;
+
+                }
+            }
+
+        searchPanelResize();
 
 
     }
+
+    private double reducingColumnWidthInPercentage(double oldWidth, double newWidth, Column headCol, Column bodyCol){
+        double coeff = newWidth / oldWidth;
+        double resized ;
+        if (newWidth / header.getColumnCount() <COLUMN_MIN_WIDTH) {
+            resized = COLUMN_MIN_WIDTH;
+            return 0;
+        } else {
+            resized = (getColumnWidth(headCol) * coeff);
+
+        if (resized < COLUMN_MIN_WIDTH) {
+            resized = COLUMN_MIN_WIDTH;
+        }
+        }
+        header.setColumnWidth(headCol, resized+"px");
+        body.setColumnWidth(bodyCol, resized + "px");
+        return resized;
+
+    }
+
+    private int getOldTableWidth(){
+        int oldWidth = 0;
+        for(int i =0; i < body.getColumnCount(); i++) {
+            Column column = body.getColumn(i);
+            oldWidth += getColumnWidth(column);
+        }
+        return oldWidth;
+    }
+
+
 
     @Override
     public void onMouseDown(MouseDownEvent event) {
@@ -305,7 +374,9 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
                 if (move > COLUMN_MIN_WIDTH) {
                     if (colIdx == header.getColumnCount()-1){
                         if (header.getOffsetWidth() > header.getOffsetWidth() - move){
-                            columnWindowResize(body.getParent().getParent().getParent().getParent().getParent().getParent().getParent().getOffsetWidth() / header.getColumnCount());
+                            columnWindowResize(body.getParent().getParent()
+                                    .getParent().getParent().getParent().getParent().getParent().getOffsetWidth()
+                                    / header.getColumnCount());
 
                         }
                     }
@@ -333,19 +404,19 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
         }
     }
 
-    private int getColumnWidth(Column column){
+    private double getColumnWidth(Column column){
         String width  = header.getColumnWidth(column);
         width = width.replaceAll("[^0-9\\.]", "");
-        int columnIntWidth  = Integer.parseInt(width);
+        double columnIntWidth  = Double.parseDouble(width);
         return columnIntWidth;
     }
 
     private void columnSizeCorrector(){
         Column column = header.getColumn(header.getColumnCount()-1);
-        int lastColumnWidth  = getColumnWidth(column);
-        int currentColumn = getColumnWidth(header.getColumn(colIdx));
+        double lastColumnWidth  = getColumnWidth(column);
+        double currentColumn = getColumnWidth(header.getColumn(colIdx));
         if (resizeModifier >0){
-            int sum = (currentColumn - resizeModifier)+ lastColumnWidth ;
+            double sum = (currentColumn - resizeModifier)+ lastColumnWidth ;
             header.setColumnWidth(column, sum+"px");
             body.setColumnWidth(column, sum+"px");
             resizeModifier = 0;
@@ -353,7 +424,7 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
 
         }
         else if (resizeModifier < 0) {
-            int lastColumntSize = (lastColumnWidth + resizeModifier);
+            double lastColumntSize = (lastColumnWidth + resizeModifier);
             if (lastColumntSize < COLUMN_MIN_WIDTH){
                 lastColumntSize = COLUMN_MIN_WIDTH;
                 header.setColumnWidth(column, lastColumntSize+"px");
@@ -445,4 +516,11 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
         }
     }
 
+    public int getOwnerWidth() {
+        return ownerWidth;
+    }
+
+    public void setOwnerWidth(int ownerWidth) {
+        this.ownerWidth = ownerWidth;
+    }
 }

@@ -81,8 +81,7 @@ public class DomainObjectSurferPluginView extends PluginView {
 
     private void updateSizes() {
         surferWidth = plugin.getOwner().getVisibleWidth();
-        surferHeight = plugin.getOwner().getVisibleHeight();
-
+        surferHeight = plugin.getOwner().getVisibleHeight() - 105;
     }
 
     protected void splitterSetSize() {

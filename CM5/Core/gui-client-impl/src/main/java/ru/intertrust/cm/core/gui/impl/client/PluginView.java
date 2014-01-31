@@ -139,4 +139,8 @@ public abstract class PluginView implements IsWidget {
         config.setToggle(true);
         return config;
     }
+
+    public AbsolutePanel getActionToolBar() {
+        return actionToolBar;
+    }
 }
