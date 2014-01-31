@@ -1244,6 +1244,8 @@
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:sortCriteriaType" name="sort-criteria"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:dialogWindowType" name="dialog-window"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id"/>
             </xs:extension>
@@ -1813,4 +1815,14 @@
                         xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:choice>
     </xs:complexType>
+
+    <xs:complexType name="dialogWindowType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="width" />
+                <xs:attribute type="xs:string" name="height" />
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
 </xs:schema>
