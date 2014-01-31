@@ -46,6 +46,9 @@ public class TableBrowserConfig extends WidgetConfig {
     @Element(name = "sort-criteria", required = false)
     private SortCriteriaConfig sortCriteriaConfig;
 
+    @Element(name = "dialog-window", required = false)
+    private DialogWindowConfig dialogWindowConfig;
+
     public CollectionViewRefConfig getCollectionViewRefConfig() {
         return collectionViewRefConfig;
     }
@@ -134,6 +137,14 @@ public class TableBrowserConfig extends WidgetConfig {
         this.sortCriteriaConfig = sortCriteriaConfig;
     }
 
+    public DialogWindowConfig getDialogWindowConfig() {
+        return dialogWindowConfig;
+    }
+
+    public void setDialogWindowConfig(DialogWindowConfig dialogWindowConfig) {
+        this.dialogWindowConfig = dialogWindowConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -194,6 +205,10 @@ public class TableBrowserConfig extends WidgetConfig {
                 that.sortCriteriaConfig != null) {
             return false;
         }
+        if (dialogWindowConfig != null ? !dialogWindowConfig.equals(that.dialogWindowConfig) :
+                that.dialogWindowConfig != null) {
+            return false;
+        }
         return true;
     }
 
@@ -211,6 +226,7 @@ public class TableBrowserConfig extends WidgetConfig {
         result = 31 * result + (clearAllButtonConfig != null ? clearAllButtonConfig.hashCode() : 0);
         result = 31 * result + (addButtonConfig != null ? addButtonConfig.hashCode() : 0);
         result = 31 * result + (sortCriteriaConfig != null ? sortCriteriaConfig.hashCode() : 0);
+        result = 31 * result + (dialogWindowConfig != null ? dialogWindowConfig.hashCode() : 0);
         return result;
     }
 

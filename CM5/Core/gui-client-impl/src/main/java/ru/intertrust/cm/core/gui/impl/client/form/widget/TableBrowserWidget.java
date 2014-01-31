@@ -6,10 +6,17 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.FocusPanel;
+import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.form.widget.DialogWindowConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SearchAreaRefConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
@@ -21,13 +28,22 @@ import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
-import ru.intertrust.cm.core.gui.impl.client.event.*;
+import ru.intertrust.cm.core.gui.impl.client.event.CheckBoxFieldUpdateEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.CheckBoxFieldUpdateEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
 import ru.intertrust.cm.core.gui.impl.client.form.FacebookStyleView;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonForm;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.form.widget.*;
+import ru.intertrust.cm.core.gui.model.form.widget.FormatRowsRequest;
+import ru.intertrust.cm.core.gui.model.form.widget.ParsedRowsList;
+import ru.intertrust.cm.core.gui.model.form.widget.TableBrowserItem;
+import ru.intertrust.cm.core.gui.model.form.widget.TableBrowserState;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.ArrayList;
@@ -40,6 +56,8 @@ import java.util.List;
  */
 @ComponentName("table-browser")
 public class TableBrowserWidget extends BaseWidget {
+    public static final int DEFAULT_DIALOG_WIDTH = 500;
+    public static final int DEFAULT_DIALOG_HEIGHT = 300;
     private TableBrowserConfig tableBrowserConfig;
     private PluginPanel pluginPanel;
     private FocusPanel openDialogButton;
@@ -48,8 +66,8 @@ public class TableBrowserWidget extends BaseWidget {
     private EventBus eventBus = new SimpleEventBus();
     private ArrayList<Id> chosenIds = new ArrayList<Id>();
     private boolean singleChoice;
-    private int width;
-    private int height;
+    private int dialogWidth;
+    private int dialogHeight;
     private DialogBox dialogBox;
     private FacebookStyleView facebookStyleView;
     FlowPanel root = new FlowPanel();
@@ -70,7 +88,7 @@ public class TableBrowserWidget extends BaseWidget {
         facebookStyleView.initDisplayStyle(tableBrowserConfig.getSelectionStyleConfig().getName());
         facebookStyleView.setChosenItems(state.getSelectedItemsRepresentations());
         facebookStyleView.showSelectedItems();
-        initSizes();
+        initDialogWindowSize();
         initDialogView();
         initAddButton();
         initClearAllButton();
@@ -114,8 +132,8 @@ public class TableBrowserWidget extends BaseWidget {
 
     private void initCollectionPluginPanel() {
         pluginPanel = new PluginPanel();
-        pluginPanel.setVisibleWidth(width);
-        pluginPanel.setVisibleHeight(height);
+        pluginPanel.setVisibleWidth(dialogWidth);
+        pluginPanel.setVisibleHeight(dialogHeight-100);//it's height of table body only. TODO: eliminate hardcoded value
 
     }
 
@@ -160,10 +178,20 @@ public class TableBrowserWidget extends BaseWidget {
         filterEditor = new TextBox();
         filterEditor.getElement().setClassName("table-browser-filter-editor");
         openDialogButton = new FocusPanel();
-
         openDialogButton.addClickHandler(new FetchFilteredRowsClickHandler());
+        clearButton = new FocusPanel();
+        clearButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                chosenIds.clear();
+                facebookStyleView.getChosenItems().clear();
+                facebookStyleView.showSelectedItems();
+
+            }
+        });
         root.add(filterEditor);
         root.add(openDialogButton);
+        root.add(clearButton);
         root.add(facebookStyleView);
 
         return root;
@@ -191,29 +219,16 @@ public class TableBrowserWidget extends BaseWidget {
             String img = tableBrowserConfig.getClearAllButtonConfig().getImage();
             String text = tableBrowserConfig.getClearAllButtonConfig().getText();
 
-            clearButton = new FocusPanel();
+            clearButton.clear();
             ButtonForm buttonForm = new ButtonForm(clearButton, img, text);
 
             clearButton.add(buttonForm);
             root.insert(clearButton, 2);
-
-
-            clearButton.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    chosenIds.clear();
-                    facebookStyleView.getChosenItems().clear();
-                    facebookStyleView.showSelectedItems();
-
-                }
-            });
-
         }
 
     }
 
     private void initDialogView() {
-
         dialogBox = new DialogBox();
         dialogBox.getElement().getStyle().setZIndex(10);
         initCollectionConfig();
@@ -235,15 +250,13 @@ public class TableBrowserWidget extends BaseWidget {
         buttonsContainer.add(cancelButton);
         FlowPanel dialogBoxContent = new FlowPanel();
 
-        dialogBoxContent.setWidth(width + "px");
+        dialogBoxContent.setWidth(dialogWidth + "px");
         dialogBoxContent.getElement().getStyle().setOverflow(Style.Overflow.AUTO);
         dialogBoxContent.add(pluginPanel);
         dialogBoxContent.add(buttonsContainer);
-
         dialogBox.add(dialogBoxContent);
-        dialogBox.setWidth(width + "px");
-        dialogBox.setHeight(height + "px");
-
+        dialogBox.setWidth(dialogWidth + "px");
+        dialogBox.setHeight(dialogHeight + "px");
     }
 
     private boolean isSingleChoice() {
@@ -314,12 +327,12 @@ public class TableBrowserWidget extends BaseWidget {
 
     }
 
-    private void initSizes() {
-        String widthString = displayConfig.getWidth();
-        String heightString = displayConfig.getHeight();
-        width = widthString == null ? 500 : Integer.parseInt(widthString.replaceAll("\\D+", ""));
-        height = heightString == null ? 300 : Integer.parseInt(heightString.replaceAll("\\D+", ""));
-
+    private void initDialogWindowSize() {
+        DialogWindowConfig dialogWindowConfig = tableBrowserConfig.getDialogWindowConfig();
+        String widthString = dialogWindowConfig != null ? dialogWindowConfig.getWidth() : null;
+        String heightString = dialogWindowConfig != null ? dialogWindowConfig.getHeight() : null;
+        dialogWidth = widthString == null ? DEFAULT_DIALOG_WIDTH : Integer.parseInt(widthString.replaceAll("\\D+", ""));
+        dialogHeight = heightString == null ? DEFAULT_DIALOG_HEIGHT : Integer.parseInt(heightString.replaceAll("\\D+", ""));
     }
 
     private void fetchParsedRows() {
