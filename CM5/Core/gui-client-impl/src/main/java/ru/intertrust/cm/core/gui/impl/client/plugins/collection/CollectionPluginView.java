@@ -31,6 +31,7 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.Check
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.TableController;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.resources.CellTableResourcesEx;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.resources.DGCellTableResourceAdapter;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowItemList;
@@ -93,10 +94,6 @@ public class CollectionPluginView extends PluginView {
         filterList = new ArrayList<Filter>();
         tableController = new TableController(tableHeader, tableBody, eventBus, searchPanel);
         updateSizes();
-    }
-
-    public CellTable getTableBody() {
-        return tableBody;
     }
 
 
@@ -534,18 +531,18 @@ public class CollectionPluginView extends PluginView {
         });
         tableHeader.addColumn(checkColumn, "");
         tableBody.addColumn(checkColumn);
-        int numberOfColumns = 1 + domainObjectFieldsOnColumnNamesMap.keySet().size();
-        int columnWidth = (tableWidth / numberOfColumns);
-        columnWidth = columnMinWidth(columnWidth);
+
+        int columnWidth = 35;
         tableHeader.setColumnWidth(checkColumn, columnWidth + "px");
+        checkColumn.setDataStoreName(BusinessUniverseConstants.CHECK_BOX_COLUMN_NAME);
         tableBody.setColumnWidth(checkColumn, columnWidth + "px");
-        createTableColumnsWithoutCheckBoxes(domainObjectFieldsOnColumnNamesMap, 1);
+        createTableColumnsWithoutCheckBoxes(domainObjectFieldsOnColumnNamesMap, columnWidth);
     }
 
     private void createTableColumnsWithoutCheckBoxes(
-            final LinkedHashMap<String, CollectionColumnProperties> domainObjectFieldPropertiesMap,
-            final int startNumberOfColumns) {
-        int numberOfColumns = startNumberOfColumns + domainObjectFieldPropertiesMap.keySet().size();
+            final LinkedHashMap<String, CollectionColumnProperties> domainObjectFieldPropertiesMap,final int sizeOffset) {
+
+        int numberOfColumns = sizeOffset + domainObjectFieldPropertiesMap.keySet().size();
         int columnWidth = (tableWidth / numberOfColumns);
         columnWidth = columnMinWidth(columnWidth);
         for (String field : domainObjectFieldPropertiesMap.keySet()) {
@@ -573,8 +570,8 @@ public class CollectionPluginView extends PluginView {
             searchPanel.add(box);
             tableBody.addColumn(column);
             tableBody.setColumnWidth(column, columnWidth + "px");
-            if(startNumberOfColumns != 0) {
-                searchPanel.getElement().getStyle().setPaddingLeft(columnWidth * startNumberOfColumns, Style.Unit.PX);
+            if(sizeOffset != 0) {
+                searchPanel.getElement().getStyle().setPaddingLeft(columnWidth + sizeOffset, Style.Unit.PX);
             }
         }
     }
@@ -632,9 +629,6 @@ public class CollectionPluginView extends PluginView {
 
     }
 
-    public ScrollPanel getScrollTableBody() {
-        return scrollTableBody;
-    }
 
     public void setEventBus(EventBus eventBus) {
         this.eventBus = eventBus;

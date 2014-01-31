@@ -15,6 +15,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.impl.client.event.TableControllerSortEvent;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.SortCollectionState;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 
 /**
@@ -355,7 +356,9 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
     private void resizeColumn(){
         int move;
         Column column = header.getColumn(colIdx);
-
+        if(BusinessUniverseConstants.CHECK_BOX_COLUMN_NAME.equalsIgnoreCase(column.getDataStoreName())) {
+            return;
+        }
         int width = getThisColumnWidth(column);
         if ( colIdx != -1 ){
             if (resizeStartPoint > resizeEndPoint){
@@ -443,7 +446,6 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
 
     }
 
-
     private int getThisColumnWidth(Column column){
         String colWidth = header.getColumnWidth(column);
         int checkPos = 0;
@@ -479,6 +481,9 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
     private void moveColumn(int colIdx, int newColIdx) {
         if (colIdx != -1 && newColIdx != -1) {
             Column  column = header.getColumn(colIdx);
+            if(BusinessUniverseConstants.CHECK_BOX_COLUMN_NAME.equalsIgnoreCase(column.getDataStoreName())) {
+                return;
+            }
             Widget search = searchPanel.getWidget(colIdx);
             header.removeColumn(colIdx);
             body.removeColumn(colIdx);
@@ -490,6 +495,10 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
 
             }
             else{
+                Column columnToRemove = header.getColumn(newColIdx -1);
+                if(BusinessUniverseConstants.CHECK_BOX_COLUMN_NAME.equalsIgnoreCase(columnToRemove.getDataStoreName())){
+                    return;
+                }
                 header.insertColumn(newColIdx -1, column, column.getDataStoreName());
                 body.insertColumn(newColIdx -1, column);
                 searchPanel.insert(search, newColIdx -1);
