@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.model.plugin;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import java.util.List;
 public class CollectionPluginData extends ActivePluginData {
 
     private String collectionName;
+    private DefaultSortCriteriaConfig defaultSortCriteriaConfig;
     private boolean singleChoice;
     private boolean displayChosenValues;
     private ArrayList<CollectionRowItem> items = new ArrayList<CollectionRowItem>();
@@ -33,6 +35,14 @@ public class CollectionPluginData extends ActivePluginData {
 
     public void setSingleChoice(boolean singleChoice) {
         this.singleChoice = singleChoice;
+    }
+
+    public DefaultSortCriteriaConfig getDefaultSortCriteriaConfig() {
+        return defaultSortCriteriaConfig;
+    }
+
+    public void setDefaultSortCriteriaConfig(DefaultSortCriteriaConfig defaultSortCriteriaConfig) {
+        this.defaultSortCriteriaConfig = defaultSortCriteriaConfig;
     }
 
     public boolean isDisplayChosenValues() {

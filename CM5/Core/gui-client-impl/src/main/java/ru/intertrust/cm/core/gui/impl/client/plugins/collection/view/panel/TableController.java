@@ -15,8 +15,9 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.impl.client.event.TableControllerSortEvent;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.SortCollectionState;
-import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
+
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -25,26 +26,26 @@ import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
  * Time: 14:39
  * To change this template use File | Settings | File Templates.
  */
-public class TableController implements MouseDownHandler, MouseUpHandler, MouseMoveHandler, MouseOverHandler  {
+public class TableController implements MouseDownHandler, MouseUpHandler, MouseMoveHandler, MouseOverHandler {
 
-    private int ownerWidth ;
-    private int                 resizeModifier;
+    private int ownerWidth;
+    private int resizeModifier;
     private EventBus eventBus;
-    static final int            COLUMN_MIN_WIDTH = 120;
-    private Point               startResizePoint;
-    private Point               startMovePoint;
-    private int                 mouseDownSortPoint;
-    private int                 mouseUpSortPoint;
-    private int                 resizeStartPoint;
-    private int                 resizeEndPoint;
-    private boolean             mouseDown        = false;
-    private boolean             sortDirection;
-    private int                 colIdx;
-    private static int          DELTA_X          = 3;
-    private static int          DELTA_DRAG       = 1;
-    private static Style.Cursor MOVE_CURSOR      = Style.Cursor.MOVE;
-    private static Style.Cursor RESIZE_CURSOR    = Style.Cursor.COL_RESIZE;
-    private static Style.Cursor DEFAULT_CURSOR   = Style.Cursor.DEFAULT;
+    static final int COLUMN_MIN_WIDTH = 120;
+    private Point startResizePoint;
+    private Point startMovePoint;
+    private int mouseDownSortPoint;
+    private int mouseUpSortPoint;
+    private int resizeStartPoint;
+    private int resizeEndPoint;
+    private boolean mouseDown = false;
+    private boolean sortDirection;
+    private int colIdx;
+    private static int DELTA_X = 3;
+    private static int DELTA_DRAG = 1;
+    private static Style.Cursor MOVE_CURSOR = Style.Cursor.MOVE;
+    private static Style.Cursor RESIZE_CURSOR = Style.Cursor.COL_RESIZE;
+    private static Style.Cursor DEFAULT_CURSOR = Style.Cursor.DEFAULT;
     private Column lastColumn;
     private HorizontalPanel searchPanel;
 
@@ -67,13 +68,14 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
 
 
     }
+
     // изменение ширины столбцов на ровные части
-    public void columnWindowResize(int width){
+    public void columnWindowResize(int width) {
         int count = header.getColumnCount();
-        for (int i = 0; i <count; i++ ){
+        for (int i = 0; i < count; i++) {
             Column headCol = header.getColumn(i);
             Column bodyCol = body.getColumn(i);
-            header.setColumnWidth(headCol, width+"px");
+            header.setColumnWidth(headCol, width + "px");
             body.setColumnWidth(bodyCol, width + "px");
 
         }
@@ -81,77 +83,76 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
         searchPanelResize();
 
     }
-    
+
     //изменение ширины столбцов таблицы согласно пропорции
-    public void columnWindowResizeOnPercentage(int width){
+    public void columnWindowResizeOnPercentage(int width) {
         double modulo = 0;
         double count = header.getColumnCount();
         double oldWidth = getOldTableWidth();
         double newWidth = 0;
 
-        for (int i = 0; i <count; i++ ){
+        for (int i = 0; i < count; i++) {
             Column headCol = header.getColumn(i);
             Column bodyCol = body.getColumn(i);
             //использование -5 это компенсация погрешности из результата округлений размеров в double
             newWidth += reducingColumnWidthInPercentage(oldWidth, width-7, headCol, bodyCol);
+            newWidth += reducingColumnWidthInPercentage(oldWidth, width - 5, headCol, bodyCol);
         }
 
-        if (width > newWidth && newWidth >0){
-            modulo += width -newWidth;
+        if (width > newWidth && newWidth > 0) {
+            modulo += width - newWidth;
 
         } else {
             modulo += newWidth - width;
         }
 
-        while(modulo> 0) {
-                for (int i = 0; i < count; i++){
-                    if (modulo <= 0){
-                        break;
-                    }
-                    Column headCol = header.getColumn(i);
-                    Column bodyCol = body.getColumn(i);
-                    double columnWidth = getColumnWidth(headCol);
-                    columnWidth+=2;
-                    header.setColumnWidth(headCol,columnWidth +"px");
-                    body.setColumnWidth(bodyCol, columnWidth + "px");
-                    modulo -= 2;
-
+        while (modulo > 0) {
+            for (int i = 0; i < count; i++) {
+                if (modulo <= 0) {
+                    break;
                 }
+                Column headCol = header.getColumn(i);
+                Column bodyCol = body.getColumn(i);
+                double columnWidth = getColumnWidth(headCol);
+                columnWidth += 2;
+                header.setColumnWidth(headCol, columnWidth + "px");
+                body.setColumnWidth(bodyCol, columnWidth + "px");
+                modulo -= 2;
+
             }
+        }
 
         searchPanelResize();
 
-
     }
 
-    private double reducingColumnWidthInPercentage(double oldWidth, double newWidth, Column headCol, Column bodyCol){
+    private double reducingColumnWidthInPercentage(double oldWidth, double newWidth, Column headCol, Column bodyCol) {
         double coeff = newWidth / oldWidth;
-        double resized ;
-        if (newWidth / header.getColumnCount() <COLUMN_MIN_WIDTH) {
+        double resized;
+        if (newWidth / header.getColumnCount() < COLUMN_MIN_WIDTH) {
             resized = COLUMN_MIN_WIDTH;
             return 0;
         } else {
             resized = (getColumnWidth(headCol) * coeff);
 
-        if (resized < COLUMN_MIN_WIDTH) {
-            resized = COLUMN_MIN_WIDTH;
+            if (resized < COLUMN_MIN_WIDTH) {
+                resized = COLUMN_MIN_WIDTH;
+            }
         }
-        }
-        header.setColumnWidth(headCol, resized+"px");
+        header.setColumnWidth(headCol, resized + "px");
         body.setColumnWidth(bodyCol, resized + "px");
         return resized;
 
     }
 
-    private int getOldTableWidth(){
+    private int getOldTableWidth() {
         int oldWidth = 0;
-        for(int i =0; i < body.getColumnCount(); i++) {
+        for (int i = 0; i < body.getColumnCount(); i++) {
             Column column = body.getColumn(i);
             oldWidth += getColumnWidth(column);
         }
         return oldWidth;
     }
-
 
 
     @Override
@@ -182,72 +183,67 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
         event.preventDefault();
     }
 
-    private void checkFstSortClick(final MouseEvent e){
+    private void checkFstSortClick(final MouseEvent e) {
         Point p = getPoint(e);
         mouseDownSortPoint = (int) p.getX();
     }
-    private void checkSndSortClick(final MouseEvent e){
+
+    private void checkSndSortClick(final MouseEvent e) {
         Point p = getPoint(e);
         mouseUpSortPoint = (int) p.getX();
-        if (mouseDownSortPoint == mouseUpSortPoint){
+        if (mouseDownSortPoint == mouseUpSortPoint) {
             fireSortEvent();
         }
     }
 
-    private void fireSortEvent(){
+    private void fireSortEvent() {
         CollectionColumn column = (CollectionColumn) getSortedColumn();
-
-        String colDataStoreName = column.getDataStoreName().replaceAll("([↓↑])", "");
-
-
-        if (lastColumn != null){
-        if (!lastColumn.equals(column)){
-            String rename = lastColumn.getDataStoreName().replaceAll("([↓↑])", "");
-            lastColumn.setDataStoreName(rename);
-
-
-            resetLastColumn();
+        String colDataStoreName = column.getDataStoreName().replaceAll(SORT_ARROWS, "");
+        if (lastColumn != null) {
+            if (!lastColumn.equals(column)) {
+                String rename = lastColumn.getDataStoreName().replaceAll(SORT_ARROWS, "");
+                lastColumn.setDataStoreName(rename);
+                resetLastColumn();
 
             }
         }
 
-        if (!sortDirection ){
+        if (!sortDirection) {
             sortDirection = true;
-        }  else {
+        } else {
             sortDirection = false;
         }
         eventBus.fireEvent(new TableControllerSortEvent(colDataStoreName, new SortCollectionState(
-                70, 0, colDataStoreName, sortDirection ,true, column.getFieldName())));
-
-           lastColumn = column;
-
+                70, 0, colDataStoreName, sortDirection, true, column.getFieldName())));
+        lastColumn = column;
 
     }
 
-    private void resetLastColumn(){
+    private void resetLastColumn() {
 
-        for (int i = 0 ; i < header.getColumnCount(); i++){
-            if (lastColumn.equals(header.getColumn(i))){
-                 reDrawColumn(i, lastColumn);
+        for (int i = 0; i < header.getColumnCount(); i++) {
+            if (lastColumn.equals(header.getColumn(i))) {
+                reDrawColumn(i, lastColumn);
             }
         }
     }
 
-    private Column getSortedColumn(){
+    private Column getSortedColumn() {
         int checkPos = 0;
-
-        for (int i = 0; i < header.getColumnCount(); i++ ){
+        for (int i = 0; i < header.getColumnCount(); i++) {
             Column column = header.getColumn(i);
+            String previousColumnName = column.getDataStoreName();
+            if (previousColumnName.contains(ASCEND_ARROW) || previousColumnName.contains(DESCEND_ARROW)) {
+                column.setDataStoreName(previousColumnName.replaceAll(SORT_ARROWS, ""));
+                reDrawColumn(i, column);
+            }
             checkPos += getThisColumnWidth(column);
-            if (checkPos > mouseDownSortPoint){
-                String colName = header.getColumn(i).getDataStoreName() ;
-                if (!sortDirection)  {
-                    colName = colName.replaceAll("([↓↑])", "");
-                    column.setDataStoreName(colName+"↑");
-
+            if (checkPos > mouseDownSortPoint) {
+                String colName = header.getColumn(i).getDataStoreName();
+                if (!sortDirection) {
+                    column.setDataStoreName(colName + ASCEND_ARROW);
                 } else {
-                    colName = colName.replaceAll("([↓↑])", "");
-                    column.setDataStoreName(colName+"↓");
+                    column.setDataStoreName(colName + DESCEND_ARROW);
                 }
                 reDrawColumn(i, column);
                 return column;
@@ -257,7 +253,7 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
         return null;
     }
 
-    private void reDrawColumn(int index, Column column){
+    private void reDrawColumn(int index, Column column) {
         header.removeColumn(index);
         header.insertColumn(index, column, column.getDataStoreName());
 
@@ -268,10 +264,9 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
 
         Point p = getPoint(e);
         colIdx = getCellIdxByBorderPos(p);
-        if (colIdx >= 0){
+        if (colIdx >= 0) {
             resizeStartPoint = (int) p.getX();
-        }
-        else {
+        } else {
             colIdx = getCellIdxByCellPos(p, true);
             startMovePoint = p;
         }
@@ -282,11 +277,11 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
     private int getCellIdxByBorderPos(Point p) {
         int colCount = header.getColumnCount();
         int checkPos = 0;
-        for (int i = 0; i < colCount ; i++) {
+        for (int i = 0; i < colCount; i++) {
 
             Column column = header.getColumn(i);
             checkPos += getThisColumnWidth(column);
-            if (checkPos - DELTA_X <= p.getX()  && p.getX() <= checkPos + DELTA_X ) {
+            if (checkPos - DELTA_X <= p.getX() && p.getX() <= checkPos + DELTA_X) {
                 return i;
             }
         }
@@ -319,7 +314,7 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
         setCursor(getPoint(e));
     }
 
-    private Point getPoint(final MouseEvent e){
+    private Point getPoint(final MouseEvent e) {
         int x = e.getClientX() - header.getAbsoluteLeft();
         int y = e.getClientX() - header.getAbsoluteTop();
         return new Point(x, y);
@@ -337,61 +332,57 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
         if (mouseDown) {
             mouseDown = false;
             int x = e.getClientX() - header.getAbsoluteLeft();
-            if ( resizeStartPoint >0 ){
-                resizeEndPoint = x ;
+            if (resizeStartPoint > 0) {
+                resizeEndPoint = x;
                 resizeColumn();
                 resizeEndPoint = 0;
                 resizeStartPoint = 0;
-            }
-            else if (startMovePoint != null && Math.abs(x - startMovePoint.getX()) > DELTA_DRAG) {
+            } else if (startMovePoint != null && Math.abs(x - startMovePoint.getX()) > DELTA_DRAG) {
                 e.stopPropagation();
                 moveColumn(colIdx, getCellIdxByCellPos(getPoint(e), false));
-                startMovePoint  = null;
+                startMovePoint = null;
             }
         }
 
         this.setCursor(DEFAULT_CURSOR);
     }
 
-    private void resizeColumn(){
+    private void resizeColumn() {
         int move;
         Column column = header.getColumn(colIdx);
-        if(BusinessUniverseConstants.CHECK_BOX_COLUMN_NAME.equalsIgnoreCase(column.getDataStoreName())) {
+        if (CHECK_BOX_COLUMN_NAME.equalsIgnoreCase(column.getDataStoreName())) {
             return;
         }
         int width = getThisColumnWidth(column);
-        if ( colIdx != -1 ){
-            if (resizeStartPoint > resizeEndPoint){
-                move = width -(resizeStartPoint - resizeEndPoint);
+        if (colIdx != -1) {
+            if (resizeStartPoint > resizeEndPoint) {
+                move = width - (resizeStartPoint - resizeEndPoint);
                 resizeModifier = (correctResizeMovePoint(move));
                 columnSizeCorrector();
-            }
-            else if (resizeStartPoint < resizeEndPoint){
-                move = width +(resizeEndPoint - resizeStartPoint);
-                resizeModifier = (resizeEndPoint - resizeStartPoint)*(-1)/*move*(-1)*/;
+            } else if (resizeStartPoint < resizeEndPoint) {
+                move = width + (resizeEndPoint - resizeStartPoint);
+                resizeModifier = (resizeEndPoint - resizeStartPoint) * (-1)/*move*(-1)*/;
                 columnSizeCorrector();
             } else {
                 move = width;
             }
-            if ( move > 0){
+            if (move > 0) {
                 if (move > COLUMN_MIN_WIDTH) {
-                    if (colIdx == header.getColumnCount()-1){
-                        if (header.getOffsetWidth() > header.getOffsetWidth() - move){
+                    if (colIdx == header.getColumnCount() - 1) {
+                        if (header.getOffsetWidth() > header.getOffsetWidth() - move) {
                             columnWindowResize(body.getParent().getParent()
                                     .getParent().getParent().getParent().getParent().getParent().getOffsetWidth()
                                     / header.getColumnCount());
 
                         }
+                    } else {
+                        header.setColumnWidth(column, move + "px");
+                        body.setColumnWidth(column, move + "px");
                     }
-                    else {
-                    header.setColumnWidth(column, move+"px");
-                    body.setColumnWidth(column, move+"px");
-                    }
-                }
-                else {
+                } else {
 
-                    header.setColumnWidth(column, COLUMN_MIN_WIDTH+"px");
-                    body.setColumnWidth(column, COLUMN_MIN_WIDTH+"px");
+                    header.setColumnWidth(column, COLUMN_MIN_WIDTH + "px");
+                    body.setColumnWidth(column, COLUMN_MIN_WIDTH + "px");
 
                 }
             }
@@ -399,61 +390,56 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
         searchPanelResize();
     }
 
-    private int correctResizeMovePoint(int move){
-        if (move > COLUMN_MIN_WIDTH){
+    private int correctResizeMovePoint(int move) {
+        if (move > COLUMN_MIN_WIDTH) {
             return move;
-        }  else {
-            return move +(COLUMN_MIN_WIDTH - move);
+        } else {
+            return move + (COLUMN_MIN_WIDTH - move);
         }
     }
 
-    private double getColumnWidth(Column column){
-        String width  = header.getColumnWidth(column);
+    private double getColumnWidth(Column column) {
+        String width = header.getColumnWidth(column);
         width = width.replaceAll("[^0-9\\.]", "");
-        double columnIntWidth  = Double.parseDouble(width);
+        double columnIntWidth = Double.parseDouble(width);
         return columnIntWidth;
     }
 
-    private void columnSizeCorrector(){
-        Column column = header.getColumn(header.getColumnCount()-1);
-        double lastColumnWidth  = getColumnWidth(column);
+    private void columnSizeCorrector() {
+        Column column = header.getColumn(header.getColumnCount() - 1);
+        double lastColumnWidth = getColumnWidth(column);
         double currentColumn = getColumnWidth(header.getColumn(colIdx));
-        if (resizeModifier >0){
-            double sum = (currentColumn - resizeModifier)+ lastColumnWidth ;
-            header.setColumnWidth(column, sum+"px");
-            body.setColumnWidth(column, sum+"px");
+        if (resizeModifier > 0) {
+            double sum = (currentColumn - resizeModifier) + lastColumnWidth;
+            header.setColumnWidth(column, sum + "px");
+            body.setColumnWidth(column, sum + "px");
             resizeModifier = 0;
 
 
-        }
-        else if (resizeModifier < 0) {
+        } else if (resizeModifier < 0) {
             double lastColumntSize = (lastColumnWidth + resizeModifier);
-            if (lastColumntSize < COLUMN_MIN_WIDTH){
+            if (lastColumntSize < COLUMN_MIN_WIDTH) {
                 lastColumntSize = COLUMN_MIN_WIDTH;
-                header.setColumnWidth(column, lastColumntSize+"px");
-                body.setColumnWidth(column, lastColumntSize+"px");
+                header.setColumnWidth(column, lastColumntSize + "px");
+                body.setColumnWidth(column, lastColumntSize + "px");
 
-            }
-
-            else {
-                header.setColumnWidth(column, lastColumntSize+"px");
-                body.setColumnWidth(column, lastColumntSize+"px");
+            } else {
+                header.setColumnWidth(column, lastColumntSize + "px");
+                body.setColumnWidth(column, lastColumntSize + "px");
             }
             resizeModifier = 0;
 
         }
-
 
     }
 
-    private int getThisColumnWidth(Column column){
+    private int getThisColumnWidth(Column column) {
         String colWidth = header.getColumnWidth(column);
         int checkPos = 0;
         colWidth = colWidth.replaceAll("[^0-9\\.]", "");
         try {
             checkPos += Math.round(Double.parseDouble(colWidth));
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
         }
         return checkPos;
     }
@@ -467,41 +453,38 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
 
             setCursor(RESIZE_CURSOR);
 
-        }
-        else if (mouseDown && startMovePoint != null
+        } else if (mouseDown && startMovePoint != null
                 && isDragDiff(x, y, startMovePoint.getX(), startMovePoint.getY())) {
 
             setCursor(MOVE_CURSOR);
-        }
-        else {
+        } else {
             setCursor(e);
         }
     }
 
     private void moveColumn(int colIdx, int newColIdx) {
         if (colIdx != -1 && newColIdx != -1) {
-            Column  column = header.getColumn(colIdx);
-            if(BusinessUniverseConstants.CHECK_BOX_COLUMN_NAME.equalsIgnoreCase(column.getDataStoreName())) {
+            Column column = header.getColumn(colIdx);
+            if (CHECK_BOX_COLUMN_NAME.equalsIgnoreCase(column.getDataStoreName())) {
                 return;
             }
             Widget search = searchPanel.getWidget(colIdx);
             header.removeColumn(colIdx);
             body.removeColumn(colIdx);
             searchPanel.remove(colIdx);
-            if (colIdx > newColIdx){
+            if (colIdx > newColIdx) {
                 header.insertColumn(newColIdx, column, column.getDataStoreName());
                 body.insertColumn(newColIdx, column);
                 searchPanel.insert(search, newColIdx);
 
-            }
-            else{
-                Column columnToRemove = header.getColumn(newColIdx -1);
-                if(BusinessUniverseConstants.CHECK_BOX_COLUMN_NAME.equalsIgnoreCase(columnToRemove.getDataStoreName())){
+            } else {
+                Column columnToRemove = header.getColumn(newColIdx - 1);
+                if (CHECK_BOX_COLUMN_NAME.equalsIgnoreCase(columnToRemove.getDataStoreName())) {
                     return;
                 }
-                header.insertColumn(newColIdx -1, column, column.getDataStoreName());
-                body.insertColumn(newColIdx -1, column);
-                searchPanel.insert(search, newColIdx -1);
+                header.insertColumn(newColIdx - 1, column, column.getDataStoreName());
+                body.insertColumn(newColIdx - 1, column);
+                searchPanel.insert(search, newColIdx - 1);
 
             }
         }
@@ -514,12 +497,12 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
 
     }
 
-    private void searchPanelResize(){
+    private void searchPanelResize() {
 
-        for (int i = 0; i < searchPanel.getWidgetCount(); i++){
+        for (int i = 0; i < searchPanel.getWidgetCount(); i++) {
             int nextPos = getThisColumnWidth(header.getColumn(i));
 
-            searchPanel.getWidget(i).setWidth(getThisColumnWidth(header.getColumn(i))+"px");
+            searchPanel.getWidget(i).setWidth(getThisColumnWidth(header.getColumn(i)) + "px");
 
 
         }
@@ -532,4 +515,5 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
     public void setOwnerWidth(int ownerWidth) {
         this.ownerWidth = ownerWidth;
     }
+
 }

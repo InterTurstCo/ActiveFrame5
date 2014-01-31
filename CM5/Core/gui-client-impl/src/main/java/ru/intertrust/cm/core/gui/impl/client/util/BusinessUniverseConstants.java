@@ -7,4 +7,7 @@ package ru.intertrust.cm.core.gui.impl.client.util;
  */
 public class BusinessUniverseConstants {
     public static final String CHECK_BOX_COLUMN_NAME = "checkBox";
+    public static final String SORT_ARROWS = "([↓↑])";
+    public static final String DESCEND_ARROW = "↓";
+    public static final String ASCEND_ARROW = "↑";
 }

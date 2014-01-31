@@ -5,14 +5,9 @@ import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.SearchService;
 import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
-import ru.intertrust.cm.core.config.gui.collection.view.CollectionDisplayConfig;
-import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
+import ru.intertrust.cm.core.config.gui.collection.view.*;
 import ru.intertrust.cm.core.config.gui.form.widget.SearchAreaRefConfig;
-import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
-import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
-import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
-import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
+import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
 import ru.intertrust.cm.core.gui.impl.server.util.ActionConfigBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilder;
@@ -37,7 +32,8 @@ import java.util.*;
  */
 @ComponentName("collection.plugin")
 public class CollectionPluginHandler extends ActivePluginHandler {
-
+    private static final String DESCEND_ARROW = "↓";
+    private static final String ASCEND_ARROW = "↑";
     @Autowired
     CollectionsService collectionsService;
 
@@ -58,13 +54,14 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         pluginData.setDisplayChosenValues(displayChosenValues);
         CollectionViewConfig collectionViewConfig = getViewForCurrentCollection(collectionViewerConfig, collectionName);
         collectionViewerConfig.getSearchAreaRefConfig();
-
+        DefaultSortCriteriaConfig sortCriteriaConfig = collectionViewerConfig.getDefaultSortCriteriaConfig();
         LinkedHashMap<String, CollectionColumnProperties> map =
-                getDomainObjectFieldPropertiesMap(collectionViewConfig);
+                getDomainObjectFieldPropertiesMap(collectionViewConfig, sortCriteriaConfig);
         pluginData.setDomainObjectFieldPropertiesMap(map);
         List<Filter> filters = new ArrayList<Filter>();
-        SortCriteriaConfig sortCriteriaConfig = collectionViewerConfig.getSortCriteriaConfig();
-        SortOrder order = SortOrderBuilder.getSortOrder(sortCriteriaConfig);
+
+        pluginData.setDefaultSortCriteriaConfig(sortCriteriaConfig);
+        SortOrder order = SortOrderBuilder.getDefaultSortOrder(sortCriteriaConfig);
         // todo не совсем верная логика. а в каком режиме обычная коллекция открывается? single choice? display chosen values?
         // todo: по-моему условие singleChoice && !displayChosenValues вполне говорит само за себя :) в следующем условии тоже
         if ((singleChoice && !displayChosenValues) || (!singleChoice && !displayChosenValues)) {
@@ -92,7 +89,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         } else {
             pluginData.setSearchArea("");
         }
-     List<ActionContext> activeContexts = new ArrayList<ActionContext>();
+        List<ActionContext> activeContexts = new ArrayList<ActionContext>();
         activeContexts.add(new SaveToCSVContext(ActionConfigBuilder.createActionConfig("save-csv.action", "save-csv.action", "Выгрузить в CSV", "icons/icon-csv_download.png")));
         pluginData.setActionContexts(activeContexts);
         return pluginData;
@@ -112,7 +109,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         pluginData.setDisplayChosenValues(displayChosenValues);
         CollectionViewConfig collectionViewConfig = getViewForCurrentCollection(collectionViewerConfig, collectionName);
 
-        LinkedHashMap<String, CollectionColumnProperties> map = getDomainObjectFieldPropertiesMap(collectionViewConfig);
+        LinkedHashMap<String, CollectionColumnProperties> map = getDomainObjectFieldPropertiesMap(collectionViewConfig, null);
         pluginData.setDomainObjectFieldPropertiesMap(map);
         pluginData.setItems(items);
         pluginData.setCollectionName(collectionName);
@@ -188,7 +185,6 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         throw new GuiException("Couldn't find collection view with name '" + viewName + "'");
     }
 
-
     private LinkedHashMap<String, Value> getRowValues(IdentifiableObject identifiableObject, Set<String> columnFields) {
 
         LinkedHashMap<String, Value> values = new LinkedHashMap<String, Value>();
@@ -208,27 +204,59 @@ public class CollectionPluginHandler extends ActivePluginHandler {
     }
 
     private LinkedHashMap<String, CollectionColumnProperties> getDomainObjectFieldPropertiesMap(
-            final CollectionViewConfig collectionViewConfig) {
+            final CollectionViewConfig collectionViewConfig, DefaultSortCriteriaConfig sortCriteriaConfig) {
         LinkedHashMap<String, CollectionColumnProperties> columnPropertiesMap =
                 new LinkedHashMap<String, CollectionColumnProperties>();
         CollectionDisplayConfig collectionDisplay = collectionViewConfig.getCollectionDisplayConfig();
-
+        String sortedField = getSortedField(sortCriteriaConfig);
         if (collectionDisplay != null) {
             List<CollectionColumnConfig> columnConfigs = collectionDisplay.getColumnConfig();
             for (CollectionColumnConfig columnConfig : columnConfigs) {
                 if (!columnConfig.isHidden()) {
                     final String field = columnConfig.getField();
                     final CollectionColumnProperties properties = new CollectionColumnProperties();
-                    properties.addProperty(CollectionColumnProperties.NAME_KEY, columnConfig.getName())
+                    String columnName = columnConfig.getName();
+                    if (field.equalsIgnoreCase(sortedField)) {
+                        columnName = markAsSorted(columnName, sortCriteriaConfig);
+                    }
+                    properties.addProperty(CollectionColumnProperties.NAME_KEY, columnName)
                             .addProperty(CollectionColumnProperties.TYPE_KEY, columnConfig.getType())
                             .addProperty(CollectionColumnProperties.SEARCH_FILTER_KEY, columnConfig.getSearchFilter())
                             .addProperty(CollectionColumnProperties.PATTERN_KEY, columnConfig.getPattern());
+                    AscSortCriteriaConfig ascSortCriteriaConfig = columnConfig.getAscSortCriteriaConfig();
+                    properties.setAscSortCriteriaConfig(ascSortCriteriaConfig);
+                    DescSortCriteriaConfig descSortCriteriaConfig = columnConfig.getDescSortCriteriaConfig();
+                    properties.setDescSortCriteriaConfig(descSortCriteriaConfig);
                     columnPropertiesMap.put(field, properties);
+
                 }
             }
             return columnPropertiesMap;
 
         } else throw new GuiException("Collection view config has no display tags configured ");
+    }
+
+    private String markAsSorted(String columnName, DefaultSortCriteriaConfig sortCriteriaConfig) {
+        SortCriterion.Order sortOrder = sortCriteriaConfig.getOrder();
+        String marker = getSortedMarker(sortOrder);
+        String markedColumnName = columnName + marker;
+        return markedColumnName;
+    }
+
+    private String getSortedMarker(SortCriterion.Order order) {
+        if (order.equals(SortCriterion.Order.DESCENDING)) {
+            return DESCEND_ARROW;
+        } else {
+            return ASCEND_ARROW;
+        }
+    }
+
+    private String getSortedField(DefaultSortCriteriaConfig sortCriteriaConfig) {
+        if (sortCriteriaConfig == null) {
+            return null;
+        }
+        String columnField = sortCriteriaConfig.getColumnField();
+        return columnField;
     }
 
     public CollectionRowItem generateCollectionRowItem(IdentifiableObject identifiableObject, Set<String> fields) {
@@ -328,16 +356,19 @@ public class CollectionPluginHandler extends ActivePluginHandler {
     }
 
     private SortOrder getSortOrder(CollectionRowsRequest request) {
-        SortCriterion.Order order;
-        if (request.isSortAscending()) {
-            order = SortCriterion.Order.ASCENDING;
-        } else {
-            order = SortCriterion.Order.DESCENDING;
+        SortCriteriaConfig sortCriteriaConfig = request.getSortCriteriaConfig();
+        SortOrder sortOrder = SortOrderBuilder.getComplexSortOrder(sortCriteriaConfig);
+        if (sortOrder == null) {
+            sortOrder = new SortOrder();
+            if (request.isSortAscending()) {
+                sortOrder.add(new SortCriterion(request.getSortedField(), SortCriterion.Order.ASCENDING));
+            } else {
+                sortOrder.add(new SortCriterion(request.getSortedField(), SortCriterion.Order.DESCENDING));
+            }
         }
 
-        SortOrder sortOrder = new SortOrder();
-        sortOrder.add(new SortCriterion(request.getSortedField(), order));
         return sortOrder;
+
     }
 
     private Filter prepareInputTextFilter(String name, String text) {

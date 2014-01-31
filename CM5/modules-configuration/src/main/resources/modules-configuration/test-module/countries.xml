@@ -408,9 +408,7 @@
                 <selection-style name="inline"/>
                 <single-choice value="true"/>
                 <clear-all-button image="css/images/clear.png" text="Очистить"/>
-                <sort-criteria>
-                    <sort-criterion field="name" order="asc"/>
-                </sort-criteria>
+                <default-sort-criteria column-field="name" order="asc"/>
             </suggest-box>
 
             <!--<label id="best_friend_label">
@@ -524,9 +522,7 @@
                 <single-choice value="false"/>
                 <clear-all-button image="css/images/clear.png" text="Очистить"/>
                 <add-button image="..." text="..."/>
-                <sort-criteria>
-                    <sort-criterion field="name" order="asc"/>
-                </sort-criteria>
+                <default-sort-criteria column-field="name" order="desc"/>
             </table-browser>
 
         </widget-config>
@@ -742,7 +738,16 @@
         <display>
             <column field="id" name="id" type="integer" sortable="false"/>
             <column field="name" name="Название" editable="false" type="string" sortable="true"/>
-            <column field="population" name="Популяция" type="string" editable="false" sortable="true"/>
+            <column field="population" name="Популяция" type="string" editable="false" sortable="true">
+            <asc-sort-criteria>
+                <sort-criterion field="population" order="asc"/>
+                <sort-criterion field="name" order="desc"/>
+            </asc-sort-criteria>
+            <desc-sort-criteria>
+                <sort-criterion field="population" order="desc"/>
+                <sort-criterion field="name" order="asc"/>
+            </desc-sort-criteria>
+            </column>
             <column field="year_of_foundation" name="Год основания " type="integer" editable="false" sortable="true"/>
             <column field="latitude" name="Широта" type="string" editable="false" sortable="true"/>
             <column field="longitude" name="Долгота" type="string" editable="false" sortable="true"/>
@@ -752,8 +757,10 @@
     <collection-view name="cities_view" collection="Cities" is-default="true">
         <display>
             <column field="id" name="id" type="integer" sortable="false"/>
-            <column field="name" name="Имя" editable="false" type="string" sortable="true"/>
-            <column field="population" name="Население" type="string" editable="false" sortable="true"/>
+            <column field="name" name="Имя" editable="false" type="string" sortable="true">
+            </column>
+            <column field="population" name="Население" type="string" editable="false" sortable="true">
+            </column>
             <column field="year_of_foundation" name="Год основания " type="integer" editable="false" sortable="true"/>
             <column field="latitude" name="Широта" type="string" editable="false" sortable="true"/>
             <column field="longitude" name="Долгота" type="string" editable="false" sortable="true"/>

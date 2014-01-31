@@ -28,8 +28,8 @@ public class CollectionViewerConfig extends PluginConfig{
     @Element(name = "search-collection-ref", required = false)
     private SearchCollectionRefConfig searchCollectionRefConfig;
 
-    @Element(name = "sort-criteria", required = false)
-    private SortCriteriaConfig sortCriteriaConfig;
+    @Element(name = "default-sort-criteria", required = false)
+    private DefaultSortCriteriaConfig defaultSortCriteriaConfig;
 
     private List<Id> excludedIds = new ArrayList<Id>();
 
@@ -45,12 +45,12 @@ public class CollectionViewerConfig extends PluginConfig{
         this.collectionRefConfig = collectionRefConfig;
     }
 
-    public SortCriteriaConfig getSortCriteriaConfig() {
-        return sortCriteriaConfig;
+    public DefaultSortCriteriaConfig getDefaultSortCriteriaConfig() {
+        return defaultSortCriteriaConfig;
     }
 
-    public void setSortCriteriaConfig(SortCriteriaConfig sortCriteriaConfig) {
-        this.sortCriteriaConfig = sortCriteriaConfig;
+    public void setDefaultSortCriteriaConfig(DefaultSortCriteriaConfig defaultSortCriteriaConfig) {
+        this.defaultSortCriteriaConfig = defaultSortCriteriaConfig;
     }
 
     public CollectionViewRefConfig getCollectionViewRefConfig() {
@@ -112,8 +112,8 @@ public class CollectionViewerConfig extends PluginConfig{
 
         CollectionViewerConfig that = (CollectionViewerConfig) o;
 
-        if (sortCriteriaConfig != null ? !sortCriteriaConfig.equals(that.sortCriteriaConfig) : that.
-                sortCriteriaConfig != null) {
+        if (defaultSortCriteriaConfig != null ? !defaultSortCriteriaConfig.equals(that.defaultSortCriteriaConfig) : that.
+                defaultSortCriteriaConfig != null) {
 
             return false;
         }
@@ -143,7 +143,7 @@ public class CollectionViewerConfig extends PluginConfig{
     public int hashCode() {
         int result = collectionRefConfig != null ? collectionRefConfig.hashCode() : 0;
         result = 31 * result + (collectionViewRefConfig != null ? collectionViewRefConfig.hashCode() : 0);
-        result = 31 * result + (sortCriteriaConfig != null ? sortCriteriaConfig.hashCode() : 0);
+        result = 31 * result + (defaultSortCriteriaConfig != null ? defaultSortCriteriaConfig.hashCode() : 0);
         result = 31 * result + (searchAreaRefConfig != null ? searchAreaRefConfig.hashCode() : 0);
         result = 31 * result + (searchCollectionRefConfig != null ? searchCollectionRefConfig.hashCode() : 0);
         return result;

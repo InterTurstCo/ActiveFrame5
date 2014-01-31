@@ -11,9 +11,7 @@
                         <domain-object-surfer domain-object-type-to-create="country">
                             <collection-viewer>
                                 <collection-ref name="Countries"/>
-                                <sort-criteria>
-                                    <sort-criterion field="name" order="asc"/>
-                                </sort-criteria>
+                                <default-sort-criteria column-field="name" order="asc"/>
                                 <search-area-ref name="Countries-Search-Area"/>
                                 <search-collection-ref name="Countries"/>
                             </collection-viewer>
@@ -26,9 +24,7 @@
                         <domain-object-surfer domain-object-type-to-create="city">
                             <collection-viewer>
                                 <collection-ref name="Cities"/>
-                                <sort-criteria>
-                                    <sort-criterion field="name" order="asc"/>
-                                </sort-criteria>
+                                <default-sort-criteria column-field="name" order="desc"/>
                             </collection-viewer>
                         </domain-object-surfer>
                     </plugin>
@@ -50,9 +46,7 @@
                         <domain-object-surfer domain-object-type-to-create="Employee">
                             <collection-viewer>
                                 <collection-ref name="Employees" use-default="true"/>
-                                <sort-criteria>
-                                    <sort-criterion field="name"/>
-                                </sort-criteria>
+                                <default-sort-criteria column-field="name" order="desc"/>
                             </collection-viewer>
                             <toggle-edit>true</toggle-edit>
                         </domain-object-surfer>
@@ -69,9 +63,7 @@
                         <domain-object-surfer domain-object-type-to-create="Department">
                             <collection-viewer>
                                 <collection-ref name="Departments" use-default="true"/>
-                                <sort-criteria>
-                                    <sort-criterion field="name"/>
-                                </sort-criteria>
+                                <default-sort-criteria column-field="name" order="desc"/>
                             </collection-viewer>
                         </domain-object-surfer>
                     </plugin>
@@ -87,9 +79,7 @@
                         <domain-object-surfer domain-object-type-to-create="Organization">
                             <collection-viewer>
                                 <collection-ref name="Organizations" use-default="true"/>
-                                <sort-criteria>
-                                    <sort-criterion field="name"/>
-                                </sort-criteria>
+                                <default-sort-criteria column-field="name" order="desc"/>
                             </collection-viewer>
                         </domain-object-surfer>
                     </plugin>
@@ -107,9 +97,6 @@
                         <domain-object-surfer domain-object-type-to-create="letter">
                             <collection-viewer>
                                 <collection-ref name="letters"/>
-                                <sort-criteria>
-                                    <sort-criterion field="created_date" order="desc"/>
-                                </sort-criteria>
                             </collection-viewer>
                         </domain-object-surfer>
                     </plugin>
@@ -119,9 +106,6 @@
                         <domain-object-surfer domain-object-type-to-create="Internal_Document">
                             <collection-viewer>
                                 <collection-ref name="Internal_Document"/>
-                                <sort-criteria>
-                                    <sort-criterion field="name" order="asc"/>
-                                </sort-criteria>
                             </collection-viewer>
                         </domain-object-surfer>
                     </plugin>
@@ -136,9 +120,6 @@
                         <domain-object-surfer domain-object-type-to-create="Internal_Document">
                             <collection-viewer>
                                 <collection-ref name="Tasks"/>
-                                <sort-criteria>
-                                    <sort-criterion field="name" order="asc"/>
-                                </sort-criteria>
                             </collection-viewer>
                         </domain-object-surfer>
                     </plugin>
@@ -149,9 +130,6 @@
                         <domain-object-surfer domain-object-type-to-create="Letter">
                             <collection-viewer>
                                 <collection-ref name="Letters"/>
-                                <sort-criteria>
-                                    <sort-criterion field="subject" order="asc"/>
-                                </sort-criteria>
                             </collection-viewer>
                             <toggle-edit>true</toggle-edit>
                         </domain-object-surfer>
@@ -166,9 +144,6 @@
                         <domain-object-surfer domain-object-type-to-create="Internal_Document">
                             <collection-viewer>
                                 <collection-ref name="Tasks"/>
-                                <sort-criteria>
-                                    <sort-criterion field="name" order="asc"/>
-                                </sort-criteria>
                             </collection-viewer>
                         </domain-object-surfer>
                     </plugin>
@@ -178,9 +153,6 @@
                                 <domain-object-surfer domain-object-type-to-create="Internal_Document">
                                     <collection-viewer>
                                         <collection-ref name="Tasks"/>
-                                        <sort-criteria>
-                                            <sort-criterion field="name" order="asc"/>
-                                        </sort-criteria>
                                     </collection-viewer>
                                 </domain-object-surfer>
                             </plugin>
@@ -190,9 +162,6 @@
                                 <domain-object-surfer domain-object-type-to-create="Internal_Document">
                                     <collection-viewer>
                                         <collection-ref name="Tasks"/>
-                                        <sort-criteria>
-                                            <sort-criterion field="name" order="asc"/>
-                                        </sort-criteria>
                                     </collection-viewer>
                                 </domain-object-surfer>
                             </plugin>
@@ -204,9 +173,6 @@
                         <domain-object-surfer domain-object-type-to-create="Internal_Document">
                             <collection-viewer>
                                 <collection-ref name="Tasks"/>
-                                <sort-criteria>
-                                    <sort-criterion field="name" order="asc"/>
-                                </sort-criteria>
                             </collection-viewer>
                         </domain-object-surfer>
                     </plugin>
@@ -218,9 +184,6 @@
                         <domain-object-surfer domain-object-type-to-create="Letter">
                             <collection-viewer>
                                 <collection-ref name="Letters"/>
-                                <sort-criteria>
-                                    <sort-criterion field="subject" order="asc"/>
-                                </sort-criteria>
                             </collection-viewer>
                         </domain-object-surfer>
                     </plugin>

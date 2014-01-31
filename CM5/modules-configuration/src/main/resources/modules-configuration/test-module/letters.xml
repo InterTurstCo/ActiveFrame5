@@ -127,9 +127,7 @@
                     <input-text-filter name="byName"/>
                     <!-- паттерн отображения уже выбранных значений -->
                     <selection-pattern value="{name}"/>
-                    <sort-criteria>
-                        <sort-criterion field="name" order="asc"/>
-                    </sort-criteria>
+                    <default-sort-criteria column-field="name" order="asc"/>
                     <node-collection-def collection="Departments" parent-filter="byOrganization" domain-object-type="Department">
                         <!-- название фильтра по тексту, введённому пользователем -->
                         <input-text-filter name="byName"/>

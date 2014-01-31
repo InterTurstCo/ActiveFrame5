@@ -1,22 +1,18 @@
 package ru.intertrust.cm.core.config.gui.navigation;
 
 import org.simpleframework.xml.ElementList;
-import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created with IntelliJ IDEA.
- * User: User
- * Date: 18.01.14
- * Time: 16:45
- * To change this template use File | Settings | File Templates.
+ * @author Yaroslav Bondarchuk
+ *         Date: 31.01.14
+ *         Time: 13:15
  */
-@Root(name = "sort-criteria")
 public class SortCriteriaConfig implements Dto {
-    @ElementList(inline = true)
+    @ElementList(name = "sort-criterion", inline = true)
     private List<SortCriterionConfig> sortCriterionConfigs = new ArrayList<SortCriterionConfig>();
 
     public List<SortCriterionConfig> getSortCriterionConfigs() {
@@ -37,8 +33,9 @@ public class SortCriteriaConfig implements Dto {
 
         SortCriteriaConfig that = (SortCriteriaConfig) o;
 
-        if (sortCriterionConfigs != null ? !sortCriterionConfigs.equals(that.sortCriterionConfigs) : that.sortCriterionConfigs != null)
+        if (sortCriterionConfigs != null ? !sortCriterionConfigs.equals(that.sortCriterionConfigs) : that.sortCriterionConfigs != null)  {
             return false;
+        }
 
         return true;
     }

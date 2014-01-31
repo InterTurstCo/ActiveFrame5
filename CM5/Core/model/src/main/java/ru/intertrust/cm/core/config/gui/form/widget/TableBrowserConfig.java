@@ -4,7 +4,7 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
-import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
+import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -43,8 +43,8 @@ public class TableBrowserConfig extends WidgetConfig {
     @Element(name = "add-button", required = false)
     private AddButtonConfig addButtonConfig;
 
-    @Element(name = "sort-criteria", required = false)
-    private SortCriteriaConfig sortCriteriaConfig;
+    @Element(name = "default-sort-criteria", required = false)
+    private DefaultSortCriteriaConfig defaultSortCriteriaConfig;
 
     @Element(name = "dialog-window", required = false)
     private DialogWindowConfig dialogWindowConfig;
@@ -129,12 +129,12 @@ public class TableBrowserConfig extends WidgetConfig {
         this.addButtonConfig = addButtonConfig;
     }
 
-    public SortCriteriaConfig getSortCriteriaConfig() {
-        return sortCriteriaConfig;
+    public DefaultSortCriteriaConfig getDefaultSortCriteriaConfig() {
+        return defaultSortCriteriaConfig;
     }
 
-    public void setSortCriteriaConfig(SortCriteriaConfig sortCriteriaConfig) {
-        this.sortCriteriaConfig = sortCriteriaConfig;
+    public void setDefaultSortCriteriaConfig(DefaultSortCriteriaConfig defaultSortCriteriaConfig) {
+        this.defaultSortCriteriaConfig = defaultSortCriteriaConfig;
     }
 
     public DialogWindowConfig getDialogWindowConfig() {
@@ -201,8 +201,8 @@ public class TableBrowserConfig extends WidgetConfig {
             return false;
         }
 
-        if (sortCriteriaConfig != null ? !sortCriteriaConfig.equals(that.sortCriteriaConfig) :
-                that.sortCriteriaConfig != null) {
+        if (defaultSortCriteriaConfig != null ? !defaultSortCriteriaConfig.equals(that.defaultSortCriteriaConfig) :
+                that.defaultSortCriteriaConfig != null) {
             return false;
         }
         if (dialogWindowConfig != null ? !dialogWindowConfig.equals(that.dialogWindowConfig) :
@@ -225,8 +225,8 @@ public class TableBrowserConfig extends WidgetConfig {
         result = 31 * result + (selectionStyleConfig != null ? selectionStyleConfig.hashCode() : 0);
         result = 31 * result + (clearAllButtonConfig != null ? clearAllButtonConfig.hashCode() : 0);
         result = 31 * result + (addButtonConfig != null ? addButtonConfig.hashCode() : 0);
-        result = 31 * result + (sortCriteriaConfig != null ? sortCriteriaConfig.hashCode() : 0);
         result = 31 * result + (dialogWindowConfig != null ? dialogWindowConfig.hashCode() : 0);
+        result = 31 * result + (defaultSortCriteriaConfig != null ? defaultSortCriteriaConfig.hashCode() : 0);
         return result;
     }
 

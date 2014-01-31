@@ -4,7 +4,7 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
-import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
+import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 
 /**
  * Created with IntelliJ IDEA.
@@ -46,8 +46,8 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
     @Element(name = "clear-all-button", required = false)
     private ClearAllButtonConfig clearAllButtonConfig;
 
-    @Element(name = "sort-criteria", required = false)
-    private SortCriteriaConfig sortCriteriaConfig;
+    @Element(name = "default-sort-criteria", required = false)
+    private DefaultSortCriteriaConfig defaultSortCriteriaConfig;
 
     @Override
     public String getComponentName() {
@@ -118,10 +118,13 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
         this.clearAllButtonConfig = clearAllButtonConfig;
     }
 
-    public SortCriteriaConfig getSortCriteriaConfig() {
-        return sortCriteriaConfig;
+    public DefaultSortCriteriaConfig getDefaultSortCriteriaConfig() {
+        return defaultSortCriteriaConfig;
     }
 
+    public void setDefaultSortCriteriaConfig(DefaultSortCriteriaConfig defaultSortCriteriaConfig) {
+        this.defaultSortCriteriaConfig = defaultSortCriteriaConfig;
+    }
 
     public Integer getMaxDropDownWidth() {
         return maxDropDownWidth;
@@ -137,10 +140,6 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
 
     public void setMaxDropDownHeight(Integer maxDropDownHeight) {
         this.maxDropDownHeight = maxDropDownHeight;
-    }
-
-    public void setSortCriteriaConfig(SortCriteriaConfig sortCriteriaConfig) {
-        this.sortCriteriaConfig = sortCriteriaConfig;
     }
 
     @Override
@@ -194,8 +193,8 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
             return false;
         }
 
-        if (sortCriteriaConfig != null ? !sortCriteriaConfig.equals(that.sortCriteriaConfig) :
-                that.sortCriteriaConfig != null) {
+        if (defaultSortCriteriaConfig != null ? !defaultSortCriteriaConfig.equals(that.defaultSortCriteriaConfig) :
+                that.defaultSortCriteriaConfig != null) {
             return false;
         }
 
@@ -222,7 +221,7 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
         result = 31 * result + (clearAllButtonConfig != null ? clearAllButtonConfig.hashCode() : 0);
         result = 31 * result + (maxDropDownWidth != null ? maxDropDownWidth.hashCode() : 0);
         result = 31 * result + (maxDropDownHeight != null ? maxDropDownHeight.hashCode() : 0);
-        result = 31 * result + (sortCriteriaConfig != null ? sortCriteriaConfig.hashCode() : 0);
+        result = 31 * result + (defaultSortCriteriaConfig != null ? defaultSortCriteriaConfig.hashCode() : 0);
         return result;
     }
 }

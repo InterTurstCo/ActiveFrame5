@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.model.plugin;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +27,8 @@ public class CollectionRowsRequest implements Dto {
     List<Filter> filterList;
     private String simpleSearchQuery;
     private String searchArea;
+    private SortCriteriaConfig sortCriteriaConfig;
+
 
     public CollectionRowsRequest(int offset, int limit, String collectionName, HashMap<String, String> fields,
                                  List<Filter> filterList, String simpleSearchQuery, String searchArea) {
@@ -40,7 +43,7 @@ public class CollectionRowsRequest implements Dto {
     }
 
     public CollectionRowsRequest(int offset, int limit, String collectionName, HashMap<String, String> fields,
-                                 boolean isSortAscending, String columnName, String sortedField,  List<Filter> filterList) {
+                                 boolean isSortAscending, String columnName, String sortedField,  List<Filter> filterList  ) {
         this.offset = offset;
         this.limit = limit;
         this.collectionName = collectionName;
@@ -141,5 +144,13 @@ public class CollectionRowsRequest implements Dto {
 
     public void setSearchArea(String searchArea) {
         this.searchArea = searchArea;
+    }
+
+    public SortCriteriaConfig getSortCriteriaConfig() {
+        return sortCriteriaConfig;
+    }
+
+    public void setSortCriteriaConfig(SortCriteriaConfig sortCriteriaConfig) {
+        this.sortCriteriaConfig = sortCriteriaConfig;
     }
 }

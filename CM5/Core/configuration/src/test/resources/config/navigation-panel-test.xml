@@ -14,9 +14,7 @@
                         <domain-object-surfer>
                             <collection-viewer>
                                 <collection-ref name="Employees" use-default="true"/>
-                                <sort-criteria>
-                                    <sort-criterion field="last_name"/>
-                                </sort-criteria>
+                                <default-sort-criteria column-field="name" order="desc"/>
                             </collection-viewer>
                             <toggle-edit>true</toggle-edit>
                         </domain-object-surfer>
@@ -30,11 +28,7 @@
                                 <domain-object-surfer>
                                     <collection-viewer>
                                         <collection-ref name="Employees"/>
-                                        <sort-criteria>
-                                            <sort-criterion field="last_name" order="asc"/>
-                                            <!-- order опционален -->
-                                            <sort-criterion field="first_name" order="desc"/>
-                                        </sort-criteria>
+                                        <default-sort-criteria column-field="name" order="desc"/>
                                     </collection-viewer>
                                 </domain-object-surfer>
                             </plugin>
@@ -79,9 +73,7 @@
                         <domain-object-surfer>
                             <collection-viewer>
                                 <collection-ref name="last_open_docs"/>
-                                <sort-criteria>
-                                    <sort-criterion field="last_date" order="asc"/>
-                                </sort-criteria>
+                                <default-sort-criteria column-field="name"/>
                             </collection-viewer>
                         </domain-object-surfer>
                     </plugin>
@@ -91,9 +83,7 @@
                         <domain-object-surfer>
                             <collection-viewer>
                                 <collection-ref name="last_saved_docs"/>
-                                <sort-criteria>
-                                    <sort-criterion field="last_date"/>
-                                </sort-criteria>
+                                <default-sort-criteria column-field="name" order="desc"/>
                             </collection-viewer>
                         </domain-object-surfer>
                     </plugin>
@@ -106,9 +96,7 @@
                         <domain-object-surfer>
                             <collection-viewer>
                                 <collection-ref name="all_documents"/>
-                                <sort-criteria>
-                                    <sort-criterion field="date"/>
-                                </sort-criteria>
+                                <default-sort-criteria column-field="name" order="desc"/>
                             </collection-viewer>
                         </domain-object-surfer>
                     </plugin>
@@ -118,9 +106,7 @@
                                 <domain-object-surfer>
                                     <collection-viewer>
                                         <collection-ref name="all_documents"/>
-                                        <sort-criteria>
-                                            <sort-criterion field="registration_number"/>
-                                        </sort-criteria>
+                                        <default-sort-criteria column-field="name" order="desc"/>
                                     </collection-viewer>
                                 </domain-object-surfer>
                             </plugin>
@@ -130,9 +116,7 @@
                                 <domain-object-surfer>
                                     <collection-viewer>
                                         <collection-ref name="all_documents"/>
-                                        <sort-criteria>
-                                            <sort-criterion field="type"/>
-                                        </sort-criteria>
+                                        <default-sort-criteria column-field="name" order="desc"/>
                                     </collection-viewer>
                                 </domain-object-surfer>
                             </plugin>
@@ -147,9 +131,7 @@
                                 <domain-object-surfer>
                                     <collection-viewer>
                                         <collection-ref name="documents_in_work"/>
-                                        <sort-criteria>
-                                            <sort-criterion field="registration_number"/>
-                                        </sort-criteria>
+                                        <default-sort-criteria column-field="name" order="desc"/>
                                     </collection-viewer>
                                 </domain-object-surfer>
                             </plugin>
@@ -159,9 +141,7 @@
                                 <domain-object-surfer>
                                     <collection-viewer>
                                         <collection-ref name="documents_in_work" use-default="true"/>
-                                        <sort-criteria>
-                                            <sort-criterion field="type"/>
-                                        </sort-criteria>
+                                        <default-sort-criteria column-field="name" order="desc"/>
                                     </collection-viewer>
                                 </domain-object-surfer>
                             </plugin>
@@ -176,9 +156,7 @@
                         <domain-object-surfer>
                             <collection-viewer>
                                 <collection-view-ref name="documents_planned"/>
-                                <sort-criteria>
-                                    <sort-criterion field="last_date"/>
-                                </sort-criteria>
+                                <default-sort-criteria column-field="name" order="desc"/>
                             </collection-viewer>
                         </domain-object-surfer>
                     </plugin>
@@ -188,9 +166,7 @@
                                 <domain-object-surfer>
                                     <collection-viewer>
                                         <collection-ref name="documents_planned"/>
-                                        <sort-criteria>
-                                            <sort-criterion field="registration_number"/>
-                                        </sort-criteria>
+                                        <default-sort-criteria column-field="name" order="desc"/>
                                     </collection-viewer>
                                 </domain-object-surfer>
                             </plugin>
@@ -200,9 +176,7 @@
                                 <domain-object-surfer>
                                     <collection-viewer>
                                         <collection-ref name="documents_planned"/>
-                                        <sort-criteria>
-                                            <sort-criterion field="type"/>
-                                        </sort-criteria>
+                                        <default-sort-criteria column-field="name" order="desc"/>
                                     </collection-viewer>
                                 </domain-object-surfer>
                             </plugin>

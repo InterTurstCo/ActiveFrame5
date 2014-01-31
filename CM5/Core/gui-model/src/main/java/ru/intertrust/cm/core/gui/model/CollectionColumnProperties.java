@@ -1,6 +1,8 @@
 package ru.intertrust.cm.core.gui.model;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.gui.collection.view.AscSortCriteriaConfig;
+import ru.intertrust.cm.core.config.gui.collection.view.DescSortCriteriaConfig;
 
 import java.util.HashMap;
 
@@ -17,8 +19,25 @@ public class CollectionColumnProperties implements Dto {
     public static final String SEARCH_FILTER_KEY = "searchFilter";
     public static final String PATTERN_KEY = "pattern";
     public static final String NAME_KEY = "name";
-
+    private AscSortCriteriaConfig ascSortCriteriaConfig;
+    private DescSortCriteriaConfig descSortCriteriaConfig;
     private HashMap<String, Object> properties = new HashMap<String, Object>();
+
+    public AscSortCriteriaConfig getAscSortCriteriaConfig() {
+        return ascSortCriteriaConfig;
+    }
+
+    public void setAscSortCriteriaConfig(AscSortCriteriaConfig ascSortCriteriaConfig) {
+        this.ascSortCriteriaConfig = ascSortCriteriaConfig;
+    }
+
+    public DescSortCriteriaConfig getDescSortCriteriaConfig() {
+        return descSortCriteriaConfig;
+    }
+
+    public void setDescSortCriteriaConfig(DescSortCriteriaConfig descSortCriteriaConfig) {
+        this.descSortCriteriaConfig = descSortCriteriaConfig;
+    }
 
     public CollectionColumnProperties addProperty(final String name, final Object value) {
         if (value != null) {

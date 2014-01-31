@@ -8,8 +8,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ScrollEvent;
 import com.google.gwt.event.dom.client.ScrollHandler;
-import com.google.gwt.event.logical.shared.ResizeEvent;
-import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.RowStyles;
@@ -21,6 +19,7 @@ import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.SetSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.converter.ValueConverter;
@@ -96,7 +95,6 @@ public class CollectionPluginView extends PluginView {
         updateSizes();
     }
 
-
     private void updateSizes() {
         tableWidth = plugin.getOwner().getVisibleWidth();
         tableHeight = plugin.getOwner().getVisibleHeight();
@@ -112,18 +110,19 @@ public class CollectionPluginView extends PluginView {
         items = collectionPluginData.getItems();
         singleChoice = collectionPluginData.isSingleChoice();
         searchArea = collectionPluginData.getSearchArea();
-
         init();
 
         final List<Integer> selectedIndexes = collectionPluginData.getIndexesOfSelectedItems();
         for (int index : selectedIndexes) {
             selectionModel.setSelected(items.get(index), true);
         }
+
         return root;
     }
 
     public void init() {
         buildPanel();
+
         createTableColumns();
         applySelectionModel();
         insertRows(items);
@@ -161,7 +160,7 @@ public class CollectionPluginView extends PluginView {
     }
 
     private void addHandlers() {
-        addResizeHandler();
+
         tableBody.addCellPreviewHandler(new CellTableEventHandler<CollectionRowItem>(tableBody, plugin, eventBus));
         eventBus.addHandler(SplitterInnerScrollEvent.TYPE, new SplitterInnerScrollEventHandler() {
             @Override
@@ -357,9 +356,6 @@ public class CollectionPluginView extends PluginView {
             }
         });
 
-
-
-
     }
 
     private void collectionData() {
@@ -484,8 +480,6 @@ public class CollectionPluginView extends PluginView {
         headerPanel.add(treeLinkWidget);
         treeLinkWidget.setWidth("100%");
         treeLinkWidget.getElement().getStyle().setBackgroundColor("white");
-
-     //   simpleSearch.getElement().getStyle().setHeight(30, Style.Unit.PX);
         if (searchArea != null && searchArea.length() > 0) {
             SimpleSearchPanel simpleSearchPanel = new SimpleSearchPanel(simpleSearch, eventBus);
             treeLinkWidget.add(simpleSearchPanel);
@@ -498,9 +492,6 @@ public class CollectionPluginView extends PluginView {
         filterButton.addStyleName("search-button");
         headerPanel.add(searchPanel);
         searchPanel.setVisible(false);
-
-
-
         bodyPanel.add(tableBody);
         verticalPanel.add(headerPanel);
 
@@ -510,7 +501,6 @@ public class CollectionPluginView extends PluginView {
         scrollTableBody.add(bodyPanel);
         verticalPanel.add(scrollTableBody);
         root.add(verticalPanel);
-
 
     }
 
@@ -555,9 +545,11 @@ public class CollectionPluginView extends PluginView {
             converterMap.put(field, converter);
 
             final Column<CollectionRowItem, String> column = new CollectionColumn(field, converter);
-            column.setDataStoreName((String) columnProperties.getProperty(CollectionColumnProperties.NAME_KEY));
-            tableHeader.addColumn(column, (String) columnProperties.getProperty(CollectionColumnProperties.NAME_KEY));
+            String columnName = (String) columnProperties.getProperty(CollectionColumnProperties.NAME_KEY);
+            column.setDataStoreName(columnName);
+            tableHeader.addColumn(column, columnName);
             tableHeader.setColumnWidth(column, columnWidth + "px");
+
             CollectionSearchBox box;
             if (fieldType.equals("datetime")) {
                 box = new CollectionSearchBox(new DateBox(), filterType, eventBus);
@@ -644,12 +636,17 @@ public class CollectionPluginView extends PluginView {
 
     private void createSortedCollectionData() {
         CollectionRowsRequest collectionRowsRequest;
+        String field = sortCollectionState.getField();
+        boolean ascending = sortCollectionState.isSortDirection();
+        CollectionColumnProperties collectionColumnProperties = fieldPropertiesMap.get(field);
+
         if (sortCollectionState.isResetCollection()) {
             items.clear();
+
             collectionRowsRequest = new CollectionRowsRequest(sortCollectionState.getCount(),
                     sortCollectionState.getOffset(), collectionName, getFieldToNameMap(),
                     sortCollectionState.isSortDirection(), sortCollectionState.getColumnName(),
-                    sortCollectionState.getField(), filterList);
+                    field, filterList);
 
             scrollTableBody.scrollToTop();
             sortCollectionState.setResetCollection(false);
@@ -657,9 +654,12 @@ public class CollectionPluginView extends PluginView {
         } else {
             collectionRowsRequest = new CollectionRowsRequest(listCount,
                     70, collectionName, getFieldToNameMap(),
-                    sortCollectionState.isSortDirection(), sortCollectionState.getColumnName(),
+                    ascending, sortCollectionState.getColumnName(),
                     sortCollectionState.getField(), filterList);
         }
+        SortCriteriaConfig sortCriteriaConfig = ascending ? collectionColumnProperties.getAscSortCriteriaConfig()
+                : collectionColumnProperties.getDescSortCriteriaConfig();
+        collectionRowsRequest.setSortCriteriaConfig(sortCriteriaConfig);
         collectionRowRequestCommand(collectionRowsRequest);
     }
 
@@ -692,15 +692,5 @@ public class CollectionPluginView extends PluginView {
         });
     }
 
-    private void addResizeHandler() {
-        Window.addResizeHandler(new ResizeHandler() {
-            @Override
-            public void onResize(ResizeEvent event) {
-
-//                tableController.columnWindowResizeOnPercentage(tableWidth);
-               // scrollTableBody.setHeight(tableHeight + "px");
-            }
-        });
-    }
 }
 

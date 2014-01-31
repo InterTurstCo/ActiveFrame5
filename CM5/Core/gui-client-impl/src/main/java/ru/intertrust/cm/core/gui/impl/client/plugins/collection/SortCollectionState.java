@@ -1,5 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
+import ru.intertrust.cm.core.config.gui.collection.view.AscSortCriteriaConfig;
+import ru.intertrust.cm.core.config.gui.collection.view.DescSortCriteriaConfig;
+
 /**
  * Created with IntelliJ IDEA.
  * User: lvov
@@ -17,7 +20,8 @@ public class SortCollectionState {
     private boolean resetCollection;
     private boolean sortable;
     private String field;
-
+    private AscSortCriteriaConfig ascSortCriteriaConfig;
+    private DescSortCriteriaConfig descSortCriteriaConfig;
     public SortCollectionState(int offset, int count, String columnName, boolean sortDirection, boolean resetCollection, String field) {
         this.offset = offset;
         this.count = count;
