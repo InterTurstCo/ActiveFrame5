@@ -455,7 +455,7 @@ public class AttachmentServiceImplTest {
         domainObject2.setTypeName("Person_Attachment");
         domainObject2.setId(idService.createId("0001000000000002"));
 
-        when(domainObjectDao.findLinkedDomainObjects(any(Id.class), eq("Person_Attachment"), eq("Person_Attachment"),
+        when(domainObjectDao.findLinkedDomainObjects(any(Id.class), eq("Person_Attachment"), eq("Person"),
                 any(AccessToken.class))).
                 thenReturn(Arrays.asList(new DomainObject[]{domainObject1, domainObject2}));
         doAnswer(new Answer() {

@@ -194,6 +194,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     public List<DomainObject> findAttachmentDomainObjectsFor(Id domainObjectId, String attachmentType) {
         String user = currentUserAccessor.getCurrentUser();
         AccessToken accessToken = accessControlService.createAccessToken(user, domainObjectId, DomainObjectAccessType.READ);
-        return  domainObjectDao.findLinkedDomainObjects(domainObjectId, attachmentType, attachmentType, accessToken);
+        String linkedField = domainObjectTypeIdCache.getName(domainObjectId);
+        return  domainObjectDao.findLinkedDomainObjects(domainObjectId, attachmentType, linkedField, accessToken);
     }
 }
