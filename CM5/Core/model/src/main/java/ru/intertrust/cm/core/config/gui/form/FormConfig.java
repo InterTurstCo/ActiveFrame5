@@ -30,7 +30,7 @@ public class FormConfig implements Dto, TopLevelConfig {
     private String minWidth;
 
     @Attribute(name = "type",required = false)
-    private String extSearchType;
+    private String type;
 
     @Element(name = "markup")
     private MarkupConfig markup;
@@ -38,12 +38,12 @@ public class FormConfig implements Dto, TopLevelConfig {
     @Element(name = "widget-config")
     private WidgetConfigurationConfig widgetConfigurationConfig;
 
-    public String getExtSearchType() {
-        return extSearchType;
+    public String getType() {
+        return type;
     }
 
-    public void setExtSearchType(String extSearchType) {
-        this.extSearchType = extSearchType;
+    public void setType(String type) {
+        this.type = type;
     }
 
     public MarkupConfig getMarkup() {
@@ -129,7 +129,7 @@ public class FormConfig implements Dto, TopLevelConfig {
             return false;
         }
 
-        if (extSearchType != null ? !extSearchType.equals(that.extSearchType) : that.extSearchType != null) {
+        if (type != null ? !type.equals(that.type) : that.type != null) {
             return false;
         }
         if (name != null ? !name.equals(that.name) : that.name != null) {
@@ -151,7 +151,7 @@ public class FormConfig implements Dto, TopLevelConfig {
         result = 31 * result + (debug ? 1 : 0);
         result = 31 * result + (markup != null ? markup.hashCode() : 0);
         result = 31 * result + (minWidth != null ? minWidth.hashCode() : 0);
-        result = 31 * result + (extSearchType != null ? extSearchType.hashCode() : 0);
+        result = 31 * result + (type != null ? type.hashCode() : 0);
         result = 31 * result + (widgetConfigurationConfig != null ? widgetConfigurationConfig.hashCode() : 0);
         return result;
     }

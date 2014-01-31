@@ -60,44 +60,44 @@ public class FormRetriever {
 
     // форма поиска для доменного объекта указанного типа
     public FormDisplayData getSearchForm(String domainObjectType, HashSet<String> formFields) {
-        DomainObject root = crudService.createDomainObject(domainObjectType);
-        return buildExtendedSearchForm(root, formFields);
+        return buildExtendedSearchForm(domainObjectType, formFields);
     }
 
-    private FormDisplayData buildExtendedSearchForm(DomainObject root, HashSet<String> formFields) {
-        FormConfig formConfig = formResolver.findFormConfig(root, userUid);
+    private FormDisplayData buildExtendedSearchForm(String domainObjectType, HashSet<String> formFields) {
+        //FormConfig formConfig = formResolver.findFormConfig(root, userUid); was 30.01.2014
+        FormConfig formConfig = formResolver.findSearchForm(domainObjectType/*root.getTypeName()*/);
         List<WidgetConfig> widgetConfigs = formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
         HashMap<String, WidgetState> widgetStateMap = new HashMap<>(widgetConfigs.size());
         HashMap<String, String> widgetComponents = new HashMap<>(widgetConfigs.size());
 
         FormObjects formObjects = new FormObjects();
-        Iterator it = widgetConfigs.iterator();
-
+        //Iterator it = widgetConfigs.iterator();
+        DomainObject root = crudService.createDomainObject(domainObjectType);
         final ObjectsNode ROOT_NODE = new SingleObjectNode(root);
         formObjects.setRootNode(ROOT_NODE);
 
         //try {
-        while(it.hasNext()) {
+        for (WidgetConfig config : widgetConfigs) {
+        //while(it.hasNext()) {
             try {
-            WidgetConfig config = (WidgetConfig) it.next();
-            String widgetId = config.getId();
+                //config = (WidgetConfig) it.next();
+                String widgetId = config.getId();
 
-            WidgetContext widgetContext = new WidgetContext(config, formObjects);
-            WidgetHandler componentHandler = (WidgetHandler) applicationContext.getBean(config.getComponentName());
-            WidgetState initialState = componentHandler.getInitialState(widgetContext);
+                WidgetContext widgetContext = new WidgetContext(config, formObjects);
+                WidgetHandler componentHandler = (WidgetHandler) applicationContext.getBean(config.getComponentName());
+                WidgetState initialState = componentHandler.getInitialState(widgetContext);
 
-            initialState.setEditable(true);
-            widgetStateMap.put(widgetId, initialState);
-            widgetComponents.put(widgetId, config.getComponentName());
+                initialState.setEditable(true);
+                widgetStateMap.put(widgetId, initialState);
+                widgetComponents.put(widgetId, config.getComponentName());
             } catch (NullPointerException npe) {continue;}
         }
 
         //} catch (ConcurrentModificationException cme) {}
 
-
         FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects);
         return new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents,
-                formConfig.getMinWidth(), formConfig.getDebug()/*, true, formConfig.getExtSearchType()*/);
+                                                                       formConfig.getMinWidth(), formConfig.getDebug());
     }
 
     private FormDisplayData buildDomainObjectForm(DomainObject root) {

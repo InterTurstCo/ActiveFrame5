@@ -29,6 +29,8 @@ public class FormResolver {
     @Autowired
     private ConfigurationExplorer configurationExplorer;
 
+    // конфигурация формы поиска по типу доменного объекта
+    private HashMap<String, FormConfig> searchFormByDomainObjectType;
     private HashMap<String, FormConfig> defaultFormByDomainObjectType;
     private HashMap<String, List<FormConfig>> allFormsByDomainObjectType;
     private HashMap<Pair<String, String>, List<FormConfig>> formsByRoleAndDomainObjectType;
@@ -37,12 +39,15 @@ public class FormResolver {
     public FormResolver() {
     }
 
+    public FormConfig findSearchForm(String domainObjectType) {
+        return searchFormByDomainObjectType.get(domainObjectType);
+    }
+
     public FormConfig findFormConfig(DomainObject root, String userUid) {
         // по Id ищется тип доменного объекта
         // далее находится форма для данного контекста, учитывая факт того, переопределена ли форма для пользователя/роли,
         // если флаг "использовать по умолчанию" не установлен
         // в конечном итоге получаем FormConfig
-
         String typeName = root.getTypeName().toLowerCase();
         List<FormConfig> userFormConfigs = getUserFormConfigs(userUid, typeName);
         if (userFormConfigs != null && userFormConfigs.size() != 0) {
@@ -79,12 +84,28 @@ public class FormResolver {
         allFormsByDomainObjectType = new HashMap<>();
         formsByRoleAndDomainObjectType = new HashMap<>();
         formsByUserAndDomainObjectType = new HashMap<>();
+        searchFormByDomainObjectType = new HashMap<>();
 
-        Collection<FormConfig> formConfigs = configurationExplorer.getConfigs(FormConfig.class);
+        Collection <FormConfig> formConfigs = configurationExplorer.getConfigs(FormConfig.class);
         if (formConfigs == null) {
             formConfigs = Collections.EMPTY_LIST;
         }
         for (FormConfig formConfig : formConfigs) {
+            if (formConfig.getType() != null && formConfig.getType().equals("search")) {
+                // init search-form cache
+                String domainObjectType = formConfig.getDomainObjectType();
+                //String domainObjectTypeInLowerCase = domainObjectType.toLowerCase();
+                searchFormByDomainObjectType.put(domainObjectType/*domainObjectTypeInLowerCase*/, formConfig);
+                continue;
+            }
+            /*if (formConfig.getName().equalsIgnoreCase("extendedsearch_form"))
+            if (formConfig.getType().equals("search")) {
+                // init search-form cache
+                String domainObjectType = formConfig.getDomainObjectType();
+                //String domainObjectTypeInLowerCase = domainObjectType.toLowerCase();
+                searchFormByDomainObjectType.put(domainObjectType*//*domainObjectTypeInLowerCase*//*, formConfig);
+                continue;
+            }*/
             String domainObjectType = formConfig.getDomainObjectType();
             String domainObjectTypeInLowerCase = domainObjectType.toLowerCase();
             if (formConfig.isDefault()) {

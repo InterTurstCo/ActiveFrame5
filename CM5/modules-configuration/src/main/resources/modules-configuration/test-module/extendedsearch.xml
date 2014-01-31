@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration xmlns="https://cm5.intertrust.ru/config">
-    <form name="extendedSearch" domain-object-type="Исполнение" type="search">
+    <form name="extendedsearch_form" domain-object-type="Employee" type="search" debug="false" min-width="500px" is-default = "true">
         <markup>
             <header>
             </header>
@@ -8,59 +8,128 @@
                 <tab name="Главная"> <!-- закладка состоит из групп с разметкой -->
                     <single-entry-group> <!-- наследник от TabGroupsConfig -->
                         <tab-group> <!-- вхождение в группу уже может содержать разметку -->
-                            <!--width="800px" height="200px"-->
                             <table>
                                 <tr>
+                                    <!-- label (Имя) -->
                                     <td>
                                         <widget id="1"/>
-
                                     </td>
-                                    <!-- label (Название) -->
+                                    <!-- text-box (Значение Имени) -->
                                     <td>
                                         <widget id="2"/>
                                     </td>
-                                    <!-- text-box (Название) -->
                                 </tr>
+                                <!-- label (Фамилия) -->
                                 <tr>
                                     <td>
                                         <widget id="3"/>
-
                                     </td>
+                                    <!-- text-box (Значение Фамилии) -->
                                     <td>
                                         <widget id="4"/>
                                     </td>
-                                    <!-- text-box (Название) -->
+                                </tr>
+                                <tr>
+                                    <!-- label (Емэйл) -->
+                                    <td>
+                                        <widget id="5"/>
+                                    </td>
+                                    <!-- text-box (Значение Емэйла) -->
+                                    <td>
+                                        <widget id="6"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <!-- label (Должность) -->
+                                    <td>
+                                        <widget id="7"/>
+                                    </td>
+                                    <!-- text-box (Значение Должности) -->
+                                    <td>
+                                        <widget id="8"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <!-- label (Департамент) -->
+                                    <td>
+                                        <widget id="9"/>
+                                    </td>
+                                    <!-- Combo-box (Список департаментов) -->
+                                    <td>
+                                        <widget id="10"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <!-- label (Искать везде) -->
+                                    <td>
+                                        <widget id="11"/>
+                                    </td>
+                                   <td>
+                                        <widget id="12"/>
+                                    </td>
                                 </tr>
                             </table>
                         </tab-group>
-                        <!-- вхождение в группу уже может содержать разметку -->
                     </single-entry-group>
-                    <!-- наследник от TabGroupsConfig -->
                 </tab>
-                <!-- закладка состоит из групп с разметкой -->
-
-
             </body>
-
         </markup>
         <widget-config>
-
-            <!-- label (Название) -->
+            <!-- label (Имя) -->
             <label id="1">
-                <text>Тестовая метка:</text>
+                <text>Имя:</text>
             </label>
-            <!-- text-box (Название) -->
             <text-box id="2">
-                <field-path value="description"/>
+                <field-path value="FirstName"/>
             </text-box>
-            <!-- label (Название) -->
-            <check-box id="3">
-                <field-path value="description"/>
-            </check-box>
-            <!-- text-box (Название) -->
+            <!-- label (Фамилия) -->
+            <label id="3">
+                <text>Фамилия:</text>
+            </label>
             <text-box id="4">
-                <field-path value="description"/>
+                <field-path value="LastName"/>
             </text-box>
+            <!-- label (Email) -->
+            <label id="5">
+                <text>Email:</text>
+            </label>
+            <text-box id="6">
+                <field-path value="EMail"/>
+            </text-box>
+            <!-- label (Должность) -->
+            <label id="7">
+                <text>Должность:</text>
+            </label>
+            <text-box id="8">
+                <field-path value="Position"/>
+            </text-box>
+            <!-- label (Департамент) -->
+            <label id="9">
+                <text>Департамент:</text>
+            </label>
+            <combo-box id="10">
+                <field-path value="Department"/>
+                <pattern value="{Name}"/>
+            </combo-box>
+            <!-- label (Искать везде - по умолчанию это поле д.б. во всех формах) -->
+            <!--
+            <label id="11">
+                <text>Искать везде:</text>
+            </label>
+            <text-box id="12">
+                <field-path value="SearchFilter.EVERYWHERE"/>
+            </text-box>
+            временно закомментировано -->
         </widget-config>
     </form>
+    <form-mappings name="extendedsearch_mappings">
+        <form-mapping domain-object-type="Employee" form="extendedsearch_form">
+            <users>
+                <user uid="admin"/>
+            </users>
+            <roles>
+                <role name="Minister"/>
+            </roles>
+        </form-mapping>
+    </form-mappings>
 </configuration>
