@@ -3,16 +3,12 @@ package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.config.gui.ActionConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.action.ActionContext;
-import ru.intertrust.cm.core.gui.model.action.SaveToCSVContext;
 import ru.intertrust.cm.core.gui.model.plugin.*;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @ComponentName("domain.object.surfer.plugin")
 public class DomainObjectSurferHandler extends ActivePluginHandler {
@@ -43,30 +39,13 @@ public class DomainObjectSurferHandler extends ActivePluginHandler {
         fpState.setEditable(!config.isToggleEdit());
         final FormPluginHandler formPluginHandler = (FormPluginHandler) applicationContext.getBean("form.plugin");
         final FormPluginData formPluginData = formPluginHandler.initialize(formPluginConfig);
-
         final DomainObjectSurferPluginData result = new DomainObjectSurferPluginData();
         result.setCollectionPluginData(collectionPluginData);
         result.setFormPluginData(formPluginData);
-        result.setActionContexts(getActions(params, formPluginData));
         final DomainObjectSurferPluginState dosState = new DomainObjectSurferPluginState();
         dosState.setToggleEdit(config.isToggleEdit());
         result.setPluginState(dosState);
         return result;
-    }
-
-    public List<ActionContext> getActions(Dto initialData, FormPluginData formPluginData)  {
-        ArrayList<ActionContext> result = new ArrayList<>();
-        result.addAll(formPluginData.getActionContexts());
-        result.add(new SaveToCSVContext(createActionConfig("save-csv.action", "save-csv.action", "Выгрузить в CSV", "icons/icon-csv_download.png")));
-        return result;
-    }
-
-    private static ActionConfig createActionConfig(final String name, final String component,
-                                                   final String label, final String imageUrl) {
-        final ActionConfig config = new ActionConfig(name, component);
-        config.setText(label);
-        config.setImageUrl(imageUrl);
-        return config;
     }
 
 }

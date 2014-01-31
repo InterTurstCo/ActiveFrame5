@@ -124,7 +124,7 @@ public abstract class PluginView implements IsWidget {
     private List<ActionContext> getDefaultSystemContexts() {
         final List<ActionContext> contexts = new ArrayList<ActionContext>();
         final ToggleActionContext fstCtx = new ToggleActionContext(
-                createActionConfig("size.toggle.action", "toggle form", "icons/form-fullsize.png"));
+               createActionConfig("size.toggle.action", "toggle form", "icons/form-fullsize.png"));
         fstCtx.setPushed(Application.getInstance().getCompactModeState().isExpanded());
         contexts.add(fstCtx);
         contexts.add(new ToggleActionContext(

@@ -4,7 +4,6 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -13,8 +12,7 @@ import java.util.List;
  *         Date: 17/9/13
  *         Time: 12:05 PM
  */
-public class CollectionPluginData extends PluginData {
-
+public class CollectionPluginData extends ActivePluginData {
 
     private String collectionName;
     private boolean singleChoice;

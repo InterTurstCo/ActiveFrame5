@@ -13,12 +13,15 @@ import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
-import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
+import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
+import ru.intertrust.cm.core.gui.impl.server.util.ActionConfigBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
+import ru.intertrust.cm.core.gui.model.action.ActionContext;
+import ru.intertrust.cm.core.gui.model.action.SaveToCSVContext;
 import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowItemList;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
@@ -33,7 +36,7 @@ import java.util.*;
  *         Time: 12:05 PM
  */
 @ComponentName("collection.plugin")
-public class CollectionPluginHandler extends PluginHandler {
+public class CollectionPluginHandler extends ActivePluginHandler {
 
     @Autowired
     CollectionsService collectionsService;
@@ -89,7 +92,9 @@ public class CollectionPluginHandler extends PluginHandler {
         } else {
             pluginData.setSearchArea("");
         }
-
+     List<ActionContext> activeContexts = new ArrayList<ActionContext>();
+        activeContexts.add(new SaveToCSVContext(ActionConfigBuilder.createActionConfig("save-csv.action", "save-csv.action", "Выгрузить в CSV", "icons/icon-csv_download.png")));
+        pluginData.setActionContexts(activeContexts);
         return pluginData;
     }
 
@@ -112,7 +117,6 @@ public class CollectionPluginHandler extends PluginHandler {
         pluginData.setItems(items);
         pluginData.setCollectionName(collectionName);
         pluginData.setDomainObjectFieldPropertiesMap(map);
-
         return pluginData;
     }
 
@@ -142,10 +146,7 @@ public class CollectionPluginHandler extends PluginHandler {
     }
 
     private List<Filter> addFilterExcludeIds(CollectionViewerConfig collectionViewerConfig, List<Filter> filters) {
-       /* SearchAreaRefConfig searchAreaRefConfig = collectionViewerConfig.getSearchAreaRefConfig();
-        if (searchAreaRefConfig == null) {
-            return filters;
-        }*/
+
         List<Id> excludedIds = collectionViewerConfig.getExcludedIds();
         Set<Id> idsExcluded = new HashSet<Id>(excludedIds);
         Filter filterExcludeIds = FilterBuilder.prepareFilter(idsExcluded, "idsExcluded");

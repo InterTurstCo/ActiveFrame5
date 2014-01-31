@@ -12,11 +12,13 @@ import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
-import ru.intertrust.cm.core.gui.impl.client.event.*;
+import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPluginView;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.plugin.*;
 
@@ -105,13 +107,6 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         final FormPluginData formPluginData = formPlugin.getInitialData();
         newConfig.setPluginState((FormPluginState) formPluginData.getPluginState());
         newFormPlugin.setConfig(newConfig);
-        newFormPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {
-            @Override
-            public void onViewCreation(PluginViewCreatedEvent source) {
-                List<ActionContext> actions = ((FormPluginData) newFormPlugin.getInitialData()).getActionContexts();
-                DomainObjectSurferPlugin.this.setActionContexts(actions);
-            }
-        });
         formPluginPanel.open(newFormPlugin);
         this.formPlugin = newFormPlugin;
     }
@@ -137,14 +132,6 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         final FormPluginData data = formPlugin.getInitialData();
         final FormPluginState fpState = (FormPluginState) data.getPluginState();
         formPluginConfig.setPluginState(fpState);
-        newPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {
-
-            @Override
-            public void onViewCreation(PluginViewCreatedEvent source) {
-                final FormPluginData data = source.getPlugin().getInitialData();
-                DomainObjectSurferPlugin.this.setActionContexts(data.getActionContexts());
-            }
-        });
         newPlugin.setConfig(formPluginConfig);
         formPlugin.getOwner().open(newPlugin);
         formPlugin = newPlugin;

@@ -2,9 +2,9 @@ package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.config.gui.ActionConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
+import ru.intertrust.cm.core.gui.impl.server.util.ActionConfigBuilder;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
@@ -56,42 +56,37 @@ public class FormPluginHandler extends ActivePluginHandler {
 
     private static List<ActionContext> getActionContexts(final FormPluginState pluginState) {
         final List<ActionContext> contexts = new ArrayList<>();
-        if (pluginState.isInCentralPanel()) {
-            contexts.add(new ActionContext(createActionConfig("close.in.central.panel.action",
+        boolean pluginIsCentralPanel = pluginState.isInCentralPanel();
+        boolean toggleEdit = pluginState.isToggleEdit();
+        boolean editable = pluginState.isEditable();
+        if (pluginIsCentralPanel || (toggleEdit && editable)) {
+            contexts.add(new ActionContext(ActionConfigBuilder.createActionConfig("close.in.central.panel.action",
                     "close.in.central.panel.action", "Закрыть", "icons/icon-edit-close.png")));
         }
-        if (pluginState.isToggleEdit()) {
-            if (pluginState.isEditable()) {
-                contexts.add(new ActionContext(createActionConfig("close.in.central.panel.action",
-                        "close.in.central.panel.action", "Закрыть", "icons/icon-edit-close.png")));
-                contexts.add(new SaveActionContext(createActionConfig(
+        if (toggleEdit) {
+            if (editable) {
+                contexts.add(new SaveActionContext(ActionConfigBuilder.createActionConfig(
                         "save.action", "save.action", "Сохранить", "icons/icon-save.png")));
             } else {
-                contexts.add(new ActionContext(createActionConfig(
+                contexts.add(new ActionContext(ActionConfigBuilder.createActionConfig(
                         "create.new.object.action", "create.new.object.action",
                         "Создать новый", "icons/icon-create.png")));
-                contexts.add(new ActionContext(createActionConfig(
+                contexts.add(new ActionContext(ActionConfigBuilder.createActionConfig(
                         "toggle.edit.on.action", "toggle.edit.on.action", "Редактировать", "icons/icon-edit.png")));
-                contexts.add(new SaveActionContext(createActionConfig(
+                contexts.add(new SaveActionContext(ActionConfigBuilder.createActionConfig(
                         "delete.action", "delete.action", "Удалить", "icons/icon-delete.png")));
             }
 
         } else {
-            contexts.add(new ActionContext(createActionConfig("create.new.object.action",
+            contexts.add(new ActionContext(ActionConfigBuilder.createActionConfig("create.new.object.action",
                     "create.new.object.action", "Создать новый", "icons/icon-create.png")));
-            contexts.add(new SaveActionContext(createActionConfig(
+            contexts.add(new SaveActionContext(ActionConfigBuilder.createActionConfig(
                     "save.action", "save.action", "Сохранить", "icons/icon-save.png")));
-            contexts.add(new SaveActionContext(createActionConfig(
+            contexts.add(new SaveActionContext(ActionConfigBuilder.createActionConfig(
                     "delete.action", "delete.action", "Удалить", "icons/icon-delete.png")));
+
         }
         return contexts;
     }
 
-    private static ActionConfig createActionConfig(final String name, final String component,
-                                                   final String label, final String imageUrl) {
-        final ActionConfig config = new ActionConfig(name, component);
-        config.setText(label);
-        config.setImageUrl(imageUrl);
-        return config;
-    }
 }
