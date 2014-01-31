@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
-import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
@@ -109,6 +108,9 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
         request.setParam("literal." + SolrFields.AREA, config.getAreaName());
         request.setParam("literal." + SolrFields.TARGET_TYPE, config.getTargetObjectType());
         request.setParam("literal." + SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
+        addFieldToContentRequest(request, object, AttachmentService.NAME, SearchFieldType.TEXT);
+        addFieldToContentRequest(request, object, AttachmentService.DESCRIPTION, SearchFieldType.TEXT);
+        addFieldToContentRequest(request, object, AttachmentService.CONTENT_LENGTH, SearchFieldType.LONG);
         request.setParam("literal.id", createUniqueId(object, config));
         request.setParam("uprefix", "cm_c_");
         request.setParam("fmap.content", SolrFields.CONTENT);
@@ -117,6 +119,19 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
         requestQueue.addRequest(request);
         if (log.isInfoEnabled()) {
             log.info("Attachment queued for indexing");
+        }
+    }
+
+    private void addFieldToContentRequest(ContentStreamUpdateRequest request,
+            DomainObject object, String fieldName, SearchFieldType fieldType) {
+        Object value = convertValue(object.getValue(fieldName));
+        if (value != null) {
+            StringBuilder paramName = new StringBuilder()
+                    .append("literal.")
+                    .append(SolrFields.FIELD_PREFIX)
+                    .append(fieldName)
+                    .append(fieldType.getSuffix());
+            request.setParam(paramName.toString(), value.toString());
         }
     }
 
