@@ -6,8 +6,10 @@
                 xmlns:con="https://cm5.intertrust.ru/config"/>
 
     <xs:element name="widget" type="con:abstractWidgetType"/>
-
     <xs:complexType name="abstractWidgetType" abstract="true"/>
+
+    <xs:element name="pluginConfig" type="con:abstractPluginConfigType"/>
+    <xs:complexType name="abstractPluginConfigType" abstract="true"/>
 
     <xs:complexType name="longType">
         <xs:simpleContent>
@@ -680,13 +682,8 @@
 
     <xs:complexType name="pluginType">
         <xs:choice>
-            <xs:element type="con:domainObjectSurferType"
-                        name="domain-object-surfer" minOccurs="0"
-                        xmlns:con="https://cm5.intertrust.ru/config">
-            </xs:element>
-            <xs:element type="con:customType" name="custom"
-                        minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
-            </xs:choice>
+            <xs:element ref="con:pluginConfig" minOccurs="0"/>
+        </xs:choice>
     </xs:complexType>
 
     <xs:complexType name="decorationsType">
@@ -715,16 +712,22 @@
                       use="optional"/>
     </xs:complexType>
 
+    <xs:element type="con:domainObjectSurferType"
+                name="domain-object-surfer" substitutionGroup="con:pluginConfig"/>
     <xs:complexType name="domainObjectSurferType">
-        <xs:sequence>
-            <xs:element type="con:collectionViewerType" name="collection-viewer"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="xs:boolean" name="toggle-edit" minOccurs="0"/>
-        </xs:sequence>
-        <xs:attribute type="xs:string" name="collection"
-                      use="optional"/>
-        <xs:attribute type="xs:string" name="domain-object-type-to-create"
-                      use="optional"/>
+        <xs:complexContent>
+            <xs:extension base="con:abstractPluginConfigType">
+                <xs:sequence>
+                    <xs:element type="con:collectionViewerType" name="collection-viewer"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="xs:boolean" name="toggle-edit" minOccurs="0"/>
+                </xs:sequence>
+                <xs:attribute type="xs:string" name="collection"
+                              use="optional"/>
+                <xs:attribute type="xs:string" name="domain-object-type-to-create"
+                              use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
 
     <xs:complexType name="collectionViewerType">
@@ -768,13 +771,19 @@
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
+
+    <xs:element type="con:customType" name="custom" substitutionGroup="con:pluginConfig"/>
     <xs:complexType name="customType">
-        <xs:sequence>
-            <xs:element type="con:attributeType" name="attribute"
-                        maxOccurs="unbounded" minOccurs="0"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-        </xs:sequence>
-        <xs:attribute type="xs:string" name="name"/>
+        <xs:complexContent>
+            <xs:extension base="con:abstractPluginConfigType">
+                <xs:sequence>
+                    <xs:element type="con:attributeType" name="attribute"
+                                maxOccurs="unbounded" minOccurs="0"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                </xs:sequence>
+                <xs:attribute type="xs:string" name="name"/>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
 
     <xs:complexType name="collectionRefType">
