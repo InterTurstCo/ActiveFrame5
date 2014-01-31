@@ -28,7 +28,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 
-@RunWith(Arquillian.class)
+//@RunWith(Arquillian.class)
 public class JdbcIT extends IntegrationTestBase {
 
     @EJB
@@ -37,19 +37,19 @@ public class JdbcIT extends IntegrationTestBase {
     @EJB
     private CrudService.Remote crudService;
 
-    @Deployment
+//    @Deployment
     public static Archive<EnterpriseArchive> createDeployment() {
         return createDeployment(new Class[] { JdbcIT.class }, new String[] { "test-data/import-department.csv",
                 "test-data/import-employee.csv","test-data/import-organization.csv",
                 "test-data/set-department-boss.csv","test-data/set-organization-boss.csv" });
     }
 
-    @Test
+//    @Test
     public void testArquillianInjection() {
         Assert.assertNotNull(collectionService);
     }
 
-    @Before
+//    @Before
     public void init() throws IOException, LoginException {
         LoginContext lc = login("admin", "admin");
         lc.login();
@@ -64,7 +64,7 @@ public class JdbcIT extends IntegrationTestBase {
         }
     }
 
-    @Test
+//    @Test
     public void testPreparedStatement() throws Exception {
         LoginContext lc = login("admin", "admin");
         lc.login();
@@ -116,7 +116,7 @@ public class JdbcIT extends IntegrationTestBase {
         }
     }
 
-    @Test
+//    @Test
     public void testStatement() throws Exception {
         LoginContext lc = login("admin", "admin");
         lc.login();

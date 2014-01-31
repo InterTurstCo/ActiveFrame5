@@ -15,6 +15,11 @@
         <fields>
             <string name="Name" length="128" not-null="true" />
         </fields>
+        <indices>
+            <index>
+                <field name="Name" />
+            </index>
+        </indices>
     </domain-object-type>
 
 </configuration>
