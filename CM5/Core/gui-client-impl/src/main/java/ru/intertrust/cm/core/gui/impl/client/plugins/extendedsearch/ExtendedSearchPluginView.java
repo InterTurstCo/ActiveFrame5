@@ -24,20 +24,20 @@ import java.util.*;
 
 // визуализация плагина расширенного поиска
 public class ExtendedSearchPluginView extends PluginView {
-      private AbsolutePanel buttonsPanel;
+    private AbsolutePanel buttonsPanel;
     // визуализация окна расширенного поиска
-    private VerticalPanel container;
+    private AbsolutePanel container;
     // области поиска
-    private HorizontalPanel searchAreass;
+    private AbsolutePanel searchAreass;
     // доменные объекты
-    private HorizontalPanel domainObjects;
+    private AbsolutePanel domainObjects;
     // названия областей поиска(без дублирования)
     private HashSet<String> searchAreasKeysHashSet;
     // набор радио-кнопок выбора ДО (д.б. выбрана только одна)
     private HashSet<RadioButton> targetDomainObjectsRadioButtons;
     // кнопка для поиска
-    private Button search = new Button("Найти");
-    private Button closeSearch = new Button("Закрыть");
+    private FocusPanel search = new FocusPanel();
+    private FocusPanel closeSearch = new FocusPanel();
     private CheckBox cb;    // для выбора области поиска
     private RadioButton rb; // для выбора целевого доменного объекта
     private ExtendedSearchFormPlugin extendedSearchFormPlugin;
@@ -52,27 +52,31 @@ public class ExtendedSearchPluginView extends PluginView {
     // данные условий расширенного поиска
     private ExtendedSearchData searchFormData = new ExtendedSearchData();
     private SearchPopup searchPopup;
+    private ExtSearchDialogBox extSearchDialogBox;
 
     public ExtendedSearchPluginView(Plugin plugin, ExtendedSearchPluginData extendedSearchPluginData) {
         super(plugin);
-        container = new VerticalPanel();
-        container.setWidth("800px");
+        container = new AbsolutePanel();
+        container.addStyleName("srch-container");
 
         // создание панелей для чек-боксов и радио-кнопок, определяющих условия поиска
-        searchAreass = new HorizontalPanel();
-        domainObjects = new HorizontalPanel();
+        searchAreass = new AbsolutePanel();
+        searchAreass.setStyleName("checkBoxPanel");
+        domainObjects = new AbsolutePanel();
         scrollSearchForm = new ScrollPanel();
-        scrollSearchForm.setHeight("340px");
-        scrollSearchForm.setWidth("700px");
+        scrollSearchForm.setHeight("410px");
+        scrollSearchForm.setWidth("650px");
+        search.add(new HTML("<span>" + "Найти" + "</span>"));
+        closeSearch.add(new HTML("<span>" + "Закрыть" + "</span>"));
 
         // закрытие формы поиска
-     closeSearch.addClickHandler(new ClickHandler() {
+        closeSearch.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 // удаляем окно поиска
                 //Element searchWindow = DOM.getElementById("search-popup");
                 //searchWindow.removeFromParent();
-                searchPopup.hide();
+                extSearchDialogBox.hide();
             }
         });
 
@@ -82,7 +86,7 @@ public class ExtendedSearchPluginView extends PluginView {
             public void onClick(ClickEvent event) {
                 // получаем данные из полей формы поиска для отправки на сервер
                 ExtendedSearchFormPluginView extendedSearchFormPluginView =
-                                                       (ExtendedSearchFormPluginView) extendedSearchFormPlugin.getView();
+                        (ExtendedSearchFormPluginView) extendedSearchFormPlugin.getView();
                 Map<String, WidgetState> widgetsWithData = extendedSearchFormPluginView.getWidgetsState();
                 searchFormData.setMaxResults(20);
                 searchFormData.setSearchQuery(searchQuery);
@@ -101,7 +105,7 @@ public class ExtendedSearchPluginView extends PluginView {
         // целевой доменный объект
         targetDomainObjectsRadioButtons = new HashSet<RadioButton>();
 
-        while(keySetIterator.hasNext()){
+        while (keySetIterator.hasNext()) {
             String key = keySetIterator.next();
             ArrayList<String> areasDomainObjects = searchAreasData.get(key);
             // исключаем дублирование при отображении областей поиска
@@ -113,7 +117,7 @@ public class ExtendedSearchPluginView extends PluginView {
                         boolean checked = ((CheckBox) event.getSource()).getValue();
                         if (checked) {
                             // "чистим" все кнопки выбора объекта
-                            for (Iterator<RadioButton> it = targetDomainObjectsRadioButtons.iterator(); it.hasNext();)
+                            for (Iterator<RadioButton> it = targetDomainObjectsRadioButtons.iterator(); it.hasNext(); )
                                 it.next().setValue(false);
                             // выбираем область поиска
                             searchQuery.getAreas().add(((CheckBox) event.getSource()).getText());
@@ -123,18 +127,21 @@ public class ExtendedSearchPluginView extends PluginView {
                         }
                     }
                 });
-                searchAreass.add(cb);
+                AbsolutePanel cbDecorated = new AbsolutePanel();
+                cbDecorated.setStyleName("srch-cb-decorated");
+                searchAreass.add(cbDecorated);
+                cbDecorated.add(cb);
             }
 
             for (int i = 0; i < areasDomainObjects.size(); i++) {
                 // key - это группа(область поиска) к которой кнопка относится
                 rb = new RadioButton(key, areasDomainObjects.get(i));
-                rb.addClickHandler(new ClickHandler(){
+                rb.addClickHandler(new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
                         boolean selected = ((RadioButton) event.getSource()).getValue();
                         if (selected) {
-                            for (Iterator<RadioButton> it = targetDomainObjectsRadioButtons.iterator(); it.hasNext();)
+                            for (Iterator<RadioButton> it = targetDomainObjectsRadioButtons.iterator(); it.hasNext(); )
                                 it.next().setValue(false);
                             // выбираем целевой доменный объект для поиска
                             searchQuery.setTargetObjectType(((RadioButton) event.getSource()).getText());
@@ -147,22 +154,25 @@ public class ExtendedSearchPluginView extends PluginView {
                 });
 
                 targetDomainObjectsRadioButtons.add(rb);
-                domainObjects.add(rb);
+
+                AbsolutePanel rbDecorated = new AbsolutePanel();
+                rbDecorated.setStyleName("srch-rb-decorated");
+                rbDecorated.add(rb);
+                domainObjects.add(rbDecorated);
             }
         }
 
-       container.add(searchAreass);
+        container.add(searchAreass);
         container.add(domainObjects);
         container.add(scrollSearchForm);
         buttonsPanel = new AbsolutePanel();
-        buttonsPanel.addStyleName("buttons-panel");
+        buttonsPanel.addStyleName("srch-buttons-panel");
         applyButtonStyles(search);
         applyButtonStyles(closeSearch);
         buttonsPanel.add(search);
         buttonsPanel.add(closeSearch);
         container.add(buttonsPanel);
         container.getElement().getStyle().clearOverflow();
-        //  container.add(closeSearch);
     }
 
     public SearchPopup getSearchPopup() {
@@ -173,6 +183,10 @@ public class ExtendedSearchPluginView extends PluginView {
         this.searchPopup = searchPopup;
     }
 
+    public void setSearchPopup(ExtSearchDialogBox extSearchDialogBox) {
+        this.extSearchDialogBox = extSearchDialogBox;
+    }
+
     // отправка данных в поисковый сервис
     public void sendSearchData(ExtendedSearchData extendedSearchData) {
         AsyncCallback<Dto> callback = new AsyncCallback<Dto>() {
@@ -180,9 +194,9 @@ public class ExtendedSearchPluginView extends PluginView {
             public void onSuccess(Dto extendedSearchData) {
                 //Window.alert(" Данные расширенного поиска ОТПРАВЛЕНЫ !");
                 // удаляем окно поиска
-                searchPopup.hide();
+                extSearchDialogBox.hide();
                 Application.getInstance().getEventBus().fireEvent(
-                                     new ExtendedSearchCompleteEvent((DomainObjectSurferPluginData)extendedSearchData));
+                        new ExtendedSearchCompleteEvent((DomainObjectSurferPluginData) extendedSearchData));
             }
 
             @Override
@@ -197,8 +211,8 @@ public class ExtendedSearchPluginView extends PluginView {
     // Вызов формы поиска, которая соответствует целевому доменному объекту и всем условиям поиска
     public void invokeSearchForm(SearchQuery searchQuery) {
         // удаляем прошлую форму поиска
-      //  if (extendSearchFormPluginPanel != null)
-           // container.remove(extendSearchFormPluginPanel);
+        //  if (extendSearchFormPluginPanel != null)
+        // container.remove(extendSearchFormPluginPanel);
      /*   if (scrollSearchForm != null)
             container.remove(scrollSearchForm) ;*/
 
@@ -213,14 +227,14 @@ public class ExtendedSearchPluginView extends PluginView {
         extendSearchFormPluginPanel.asWidget().getElement().getStyle().clearOverflow();
         scrollSearchForm.clear();
         scrollSearchForm.add(extendSearchFormPluginPanel);
-}
+    }
 
     @Override
     public IsWidget getViewWidget() {
         return container;
     }
-    private void applyButtonStyles(Button button) {
-        button.addStyleName("dialog-box-button");
-        button.removeStyleName("gwt-Button");
+
+    private void applyButtonStyles(FocusPanel button) {
+        button.addStyleName("auth_enter-button");
     }
 }

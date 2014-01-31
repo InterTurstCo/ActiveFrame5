@@ -8,8 +8,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.gui.impl.client.CurrentUserInfo;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
+import ru.intertrust.cm.core.gui.impl.client.plugins.extendedsearch.ExtSearchDialogBox;
 import ru.intertrust.cm.core.gui.impl.client.plugins.extendedsearch.ExtendedSearchPlugin;
-import ru.intertrust.cm.core.gui.impl.client.plugins.extendedsearch.SearchPopup;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationServiceAsync;
 
 /**
@@ -112,9 +112,12 @@ public class HeaderContainer extends SimplePanel {
         popupPanel.getElement().getStyle().setZIndex(9);
         popupPanel.getElement().setAttribute("id", "search-popup");*/
 
-        SearchPopup searchPopup = new SearchPopup();
-        searchPopup.setWidth("700px");
-        searchPopup.center();
+        ExtSearchDialogBox dialog = new ExtSearchDialogBox();
+        dialog.setModal(true);
+        dialog.setGlassEnabled(true);
+        
+        dialog.setPopupPosition(thirdImage.getAbsoluteLeft() - 545, 45);
+        dialog.show();
    }
 
     private void logout(){
