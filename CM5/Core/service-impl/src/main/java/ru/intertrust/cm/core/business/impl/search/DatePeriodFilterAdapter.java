@@ -5,20 +5,23 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import ru.intertrust.cm.core.business.api.dto.DatePeriodFilter;
-import ru.intertrust.cm.core.business.api.dto.SearchFilter;
 
-public class DatePeriodFilterAdapter implements FilterAdapter {
+public class DatePeriodFilterAdapter implements FilterAdapter<DatePeriodFilter> {
 
     @Override
-    public String getFilterValue(SearchFilter filter) {
-        DatePeriodFilter dateFilter = (DatePeriodFilter) filter;
+    public String getFilterValue(DatePeriodFilter filter) {
         StringBuilder str = new StringBuilder()
                 .append("[")
-                .append(dateToString(dateFilter.getStartDate()))
+                .append(dateToString(filter.getStartDate()))
                 .append(" TO ")
-                .append(dateToString(dateFilter.getEndDate()))
+                .append(dateToString(filter.getEndDate()))
                 .append("]");
         return str.toString();
+    }
+
+    @Override
+    public String getFieldTypeSuffix(DatePeriodFilter filter) {
+        return SearchFieldType.DATE.getSuffix();
     }
 
     private static final DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss:SSS'Z'");

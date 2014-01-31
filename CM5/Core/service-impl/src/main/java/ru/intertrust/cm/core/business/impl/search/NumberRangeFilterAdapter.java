@@ -1,20 +1,23 @@
 package ru.intertrust.cm.core.business.impl.search;
 
 import ru.intertrust.cm.core.business.api.dto.NumberRangeFilter;
-import ru.intertrust.cm.core.business.api.dto.SearchFilter;
 
-public class NumberRangeFilterAdapter implements FilterAdapter {
+public class NumberRangeFilterAdapter implements FilterAdapter<NumberRangeFilter> {
 
     @Override
-    public String getFilterValue(SearchFilter filter) {
-        NumberRangeFilter numberFilter = (NumberRangeFilter) filter;
+    public String getFilterValue(NumberRangeFilter filter) {
         StringBuilder str = new StringBuilder()
                 .append("[")
-                .append(numberToString(numberFilter.getMin()))
+                .append(numberToString(filter.getMin()))
                 .append(" TO ")
-                .append(numberToString(numberFilter.getMax()))
+                .append(numberToString(filter.getMax()))
                 .append("]");
         return str.toString();
+    }
+
+    @Override
+    public String getFieldTypeSuffix(NumberRangeFilter filter) {
+        return SearchFieldType.LONG.getSuffix();
     }
 
     private static String numberToString(Number number) {

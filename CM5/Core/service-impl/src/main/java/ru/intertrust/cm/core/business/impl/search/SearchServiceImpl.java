@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.business.impl.search;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -22,7 +23,6 @@ import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.IdService;
 import ru.intertrust.cm.core.business.api.SearchService;
 import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.GenericIdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.IdsIncludedFilter;
@@ -50,7 +50,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
     private IdService idService;
 
     @Autowired
-    private ImplementorFactory<SearchFilter, FilterAdapter> searchFilterImplementorFactory;
+    private ImplementorFactory<SearchFilter, FilterAdapter<? extends SearchFilter>> searchFilterImplementorFactory;
 
     @Autowired
     private SearchConfigHelper configHelper;
@@ -58,22 +58,6 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
     @Override
     public IdentifiableObjectCollection search(String query, String areaName, String targetCollectionName,
             int maxResults) {
-        /*try {
-            SolrQuery testQuery = new SolrQuery()
-                    .setQuery("*:*")
-                    .addField("*");
-            QueryResponse all = solrServer.query(testQuery);
-            int i = 0;
-            for (SolrDocument doc : all.getResults()) {
-                System.out.println("==> Document #" + ++i);
-                for (String field : doc.getFieldNames()) {
-                    System.out.println("\t" + field + " = " + doc.getFieldValues(field));
-                }
-            }
-        } catch (SolrServerException e) {
-            e.printStackTrace();
-        }*/
-
         StringBuilder queryString = new StringBuilder()
                 .append(SolrFields.EVERYTHING)
                 .append(":")
@@ -87,6 +71,9 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 .addFilterQuery(SolrFields.AREA + ":\"" + areaName + "\"")
                 //.addFilterQuery(SolrFields.TARGET_TYPE + ":" + configHelper.getTargetObjectType(targetCollectionName))
                 .addField(SolrFields.MAIN_OBJECT_ID);
+        if (maxResults > 0) {
+            solrQuery.setRows(maxResults);
+        }
 
         QueryResponse response = null;
         try {
@@ -99,9 +86,11 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public IdentifiableObjectCollection search(SearchQuery query, String targetCollectionName, int maxResults) {
         StringBuilder queryString = new StringBuilder();
         for (SearchFilter filter : query.getFilters()) {
+            @SuppressWarnings("rawtypes")
             FilterAdapter adapter = searchFilterImplementorFactory.createImplementorFor(filter.getClass());
             String filterValue = adapter.getFilterValue(filter);
             if (filterValue == null || filterValue.trim().isEmpty()) {
@@ -114,14 +103,18 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             if (SearchFilter.EVERYWHERE.equalsIgnoreCase(filter.getFieldName())) {
                 queryString.append(SolrFields.EVERYTHING);
             } else {
-                queryString.append(SolrFields.FIELD_PREFIX).append(filter.getFieldName().toLowerCase());
+                queryString.append(SolrFields.FIELD_PREFIX)
+                           .append(filter.getFieldName().toLowerCase())
+                           .append(adapter.getFieldTypeSuffix(filter));
             }
-            queryString.append(":").append(protectQueryString(filterValue));
+            queryString.append(":").append(filterValue);
         }
         StringBuilder areas = new StringBuilder();
         for (String areaName : query.getAreas()) {
             areas.append(areas.length() == 0 ? "(" : " OR ")
-                 .append(areaName);
+                 .append("\"")
+                 .append(areaName)
+                 .append("\"");
         }
         areas.append(")");
         SolrQuery solrQuery = new SolrQuery()
@@ -130,6 +123,9 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 //.addFilterQuery(SolrFields.TARGET_TYPE + ":" + configHelper.getTargetObjectType(targetCollectionName))
                 .addField(SolrFields.FIELD_PREFIX + "*")
                 .addField(SolrFields.MAIN_OBJECT_ID);
+        if (maxResults > 0) {
+            solrQuery.setRows(maxResults);
+        }
 
         QueryResponse response = null;
         try {
@@ -147,9 +143,9 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
     private IdentifiableObjectCollection queryCollection(String collectionName, QueryResponse response) {
         ArrayList<ReferenceValue> ids = new ArrayList<>();
         SolrDocumentList found = response.getResults();
-        if (found.size() == 0) {
+        /*if (found.size() == 0) {
             return new GenericIdentifiableObjectCollection();   //*****
-        }
+        }*/
         for (SolrDocument doc : found) {
             Id id = idService.createId((String) doc.getFieldValue(SolrFields.MAIN_OBJECT_ID));
             ids.add(new ReferenceValue(id));
@@ -161,5 +157,32 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
     private String protectQueryString(String query) {
         //TODO Экранировать символы, нарушающие структуру запроса
         return "(" + query + ")";
+    }
+
+    @Override
+    public void dumpAll() {
+        PrintStream out = null;
+        try {
+            out = new PrintStream("search-index-dump.txt", "cp1251");
+            SolrQuery testQuery = new SolrQuery()
+                    .setQuery("*:*")
+                    .addField("*")
+                    .setRows(1000000);
+            QueryResponse all = solrServer.query(testQuery);
+            out.println("Total " + all.getResults().getNumFound() + " document(s)");
+            int i = 0;
+            for (SolrDocument doc : all.getResults()) {
+                out.println("==> Document #" + ++i);
+                for (String field : doc.getFieldNames()) {
+                    out.println("\t" + field + " = " + doc.getFieldValues(field));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (out != null) {
+                out.close();
+            }
+        }
     }
 }

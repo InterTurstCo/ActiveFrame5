@@ -17,7 +17,7 @@ public class OneOfListFilter extends SearchFilterBase {
 
     public OneOfListFilter(String fieldName, Collection<? extends ReferenceValue> values) {
         super(fieldName);
-        
+        addValues(values);
     }
 
     public List<ReferenceValue> getValues() {

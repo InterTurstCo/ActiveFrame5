@@ -309,7 +309,7 @@
          Setting The value to true will instruct the underlying Lucene
          IndexWriter to write its debugging info the specified file
       -->
-    <infoStream file="INFOSTREAM.txt">true</infoStream>
+    <infoStream file="INFOSTREAM.txt">false</infoStream>
   </indexConfig>
 
 
@@ -809,7 +809,7 @@
       -->
     <lst name="defaults">
       <str name="echoParams">explicit</str>
-      <int name="rows">10</int>
+      <int name="rows">100</int>
       <!-- <str name="df">cm_id</str> -->
     </lst>
     <!-- In addition to defaults, "appends" params can be specified

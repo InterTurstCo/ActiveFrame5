@@ -2,7 +2,9 @@ package ru.intertrust.cm.core.business.impl.search;
 
 import ru.intertrust.cm.core.business.api.dto.SearchFilter;
 
-public interface FilterAdapter {
+public interface FilterAdapter<F extends SearchFilter> {
 
-    String getFilterValue(SearchFilter filter);
+    String getFilterValue(F filter);
+
+    String getFieldTypeSuffix(F filter);
 }

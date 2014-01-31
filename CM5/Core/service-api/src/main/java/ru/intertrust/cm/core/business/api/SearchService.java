@@ -36,4 +36,6 @@ public interface SearchService {
      * @return Коллекция найденных доменных объектов
      */
     IdentifiableObjectCollection search(SearchQuery query, String targetCollectionName, int maxResults);
+
+    void dumpAll();
 }

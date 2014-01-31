@@ -116,12 +116,12 @@
 
     <field name="cm_id" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
     <field name="cm_main" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
-    <field name="cm_area" type="string" indexed="true" stored="false" required="true" multiValued="false"/>
-    <field name="cm_type" type="string" indexed="true" stored="false" required="true" multiValued="false"/>
+    <field name="cm_area" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
+    <field name="cm_type" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
     <field name="cm_text" type="text_general" indexed="true" stored="false" multiValued="true"/>
     <field name="cm_content" type="text_general" indexed="true" stored="false" multiValued="true"/>
 
-    <dynamicField name="cm_c_*" type="text_general" indexed="true" stored="true" multiValued="true"/>
+    <dynamicField name="cm_c_*" type="text_general" indexed="true" stored="false" multiValued="true"/>
 
     <!-- Dynamic field definitions allow using convention over configuration
        for fields via the specification of patterns to match field names. 
@@ -212,7 +212,7 @@
    -->
 
   <copyField source="cm_f_*" dest="cm_text"/>
-  <copyField source="cm_content" dest="cm_text"/>
+  <!-- copyField source="cm_content" dest="cm_text"/ -->
 
   <!-- Copy the price into a currency enabled field (default USD)
    <copyField source="price" dest="price_c"/>
