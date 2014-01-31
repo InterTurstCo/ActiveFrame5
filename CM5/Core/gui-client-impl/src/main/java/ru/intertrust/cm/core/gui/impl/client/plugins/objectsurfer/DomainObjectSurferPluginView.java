@@ -81,7 +81,8 @@ public class DomainObjectSurferPluginView extends PluginView {
 
     private void updateSizes() {
         surferWidth = plugin.getOwner().getVisibleWidth();
-        surferHeight = plugin.getOwner().getVisibleHeight();
+            // -11 px  из BusinessUniverse отражаются на размере плагина и выражены как высота actionBar + 11 px
+        surferHeight = plugin.getOwner().getVisibleHeight()-(getActionToolBar().getOffsetHeight()+11);
     }
 
     protected void splitterSetSize() {
@@ -97,7 +98,6 @@ public class DomainObjectSurferPluginView extends PluginView {
         eventBus.addHandler(SplitterWidgetResizerEvent.TYPE, new SplitterWidgetResizerEventHandler() {
             @Override
             public void setWidgetSize(SplitterWidgetResizerEvent event) {
-
                 checkLastSplitterPosition(event.isType(), event.getFirstWidgetWidth(), event.getFirstWidgetHeight(), event.isArrowsPress());
 
             }
@@ -118,9 +118,11 @@ public class DomainObjectSurferPluginView extends PluginView {
 
         if (type && arrowButton) {
             verticalSplitterSavedSize = firstWidgetWidth;
+            splitterScroll.setWidth(verticalSplitterSavedSize+"px");
 
         } else {
             horizontalSplitterSavedSize = firstWidgetHeight;
+            splitterScroll.setHeight(horizontalSplitterSavedSize+"px");
         }
 
         reDrawSplitter(type, firstWidgetWidth, firstWidgetHeight);

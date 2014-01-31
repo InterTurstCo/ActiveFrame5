@@ -93,7 +93,7 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
             Column headCol = header.getColumn(i);
             Column bodyCol = body.getColumn(i);
             //использование -5 это компенсация погрешности из результата округлений размеров в double
-            newWidth += reducingColumnWidthInPercentage(oldWidth, width-5, headCol, bodyCol);
+            newWidth += reducingColumnWidthInPercentage(oldWidth, width-7, headCol, bodyCol);
         }
 
         if (width > newWidth && newWidth >0){

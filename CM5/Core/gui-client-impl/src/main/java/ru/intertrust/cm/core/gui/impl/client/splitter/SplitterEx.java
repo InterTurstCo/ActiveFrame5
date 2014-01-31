@@ -170,7 +170,7 @@ public class SplitterEx extends DockLayoutPanel {
                 @Override
                 public void onClick(ClickEvent event) {
                     eventBus.fireEvent(new SplitterWidgetResizerEvent(target.getParent().getParent().getOffsetWidth()-splitterSize,
-                            0, target.getParent().getParent().getOffsetHeight()-splitterSize, 0, splitType, true ));
+                            0, target.getParent().getParent().getOffsetHeight()/*-splitterSize*/, 0, splitType, true ));
 
                 }
             }, ClickEvent.getType());
@@ -180,7 +180,7 @@ public class SplitterEx extends DockLayoutPanel {
                 @Override
                 public void onClick(ClickEvent event) {
                     eventBus.fireEvent(new SplitterWidgetResizerEvent(0, target.getParent().getParent().getOffsetWidth(),
-                            0, target.getParent().getParent().getOffsetHeight()-splitterSize, splitType, true ));
+                            0, target.getParent().getParent().getOffsetHeight()/*-splitterSize*/, splitType, true ));
 
                 }
             }, ClickEvent.getType());
@@ -428,7 +428,7 @@ public class SplitterEx extends DockLayoutPanel {
             centralDummy.setStyleName(style.centralPanelHorizDots());
             changeModeButton.setStyleName(style.changeModeHorizButton());
             splitType = false;
-            if (size == 0){
+            if (size == (0-splitterSize)){
                 changeFullLeftPosition();
                 rightArrowVisible(false);
 

@@ -98,7 +98,7 @@ public class CollectionPluginView extends PluginView {
 
 
     private void updateSizes() {
-        tableWidth = plugin.getOwner().getVisibleWidth()-5;
+        tableWidth = plugin.getOwner().getVisibleWidth();
         tableHeight = plugin.getOwner().getVisibleHeight();
         tableController.setOwnerWidth(tableWidth);
 
@@ -156,8 +156,7 @@ public class CollectionPluginView extends PluginView {
 
     public void onPluginPanelResize() {
         updateSizes();
-        //         plugin.getOwner().getVisibleWidth();
-        tableController.columnWindowResizeOnPercentage(tableWidth /*/ tableHeader.getColumnCount()*/);
+        tableController.columnWindowResizeOnPercentage(tableWidth);
         scrollTableBody.setHeight(tableHeight + "px");
     }
 
@@ -170,7 +169,7 @@ public class CollectionPluginView extends PluginView {
 
                 scrollTableBody.setHeight((event.getUpperPanelHeight() - headerPanel.getOffsetHeight()) + "px");
                 if (event.isScrollState()) {
-                    tableController.columnWindowResize(columnMinWidth(event.getUpperPanelWidth() / tableBody.getColumnCount()));
+                    tableController.columnWindowResizeOnPercentage(plugin.getOwner().getVisibleWidth());
                 }
             }
         });
@@ -182,18 +181,19 @@ public class CollectionPluginView extends PluginView {
                 if (event.isType()) {
                     if ((event.getFirstWidgetHeight() * 2) < Window.getClientHeight()) {
                         scrollTableBody.setHeight(((event.getFirstWidgetHeight() * 2) - headerPanel.getOffsetHeight()) + "px");
+                        tableController.columnWindowResizeOnPercentage(event.getFirstWidgetWidth());
+
                     } else {
-                        scrollTableBody.setHeight((event.getFirstWidgetHeight() - headerPanel.getOffsetHeight()) + "px");
+                        tableController.columnWindowResizeOnPercentage(event.getFirstWidgetWidth());
                     }
-                } else {
-                    scrollTableBody.setHeight((event.getFirstWidgetHeight() - headerPanel.getOffsetHeight()) + "px");
+
                 }
-                if (!event.isType()) {
-                    tableController.columnWindowResize(columnMinWidth((event.getFirstWidgetWidth() * 2) / tableBody.getColumnCount()));
-                } else {
-                    tableController.columnWindowResize(columnMinWidth(event.getFirstWidgetWidth() / tableBody.getColumnCount()));
+                else {
+                    tableController.columnWindowResize(columnMinWidth((plugin.getOwner().getVisibleWidth() / tableBody.getColumnCount())));
                 }
+                scrollTableBody.setHeight((event.getFirstWidgetHeight() - headerPanel.getOffsetHeight()) + "px");
             }
+
         });
 
 
