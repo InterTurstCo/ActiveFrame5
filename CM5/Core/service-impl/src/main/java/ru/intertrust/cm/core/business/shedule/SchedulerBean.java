@@ -71,7 +71,7 @@ public class SchedulerBean {
     @Autowired
     private ConfigurationLoader configurationLoader;
 
-    private List<StartedTask> startedTasks = new ArrayList<StartedTask>();
+    private static List<StartedTask> startedTasks = new ArrayList<StartedTask>();
 
     /**
      * Входная функция сервиса периодических заданий. Вызывается контейнером раз в минуту
@@ -151,7 +151,7 @@ public class SchedulerBean {
                     //Проверка времени работы
                     if ((startedTask.startTime + startedTask.timeout * 60000) < System.currentTimeMillis()) {
                         //прерываем исполнение
-                        startedTask.future.cancel(false);
+                        boolean res = startedTask.future.cancel(true);
                         //устанавливаем статус
                         ejbContext.getUserTransaction().begin();
                         DomainObject savedTask =

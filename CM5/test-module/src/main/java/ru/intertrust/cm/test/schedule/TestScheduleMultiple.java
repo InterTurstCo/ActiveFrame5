@@ -1,5 +1,7 @@
 package ru.intertrust.cm.test.schedule;
 
+import org.springframework.jmx.access.InvocationFailureException;
+
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTask;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskHandle;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskParameters;
@@ -18,12 +20,13 @@ public class TestScheduleMultiple implements ScheduleTaskHandle {
             //Тестируем обработчик ошибки в поле Result может быть как строка так и число. Если строка то упадем с ошибкой, что должны увидеть в результатах выполнения задачи 
             long value = Long.parseLong(testScheduleParameters.getResult());
 
-            System.out.println("Run TestScheduleMultiple");
+            System.out.println("Run TestScheduleMultiple value = " + value);
             Thread.currentThread().sleep(value);
+            System.out.println("End Run TestScheduleMultiple value = " + value);
             return testScheduleParameters.getResult();
         } catch (Exception ex) {
             throw new ScheduleException("Error exec TestScheduleMultiple", ex);
-        }
+        } 
     }
 
 }
