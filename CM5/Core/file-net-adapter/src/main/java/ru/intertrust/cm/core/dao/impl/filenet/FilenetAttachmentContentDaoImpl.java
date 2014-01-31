@@ -48,10 +48,7 @@ public class FilenetAttachmentContentDaoImpl implements AttachmentContentDao {
     @Override
     public InputStream loadContent(DomainObject domainObject) {
         try {
-            byte[] content = getAdapter().load(domainObject.getString("path"));
-
-            ByteArrayInputStream result = new ByteArrayInputStream(content);
-            return result;
+            return getAdapter().load(domainObject.getString("path"));
         } catch (Exception ex) {
             throw new DaoException("Error load content", ex);
         }

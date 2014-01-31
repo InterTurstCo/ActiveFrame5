@@ -48,15 +48,17 @@ public class TestAttachments extends ClientBase {
 
             DomainObject person = createPerson();
             //Добавляем вложение 2 раза. Одно потом удалим второе оставим
-            byte[] saveContent = readFile(new File("test.pdf"));
+            String file = "test.pdf";
+            byte[] saveContent = readFile(new File(file));
 
-            DomainObject firstAttachment = setAttachment(person, new File("test.pdf"));
-            DomainObject secondAttachment = setAttachment(person, new File("test.pdf"));
-            System.out.println("Save OK");
+            DomainObject firstAttachment = setAttachment(person, new File(file));
+            DomainObject secondAttachment = setAttachment(person, new File(file));
+            System.out.println("Save OK " + saveContent.length);
 
             byte[] loadContent = getAttachmentContent(firstAttachment);
             boolean compareResult = compareContent(saveContent, loadContent);
-            System.out.println("Load OK=" + compareResult);
+            assertTrue("Contents equals", compareResult);
+            System.out.println("Load " + compareResult + " " + loadContent.length);
 
             attachmentService.deleteAttachment(secondAttachment.getId());
             System.out.println("Delete OK");

@@ -1,7 +1,10 @@
 package ru.intertrust.cm.core.dao.impl.filenet;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -14,6 +17,9 @@ import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPException;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.handler.Handler;
+
+
+import javax.xml.ws.soap.SOAPBinding;
 
 import ru.intertrust.cm.core.dao.impl.filenet.ws.ChangeRequestType;
 import ru.intertrust.cm.core.dao.impl.filenet.ws.CheckinAction;
@@ -59,7 +65,8 @@ import ru.intertrust.cm.core.dao.impl.filenet.ws.SingletonString;
  * 
  */
 public class FileNetAdapter {
-
+    private final static int MAX_FRAGMENT_SIZE = 100 * 1024;
+    
     private String serverUrl;
     private String login;
     private String password;
@@ -104,7 +111,31 @@ public class FileNetAdapter {
      * @return
      * @throws Exception
      */
-    public byte[] load(String path) throws Exception {
+    public InputStream load(String path) throws Exception {
+        File tempFile = File.createTempFile("filenet_", "_temp");
+        FileOutputStream out = new FileOutputStream(tempFile);
+        Fragment fragment = null;
+        int offset = 0;
+        while(fragment == null || fragment.fullSize > offset * MAX_FRAGMENT_SIZE){
+            fragment = loadFragment(path, offset);
+            out.write(fragment.body);
+            offset++;
+        }
+        out.close();
+        
+        TempFileInputStream in = new TempFileInputStream(tempFile);
+        return in;
+    }
+    
+    /**
+     * Загрузка фрагмента ывложения по пути на сервере filenet
+     * @param path
+     * @return
+     * @throws Exception
+     */
+    private Fragment loadFragment(String path, int offset) throws Exception {
+        Fragment result = new Fragment();
+        
         // Set a reference to the document to retrieve
         ObjectSpecification objDocumentSpec = new ObjectSpecification();
         objDocumentSpec.setClassId("Document");
@@ -170,8 +201,8 @@ public class FileNetAdapter {
         ContentRequestType objContentReqType = new ContentRequestType();
         objContentReqType.setCacheAllowed(true);
         objContentReqType.setId("1");
-        objContentReqType.setMaxBytes(100 * 1024);
-        objContentReqType.setStartOffset(BigInteger.valueOf(0));
+        objContentReqType.setMaxBytes(MAX_FRAGMENT_SIZE);
+        objContentReqType.setStartOffset(BigInteger.valueOf(MAX_FRAGMENT_SIZE * offset));
         objContentReqType.setContinueFrom(null);
         objContentReqType.setElementSpecification(objElemSpecType);
         objContentReqType.setSourceSpecification(objDocumentSpec);
@@ -182,7 +213,6 @@ public class FileNetAdapter {
 
         GetContentResponse objContentRespTypeArray = getService().getContent(objGetContentReq);
 
-        byte[] result = null;
         // Process GetContent response
         ContentResponseType objContentRespType = objContentRespTypeArray.getContentResponse().get(0);
         if (objContentRespType instanceof ContentErrorResponse)
@@ -203,7 +233,8 @@ public class FileNetAdapter {
             // Write content to file
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             outputStream.write(objInlineContent.getBinary());
-            result = outputStream.toByteArray();
+            result.body = outputStream.toByteArray();
+            result.fullSize = objContentElemResp.getTotalSize().longValue();
         }
         else
         {
@@ -276,6 +307,7 @@ public class FileNetAdapter {
             List<Handler> handlerChain = new ArrayList<Handler>();
             handlerChain.add(new SecurityHandler(login, password));
             bp.getBinding().setHandlerChain(handlerChain);
+            ((SOAPBinding)bp.getBinding()).setMTOMEnabled(true);
         }
         return service;
     }
@@ -431,4 +463,9 @@ public class FileNetAdapter {
         getService().executeChanges(objExecuteChangesRequest);
     }
 
+    private class Fragment{
+        private byte[] body;
+        private long fullSize;
+    }
+    
 }

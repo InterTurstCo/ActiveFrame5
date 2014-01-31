@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.dao.impl.filenet;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class TestFileNet {
 
@@ -24,10 +25,11 @@ public class TestFileNet {
         FileNetAdapter adapter = new FileNetAdapter("vm-fn-01:9443", "p8admin", "Welcome777", "OS", "/CM5");
         byte[] saveContent = readFile("test.pdf");
         String path = adapter.save(saveContent);
-        System.out.println("Save OK");
-        byte[] loadContent = adapter.load(path);
+        System.out.println("Save OK " + saveContent.length);
+        InputStream in = adapter.load(path);
+        byte[] loadContent = readStream(in);
         boolean comareResult = compareContent(saveContent, loadContent);
-        System.out.println("Load OK=" + comareResult);
+        System.out.println("Load " + comareResult + " " + loadContent.length);
         adapter.delete(path);
 
         try {
@@ -68,6 +70,20 @@ public class TestFileNet {
             return out.toByteArray();
         } finally {
             input.close();
+        }
+    }
+
+    protected byte[] readStream(InputStream inStream) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            int read = 0;
+            byte[] buffer = new byte[1024];
+            while ((read = inStream.read(buffer)) > 0) {
+                out.write(buffer, 0, read);
+            }
+            return out.toByteArray();
+        } finally {
+            out.close();
         }
     }
 }
