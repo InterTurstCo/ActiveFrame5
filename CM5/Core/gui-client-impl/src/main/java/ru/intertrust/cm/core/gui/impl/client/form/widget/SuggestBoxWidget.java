@@ -38,6 +38,8 @@ public class SuggestBoxWidget extends BaseWidget {
     @Override
     public void setCurrentState(WidgetState currentState) {
         final SuggestBoxState suggestBoxState = (SuggestBoxState) currentState;
+        final SuggestPresenter presenter = (SuggestPresenter) impl;
+        presenter.initModel(suggestBoxState);
         if (impl.getOffsetWidth() > 0) {
             initState(suggestBoxState, suggestBox);
         } else {
@@ -130,7 +132,7 @@ public class SuggestBoxWidget extends BaseWidget {
     private void initState(final SuggestBoxState state, final SuggestBox suggestBox) {
         if (isEditable()) {
             final SuggestPresenter presenter = (SuggestPresenter) impl;
-            presenter.init(state, suggestBox);
+            presenter.initView(state, suggestBox);
         } else {
 //            final int maxWidth = impl.getElement().getParentElement().getClientWidth() - 4;
 //            impl.getElement().getStyle().setProperty("maxWidth", maxWidth, Style.Unit.PX);
@@ -306,7 +308,15 @@ public class SuggestBoxWidget extends BaseWidget {
             return Integer.parseInt(sizeString.substring(0, sizeString.length() - UnitPx));
         }
 
-        public void init(final SuggestBoxState state, final SuggestBox suggestBox) {
+        public void initModel(final SuggestBoxState state) {
+            selectedSuggestions.clear();
+            final HashMap<Id, String> listValues = state.getListValues();
+            for (final Map.Entry<Id, String> listEntry : listValues.entrySet()) {
+                selectedSuggestions.put(listEntry.getKey(), listEntry.getValue());
+            }
+        }
+
+        public void initView(final SuggestBoxState state, final SuggestBox suggestBox) {
             if (state.getSuggestBoxConfig().getMaxDropDownWidth() != null) {
                 this.maxDropDownWidth = state.getSuggestBoxConfig().getMaxDropDownWidth();
             }
@@ -316,7 +326,6 @@ public class SuggestBoxWidget extends BaseWidget {
 
             this.singleChoice = state.isSingleChoice();
             clear();
-            selectedSuggestions.clear();
             this.suggestBox = suggestBox;
             if (getElement().getStyle().getProperty("maxWidth").isEmpty()) {
                 preferableWidth = getElement().getClientWidth();
@@ -326,13 +335,11 @@ public class SuggestBoxWidget extends BaseWidget {
                 }
                 container.getStyle().setWidth(100, Style.Unit.PCT);
             }
-            final HashMap<Id, String> listValues = state.getListValues();
-            for (final Map.Entry<Id, String> listEntry : listValues.entrySet()) {
+            for (final Map.Entry<Id, String> listEntry : selectedSuggestions.entrySet()) {
                 final SelectedItemComposite itemComposite =
                         new SelectedItemComposite(listEntry.getKey(), listEntry.getValue());
                 itemComposite.setCloseBtnListener(createCloseBtnListener(itemComposite));
                 super.add(itemComposite, container);
-                selectedSuggestions.put(listEntry.getKey(), listEntry.getValue());
             }
             super.add(suggestBox, container);
             if (state.getSuggestBoxConfig().getClearAllButtonConfig() != null){

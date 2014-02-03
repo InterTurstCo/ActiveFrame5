@@ -31,6 +31,9 @@ public class SortOrderBuilder {
     }
 
     public static SortOrder getSimpleSortOrder(DefaultSortCriteriaConfig defaultSortCriteriaConfig) {
+        if (defaultSortCriteriaConfig == null) {
+            return null;
+        }
         SortOrder sortOrder = new SortOrder();
         SortCriterion.Order order = defaultSortCriteriaConfig.getOrder();
         String field = defaultSortCriteriaConfig.getColumnField();
