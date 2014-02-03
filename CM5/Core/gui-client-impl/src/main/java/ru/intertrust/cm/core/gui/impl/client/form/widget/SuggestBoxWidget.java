@@ -38,8 +38,10 @@ public class SuggestBoxWidget extends BaseWidget {
     @Override
     public void setCurrentState(WidgetState currentState) {
         final SuggestBoxState suggestBoxState = (SuggestBoxState) currentState;
-        final SuggestPresenter presenter = (SuggestPresenter) impl;
-        presenter.initModel(suggestBoxState);
+        if (isEditable()) {
+            final SuggestPresenter presenter = (SuggestPresenter) impl;
+            presenter.initModel(suggestBoxState);
+        }
         if (impl.getOffsetWidth() > 0) {
             initState(suggestBoxState, suggestBox);
         } else {
