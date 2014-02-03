@@ -19,6 +19,7 @@ import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.impl.server.form.FormResolver;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
+import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.plugin.*;
 
@@ -230,7 +231,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         formPluginConfig.setDomainObjectTypeToCreate(extendedSearchData.getSearchQuery().getTargetObjectType());
 
         FormPluginHandler formPluginHandler = (FormPluginHandler) applicationContext.getBean("form.plugin");
-//        List<ActionContext> actionContexts = formPluginHandler.initialize(formPluginConfig).getActionContexts();
+        List<ActionContext> actionContexts = formPluginHandler.initialize(formPluginConfig).getActionContexts();
 
         // нужно получить инициализацию формы поиска
         //ExtendedSearchFormPluginHandler extendedSearchFormPluginHandler = (ExtendedSearchFormPluginHandler)
@@ -239,7 +240,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         FormPluginData formPluginData = formPluginHandler.initialize(formPluginConfig);
         //FormPluginData formPluginData = (FormPluginData)extendedSearchFormPluginHandler.initialize(extendedSearchData/*formPluginConfig*/);
         formPluginData.setPluginState(formPluginConfig.getPluginState());
-//        formPluginData.setActionContexts(actionContexts);
+        formPluginData.setActionContexts(actionContexts);
 
         DomainObjectSurferPluginData result = new DomainObjectSurferPluginData();
         DomainObjectSurferConfig domainObjectSurferConfig = new DomainObjectSurferConfig();
@@ -256,7 +257,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         result.setDomainObjectSurferConfig(domainObjectSurferConfig);
         result.setCollectionPluginData(collectionPluginData);
         result.setFormPluginData(formPluginData);
-        result.setActionContexts(formPluginData.getActionContexts()/*actionContexts*/);
+        result.setActionContexts(/*formPluginData.getActionContexts()*/actionContexts);
         final DomainObjectSurferPluginState dosState = new DomainObjectSurferPluginState();
         dosState.setToggleEdit(true);
         result.setPluginState(dosState);

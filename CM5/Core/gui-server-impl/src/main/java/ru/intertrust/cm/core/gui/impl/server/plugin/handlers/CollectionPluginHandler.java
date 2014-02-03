@@ -114,7 +114,10 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         pluginData.setDomainObjectFieldPropertiesMap(map);
         pluginData.setItems(items);
         pluginData.setCollectionName(collectionName);
-        pluginData.setDomainObjectFieldPropertiesMap(map);
+        List<ActionContext> activeContexts = new ArrayList<ActionContext>();
+        activeContexts.add(new SaveToCSVContext(ActionConfigBuilder.createActionConfig("save-csv.action", "save-csv.action",
+                                                                         "Выгрузить в CSV", "icons/icon-csv_download.png")));
+        pluginData.setActionContexts(activeContexts);
         return pluginData;
     }
 
