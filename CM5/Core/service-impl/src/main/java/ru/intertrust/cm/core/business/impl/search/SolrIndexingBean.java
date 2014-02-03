@@ -1,6 +1,8 @@
 package ru.intertrust.cm.core.business.impl.search;
 
 import javax.annotation.PreDestroy;
+import javax.ejb.ConcurrencyManagement;
+import javax.ejb.ConcurrencyManagementType;
 import javax.ejb.Schedule;
 import javax.ejb.Singleton;
 import javax.interceptor.Interceptors;
@@ -14,8 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 @Singleton
+@ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class SolrIndexingBean {
+
+    private static final long WORKTIME_LIMIT = 290000L;
 
     protected Logger log = LoggerFactory.getLogger(getClass());
 
@@ -38,11 +43,14 @@ public class SolrIndexingBean {
     }
 
     private void processUpdateQueue() {
+        long breakTime = System.currentTimeMillis() + WORKTIME_LIMIT;
+
         if (log.isTraceEnabled()) {
             log.trace("Solr request queue processing started");
         }
         int processed = 0;
-        while(requestQueue.hasRequests()) {
+
+        while(requestQueue.hasRequests() && System.currentTimeMillis() < breakTime) {
             AbstractUpdateRequest request = requestQueue.fetchRequest();
             try {
                 solrServer.request(request);
