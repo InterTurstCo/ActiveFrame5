@@ -20,6 +20,7 @@ import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.exception.DaoException;
+import ru.intertrust.cm.core.model.FatalException;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -194,7 +195,39 @@ public class AttachmentServiceImpl implements AttachmentService {
     public List<DomainObject> findAttachmentDomainObjectsFor(Id domainObjectId, String attachmentType) {
         String user = currentUserAccessor.getCurrentUser();
         AccessToken accessToken = accessControlService.createAccessToken(user, domainObjectId, DomainObjectAccessType.READ);
-        String linkedField = domainObjectTypeIdCache.getName(domainObjectId);
-        return  domainObjectDao.findLinkedDomainObjects(domainObjectId, attachmentType, linkedField, accessToken);
+        String domainObjectType = domainObjectTypeIdCache.getName(domainObjectId);
+        
+        String attchmentLinkedField = getAttachmentOwnerObject(attachmentType, domainObjectType);
+        
+        return  domainObjectDao.findLinkedDomainObjects(domainObjectId, attachmentType, attchmentLinkedField, accessToken);
+    }
+
+    private String getAttachmentOwnerObject(String attachmentType, String domainObjectType) {
+        DomainObjectTypeConfig objectConfig =
+                configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObjectType);
+
+        String declaringAttachmentDomainObject = null;
+        if (objectConfig.getAttachmentTypesConfig() != null
+                && objectConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs().size() > 0) {
+
+            for (AttachmentTypeConfig attachmentTypeConfig : objectConfig.getAttachmentTypesConfig()
+                    .getAttachmentTypeConfigs()) {
+                if (attachmentType.equals(attachmentTypeConfig.getName())) {
+                    declaringAttachmentDomainObject = domainObjectType;
+                    break;
+                }
+            }
+        }
+
+        if (declaringAttachmentDomainObject == null) {
+            String parentType = objectConfig.getExtendsAttribute();
+            if (parentType != null) {
+                return getAttachmentOwnerObject(attachmentType, parentType);
+            }
+        }
+        if (declaringAttachmentDomainObject == null) {
+            throw new FatalException("Attachment declaration not found for " + attachmentType);
+        }
+        return declaringAttachmentDomainObject;
     }
 }

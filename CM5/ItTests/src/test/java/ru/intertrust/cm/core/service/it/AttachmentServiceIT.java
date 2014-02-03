@@ -32,6 +32,7 @@ import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.LongValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.config.DomainObjectConfig;
@@ -101,7 +102,7 @@ public class AttachmentServiceIT extends IntegrationTestBase {
         attachmentDomainObject.setValue(AttachmentService.DESCRIPTION, new StringValue("Attachment Description"));
         // TODO get file path
 
-        String mimeType = null;
+       /* String mimeType = null;
         try {
             mimeType = Files.probeContentType(Paths.get(""));
         } catch (IOException e) {
@@ -116,7 +117,25 @@ public class AttachmentServiceIT extends IntegrationTestBase {
         DomainObject attachment = attachmentService.saveAttachment(remoteFileData, attachmentDomainObject);
         
         List<DomainObject> attachemnts = attachmentService.findAttachmentDomainObjectsFor(savedCountryObject.getId(), attachmentType);
-        assertTrue(attachemnts.size() > 0);
+        assertTrue(attachemnts.size() > 0);*/
+        
+        
+        DomainObject doc = crudService.createDomainObject("ChildDoc");
+        doc.setString("Name", "Test 2");
+        doc.setString("Comment", "Really child document");
+        doc = crudService.save(doc);
+        System.out.println("Document created: " + doc);
+
+        Id docId = doc.getId();
+        DomainObject attach = attachmentService.createAttachmentDomainObjectFor(docId, "DocAttachment");
+        attach.setValue(AttachmentService.NAME, new StringValue("Attachment"));
+        attach.setValue(AttachmentService.DESCRIPTION, new StringValue("Attachment Description"));
+//            SimpleRemoteInputStream stream = new SimpleRemoteInputStream(
+//                    new FileInputStream("D:/Private/report_ra-85744.pdf"));
+        attach = attachmentService.saveAttachment(remoteFileData, attach);        
+
+        List<DomainObject> files = attachmentService.findAttachmentDomainObjectsFor(docId, "DocAttachment");
+        System.out.println(Integer.toString(files.size()) + " attachment(s) found");
     }
 
     public void testLoadAttachment() throws FileNotFoundException {
