@@ -76,7 +76,7 @@ public class SuggestBoxHandler extends ListWidgetHandler {
         }
         filters.add(prepareInputTextFilter(suggestionRequest.getText(), suggestionRequest.getInputTextFilterName()));
         DefaultSortCriteriaConfig sortCriteriaConfig = suggestionRequest.getDefaultSortCriteriaConfig();
-        SortOrder sortOrder = SortOrderBuilder.getDefaultSortOrder(sortCriteriaConfig);
+        SortOrder sortOrder = SortOrderBuilder.getSimpleSortOrder(sortCriteriaConfig);
         IdentifiableObjectCollection collection = collectionsService.findCollection(suggestionRequest.getCollectionName(),
                 sortOrder, filters);
         Pattern pattern = createDefaultRegexPattern();

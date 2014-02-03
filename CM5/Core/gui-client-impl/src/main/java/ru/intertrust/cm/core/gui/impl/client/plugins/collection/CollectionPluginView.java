@@ -98,7 +98,6 @@ public class CollectionPluginView extends PluginView {
     private void updateSizes() {
         tableWidth = plugin.getOwner().getVisibleWidth();
         tableHeight = plugin.getOwner().getVisibleHeight();
-        tableController.setOwnerWidth(tableWidth);
 
     }
 
@@ -168,7 +167,7 @@ public class CollectionPluginView extends PluginView {
 
                 scrollTableBody.setHeight((event.getUpperPanelHeight() - headerPanel.getOffsetHeight()) + "px");
                 if (event.isScrollState()) {
-                    tableController.columnWindowResizeOnPercentage(plugin.getOwner().getVisibleWidth());
+                    tableController.columnWindowResizeOnPercentage(event.getUpperPanelWidth());
                 }
             }
         });
@@ -179,8 +178,8 @@ public class CollectionPluginView extends PluginView {
             public void setWidgetSize(SplitterWidgetResizerEvent event) {
                 if (event.isType()) {
                     if ((event.getFirstWidgetHeight() * 2) < Window.getClientHeight()) {
-                        scrollTableBody.setHeight(((event.getFirstWidgetHeight() * 2) - headerPanel.getOffsetHeight()) + "px");
-                        tableController.columnWindowResizeOnPercentage(event.getFirstWidgetWidth());
+                        scrollTableBody.setHeight(((event.getFirstWidgetHeight() ) - headerPanel.getOffsetHeight()) + "px");
+                        tableController.columnWindowResize(columnMinWidth(event.getFirstWidgetWidth() / tableBody.getColumnCount()));
 
                     } else {
                         tableController.columnWindowResizeOnPercentage(event.getFirstWidgetWidth());
@@ -321,7 +320,7 @@ public class CollectionPluginView extends PluginView {
                     sb.append(sortCollectionState.getField());
                     sb.append("&");
                     sb.append("Sortable=");
-                    sb.append(sortCollectionState.isSortDirection());
+                    sb.append(sortCollectionState.isAscend());
 
                 }
 
@@ -637,7 +636,7 @@ public class CollectionPluginView extends PluginView {
     private void createSortedCollectionData() {
         CollectionRowsRequest collectionRowsRequest;
         String field = sortCollectionState.getField();
-        boolean ascending = sortCollectionState.isSortDirection();
+        boolean ascending = sortCollectionState.isAscend();
         CollectionColumnProperties collectionColumnProperties = fieldPropertiesMap.get(field);
 
         if (sortCollectionState.isResetCollection()) {
@@ -645,7 +644,7 @@ public class CollectionPluginView extends PluginView {
 
             collectionRowsRequest = new CollectionRowsRequest(sortCollectionState.getCount(),
                     sortCollectionState.getOffset(), collectionName, getFieldToNameMap(),
-                    sortCollectionState.isSortDirection(), sortCollectionState.getColumnName(),
+                    sortCollectionState.isAscend(), sortCollectionState.getColumnName(),
                     field, filterList);
 
             scrollTableBody.scrollToTop();

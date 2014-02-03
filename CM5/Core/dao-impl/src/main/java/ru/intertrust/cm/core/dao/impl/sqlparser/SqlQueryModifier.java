@@ -212,30 +212,7 @@ public class SqlQueryModifier {
                 }
             } else if (selectExpressionItem.getExpression() instanceof CaseExpression) {
                 CaseExpression caseExpression = (CaseExpression) selectExpressionItem.getExpression();
-                boolean returnsId = false;
-                for (Expression whenExpression : caseExpression.getWhenClauses()) {
-                    WhenClause whenClause = (WhenClause) whenExpression;
-                    if (whenClause.getThenExpression() instanceof Column) {
-                        Column column = (Column) whenClause.getThenExpression();
-                        FieldConfig fieldConfig = configurationExplorer.getFieldConfig(
-                                getDOTypeName(plainSelect, column, false), unwrap(column.getColumnName()));
-
-                        if (fieldConfig instanceof ReferenceFieldConfig) {
-                            returnsId = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (!returnsId && caseExpression.getElseExpression() instanceof Column) {
-                    Column column = (Column) caseExpression.getElseExpression();
-                    FieldConfig fieldConfig = configurationExplorer.getFieldConfig(
-                            getDOTypeName(plainSelect, column, false), unwrap(column.getColumnName()));
-
-                    if (fieldConfig instanceof ReferenceFieldConfig) {
-                        returnsId = true;
-                    }
-                }
+                boolean returnsId = caseExpressionReturnsId(caseExpression, plainSelect);
 
                 if (returnsId) {
                     KryoCloner kryoCloner = new KryoCloner();
@@ -303,6 +280,34 @@ public class SqlQueryModifier {
         plainSelect.setSelectItems(selectItems);
     }
 
+    private boolean caseExpressionReturnsId(CaseExpression caseExpression, PlainSelect plainSelect) {
+        boolean returnsId = false;
+        for (Expression whenExpression : caseExpression.getWhenClauses()) {
+            WhenClause whenClause = (WhenClause) whenExpression;
+            if (whenClause.getThenExpression() instanceof Column) {
+                Column column = (Column) whenClause.getThenExpression();
+                FieldConfig fieldConfig = configurationExplorer.getFieldConfig(
+                        getDOTypeName(plainSelect, column, false), unwrap(column.getColumnName()));
+
+                if (fieldConfig instanceof ReferenceFieldConfig) {
+                    return true;
+                }
+            }
+        }
+
+        if (!returnsId && caseExpression.getElseExpression() instanceof Column) {
+            Column column = (Column) caseExpression.getElseExpression();
+            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(
+                    getDOTypeName(plainSelect, column, false), unwrap(column.getColumnName()));
+
+            if (fieldConfig instanceof ReferenceFieldConfig) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private void buildColumnToConfigMapInPlainSelect(PlainSelect plainSelect,
                                                             Map<String, FieldConfig> columnToConfigMap) {
         for (Object selectItem : plainSelect.getSelectItems()) {
@@ -323,17 +328,27 @@ public class SqlQueryModifier {
                     FieldConfig fieldConfig = getFieldConfig(plainSelect, selectExpressionItem);
                     columnToConfigMap.put(columnName, fieldConfig);
                 }
+            } else if (selectExpressionItem.getExpression() instanceof CaseExpression) {
+                CaseExpression caseExpression = (CaseExpression) selectExpressionItem.getExpression();
+                boolean returnsId = caseExpressionReturnsId(caseExpression, plainSelect);
+                if (returnsId) {
+                    addReferenceFieldConfig(selectExpressionItem, columnToConfigMap);
+                }
             } else if (selectExpressionItem.getAlias() != null &&
                     selectExpressionItem.getAlias().endsWith(REFERENCE_POSTFIX) &&
                     (selectExpressionItem.getExpression() instanceof NullValue ||
                             selectExpressionItem.getExpression() instanceof LongValue)) {
-                String alias = unwrap(selectExpressionItem.getAlias().toLowerCase());
-                if (columnToConfigMap.get(alias) == null) {
-                    FieldConfig fieldConfig = new ReferenceFieldConfig();
-                    fieldConfig.setName(alias);
-                    columnToConfigMap.put(alias, fieldConfig);
-                }
+                addReferenceFieldConfig(selectExpressionItem, columnToConfigMap);
             }
+        }
+    }
+
+    private void addReferenceFieldConfig(SelectExpressionItem selectExpressionItem, Map<String, FieldConfig> columnToConfigMap) {
+        String name = unwrap(selectExpressionItem.getAlias().toLowerCase());
+        if (columnToConfigMap.get(name) == null) {
+            FieldConfig fieldConfig = new ReferenceFieldConfig();
+            fieldConfig.setName(name);
+            columnToConfigMap.put(name, fieldConfig);
         }
     }
 

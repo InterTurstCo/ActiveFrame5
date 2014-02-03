@@ -30,7 +30,7 @@ public class ExtendedSearchFormPluginHandler extends PluginHandler {
     private ApplicationContext applicationContext;
 
     public FormPluginData initialize(Dto initialData) {
-        ExtendedSearchData extendedSearchData= (ExtendedSearchData) initialData;
+        ExtendedSearchData extendedSearchData = (ExtendedSearchData) initialData;
         String targetDomainObject = extendedSearchData.getSearchQuery().getTargetObjectType();
 
         //FormPluginConfig extendedSearchFormPluginConfig = (FormPluginConfig) initialData;
