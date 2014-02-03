@@ -198,6 +198,10 @@ public class DomainObjectSurferPluginView extends PluginView {
                     FormPlugin formPlugin = (FormPlugin) domainObjectSurferPlugin.getFormPlugin();
 
                     formPluginPanel.open(formPlugin);
+
+                    //noname div
+                    formPluginPanel.setSize("100%", "100%");
+                    formPluginPanel.asWidget().getElement().getFirstChildElement().addClassName("form-plaugin-table");
                     splitterFirstWidget.add(this.asWidget());
 
                     formFlowPanel.add(formPluginPanel.asWidget());
@@ -209,7 +213,6 @@ public class DomainObjectSurferPluginView extends PluginView {
             collectionViewerPluginPanel.open(collectionViewerPlugin);
 
         }
-
         return flowPanel;
     }
 
