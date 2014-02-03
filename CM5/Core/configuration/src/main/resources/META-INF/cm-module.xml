@@ -12,7 +12,6 @@
         <configuration-path>config/collections.xml</configuration-path>
         <configuration-path>config/collection-views.xml</configuration-path>
         <configuration-path>config/access.xml</configuration-path>
-        <configuration-path>config/search.xml</configuration-path>
         <configuration-path>config/navigation-panel.xml</configuration-path>
     </configuration-paths>
     <import-files>
