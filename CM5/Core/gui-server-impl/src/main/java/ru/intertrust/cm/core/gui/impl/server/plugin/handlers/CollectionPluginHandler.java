@@ -61,7 +61,8 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         List<Filter> filters = new ArrayList<Filter>();
 
         pluginData.setDefaultSortCriteriaConfig(sortCriteriaConfig);
-        SortOrder order = SortOrderBuilder.getDefaultSortOrder(sortCriteriaConfig);
+        CollectionDisplayConfig collectionDisplayConfig = collectionViewConfig.getCollectionDisplayConfig();
+        SortOrder order = SortOrderBuilder.getInitSortOrder(sortCriteriaConfig, collectionDisplayConfig);
         // todo не совсем верная логика. а в каком режиме обычная коллекция открывается? single choice? display chosen values?
         // todo: по-моему условие singleChoice && !displayChosenValues вполне говорит само за себя :) в следующем условии тоже
         if ((singleChoice && !displayChosenValues) || (!singleChoice && !displayChosenValues)) {

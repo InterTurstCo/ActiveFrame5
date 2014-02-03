@@ -2,9 +2,12 @@ package ru.intertrust.cm.core.gui.impl.server.util;
 
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
+import ru.intertrust.cm.core.config.gui.collection.view.CollectionDisplayConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriterionConfig;
+import ru.intertrust.cm.core.gui.model.GuiException;
 
 import java.util.List;
 
@@ -14,13 +17,23 @@ import java.util.List;
  *         Time: 13:15
  */
 public class SortOrderBuilder {
-    public static SortOrder getDefaultSortOrder(DefaultSortCriteriaConfig sortCriteriaConfig) {
-        if (sortCriteriaConfig == null){
+
+    public static SortOrder getInitSortOrder(DefaultSortCriteriaConfig defaultSortCriteriaConfig, CollectionDisplayConfig collectionDisplayConfig) {
+        if (defaultSortCriteriaConfig == null){
             return null;
         }
+        SortCriteriaConfig sortCriteriaConfig = getSortCriteriaIfExists(defaultSortCriteriaConfig, collectionDisplayConfig);
+        if (sortCriteriaConfig == null) {
+            return getSimpleSortOrder(defaultSortCriteriaConfig);
+        }   else {
+            return getComplexSortOrder(sortCriteriaConfig);
+        }
+    }
+
+    public static SortOrder getSimpleSortOrder(DefaultSortCriteriaConfig defaultSortCriteriaConfig) {
         SortOrder sortOrder = new SortOrder();
-        SortCriterion.Order order = sortCriteriaConfig.getOrder();
-        String field = sortCriteriaConfig.getColumnField();
+        SortCriterion.Order order = defaultSortCriteriaConfig.getOrder();
+        String field = defaultSortCriteriaConfig.getColumnField();
         SortCriterion defaultSortCriterion = new SortCriterion(field, order);
         sortOrder.add(defaultSortCriterion);
         return sortOrder;
@@ -45,5 +58,29 @@ public class SortOrderBuilder {
         String field = sortCriterionConfig.getField();
         SortCriterion sortCriterion = new SortCriterion(field, order);
         return sortCriterion;
+    }
+
+    private static SortCriteriaConfig getSortCriteriaIfExists(DefaultSortCriteriaConfig defaultSortCriteriaConfig, CollectionDisplayConfig collectionDisplayConfig){
+        SortCriterion.Order order = defaultSortCriteriaConfig.getOrder();
+        String field = defaultSortCriteriaConfig.getColumnField();
+        CollectionColumnConfig columnConfig = getColumnConfig(field, collectionDisplayConfig);
+        SortCriteriaConfig sortCriteriaConfig = null;
+        if (order.equals(SortCriterion.Order.ASCENDING)) {
+            sortCriteriaConfig = columnConfig.getAscSortCriteriaConfig();
+        } else {
+            sortCriteriaConfig = columnConfig.getDescSortCriteriaConfig();
+        }
+        return sortCriteriaConfig;
+
+    }
+
+    private static CollectionColumnConfig getColumnConfig (String field, CollectionDisplayConfig collectionDisplayConfig) {
+        List<CollectionColumnConfig> columnConfigLists =  collectionDisplayConfig.getColumnConfig();
+        for (CollectionColumnConfig columnConfig : columnConfigLists) {
+            if (field.equalsIgnoreCase(columnConfig.getField())) {
+                return columnConfig;
+            }
+        }
+        throw new GuiException("Couldn't find sorting " + field + "'");
     }
 }

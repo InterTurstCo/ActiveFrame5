@@ -320,7 +320,7 @@ public class CollectionPluginView extends PluginView {
                     sb.append(sortCollectionState.getField());
                     sb.append("&");
                     sb.append("Sortable=");
-                    sb.append(sortCollectionState.isSortDirection());
+                    sb.append(sortCollectionState.isAscend());
 
                 }
 
@@ -636,7 +636,7 @@ public class CollectionPluginView extends PluginView {
     private void createSortedCollectionData() {
         CollectionRowsRequest collectionRowsRequest;
         String field = sortCollectionState.getField();
-        boolean ascending = sortCollectionState.isSortDirection();
+        boolean ascending = sortCollectionState.isAscend();
         CollectionColumnProperties collectionColumnProperties = fieldPropertiesMap.get(field);
 
         if (sortCollectionState.isResetCollection()) {
@@ -644,7 +644,7 @@ public class CollectionPluginView extends PluginView {
 
             collectionRowsRequest = new CollectionRowsRequest(sortCollectionState.getCount(),
                     sortCollectionState.getOffset(), collectionName, getFieldToNameMap(),
-                    sortCollectionState.isSortDirection(), sortCollectionState.getColumnName(),
+                    sortCollectionState.isAscend(), sortCollectionState.getColumnName(),
                     field, filterList);
 
             scrollTableBody.scrollToTop();

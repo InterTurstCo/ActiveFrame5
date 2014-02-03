@@ -17,6 +17,9 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.SortCollectionState;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
 
 /**
@@ -39,7 +42,7 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
     private int resizeStartPoint;
     private int resizeEndPoint;
     private boolean mouseDown = false;
-    private boolean sortDirection;
+
     private int colIdx;
     private static int DELTA_X = 3;
     private static int DELTA_DRAG = 1;
@@ -48,7 +51,7 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
     private static Style.Cursor DEFAULT_CURSOR = Style.Cursor.DEFAULT;
     private Column lastColumn;
     private HorizontalPanel searchPanel;
-
+    private Map<String, Boolean> sortMarkers = new HashMap<String, Boolean>();
     CellTable<CollectionRowItem> header;
     CellTable<CollectionRowItem> body;
 
@@ -202,18 +205,18 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
             if (!lastColumn.equals(column)) {
                 String rename = lastColumn.getDataStoreName().replaceAll(SORT_ARROWS, "");
                 lastColumn.setDataStoreName(rename);
+                sortMarkers.put(rename, null);
                 resetLastColumn();
 
             }
         }
-
-        if (!sortDirection) {
-            sortDirection = true;
-        } else {
-            sortDirection = false;
+        boolean ascend = false;
+        Boolean sortMarker = sortMarkers.get(colDataStoreName);
+        if (sortMarker == null || sortMarker) {
+            ascend  = true;
         }
         eventBus.fireEvent(new TableControllerSortEvent(colDataStoreName, new SortCollectionState(
-                70, 0, colDataStoreName, sortDirection, true, column.getFieldName())));
+                70, 0, colDataStoreName, ascend , true, column.getFieldName())));
         lastColumn = column;
 
     }
@@ -232,17 +235,28 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
         for (int i = 0; i < header.getColumnCount(); i++) {
             Column column = header.getColumn(i);
             String previousColumnName = column.getDataStoreName();
-            if (previousColumnName.contains(ASCEND_ARROW) || previousColumnName.contains(DESCEND_ARROW)) {
-                column.setDataStoreName(previousColumnName.replaceAll(SORT_ARROWS, ""));
+            if (previousColumnName.contains(ASCEND_ARROW) ) {
+                String nameWithReplacedArrowUp = previousColumnName.replaceAll(SORT_ARROWS, "");
+                column.setDataStoreName(nameWithReplacedArrowUp);
+                sortMarkers.put(nameWithReplacedArrowUp, true);
+                reDrawColumn(i, column);
+            }
+            if (previousColumnName.contains(DESCEND_ARROW)) {
+                String nameWithReplacedArrowDown = previousColumnName.replaceAll(SORT_ARROWS, "");
+                column.setDataStoreName(nameWithReplacedArrowDown);
+                sortMarkers.put(nameWithReplacedArrowDown, false);
                 reDrawColumn(i, column);
             }
             checkPos += getThisColumnWidth(column);
             if (checkPos > mouseDownSortPoint) {
                 String colName = header.getColumn(i).getDataStoreName();
-                if (!sortDirection) {
+                Boolean sortMarker = sortMarkers.get(colName);
+                if (sortMarker == null || !sortMarker) {
                     column.setDataStoreName(colName + ASCEND_ARROW);
+                    sortMarkers.put(colName, true);
                 } else {
                     column.setDataStoreName(colName + DESCEND_ARROW);
+                    sortMarkers.put(colName, false);
                 }
                 reDrawColumn(i, column);
                 return column;
@@ -255,7 +269,6 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
     private void reDrawColumn(int index, Column column) {
         header.removeColumn(index);
         header.insertColumn(index, column, column.getDataStoreName());
-
 
     }
 

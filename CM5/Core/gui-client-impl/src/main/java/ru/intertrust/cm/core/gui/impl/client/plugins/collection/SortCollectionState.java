@@ -16,7 +16,7 @@ public class SortCollectionState {
     private int offset, count;
     private String columnName;
     // false = от Z до А; true = от А до Z
-    private boolean sortDirection;
+    private boolean ascend;
     private boolean resetCollection;
     private boolean sortable;
     private String field;
@@ -26,7 +26,7 @@ public class SortCollectionState {
         this.offset = offset;
         this.count = count;
         this.columnName = columnName;
-        this.sortDirection = sortDirection;
+        this.ascend = sortDirection;
         this.resetCollection = resetCollection;
         this.sortable = true;
         this.field = field;
@@ -56,12 +56,12 @@ public class SortCollectionState {
         this.columnName = columnName;
     }
 
-    public boolean isSortDirection() {
-        return sortDirection;
+    public boolean isAscend() {
+        return ascend;
     }
 
-    public void setSortDirection(boolean sortDirection) {
-        this.sortDirection = sortDirection;
+    public void setAscend(boolean ascend) {
+        this.ascend = ascend;
     }
 
     public boolean isResetCollection() {
