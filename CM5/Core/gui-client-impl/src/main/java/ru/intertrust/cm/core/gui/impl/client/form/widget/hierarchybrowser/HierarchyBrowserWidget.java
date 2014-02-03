@@ -6,6 +6,7 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.form.widget.DialogWindowConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
@@ -66,25 +67,31 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         HierarchyBrowserView view = (HierarchyBrowserView) impl;
         hierarchyBrowserView.initAddButton(config.getAddButtonConfig());
         hierarchyBrowserView.initClearButtonIfItIs(config.getClearAllButtonConfig());
-        WidgetDisplayConfig displayConfig = getDisplayConfig();
+        final WidgetDisplayConfig displayConfig = getDisplayConfig();
         final ArrayList<HierarchyBrowserItem> chosenItems = state.getChosenItems();
         final ArrayList<Id> chosenIds = state.getIds();
-        final int widgetWidth = getSizeFromString(displayConfig.getWidth());
-        final int widgetHeight = getSizeFromString(displayConfig.getHeight());
+
+        DialogWindowConfig dialogWindowConfig = config.getDialogWindowConfig();
+        final int popupWidth = getSizeFromString(dialogWindowConfig != null ?
+                dialogWindowConfig.getWidth() : null, HierarchyBrowserMainPopup.DEFAULT_WIDTH);
+        final int popupHeight = getSizeFromString(dialogWindowConfig != null ?
+                dialogWindowConfig.getHeight() : null, HierarchyBrowserMainPopup.DEFAULT_HEIGHT);
+
         singleChoice = state.isSingleChoice();
         view.setChosenItems(chosenItems);
-        view.displayBaseWidget(widgetWidth, widgetHeight);
+
+        view.displayBaseWidget(displayConfig.getWidth(), displayConfig.getHeight());
         view.addButtonClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                mainPopup = new HierarchyBrowserMainPopup(eventBus, chosenItems, widgetWidth, widgetHeight);
+                mainPopup = new HierarchyBrowserMainPopup(eventBus, chosenItems, popupWidth, popupHeight);
                 mainPopup.createAndShowPopup();
                 mainPopup.addOkClickHandler(new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
                         HierarchyBrowserView view = (HierarchyBrowserView) impl;
                         view.setChosenItems(mainPopup.getChosenItems());
-                        view.displayBaseWidget(widgetWidth, widgetHeight);
+                        view.displayBaseWidget(displayConfig.getWidth(), displayConfig.getHeight());
                         mainPopup.hidePopup();
                     }
                 });
@@ -146,9 +153,9 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         eventBus.addHandler(HierarchyBrowserScrollEvent.TYPE, this);
     }
 
-    private int getSizeFromString(String size) {
+    private int getSizeFromString(String size, int defaultSize) {
         if (size == null) {
-            return 600;
+            return defaultSize;
         }
         String temp = size.replaceAll("\\D", "");
         return Integer.parseInt(temp);

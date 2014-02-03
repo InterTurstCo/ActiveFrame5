@@ -29,6 +29,9 @@ public class HierarchyBrowserConfig extends WidgetConfig {
     @Element(name = "selection-style", required = false)
     private SelectionStyleConfig selectionStyleConfig;
 
+    @Element (name = "dialog-window", required = false)
+    private DialogWindowConfig dialogWindowConfig;
+
     public NodeCollectionDefConfig getNodeCollectionDefConfig() {
         return nodeCollectionDefConfig;
     }
@@ -77,6 +80,14 @@ public class HierarchyBrowserConfig extends WidgetConfig {
         this.selectionStyleConfig = selectionStyleConfig;
     }
 
+    public DialogWindowConfig getDialogWindowConfig() {
+        return dialogWindowConfig;
+    }
+
+    public void setDialogWindowConfig(DialogWindowConfig dialogWindowConfig) {
+        this.dialogWindowConfig = dialogWindowConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -118,6 +129,11 @@ public class HierarchyBrowserConfig extends WidgetConfig {
             return false;
         }
 
+        if (dialogWindowConfig != null ? !dialogWindowConfig.equals(that.dialogWindowConfig) :
+                that.dialogWindowConfig != null) {
+            return false;
+        }
+
         return true;
     }
 
@@ -130,6 +146,7 @@ public class HierarchyBrowserConfig extends WidgetConfig {
         result = 31 * result + (clearAllButtonConfig != null ? clearAllButtonConfig.hashCode() : 0);
         result = 31 * result + (addButtonConfig != null ? addButtonConfig.hashCode() : 0);
         result = 31 * result + (selectionStyleConfig != null ? selectionStyleConfig.hashCode() : 0);
+        result = 31 * result + (dialogWindowConfig != null ? dialogWindowConfig.hashCode() : 0);
         return result;
     }
 

@@ -20,6 +20,8 @@ import java.util.Map;
  */
 public class HierarchyBrowserMainPopup {
 
+    public static final int DEFAULT_WIDTH = 900;
+    public static final int DEFAULT_HEIGHT = 400;
     private HierarchyBrowserFacebookStyleView popupChosenContent;
     private HorizontalPanel nodesSection;
     private PopupPanel popup;
@@ -122,8 +124,8 @@ public class HierarchyBrowserMainPopup {
     }
 
     public void setWidgetSize(int width, int height) {
-        popupWidth = width != 0 ? width : 900;
-        popupHeight = height != 0 ? height : 400;
+        popupWidth = width != 0 ? width : DEFAULT_WIDTH;
+        popupHeight = height != 0 ? height : DEFAULT_HEIGHT;
         nodeHeight = (int) (0.6 * popupHeight);
     }
 
