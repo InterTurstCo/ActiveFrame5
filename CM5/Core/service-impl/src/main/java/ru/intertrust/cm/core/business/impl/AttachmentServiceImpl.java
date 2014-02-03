@@ -75,8 +75,11 @@ public class AttachmentServiceImpl implements AttachmentService {
     public DomainObject createAttachmentDomainObjectFor(Id objectId, String attachmentType) {
         GenericDomainObject attachmentDomainObject = (GenericDomainObject) crudService.createDomainObject(attachmentType);
 
-        String objectType = domainObjectTypeIdCache.getName(((RdbmsId) objectId).getTypeId());
-        attachmentDomainObject.setReference(objectType, objectId);
+        String domainObjectType = domainObjectTypeIdCache.getName(objectId);
+        
+        String attchmentLinkedField = getAttachmentOwnerObject(attachmentType, domainObjectType);
+        
+        attachmentDomainObject.setReference(attchmentLinkedField, objectId);
         return attachmentDomainObject;
     }
 
