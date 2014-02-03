@@ -167,7 +167,7 @@ public class CollectionPluginView extends PluginView {
 
                 scrollTableBody.setHeight((event.getUpperPanelHeight() - headerPanel.getOffsetHeight()) + "px");
                 if (event.isScrollState()) {
-                    tableController.columnWindowResizeOnPercentage(plugin.getOwner().getVisibleWidth());
+                    tableController.columnWindowResizeOnPercentage(event.getUpperPanelWidth());
                 }
             }
         });
@@ -178,8 +178,8 @@ public class CollectionPluginView extends PluginView {
             public void setWidgetSize(SplitterWidgetResizerEvent event) {
                 if (event.isType()) {
                     if ((event.getFirstWidgetHeight() * 2) < Window.getClientHeight()) {
-                        scrollTableBody.setHeight(((event.getFirstWidgetHeight() * 2) - headerPanel.getOffsetHeight()) + "px");
-                        tableController.columnWindowResizeOnPercentage(event.getFirstWidgetWidth());
+                        scrollTableBody.setHeight(((event.getFirstWidgetHeight() ) - headerPanel.getOffsetHeight()) + "px");
+                        tableController.columnWindowResize(columnMinWidth(event.getFirstWidgetWidth() / tableBody.getColumnCount()));
 
                     } else {
                         tableController.columnWindowResizeOnPercentage(event.getFirstWidgetWidth());

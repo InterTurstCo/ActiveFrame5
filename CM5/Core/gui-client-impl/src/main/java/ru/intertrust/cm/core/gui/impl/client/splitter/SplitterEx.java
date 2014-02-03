@@ -22,6 +22,7 @@ public class SplitterEx extends DockLayoutPanel {
 
     protected static SplitterStyles style = SplitterResources.INST.styles();
     protected boolean splitType;
+    protected int sizeFromInsert;
 
     class HSplitter extends Splitter  {
         public HSplitter(Widget target, boolean reverse, int size) {
@@ -188,13 +189,21 @@ public class SplitterEx extends DockLayoutPanel {
             changeModeButton.addDomHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
+                    int firstWidgetWidth = target.getParent().getParent().getOffsetWidth()/2;
                     if (splitType){
                         splitType = false;
+
                     } else {
                         splitType = true;
+                        if (sizeFromInsert != target.getParent().getParent().getOffsetWidth()/2 && sizeFromInsert>0 )  {
+                        firstWidgetWidth = sizeFromInsert;
+                        }
+                        System.out.println(sizeFromInsert);
                     }
 
-                    eventBus.fireEvent(new SplitterWidgetResizerEvent(target.getParent().getParent().getOffsetWidth()/2, 0,
+
+
+                    eventBus.fireEvent(new SplitterWidgetResizerEvent(firstWidgetWidth, 0,
                             target.getParent().getParent().getOffsetHeight()/2, target.getParent().getParent().getOffsetHeight(), splitType, false ));
 
                 }
@@ -428,7 +437,7 @@ public class SplitterEx extends DockLayoutPanel {
             centralDummy.setStyleName(style.centralPanelHorizDots());
             changeModeButton.setStyleName(style.changeModeHorizButton());
             splitType = false;
-            if (size == (0-splitterSize)){
+            if (size == (0/*-splitterSize*/)){
                 changeFullLeftPosition();
                 rightArrowVisible(false);
 
@@ -648,7 +657,6 @@ public class SplitterEx extends DockLayoutPanel {
         assert getChildren().size() > 0 : "Can't add a splitter before any children";
 
 
-
         LayoutData layout = (LayoutData) widget.getLayoutData();
 
         Splitter splitter = null;
@@ -679,5 +687,9 @@ public class SplitterEx extends DockLayoutPanel {
 
     public boolean isSplitType() {
         return splitType;
+    }
+
+    public void setSizeFromInsert(int sizeFromInsert) {
+        this.sizeFromInsert = sizeFromInsert;
     }
 }

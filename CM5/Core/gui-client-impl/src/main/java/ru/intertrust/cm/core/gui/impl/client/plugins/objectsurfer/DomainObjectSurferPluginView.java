@@ -60,7 +60,7 @@ public class DomainObjectSurferPluginView extends PluginView {
                 super.onResize();
                 eventBus.fireEvent(new SplitterInnerScrollEvent(splitterScroll.getOffsetHeight(),
                         splitterScroll.getOffsetWidth(), formFlowPanel.getOffsetHeight(),
-                        formFlowPanel.getOffsetWidth()));
+                        formFlowPanel.getOffsetWidth(), splitterPanel.isSplitType()));
 
                 if (!splitterPanel.isSplitType()) {
                     horizontalSplitterSavedSize = splitterScroll.getOffsetHeight();
@@ -113,6 +113,8 @@ public class DomainObjectSurferPluginView extends PluginView {
 
             if (verticalSplitterSavedSize >= 0) {
                 firstWidgetWidth = verticalSplitterSavedSize;
+                splitterPanel.setSizeFromInsert(firstWidgetWidth);
+
             }
         }
 
@@ -140,6 +142,7 @@ public class DomainObjectSurferPluginView extends PluginView {
 
             splitterPanel.remove(0);
             splitterPanel.insertWest(splitterScroll, firstWidgetWidth, splitterPanel.getWidget(0));
+
         } else {
 
             if (firstWidgetHeight > surferHeight) {
