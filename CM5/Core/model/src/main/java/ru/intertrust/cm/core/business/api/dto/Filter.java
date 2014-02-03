@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.business.api.dto;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,14 +35,110 @@ public class Filter implements Dto {
         addCriterion(index, new StringValue(value));
     }
 
+    public void addMultiStringCriterion(int index, List<String> stringList) {
+        if (stringList != null){
+            List<Value> values = new ArrayList<Value>(stringList.size());
+            for (String string : stringList) {
+                values.add(new StringValue(string));
+            }
+            addMultiCriterion(index, values);
+        }
+    }
+
+    public void addBooleanCriterion(int index, Boolean value) {
+        addCriterion(index, new BooleanValue(value));
+    }
+
+    public void addMultiBooleanCriterion(int index, List<Boolean> booleanList) {
+        if (booleanList != null){
+            List<Value> values = new ArrayList<Value>(booleanList.size());
+            for (Boolean value : booleanList) {
+                values.add(new BooleanValue(value));
+            }
+            addMultiCriterion(index, values);
+        }
+    }
+
+    public void addDecimalCriterion(int index, BigDecimal value) {
+        addCriterion(index, new DecimalValue(value));
+    }
+
+    public void addMultiDecimalCriterion(int index, List<BigDecimal> decimalList) {
+        if (decimalList != null){
+            List<Value> values = new ArrayList<Value>(decimalList.size());
+            for (BigDecimal value : decimalList) {
+                values.add(new DecimalValue(value));
+            }
+            addMultiCriterion(index, values);
+        }
+    }
+
+    public void addLongCriterion(int index, Long value) {
+        addCriterion(index, new LongValue(value));
+    }
+
+    public void addMultiLongCriterion(int index, List<Long> longList) {
+        if (longList != null){
+            List<Value> values = new ArrayList<Value>(longList.size());
+            for (Long value : longList) {
+                values.add(new LongValue(value));
+            }
+            addMultiCriterion(index, values);
+        }
+    }
+
+    public void addReferenceCriterion(int index, Id value) {
+        addCriterion(index, new ReferenceValue(value));
+    }
+
+    public void addMultiReferenceCriterion(int index, List<Id> idList) {
+        if (idList != null){
+            List<Value> values = new ArrayList<Value>(idList.size());
+            for (Id value : idList) {
+                values.add(new ReferenceValue(value));
+            }
+            addMultiCriterion(index, values);
+        }
+    }
+
     /**
      * Добавляет дату в критерий
      * @param index индекс
      * @param value дата
      */
-    public void addDateCriterion(int index, Date value) {
+    public void addDateTimeCriterion(int index, Date value) {
         DateTimeValue dateTimeValue = new DateTimeValue(value);
         addCriterion(index, dateTimeValue);
+    }
+
+    public void addMultiDateTimeCriterion(int index, List<Date> dateList) {
+        if (dateList != null){
+            List<Value> values = new ArrayList<Value>(dateList.size());
+            for (Date value : dateList) {
+                values.add(new DateTimeValue(value));
+            }
+            addMultiCriterion(index, values);
+        }
+    }
+
+    /**
+     * Добавляет дату с часовым поясом в критерий
+     * @param index индекс
+     * @param value дата
+     */
+    public void addDateTimeWithTimeZoneCriterion(int index, DateTimeWithTimeZone value) {
+        DateTimeWithTimeZoneValue dateTimeValue = new DateTimeWithTimeZoneValue(value);
+        addCriterion(index, dateTimeValue);
+    }
+
+    public void addMultiDateTimeWithTimeZoneCriterion(int index, List<DateTimeWithTimeZone> dateList) {
+        if (dateList != null){
+            List<Value> values = new ArrayList<Value>(dateList.size());
+            for (DateTimeWithTimeZone value : dateList) {
+                values.add(new DateTimeWithTimeZoneValue(value));
+            }
+            addMultiCriterion(index, values);
+        }
     }
 
     /**
@@ -52,6 +149,16 @@ public class Filter implements Dto {
     public void addTimelessDateCriterion(int index, TimelessDate timelessDate) {
         TimelessDateValue timelessDateValue = new TimelessDateValue(timelessDate);
         addCriterion(index, timelessDateValue);
+    }
+
+    public void addMultiTimelessDateCriterion(int index, List<TimelessDate> dateList) {
+        if (dateList != null){
+            List<Value> values = new ArrayList<Value>(dateList.size());
+            for (TimelessDate value : dateList) {
+                values.add(new TimelessDateValue(value));
+            }
+            addMultiCriterion(index, values);
+        }
     }
 
     public Set<Integer> getCriterionKeys() {
