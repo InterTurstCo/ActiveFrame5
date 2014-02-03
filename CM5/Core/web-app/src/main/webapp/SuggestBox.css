@@ -1,86 +1,86 @@
 
 /*.gwt-SuggestBox*/
 /*{*/
-    /*border:1px solid #eeeeee !important!important;*/
-    /*text-align:left !important;*/
-    /*width:800px !important;*/
-    /*z-index:91;*/
-	/*overflow:visible;*/
-	/*left: 336px;*/
-	/*top: 25px;*/
-	/*position:absolute;*/
+/*border:1px solid #eeeeee !important!important;*/
+/*text-align:left !important;*/
+/*width:800px !important;*/
+/*z-index:91;*/
+/*overflow:visible;*/
+/*left: 336px;*/
+/*top: 25px;*/
+/*position:absolute;*/
 /*}*/
 /*.gwt-SuggestBoxPopup*/
 /*{*/
-    /*text-align:left !important;*/
-    /*cursor:pointer !important;*/
-    /*cursor:hand !important;*/
-    /*border:1px solid #666 !important;*/
-    /*border-top:0 !important;*/
-    /*background-color:#fff !important;*/
-    /*width:800px !important;*/
+/*text-align:left !important;*/
+/*cursor:pointer !important;*/
+/*cursor:hand !important;*/
+/*border:1px solid #666 !important;*/
+/*border-top:0 !important;*/
+/*background-color:#fff !important;*/
+/*width:800px !important;*/
 /*}*/
 /*.gwt-SuggestBoxPopup .item*/
 /*{*/
-    /*border:1px solid #f00 !important;*/
-    /*width:800px !important;*/
+/*border:1px solid #f00 !important;*/
+/*width:800px !important;*/
 /*}*/
 /*.gwt-SuggestBoxPopup .item-selected*/
 /*{*/
-    /*background-color:#ffc !important;*/
+/*background-color:#ffc !important;*/
 /*}*/
 
 /*.gwt-SuggestBoxPopup .suggestPopupBottomRight {*/
-    /*background: red !important;*/
-    /*height: 5px !important;*/
-    /*width: 5px !important;*/
+/*background: red !important;*/
+/*height: 5px !important;*/
+/*width: 5px !important;*/
 /*}*/
 /*.gwt-SuggestBoxPopup .suggestPopupBottomLeft {*/
-    /*background: red !important;*/
-    /*height: 5px !important;*/
-    /*width: 5px !important;*/
+/*background: red !important;*/
+/*height: 5px !important;*/
+/*width: 5px !important;*/
 /*}*/
 
 /*.gwt-SuggestBoxPopup .suggestPopupTopRight {*/
-    /*background: red !important;*/
-    /*height: 5px !important;*/
-    /*width: 5px !important;*/
+/*background: red !important;*/
+/*height: 5px !important;*/
+/*width: 5px !important;*/
 /*}*/
 /*.gwt-SuggestBoxPopup .suggestPopupTopLeft {*/
-    /*background: red !important;*/
-    /*height: 5px !important;*/
-    /*width: 5px !important;*/
+/*background: red !important;*/
+/*height: 5px !important;*/
+/*width: 5px !important;*/
 /*}*/
 
 .gwt-SuggestBox {
-/*
-height: 15px;
-padding: 9px 25px 9px 40px !important;
-position: relative;
-border: 1px solid;
-border-color: #fff1ca #ffedbe #ffedbe;
-border-radius: 5px;
-background: url(images/ext-search2.png) no-repeat scroll 4px 0px #fffdf0;
-outline: none;
-*/
+    /*
+    height: 15px;
+    padding: 9px 25px 9px 40px !important;
+    position: relative;
+    border: 1px solid;
+    border-color: #fff1ca #ffedbe #ffedbe;
+    border-radius: 5px;
+    background: url(images/ext-search2.png) no-repeat scroll 4px 0px #fffdf0;
+    outline: none;
+    */
 }
 
 .suggestPopupMiddleLeft,
 .suggestPopupMiddleRight,
 .suggestPopupBottom,
-.suggestPopupTop{
-display: none;
+.suggestPopupTop {
+    display: none;
 }
 
 .gwt-SuggestBoxPopup {
-background: #FFFDF0;
-width: 700px;
-border-bottom: 1px solid #F7EC70;
-border-left: 1px solid #F7EC70;
-border-right: 1px solid #F7EC70;
+    background: #FFFDF0;
+    /*width: 700px;*/
+    border-bottom: 1px solid #F7EC70;
+    border-left: 1px solid #F7EC70;
+    border-right: 1px solid #F7EC70;
 }
-.gwt-SuggestBoxPopup .suggestPopupMiddleCenterInner table{
-width: 100%;
+.gwt-SuggestBoxPopup .suggestPopupMiddleCenterInner table {
+    width: 100%;
 }
 /*
 .gwt-SuggestBoxPopup .suggestPopupMiddleCenterInner {
@@ -90,115 +90,115 @@ width: 207px;
 
 .gwt-SuggestBoxPopup .item {
     padding: 2px 6px !important;
-    color: #000!important;
-    cursor: default!important;
-    font-size: 100%!important;
+    color: #000 !important;
+    cursor: default !important;
+    font-size: 100% !important;
 }
 .gwt-SuggestBoxPopup .item-selected {
-    background: #D5E2FF!important;
+    background: #D5E2FF !important;
 }
 .gwt-SuggestBoxPopup .suggestPopupContent {
-    background: white!important;
+    background: white !important;
 }
 .gwt-SuggestBoxPopup .suggestPopupTopCenter {
-    border-top: 1px solid #bbb!important;
+    border-top: 1px solid #bbb !important;
 }
 .gwt-SuggestBoxPopup .suggestPopupBottomCenter {
-    border-bottom: 1px solid #bbb!important;
+    border-bottom: 1px solid #bbb !important;
 }
 .gwt-SuggestBoxPopup .suggestPopupTopCenterInner,
 .gwt-SuggestBoxPopup .suggestPopupBottomCenterInner {
-    height: 1px!important;
-    line-height: 1px!important;
+    height: 1px !important;
+    line-height: 1px !important;
 }
 .gwt-SuggestBoxPopup .suggestPopupMiddleLeft {
-    border-left: 1px solid #bbb!important;
+    border-left: 1px solid #bbb !important;
 }
 .gwt-SuggestBoxPopup .suggestPopupMiddleRight {
-    border-right: 1px solid #bbb!important;
+    border-right: 1px solid #bbb !important;
 }
 .gwt-SuggestBoxPopup .suggestPopupMiddleLeftInner,
 .gwt-SuggestBoxPopup .suggestPopupMiddleRightInner {
-    width: 1px!important;
-    line-height: 1px!important;
+    width: 1px !important;
+    line-height: 1px !important;
 }
 .gwt-SuggestBoxPopup .suggestPopupTopLeftInner {
-    width: 0px!important;
-    height: 0px!important;
-    zoom: 1!important;
+    width: 0px !important;
+    height: 0px !important;
+    zoom: 1 !important;
 }
 .gwt-SuggestBoxPopup .suggestPopupTopRightInner {
-    width: 0px!important;
-    height: 0px!important;
-    zoom: 1!important;
+    width: 0px !important;
+    height: 0px !important;
+    zoom: 1 !important;
 }
 .gwt-SuggestBoxPopup .suggestPopupBottomLeftInner {
-    width: 0px!important;
-    height: 0px!important;
-    zoom: 1!important;
+    width: 0px !important;
+    height: 0px !important;
+    zoom: 1 !important;
 }
 .gwt-SuggestBoxPopup .suggestPopupBottomRightInner {
-    width: 0px!important;
-    height: 0px!important;
-    zoom: 1!important;
+    width: 0px !important;
+    height: 0px !important;
+    zoom: 1 !important;
 }
 .gwt-SuggestBoxPopup .suggestPopupTopLeft {
-    background: url(images/circles.png) no-repeat 0px -6px!important;
-    -background: url(images/circles_ie6.png) no-repeat 0px -6px!important;
-    width:5px!important;
-    height:5px!important;
+    background: url(images/circles.png) no-repeat 0px -6px !important;
+    -background: url(images/circles_ie6.png) no-repeat 0px -6px !important;
+    width: 5px !important;
+    height: 5px !important;
 }
 .gwt-SuggestBoxPopup .suggestPopupTopRight {
-    background: url(images/circles.png) no-repeat -5px -6px!important;
-    -background: url(images/circles_ie6.png) no-repeat -5px -6px!important;
-    width:5px!important;
-    height:5px!important;
+    background: url(images/circles.png) no-repeat -5px -6px !important;
+    -background: url(images/circles_ie6.png) no-repeat -5px -6px !important;
+    width: 5px !important;
+    height: 5px !important;
 }
 .gwt-SuggestBoxPopup .suggestPopupBottomLeft {
-    background: url(images/circles.png) no-repeat 0px -11px!important;
-    -background: url(images/circles_ie6.png) no-repeat 0px -11px!important;
-    width:5px!important;
-    height:5px!important;
+    background: url(images/circles.png) no-repeat 0px -11px !important;
+    -background: url(images/circles_ie6.png) no-repeat 0px -11px !important;
+    width: 5px !important;
+    height: 5px !important;
 }
 .gwt-SuggestBoxPopup .suggestPopupBottomRight {
-    background: url(images/circles.png) no-repeat -5px -11px!important;
-    -background: url(images/circles_ie6.png) no-repeat -5px -11px!important;
-    width:5px!important;
-    height:5px!important;
+    background: url(images/circles.png) no-repeat -5px -11px !important;
+    -background: url(images/circles_ie6.png) no-repeat -5px -11px !important;
+    width: 5px !important;
+    height: 5px !important;
 }
 html>body .gwt-SuggestBoxPopup {
 }
 * html .gwt-SuggestBoxPopup .suggestPopupTopLeftInner {
-    width: 0px!important;
-    height: 0px!important;
-    overflow: hidden!important;
+    width: 0px !important;
+    height: 0px !important;
+    overflow: hidden !important;
 }
 * html .gwt-SuggestBoxPopup .suggestPopupTopRightInner {
-    width: 0px!important;
-    height: 0px!important;
-    overflow: hidden!important;
+    width: 0px !important;
+    height: 0px !important;
+    overflow: hidden !important;
 }
 * html .gwt-SuggestBoxPopup .suggestPopupBottomLeftInner {
-    width: 0px!important;
-    height: 0px!important;
-    overflow: hidden!important;
+    width: 0px !important;
+    height: 0px !important;
+    overflow: hidden !important;
 }
 * html .gwt-SuggestBoxPopup .suggestPopupBottomRightInner {
-    width: 0px!important;
-    height: 0px!important;
-    overflow: hidden!important;
+    width: 0px !important;
+    height: 0px !important;
+    overflow: hidden !important;
 }
-.gwt-SuggestBoxPopup{
-margin-left: 0px !Important;
-z-index: 50;
+.gwt-SuggestBoxPopup {
+    margin-left: 0px !important;
+    z-index: 50;
 }
-.gwt-SuggestBoxPopup table{
-width: 100%;
+.gwt-SuggestBoxPopup table {
+    width: 100%;
 }
 
 /*.CMJ-suggest-display-popup{*/
-    /*width: 700px!important;*/
-    /*background: white!important;*/
-    /*border-color: black;*/
-    /*border: 1px;*/
+/*width: 700px!important;*/
+/*background: white!important;*/
+/*border-color: black;*/
+/*border: 1px;*/
 /*}*/

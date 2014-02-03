@@ -45,7 +45,8 @@ public class FormPluginView extends PluginView {
         int formWidth = plugin.getOwner().asWidget().getElement().getClientWidth();
         int formHeight = plugin.getOwner().asWidget().getElement().getClientHeight();
         final FormPluginState pluginState = plugin.getFormPluginState();
-        formPanel = new FormPanel(formDisplayData, pluginState.isEditable(), formWidth, formHeight, eventBus);
+        //formPanel = new FormPanel(formDisplayData, pluginState.isEditable(), formWidth, formHeight, eventBus);
+        formPanel = new FormPanel(formDisplayData, pluginState.isEditable(), Window.getClientWidth() - (130 + 11), formHeight, eventBus);
         // добавляем обработчики
 //        addHandlers();
     }

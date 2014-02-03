@@ -6,20 +6,17 @@ body {
     margin: 8px;
 }
 
-
-
 h1 {
     font-size: 2em;
     font-weight: bold;
     text-align: center;
 }
 
-
-.red{
+.red {
     background-color: red;
 }
 
-.white{
+.white {
     background-color: white;
     border-radius: 5px;
     padding: 4px 4px 4px 4px;
@@ -50,28 +47,31 @@ h1 {
 }
 
 .H_td_logo {
-  /*  width: 138px;*/
+    /*  width: 138px;*/
     padding: 0 10px;
     /*height: 55px;*/
     overflow: hidden;
-   /*  display: block;*/
+    /*  display: block;*/
 }
 
 .H_td_logo img, .H_td_logo a {
     border: none;
 }
-.H_td_logo img{
+
+.H_td_logo img {
     max-height: 100%;
- max-width: 100%;
+    max-width: 100%;
     margin: auto;
     display: block;
 }
+
 .H_td_notes {
     width: 100%;
     padding: 0 10px;
 }
+
 .header-logo-container {
-        width: 138px;
+    width: 138px;
     display: block;
 }
 
@@ -121,8 +121,7 @@ h1 {
     background: #2a5371; /* Old browsers */
     background: -moz-linear-gradient(top, #2a5371 0%, #3a5f96 38%, #2d4178 100%);
     /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #2a5371),
-    color-stop(38%, #3a5f96), color-stop(100%, #2d4178) );
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #2a5371), color-stop(38%, #3a5f96), color-stop(100%, #2d4178));
     /* Chrome,Safari4+ */
     background: -webkit-linear-gradient(top, #2a5371 0%, #3a5f96 38%, #2d4178 100%);
     /* Chrome10+,Safari5.1+ */
@@ -140,7 +139,7 @@ h1 {
 
 .content {
 
- /*   position: absolute;*/
+    /*   position: absolute;*/
     top: 0;
     bottom: 0;
     left: 0px; /* 	left: 109px; */
@@ -149,8 +148,7 @@ h1 {
     background: #4c93c9; /* Old browsers */
     background: -moz-linear-gradient(top, #4c93c9 0%, #3b649a 51%, #232464 100%);
     /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #4c93c9),
-    color-stop(51%, #3b649a), color-stop(100%, #232464) );
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #4c93c9), color-stop(51%, #3b649a), color-stop(100%, #232464));
     /* Chrome,Safari4+ */
     background: -webkit-linear-gradient(top, #4c93c9 0%, #3b649a 51%, #232464 100%);
     /* Chrome10+,Safari5.1+ */
@@ -158,9 +156,7 @@ h1 {
     /* Opera11.10+ */
     background: -ms-linear-gradient(top, #4c93c9 0%, #3b649a 51%, #232464 100%);
     /* IE10+ */
-    filter: progid:    DXImageTransform.Microsoft.gradient(
-        startColorstr=    '#4c93c9', endColorstr=    '#232464', GradientType=
-        0 );
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#4c93c9', endColorstr='#232464', GradientType=0);
     /* IE6-9 */
     background: linear-gradient(top, #4c93c9 0%, #3b649a 51%, #232464 100%);
     /* W3C */
@@ -177,7 +173,7 @@ h1 {
 #sidebar li {
     list-style: none;
     margin: 0;
-  /*  height: 74px;*/
+    /*  height: 74px;*/
     padding: 5px;
     text-align: center;
     font-size: 90%;
@@ -185,15 +181,15 @@ h1 {
 }
 
 #sidebar .selected {
-    background: transparent url("css/images/sidebar-selected.png") left top
-    no-repeat;
+    background: transparent url("css/images/sidebar-selected.png") left top no-repeat;
     width: 129px;
-	height: 83px;
+    height: 83px;
     /*
     position: fixed;
 */
     z-index: 3;
 }
+
 #sidebar .non-selected {
 
     width: 100px;
@@ -234,14 +230,11 @@ h1 {
     text-shadow: 0 1px 1px #000;
     background: #fab665;
     background: -moz-linear-gradient(top, #fab665 0%, #d0751a 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #fab665),
-    color-stop(100%, #d0751a) );
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #fab665), color-stop(100%, #d0751a));
     background: -webkit-linear-gradient(top, #fab665 0%, #d0751a 100%);
     background: -o-linear-gradient(top, #fab665 0%, #d0751a 100%);
     background: -ms-linear-gradient(top, #fab665 0%, #d0751a 100%);
-    filter: progid:    DXImageTransform.Microsoft.gradient(
-        startColorstr=    '#fab665', endColorstr=    '#d0751a', GradientType=
-        0 );
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fab665', endColorstr='#d0751a', GradientType=0);
     background: linear-gradient(top, #fab665 0%, #d0751a 100%); /**/
     /*
     background: #4C93C9;
@@ -253,6 +246,7 @@ h1 {
         filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#4C93C9', endColorstr='#232464',GradientType=0 );
         background: linear-gradient(top, #4C93C9 0%,#232464 100%);/**/
 }
+
 /* #sidebar a small {
    background-attachment: scroll;
     background-clip: border-box;
@@ -324,12 +318,10 @@ h1 {
 
 }
 
-
-.folder-list,.folder-list * {
+.folder-list, .folder-list * {
     font-size: 9pt;
     font-weight: bold;
 }
-
 
 .folder-list {
     /* margin: 10px 10px 10px 20px; */
@@ -358,9 +350,15 @@ h1 {
     margin: 0;
     padding: 0;
 }
-    /*this*/
+
+/*this*/
 #sidebar {
-    position: absolute; overflow: hidden; left: 0px; top: 0px; right: 0px; bottom: 0px;
+    position: absolute;
+    overflow: hidden;
+    left: 0px;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
     width: 129px;
     /* 	position: relative; */
     float: left;
@@ -379,8 +377,7 @@ h1 {
     background: #8ba4c3; /* Old browsers */
     background: -moz-linear-gradient(top, #8ba4c3 0%, #95b9d9 40%, #ffffff 100%);
     /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #8ba4c3),
-    color-stop(40%, #95b9d9), color-stop(100%, #ffffff) );
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #8ba4c3), color-stop(40%, #95b9d9), color-stop(100%, #ffffff));
     /* Chrome,Safari4+ */
     background: -webkit-linear-gradient(top, #8ba4c3 0%, #95b9d9 40%, #ffffff 100%);
     /* Chrome10+,Safari5.1+ */
@@ -388,9 +385,7 @@ h1 {
     /* Opera11.10+ */
     background: -ms-linear-gradient(top, #8ba4c3 0%, #95b9d9 40%, #ffffff 100%);
     /* IE10+ */
-    filter: progid:    DXImageTransform.Microsoft.gradient(
-        startColorstr=    '#8ba4c3', endColorstr=    '#ffffff', GradientType=
-        0 );
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#8ba4c3', endColorstr='#ffffff', GradientType=0);
     /* IE6-9 */
     background: linear-gradient(top, #8ba4c3 0%, #95b9d9 40%, #ffffff 100%);
     /* W3C */
@@ -409,7 +404,7 @@ h1 {
     padding-bottom: 0px;
     float: left;
     white-space: nowrap;
-  /*  overflow: hidden;*/
+    /*  overflow: hidden;*/
     text-overflow: ellipsis;
 }
 
@@ -435,40 +430,36 @@ h1 {
     padding: 5px;
 }
 
-.scrollable-cell-table { /*border: 1px solid #ccc;*/
+.scrollable-cell-table {
+    /*border: 1px solid #ccc;*/
     right: 0;
     width: 18px;
 }
 
-
 #gwt-splitter {
     overflow: visible;
     top: 30%;
-	/*height: 8px !important;*/
+    /*height: 8px !important;*/
     left: -1px !important;
     right: 0;
     /*border: 1px solid #9EAFBF;*/
     border-collapse: collapse;
     z-index: 2;
 }
+
 /*#gwt-splitter .GLW1MH4CPL{*/
 /*height: 8px !important;*/
 /*}*/
 
 .gwt-SplitLayoutPanel-VDragger {
-    background: url("css/images/mover-bg-hor.gif")
-        /* tpa=http://intertrust/f/icons/mover-bg-hor.gif */
-    top left repeat-x;
+    background: url("css/images/mover-bg-hor.gif") /* tpa=http://intertrust/f/icons/mover-bg-hor.gif */ top left repeat-x;
     cursor: row-resize;
     overflow: hidden;
-
 
 }
 
 .gwt-SplitLayoutPanel-HDragger {
-    background: url("css/images/mover-bg-vert.gif")
-        /* tpa=http://intertrust/f/icons/mover-bg-hor.gif */
-    top left repeat-y !important;
+    background: url("css/images/mover-bg-vert.gif") /* tpa=http://intertrust/f/icons/mover-bg-hor.gif */ top left repeat-y !important;
     cursor: col-resize !important;
 }
 
@@ -512,7 +503,8 @@ h1 {
     padding: 5px;
 }
 
-.scrollable-cell-table { /*border: 1px solid #ccc;*/
+.scrollable-cell-table {
+    /*border: 1px solid #ccc;*/
     right: 0;
     width: 18px;
 }
@@ -521,47 +513,38 @@ h1 {
     margin: 10px 10px 1px 0;
     background: #ffffff;
     background: -moz-linear-gradient(top, #ffffff 0%, #e8eff3 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ffffff),
-    color-stop(100%, #e8eff3) );
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ffffff), color-stop(100%, #e8eff3));
     background: -webkit-linear-gradient(top, #ffffff 0%, #e8eff3 100%);
     background: -o-linear-gradient(top, #ffffff 0%, #e8eff3 100%);
     background: -ms-linear-gradient(top, #ffffff 0%, #e8eff3 100%);
-    filter: progid:   DXImageTransform.Microsoft.gradient(      startColorstr=
-
-    '#ffffff', endColorstr=   '#e8eff3', GradientType=   0 );
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#e8eff3', GradientType=0);
     background: linear-gradient(top, #ffffff 0%, #e8eff3 100%);
 
-
-
     border-radius: 5px;
+    height: 100%;
 }
 
 .content-actions button.Ca_button:hover {
     background: #ffffff;
     background: -moz-linear-gradient(top, #ffffff 0%, #e8eff3 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ffffff),
-    color-stop(100%, #e8eff3) );
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ffffff), color-stop(100%, #e8eff3));
     background: -webkit-linear-gradient(top, #ffffff 0%, #e8eff3 100%);
     background: -o-linear-gradient(top, #ffffff 0%, #e8eff3 100%);
     background: -ms-linear-gradient(top, #ffffff 0%, #e8eff3 100%);
-    filter: progid:   DXImageTransform.Microsoft.gradient(      startColorstr=
-
-    '#ffffff', endColorstr=   '#e8eff3', GradientType=   0 );
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#e8eff3', GradientType=0);
     background: linear-gradient(top, #ffffff 0%, #e8eff3 100%);
 }
 
-.content-actions button.Ca_button:active { /*background: #fff;/**/
+.content-actions button.Ca_button:active {
+    /*background: #fff;/**/
     box-shadow: inset 0 1px 2px #999;
     background: #ffffff;
     background: -moz-linear-gradient(top, #ffffff 0%, #d0d6da 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ffffff),
-    color-stop(100%, #d0d6da) );
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ffffff), color-stop(100%, #d0d6da));
     background: -webkit-linear-gradient(top, #ffffff 0%, #d0d6da 100%);
     background: -o-linear-gradient(top, #ffffff 0%, #d0d6da 100%);
     background: -ms-linear-gradient(top, #ffffff 0%, #d0d6da 100%);
-    filter: progid:   DXImageTransform.Microsoft.gradient(      startColorstr=
-
-    '#ffffff', endColorstr=   '#d0d6da', GradientType=   0 );
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#d0d6da', GradientType=0);
     background: linear-gradient(top, #ffffff 0%, #d0d6da 100%);
 }
 
@@ -575,8 +558,8 @@ h1 {
     font: 16px/16px Arial;
 }
 
-.custom-tree-item{
- /*  padding-top: 8px;*/
+.custom-tree-item {
+    /*  padding-top: 8px;*/
 }
 
 /*
@@ -597,7 +580,7 @@ h1 {
 }
 */
 
-div.gwt-Label{
+div.gwt-Label {
     /*margin-left: 20px ;*/
     margin-left: 10px;
     font-size: 100%;
@@ -613,7 +596,7 @@ div.gwt-Good-Label {
     font-weight: bold;
 }
 
-.tree-label{
+.tree-label {
     margin-left: -20px !important;
     padding-left: 20px !important;
 }
@@ -622,11 +605,13 @@ div.gwt-Good-Label {
 #frm-pnl .gwt-TabLayoutPanelContentContainer > div:not(:first-child),
 #frm-pnl .gwt-TabLayoutPanelContentContainer > div > div,
 #frm-pnl .gwt-TabLayoutPanel > div:last-child {
+    /*tim*/
     position: relative !important;
 }
 
 /*** TAB PANEL***/
-.gwt-TabLayoutPanel .gwt-TabLayoutPanelTabs { /* background: #ccc; */
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelTabs {
+    /* background: #ccc; */
     padding-top: 6px;
     padding-left: 5px;
     margin-left: 0px;
@@ -675,8 +660,7 @@ div.gwt-Good-Label {
     color: #333;
     font-weight: bold;
     text-decoration: none;
-    background: url("css/images/tabs_selected_r.png") no-repeat scroll 100% 0
-    transparent;
+    background: url("css/images/tabs_selected_r.png") no-repeat scroll 100% 0 transparent;
 }
 
 .gwt-TabLayoutPanel .gwt-TabLayoutPanelTab-corner {
@@ -685,29 +669,26 @@ div.gwt-Good-Label {
     padding: 1px 1 1px 1px;
 }
 
-.tab-content{
-
+.tab-content {
 
     /*background-color: #c2e7f0;*/
     /*border-radius: 5px;*/
 
-        /*background: -moz-linear-gradient(center top , #C2E7F0 0%, #BED1E2 51%, #B4C1D4 100%) repeat scroll 0 0 transparent;/**/
+    /*background: -moz-linear-gradient(center top , #C2E7F0 0%, #BED1E2 51%, #B4C1D4 100%) repeat scroll 0 0 transparent;/**/
     background: #c2e7f0; /* Old browsers */
     background: -moz-linear-gradient(top, #c2e7f0 0%, #b4c1d4 100%);
     /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #c2e7f0),
-    color-stop(100%, #b4c1d4) ); /* Chrome,Safari4+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #c2e7f0), color-stop(100%, #b4c1d4)); /* Chrome,Safari4+ */
     background: -webkit-linear-gradient(top, #c2e7f0 0%, #b4c1d4 100%);
     /* Chrome10+,Safari5.1+ */
     background: -o-linear-gradient(top, #c2e7f0 0%, #b4c1d4 100%);
     /* Opera11.10+ */
     background: -ms-linear-gradient(top, #c2e7f0 0%, #b4c1d4 100%);
     /* IE10+ */
-    filter: progid:   DXImageTransform.Microsoft.gradient(      startColorstr=
-
-    '#c2e7f0', endColorstr=   '#b4c1d4', GradientType=   0 ); /* IE6-9 */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#c2e7f0', endColorstr='#b4c1d4', GradientType=0); /* IE6-9 */
     background: linear-gradient(top, #c2e7f0 0%, #b4c1d4 100%); /* W3C */
-
+    height: 100%;
+    width: 100% !important;
 
 }
 
@@ -718,7 +699,7 @@ div.gwt-Good-Label {
 .actionBar {
     z-index: 1;
     width: auto;
-    height:  0px !important;
+    height: 0px !important;
     overflow: hidden;
 }
 
@@ -726,39 +707,39 @@ div.gwt-Good-Label {
     background: url('css/actionbar/toolbar_icons.png') no-repeat 0 0;
 }
 
-.Ca_add 	i {
+.Ca_add i {
     background: url('css/actionbar/toolbar_icons.png') no-repeat 0 -15px;
 }
 
-.Ca_send 	i {
+.Ca_send i {
     background: url('css/actionbar/toolbar_icons.png') no-repeat 0 -30px;
 }
 
-.Ca_folder 	i {
+.Ca_folder i {
     background: url('css/actionbar/toolbar_icons.png') no-repeat 0 -45px;
 }
 
-.Ca_edit 	i {
+.Ca_edit i {
     background: url('css/actionbar/toolbar_icons.png') no-repeat 0 -60px;
 }
 
-.Ca_control	i {
+.Ca_control i {
     background: url('css/actionbar/toolbar_icons.png') no-repeat 0 -75px;
 }
 
-.Ca_save	i {
+.Ca_save i {
     background: url('css/actionbar/toolbar_icons.png') no-repeat 0 -90px;
 }
 
-.Ca_delete	i {
+.Ca_delete i {
     background: url('css/actionbar/toolbar_icons.png') no-repeat 0 -105px;
 }
 
-.Ca_close	i {
+.Ca_close i {
     background: url('css/actionbar/toolbar_icons.png') no-repeat 0 -120px;
 }
 
-.Ca_plan	i {
+.Ca_plan i {
     background: url('css/actionbar/toolbar_icons.png') no-repeat 0 -135px;
 }
 
@@ -780,7 +761,7 @@ a:active .icon.back {
     margin-right: -3px;
 }
 
-.pseudo:hover .icon.remove,.icon.remove:hover {
+.pseudo:hover .icon.remove, .icon.remove:hover {
     background-position: -16px 0;
 }
 
@@ -791,7 +772,7 @@ a:active .icon.back {
     cursor: pointer;
 }
 
-.pseudo:hover .icon.remove-small,.icon.remove-small:hover {
+.pseudo:hover .icon.remove-small, .icon.remove-small:hover {
     background-position: -48px 0;
 }
 
@@ -896,8 +877,7 @@ a:active .icon.back {
 }
 
 .icon.answer {
-    background: url("css/icons/icons-cross.png") no-repeat scroll -119px
-    -38px transparent;
+    background: url("css/icons/icons-cross.png") no-repeat scroll -119px -38px transparent;
     top: 0px;
 }
 
@@ -947,8 +927,7 @@ a:active .icon.back {
     background-image: url("css/icons/icon-excl.png");
 }
 
-.icon.red-square,.icon.blue-square,.icon.green-square,.icon.orange-square,.icon.grey-square,.icon.red-square,.icon.red-square
-{
+.icon.red-square, .icon.blue-square, .icon.green-square, .icon.orange-square, .icon.grey-square, .icon.red-square, .icon.red-square {
     height: 8px;
     width: 8px;
     top: 0;
@@ -1008,13 +987,12 @@ a:active .icon.back {
     cursor: pointer;
 }
 
-.action-bar-menu{
+.action-bar-menu {
     height: 0px !important;
     vertical-align: middle;
 
     padding-top: 10px;
     padding-left: 10px;
-
 
 }
 
@@ -1029,10 +1007,11 @@ a:active .icon.back {
     top: 10px !important;
     border-bottom: none !important;
     background-position: center center;
-    background-repeat: no-repeat; /*//
-	display: inline; //
-	zoom: 1; //
-	top: 0px;*/
+    background-repeat: no-repeat;
+    /*//
+       display: inline; //
+       zoom: 1; //
+       top: 0px;*/
     vertical-align: bottom;
 
 }
@@ -1179,8 +1158,6 @@ a:active .icon.back {
     background-image: url("css/i/loupe.png");
 }
 
-
-
 .icon-switch {
     background-image: url("css/icons/icon-switch.png");
     height: 18px;
@@ -1209,13 +1186,12 @@ a:active .icon.back {
     *//*max-height: 100%;*//*
     *//*min-height: 300px;*//*
 }*/
-
-
-
+/*///*/
 suggest-box-panel{
-   border: cornflowerblue;
+    border: cornflowerblue;
 }
-my-suggest-box  {
+/*///*/
+my-suggest-box {
     border: none !important;
 }
 
@@ -1242,6 +1218,7 @@ my-suggest-box  {
     cursor: pointer;
     left: 5px;
 }
+
 /*оформление поиска коллекшен плагин вю начало*/
 .search-container {
 
@@ -1263,7 +1240,8 @@ my-suggest-box  {
     width: 117;
 
 }
-.search-box{
+
+.search-box {
     border: 0 none;
     font-size: 11px;
     width: 70px;
@@ -1273,14 +1251,13 @@ my-suggest-box  {
     padding: 0 0 0 7px;
     vertical-align: middle;
 
-
-
 }
+
 .search-box::-ms-clear {
     display: none;
 }
 
-.search-data-box{
+.search-data-box {
     border: 0 none;
     font-size: 11px;
     width: 70px;
@@ -1296,7 +1273,7 @@ my-suggest-box  {
     display: none;
 }
 
-.search-data-box-{
+.search-data-box- {
 
     border: 0 none;
     font-size: 11px;
@@ -1308,11 +1285,9 @@ my-suggest-box  {
     padding-top: 5px;
     vertical-align: middle;
 
-
 }
 
-
-.horizont-container{
+.horizont-container {
     background-color: #f0f4ff;
     padding: 5px 0 0 0;
     border: 5 none;
@@ -1321,7 +1296,7 @@ my-suggest-box  {
 
 }
 
-.flush-serch{
+.flush-serch {
     background: url("css/icons1.png") no-repeat scroll -32px top transparent;
     cursor: pointer;
     border: 0 none;
@@ -1337,8 +1312,9 @@ my-suggest-box  {
     position: relative;
     width: 16px;
 }
-.date-select{
-    background: url("css/icon-datepicker.png") no-repeat ;
+
+.date-select {
+    background: url("css/icon-datepicker.png") no-repeat;
     cursor: pointer;
     border: 0 none;
     box-shadow: none;
@@ -1354,15 +1330,16 @@ my-suggest-box  {
     width: 16px;
 }
 
-.flush-serch:hover{
+.flush-serch:hover {
     background: url("css/icons1.png") no-repeat scroll -48px top transparent;
 }
 
-.flush-serch-hide{
+.flush-serch-hide {
     background: url("css/icons1.png") no-repeat scroll -100px top transparent !important;
     cursor: default !important;
 }
-.search-button{
+
+.search-button {
     height: 23px;
     width: 23px;
     background-color: #f0f4ff;
@@ -1380,7 +1357,7 @@ my-suggest-box  {
     margin-right: 5px;
 }
 
-.datePickerDay,.datePickerWeekdayLabel,.datePickerWeekendLabel {
+.datePickerDay, .datePickerWeekdayLabel, .datePickerWeekendLabel {
     font-size: 85%;
     text-align: center;
     padding: 4px;
@@ -1391,7 +1368,7 @@ my-suggest-box  {
     border-bottom: 1px solid #EDEDED;
 }
 
-.datePickerWeekdayLabel,.datePickerWeekendLabel {
+.datePickerWeekdayLabel, .datePickerWeekendLabel {
     background: #fff;
     padding: 0px 4px 2px;
     cursor: default;
@@ -1458,7 +1435,7 @@ td.datePickerMonth {
     color: #333;
 }
 
-.datePickerPreviousButton,.datePickerNextButton {
+.datePickerPreviousButton, .datePickerNextButton {
     font-size: 120%;
     line-height: 1em;
     color: #3a6aad;
@@ -1469,73 +1446,69 @@ td.datePickerMonth {
     outline: none;
 }
 
-
-
-
- /*оформление поиска коллекшен плагин вю конец*/
+/*оформление поиска коллекшен плагин вю конец*/
 
 /*простой поиск*/
 /*.search-field{*/
-    /*border: 0 !important;;*/
-    /*width: 250px;*/
-    /*height: 16px;*/
-    /*padding: 0 5px;*/
-    /*margin: 1px;*/
+/*border: 0 !important;;*/
+/*width: 250px;*/
+/*height: 16px;*/
+/*padding: 0 5px;*/
+/*margin: 1px;*/
 /*}*/
 
 /*.simple-search-button{*/
-    /*background: url("css/loupe.png")no-repeat;*/
-    /*width: 18px;*/
-    /*height: 18px;*/
-    /*border: 0;*/
-    /*margin: 3px 0 0;*/
-    /*cursor: pointer;*/
-
+/*background: url("css/loupe.png")no-repeat;*/
+/*width: 18px;*/
+/*height: 18px;*/
+/*border: 0;*/
+/*margin: 3px 0 0;*/
+/*cursor: pointer;*/
 
 /*}*/
 
 /*.search-panel-text-and-button-container{*/
-    /*line-height: 16px;*/
-    /*height: 20px;*/
-    /*margin: 0 0 0 5px;*/
-    /*background: #fff;*/
-    /*border: 1px solid #a0a7b2;*/
-    /*border-radius: 3px;*/
-    /*display: inline-block;*/
-    /*zoom: 1;*/
-    /*font-size: 12px;*/
-    /*position: relative;*/
-    /*overflow: hidden;*/
-    /*top: 0;*/
-    /*vertical-align: top;*/
-    /*white-space: nowrap;*/
+/*line-height: 16px;*/
+/*height: 20px;*/
+/*margin: 0 0 0 5px;*/
+/*background: #fff;*/
+/*border: 1px solid #a0a7b2;*/
+/*border-radius: 3px;*/
+/*display: inline-block;*/
+/*zoom: 1;*/
+/*font-size: 12px;*/
+/*position: relative;*/
+/*overflow: hidden;*/
+/*top: 0;*/
+/*vertical-align: top;*/
+/*white-space: nowrap;*/
 /*}*/
 
 /*.flush-button{*/
-    /*background: url("css/icons1.png") no-repeat scroll -32px top transparent;*/
-    /*cursor: pointer;*/
-    /*border: 0 none;*/
-    /*box-shadow: none;*/
-    /*cursor: pointer;*/
-    /*font-size: 12px;*/
-    /*margin: 0;*/
-    /*vertical-align: middle;*/
-    /*display: inline-block;*/
-    /*float: none;*/
-    /*height: 16px;*/
-    /*left: auto;*/
-    /*position: relative;*/
-    /*width: 16px;*/
-    /*top: 3px;*/
+/*background: url("css/icons1.png") no-repeat scroll -32px top transparent;*/
+/*cursor: pointer;*/
+/*border: 0 none;*/
+/*box-shadow: none;*/
+/*cursor: pointer;*/
+/*font-size: 12px;*/
+/*margin: 0;*/
+/*vertical-align: middle;*/
+/*display: inline-block;*/
+/*float: none;*/
+/*height: 16px;*/
+/*left: auto;*/
+/*position: relative;*/
+/*width: 16px;*/
+/*top: 3px;*/
 /*}*/
 
 /*.flush-button:hover{*/
-    /*background: url("css/icons1.png") no-repeat scroll -48px top transparent;*/
+/*background: url("css/icons1.png") no-repeat scroll -48px top transparent;*/
 /*}*/
 
 /*.simple-search-container{*/
-    /*margin: 4px;*/
-    /*float: right;*/
+/*margin: 4px;*/
+/*float: right;*/
 /*}*/
 
 /*простой  поиск конец*/

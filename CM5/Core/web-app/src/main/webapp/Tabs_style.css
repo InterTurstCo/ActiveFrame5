@@ -1,14 +1,19 @@
 .gwt-TabLayoutPanel {
-    margin-bottom: 35px;
+    /*margin-bottom: 35px;*/
+    height: 100%;
 }
 
 .form-dialog-box-content .gwt-TabLayoutPanel {
     margin-bottom: 0px;
 }
 
-.gwt-TabLayoutPanelTabs{
+.gwt-TabLayoutPanelTabs {
     background: #c2e7f0 !important;
 
+}
+
+.gwt-TabLayoutPanel-wrapper {
+    height: 100%;
 }
 
 .gwt-TabLayoutPanel .gwt-TabLayoutPanelTabs {
@@ -36,9 +41,7 @@
     background: #c2e7f0 !important;
 }
 
-
-
-.gwt-TabLayoutPanel > .gwt-TabLayoutPanelTab-selected >.gwt-Label{
+.gwt-TabLayoutPanel > .gwt-TabLayoutPanelTab-selected > .gwt-Label {
 
     background-color: #FF0000 !important;
 }
@@ -52,27 +55,38 @@
     text-align: center !important;
     border-radius: 3px 3px 0 0 !important;
 }
-.gwt-TabLayoutPanel .gwt-TabLayoutPanelTab-selected .gwt-TabLayoutPanelTabInner{
-    background: url(css/images/left-tab.png) no-repeat  0px 0px  !important;
+
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelTab-selected .gwt-TabLayoutPanelTabInner {
+    background: url(css/images/left-tab.png) no-repeat 0px 0px !important;
     padding-left: 9px;
 }
-.gwt-TabLayoutPanel .gwt-TabLayoutPanelTab-selected  .gwt-Label{
+
+
+.form-plaugin-table{
+    height: 100%;
+}
+
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelTab-selected .gwt-Label {
     margin-left: 0px !important;
 }
-.gwt-TabLayoutPanel   .gwt-Label{
+
+.gwt-TabLayoutPanel .gwt-Label {
 
     height: 28px;
     line-height: 28px;
 }
-.gwt-TabLayoutPanel{
+
+.gwt-TabLayoutPanel {
     /*margin-left: 8px;*/
     margin-left: 0px;
 }
+
 .gwt-TabLayoutPanel .gwt-TabLayoutPanelTab {
     margin-right: 0px;
     /*margin-left: 8px !important;*/
     margin-left: 0px !important;
 }
+
 .gwt-TabLayoutPanel .gwt-TabLayoutPanelTab-selected {
     font-weight: bold !important;
     cursor: default !important;
@@ -80,25 +94,37 @@
 
     padding: 0 24px 0 0 !important;
     /* background: url(css/images/tabs_selected_r.png) no-repeat scroll 100% 0 transparent !important; */
-    background: url(css/images/tabs_selected_r.png) no-repeat scroll 100% 0  !important;
+    background: url(css/images/tabs_selected_r.png) no-repeat scroll 100% 0 !important;
     /* background-color: #FF0000 !important; */
     /* background-color: #c2e7f0 !important; */
 }
-.gwt-TabLayoutPanel .div.gwt-Label{
+
+.gwt-TabLayoutPanel .div.gwt-Label {
     font-size: 14px !important;
 }
 
-
-
-.gwt-TabLayoutPanelContentContainer{
+.gwt-TabLayoutPanelContentContainer {
     background-color: #FFFFFF !important;
     border: none !important;
     -webkit-border-radius: 10px;
     -moz-border-radius: 10px;
     border-radius: 10px;
+    height:100%;
     /*
     -webkit-box-shadow: 0px 5px 10px 0px #363636;
     -moz-box-shadow: 0px 5px 10px 0px #363636;
     box-shadow: 0px 5px 10px 0px #363636;
     */
+}
+
+.central-plugin-panel-table{
+    height: 100%;
+}
+
+.one-handred-percent-style{
+    height: 100%;
+}
+
+.action-bar-tr{
+    height: 40px;
 }

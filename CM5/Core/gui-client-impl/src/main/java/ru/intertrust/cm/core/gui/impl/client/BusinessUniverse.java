@@ -43,6 +43,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     private AbsolutePanel left;
     private AbsolutePanel header;
     private AbsolutePanel centrInner;
+
     CurrentUserInfo getUserInfo(BusinessUniverseInitialization result) {
         return new CurrentUserInfo(result.getCurrentLogin(), result.getFirstName(), result.getLastName(), result.geteMail());
     }
@@ -128,7 +129,8 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                         left.setStyleName("left-section-active");
                         //centrInner.getElement().getStyle().setHeight(Window.getClientHeight()-60 - 11, Style.Unit.PX);
                         eventBus.fireEvent(new PluginPanelSizeChangedEvent());
-                        centrInner.getElement().getStyle().setHeight(Window.getClientHeight()-60 - 11 - 11, Style.Unit.PX);
+                        //centrInner.getElement().getStyle().setHeight(Window.getClientHeight() -60 - 11 - 11, Style.Unit.PX);
+                        centrInner.getElement().getStyle().setHeight(Window.getClientHeight() -60 - 11 - 11, Style.Unit.PX);
                     }
                 });
 
@@ -150,11 +152,11 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 });
 
                 addStickerPanel(root);
+                centralPluginPanel.setSize("100%", "100%");
+                //centralPluginPanel.asWidget().getElement().addClassName("hello999");
                 centrInner.add(centralPluginPanel);
-
                 addWindowResizeListener();
                 RootLayoutPanel.get().add(root);
-
             }
 
             @Override
@@ -170,7 +172,6 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         final DomainObjectSurferPlugin domainObjectSurfer = ComponentRegistry.instance.get("domain.object.surfer.plugin");
         domainObjectSurfer.setConfig(event.getPluginConfig());
         domainObjectSurfer.setDisplayActionToolBar(true);
-
         centralPluginPanel.open(domainObjectSurfer);
 
     }
@@ -195,7 +196,6 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     private DockLayoutPanel createRootPanel() {
         DockLayoutPanel rootPanel = new DockLayoutPanel(Style.Unit.PX);
         rootPanel.setStyleName("content");
-
         return rootPanel;
     }
 
@@ -219,6 +219,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
                 centralPluginPanel.setVisibleWidth(centralPanelWidth);
                 centralPluginPanel.setVisibleHeight(centralPanelHeight);
+                centralPluginPanel.asWidget().getElement().getFirstChildElement().addClassName("central-plugin-panel-table");
                 centrInner.getElement().getStyle().setHeight(centralPanelHeight - 11, Style.Unit.PX);
                 eventBus.fireEvent(new PluginPanelSizeChangedEvent());
                 centrInner.getElement().getStyle().setHeight(centralPanelHeight - 11, Style.Unit.PX);

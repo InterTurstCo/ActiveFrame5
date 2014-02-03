@@ -53,7 +53,6 @@ public class FormPanel implements IsWidget {
 
     public void updateSizes(int width, int height) {
         panel.setSize(width + "px", height + "px");
-
     }
 
     @Override
@@ -135,6 +134,7 @@ public class FormPanel implements IsWidget {
             bodyTabPanel.selectTab(0);
             bodyTabPanel.getTabWidget(0).getElement().getStyle().setProperty("backgroundColor", "white");
             bodyTabPanel.getWidget(0).addStyleName("gwt-TabLayoutPanel-No-Padding");
+            bodyTabPanel.getWidget(0).getParent().getElement().getParentElement().addClassName("gwt-TabLayoutPanel-wrapper");
 
         }
 
