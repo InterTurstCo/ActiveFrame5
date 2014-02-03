@@ -95,8 +95,7 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
             Column headCol = header.getColumn(i);
             Column bodyCol = body.getColumn(i);
             //использование -5 это компенсация погрешности из результата округлений размеров в double
-            newWidth += reducingColumnWidthInPercentage(oldWidth, width-7, headCol, bodyCol);
-            newWidth += reducingColumnWidthInPercentage(oldWidth, width - 5, headCol, bodyCol);
+            newWidth += reducingColumnWidthInPercentage(oldWidth, width-5, headCol, bodyCol);
         }
 
         if (width > newWidth && newWidth > 0) {
@@ -114,10 +113,10 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
                 Column headCol = header.getColumn(i);
                 Column bodyCol = body.getColumn(i);
                 double columnWidth = getColumnWidth(headCol);
-                columnWidth += 2;
+                columnWidth += 1;
                 header.setColumnWidth(headCol, columnWidth + "px");
                 body.setColumnWidth(bodyCol, columnWidth + "px");
-                modulo -= 2;
+                modulo -= 1;
 
             }
         }
@@ -131,7 +130,7 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
         double resized;
         if (newWidth / header.getColumnCount() < COLUMN_MIN_WIDTH) {
             resized = COLUMN_MIN_WIDTH;
-            return 0;
+            return resized;
         } else {
             resized = (getColumnWidth(headCol) * coeff);
 
