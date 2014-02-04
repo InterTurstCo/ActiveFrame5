@@ -25,9 +25,7 @@ import org.springframework.context.ApplicationContext;
 
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
-
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.webcontext.ApplicationContextProvider;
 
@@ -44,9 +42,10 @@ public class CrudServiceIT extends IntegrationTestBase {
 
     @Deployment
     public static Archive<EnterpriseArchive> createDeployment() {
-        return createDeployment(new Class[] {CrudServiceIT.class, ApplicationContextProvider.class}, new String[] {"test-data/import-department.csv",
+        return createDeployment(new Class[] {CrudServiceIT.class, ApplicationContextProvider.class }, new String[] {
+                "test-data/import-department.csv",
                 "test-data/import-organization.csv",
-                "test-data/import-employee.csv", "beans.xml"});
+                "test-data/import-employee.csv", "beans.xml" });
     }
 
     @Before
@@ -60,6 +59,7 @@ public class CrudServiceIT extends IntegrationTestBase {
             lc.logout();
         }
         initializeSpringBeans();
+
     }
 
     private void initializeSpringBeans() {
@@ -69,7 +69,7 @@ public class CrudServiceIT extends IntegrationTestBase {
 
     @Test
     public void testSaveFindExists() {
-        GenericDomainObject personDomainObject = createPersonDomainObject();
+        DomainObject personDomainObject = createPersonDomainObject();
         DomainObject savedPersonObject = crudService.save(personDomainObject);
         assertNotNull(savedPersonObject);
         assertNotNull(savedPersonObject.getId());
@@ -88,7 +88,7 @@ public class CrudServiceIT extends IntegrationTestBase {
     @Test
     public void testFindDelete() {
 
-        GenericDomainObject organization1 = createOrganizationDomainObject();
+        DomainObject organization1 = createOrganizationDomainObject();
         DomainObject savedOrganization1 = crudService.save(organization1);
 
         DomainObject foundOrganization = crudService.find(savedOrganization1.getId());
@@ -98,12 +98,12 @@ public class CrudServiceIT extends IntegrationTestBase {
         assertTrue(foundOrganization == null);
 
     }
-    
+
     @Test
     public void testFindAndDeleteList() {
 
-        GenericDomainObject person1 = createPersonDomainObject();
-        GenericDomainObject organization1 = createOrganizationDomainObject();
+        DomainObject person1 = createPersonDomainObject();
+        DomainObject organization1 = createOrganizationDomainObject();
 
         DomainObject savedPerson1 = crudService.save(person1);
         DomainObject savedOrganization1 = crudService.save(organization1);
@@ -128,16 +128,15 @@ public class CrudServiceIT extends IntegrationTestBase {
 
     private List<Id> getIdList(List<DomainObject> domainObjects) {
         List<Id> foundIds = new ArrayList<Id>();
-        for(DomainObject domainObject : domainObjects){
+        for (DomainObject domainObject : domainObjects) {
             foundIds.add(domainObject.getId());
         }
         return foundIds;
     }
 
-    
     @Test
     public void testFindLinkedDoaminObjects() {
-        GenericDomainObject organization = createOrganizationDomainObject();
+        DomainObject organization = createOrganizationDomainObject();
         DomainObject savedOrganization = crudService.save(organization);
         DomainObject department = createDepartmentDomainObject(savedOrganization);
         DomainObject savedDepartment = crudService.save(department);
@@ -154,29 +153,28 @@ public class CrudServiceIT extends IntegrationTestBase {
 
     }
 
-   private static GenericDomainObject createPersonDomainObject() {
-        GenericDomainObject personDomainObject = new GenericDomainObject();
-        personDomainObject.setCreatedDate(new Date());
-        personDomainObject.setModifiedDate(new Date());
-        personDomainObject.setTypeName("Person");
+    @Test
+    public void testGetDomainObjectType() {
+        DomainObject organization = createOrganizationDomainObject();
+        DomainObject savedOrganization = crudService.save(organization);
+        String type = crudService.getDomainObjectType(savedOrganization.getId());
+        assertEquals(type, "Organization");
+    }
+
+    private DomainObject createPersonDomainObject() {
+        DomainObject personDomainObject = crudService.createDomainObject("Person");
         personDomainObject.setString("Login", "login " + new Date());
         return personDomainObject;
     }
-    
-    private static GenericDomainObject createOrganizationDomainObject() {
-        GenericDomainObject organizationDomainObject = new GenericDomainObject();
-        organizationDomainObject.setCreatedDate(new Date());
-        organizationDomainObject.setModifiedDate(new Date());
-        organizationDomainObject.setTypeName("Organization");
+
+    private DomainObject createOrganizationDomainObject() {
+        DomainObject organizationDomainObject = crudService.createDomainObject("Organization");
         organizationDomainObject.setString("Name", "Organization" + new Date());
         return organizationDomainObject;
     }
 
-    private static GenericDomainObject createDepartmentDomainObject(DomainObject savedOrganizationObject) {
-        GenericDomainObject departmentDomainObject = new GenericDomainObject();
-        departmentDomainObject.setCreatedDate(new Date());
-        departmentDomainObject.setModifiedDate(new Date());
-        departmentDomainObject.setTypeName("Department");
+    private DomainObject createDepartmentDomainObject(DomainObject savedOrganizationObject) {
+        DomainObject departmentDomainObject = crudService.createDomainObject("Department");
         departmentDomainObject.setString("Name", "department1");
         departmentDomainObject.setReference("Organization", savedOrganizationObject.getId());
         return departmentDomainObject;

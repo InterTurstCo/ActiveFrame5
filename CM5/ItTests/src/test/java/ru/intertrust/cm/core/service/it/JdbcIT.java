@@ -26,7 +26,6 @@ import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 
 @RunWith(Arquillian.class)
 public class JdbcIT extends IntegrationTestBase {
@@ -39,9 +38,9 @@ public class JdbcIT extends IntegrationTestBase {
 
     @Deployment
     public static Archive<EnterpriseArchive> createDeployment() {
-        return createDeployment(new Class[] { JdbcIT.class }, new String[] { "test-data/import-department.csv",
-                "test-data/import-employee.csv","test-data/import-organization.csv",
-                "test-data/set-department-boss.csv","test-data/set-organization-boss.csv" });
+        return createDeployment(new Class[] {JdbcIT.class }, new String[] {"test-data/import-department.csv",
+                "test-data/import-employee.csv", "test-data/import-organization.csv",
+                "test-data/set-department-boss.csv", "test-data/set-organization-boss.csv" });
     }
 
     @Test
@@ -73,10 +72,10 @@ public class JdbcIT extends IntegrationTestBase {
         PreparedStatement prepareStatement = null;
         try {
 
-            //Создаем тестовый доменный объект
+            // Создаем тестовый доменный объект
             DomainObject outgoingDocument = greateOutgoingDocument();
 
-            //Выполняем запрос с помощью JDBC
+            // Выполняем запрос с помощью JDBC
             Class.forName("ru.intertrust.cm.core.jdbc.JdbcDriver");
 
             connection = DriverManager.getConnection("jdbc:sochi:local");
@@ -91,7 +90,7 @@ public class JdbcIT extends IntegrationTestBase {
             Calendar fromDate = Calendar.getInstance();
             fromDate.set(2000, 0, 1);
             Calendar toDate = Calendar.getInstance();
-            toDate.set(toDate.get(Calendar.YEAR) + 1, 0, 1);            
+            toDate.set(toDate.get(Calendar.YEAR) + 1, 0, 1);
             prepareStatement.setTimestamp(1, new java.sql.Timestamp(fromDate.getTime().getTime()));
             prepareStatement.setTimestamp(2, new java.sql.Timestamp(toDate.getTime().getTime()));
             prepareStatement.setString(3, "Outgoing_Document");
@@ -125,16 +124,16 @@ public class JdbcIT extends IntegrationTestBase {
         Statement statement = null;
         try {
 
-            //Создаем тестовый доменный объект
+            // Создаем тестовый доменный объект
             greateOutgoingDocument();
 
-            //Грузим драйвер
+            // Грузим драйвер
             Class.forName("ru.intertrust.cm.core.jdbc.JdbcDriver");
 
-            //Создаем соединение
+            // Создаем соединение
             connection = DriverManager.getConnection("jdbc:sochi:local");
 
-            //Выполняем запрос с помощью JDBC
+            // Выполняем запрос с помощью JDBC
             String query = "select t.name, t.created_date, t.author, t.long_field, t.status, t.id ";
             query += "from Outgoing_Document t ";
             statement = connection.createStatement();

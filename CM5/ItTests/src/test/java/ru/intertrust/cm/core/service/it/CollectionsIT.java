@@ -12,7 +12,6 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
 import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
@@ -54,14 +53,13 @@ public class CollectionsIT extends IntegrationTestBase {
     @EJB
     private CollectionsService.Remote collectionService;
 
-    @Inject
     protected DomainObjectTypeIdCache domainObjectTypeIdCache;
 
     /**
      * Предотвращает загрузку данных для каждого теста. Данные загружаются один раз для всех тестов в данном классе.
      */
     private boolean isDataLoaded = false;
-        
+
     @Deployment
     public static Archive<EnterpriseArchive> createDeployment() {
         return createDeployment(new Class[] {CollectionsIT.class, ApplicationContextProvider.class }, new String[] {
@@ -70,7 +68,7 @@ public class CollectionsIT extends IntegrationTestBase {
                 "test-data/import-employee.csv",
                 "beans.xml" });
     }
-    
+
     @Test
     public void testArquillianInjection() {
         Assert.assertNotNull(collectionService);
@@ -90,7 +88,7 @@ public class CollectionsIT extends IntegrationTestBase {
         } finally {
             lc.logout();
         }
-        
+
         initializeSpringBeans();
     }
 
@@ -98,7 +96,7 @@ public class CollectionsIT extends IntegrationTestBase {
         ApplicationContext applicationContext = ApplicationContextProvider.getApplicationContext();
         domainObjectTypeIdCache = applicationContext.getBean(DomainObjectTypeIdCache.class);
     }
-    
+
     @Test
     public void testFindCollectionByQuery() {
         String query = "select t.id from Employee t where t.Name='" + EMPLOYEE_1_NAME + "'";
@@ -111,7 +109,7 @@ public class CollectionsIT extends IntegrationTestBase {
     public void testFindCollectionByQueryWithParams() {
         String query = "select * from Employee e where e.department = {0} and name = {1}";
         List<Value> params = new ArrayList<Value>();
-        Integer departmentTypeid = domainObjectTypeIdCache.getId(DEPARTMENT_TYPE);        
+        Integer departmentTypeid = domainObjectTypeIdCache.getId(DEPARTMENT_TYPE);
         params.add(new StringValue(new RdbmsId(departmentTypeid, 1).toStringRepresentation()));
         params.add(new StringValue(EMPLOYEE_1_NAME));
 
@@ -121,7 +119,7 @@ public class CollectionsIT extends IntegrationTestBase {
         assertTrue(collection.size() >= 1);
 
     }
-    
+
     @Test
     public void testFindCollectionWithFilters() {
         SortOrder sortOrder = new SortOrder();
@@ -182,5 +180,5 @@ public class CollectionsIT extends IntegrationTestBase {
         collectionCount = collectionService.findCollectionCount("Employees", filterValues);
         assertTrue(collectionCount >= 1);
 
-    }        
+    }    
 }

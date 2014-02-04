@@ -86,13 +86,12 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
             if (attachmentItem.getId() != null) {
                 continue;
             }
-            String pathForTempFilesStore =  propertyResolver.resolvePlaceholders(TEMP_STORAGE_PATH);
+            String pathForTempFilesStore = propertyResolver.resolvePlaceholders(TEMP_STORAGE_PATH);
             String filePath = pathForTempFilesStore + attachmentItem.getTemporaryName();
             File fileToSave = new File(filePath);
             long contentLength = fileToSave.length();
-            try
-                    (InputStream fileData = new FileInputStream(fileToSave);
-                     RemoteInputStreamServer remoteFileData = new SimpleRemoteInputStream(fileData)) {
+            try (InputStream fileData = new FileInputStream(fileToSave);
+                    RemoteInputStreamServer remoteFileData = new SimpleRemoteInputStream(fileData)) {
                 DomainObject attachmentDomainObject = attachmentService.
                         createAttachmentDomainObjectFor(domainObject.getId(), attachmentType);
                 attachmentDomainObject.setValue(ATTACHMENT_NAME, new StringValue(attachmentItem.getName()));
