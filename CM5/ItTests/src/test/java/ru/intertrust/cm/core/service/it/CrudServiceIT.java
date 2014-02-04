@@ -42,9 +42,10 @@ public class CrudServiceIT extends IntegrationTestBase {
 
     @Deployment
     public static Archive<EnterpriseArchive> createDeployment() {
-        return createDeployment(new Class[] {CrudServiceIT.class, ApplicationContextProvider.class}, new String[] {"test-data/import-department.csv",
+        return createDeployment(new Class[] {CrudServiceIT.class, ApplicationContextProvider.class }, new String[] {
+                "test-data/import-department.csv",
                 "test-data/import-organization.csv",
-                "test-data/import-employee.csv", "beans.xml"});
+                "test-data/import-employee.csv", "beans.xml" });
     }
 
     @Before
@@ -58,7 +59,7 @@ public class CrudServiceIT extends IntegrationTestBase {
             lc.logout();
         }
         initializeSpringBeans();
-        
+
     }
 
     private void initializeSpringBeans() {
@@ -97,7 +98,7 @@ public class CrudServiceIT extends IntegrationTestBase {
         assertTrue(foundOrganization == null);
 
     }
-    
+
     @Test
     public void testFindAndDeleteList() {
 
@@ -127,13 +128,12 @@ public class CrudServiceIT extends IntegrationTestBase {
 
     private List<Id> getIdList(List<DomainObject> domainObjects) {
         List<Id> foundIds = new ArrayList<Id>();
-        for(DomainObject domainObject : domainObjects){
+        for (DomainObject domainObject : domainObjects) {
             foundIds.add(domainObject.getId());
         }
         return foundIds;
     }
 
-    
     @Test
     public void testFindLinkedDoaminObjects() {
         DomainObject organization = createOrganizationDomainObject();
@@ -152,7 +152,7 @@ public class CrudServiceIT extends IntegrationTestBase {
         assertEquals(linkedObjectsIds.get(0), savedDepartment.getId());
 
     }
-    
+
     @Test
     public void testGetDomainObjectType() {
         DomainObject organization = createOrganizationDomainObject();
@@ -160,13 +160,13 @@ public class CrudServiceIT extends IntegrationTestBase {
         String type = crudService.getDomainObjectType(savedOrganization.getId());
         assertEquals(type, "Organization");
     }
-    
-   private DomainObject createPersonDomainObject() {
+
+    private DomainObject createPersonDomainObject() {
         DomainObject personDomainObject = crudService.createDomainObject("Person");
         personDomainObject.setString("Login", "login " + new Date());
         return personDomainObject;
     }
-    
+
     private DomainObject createOrganizationDomainObject() {
         DomainObject organizationDomainObject = crudService.createDomainObject("Organization");
         organizationDomainObject.setString("Name", "Organization" + new Date());
