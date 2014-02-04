@@ -1,13 +1,11 @@
 package ru.intertrust.cm.core.service.it;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
 
@@ -24,10 +22,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.context.ApplicationContext;
 
-import com.healthmarketscience.rmiio.RemoteInputStream;
-import com.healthmarketscience.rmiio.RemoteInputStreamServer;
-import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
-
 import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
@@ -38,6 +32,10 @@ import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.webcontext.ApplicationContextProvider;
+
+import com.healthmarketscience.rmiio.RemoteInputStream;
+import com.healthmarketscience.rmiio.RemoteInputStreamServer;
+import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
 
 /**
  * Интеграционный тест работы с вложениями.
@@ -72,9 +70,7 @@ public class AttachmentServiceIT extends IntegrationTestBase {
         initializeSpringBeans();
     }
 
-    private void initializeSpringBeans() {
-        ApplicationContext applicationContext = ApplicationContextProvider.getApplicationContext();
-        domainObjectTypeIdCache = applicationContext.getBean(DomainObjectTypeIdCache.class);
+    private void initializeSpringBeans() {        
     }
 
     @Test
@@ -156,9 +152,9 @@ public class AttachmentServiceIT extends IntegrationTestBase {
         String mimeType = "text/xml";
         attachment.setValue(AttachmentService.MIME_TYPE, new StringValue(mimeType));
         int contentLength = 10;
-        attachment.setValue(AttachmentService.CONTENT_LENGTH, new LongValue(contentLength));       
+        attachment.setValue(AttachmentService.CONTENT_LENGTH, new LongValue(contentLength));
         return attachment;
-    }        
+    }
 
     private DomainObject createOrganizationDomainObject() {
         DomainObject organizationDomainObject = crudService.createDomainObject("Organization");
@@ -171,12 +167,12 @@ public class AttachmentServiceIT extends IntegrationTestBase {
         departmentDomainObject.setString("Name", "department1");
         departmentDomainObject.setReference("Organization", savedOrganizationObject.getId());
         return departmentDomainObject;
-    }    
+    }
 
     private DomainObject createEmployeeDomainObject(DomainObject department) {
         DomainObject personDomainObject = crudService.createDomainObject("Employee");
         personDomainObject.setString("Name", "Name of Emplyee");
-        personDomainObject.setString("Position", "Position1");        
+        personDomainObject.setString("Position", "Position1");
         personDomainObject.setReference("Department", department.getId());
 
         return personDomainObject;

@@ -12,7 +12,6 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
 import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
@@ -40,7 +39,7 @@ import ru.intertrust.cm.webcontext.ApplicationContextProvider;
  * @author atsvetkov
  *
  */
-//@RunWith(Arquillian.class)
+@RunWith(Arquillian.class)
 public class CollectionsIT extends IntegrationTestBase {
 
     private static final String DEPARTMENT_TYPE = "Department";
@@ -60,8 +59,8 @@ public class CollectionsIT extends IntegrationTestBase {
      * Предотвращает загрузку данных для каждого теста. Данные загружаются один раз для всех тестов в данном классе.
      */
     private boolean isDataLoaded = false;
-        
-//    @Deployment
+
+    @Deployment
     public static Archive<EnterpriseArchive> createDeployment() {
         return createDeployment(new Class[] {CollectionsIT.class, ApplicationContextProvider.class }, new String[] {
                 "test-data/import-department.csv",
@@ -69,13 +68,13 @@ public class CollectionsIT extends IntegrationTestBase {
                 "test-data/import-employee.csv",
                 "beans.xml" });
     }
-    
-//    @Test
+
+    @Test
     public void testArquillianInjection() {
         Assert.assertNotNull(collectionService);
     }
 
-//    @Before
+    @Before
     public void init() throws IOException, LoginException {
         LoginContext lc = login("admin", "admin");
         lc.login();
@@ -89,7 +88,7 @@ public class CollectionsIT extends IntegrationTestBase {
         } finally {
             lc.logout();
         }
-        
+
         initializeSpringBeans();
     }
 
@@ -97,8 +96,8 @@ public class CollectionsIT extends IntegrationTestBase {
         ApplicationContext applicationContext = ApplicationContextProvider.getApplicationContext();
         domainObjectTypeIdCache = applicationContext.getBean(DomainObjectTypeIdCache.class);
     }
-    
-//    @Test
+
+    @Test
     public void testFindCollectionByQuery() {
         String query = "select t.id from Employee t where t.Name='" + EMPLOYEE_1_NAME + "'";
         IdentifiableObjectCollection collection = collectionService.findCollectionByQuery(query);
@@ -106,11 +105,11 @@ public class CollectionsIT extends IntegrationTestBase {
         assertTrue(collection.size() >= 1);
     }
 
-//    @Test
+    @Test
     public void testFindCollectionByQueryWithParams() {
         String query = "select * from Employee e where e.department = {0} and name = {1}";
         List<Value> params = new ArrayList<Value>();
-        Integer departmentTypeid = domainObjectTypeIdCache.getId(DEPARTMENT_TYPE);        
+        Integer departmentTypeid = domainObjectTypeIdCache.getId(DEPARTMENT_TYPE);
         params.add(new StringValue(new RdbmsId(departmentTypeid, 1).toStringRepresentation()));
         params.add(new StringValue(EMPLOYEE_1_NAME));
 
@@ -120,8 +119,8 @@ public class CollectionsIT extends IntegrationTestBase {
         assertTrue(collection.size() >= 1);
 
     }
-    
-//    @Test
+
+    @Test
     public void testFindCollectionWithFilters() {
         SortOrder sortOrder = new SortOrder();
         sortOrder.add(new SortCriterion("id", Order.ASCENDING));
@@ -160,14 +159,14 @@ public class CollectionsIT extends IntegrationTestBase {
         assertTrue(multiDepartmantOEmployeeCollection.size() >= 1);
     }
 
-//    @Test
+    @Test
     public void testFindCollectionWithoutFilters() {
         IdentifiableObjectCollection collection = collectionService.findCollection("Departments");
         assertNotNull(collection);
         assertTrue(collection.size() >= 1);
     }
 
-//    @Test
+    @Test
     public void testFindCollectionCount() {
         Integer collectionCount = collectionService.findCollectionCount("Employees", null);
 
@@ -181,5 +180,5 @@ public class CollectionsIT extends IntegrationTestBase {
         collectionCount = collectionService.findCollectionCount("Employees", filterValues);
         assertTrue(collectionCount >= 1);
 
-    }        
+    }    
 }
