@@ -14,6 +14,7 @@ public class CloseInCentralPanelAction extends Action {
 
     @Override
     public void execute() {
+        plugin.getOwner().asWidget().setWidth("100%");
         final IsDomainObjectEditor editor = (IsDomainObjectEditor) getPlugin();
         final Id objectId = editor.getRootDomainObject().getId();
         if (objectId != null) {

@@ -19,6 +19,8 @@ public class ToggleEditOnAction extends ToggleAction {
 
     @Override
     public void execute() {
+        plugin.getOwner().asWidget().setWidth(com.google.gwt.user.client.Window.getClientWidth() - 130 - 11 + "px");
+
         final IsDomainObjectEditor editor = (IsDomainObjectEditor) getPlugin();
         final Id id = editor.getFormState().getObjects().getRootNode().getDomainObject().getId();
         final FormPluginConfig config;
