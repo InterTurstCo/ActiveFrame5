@@ -70,11 +70,20 @@ public class TestAttachments extends ClientBase {
         }
     }
 
+    private byte[] createLageContent(int size) throws Exception{
+        String file = "test.pdf";
+        byte[] fileContent = readFile(new File(file));
+        ByteArrayOutputStream saveStream = new ByteArrayOutputStream();
+        while(saveStream.size() < size * 1024 * 1024){
+            saveStream.write(fileContent);
+        }
+        return saveStream.toByteArray();
+    }
+    
     private void testTime() throws Exception {
         DomainObject person = createPerson();
 
-        String file = "test.doc";
-        byte[] fileContent = readFile(new File(file));
+        byte[] fileContent = createLageContent(15);
 
         ByteArrayOutputStream saveStream = new ByteArrayOutputStream();
         saveStream.write(fileContent, 0, 100 * 1024);
@@ -87,7 +96,7 @@ public class TestAttachments extends ClientBase {
             saveContent = saveStream.toByteArray();
             
             long start = System.currentTimeMillis();
-            DomainObject attachment = setAttachment(person, file, saveContent);
+            DomainObject attachment = setAttachment(person, "test.pdf", saveContent);
             long save = System.currentTimeMillis() - start;
             start = System.currentTimeMillis();
 
