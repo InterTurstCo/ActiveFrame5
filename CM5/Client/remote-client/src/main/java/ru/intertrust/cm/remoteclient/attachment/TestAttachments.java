@@ -63,8 +63,53 @@ public class TestAttachments extends ClientBase {
             attachmentService.deleteAttachment(secondAttachment.getId());
             System.out.println("Delete OK");
 
+            testTime();
+
         } finally {
             writeLog();
+        }
+    }
+
+    private void testTime() throws Exception {
+        DomainObject person = createPerson();
+
+        String file = "test.doc";
+        byte[] fileContent = readFile(new File(file));
+
+        ByteArrayOutputStream saveStream = new ByteArrayOutputStream();
+        saveStream.write(fileContent, 0, 100 * 1024);
+        byte[] saveContent = saveStream.toByteArray();
+        int iteration = 1;
+        int size = 100 * 1024;
+        while (fileContent.length > size) {
+            saveStream.reset();
+            saveStream.write(fileContent, 0, size);
+            saveContent = saveStream.toByteArray();
+            
+            long start = System.currentTimeMillis();
+            DomainObject attachment = setAttachment(person, file, saveContent);
+            long save = System.currentTimeMillis() - start;
+            start = System.currentTimeMillis();
+
+            byte[] loadContent = getAttachmentContent(attachment);
+            long load = System.currentTimeMillis() - start;
+            start = System.currentTimeMillis();
+
+            attachmentService.deleteAttachment(attachment.getId());
+            long delete = System.currentTimeMillis() - start;
+            
+            System.out.println("Size=" + saveContent.length + "\tSave=" + save + "\tLoad=" + load + "\tDelete=" + delete);
+            
+            boolean compareRes = compareContent(saveContent, loadContent);
+            if (!compareRes){
+                assertTrue("Compare content", compareRes);
+            }
+            
+            
+            //Увеличиваем размер контента логарифмически
+            int pow = (int) (Math.pow(2, iteration));
+            size = 100 * 1024 * pow;
+            iteration++;
         }
     }
 
@@ -91,19 +136,23 @@ public class TestAttachments extends ClientBase {
     }
 
     private DomainObject setAttachment(DomainObject domainObject, File file) throws IOException {
+        return setAttachment(domainObject, file.getName(), readFile(file));
+    }
+
+    private DomainObject setAttachment(DomainObject domainObject, String name, byte[] content) throws IOException {
         DomainObject attachment =
                 attachmentService.createAttachmentDomainObjectFor(domainObject.getId(),
-                        "report_template_attachment");
-        attachment.setString("Name", file.getName());
-        ByteArrayInputStream bis = new ByteArrayInputStream(readFile(file));
+                        "Person_Attachment");
+        attachment.setString("Name", name);
+        ByteArrayInputStream bis = new ByteArrayInputStream(content);
         SimpleRemoteInputStream simpleRemoteInputStream = new SimpleRemoteInputStream(bis);
 
         RemoteInputStream remoteInputStream;
         remoteInputStream = simpleRemoteInputStream.export();
         DomainObject result = attachmentService.saveAttachment(remoteInputStream, attachment);
         return result;
-    }
-
+    }    
+    
     protected byte[] getAttachmentContent(DomainObject attachment) {
         InputStream contentStream = null;
         RemoteInputStream inputStream = null;
@@ -122,7 +171,9 @@ public class TestAttachments extends ClientBase {
             throw new ReportServiceException("Error on get attachment body", ex);
         } finally {
             try {
-                contentStream.close();
+                if (contentStream != null){
+                    contentStream.close();
+                }
                 inputStream.close(true);
             } catch (IOException ignoreEx) {
             }

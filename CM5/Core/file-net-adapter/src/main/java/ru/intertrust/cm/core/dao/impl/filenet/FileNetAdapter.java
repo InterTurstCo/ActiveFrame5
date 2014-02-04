@@ -65,7 +65,7 @@ import ru.intertrust.cm.core.dao.impl.filenet.ws.SingletonString;
  * 
  */
 public class FileNetAdapter {
-    private final static int MAX_FRAGMENT_SIZE = 100 * 1024;
+    private final static int MAX_FRAGMENT_SIZE = 1000 * 1024;
     
     private String serverUrl;
     private String login;
