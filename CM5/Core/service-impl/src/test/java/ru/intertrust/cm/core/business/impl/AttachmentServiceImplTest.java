@@ -62,11 +62,8 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class)
 public class AttachmentServiceImplTest {
 
-    static private final String TEST_OUT_DIR = "c:/temp";
-//            System.getProperty("test.cnf.testOutDir");
-    
-    static private final int PORT_RMI = 55555;
-//            Integer.parseInt(System.getProperty("test.cnf.portRmi"));
+    static private final String TEST_OUT_DIR = System.getProperty("test.cnf.testOutDir");
+    static private final int PORT_RMI = Integer.parseInt(System.getProperty("test.cnf.portRmi"));
     private static final int BUF_SIZE = 0x1000;
     private static String absDirPath;
     private static Long suffix;
@@ -360,8 +357,8 @@ public class AttachmentServiceImplTest {
         domainObject.setTypeName("Person");
         domainObject.setId(idService.createId("0001000000000001"));
         List<DomainObject> l = stubAttachmentService.getAttachmentDomainObjectsFor(domainObject);
-//        Assert.assertEquals(1, ((RdbmsId) l.get(0).getId()).getId());
-//        Assert.assertEquals(2, ((RdbmsId) l.get(1).getId()).getId());
+        Assert.assertEquals(1, ((RdbmsId) l.get(0).getId()).getId());
+        Assert.assertEquals(2, ((RdbmsId) l.get(1).getId()).getId());
     }
 
     @Test

@@ -33,35 +33,6 @@
         </indices>
     </domain-object-type>
 
-    <domain-object-type name="ParentDoc">
-        <fields>
-            <string name="Name" length="50" />
-        </fields>
-        <attachment-types>
-            <attachment-type name="DocAttachment" />
-        </attachment-types>
-    </domain-object-type>
-
-    <domain-object-type name="ChildDoc" extends="ParentDoc">
-        <fields>
-            <string name="Comment" length="255" />
-        </fields>
-    </domain-object-type>
-
-    <domain-object-type name="ChildDoc2" extends="ChildDoc">
-        <fields>
-            <string name="Comment2" length="255" />
-        </fields>
-    </domain-object-type>
-
-    <domain-object-type name="DP_Rkk" db-id="627">
-        <attachment-types>
-            <attachment-type name="ContentRichText_Rkk" />
-        </attachment-types>
-    </domain-object-type>
-    <domain-object-type name="DP_RkkF" extends="DP_Rkk" db-id="650" />
-    <domain-object-type name="DP_InternalRkkF" extends="DP_RkkF" db-id="344" />
-
      <domain-object-type name="Internal_Document" initial-status="Draft"> <!-- Internal_Document table -->
         <fields>
             <string name="Name" length="128" />
