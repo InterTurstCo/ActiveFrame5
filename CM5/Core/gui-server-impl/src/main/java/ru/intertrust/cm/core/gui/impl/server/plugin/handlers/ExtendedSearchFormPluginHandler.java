@@ -33,12 +33,9 @@ public class ExtendedSearchFormPluginHandler extends PluginHandler {
         ExtendedSearchData extendedSearchData = (ExtendedSearchData) initialData;
         String targetDomainObject = extendedSearchData.getSearchQuery().getTargetObjectType();
 
-        //FormPluginConfig extendedSearchFormPluginConfig = (FormPluginConfig) initialData;
-        //String targetDomainObject = extendedSearchFormPluginConfig.getDomainObjectTypeToCreate();
-        //final FormPluginConfig formPluginConfig = new FormPluginConfig(targetDomainObject);
-
         ExtendedSearchPluginHandler extendedSearchPluginHandler = (ExtendedSearchPluginHandler)
                                                                     applicationContext.getBean("extended.search.plugin");
+        // инициализируем и получаем конфигурацию расширенного поиска
         extendedSearchPluginHandler.initialize(initialData);
 
         HashSet<String> searchFormFields = extendedSearchPluginHandler.selectSearchFormFields(targetDomainObject);

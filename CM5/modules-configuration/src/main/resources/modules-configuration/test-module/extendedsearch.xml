@@ -8,7 +8,7 @@
                 <tab name="Главная"> <!-- закладка состоит из групп с разметкой -->
                     <single-entry-group> <!-- наследник от TabGroupsConfig -->
                         <tab-group> <!-- вхождение в группу уже может содержать разметку -->
-                            <table>
+                            <table h-align="center" v-align="center">
                                 <tr>
                                     <!-- label (Имя) -->
                                     <td>

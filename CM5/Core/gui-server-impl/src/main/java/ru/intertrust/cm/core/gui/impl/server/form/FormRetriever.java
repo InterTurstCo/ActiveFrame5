@@ -67,7 +67,7 @@ public class FormRetriever {
         //FormConfig formConfig = formResolver.findFormConfig(root, userUid); was 30.01.2014
         FormConfig formConfig = formResolver.findSearchForm(domainObjectType/*root.getTypeName()*/);
         if (formConfig == null) {
-            throw new GuiException("Конфигурация поиска для ДО " + domainObjectType + " не найдена!");
+            return null; //throw new GuiException("Конфигурация поиска для ДО " + domainObjectType + " не найдена!");
         }
         List<WidgetConfig> widgetConfigs = formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
 

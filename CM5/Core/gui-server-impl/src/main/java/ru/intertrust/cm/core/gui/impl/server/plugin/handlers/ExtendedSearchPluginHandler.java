@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
-import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.SearchService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
@@ -14,12 +13,14 @@ import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
 import ru.intertrust.cm.core.config.search.SearchAreaConfig;
 import ru.intertrust.cm.core.config.search.TargetDomainObjectConfig;
+import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.impl.server.form.FormResolver;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
+import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.plugin.*;
 
@@ -41,8 +42,10 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
     protected ApplicationContext applicationContext;
     @Autowired
     SearchService searchService;
+    //@Autowired
+    //private CrudService crudService;
     @Autowired
-    private CrudService crudService;
+    private GuiService guiService;
     @Autowired
     private FormResolver formResolver;
 
@@ -73,11 +76,17 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
                 for (Iterator<IndexedFieldConfig> j = fields.iterator(); j.hasNext();)
                     fieldNames.add(j.next().getName());
                 searchFields.put(t.getType(), fieldNames);
+                // если форма поиска для данного ДО не сконфигурирована, в интерфейсе не отображается
+                FormDisplayData form = guiService.getSearchForm(t.getType(), new HashSet<String>(fieldNames));
+                if (form == null)
+                    continue;
                 arrayTargetObjects.add(t.getType());
 
                 targetCollectionNames.put(t.getType(), t.getCollectionConfig().getName());
             }
-
+            // если у области поиска нет сконфигурированной формы для поиска ДО, ее не отображаем
+            if (arrayTargetObjects.isEmpty())
+                continue;
             searchAreas.put(searchAreaConfig.getName(), arrayTargetObjects);
         }
         extendedSearchPluginData.setTargetCollectionNames(targetCollectionNames);
