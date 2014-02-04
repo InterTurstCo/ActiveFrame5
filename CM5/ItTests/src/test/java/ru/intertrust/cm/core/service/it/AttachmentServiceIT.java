@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.context.ApplicationContext;
 
+import com.healthmarketscience.rmiio.RemoteInputStream;
 import com.healthmarketscience.rmiio.RemoteInputStreamServer;
 import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
 
@@ -31,11 +32,9 @@ import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.LongValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.config.DomainObjectConfig;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.webcontext.ApplicationContextProvider;
@@ -59,9 +58,7 @@ public class AttachmentServiceIT extends IntegrationTestBase {
     
     @Deployment
     public static Archive<EnterpriseArchive> createDeployment() {
-        return createDeployment(new Class[] {AttachmentServiceIT.class, ApplicationContextProvider.class}, new String[] {"test-data/import-department.csv",
-                "test-data/import-organization.csv",
-                "test-data/import-employee.csv", "beans.xml"});
+        return createDeployment(new Class[] {AttachmentServiceIT.class, ApplicationContextProvider.class}, new String[] {"beans.xml"});
     }
 
     @Before
@@ -69,8 +66,6 @@ public class AttachmentServiceIT extends IntegrationTestBase {
         LoginContext lc = login("admin", "admin");
         lc.login();
         try {
-            importTestData("test-data/import-organization.csv");
-            importTestData("test-data/import-employee.csv");
         } finally {
             lc.logout();
         }
@@ -83,10 +78,11 @@ public class AttachmentServiceIT extends IntegrationTestBase {
     }
 
     @Test
-    public void testSaveAttachment() throws FileNotFoundException {
-        
+    public void testSaveFindAttachment() throws FileNotFoundException {
+
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         InputStream inputStream = classLoader.getResourceAsStream("/beans.xml");
+        RemoteInputStreamServer remoteFileData = new SimpleRemoteInputStream(inputStream);
 
         DomainObject countryObject = createCountryDomainObject();
         DomainObject savedCountryObject = crudService.save(countryObject);
@@ -94,71 +90,102 @@ public class AttachmentServiceIT extends IntegrationTestBase {
         DomainObjectTypeConfig countryConfig = configurationService.getConfig(DomainObjectTypeConfig.class, "country");
         String attachmentType = countryConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs().get(0).getName();
 
-        RemoteInputStreamServer remoteFileData = new SimpleRemoteInputStream(inputStream);
-        DomainObject attachmentDomainObject = attachmentService.
-                createAttachmentDomainObjectFor(savedCountryObject.getId(), attachmentType);
+        DomainObject attachmentDomainObject = createAttachmentDomainObject(savedCountryObject.getId(), attachmentType);
 
-        attachmentDomainObject.setValue(AttachmentService.NAME, new StringValue("Attachment"));
-        attachmentDomainObject.setValue(AttachmentService.DESCRIPTION, new StringValue("Attachment Description"));
-        // TODO get file path
-
-       /* String mimeType = null;
-        try {
-            mimeType = Files.probeContentType(Paths.get(""));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        mimeType = mimeType == null ? "undefined" : mimeType;
-        attachmentDomainObject.setValue(AttachmentService.MIME_TYPE, new StringValue(mimeType));
-        int contentLength = 10;
-        attachmentDomainObject.setValue(AttachmentService.CONTENT_LENGTH, new LongValue(contentLength));
-
-        attachmentDomainObject.setReference("country", savedCountryObject);
         DomainObject attachment = attachmentService.saveAttachment(remoteFileData, attachmentDomainObject);
-        
-        List<DomainObject> attachemnts = attachmentService.findAttachmentDomainObjectsFor(savedCountryObject.getId(), attachmentType);
-        assertTrue(attachemnts.size() > 0);*/
-        
-        
-        DomainObject doc = crudService.createDomainObject("ChildDoc");
-        doc.setString("Name", "Test 2");
-        doc.setString("Comment", "Really child document");
-        doc = crudService.save(doc);
-        System.out.println("Document created: " + doc);
+        assertNotNull(attachment);
 
-        Id docId = doc.getId();
-        DomainObject attach = attachmentService.createAttachmentDomainObjectFor(docId, "DocAttachment");
-        attach.setValue(AttachmentService.NAME, new StringValue("Attachment"));
-        attach.setValue(AttachmentService.DESCRIPTION, new StringValue("Attachment Description"));
-//            SimpleRemoteInputStream stream = new SimpleRemoteInputStream(
-//                    new FileInputStream("D:/Private/report_ra-85744.pdf"));
-        attach = attachmentService.saveAttachment(remoteFileData, attach);        
+        RemoteInputStream loadedData = attachmentService.loadAttachment(attachment.getId());
+        assertNotNull(loadedData);
 
-        List<DomainObject> files = attachmentService.findAttachmentDomainObjectsFor(docId, "DocAttachment");
-        System.out.println(Integer.toString(files.size()) + " attachment(s) found");
+        List<DomainObject> attachments =
+                attachmentService.findAttachmentDomainObjectsFor(savedCountryObject.getId(), attachmentType);
+        assertTrue(attachments.size() > 0);
+        assertNotNull(attachments.get(0));
+        assertTrue(attachment.getId().equals(attachments.get(0).getId()));
+
+        attachments = attachmentService.findAttachmentDomainObjectsFor(savedCountryObject.getId());
+        assertTrue(attachments.size() > 0);
+        assertNotNull(attachments.get(0));
+
+        assertTrue(attachment.getId().equals(attachments.get(0).getId()));
+
+        attachmentService.deleteAttachment(attachment.getId());
+        attachments =
+                attachmentService.findAttachmentDomainObjectsFor(savedCountryObject.getId(), attachmentType);
+        assertTrue(attachments.size() == 0);
+
     }
 
-    public void testLoadAttachment() throws FileNotFoundException {
-    
+    /**
+     * Employee -> Person (which declares Attachments)
+     * @throws FileNotFoundException
+     */
+    @Test
+    public void testSaveFindAttachmentForHierarchicalOwningObject() throws FileNotFoundException {
+
+        DomainObject organization = createOrganizationDomainObject();
+        DomainObject savedOrganization = crudService.save(organization);
+        DomainObject department = createDepartmentDomainObject(savedOrganization);
+        DomainObject savedDepartment = crudService.save(department);
+
+        DomainObject childDoc = createEmployeeDomainObject(savedDepartment);
+        childDoc = crudService.save(childDoc);
+
+        Id childDocId = childDoc.getId();
+        DomainObject attachment = createAttachmentDomainObject(childDocId, "Person_Attachment");
+
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        InputStream inputStream = classLoader.getResourceAsStream("/beans.xml");
+        RemoteInputStreamServer remoteFileData = new SimpleRemoteInputStream(inputStream);
+
+        attachment = attachmentService.saveAttachment(remoteFileData, attachment);
+
+        List<DomainObject> attachments =
+                attachmentService.findAttachmentDomainObjectsFor(childDocId, "Person_Attachment");
+        System.out.println(Integer.toString(attachments.size()) + " attachment(s) found");
+        assertTrue(attachments.size() > 0);
+        assertNotNull(attachments.get(0));
+        assertTrue(attachment.getId().equals(attachments.get(0).getId()));
     }
-    
-    public void testDeleteAttachment() throws FileNotFoundException {
-        
+
+    private DomainObject createAttachmentDomainObject(Id childDocId, String attachmentType) {
+        DomainObject attachment = attachmentService.createAttachmentDomainObjectFor(childDocId, attachmentType);
+        attachment.setValue(AttachmentService.NAME, new StringValue("Attachment"));
+        attachment.setValue(AttachmentService.DESCRIPTION, new StringValue("Attachment Description"));
+        String mimeType = "text/xml";
+        attachment.setValue(AttachmentService.MIME_TYPE, new StringValue(mimeType));
+        int contentLength = 10;
+        attachment.setValue(AttachmentService.CONTENT_LENGTH, new LongValue(contentLength));       
+        return attachment;
+    }        
+
+    private DomainObject createOrganizationDomainObject() {
+        DomainObject organizationDomainObject = crudService.createDomainObject("Organization");
+        organizationDomainObject.setString("Name", "Organization" + new Date());
+        return organizationDomainObject;
     }
 
-    public void testFindAttachmentDomainObjectsFor() throws FileNotFoundException {
-        
+    private DomainObject createDepartmentDomainObject(DomainObject savedOrganizationObject) {
+        DomainObject departmentDomainObject = crudService.createDomainObject("Department");
+        departmentDomainObject.setString("Name", "department1");
+        departmentDomainObject.setReference("Organization", savedOrganizationObject.getId());
+        return departmentDomainObject;
+    }    
+
+    private DomainObject createEmployeeDomainObject(DomainObject department) {
+        DomainObject personDomainObject = crudService.createDomainObject("Employee");
+        personDomainObject.setString("Name", "Name of Emplyee");
+        personDomainObject.setString("Position", "Position1");        
+        personDomainObject.setReference("Department", department.getId());
+
+        return personDomainObject;
     }
 
-
-         private static GenericDomainObject createCountryDomainObject() {
-             GenericDomainObject organizationDomainObject = new GenericDomainObject();
-             organizationDomainObject.setCreatedDate(new Date());
-             organizationDomainObject.setModifiedDate(new Date());
-             organizationDomainObject.setTypeName("Country");
-             organizationDomainObject.setString("Name", "Country" + new Date());
-             return organizationDomainObject;
-         }
-
+    private DomainObject createCountryDomainObject() {
+        DomainObject domainObject = crudService.createDomainObject("Country");
+        domainObject.setString("Name", "Country" + new Date());
+        return domainObject;
+    }
     
 }
