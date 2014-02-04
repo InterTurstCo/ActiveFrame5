@@ -20,7 +20,6 @@ import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.context.ApplicationContext;
 
 import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
@@ -30,7 +29,6 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.LongValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.webcontext.ApplicationContextProvider;
 
 import com.healthmarketscience.rmiio.RemoteInputStream;
@@ -136,13 +134,19 @@ public class AttachmentServiceIT extends IntegrationTestBase {
         RemoteInputStreamServer remoteFileData = new SimpleRemoteInputStream(inputStream);
 
         attachment = attachmentService.saveAttachment(remoteFileData, attachment);
-
+        
         List<DomainObject> attachments =
                 attachmentService.findAttachmentDomainObjectsFor(childDocId, "Person_Attachment");
         System.out.println(Integer.toString(attachments.size()) + " attachment(s) found");
         assertTrue(attachments.size() > 0);
         assertNotNull(attachments.get(0));
         assertTrue(attachment.getId().equals(attachments.get(0).getId()));
+        
+        attachments = attachmentService.findAttachmentDomainObjectsFor(childDocId);
+        assertTrue(attachments.size() > 0);
+        assertNotNull(attachments.get(0));
+        assertTrue(attachment.getId().equals(attachments.get(0).getId()));
+
     }
 
     private DomainObject createAttachmentDomainObject(Id childDocId, String attachmentType) {

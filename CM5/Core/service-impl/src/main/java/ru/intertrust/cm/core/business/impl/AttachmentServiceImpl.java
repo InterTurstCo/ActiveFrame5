@@ -174,24 +174,51 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
 
 
+
+    /**
+     * Поиск вложений доменного объекта. Выполняет поиск всех вложеннний, указанных в цепочке наследования доменного
+     * объекта.
+     */
     @Override
     public List<DomainObject> findAttachmentDomainObjectsFor(Id domainObjectId) {
         String domainObjectTypeName = domainObjectTypeIdCache.getName(domainObjectId);
+        List<DomainObject> foundAttachments = new ArrayList<>();
+        
+        collectAttachmentsForDOAndParentDO(domainObjectId, domainObjectTypeName, foundAttachments);
+        return foundAttachments;
+    }
+
+    private void collectAttachmentsForDOAndParentDO(Id domainObjectId, String domainObjectTypeName,
+            List<DomainObject> attachmentDomainObjects) {
+
+        findAttachmentsDeclaredInParticularDO(domainObjectId, domainObjectTypeName, attachmentDomainObjects);
+
         DomainObjectTypeConfig domainObjectTypeConfig =
                 configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObjectTypeName);
-        if (domainObjectTypeConfig.getAttachmentTypesConfig() == null) {
-            return Collections.emptyList();
+
+        String parentDomainObjectType = domainObjectTypeConfig.getExtendsAttribute();
+        if (parentDomainObjectType != null) {
+            collectAttachmentsForDOAndParentDO(domainObjectId, parentDomainObjectType, attachmentDomainObjects);
         }
-        List<DomainObject> attachmentDomainObjects = new ArrayList<>();
-        for (AttachmentTypeConfig attachmentTypeConfig :
-                domainObjectTypeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs()) {
-            DomainObjectTypeConfig attachDomainObjectTypeConfig =
-                    configurationExplorer.getConfig(DomainObjectTypeConfig.class, attachmentTypeConfig.getName());
-            String attachmentType = attachDomainObjectTypeConfig.getName();
-            List<DomainObject> domainObjectList = findAttachmentDomainObjectsFor(domainObjectId, attachmentType);
-            if (domainObjectList != null) attachmentDomainObjects.addAll(domainObjectList);
+    }
+
+    private void findAttachmentsDeclaredInParticularDO(Id domainObjectId, String domainObjectTypeName,
+            List<DomainObject> attachmentDomainObjects) {
+        DomainObjectTypeConfig domainObjectTypeConfig =
+                configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObjectTypeName);
+
+        if (domainObjectTypeConfig.getAttachmentTypesConfig() != null) {
+            for (AttachmentTypeConfig attachmentTypeConfig : domainObjectTypeConfig.getAttachmentTypesConfig()
+                    .getAttachmentTypeConfigs()) {
+                DomainObjectTypeConfig attachDomainObjectTypeConfig =
+                        configurationExplorer.getConfig(DomainObjectTypeConfig.class, attachmentTypeConfig.getName());
+                String attachmentType = attachDomainObjectTypeConfig.getName();
+                List<DomainObject> domainObjectList = findAttachmentDomainObjectsFor(domainObjectId, attachmentType);
+                if (domainObjectList != null) {
+                    attachmentDomainObjects.addAll(domainObjectList);
+                }
+            }
         }
-        return attachmentDomainObjects;
     }
 
     @Override
