@@ -4,23 +4,19 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.ConfigurationControlService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.GlobalSettingsConfig;
-import ru.intertrust.cm.core.config.base.CollectionConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.webcontext.ApplicationContextProvider;
 
-import javax.security.auth.login.LoginException;
-import java.io.IOException;
+import javax.ejb.EJB;
 import java.util.Collection;
 
 import static org.junit.Assert.*;
@@ -33,24 +29,13 @@ import static org.junit.Assert.*;
 @RunWith(Arquillian.class)
 public class ConfigurationIT extends IntegrationTestBase {
 
-    //private ConfigurationControlService configurationControlService;
-    private ConfigurationService configurationService;
-
-    /**
-     * Предотвращает загрузку данных для каждого теста. Данные загружаются один раз для всех тестов в данном классе.
-     */
-    private boolean isDataLoaded = false;
+    @EJB
+    private ConfigurationService.Remote configurationService;
 
     @Deployment
     public static Archive<EnterpriseArchive> createDeployment() {
         return createDeployment(new Class[] {ConfigurationIT.class, ApplicationContextProvider.class },
                 new String[] { "beans.xml" });
-    }
-
-    @Before
-    public void init() throws IOException, LoginException {
-        initializeSpringBeans();
-        //configurationControlService.loadConfiguration();
     }
 
     @Test
@@ -132,11 +117,5 @@ public class ConfigurationIT extends IntegrationTestBase {
                         configurationService.getCollectionColumnConfig(collectionConfig.getName(), columnConfig.getName()));
             }
         }
-    }
-
-    private void initializeSpringBeans() {
-        ApplicationContext applicationContext = ApplicationContextProvider.getApplicationContext();
-        //configurationControlService = applicationContext.getBean(ConfigurationControlService.class);
-        configurationService = applicationContext.getBean(ConfigurationService.class);
     }
 }
