@@ -1,10 +1,7 @@
 package ru.intertrust.cm.core.business.api;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.AccessMatrixStatusConfig;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.DynamicGroupConfig;
-import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 
@@ -106,4 +103,18 @@ public interface ConfigurationService {
      * @return true если тип доменного обхекта - Attachment
      */
     boolean isAttachmentType(String domainObjectType);
+
+    /**
+     * Поиск динамических групп по отслеживаемым объектам.
+     * @param objectTypeName тип отслеживаемого объекта
+     * @param status статус отслеживаемого объекта
+     * @return список дескрипторов динамических групп
+     */
+    List<DynamicGroupConfig> getDynamicGroupConfigsByTrackDO(String objectTypeName, String status);
+
+    /**
+     * Возвращает глобальные настройки конфигурации
+     * @return конфигурация
+     */
+    GlobalSettingsConfig getGlobalSettings();
 }

@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.business.impl;
+package ru.intertrust.cm.core.business.api;
 
 /**
  * Сервис загрузки и работы с конфигурацией доменных объектов

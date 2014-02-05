@@ -45,6 +45,11 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     @Override
+    public GlobalSettingsConfig getGlobalSettings() {
+        return configurationExplorer.getGlobalSettings();
+    }
+
+    @Override
     public <T> T getConfig(Class<T> type, String name) {
         return configurationExplorer.getConfig(type, name);
     }
@@ -77,6 +82,11 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     @Override
     public List<DynamicGroupConfig> getDynamicGroupConfigsByContextType(String domainObjectType) {
         return configurationExplorer.getDynamicGroupConfigsByContextType(domainObjectType);
+    }
+
+    @Override
+    public List<DynamicGroupConfig> getDynamicGroupConfigsByTrackDO(String objectTypeName, String status) {
+        return configurationExplorer.getDynamicGroupConfigsByTrackDO(objectTypeName, status);
     }
 
     @Override

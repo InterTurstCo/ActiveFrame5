@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.business.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import ru.intertrust.cm.core.business.api.ConfigurationControlService;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.config.ConfigurationException;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
@@ -21,7 +22,7 @@ import ru.intertrust.cm.core.model.FatalException;
 import java.util.*;
 
 /**
- * Смотри {@link ConfigurationControlService}
+ * Смотри {@link ru.intertrust.cm.core.business.api.ConfigurationControlService}
  * @author vmatsukevich
  *         Date: 5/15/13
  *         Time: 4:32 PM

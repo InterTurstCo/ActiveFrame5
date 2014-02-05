@@ -5,6 +5,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import ru.intertrust.cm.core.business.api.ConfigurationControlService;
 import ru.intertrust.cm.core.config.DomainObjectLogicalValidator;
 
 import static org.mockito.Mockito.verify;
