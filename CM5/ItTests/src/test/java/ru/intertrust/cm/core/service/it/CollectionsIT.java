@@ -11,10 +11,7 @@ import javax.ejb.EJB;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.shrinkwrap.api.Archive;
-import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +34,6 @@ import ru.intertrust.cm.webcontext.ApplicationContextProvider;
 /**
  * Интеграционный тест работы с коллекциями.
  * @author atsvetkov
- *
  */
 @RunWith(Arquillian.class)
 public class CollectionsIT extends IntegrationTestBase {
@@ -59,15 +55,6 @@ public class CollectionsIT extends IntegrationTestBase {
      * Предотвращает загрузку данных для каждого теста. Данные загружаются один раз для всех тестов в данном классе.
      */
     private boolean isDataLoaded = false;
-
-    @Deployment
-    public static Archive<EnterpriseArchive> createDeployment() {
-        return createDeployment(new Class[] {CollectionsIT.class, ApplicationContextProvider.class }, new String[] {
-                "test-data/import-department.csv",
-                "test-data/import-organization.csv",
-                "test-data/import-employee.csv",
-                "beans.xml" });
-    }
 
     @Test
     public void testArquillianInjection() {
@@ -180,5 +167,5 @@ public class CollectionsIT extends IntegrationTestBase {
         collectionCount = collectionService.findCollectionCount("Employees", filterValues);
         assertTrue(collectionCount >= 1);
 
-    }    
+    }
 }

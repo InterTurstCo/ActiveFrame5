@@ -1,11 +1,19 @@
 package ru.intertrust.cm.core.service.it;
 
-import org.jboss.arquillian.container.test.api.Deployment;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Collection;
+
+import javax.ejb.EJB;
+
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.shrinkwrap.api.Archive;
-import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import ru.intertrust.cm.core.business.api.ConfigurationControlService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
@@ -14,12 +22,6 @@ import ru.intertrust.cm.core.config.GlobalSettingsConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
-import ru.intertrust.cm.webcontext.ApplicationContextProvider;
-
-import javax.ejb.EJB;
-import java.util.Collection;
-
-import static org.junit.Assert.*;
 
 /**
  * Иитеграционный тест для {@link ConfigurationService} и {@link ConfigurationControlService}
@@ -31,12 +33,6 @@ public class ConfigurationIT extends IntegrationTestBase {
 
     @EJB
     private ConfigurationService.Remote configurationService;
-
-    @Deployment
-    public static Archive<EnterpriseArchive> createDeployment() {
-        return createDeployment(new Class[] {ConfigurationIT.class, ApplicationContextProvider.class },
-                new String[] { "beans.xml" });
-    }
 
     @Test
     public void testConfigurationLoaded() {

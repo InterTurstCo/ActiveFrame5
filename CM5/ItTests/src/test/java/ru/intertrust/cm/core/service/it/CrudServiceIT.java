@@ -14,10 +14,7 @@ import javax.ejb.EJB;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.shrinkwrap.api.Archive;
-import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,21 +29,12 @@ import ru.intertrust.cm.webcontext.ApplicationContextProvider;
 /**
  * Иитеграционный тест для {@link CrudService}
  * @author atsvetkov
- *
  */
 @RunWith(Arquillian.class)
 public class CrudServiceIT extends IntegrationTestBase {
 
     @EJB
     private CrudService.Remote crudService;
-
-    @Deployment
-    public static Archive<EnterpriseArchive> createDeployment() {
-        return createDeployment(new Class[] {CrudServiceIT.class, ApplicationContextProvider.class }, new String[] {
-                "test-data/import-department.csv",
-                "test-data/import-organization.csv",
-                "test-data/import-employee.csv", "beans.xml" });
-    }
 
     @Before
     public void init() throws IOException, LoginException {

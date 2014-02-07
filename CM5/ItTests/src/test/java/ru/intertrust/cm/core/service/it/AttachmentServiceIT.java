@@ -13,10 +13,7 @@ import javax.ejb.EJB;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.shrinkwrap.api.Archive;
-import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +26,6 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.LongValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.webcontext.ApplicationContextProvider;
 
 import com.healthmarketscience.rmiio.RemoteInputStream;
 import com.healthmarketscience.rmiio.RemoteInputStreamServer;
@@ -38,24 +34,18 @@ import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
 /**
  * Интеграционный тест работы с вложениями.
  * @author atsvetkov
- *
  */
 @RunWith(Arquillian.class)
 public class AttachmentServiceIT extends IntegrationTestBase {
 
     @EJB
     private AttachmentService.Remote attachmentService;
-    
+
     @EJB
-    ConfigurationService.Remote configurationService;    
-    
-    @EJB    
+    ConfigurationService.Remote configurationService;
+
+    @EJB
     private CrudService.Remote crudService;
-    
-    @Deployment
-    public static Archive<EnterpriseArchive> createDeployment() {
-        return createDeployment(new Class[] {AttachmentServiceIT.class, ApplicationContextProvider.class}, new String[] {"beans.xml"});
-    }
 
     @Before
     public void init() throws IOException, LoginException {
@@ -68,7 +58,7 @@ public class AttachmentServiceIT extends IntegrationTestBase {
         initializeSpringBeans();
     }
 
-    private void initializeSpringBeans() {        
+    private void initializeSpringBeans() {
     }
 
     @Test
@@ -134,14 +124,14 @@ public class AttachmentServiceIT extends IntegrationTestBase {
         RemoteInputStreamServer remoteFileData = new SimpleRemoteInputStream(inputStream);
 
         attachment = attachmentService.saveAttachment(remoteFileData, attachment);
-        
+
         List<DomainObject> attachments =
                 attachmentService.findAttachmentDomainObjectsFor(childDocId, "Person_Attachment");
         System.out.println(Integer.toString(attachments.size()) + " attachment(s) found");
         assertTrue(attachments.size() > 0);
         assertNotNull(attachments.get(0));
         assertTrue(attachment.getId().equals(attachments.get(0).getId()));
-        
+
         attachments = attachmentService.findAttachmentDomainObjectsFor(childDocId);
         assertTrue(attachments.size() > 0);
         assertNotNull(attachments.get(0));
@@ -187,5 +177,5 @@ public class AttachmentServiceIT extends IntegrationTestBase {
         domainObject.setString("Name", "Country" + new Date());
         return domainObject;
     }
-    
+
 }
