@@ -35,12 +35,12 @@ public class CheckBoxWidget extends BaseWidget {
     }
 
     @Override
-    protected Widget asEditableWidget() {
+    protected Widget asEditableWidget(WidgetState state) {
         return new CheckBox();
     }
 
     @Override
-    protected Widget asNonEditableWidget() {
+    protected Widget asNonEditableWidget(WidgetState state) {
         CheckBox checkBox = new CheckBox();
         checkBox.setEnabled(false);
         return checkBox;

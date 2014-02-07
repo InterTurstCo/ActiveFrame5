@@ -1,25 +1,24 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.web.bindery.event.shared.EventBus;
+import com.google.web.bindery.event.shared.SimpleEventBus;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
-import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
-import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
-import ru.intertrust.cm.core.gui.impl.client.action.SaveAction;
-import ru.intertrust.cm.core.gui.impl.client.event.ActionSuccessListener;
-import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.FormDialogBox;
+import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.LinkedDomainObjectHyperlinkItem;
+import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
+import ru.intertrust.cm.core.gui.model.form.widget.HyperlinkUpdateRequest;
+import ru.intertrust.cm.core.gui.model.form.widget.HyperlinkUpdateResponse;
 import ru.intertrust.cm.core.gui.model.form.widget.LinkedDomainObjectHyperlinkState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
+import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -27,7 +26,9 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
  *         Time: 10:25
  */
 @ComponentName("linked-domain-object-hyperlink")
-public class LinkedDomainObjectHyperlinkWidget extends BaseWidget {
+public class LinkedDomainObjectHyperlinkWidget extends BaseWidget implements HyperlinkStateChangedEventHandler {
+    private EventBus localEventBus = new SimpleEventBus();
+    private String selectionPattern;
 
     @Override
     public Component createNew() {
@@ -36,16 +37,19 @@ public class LinkedDomainObjectHyperlinkWidget extends BaseWidget {
 
     public void setCurrentState(WidgetState currentState) {
         final LinkedDomainObjectHyperlinkState state = (LinkedDomainObjectHyperlinkState) currentState;
-         if (isEditable()) {
-             LinkedDomainObjectHyperlinkItem hyperlinkItem = (LinkedDomainObjectHyperlinkItem)impl;
-             hyperlinkItem.setText(state.getStringRepresentation());
-             hyperlinkItem.addItemClickHandler( new HyperlinkClickHandler(state));
-         } else {
-             Label noneEditableWidget = (Label)impl;
-             noneEditableWidget.setText(state.getStringRepresentation());
-             noneEditableWidget.addClickHandler(new HyperlinkClickHandler(state));
-             return;
-         }
+        selectionPattern = state.getSelectionPattern();
+        String title = state.getDomainObjectType();
+        Id id = state.getId();
+        if (isEditable()) {
+            LinkedDomainObjectHyperlinkItem hyperlinkItem = (LinkedDomainObjectHyperlinkItem) impl;
+            hyperlinkItem.setText(state.getStringRepresentation());
+            hyperlinkItem.addItemClickHandler(new HyperlinkClickHandler(title, id, localEventBus));
+        } else {
+            Label noneEditableWidget = (Label) impl;
+            noneEditableWidget.setText(state.getStringRepresentation());
+            noneEditableWidget.addClickHandler(new HyperlinkClickHandler(title, id, localEventBus));
+
+        }
     }
 
     @Override
@@ -55,97 +59,49 @@ public class LinkedDomainObjectHyperlinkWidget extends BaseWidget {
     }
 
     @Override
-    protected Widget asEditableWidget() {
+    protected Widget asEditableWidget(WidgetState state) {
+        localEventBus.addHandler(HyperlinkStateChangedEvent.TYPE, this);
         return new LinkedDomainObjectHyperlinkItem();
     }
 
     @Override
-    protected Widget asNonEditableWidget() {
+    protected Widget asNonEditableWidget(WidgetState state) {
+        localEventBus.addHandler(HyperlinkStateChangedEvent.TYPE, this);
         Label noneEditableWidget = new Label();
         noneEditableWidget.addStyleName("hyperlink-label-none-editable");
         noneEditableWidget.removeStyleName("gwt-Label");
         return noneEditableWidget;
     }
 
-    private class HyperlinkClickHandler implements ClickHandler {
-         private LinkedDomainObjectHyperlinkState state;
-         public HyperlinkClickHandler(LinkedDomainObjectHyperlinkState state) {
-            this.state = state;
-        }
-        @Override
-        public void onClick(ClickEvent event) {
-            final FormPluginConfig originConfig = state.getConfig();
-            final String domainObjectType = state.getDomainObjectType();
-            final Id id = state.getId();
-            final Id parentId = state.getParentId();
-                final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(domainObjectType);
-                final FormPluginConfig config = new FormPluginConfig();
-                config.setDomainObjectId(id);
-                config.getPluginState().setToggleEdit(true);
-                config.getPluginState().setInCentralPanel(true);
-                final FormPlugin plugin = noneEditableFormDialogBox.createFormPlugin(config);
-                noneEditableFormDialogBox.initButton("Открыть в полном окне", new ClickHandler() {
+    @Override
+    public void onHyperlinkStateChangedEvent(HyperlinkStateChangedEvent event) {
+        Id id = event.getId();
+        updateHyperlink(id);
+    }
 
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        plugin.setLocalEventBus(getEventBus());
-                        plugin.setDisplayActionToolBar(true);
-                        Application.getInstance().getEventBus()
-                                .fireEvent(new CentralPluginChildOpeningRequestedEvent(plugin));
-                        noneEditableFormDialogBox.hide();
-                    }
-                });
-                noneEditableFormDialogBox.initButton("Изменить", new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        noneEditableFormDialogBox.hide();
+    private void updateHyperlink(Id id) {
+        HyperlinkUpdateRequest request = new HyperlinkUpdateRequest(id, selectionPattern);
+        Command command = new Command("updateHyperlink", "linked-domain-object-hyperlink", request);
+        BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, new AsyncCallback<Dto>() {
+            @Override
+            public void onSuccess(Dto result) {
+                HyperlinkUpdateResponse response = (HyperlinkUpdateResponse) result;
+                String representation = response.getRepresentation();
+                if (isEditable()) {
+                    LinkedDomainObjectHyperlinkItem item = (LinkedDomainObjectHyperlinkItem) impl;
+                    item.setText(representation);
+                } else {
+                    Label label = (Label) impl;
+                    label.setText(representation);
+                }
 
-                        final FormPluginConfig config = new FormPluginConfig();
-                        config.setDomainObjectId(id);
-                        config.getPluginState().setEditable(true);
-                        final FormDialogBox editableFormDialogBox =
-                                new FormDialogBox("Редактирование " + domainObjectType);
-                        final FormPlugin formPluginEditable = editableFormDialogBox.createFormPlugin(config);
-                        editableFormDialogBox.initButton("Изменить", new ClickHandler() {
-                            @Override
-                            public void onClick(ClickEvent event) {
-                                final SaveAction action = ComponentRegistry.instance.get("save.action");
-                                SaveActionContext saveActionContext = new SaveActionContext();
-                                saveActionContext.setRootObjectId(id);
-                                action.setInitialContext(saveActionContext);
-                                action.setPlugin(formPluginEditable);
-                                action.addActionSuccessListener(new ActionSuccessListener() {
-                                    @Override
-                                    public void onSuccess() {
-                                        editableFormDialogBox.hide();
-                                        eventBus.fireEvent(new CollectionRowSelectedEvent(parentId));
-                                    }
-                                });
-                                action.execute();
+            }
 
-                            }
-                        });
-                        editableFormDialogBox.initButton("Отмена", new ClickHandler() {
-                            @Override
-                            public void onClick(ClickEvent event) {
-
-                                editableFormDialogBox.hide();
-                                originConfig.getPluginState().setEditable(false);
-                            }
-                        });
-
-                    }
-
-                });
-                noneEditableFormDialogBox.initButton("Отмена", new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        noneEditableFormDialogBox.hide();
-                    }
-                });
-
-
-        }
+            @Override
+            public void onFailure(Throwable caught) {
+                GWT.log("something was going wrong while obtaining hyperlink");
+            }
+        });
     }
 }
 

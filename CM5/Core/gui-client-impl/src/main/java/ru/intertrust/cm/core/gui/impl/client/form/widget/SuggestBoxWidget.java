@@ -11,10 +11,16 @@ import com.google.gwt.user.client.EventListener;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
+import com.google.web.bindery.event.shared.EventBus;
+import com.google.web.bindery.event.shared.SimpleEventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.form.widget.DisplayValuesAsLinksConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SuggestBoxConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonForm;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.support.MultiWordIdentifiableSuggestion;
 import ru.intertrust.cm.core.gui.model.Command;
@@ -25,10 +31,11 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 import java.util.*;
 
 @ComponentName("suggest-box")
-public class SuggestBoxWidget extends BaseWidget {
-
+public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChangedEventHandler {
+    private EventBus localEventBus = new SimpleEventBus();
     private SuggestBox suggestBox;
-   // private
+    private boolean displayAsHyperlinks;
+    private String selectionPattern;
     private final HashMap<Id, String> allSuggestions = new HashMap<Id, String>();
     CmjDefaultSuggestionDisplay display;
 
@@ -65,23 +72,55 @@ public class SuggestBoxWidget extends BaseWidget {
 
     @Override
     public SuggestBoxState getCurrentState() {
-        SuggestBoxState state = new SuggestBoxState();
+        SuggestBoxState state = getInitialData();
         if (isEditable()) {
             final SuggestPresenter presenter = (SuggestPresenter) impl;
             state.setSelectedIds(new ArrayList<Id>(presenter.getSelectedKeys()));
-        } else {
-            final SuggestBoxState initialState = getInitialData();
-            state.setSelectedIds(initialState.getSelectedIds());
         }
         return state;
     }
 
     @Override
-    protected Widget asNonEditableWidget() {
-        final Label label = new Label();
-        label.setStyleName("suggest-choose-lbl");
-        label.removeStyleName("gwt-Label");
-        return label;
+    protected Widget asNonEditableWidget(WidgetState state) {
+        SuggestBoxState suggestBoxState = (SuggestBoxState) state;
+        commonInitialization(suggestBoxState);
+        SelectionStyleConfig selectionStyleConfig = suggestBoxState.getSuggestBoxConfig().getSelectionStyleConfig();
+        SimpleNoneEditablePanelWithHyperlinks noneEditablePanel = new SimpleNoneEditablePanelWithHyperlinks(selectionStyleConfig, localEventBus);
+        return noneEditablePanel;
+    }
+
+    private void commonInitialization(SuggestBoxState state) {
+        SuggestBoxConfig config = state.getSuggestBoxConfig();
+        displayAsHyperlinks = displayAsHyperlinks(config);
+        selectionPattern = config.getSelectionPatternConfig().getValue();
+        localEventBus.addHandler(HyperlinkStateChangedEvent.TYPE, this);
+    }
+
+    @Override
+    public void onHyperlinkStateChangedEvent(HyperlinkStateChangedEvent event) {
+        Id id = event.getId();
+        updateHyperlink(id);
+    }
+
+    private void updateHyperlink(Id id) {
+        HyperlinkUpdateRequest request = new HyperlinkUpdateRequest(id, selectionPattern);
+        Command command = new Command("updateHyperlink", "linked-domain-object-hyperlink", request);
+        BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, new AsyncCallback<Dto>() {
+            @Override
+            public void onSuccess(Dto result) {
+                HyperlinkUpdateResponse response = (HyperlinkUpdateResponse) result;
+                Id id = response.getId();
+                String representation = response.getRepresentation();
+                SuggestBoxState state = getCurrentState();
+                state.getListValues().put(id, representation);
+                setCurrentState(state);
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                GWT.log("something was going wrong while obtaining hyperlink");
+            }
+        });
     }
 
     public class CmjDefaultSuggestionDisplay extends SuggestBox.DefaultSuggestionDisplay {
@@ -91,8 +130,15 @@ public class SuggestBoxWidget extends BaseWidget {
 
     }
 
+    private boolean displayAsHyperlinks(SuggestBoxConfig config) {
+        DisplayValuesAsLinksConfig displayValuesAsLinksConfig = config.getDisplayValuesAsLinksConfig();
+        return displayValuesAsLinksConfig != null && displayValuesAsLinksConfig.isValue();
+    }
+
     @Override
-    protected Widget asEditableWidget() {
+    protected Widget asEditableWidget(WidgetState state) {
+        SuggestBoxState suggestBoxState = (SuggestBoxState) state;
+        commonInitialization(suggestBoxState);
         final SuggestPresenter presenter = new SuggestPresenter();
         //presenter.setSuggestMaxDropDownWidth(suggestMaxDropDownWidth);
 
@@ -136,18 +182,19 @@ public class SuggestBoxWidget extends BaseWidget {
             final SuggestPresenter presenter = (SuggestPresenter) impl;
             presenter.initView(state, suggestBox);
         } else {
-//            final int maxWidth = impl.getElement().getParentElement().getClientWidth() - 4;
-//            impl.getElement().getStyle().setProperty("maxWidth", maxWidth, Style.Unit.PX);
-            final StringBuilder builder = new StringBuilder();
-            final HashMap<Id, String> listValues = state.getListValues();
-            for (final Map.Entry<Id, String> listEntry : listValues.entrySet()) {
-                builder.append(listEntry.getValue()).append(", ");
+            HashMap<Id, String> listValues = state.getListValues();
+            SimpleNoneEditablePanelWithHyperlinks noneEditablePanel = (SimpleNoneEditablePanelWithHyperlinks) impl;
+            noneEditablePanel.cleanPanel();
+            if (displayAsHyperlinks) {
+                for (Id id : listValues.keySet()) {
+                    noneEditablePanel.displayHyperlink(id, listValues.get(id));
+                }
+            } else {
+                for (Id id : listValues.keySet()) {
+                    noneEditablePanel.displayItem(listValues.get(id));
+                }
+
             }
-            if (builder.length() > 0) {
-                builder.setLength(builder.length() - 2);
-            }
-            final Label label = (Label) impl;
-            label.setText(builder.toString());
         }
     }
 
@@ -195,7 +242,7 @@ public class SuggestBoxWidget extends BaseWidget {
         };
     }
 
-    private static class SuggestPresenter extends CellPanel {
+    private class SuggestPresenter extends CellPanel {
 
         private final Map<Id, String> selectedSuggestions;
         private boolean singleChoice;
@@ -207,7 +254,7 @@ public class SuggestBoxWidget extends BaseWidget {
         private Integer maxDropDownHeight;
         private int preferableWidth;
 
-          private SuggestPresenter() {
+        private SuggestPresenter() {
             Element row = DOM.createTR();
             this.selectedSuggestions = new HashMap<Id, String>();
             setStyleName("suggest-container");
@@ -216,7 +263,7 @@ public class SuggestBoxWidget extends BaseWidget {
             DOM.appendChild(getBody(), row);
             arrowBtn = DOM.createTD();
             arrowBtn.setClassName("arrow-suggest-btn");
-     //       DOM.appendChild(row, arrowBtn);
+            //       DOM.appendChild(row, arrowBtn);
             DOM.setEventListener(arrowBtn, new EventListener() {
                 @Override
                 public void onBrowserEvent(Event event) {
@@ -241,8 +288,7 @@ public class SuggestBoxWidget extends BaseWidget {
                     if (getMaxDropDownHeight() != null) {
                         e.getStyle().setHeight(getMaxDropDownHeight(), Style.Unit.PX);
                         e.getStyle().setOverflowY(Style.Overflow.SCROLL);
-                    }
-                    else {
+                    } else {
 //                        //если вверху
 //                        suggestBox.showSuggestionList();
 //                        if(suggestBox.getAbsoluteTop() < ((CmjDefaultSuggestionDisplay) suggestBox.getSuggestionDisplay()).getSuggestionPopup().getAbsoluteTop()){
@@ -252,7 +298,7 @@ public class SuggestBoxWidget extends BaseWidget {
 //                        }
 //                        //если внизу
                         suggestBox.showSuggestionList();
-                        e.getStyle().setHeight(Window.getClientHeight()- suggestBox.getAbsoluteTop() - suggestBox.getOffsetHeight() - 25, Style.Unit.PX);
+                        e.getStyle().setHeight(Window.getClientHeight() - suggestBox.getAbsoluteTop() - suggestBox.getOffsetHeight() - 25, Style.Unit.PX);
                         e.getStyle().setOverflowY(Style.Overflow.SCROLL);
                     }
 
@@ -331,7 +377,7 @@ public class SuggestBoxWidget extends BaseWidget {
             this.suggestBox = suggestBox;
             if (getElement().getStyle().getProperty("maxWidth").isEmpty()) {
                 preferableWidth = getElement().getClientWidth();
-                if (state.getSuggestBoxConfig().getClearAllButtonConfig() != null){
+                if (state.getSuggestBoxConfig().getClearAllButtonConfig() != null) {
                     int clearButtonWidth = 48; // using hardcode as clearAllButton.getClientWidth() returns wrong value (because of rightMargin = -69)
                     preferableWidth = preferableWidth - clearButtonWidth;
                 }
@@ -341,27 +387,31 @@ public class SuggestBoxWidget extends BaseWidget {
                 final SelectedItemComposite itemComposite =
                         new SelectedItemComposite(listEntry.getKey(), listEntry.getValue());
                 itemComposite.setCloseBtnListener(createCloseBtnListener(itemComposite));
+                if (displayAsHyperlinks) {
+                    itemComposite.setHyperlinkListener(createHyperlinkListener(itemComposite));
+                }
                 super.add(itemComposite, container);
             }
+
             super.add(suggestBox, container);
-            if (state.getSuggestBoxConfig().getClearAllButtonConfig() != null){
-            FocusPanel focusPanel = new FocusPanel();
-            ButtonForm clearButton = new ButtonForm(focusPanel,
-                    state.getSuggestBoxConfig().getClearAllButtonConfig().getImage(),
-                    state.getSuggestBoxConfig().getClearAllButtonConfig().getText());
-            focusPanel.add(clearButton);
-            focusPanel.getElement().getStyle().setLeft(10, Style.Unit.PX);
-            super.add(focusPanel, clearAllButton);
-            focusPanel.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    for (int i = selectedSuggestions.size() - 1; i >= 0; i--) {
-                        remove(i);
+            if (state.getSuggestBoxConfig().getClearAllButtonConfig() != null) {
+                FocusPanel focusPanel = new FocusPanel();
+                ButtonForm clearButton = new ButtonForm(focusPanel,
+                        state.getSuggestBoxConfig().getClearAllButtonConfig().getImage(),
+                        state.getSuggestBoxConfig().getClearAllButtonConfig().getText());
+                focusPanel.add(clearButton);
+                focusPanel.getElement().getStyle().setLeft(10, Style.Unit.PX);
+                super.add(focusPanel, clearAllButton);
+                focusPanel.addClickHandler(new ClickHandler() {
+                    @Override
+                    public void onClick(ClickEvent event) {
+                        for (int i = selectedSuggestions.size() - 1; i >= 0; i--) {
+                            remove(i);
+                        }
+                        selectedSuggestions.clear();
+                        updateSuggestBoxWidth();
                     }
-                    selectedSuggestions.clear();
-                    updateSuggestBoxWidth();
-                }
-            });
+                });
             }
 
             updateSuggestBoxWidth();
@@ -387,10 +437,10 @@ public class SuggestBoxWidget extends BaseWidget {
 
         private void updateSuggestBoxWidth() {
             getElement().getStyle().setProperty("width", preferableWidth, Style.Unit.PX);
-            int  maxChildWidth = 0;
+            int maxChildWidth = 0;
             for (Widget child : this) {
                 if (child instanceof SelectedItemComposite) {
-                    if (child.getOffsetWidth() > maxChildWidth ) {
+                    if (child.getOffsetWidth() > maxChildWidth) {
                         maxChildWidth = child.getOffsetWidth();
                     }
                 }
@@ -412,18 +462,30 @@ public class SuggestBoxWidget extends BaseWidget {
                 }
             };
         }
+
+        private EventListener createHyperlinkListener(final SelectedItemComposite itemComposite) {
+            return new EventListener() {
+                @Override
+                public void onBrowserEvent(Event event) {
+                    HyperlinkClickHandler clickHandler = new HyperlinkClickHandler("Suggestion", itemComposite.getItemId(), localEventBus);
+                    clickHandler.onClick();
+                }
+            };
+        }
+
     }
 
-    private static class SelectedItemComposite extends Composite {
+    private class SelectedItemComposite extends Composite {
         private final SimplePanel wrapper;
         private final Element closeBtn;
         private final Id itemId;
+        private Element label;
 
         private SelectedItemComposite(final Id itemId, final String itemName) {
             this.itemId = itemId;
             wrapper = new SimplePanel();
             wrapper.setStyleName("suggest-choose");
-            final Element label = DOM.createSpan();
+            label = DOM.createSpan();
             label.setInnerText(itemName);
             DOM.appendChild(wrapper.getElement(), label);
             closeBtn = DOM.createSpan();
@@ -439,6 +501,13 @@ public class SuggestBoxWidget extends BaseWidget {
         public void setCloseBtnListener(final EventListener listener) {
             DOM.setEventListener(closeBtn, listener);
             DOM.sinkEvents(closeBtn, Event.BUTTON_LEFT);
+        }
+
+        public void setHyperlinkListener(EventListener listener) {
+            label.getStyle().setCursor(Style.Cursor.POINTER);
+            DOM.setEventListener(label, listener);
+            DOM.sinkEvents(label, Event.ONCLICK);
+
         }
     }
 }

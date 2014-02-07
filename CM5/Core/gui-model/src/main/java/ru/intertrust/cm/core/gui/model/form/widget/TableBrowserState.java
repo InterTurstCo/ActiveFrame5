@@ -12,17 +12,25 @@ import java.util.LinkedHashMap;
  *         Time: 16:15
  */
 public class TableBrowserState extends LinkEditingWidgetState {
-
-    private ArrayList<TableBrowserItem> selectedItemsRepresentations;
+    private Id rootId;
+    private ArrayList<TableBrowserItem> tableBrowserItems;
     private LinkedHashMap<String, String> domainFieldOnColumnNameMap;
     private TableBrowserConfig tableBrowserConfig;
 
-    public ArrayList<TableBrowserItem> getSelectedItemsRepresentations() {
-        return selectedItemsRepresentations;
+    public Id getRootId() {
+        return rootId;
     }
 
-    public void setSelectedItemsRepresentations(ArrayList<TableBrowserItem> selectedItemsRepresentations) {
-        this.selectedItemsRepresentations = selectedItemsRepresentations;
+    public void setRootId(Id rootId) {
+        this.rootId = rootId;
+    }
+
+    public ArrayList<TableBrowserItem> getTableBrowserItems() {
+        return tableBrowserItems;
+    }
+
+    public void setTableBrowserItems(ArrayList<TableBrowserItem> tableBrowserItems) {
+        this.tableBrowserItems = tableBrowserItems;
     }
 
     public TableBrowserConfig getTableBrowserConfig() {
@@ -44,7 +52,7 @@ public class TableBrowserState extends LinkEditingWidgetState {
     @Override
     public ArrayList<Id> getIds() {
         ArrayList<Id> selectedIds = new ArrayList<Id>();
-        for (TableBrowserItem tableBrowserItem : selectedItemsRepresentations) {
+        for (TableBrowserItem tableBrowserItem : tableBrowserItems) {
             selectedIds.add(tableBrowserItem.getId());
         }
 

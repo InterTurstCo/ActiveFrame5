@@ -384,7 +384,7 @@
                     Если тэг отсутствует, то используется "inline"-вариант. -->
                 <selection-style name="inline"/>
                 <clear-all-button image="css/images/clear.png" text="Очистить"/>
-
+                <display-values-as-links value="true"/>
             </suggest-box>
             <suggest-box id="suggest_capital">
                 <field-path value="capital"/>
@@ -523,6 +523,7 @@
                 <clear-all-button image="css/images/clear.png" text="Очистить"/>
                 <add-button image="..." text="..."/>
                 <default-sort-criteria column-field="name" order="desc"/>
+                <display-values-as-links value="true"/>
             </table-browser>
 
         </widget-config>
@@ -739,14 +740,14 @@
             <column field="id" name="id" type="integer" sortable="false"/>
             <column field="name" name="Название" editable="false" type="string" sortable="true"/>
             <column field="population" name="Популяция" type="string" editable="false" sortable="true">
-            <asc-sort-criteria>
-                <sort-criterion field="population" order="asc"/>
-                <sort-criterion field="name" order="desc"/>
-            </asc-sort-criteria>
-            <desc-sort-criteria>
-                <sort-criterion field="population" order="desc"/>
-                <sort-criterion field="name" order="asc"/>
-            </desc-sort-criteria>
+                <asc-sort-criteria>
+                    <sort-criterion field="population" order="asc"/>
+                    <sort-criterion field="name" order="desc"/>
+                </asc-sort-criteria>
+                <desc-sort-criteria>
+                    <sort-criterion field="population" order="desc"/>
+                    <sort-criterion field="name" order="asc"/>
+                </desc-sort-criteria>
             </column>
             <column field="year_of_foundation" name="Год основания " type="integer" editable="false" sortable="true"/>
             <column field="latitude" name="Широта" type="string" editable="false" sortable="true"/>

@@ -49,6 +49,10 @@ public class TableBrowserConfig extends WidgetConfig {
     @Element(name = "dialog-window", required = false)
     private DialogWindowConfig dialogWindowConfig;
 
+    @Element(name = "display-values-as-links", required = false)
+    private DisplayValuesAsLinksConfig displayValuesAsLinksConfig;
+
+
     public CollectionViewRefConfig getCollectionViewRefConfig() {
         return collectionViewRefConfig;
     }
@@ -145,6 +149,14 @@ public class TableBrowserConfig extends WidgetConfig {
         this.dialogWindowConfig = dialogWindowConfig;
     }
 
+    public DisplayValuesAsLinksConfig getDisplayValuesAsLinksConfig() {
+        return displayValuesAsLinksConfig;
+    }
+
+    public void setDisplayValuesAsLinksConfig(DisplayValuesAsLinksConfig displayValuesAsLinksConfig) {
+        this.displayValuesAsLinksConfig = displayValuesAsLinksConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -209,6 +221,10 @@ public class TableBrowserConfig extends WidgetConfig {
                 that.dialogWindowConfig != null) {
             return false;
         }
+
+        if (displayValuesAsLinksConfig!= null ? !displayChosenValues.equals(that.displayValuesAsLinksConfig) : that.displayValuesAsLinksConfig!= null) {
+            return false;
+        }
         return true;
     }
 
@@ -227,6 +243,7 @@ public class TableBrowserConfig extends WidgetConfig {
         result = 31 * result + (addButtonConfig != null ? addButtonConfig.hashCode() : 0);
         result = 31 * result + (dialogWindowConfig != null ? dialogWindowConfig.hashCode() : 0);
         result = 31 * result + (defaultSortCriteriaConfig != null ? defaultSortCriteriaConfig.hashCode() : 0);
+        result = 31 * result + (displayValuesAsLinksConfig != null ? displayValuesAsLinksConfig.hashCode() : 0);
         return result;
     }
 

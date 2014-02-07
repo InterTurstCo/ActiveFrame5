@@ -14,6 +14,14 @@ public class HierarchyBrowserItem implements Dto {
     private String nodeCollectionName;
     private boolean chosen;
 
+    public HierarchyBrowserItem() {
+    }
+
+    public HierarchyBrowserItem(Id id, String stringRepresentation) {
+        this.stringRepresentation = stringRepresentation;
+        this.id = id;
+    }
+
     public Id getId() {
         return id;
     }

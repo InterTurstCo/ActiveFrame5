@@ -30,6 +30,7 @@ public class ListBoxWidget extends BaseWidget {
 
     public void setCurrentState(WidgetState currentState) {
         idMap = getStateHandler().setState(impl, (ListBoxState) currentState);
+
     }
 
     @Override
@@ -39,12 +40,12 @@ public class ListBoxWidget extends BaseWidget {
     }
 
     @Override
-    protected Widget asEditableWidget() {
+    protected Widget asEditableWidget(WidgetState state) {
         return new ListBox(true);
     }
 
     @Override
-    protected Widget asNonEditableWidget() {
+    protected Widget asNonEditableWidget(WidgetState state) {
         Label noneEditableWidget = new Label();
         noneEditableWidget.removeStyleName("gwt-Label");
         return noneEditableWidget;
@@ -107,7 +108,7 @@ public class ListBoxWidget extends BaseWidget {
         @Override
         public HashMap<String, Id> setState(final ListBox listBox, final ListBoxState state) {
             boolean singleChoice = state.isSingleChoice();
-            listBox.setMultipleSelect(singleChoice);
+            listBox.setMultipleSelect(!singleChoice);
             final HashSet<Id> selectedIdsSet = state.getSelectedIdsSet();
             final LinkedHashMap<Id,String> listValues = state.getListValues();
 

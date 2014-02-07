@@ -7,8 +7,8 @@ import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -74,14 +74,14 @@ public abstract class WidgetHandler implements ComponentHandler {
        Boolean singleChoiceAnalyzed = null;
        for (FieldPath fieldPath : fieldPaths) {
            if (singleChoiceAnalyzed != null) {
-              if (singleChoiceAnalyzed.booleanValue() != (fieldPath.isOneToOneReference() || fieldPath.isField())){
+              if (singleChoiceAnalyzed != (fieldPath.isOneToOneReference() || fieldPath.isField())){
                   throw new GuiException("Multiply fieldPaths should be all reference type or all backreference type");
               }
 
            }
             singleChoiceAnalyzed = fieldPath.isOneToOneReference() || fieldPath.isField();
        }
-       return singleChoiceAnalyzed.booleanValue() == true ? true : singleChoiceFromConfig;
+       return singleChoiceAnalyzed || singleChoiceFromConfig;
 
     }
 }

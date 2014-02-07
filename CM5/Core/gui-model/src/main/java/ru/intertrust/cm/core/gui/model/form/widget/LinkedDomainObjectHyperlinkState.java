@@ -15,7 +15,7 @@ public class LinkedDomainObjectHyperlinkState extends LinkEditingWidgetState {
     private Id id;
     private FormPluginConfig config;
     private String domainObjectType;
-    private Id parentId;
+    private String selectionPattern;
     public String getStringRepresentation() {
         return stringRepresentation;
     }
@@ -32,14 +32,6 @@ public class LinkedDomainObjectHyperlinkState extends LinkEditingWidgetState {
         this.id = id;
     }
 
-    public Id getParentId() {
-        return parentId;
-    }
-
-    public void setParentId(Id parentId) {
-        this.parentId = parentId;
-    }
-
     public FormPluginConfig getConfig() {
         return config;
     }
@@ -54,6 +46,14 @@ public class LinkedDomainObjectHyperlinkState extends LinkEditingWidgetState {
 
     public void setDomainObjectType(String domainObjectType) {
         this.domainObjectType = domainObjectType;
+    }
+
+    public String getSelectionPattern() {
+        return selectionPattern;
+    }
+
+    public void setSelectionPattern(String selectionPattern) {
+        this.selectionPattern = selectionPattern;
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.TextState;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 /**
  * @author Denis Mitavskiy
@@ -26,7 +27,7 @@ public class TextAreaWidget extends TextBoxWidget {
     }
 
     @Override
-    protected Widget asEditableWidget() {
+    protected Widget asEditableWidget(WidgetState state) {
         return new TextArea();
     }
 }

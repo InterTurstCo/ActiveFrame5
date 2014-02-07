@@ -1,6 +1,6 @@
 .hierarh-browser-inline {
     margin-left: 10px;
-    display: inline-block;
+    overflow-y: auto !important;
     position: relative;
     vertical-align: top;
 }
@@ -85,6 +85,7 @@
     -khtml-border-radius: 20px;
     border-radius: 20px;
     border: 4px solid silver;
+    z-index: 10;
 
 }
 

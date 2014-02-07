@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.LongValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.config.gui.form.widget.AttachmentBoxConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
@@ -47,7 +48,6 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
     public AttachmentBoxState getInitialState(WidgetContext context) {
         AttachmentBoxConfig widgetConfig = context.getWidgetConfig();
         FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
-        String selectionStyle = widgetConfig.getSelectionStyle().getName();
         List<AttachmentItem> savedAttachments = new ArrayList<AttachmentItem>();
 
         MultiObjectNode node = (MultiObjectNode) context.getFormObjects().getNode(fieldPath);
@@ -64,7 +64,8 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
 
         AttachmentBoxState state = new AttachmentBoxState();
         state.setAttachments(savedAttachments);
-        state.setSelectionStyle(selectionStyle);
+        SelectionStyleConfig selectionStyleConfig = widgetConfig.getSelectionStyle();
+        state.setSelectionStyleConfig(selectionStyleConfig);
         SingleChoiceConfig singleChoiceConfig = widgetConfig.getSingleChoice();
         boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
         boolean singleChoice = isSingleChoice(context, singleChoiceFromConfig) ;

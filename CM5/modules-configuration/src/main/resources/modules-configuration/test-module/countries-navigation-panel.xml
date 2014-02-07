@@ -24,7 +24,7 @@
                         <domain-object-surfer domain-object-type-to-create="city">
                             <collection-viewer>
                                 <collection-ref name="Cities"/>
-                                <default-sort-criteria column-field="name" order="desc"/>
+                                <default-sort-criteria column-field="population" order="desc"/>
                             </collection-viewer>
                         </domain-object-surfer>
                     </plugin>

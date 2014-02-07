@@ -100,12 +100,12 @@ public class RadioButtonWidget extends BaseWidget {
     }
 
     @Override
-    protected Widget asEditableWidget() {
+    protected Widget asEditableWidget(WidgetState state) {
         return new ScrollPanel();
     }
 
     @Override
-    protected Widget asNonEditableWidget() {
+    protected Widget asNonEditableWidget(WidgetState state) {
         return new Label();
     }
 }

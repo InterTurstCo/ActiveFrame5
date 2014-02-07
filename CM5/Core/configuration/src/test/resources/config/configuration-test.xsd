@@ -1265,6 +1265,8 @@
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:dialogWindowType" name="dialog-window"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:displayValuesAsLinksType" name="display-values-as-links"
+                                xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id"/>
             </xs:extension>
@@ -1366,6 +1368,8 @@
                                 xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
                     <xs:element type="con:defaultSortCriteriaType" name="default-sort-criteria"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:displayValuesAsLinksType" name="display-values-as-links"
+                                xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id"/>
             </xs:extension>
@@ -1510,6 +1514,8 @@
                                 xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
                     <xs:element type="con:dialogWindowType" name="dialog-window"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:displayValuesAsLinksType" name="display-values-as-links"
+                                xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id"/>
             </xs:extension>
@@ -1532,7 +1538,9 @@
         <xs:attribute type="xs:string" name="domain-object-type"/>
     </xs:complexType>
 
-
+    <xs:complexType name="displayValuesAsLinksType">
+                <xs:attribute type="xs:boolean" name="value"/>
+    </xs:complexType>
 
     <xs:element type="con:attachmentBoxType" name="attachment-box" substitutionGroup="con:widget"/>
     <!-- Attachment box definitions -->

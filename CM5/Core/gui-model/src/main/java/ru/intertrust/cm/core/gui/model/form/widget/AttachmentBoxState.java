@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,15 +12,15 @@ import java.util.List;
  *         Time: 13:15
  */
 public class AttachmentBoxState extends LinkEditingWidgetState {
-    private String selectionStyle;
+    private SelectionStyleConfig selectionStyleConfig;
     private List<AttachmentItem> attachments;
 
-    public String getSelectionStyle() {
-        return selectionStyle;
+    public SelectionStyleConfig getSelectionStyleConfig() {
+        return selectionStyleConfig;
     }
 
-    public void setSelectionStyle(String selectionStyle) {
-        this.selectionStyle = selectionStyle;
+    public void setSelectionStyleConfig(SelectionStyleConfig selectionStyleConfig) {
+        this.selectionStyleConfig = selectionStyleConfig;
     }
 
     public List<AttachmentItem> getAttachments() {
@@ -60,7 +61,7 @@ public class AttachmentBoxState extends LinkEditingWidgetState {
 
         AttachmentBoxState that = (AttachmentBoxState) o;
 
-        if (selectionStyle != null ? !selectionStyle.equals(that.selectionStyle) : that.selectionStyle != null)  {
+        if (selectionStyleConfig != null ? !selectionStyleConfig .equals(that.selectionStyleConfig ) : that.selectionStyleConfig  != null)  {
             return false;
         }
 
@@ -76,7 +77,7 @@ public class AttachmentBoxState extends LinkEditingWidgetState {
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (attachments != null ? attachments.hashCode() : 0);
-        result = 31 * result + (selectionStyle != null ? selectionStyle.hashCode() : 0);
+        result = 31 * result + (selectionStyleConfig  != null ? selectionStyleConfig .hashCode() : 0);
         return result;
     }
 

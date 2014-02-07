@@ -14,7 +14,7 @@ public class HierarchyBrowserConfig extends WidgetConfig {
     @Element(name = "node-collection-def")
     private NodeCollectionDefConfig nodeCollectionDefConfig;
 
-    @Element(name = "page-size",required = false)
+    @Element(name = "page-size", required = false)
     private Integer pageSize;
 
     @Element(name = "single-choice", required = false)
@@ -28,6 +28,9 @@ public class HierarchyBrowserConfig extends WidgetConfig {
 
     @Element(name = "selection-style", required = false)
     private SelectionStyleConfig selectionStyleConfig;
+
+    @Element(name = "display-values-as-links", required = false)
+    private DisplayValuesAsLinksConfig displayValuesAsLinksConfig;
 
     @Element (name = "dialog-window", required = false)
     private DialogWindowConfig dialogWindowConfig;
@@ -80,6 +83,14 @@ public class HierarchyBrowserConfig extends WidgetConfig {
         this.selectionStyleConfig = selectionStyleConfig;
     }
 
+    public DisplayValuesAsLinksConfig getDisplayValuesAsLinksConfig() {
+        return displayValuesAsLinksConfig;
+    }
+
+    public void setDisplayValuesAsLinksConfig(DisplayValuesAsLinksConfig displayValuesAsLinksConfig) {
+        this.displayValuesAsLinksConfig = displayValuesAsLinksConfig;
+    }
+
     public DialogWindowConfig getDialogWindowConfig() {
         return dialogWindowConfig;
     }
@@ -128,6 +139,9 @@ public class HierarchyBrowserConfig extends WidgetConfig {
                 that.selectionStyleConfig != null) {
             return false;
         }
+        if (displayValuesAsLinksConfig != null ? !displayValuesAsLinksConfig.equals(that.displayValuesAsLinksConfig) : that.displayValuesAsLinksConfig != null) {
+            return false;
+        }
 
         if (dialogWindowConfig != null ? !dialogWindowConfig.equals(that.dialogWindowConfig) :
                 that.dialogWindowConfig != null) {
@@ -146,6 +160,7 @@ public class HierarchyBrowserConfig extends WidgetConfig {
         result = 31 * result + (clearAllButtonConfig != null ? clearAllButtonConfig.hashCode() : 0);
         result = 31 * result + (addButtonConfig != null ? addButtonConfig.hashCode() : 0);
         result = 31 * result + (selectionStyleConfig != null ? selectionStyleConfig.hashCode() : 0);
+        result = 31 * result + (displayValuesAsLinksConfig != null ? displayValuesAsLinksConfig.hashCode() : 0);
         result = 31 * result + (dialogWindowConfig != null ? dialogWindowConfig.hashCode() : 0);
         return result;
     }

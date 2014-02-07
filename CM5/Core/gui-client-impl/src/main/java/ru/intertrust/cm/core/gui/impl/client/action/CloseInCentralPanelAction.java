@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.action;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
@@ -17,7 +18,8 @@ public class CloseInCentralPanelAction extends Action {
         plugin.getOwner().asWidget().setWidth("100%");
         final IsDomainObjectEditor editor = (IsDomainObjectEditor) getPlugin();
         final Id objectId = editor.getRootDomainObject().getId();
-        if (objectId != null) {
+        Plugin parent = plugin.getOwner().getParentPlugin(plugin);
+        if (objectId != null && parent == null) {
             plugin.getLocalEventBus().fireEvent(new CollectionRowSelectedEvent(objectId));
         }
         plugin.getOwner().closeCurrentPlugin();

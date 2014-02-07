@@ -234,8 +234,8 @@ public class FormPanel implements IsWidget {
                 BaseWidget widget = ComponentRegistry.instance.get(widgetComponent);
                 widget.setEditable(editable && widgetState.isEditable());
                 widget.setDisplayConfig(displayConfig);
-                widget.setState(widgetState);
                 widget.setEventBus(eventBus);
+                widget.setState(widgetState);
                 widgets.add(widget);
                 table.setWidget(rowIndex, colIndex, widget);
 

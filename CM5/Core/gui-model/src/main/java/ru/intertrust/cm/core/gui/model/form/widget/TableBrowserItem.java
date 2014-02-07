@@ -13,6 +13,14 @@ public class TableBrowserItem implements Dto {
     private Id id;
     private String stringRepresentation;
 
+    public TableBrowserItem() {
+    }
+
+    public TableBrowserItem(Id id, String stringRepresentation) {
+        this.id = id;
+        this.stringRepresentation = stringRepresentation;
+    }
+
     public Id getId() {
         return id;
     }

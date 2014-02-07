@@ -110,6 +110,14 @@ public class PluginPanel implements IsWidget {
     public void closeAllPlugins() {
 
     }
+    public Plugin getParentPlugin(Plugin child) {
+       if (plugins.isEmpty() || plugins.size() == 1) {
+           return null;
+       }
+
+      // int childIndex = plugins.indexOf(child);
+       return plugins.get(plugins.size() - 2);
+    }
 
     public void beforePluginOpening() {
         // noop

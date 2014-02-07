@@ -3,15 +3,11 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.DockPanel;
-import com.google.gwt.user.client.ui.FocusPanel;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
+import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.config.gui.form.widget.AddButtonConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.ClearAllButtonConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonForm;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 
@@ -33,10 +29,14 @@ public class HierarchyBrowserView extends Composite {
     private FocusPanel clearButton;
     private VerticalPanel buttonActionPanel;
     private EventBus eventBus;
-
-    public HierarchyBrowserView(EventBus eventBus) {
+    private SelectionStyleConfig selectionStyleConfig;
+    private boolean displayAsHyperlinks;
+    public HierarchyBrowserView(SelectionStyleConfig selectionStyleConfig, EventBus eventBus, boolean displayAsHyperlinks) {
         this.eventBus = eventBus;
+        this.selectionStyleConfig = selectionStyleConfig;
+        this.displayAsHyperlinks = displayAsHyperlinks;
         widgetContainer = initWidgetContent();
+
         initWidget(widgetContainer);
     }
 
@@ -46,6 +46,11 @@ public class HierarchyBrowserView extends Composite {
 
     public ArrayList<HierarchyBrowserItem> getChosenItems() {
         return widgetChosenContent.getChosenItems();
+    }
+
+    public void handleReplacingChosenItem(HierarchyBrowserItem item) {
+        widgetChosenContent.handleReplacingChosenItem(item);
+
     }
 
     @Override
@@ -62,13 +67,11 @@ public class HierarchyBrowserView extends Composite {
         buttonActionPanel.setStyleName("hierarh-browser-inline");
         Label label = new Label("Адресаты:");
         label.setStyleName("hierarh-browser-inline");
-        widgetChosenContent = new HierarchyBrowserFacebookStyleView(eventBus);
+        widgetChosenContent = new HierarchyBrowserFacebookStyleView(selectionStyleConfig, eventBus, displayAsHyperlinks);
         widgetChosenContent.asWidget().setStyleName("hierarh-browser-inline hierarh-browser-border");
         widgetContainer.add(label, DockPanel.WEST);
         widgetContainer.add(widgetChosenContent, DockPanel.CENTER);
         widgetContainer.add(buttonActionPanel, DockPanel.EAST);
-
-
         return widgetContainer;
     }
 
@@ -79,7 +82,6 @@ public class HierarchyBrowserView extends Composite {
     public void displayBaseWidget(String width, String height) {
         String widgetWidth = width != null ? width : DEFAULT_WIDTH;
         String widgetHeight = height != null ? height : DEFAULT_HEIGHT;
-
         widgetChosenContent.handleAddingChosenItems(chosenItems);
         widgetContainer.setSize(widgetWidth, widgetHeight);
 
@@ -88,9 +90,10 @@ public class HierarchyBrowserView extends Composite {
 
         widgetChosenContent.asWidget().getElement().getStyle().setProperty("minHeight", MIN_HEIGHT);
         widgetChosenContent.asWidget().setSize("100%", "100%");
+
     }
 
-    public void initAddButton(AddButtonConfig config){
+    public void initAddButton(AddButtonConfig config) {
         openPopupButton.clear();
         ButtonForm buttonForm;
         String text = config.getText();
@@ -98,32 +101,35 @@ public class HierarchyBrowserView extends Composite {
             text = "Выбрать";
 
         }
-        if (config != null){
+        if (config != null) {
             buttonForm = new ButtonForm(openPopupButton, config.getImage(), text);
-        }else {
+        } else {
             buttonForm = new ButtonForm(openPopupButton, "images/green-plus.png", text);
         }
         openPopupButton.add(buttonForm);
         widgetContainer.add(openPopupButton, DockPanel.EAST);
     }
 
-    public void initClearButtonIfItIs(ClearAllButtonConfig config){
-         if (config != null){
-             clearButton = new FocusPanel();
-             ButtonForm buttonForm = new ButtonForm(clearButton, config.getImage(), config.getText());
-             clearButton.add(buttonForm);
-             clearButton.getElement().getStyle().setMarginLeft(24, Style.Unit.PX);
-             widgetContainer.add(clearButton, DockPanel.EAST);
-             clearButton.addClickHandler(new ClickHandler() {
-                 @Override
-                 public void onClick(ClickEvent event) {
-                     chosenItems.clear();
-                     widgetChosenContent.handleAddingChosenItems(chosenItems);
+    public void initClearButtonIfItIs(ClearAllButtonConfig config) {
+        if (config != null) {
+            if (clearButton != null) {
+                clearButton.removeFromParent();
+            }
+            clearButton = new FocusPanel();
+            ButtonForm buttonForm = new ButtonForm(clearButton, config.getImage(), config.getText());
+            clearButton.add(buttonForm);
+            clearButton.getElement().getStyle().setMarginLeft(24, Style.Unit.PX);
+            widgetContainer.add(clearButton, DockPanel.EAST);
+            clearButton.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    chosenItems.clear();
+                    widgetChosenContent.handleAddingChosenItems(chosenItems);
 
-                 }
-             });
-         }
-     }
+                }
+            });
+        }
+    }
 
 
 }

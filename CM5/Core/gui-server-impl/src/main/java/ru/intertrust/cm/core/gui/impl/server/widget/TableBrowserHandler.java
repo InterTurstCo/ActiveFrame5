@@ -37,6 +37,8 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
         TableBrowserState state = new TableBrowserState();
         TableBrowserConfig widgetConfig = context.getWidgetConfig();
         state.setTableBrowserConfig(widgetConfig);
+        Id rootId = context.getFormObjects().getRootNode().getDomainObject().getId();
+        state.setRootId(rootId);
         ArrayList<Id> selectedIds = context.getAllObjectIds();
         List<DomainObject> domainObjects;
         if (!selectedIds.isEmpty()) {
@@ -48,17 +50,19 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
         SelectionPatternConfig selectionPatternConfig = widgetConfig.getSelectionPatternConfig();
         Pattern pattern = createDefaultRegexPattern();
         Matcher matcher = pattern.matcher(selectionPatternConfig.getValue());
+
         for (DomainObject domainObject : domainObjects) {
             TableBrowserItem item = new TableBrowserItem();
             item.setId(domainObject.getId());
             item.setStringRepresentation(format(domainObject, matcher));
             items.add(item);
         }
+        state.setTableBrowserItems(items);
         SingleChoiceConfig singleChoiceConfig = widgetConfig.getSingleChoice();
         boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
         boolean singleChoice = isSingleChoice(context, singleChoiceFromConfig) ;
         state.setSingleChoice(singleChoice);
-        state.setSelectedItemsRepresentations(items);
+
         return state;
     }
 

@@ -60,7 +60,7 @@ public class LabelWidget extends BaseWidget {
     }
 
     @Override
-    protected Widget asEditableWidget() {
+    protected Widget asEditableWidget(WidgetState state) {
         Panel panel = new HorizontalPanel();
         Label label = new Label();
         label.setStyleName("gwt-Good-Label");
@@ -73,8 +73,8 @@ public class LabelWidget extends BaseWidget {
     }
 
     @Override
-    protected Widget asNonEditableWidget() {
-        return asEditableWidget();
+    protected Widget asNonEditableWidget(WidgetState state) {
+        return asEditableWidget(state);
     }
 
     private void applyFontStyle(Label label, LabelState state) {

@@ -49,6 +49,9 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
     @Element(name = "default-sort-criteria", required = false)
     private DefaultSortCriteriaConfig defaultSortCriteriaConfig;
 
+    @Element(name = "display-values-as-links", required = false)
+    private DisplayValuesAsLinksConfig displayValuesAsLinksConfig;
+
     @Override
     public String getComponentName() {
         return "suggest-box";
@@ -142,6 +145,14 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
         this.maxDropDownHeight = maxDropDownHeight;
     }
 
+    public DisplayValuesAsLinksConfig getDisplayValuesAsLinksConfig() {
+        return displayValuesAsLinksConfig;
+    }
+
+    public void setDisplayValuesAsLinksConfig(DisplayValuesAsLinksConfig displayValuesAsLinksConfig) {
+        this.displayValuesAsLinksConfig = displayValuesAsLinksConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -205,6 +216,10 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
         if (maxDropDownHeight != null ? !maxDropDownHeight.equals(that.maxDropDownHeight) : that.maxDropDownHeight != null) {
             return false;
         }
+
+        if (displayValuesAsLinksConfig != null ? !displayValuesAsLinksConfig.equals(that.displayValuesAsLinksConfig) : that.displayValuesAsLinksConfig != null) {
+            return false;
+        }
         return true;
     }
 
@@ -222,6 +237,7 @@ public class SuggestBoxConfig extends WidgetConfig implements Dto {
         result = 31 * result + (maxDropDownWidth != null ? maxDropDownWidth.hashCode() : 0);
         result = 31 * result + (maxDropDownHeight != null ? maxDropDownHeight.hashCode() : 0);
         result = 31 * result + (defaultSortCriteriaConfig != null ? defaultSortCriteriaConfig.hashCode() : 0);
+        result = 31 * result + (displayValuesAsLinksConfig != null ? displayValuesAsLinksConfig.hashCode() : 0);
         return result;
     }
 }

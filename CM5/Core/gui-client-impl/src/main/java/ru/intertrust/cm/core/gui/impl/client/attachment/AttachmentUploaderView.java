@@ -8,9 +8,11 @@ import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.*;
+import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.impl.client.StyledDialogBox;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.AttachmentBoxWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.DownloadAttachmentHandler;
+import ru.intertrust.cm.core.gui.impl.client.util.DisplayStyleBuilder;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 
 import java.util.List;
@@ -26,7 +28,6 @@ public class AttachmentUploaderView extends Composite {
     private AbsolutePanel mainBoxPanel;
     private AbsolutePanel root;
     private Style.Display displayStyle;
-    private String selectionStyle;
     private Image progressbar;
     private Label percentage;
     private Image addFile;
@@ -35,17 +36,8 @@ public class AttachmentUploaderView extends Composite {
     private boolean singleChoice;
     private List<AttachmentItem> attachments;
 
-    public AttachmentUploaderView() {
-        init();
-    }
-
-    /**
-     * Возвращает сохраненные и несохраненные прикрепления
-     *
-     * @param attachments
-     */
-    public AttachmentUploaderView(List<AttachmentItem> attachments) {
-        this.attachments = attachments;
+    public AttachmentUploaderView(SelectionStyleConfig selectionStyleConfig) {
+        displayStyle = DisplayStyleBuilder.getDisplayStyle(selectionStyleConfig);
         init();
     }
 
@@ -81,14 +73,6 @@ public class AttachmentUploaderView extends Composite {
         return progressbar;
     }
 
-    public String getSelectionStyle() {
-        return selectionStyle;
-    }
-
-    public void setSelectionStyle(String selectionStyle) {
-        this.selectionStyle = selectionStyle;
-    }
-
     public void setSingleChoice(boolean singleChoice) {
         this.singleChoice = singleChoice;
     }
@@ -100,7 +84,7 @@ public class AttachmentUploaderView extends Composite {
         root = new AbsolutePanel();
         mainBoxPanel = new AbsolutePanel();
         mainBoxPanel.setStyleName("facebook-main-box");
-
+        mainBoxPanel.getElement().getStyle().setDisplay(displayStyle);
         initSubmitForm();
         initFileUpload();
         initUploadButton();
@@ -225,18 +209,6 @@ public class AttachmentUploaderView extends Composite {
 
             }
         });
-    }
-
-    public void initDisplayStyle(String howToDisplay) {
-
-        if (DISPLAY_STYLE_INLINE.equalsIgnoreCase(howToDisplay)) {
-            displayStyle = Style.Display.INLINE_BLOCK;
-        }
-        if (DISPLAY_STYLE_TABLE.equalsIgnoreCase(howToDisplay)) {
-            displayStyle = Style.Display.BLOCK;
-        }
-
-        mainBoxPanel.getElement().getStyle().setDisplay(displayStyle);
     }
 
     private void showDialogBox() {

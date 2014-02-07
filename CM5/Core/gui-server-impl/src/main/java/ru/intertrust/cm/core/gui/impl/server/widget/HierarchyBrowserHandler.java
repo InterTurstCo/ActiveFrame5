@@ -62,15 +62,6 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         return state;
     }
 
-    private HierarchyBrowserItem createHierarchyBrowserItem(String collectionName,
-                                                            IdentifiableObject identifiableObject, Matcher matcher) {
-        HierarchyBrowserItem item = new HierarchyBrowserItem();
-        item.setId(identifiableObject.getId());
-        item.setStringRepresentation(format(identifiableObject, matcher));
-        item.setNodeCollectionName(collectionName);
-        return item;
-    }
-
     private void generateChosenItemsForCollection(String collectionName, List<Filter> filters,
                                                                              Matcher matcher, ArrayList<HierarchyBrowserItem> items) {
         IdentifiableObjectCollection collectionForFacebookStyleItems = collectionsService.
@@ -80,6 +71,14 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
             items.add(item);
         }
 
+    }
+    private HierarchyBrowserItem createHierarchyBrowserItem(String collectionName,
+                                                            IdentifiableObject identifiableObject, Matcher matcher) {
+        HierarchyBrowserItem item = new HierarchyBrowserItem();
+        item.setId(identifiableObject.getId());
+        item.setStringRepresentation(format(identifiableObject, matcher));
+        item.setNodeCollectionName(collectionName);
+        return item;
     }
 
     public NodeContentResponse fetchNodeContent(Dto inputParams) {

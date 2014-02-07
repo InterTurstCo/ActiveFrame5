@@ -10,8 +10,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
  */
 public class HierarchyBrowserCheckBoxUpdateEvent extends GwtEvent<HierarchyBrowserCheckBoxUpdateEventHandler> {
 
-    public static Type<HierarchyBrowserCheckBoxUpdateEventHandler> TYPE =
-            new Type<HierarchyBrowserCheckBoxUpdateEventHandler>();
+    public static Type<HierarchyBrowserCheckBoxUpdateEventHandler> TYPE =   new Type<HierarchyBrowserCheckBoxUpdateEventHandler>();
     private HierarchyBrowserItem item;
 
     public HierarchyBrowserCheckBoxUpdateEvent(HierarchyBrowserItem item) {

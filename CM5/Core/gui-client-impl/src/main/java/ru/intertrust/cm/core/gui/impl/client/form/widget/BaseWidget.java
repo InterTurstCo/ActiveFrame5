@@ -59,7 +59,7 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget {
 
     public void setState(WidgetState state) {
         if (impl == null) {
-            impl = isEditable ? asEditableWidget() : asNonEditableWidget();
+            impl = isEditable ? asEditableWidget(state) : asNonEditableWidget(state);
             applySizeTo(impl);
         }
         setCurrentState(state);
@@ -76,9 +76,9 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget {
      */
     public abstract WidgetState getCurrentState();
 
-    protected abstract Widget asEditableWidget();
+    protected abstract Widget asEditableWidget(WidgetState state);
 
-    protected abstract Widget asNonEditableWidget();
+    protected abstract Widget asNonEditableWidget(WidgetState state);
 
     protected void applySizeTo(Widget widget) {
         String width = displayConfig.getWidth();

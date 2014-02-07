@@ -50,14 +50,14 @@ public class DateBoxWidget extends BaseWidget {
     }
 
     @Override
-    protected Widget asEditableWidget() {
+    protected Widget asEditableWidget(WidgetState state) {
         DateBoxDecorate dateBoxDecorate = new DateBoxDecorate();
         return dateBoxDecorate;
         //return new DateBox();
     }
 
     @Override
-    protected Widget asNonEditableWidget() {
+    protected Widget asNonEditableWidget(WidgetState state) {
         Label noneEditableWidget = new Label();
         noneEditableWidget.removeStyleName("gwt-Label");
         return noneEditableWidget;

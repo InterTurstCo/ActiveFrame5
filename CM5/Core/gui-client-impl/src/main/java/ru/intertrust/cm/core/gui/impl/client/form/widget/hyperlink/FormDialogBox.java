@@ -14,7 +14,7 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
  *         Date: 14.01.14
  *         Time: 10:25
  */
-public class FormDialogBox extends PopupPanel {
+public class FormDialogBox extends DialogBox {
    private PluginPanel formPluginPanel;
    private  AbsolutePanel buttonsPanel;
 
@@ -26,14 +26,14 @@ public class FormDialogBox extends PopupPanel {
         // Enable animation.
         this.setAnimationEnabled(true);
         this.setModal(true);
-        this.addStyleName("search-popup-body");
+        this.addStyleName("dialog-box-body");
 
-        this.removeStyleName("gwt-PopupPanel");
+        this.removeStyleName("gwt-DialogBox");
         Label label = new Label(headerTitle);
         label.addStyleName("form-header-message");
         label.removeStyleName("gwt-Label");
         AbsolutePanel panel = new AbsolutePanel();
-       // panel.addStyleName("search-popup-content");
+        panel.addStyleName("form-dialog-box-content");
         SimplePanel header = new SimplePanel();
         header.addStyleName("dialog-box-header");
         header.add(label);
@@ -57,7 +57,6 @@ public class FormDialogBox extends PopupPanel {
         button.addClickHandler(clickHandler);
         buttonsPanel.add(button);
     }
-
 
     public FormPlugin createFormPlugin(FormPluginConfig config){
         final FormPlugin formPlugin = ComponentRegistry.instance.get("form.plugin");

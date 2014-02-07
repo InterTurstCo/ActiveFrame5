@@ -7,6 +7,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.business.api.dto.AttachmentUploadPercentage;
+import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.attachment.AttachmentUploaderView;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -46,11 +47,9 @@ public class AttachmentBoxWidget extends BaseWidget {
     private void setCurrentStateForEditableWidget(AttachmentBoxState state) {
         AttachmentUploaderView view = (AttachmentUploaderView) impl;
         List<AttachmentItem> attachments = state.getAttachments();
-        String selectionStyle = state.getSelectionStyle();
         boolean singleChoice = state.isSingleChoice();
         view.setAttachments(attachments);
         view.setSingleChoice(singleChoice);
-        view.initDisplayStyle(selectionStyle);
         view.cleanUp();
         for (AttachmentItem attachmentItem : attachments) {
             view.displayAttachmentLinkItem(attachmentItem);
@@ -59,10 +58,11 @@ public class AttachmentBoxWidget extends BaseWidget {
 
     private void setCurrentStateForNoneEditableWidget(AttachmentBoxState state) {
         List<AttachmentItem> attachments = state.getAttachments();
-        String selectionStyle = state.getSelectionStyle();
-        AttachmentNoneEditablePanel noneEditablePanel = (AttachmentNoneEditablePanel) impl;
-        noneEditablePanel.setAttachmentItems(attachments);
-        noneEditablePanel.showSelectedItems(selectionStyle);
+        NoneEditablePanel noneEditablePanel = (NoneEditablePanel) impl;
+        for (AttachmentItem attachmentItem : attachments) {
+            String representation = attachmentItem.getName();
+            noneEditablePanel.displayItem(representation);
+        }
 
     }
 
@@ -80,16 +80,20 @@ public class AttachmentBoxWidget extends BaseWidget {
     }
 
     @Override
-    protected Widget asEditableWidget() {
-        AttachmentUploaderView attachmentUploaderView = new AttachmentUploaderView();
+    protected Widget asEditableWidget(WidgetState state) {
+        AttachmentBoxState attachmentBoxState = (AttachmentBoxState) state;
+        SelectionStyleConfig selectionStyleConfig = attachmentBoxState.getSelectionStyleConfig();
+        AttachmentUploaderView attachmentUploaderView = new AttachmentUploaderView(selectionStyleConfig);
         attachmentUploaderView.addFormSubmitCompleteHandler(new FormSubmitCompleteHandler());
         attachmentUploaderView.addFormSubmitHandler(new FormSubmitHandler());
         return attachmentUploaderView;
     }
 
     @Override
-    protected Widget asNonEditableWidget() {
-        return new AttachmentNoneEditablePanel();
+    protected Widget asNonEditableWidget(WidgetState state) {
+        AttachmentBoxState attachmentBoxState = (AttachmentBoxState) state;
+        SelectionStyleConfig selectionStyleConfig = attachmentBoxState.getSelectionStyleConfig();
+        return new NoneEditablePanel(selectionStyleConfig);
     }
 
     private AttachmentItem handleFileNameFromServer(String filePath) {

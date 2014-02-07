@@ -90,7 +90,7 @@
                             <table>
                                 <tr>
                                     <td>
-                                        <widget id="2c"/>
+                                        <widget id="2c" width="450px"/>
                                     </td>
                                 </tr>
                             </table>
@@ -112,7 +112,7 @@
                 <text>Адресаты:</text>
             </label>
 
-            <!--<list-box id="addressees">
+           <!-- <list-box id="addressees">
                 <field-path value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
                 <pattern value="{Name}"/>
             </list-box>-->
@@ -145,9 +145,10 @@
 
                 <!-- количество элементов, показываемых в данном узле дерева изначально -->
                 <page-size>10</page-size>
-                <single-choice value="true"/>
+                <single-choice value="false"/>
                 <clear-all-button image="css/images/clear.png" text="Очистить"/>
                 <add-button image="..." text="..."/>
+                <display-values-as-links value="true"/>
             </hierarchy-browser>
         </widget-config>
     </form>
