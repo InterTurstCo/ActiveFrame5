@@ -13,7 +13,7 @@ import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
  */
 @ComponentName("close.in.central.panel.action")
 public class CloseInCentralPanelAction extends Action {
-    private boolean dontUpdateAllForm;
+
     @Override
     public void execute() {
         plugin.getOwner().asWidget().setWidth("100%");
