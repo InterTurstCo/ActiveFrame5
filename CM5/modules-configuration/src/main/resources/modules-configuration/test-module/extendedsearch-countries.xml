@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+    <form name="extendedsearch_countries_form" domain-object-type="Country" type="search" debug="false"
+          min-width="500px" is-default = "true">
+        <markup>
+            <header>
+            </header>
+            <body display-single-tab="false">
+                <tab name="">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <!-- label (День Независимости) -->
+                                    <td>
+                                        <widget id="1"/>
+                                    </td>
+                                    <td>
+                                        <widget id="2"/>
+                                    </td>
+                                    <td>
+                                        <widget id="3"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <!-- label -->
+            <label id="1">
+                <text>День Независимости:</text>
+            </label>
+            <date-box id="2">
+                <field-path value="independence_day"/>
+                <range-start widget-id="3"/>
+            </date-box>
+            <date-box id="3">
+                <field-path value="independence_day"/>
+                <range-end widget-id="2"/>
+            </date-box>
+        </widget-config>
+    </form>
+    <form-mappings name="extendedsearch_countries_form_mappings">
+        <form-mapping domain-object-type="Country" form="extendedsearch_countries_form">
+            <users>
+                <user uid="admin"/>
+            </users>
+            <roles>
+                <role name="Minister"/>
+            </roles>
+        </form-mapping>
+    </form-mappings>
+</configuration>

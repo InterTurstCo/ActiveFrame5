@@ -1176,7 +1176,7 @@
         </xs:complexContent>
     </xs:complexType>
 
-    <xs:element type="con:dateBoxType" name="date-box" substitutionGroup="con:widget"/>
+   <!-- <xs:element type="con:dateBoxType" name="date-box" substitutionGroup="con:widget"/>
     <xs:complexType name="dateBoxType">
         <xs:complexContent>
             <xs:extension base="con:abstractWidgetType">
@@ -1187,6 +1187,32 @@
                 <xs:attribute type="xs:string" name="id" use="optional"/>
             </xs:extension>
         </xs:complexContent>
+    </xs:complexType>-->
+
+    <xs:element type="con:dateBoxType" name="date-box" substitutionGroup="con:widget"/>
+    <xs:complexType name="dateBoxType">
+        <xs:complexContent>
+            <xs:extension base="con:abstractWidgetType">
+                <xs:sequence>
+                    <xs:element type="con:fieldPathType" name="field-path"
+                                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:choice maxOccurs="1" minOccurs="0">
+                        <xs:element type="con:rangeType" name="range-start"
+                                    minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                        <xs:element type="con:rangeType" name="range-end"
+                                    minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                    </xs:choice>
+                </xs:sequence>
+                <xs:attribute type="xs:string" name="id" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="rangeType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="widget-id"/>
+            </xs:extension>
+        </xs:simpleContent>
     </xs:complexType>
 
     <xs:element type="con:comboBoxType" name="combo-box" substitutionGroup="con:widget"/>

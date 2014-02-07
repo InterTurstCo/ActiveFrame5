@@ -142,16 +142,44 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
     // обработка условий расширенного поиска и формирование результирующих данных
     public  Dto searchFormDataProcessor (Dto dto) {
         ExtendedSearchData extendedSearchData = (ExtendedSearchData) dto;
-//        DomainObject domainObject = crudService.createDomainObject(extendedSearchData.getSearchQuery().getTargetObjectType());
         FormConfig formConfig = formResolver.findSearchForm(extendedSearchData.getSearchQuery().getTargetObjectType());
         List<WidgetConfig> widgetConfigs = formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
         // данные из полей формы поиска
         Map<String, WidgetState> formWidgetsData = extendedSearchData.getFormWidgetsData();
         ArrayList<Id> idsWidgetObjects = null;
+        // список значений дат в интервале
+        ArrayList<Date> dateBoxList = null;
+
+        Map<String, WidgetState> dateBoxWidgetsDataByIds = new HashMap<>();
+
+        // фильтр для интервалов дат
+        DatePeriodFilter datePeriodFilter = null;
+
+        //boolean isRangeDateFilterFull = false;
         Map<String, WidgetConfig> widgetConfigById = new HashMap<>();
+
         for (WidgetConfig config : widgetConfigs) {
             widgetConfigById.put(config.getId(), config);
         }
+
+        for (String key : formWidgetsData.keySet()) {
+            WidgetState widgetState = formWidgetsData.get(key);
+            if (widgetState instanceof ValueEditingWidgetState) {
+                dateBoxWidgetsDataByIds.put(key, widgetState);
+            }
+        }
+
+        // Если на форме поиска 2 или более DateBox-ов, то создаем поисковый фильтр
+        if (dateBoxWidgetsDataByIds.size() == 2) {
+            if (datePeriodFilter == null) {
+                dateBoxList = new ArrayList<>();
+                for (String k : dateBoxWidgetsDataByIds.keySet()) {
+                    datePeriodFilter = new DatePeriodFilter(widgetConfigById.get(k).getFieldPathConfig().getValue());
+                    break;
+                }
+            }
+        }
+
         // проходим по полям формы поиска, собираем данные и строим поисковые фильтры
         for (String key : formWidgetsData.keySet()) {
             // список идентификаторов объектов в виджете
@@ -195,13 +223,31 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
                         }
                         idsWidgetObjects.clear();
                     }
+
+                    if (widgetState instanceof ValueEditingWidgetState) {
+                        // дату добавляем в список дат интервала формы поиска
+                        dateBoxList.add((Date)plainValue);
+
+                        /*if (((DateBoxConfig)widgetConfigById.get(key)).getRangeEndConfig().getWidgetId() != null ) {
+                            if (datePeriodFilter.getEndDate() == null) {
+                                datePeriodFilter.setEndDate((Date)plainValue);
+                                continue;
+                            }
+                        }
+                        if (((DateBoxConfig)widgetConfigById.get(key)).getRangeStartConfig().getWidgetId() != null ) {
+                            datePeriodFilter.setStartDate((Date)plainValue);
+                            continue;
+                        }*/
+                    }
                 }
 
                 if (plainValue == null)
                     continue;
-
             } catch (NullPointerException npe) { continue; }
         }
+
+        // фильтр по интервалу дат в поисковый запрос
+        extendedSearchData.getSearchQuery().addFilter(createDatePeriodFilter(datePeriodFilter, dateBoxList)/*datePeriodFilter*/);
 
         CollectionPluginHandler collectionPluginHandler =
                 (CollectionPluginHandler) applicationContext.getBean("collection.plugin");
@@ -247,7 +293,6 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         //                                                      applicationContext.getBean("extended.search.form.plugin");
 
         FormPluginData formPluginData = formPluginHandler.initialize(formPluginConfig);
-        //FormPluginData formPluginData = (FormPluginData)extendedSearchFormPluginHandler.initialize(extendedSearchData/*formPluginConfig*/);
         formPluginData.setPluginState(formPluginConfig.getPluginState());
         formPluginData.setActionContexts(actionContexts);
 
@@ -266,11 +311,27 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         result.setDomainObjectSurferConfig(domainObjectSurferConfig);
         result.setCollectionPluginData(collectionPluginData);
         result.setFormPluginData(formPluginData);
-        result.setActionContexts(/*formPluginData.getActionContexts()*/actionContexts);
+        result.setActionContexts(actionContexts);
         final DomainObjectSurferPluginState dosState = new DomainObjectSurferPluginState();
         dosState.setToggleEdit(true);
         result.setPluginState(dosState);
         return result;
+    }
+
+    private DatePeriodFilter createDatePeriodFilter(DatePeriodFilter datePeriodFilter, ArrayList<Date> dates) {
+        //DatePeriodFilter dpf = new DatePeriodFilter();
+        //dpf = datePeriodFilter;
+        Date date1 = dates.get(0);
+        Date date2 = dates.get(1);
+
+        if (date1.after(date2)) {
+            datePeriodFilter.setEndDate(date1);
+        }
+        if (date2.before(date1)) {
+            datePeriodFilter.setStartDate(date2);
+        }
+
+        return datePeriodFilter;
     }
 
     // запрос на поиск

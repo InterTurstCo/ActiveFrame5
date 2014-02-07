@@ -19,7 +19,12 @@ import java.util.Date;
 public class DateBoxHandler extends ValueEditingWidgetHandler {
     @Override
     public DateBoxState getInitialState(WidgetContext context) {
-        return new DateBoxState(context.<Date>getFieldPlainValue());
+        //DateBoxConfig config = context.getWidgetConfig();
+        //RangeDateConfig rangeDateConfig = config.getRangeDateValueConfig();
+        DateBoxState dateBoxState = new DateBoxState();
+        dateBoxState.setDate(context.<Date>getFieldPlainValue());
+        //dateBoxState.setRangeDateValueConfig(rangeDateConfig);
+        return dateBoxState;
     }
 
     @Override

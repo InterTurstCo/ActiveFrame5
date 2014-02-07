@@ -54,7 +54,7 @@ background: url(images/blue-arrow-down.png) no-repeat -2px 0px;
 padding-top: 20px;
 }
 .dateBoxPopup{
-z-index: 9;
+z-index: 999;
 }
 /* top date picker */
 .datePickerPreviousButton{
@@ -134,6 +134,7 @@ height: 16px;
 .date-picker-decorate{
     border: 1px;
     border-color: red;
+
 }
 
 div, input, textarea, select{

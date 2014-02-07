@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+    <form name="extendedsearch_int_docs_form" domain-object-type="Internal_Document" type="search" debug="false"
+                                                                                    min-width="500px" is-default = "true">
+        <markup>
+            <header>
+            </header>
+            <body display-single-tab="false">
+                <tab name="">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <!-- label (Регистратор документа) -->
+                                    <td>
+                                        <widget id="1"/>
+                                    </td>
+                                    <td>
+                                        <widget id="2"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <!-- label (Регистратор) -->
+            <label id="1">
+                <text>Регистратор:</text>
+            </label>
+            <list-box id="2">
+                <field-path value="Registrant"/>
+                <pattern value="{Name}"/>
+                <single-choice value="false"/>
+            </list-box>
+            </widget-config>
+    </form>
+    <form-mappings name="extendedsearch_int_docs_mappings">
+        <form-mapping domain-object-type="Internal_Document" form="extendedsearch_int_docs_form">
+            <users>
+                <user uid="admin"/>
+            </users>
+            <roles>
+                <role name="Minister"/>
+            </roles>
+        </form-mapping>
+    </form-mappings>
+</configuration>

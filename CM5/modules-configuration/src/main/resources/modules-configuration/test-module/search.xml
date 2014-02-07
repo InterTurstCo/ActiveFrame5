@@ -102,7 +102,7 @@
             <indexed-field name="name"/>
             <indexed-field name="independence_day"/>
             <indexed-field name="description"/>
-            <target-collection name="Country"/>
+            <target-collection name="Countries"/>
         </target-domain-object>
     </search-area>
 </configuration>

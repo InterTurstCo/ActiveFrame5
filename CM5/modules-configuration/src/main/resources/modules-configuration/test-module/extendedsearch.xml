@@ -8,7 +8,7 @@
                 <tab name="Главная"> <!-- закладка состоит из групп с разметкой -->
                     <single-entry-group> <!-- наследник от TabGroupsConfig -->
                         <tab-group> <!-- вхождение в группу уже может содержать разметку -->
-                            <table h-align="center" v-align="center">
+                            <table>
                                 <tr>
                                     <!-- label (Имя) -->
                                     <td>
@@ -95,6 +95,11 @@
             <text-box id="2">
                 <field-path value="FirstName"/>
             </text-box>
+            <!--<list-box id="2">
+                <field-path value="city^country"/>
+                <pattern value="{name}"/>
+                <single-choice value="false"/>
+            </list-box>-->
             <!-- label (Фамилия) -->
             <label id="3">
                 <text>Фамилия:</text>
@@ -124,6 +129,7 @@
                 <field-path value="Department"/>
                 <pattern value="{Name}"/>
             </combo-box>
+
             <!--Department_Name, Organization-->
             <!--<label id="11">
                 <text>Организация:</text>
