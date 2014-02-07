@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
 
@@ -12,7 +13,7 @@ import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
  */
 @ComponentName("close.in.central.panel.action")
 public class CloseInCentralPanelAction extends Action {
-
+    private boolean dontUpdateAllForm;
     @Override
     public void execute() {
         plugin.getOwner().asWidget().setWidth("100%");
@@ -22,6 +23,11 @@ public class CloseInCentralPanelAction extends Action {
         if (objectId != null && parent == null) {
             plugin.getLocalEventBus().fireEvent(new CollectionRowSelectedEvent(objectId));
         }
+        if (parent instanceof DomainObjectSurferPlugin) {
+            IsDomainObjectEditor parentEditor = (IsDomainObjectEditor) parent;
+            Id parentId = parentEditor.getRootDomainObject().getId();
+            plugin.getLocalEventBus().fireEvent(new CollectionRowSelectedEvent(parentId));
+        }
         plugin.getOwner().closeCurrentPlugin();
     }
 
@@ -29,4 +35,5 @@ public class CloseInCentralPanelAction extends Action {
     public Component createNew() {
         return new CloseInCentralPanelAction();
     }
+
 }
