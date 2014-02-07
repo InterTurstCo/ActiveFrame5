@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
-import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
@@ -11,6 +10,8 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.util.Date;
 
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.DATE_TIME_FORMAT;
+
 /**
  * @author Denis Mitavskiy
  *         Date: 26.09.13
@@ -18,8 +19,6 @@ import java.util.Date;
  */
 @ComponentName("date-box")
 public class DateBoxWidget extends BaseWidget {
-
-    public static final DateTimeFormat DATE_TIME_FORMAT = DateTimeFormat.getFormat("dd.MM.yyyy");
 
     @Override
     public Component createNew() {

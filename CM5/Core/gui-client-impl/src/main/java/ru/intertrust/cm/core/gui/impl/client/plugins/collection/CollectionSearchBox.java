@@ -21,12 +21,8 @@ import java.util.Date;
  * To change this template use File | Settings | File Templates.
  */
 public class CollectionSearchBox extends Composite implements IsWidget {
-
-
     public static enum Type {
-
         TEXTBOX, DATEBOX, CHECKBOX
-
     }
 
     private FlowPanel container = new FlowPanel();
@@ -42,7 +38,6 @@ public class CollectionSearchBox extends Composite implements IsWidget {
     private String text = "";
     private Date date;
     private EventBus eventBus;
-
 
     public CollectionSearchBox(TextBox textBox, String filterType, EventBus eventBus) {
         createCommonElementCollectionSearchBox();
@@ -63,7 +58,6 @@ public class CollectionSearchBox extends Composite implements IsWidget {
         this.eventBus = eventBus;
         configDateBoxElement();
 
-
     }
 
     private void configDateBoxElement() {
@@ -73,10 +67,8 @@ public class CollectionSearchBox extends Composite implements IsWidget {
         dateSet.addStyleName("date-select");
         dateSet.removeStyleName("gwt-Button");
         dateBox.addStyleName("search-data-box");
-
         DateTimeFormat format = DateTimeFormat.getFormat("dd.MM.yyyy");
         dateBox.setFormat(new DateBox.DefaultFormat(format));
-
         close.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -86,8 +78,6 @@ public class CollectionSearchBox extends Composite implements IsWidget {
                 close.addStyleName("flush-serch-hide");
             }
         });
-
-
         dateSet.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -102,7 +92,7 @@ public class CollectionSearchBox extends Composite implements IsWidget {
             @Override
             public void onValueChange(ValueChangeEvent<Date> event) {
                 date = dateBox.getValue();
-                text = dateBox.getTextBox().getValue();
+
                 close.removeStyleName("flush-serch-hide");
             }
         });
@@ -112,38 +102,32 @@ public class CollectionSearchBox extends Composite implements IsWidget {
             @Override
             public void onKeyDown(KeyDownEvent event) {
                 if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+                    text = dateBox.getTextBox().getText();
                     fireEnterKey();
                 }
             }
         }, KeyDownEvent.getType());
-
 
     }
 
     private void fireEnterKey() {
 
         eventBus.fireEvent(new TableSearchEvent(this));
-
     }
 
     private void configTextBoxElement() {
-
         textBox.addStyleName("search-box");
         textBox.removeStyleName("gwt-TextBox");
         textBox.setMaxLength(11);
         boxContainer.add(textBox);
         boxContainer.add(close);
-
-
         close.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 textBox.setText("");
-
                 close.addStyleName("flush-serch-hide");
             }
         });
-
 
         textBox.addChangeHandler(new ChangeHandler() {
             @Override
@@ -152,7 +136,6 @@ public class CollectionSearchBox extends Composite implements IsWidget {
                 close.removeStyleName("flush-serch-hide");
             }
         });
-
 
         textBox.addKeyDownHandler(new KeyDownHandler() {
             @Override
@@ -164,14 +147,11 @@ public class CollectionSearchBox extends Composite implements IsWidget {
             }
         });
 
-
     }
 
     private void confCloseButton() {
-
         close.addStyleName("flush-serch");
         close.removeStyleName("gwt-Button");
-
 
     }
 
@@ -183,7 +163,6 @@ public class CollectionSearchBox extends Composite implements IsWidget {
         close.addStyleName("flush-serch-hide");
         confCloseButton();
     }
-
 
     public FlowPanel getContainer() {
         return boxContainer;

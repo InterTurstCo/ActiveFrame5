@@ -5,6 +5,6 @@
         <sql-trace enable="false" resolveParameters="true" minRows="1" minTime="1000"/>
     </global-settings>
     <business-universe>
-        <logo image="logo.gif"/>
+        <logo image="images/CM4_logo.png"/>
     </business-universe>
 </configuration>

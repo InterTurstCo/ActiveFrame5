@@ -2,12 +2,12 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.datepicker.client.DateBox;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 
 import java.util.Date;
 /**
@@ -29,7 +29,7 @@ public class DateBoxDecorate extends Composite {
         final FocusPanel dateBtn = new FocusPanel();
         dateBtn.setStyleName("date-box-button");
 
-        DateBox.Format format = new DateBox.DefaultFormat(DateTimeFormat.getFormat("dd/MM/yyyy"));
+        DateBox.Format format = new DateBox.DefaultFormat(BusinessUniverseConstants.DATE_TIME_FORMAT);
         picker = new CMJDatePicker();
         dateBox = new DateBox(picker, null, format);
         TextBox textDateBox = dateBox.getTextBox();

@@ -17,12 +17,13 @@ public final class ValueConverterFactory {
         if ("integer".equals(fieldType)) {
             fieldType = "long";
         }
+        if ("datetime".equalsIgnoreCase(fieldType)) {
+            return new DateTimeConverter();
+        }
         final FieldType type = FieldType.valueOf(fieldType.toUpperCase());
         switch (type) {
             case BOOLEAN:
                 return new BooleanValueConverter();
-            case DATETIME:
-                return new DateTimeConverter();
             default:
                 return DEFAULT;
         }

@@ -26,7 +26,7 @@ public class TableSearchEvent extends GwtEvent<TableSearchEventHandler> {
 
     @Override
     protected void dispatch(TableSearchEventHandler handler) {
-        handler.seachByFields(this);
+        handler.searchByFields(this);
     }
 
 

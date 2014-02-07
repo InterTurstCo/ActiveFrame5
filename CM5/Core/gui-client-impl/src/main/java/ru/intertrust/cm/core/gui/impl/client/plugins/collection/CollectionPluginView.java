@@ -66,7 +66,7 @@ public class CollectionPluginView extends PluginView {
     private Button filterButton = new Button();
     private HorizontalPanel searchPanel = new HorizontalPanel();
     private ArrayList<Filter> filterList;
-    private ArrayList<CollectionSearchBox> searchBoxList =  new ArrayList<CollectionSearchBox>();
+    private ArrayList<CollectionSearchBox> searchBoxList = new ArrayList<CollectionSearchBox>();
     private HorizontalPanel treeLinkWidget = new HorizontalPanel();
     private String simpleSearchQuery = "";
     private String searchArea = "";
@@ -178,15 +178,14 @@ public class CollectionPluginView extends PluginView {
             public void setWidgetSize(SplitterWidgetResizerEvent event) {
                 if (event.isType()) {
                     if ((event.getFirstWidgetHeight() * 2) < Window.getClientHeight()) {
-                        scrollTableBody.setHeight(((event.getFirstWidgetHeight() ) - headerPanel.getOffsetHeight()) + "px");
+                        scrollTableBody.setHeight(((event.getFirstWidgetHeight()) - headerPanel.getOffsetHeight()) + "px");
                         tableController.columnWindowResize(columnMinWidth(event.getFirstWidgetWidth() / tableBody.getColumnCount()));
 
                     } else {
                         tableController.columnWindowResizeOnPercentage(event.getFirstWidgetWidth());
                     }
 
-                }
-                else {
+                } else {
                     tableController.columnWindowResize(columnMinWidth((plugin.getOwner().getVisibleWidth() / tableBody.getColumnCount())));
                 }
                 scrollTableBody.setHeight((event.getFirstWidgetHeight() - headerPanel.getOffsetHeight()) + "px");
@@ -265,39 +264,34 @@ public class CollectionPluginView extends PluginView {
         //событие которое инициализирует поиск по колонкам таблицы
         eventBus.addHandler(TableSearchEvent.TYPE, new TableSearchEventHandler() {
             @Override
-            public void seachByFields(TableSearchEvent event) {
+            public void searchByFields(TableSearchEvent event) {
                 filterList.clear();
                 for (int i = 0; i < searchBoxList.size(); i++) {
-                    if (searchBoxList.get(i).getFilterType() != null &&
-                            searchBoxList.get(i).getText().length() > 0) {
-
+                    CollectionSearchBox searchBox = searchBoxList.get(i);
+                    String filterType = searchBox.getFilterType();
+                    if (filterType != null && searchBox.getText().length() > 0) {
                         Filter filter = new Filter();
-                        filter.setFilter(searchBoxList.get(i).getFilterType());
+                        filter.setFilter(filterType);
                         Value value;
-                        if (searchBoxList.get(i).getType() == CollectionSearchBox.Type.DATEBOX &&
-                                searchBoxList.get(i).getText().length() > 0) {
-
-                            Date date = new Date();
-                            date = searchBoxList.get(i).getDate();
-
-                            value = new DateTimeValue(date);
-
-
+                        if (searchBox.getType() == CollectionSearchBox.Type.DATEBOX) {
+                            Date date = searchBox.getDate();
+                            if (date != null) {
+                                value = new DateTimeValue(date);
+                            } else {
+                                date = BusinessUniverseConstants.DATE_TIME_FORMAT.parse(searchBox.getText());
+                                value = new DateTimeValue(date);
+                            }
                         } else {
-                            value = new StringValue("%" + searchBoxList.get(i).getText() + "%");
+                            value = new StringValue("%" + searchBox.getText() + "%");
                         }
                         filter.addCriterion(0, value);
                         filterList.add(filter);
-
-
                     }
                 }
 
                 items.clear();
                 listCount = 0;
                 collectionData();
-
-
             }
         });
 
@@ -314,7 +308,7 @@ public class CollectionPluginView extends PluginView {
                 sb.append(collectionName);
 
 
-                if(sortCollectionState !=null && sortCollectionState.isSortable()){
+                if (sortCollectionState != null && sortCollectionState.isSortable()) {
                     sb.append("&");
                     sb.append("ColumnName=");
                     sb.append(sortCollectionState.getField());
@@ -324,7 +318,7 @@ public class CollectionPluginView extends PluginView {
 
                 }
 
-                if (simpleSearchQuery != null && simpleSearchQuery.length()>0){
+                if (simpleSearchQuery != null && simpleSearchQuery.length() > 0) {
                     sb.append("&");
                     sb.append("simpleSearchQuery=");
                     sb.append(simpleSearchQuery);
@@ -334,23 +328,23 @@ public class CollectionPluginView extends PluginView {
                     sb.append(searchArea);
 
 
-                }  else {
+                } else {
                     sb.append("&");
                     sb.append("filterName=");
-                    for (int i = 0; i < filterList.size(); i++){
-                         if (filterList.get(i).getCriterion(0) != null && !filterList.get(i).getCriterion(0).isEmpty())
-                         sb.append(filterList.get(i).getFilter());
-                         sb.append(":");
-                         sb.append(filterList.get(i).getCriterion(0));
-                         sb.append(":");
+                    for (int i = 0; i < filterList.size(); i++) {
+                        if (filterList.get(i).getCriterion(0) != null && !filterList.get(i).getCriterion(0).isEmpty())
+                            sb.append(filterList.get(i).getFilter());
+                        sb.append(":");
+                        sb.append(filterList.get(i).getCriterion(0));
+                        sb.append(":");
 
                     }
                 }
 
                 String msg = sb.toString().replaceAll("%", "");
-                String query = GWT.getHostPageBaseURL() + "export-to-csv?"+msg;
+                String query = GWT.getHostPageBaseURL() + "export-to-csv?" + msg;
 
-                Window.open(query , "Export to CSV", "");
+                Window.open(query, "Export to CSV", "");
 
             }
         });
@@ -404,8 +398,8 @@ public class CollectionPluginView extends PluginView {
         CollectionRowItem item = new CollectionRowItem();
         LinkedHashMap<String, Value> rowValues = new LinkedHashMap<String, Value>();
         for (String field : fieldPropertiesMap.keySet()) {
-             Value value = null;
-             value = collectionObject.getValue(field);
+            Value value = null;
+            value = collectionObject.getValue(field);
 
             if (field.equalsIgnoreCase("id")) {
                 value = new StringValue(collectionObject.getId().toStringRepresentation());
@@ -529,7 +523,7 @@ public class CollectionPluginView extends PluginView {
     }
 
     private void createTableColumnsWithoutCheckBoxes(
-            final LinkedHashMap<String, CollectionColumnProperties> domainObjectFieldPropertiesMap,final int sizeOffset) {
+            final LinkedHashMap<String, CollectionColumnProperties> domainObjectFieldPropertiesMap, final int sizeOffset) {
 
         int numberOfColumns = sizeOffset + domainObjectFieldPropertiesMap.keySet().size();
         int columnWidth = (tableWidth / numberOfColumns);
@@ -561,7 +555,7 @@ public class CollectionPluginView extends PluginView {
             searchPanel.add(box);
             tableBody.addColumn(column);
             tableBody.setColumnWidth(column, columnWidth + "px");
-            if(sizeOffset != 0) {
+            if (sizeOffset != 0) {
                 searchPanel.getElement().getStyle().setPaddingLeft(columnWidth + sizeOffset, Style.Unit.PX);
             }
         }

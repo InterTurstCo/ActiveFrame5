@@ -10,6 +10,6 @@ import com.google.gwt.event.shared.EventHandler;
  * To change this template use File | Settings | File Templates.
  */
 public interface TableSearchEventHandler extends EventHandler {
-    void seachByFields(TableSearchEvent event);
+    void searchByFields(TableSearchEvent event);
 
 }
