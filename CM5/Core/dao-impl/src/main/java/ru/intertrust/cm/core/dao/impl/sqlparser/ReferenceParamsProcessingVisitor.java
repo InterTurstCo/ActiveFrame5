@@ -1,6 +1,8 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.LongValue;
@@ -27,12 +29,18 @@ import ru.intertrust.cm.core.dao.impl.CollectionsDaoImpl;
  */
 public class ReferenceParamsProcessingVisitor extends CollectingWhereColumnConfigVisitor {
 
+    private Map<String, String> replaceExpressions = new HashMap<>();
+
     protected List<? extends Value> params;
-    
+
     public ReferenceParamsProcessingVisitor(ConfigurationExplorer configurationExplorer, PlainSelect plainSelect,
             List<? extends Value> params) {
         super(configurationExplorer, plainSelect);
         this.params = params;
+    }
+
+    public Map<String, String> getReplaceExpressions() {
+        return replaceExpressions;
     }
 
     @Override
@@ -102,6 +110,7 @@ public class ReferenceParamsProcessingVisitor extends CollectingWhereColumnConfi
 
                     plainSelectQuery =
                             plainSelectQuery.replaceAll(equalsTo.toString(), newReferenceExpression.toString());
+                    replaceExpressions.put(equalsTo.toString(), newReferenceExpression.toString());
                 }
             }
         }

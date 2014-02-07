@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
-import static ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier.modifyQueryWithParameters;
 import static ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier.wrapAndLowerCaseNames;
 import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.setParameters;
 
@@ -191,11 +190,11 @@ public class CollectionsDaoImpl implements CollectionsDao {
             fillAclParameters(accessToken, parameters);
         }
 
-        Map<String, FieldConfig> columnToConfigMap =
-                new SqlQueryModifier(configurationExplorer).buildColumnToConfigMap(collectionQuery);
+        SqlQueryModifier sqlQueryModifier = new SqlQueryModifier(configurationExplorer);
 
-        collectionQuery = modifyQueryWithParameters(collectionQuery, configurationExplorer, params);
+        Map<String, FieldConfig> columnToConfigMap = sqlQueryModifier.buildColumnToConfigMap(collectionQuery);
 
+        collectionQuery = sqlQueryModifier.modifyQueryWithParameters(collectionQuery, configurationExplorer, params);
         collectionQuery = wrapAndLowerCaseNames(collectionQuery);
         collectionQuery = adjustParameterNamesAfterPreProcessing(collectionQuery);
 

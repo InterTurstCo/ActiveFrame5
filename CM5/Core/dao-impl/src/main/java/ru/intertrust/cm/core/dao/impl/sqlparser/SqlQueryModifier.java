@@ -118,20 +118,28 @@ public class SqlQueryModifier {
      * @param params список переданных параметров
      * @return
      */
-    public static String modifyQueryWithParameters(String query, ConfigurationExplorer configurationExplorer,
-            List<? extends Value> params) {
+    public String modifyQueryWithParameters(String query, final ConfigurationExplorer configurationExplorer,
+            final List<? extends Value> params) {
 
-        SqlQueryParser sqlParser = new SqlQueryParser(query);
-        SelectBody selectBody = sqlParser.getSelectBody();
-        PlainSelect plainSelect = getPlainSelect(selectBody);
+        final Map<String, String> replaceExpressions = new HashMap<>();
 
-        ReferenceParamsProcessingVisitor modifyReferenceFieldParameter =
-                new ReferenceParamsProcessingVisitor(configurationExplorer, plainSelect, params);
-        if (plainSelect.getWhere() != null) {
-            plainSelect.getWhere().accept(modifyReferenceFieldParameter);
+        String modifiedQuery = processQuery(query, new QueryProcessor() {
+            @Override
+            protected void processPlainSelect(PlainSelect plainSelect) {
+                ReferenceParamsProcessingVisitor modifyReferenceFieldParameter =
+                        new ReferenceParamsProcessingVisitor(configurationExplorer, plainSelect, params);
+                if (plainSelect.getWhere() != null) {
+                    plainSelect.getWhere().accept(modifyReferenceFieldParameter);
+                    replaceExpressions.putAll(modifyReferenceFieldParameter.getReplaceExpressions());
+                }
+            }
+        });
+
+        for (Map.Entry<String, String> entry : replaceExpressions.entrySet()) {
+            modifiedQuery = modifiedQuery.replaceAll(entry.getKey(), entry.getValue());
         }
 
-        return modifyReferenceFieldParameter.getModifiedQuery();
+        return modifiedQuery;
     }
     
     /**
