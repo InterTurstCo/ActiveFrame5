@@ -36,8 +36,10 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class CollectionsDaoImplTest {
 
-    private static final String COLLECTION_ACL_QUERY = "EXISTS (SELECT r.object_id FROM employee_READ AS r INNER JOIN" +
-            " group_member AS gm ON r.group_id = gm.usergroup WHERE gm.person_id = :user_id AND r.object_id = id) ";
+    private static final String COLLECTION_ACL_QUERY = "EXISTS (SELECT r.\"object_id\" FROM \"employee_read\" AS r " +
+    		"INNER JOIN \"group_group\" AS gg ON r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" " +
+    		"AS gm ON gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.\"person_id\" = :user_id AND " +
+    		"r.\"object_id\" = \"id\") ";
 
     private static final String COLLECTION_COUNT_WITH_FILTERS =
             "SELECT count(*), 'employee' AS TEST_CONSTANT FROM employee AS e " +
@@ -60,23 +62,29 @@ public class CollectionsDaoImplTest {
             "SELECT e.\"id\", e.\"id_type\", e.\"email\", e.\"login\", e.\"password\", e.\"created_date\", " +
                     "e.\"updated_date\", 'employee' AS TEST_CONSTANT " +
                     "FROM \"person\" AS e INNER JOIN \"department\" AS d " +
-                    "ON e.\"department\" = d.\"id\" LIMIT 100 OFFSET 10";
+                    "ON e.\"department\" = d.\"id\" WHERE EXISTS (SELECT r.\"object_id\" FROM \"person_read\" AS r " +
+                    "INNER JOIN \"group_group\" AS gg ON r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN " +
+                    "\"group_member\" AS gm " +
+                    "ON gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.\"person_id\" = :user_id AND" +
+                    " r.\"object_id\" = \"id\") " +
+                    "LIMIT 100 OFFSET 10";
 
     private static final String FIND_COLLECTION_QUERY_WITH_FILTERS =
             "SELECT e.\"id\", e.\"name\", e.\"position\", e.\"created_date\", e.\"updated_date\", " +
                     "'employee' AS TEST_CONSTANT " +
             "FROM \"employee\" AS e " +
             "INNER JOIN \"department\" AS d ON e.\"department\" = d.\"id\" WHERE " +
-//            COLLECTION_ACL_QUERY + "AND "
+            COLLECTION_ACL_QUERY + "AND " +
             "1 = 1 AND d.\"name\" = 'dep1' ORDER BY e.\"name\"";
 
     private static final String FIND_COLLECTION_QUERY_WITH_MULTIPLE_TYPE_REFERENCE =
             "SELECT p.\"id\", p.\"id_type\", p.\"login\", p.\"password\", coalesce(p.\"boss1\", p.\"boss2\") AS BOSS, " +
                     "p.\"created_date\", p.\"updated_date\", 'person' AS TEST_CONSTANT " +
                     "FROM \"person\" AS p WHERE " +
-//                    "EXISTS (SELECT r.object_id FROM person_READ AS r " +
-//                    "INNER JOIN group_member AS gm ON r.group_id = gm.usergroup WHERE gm.person_id = :user_id AND " +
-//                    "r.object_id = id) AND " +
+                    "EXISTS (SELECT r.\"object_id\" FROM \"person_read\" AS r INNER JOIN \"group_group\" AS gg " +
+                    "ON r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" AS gm ON gg.\"child_group_id\" = " +
+                    "gm.\"usergroup\" WHERE gm.\"person_id\" = :user_id AND r.\"object_id\" = \"id\")" +
+                    " AND " +
                     "1 = 1";
 
     private static final String FIND_COMPLEX_COLLECTION_QUERY_WITH_FILTERS =
