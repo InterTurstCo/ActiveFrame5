@@ -1,8 +1,9 @@
 package ru.intertrust.cm.core.config;
 
 import org.simpleframework.xml.Attribute;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
-public class AuditLog {
+public class AuditLog implements Dto {
 
     @Attribute
     private boolean enable;

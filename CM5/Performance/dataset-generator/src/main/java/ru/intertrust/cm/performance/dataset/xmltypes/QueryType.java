@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
 
 /**
@@ -29,7 +30,7 @@ import org.simpleframework.xml.Root;
  * 
  */
 @Root(name="query")
-public class QueryType {
+public class QueryType implements Dto {
     
     @ElementList(entry="template", required = false, inline = true)
     protected List<TemplateType> template;

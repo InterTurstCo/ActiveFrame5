@@ -7,6 +7,7 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.ElementListUnion;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
  * Конфигурация матрицы доступа.
@@ -14,7 +15,7 @@ import org.simpleframework.xml.Root;
  *
  */
 @Root(name="status")
-public class AccessMatrixStatusConfig {
+public class AccessMatrixStatusConfig implements Dto {
 
     @Attribute(required = true)
     private String name;

@@ -2,6 +2,7 @@ package ru.intertrust.cm.test.configuration;
 
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Namespace;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
 import java.util.List;
 
@@ -11,7 +12,7 @@ import java.util.List;
  *         Time: 5:36 PM
  */
 @Namespace(reference="https://cm5.intertrust.ru/custom-config")
-public class TestFieldsConfig {
+public class TestFieldsConfig implements Dto {
 
     @ElementList(entry = "test-field", inline = true)
     private List<TestFieldConfig> testFieldConfigs;

@@ -6,9 +6,10 @@ import java.util.List;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
 @Root(name="module")
-public class ModuleConfiguration {
+public class ModuleConfiguration implements Dto {
     
     @Element
     private String name;

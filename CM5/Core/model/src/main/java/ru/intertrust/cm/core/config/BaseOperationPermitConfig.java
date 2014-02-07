@@ -5,13 +5,14 @@ import java.util.List;
 
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.ElementListUnion;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
  * Конфигурация разрешения на выполнение любой операции (read, write, delete, create-child, execute-action)
  * @author atsvetkov
  *
  */
-public abstract class BaseOperationPermitConfig {
+public abstract class BaseOperationPermitConfig implements Dto {
 
 
     @ElementListUnion({

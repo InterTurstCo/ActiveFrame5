@@ -4,6 +4,7 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.convert.Convert;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.converter.CollectorSettingsConverter;
 
 /**
@@ -11,7 +12,7 @@ import ru.intertrust.cm.core.config.converter.CollectorSettingsConverter;
  * @author atsvetkov
  */
 @Root(name = "collector")
-public class CollectorConfig {
+public class CollectorConfig implements Dto {
 
     /**
      * имя класса коллектора

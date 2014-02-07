@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.config.gui.form;
 
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetTemplateConfig;
 
 /**
@@ -10,7 +11,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.WidgetTemplateConfig;
  *         Time: 12:05 PM
  */
 @Root
-public class FormsParenConf {
+public class FormsParenConf implements Dto {
     @Element(name = "form")
     private FormConfig formConfig;
 

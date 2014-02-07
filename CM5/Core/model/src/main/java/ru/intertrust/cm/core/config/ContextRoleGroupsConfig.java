@@ -5,13 +5,14 @@ import java.util.List;
 
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.ElementListUnion;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
  * Конфигурация состава роли, внутри может быть один или несколько различных тегов (group или collector).
  * @author atsvetkov
  *
  */
-public class ContextRoleGroupsConfig {
+public class ContextRoleGroupsConfig implements Dto {
 
     @ElementListUnion({
             @ElementList(entry = "track-domain-objects", type = TrackDomainObjectsConfig.class, inline = true),

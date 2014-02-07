@@ -1,13 +1,14 @@
 package ru.intertrust.cm.core.config;
 
 import org.simpleframework.xml.Attribute;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
  * Указывает контекстную роль или динамическую группу, которой разрешено выполнение действия, определённого родительским
  * тегом (read, write, delete, create-child, execute-action)
  * @author atsvetkov
  */
-public class BasePermit {
+public class BasePermit implements Dto{
 
     @Attribute(required = true)
     private String name;

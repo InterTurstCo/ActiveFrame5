@@ -1,13 +1,15 @@
 package ru.intertrust.cm.core.config;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
 @Root(name="File")
-public class ImportFileConfig {
+public class ImportFileConfig implements Dto {
     
     @Attribute
     private String name;

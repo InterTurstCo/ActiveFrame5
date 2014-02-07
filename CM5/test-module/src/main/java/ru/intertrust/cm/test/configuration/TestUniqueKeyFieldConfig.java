@@ -2,6 +2,7 @@ package ru.intertrust.cm.test.configuration;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Namespace;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
  * @author vmatsukevich
@@ -9,7 +10,7 @@ import org.simpleframework.xml.Namespace;
  *         Time: 5:38 PM
  */
 @Namespace(reference="https://cm5.intertrust.ru/custom-config")
-public class TestUniqueKeyFieldConfig {
+public class TestUniqueKeyFieldConfig implements Dto {
 
     @Attribute
     private String name;
