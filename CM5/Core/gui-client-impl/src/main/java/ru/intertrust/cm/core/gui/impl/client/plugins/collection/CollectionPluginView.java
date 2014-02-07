@@ -266,10 +266,12 @@ public class CollectionPluginView extends PluginView {
             @Override
             public void searchByFields(TableSearchEvent event) {
                 filterList.clear();
+                boolean isRequestRequired = false;
                 for (int i = 0; i < searchBoxList.size(); i++) {
                     CollectionSearchBox searchBox = searchBoxList.get(i);
                     String filterType = searchBox.getFilterType();
                     if (filterType != null && searchBox.getText().length() > 0) {
+                        isRequestRequired = true;
                         Filter filter = new Filter();
                         filter.setFilter(filterType);
                         Value value;
@@ -278,7 +280,12 @@ public class CollectionPluginView extends PluginView {
                             if (date != null) {
                                 value = new DateTimeValue(date);
                             } else {
+                                try {
                                 date = BusinessUniverseConstants.DATE_TIME_FORMAT.parse(searchBox.getText());
+                                } catch (IllegalArgumentException e) {
+                                    Window.alert("Wrong date!");
+                                    return;
+                                }
                                 value = new DateTimeValue(date);
                             }
                         } else {
@@ -288,10 +295,11 @@ public class CollectionPluginView extends PluginView {
                         filterList.add(filter);
                     }
                 }
-
+                if (isRequestRequired) {
                 items.clear();
                 listCount = 0;
                 collectionData();
+                }
             }
         });
 

@@ -76,6 +76,7 @@ public class CollectionSearchBox extends Composite implements IsWidget {
                 text = "";
                 dateBox.getTextBox().setValue("");
                 close.addStyleName("flush-serch-hide");
+                dateBox.removeStyleName("dateBoxFormatError");
             }
         });
         dateSet.addClickHandler(new ClickHandler() {
@@ -92,11 +93,9 @@ public class CollectionSearchBox extends Composite implements IsWidget {
             @Override
             public void onValueChange(ValueChangeEvent<Date> event) {
                 date = dateBox.getValue();
-
                 close.removeStyleName("flush-serch-hide");
             }
         });
-
 
         dateBox.addHandler(new KeyDownHandler() {
             @Override
