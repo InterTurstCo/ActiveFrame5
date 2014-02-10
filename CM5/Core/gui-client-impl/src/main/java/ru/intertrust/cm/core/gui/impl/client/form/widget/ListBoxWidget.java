@@ -9,10 +9,7 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.ListBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
+import java.util.*;
 
 /**
  * @author Denis Mitavskiy
@@ -68,10 +65,11 @@ public class ListBoxWidget extends BaseWidget {
 
         @Override
         public HashMap<String, Id> setState(Label widget, ListBoxState state) {
-            final HashSet<Id> selectedIdsSet = state.getSelectedIdsSet();
+            final LinkedHashMap<Id, String> items = state.getListValues();
+            List<Id> selectedIds = state.getIds();
             final StringBuilder builder = new StringBuilder();
-            for (Id id : selectedIdsSet) {
-                final String itemName = id == null ? "" : id.toStringRepresentation();
+            for (Id id : selectedIds) {
+                final String itemName = items.get(id);
                 builder.append(itemName).append(", ");
             }
             if (builder.length() > 0) {
