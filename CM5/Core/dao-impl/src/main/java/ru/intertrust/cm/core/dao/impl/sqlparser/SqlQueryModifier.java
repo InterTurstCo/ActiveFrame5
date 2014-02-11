@@ -117,8 +117,7 @@ public class SqlQueryModifier {
      * @param params список переданных параметров
      * @return
      */
-    public String modifyQueryWithParameters(String query, final ConfigurationExplorer configurationExplorer,
-            final List<? extends Value> params) {
+    public String modifyQueryWithParameters(String query, final List<? extends Value> params, final Map<String, FieldConfig> columnToConfigMap) {
 
         final Map<String, String> replaceExpressions = new HashMap<>();
 
@@ -126,7 +125,7 @@ public class SqlQueryModifier {
             @Override
             protected void processPlainSelect(PlainSelect plainSelect) {
                 ReferenceParamsProcessingVisitor modifyReferenceFieldParameter =
-                        new ReferenceParamsProcessingVisitor(configurationExplorer, plainSelect, params);
+                        new ReferenceParamsProcessingVisitor(params, columnToConfigMap);
                 if (plainSelect.getWhere() != null) {
                     plainSelect.getWhere().accept(modifyReferenceFieldParameter);
                     replaceExpressions.putAll(modifyReferenceFieldParameter.getReplaceExpressions());

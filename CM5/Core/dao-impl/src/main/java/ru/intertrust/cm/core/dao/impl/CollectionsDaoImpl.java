@@ -194,7 +194,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
         Map<String, FieldConfig> columnToConfigMap = sqlQueryModifier.buildColumnToConfigMap(collectionQuery);
 
-        collectionQuery = sqlQueryModifier.modifyQueryWithParameters(collectionQuery, configurationExplorer, params);
+        collectionQuery = sqlQueryModifier.modifyQueryWithParameters(collectionQuery, params, columnToConfigMap);
         collectionQuery = wrapAndLowerCaseNames(collectionQuery);
         collectionQuery = adjustParameterNamesAfterPreProcessing(collectionQuery);
 

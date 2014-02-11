@@ -1,42 +1,44 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import net.sf.jsqlparser.expression.BinaryExpression;
+import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
+import net.sf.jsqlparser.expression.operators.relational.InExpression;
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
-import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.SubSelect;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.impl.CollectionsDaoImpl;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Заполняет ссылочные параметры в SQL запросе. Добавляет тип ссылочного поля в SQL запрос. Например, выполняет
  * следующую замену: t.id = {0} -> t.id = 1 and t.id_type = 2.
  * @author atsvetkov
  */
-public class ReferenceParamsProcessingVisitor extends CollectingWhereColumnConfigVisitor {
+public class ReferenceParamsProcessingVisitor extends BaseExpressionVisitor {
 
     private Map<String, String> replaceExpressions = new HashMap<>();
 
     protected List<? extends Value> params;
 
-    public ReferenceParamsProcessingVisitor(ConfigurationExplorer configurationExplorer, PlainSelect plainSelect,
-            List<? extends Value> params) {
-        super(configurationExplorer, plainSelect);
+    private Map<String, FieldConfig> columnToConfigMap;
+
+    public ReferenceParamsProcessingVisitor(List<? extends Value> params, Map<String, FieldConfig> columnToConfigMap) {
         this.params = params;
+        this.columnToConfigMap = columnToConfigMap;
     }
 
     public Map<String, String> getReplaceExpressions() {
@@ -44,15 +46,33 @@ public class ReferenceParamsProcessingVisitor extends CollectingWhereColumnConfi
     }
 
     @Override
+    public void visit(Function function) {
+
+    }
+
+    @Override
     public void visit(EqualsTo equalsTo) {
         visitBinaryExpression(equalsTo);        
         processReferenceParameters(equalsTo, true);
     }
-    
+
+    @Override
+    public void visit(InExpression inExpression) {
+
+    }
+
     @Override
     public void visit(NotEqualsTo notEqualsTo) {
         visitBinaryExpression(notEqualsTo);
         processReferenceParameters(notEqualsTo, false);
+    }
+
+    @Override
+    public void visit(Column column) {
+    }
+
+    @Override
+    protected void visitSubSelect(SubSelect subSelect) {
     }
 
 
@@ -63,7 +83,7 @@ public class ReferenceParamsProcessingVisitor extends CollectingWhereColumnConfi
         if (equalsTo.getLeftExpression() instanceof Column) {
             Column column = (Column) equalsTo.getLeftExpression();
 
-            FieldConfig fieldConfig = whereColumnToConfigMapping.get(column.getColumnName().toLowerCase());
+            FieldConfig fieldConfig = columnToConfigMap.get(column.getColumnName().toLowerCase());
 
             if (fieldConfig instanceof ReferenceFieldConfig) {
 
@@ -108,8 +128,6 @@ public class ReferenceParamsProcessingVisitor extends CollectingWhereColumnConfi
                                 new OrExpression(modifiedEqualsToForReferenceId, equalsToForReferenceType);
                     }
 
-                    plainSelectQuery =
-                            plainSelectQuery.replaceAll(equalsTo.toString(), newReferenceExpression.toString());
                     replaceExpressions.put(equalsTo.toString(), newReferenceExpression.toString());
                 }
             }
