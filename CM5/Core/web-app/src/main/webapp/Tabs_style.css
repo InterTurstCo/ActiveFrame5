@@ -129,3 +129,8 @@
 .action-bar-tr{
     height: 40px;
 }
+.custom-TabLayout {
+    height: 100%;
+    position: absolute !important;
+    width: 100%;
+}

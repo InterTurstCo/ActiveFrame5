@@ -52,7 +52,7 @@ public class FormPanel implements IsWidget {
     }
 
     public void updateSizes(int width, int height) {
-        panel.setSize(width + "px", height + "px");
+        panel.setSize(width + "px", "100%");
     }
 
     @Override
@@ -89,7 +89,8 @@ public class FormPanel implements IsWidget {
         }
         setFormMinWidth();
         if (formHeight > 0) {
-            panel.getElement().getStyle().setHeight(formHeight, Style.Unit.PX);
+            //panel.getElement().getStyle().setHeight(formHeight, Style.Unit.PX);
+
         }
         bodyTabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
             @Override
@@ -98,7 +99,7 @@ public class FormPanel implements IsWidget {
 
             }
         });
-
+        bodyTabPanel.addStyleName("custom-TabLayout");
         panel.add(bodyTabPanel);
         return panel;
     }
