@@ -177,7 +177,8 @@ public class CollectionQueryInitializer {
         query = sqlQueryModifier.addIdBasedFilters(query, filterValues, collectionConfig.getIdField());
 
         if (accessToken.isDeferred()) {
-            query = sqlQueryModifier.addAclQuery(query, collectionConfig.getIdField());
+            query = sqlQueryModifier.addAclQuery(query
+                    );
         }
 
         sqlQueryModifier.checkDuplicatedColumns(query);
@@ -196,7 +197,7 @@ public class CollectionQueryInitializer {
         query = sqlQueryModifier.addServiceColumns(query);
 
         if (accessToken.isDeferred()) {
-            query = sqlQueryModifier.addAclQuery(query, "id");
+            query = sqlQueryModifier.addAclQuery(query);
         }
 
         sqlQueryModifier.checkDuplicatedColumns(query);

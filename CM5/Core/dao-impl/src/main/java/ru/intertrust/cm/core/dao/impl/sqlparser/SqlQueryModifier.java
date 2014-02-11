@@ -33,7 +33,6 @@ import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.exception.CollectionQueryException;
 import ru.intertrust.cm.core.dao.exception.DaoException;
-import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
 import ru.intertrust.cm.core.util.KryoCloner;
 
 
@@ -44,7 +43,7 @@ import ru.intertrust.cm.core.util.KryoCloner;
  */
 public class SqlQueryModifier {
 
-    private static final String USER_ID_PARAM = "USER_ID_PARAM";
+    public static final String USER_ID_PARAM = "USER_ID_PARAM";
     private static final String USER_ID_VALUE = ":user_id";
 
     private ConfigurationExplorer configurationExplorer;
@@ -145,19 +144,13 @@ public class SqlQueryModifier {
     /**
      * Добавляет ACL фильтр в SQL получения данных для коллекции.
      * @param query первоначальный запрос
-     * @param idField название поля, использующегося в качестве ключевого
      * @return запрос с добавленным ACL фильтром
      */
-    public String addAclQuery(String query, final String idField) {
-        query = processQuery(query, new QueryProcessor() {
-            @Override
-            protected void processPlainSelect(PlainSelect plainSelect) {
-                applyAclFilterExpression(idField, plainSelect);
-            }
-        });
-
+    public String addAclQuery(String query) {
         SqlQueryParser sqlParser = new SqlQueryParser(query);
         SelectBody selectBody = sqlParser.getSelectBody();
+        AddAclVisitor aclVistor = new AddAclVisitor();
+        selectBody.accept(aclVistor);
         String modifiedQuery = selectBody.toString();
         modifiedQuery = modifiedQuery.replaceAll(USER_ID_PARAM, USER_ID_VALUE);
         return modifiedQuery;
@@ -601,39 +594,6 @@ public class SqlQueryModifier {
         SelectExpressionItem referenceFieldTypeItem = new SelectExpressionItem();
         referenceFieldTypeItem.setExpression(new Column(new Table(), referenceColumnExpression.toString()));
         return referenceFieldTypeItem;
-    }
-
-
-    private void applyAclFilterExpression(String idField, PlainSelect plainSelect) {
-        String domainObjectType = getDomainObjectTypeFromSelect(plainSelect);
-
-        Expression aclExpression = createAclExpression(domainObjectType, idField);
-        Expression oldWhereExpression = plainSelect.getWhere();
-
-        if (oldWhereExpression == null) {
-            plainSelect.setWhere(aclExpression);
-        } else {
-            AndExpression newWhereExpression = new AndExpression(aclExpression, oldWhereExpression);
-            plainSelect.setWhere(newWhereExpression);
-        }
-    }
-
-    private Expression createAclExpression(String domainObjectType, String idField) {
-        StringBuilder aclQuery = new StringBuilder();
-
-        String aclReadTable = AccessControlUtility.getAclReadTableNameFor(domainObjectType);
-        aclQuery.append("Select * from ").append(domainObjectType).append(" where exists (select r.object_id from ")
-                .append(aclReadTable).append(" r ");
-        aclQuery.append("inner join ").append(wrap("group_group")).append(" gg on r.")
-                .append(wrap("group_id") + " = gg.").append(wrap("parent_group_id"));
-        aclQuery.append("inner join ").append(wrap("group_member")).append(" gm on gg.").append(wrap("child_group_id"))
-                .append(" = gm.").append(wrap("usergroup"));
-        aclQuery.append(" where gm.person_id = ").append(USER_ID_PARAM).append(" and r.object_id = ");
-        aclQuery.append(idField).append(")");
-
-        SqlQueryParser aclSqlParser = new SqlQueryParser(aclQuery.toString());
-        Expression aclExpression = ((PlainSelect) aclSqlParser.getSelectBody()).getWhere();
-        return aclExpression;
     }
 
     private static PlainSelect getPlainSelect(SelectBody selectBody) {
