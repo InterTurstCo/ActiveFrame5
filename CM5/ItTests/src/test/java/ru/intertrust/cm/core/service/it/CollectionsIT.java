@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.ejb.EJB;
 import javax.security.auth.login.LoginContext;
@@ -18,7 +19,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.context.ApplicationContext;
 
+import ru.intertrust.cm.core.business.api.AuthenticationService;
 import ru.intertrust.cm.core.business.api.CollectionsService;
+import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.LongValue;
@@ -38,6 +41,12 @@ import ru.intertrust.cm.webcontext.ApplicationContextProvider;
 @RunWith(Arquillian.class)
 public class CollectionsIT extends IntegrationTestBase {
 
+    private static final String PERSON_2_PASSWORD = "admin";
+
+    private static final String PERSON_2_LOGIN = "person2";
+
+    private static Logger logger = Logger.getLogger(CollectionsIT.class.getName());
+    
     private static final String DEPARTMENT_TYPE = "Department";
 
     private static final String DEPARTMENT_2 = "Подразделение 2";
@@ -50,6 +59,8 @@ public class CollectionsIT extends IntegrationTestBase {
     private CollectionsService.Remote collectionService;
 
     protected DomainObjectTypeIdCache domainObjectTypeIdCache;
+    
+    protected AuthenticationService authenticationService; 
 
     /**
      * Предотвращает загрузку данных для каждого теста. Данные загружаются один раз для всех тестов в данном классе.
@@ -63,7 +74,7 @@ public class CollectionsIT extends IntegrationTestBase {
 
     @Before
     public void init() throws IOException, LoginException {
-        LoginContext lc = login("admin", "admin");
+        LoginContext lc = login(PERSON_2_PASSWORD, PERSON_2_PASSWORD);
         lc.login();
         try {
             if (!isDataLoaded) {
@@ -76,12 +87,27 @@ public class CollectionsIT extends IntegrationTestBase {
             lc.logout();
         }
 
-        initializeSpringBeans();
+        
+        initializeSpringBeans();        
+    }
+
+    private void createAuthenticationInfo() {
+        AuthenticationInfoAndRole authenticationInfo = new AuthenticationInfoAndRole();
+        authenticationInfo.setUserUid(PERSON_2_LOGIN);
+        authenticationInfo.setPassword(PERSON_2_PASSWORD);
+        try {
+            authenticationService.insertAuthenticationInfoAndRole(authenticationInfo);
+        } catch (Exception e) {
+            // auth info already exists. Just skip it.
+            logger.warning("Authentication info already exists : " + authenticationInfo);
+
+        }
     }
 
     private void initializeSpringBeans() {
         ApplicationContext applicationContext = ApplicationContextProvider.getApplicationContext();
         domainObjectTypeIdCache = applicationContext.getBean(DomainObjectTypeIdCache.class);
+        authenticationService = applicationContext.getBean(AuthenticationService.class);
     }
 
     @Test
@@ -108,27 +134,57 @@ public class CollectionsIT extends IntegrationTestBase {
     }
 
     @Test
-    public void testFindCollectionWithFilters() {
+    public void testFindCollectionWithFilters() throws LoginException {
         SortOrder sortOrder = new SortOrder();
-        sortOrder.add(new SortCriterion("id", Order.ASCENDING));
+        sortOrder.add(new SortCriterion("e.id", Order.ASCENDING));
 
         List<Filter> filterValues = new ArrayList<Filter>();
         Filter filter = new Filter();
         filter.setFilter("byDepartment");
         filter.addCriterion(0, new LongValue(1));
-
         filterValues.add(filter);
-        IdentifiableObjectCollection employeesCollection =
+
+        IdentifiableObjectCollection employeesCollection = null;
+        employeesCollection =
                 collectionService.findCollection("Employees", sortOrder, filterValues, 0, 0);
 
         assertNotNull(employeesCollection);
         assertTrue(employeesCollection.size() >= 1);
 
-        testFindCollectionWithFilterMultiCriterion(sortOrder);
+    }
+
+    @Test
+    public void testFindCollectionWithAcl() throws LoginException {
+        createAuthenticationInfo();
+        SortOrder sortOrder = new SortOrder();
+        sortOrder.add(new SortCriterion("e.id", Order.ASCENDING));
+
+        List<Filter> filterValues = new ArrayList<Filter>();
+        Filter filter = new Filter();
+        filter.setFilter("byDepartment");
+        filter.addCriterion(0, new LongValue(1));
+        filterValues.add(filter);
+
+        IdentifiableObjectCollection employeesCollection = null;
+        LoginContext lc = login(PERSON_2_LOGIN, PERSON_2_PASSWORD);
+        lc.login();
+        try {
+            employeesCollection =
+                    collectionService.findCollection("Employees", sortOrder, filterValues, 0, 0);
+
+        } finally {
+            lc.logout();
+        }
+
+        assertNotNull(employeesCollection);
+        // assertTrue(employeesCollection.size() >= 1);
 
     }
 
-    private void testFindCollectionWithFilterMultiCriterion(SortOrder sortOrder) {
+    @Test
+    public void testFindCollectionWithFilterMultiCriterion() {
+        SortOrder sortOrder = new SortOrder();
+        sortOrder.add(new SortCriterion("e.id", Order.ASCENDING));
         List<Filter> filterValues;
         filterValues = new ArrayList<Filter>();
         Filter filter = new Filter();
