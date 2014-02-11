@@ -1,9 +1,12 @@
 package ru.intertrust.cm.core.dao.impl.filenet;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 
 public class TestFileNet {
 
@@ -21,9 +24,61 @@ public class TestFileNet {
         }
     }
 
+    private byte[] createLageContent(int size) throws Exception{
+        String file = "test.pdf";
+        byte[] fileContent = readFile(file);
+        ByteArrayOutputStream saveStream = new ByteArrayOutputStream();
+        while(saveStream.size() < size * 1024 * 1024){
+            saveStream.write(fileContent);
+        }
+        return saveStream.toByteArray();
+    }
+
+    private void testTime(FileNetAdapter adapter) throws Exception {
+
+        byte[] fileContent = createLageContent(20);
+
+        ByteArrayOutputStream saveStream = new ByteArrayOutputStream();
+        saveStream.write(fileContent, 0, 100 * 1024);
+        byte[] saveContent = saveStream.toByteArray();
+        int iteration = 1;
+        int size = 100 * 1024;
+        while (fileContent.length > size) {
+            saveStream.reset();
+            saveStream.write(fileContent, 0, size);
+            saveContent = saveStream.toByteArray();
+            
+            long start = System.currentTimeMillis();
+            String path = adapter.save(saveContent);
+            long save = System.currentTimeMillis() - start;
+            start = System.currentTimeMillis();
+
+            InputStream in = adapter.load(path);
+            byte[] loadContent = readStream(in);
+            long load = System.currentTimeMillis() - start;
+            start = System.currentTimeMillis();
+
+            adapter.delete(path);
+            long delete = System.currentTimeMillis() - start;
+            
+            System.out.println("Size=" + saveContent.length + "\tSave=" + save + "\tLoad=" + load + "\tDelete=" + delete);
+            
+            boolean compareRes = compareContent(saveContent, loadContent);
+            if (!compareRes){
+                throw new Exception("Error compare");
+            }
+            
+            
+            //Увеличиваем размер контента логарифмически
+            int pow = (int) (Math.pow(2, iteration));
+            size = 100 * 1024 * pow;
+            iteration++;
+        }
+    }    
+    
     private void execute() throws Exception {
         FileNetAdapter adapter = new FileNetAdapter("vm-fn-01:9443", "p8admin", "Welcome777", "OS", "/CM5");
-        byte[] saveContent = readFile("test.pdf");
+        byte[] saveContent = createLageContent(1);
         String path = adapter.save(saveContent);
         System.out.println("Save OK " + saveContent.length);
         InputStream in = adapter.load(path);
@@ -37,6 +92,9 @@ public class TestFileNet {
         } catch (Exception ex) {
             System.out.println("Delete OK");
         }
+        
+        
+        testTime(adapter);
     }
 
     private boolean compareContent(byte[] saveContent, byte[] loadContent) {
@@ -50,7 +108,7 @@ public class TestFileNet {
         }
         return true;
     }
-
+    
     /**
      * Получение файла в виде массива байт
      * @param file

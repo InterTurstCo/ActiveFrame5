@@ -115,11 +115,11 @@ public class FileNetAdapter {
         File tempFile = File.createTempFile("filenet_", "_temp");
         FileOutputStream out = new FileOutputStream(tempFile);
         Fragment fragment = null;
-        int offset = 0;
-        while(fragment == null || fragment.fullSize > offset * MAX_FRAGMENT_SIZE){
-            fragment = loadFragment(path, offset);
+        int loadByte = 0;
+        while(fragment == null || fragment.fullSize > loadByte){
+            fragment = loadFragment(path, fragment == null ? null : fragment.continueFrom);
             out.write(fragment.body);
-            offset++;
+            loadByte += fragment.body.length;
         }
         out.close();
         
@@ -133,7 +133,7 @@ public class FileNetAdapter {
      * @return
      * @throws Exception
      */
-    private Fragment loadFragment(String path, int offset) throws Exception {
+    private Fragment loadFragment(String path, String continueFrom) throws Exception {
         Fragment result = new Fragment();
         
         // Set a reference to the document to retrieve
@@ -202,8 +202,8 @@ public class FileNetAdapter {
         objContentReqType.setCacheAllowed(true);
         objContentReqType.setId("1");
         objContentReqType.setMaxBytes(MAX_FRAGMENT_SIZE);
-        objContentReqType.setStartOffset(BigInteger.valueOf(MAX_FRAGMENT_SIZE * offset));
-        objContentReqType.setContinueFrom(null);
+        //objContentReqType.setStartOffset(BigInteger.valueOf(MAX_FRAGMENT_SIZE * offset));
+        objContentReqType.setContinueFrom(continueFrom);
         objContentReqType.setElementSpecification(objElemSpecType);
         objContentReqType.setSourceSpecification(objDocumentSpec);
 
@@ -235,6 +235,7 @@ public class FileNetAdapter {
             outputStream.write(objInlineContent.getBinary());
             result.body = outputStream.toByteArray();
             result.fullSize = objContentElemResp.getTotalSize().longValue();
+            result.continueFrom = objContentElemResp.getContinueFrom();
         }
         else
         {
@@ -313,7 +314,7 @@ public class FileNetAdapter {
     }
 
     /**
-     * Созданеи документа на сервере file net
+     * Создание документа на сервере file net
      * @param name
      * @param content
      * @throws FaultResponse
@@ -466,6 +467,7 @@ public class FileNetAdapter {
     private class Fragment{
         private byte[] body;
         private long fullSize;
+        private String continueFrom;
     }
     
 }
