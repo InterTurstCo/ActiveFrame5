@@ -118,25 +118,14 @@
 
     <bean id="statusDao" class="ru.intertrust.cm.core.dao.impl.StatusDaoImpl"/>
 
+    <!-- Для выбора профиля отличного от default необходимо в standalone.xml добавить следующие строки>
+    <system-properties>
+        <property name="spring.profiles.active" value="filenet"/>
+    </system-properties-->    
     <beans profile="default">
         <bean id="attachmentContentDao"
             class="ru.intertrust.cm.core.dao.impl.FileSystemAttachmentContentDaoImpl"
             init-method="init" />
     </beans>
-    
-    <!-- Для выбора профиля отличного от default необходимо в standalone.xml добавить следующие строки>
-    <system-properties>
-        <property name="spring.profiles.active" value="filenet"/>
-    </system-properties-->    
-    <beans profile="filenet">
-        <bean id="attachmentContentDao"
-            class="ru.intertrust.cm.core.dao.impl.filenet.FilenetAttachmentContentDaoImpl">
-            <property name="serverUrl" value="${filenet.server.url}" />
-            <property name="login" value="${filenet.server.login}" />
-            <property name="password" value="${filenet.server.password}" />
-            <property name="objectStore" value="${filenet.server.object.store}" />
-            <property name="baseFolder" value="${filenet.server.base.folder}" />
-        </bean>
-    </beans>          
 
 </beans>

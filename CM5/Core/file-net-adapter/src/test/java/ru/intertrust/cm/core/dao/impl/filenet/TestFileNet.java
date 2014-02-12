@@ -1,12 +1,9 @@
 package ru.intertrust.cm.core.dao.impl.filenet;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
 
 public class TestFileNet {
 
@@ -77,7 +74,7 @@ public class TestFileNet {
     }    
     
     private void execute() throws Exception {
-        FileNetAdapter adapter = new FileNetAdapter("vm-fn-01:9443", "p8admin", "Welcome777", "OS", "/CM5");
+        FileNetAdapter adapter = new FileNetAdapterWS("vm-fn-01:9443", "p8admin", "Welcome777", "OS", "/CM5");
         byte[] saveContent = createLageContent(1);
         String path = adapter.save(saveContent);
         System.out.println("Save OK " + saveContent.length);

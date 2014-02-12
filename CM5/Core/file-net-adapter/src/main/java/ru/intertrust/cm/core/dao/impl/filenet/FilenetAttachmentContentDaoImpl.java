@@ -1,8 +1,9 @@
 package ru.intertrust.cm.core.dao.impl.filenet;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+
+import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
@@ -11,10 +12,12 @@ import ru.intertrust.cm.core.dao.exception.DaoException;
 /**
  * Имплементация AttachmentContentDao для FileNet
  * @author larin
- *
+ * 
  */
 public class FilenetAttachmentContentDaoImpl implements AttachmentContentDao {
-    private FileNetAdapter fileNetAdapter = null;
+
+    @Autowired
+    private FileNetAdapter fileNetAdapter;
 
     private String serverUrl;
     private String login;
@@ -34,7 +37,7 @@ public class FilenetAttachmentContentDaoImpl implements AttachmentContentDao {
             while ((read = inputStream.read(buffer)) > 0) {
                 output.write(buffer, 0, read);
             }
-            return getAdapter().save(output.toByteArray());
+            return fileNetAdapter.save(output.toByteArray());
         } catch (Exception ex) {
             throw new DaoException("Error save content", ex);
         } finally {
@@ -48,7 +51,7 @@ public class FilenetAttachmentContentDaoImpl implements AttachmentContentDao {
     @Override
     public InputStream loadContent(DomainObject domainObject) {
         try {
-            return getAdapter().load(domainObject.getString("path"));
+            return fileNetAdapter.load(domainObject.getString("path"));
         } catch (Exception ex) {
             throw new DaoException("Error load content", ex);
         }
@@ -57,18 +60,10 @@ public class FilenetAttachmentContentDaoImpl implements AttachmentContentDao {
     @Override
     public void deleteContent(DomainObject domainObject) {
         try {
-            getAdapter().delete(domainObject.getString("path"));
+            fileNetAdapter.delete(domainObject.getString("path"));
         } catch (Exception ex) {
             throw new DaoException("Error delete content", ex);
         }
-    }
-
-    private FileNetAdapter getAdapter() {
-        if (fileNetAdapter == null) {
-            fileNetAdapter =
-                    new FileNetAdapter(getServerUrl(), getLogin(), getPassword(), getObjectStore(), getBaseFolder());
-        }
-        return fileNetAdapter;
     }
 
     public String getServerUrl() {

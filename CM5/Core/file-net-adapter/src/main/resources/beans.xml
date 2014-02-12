@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+    http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+    ">
+
+    <!-- Для выбора профиля отличного от default необходимо в standalone.xml добавить следующие строки> <system-properties> <property name="spring.profiles.active" 
+        value="filenet"/> </system-properties -->
+    <beans profile="filenet">
+        <bean id="filenetAdapter" class="ru.intertrust.cm.core.dao.impl.filenet.FileNetAdapterWS">
+            <constructor-arg index="0" value="${filenet.server.url}" />
+            <constructor-arg index="1" value="${filenet.server.login}" />
+            <constructor-arg index="2" value="${filenet.server.password}" />
+            <constructor-arg index="3" value="${filenet.server.object.store}" />
+            <constructor-arg index="4" value="${filenet.server.base.folder}" />
+        </bean>
+
+        <bean id="attachmentContentDao" class="ru.intertrust.cm.core.dao.impl.filenet.FilenetAttachmentContentDaoImpl" />
+    </beans>
+
+</beans>
