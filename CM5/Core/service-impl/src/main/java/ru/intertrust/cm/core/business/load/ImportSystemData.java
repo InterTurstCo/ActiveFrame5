@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.module.ImportFilesConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
@@ -44,13 +45,14 @@ public class ImportSystemData {
         try {
 
             for (ModuleConfiguration moduleConfiguration : moduleService.getModuleList()) {
-                for (String importFile : moduleConfiguration.getImportFiles()) {
+                ImportFilesConfiguration importFiles = moduleConfiguration.getImportFiles();
+                for (String importFile : importFiles.getImportFiles()) {
 
 
                     ImportData importData = new ImportData(collectionsDao, 
                             configurationExplorer, domainObjectDao, accessControlService, attachmentContentDao, null);
 
-                    importData.importData(readFile(new URL(moduleConfiguration.getModuleUrl().toString() + importFile)));
+                    importData.importData(readFile(new URL(moduleConfiguration.getModuleUrl().toString() + importFile)), importFiles.getCsvEncoding());
                     logger.info("Import system data from file " + importFile);
                 }
             }

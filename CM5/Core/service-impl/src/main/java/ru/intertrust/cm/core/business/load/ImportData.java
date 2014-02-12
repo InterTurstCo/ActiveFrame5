@@ -49,6 +49,7 @@ import ru.intertrust.cm.core.model.FatalException;
 public class ImportData {
 
     public static final String ATTACHMENT_FIELD_NAME = "_ATTACHMENT_";
+    public static final String DEFAULT_ENCODING = "ANSI-1251";
     private String typeName;
     private String[] keys;
     private String[] fields;
@@ -86,10 +87,11 @@ public class ImportData {
      * Загрузка одного файла с данными
      * @param loadFileAsByteArray
      */
-    public void importData(byte[] loadFileAsByteArray) {
+    public void importData(byte[] loadFileAsByteArray, String encoding) {
         try {
             ByteArrayInputStream input = new ByteArrayInputStream(loadFileAsByteArray);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(input, Charset.forName("ANSI-1251")));
+            BufferedReader reader =
+                    new BufferedReader(new InputStreamReader(input, encoding != null ? encoding : DEFAULT_ENCODING));
             String readLine = null;
             int lineNum = 0;
 
@@ -159,7 +161,7 @@ public class ImportData {
      * @param keys
      * @param fields
      * @throws ParseException
-     * @throws IOException 
+     * @throws IOException
      */
     private void importLine(String line) throws ParseException, IOException {
         AccessToken accessToken = null;
@@ -281,7 +283,7 @@ public class ImportData {
      * Создание вложения для переданного доменного объекта
      * @param domainObject
      * @param string
-     * @throws IOException 
+     * @throws IOException
      */
     private DomainObject createAttachment(DomainObject domainObject, String filePath) throws IOException {
         DomainObject result = null;
@@ -552,7 +554,8 @@ public class ImportData {
         return attachmentDomainObject;
     }
 
-    private DomainObject saveAttachment(InputStream inputStream, DomainObject attachmentDomainObject, long contentLength) {
+    private DomainObject
+            saveAttachment(InputStream inputStream, DomainObject attachmentDomainObject, long contentLength) {
         AccessToken accessToken = accessService.createSystemAccessToken(this.getClass().getName());
 
         StringValue newFilePathValue = null;
@@ -566,7 +569,7 @@ public class ImportData {
             newFilePathValue = new StringValue(newFilePath);
             StringValue oldFilePathValue = (StringValue) attachmentDomainObject.getValue("path");
             attachmentDomainObject.setValue(AttachmentServiceImpl.PATH_NAME, new StringValue(newFilePath));
-            
+
             attachmentDomainObject.setLong("ContentLength", contentLength);
 
             savedDoaminObject = domainObjectDao.save(attachmentDomainObject, accessToken);
@@ -588,7 +591,7 @@ public class ImportData {
         }
     }
 
-    private long getContentLength(String filePath) throws IOException{
+    private long getContentLength(String filePath) throws IOException {
         InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(filePath);
         long result = 0;
         long read = 0;
@@ -598,7 +601,7 @@ public class ImportData {
         }
         return result;
     }
-    
+
     private class AttachmentTypeInfo {
         private AttachmentTypeConfig attachmentTypeConfig;
         private String refAttrName;

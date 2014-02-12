@@ -21,4 +21,11 @@ public interface ImportDataService {
      * @param loadFileAsByteArray зачитанный массив данных из файла
      */
     void importData(byte[] importFileAsByteArray);
+    
+    /**
+     * Метод загрузки данных при отличие кодировки в CSV от дефалтовой ANSI-1251
+     * @param importFileAsByteArray
+     * @param encoding
+     */
+    void importData(byte[] importFileAsByteArray, String encoding);
 }

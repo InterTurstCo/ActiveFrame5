@@ -39,12 +39,17 @@ public class ImportDataServiceImpl implements ImportDataService {
     private EJBContext context;
 
     @Override
-    public void importData(byte[] loadFileAsByteArray) {
+    public void importData(byte[] importFileAsByteArray) {
+        importData(importFileAsByteArray, null);
+    }
+
+    @Override
+    public void importData(byte[] importFileAsByteArray, String encoding) {
         try {
             ImportData ImportData =
                     new ImportData(collectionsDao, configurationExplorer, domainObjectDao, accessControlService,
                             attachmentContentDao, context.getCallerPrincipal().getName());
-            ImportData.importData(loadFileAsByteArray);
+            ImportData.importData(importFileAsByteArray, encoding);
         } catch (Exception ex) {
             throw new FatalException("Error load data", ex);
         }

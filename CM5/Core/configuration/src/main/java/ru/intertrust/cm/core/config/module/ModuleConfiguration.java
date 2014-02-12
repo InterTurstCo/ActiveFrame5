@@ -26,8 +26,8 @@ public class ModuleConfiguration implements Dto {
     @ElementList(entry="gui-components-package", required=false, name="gui-components-packages")
     private List<String> guiComponentsPackages;
 
-    @ElementList(entry="import-file", required=false, name="import-files")
-    private List<String> importFiles;
+    @Element(required=false, name="import-files")
+    private ImportFilesConfiguration importFiles;
 
     @Element(required=false, name="configuration-schema-path")
     private String configurationSchemaPath;
@@ -79,10 +79,10 @@ public class ModuleConfiguration implements Dto {
     public void setGuiComponentsPackages(List<String> guiComponentsPackages) {
         this.guiComponentsPackages = guiComponentsPackages;
     }
-    public List<String> getImportFiles() {
+    public ImportFilesConfiguration getImportFiles() {
         return importFiles;
     }
-    public void setImportFiles(List<String> importFiles) {
+    public void setImportFiles(ImportFilesConfiguration importFiles) {
         this.importFiles = importFiles;
     }
     public URL getModuleUrl() {
