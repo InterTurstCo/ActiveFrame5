@@ -614,6 +614,12 @@
             <id>alfresco</id>
             <name>Alfresco Repository</name>
         </repository>
+        
+        <repository>
+            <id>intertrust.releases</id>
+            <url>https://nexus.inttrust.ru/nexus/content/groups/public/</url>
+        </repository>   
+
     </repositories>
 
     <pluginRepositories>

@@ -10,6 +10,10 @@
         <artifactId>core</artifactId>
         <version>0.5.7-3-SNAPSHOT</version>
     </parent>
+    
+    <properties>
+        <filenet.version>5.2.0</filenet.version>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -22,6 +26,36 @@
             <artifactId>dao-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.filenet</groupId>
+            <artifactId>fn-download-api</artifactId>
+            <version>${filenet.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.filenet</groupId>
+            <artifactId>fn-filenet-api</artifactId>
+            <version>${filenet.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ibm</groupId>
+            <artifactId>ibm-stax-api</artifactId>
+            <version>${filenet.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ibm.xml.xlxp</groupId>
+            <artifactId>ibm-xlxp-api</artifactId>
+            <version>${filenet.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.ibm.xml.xlxp</groupId>
+            <artifactId>ibm-xlxp-scan</artifactId>
+            <version>${filenet.version}</version>
+        </dependency>
+        
     </dependencies>
 
     <build>

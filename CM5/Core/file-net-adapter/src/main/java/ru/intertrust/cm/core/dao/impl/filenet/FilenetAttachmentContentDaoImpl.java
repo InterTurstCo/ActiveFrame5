@@ -5,9 +5,12 @@ import java.io.InputStream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.filenet.api.exception.EngineRuntimeException;
+
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
 import ru.intertrust.cm.core.dao.exception.DaoException;
+import ru.intertrust.cm.core.dao.impl.filenet.ws.FaultResponse;
 
 /**
  * Имплементация AttachmentContentDao для FileNet
@@ -18,12 +21,6 @@ public class FilenetAttachmentContentDaoImpl implements AttachmentContentDao {
 
     @Autowired
     private FileNetAdapter fileNetAdapter;
-
-    private String serverUrl;
-    private String login;
-    private String password;
-    private String objectStore;
-    private String baseFolder;
 
     @Override
     public String saveContent(InputStream inputStream) {
@@ -61,49 +58,17 @@ public class FilenetAttachmentContentDaoImpl implements AttachmentContentDao {
     public void deleteContent(DomainObject domainObject) {
         try {
             fileNetAdapter.delete(domainObject.getString("path"));
+        }catch(FaultResponse ex){
+            if (!ex.getMessage().contains("The requested item was not found")){
+                throw new DaoException("Error delete content", ex);
+            }
+        }catch(EngineRuntimeException ex){
+            if (!ex.getMessage().contains("The requested item was not found")){
+                throw new DaoException("Error delete content", ex);
+            }            
         } catch (Exception ex) {
             throw new DaoException("Error delete content", ex);
         }
-    }
-
-    public String getServerUrl() {
-        return serverUrl;
-    }
-
-    public void setServerUrl(String serverUrl) {
-        this.serverUrl = serverUrl;
-    }
-
-    public String getLogin() {
-        return login;
-    }
-
-    public void setLogin(String login) {
-        this.login = login;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getObjectStore() {
-        return objectStore;
-    }
-
-    public void setObjectStore(String objectStore) {
-        this.objectStore = objectStore;
-    }
-
-    public String getBaseFolder() {
-        return baseFolder;
-    }
-
-    public void setBaseFolder(String baseFolder) {
-        this.baseFolder = baseFolder;
     }
 
 }

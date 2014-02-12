@@ -8,7 +8,7 @@
     <!-- Для выбора профиля отличного от default необходимо в standalone.xml добавить следующие строки> <system-properties> <property name="spring.profiles.active" 
         value="filenet"/> </system-properties -->
     <beans profile="filenet">
-        <bean id="filenetAdapter" class="ru.intertrust.cm.core.dao.impl.filenet.FileNetAdapterWS">
+        <bean id="filenetAdapter" class="ru.intertrust.cm.core.dao.impl.filenet.FileNetAdapterJava">
             <constructor-arg index="0" value="${filenet.server.url}" />
             <constructor-arg index="1" value="${filenet.server.login}" />
             <constructor-arg index="2" value="${filenet.server.password}" />

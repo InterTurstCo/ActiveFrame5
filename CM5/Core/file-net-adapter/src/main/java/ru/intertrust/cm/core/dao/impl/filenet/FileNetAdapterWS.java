@@ -61,7 +61,7 @@ public class FileNetAdapterWS implements FileNetAdapter{
     private String objectStore;
     private String baseFolder;
 
-    private FNCEWS40PortType service;
+    private static FNCEWS40PortType service;
 
     /**
      * Конструктор
