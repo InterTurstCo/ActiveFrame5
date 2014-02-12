@@ -132,25 +132,15 @@
             <dependency>	
                 <groupId>net.sf.jasperreports</groupId>
                 <artifactId>jasperreports</artifactId>
-                <version>5.5.0</version>
+                <version>5.5.1</version>
                 <exclusions> 
                     <exclusion> 
                         <artifactId>jdtcore</artifactId> 
                         <groupId>eclipse</groupId> 
                     </exclusion>
-                    <exclusion>
-                        <groupId>com.lowagie</groupId>
-                        <artifactId>itext</artifactId>
-                    </exclusion>
                 </exclusions>
             </dependency>
             
-            <dependency>
-                <groupId>com.lowagie</groupId>
-                <artifactId>itext</artifactId>
-                <version>2.1.7</version>
-            </dependency>
-                        
             <!-- Logging -->
 
             <dependency>

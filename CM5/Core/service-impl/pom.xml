@@ -62,10 +62,6 @@
             <groupId>net.sf.jasperreports</groupId>
             <artifactId>jasperreports</artifactId>
         </dependency>
-        <dependency>
-        	<groupId>com.lowagie</groupId>
-            <artifactId>itext</artifactId>
-	    </dependency>
         <!-- Added for Unit tests-->
         <dependency>
             <groupId>org.powermock</groupId>
