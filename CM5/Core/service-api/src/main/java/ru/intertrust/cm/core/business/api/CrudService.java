@@ -3,6 +3,8 @@ package ru.intertrust.cm.core.business.api;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.dao.exception.AccessException;
+import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 
 import java.util.Collection;
 import java.util.List;
@@ -60,6 +62,8 @@ public interface CrudService {
      * @throws IllegalArgumentException, если состояние объекта не позволяет его сохранить (например, если атрибут
      *                                   содержит данные неверного типа, или обязательный атрибут не определён)
      * @throws NullPointerException,     если доменный объект есть null.
+     * @throws ObjectNotFoundException,  если объект не найден
+     * @throws AccessException,          если отказано в доступе к объекту
      */
     DomainObject save(DomainObject domainObject);
 
@@ -91,7 +95,9 @@ public interface CrudService {
      *
      * @param id уникальный идентификатор доменного объекта в системе
      * @return доменный объект с данным идентификатором или null, если объект не существует
-     * @throws NullPointerException, если id есть null
+     * @throws NullPointerException,     если id есть null
+     * @throws ObjectNotFoundException,  если объект не найден
+     * @throws AccessException,          если отказано в доступе к объекту
      */
     DomainObject find(Id id);
 
@@ -101,6 +107,8 @@ public interface CrudService {
      * @param id уникальный идентификатор доменного объекта в системе
      * @return доменный объект с данным идентификатором или null, если объект не существует
      * @throws NullPointerException, если id есть null
+     * @throws ObjectNotFoundException,  если объект не найден
+     * @throws AccessException,          если отказано в доступе к объекту
      */
     DomainObject findAndLock(Id id);
 
@@ -120,6 +128,8 @@ public interface CrudService {
      *
      * @param id уникальный идентификатор доменного объекта в системе
      * @throws NullPointerException, если id есть null
+     * @throws ObjectNotFoundException,  если объект не найден
+     * @throws AccessException,          если отказано в доступе к объекту
      */
     void delete(Id id);
 

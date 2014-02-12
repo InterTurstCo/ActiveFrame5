@@ -21,6 +21,7 @@ import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.dao.api.extension.AfterCreateExtentionHandler;
 import ru.intertrust.cm.core.dao.api.extension.BeforeDeleteExtensionHandler;
+import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
 import ru.intertrust.cm.core.model.CrudException;
 import ru.intertrust.cm.core.model.SystemException;
 
@@ -137,7 +138,13 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         } else {
             accessToken = createSystemAccessToken();              
         }
-        return domainObjectDao.save(domainObject, accessToken);
+
+        DomainObject result = domainObjectDao.save(domainObject, accessToken);
+        if (result == null) {
+            throw new ObjectNotFoundException(domainObject.getId());
+        }
+
+        return result;
     }
 
 
@@ -166,14 +173,26 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
     public DomainObject find(Id id) {
         String user = currentUserAccessor.getCurrentUser();
         AccessToken accessToken = accessControlService.createAccessToken(user, id, DomainObjectAccessType.READ);
-        return domainObjectDao.find(id, accessToken);
+
+        DomainObject result = domainObjectDao.find(id, accessToken);
+        if (result == null) {
+            throw new ObjectNotFoundException(id);
+        }
+
+        return result;
     }
 
     @Override
     public DomainObject findAndLock(Id id) {
         String user = currentUserAccessor.getCurrentUser();
         AccessToken accessToken = accessControlService.createAccessToken(user, id, DomainObjectAccessType.WRITE);
-        return domainObjectDao.findAndLock(id, accessToken);
+
+        DomainObject result = domainObjectDao.findAndLock(id, accessToken);
+        if (result == null) {
+            throw new ObjectNotFoundException(id);
+        }
+
+        return result;
     }
 
     @Override
