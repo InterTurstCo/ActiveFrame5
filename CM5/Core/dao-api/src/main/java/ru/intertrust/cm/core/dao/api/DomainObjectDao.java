@@ -5,7 +5,7 @@ import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
-import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
+import ru.intertrust.cm.core.model.ObjectNotFoundException;
 
 import java.util.Collection;
 import java.util.List;

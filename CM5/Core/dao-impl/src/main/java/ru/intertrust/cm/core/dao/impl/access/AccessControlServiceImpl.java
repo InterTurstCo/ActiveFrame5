@@ -16,7 +16,7 @@ import ru.intertrust.cm.core.dao.access.Subject;
 import ru.intertrust.cm.core.dao.access.SystemSubject;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.access.UserSubject;
-import ru.intertrust.cm.core.dao.exception.AccessException;
+import ru.intertrust.cm.core.model.AccessException;
 
 /**
  * Реализация службы контроля доступа.

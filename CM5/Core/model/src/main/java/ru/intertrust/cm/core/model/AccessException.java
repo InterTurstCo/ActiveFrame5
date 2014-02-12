@@ -1,6 +1,8 @@
-package ru.intertrust.cm.core.dao.exception;
+package ru.intertrust.cm.core.model;
 
-public class AccessException extends DaoException {
+import ru.intertrust.cm.core.model.SystemException;
+
+public class AccessException extends SystemException {
 
     public AccessException() {
         super();

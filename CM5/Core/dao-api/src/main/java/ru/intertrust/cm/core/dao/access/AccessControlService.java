@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.dao.access;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.dao.exception.AccessException;
+import ru.intertrust.cm.core.model.AccessException;
 
 /**
  * Интерфейс службы контроля доступа (СКД).

@@ -3,8 +3,8 @@ package ru.intertrust.cm.core.business.api;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.dao.exception.AccessException;
-import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
+import ru.intertrust.cm.core.model.AccessException;
+import ru.intertrust.cm.core.model.ObjectNotFoundException;
 
 import java.util.Collection;
 import java.util.List;

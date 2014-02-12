@@ -1,8 +1,6 @@
 package ru.intertrust.cm.core.business.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
-import org.xml.sax.SAXException;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.CrudService;
@@ -20,10 +18,8 @@ import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.dao.api.extension.AfterCreateExtentionHandler;
-import ru.intertrust.cm.core.dao.api.extension.BeforeDeleteExtensionHandler;
-import ru.intertrust.cm.core.dao.exception.ObjectNotFoundException;
+import ru.intertrust.cm.core.model.ObjectNotFoundException;
 import ru.intertrust.cm.core.model.CrudException;
-import ru.intertrust.cm.core.model.SystemException;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
