@@ -11,7 +11,7 @@ import java.util.HashMap;
  *         Date: 17/9/13
  *         Time: 12:05 PM
  */
-public class CollectionRowItem implements Dto{
+public class  CollectionRowItem implements Dto{
     private Id id;
     private  HashMap<String, Value> row;
 

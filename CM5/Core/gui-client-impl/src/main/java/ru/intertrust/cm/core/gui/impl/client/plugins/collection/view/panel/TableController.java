@@ -163,7 +163,7 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
 
     @Override
     public void onMouseUp(MouseUpEvent event) {
-        checkSndSortClick(event);
+      //  checkSndSortClick(event);
         onMouseUpEvent(event);
         event.preventDefault();
     }
@@ -188,6 +188,7 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
     }
 
     private void checkSndSortClick(final MouseEvent e) {
+
         Point p = getPoint(e);
         mouseUpSortPoint = (int) p.getX();
         if (mouseDownSortPoint == mouseUpSortPoint) {

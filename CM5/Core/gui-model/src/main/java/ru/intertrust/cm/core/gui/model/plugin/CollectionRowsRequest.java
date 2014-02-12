@@ -2,10 +2,13 @@ package ru.intertrust.cm.core.gui.model.plugin;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -24,11 +27,11 @@ public class CollectionRowsRequest implements Dto {
     private String columnName;
     private boolean sortable;
     private String sortedField;
-    List<Filter> filterList;
+    private List<Filter> filterList;
     private String simpleSearchQuery;
     private String searchArea;
     private SortCriteriaConfig sortCriteriaConfig;
-
+    private Set<Id> includedIds;
 
     public CollectionRowsRequest(int offset, int limit, String collectionName, HashMap<String, String> fields,
                                  List<Filter> filterList, String simpleSearchQuery, String searchArea) {
@@ -39,6 +42,7 @@ public class CollectionRowsRequest implements Dto {
         this.filterList = filterList;
         this.simpleSearchQuery = simpleSearchQuery;
         this.searchArea = searchArea;
+        includedIds = new HashSet<Id>();
 
     }
 
@@ -53,6 +57,7 @@ public class CollectionRowsRequest implements Dto {
         this.sortable = true;
         this.sortedField = sortedField;
         this.filterList = filterList;
+        includedIds = new HashSet<Id>();
     }
 
     public CollectionRowsRequest() {
@@ -152,5 +157,13 @@ public class CollectionRowsRequest implements Dto {
 
     public void setSortCriteriaConfig(SortCriteriaConfig sortCriteriaConfig) {
         this.sortCriteriaConfig = sortCriteriaConfig;
+    }
+
+    public Set<Id> getIncludedIds() {
+        return includedIds;
+    }
+
+    public void setIncludedIds(Set<Id> includedIds) {
+        this.includedIds = includedIds;
     }
 }

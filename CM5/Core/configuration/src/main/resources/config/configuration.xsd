@@ -1749,12 +1749,15 @@
     </xs:complexType>
 
     <xs:complexType name="columnType">
+
             <xs:choice maxOccurs="2" minOccurs="0">
                 <xs:element type="con:ascSortCriteriaType" name="asc-sort-criteria"
                              xmlns:con="https://cm5.intertrust.ru/config"/>
                 <xs:element type="con:descSortCriteriaType" name="desc-sort-criteria"
                             xmlns:con="https://cm5.intertrust.ru/config"/>
-            </xs:choice>
+                <xs:element type="con:imageMappingsType" name="image-mappings"
+                            xmlns:con="https://cm5.intertrust.ru/config"/>
+             </xs:choice>
                 <xs:attribute type="xs:string" name="field"
                               use="required"/>
                 <xs:attribute type="xs:string" name="name"
@@ -1771,7 +1774,30 @@
                               use="optional"/>
                 <xs:attribute type="xs:string" name="pattern" use="optional"/>
                 <xs:attribute type="xs:string" name="time-zone-id" use="optional"/>
+                <xs:attribute type="xs:string" name="min-width" default="120px"/>
+                <xs:attribute type="xs:string" name="max-width"/>
+                <xs:attribute type="xs:boolean" name="resizable" default="true"/>
+                <xs:attribute type="con:textBreakStyleType" name="text-break-style"/>
     </xs:complexType>
+
+    <xs:complexType name="mappingType">
+        <xs:attribute type="xs:string" name="value"/>
+        <xs:attribute type="xs:string" name="image"/>
+    </xs:complexType>
+
+    <xs:complexType name="imageMappingsType">
+        <xs:sequence>
+            <xs:element type="con:mappingType" name="mapping"
+                        maxOccurs="unbounded" minOccurs="0" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:simpleType name="textBreakStyleType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="wrap" />
+            <xs:enumeration value="cut" />
+        </xs:restriction>
+    </xs:simpleType>
 
     <xs:complexType name="displayType">
         <xs:sequence>

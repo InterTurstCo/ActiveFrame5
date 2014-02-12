@@ -19,6 +19,13 @@ public class CollectionColumnProperties implements Dto {
     public static final String SEARCH_FILTER_KEY = "searchFilter";
     public static final String PATTERN_KEY = "pattern";
     public static final String NAME_KEY = "name";
+    public static final String MIN_WIDTH = "min-width";
+    public static final String MAX_WIDTH = "max-width";
+    public static final String RESIZABLE = "resizable";
+    public static final String TEXT_BREAK_STYLE = "text-break-style";
+    public static final String SORTABLE = "sortable";
+    public static final String SORTED_MARKER = "sorted";
+    public static final String FIELD_NAME = "field";
     private AscSortCriteriaConfig ascSortCriteriaConfig;
     private DescSortCriteriaConfig descSortCriteriaConfig;
     private HashMap<String, Object> properties = new HashMap<String, Object>();

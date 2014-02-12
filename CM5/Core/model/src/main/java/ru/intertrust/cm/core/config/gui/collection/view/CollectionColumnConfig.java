@@ -38,11 +38,26 @@ public class CollectionColumnConfig implements Dto {
     @Attribute(name = "search-filter", required = false)
     private String searchFilter;
 
+    @Attribute(name = "min-width", required = false)
+    private String minWidth = "120px";
+
+    @Attribute(name = "max-width", required = false)
+    private String maxWidth;
+
+    @Attribute(name = "resizeable", required = false)
+    private boolean resizeable = true;
+
+    @Attribute(name = "text-break-style", required = false)
+    private String textBreakStyle;
+
     @Element(name = "asc-sort-criteria", required = false)
     private AscSortCriteriaConfig ascSortCriteriaConfig;
 
     @Element(name = "desc-sort-criteria", required = false)
     private DescSortCriteriaConfig descSortCriteriaConfig;
+
+    @Element(name = "image-mappings", required = false)
+    private ImageMappingsConfig imageMappingsConfig;
 
     public String getField() {
         return field;
@@ -132,10 +147,51 @@ public class CollectionColumnConfig implements Dto {
         this.timeZoneId = timeZoneId;
     }
 
+    public String getMinWidth() {
+        return minWidth;
+    }
+
+    public void setMinWidth(String minWidth) {
+        this.minWidth = minWidth;
+    }
+
+    public String getMaxWidth() {
+        return maxWidth;
+    }
+
+    public void setMaxWidth(String maxWidth) {
+        this.maxWidth = maxWidth;
+    }
+
+    public boolean isResizeable() {
+        return resizeable;
+    }
+
+    public void setResizeable(boolean resizeable) {
+        this.resizeable = resizeable;
+    }
+
+    public String getTextBreakStyle() {
+        return textBreakStyle;
+    }
+
+    public void setTextBreakStyle(String textBreakStyle) {
+        this.textBreakStyle = textBreakStyle;
+    }
+
+    public ImageMappingsConfig getImageMappingsConfig() {
+        return imageMappingsConfig;
+    }
+
+    public void setImageMappingsConfig(ImageMappingsConfig imageMappingsConfig) {
+        this.imageMappingsConfig = imageMappingsConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-
+        if (this == o) {
+            return true;
+        }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
@@ -148,18 +204,28 @@ public class CollectionColumnConfig implements Dto {
         if (hidden != that.hidden) {
             return false;
         }
+        if (resizeable != that.resizeable) {
+            return false;
+        }
         if (sortable != that.sortable) {
             return false;
         }
-        if (ascSortCriteriaConfig != null ? !ascSortCriteriaConfig.equals(that.ascSortCriteriaConfig) :
-                that.ascSortCriteriaConfig != null) {
+        if (ascSortCriteriaConfig != null ? !ascSortCriteriaConfig.equals(that.ascSortCriteriaConfig) : that.ascSortCriteriaConfig != null) {
             return false;
         }
-        if (descSortCriteriaConfig != null ? !descSortCriteriaConfig.equals(that.descSortCriteriaConfig) :
-                that.descSortCriteriaConfig != null) {
+        if (descSortCriteriaConfig != null ? !descSortCriteriaConfig.equals(that.descSortCriteriaConfig) : that.descSortCriteriaConfig != null) {
             return false;
         }
         if (field != null ? !field.equals(that.field) : that.field != null) {
+            return false;
+        }
+        if (imageMappingsConfig != null ? !imageMappingsConfig.equals(that.imageMappingsConfig) : that.imageMappingsConfig != null) {
+            return false;
+        }
+        if (maxWidth != null ? !maxWidth.equals(that.maxWidth) : that.maxWidth != null) {
+            return false;
+        }
+        if (minWidth != null ? !minWidth.equals(that.minWidth) : that.minWidth != null) {
             return false;
         }
         if (name != null ? !name.equals(that.name) : that.name != null) {
@@ -168,8 +234,10 @@ public class CollectionColumnConfig implements Dto {
         if (pattern != null ? !pattern.equals(that.pattern) : that.pattern != null) {
             return false;
         }
-        if (searchFilter != null ? !searchFilter.equals(that.searchFilter) :
-                that.searchFilter != null) {
+        if (searchFilter != null ? !searchFilter.equals(that.searchFilter) : that.searchFilter != null) {
+            return false;
+        }
+        if (textBreakStyle != null ? !textBreakStyle.equals(that.textBreakStyle) : that.textBreakStyle != null) {
             return false;
         }
         if (timeZoneId != null ? !timeZoneId.equals(that.timeZoneId) : that.timeZoneId != null) {
@@ -193,8 +261,13 @@ public class CollectionColumnConfig implements Dto {
         result = 31 * result + (pattern != null ? pattern.hashCode() : 0);
         result = 31 * result + (timeZoneId != null ? timeZoneId.hashCode() : 0);
         result = 31 * result + (searchFilter != null ? searchFilter.hashCode() : 0);
+        result = 31 * result + (minWidth != null ? minWidth.hashCode() : 0);
+        result = 31 * result + (maxWidth != null ? maxWidth.hashCode() : 0);
+        result = 31 * result + (resizeable ? 1 : 0);
+        result = 31 * result + (textBreakStyle != null ? textBreakStyle.hashCode() : 0);
         result = 31 * result + (ascSortCriteriaConfig != null ? ascSortCriteriaConfig.hashCode() : 0);
         result = 31 * result + (descSortCriteriaConfig != null ? descSortCriteriaConfig.hashCode() : 0);
+        result = 31 * result + (imageMappingsConfig != null ? imageMappingsConfig.hashCode() : 0);
         return result;
     }
 }

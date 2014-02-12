@@ -15,6 +15,7 @@ import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
+import ru.intertrust.cm.core.gui.model.SortedMarker;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.SaveToCSVContext;
 import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowItemList;
@@ -150,7 +151,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
 
         List<Id> excludedIds = collectionViewerConfig.getExcludedIds();
         Set<Id> idsExcluded = new HashSet<Id>(excludedIds);
-        Filter filterExcludeIds = FilterBuilder.prepareFilter(idsExcluded, "idsExcluded");
+        Filter filterExcludeIds = FilterBuilder.prepareFilter(idsExcluded, FilterBuilder.EXCLUDED_IDS_FILTER);
         filters.add(filterExcludeIds);
         return filters;
     }
@@ -220,13 +221,19 @@ public class CollectionPluginHandler extends ActivePluginHandler {
                     final String field = columnConfig.getField();
                     final CollectionColumnProperties properties = new CollectionColumnProperties();
                     String columnName = columnConfig.getName();
-                    if (field.equalsIgnoreCase(sortedField)) {
-                        columnName = markAsSorted(columnName, sortCriteriaConfig);
-                    }
-                    properties.addProperty(CollectionColumnProperties.NAME_KEY, columnName)
+                    properties.addProperty(CollectionColumnProperties.FIELD_NAME, field)
+                            .addProperty(CollectionColumnProperties.NAME_KEY, columnName)
                             .addProperty(CollectionColumnProperties.TYPE_KEY, columnConfig.getType())
                             .addProperty(CollectionColumnProperties.SEARCH_FILTER_KEY, columnConfig.getSearchFilter())
-                            .addProperty(CollectionColumnProperties.PATTERN_KEY, columnConfig.getPattern());
+                            .addProperty(CollectionColumnProperties.PATTERN_KEY, columnConfig.getPattern())
+                            .addProperty(CollectionColumnProperties.MIN_WIDTH, columnConfig.getMinWidth())
+                            .addProperty(CollectionColumnProperties.MAX_WIDTH, columnConfig.getMaxWidth())
+                            .addProperty(CollectionColumnProperties.RESIZABLE, columnConfig.isResizeable())
+                            .addProperty(CollectionColumnProperties.TEXT_BREAK_STYLE, columnConfig.getTextBreakStyle())
+                            .addProperty(CollectionColumnProperties.SORTABLE, columnConfig.isSortable());
+                    if (field.equalsIgnoreCase(sortedField)) {
+                          properties.addProperty(CollectionColumnProperties.SORTED_MARKER, getSortedMarker(sortCriteriaConfig));
+                    }
                     AscSortCriteriaConfig ascSortCriteriaConfig = columnConfig.getAscSortCriteriaConfig();
                     properties.setAscSortCriteriaConfig(ascSortCriteriaConfig);
                     DescSortCriteriaConfig descSortCriteriaConfig = columnConfig.getDescSortCriteriaConfig();
@@ -240,19 +247,17 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         } else throw new GuiException("Collection view config has no display tags configured ");
     }
 
-    private String markAsSorted(String columnName, DefaultSortCriteriaConfig sortCriteriaConfig) {
+    private SortedMarker getSortedMarker(DefaultSortCriteriaConfig sortCriteriaConfig) {
         SortCriterion.Order sortOrder = sortCriteriaConfig.getOrder();
-        String marker = getSortedMarker(sortOrder);
-        String markedColumnName = columnName + marker;
-        return markedColumnName;
+        boolean sortedAscending = isSortedAscending(sortOrder);
+        SortedMarker sortedMarker = new SortedMarker();
+        sortedMarker.setAscending(sortedAscending);
+        return sortedMarker;
     }
 
-    private String getSortedMarker(SortCriterion.Order order) {
-        if (order.equals(SortCriterion.Order.DESCENDING)) {
-            return DESCEND_ARROW;
-        } else {
-            return ASCEND_ARROW;
-        }
+    private boolean isSortedAscending(SortCriterion.Order order) {
+      return (order.equals(SortCriterion.Order.ASCENDING));
+
     }
 
     private String getSortedField(DefaultSortCriteriaConfig sortCriteriaConfig) {
@@ -307,6 +312,11 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         final int offset = collectionRowsRequest.getOffset();
         final int limit = collectionRowsRequest.getLimit();
         final List<Filter> filters = transformDateFilters(collectionRowsRequest.getFilterList());
+        Set<Id> includedIds = collectionRowsRequest.getIncludedIds();
+        if (!includedIds.isEmpty()) {
+            Filter includedIdsFilter = FilterBuilder.prepareFilter(includedIds, FilterBuilder.INCLUDED_IDS_FILTER);
+            filters.add(includedIdsFilter);
+        }
         if (collectionRowsRequest.isSortable()) {
             list = getRows(collectionName, fields, offset, limit, filters, getSortOrder(collectionRowsRequest));
         } else {

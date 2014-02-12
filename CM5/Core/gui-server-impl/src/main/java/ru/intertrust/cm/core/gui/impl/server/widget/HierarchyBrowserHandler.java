@@ -140,7 +140,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
 
     private List<Filter> addIncludeIdsFilter(List<Id> includedIds, List<Filter> filters) {
         Set<Id> idsIncluded= new HashSet<Id>(includedIds);
-        Filter idsIncludedFilter = FilterBuilder.prepareFilter(idsIncluded, "idsIncluded");
+        Filter idsIncludedFilter = FilterBuilder.prepareFilter(idsIncluded, FilterBuilder.INCLUDED_IDS_FILTER);
         filters.add(idsIncludedFilter);
         return filters;
     }

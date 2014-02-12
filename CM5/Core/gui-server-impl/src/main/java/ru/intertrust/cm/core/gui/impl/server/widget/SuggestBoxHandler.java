@@ -45,7 +45,7 @@ public class SuggestBoxHandler extends ListWidgetHandler {
             String collectionName = widgetConfig.getCollectionRefConfig().getName();
             List<Filter> filters = new ArrayList<Filter>();
             Set<Id> idsIncluded = new HashSet<Id>(selectedIds);
-            Filter idsIncludedFilter = FilterBuilder.prepareFilter(idsIncluded, "idsIncluded");
+            Filter idsIncludedFilter = FilterBuilder.prepareFilter(idsIncluded, FilterBuilder.INCLUDED_IDS_FILTER);
             filters.add(idsIncludedFilter);
             domainObjects = collectionsService.findCollection(collectionName, null, filters);
         }
@@ -72,7 +72,7 @@ public class SuggestBoxHandler extends ListWidgetHandler {
         List<Filter> filters = new ArrayList<>();
 
         if (!suggestionRequest.getExcludeIds().isEmpty()) {
-            filters.add(FilterBuilder.prepareFilter(suggestionRequest.getExcludeIds(), "idsExcluded"));
+            filters.add(FilterBuilder.prepareFilter(suggestionRequest.getExcludeIds(), FilterBuilder.EXCLUDED_IDS_FILTER));
         }
         filters.add(prepareInputTextFilter(suggestionRequest.getText(), suggestionRequest.getInputTextFilterName()));
         DefaultSortCriteriaConfig sortCriteriaConfig = suggestionRequest.getDefaultSortCriteriaConfig();

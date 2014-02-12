@@ -12,12 +12,12 @@ import java.util.Set;
  *         Time: 13:15
  */
 public class FilterBuilder {
-    private static final String EXCLUDED_IDS_FILTER = "idsExcluded";
-    private static final String INCLUDED_IDS_FILTER = "idsIncluded";
+    public static final String EXCLUDED_IDS_FILTER = "idsExcluded";
+    public static final String INCLUDED_IDS_FILTER = "idsIncluded";
 
-    public static Filter prepareFilter(Set<Id> excludeIds, String type) {
+    public static Filter prepareFilter(Set<Id> ids, String type) {
         List<ReferenceValue> idsCriterion = new ArrayList<>();
-        for (Id id : excludeIds) {
+        for (Id id : ids) {
             idsCriterion.add(new ReferenceValue(id));
         }
         Filter filter = createRequiredFilter(idsCriterion, type);

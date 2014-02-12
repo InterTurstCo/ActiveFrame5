@@ -11,7 +11,7 @@
                         <domain-object-surfer domain-object-type-to-create="country">
                             <collection-viewer>
                                 <collection-ref name="Countries"/>
-                                <default-sort-criteria column-field="name" order="asc"/>
+                                <default-sort-criteria column-field="name" order="desc"/>
                                 <search-area-ref name="Countries-Search-Area"/>
                                 <search-collection-ref name="Countries"/>
                             </collection-viewer>

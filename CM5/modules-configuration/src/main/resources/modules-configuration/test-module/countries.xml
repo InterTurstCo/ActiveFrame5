@@ -722,12 +722,19 @@
     </collection>
     <collection-view name="countries_default_view" collection="Countries" is-default="true">
         <display>
-            <column field="id" name="id" type="integer" sortable="false"/>
-            <column field="name" name="Название" editable="false" type="string" sortable="true" search-filter="byName"/>
+            <column field="id" name="id" type="integer" sortable="false" max-width="170px" text-break-style="wrap"/>
+            <column field="name" name="Название" editable="false" type="string" sortable="true" search-filter="byName" min-width="160px"/>
             <column field="independence_day" name="День Независимости" type="datetime" editable="false"
                     sortable="true" search-filter="byIndependenceDay" pattern="dd.MM.yyyy"/>
             <column field="population" name="Популяция" type="long" editable="false" sortable="true"
-                    search-filter="byPopulation"/>
+                    search-filter="byPopulation">
+            <image-mappings>
+                <mapping value="" image="/images/null.png"/>
+                <mapping value="0" image="/images/zero.png"/>
+                <mapping value="1" image="/images/one.png"/>
+                <mapping value="2" image="/images/two.png"/>
+            </image-mappings>
+            </column>
             <column field="description" name="Описание" type="string" editable="false" sortable="true"
                     search-filter="byDescription"/>
             <column field="square" name="Площадь" type="string" editable="false" sortable="true"

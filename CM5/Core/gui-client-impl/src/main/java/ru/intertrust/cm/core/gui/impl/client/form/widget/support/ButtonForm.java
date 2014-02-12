@@ -48,21 +48,21 @@ public class ButtonForm extends Composite{
     }
 
     private void createStyle(){
-        focusPanel.setStyleName("hierarh-browser-inline composite-button");
-        buttonPanel.setStyleName("hierarh-browser-button");
+        focusPanel.setStyleName("common-add-button common-composite-button");
+        buttonPanel.setStyleName("common-buttons-panel");
         buttonPanel.getElement().getStyle().setHeight(16, Style.Unit.PX);
     }
 
 
     public void addImage(String img){
         Image pic = new Image(img);
-        pic.setStyleName("hierarh-browser-inline-margin-left");
+        pic.setStyleName("common-widget-button-style");
         buttonPanel.insert(pic, 0);
     }
 
     public void addText(String lbl){
         Label label = new Label(lbl);
-        label.setStyleName("hierarh-browser-inline-margin-left");
+        label.setStyleName("common-widget-button-style");
         buttonPanel.add(label);
     }
 
