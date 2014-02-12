@@ -37,6 +37,9 @@
         border-bottom: 1px solid black;
         clear: both;
         font-weight: bold;
+        border-spacing: 2px;
+        background-color: rgb(176, 189, 206);
+        color: #ffffff;
     }
 
     .docs-common-celltable-header > tbody tr {

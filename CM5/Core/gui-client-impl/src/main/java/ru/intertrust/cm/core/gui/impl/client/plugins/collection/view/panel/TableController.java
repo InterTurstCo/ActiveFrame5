@@ -131,16 +131,13 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
     private double reducingColumnWidthInPercentage(double oldWidth, double newWidth, Column headCol, Column bodyCol) {
         double coeff = newWidth / oldWidth;
         double resized;
-        if (newWidth / header.getColumnCount() < COLUMN_MIN_WIDTH) {
-            resized = COLUMN_MIN_WIDTH;
-            return resized;
-        } else {
+
             resized = (getColumnWidth(headCol) * coeff);
 
             if (resized < COLUMN_MIN_WIDTH) {
                 resized = COLUMN_MIN_WIDTH;
             }
-        }
+
         header.setColumnWidth(headCol, resized + "px");
         body.setColumnWidth(bodyCol, resized + "px");
         return resized;
@@ -267,7 +264,9 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
     }
 
     private void reDrawColumn(int index, Column column) {
+
         header.removeColumn(index);
+
         header.insertColumn(index, column, column.getDataStoreName());
 
     }

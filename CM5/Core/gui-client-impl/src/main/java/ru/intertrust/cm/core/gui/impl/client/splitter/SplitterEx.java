@@ -189,16 +189,15 @@ public class SplitterEx extends DockLayoutPanel {
             changeModeButton.addDomHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    int firstWidgetWidth = target.getParent().getParent().getOffsetWidth()/2;
+                    int firstWidgetWidth = target.getParent().getParent().getOffsetWidth()/2 -DEFAULT_SPLITTER_SIZE;
                     if (splitType){
                         splitType = false;
 
                     } else {
                         splitType = true;
                         if (sizeFromInsert != target.getParent().getParent().getOffsetWidth()/2 && sizeFromInsert>0 )  {
-                        firstWidgetWidth = sizeFromInsert;
+                        firstWidgetWidth = sizeFromInsert-DEFAULT_SPLITTER_SIZE;
                         }
-                        System.out.println(sizeFromInsert);
                     }
 
 

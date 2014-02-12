@@ -129,6 +129,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                         left.setStyleName("left-section-active");
                         //centrInner.getElement().getStyle().setHeight(Window.getClientHeight()-60 - 11, Style.Unit.PX);
                         eventBus.fireEvent(new PluginPanelSizeChangedEvent());
+                     //   centrInner.getElement().getStyle().setHeight(Window.getClientHeight()-60 - 11 - 11, Style.Unit.PX);
                         //centrInner.getElement().getStyle().setHeight(Window.getClientHeight() -60 - 11 - 11, Style.Unit.PX);
                         centrInner.getElement().getStyle().setHeight(Window.getClientHeight() -60 - 11 - 11, Style.Unit.PX);
                     }
@@ -155,8 +156,10 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 centralPluginPanel.setSize("100%", "100%");
                 //centralPluginPanel.asWidget().getElement().addClassName("hello999");
                 centrInner.add(centralPluginPanel);
+
                 addWindowResizeListener();
                 RootLayoutPanel.get().add(root);
+
             }
 
             @Override
@@ -172,6 +175,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         final DomainObjectSurferPlugin domainObjectSurfer = ComponentRegistry.instance.get("domain.object.surfer.plugin");
         domainObjectSurfer.setConfig(event.getPluginConfig());
         domainObjectSurfer.setDisplayActionToolBar(true);
+
         centralPluginPanel.open(domainObjectSurfer);
 
     }

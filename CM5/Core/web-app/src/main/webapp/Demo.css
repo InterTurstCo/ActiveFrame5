@@ -1354,7 +1354,7 @@ my-suggest-box {
 
     float: right;
     margin-top: -26px;
-    margin-right: 5px;
+    margin-right: 1% !important;
 }
 
 .datePickerDay, .datePickerWeekdayLabel, .datePickerWeekendLabel {
