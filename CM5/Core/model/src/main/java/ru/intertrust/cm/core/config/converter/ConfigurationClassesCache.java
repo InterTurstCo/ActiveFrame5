@@ -88,11 +88,11 @@ public class ConfigurationClassesCache {
                 tagToClassMap.put(rootAnnotation.name(), clazz);
             }
         } catch (ClassNotFoundException e) {
-              int i= 0;
-//            throw new FatalException("Class '" + resource + "' was found by ResourcePatternResolver but was " +
-//                    "not resolved by ClassLoader", e);
+            throw new FatalException("Class '" + resource + "' was found by ResourcePatternResolver but was " +
+                    "not resolved by ClassLoader", e);
         } catch (NoClassDefFoundError e) {
-              int i= 0;
+            throw new FatalException("Class '" + resource + "' was found by ResourcePatternResolver but was " +
+                    "not resolved by ClassLoader", e);
         } catch (Throwable e) {
             throw new FatalException("Failed to read metadata of '" + resource + "'", e);
         }
