@@ -148,7 +148,7 @@ public class SqlQueryModifier {
     public String addAclQuery(String query) {
         SqlQueryParser sqlParser = new SqlQueryParser(query);
         SelectBody selectBody = sqlParser.getSelectBody();
-        AddAclVisitor aclVistor = new AddAclVisitor();
+        AddAclVisitor aclVistor = new AddAclVisitor(configurationExplorer);
         selectBody.accept(aclVistor);
         String modifiedQuery = selectBody.toString();
         modifiedQuery = modifiedQuery.replaceAll(USER_ID_PARAM, USER_ID_VALUE);

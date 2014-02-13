@@ -16,8 +16,8 @@ public abstract class BaseOperationPermitConfig implements Dto {
 
 
     @ElementListUnion({
-            @ElementList(entry = "permit-role", type = PermitRole.class, inline = true),
-            @ElementList(entry = "permit-group", type = PermitGroup.class, inline = true),
+            @ElementList(entry = "permit-role", type = PermitRole.class, inline = true, required = false),
+            @ElementList(entry = "permit-group", type = PermitGroup.class, inline = true, required = false),
     })
     private List<BasePermit> permitConfigs = new ArrayList<>();
 

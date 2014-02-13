@@ -15,6 +15,7 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.PermissionService;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.dao.api.PersonServiceDao;
@@ -31,6 +32,9 @@ import ru.intertrust.cm.core.dao.api.PersonServiceDao;
 public class PermissionServiceImpl implements PermissionService {
     @Autowired
     private PermissionServiceDao permissionServiceDao;
+    
+    @Autowired    
+    private ConfigurationExplorer configurationExplorer;
     
     @Resource
     private SessionContext context;    
@@ -57,4 +61,9 @@ public class PermissionServiceImpl implements PermissionService {
         return permissionServiceDao.getObjectPermissions(domainObjectId);
     }
 
+    @Override
+    public boolean isReadPermittedToEverybody(String domainObjectType) {
+        return configurationExplorer.isReadPermittedToEverybody(domainObjectType);
+    }
+    
 }

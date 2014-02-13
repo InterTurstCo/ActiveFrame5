@@ -108,5 +108,7 @@ public interface ConfigurationExplorer {
      * @return true если тип доменного обхекта - Attachment
      */
     boolean isAttachmentType(String domainObjectType);
+    
+    boolean isReadPermittedToEverybody(String domainObjectType);
 
 }

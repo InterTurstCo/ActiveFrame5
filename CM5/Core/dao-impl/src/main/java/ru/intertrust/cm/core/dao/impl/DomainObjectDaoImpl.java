@@ -616,8 +616,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         for (final Integer domainObjectType : idSorterByType
                 .getDomainObjectTypeIds()) {
-            List<RdbmsId> idsOfSingleType = idSorterByType
-                    .getIdsOfType(domainObjectType);
+            List<Id> idsOfSingleType = idSorterByType.getIdsOfType(domainObjectType);
             String doTypeName = domainObjectTypeIdCache
                     .getName(domainObjectType);
             allDomainObjects.addAll(findSingleTypeDomainObjects(
@@ -638,7 +637,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
      *            тип доменного объекта
      * @return список доменных объектов
      */
-    private List<DomainObject> findSingleTypeDomainObjects(List<RdbmsId> ids,
+    private List<DomainObject> findSingleTypeDomainObjects(List<Id> ids,
             AccessToken accessToken, String domainObjectType) {
         List<DomainObject> cachedDomainObjects = domainObjectCacheService
                 .getObjectToCache(ids);
@@ -647,7 +646,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             return cachedDomainObjects;
         }
 
-        LinkedHashSet<RdbmsId> idsToRead = new LinkedHashSet<>(ids);
+        LinkedHashSet<Id> idsToRead = new LinkedHashSet<>(ids);
         if (cachedDomainObjects != null) {
             for (DomainObject domainObject : cachedDomainObjects) {
                 idsToRead.remove(domainObject.getId());

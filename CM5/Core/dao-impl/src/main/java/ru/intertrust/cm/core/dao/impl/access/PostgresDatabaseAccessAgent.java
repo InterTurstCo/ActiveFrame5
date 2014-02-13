@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.access.AccessType;
 import ru.intertrust.cm.core.dao.access.CreateChildAccessType;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
@@ -34,6 +35,9 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
     @Autowired
     private DomainObjectTypeIdCache domainObjetcTypeIdCache;
 
+    @Autowired    
+    private ConfigurationExplorer configurationExplorer;
+    
     private NamedParameterJdbcTemplate jdbcTemplate;
 
     public void setDomainObjetcTypeIdCache(DomainObjectTypeIdCache domainObjetcTypeIdCache) {
@@ -89,9 +93,18 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         List<Id> idsWithAllowedAccess = new ArrayList<Id>();
         IdSorterByType idSorterByType = new IdSorterByType(ids);
 
-        for (final Integer domainObjectType : idSorterByType.getDomainObjectTypeIds()) {
-            List<Id> checkedIds = getIdsWithAllowedAccessByType(userId, opCode, idSorterByType, domainObjectType);
-            idsWithAllowedAccess.addAll(checkedIds);
+        //check configuration 
+        for (final Integer domainObjectTypeId : idSorterByType.getDomainObjectTypeIds()) {
+            String domainObjectType = domainObjetcTypeIdCache.getName(domainObjectTypeId);
+            if (DomainObjectAccessType.READ.equals(type)
+                    && configurationExplorer.isReadPermittedToEverybody(domainObjectType)) {
+                List<Id> allIdsOfOneType = idSorterByType.getIdsOfType(domainObjectTypeId);
+                idsWithAllowedAccess.addAll(allIdsOfOneType);
+            } else {
+                idSorterByType.getIdsOfType(domainObjectTypeId);
+                List<Id> checkedIds = getIdsWithAllowedAccessByType(userId, opCode, idSorterByType, domainObjectTypeId);
+                idsWithAllowedAccess.addAll(checkedIds);
+            }
         }
 
         return idsWithAllowedAccess.toArray(new Id[idsWithAllowedAccess.size()]);

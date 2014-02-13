@@ -21,6 +21,7 @@ import java.util.*;
  * @author vmatsukevich Date: 6/12/13 Time: 5:21 PM
  */
 public class ConfigurationExplorerImpl implements ConfigurationExplorer {
+    private static final String ALL_STATUSES_SIGN = "*";
     private final static Logger logger = LoggerFactory.getLogger(ConfigurationExplorerImpl.class);
     private final static String GLOBAL_SETTINGS_CLASS_NAME = "ru.intertrust.cm.core.config.GlobalSettingsConfig";
     private Configuration configuration;
@@ -28,6 +29,9 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
     private Map<Class<?>, CaseInsensitiveMap<TopLevelConfig>> topLevelConfigMap = new HashMap<>();
     private Map<FieldConfigKey, FieldConfig> fieldConfigMap = new HashMap<>();
     private Map<FieldConfigKey, CollectionColumnConfig> collectionColumnConfigMap = new HashMap<>();
+    
+    private Map<String, Boolean> readPermittedToEverybodyMap = new HashMap<>();
+    
     private GlobalSettingsConfig globalSettings;
     private CaseInsensitiveMap<String> attachmentDomainObjectTypes = new CaseInsensitiveMap<>();
     @Autowired
@@ -219,6 +223,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         topLevelConfigMap.clear();
         fieldConfigMap.clear();
         attachmentDomainObjectTypes.clear();
+        readPermittedToEverybodyMap.clear();
         List<DomainObjectTypeConfig> attachmentOwnerDots = new ArrayList<>();
         for (TopLevelConfig config : configuration.getConfigurationList()) {
 
@@ -236,10 +241,29 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
             } else if (CollectionViewConfig.class.equals(config.getClass())) {
                 CollectionViewConfig collectionViewConfig = (CollectionViewConfig) config;
                 fillCollectionColumnConfigMap(collectionViewConfig);
+            } else if (AccessMatrixConfig.class.equals(config.getClass())) {
+                AccessMatrixConfig accessMatrixConfig = (AccessMatrixConfig) config;
+                fillReadPermittedToEverybodyMap(accessMatrixConfig);
             }
         }
 
         initConfigurationMapsOfAttachmentDomainObjectTypes(attachmentOwnerDots);
+    }
+
+    private void fillReadPermittedToEverybodyMap(AccessMatrixConfig accessMatrixConfig) {
+        for (AccessMatrixStatusConfig accessMatrixStatus : accessMatrixConfig.getStatus()) {
+            if (ALL_STATUSES_SIGN.equals(accessMatrixStatus.getName())) {
+                for (BaseOperationPermitConfig permission : accessMatrixStatus.getPermissions()) {
+
+                    if (ReadConfig.class.equals(permission.getClass())
+                            && ((ReadConfig) permission).isPermitEverybody()) {
+                        readPermittedToEverybodyMap.put(accessMatrixConfig.getType(), true);
+                        return;
+                    }
+                }
+            }
+            readPermittedToEverybodyMap.put(accessMatrixConfig.getType(), false);
+        }
     }
 
     /**
@@ -505,4 +529,10 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer {
         }
     }
 
+    public boolean isReadPermittedToEverybody(String domainObjectType) {
+        if (readPermittedToEverybodyMap.get(domainObjectType) != null) {
+            return readPermittedToEverybodyMap.get(domainObjectType);
+        }
+        return false;
+    }
 }

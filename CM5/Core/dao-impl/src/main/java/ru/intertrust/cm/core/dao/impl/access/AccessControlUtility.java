@@ -1,12 +1,13 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
-import ru.intertrust.cm.core.business.api.dto.RdbmsId;
-import ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper;
 
 /**
  * Утилитный класс системы контроля доступа.
@@ -36,11 +37,11 @@ public class AccessControlUtility {
      * @param objectIds
      * @return
      */
-    public static List<Long> convertRdbmsIdsToLongIds(List<RdbmsId> objectIds) {
+    public static List<Long> convertRdbmsIdsToLongIds(List<Id> objectIds) {
         List<Long> idList = new ArrayList<Long>();
-        for (RdbmsId id : objectIds) {
+        for (Id id : objectIds) {
             if (id != null && id.getClass().equals(RdbmsId.class)) {
-                idList.add(id.getId());
+                idList.add(((RdbmsId) id).getId());
             }
         }
         return idList;

@@ -71,6 +71,8 @@ import net.sf.jsqlparser.statement.select.SubJoin;
 import net.sf.jsqlparser.statement.select.SubSelect;
 import net.sf.jsqlparser.statement.select.ValuesList;
 import net.sf.jsqlparser.statement.select.WithItem;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
 
 /**
@@ -81,6 +83,12 @@ import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
  */
 public class AddAclVisitor implements SelectVisitor, FromItemVisitor, ExpressionVisitor, ItemsListVisitor, SelectItemVisitor {
 
+    private ConfigurationExplorer configurationExplorer;
+
+    public AddAclVisitor(ConfigurationExplorer configurationExplorer) {
+        this.configurationExplorer = configurationExplorer;
+    }
+    
     @Override
     public void visit(PlainSelect plainSelect) {
         processFromItem(plainSelect);
@@ -114,13 +122,15 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
                 FromItem joinItem = join.getRightItem();
                 if (joinItem instanceof Table) {
                     Table table = (Table) joinItem;
-                    SubSelect replace = createAclSubQuery(table.getName());
-                    if (table.getAlias() == null) {
-                        replace.setAlias(table.getName());
-                    } else {
-                        replace.setAlias(table.getAlias());
+                    if (!configurationExplorer.isReadPermittedToEverybody(table.getName())) {
+                        SubSelect replace = createAclSubQuery(table.getName());
+                        if (table.getAlias() == null) {
+                            replace.setAlias(table.getName());
+                        } else {
+                            replace.setAlias(table.getAlias());
+                        }
+                        join.setRightItem(replace);
                     }
-                    join.setRightItem(replace);
                 } else {
                     join.getRightItem().accept(this);
                 }
@@ -132,18 +142,24 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
         FromItem from = plainSelect.getFromItem();
         if (from instanceof Table) {
             Table table = (Table) from;
-            SubSelect replace = createAclSubQuery(table.getName());
-            if (table.getAlias() == null) {
-                replace.setAlias(table.getName());
-            } else {
-                replace.setAlias(table.getAlias());
+            if (!configurationExplorer.isReadPermittedToEverybody(table.getName())) {
+                SubSelect replace = createAclSubQuery(table.getName());
+                if (table.getAlias() == null) {
+                    replace.setAlias(table.getName());
+                } else {
+                    replace.setAlias(table.getAlias());
+                }
+                plainSelect.setFromItem(replace);
             }
-            plainSelect.setFromItem(replace);
         } else {
             plainSelect.getFromItem().accept(this);
         }
     }
 
+    private boolean isDomainObjectType(String tableName) {
+        return configurationExplorer.getConfig(DomainObjectTypeConfig.class, tableName) != null;
+    }
+    
     /**
      * Выполняет замену названия таблицы на ACL подзапрос.
      * @param domainObjectType

@@ -299,6 +299,10 @@
     </access-matrix>
     
     <access-matrix type="city">
+        <status name="*">
+            <read permit-everybody="true">
+            </read>
+        </status>            
         <status name="Active">
             <read>
                 <permit-group name="AllPersons" />
@@ -315,6 +319,27 @@
         </status>
     </access-matrix>    
 
+    <access-matrix type="Organization">
+        <status name="*">
+            <read permit-everybody="true">
+            </read>
+        </status>            
+        <status name="Active">
+            <read>
+                <permit-group name="AllPersons" />
+            </read>
+            <write>
+                <permit-group name="AllPersons" />
+            </write>
+            <delete>
+                <permit-group name="AllPersons" />
+            </delete>
+            <execute-action name="action1">
+                <permit-group name="AllPersons" />
+            </execute-action>
+        </status>
+    </access-matrix>
+    
     <!-- Внутренний документ -->
     <access-matrix type="Internal_Document">
         <status name="Draft">

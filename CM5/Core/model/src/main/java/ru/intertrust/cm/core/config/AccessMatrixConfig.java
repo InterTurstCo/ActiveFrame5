@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.config;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.simpleframework.xml.Attribute;
@@ -20,7 +21,7 @@ public class AccessMatrixConfig implements TopLevelConfig {
     private String type;
 
     @ElementList(inline = true)
-    private List<AccessMatrixStatusConfig> status;
+    private List<AccessMatrixStatusConfig> status = new ArrayList<>();
 
     public String getType() {
         return type;

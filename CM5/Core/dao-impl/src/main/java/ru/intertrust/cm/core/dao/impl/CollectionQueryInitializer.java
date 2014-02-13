@@ -177,8 +177,7 @@ public class CollectionQueryInitializer {
         query = sqlQueryModifier.addIdBasedFilters(query, filterValues, collectionConfig.getIdField());
 
         if (accessToken.isDeferred()) {
-            query = sqlQueryModifier.addAclQuery(query
-                    );
+            query = sqlQueryModifier.addAclQuery(query);
         }
 
         sqlQueryModifier.checkDuplicatedColumns(query);

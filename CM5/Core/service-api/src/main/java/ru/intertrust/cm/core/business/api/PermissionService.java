@@ -34,5 +34,11 @@ public interface PermissionService {
      */
     List<DomainObjectPermission> getObjectPermissions(Id domainObjectId);
     
-    
+    /**
+     * Проверяет, разрешено ли чтение данного доменного объекта для всех персон. Все справочники должны иметь это
+     * разрешение.
+     * @param domainObjectType тип доменного объекта
+     * @return true если разрешено, иначе false
+     */
+    boolean isReadPermittedToEverybody(String domainObjectType);
 }

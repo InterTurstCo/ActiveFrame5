@@ -168,7 +168,13 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
     @Override
     public DomainObject find(Id id) {
         String user = currentUserAccessor.getCurrentUser();
-        AccessToken accessToken = accessControlService.createAccessToken(user, id, DomainObjectAccessType.READ);
+        AccessToken accessToken = null;
+
+        if (isReadPermittedToEverybody(id)) {
+            accessToken = accessControlService.createSystemAccessToken("CrudServiceImpl");
+        } else {
+            accessToken = accessControlService.createAccessToken(user, id, DomainObjectAccessType.READ);
+        }
 
         DomainObject result = domainObjectDao.find(id, accessToken);
         if (result == null) {
@@ -176,6 +182,15 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         }
 
         return result;
+    }
+
+    private boolean isReadPermittedToEverybody(Id id) {
+        String domainObjectType = domainObjectTypeIdCache.getName(id);
+        return isReadPermittedToEverybody(domainObjectType);
+    }
+
+    private boolean isReadPermittedToEverybody(String domainObjectType) {
+        return configurationExplorer.isReadPermittedToEverybody(domainObjectType);
     }
 
     @Override
@@ -198,6 +213,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         }
         Id[] idsArray = ids.toArray(new Id[ids.size()]);
         String user = currentUserAccessor.getCurrentUser();
+
         AccessToken accessToken =
                 accessControlService.createAccessToken(user, idsArray, DomainObjectAccessType.READ, false);
 
@@ -208,11 +224,16 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
     public List<DomainObject> findAll(String domainObjectType) {
         if (domainObjectType == null || domainObjectType.trim().isEmpty()) {
             throw new IllegalArgumentException("Domain Object type can not be null or empty");
+        }        
+        
+        AccessToken accessToken = null;
+        if (isReadPermittedToEverybody(domainObjectType)) {
+            accessToken = accessControlService.createSystemAccessToken("CrudServiceImpl");
+        } else {
+            String user = currentUserAccessor.getCurrentUser();
+            accessToken = accessControlService.createAccessToken(user, null, DomainObjectAccessType.READ);
         }
-        String user = currentUserAccessor.getCurrentUser();
-        AccessToken accessToken =
-                accessControlService.createAccessToken(user, null, DomainObjectAccessType.READ);
-
+        
         return domainObjectDao.findAll(domainObjectType, accessToken);
     }
 
@@ -244,16 +265,25 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     @Override
     public List<DomainObject> findLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField) {
-        String user = currentUserAccessor.getCurrentUser();
-        AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
+        AccessToken accessToken = createAccessTokenForFindLinkedDomainObjects(linkedType);
         return domainObjectDao.findLinkedDomainObjects(domainObjectId, linkedType, linkedField, accessToken);
     }
 
     @Override
     public List<Id> findLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField) {
-        String user = currentUserAccessor.getCurrentUser();
-        AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
+        AccessToken accessToken = createAccessTokenForFindLinkedDomainObjects(linkedType);
         return domainObjectDao.findLinkedDomainObjectsIds(domainObjectId, linkedType, linkedField, accessToken);
+    }
+
+    private AccessToken createAccessTokenForFindLinkedDomainObjects(String linkedType) {
+        AccessToken accessToken = null;
+        if (isReadPermittedToEverybody(linkedType)) {
+            accessToken = accessControlService.createSystemAccessToken("CrudServiceImpl");
+        } else {
+            String user = currentUserAccessor.getCurrentUser();
+            accessToken = accessControlService.createCollectionAccessToken(user);
+        }
+        return accessToken;
     }
 
     @Override

@@ -1,20 +1,30 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TYPE_COLUMN;
+
+import java.util.Arrays;
+
+import org.junit.Before;
 import org.junit.Test;
-import ru.intertrust.cm.core.business.api.dto.*;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.IdsExcludedFilter;
+import ru.intertrust.cm.core.business.api.dto.IdsIncludedFilter;
+import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.config.GlobalSettingsConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
 
-import java.util.Arrays;
-
-import java.util.Arrays;
-
-import static org.junit.Assert.assertEquals;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TYPE_COLUMN;
-
+@RunWith(MockitoJUnitRunner.class)
 public class SqlQueryModifierTest {
 
     private static final String ID_FIELD = "id";
@@ -96,6 +106,14 @@ public class SqlQueryModifierTest {
             "JOIN \"ss_moduleorg\" AS org2 ON org2.\"organization\" = org.\"organization\" " +
             "WHERE 1 = 1 AND type.\"name\" = ? AND org2.\"module\" = ? AND type.\"name\" = ? AND org2.\"module\" = ?";
 
+    @Mock
+    private ConfigurationExplorer configurationExplorer;
+
+    @Before
+    public void setUp(){
+        when(configurationExplorer.isReadPermittedToEverybody(anyString())).thenReturn(false);    
+    }
+    
     @Test
     public void testAddTypeColumn() {
         Configuration configuration = new Configuration();
@@ -120,7 +138,7 @@ public class SqlQueryModifierTest {
 
     @Test
     public void testAddAclQuery() {
-        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier(null);
+        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier(configurationExplorer);
         String modifiedQuery = collectionQueryModifier.addAclQuery(PLAIN_SELECT_QUERY);
 
         assertEquals(PLAIN_SELECT_QUERY_WITH_ACL, modifiedQuery);
@@ -132,7 +150,7 @@ public class SqlQueryModifierTest {
 
     @Test
     public void testAddAclQueryToSqlWithoutWhereClause() {
-        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier(null);
+        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier(configurationExplorer);
         String modifiedQuery = collectionQueryModifier.addAclQuery(PLAIN_SELECT_QUERY_WITHOUT_WHERE);
 
         assertEquals(PLAIN_SELECT_QUERY_WITHOUT_WHERE_ACL_APPLIED, modifiedQuery);
@@ -150,7 +168,7 @@ public class SqlQueryModifierTest {
         idsIncludedFilter2.addCriterion(0, new ReferenceValue(new RdbmsId(1, 101)));
         idsIncludedFilter2.addCriterion(1, new ReferenceValue(new RdbmsId(1, 102)));
 
-        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier(null);
+        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier(configurationExplorer);
         String modifiedQuery = collectionQueryModifier.addIdBasedFilters(PLAIN_SELECT_QUERY_WITHOUT_WHERE,
                 Arrays.asList(new Filter[] {idsIncludedFilter1, idsIncludedFilter2}), "id");
 
@@ -168,7 +186,7 @@ public class SqlQueryModifierTest {
         idsExcludedFilter2.addCriterion(0, new ReferenceValue(new RdbmsId(1, 101)));
         idsExcludedFilter2.addCriterion(1, new ReferenceValue(new RdbmsId(1, 102)));
 
-        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier(null);
+        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier(configurationExplorer);
         String modifiedQuery = collectionQueryModifier.addIdBasedFilters(PLAIN_SELECT_QUERY_WITHOUT_WHERE,
                 Arrays.asList(new Filter[]{idsExcludedFilter1, idsExcludedFilter2}), "person");
 
