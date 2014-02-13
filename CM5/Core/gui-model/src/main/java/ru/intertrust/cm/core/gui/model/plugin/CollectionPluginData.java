@@ -24,6 +24,7 @@ public class CollectionPluginData extends ActivePluginData {
     private ArrayList<Integer> indexesOfSelectedItems = new ArrayList<Integer>();
     private List<Id> chosenIds = new ArrayList<Id>();
     private String searchArea;
+    private String collectionViewConfigName;
 
     public CollectionPluginData() {
         domainObjectFieldPropertiesMap = new LinkedHashMap<String, CollectionColumnProperties>();
@@ -100,5 +101,13 @@ public class CollectionPluginData extends ActivePluginData {
 
     public void setSearchArea(String searchArea) {
         this.searchArea = searchArea;
+    }
+
+    public String getCollectionViewConfigName() {
+        return collectionViewConfigName;
+    }
+
+    public void setCollectionViewConfigName(String collectionViewConfigName) {
+        this.collectionViewConfigName = collectionViewConfigName;
     }
 }

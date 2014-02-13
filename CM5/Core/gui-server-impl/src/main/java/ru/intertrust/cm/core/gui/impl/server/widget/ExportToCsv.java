@@ -1,3 +1,9 @@
+/*
+ * @author Lesia Puhova
+ *         Date: 13.02.2014
+ *         Time: 05:50:14
+ */
+
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
 
@@ -8,10 +14,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.SearchService;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.SortCriterion;
+import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
-import ru.intertrust.cm.core.gui.model.GuiException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,8 +29,10 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 
@@ -43,7 +55,8 @@ public class ExportToCsv {
     @Autowired
     ConfigurationService configurationService;
 
-    public static final int START_ROW_COUNT = 2;
+    private static final int START_ROW_COUNT = 100;
+    private static final String DEFAULT_ENCODING = "ANSI-1251";
 
     @ResponseBody
     @RequestMapping(value = "export-to-csv")
@@ -57,12 +70,14 @@ public class ExportToCsv {
         String sortDirection = request.getParameter("Sortable");
         String columnName = request.getParameter("ColumnName");
         String filterQuery = request.getParameter("filterName");
+        String collectionViewName = request.getParameter("collectionView");
+
         ArrayList<Filter>filters = new ArrayList<Filter>();
         SortOrder sortOrder = new SortOrder();
         ArrayList<Boolean> isPrint = new ArrayList<Boolean>();
 
 
-        CollectionViewConfig collectionViewConfig = findRequiredCollectionView(collectionName);
+        CollectionViewConfig collectionViewConfig = findRequiredCollectionView(collectionViewName);
         List<CollectionColumnConfig> collectionColumnConfigs = collectionViewConfig.getCollectionDisplayConfig().getColumnConfig();
 
         if (sortDirection !=null){
@@ -70,7 +85,7 @@ public class ExportToCsv {
         }
 
         if (filterQuery != null && filterQuery.length() > 0){
-            System.out.println("filter "+filterQuery);
+           // System.out.println("filter "+filterQuery);
              createFilterList(filterQuery,filters);
         }
 
@@ -87,14 +102,14 @@ public class ExportToCsv {
 
         OutputStream resOut = response.getOutputStream();
         OutputStream buffer = new BufferedOutputStream(resOut);
-        OutputStreamWriter writer = new OutputStreamWriter(buffer);
+        OutputStreamWriter writer = new OutputStreamWriter(buffer, Charset.forName(DEFAULT_ENCODING));
 
 
        //Создание заголовков таблицы
        isPrint.add(false);
        next:
         for (int i = 1; i <collections.getFieldsConfiguration().size(); i++){
-            String tmp = collections.getFieldsConfiguration().get(i).getName()+"";
+            String tmp = collections.getFieldsConfiguration().get(i).getName();
             for (int viewCollectionField = 1; viewCollectionField <collectionColumnConfigs.size(); viewCollectionField++ ) {
                  if (tmp.equals(collectionColumnConfigs.get(viewCollectionField).getField())){
                     writer.append(collectionColumnConfigs.get(viewCollectionField).getName()+";");
@@ -106,7 +121,7 @@ public class ExportToCsv {
             isPrint.add(false);
         }
 
-            writer.append(" \n");
+        writer.append(" \n");
         print(writer,  collections,  isPrint);
         int sumRowCount = START_ROW_COUNT;
         while(collections.size() == START_ROW_COUNT){
@@ -119,18 +134,22 @@ public class ExportToCsv {
         writer.close();
     }
 
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+
     private void print(OutputStreamWriter writer, IdentifiableObjectCollection collections, ArrayList<Boolean> isPrint) throws IOException {
         for (int row = 0; row < collections.size(); row++){
             for (int col = 1; col < collections.getFieldsConfiguration().size(); col++){
                 if (isPrint.get(col)){
-                    String tmp = collections.get(col, row)+";";
-                    if (tmp.equals("null;")){
-                        writer.append(" ;");
+                    Value value = collections.get(col, row);
+                    if (value.get() == null) {
+                        writer.append(" ");
+                    } else if (value.get() instanceof Date) {
+                        writer.append(dateFormat.format((Date)value.get()));
                     } else {
-                        writer.append(tmp);
+                        writer.append(value.get().toString());
                     }
+                    writer.append(";");
                 }
-
             }
             writer.append("\n");
         }
@@ -167,23 +186,8 @@ public class ExportToCsv {
 
     }
 
-    private Collection<CollectionViewConfig> getCollectionOfViewConfigs() {
-        Collection<CollectionViewConfig> viewConfigs = configurationService.
-                getConfigs(CollectionViewConfig.class);
-        return viewConfigs;
-
+    private CollectionViewConfig findRequiredCollectionView(String collectionViewName) {
+        return configurationService.getConfig(CollectionViewConfig.class, collectionViewName);
     }
-    public  CollectionViewConfig findRequiredCollectionView(String collection) {
-
-        Collection<CollectionViewConfig> collectionViewConfigs = getCollectionOfViewConfigs();
-        for (CollectionViewConfig collectionViewConfig : collectionViewConfigs) {
-
-            if (collectionViewConfig.getCollection().equalsIgnoreCase(collection)) {
-                return collectionViewConfig;
-            }
-        }
-        throw new GuiException("Couldn't find view for collection with name '" + collection + "'");
-    }
-
 
 }

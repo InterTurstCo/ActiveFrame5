@@ -64,6 +64,7 @@ public class CollectionPluginView extends PluginView {
 
     private AbsolutePanel root = new AbsolutePanel();
     private String collectionName;
+    private String collectionViewConfigName;
     private int listCount;
     private int tableWidth;
     private int tableHeight;
@@ -116,6 +117,7 @@ public class CollectionPluginView extends PluginView {
     protected IsWidget getViewWidget() {
         CollectionPluginData collectionPluginData = plugin.getInitialData();
         collectionName = collectionPluginData.getCollectionName();
+        collectionViewConfigName = collectionPluginData.getCollectionViewConfigName();
         fieldPropertiesMap = collectionPluginData.getDomainObjectFieldPropertiesMap();
         items = collectionPluginData.getItems();
         singleChoice = collectionPluginData.isSingleChoice();
@@ -284,6 +286,8 @@ public class CollectionPluginView extends PluginView {
                 sb.append("collectionName=");
                 sb.append(collectionName);
 
+                sb.append("&collectionView=");
+                sb.append(collectionViewConfigName);
 
                 if (sortCollectionState != null && sortCollectionState.isSortable()) {
                     sb.append("&");

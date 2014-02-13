@@ -54,6 +54,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         pluginData.setSingleChoice(singleChoice);
         pluginData.setDisplayChosenValues(displayChosenValues);
         CollectionViewConfig collectionViewConfig = getViewForCurrentCollection(collectionViewerConfig, collectionName);
+        pluginData.setCollectionViewConfigName(collectionViewConfig.getName());
         collectionViewerConfig.getSearchAreaRefConfig();
         DefaultSortCriteriaConfig sortCriteriaConfig = collectionViewerConfig.getDefaultSortCriteriaConfig();
         LinkedHashMap<String, CollectionColumnProperties> map =
