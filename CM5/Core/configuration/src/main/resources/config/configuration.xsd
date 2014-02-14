@@ -1774,14 +1774,28 @@
                               use="required"/>
                 <xs:attribute type="xs:string" name="name"
                               use="required"/>
-                <xs:attribute type="xs:string" name="hidden"
+                <xs:attribute type="xs:boolean" name="hidden"
                               use="optional"/>
-                <xs:attribute type="xs:string" name="sortable"
+                <xs:attribute type="xs:boolean" name="sortable"
                               use="optional"/>
-                <xs:attribute type="xs:string" name="editable"
+                <xs:attribute type="xs:boolean" name="editable"
                               use="optional"/>
-                <xs:attribute type="xs:string" name="type"
-                              use="required"/>
+                <xs:attribute name="type" use="required">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="integer"/>
+                            <xs:enumeration value="string"/>
+                            <xs:enumeration value="boolean"/>
+                            <xs:enumeration value="text"/>
+                            <xs:enumeration value="datetime"/>
+                            <xs:enumeration value="dateTimeWithTimeZone"/>
+                            <xs:enumeration value="timelessDate"/>
+                            <xs:enumeration value="reference"/>
+                            <xs:enumeration value="long"/>
+                            <xs:enumeration value="decimal"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:attribute>
                 <xs:attribute type="xs:string" name="search-filter"
                               use="optional"/>
                 <xs:attribute type="xs:string" name="pattern" use="optional"/>
