@@ -1648,7 +1648,7 @@
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:allElementsEmptyMessageType" name="all-values-empty-message"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
-                    <xs:element type="con:rendererLabelType" name="renderer"
+                    <xs:element type="con:uiRendererType" name="renderer"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id"/>
@@ -1659,7 +1659,7 @@
         <xs:attribute type="xs:string"
                       name="widget-id" use="required"/>
     </xs:complexType>
-    <xs:complexType name="rendererLabelType">
+    <xs:complexType name="uiRendererType">
         <xs:attribute type="xs:string" name="component-name"/>
     </xs:complexType>
     <xs:complexType name="allElementsEmptyMessageType">
@@ -1760,12 +1760,14 @@
 
     <xs:complexType name="columnType">
 
-            <xs:choice maxOccurs="2" minOccurs="0">
+            <xs:choice maxOccurs="unbounded" minOccurs="0">
                 <xs:element type="con:ascSortCriteriaType" name="asc-sort-criteria"
                              xmlns:con="https://cm5.intertrust.ru/config"/>
                 <xs:element type="con:descSortCriteriaType" name="desc-sort-criteria"
                             xmlns:con="https://cm5.intertrust.ru/config"/>
                 <xs:element type="con:imageMappingsType" name="image-mappings"
+                            xmlns:con="https://cm5.intertrust.ru/config"/>
+                <xs:element type="con:uiRendererType" name="renderer"
                             xmlns:con="https://cm5.intertrust.ru/config"/>
              </xs:choice>
                 <xs:attribute type="xs:string" name="field"

@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.gui.collection.view;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.gui.form.widget.RendererConfig;
 
 /**
  *
@@ -59,6 +60,8 @@ public class CollectionColumnConfig implements Dto {
     @Element(name = "image-mappings", required = false)
     private ImageMappingsConfig imageMappingsConfig;
 
+    @Element(name = "renderer", required = false)
+    private RendererConfig rendererConfig;
     public String getField() {
         return field;
     }
@@ -187,6 +190,14 @@ public class CollectionColumnConfig implements Dto {
         this.imageMappingsConfig = imageMappingsConfig;
     }
 
+    public RendererConfig getRendererConfig() {
+        return rendererConfig;
+    }
+
+    public void setRendererConfig(RendererConfig rendererConfig) {
+        this.rendererConfig = rendererConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -246,6 +257,9 @@ public class CollectionColumnConfig implements Dto {
         if (type != null ? !type.equals(that.type) : that.type != null) {
             return false;
         }
+        if (rendererConfig != null ? !rendererConfig.equals(that.type) : that.type != null) {
+            return false;
+        }
 
         return true;
     }
@@ -268,6 +282,7 @@ public class CollectionColumnConfig implements Dto {
         result = 31 * result + (ascSortCriteriaConfig != null ? ascSortCriteriaConfig.hashCode() : 0);
         result = 31 * result + (descSortCriteriaConfig != null ? descSortCriteriaConfig.hashCode() : 0);
         result = 31 * result + (imageMappingsConfig != null ? imageMappingsConfig.hashCode() : 0);
+        result = 31 * result + (rendererConfig != null ? rendererConfig.hashCode() : 0);
         return result;
     }
 }

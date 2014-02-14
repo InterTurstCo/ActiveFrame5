@@ -23,6 +23,7 @@ public class CollectionColumn extends Column<CollectionRowItem, Label> {
     public Label getValue(CollectionRowItem object) {
        String text =  converter.valueToString(object.getRowValue(fieldName));
        Label label = new Label(text);
+        label.removeStyleName("gwt-Label");
         return label;
     }
 
@@ -35,6 +36,5 @@ public class CollectionColumn extends Column<CollectionRowItem, Label> {
     public String getFieldName() {
         return fieldName;
     }
-
 
 }

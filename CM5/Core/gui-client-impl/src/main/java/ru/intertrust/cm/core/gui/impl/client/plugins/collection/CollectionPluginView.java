@@ -74,7 +74,7 @@ public class CollectionPluginView extends PluginView {
     private HorizontalPanel searchPanel = new HorizontalPanel();
     private ArrayList<Filter> filterList;
     private ArrayList<CollectionSearchBox> searchBoxList = new ArrayList<CollectionSearchBox>();
-    private HorizontalPanel treeLinkWidget = new HorizontalPanel();
+    private AbsolutePanel treeLinkWidget = new AbsolutePanel();
     private String simpleSearchQuery = "";
     private String searchArea = "";
     //   private HashMap<String, ValueConverter> converterMap = new HashMap<String, ValueConverter>();
@@ -385,24 +385,30 @@ public class CollectionPluginView extends PluginView {
 
     private void buildPanel() {
         searchPanel.addStyleName("horizont-container");
-        headerPanel.add(treeLinkWidget);
+     //   headerPanel.add(treeLinkWidget);
         treeLinkWidget.setWidth("100%");
         treeLinkWidget.getElement().getStyle().setBackgroundColor("white");
+        treeLinkWidget.add(filterButton);
+        AbsolutePanel containerForToolbar = new AbsolutePanel();
+        containerForToolbar.addStyleName("search-header");
         if (searchArea != null && searchArea.length() > 0) {
             SimpleSearchPanel simpleSearchPanel = new SimpleSearchPanel(simpleSearch, eventBus);
+
             treeLinkWidget.add(simpleSearchPanel);
             startHeight = BusinessUniverseConstants.COLLECTION_WIDGET_HEADER_ROW_WITH_SIMPLE_SEARCH;
         } else {
             startHeight = BusinessUniverseConstants.COLLECTION_WIDGET_HEADER_ROW;
         }
+
         headerPanel.add(tableHeader);
-        headerPanel.add(filterButton);
+      //  headerPanel.add(filterButton);
         filterButton.removeStyleName("gwt-Button");
-        filterButton.addStyleName("search-button");
-        headerPanel.add(searchPanel);
+        filterButton.addStyleName("show-filter-button");
+     //   filterButton.addStyleName("search-button");
+      headerPanel.add(searchPanel);
         searchPanel.setVisible(false);
         bodyPanel.add(tableBody);
-        scrollTableBody.getElement().getStyle().setOverflowX(Style.Overflow.HIDDEN);
+        //scrollTableBody.getElement().getStyle().setOverflowX(Style.Overflow.HIDDEN);
         scrollTableBody.getElement().getStyle().setOverflowY(Style.Overflow.HIDDEN);
         scrollTableHeader.getElement().getStyle().setOverflow(Style.Overflow.HIDDEN);
         scrollTableBody.add(bodyPanel);
@@ -412,17 +418,19 @@ public class CollectionPluginView extends PluginView {
         scrollTableHeader.setWidth(tableWidth + "px");
         scrollTableBody.setWidth(tableWidth + "px");
 
-        flexTable.setWidget(0, 0, scrollTableHeader);
-        flexTable.setWidget(1, 0, scrollTableBody);
-        flexTable.setWidget(1, 1, outerSideScroll);
+        flexTable.setWidget(0, 0, treeLinkWidget);
+        flexTable.setWidget(1, 0, scrollTableHeader);
+       /* flexTable.setWidget(2,0, searchPanel);*/
+        flexTable.setWidget(2, 0, scrollTableBody);
+        flexTable.setWidget(2, 1, outerSideScroll);
         flexTable.setCellSpacing(0);
         flexTable.setCellPadding(0);
         tableBody.getElement().getStyle().setPosition(Style.Position.RELATIVE);
         outerSideScroll.add(panelHeight);
 
         outerSideScroll.setHeight(tableHeight - startHeight + "px");
-        formater.setVerticalAlignment(1, 1, HasVerticalAlignment.ALIGN_TOP);
-        formater.setVerticalAlignment(1, 0, HasVerticalAlignment.ALIGN_TOP);
+        formater.setVerticalAlignment(2, 1, HasVerticalAlignment.ALIGN_TOP);
+        formater.setVerticalAlignment(2, 0, HasVerticalAlignment.ALIGN_TOP);
         root.add(flexTable);
 
     }
@@ -451,14 +459,21 @@ public class CollectionPluginView extends PluginView {
         tableBody.setColumnWidth(checkColumn, columnWidth + "px");
         createTableColumnsWithoutCheckBoxes(domainObjectFieldsOnColumnNamesMap, columnWidth);
     }
+    private int adjustWidth(int width) {
+        if (width < 120) {
+            return 120;
+        }
+        return width;
+    }
 
     private void createTableColumnsWithoutCheckBoxes(
             LinkedHashMap<String, CollectionColumnProperties> domainObjectFieldPropertiesMap, final int sizeOffset) {
         int numberOfColumns = sizeOffset + domainObjectFieldPropertiesMap.keySet().size();
         int columnWidth = (tableWidth / numberOfColumns);
+        columnWidth = adjustWidth(columnWidth);
         for (String field : domainObjectFieldPropertiesMap.keySet()) {
             final CollectionColumnProperties columnProperties = domainObjectFieldPropertiesMap.get(field);
-            Column<CollectionRowItem, ?> column = ColumnFormatter.createFormattedColumn(tableHeader, columnProperties);
+            Column<CollectionRowItem, Label> column = (Column<CollectionRowItem, Label>) ColumnFormatter.createFormattedColumn(tableHeader, columnProperties);
             tableHeader.addColumn(column, column.getDataStoreName());
             tableHeader.setColumnWidth(column, columnWidth + "px");
             final String filterType = (String) columnProperties.getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
@@ -666,7 +681,7 @@ public class CollectionPluginView extends PluginView {
                 tableBody.setRowData(items);
                 tableBody.redraw();
                 tableBody.flush();
-
+                eventBus.fireEvent(new CollectionRowSelectedEvent(item.getId()));
             }
         });
     }
@@ -763,7 +778,6 @@ public class CollectionPluginView extends PluginView {
                 @Override
                 public void onScroll(ScrollEvent event) {
                     scrollTableBody.setVerticalScrollPosition(outerSideScroll.getVerticalScrollPosition());
-                    ;
 
                     if (outerSideScroll.getVerticalScrollPosition() == outerSideScroll.getMaximumVerticalScrollPosition()) {
                         collectionData();
@@ -844,10 +858,15 @@ public class CollectionPluginView extends PluginView {
 
         }
 
-        void startPanelHeightSize() {
-            panelHeight.setHeight(items.size() * 20 + "px");
-            scrollTableBody.setHeight(items.size() * 20 + "px");
+        void startPanelHeightSize(){
+            panelHeight.setHeight((items.size() * 20)+20+"px");
+            outerSideScroll.setHeight(scrollTableBody.getOffsetHeight()+"px");
 
+          /*  scrollTableBody.getElement().getStyle().setPosition(Style.Position.ABSOLUTE);
+            scrollTableBody.getElement().getStyle().setDisplay(Style.Display.BLOCK);
+            scrollTableBody.getElement().getStyle().setBottom(0, Style.Unit.PX);
+            scrollTableBody.getElement().getStyle().setTop(65, Style.Unit.PX);
+*/
 
         }
     }

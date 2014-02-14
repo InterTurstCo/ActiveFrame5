@@ -33,8 +33,7 @@ import java.util.*;
  */
 @ComponentName("collection.plugin")
 public class CollectionPluginHandler extends ActivePluginHandler {
-    private static final String DESCEND_ARROW = "↓";
-    private static final String ASCEND_ARROW = "↑";
+
     @Autowired
     CollectionsService collectionsService;
 
@@ -61,7 +60,6 @@ public class CollectionPluginHandler extends ActivePluginHandler {
                 getDomainObjectFieldPropertiesMap(collectionViewConfig, sortCriteriaConfig);
         pluginData.setDomainObjectFieldPropertiesMap(map);
         List<Filter> filters = new ArrayList<Filter>();
-
         pluginData.setDefaultSortCriteriaConfig(sortCriteriaConfig);
         CollectionDisplayConfig collectionDisplayConfig = collectionViewConfig.getCollectionDisplayConfig();
         SortOrder order = SortOrderBuilder.getInitSortOrder(sortCriteriaConfig, collectionDisplayConfig);

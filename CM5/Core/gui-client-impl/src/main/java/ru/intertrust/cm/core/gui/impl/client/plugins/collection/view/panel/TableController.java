@@ -12,15 +12,12 @@ import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
-import ru.intertrust.cm.core.gui.impl.client.event.TableControllerSortEvent;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.SortCollectionState;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHECK_BOX_COLUMN_NAME;
 
 /**
  * Created with IntelliJ IDEA.
@@ -163,7 +160,7 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
 
     @Override
     public void onMouseUp(MouseUpEvent event) {
-      //  checkSndSortClick(event);
+
         onMouseUpEvent(event);
         event.preventDefault();
     }
@@ -185,83 +182,6 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
     private void checkFstSortClick(final MouseEvent e) {
         Point p = getPoint(e);
         mouseDownSortPoint = (int) p.getX();
-    }
-
-    private void checkSndSortClick(final MouseEvent e) {
-
-        Point p = getPoint(e);
-        mouseUpSortPoint = (int) p.getX();
-        if (mouseDownSortPoint == mouseUpSortPoint) {
-            fireSortEvent();
-        }
-    }
-
-    private void fireSortEvent() {
-        CollectionColumn column = (CollectionColumn) getSortedColumn();
-        String colDataStoreName = column.getDataStoreName().replaceAll(SORT_ARROWS, "");
-        if (lastColumn != null) {
-            if (!lastColumn.equals(column)) {
-                String rename = lastColumn.getDataStoreName().replaceAll(SORT_ARROWS, "");
-                lastColumn.setDataStoreName(rename);
-                sortMarkers.put(rename, null);
-                resetLastColumn();
-
-            }
-        }
-        boolean ascend = false;
-        Boolean sortMarker = sortMarkers.get(colDataStoreName);
-        if (sortMarker == null || sortMarker) {
-            ascend  = true;
-        }
-        eventBus.fireEvent(new TableControllerSortEvent(colDataStoreName, new SortCollectionState(
-                70, 0, colDataStoreName, ascend , true, column.getFieldName())));
-        lastColumn = column;
-
-    }
-
-    private void resetLastColumn() {
-
-        for (int i = 0; i < header.getColumnCount(); i++) {
-            if (lastColumn.equals(header.getColumn(i))) {
-                reDrawColumn(i, lastColumn);
-            }
-        }
-    }
-
-    private Column getSortedColumn() {
-        int checkPos = 0;
-        for (int i = 0; i < header.getColumnCount(); i++) {
-            Column column = header.getColumn(i);
-            String previousColumnName = column.getDataStoreName();
-            if (previousColumnName.contains(ASCEND_ARROW) ) {
-                String nameWithReplacedArrowUp = previousColumnName.replaceAll(SORT_ARROWS, "");
-                column.setDataStoreName(nameWithReplacedArrowUp);
-                sortMarkers.put(nameWithReplacedArrowUp, true);
-                reDrawColumn(i, column);
-            }
-            if (previousColumnName.contains(DESCEND_ARROW)) {
-                String nameWithReplacedArrowDown = previousColumnName.replaceAll(SORT_ARROWS, "");
-                column.setDataStoreName(nameWithReplacedArrowDown);
-                sortMarkers.put(nameWithReplacedArrowDown, false);
-                reDrawColumn(i, column);
-            }
-            checkPos += getThisColumnWidth(column);
-            if (checkPos > mouseDownSortPoint) {
-                String colName = header.getColumn(i).getDataStoreName();
-                Boolean sortMarker = sortMarkers.get(colName);
-                if (sortMarker == null || !sortMarker) {
-                    column.setDataStoreName(colName + ASCEND_ARROW);
-                    sortMarkers.put(colName, true);
-                } else {
-                    column.setDataStoreName(colName + DESCEND_ARROW);
-                    sortMarkers.put(colName, false);
-                }
-                reDrawColumn(i, column);
-                return column;
-            }
-        }
-
-        return null;
     }
 
     private void reDrawColumn(int index, Column column) {

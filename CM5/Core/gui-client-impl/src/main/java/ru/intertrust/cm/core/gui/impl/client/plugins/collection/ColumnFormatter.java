@@ -15,12 +15,14 @@ import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
  * Created by User on 12.02.14.
  */
 public class ColumnFormatter {
+    private static final String CUT_STYLE = "cut";
     public static Column<CollectionRowItem, ?> createFormattedColumn(CellTable<CollectionRowItem> tableHeader, CollectionColumnProperties columnProperties) {
         String field = (String) columnProperties.getProperty(CollectionColumnProperties.FIELD_NAME);
         String fieldType = (String) columnProperties.getProperty(CollectionColumnProperties.TYPE_KEY);
         ValueConverter converter = ValueConverterFactory.getConverter(fieldType);
         converter.init(columnProperties.getProperties());
-        Column<CollectionRowItem, Label> column = new CollectionColumn(field, converter, new LabelCell());
+        String textBreakStyle = (String) columnProperties.getProperty(CollectionColumnProperties.TEXT_BREAK_STYLE);
+        Column<CollectionRowItem, Label> column = new CollectionColumn(field, converter, new LabelCell(getCssStyleForText(textBreakStyle)));
         SortedMarker sortedMarker = (SortedMarker) columnProperties.getProperty(CollectionColumnProperties.SORTED_MARKER);
         if (sortedMarker != null) {
             boolean ascending = sortedMarker.isAscending();
@@ -32,5 +34,12 @@ public class ColumnFormatter {
         boolean sortable = (Boolean) columnProperties.getProperty(CollectionColumnProperties.SORTABLE);
         column.setSortable(sortable);
         return column;
+    }
+    private static String getCssStyleForText(String textBreakStyle)  {
+        if (CUT_STYLE.equalsIgnoreCase(textBreakStyle)) {
+            return " style = \"overflow: hidden; text-overflow: ellipsis; white-space: nowrap;\"";
+
+        }
+        return "";
     }
 }
