@@ -14,7 +14,7 @@
     <xs:complexType name="longType">
         <xs:simpleContent>
             <xs:extension base="xs:string">
-                <xs:attribute name="name" type="con:nameType"
+                <xs:attribute name="name" type="con:fieldNameType"
                               xmlns:con="https://cm5.intertrust.ru/config"/>
                 <xs:attribute name="not-null" use="optional" type="xs:string"/>
             </xs:extension>
@@ -35,7 +35,7 @@
                         minOccurs="0" maxOccurs="1"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
-        <xs:attribute name="name" use="required" type="con:nameType"
+        <xs:attribute name="name" use="required" type="con:domainObjectNameType"
                       xmlns:con="https://cm5.intertrust.ru/config"/>
         <xs:attribute name="db-id" use="optional" type="xs:integer"
                       xmlns:con="https://cm5.intertrust.ru/config"/>
@@ -61,9 +61,17 @@
                       xmlns:con="https://cm5.intertrust.ru/config"/>
     </xs:complexType>
 
-    <xs:simpleType name="nameType">
+    <xs:simpleType name="domainObjectNameType">
         <xs:restriction base="xs:string">
-            <xs:maxLength value="26"/>
+            <xs:maxLength value="25"/>
+            <xs:pattern value="[a-zA-Z0-9_]*">
+            </xs:pattern>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="fieldNameType">
+        <xs:restriction base="xs:string">
+            <xs:maxLength value="30"/>
             <xs:pattern value="[a-zA-Z0-9_]*">
             </xs:pattern>
         </xs:restriction>
@@ -71,7 +79,7 @@
 
     <xs:simpleType name="typeNameType">
         <xs:restriction base="xs:string">
-            <xs:maxLength value="26"/>
+            <xs:maxLength value="25"/>
             <xs:pattern value="[a-zA-Z0-9_]*|\*">
             </xs:pattern>
         </xs:restriction>
@@ -116,13 +124,13 @@
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute name="name" use="required"
-                              type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config"/>
+                              type="con:fieldNameType" xmlns:con="https://cm5.intertrust.ru/config"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
 
     <xs:complexType name="referenceType">
-        <xs:attribute name="name" use="required" type="con:nameType"
+        <xs:attribute name="name" use="required" type="con:fieldNameType"
                       xmlns:con="https://cm5.intertrust.ru/config"/>
         <xs:attribute name="type" use="required" type="con:typeNameType"
                       xmlns:con="https://cm5.intertrust.ru/config"/>
@@ -133,7 +141,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute name="name" use="required"
-                              type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config"/>
+                              type="con:fieldNameType" xmlns:con="https://cm5.intertrust.ru/config"/>
                 <xs:attribute name="not-null" use="optional" type="xs:string"/>
             </xs:extension>
         </xs:simpleContent>
@@ -143,7 +151,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute name="name" use="required"
-                              type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config"/>
+                              type="con:fieldNameType" xmlns:con="https://cm5.intertrust.ru/config"/>
                 <xs:attribute name="not-null" use="optional" type="xs:string"/>
             </xs:extension>
         </xs:simpleContent>
@@ -153,7 +161,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute name="name" use="required"
-                              type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config"/>
+                              type="con:fieldNameType" xmlns:con="https://cm5.intertrust.ru/config"/>
                 <xs:attribute name="not-null" use="optional" type="xs:string"/>
             </xs:extension>
         </xs:simpleContent>
@@ -339,7 +347,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute name="name" use="required"
-                              type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config"/>
+                              type="con:fieldNameType" xmlns:con="https://cm5.intertrust.ru/config"/>
                 <xs:attribute name="length" use="required" type="xs:string"/>
                 <xs:attribute name="not-null" use="optional" type="xs:string"/>
             </xs:extension>
@@ -350,7 +358,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute name="name" use="required"
-                              type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config"/>
+                              type="con:fieldNameType" xmlns:con="https://cm5.intertrust.ru/config"/>
                 <xs:attribute name="precision" use="optional" type="xs:string"/>
                 <xs:attribute name="scale" use="optional" type="xs:string"/>
                 <xs:attribute name="not-null" use="optional" type="xs:string"/>
@@ -362,7 +370,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute name="name" use="required"
-                              type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config"/>
+                              type="con:fieldNameType" xmlns:con="https://cm5.intertrust.ru/config"/>
                 <xs:attribute name="length" use="required" type="xs:string"/>
                 <xs:attribute name="not-null" use="optional" type="xs:string"/>
                 <xs:attribute name="encrypted" use="optional" type="xs:string"/>
@@ -374,7 +382,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute name="name" use="required"
-                              type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config"/>
+                              type="con:fieldNameType" xmlns:con="https://cm5.intertrust.ru/config"/>
                 <xs:attribute name="not-null" use="optional" type="xs:string"/>
             </xs:extension>
         </xs:simpleContent>
@@ -384,7 +392,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute name="name" use="required"
-                              type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config"/>
+                              type="con:fieldNameType" xmlns:con="https://cm5.intertrust.ru/config"/>
                 <xs:attribute name="not-null" use="optional" type="xs:string"/>
             </xs:extension>
         </xs:simpleContent>
@@ -400,7 +408,7 @@
                         minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
         </xs:sequence>
-        <xs:attribute type="con:nameType" name="name" use="optional"/>
+        <xs:attribute type="con:fieldNameType" name="name" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="filterReferenceType">
@@ -901,7 +909,7 @@
         <xs:complexContent>
             <xs:extension base="con:permissionsType"
                           xmlns:con="https://cm5.intertrust.ru/config">
-                <xs:attribute name="type" type="con:nameType"
+                <xs:attribute name="type" type="con:domainObjectNameType"
                               use="required"/>
             </xs:extension>
         </xs:complexContent>
