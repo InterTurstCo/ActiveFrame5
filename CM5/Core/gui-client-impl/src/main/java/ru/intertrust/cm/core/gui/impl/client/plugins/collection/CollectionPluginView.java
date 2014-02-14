@@ -46,6 +46,7 @@ import java.util.*;
  *         Time: 12:05 PM
  */
 public class CollectionPluginView extends PluginView {
+    public static final int START_ROW_COUNT = 70;
     private CellTable<CollectionRowItem> tableHeader;
     private CellTable<CollectionRowItem> tableBody;
     private int startHeight;
@@ -79,7 +80,8 @@ public class CollectionPluginView extends PluginView {
     private String searchArea = "";
     //   private HashMap<String, ValueConverter> converterMap = new HashMap<String, ValueConverter>();
     private FlowPanel simpleSearch = new FlowPanel();
-    private int scrollLastPosition;
+    private int lastScrollPos ;
+
     private SplitterBehavior splitterBehavior;
 
     // локальная шина событий
@@ -140,7 +142,7 @@ public class CollectionPluginView extends PluginView {
         insertRows(items);
         applyStyles();
         addHandlers();
-        splitterBehavior.startPanelHeightSize();
+        splitterBehavior.basePanelHeightSize();
     }
 
     public List<Id> getSelectedIds() {
@@ -161,7 +163,7 @@ public class CollectionPluginView extends PluginView {
 
     public void onPluginPanelResize() {
         updateSizes();
-        tableController.columnWindowResize(tableWidth / tableBody.getColumnCount());
+        tableController.columnWindowResize(tableWidth/tableBody.getColumnCount());
         splitterBehavior.widgetSizeBySplitterPosition();
 
     }
@@ -266,11 +268,10 @@ public class CollectionPluginView extends PluginView {
                     }
                 }
                 if (isRequestRequired) {
-                    items.clear();
-                    listCount = 0;
-                    collectionData();
+                items.clear();
+                listCount = 0;
+                collectionData();
                 }
-
             }
         });
 
@@ -333,8 +334,11 @@ public class CollectionPluginView extends PluginView {
     }
 
     private void collectionData() {
-
-        createSortedCollectionData();
+        if (sortCollectionState == null) {
+            createCollectionData();
+        } else {
+            createSortedCollectionData();
+        }
     }
 
     // метод для удаления из коллекции
@@ -395,10 +399,11 @@ public class CollectionPluginView extends PluginView {
             SimpleSearchPanel simpleSearchPanel = new SimpleSearchPanel(simpleSearch, eventBus);
 
             treeLinkWidget.add(simpleSearchPanel);
-            startHeight = BusinessUniverseConstants.COLLECTION_WIDGET_HEADER_ROW_WITH_SIMPLE_SEARCH;
-        } else {
+          //  startHeight = BusinessUniverseConstants.COLLECTION_WIDGET_HEADER_ROW_WITH_SIMPLE_SEARCH;
+        }/* else {
             startHeight = BusinessUniverseConstants.COLLECTION_WIDGET_HEADER_ROW;
-        }
+        }*/
+        startHeight = BusinessUniverseConstants.COLLECTION_WIDGET_HEADER_ROW_WITH_SIMPLE_SEARCH;
 
         headerPanel.add(tableHeader);
       //  headerPanel.add(filterButton);
@@ -415,8 +420,8 @@ public class CollectionPluginView extends PluginView {
         outerSideScroll.getElement().getStyle().setWidth(18, Style.Unit.PX);
         FlexTable.FlexCellFormatter formater = flexTable.getFlexCellFormatter();
         scrollTableHeader.add(headerPanel);
-        scrollTableHeader.setWidth(tableWidth + "px");
-        scrollTableBody.setWidth(tableWidth + "px");
+        scrollTableHeader.setWidth(tableWidth+"px");
+        scrollTableBody.setWidth(tableWidth+"px");
 
         flexTable.setWidget(0, 0, treeLinkWidget);
         flexTable.setWidget(1, 0, scrollTableHeader);
@@ -500,12 +505,25 @@ public class CollectionPluginView extends PluginView {
 
         tableBody.setRowData(list);
         listCount = items.size();
+
     }
 
     private void insertMoreRows(List<CollectionRowItem> list) {
         listCount += list.size();
         items.addAll(list);
         tableBody.setRowData(items);
+        syncVerticalScroll();
+
+
+    }
+
+    private void syncVerticalScroll(){
+        if (listCount<=START_ROW_COUNT){
+            splitterBehavior.basePanelHeightSize();
+        }
+        panelHeight.setHeight(((items.size()) * 16)+"px");
+        System.out.println(" rows "+items.size() );
+
     }
 
     private void applyStyles() {
@@ -685,191 +703,197 @@ public class CollectionPluginView extends PluginView {
             }
         });
     }
+                class SplitterBehavior{
+                    private EventBus eventBus;
+                    private Plugin plugin;
 
-    class SplitterBehavior {
-        private EventBus eventBus;
-        private Plugin plugin;
-
-        private int horizontalWidth;
-        private int horizontalHeight;
-        private int verticalWidth;
-        private int verticalHeight;
-        private boolean splitterHorizontalPosition = false;
-
-
-        SplitterBehavior(EventBus eventBus, Plugin plugin) {
-            this.eventBus = eventBus;
-            this.plugin = plugin;
-
-            horizontalWidth = tableWidth;
-            horizontalHeight = tableHeight;
-
-            addSplitterHendler();
-        }
+                    private int horizontalWidth;
+                    private int horizontalHeight;
+                    private int verticalWidth;
+                    private int verticalHeight;
+                    private boolean splitterHorizontalPosition;
 
 
-        void addSplitterHendler() {
-            eventBus.addHandler(SplitterInnerScrollEvent.TYPE, new SplitterInnerScrollEventHandler() {
-                @Override
-                public void setScrollPanelHeight(SplitterInnerScrollEvent event) {
-                    splitterHorizontalPosition = event.isScrollState();
-                    scrollTableHeader.setVerticalScrollPosition(scrollTableBody.getVerticalScrollPosition());
-                    widgetSize(event.getUpperPanelHeight(), event.getUpperPanelWidth() - BusinessUniverseConstants.COLLECTION_VIEW_SIZE_SCROLL_WIDTH);
-                    tableController.columnWindowResizeOnPercentage(event.getUpperPanelWidth() - BusinessUniverseConstants.COLLECTION_VIEW_SIZE_SCROLL_WIDTH);
-                    if (event.isScrollState()) {
-                        setVerticalSize(event.getUpperPanelHeight(), event.getUpperPanelWidth() - BusinessUniverseConstants.COLLECTION_VIEW_SIZE_SCROLL_WIDTH);
-                    } else {
-                        setHorizontalSize(event.getUpperPanelHeight(), event.getUpperPanelWidth() - BusinessUniverseConstants.COLLECTION_VIEW_SIZE_SCROLL_WIDTH);
 
+                    SplitterBehavior(EventBus eventBus, Plugin plugin) {
+                        this.eventBus = eventBus;
+                        this.plugin = plugin;
+
+                        horizontalWidth = tableWidth;
+                        horizontalHeight = tableHeight;
+                        addSplitterHendler();
                     }
-                }
-            });
 
-            eventBus.addHandler(SplitterWidgetResizerEvent.TYPE, new SplitterWidgetResizerEventHandler() {
 
-                @Override
-                public void setWidgetSize(SplitterWidgetResizerEvent event) {
-                    splitterHorizontalPosition = event.isType();
 
-                    if (splitterHorizontalPosition) {
-                        if (verticalHeight == 0) {
-                            int height = (tableHeight * 2 - headerPanel.getOffsetHeight() - BusinessUniverseConstants.COLLECTION_BOTTOM_SCROLL_HEIGHT);
-                            int width = (tableWidth / 2 - BusinessUniverseConstants.COLLECTION_VIEW_SIZE_SCROLL_WIDTH);
-                            scrollTableBody.setHeight(height + "px");
-                            outerSideScroll.setHeight(height + "px");
-                            scrollTableBody.setWidth(width + "px");
-                            scrollTableHeader.setWidth(width + "px");
-                            tableController.columnWindowResize(width / tableBody.getColumnCount());
+                    void addSplitterHendler(){
+                        eventBus.addHandler(SplitterInnerScrollEvent.TYPE, new SplitterInnerScrollEventHandler() {
+                            @Override
+                            public void setScrollPanelHeight(SplitterInnerScrollEvent event) {
+                                splitterHorizontalPosition = event.isScrollState();
+                                scrollTableHeader.setVerticalScrollPosition(scrollTableBody.getVerticalScrollPosition());
+                                widgetSize(event.getUpperPanelHeight() , event.getUpperPanelWidth()-BusinessUniverseConstants.COLLECTION_VIEW_SIZE_SCROLL_WIDTH);
+                                if (splitterHorizontalPosition){
+                                    tableController.columnWindowResize(adjustWidth(event.getUpperPanelWidth() - BusinessUniverseConstants.COLLECTION_VIEW_SIZE_SCROLL_WIDTH) /tableBody.getColumnCount());
+                                }
+                                if (event.isScrollState()) {
+                                    setVerticalSize(event.getUpperPanelHeight() , event.getUpperPanelWidth()-BusinessUniverseConstants.COLLECTION_VIEW_SIZE_SCROLL_WIDTH);
+                                } else {
+                                    setHorizontalSize(event.getUpperPanelHeight() , event.getUpperPanelWidth()-BusinessUniverseConstants.COLLECTION_VIEW_SIZE_SCROLL_WIDTH);
+                                }
+                            }
+                        });
 
-                        } else {
-                            int height = verticalHeight - headerPanel.getOffsetHeight();
-                            outerSideScroll.setHeight(height + "px");
-                            scrollTableBody.setHeight(height + "px");
-                            scrollTableBody.setWidth(verticalWidth + "px");
-                            scrollTableHeader.setWidth(verticalWidth + "px");
-                            tableController.columnWindowResize(verticalWidth / tableBody.getColumnCount());
+                        eventBus.addHandler(SplitterWidgetResizerEvent.TYPE, new SplitterWidgetResizerEventHandler() {
+
+                            @Override
+                            public void setWidgetSize(SplitterWidgetResizerEvent event) {
+                                splitterHorizontalPosition = event.isType();
+
+                                int height=0;
+                                int width =0;
+                                if(event.isArrowsPress()){
+                                    height = event.getFirstWidgetHeight();
+                                    width = (event.getFirstWidgetWidth()- BusinessUniverseConstants.COLLECTION_VIEW_SIZE_SCROLL_WIDTH);
+                                    tableController.columnWindowResize(width/tableBody.getColumnCount());
+                                    widgetSize(height, width);
+                                    if (splitterHorizontalPosition){
+                                        setVerticalSize(height, width);
+                                    }  else {
+
+                                        setHorizontalSize(height, width);
+                                    }
+
+                                }  else {
+                                    int headerPanelHeight = headerPanel.getOffsetHeight() +treeLinkWidget.getOffsetHeight();
+
+                                    if (splitterHorizontalPosition){
+
+
+                                        if (verticalHeight == 0 && !event.isArrowsPress()){
+                                            height =  (tableHeight *2  - headerPanelHeight-BusinessUniverseConstants.COLLECTION_BOTTOM_SCROLL_HEIGHT);
+                                            width = (tableWidth/2 - BusinessUniverseConstants.COLLECTION_VIEW_SIZE_SCROLL_WIDTH);
+                                            tableController.columnWindowResize(width/tableBody.getColumnCount());
+                                            widgetInnerPanelSize(height, width);
+
+                                        } else {
+                                            height = verticalHeight  - headerPanelHeight;
+                                            tableController.columnWindowResize(width/tableBody.getColumnCount());
+                                            widgetInnerPanelSize(height, verticalWidth);
+                                        }
+
+
+                                    } else {
+
+
+
+                                        if (horizontalHeight == 0 && !event.isArrowsPress() ){
+                                            height =  (tableHeight /2   - headerPanelHeight-BusinessUniverseConstants.COLLECTION_BOTTOM_SCROLL_HEIGHT);
+                                            width = (tableWidth*2 - BusinessUniverseConstants.COLLECTION_VIEW_SIZE_SCROLL_WIDTH);
+                                            tableController.columnWindowResize(width/tableBody.getColumnCount());
+                                            widgetInnerPanelSize(height, width);
+
+                                        } else {
+                                            height =  (horizontalHeight  - headerPanelHeight);
+                                            tableController.columnWindowResize(width/tableBody.getColumnCount());
+                                            widgetInnerPanelSize(height, horizontalWidth);
+                                        }
+
+                                    }
+                                }
+                            }
+
+                        });
+
+                        outerSideScroll.addScrollHandler(new ScrollHandler() {
+                            @Override
+                            public void onScroll(ScrollEvent event) {
+                                scrollTableBody.setVerticalScrollPosition(outerSideScroll.getVerticalScrollPosition());
+                                if (outerSideScroll.getVerticalScrollPosition() == outerSideScroll.getMaximumVerticalScrollPosition()
+                                        && simpleSearchQuery.length() == 0 && outerSideScroll.getMaximumVerticalScrollPosition()> lastScrollPos) {
+                                    lastScrollPos = outerSideScroll.getMaximumVerticalScrollPosition();
+                                    collectionData();
+                                }
+
+                                    if (splitterHorizontalPosition){
+                                        widgetSize(verticalHeight, verticalWidth);
+                                    }  else {
+
+                                        widgetSize(horizontalHeight, horizontalWidth);
+                                    }
+
+                                }
+
+                        });
+
+
+                        scrollTableBody.addScrollHandler(new ScrollHandler() {
+                            @Override
+                            public void onScroll(ScrollEvent event) {
+                                scrollTableHeader.setHorizontalScrollPosition(scrollTableBody.getHorizontalScrollPosition());
+
+                            }
+                        });
+                    }
+
+                    private void widgetSizeBySplitterPosition(){
+                        if (!splitterHorizontalPosition){
+                            horizontalWidth = tableWidth;
+                            horizontalHeight = tableHeight;
+                            verticalHeight = 0;
+                            verticalWidth = 0;
+
+                        } else{
+                            horizontalWidth = 0;
+                            horizontalHeight = 0;
+                            verticalHeight = tableHeight;
+                            verticalWidth = tableWidth;
+
                         }
-                    } else {
-                        if (horizontalHeight == 0) {
-                            int height = (tableHeight / 2 - headerPanel.getOffsetHeight() - BusinessUniverseConstants.COLLECTION_BOTTOM_SCROLL_HEIGHT);
-                            int width = (tableWidth * 2 - BusinessUniverseConstants.COLLECTION_VIEW_SIZE_SCROLL_WIDTH);
-                            scrollTableBody.setHeight(height + "px");
-                            outerSideScroll.setHeight(height + "px");
-                            scrollTableBody.setWidth(width + "px");
-                            scrollTableHeader.setWidth(width + "px");
-                            tableController.columnWindowResize(width / tableBody.getColumnCount());
+                        widgetSize(tableHeight, tableWidth);
+                    }
 
+
+                    private void widgetSize(int height, int width){
+                        int tmp;
+                        if (headerPanel.getOffsetHeight() == 0){
+                            tmp = height -startHeight;
+                            basePanelHeightSize();
                         } else {
-                            int height = (horizontalHeight - headerPanel.getOffsetHeight());
+                            tmp =  height - headerPanel.getOffsetHeight()- treeLinkWidget.getOffsetHeight();
 
-                            outerSideScroll.setHeight(height + "px");
-                            scrollTableBody.setHeight(height + "px");
-                            scrollTableBody.setWidth(horizontalWidth + "px");
-                            scrollTableHeader.setWidth(horizontalWidth + "px");
-                            tableController.columnWindowResize(horizontalWidth / tableBody.getColumnCount());
                         }
 
-                    }
-                }
 
-            });
 
-            outerSideScroll.addScrollHandler(new ScrollHandler() {
-                @Override
-                public void onScroll(ScrollEvent event) {
-                    scrollTableBody.setVerticalScrollPosition(outerSideScroll.getVerticalScrollPosition());
-
-                    if (outerSideScroll.getVerticalScrollPosition() == outerSideScroll.getMaximumVerticalScrollPosition()) {
-                        collectionData();
+                        panelHeight.setHeight(bodyPanel.getOffsetHeight()+"px");
+                        widgetInnerPanelSize(tmp, width);
 
                     }
 
-                    if (splitterHorizontalPosition) {
-                        widgetSize(verticalHeight, verticalWidth);
-                    } else {
+                    private void widgetInnerPanelSize(int height, int width){
+                        scrollTableBody.setHeight(height +"px");
+                        scrollTableBody.setWidth(width+"px");
+                        outerSideScroll.setHeight(height +"px");
+                        scrollTableHeader.setWidth(width+"px");
 
-                        widgetSize(horizontalHeight, horizontalWidth);
+
                     }
 
+                    private void setHorizontalSize(int height, int width){
+                        horizontalWidth = width;
+                        horizontalHeight = height;
+                    }
 
+                    private void setVerticalSize(int height, int width){
+                        verticalWidth = width;
+                        verticalHeight = height;
+                    }
+
+                    void basePanelHeightSize(){
+                        panelHeight.setHeight((items.size() * 16)+"px");
+                    }
                 }
-            });
-
-
-            scrollTableBody.addScrollHandler(new ScrollHandler() {
-                @Override
-                public void onScroll(ScrollEvent event) {
-                    scrollTableHeader.setHorizontalScrollPosition(scrollTableBody.getHorizontalScrollPosition());
-
-
-                }
-            });
-
-
-        }
-
-        private void widgetSizeBySplitterPosition() {
-            if (!splitterHorizontalPosition) {
-                horizontalWidth = tableWidth;
-                horizontalHeight = tableHeight;
-                verticalHeight = 0;
-                verticalWidth = 0;
-
-
-            } else {
-                horizontalWidth = 0;
-                horizontalHeight = 0;
-                verticalHeight = tableHeight;
-                verticalWidth = tableWidth;
-
-            }
-            widgetSize(tableHeight, tableWidth);
-        }
-
-
-        private void widgetSize(int height, int width) {
-            int tmp;
-            if (headerPanel.getOffsetHeight() == 0) {
-                tmp = height - startHeight;
-                startPanelHeightSize();
-            } else {
-                tmp = height - headerPanel.getOffsetHeight();
-            }
-
-
-            scrollTableBody.setHeight(tmp + "px");
-            scrollTableBody.setWidth(width + "px");
-            outerSideScroll.setHeight(tmp + "px");
-            scrollTableHeader.setWidth(width + "px");
-            panelHeight.setHeight(bodyPanel.getOffsetHeight() + "px");
-
-
-        }
-
-        private void setHorizontalSize(int height, int width) {
-            horizontalWidth = width;
-            horizontalHeight = height;
-
-        }
-
-        private void setVerticalSize(int height, int width) {
-            verticalWidth = width;
-            verticalHeight = height;
-
-        }
-
-        void startPanelHeightSize(){
-            panelHeight.setHeight((items.size() * 20)+20+"px");
-            outerSideScroll.setHeight(scrollTableBody.getOffsetHeight()+"px");
-
-          /*  scrollTableBody.getElement().getStyle().setPosition(Style.Position.ABSOLUTE);
-            scrollTableBody.getElement().getStyle().setDisplay(Style.Display.BLOCK);
-            scrollTableBody.getElement().getStyle().setBottom(0, Style.Unit.PX);
-            scrollTableBody.getElement().getStyle().setTop(65, Style.Unit.PX);
-*/
-
-        }
-    }
 
 }
 

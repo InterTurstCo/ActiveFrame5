@@ -21,4 +21,6 @@ public class BusinessUniverseConstants {
     public static final int COLLECTION_COLUMN_SEARCH_PANEL_WIDTH = 27;
     public static final int COLLECTION_BOTTOM_SCROLL_HEIGHT = 20;
     public static final int MAX_COLUMN_WIDTH = 999999999;
+
+
 }

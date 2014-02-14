@@ -293,7 +293,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
                                                             int offset, int count, List<Filter> filters, String simpleSearchQuery, String searchArea) {
         ArrayList<CollectionRowItem> items = new ArrayList<CollectionRowItem>();
 
-        IdentifiableObjectCollection collection = searchService.search(simpleSearchQuery, searchArea, collectionName, 200);
+        IdentifiableObjectCollection collection = searchService.search(simpleSearchQuery, searchArea, collectionName, 1000);
 
         for (IdentifiableObject identifiableObject : collection) {
             items.add(generateCollectionRowItem(identifiableObject, fields));

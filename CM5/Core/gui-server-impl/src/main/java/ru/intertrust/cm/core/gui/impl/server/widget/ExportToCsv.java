@@ -1,9 +1,3 @@
-/*
- * @author Lesia Puhova
- *         Date: 13.02.2014
- *         Time: 05:50:14
- */
-
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
 
@@ -14,12 +8,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.SearchService;
-import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.SortCriterion;
-import ru.intertrust.cm.core.business.api.dto.SortOrder;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 
@@ -55,7 +44,8 @@ public class ExportToCsv {
     @Autowired
     ConfigurationService configurationService;
 
-    private static final int START_ROW_COUNT = 100;
+    public static final int START_ROW_COUNT = 1000;
+
     private static final String DEFAULT_ENCODING = "ANSI-1251";
 
     @ResponseBody
@@ -92,7 +82,7 @@ public class ExportToCsv {
         IdentifiableObjectCollection collections;
 
         if (simpleSearchQuery != null){
-            collections = searchService.search(simpleSearchQuery, area, collectionName, 200);
+            collections = searchService.search(simpleSearchQuery, area, collectionName, 1000);
 
         }   else {
             collections = collectionsService.findCollection(collectionName, sortOrder, filters, 0, START_ROW_COUNT);
