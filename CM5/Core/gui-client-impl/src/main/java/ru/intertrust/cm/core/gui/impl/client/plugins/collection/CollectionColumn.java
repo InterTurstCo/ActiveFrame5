@@ -1,9 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
+import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.client.ui.Label;
-import ru.intertrust.cm.core.gui.impl.client.converter.ValueConverter;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.LabelCell;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 
 /**
@@ -11,30 +9,44 @@ import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
  *         Date: 21.01.14
  *         Time: 22:59
  */
-public class CollectionColumn extends Column<CollectionRowItem, Label> {
-    private String fieldName;
-    private ValueConverter converter;
-
-    public CollectionColumn(LabelCell cell) {
+public abstract class CollectionColumn extends Column<CollectionRowItem, String> {
+    protected String fieldName;
+    protected Boolean resizable = true;
+    protected int minWidth = 120;
+    protected int maxWidth = 999999;
+    public CollectionColumn(AbstractCell cell) {
         super(cell);
     }
 
-    @Override
-    public Label getValue(CollectionRowItem object) {
-       String text =  converter.valueToString(object.getRowValue(fieldName));
-       Label label = new Label(text);
-        label.removeStyleName("gwt-Label");
-        return label;
-    }
-
-    public CollectionColumn(String fieldName, ValueConverter converter, LabelCell cell) {
+    public CollectionColumn( AbstractCell cell, String fieldName, boolean resizable) {
         super(cell);
         this.fieldName = fieldName;
-        this.converter = converter;
+        this.resizable = resizable;
+
     }
 
     public String getFieldName() {
         return fieldName;
+    }
+
+    public Boolean isResizable() {
+        return resizable;
+    }
+
+    public int getMinWidth() {
+        return minWidth;
+    }
+
+    public void setMinWidth(Integer minWidth) {
+        this.minWidth = minWidth;
+    }
+
+    public int getMaxWidth() {
+        return maxWidth;
+    }
+
+    public void setMaxWidth(Integer maxWidth) {
+        this.maxWidth = maxWidth;
     }
 
 }

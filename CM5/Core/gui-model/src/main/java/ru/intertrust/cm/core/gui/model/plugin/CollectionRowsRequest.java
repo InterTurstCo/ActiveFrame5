@@ -4,9 +4,10 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
+import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -22,7 +23,6 @@ public class CollectionRowsRequest implements Dto {
     private int offset;
     private int limit;
     private String collectionName;
-    private HashMap<String, String> fields = new HashMap<String, String>();
     private boolean isSortAscending;
     private String columnName;
     private boolean sortable;
@@ -32,13 +32,14 @@ public class CollectionRowsRequest implements Dto {
     private String searchArea;
     private SortCriteriaConfig sortCriteriaConfig;
     private Set<Id> includedIds;
+    private LinkedHashMap<String, CollectionColumnProperties> columnProperties;
 
-    public CollectionRowsRequest(int offset, int limit, String collectionName, HashMap<String, String> fields,
+    public CollectionRowsRequest(int offset, int limit, String collectionName, LinkedHashMap<String, CollectionColumnProperties> properties,
                                  List<Filter> filterList, String simpleSearchQuery, String searchArea) {
         this.offset = offset;
         this.limit = limit;
         this.collectionName = collectionName;
-        this.fields = fields;
+        this.columnProperties = properties;
         this.filterList = filterList;
         this.simpleSearchQuery = simpleSearchQuery;
         this.searchArea = searchArea;
@@ -46,12 +47,12 @@ public class CollectionRowsRequest implements Dto {
 
     }
 
-    public CollectionRowsRequest(int offset, int limit, String collectionName, HashMap<String, String> fields,
+    public CollectionRowsRequest(int offset, int limit, String collectionName, LinkedHashMap<String, CollectionColumnProperties> properties,
                                  boolean isSortAscending, String columnName, String sortedField,  List<Filter> filterList  ) {
         this.offset = offset;
         this.limit = limit;
         this.collectionName = collectionName;
-        this.fields = fields;
+        this.columnProperties = properties;
         this.isSortAscending = isSortAscending;
         this.columnName = columnName;
         this.sortable = true;
@@ -85,14 +86,6 @@ public class CollectionRowsRequest implements Dto {
 
     public void setCollectionName(String collectionName) {
         this.collectionName = collectionName;
-    }
-
-    public void setFields(HashMap<String, String> fields) {
-        this.fields = fields;
-    }
-
-    public HashMap<String, String> getFields() {
-        return fields;
     }
 
     public boolean isSortAscending() {
@@ -165,5 +158,13 @@ public class CollectionRowsRequest implements Dto {
 
     public void setIncludedIds(Set<Id> includedIds) {
         this.includedIds = includedIds;
+    }
+
+    public LinkedHashMap<String, CollectionColumnProperties> getColumnProperties() {
+        return columnProperties;
+    }
+
+    public void setColumnProperties(LinkedHashMap<String, CollectionColumnProperties> columnProperties) {
+        this.columnProperties = columnProperties;
     }
 }

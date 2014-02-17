@@ -45,8 +45,8 @@ public class CollectionColumnConfig implements Dto {
     @Attribute(name = "max-width", required = false)
     private String maxWidth;
 
-    @Attribute(name = "resizeable", required = false)
-    private boolean resizeable = true;
+    @Attribute(name = "resizable", required = false)
+    private boolean resizable = true;
 
     @Attribute(name = "text-break-style", required = false)
     private String textBreakStyle;
@@ -166,12 +166,12 @@ public class CollectionColumnConfig implements Dto {
         this.maxWidth = maxWidth;
     }
 
-    public boolean isResizeable() {
-        return resizeable;
+    public boolean isResizable() {
+        return resizable;
     }
 
-    public void setResizeable(boolean resizeable) {
-        this.resizeable = resizeable;
+    public void setResizable(boolean resizable) {
+        this.resizable = resizable;
     }
 
     public String getTextBreakStyle() {
@@ -215,7 +215,7 @@ public class CollectionColumnConfig implements Dto {
         if (hidden != that.hidden) {
             return false;
         }
-        if (resizeable != that.resizeable) {
+        if (resizable != that.resizable) {
             return false;
         }
         if (sortable != that.sortable) {
@@ -277,7 +277,7 @@ public class CollectionColumnConfig implements Dto {
         result = 31 * result + (searchFilter != null ? searchFilter.hashCode() : 0);
         result = 31 * result + (minWidth != null ? minWidth.hashCode() : 0);
         result = 31 * result + (maxWidth != null ? maxWidth.hashCode() : 0);
-        result = 31 * result + (resizeable ? 1 : 0);
+        result = 31 * result + (resizable ? 1 : 0);
         result = 31 * result + (textBreakStyle != null ? textBreakStyle.hashCode() : 0);
         result = 31 * result + (ascSortCriteriaConfig != null ? ascSortCriteriaConfig.hashCode() : 0);
         result = 31 * result + (descSortCriteriaConfig != null ? descSortCriteriaConfig.hashCode() : 0);

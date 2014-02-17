@@ -3,18 +3,22 @@ package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.collection.view.ImageMappingsConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.MappingConfig;
+import ru.intertrust.cm.core.gui.model.ComponentName;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Created by User on 13.02.14.
+ * @author Yaroslav Bondacrhuk
+ *         Date: 14/02/14
+ *         Time: 12:05 PM
  */
-public class ImageRenderer {
+@ComponentName("default.image.mapper")
+public class DefaultImageMapper {
     private Map<Value, ImagePathValue> imagePathsMappings;
 
-    public ImageRenderer() {
+    public DefaultImageMapper() {
 
     }
 
@@ -23,12 +27,11 @@ public class ImageRenderer {
         List<MappingConfig> mappings = imageMappingsConfig.getMappingConfigs();
         if (fieldType.equalsIgnoreCase("string")) {
             initStringValues(mappings);
-        } else if (fieldType.equalsIgnoreCase("boolean")){
+        } else if (fieldType.equalsIgnoreCase("boolean")) {
             initBooleanValues(mappings);
-        }  else if (fieldType.equalsIgnoreCase("long")){
-             initLongValues(mappings);
+        } else if (fieldType.equalsIgnoreCase("long")) {
+            initLongValues(mappings);
         }
-
 
     }
 
@@ -47,33 +50,37 @@ public class ImageRenderer {
             }
         }
     }
+
     private void initBooleanValues(List<MappingConfig> mappings) {
         for (MappingConfig config : mappings) {
             String value = config.getValue();
             ImagePathValue imagePathValue = new ImagePathValue(config.getImage());
-            if (value.equalsIgnoreCase("null")) {
+            if (value.equalsIgnoreCase("")) {
                 BooleanValue booleanValueNull = new BooleanValue();
                 imagePathsMappings.put(booleanValueNull, imagePathValue);
             } else {
-                BooleanValue booleanValue = new BooleanValue(Boolean.getBoolean(value));
+                BooleanValue booleanValue = new BooleanValue(Boolean.parseBoolean(value));
                 imagePathsMappings.put(booleanValue, imagePathValue);
             }
         }
     }
+
     private void initLongValues(List<MappingConfig> mappings) {
         for (MappingConfig config : mappings) {
             String value = config.getValue();
             ImagePathValue imagePathValue = new ImagePathValue(config.getImage());
-            if (value.equalsIgnoreCase("null")) {
+            if (value.equalsIgnoreCase("")) {
                 LongValue longValueNull = new LongValue();
                 imagePathsMappings.put(longValueNull, imagePathValue);
             } else {
-                LongValue longValue = new LongValue(Long.getLong(value));
+                LongValue longValue = new LongValue(Long.parseLong(value));
                 imagePathsMappings.put(longValue, imagePathValue);
             }
         }
     }
+
     public ImagePathValue getImagePathValue(Value key) {
+
         return imagePathsMappings.get(key);
     }
 }

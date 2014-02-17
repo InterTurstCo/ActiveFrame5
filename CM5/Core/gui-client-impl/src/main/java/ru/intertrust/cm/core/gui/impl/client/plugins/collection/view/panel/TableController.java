@@ -12,6 +12,8 @@ import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseUtils;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 
 import java.util.HashMap;
@@ -41,7 +43,7 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
     private boolean mouseDown = false;
 
     private int colIdx;
-    private static int DELTA_X = 3;
+    private static int DELTA_X = 7;
     private static int DELTA_DRAG = 1;
     private static Style.Cursor MOVE_CURSOR = Style.Cursor.MOVE;
     private static Style.Cursor RESIZE_CURSOR = Style.Cursor.COL_RESIZE;
@@ -58,25 +60,23 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
         this.body = body;
         this.eventBus = eventBus;
         this.searchPanel = searchPanel;
-
-
         header.sinkEvents(Event.ONMOUSEDOWN | Event.ONMOUSEUP | Event.ONMOUSEMOVE | Event.ONMOUSEOVER);
         header.addHandler(this, MouseDownEvent.getType());
         header.addHandler(this, MouseOverEvent.getType());
         header.addHandler(this, MouseMoveEvent.getType());
         header.addHandler(this, MouseUpEvent.getType());
 
-
     }
 
-    // изменение ширины столбцов на ровные части
+    // изменение ширины столбцов на части
     public void columnWindowResize(int width) {
         int count = header.getColumnCount();
         for (int i = 0; i < count; i++) {
-            Column headCol = header.getColumn(i);
-            Column bodyCol = body.getColumn(i);
-            header.setColumnWidth(headCol, width + "px");
-            body.setColumnWidth(bodyCol, width + "px");
+            CollectionColumn headCol = (CollectionColumn) header.getColumn(i);
+            CollectionColumn bodyCol = (CollectionColumn) body.getColumn(i);
+            int adjustedWidth = BusinessUniverseUtils.adjustWidth(width, headCol.getMinWidth(), headCol.getMaxWidth());
+            header.setColumnWidth(headCol, adjustedWidth + "px");
+            body.setColumnWidth(bodyCol, adjustedWidth + "px");
 
         }
 
@@ -92,8 +92,8 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
         double newWidth = 0;
 
         for (int i = 0; i < count; i++) {
-            Column headCol = header.getColumn(i);
-            Column bodyCol = body.getColumn(i);
+            CollectionColumn headCol = (CollectionColumn) header.getColumn(i);
+            CollectionColumn bodyCol = (CollectionColumn) body.getColumn(i);
             //использование -5 это компенсация погрешности из результата округлений размеров в double
             newWidth += reducingColumnWidthInPercentage(oldWidth, width-5, headCol, bodyCol);
         }
@@ -110,7 +110,7 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
                 if (modulo <= 0) {
                     break;
                 }
-                Column headCol = header.getColumn(i);
+                CollectionColumn headCol = (CollectionColumn) header.getColumn(i);
                 Column bodyCol = body.getColumn(i);
                 double columnWidth = getColumnWidth(headCol);
                 columnWidth += 1;
@@ -125,18 +125,16 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
 
     }
 
-    private double reducingColumnWidthInPercentage(double oldWidth, double newWidth, Column headCol, Column bodyCol) {
+    private double reducingColumnWidthInPercentage(double oldWidth, double newWidth, CollectionColumn headCol, CollectionColumn bodyCol) {
         double coeff = newWidth / oldWidth;
         double resized;
 
             resized = (getColumnWidth(headCol) * coeff);
 
-            if (resized < COLUMN_MIN_WIDTH) {
-                resized = COLUMN_MIN_WIDTH;
-            }
+            int adjustedWidth = BusinessUniverseUtils.adjustWidth((int)resized, headCol.getMinWidth(), headCol.getMaxWidth());
 
-        header.setColumnWidth(headCol, resized + "px");
-        body.setColumnWidth(bodyCol, resized + "px");
+        header.setColumnWidth(headCol, adjustedWidth + "px");
+        body.setColumnWidth(bodyCol, adjustedWidth + "px");
         return resized;
 
     }
@@ -182,14 +180,6 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
     private void checkFstSortClick(final MouseEvent e) {
         Point p = getPoint(e);
         mouseDownSortPoint = (int) p.getX();
-    }
-
-    private void reDrawColumn(int index, Column column) {
-
-        header.removeColumn(index);
-
-        header.insertColumn(index, column, column.getDataStoreName());
-
     }
 
     private void onMouseDownEvent(final MouseDownEvent e) {
@@ -248,7 +238,7 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
 
     private Point getPoint(final MouseEvent e) {
         int x = e.getClientX() - header.getAbsoluteLeft();
-        int y = e.getClientX() - header.getAbsoluteTop();
+        int y = e.getClientY() - header.getAbsoluteTop();
         return new Point(x, y);
     }
 
@@ -281,8 +271,8 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
 
     private void resizeColumn() {
         int move;
-        Column column = header.getColumn(colIdx);
-        if (CHECK_BOX_COLUMN_NAME.equalsIgnoreCase(column.getDataStoreName())) {
+        CollectionColumn column = (CollectionColumn) header.getColumn(colIdx);
+        if (CHECK_BOX_COLUMN_NAME.equalsIgnoreCase(column.getDataStoreName()) || !column.isResizable()) {
             return;
         }
         int width = getThisColumnWidth(column);
@@ -379,7 +369,7 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
     private void onMouseMoveEvent(final MouseMoveEvent e) {
         mouseDown = (/*e.getButton() &*/ NativeEvent.BUTTON_LEFT) == NativeEvent.BUTTON_LEFT;
         int x = e.getClientX() - header.getAbsoluteLeft();
-        int y = e.getClientX() - header.getAbsoluteTop();
+        int y = e.getClientY() - header.getAbsoluteTop();
         if (mouseDown && startResizePoint != null
                 && isDragDiff(x, y, startResizePoint.getX(), startResizePoint.getY())) {
 

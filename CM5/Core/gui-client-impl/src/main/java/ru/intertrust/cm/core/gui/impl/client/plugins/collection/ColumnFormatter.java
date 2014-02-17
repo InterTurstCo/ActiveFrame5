@@ -1,45 +1,63 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
-import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.cellview.client.ColumnSortList;
-import com.google.gwt.user.client.ui.Label;
+import ru.intertrust.cm.core.config.gui.form.widget.RendererConfig;
 import ru.intertrust.cm.core.gui.impl.client.converter.ValueConverter;
 import ru.intertrust.cm.core.gui.impl.client.converter.ValueConverterFactory;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.LabelCell;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.ImageCell;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.TextCell;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
-import ru.intertrust.cm.core.gui.model.SortedMarker;
-import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 
 /**
- * Created by User on 12.02.14.
+ * @author Yaroslav Bondacrhuk
+ *         Date: 14/02/14
+ *         Time: 12:05 PM
  */
 public class ColumnFormatter {
     private static final String CUT_STYLE = "cut";
-    public static Column<CollectionRowItem, ?> createFormattedColumn(CellTable<CollectionRowItem> tableHeader, CollectionColumnProperties columnProperties) {
+
+    public static CollectionColumn createFormattedColumn(CollectionColumnProperties columnProperties) {
         String field = (String) columnProperties.getProperty(CollectionColumnProperties.FIELD_NAME);
-        String fieldType = (String) columnProperties.getProperty(CollectionColumnProperties.TYPE_KEY);
-        ValueConverter converter = ValueConverterFactory.getConverter(fieldType);
-        converter.init(columnProperties.getProperties());
         String textBreakStyle = (String) columnProperties.getProperty(CollectionColumnProperties.TEXT_BREAK_STYLE);
-        Column<CollectionRowItem, Label> column = new CollectionColumn(field, converter, new LabelCell(getCssStyleForText(textBreakStyle)));
-        SortedMarker sortedMarker = (SortedMarker) columnProperties.getProperty(CollectionColumnProperties.SORTED_MARKER);
-        if (sortedMarker != null) {
-            boolean ascending = sortedMarker.isAscending();
-            column.setDefaultSortAscending(ascending);
-            tableHeader.getColumnSortList().push(new ColumnSortList.ColumnSortInfo(column, ascending) );
+        Boolean resizable = (Boolean) columnProperties.getProperty(CollectionColumnProperties.RESIZABLE);
+        CollectionColumn collectionColumn = null;
+        RendererConfig rendererConfig = columnProperties.getRendererConfig();
+        if (rendererConfig != null) {
+            DefaultImageRenderer renderer = new DefaultImageRenderer();
+            collectionColumn = new ImageCollectionColumn(new ImageCell(), field, resizable);
+        } else {
+            String fieldType = (String) columnProperties.getProperty(CollectionColumnProperties.TYPE_KEY);
+            ValueConverter converter = ValueConverterFactory.getConverter(fieldType);
+            converter.init(columnProperties.getProperties());
+            collectionColumn = new TextCollectionColumn(new TextCell(getCssStyleForText(textBreakStyle)), field, resizable, converter);
         }
+        adjustColumnMinAndMaxWidth(collectionColumn, columnProperties);
         String columnName = (String) columnProperties.getProperty(CollectionColumnProperties.NAME_KEY);
-        column.setDataStoreName(columnName);
+        collectionColumn.setDataStoreName(columnName);
         boolean sortable = (Boolean) columnProperties.getProperty(CollectionColumnProperties.SORTABLE);
-        column.setSortable(sortable);
-        return column;
+        collectionColumn.setSortable(sortable);
+        return collectionColumn;
     }
-    private static String getCssStyleForText(String textBreakStyle)  {
+
+    private static String getCssStyleForText(String textBreakStyle) {
         if (CUT_STYLE.equalsIgnoreCase(textBreakStyle)) {
             return " style = \"overflow: hidden; text-overflow: ellipsis; white-space: nowrap;\"";
 
         }
         return "";
+    }
+
+    private static void adjustColumnMinAndMaxWidth(CollectionColumn column, CollectionColumnProperties columnProperties) {
+        String minWidthString = (String) columnProperties.getProperty(CollectionColumnProperties.MIN_WIDTH);
+
+        if (minWidthString != null) {
+            int minWidth = Integer.parseInt(minWidthString.replaceAll("\\D+", ""));
+            column.setMinWidth(minWidth);
+        }
+        String maxWidthString = (String) columnProperties.getProperty(CollectionColumnProperties.MAX_WIDTH);
+        if (maxWidthString != null) {
+            int maxWidth = Integer.parseInt(maxWidthString.replaceAll("\\D+", ""));
+            column.setMaxWidth(maxWidth);
+        }
+
     }
 }

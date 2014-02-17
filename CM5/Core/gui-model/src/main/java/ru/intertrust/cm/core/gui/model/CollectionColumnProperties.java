@@ -3,6 +3,8 @@ package ru.intertrust.cm.core.gui.model;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.collection.view.AscSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.DescSortCriteriaConfig;
+import ru.intertrust.cm.core.config.gui.collection.view.ImageMappingsConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.RendererConfig;
 
 import java.util.HashMap;
 
@@ -29,7 +31,8 @@ public class CollectionColumnProperties implements Dto {
     private AscSortCriteriaConfig ascSortCriteriaConfig;
     private DescSortCriteriaConfig descSortCriteriaConfig;
     private HashMap<String, Object> properties = new HashMap<String, Object>();
-
+    private RendererConfig rendererConfig;
+    private ImageMappingsConfig imageMappingsConfig;
     public AscSortCriteriaConfig getAscSortCriteriaConfig() {
         return ascSortCriteriaConfig;
     }
@@ -44,6 +47,22 @@ public class CollectionColumnProperties implements Dto {
 
     public void setDescSortCriteriaConfig(DescSortCriteriaConfig descSortCriteriaConfig) {
         this.descSortCriteriaConfig = descSortCriteriaConfig;
+    }
+
+    public RendererConfig getRendererConfig() {
+        return rendererConfig;
+    }
+
+    public void setRendererConfig(RendererConfig rendererConfig) {
+        this.rendererConfig = rendererConfig;
+    }
+
+    public ImageMappingsConfig getImageMappingsConfig() {
+        return imageMappingsConfig;
+    }
+
+    public void setImageMappingsConfig(ImageMappingsConfig imageMappingsConfig) {
+        this.imageMappingsConfig = imageMappingsConfig;
     }
 
     public CollectionColumnProperties addProperty(final String name, final Object value) {
