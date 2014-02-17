@@ -227,7 +227,16 @@ public class CollectionPluginView extends PluginView {
                 if (searchPanel.isVisible()) {
                     searchPanel.setVisible(false);
                 } else {
+                    for (int i =0; i < searchBoxList.size(); i++){
+                        CollectionSearchBox searchBox = searchBoxList.get(i);
+                        searchBox.getTextBox().setText("");
+                        searchBox.setText("");
+                        searchBox.getClose().addStyleName("flush-serch-hide");
+                    }
                     searchPanel.setVisible(true);
+                    CollectionSearchBox searchBox = searchBoxList.get(0);
+                    searchBox.getTextBox().setFocus(true);
+
                 }
             }
         });
@@ -238,6 +247,15 @@ public class CollectionPluginView extends PluginView {
             @Override
             public void searchByFields(TableSearchEvent event) {
                 filterList.clear();
+                if (event.getBox().isEscPress()){
+
+                    searchPanel.setVisible(false);
+
+                    clearAllTAbleData();
+
+                }  else {
+
+
                 boolean isRequestRequired = false;
                 for (int i = 0; i < searchBoxList.size(); i++) {
                     CollectionSearchBox searchBox = searchBoxList.get(i);
@@ -268,9 +286,8 @@ public class CollectionPluginView extends PluginView {
                     }
                 }
                 if (isRequestRequired) {
-                items.clear();
-                listCount = 0;
-                collectionData();
+                    clearAllTAbleData();
+                    }
                 }
             }
         });
@@ -331,6 +348,13 @@ public class CollectionPluginView extends PluginView {
             }
         });
 
+    }
+
+    private void clearAllTAbleData(){
+        items.clear();
+        listCount = 0;
+        lastScrollPos = 0;
+        collectionData();
     }
 
     private void collectionData() {

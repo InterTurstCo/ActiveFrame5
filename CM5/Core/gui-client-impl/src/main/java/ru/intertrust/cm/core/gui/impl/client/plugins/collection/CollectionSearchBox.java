@@ -38,6 +38,7 @@ public class CollectionSearchBox extends Composite implements IsWidget {
     private String text = "";
     private Date date;
     private EventBus eventBus;
+    private boolean escPress;
 
     public CollectionSearchBox(TextBox textBox, String filterType, EventBus eventBus) {
         createCommonElementCollectionSearchBox();
@@ -46,6 +47,7 @@ public class CollectionSearchBox extends Composite implements IsWidget {
         this.filterType = filterType;
         this.eventBus = eventBus;
         configTextBoxElement();
+        escKeyPressHandler();
 
     }
 
@@ -56,7 +58,9 @@ public class CollectionSearchBox extends Composite implements IsWidget {
         this.filterType = filterType;
         dateSet = new Button();
         this.eventBus = eventBus;
+        this.textBox = dateBox.getTextBox();
         configDateBoxElement();
+        escKeyPressHandler();
 
     }
 
@@ -102,6 +106,7 @@ public class CollectionSearchBox extends Composite implements IsWidget {
             public void onKeyDown(KeyDownEvent event) {
                 if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
                     text = dateBox.getTextBox().getText();
+                    escPress = false;
                     fireEnterKey();
                 }
             }
@@ -141,6 +146,7 @@ public class CollectionSearchBox extends Composite implements IsWidget {
             public void onKeyDown(KeyDownEvent event) {
                 if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
                     text = textBox.getText();
+                    escPress = false;
                     fireEnterKey();
                 }
             }
@@ -154,6 +160,26 @@ public class CollectionSearchBox extends Composite implements IsWidget {
 
     }
 
+    private void escKeyPressHandler(){
+        textBox.addKeyDownHandler(new KeyDownHandler() {
+            @Override
+            public void onKeyDown(KeyDownEvent event) {
+                //To change body of implemented methods use File | Settings | File Templates.
+                if (event.getNativeKeyCode() == KeyCodes.KEY_ESCAPE){
+
+                    escPress = true;
+                    fireEnterKey();
+                    textBox.setValue("");
+                    text = "";
+                }
+            }
+        });
+
+
+    }
+
+
+
     private void createCommonElementCollectionSearchBox() {
         container.add(boxContainer);
         boxContainer.addStyleName("search-container");
@@ -161,6 +187,7 @@ public class CollectionSearchBox extends Composite implements IsWidget {
         close = new FocusPanel();
         close.addStyleName("flush-serch-hide");
         confCloseButton();
+
     }
 
     public FlowPanel getContainer() {
@@ -257,5 +284,21 @@ public class CollectionSearchBox extends Composite implements IsWidget {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public EventBus getEventBus() {
+        return eventBus;
+    }
+
+    public void setEventBus(EventBus eventBus) {
+        this.eventBus = eventBus;
+    }
+
+    public boolean isEscPress() {
+        return escPress;
+    }
+
+    public void setEscPress(boolean escPress) {
+        this.escPress = escPress;
     }
 }
