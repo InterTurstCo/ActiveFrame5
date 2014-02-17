@@ -1,9 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
 import ru.intertrust.cm.core.config.gui.form.widget.RendererConfig;
+import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.converter.ValueConverter;
 import ru.intertrust.cm.core.gui.impl.client.converter.ValueConverterFactory;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.ImageCell;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.TextCell;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 
@@ -22,8 +22,9 @@ public class ColumnFormatter {
         CollectionColumn collectionColumn = null;
         RendererConfig rendererConfig = columnProperties.getRendererConfig();
         if (rendererConfig != null) {
-            DefaultImageRenderer renderer = new DefaultImageRenderer();
-            collectionColumn = new ImageCollectionColumn(new ImageCell(), field, resizable);
+            DefaultImageRenderer renderer = ComponentRegistry.instance.get(rendererConfig.getValue());
+            collectionColumn = renderer.getImageColumn(field);
+            collectionColumn.setResizable(resizable);
         } else {
             String fieldType = (String) columnProperties.getProperty(CollectionColumnProperties.TYPE_KEY);
             ValueConverter converter = ValueConverterFactory.getConverter(fieldType);

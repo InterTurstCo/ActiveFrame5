@@ -33,6 +33,14 @@ public abstract class CollectionColumn extends Column<CollectionRowItem, String>
         return resizable;
     }
 
+    public void setFieldName(String fieldName) {
+        this.fieldName = fieldName;
+    }
+
+    public void setResizable(Boolean resizable) {
+        this.resizable = resizable;
+    }
+
     public int getMinWidth() {
         return minWidth;
     }
