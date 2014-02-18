@@ -33,6 +33,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.solr</groupId>
+            <artifactId>solr</artifactId>
+            <version>4.5.1</version>
+            <type>war</type>
+        </dependency>
+            
     </dependencies>
 
     <!-- <build>
@@ -244,6 +251,18 @@
                                 </configuration>
                             </execution>
                             <execution>
+                                <id>deploy-solr</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>deploy-artifact</goal>
+                                </goals>
+                                <configuration>
+                                <groupId>org.apache.solr</groupId>
+                                <artifactId>solr</artifactId>
+                                <name>solr.war</name>
+                                </configuration>
+                            </execution>
+                            <execution>
                                 <id>add-datasource</id>
                                 <phase>install</phase>
                                 <goals>
@@ -332,6 +351,8 @@
                                             <command>/system-property=server.properties.location:write-attribute(name=value, value=${server.properties.location})</command>
                                             <command>/system-property=spring.profiles.active:add(value=${spring.profiles.active})</command>
                                             <command>/system-property=spring.profiles.active:write-attribute(name=value, value=${spring.profiles.active})</command>
+                                            <command>/system-property=solr.solr.home:add(value=${solr.solr.home})</command>
+                                            <command>/system-property=solr.solr.home:write-attribute(name=value, value=${solr.solr.home})</command>
                                         </commands>
                                     </execute-commands>                                
                                 </configuration>
