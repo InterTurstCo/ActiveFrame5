@@ -48,6 +48,7 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
     private static Style.Cursor MOVE_CURSOR = Style.Cursor.MOVE;
     private static Style.Cursor RESIZE_CURSOR = Style.Cursor.COL_RESIZE;
     private static Style.Cursor DEFAULT_CURSOR = Style.Cursor.DEFAULT;
+    private static Style.Cursor POINTER_CURSOR = Style.Cursor.POINTER;
     private Column lastColumn;
     private HorizontalPanel searchPanel;
     private Map<String, Boolean> sortMarkers = new HashMap<String, Boolean>();
@@ -238,7 +239,7 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
 
     private Point getPoint(final MouseEvent e) {
         int x = e.getClientX() - header.getAbsoluteLeft();
-        int y = e.getClientY() - header.getAbsoluteTop();
+        int y = e.getClientX() - header.getAbsoluteTop();
         return new Point(x, y);
     }
 
@@ -279,7 +280,7 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
         if (colIdx != -1) {
             if (resizeStartPoint > resizeEndPoint) {
                 move = width - (resizeStartPoint - resizeEndPoint);
-                resizeModifier = (correctResizeMovePoint(move));
+                resizeModifier = BusinessUniverseUtils.adjustWidth(move, column.getMinWidth(), column.getMaxWidth());
                 columnSizeCorrector();
             } else if (resizeStartPoint < resizeEndPoint) {
                 move = width + (resizeEndPoint - resizeStartPoint);
@@ -289,7 +290,7 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
                 move = width;
             }
             if (move > 0) {
-                if (move > COLUMN_MIN_WIDTH) {
+                if (move > column.getMinWidth()) {
                     if (colIdx == header.getColumnCount() - 1) {
                         if (header.getOffsetWidth() > header.getOffsetWidth() - move) {
                             columnWindowResize(body.getParent().getParent()
@@ -303,8 +304,8 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
                     }
                 } else {
 
-                    header.setColumnWidth(column, COLUMN_MIN_WIDTH + "px");
-                    body.setColumnWidth(column, COLUMN_MIN_WIDTH + "px");
+                    header.setColumnWidth(column, column.getMinWidth() + "px");
+                    body.setColumnWidth(column, column.getMinWidth() + "px");
 
                 }
             }
@@ -312,13 +313,13 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
         searchPanelResize();
     }
 
-    private int correctResizeMovePoint(int move) {
+   /* private int correctResizeMovePoint(int move) {
         if (move > COLUMN_MIN_WIDTH) {
             return move;
         } else {
             return move + (COLUMN_MIN_WIDTH - move);
         }
-    }
+    }*/
 
     private double getColumnWidth(Column column) {
         String width = header.getColumnWidth(column);

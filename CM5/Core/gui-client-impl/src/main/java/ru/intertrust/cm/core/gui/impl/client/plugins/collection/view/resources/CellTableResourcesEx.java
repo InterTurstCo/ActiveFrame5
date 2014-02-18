@@ -4,6 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.resources.client.CssResource.ImportedWithPrefix;
+import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.cellview.client.CellTable.Resources;
 import com.google.gwt.user.cellview.client.CellTable.Style;
 
@@ -14,39 +15,45 @@ import com.google.gwt.user.cellview.client.CellTable.Style;
  */
 public interface CellTableResourcesEx extends Resources {
 
-  public CellTableResourcesEx I = GWT.create(CellTableResourcesEx.class);
+    public CellTableResourcesEx I = GWT.create(CellTableResourcesEx.class);
 
-  String CSS_FILE = "CellTableCommon.css";
+    String CSS_FILE = "CellTableCommon.css";
 
-  @ImportedWithPrefix("extGwt-CellTable")
-  public interface StyleEx extends Style {
+    @Source("sort_arrows_bottom.png")
+    ImageResource cellTableSortAscending();
 
-      @ClassName("docs-common-celltable-tr-unread")
-      String docsCommonCelltableTrUnread();
+    @Source("sort_arrows_top.png")
+    ImageResource cellTableSortDescending();
 
-      @ClassName("docs-common-celltable-tr-common")
-      String docsCommonCelltableTrCommon();
+    @ImportedWithPrefix("extGwt-CellTable")
+    public interface StyleEx extends Style {
 
-      @ClassName("docs-common-celltable-body")
-      String docsCommonCelltableBody();
+        @ClassName("docs-common-celltable-tr-unread")
+        String docsCommonCelltableTrUnread();
 
-      String hover();
+        @ClassName("docs-common-celltable-tr-common")
+        String docsCommonCelltableTrCommon();
 
-      @ClassName("docs-common-celltable-header-panel")
-      String docsCommonCelltableHeaderPanel();
+        @ClassName("docs-common-celltable-body")
+        String docsCommonCelltableBody();
 
-      @ClassName("docs-common-celltable-header")
-      String docsCommonCelltableHeader();
+        String hover();
 
-      @ClassName("docs-common-ct-row-selected")
-      String docsCommonCtRowSelected();
+        @ClassName("docs-common-celltable-header-panel")
+        String docsCommonCelltableHeaderPanel();
 
-      @ClassName("docs-common-th-header-row")
-      String docsCommonThHeaderRow();
-  }
+        @ClassName("docs-common-celltable-header")
+        String docsCommonCelltableHeader();
 
-  @Override
-  @CssResource.NotStrict
-  @ClientBundle.Source( CSS_FILE )
-  StyleEx cellTableStyle();
+        @ClassName("docs-common-ct-row-selected")
+        String docsCommonCtRowSelected();
+
+        @ClassName("docs-common-th-header-row")
+        String docsCommonThHeaderRow();
+    }
+
+    @Override
+    @CssResource.NotStrict
+    @ClientBundle.Source(CSS_FILE)
+    StyleEx cellTableStyle();
 }

@@ -731,9 +731,9 @@
             <renderer component-name="default.image.renderer"/>
             <image-mappings>
                 <mapping value="" image="cancel.png"/>
-                <mapping value="0" image="sign.png"/>
-                <mapping value="1" image="addButton.png"/>
-                <mapping value="2" image="cancel.png"/>
+                <mapping value="0" image="addButton.png"/>
+                <mapping value="45469800" image="sign.png"/>
+                <mapping value="143548980" image="CMJSpinner.gif"/>
             </image-mappings>
             </column>
             <column field="description" name="Описание" type="string" editable="false" sortable="true"

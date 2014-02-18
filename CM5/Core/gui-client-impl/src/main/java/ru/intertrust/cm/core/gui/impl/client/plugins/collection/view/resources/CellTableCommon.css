@@ -206,8 +206,9 @@
     }
 
     .cellTableSortableHeader {
-        cursor: pointer;
-        cursor: hand;
+
+      /*  cursor: pointer;
+        cursor: hand;*/
     }
 
     .cellTableSortableHeader:hover {

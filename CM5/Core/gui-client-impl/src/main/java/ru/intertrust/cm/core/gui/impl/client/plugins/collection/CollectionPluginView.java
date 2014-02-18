@@ -508,6 +508,7 @@ public class CollectionPluginView extends PluginView {
                 boolean ascending = sortedMarker.isAscending();
                 column.setDefaultSortAscending(ascending);
                 tableHeader.getColumnSortList().push(new ColumnSortList.ColumnSortInfo(column, ascending));
+                tableHeader.getElement().addClassName("dummy");
                 sortCollectionState = new SortCollectionState(0, START_ROW_COUNT, column.getDataStoreName(), ascending, true, field);
             }
             final String filterType = (String) columnProperties.getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
