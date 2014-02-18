@@ -33,4 +33,7 @@
 
     <bean id="formResolver" class="ru.intertrust.cm.core.gui.impl.server.form.FormResolver" scope="singleton"
           lazy-init="true"/>
+
+    <bean id="defaultImageMapper" class="ru.intertrust.cm.core.gui.impl.server.plugin.DefaultImageMapperImpl"/>
+
 </beans>

@@ -17,7 +17,6 @@ import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.impl.server.form.FormResolver;
-import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
@@ -260,11 +259,11 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
             for (IdentifiableObject identifiableObject : collection) {
                 ArrayList<String> fieldsInCollection = new ArrayList<String>();
                 fieldsInCollection = identifiableObject.getFields();
-                LinkedHashMap<String, CollectionColumnProperties> properties = new LinkedHashMap<String, CollectionColumnProperties>();
+                LinkedHashMap<String, Map<Value, ImagePathValue>> fieldMaps = new LinkedHashMap<String, Map<Value, ImagePathValue>>();
                 for (String field : fieldsInCollection) {
-                    properties.put(field, null);
+                    fieldMaps.put(field, null);
                 }
-                searchResultRowItems.add(collectionPluginHandler.generateCollectionRowItem(identifiableObject,properties ));
+                searchResultRowItems.add(collectionPluginHandler.generateCollectionRowItem(identifiableObject,fieldMaps ));
 
             }
 

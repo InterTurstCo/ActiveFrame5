@@ -8,10 +8,10 @@ import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionDisplayConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
-import ru.intertrust.cm.core.config.gui.collection.view.ImageMappingsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SearchAreaRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
+import ru.intertrust.cm.core.gui.impl.server.plugin.DefaultImageMapperImpl;
 import ru.intertrust.cm.core.gui.impl.server.util.ActionConfigBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
@@ -27,7 +27,6 @@ import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowsRequest;
 
 import java.util.*;
-
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -45,6 +44,9 @@ public class CollectionPluginHandler extends ActivePluginHandler {
 
     @Autowired
     SearchService searchService;
+
+    @Autowired
+    DefaultImageMapperImpl defaultImageMapper;
 
     public CollectionPluginData initialize(Dto param) {
         CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig) param;
@@ -192,11 +194,9 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         throw new GuiException("Couldn't find collection view with name '" + viewName + "'");
     }
 
-    private LinkedHashMap<String, Value> getRowValues(IdentifiableObject identifiableObject, LinkedHashMap<String, CollectionColumnProperties> columnProperties) {
-
+    private LinkedHashMap<String, Value> getRowValues(IdentifiableObject identifiableObject, Map<String, Map<Value, ImagePathValue>> fieldMappings) {
         LinkedHashMap<String, Value> values = new LinkedHashMap<String, Value>();
-        LinkedHashMap<String, DefaultImageMapper> columnMappers = initMappersIfRequired(columnProperties);
-        Set<String> fields = columnMappers.keySet();
+        Set<String> fields = fieldMappings.keySet();
         for (String field : fields) {
             Value value;
             if ("id".equalsIgnoreCase(field)) {
@@ -206,34 +206,15 @@ public class CollectionPluginHandler extends ActivePluginHandler {
 
             }
 
-            DefaultImageMapper defaultImageMapper = columnMappers.get(field);
-            if (defaultImageMapper != null) {
-                value = defaultImageMapper.getImagePathValue(value);
+            Map<Value, ImagePathValue>  imagePathValueMap = fieldMappings.get(field);
+            if (imagePathValueMap != null && !imagePathValueMap.isEmpty()) {
+                value = imagePathValueMap.get(value);
             }
             values.put(field, value);
 
         }
         return values;
 
-    }
-
-    private LinkedHashMap<String, DefaultImageMapper> initMappersIfRequired(LinkedHashMap<String, CollectionColumnProperties> columnPropertiesMap) {
-        Set<String> fields = columnPropertiesMap.keySet();
-        LinkedHashMap<String, DefaultImageMapper> columnMappers = new LinkedHashMap<String, DefaultImageMapper>();
-        for (String field : fields) {
-            CollectionColumnProperties properties = columnPropertiesMap.get(field);
-            ImageMappingsConfig imageMappingsConfig = properties.getImageMappingsConfig();
-            if (imageMappingsConfig == null) {
-                columnMappers.put(field, null);
-            } else {
-                String fieldType = (String) properties.getProperty(CollectionColumnProperties.TYPE_KEY);
-                DefaultImageMapper defaultImageMapper = new DefaultImageMapper();
-                defaultImageMapper.init(imageMappingsConfig, fieldType);
-                columnMappers.put(field, defaultImageMapper);
-            }
-
-        }
-        return columnMappers;
     }
 
     private LinkedHashMap<String, CollectionColumnProperties> getDomainObjectFieldPropertiesMap(
@@ -296,9 +277,9 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         return columnField;
     }
 
-    public CollectionRowItem generateCollectionRowItem(IdentifiableObject identifiableObject, LinkedHashMap<String, CollectionColumnProperties> properties) {
+    public CollectionRowItem generateCollectionRowItem(IdentifiableObject identifiableObject, Map<String, Map<Value, ImagePathValue>> fieldMappings) {
         CollectionRowItem item = new CollectionRowItem();
-        LinkedHashMap<String, Value> row = getRowValues(identifiableObject, properties);
+        LinkedHashMap<String, Value> row = getRowValues(identifiableObject, fieldMappings);
         item.setId(identifiableObject.getId());
         item.setRow(row);
         return item;
@@ -311,8 +292,9 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         ArrayList<CollectionRowItem> items = new ArrayList<CollectionRowItem>();
         IdentifiableObjectCollection collection = collectionsService.
                 findCollection(collectionName, sortOrder, filters, offset, count);
+        Map<String, Map<Value, ImagePathValue>> fieldMappings = defaultImageMapper.getImageMaps(properties);
         for (IdentifiableObject identifiableObject : collection) {
-            items.add(generateCollectionRowItem(identifiableObject, properties));
+            items.add(generateCollectionRowItem(identifiableObject, fieldMappings));
 
         }
         return items;
@@ -321,11 +303,10 @@ public class CollectionPluginHandler extends ActivePluginHandler {
     public ArrayList<CollectionRowItem> getSimpleSearchRows(String collectionName,
                                                             int offset, int count, List<Filter> filters, String simpleSearchQuery, String searchArea, LinkedHashMap<String, CollectionColumnProperties> properties) {
         ArrayList<CollectionRowItem> items = new ArrayList<CollectionRowItem>();
-
         IdentifiableObjectCollection collection = searchService.search(simpleSearchQuery, searchArea, collectionName, 1000);
-
+        Map<String, Map<Value, ImagePathValue>> fieldMappings = defaultImageMapper.getImageMaps(properties);
         for (IdentifiableObject identifiableObject : collection) {
-            items.add(generateCollectionRowItem(identifiableObject, properties));
+            items.add(generateCollectionRowItem(identifiableObject,fieldMappings));
         }
 
         return items;

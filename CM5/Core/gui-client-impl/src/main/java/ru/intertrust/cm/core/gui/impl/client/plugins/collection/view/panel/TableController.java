@@ -387,7 +387,7 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
 
     private void moveColumn(int colIdx, int newColIdx) {
         if (colIdx != -1 && newColIdx != -1) {
-            Column column = header.getColumn(colIdx);
+            CollectionColumn column = (CollectionColumn) header.getColumn(colIdx);
             if (CHECK_BOX_COLUMN_NAME.equalsIgnoreCase(column.getDataStoreName())) {
                 return;
             }
