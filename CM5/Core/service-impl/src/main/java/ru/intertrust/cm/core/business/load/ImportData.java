@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
-import java.nio.charset.Charset;
-import java.rmi.RemoteException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -253,6 +251,9 @@ public class ImportData {
                         //В остальных случаях считаем строкой
                         if (fieldValues[i].length() == 0) {
                             domainObject.setString(fieldName, null);
+                        }else if (fieldValues[i].equals("_")) {
+                            //Символ "_" строки означает у нас пустую строку
+                            domainObject.setString(fieldName, "");
                         } else {
                             domainObject.setString(fieldName, fieldValues[i]);
                         }
@@ -472,19 +473,19 @@ public class ImportData {
                 for (int i = 0; i < confitionFields.length; i++) {
                     if (confitionFields[i].equalsIgnoreCase(fieldConfig.getName())) {
                         if (where == null) {
-                            where = " where t" + typeNo + "." + fieldConfig.getName() + " = " + conditionValues[i];
+                            where = " where t" + typeNo + ".\"" + fieldConfig.getName() + "\" = " + conditionValues[i];
                         } else {
-                            where += " and t" + typeNo + "." + fieldConfig.getName() + " = " + conditionValues[i];
+                            where += " and t" + typeNo + ".\"" + fieldConfig.getName() + "\" = " + conditionValues[i];
                         }
                     }
                 }
             }
             //Заполяем типы
             if (typeNo == 0) {
-                from = " from " + config.getName() + " t" + typeNo + " ";
+                from = " from \"" + config.getName() + "\" t" + typeNo + " ";
             } else {
                 from +=
-                        "inner join " + config.getName() + " t" + typeNo + " on (t" + typeNo + ".id = t" + (typeNo - 1)
+                        "inner join \"" + config.getName() + "\" t" + typeNo + " on (t" + typeNo + ".id = t" + (typeNo - 1)
                                 + ".id) ";
             }
             //Проверка на наличие родителя
