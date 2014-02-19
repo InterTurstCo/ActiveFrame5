@@ -1,10 +1,10 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer;
 
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
@@ -35,7 +35,8 @@ public class DomainObjectSurferPluginView extends PluginView {
     private EventBus eventBus;
     private SplitterEx splitterPanel;
     private static Logger log = Logger.getLogger("DomainObjectSurfer");
-    private FlowPanel flowPanel;
+    //private FlowPanel flowPanel;
+    private AbsolutePanel flowPanel;
 
     public DomainObjectSurferPluginView(Plugin plugin) {
         super(plugin);
@@ -154,9 +155,11 @@ public class DomainObjectSurferPluginView extends PluginView {
     @Override
     protected IsWidget getViewWidget() {
 
-        flowPanel = new FlowPanel();
+        flowPanel = new AbsolutePanel();
         flowPanel.setStyleName("centerTopBottomDividerRoot");
-        final VerticalPanel container = new VerticalPanel();
+        //final VerticalPanel container = new VerticalPanel();
+        AbsolutePanel container = new AbsolutePanel();
+        container.setStyleName("centerTopBottomDividerRootInnerDiv");
         flowPanel.add(container);
 
         container.add(splitterPanel);

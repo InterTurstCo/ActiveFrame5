@@ -1,3 +1,18 @@
+html {
+    /*height: 100%;*/
+}
+
+body {
+    background-color: white;
+    color: black;
+    font-family: Arial, sans-serif;
+    font-size: small;
+    margin: 8px;
+    /*min-height: 100%;*/
+    /*height: 100%;*/
+
+}
+
 /*оформление поиска коллекшен плагин вю начало*/
 .search-container {
 
@@ -108,34 +123,32 @@
     text-align: right;
 }
 /*.search-box {*/
-    /*border: 0 none;*/
-    /*font-size: 11px;*/
-    /*width: 70px;*/
-    /*line-height: 18px;*/
-    /*margin: 0;*/
-    /*outline: medium none;*/
-    /*padding-left: 3px;*/
-    /*padding-top: 5px;*/
-    /*vertical-align: middle;*/
+/*border: 0 none;*/
+/*font-size: 11px;*/
+/*width: 70px;*/
+/*line-height: 18px;*/
+/*margin: 0;*/
+/*outline: medium none;*/
+/*padding-left: 3px;*/
+/*padding-top: 5px;*/
+/*vertical-align: middle;*/
 
 /*}*/
 
 /*.search-data-box {*/
-    /*display: inline-block;*/
-    /*border: 0 none;*/
-    /*font-size: 11px;*/
-    /*width: 70px;*/
-    /*line-height: 18px;*/
-    /*margin: 0;*/
-    /*outline: medium none;*/
-    /*padding-left: 3px;*/
-    /*padding-top: 5px;*/
-    /*vertical-align: middle;*/
-
-
+/*display: inline-block;*/
+/*border: 0 none;*/
+/*font-size: 11px;*/
+/*width: 70px;*/
+/*line-height: 18px;*/
+/*margin: 0;*/
+/*outline: medium none;*/
+/*padding-left: 3px;*/
+/*padding-top: 5px;*/
+/*vertical-align: middle;*/
 
 /*}*/
-.search-data-box-{
+.search-data-box- {
 
     border: 0 none;
     font-size: 11px;
@@ -147,34 +160,32 @@
     padding-top: 5px;
     vertical-align: middle;
 
-
 }
 
-
-.horizont-container{
+.horizont-container {
     background-color: #f0f4ff;
     padding: 5px 0 0 0;
     border: 5 none;
     height: 32px;
-    width: 100%;
+    /*width: 100%;*/
 
 }
 
 /*.flush-serch {*/
-    /*background: url("css/icons1.png") no-repeat scroll -32px top transparent;*/
-    /*cursor: pointer;*/
-    /*border: 0 none;*/
-    /*box-shadow: none;*/
-    /*cursor: pointer;*/
-    /*font-size: 12px;*/
-    /*margin: 0;*/
-    /*vertical-align: middle;*/
-    /*display: inline-block;*/
-    /*float: none;*/
-    /*height: 16px;*/
-    /*left: auto;*/
-    /*position: relative;*/
-    /*width: 16px;*/
+/*background: url("css/icons1.png") no-repeat scroll -32px top transparent;*/
+/*cursor: pointer;*/
+/*border: 0 none;*/
+/*box-shadow: none;*/
+/*cursor: pointer;*/
+/*font-size: 12px;*/
+/*margin: 0;*/
+/*vertical-align: middle;*/
+/*display: inline-block;*/
+/*float: none;*/
+/*height: 16px;*/
+/*left: auto;*/
+/*position: relative;*/
+/*width: 16px;*/
 /*}*/
 
 .date-select {
@@ -199,9 +210,9 @@
 }
 
 /*.flush-serch-hide {*/
-    /*background: url("css/icons1.png") no-repeat scroll -100px top transparent !important;*/
-    /*cursor: default !important;*/
-    /*display: inline-block;*/
+/*background: url("css/icons1.png") no-repeat scroll -100px top transparent !important;*/
+/*cursor: default !important;*/
+/*display: inline-block;*/
 /*}*/
 
 .search-button {
@@ -497,7 +508,7 @@ td.datePickerMonth {
     overflow: visible !important;
 }
 
-.H_td_ExtSearch  .header-third-action-button {
+.H_td_ExtSearch .header-third-action-button {
     background: url(css/i/ext-search.png) no-repeat scroll center center;
     cursor: pointer;
     float: right;
@@ -512,7 +523,7 @@ td.datePickerMonth {
     outline: none;
 }
 
-.H_td_ExtSearch  .header-third-action-button:hover {
+.H_td_ExtSearch .header-third-action-button:hover {
     background: url(css/i/ext-search.png) center center no-repeat #fffdf0;
     border: 1px solid;
     border-color: #fff1ca #ffedbe #ffedbe;
@@ -579,8 +590,26 @@ td.datePickerMonth {
 }
 
 .centerTopBottomDividerRoot {
-    margin-top: 0px !important;
-    margin-right: 0px !important;
+
+    background: #ffffff;
+    background: -moz-linear-gradient(top, #ffffff 0%, #e8eff3 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ffffff), color-stop(100%, #e8eff3));
+    background: -webkit-linear-gradient(top, #ffffff 0%, #e8eff3 100%);
+    background: -o-linear-gradient(top, #ffffff 0%, #e8eff3 100%);
+    background: -ms-linear-gradient(top, #ffffff 0%, #e8eff3 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#e8eff3', GradientType=0);
+    background: linear-gradient(top, #ffffff 0%, #e8eff3 100%);
+
+    border-radius: 5px;
+    height: 100%;
+    width: 100%;
+    display: block;
+    height: auto;
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    margin-top: 40px;
 }
 
 .H_td_user .gwt-Hyperlink a {
@@ -687,6 +716,13 @@ td.datePickerMonth {
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#478BCC ', endColorstr='#232464', GradientType=0);
     background: linear-gradient(478 BCC);
 
+    display: block;
+    height: auto;
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    margin-top: 60px;
 }
 
 .left-section:hover {
@@ -694,6 +730,7 @@ td.datePickerMonth {
 }
 
 .left-section-active {
+    /*width: 130px;*/
     float: left;
     z-index: 15 !important;
     background: #4c93c9;
@@ -714,6 +751,64 @@ td.datePickerMonth {
     filter: progid\: DXImageTransform\.Microsoft\.gradient\( startColorstr\= "#4c93c9", endColorstr\= "#232464", GradientType\= 0 \);
     background: linear-gradient(top, #4c93c9 0%, #3b649a 51%, #232464 100%);
     */
+    display: block;
+    height: auto;
+    position: absolute !important;
+    bottom: 0;
+    top: 0;
+    margin-top: 60px;
+
+}
+
+.central-div-panel-test {
+
+    background: #ff9900;
+    display: block;
+    height: auto;
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 70px 11px 11px 130px;
+}
+
+.central-div-panel-test-active {
+    background: #23b7ff;
+    display: block;
+    height: auto;
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 70px 11px 11px 349px;
+}
+
+.root-layout-panel {
+
+}
+
+.tested {
+    position: absolute !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+    height: auto;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.centerTopBottomDividerRootInnerDiv{
+    display: block;
+    height: auto;
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
 
 }
 
@@ -815,12 +910,14 @@ td.datePickerMonth {
 
 .centr-inner-section {
     position: absolute !important;
-    margin-top: 11px;
+    /*margin-top: 11px;*/
     float: left;
+    width: 100%;
+    /*ага*/
     height: 100%;
-
 }
-.tree-label{
+
+.tree-label {
     text-decoration: none !important;
     padding-right: 8px;
     cursor: pointer;
@@ -847,14 +944,32 @@ td.datePickerMonth {
 
 .footer-section {
 
+    /*width: 100%;*/
+    /*height: 200px;*/
 }
 
 .center-section {
-
+    display: block;
+    height: auto;
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #4c93c9;
+    background: -moz-linear-gradient(top, #478BCC 0%, #3b649a 51%, #232464 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #4c93c9), color-stop(51%, #3b649a), color-stop(100%, #232464));
+    background: -webkit-linear-gradient(top, #478BCC 0%, #3b649a 51%, #232464 100%);
+    background: -o-linear-gradient(top, #478BCC 0%, #3b649a 51%, #232464 100%);
+    background: -ms-linear-gradient(top, #478BCC 0%, #3b649a 51%, #232464 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#478BCC ', endColorstr='#232464', GradientType=0);
+    background: linear-gradient(478 BCC);
 }
 
 .root-section {
-
+    /*min-height: 100%;*/
+    /*height: 100% !important;*/
+    /*height: 100%;*/
 }
 
 .popup-content {
@@ -958,14 +1073,14 @@ td .gwt-SuggestBox {
 }
 
 .hyperlink-label-none-editable {
-    cursor: pointer!important;
+    cursor: pointer !important;
     font-family: Arial;
     font-weight: bold;
     font-size: 13px;
 }
 
 .hyperlink-editable {
-    cursor: pointer!important;
+    cursor: pointer !important;
     font-family: Arial;
     font-size: 13px;
     margin-left: 5px;
@@ -982,6 +1097,7 @@ td .gwt-SuggestBox {
     cursor: default;
     text-decoration: none;
 }
+
 .facebook-element .gwt-Image {
     margin-left: 11px;
 }

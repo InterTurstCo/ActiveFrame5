@@ -67,7 +67,6 @@ public class DateBoxDecorate extends Composite {
                     baloonDown = "!!!";
                 }
                 else {
-                    System.out.println("down!");
                     baloonDown = "date-picker-baloon";
                     baloonUp =  "!!!";
                 }

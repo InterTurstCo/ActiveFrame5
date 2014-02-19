@@ -36,6 +36,7 @@ public class PluginPanel implements IsWidget {
 
     public void setVisibleWidth(int visibleWidth) {
         this.visibleWidth = visibleWidth;
+
     }
 
     public int getVisibleHeight() {

@@ -130,6 +130,7 @@ public class SplitterEx extends DockLayoutPanel {
         public Splitter(Widget target, boolean reverse) {
             style.ensureInjected();
             this.target = target;
+            target.getElement().addClassName("target-target");
             this.reverse = reverse;
             target.getElement().getStyle().setOverflow(Style.Overflow.VISIBLE);
 
@@ -167,22 +168,24 @@ public class SplitterEx extends DockLayoutPanel {
         }
 
         protected void buttonEvent(){
+            //правая кнопка
             leftArrow.addDomHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    eventBus.fireEvent(new SplitterWidgetResizerEvent(target.getParent().getParent().getOffsetWidth()-splitterSize,
-                            0, target.getParent().getParent().getOffsetHeight()/*-splitterSize*/, 0, splitType, true ));
 
+                    eventBus.fireEvent(new SplitterWidgetResizerEvent(splitterSize,
+                            0,  target.getParent().getOffsetHeight(), 0, splitType, true ));
                 }
             }, ClickEvent.getType());
 
+            //на самом деле это левая кнопка (Тим)
            rightArrow.addDomHandler(new ClickHandler() {
 
                 @Override
                 public void onClick(ClickEvent event) {
-                    eventBus.fireEvent(new SplitterWidgetResizerEvent(0, target.getParent().getParent().getOffsetWidth(),
-                            0, target.getParent().getParent().getOffsetHeight()/*-splitterSize*/, splitType, true ));
 
+                    eventBus.fireEvent(new SplitterWidgetResizerEvent(0, 0,
+                           /*верхняя точка сплитер панели*/ splitterSize, target.getParent().getOffsetHeight() - splitterSize, splitType, true ));
                 }
             }, ClickEvent.getType());
 
@@ -439,12 +442,13 @@ public class SplitterEx extends DockLayoutPanel {
             if (size == (0/*-splitterSize*/)){
                 changeFullLeftPosition();
                 rightArrowVisible(false);
+            }
 
-            } else if (size == target.getParent().getOffsetHeight()-splitterSize) {
+            else if (size == target.getParent().getOffsetHeight() - splitterSize) {
                 changeFullRightPosition();
                 leftArrowVisible(false);
-
-            } else {
+            }
+            else {
                 changeCentralPanel();
 
             }
@@ -681,6 +685,8 @@ public class SplitterEx extends DockLayoutPanel {
         //8px
         super.getWidgetContainerElement(splitter).getStyle().clearOverflow();
         this.setStyleName("tested");
+        this.getElement().getStyle().clearPosition();
+
 
     }
 

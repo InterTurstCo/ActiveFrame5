@@ -237,7 +237,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
         magnifierPanel.add(magnifier);
         searchBar.add(magnifierPanel);
         searchBar.add(textBox);
-        final Image resetButton = new Image("images/ico-delete.gif");
+        final Image resetButton = new Image("images/icon-delete.png");
         textBox.addValueChangeHandler(new ValueChangeHandler<String>() {
             @Override
             public void onValueChange(ValueChangeEvent event) {
