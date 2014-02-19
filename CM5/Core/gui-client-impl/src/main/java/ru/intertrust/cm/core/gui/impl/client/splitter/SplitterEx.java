@@ -131,6 +131,7 @@ public class SplitterEx extends DockLayoutPanel {
             style.ensureInjected();
             this.target = target;
             target.getElement().addClassName("target-target");
+            target.getElement().getParentElement().addClassName("before-target-target");
             this.reverse = reverse;
             target.getElement().getStyle().setOverflow(Style.Overflow.VISIBLE);
 
@@ -183,8 +184,8 @@ public class SplitterEx extends DockLayoutPanel {
 
                 @Override
                 public void onClick(ClickEvent event) {
-
-                    eventBus.fireEvent(new SplitterWidgetResizerEvent(0, 0,
+System.out.println("right?");
+                    eventBus.fireEvent(new SplitterWidgetResizerEvent(0, 0/*target.getParent().getOffsetWidth()*/,
                            /*верхняя точка сплитер панели*/ splitterSize, target.getParent().getOffsetHeight() - splitterSize, splitType, true ));
                 }
             }, ClickEvent.getType());
@@ -202,7 +203,6 @@ public class SplitterEx extends DockLayoutPanel {
                         firstWidgetWidth = sizeFromInsert-DEFAULT_SPLITTER_SIZE;
                         }
                     }
-
 
 
                     eventBus.fireEvent(new SplitterWidgetResizerEvent(firstWidgetWidth, 0,
@@ -686,7 +686,6 @@ public class SplitterEx extends DockLayoutPanel {
         super.getWidgetContainerElement(splitter).getStyle().clearOverflow();
         this.setStyleName("tested");
         this.getElement().getStyle().clearPosition();
-
 
     }
 

@@ -443,8 +443,8 @@ public class CollectionPluginView extends PluginView {
         outerSideScroll.getElement().getStyle().setWidth(18, Style.Unit.PX);
         FlexTable.FlexCellFormatter formater = flexTable.getFlexCellFormatter();
         scrollTableHeader.add(headerPanel);
-        scrollTableHeader.setWidth(tableWidth + "px");
-        scrollTableBody.setWidth(tableWidth + "px");
+//        scrollTableHeader.setWidth(tableWidth + "px");
+//        scrollTableBody.setWidth(tableWidth + "px");
 
         flexTable.setWidget(0, 0, treeLinkWidget);
         flexTable.setWidget(1, 0, scrollTableHeader);

@@ -762,7 +762,7 @@ td.datePickerMonth {
 
 .central-div-panel-test {
 
-    background: #ff9900;
+    /*background: #ff9900;*/
     display: block;
     height: auto;
     position: absolute !important;
@@ -1290,4 +1290,16 @@ td .gwt-SuggestBox {
 
 .ext-serch-form-div {
     clear: left;
+}
+
+.before-target-target{
+    position: absolute !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+    height: auto;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
 }
