@@ -34,6 +34,7 @@ class NavigationTreeBuilder {
             for (LinkConfig linkConfig : linkConfigs) {
                 buildGroup(linkConfig, group);
             }
+            fireEventsOnChildsToOpen();
         } else {
             for (LinkConfig linkConfig : linkConfigs) {
                 buildTree(linkConfig);

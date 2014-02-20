@@ -858,7 +858,7 @@ td.datePickerMonth {
     position: absolute;
     height: 25px;
     background: url(images/folder-list-selected-bg.png) left top no-repeat;
-    left: 8px;
+    left: 13px;
     right: 0;
     top: 4px;
     font-size: 0px;
