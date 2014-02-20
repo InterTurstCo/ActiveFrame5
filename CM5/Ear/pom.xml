@@ -370,7 +370,7 @@
         </profile>
 
         <profile>
-            <id>jboss-deploy-solr</id>
+            <id>solr-deploy-jboss</id>
             <build>
                 <plugins>
                     <plugin>
