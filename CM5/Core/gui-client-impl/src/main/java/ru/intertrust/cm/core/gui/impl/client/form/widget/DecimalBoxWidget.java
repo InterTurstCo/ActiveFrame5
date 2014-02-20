@@ -8,6 +8,8 @@ import ru.intertrust.cm.core.gui.model.form.widget.DecimalBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Denis Mitavskiy
@@ -39,7 +41,14 @@ public class DecimalBoxWidget extends TextBoxWidget {
             data.setNumber(value);
             return data;
         } catch (NumberFormatException e) {
-            throw new GuiException("Некорректный формат числа");
+            throw new GuiException(getMessageText("validate.decimal"));
         }
+    }
+
+    @Override
+    public List<String> getConstraints() {
+        List<String> constraints = new ArrayList(super.getConstraints());
+        constraints.add("validate.decimal");
+        return constraints;
     }
 }

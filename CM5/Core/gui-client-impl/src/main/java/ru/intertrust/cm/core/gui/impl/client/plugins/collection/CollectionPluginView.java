@@ -115,7 +115,7 @@ public class CollectionPluginView extends PluginView {
     }
 
     @Override
-    protected IsWidget getViewWidget() {
+    public IsWidget getViewWidget() {
         CollectionPluginData collectionPluginData = plugin.getInitialData();
         collectionName = collectionPluginData.getCollectionName();
         collectionViewConfigName = collectionPluginData.getCollectionViewConfigName();

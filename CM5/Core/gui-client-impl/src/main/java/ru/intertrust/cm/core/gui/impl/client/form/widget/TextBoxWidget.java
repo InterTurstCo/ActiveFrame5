@@ -1,13 +1,17 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
+import com.google.gwt.event.dom.client.BlurEvent;
+import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.impl.client.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.TextState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 
 /**
  * @author Denis Mitavskiy
@@ -34,7 +38,19 @@ public class TextBoxWidget extends BaseWidget {
 
     @Override
     protected Widget asEditableWidget(WidgetState state) {
-        return new TextBox();
+        TextBox textBox = new TextBox();
+        textBox.addBlurHandler(new BlurHandler() {
+            @Override
+            public void onBlur(BlurEvent event) {
+                ValidationResult errors = validate();
+                if (!errors.isEmpty()) {
+                    showErrors(errors);
+                } else {
+                    clearErrors();
+                }
+            }
+        });
+        return textBox;
     }
 
     @Override
@@ -42,5 +58,22 @@ public class TextBoxWidget extends BaseWidget {
         final Label label = new Label();
         label.setStyleName("");
         return label;
+    }
+
+    public Object getValue() {
+        return ((HasText) impl).getText().trim();
+    }
+
+    @Override
+    public void showErrors(ValidationResult errors) {
+        String errorString = StringUtil.join(getMessages(errors), "\n");
+        impl.setTitle(errorString);
+        impl.addStyleName("validation-error");
+    }
+
+    @Override
+    public void clearErrors() {
+        impl.setTitle(null);
+        impl.removeStyleName("validation-error");
     }
 }

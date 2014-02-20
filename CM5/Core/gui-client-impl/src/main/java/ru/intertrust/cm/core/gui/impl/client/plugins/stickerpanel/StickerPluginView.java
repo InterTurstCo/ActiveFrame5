@@ -15,7 +15,7 @@ public class StickerPluginView extends PluginView {
         super(stickerPlugin);
     }
     @Override
-    protected IsWidget getViewWidget() {
+    public IsWidget getViewWidget() {
 
 
         AnimatedFlowPanel widget = new AnimatedFlowPanel(100);

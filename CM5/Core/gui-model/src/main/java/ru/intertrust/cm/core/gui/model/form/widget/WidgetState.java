@@ -2,6 +2,10 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 /**
  * Состояние виджета, определяющее его внешний вид.
  *
@@ -11,6 +15,8 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  */
 public abstract class WidgetState implements Dto {
     protected boolean editable;
+    private HashMap<String, Object> widgetProperties = new HashMap<String, Object>(); // declared as HashMap rather than Map because Map is not serializable
+    private List<String> constraints = new ArrayList<String>();
 
     public boolean isEditable() {
         return editable;
@@ -18,6 +24,22 @@ public abstract class WidgetState implements Dto {
 
     public void setEditable(boolean editable) {
         this.editable = editable;
+    }
+
+    public HashMap<String, Object> getWidgetProperties() {
+        return widgetProperties;
+    }
+
+    public void setWidgetProperties(HashMap<String, Object> widgetProperties) {
+        this.widgetProperties = widgetProperties;
+    }
+
+    public List<String> getConstraints() {
+        return constraints;
+    }
+
+    public void setConstraints(List<String> constraints) {
+        this.constraints.addAll(constraints);
     }
 
     @Override

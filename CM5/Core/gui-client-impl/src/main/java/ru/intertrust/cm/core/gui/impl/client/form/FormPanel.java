@@ -15,6 +15,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Denis Mitavskiy
@@ -56,7 +57,7 @@ public class FormPanel implements IsWidget {
     }
 
     @Override
-    public com.google.gwt.user.client.ui.Widget asWidget() {
+    public Widget asWidget() {
 
         return build();
     }
@@ -235,6 +236,8 @@ public class FormPanel implements IsWidget {
                 BaseWidget widget = ComponentRegistry.instance.get(widgetComponent);
                 widget.setEditable(editable && widgetState.isEditable());
                 widget.setDisplayConfig(displayConfig);
+                Map<String, String> messages = formState.getMessages();
+                widget.setMessages(messages);
                 widget.setEventBus(eventBus);
                 widget.setState(widgetState);
                 widgets.add(widget);

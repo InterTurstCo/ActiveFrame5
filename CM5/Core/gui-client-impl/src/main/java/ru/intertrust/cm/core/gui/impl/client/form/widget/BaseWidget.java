@@ -7,18 +7,32 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+import ru.intertrust.cm.core.gui.model.util.PlaceholderResolver;
+import ru.intertrust.cm.core.gui.model.validation.CanBeValidated;
+import ru.intertrust.cm.core.gui.model.validation.SimpleValidator;
+import ru.intertrust.cm.core.gui.model.validation.ValidationMessage;
+import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
+import ru.intertrust.cm.core.gui.model.validation.Validator;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Denis Mitavskiy
  *         Date: 15.09.13
  *         Time: 14:40
  */
-public abstract class BaseWidget extends BaseComponent implements IsWidget {
+public abstract class BaseWidget extends BaseComponent implements IsWidget, CanBeValidated {
     protected WidgetState initialData;
     protected WidgetDisplayConfig displayConfig;
     protected boolean isEditable = true;
     protected EventBus eventBus;
     protected Widget impl;
+
+    private Map<String, String> messages;
+    private List<String> constraints = new ArrayList<String>();
 
     public <T extends WidgetState> T getInitialData() {
         return (T) initialData;
@@ -52,6 +66,28 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget {
         this.eventBus = eventBus;
     }
 
+    protected List<String> getMessages(ValidationResult validationResult) {
+        List<String> messages = new ArrayList<String>();
+        for (ValidationMessage msg : validationResult.getMessages()) {
+            messages.add(getMessageText(msg.getMessage()));
+        }
+        return messages;
+    }
+
+    protected String getMessageText(String messageKey) {
+        Map<String, Object> props = getInitialData().getWidgetProperties();
+        props.put("value", getValue()); // TODO: [validation] use constants
+        if (messages.get(messageKey) != null) {
+            return PlaceholderResolver.substitute(messages.get(messageKey), props);
+        } else {
+            return messageKey;//let's return at list messageKey if the message is not found
+        }
+    }
+
+    public void setMessages(Map<String, String> messages) {
+        this.messages = messages;
+    }
+
     @Override
     public Widget asWidget() {
         return impl;
@@ -64,9 +100,43 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget {
         }
         setCurrentState(state);
         this.initialData = state;
+        constraints = state.getConstraints();
     }
 
     public abstract void setCurrentState(WidgetState currentState);
+
+    /**
+     * Значение, введенное пользователем. Метод должен быть переопределен для виджетов,
+     * выполняющих клиентскую валидацию, и должен возвращать данные, введенные пользователем, в исходном виде
+     * (т.е. до проверок и преобразований).
+     * @return данные введенные пользователем.
+     */
+    @Override
+    public Object getValue() {
+        return null;
+    }
+
+    @Override
+    public List<Validator> getValidators() {
+        List<Validator> validators = new ArrayList<Validator>();
+        for (String constraint : getConstraints()) { // TODO: [validation] support other types of validators
+            validators.add(new SimpleValidator(constraint));
+        }
+        return validators;
+    }
+
+    public ValidationResult validate() {
+        Collection<Validator> validators = getValidators();
+        ValidationResult validationResult = new ValidationResult();
+        for (Validator validator : validators) {
+            validationResult.append(validator.validate(this, null));
+        }
+        return  validationResult;
+    }
+
+    public List<String> getConstraints() {
+        return constraints;
+    }
 
     // todo: setNonEditableState, getNonEditableState
 
@@ -106,4 +176,8 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget {
     protected static void setTrimmedText(HasText widget, String text) {
         widget.setText(text == null ? "" : text.trim());
     }
+
+    protected void showErrors(ValidationResult errors) {}
+
+    protected void clearErrors() {}
 }

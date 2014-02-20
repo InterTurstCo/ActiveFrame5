@@ -59,7 +59,7 @@ public class ExtendedSearchFormPluginView extends PluginView {
     }
 
     @Override
-    protected IsWidget getViewWidget() {
+    public IsWidget getViewWidget() {
         return extendedSearchFormPanel;
     }
 }

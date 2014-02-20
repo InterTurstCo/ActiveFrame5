@@ -48,7 +48,7 @@ public class NavigationTreePluginView extends PluginView {
     }
 
     @Override
-    protected IsWidget getViewWidget() {
+    public IsWidget getViewWidget() {
         NavigationTreePluginData navigationTreePluginData = plugin.getInitialData();
         final HTML pinButton = new HTML();
         navigationTreesPanel.addStyleName("navigation-dynamic-panel");

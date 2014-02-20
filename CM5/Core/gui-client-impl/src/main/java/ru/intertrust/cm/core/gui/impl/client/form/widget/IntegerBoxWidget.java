@@ -7,6 +7,9 @@ import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.widget.IntegerBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Denis Mitavskiy
  *         Date: 15.09.13
@@ -37,7 +40,14 @@ public class IntegerBoxWidget extends TextBoxWidget {
             data.setValue(value);
             return data;
         } catch (NumberFormatException e) {
-            throw new GuiException("Некорректный формат числа");
+            throw new GuiException(getMessageText("validate.integer"));
         }
+    }
+
+    @Override
+    public List<String> getConstraints() {
+        List<String> constraints = new ArrayList(super.getConstraints());
+        constraints.add("validate.integer");
+        return constraints;
     }
 }

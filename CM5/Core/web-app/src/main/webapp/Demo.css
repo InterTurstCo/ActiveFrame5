@@ -1440,6 +1440,11 @@ td.datePickerMonth {
     outline: none;
 }
 
+.validation-error{
+    background-color: #ffc0c8;
+    border: 1px solid red !important;
+}
+
 /*оформление поиска коллекшен плагин вю конец*/
 
 /*простой поиск*/
