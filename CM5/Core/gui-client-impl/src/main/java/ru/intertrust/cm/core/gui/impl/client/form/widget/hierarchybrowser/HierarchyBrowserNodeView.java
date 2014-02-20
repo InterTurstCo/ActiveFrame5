@@ -44,6 +44,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
         root.addStyleName("node");
         scroll.addStyleName("one-node-scroll");
         currentNodePanel.addStyleName("one-node-body");
+
     }
 
     public void drawMoreItems(List<HierarchyBrowserItem> moreItems, NodeMetadata metadata) {
@@ -136,6 +137,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
         FocusPanel focusPanel = new FocusPanel();
         Label arrow = new Label("►");
         arrow.getElement().getStyle().setFloat(Style.Float.RIGHT);
+        arrow.getElement().getStyle().setMarginRight(2, Style.Unit.PX);
         focusPanel.add(arrow);
         focusPanel.addClickHandler(new ClickHandler() {
             @Override
@@ -237,7 +239,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
         magnifierPanel.add(magnifier);
         searchBar.add(magnifierPanel);
         searchBar.add(textBox);
-        final Image resetButton = new Image("images/icon-delete.png");
+        final Image resetButton = new Image("icons/icon-delete.png");
         textBox.addValueChangeHandler(new ValueChangeHandler<String>() {
             @Override
             public void onValueChange(ValueChangeEvent event) {

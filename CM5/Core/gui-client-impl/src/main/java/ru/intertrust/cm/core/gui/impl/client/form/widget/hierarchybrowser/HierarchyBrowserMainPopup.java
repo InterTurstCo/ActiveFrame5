@@ -9,10 +9,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 import ru.intertrust.cm.core.gui.model.form.widget.NodeMetadata;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -38,6 +35,7 @@ public class HierarchyBrowserMainPopup {
     private SelectionStyleConfig selectionStyleConfig;
     private boolean displayAsHyperlinks;
     private Button cancelButton;
+    private double nodeSectionWidth;
     public HierarchyBrowserMainPopup(EventBus eventBus, ArrayList<HierarchyBrowserItem> chosenItems,
                                      int popupWidth, int popupHeight, SelectionStyleConfig selectionStyleConfig, boolean displayAsHyperlinks) {
         this.eventBus = eventBus;
@@ -91,7 +89,8 @@ public class HierarchyBrowserMainPopup {
         scrollPanel.addStyleName("node-section-scroll");
         scrollPanel.getElement().getStyle().setOverflowX(Style.Overflow.SCROLL);
         nodesSection = new HorizontalPanel();
-        scrollPanel.setWidth(0.80 * popupWidth + "px");
+        nodeSectionWidth = 0.80 * popupWidth;
+        scrollPanel.setWidth(nodeSectionWidth + "px");
         nodesSection.addStyleName("node-section");
         scrollPanel.add(nodesSection);
         addNodeLink("link", linksSection);
@@ -103,7 +102,8 @@ public class HierarchyBrowserMainPopup {
         root.add(buttonsPanel);
         popupChosenContent.handleAddingChosenItems(chosenItems);
         root.setWidth(popupWidth + "px");
-        root.addStyleName("popup-body");
+      //  root.addStyleName("popup-body");
+        root.getElement().getStyle().setMarginRight(10, Style.Unit.PX);
         return root;
     }
 
@@ -125,7 +125,8 @@ public class HierarchyBrowserMainPopup {
     }
 
     public void createAndShowPopup() {
-        dialogBox = new DialogBox(false);
+        dialogBox = new DialogBox();
+        dialogBox.setAnimationEnabled(true);
 
         dialogBox.removeStyleName("gwt-DialogBox ");
         dialogBox.addStyleName("popup-body");
@@ -168,7 +169,11 @@ public class HierarchyBrowserMainPopup {
             int index = nodeTypes.indexOf(nodeType);
             List<String> children = nodeTypes.subList(index + 1, nodeTypes.size());
             for (String childType : children) {
-                nodesSection.remove(containerMap.get(childType));
+                HierarchyBrowserNodeView view = containerMap.get(childType);
+                if (view != null){
+                    nodesSection.remove(view);
+                    containerMap.remove(childType);
+                }
             }
         }
         HierarchyBrowserNodeView nodeView = new HierarchyBrowserNodeView(eventBus, nodeHeight,
@@ -177,6 +182,7 @@ public class HierarchyBrowserMainPopup {
         nodesSection.add(nodeView);
         nodeView.drawNode(items,nodeMetadata);
         containerMap.put(nodeType, nodeView);
+        adjustNodeWidth();
 
     }
 
@@ -192,10 +198,15 @@ public class HierarchyBrowserMainPopup {
         int index = nodeTypes.indexOf(nodeType);
         List<String> children = nodeTypes.subList(index + 1, nodeTypes.size());
         for (String childType : children) {
-            nodesSection.remove(containerMap.get(childType));
+            HierarchyBrowserNodeView view = containerMap.get(childType);
+            if (view != null){
+            nodesSection.remove(view);
+            containerMap.remove(childType);
+            }
         }
         HierarchyBrowserNodeView nodeView = containerMap.get(nodeType);
         nodeView.redrawNode(items, nodeMetadata);
+        adjustNodeWidth();
     }
 
     public void addOkClickHandler(ClickHandler openButtonClickHandler) {
@@ -205,8 +216,25 @@ public class HierarchyBrowserMainPopup {
     public void addLinkClickHandler(ClickHandler linkClickHandler) {
         linkLabel.addDomHandler(linkClickHandler, ClickEvent.getType());
     }
+
     public void addCancelClickHandler(ClickHandler cancelClickHandler) {
         cancelButton.addClickHandler(cancelClickHandler);
+    }
+
+    private void adjustNodeWidth(){
+        Set<String> keys = containerMap.keySet();
+        int size= keys.size();
+        if (size == 0){
+            return;
+        }
+        if (size >= 3) {
+            size = 3;
+        }
+        double oneNodeWidthInPercentage = nodeSectionWidth / size;
+        for (String key : keys) {
+            HierarchyBrowserNodeView nodeView = containerMap.get(key);
+            nodeView.asWidget().getElement().getStyle().setWidth(oneNodeWidthInPercentage, Style.Unit.PX);
+        }
     }
 }
 
