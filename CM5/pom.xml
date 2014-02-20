@@ -28,6 +28,7 @@
 
         <spring.version>3.2.3.RELEASE</spring.version>
         <slf4j.version>1.7.2</slf4j.version>
+        <solr.version>4.5.1</solr.version>
 
         <sonar.jdbc.url>jdbc:postgresql://169.254.0.55:5432/sonar</sonar.jdbc.url>
         <sonar.host.url>http://sonar.inttrust.ru</sonar.host.url>
@@ -238,22 +239,29 @@
             <dependency>
                 <groupId>org.apache.solr</groupId>
                 <artifactId>solr-solrj</artifactId>
-                <version>4.5.1</version>
+                <version>${solr.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.solr</groupId>
                 <artifactId>solr-core</artifactId>
-                <version>4.5.1</version>
+                <version>${solr.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.solr</groupId>
                 <artifactId>solr-cell</artifactId>
-                <version>4.5.1</version>
+                <version>${solr.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.solr</groupId>
                 <artifactId>solr-langid</artifactId>
-                <version>4.5.1</version>
+                <version>${solr.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.solr</groupId>
+                <artifactId>solr</artifactId>
+                <version>${solr.version}</version>
+                <type>war</type>
             </dependency>
 
             <dependency>

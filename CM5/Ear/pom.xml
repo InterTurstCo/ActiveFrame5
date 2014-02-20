@@ -36,8 +36,8 @@
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr</artifactId>
-            <version>4.5.1</version>
             <type>war</type>
+            <scope>provided</scope>
         </dependency>
             
     </dependencies>
@@ -249,19 +249,7 @@
                                     <artifactId>postgresql</artifactId>
                                     <name>postgresql-jdbc4.jar</name>
                                 </configuration>
-                            </execution>
-                            <execution>
-                                <id>deploy-solr</id>
-                                <phase>install</phase>
-                                <goals>
-                                    <goal>deploy-artifact</goal>
-                                </goals>
-                                <configuration>
-                                <groupId>org.apache.solr</groupId>
-                                <artifactId>solr</artifactId>
-                                <name>solr.war</name>
-                                </configuration>
-                            </execution>
+                            </execution>                            
                             <execution>
                                 <id>add-datasource</id>
                                 <phase>install</phase>
@@ -380,5 +368,39 @@
                 </plugins>
             </build>
         </profile>
+
+        <profile>
+            <id>jboss-deploy-solr</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>ru.intertrust.dev</groupId>
+                        <artifactId>maven-plugin-jboss-as-ex</artifactId>
+                        <version>0.0.2</version>
+                        <configuration>
+                            <hostname>localhost</hostname>
+                            <port>9999</port>
+                            <skip>false</skip>
+                        </configuration>
+    
+                        <executions>
+                            <execution>
+                                <id>deploy-solr</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>deploy-artifact</goal>
+                                </goals>
+                                <configuration>
+                                    <groupId>org.apache.solr</groupId>
+                                    <artifactId>solr</artifactId>
+                                    <name>solr.war</name>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        
     </profiles>
 </project>
