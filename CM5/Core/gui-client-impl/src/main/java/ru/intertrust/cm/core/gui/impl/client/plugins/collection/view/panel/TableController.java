@@ -143,7 +143,7 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
     private int getOldTableWidth() {
         int oldWidth = 0;
         for (int i = 0; i < body.getColumnCount(); i++) {
-            Column column = body.getColumn(i);
+            CollectionColumn column = (CollectionColumn) body.getColumn(i);
             oldWidth += getColumnWidth(column);
         }
         return oldWidth;
@@ -202,7 +202,7 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
         int checkPos = 0;
         for (int i = 0; i < colCount; i++) {
 
-            Column column = header.getColumn(i);
+            CollectionColumn column = (CollectionColumn) header.getColumn(i);
             checkPos += getThisColumnWidth(column);
             if (checkPos - DELTA_X <= p.getX() && p.getX() <= checkPos + DELTA_X) {
                 return i;
@@ -218,7 +218,7 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
         int rightPos = 0;
         for (int i = 0; i < colCount; i++) {
             leftPos = rightPos;
-            Column column = header.getColumn(i);
+            CollectionColumn column = (CollectionColumn) header.getColumn(i);
             rightPos += getThisColumnWidth(column);
             if (leftPos + DELTA_X <= p.getX() && p.getX() <= rightPos - DELTA_X) {
                 return startMove || p.getX() <= (leftPos + rightPos) / 2 ? i : i + 1;
@@ -321,7 +321,7 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
         }
     }*/
 
-    private double getColumnWidth(Column column) {
+    private double getColumnWidth(CollectionColumn column) {
         String width = header.getColumnWidth(column);
         width = width.replaceAll("[^0-9\\.]", "");
         double columnIntWidth = Double.parseDouble(width);
@@ -329,9 +329,9 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
     }
 
     private void columnSizeCorrector() {
-        Column column = header.getColumn(header.getColumnCount() - 1);
+        CollectionColumn column = (CollectionColumn) header.getColumn(header.getColumnCount() - 1);
         double lastColumnWidth = getColumnWidth(column);
-        double currentColumn = getColumnWidth(header.getColumn(colIdx));
+        double currentColumn = getColumnWidth((CollectionColumn) header.getColumn(colIdx));
         if (resizeModifier > 0) {
             double sum = (currentColumn - resizeModifier) + lastColumnWidth;
             header.setColumnWidth(column, sum + "px");
@@ -401,13 +401,13 @@ public class TableController implements MouseDownHandler, MouseUpHandler, MouseM
                 searchPanel.insert(search, newColIdx);
 
             } else {
-                Column columnToRemove = header.getColumn(newColIdx - 1);
+                Column columnToRemove = header.getColumn(newColIdx - 2);
                 if (CHECK_BOX_COLUMN_NAME.equalsIgnoreCase(columnToRemove.getDataStoreName())) {
                     return;
                 }
-                header.insertColumn(newColIdx - 1, column, column.getDataStoreName());
-                body.insertColumn(newColIdx - 1, column);
-                searchPanel.insert(search, newColIdx - 1);
+                header.insertColumn(newColIdx - 2, column, column.getDataStoreName());
+                body.insertColumn(newColIdx - 2, column);
+                searchPanel.insert(search, newColIdx - 2);
 
             }
         }

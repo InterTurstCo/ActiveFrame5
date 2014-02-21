@@ -57,4 +57,29 @@ public abstract class CollectionColumn extends Column<CollectionRowItem, String>
         this.maxWidth = maxWidth;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        CollectionColumn that = (CollectionColumn) o;
+
+        if (maxWidth != that.maxWidth) return false;
+        if (minWidth != that.minWidth) return false;
+        if (fieldName != null ? !fieldName.equals(that.fieldName) : that.fieldName != null) return false;
+        if (resizable != null ? !resizable.equals(that.resizable) : that.resizable != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = fieldName != null ? fieldName.hashCode() : 0;
+        result = 31 * result + (resizable != null ? resizable.hashCode() : 0);
+        result = 31 * result + minWidth;
+        result = 31 * result + maxWidth;
+        return result;
+    }
 }

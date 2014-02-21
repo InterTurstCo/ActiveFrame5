@@ -438,6 +438,7 @@ public class CollectionPluginView extends PluginView {
         bodyPanel.add(tableBody);
         //scrollTableBody.getElement().getStyle().setOverflowX(Style.Overflow.HIDDEN);
         scrollTableBody.getElement().getStyle().setOverflowY(Style.Overflow.HIDDEN);
+        scrollTableBody.addStyleName("gggg");
         scrollTableHeader.getElement().getStyle().setOverflow(Style.Overflow.HIDDEN);
         scrollTableBody.add(bodyPanel);
         outerSideScroll.getElement().getStyle().setWidth(18, Style.Unit.PX);

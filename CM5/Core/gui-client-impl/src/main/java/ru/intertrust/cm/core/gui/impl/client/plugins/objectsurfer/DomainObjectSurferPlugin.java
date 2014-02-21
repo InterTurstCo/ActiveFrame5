@@ -170,12 +170,13 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
 
         collectionPlugin.getOwner().setVisibleWidth(width);
         collectionPlugin.getOwner().setVisibleHeight(height / 2);
-        formPlugin.setTemporaryWidth(width);
+        collectionPlugin.getView().onPluginPanelResize();
+ /*       formPlugin.setTemporaryWidth(width);
         formPlugin.setTemporaryHeight(height / 2);
         getView().onPluginPanelResize();
-        collectionPlugin.getView().onPluginPanelResize();
+
         if (formPlugin != null && formPlugin.getView() != null) {
             formPlugin.getView().onPluginPanelResize();
-        }
+        }*/
     }
 }

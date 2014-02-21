@@ -136,7 +136,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 // header 60 ;
                 // action panel 51
 
-                //centralPluginHeight = Window.getClientHeight() - 81;
+                centralPluginWidth = Window.getClientWidth() - 150;
                 centralPluginHeight = Window.getClientHeight();
                 centralPluginPanel.setVisibleWidth(centralPluginWidth);
                 centralPluginPanel.setVisibleHeight(centralPluginHeight);
@@ -229,7 +229,6 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         final DomainObjectSurferPlugin domainObjectSurfer = ComponentRegistry.instance.get("domain.object.surfer.plugin");
         domainObjectSurfer.setConfig(event.getPluginConfig());
         domainObjectSurfer.setDisplayActionToolBar(true);
-
         centralPluginPanel.open(domainObjectSurfer);
 
     }
@@ -267,7 +266,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 //int centralPanelHeight = event.getHeight() - 60 - 11;
                 //int centralPanelHeight = event.getHeight() - header.getOffsetHeight() - 11;
                 //centralPluginHeight = centralPanelHeight;
-                //int centralPanelWidth = event.getWidth() - navigationTreePanel.getVisibleWidth() - stickerPluginWidth;
+              int centralPanelWidth = event.getWidth() - navigationTreePanel.getVisibleWidth() - stickerPluginWidth;
                 //int centralPanelHeight = event.getHeight() - 120;
                 //60 - header height
                 //51 height action panel + margin
@@ -275,7 +274,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 //81 Это высота хеадера (60) + тень хеадера(10) + нижний отступ (11)
                 //int centralPanelHeight = event.getHeight() - 81;
 
-                //centralPluginPanel.setVisibleWidth(centralPanelWidth);
+                centralPluginPanel.setVisibleWidth(centralPanelWidth);
                 //centralPluginPanel.setVisibleHeight(centralPanelHeight);
                 centralPluginPanel.asWidget().getElement().getFirstChildElement().addClassName("central-plugin-panel-table");
                 //centrInner.getElement().getStyle().setHeight(centralPanelHeight - 11, Style.Unit.PX);
