@@ -1287,7 +1287,9 @@ td .gwt-SuggestBox {
     color: red;
     border-bottom: 1px dotted red;
 }
-
+.gggg{
+    padding-bottom: -15px !important;
+}
 .ext-serch-form-div {
     clear: left;
 }
@@ -1302,4 +1304,15 @@ td .gwt-SuggestBox {
     left: 0;
     right: 0;
     bottom: 0;*/
+}
+.central-div-panel-test-full{
+    /*background: #ff9900;*/
+    display: block;
+    height: auto;
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 11px;
 }

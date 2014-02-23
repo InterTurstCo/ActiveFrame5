@@ -2,14 +2,13 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.user.cellview.client.Column;
-import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 
 /**
  * @author Denis Mitavskiy
  *         Date: 21.01.14
  *         Time: 22:59
  */
-public abstract class CollectionColumn extends Column<CollectionRowItem, String> {
+public abstract class CollectionColumn <CollectionRowItem, T>extends Column<CollectionRowItem, T> {
     protected String fieldName;
     protected Boolean resizable = true;
     protected int minWidth = 120;

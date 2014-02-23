@@ -70,7 +70,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
 
                 header.setStyleName("header-section");
-                //header.getElement().setId(ComponentHelper.HEADER_ID);
+               header.getElement().setId(ComponentHelper.HEADER_ID);
 
                 action.setStyleName("action-section");
 
@@ -78,7 +78,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
                 left.setStyleName("left-section-active");
 
-                //left.getElement().setId(ComponentHelper.LEFT_ID);
+                 left.getElement().setId(ComponentHelper.LEFT_ID);
 
 
                 centrInner.setStyleName("centr-inner-section");
@@ -87,7 +87,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
 
                 center.setStyleName("center-section");
-                //center.getElement().setId(ComponentHelper.CENTER_ID);
+                center.getElement().setId(ComponentHelper.CENTER_ID);
 
 
                 right.setStyleName("right-section");
@@ -150,7 +150,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 //action.add(centralPluginPanel);
                 left.add(navigationTreePanel);
 
-
+                cetralDivPanelTest.getElement().setId(ComponentHelper.DOMAIN_ID);
                 eventBus.addHandler(SideBarResizeEvent.TYPE, new SideBarResizeEventHandler() {
                     @Override
                     public void sideBarFixPositionEvent(SideBarResizeEvent event) {
