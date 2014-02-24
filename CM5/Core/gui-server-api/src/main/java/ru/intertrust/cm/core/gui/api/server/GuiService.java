@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.api.server;
 
+import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -36,16 +37,16 @@ public interface GuiService {
      * @param command команда плагина
      * @return результат выполнения команды
      */
-    Dto executeCommand(Command command) throws GuiException;
+    Dto executeCommand(Command command, UserInfo userInfo) throws GuiException;
 
-    FormDisplayData getForm(String domainObjectType);
+    FormDisplayData getForm(String domainObjectType, UserInfo userInfo);
 
-    FormDisplayData getForm(Id domainObjectId);
+    FormDisplayData getForm(Id domainObjectId, UserInfo userInfo);
 
     // получение формы расширенного поиска
-    FormDisplayData getSearchForm(String domainObjectType, HashSet<String> formFields);
+    FormDisplayData getSearchForm(String domainObjectType, HashSet<String> formFields, UserInfo userInfo);
 
-    DomainObject saveForm(FormState formState);
+    DomainObject saveForm(FormState formState, UserInfo userInfo);
 
     public SessionContext getSessionContext();
 

@@ -1,27 +1,29 @@
 package ru.intertrust.cm.core.gui.rpc.server;
 
+import javax.ejb.EJB;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
-import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.PersonService;
 import ru.intertrust.cm.core.business.api.dto.AttachmentUploadPercentage;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
 import ru.intertrust.cm.core.config.BusinessUniverseConfig;
 import ru.intertrust.cm.core.config.LogoConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
+import ru.intertrust.cm.core.gui.impl.server.LoginServiceImpl;
 import ru.intertrust.cm.core.gui.impl.server.widget.AttachmentUploaderServlet;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseService;
-
-import javax.ejb.EJB;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpSession;
 
 /**
  * @author Denis Mitavskiy
@@ -35,9 +37,6 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     private static final Logger LOGGER = LoggerFactory.getLogger(BusinessUniverseServiceImpl.class);
     @EJB
     private GuiService guiService;
-
-    @EJB
-    CrudService crudServiceImpl;
 
     @EJB
     PersonService personService;
@@ -82,7 +81,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     @Override
     public Dto executeCommand(Command command) throws GuiException {
         try {
-            return guiService.executeCommand(command);
+            return guiService.executeCommand(command, getUserInfo());
         } catch (RuntimeException e) {
             throw handleEjbException(command, e);
         }
@@ -97,7 +96,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
 
     @Override
     public FormDisplayData getForm(Id domainObjectId) {
-        return guiService.getForm(domainObjectId);
+        return guiService.getForm(domainObjectId, getUserInfo());
     }
 
     @Override
@@ -107,5 +106,13 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         AttachmentUploadPercentage uploadProgress = AttachmentUploaderServlet.getUploadProgress(session);
 
         return uploadProgress;
+    }
+
+    private UserInfo getUserInfo() {
+        final UserInfo userInfo = new UserInfo();
+        final UserUidWithPassword userUidWithPassword = (UserUidWithPassword) this.getThreadLocalRequest()
+                .getSession().getAttribute(LoginServiceImpl.USER_CREDENTIALS_SESSION_ATTRIBUTE);
+        userInfo.setTimeZone(userUidWithPassword.getClientTimeZone());
+        return userInfo;
     }
 }

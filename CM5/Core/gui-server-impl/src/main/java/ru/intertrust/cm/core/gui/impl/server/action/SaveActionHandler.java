@@ -1,7 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.server.action;
 
+import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
+import ru.intertrust.cm.core.gui.impl.server.GuiContext;
 import ru.intertrust.cm.core.gui.impl.server.plugin.handlers.FormPluginHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
@@ -19,7 +21,8 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 public class SaveActionHandler extends ActionHandler {
     @Override
     public <T extends ActionData> T executeAction(ActionContext context) {
-        DomainObject rootDomainObject = guiService.saveForm(((SaveActionContext) context).getFormState());
+        final UserInfo userInfo = GuiContext.get().getUserInfo();
+        DomainObject rootDomainObject = guiService.saveForm(((SaveActionContext) context).getFormState(), userInfo);
         FormPluginHandler handler = (FormPluginHandler) applicationContext.getBean("form.plugin");
         FormPluginConfig config = new FormPluginConfig(rootDomainObject.getId());
         config.setPluginState(((SaveActionContext) context).getPluginState());

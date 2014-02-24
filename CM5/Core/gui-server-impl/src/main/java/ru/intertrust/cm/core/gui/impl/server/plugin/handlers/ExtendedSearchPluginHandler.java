@@ -2,6 +2,8 @@ package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+
+import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.SearchService;
 import ru.intertrust.cm.core.business.api.dto.*;
@@ -16,6 +18,7 @@ import ru.intertrust.cm.core.config.search.TargetDomainObjectConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
+import ru.intertrust.cm.core.gui.impl.server.GuiContext;
 import ru.intertrust.cm.core.gui.impl.server.form.FormResolver;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
@@ -77,7 +80,8 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
                     fieldNames.add(j.next().getName());
                 searchFields.put(t.getType(), fieldNames);
                 // если форма поиска для данного ДО не сконфигурирована, в интерфейсе не отображается
-                FormDisplayData form = guiService.getSearchForm(t.getType(), new HashSet<String>(fieldNames));
+                final UserInfo userInfo = GuiContext.get().getUserInfo();
+                FormDisplayData form = guiService.getSearchForm(t.getType(), new HashSet<String>(fieldNames), userInfo);
                 if (form == null)
                     continue;
                 arrayTargetObjects.add(t.getType());
