@@ -126,6 +126,7 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
     }
 
     public ValidationResult validate() {
+        clearErrors();
         Collection<Validator> validators = getValidators();
         ValidationResult validationResult = new ValidationResult();
         for (Validator validator : validators) {
@@ -177,7 +178,7 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
         widget.setText(text == null ? "" : text.trim());
     }
 
-    protected void showErrors(ValidationResult errors) {}
+    public void showErrors(ValidationResult errors) {}
 
-    protected void clearErrors() {}
+    public void clearErrors() {}
 }

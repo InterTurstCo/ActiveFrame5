@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.gui.impl.client.action;
 import com.google.gwt.user.client.Window;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
-import ru.intertrust.cm.core.gui.impl.client.FormPluginView;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEvent;
@@ -65,11 +64,13 @@ public class SaveAction extends SimpleServerAction {
     }
 
     public boolean isValid() {
-        FormPlugin plugin = (FormPlugin)this.getPlugin();
-        PluginView view = plugin.getView();
-        FormPanel panel = (FormPanel)view.getViewWidget();
-        for (BaseWidget widget : panel.getWidgets()) {
-           // System.out.println(widget.getConstraints()); // TODO: [validation] create validators  etc.
+        if (this.getPlugin() instanceof  FormPlugin) {
+            FormPlugin plugin = (FormPlugin)this.getPlugin();
+            PluginView view = plugin.getView();
+            FormPanel panel = (FormPanel)view.getViewWidget();
+            for (BaseWidget widget : panel.getWidgets()) {
+               // System.out.println(widget.getConstraints()); // TODO: [validation] create validators  etc.
+            }
         }
         return true;
     }

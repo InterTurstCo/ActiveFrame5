@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.model.validation;
 
+import ru.intertrust.cm.core.business.api.dto.Dto;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,8 +12,8 @@ import java.util.List;
  *
  *  Содержит информацию о результатах валидации.
  */
-public class ValidationResult {
-    private final List<ValidationMessage> messages = new ArrayList<ValidationMessage>();
+public class ValidationResult implements Dto {
+    private ArrayList<ValidationMessage> messages = new ArrayList<ValidationMessage>(); // declared as ArrayList because List is not Serializable
 
     public List<ValidationMessage> getMessages() {
         return messages;
@@ -79,5 +81,10 @@ public class ValidationResult {
             }
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return "ValidationResult: " + messages;
     }
 }

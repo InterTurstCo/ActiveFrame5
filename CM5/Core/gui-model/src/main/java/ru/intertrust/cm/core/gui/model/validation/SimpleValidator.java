@@ -41,6 +41,9 @@ public class SimpleValidator implements Validator {
                 validationResult.addError(messageKey);
             }
         }
+        if (!validationResult.isEmpty()) {
+            canBeValidated.showErrors(validationResult);
+        }
         return validationResult;
     }
 

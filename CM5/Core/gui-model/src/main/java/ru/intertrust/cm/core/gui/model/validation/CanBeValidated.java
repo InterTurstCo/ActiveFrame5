@@ -10,4 +10,6 @@ import java.util.Collection;
 public interface CanBeValidated {
     Object getValue();
     Collection<Validator> getValidators();
+    void showErrors(ValidationResult errors);
+    void clearErrors();
 }

@@ -42,12 +42,7 @@ public class TextBoxWidget extends BaseWidget {
         textBox.addBlurHandler(new BlurHandler() {
             @Override
             public void onBlur(BlurEvent event) {
-                ValidationResult errors = validate();
-                if (!errors.isEmpty()) {
-                    showErrors(errors);
-                } else {
-                    clearErrors();
-                }
+                validate();
             }
         });
         return textBox;
@@ -67,6 +62,9 @@ public class TextBoxWidget extends BaseWidget {
     @Override
     public void showErrors(ValidationResult errors) {
         String errorString = StringUtil.join(getMessages(errors), "\n");
+        if (impl.getTitle() != null) {
+            errorString = impl.getTitle() + errorString;
+        }
         impl.setTitle(errorString);
         impl.addStyleName("validation-error");
     }
