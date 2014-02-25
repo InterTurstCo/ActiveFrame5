@@ -223,6 +223,7 @@ public class ExtendedSearchPluginView extends PluginView {
         extendedSearchFormPlugin = ComponentRegistry.instance.get("extended.search.form.plugin");
         extendedSearchFormPlugin.setConfig(extendedSearchData);
         extendSearchFormPluginPanel.open(extendedSearchFormPlugin);
+        extendSearchFormPluginPanel.setClassForPluginPanel("ext-search-content-wrapper");
 
         extendSearchFormPluginPanel.asWidget().getElement().getStyle().clearOverflow();
         scrollSearchForm.clear();

@@ -595,12 +595,29 @@ div.gwt-Good-Label {
     padding-left: 20px !important;
 }
 
-#frm-pnl .gwt-TabLayoutPanelContentContainer,
-#frm-pnl .gwt-TabLayoutPanelContentContainer > div:not(:first-child),
-#frm-pnl .gwt-TabLayoutPanelContentContainer > div > div,
-#frm-pnl .gwt-TabLayoutPanel > div:last-child {
-    /*tim*/
-    position: relative !important;
+.frm-pnl{
+    /*position: absolute !important;*/
+/*    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;*/
+    display: block;
+    height: 100%;
+}
+
+
+.ext-search-content-wrapper {
+    position: absolute !important;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    display: block;
+    height: 410px;
+}
+
+.ext-search-content-wrapper .gwt-TabLayoutPanelContentContainer {
+    background: none;
 }
 
 /*** TAB PANEL***/

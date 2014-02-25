@@ -34,6 +34,7 @@ public class FormPanel implements IsWidget {
     private List<TabConfig> tabs;
     private final boolean editable;
     private EventBus eventBus;
+
     public FormPanel(FormDisplayData formDisplayData, final boolean editable, int width, int height, EventBus eventBus) {
         this(formDisplayData, editable, eventBus);
         formWidth = width;
@@ -41,13 +42,16 @@ public class FormPanel implements IsWidget {
 
     }
 
+    public void setClassForPluginPanel(String styleName) {
+        panel.getElement().addClassName(styleName);
+    }
+
     public FormPanel(FormDisplayData formDisplayData, final boolean editable, EventBus eventBus) {
         this.formDisplayData = formDisplayData;
         this.editable = editable;
         this.eventBus = eventBus;
         panel = new FlowPanel();
-        panel.getElement().setId("frm-pnl");
-        panel.getElement().setClassName("tab-content");
+        panel.getElement().addClassName("frm-pnl");
         widgets = new ArrayList<BaseWidget>(formDisplayData.getFormState().getFullWidgetsState().size());
 
     }

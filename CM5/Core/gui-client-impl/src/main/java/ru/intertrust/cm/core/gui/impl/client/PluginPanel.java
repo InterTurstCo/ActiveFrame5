@@ -30,6 +30,10 @@ public class PluginPanel implements IsWidget {
     public PluginPanel() {
     }
 
+    public void setClassForPluginPanel(String styleName) {
+        impl.getElement().addClassName(styleName);
+    }
+
     public int getVisibleWidth() {
         return visibleWidth;
     }
@@ -111,13 +115,14 @@ public class PluginPanel implements IsWidget {
     public void closeAllPlugins() {
 
     }
-    public Plugin getParentPlugin(Plugin child) {
-       if (plugins.isEmpty() || plugins.size() == 1) {
-           return null;
-       }
 
-      // int childIndex = plugins.indexOf(child);
-       return plugins.get(plugins.size() - 2);
+    public Plugin getParentPlugin(Plugin child) {
+        if (plugins.isEmpty() || plugins.size() == 1) {
+            return null;
+        }
+
+        // int childIndex = plugins.indexOf(child);
+        return plugins.get(plugins.size() - 2);
     }
 
     public void beforePluginOpening() {

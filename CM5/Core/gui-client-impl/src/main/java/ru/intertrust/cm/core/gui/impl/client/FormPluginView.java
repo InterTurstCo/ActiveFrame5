@@ -47,6 +47,7 @@ public class FormPluginView extends PluginView {
         final FormPluginState pluginState = plugin.getFormPluginState();
         //formPanel = new FormPanel(formDisplayData, pluginState.isEditable(), formWidth, formHeight, eventBus);
         formPanel = new FormPanel(formDisplayData, pluginState.isEditable(), Window.getClientWidth() - (130 + 11), formHeight, eventBus);
+        formPanel.setClassForPluginPanel("tab-content");
         // добавляем обработчики
 //        addHandlers();
     }

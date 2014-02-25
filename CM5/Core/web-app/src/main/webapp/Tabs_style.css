@@ -104,7 +104,7 @@
 }
 
 .gwt-TabLayoutPanelContentContainer {
-    background-color: #FFFFFF !important;
+    background-color: #FFFFFF;
     border: none !important;
     -webkit-border-radius: 10px;
     -moz-border-radius: 10px;
