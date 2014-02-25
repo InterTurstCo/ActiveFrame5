@@ -1,29 +1,31 @@
 package ru.intertrust.cm.core.gui.impl.server;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashSet;
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.SessionContext;
-import javax.ejb.Stateless;
-import javax.interceptor.Interceptors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
+import ru.intertrust.cm.core.gui.impl.server.form.FormResolver;
 import ru.intertrust.cm.core.gui.impl.server.form.FormRetriever;
 import ru.intertrust.cm.core.gui.impl.server.form.FormSaver;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
+
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.SessionContext;
+import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashSet;
 
 /**
  * Базовая реализация сервиса GUI
@@ -113,6 +115,12 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     @Override
     public SessionContext getSessionContext(){
             return sessionContext;
+    }
+
+    @Override
+    public FormConfig getFormConfig(String typeName, boolean isSearchForm) {
+        FormResolver formResolver = (FormResolver) applicationContext.getBean("formResolver");
+        return formResolver.findFormConfig(typeName, isSearchForm, sessionContext.getCallerPrincipal().getName());
     }
 
 }

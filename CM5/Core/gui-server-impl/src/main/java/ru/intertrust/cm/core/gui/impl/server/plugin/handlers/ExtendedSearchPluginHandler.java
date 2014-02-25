@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-
 import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.SearchService;
@@ -146,7 +145,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
     // обработка условий расширенного поиска и формирование результирующих данных
     public  Dto searchFormDataProcessor (Dto dto) {
         ExtendedSearchData extendedSearchData = (ExtendedSearchData) dto;
-        FormConfig formConfig = formResolver.findSearchForm(extendedSearchData.getSearchQuery().getTargetObjectType());
+        FormConfig formConfig = guiService.getFormConfig(extendedSearchData.getSearchQuery().getTargetObjectType(), true);
         List<WidgetConfig> widgetConfigs = formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
         // данные из полей формы поиска
         Map<String, WidgetState> formWidgetsData = extendedSearchData.getFormWidgetsData();

@@ -18,20 +18,10 @@ import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.GuiException;
-import ru.intertrust.cm.core.gui.model.form.FieldPath;
-import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
-import ru.intertrust.cm.core.gui.model.form.FormObjects;
-import ru.intertrust.cm.core.gui.model.form.FormState;
-import ru.intertrust.cm.core.gui.model.form.MultiObjectNode;
-import ru.intertrust.cm.core.gui.model.form.ObjectsNode;
-import ru.intertrust.cm.core.gui.model.form.SingleObjectNode;
+import ru.intertrust.cm.core.gui.model.form.*;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Denis Mitavskiy
@@ -77,7 +67,7 @@ public class FormRetriever {
 
     private FormDisplayData buildExtendedSearchForm(String domainObjectType, HashSet<String> formFields) {
         //FormConfig formConfig = formResolver.findFormConfig(root, userUid); was 30.01.2014
-        FormConfig formConfig = formResolver.findSearchForm(domainObjectType/*root.getTypeName()*/);
+        FormConfig formConfig = formResolver.findSearchForm(domainObjectType, userUid);
         if (formConfig == null) {
             return null; //throw new GuiException("Конфигурация поиска для ДО " + domainObjectType + " не найдена!");
         }

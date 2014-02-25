@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
@@ -48,6 +49,8 @@ public interface GuiService {
 
     DomainObject saveForm(FormState formState, UserInfo userInfo);
 
-    public SessionContext getSessionContext();
+    SessionContext getSessionContext();
+
+    FormConfig getFormConfig(String typeName, boolean isSearchForm);
 
 }
