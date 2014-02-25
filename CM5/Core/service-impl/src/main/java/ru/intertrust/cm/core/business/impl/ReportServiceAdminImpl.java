@@ -35,7 +35,11 @@ import ru.intertrust.cm.core.business.api.dto.DeployReportItem;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.config.model.ReportMetadataConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.exception.DaoException;
+import ru.intertrust.cm.core.dao.exception.InvalidIdException;
+import ru.intertrust.cm.core.model.ObjectNotFoundException;
 import ru.intertrust.cm.core.model.ReportServiceException;
+import ru.intertrust.cm.core.model.UnexpectedException;
 import ru.intertrust.cm.core.report.ReportServiceBase;
 import ru.intertrust.cm.core.report.ScriptletClassLoader;
 
@@ -148,7 +152,12 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
         //Поиск шаблона по имени
         DomainObject reportTemplateObject = getReportTemplateObject(name);
-        domainObjectDao.delete(reportTemplateObject.getId(), accessToken);
+        try {
+            domainObjectDao.delete(reportTemplateObject.getId(), accessToken);
+        } catch (DaoException ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException(ex.getMessage() + " name:" + name);
+        }
     }
 
     private void compileReport(File tempFolder) throws IOException, JRException, NoSuchMethodException,

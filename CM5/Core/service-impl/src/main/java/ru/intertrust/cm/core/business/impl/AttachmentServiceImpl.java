@@ -20,7 +20,10 @@ import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.exception.DaoException;
+import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.model.FatalException;
+import ru.intertrust.cm.core.model.ObjectNotFoundException;
+import ru.intertrust.cm.core.model.UnexpectedException;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -101,7 +104,7 @@ public class AttachmentServiceImpl implements AttachmentService {
             String newFilePath = attachmentContentDao.saveContent(contentStream);
             //если newFilePath is null или empty не обрабатываем
             if (newFilePath == null || newFilePath.isEmpty()) {
-                throw new DaoException("File isn't created");
+                throw new UnexpectedException("File isn't created. DO:" + attachmentDomainObject.getId());
             }
             newFilePathValue = new StringValue(newFilePath);
             StringValue oldFilePathValue = (StringValue) attachmentDomainObject.getValue("path");
@@ -123,8 +126,12 @@ public class AttachmentServiceImpl implements AttachmentService {
                 attachmentDomainObject.setValue(PATH_NAME, newFilePathValue);
                 attachmentContentDao.deleteContent(attachmentDomainObject);
             }
-            throw new DaoException(ex.getMessage());
-        } finally {
+            throw new UnexpectedException(ex.getMessage() + " DO:" + attachmentDomainObject.getId());
+        } catch (DaoException ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException(ex.getMessage() + " DO:" + attachmentDomainObject.getId());
+        }
+        finally {
             if (contentStream != null) {
                 try {
                     contentStream.close();
@@ -149,7 +156,8 @@ public class AttachmentServiceImpl implements AttachmentService {
             inFile = attachmentContentDao.loadContent(attachmentDomainObject);
             remoteInputStream = new SimpleRemoteInputStream(inFile);
             return remoteInputStream.export();
-        } catch (RemoteException ex) {
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
             if (inFile != null) {
                 try {
                     inFile.close();
@@ -160,17 +168,22 @@ public class AttachmentServiceImpl implements AttachmentService {
             if (remoteInputStream != null) {
                 remoteInputStream.close();
             }
-            throw new DaoException(ex.getMessage());
+            throw new UnexpectedException(ex.getMessage() + " Id:" + attachmentDomainObjectId);
         }
     }
 
     @Override
     public void deleteAttachment(Id attachmentDomainObjectId) {
-        DomainObject attachmentDomainObject = crudService.find(attachmentDomainObjectId);
-        attachmentContentDao.deleteContent(attachmentDomainObject);
-        //файл может быть и не удален
-        AccessToken accessToken = createSystemAccessToken();
-        domainObjectDao.delete(attachmentDomainObjectId, accessToken);
+        try {
+            DomainObject attachmentDomainObject = crudService.find(attachmentDomainObjectId);
+            attachmentContentDao.deleteContent(attachmentDomainObject);
+            //файл может быть и не удален
+            AccessToken accessToken = createSystemAccessToken();
+            domainObjectDao.delete(attachmentDomainObjectId, accessToken);
+        } catch (DaoException ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException(ex.getMessage() + " Id:" + attachmentDomainObjectId);
+        }
     }
 
 
