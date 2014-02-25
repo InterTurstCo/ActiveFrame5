@@ -1,9 +1,12 @@
 package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
+import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
+import ru.intertrust.cm.core.gui.impl.server.GuiContext;
 import ru.intertrust.cm.core.gui.impl.server.util.ActionConfigBuilder;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
@@ -29,8 +32,9 @@ public class FormPluginHandler extends ActivePluginHandler {
     public FormPluginData initialize(Dto initialData) {
         FormPluginConfig config = (FormPluginConfig) initialData;
         String domainObjectToCreate = config.getDomainObjectTypeToCreate();
-        FormDisplayData form = domainObjectToCreate != null ? guiService.getForm(domainObjectToCreate)
-                : guiService.getForm(config.getDomainObjectId());
+        final UserInfo userInfo = GuiContext.get().getUserInfo();
+        FormDisplayData form = domainObjectToCreate != null ? guiService.getForm(domainObjectToCreate, userInfo)
+                : guiService.getForm(config.getDomainObjectId(), userInfo);
         FormPluginData pluginData = new FormPluginData();
         pluginData.setFormDisplayData(form);
         pluginData.setPluginState(config.getPluginState());

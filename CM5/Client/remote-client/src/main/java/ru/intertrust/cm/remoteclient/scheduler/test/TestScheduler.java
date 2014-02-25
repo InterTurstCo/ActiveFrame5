@@ -33,6 +33,8 @@ public class TestScheduler extends ClientBase {
         DomainObject task4 = null;
         DomainObject task5 = null;
         DomainObject task6 = null;
+        DomainObject task7 = null;
+        DomainObject task8 = null;
         try {
             super.execute(args);
 
@@ -74,6 +76,18 @@ public class TestScheduler extends ClientBase {
                         schedulerService.createScheduleTask("ru.intertrust.cm.test.schedule.TestScheduleMultiple",
                                 "TestMultipleSchedule_MANUAL");
             }
+            task7 = getTaskByName("TestMultipleSchedule_TIMEOUT_INTERRUPTED");
+            if (task7 == null) {
+                task7 =
+                        schedulerService.createScheduleTask("ru.intertrust.cm.test.schedule.TestScheduleMultiple",
+                                "TestMultipleSchedule_TIMEOUT_INTERRUPTED");
+            }
+            task8 = getTaskByName("TestMultipleSchedule_TIMEOUT_STOP");
+            if (task8 == null) {
+                task8 =
+                        schedulerService.createScheduleTask("ru.intertrust.cm.test.schedule.TestScheduleMultiple",
+                                "TestMultipleSchedule_TIMEOUT_STOP");
+            }
 
             //Проверка загрузки расписания
             Schedule schedule = schedulerService.getTaskSchedule(task6.getId());
@@ -110,26 +124,44 @@ public class TestScheduler extends ClientBase {
             //Установка параметров множественным задачам
             //Задача должна выполнится без ошибок
             TestScheduleParameters testparam3 = new TestScheduleParameters();
-            testparam3.setResult("10000");
+            testparam3.setResult("Task OK");
+            testparam3.setWorkTime(10);
             schedulerService.setTaskParams(task3.getId(), testparam3);
 
             //Должна вызвать ошибку при выполнение
             TestScheduleParameters testparam4 = new TestScheduleParameters();
-            testparam4.setResult("STRING");
+            testparam4.setResult("Test error");
+            testparam4.setError(true);
             schedulerService.setTaskParams(task4.getId(), testparam4);
 
-            //Должна прерваться по таймауту
+            //Должна проигнорировать таймаут а сервис должен задачу сделать неактивной
             TestScheduleParameters testparam5 = new TestScheduleParameters();
-            testparam5.setResult("100000");
+            testparam5.setResult("Test timeout by bad task");
+            testparam5.setWorkTime(140);
             schedulerService.setTaskParams(task5.getId(), testparam5);
             schedulerService.setTimeout(task5.getId(), 1);
 
             //Должна запустится вручную
             TestScheduleParameters testparam6 = new TestScheduleParameters();
-            testparam6.setResult("10000");
+            testparam6.setResult("Test hand task");
             schedulerService.setTaskParams(task6.getId(), testparam6);
-            
-            
+
+            //Должна завершится по таймауту выкидыванием InterruptedException
+            TestScheduleParameters testparam7 = new TestScheduleParameters();
+            testparam7.setResult("Test InterruptedException");
+            testparam7.setThrowInterruptedOnTimeout(true);
+            testparam7.setWorkTime(100);
+            schedulerService.setTaskParams(task7.getId(), testparam7);
+            schedulerService.setTimeout(task7.getId(), 1);            
+
+            //Должна завершится по таймауту просто прекращением работы
+            TestScheduleParameters testparam8 = new TestScheduleParameters();
+            testparam8.setResult("Test end work by timeout");
+            testparam8.setWorkTime(100);
+            testparam8.setStopWorkOnTimeout(true);
+            schedulerService.setTaskParams(task8.getId(), testparam8);
+            schedulerService.setTimeout(task8.getId(), 1);            
+
             //Активация задач
             schedulerService.enableTask(task1.getId());
             schedulerService.enableTask(task2.getId());
@@ -138,9 +170,11 @@ public class TestScheduler extends ClientBase {
             schedulerService.enableTask(task5.getId());
             //task6 не активируем а запускаем вручную
             schedulerService.run(task6.getId());
+            schedulerService.enableTask(task7.getId());
+            schedulerService.enableTask(task8.getId());
 
             //Спим 2 минуты. За это время все задачи должны отработать а те которым положено отвалится по таймауту
-            Thread.currentThread().sleep(120000);
+            Thread.currentThread().sleep(200000);
 
             //Получаем задачи после отработки
             DomainObject afterExecTask1 = crudService.find(task1.getId());
@@ -149,34 +183,8 @@ public class TestScheduler extends ClientBase {
             DomainObject afterExecTask4 = crudService.find(task4.getId());
             DomainObject afterExecTask5 = crudService.find(task5.getId());
             DomainObject afterExecTask6 = crudService.find(task6.getId());
-
-            //Проверка статуса и времени крайнего исполнения
-            if (task1.getTimestamp(ScheduleService.SCHEDULE_LAST_END) != null) {
-                assertTrue(
-                        "Change last end time",
-                        afterExecTask1.getTimestamp(ScheduleService.SCHEDULE_LAST_END).compareTo(
-                                task1.getTimestamp(ScheduleService.SCHEDULE_LAST_END)) > 0);
-                assertTrue(
-                        "Change last redy time",
-                        afterExecTask1.getTimestamp(ScheduleService.SCHEDULE_LAST_REDY).compareTo(
-                                task1.getTimestamp(ScheduleService.SCHEDULE_LAST_REDY)) > 0);
-                assertTrue(
-                        "Change last run time",
-                        afterExecTask1.getTimestamp(ScheduleService.SCHEDULE_LAST_RUN).compareTo(
-                                task1.getTimestamp(ScheduleService.SCHEDULE_LAST_RUN)) > 0);
-                assertTrue(
-                        "Change last wait time",
-                        afterExecTask1.getTimestamp(ScheduleService.SCHEDULE_LAST_WAIT).compareTo(
-                                task1.getTimestamp(ScheduleService.SCHEDULE_LAST_WAIT)) > 0);
-            } else {
-                //При первом запуске проверяем что поля с датами не нулевые
-                /*assertTrue(
-                        "Change last time",
-                        afterExecTask1.getTimestamp(ScheduleService.SCHEDULE_LAST_WAIT) != null &&
-                                afterExecTask1.getTimestamp(ScheduleService.SCHEDULE_LAST_REDY) != null &&
-                                afterExecTask1.getTimestamp(ScheduleService.SCHEDULE_LAST_RUN) != null &&
-                                afterExecTask1.getTimestamp(ScheduleService.SCHEDULE_LAST_END) != null);*/
-            }
+            DomainObject afterExecTask7 = crudService.find(task7.getId());
+            DomainObject afterExecTask8 = crudService.find(task8.getId());
 
             assertTrue("Check last run status desciption",
                     afterExecTask1.getString(ScheduleService.SCHEDULE_LAST_RESULT_DESCRIPTION).equals("COMPLETE"));
@@ -215,7 +223,8 @@ public class TestScheduler extends ClientBase {
                     !afterExecTask5.getString(ScheduleService.SCHEDULE_LAST_RESULT_DESCRIPTION).equals(
                             testparam5.getResult()));
             assertTrue("Check last run status task5",
-                    afterExecTask5.getLong(ScheduleService.SCHEDULE_LAST_RESULT) == ScheduleResult.Timeout.toLong());
+                    afterExecTask5.getLong(ScheduleService.SCHEDULE_LAST_RESULT) == ScheduleResult.Complete.toLong());
+            assertTrue("Check active task5", !afterExecTask5.getBoolean(ScheduleService.SCHEDULE_ACTIVE));
 
             //Задача которая запустилась вручную
             assertTrue(
@@ -223,8 +232,24 @@ public class TestScheduler extends ClientBase {
                     afterExecTask6.getString(ScheduleService.SCHEDULE_LAST_RESULT_DESCRIPTION).equals(
                             testparam6.getResult()));
             assertTrue("Check last run status task6",
-                    afterExecTask6.getLong(ScheduleService.SCHEDULE_LAST_RESULT) == ScheduleResult.Complete.toLong());            
+                    afterExecTask6.getLong(ScheduleService.SCHEDULE_LAST_RESULT) == ScheduleResult.Complete.toLong());
             
+            //Задача которая завершилась по InterruptedException
+            assertTrue(
+                    "Check last run status desciption task7",
+                    !afterExecTask7.getString(ScheduleService.SCHEDULE_LAST_RESULT_DESCRIPTION).equals(
+                            testparam7.getResult()));
+            assertTrue("Check last run status task8",
+                    afterExecTask6.getLong(ScheduleService.SCHEDULE_LAST_RESULT) == ScheduleResult.Timeout.toLong());
+
+            //Задача которая завершилась по InterruptedException
+            assertTrue(
+                    "Check last run status desciption task8",
+                    !afterExecTask8.getString(ScheduleService.SCHEDULE_LAST_RESULT_DESCRIPTION).equals(
+                            testparam8.getResult()));
+            assertTrue("Check last run status task8",
+                    afterExecTask8.getLong(ScheduleService.SCHEDULE_LAST_RESULT) == ScheduleResult.Timeout.toLong());
+
             log("Test complete");
         } finally {
 
@@ -239,6 +264,10 @@ public class TestScheduler extends ClientBase {
                 schedulerService.disableTask(task4.getId());
             if (task5 != null)
                 schedulerService.disableTask(task5.getId());
+            if (task7 != null)
+                schedulerService.disableTask(task7.getId());
+            if (task8 != null)
+                schedulerService.disableTask(task8.getId());
 
             writeLog();
         }

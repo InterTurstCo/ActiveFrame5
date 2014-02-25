@@ -321,7 +321,7 @@
             <string name="parameters" length="1024" not-null="false" />
             <long name="last_result" not-null="false"/>
             <text name="last_result_description" not-null="false"/>
-            <long name="active" not-null="true"/>
+            <boolean name="active" not-null="true"/>
             <date-time name="last_redy" not-null="false"/>
             <date-time name="last_wait" not-null="false"/>
             <date-time name="last_run" not-null="false"/>

@@ -8,6 +8,7 @@ package ru.intertrust.cm.core.business.api;
 public interface ImportDataService {
     public static final String TYPE_NAME = "TYPE_NAME";
     public static final String KEYS = "KEYS";    
+    public static final String EMPTY_STRING_SYMBOL = "EMPTY_STRING_SYMBOL";
     
     /**
      * Удаленный интерфейс

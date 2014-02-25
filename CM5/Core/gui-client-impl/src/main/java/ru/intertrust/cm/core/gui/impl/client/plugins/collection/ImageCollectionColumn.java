@@ -8,7 +8,7 @@ import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
  *         Date: 14/02/14
  *         Time: 12:05 PM
  */
-public class ImageCollectionColumn extends CollectionColumn {
+public class ImageCollectionColumn extends CollectionParameterizedColumn {
 
     public ImageCollectionColumn(ImageCell cell) {
         super(cell);

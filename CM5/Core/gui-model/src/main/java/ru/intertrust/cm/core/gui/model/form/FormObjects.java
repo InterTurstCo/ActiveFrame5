@@ -93,4 +93,8 @@ public class FormObjects implements Dto {
         }
         return result;
     }
+
+    public String getDomainObjectType(FieldPath fieldPath) {
+        return getNode(fieldPath.getParentPath()).getType();
+    }
 }

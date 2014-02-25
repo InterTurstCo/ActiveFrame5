@@ -60,6 +60,7 @@ public class ImportData {
     private AccessControlService accessService;
     private String login;
     private Hashtable<String, Integer> fieldIndex;
+    private String emptyStringSymbol;
 
     /**
      * Конструктор. Инициалитзирует класс нужными сервисами
@@ -99,6 +100,8 @@ public class ImportData {
             keys = null;
             //Имена полей
             fields = null;
+            //Символ означающий пустую строку
+            emptyStringSymbol = null;
 
             //итератор по строкам
             while ((readLine = reader.readLine()) != null) {
@@ -115,6 +118,8 @@ public class ImportData {
                             typeName = metaItem[1];
                         } else if (metaItem[0].equalsIgnoreCase(ImportDataService.KEYS)) {
                             keys = metaItem[1].split(",");
+                        } else if (metaItem[0].equalsIgnoreCase(ImportDataService.EMPTY_STRING_SYMBOL)) {
+                            emptyStringSymbol = metaItem[1];
                         }
                     }
                 } else if (lineNum == 1) {
@@ -251,8 +256,9 @@ public class ImportData {
                         //В остальных случаях считаем строкой
                         if (fieldValues[i].length() == 0) {
                             domainObject.setString(fieldName, null);
-                        }else if (fieldValues[i].equals("_")) {
-                            //Символ "_" строки означает у нас пустую строку
+                        } else if ((emptyStringSymbol == null && fieldValues[i].equals("_"))
+                                || (emptyStringSymbol != null && fieldValues[i].equals(emptyStringSymbol))) {
+                            //Символ "_" строки означает у нас пустую строку если не указано конкретное значение символа пустой строки в метаинформации файла в ключе EMPTY_STRING_SYMBOL
                             domainObject.setString(fieldName, "");
                         } else {
                             domainObject.setString(fieldName, fieldValues[i]);
@@ -485,7 +491,8 @@ public class ImportData {
                 from = " from \"" + config.getName() + "\" t" + typeNo + " ";
             } else {
                 from +=
-                        "inner join \"" + config.getName() + "\" t" + typeNo + " on (t" + typeNo + ".id = t" + (typeNo - 1)
+                        "inner join \"" + config.getName() + "\" t" + typeNo + " on (t" + typeNo + ".id = t"
+                                + (typeNo - 1)
                                 + ".id) ";
             }
             //Проверка на наличие родителя

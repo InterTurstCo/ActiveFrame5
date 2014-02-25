@@ -3,12 +3,15 @@ package ru.intertrust.cm.core.gui.impl.server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
+import ru.intertrust.cm.core.gui.impl.server.form.FormResolver;
 import ru.intertrust.cm.core.gui.impl.server.form.FormRetriever;
 import ru.intertrust.cm.core.gui.impl.server.form.FormSaver;
 import ru.intertrust.cm.core.gui.model.Command;
@@ -46,7 +49,9 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     }
 
     @Override
-    public Dto executeCommand(Command command) throws GuiException {
+    public Dto executeCommand(final Command command, final UserInfo userInfo) throws GuiException {
+        final GuiContext guiCtx = GuiContext.get();
+        guiCtx.setUserInfo(userInfo);
         ComponentHandler componentHandler = obtainHandler(command.getComponentName());
         if (componentHandler == null) {
             log.warn("handler for component '{}' not found", command.getComponentName());
@@ -73,31 +78,49 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     }
 
     @Override
-    public FormDisplayData getForm(String domainObjectType) {
+    public FormDisplayData getForm(final String domainObjectType, final UserInfo userInfo) {
+        final GuiContext guiCtx = GuiContext.get();
+        guiCtx.setUserInfo(userInfo);
         FormRetriever formRetriever = (FormRetriever)
                 applicationContext.getBean("formRetriever", sessionContext.getCallerPrincipal().getName());
         return formRetriever.getForm(domainObjectType);
     }
 
-    public FormDisplayData getForm(Id domainObjectId) {
+    @Override
+    public FormDisplayData getForm(final Id domainObjectId, final UserInfo userInfo) {
+        final GuiContext guiCtx = GuiContext.get();
+        guiCtx.setUserInfo(userInfo);
         FormRetriever formRetriever = (FormRetriever)
                 applicationContext.getBean("formRetriever", sessionContext.getCallerPrincipal().getName());
         return formRetriever.getForm(domainObjectId);
     }
 
-    public FormDisplayData getSearchForm(String domainObjectType, HashSet<String> formFields) {
+    @Override
+    public FormDisplayData getSearchForm(String domainObjectType, HashSet<String> formFields, final UserInfo userInfo) {
+        final GuiContext guiCtx = GuiContext.get();
+        guiCtx.setUserInfo(userInfo);
         FormRetriever formRetriever = (FormRetriever)
                 applicationContext.getBean("formRetriever", sessionContext.getCallerPrincipal().getName());
         return formRetriever.getSearchForm(domainObjectType, formFields);
     }
 
-    public DomainObject saveForm(FormState formState) {
+    @Override
+    public DomainObject saveForm(final FormState formState, final UserInfo userInfo) {
+        final GuiContext guiCtx = GuiContext.get();
+        guiCtx.setUserInfo(userInfo);
         FormSaver formSaver = (FormSaver) applicationContext.getBean("formSaver", formState);
         return formSaver.saveForm();
     }
 
+    @Override
     public SessionContext getSessionContext(){
             return sessionContext;
+    }
+
+    @Override
+    public FormConfig getFormConfig(String typeName, boolean isSearchForm) {
+        FormResolver formResolver = (FormResolver) applicationContext.getBean("formResolver");
+        return formResolver.findFormConfig(typeName, isSearchForm, sessionContext.getCallerPrincipal().getName());
     }
 
 }

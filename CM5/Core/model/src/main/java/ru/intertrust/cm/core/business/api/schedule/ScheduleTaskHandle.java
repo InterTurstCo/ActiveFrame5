@@ -11,5 +11,5 @@ public interface ScheduleTaskHandle {
      * @param parameters
      * @return возвращает результат работы периодического задания в виде строки. Строка будет хранится в доменном обете задания
      */
-    String execute(ScheduleTaskParameters parameters);
+    String execute(ScheduleTaskParameters parameters) throws InterruptedException;
 }

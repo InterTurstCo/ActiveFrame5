@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.business.impl;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
@@ -18,8 +19,10 @@ import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.dao.api.extension.AfterCreateExtentionHandler;
+import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.model.ObjectNotFoundException;
 import ru.intertrust.cm.core.model.CrudException;
+import ru.intertrust.cm.core.model.UnexpectedException;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -41,6 +44,8 @@ import java.util.List;
 @Remote(CrudService.Remote.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class CrudServiceImpl implements CrudService, CrudService.Remote {
+
+    final static org.slf4j.Logger logger = LoggerFactory.getLogger(CrudServiceImpl.class);
 
     @Autowired
     private DomainObjectDao domainObjectDao;
@@ -135,7 +140,13 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
             accessToken = createSystemAccessToken();              
         }
 
-        DomainObject result = domainObjectDao.save(domainObject, accessToken);
+        DomainObject result = null;
+        try {
+            result = domainObjectDao.save(domainObject, accessToken);
+        } catch (DaoException ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException(ex.getMessage() + " DO:" + domainObject.getId());
+        }
         if (result == null) {
             throw new ObjectNotFoundException(domainObject.getId());
         }
@@ -153,7 +164,12 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
         AccessToken accessToken = createSystemAccessToken();
 
-        return domainObjectDao.save(domainObjects, accessToken);
+        try {
+            return domainObjectDao.save(domainObjects, accessToken);
+        } catch (DaoException ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException(ex.getMessage());
+        }
     }
 
     private AccessToken createSystemAccessToken() {
@@ -162,7 +178,12 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     @Override
     public boolean exists(Id id) {
-        return domainObjectDao.exists(id);
+        try {
+            return domainObjectDao.exists(id);
+        } catch (DaoException ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException(ex.getMessage() + " Id:" + id);
+        }
     }
 
     @Override
@@ -245,6 +266,12 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         AccessToken accessToken = null;
         accessToken = accessControlService.createAccessToken(user, id, DomainObjectAccessType.DELETE);
         domainObjectDao.delete(id, accessToken);
+        try {
+            domainObjectDao.delete(id, accessToken);
+        } catch (DaoException ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException(ex.getMessage() + " Id:" + id);
+        }
     }
 
     @Override
@@ -260,7 +287,12 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         Id[] idsArray = ids.toArray(new Id[ids.size()]);
         String user = currentUserAccessor.getCurrentUser();
         AccessToken accessToken = accessControlService.createAccessToken(user, idsArray, DomainObjectAccessType.DELETE, false);
-        return domainObjectDao.delete(ids, accessToken);
+        try {
+            return domainObjectDao.delete(ids, accessToken);
+        } catch (DaoException ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException(ex.getMessage());
+        }
     }
 
     @Override

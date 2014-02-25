@@ -147,27 +147,28 @@ public class SchedulerBean {
                 if (startedTask.future.isDone()) {
                     //Удаляем из наблюдаемых задач
                     startedTasks.remove(i);
+                }else if(startedTask.isCancaled){
+                    //Задача была прервана, но тем не менее она не завершена до сих пор, значит флаг isInterrupted не уситывался при построение класса задачи
+                    //Данную задачу делаем не активной и посылаем уведомление администратору.
+                    DomainObject task = domainObjectDao.find(startedTask.taskId, accessToken);
+                    task.setBoolean("active", false);  
+                    domainObjectDao.save(task, accessToken);
+                    //TODO Отправка уведомления администратору (Нужен сервис отправки уведомлений + нужна группа администраторов)
                 } else {
                     //Проверка времени работы
                     if ((startedTask.startTime + startedTask.timeout * 60000) < System.currentTimeMillis()) {
-                        //прерываем исполнение
+                        //прерываем исполнение, в потоке взводится флаг Thread.isInterrupted() который должны проверять разработчики классов задач 
                         boolean res = startedTask.future.cancel(true);
-                        //устанавливаем статус
-                        ejbContext.getUserTransaction().begin();
-                        DomainObject savedTask =
+                        startedTask.isCancaled = true;
+
+                        DomainObject task =
                                 domainObjectDao
                                         .setStatus(startedTask.taskId,
                                                 statusDao.getStatusIdByName(ScheduleService.SCHEDULE_STATUS_SLEEP),
                                                 accessToken);
-                        savedTask.setTimestamp(ScheduleService.SCHEDULE_LAST_END, new Date());
-                        savedTask.setLong(ScheduleService.SCHEDULE_LAST_RESULT, ScheduleResult.Timeout.toLong());
-                        savedTask
-                                .setString(ScheduleService.SCHEDULE_LAST_RESULT_DESCRIPTION,
-                                        "Schedule task cancal by timeout");
-                        domainObjectDao.save(savedTask, accessToken);
-                        ejbContext.getUserTransaction().commit();
+                        
                         if (logger.isDebugEnabled()) {
-                            logger.debug("Task " + savedTask.getString("name") + " is cancaled by timeout of "
+                            logger.debug("Task " + task.getString("name") + " is cancaled by timeout of "
                                     + startedTask.timeout);
                         }
                     }
@@ -291,6 +292,7 @@ public class SchedulerBean {
         private Future<String> future;
         private long timeout;
         private Id taskId;
+        private boolean isCancaled;
     }
 
 }

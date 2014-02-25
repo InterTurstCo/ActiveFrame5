@@ -1,8 +1,10 @@
 package ru.intertrust.cm.core.gui.impl.authentication;
 
+import java.util.Date;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.*;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -194,8 +196,10 @@ public class LoginWindow implements Component{
                 message.setText("No way. " + caught.getMessage());
             }
         };
-        UserUidWithPassword credentials = new UserUidWithPassword(loginField.getText(), passwordField.getText());
-
+        final Date date = new Date();
+        final String timezone = DateTimeFormat.getFormat("v").format(date);
+        final UserUidWithPassword credentials =
+                new UserUidWithPassword(loginField.getText(), passwordField.getText(), timezone);
         BusinessUniverseAuthenticationServiceAsync.Impl.getInstance().login(credentials, callback);
     }
 

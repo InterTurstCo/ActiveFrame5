@@ -70,7 +70,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
 
                 header.setStyleName("header-section");
-                //header.getElement().setId(ComponentHelper.HEADER_ID);
+               header.getElement().setId(ComponentHelper.HEADER_ID);
 
                 action.setStyleName("action-section");
 
@@ -78,7 +78,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
                 left.setStyleName("left-section-active");
 
-                //left.getElement().setId(ComponentHelper.LEFT_ID);
+                 left.getElement().setId(ComponentHelper.LEFT_ID);
 
 
                 centrInner.setStyleName("centr-inner-section");
@@ -87,7 +87,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
 
                 center.setStyleName("center-section");
-                //center.getElement().setId(ComponentHelper.CENTER_ID);
+                center.getElement().setId(ComponentHelper.CENTER_ID);
 
 
                 right.setStyleName("right-section");
@@ -136,7 +136,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 // header 60 ;
                 // action panel 51
 
-                //centralPluginHeight = Window.getClientHeight() - 81;
+                centralPluginWidth = Window.getClientWidth() - 150;
                 centralPluginHeight = Window.getClientHeight();
                 centralPluginPanel.setVisibleWidth(centralPluginWidth);
                 centralPluginPanel.setVisibleHeight(centralPluginHeight);
@@ -150,7 +150,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 //action.add(centralPluginPanel);
                 left.add(navigationTreePanel);
 
-
+                cetralDivPanelTest.getElement().setId(ComponentHelper.DOMAIN_ID);
                 eventBus.addHandler(SideBarResizeEvent.TYPE, new SideBarResizeEventHandler() {
                     @Override
                     public void sideBarFixPositionEvent(SideBarResizeEvent event) {
@@ -229,7 +229,6 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         final DomainObjectSurferPlugin domainObjectSurfer = ComponentRegistry.instance.get("domain.object.surfer.plugin");
         domainObjectSurfer.setConfig(event.getPluginConfig());
         domainObjectSurfer.setDisplayActionToolBar(true);
-
         centralPluginPanel.open(domainObjectSurfer);
 
     }
@@ -267,7 +266,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 //int centralPanelHeight = event.getHeight() - 60 - 11;
                 //int centralPanelHeight = event.getHeight() - header.getOffsetHeight() - 11;
                 //centralPluginHeight = centralPanelHeight;
-                //int centralPanelWidth = event.getWidth() - navigationTreePanel.getVisibleWidth() - stickerPluginWidth;
+              int centralPanelWidth = event.getWidth() - navigationTreePanel.getVisibleWidth() - stickerPluginWidth;
                 //int centralPanelHeight = event.getHeight() - 120;
                 //60 - header height
                 //51 height action panel + margin
@@ -275,7 +274,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 //81 Это высота хеадера (60) + тень хеадера(10) + нижний отступ (11)
                 //int centralPanelHeight = event.getHeight() - 81;
 
-                //centralPluginPanel.setVisibleWidth(centralPanelWidth);
+                centralPluginPanel.setVisibleWidth(centralPanelWidth);
                 //centralPluginPanel.setVisibleHeight(centralPanelHeight);
                 centralPluginPanel.asWidget().getElement().getFirstChildElement().addClassName("central-plugin-panel-table");
                 //centrInner.getElement().getStyle().setHeight(centralPanelHeight - 11, Style.Unit.PX);

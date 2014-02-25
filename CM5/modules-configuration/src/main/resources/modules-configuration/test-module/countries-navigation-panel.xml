@@ -137,16 +137,21 @@
                 </link>
             </child-links>
         </link>
-        <link name="InboxTest" display-text="Входящие тест" image="images/meetings.png" child-to-open="TasksTest">
+        <link name="InboxTest" display-text="Группа" image="images/meetings.png" child-to-open="TasksTest">
             <child-links group-name="Группа">
                 <link name="TasksTest" display-text="Задачи" >
-                    <plugin>
-                        <domain-object-surfer domain-object-type-to-create="Internal_Document">
-                            <collection-viewer>
-                                <collection-ref name="Tasks"/>
-                            </collection-viewer>
-                        </domain-object-surfer>
-                    </plugin>
+
+                        <plugin>
+                            <!-- DomainObjectSurferConfig и CustomPluginConfig должны наследоваться от PluginConfig -->
+                            <!-- если используется collection-view, то collection нельзя использовать -->
+                            <domain-object-surfer domain-object-type-to-create="Department">
+                                <collection-viewer>
+                                    <collection-ref name="Departments" use-default="true"/>
+                                    <default-sort-criteria column-field="name" order="desc"/>
+                                </collection-viewer>
+                            </domain-object-surfer>
+                        </plugin>
+
                     <child-links>
                         <link name="TasksHigh" display-text="Задачи высокого приоритета">
                             <plugin>
@@ -176,9 +181,29 @@
                             </collection-viewer>
                         </domain-object-surfer>
                     </plugin>
+                    <child-links>
+                        <link name="TasksHigh2" display-text="Задачи высокого приоритета2">
+                            <plugin>
+                                <domain-object-surfer domain-object-type-to-create="Internal_Document">
+                                    <collection-viewer>
+                                        <collection-ref name="Tasks"/>
+                                    </collection-viewer>
+                                </domain-object-surfer>
+                            </plugin>
+                        </link>
+                        <link name="TasksLow2" display-text="Задачи низкого приориете2">
+                            <plugin>
+                                <domain-object-surfer domain-object-type-to-create="Internal_Document">
+                                    <collection-viewer>
+                                        <collection-ref name="Tasks"/>
+                                    </collection-viewer>
+                                </domain-object-surfer>
+                            </plugin>
+                        </link>
+                    </child-links>
                 </link>
             </child-links>
-            <child-links>
+            <child-links group-name="Группа2">
                 <link name="LettersTest" display-text="ПисьмаТест">
                     <plugin>
                         <domain-object-surfer domain-object-type-to-create="Letter">

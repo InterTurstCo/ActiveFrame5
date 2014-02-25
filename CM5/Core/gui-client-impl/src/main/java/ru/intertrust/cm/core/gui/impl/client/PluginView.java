@@ -88,7 +88,7 @@ public abstract class PluginView implements IsWidget {
      *
      * @return виджет, представляющий плагин
      */
-    protected abstract IsWidget getViewWidget();
+    public abstract IsWidget getViewWidget();
 
     @Override
     public VerticalPanel asWidget() {

@@ -8,11 +8,13 @@ import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.FieldPathConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.LabelConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
+import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.GuiException;
@@ -65,7 +67,7 @@ public class FormRetriever {
 
     private FormDisplayData buildExtendedSearchForm(String domainObjectType, HashSet<String> formFields) {
         //FormConfig formConfig = formResolver.findFormConfig(root, userUid); was 30.01.2014
-        FormConfig formConfig = formResolver.findSearchForm(domainObjectType/*root.getTypeName()*/);
+        FormConfig formConfig = formResolver.findSearchForm(domainObjectType, userUid);
         if (formConfig == null) {
             return null; //throw new GuiException("Конфигурация поиска для ДО " + domainObjectType + " не найдена!");
         }
@@ -99,7 +101,8 @@ public class FormRetriever {
 
         //} catch (ConcurrentModificationException cme) {}
 
-        FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects);
+        FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects,
+                MessageResourceProvider.getMessages());
         return new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents,
                                                                        formConfig.getMinWidth(), formConfig.getDebug());
     }
@@ -164,16 +167,35 @@ public class FormRetriever {
             WidgetContext widgetContext = new WidgetContext(config, formObjects, widgetConfigsById);
             WidgetHandler componentHandler = (WidgetHandler) applicationContext.getBean(config.getComponentName());
             WidgetState initialState = componentHandler.getInitialState(widgetContext);
+            initialState.setConstraints(buildConstraints(widgetContext));
+            initialState.setWidgetProperties(buildWidgetProps(widgetContext));
 
-            // test
-            //if (!(initialState instanceof ComboBoxState))
             initialState.setEditable(true);
             widgetStateMap.put(widgetId, initialState);
             widgetComponents.put(widgetId, config.getComponentName());
         }
-        FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects);
+        FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects,
+                MessageResourceProvider.getMessages());
         return new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents,
                 formConfig.getMinWidth(), formConfig.getDebug());
+    }
+
+    private List<String> buildConstraints(WidgetContext context) {
+        List<String> constraints = new ArrayList<String>();
+        // TODO: [validation] get needed configs and analyse them.
+
+        String doTypeName = context.getFormObjects().getRootNode().getType();
+
+        WidgetConfig widgetConfig = context.getWidgetConfig();
+        FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
+        String fieldName = fieldPath.getFieldName();
+
+        FieldConfig fieldConfig = configurationExplorer.getFieldConfig(doTypeName, fieldName);
+
+        if (fieldConfig != null && fieldConfig.isNotNull()) {
+            constraints.add("validate.not-empty");
+        }
+        return constraints;
     }
 
     private ObjectsNode findLinkedNode(SingleObjectNode parentNode, FieldPath childPath) {
@@ -224,5 +246,16 @@ public class FormRetriever {
             widgetConfigsById.put(config.getId(), config);
         }
         return widgetConfigsById;
+    }
+
+    private HashMap<String, Object> buildWidgetProps(WidgetContext context) {
+        HashMap<String, Object> props = new HashMap<String, Object>();
+        props.put("domain-object-type", context.getFormObjects().getRootNode().getType());
+
+        WidgetConfig widgetConfig = context.getWidgetConfig();
+        FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
+        props.put("field-name", fieldPath.getFieldName());
+
+        return props;
     }
 }

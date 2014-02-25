@@ -858,7 +858,7 @@ td.datePickerMonth {
     position: absolute;
     height: 25px;
     background: url(images/folder-list-selected-bg.png) left top no-repeat;
-    left: 8px;
+    left: 13px;
     right: 0;
     top: 4px;
     font-size: 0px;
@@ -1287,13 +1287,15 @@ td .gwt-SuggestBox {
     color: red;
     border-bottom: 1px dotted red;
 }
-
+.gggg{
+    padding-bottom: -15px !important;
+}
 .ext-serch-form-div {
     clear: left;
 }
 
 .before-target-target{
-    position: absolute !important;
+    /*position: absolute !important;
     width: 100% !important;
     height: 100% !important;
     display: block;
@@ -1301,5 +1303,16 @@ td .gwt-SuggestBox {
     top: 0;
     left: 0;
     right: 0;
+    bottom: 0;*/
+}
+.central-div-panel-test-full{
+    /*background: #ff9900;*/
+    display: block;
+    height: auto;
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    right: 0;
     bottom: 0;
+    margin: 11px;
 }

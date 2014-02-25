@@ -12,7 +12,7 @@ public class DragPanelPluginView extends PluginView {
     }
 
     @Override
-    protected IsWidget getViewWidget() {
+    public IsWidget getViewWidget() {
         FlowPanel dragPanelContainer = new FlowPanel();
         final Button drugBtn = new Button("dragpanel");
         dragPanelContainer.getElement().getStyle().setProperty("backgroundColor", "#EEE");

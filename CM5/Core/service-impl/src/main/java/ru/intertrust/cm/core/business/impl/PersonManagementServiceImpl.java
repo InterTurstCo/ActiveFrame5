@@ -7,6 +7,7 @@ import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
@@ -15,12 +16,16 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.dao.api.PersonServiceDao;
+import ru.intertrust.cm.core.dao.exception.DaoException;
+import ru.intertrust.cm.core.model.UnexpectedException;
 
 @Stateless(name = "PersonManagementService")
 @Local(PersonManagementService.class)
 @Remote(PersonManagementService.Remote.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class PersonManagementServiceImpl implements PersonManagementService {
+
+    final static org.slf4j.Logger logger = LoggerFactory.getLogger(PersonManagementServiceImpl.class);
 
     @Autowired
     private PersonManagementServiceDao personManagementServiceDao;
@@ -75,22 +80,43 @@ public class PersonManagementServiceImpl implements PersonManagementService {
 
     @Override
     public void addPersonToGroup(Id group, Id person) {
-        personManagementServiceDao.addPersonToGroup(group, person);
+        try {
+            personManagementServiceDao.addPersonToGroup(group, person);
+        } catch (DaoException ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException(ex.getMessage() + " group:" + group + "; person:" + person);
+        }
     }
 
     @Override
     public void addGroupToGroup(Id parent, Id child) {
-        personManagementServiceDao.addGroupToGroup(parent, child);
+        try {
+            personManagementServiceDao.addGroupToGroup(parent, child);
+        } catch (DaoException ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException(ex.getMessage() + " parent:" + parent + "; child:" + child);
+        }
     }
 
     @Override
     public void remotePersonFromGroup(Id group, Id person) {
-        personManagementServiceDao.remotePersonFromGroup(group, person);
+        try {
+            personManagementServiceDao.remotePersonFromGroup(group, person);
+        } catch (DaoException ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException(ex.getMessage() + " group:" + group + "; person:" + person);
+        }
     }
 
     @Override
     public void remoteGroupFromGroup(Id parent, Id child) {
-        personManagementServiceDao.remoteGroupFromGroup(parent, child);
+        try {
+            personManagementServiceDao.remoteGroupFromGroup(parent, child);
+        } catch (DaoException ex) {
+            logger.error(ex.getMessage());
+            throw new UnexpectedException(ex.getMessage() + " parent:" + parent + "; child:" + child);
+        }
+
     }
 
     @Override

@@ -153,7 +153,7 @@ public class DomainObjectSurferPluginView extends PluginView {
     }
 
     @Override
-    protected IsWidget getViewWidget() {
+    public IsWidget getViewWidget() {
 
         flowPanel = new AbsolutePanel();
         flowPanel.setStyleName("centerTopBottomDividerRoot");

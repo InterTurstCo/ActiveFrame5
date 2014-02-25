@@ -14,7 +14,7 @@ public class TestSingleScheduleWithParams implements ScheduleTaskHandle {
             TestScheduleParameters testScheduleParameters = (TestScheduleParameters)parameters;
             
             System.out.println("Run TestSingleScheduleWithParams");
-            Thread.currentThread().sleep(10000);
+            Thread.currentThread().sleep(testScheduleParameters.getWorkTime());
             return testScheduleParameters.getResult();
         } catch (Exception ex) {
             throw new ScheduleException("Error exec TestSingleSchedule", ex);

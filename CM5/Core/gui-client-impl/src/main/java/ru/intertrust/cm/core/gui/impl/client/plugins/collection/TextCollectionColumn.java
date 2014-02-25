@@ -9,7 +9,7 @@ import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
  *         Date: 14/02/14
  *         Time: 12:05 PM
  */
-public class TextCollectionColumn extends CollectionColumn {
+public class TextCollectionColumn extends CollectionParameterizedColumn {
 
     private ValueConverter converter;
 
@@ -27,6 +27,7 @@ public class TextCollectionColumn extends CollectionColumn {
         super(cell, fieldName, resizable);
         this.converter = converter;
     }
+
 
 }
 

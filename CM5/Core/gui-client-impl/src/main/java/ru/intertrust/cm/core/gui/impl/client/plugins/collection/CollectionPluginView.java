@@ -8,7 +8,10 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ScrollEvent;
 import com.google.gwt.event.dom.client.ScrollHandler;
-import com.google.gwt.user.cellview.client.*;
+import com.google.gwt.user.cellview.client.CellTable;
+import com.google.gwt.user.cellview.client.ColumnSortEvent;
+import com.google.gwt.user.cellview.client.ColumnSortList;
+import com.google.gwt.user.cellview.client.RowStyles;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
@@ -86,7 +89,7 @@ public class CollectionPluginView extends PluginView {
     // локальная шина событий
     private EventBus eventBus;
     protected Plugin plugin;
-    private Column<CollectionRowItem, Boolean> checkColumn;
+    private CollectionColumn<CollectionRowItem, Boolean> checkColumn;
     private SetSelectionModel<CollectionRowItem> selectionModel;
     /**
      * Создание стилей для ящеек таблицы
@@ -115,7 +118,7 @@ public class CollectionPluginView extends PluginView {
     }
 
     @Override
-    protected IsWidget getViewWidget() {
+    public IsWidget getViewWidget() {
         CollectionPluginData collectionPluginData = plugin.getInitialData();
         collectionName = collectionPluginData.getCollectionName();
         collectionViewConfigName = collectionPluginData.getCollectionViewConfigName();
@@ -438,6 +441,8 @@ public class CollectionPluginView extends PluginView {
         bodyPanel.add(tableBody);
         //scrollTableBody.getElement().getStyle().setOverflowX(Style.Overflow.HIDDEN);
         scrollTableBody.getElement().getStyle().setOverflowY(Style.Overflow.HIDDEN);
+     //   scrollTableBody.getElement().getStyle().setPaddingBottom(-15, Style.Unit.PX);
+        scrollTableBody.addStyleName("gggg");
         scrollTableHeader.getElement().getStyle().setOverflow(Style.Overflow.HIDDEN);
         scrollTableBody.add(bodyPanel);
         outerSideScroll.getElement().getStyle().setWidth(18, Style.Unit.PX);
@@ -465,13 +470,21 @@ public class CollectionPluginView extends PluginView {
 
     private void createTableColumnsWithCheckBoxes(
             final LinkedHashMap<String, CollectionColumnProperties> domainObjectFieldsOnColumnNamesMap) {
-        checkColumn = new Column<CollectionRowItem, Boolean>(
+        checkColumn = new CollectionColumn<CollectionRowItem, Boolean>(
                 new CheckboxCell(true, true)) {
             @Override
             public Boolean getValue(CollectionRowItem object) {
                 return selectionModel.isSelected(object);
             }
         };
+
+
+
+    /*        @Override
+            public Boolean getValue(CollectionRowItem object) {
+                return selectionModel.isSelected(object);
+            }
+        };*/
         checkColumn.setFieldUpdater(new FieldUpdater<CollectionRowItem, Boolean>() {
             @Override
             public void update(int index, CollectionRowItem object, Boolean value) {
