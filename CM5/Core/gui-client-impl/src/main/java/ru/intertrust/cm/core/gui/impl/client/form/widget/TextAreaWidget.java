@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
+import com.google.gwt.event.dom.client.BlurEvent;
+import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Widget;
@@ -28,6 +30,13 @@ public class TextAreaWidget extends TextBoxWidget {
 
     @Override
     protected Widget asEditableWidget(WidgetState state) {
-        return new TextArea();
+        TextArea textArea = new TextArea();
+        textArea.addBlurHandler(new BlurHandler() {
+            @Override
+            public void onBlur(BlurEvent event) {
+                validate();
+            }
+        });
+        return textArea;
     }
 }

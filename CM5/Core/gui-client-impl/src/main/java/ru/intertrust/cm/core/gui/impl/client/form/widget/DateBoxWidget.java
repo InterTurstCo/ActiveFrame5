@@ -4,11 +4,9 @@ import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.gui.api.client.Component;
-import ru.intertrust.cm.core.gui.impl.client.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
-import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 
 import java.util.Date;
 
@@ -56,6 +54,7 @@ public class DateBoxWidget extends BaseWidget {
     @Override
     protected Widget asEditableWidget(WidgetState state) {
         DateBoxDecorate dateBoxDecorate = new DateBoxDecorate();
+
         return dateBoxDecorate;
         //return new DateBox();
     }
@@ -72,19 +71,4 @@ public class DateBoxWidget extends BaseWidget {
         return ((DateBoxDecorate) impl).getValue().toString();//TODO: [validation] get raw string value
     }
 
-    @Override
-    public void showErrors(ValidationResult errors) {
-        String errorString = StringUtil.join(getMessages(errors), "\n");
-        if (impl.getTitle() != null) {
-            errorString = impl.getTitle() + errorString;
-        }
-        impl.setTitle(errorString);
-        impl.addStyleName("validation-error");
-    }
-
-    @Override
-    public void clearErrors() {
-        impl.setTitle(null);
-        impl.removeStyleName("validation-error");
-    }
 }

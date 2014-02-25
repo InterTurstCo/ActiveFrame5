@@ -7,11 +7,9 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.gui.api.client.Component;
-import ru.intertrust.cm.core.gui.impl.client.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.TextState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
-import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 
 /**
  * @author Denis Mitavskiy
@@ -59,19 +57,4 @@ public class TextBoxWidget extends BaseWidget {
         return ((HasText) impl).getText().trim();
     }
 
-    @Override
-    public void showErrors(ValidationResult errors) {
-        String errorString = StringUtil.join(getMessages(errors), "\n");
-        if (impl.getTitle() != null) {
-            errorString = impl.getTitle() + errorString;
-        }
-        impl.setTitle(errorString);
-        impl.addStyleName("validation-error");
-    }
-
-    @Override
-    public void clearErrors() {
-        impl.setTitle(null);
-        impl.removeStyleName("validation-error");
-    }
 }
