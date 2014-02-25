@@ -227,7 +227,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
                         idsWidgetObjects.clear();
                     }
 
-                    if (widgetState instanceof ValueEditingWidgetState) {
+                    if (widgetState instanceof DateBoxState) {
                         // дату добавляем в список дат интервала формы поиска
                         dateBoxList.add((Date)plainValue);
 
@@ -243,9 +243,6 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
                         }*/
                     }
                 }
-
-                if (plainValue == null)
-                    continue;
             } catch (NullPointerException npe) { continue; }
         }
 
