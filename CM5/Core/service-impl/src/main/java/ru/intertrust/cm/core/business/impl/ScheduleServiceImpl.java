@@ -169,8 +169,8 @@ public class ScheduleServiceImpl implements ScheduleService {
     public void enableTask(Id taskId) {
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
         DomainObject task = domainObjectDao.find(taskId, accessToken);
-        if (task.getLong(SCHEDULE_ACTIVE) == 0) {
-            task.setLong(SCHEDULE_ACTIVE, 1L);
+        if (!task.getBoolean(SCHEDULE_ACTIVE)) {
+            task.setBoolean(SCHEDULE_ACTIVE, true);
             domainObjectDao.save(task, accessToken);
         }
     }
@@ -179,8 +179,8 @@ public class ScheduleServiceImpl implements ScheduleService {
     public void disableTask(Id taskId) {
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
         DomainObject task = domainObjectDao.find(taskId, accessToken);
-        if (task.getLong(SCHEDULE_ACTIVE) == 1L) {
-            task.setLong(SCHEDULE_ACTIVE, 0L);
+        if (task.getBoolean(SCHEDULE_ACTIVE)) {
+            task.setBoolean(SCHEDULE_ACTIVE, false);
             domainObjectDao.save(task, accessToken);
         }
     }

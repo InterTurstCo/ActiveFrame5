@@ -31,6 +31,7 @@ import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskHandle;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectCacheService;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.StatusDao;
 
@@ -61,6 +62,9 @@ public class ScheduleProcessorImpl implements ScheduleProcessor {
 
     @Resource
     private EJBContext ejbContext;
+    
+    @Autowired
+    private DomainObjectCacheService domainObjectCacheService;
 
     /**
      * Метод который непосредственно выполняет задачу
@@ -91,7 +95,9 @@ public class ScheduleProcessorImpl implements ScheduleProcessor {
                 ScheduleTaskHandle handle =
                         sheduleTaskLoader.getSheduleTaskHandle(task.getString(ScheduleService.SCHEDULE_TASK_CLASS));
                 result = handle.execute(scheduleService.getTaskParams(taskId));
-
+            } catch (InterruptedException ex) {
+                logger.error("Task " + taskId + " abort by InterruptedException", ex);
+                ejbContext.getUserTransaction().rollback();
             } catch (Throwable ex) {
                 logger.error("Error on exec task " + taskId, ex);
                 ByteArrayOutputStream err = new ByteArrayOutputStream();
@@ -105,21 +111,34 @@ public class ScheduleProcessorImpl implements ScheduleProcessor {
             if (ejbContext.getUserTransaction().getStatus() == Status.STATUS_NO_TRANSACTION) {
                 ejbContext.getUserTransaction().begin();
             }
-
+            //Сброс кэша для доменного объекта задача
+            domainObjectCacheService.removeObjectFromCache(taskId);
+            
             //Сохранение результата
-            task = domainObjectDao.setStatus(taskId,
-                    statusDao.getStatusIdByName(ScheduleService.SCHEDULE_STATUS_SLEEP),
-                    accessToken);
-
-            task.setTimestamp(ScheduleService.SCHEDULE_LAST_END, new Date());
-            task.setString(ScheduleService.SCHEDULE_LAST_RESULT_DESCRIPTION, result);
-
-            if (error) {
-                task.setLong(ScheduleService.SCHEDULE_LAST_RESULT, ScheduleResult.Error.toLong());
+            //Проверяем был ли прерван процесс по таймауту
+            if (Thread.currentThread().isInterrupted()) {
+                task = domainObjectDao.setStatus(taskId,
+                        statusDao.getStatusIdByName(ScheduleService.SCHEDULE_STATUS_SLEEP),
+                        accessToken);
+                task.setTimestamp(ScheduleService.SCHEDULE_LAST_END, new Date());
+                task.setLong(ScheduleService.SCHEDULE_LAST_RESULT, ScheduleResult.Timeout.toLong());
+                task.setString(ScheduleService.SCHEDULE_LAST_RESULT_DESCRIPTION,
+                        "Schedule task cancal by timeout");
             } else {
-                task.setLong(ScheduleService.SCHEDULE_LAST_RESULT, ScheduleResult.Complete.toLong());
-            }
+                //Если процесс завершился штатным образом без таймаута
+                task = domainObjectDao.setStatus(taskId,
+                        statusDao.getStatusIdByName(ScheduleService.SCHEDULE_STATUS_SLEEP),
+                        accessToken);
 
+                task.setTimestamp(ScheduleService.SCHEDULE_LAST_END, new Date());
+                task.setString(ScheduleService.SCHEDULE_LAST_RESULT_DESCRIPTION, result);
+
+                if (error) {
+                    task.setLong(ScheduleService.SCHEDULE_LAST_RESULT, ScheduleResult.Error.toLong());
+                } else {
+                    task.setLong(ScheduleService.SCHEDULE_LAST_RESULT, ScheduleResult.Complete.toLong());
+                }
+            }
             domainObjectDao.save(task, accessToken);
             ejbContext.getUserTransaction().commit();
 

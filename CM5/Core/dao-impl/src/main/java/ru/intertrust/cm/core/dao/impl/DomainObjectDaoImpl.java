@@ -3,9 +3,11 @@ package ru.intertrust.cm.core.dao.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.util.StringUtils;
+
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.access.*;
+import ru.intertrust.cm.core.dao.api.DomainObjectCacheService;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
@@ -45,7 +47,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     @Autowired
     private IdGenerator idGenerator;
 
-    private DomainObjectCacheServiceImpl domainObjectCacheService;
+    private DomainObjectCacheService domainObjectCacheService;
 
     @Autowired
     private DomainObjectTypeIdCache domainObjectTypeIdCache;

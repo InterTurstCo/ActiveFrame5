@@ -16,13 +16,37 @@ public class TestScheduleMultiple implements ScheduleTaskHandle {
     public String execute(ScheduleTaskParameters parameters) {
         try {
             TestScheduleParameters testScheduleParameters = (TestScheduleParameters) parameters;
+            System.out.println("Run TestScheduleMultiple value = " + testScheduleParameters.toString());
 
-            //Тестируем обработчик ошибки в поле Result может быть как строка так и число. Если строка то упадем с ошибкой, что должны увидеть в результатах выполнения задачи 
-            long value = Long.parseLong(testScheduleParameters.getResult());
+            if (testScheduleParameters.isError()){
+                //Тест обработки ошибки в задачк
+                throw new RuntimeException("Test exception in schedule task");
+            }else if(testScheduleParameters.isThrowInterruptedOnTimeout()){
+                //Тест прерывания по таймауту с помощью InterruptedException
+                int work = 0;
+                while(work < testScheduleParameters.getWorkTime()){
+                    Thread.currentThread().sleep(1000);
+                    work += 1;
+                    if (Thread.currentThread().isInterrupted()){
+                        throw new InterruptedException();
+                    }
+                }
+            }else if(testScheduleParameters.isStopWorkOnTimeout()){
+                //Тест обработки ошибки по таймауту с помощью прерывания цикла
+                int work = 0;
+                while(work < testScheduleParameters.getWorkTime()){
+                    Thread.currentThread().sleep(1000);
+                    work += 1;
+                    if (Thread.currentThread().isInterrupted()){
+                        break;
+                    }
+                }
+            }else{
+                //тест задания, которое не прерывается а продолжает работать
+                Thread.currentThread().sleep(testScheduleParameters.getWorkTime() * 1000);
+            }
 
-            System.out.println("Run TestScheduleMultiple value = " + value);
-            Thread.currentThread().sleep(value);
-            System.out.println("End Run TestScheduleMultiple value = " + value);
+            System.out.println("End Run TestScheduleMultiple value = " + testScheduleParameters.toString());
             return testScheduleParameters.getResult();
         } catch (Exception ex) {
             throw new ScheduleException("Error exec TestScheduleMultiple", ex);

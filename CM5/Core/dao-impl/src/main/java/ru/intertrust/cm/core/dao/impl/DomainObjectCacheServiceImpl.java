@@ -2,13 +2,16 @@ package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.stereotype.Service;
 import org.springframework.util.SerializationUtils;
+
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.dao.api.DomainObjectCacheService;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 
 import javax.annotation.Resource;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.transaction.TransactionSynchronizationRegistry;
+
 import java.util.*;
 
 /**
@@ -31,7 +34,7 @@ import java.util.*;
  * задают ссылочную уникальность ключевой фразы.
  */
 @Service
-public class DomainObjectCacheServiceImpl {
+public class DomainObjectCacheServiceImpl implements DomainObjectCacheService{
 
     /**
      * Псевдо-идентификатор для кэширования списков доменных объектов, не имеющих родителя
@@ -154,6 +157,7 @@ public class DomainObjectCacheServiceImpl {
      * @param dobj кешируемый объект
      * @return Id кешируемого объекта
      */
+    @Override
     public Id putObjectToCache(DomainObject dobj) {
         if (getTxReg().getTransactionKey() == null) {
             return null;
@@ -188,6 +192,7 @@ public class DomainObjectCacheServiceImpl {
      * @param dobjs список кешируемых доменных объектов
      * @return список идентификаторов кешируемых доменных объектов
      */
+    @Override
     public List<Id> putObjectToCache(List<DomainObject> dobjs) {
         if (getTxReg().getTransactionKey() == null || dobjs == null) {
             return null;
@@ -210,6 +215,7 @@ public class DomainObjectCacheServiceImpl {
      * @return список идентификаторов доменных объектов добавленных в кеш
      * @throws DaoException - если key == null или содержит пустой список.
      */
+    @Override
     public List<Id> putObjectToCache(Id parentId, List<DomainObject> dobjs, String ... key) {
         if (getTxReg().getTransactionKey() == null) {
             return null;
@@ -233,6 +239,7 @@ public class DomainObjectCacheServiceImpl {
      * @return список идентификаторов доменных объектов добавленных в кеш
      * @throws DaoException - если key == null или содержит пустой список.
      */
+    @Override
     public List<Id> putObjectToCache(List<DomainObject> dobjs, String ... key) {
         return putObjectToCache(GLOBAL_PSEUDO_ID, dobjs, key);
     }
@@ -242,6 +249,7 @@ public class DomainObjectCacheServiceImpl {
      * @param id - Id запрашиваемого доменного объекта
      * @return клон доменного объект
      */
+    @Override
     public DomainObject getObjectToCache(Id id) {
         if (getTxReg().getTransactionKey() == null) {
             return null;
@@ -254,6 +262,7 @@ public class DomainObjectCacheServiceImpl {
      * @param ids - список Id запрашиваемых доменных объектов
      * @return список доменных объектов, null - если не согласованно с базой данных
      */
+    @Override
     public List<DomainObject> getObjectToCache(List<? extends Id> ids) {
         if (getTxReg().getTransactionKey() == null) {
             return null;
@@ -277,6 +286,7 @@ public class DomainObjectCacheServiceImpl {
      * @throws DaoException - если key == null или содержит пустой список.
      * null - если не согласованно с базой данных
      */
+    @Override
     public List<DomainObject> getObjectToCache(Id parentId, String ... key) {
         if (getTxReg().getTransactionKey() == null) {
             return null;
@@ -312,6 +322,7 @@ public class DomainObjectCacheServiceImpl {
      * @throws DaoException - если key == null или содержит пустой список.
      * null - если не согласованно с базой данных
      */
+    @Override
     public List<DomainObject> getObjectToCache(String ... key) {
         return getObjectToCache(GLOBAL_PSEUDO_ID, key);
     }
@@ -320,6 +331,7 @@ public class DomainObjectCacheServiceImpl {
      * Удаляет доменный объект из транзакционного кеша
      * @param id - доменного объекта
      */
+    @Override
     public void removeObjectFromCache(Id id) {
         if (!isEmptyDomainObjectNode(id)) {
             DomainObject dobj = isEmptyDomainObjectNode(id) ? null : createDomainObjectNode(id).getDomainObject();
