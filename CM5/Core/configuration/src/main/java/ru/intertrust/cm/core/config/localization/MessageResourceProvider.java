@@ -23,6 +23,13 @@ public class MessageResourceProvider {
         defaultMessages.put("validate.positive-dec", "'${value}' is not valid positive decimal number!");
         defaultMessages.put("validate.unique-field", "Field ${field-name} with value '${value}' already exists!");
         defaultMessages.put("validate.pattern", "Field ${field-name} should match pattern ${pattern}!");
+        defaultMessages.put("validate.length.not-equal", "Length of field ${field-name} should be equal to {length}");
+        defaultMessages.put("validate.length.too-small", "Length of field ${field-name} cannot be less than {min-length}");
+        defaultMessages.put("validate.length.too-big", "Length of field ${field-name} cannot be greater than {max-length}");
+        defaultMessages.put("validate.range.too-small", "Value of field ${field-name} cannot be less than {min-value}");
+        defaultMessages.put("validate.range.too-big", "Value of field ${field-name} cannot be greater than {max-value}");
+        defaultMessages.put("validate.precision", "Value of field ${field-name} should have precision {precision}");
+        defaultMessages.put("validate.scale", "Value of field ${field-name} should have scale {scale}");
     }
 
     private static Map<String, Map<String, String>> localeToResource = new HashMap<String, Map<String, String>>();
