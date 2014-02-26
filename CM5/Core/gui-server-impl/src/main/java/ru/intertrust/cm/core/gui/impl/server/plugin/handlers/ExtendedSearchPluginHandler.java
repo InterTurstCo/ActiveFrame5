@@ -173,7 +173,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         }
 
         // Если на форме поиска 2 или более DateBox-ов, то создаем поисковый фильтр
-        if (dateBoxWidgetsDataByIds.size() == 2) {
+        if (dateBoxWidgetsDataByIds.size() >= 2) {
             if (datePeriodFilter == null) {
                 dateBoxList = new ArrayList<>();
                 for (String k : dateBoxWidgetsDataByIds.keySet()) {
@@ -227,9 +227,11 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
                         idsWidgetObjects.clear();
                     }
 
+                    //if (widgetState instanceof ValueEditingWidgetState)
                     if (widgetState instanceof DateBoxState) {
                         // дату добавляем в список дат интервала формы поиска
-                        dateBoxList.add((Date)plainValue);
+                        if (dateBoxList != null)
+                            dateBoxList.add((Date)plainValue);
 
                         /*if (((DateBoxConfig)widgetConfigById.get(key)).getRangeEndConfig().getWidgetId() != null ) {
                             if (datePeriodFilter.getEndDate() == null) {
@@ -247,7 +249,9 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         }
 
         // фильтр по интервалу дат в поисковый запрос
-        extendedSearchData.getSearchQuery().addFilter(createDatePeriodFilter(datePeriodFilter, dateBoxList)/*datePeriodFilter*/);
+        if (datePeriodFilter != null && dateBoxList.size() == 2) {
+            extendedSearchData.getSearchQuery().addFilter(createDatePeriodFilter(datePeriodFilter, dateBoxList));
+        }
 
         CollectionPluginHandler collectionPluginHandler =
                 (CollectionPluginHandler) applicationContext.getBean("collection.plugin");
