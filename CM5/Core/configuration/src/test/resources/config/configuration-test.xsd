@@ -12,13 +12,14 @@
     <xs:complexType name="abstractPluginConfigType" abstract="true"/>
 
     <xs:complexType name="longType">
-        <xs:simpleContent>
-            <xs:extension base="xs:string">
-                <xs:attribute name="name" type="con:nameType"
-                              xmlns:con="https://cm5.intertrust.ru/config"/>
-                <xs:attribute name="not-null" use="optional" type="xs:string"/>
-            </xs:extension>
-        </xs:simpleContent>
+        <xs:sequence>
+            <xs:element name="constraints" type="con:constraintsType"
+                        maxOccurs="1" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+            <xs:attribute name="name" type="con:nameType"
+                          xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:attribute name="not-null" use="optional" type="xs:string"/>
     </xs:complexType>
 
     <xs:complexType name="domainObjectTypeToValidate">
@@ -130,33 +131,36 @@
     </xs:complexType>
 
     <xs:complexType name="dateTimeType">
-        <xs:simpleContent>
-            <xs:extension base="xs:string">
-                <xs:attribute name="name" use="required"
-                              type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config"/>
-                <xs:attribute name="not-null" use="optional" type="xs:string"/>
-            </xs:extension>
-        </xs:simpleContent>
+        <xs:sequence>
+            <xs:element name="constraints" type="con:constraintsType"
+                        maxOccurs="1" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute name="name" use="required"
+                      type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config"/>
+        <xs:attribute name="not-null" use="optional" type="xs:string"/>
     </xs:complexType>
 
     <xs:complexType name="dateTimeWithTimeZoneType">
-        <xs:simpleContent>
-            <xs:extension base="xs:string">
-                <xs:attribute name="name" use="required"
-                              type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config"/>
-                <xs:attribute name="not-null" use="optional" type="xs:string"/>
-            </xs:extension>
-        </xs:simpleContent>
+        <xs:sequence>
+            <xs:element name="constraints" type="con:constraintsType"
+                        maxOccurs="1" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute name="name" use="required"
+                      type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config"/>
+        <xs:attribute name="not-null" use="optional" type="xs:string"/>
     </xs:complexType>
 
     <xs:complexType name="timelessDateType">
-        <xs:simpleContent>
-            <xs:extension base="xs:string">
-                <xs:attribute name="name" use="required"
-                              type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config"/>
-                <xs:attribute name="not-null" use="optional" type="xs:string"/>
-            </xs:extension>
-        </xs:simpleContent>
+        <xs:sequence>
+            <xs:element name="constraints" type="con:constraintsType"
+                        maxOccurs="1" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute name="name" use="required"
+                      type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config"/>
+        <xs:attribute name="not-null" use="optional" type="xs:string"/>
     </xs:complexType>
 
     <xs:complexType name="configurationType">
@@ -347,27 +351,29 @@
     </xs:complexType>
 
     <xs:complexType name="decimalType">
-        <xs:simpleContent>
-            <xs:extension base="xs:string">
-                <xs:attribute name="name" use="required"
-                              type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config"/>
-                <xs:attribute name="precision" use="optional" type="xs:string"/>
-                <xs:attribute name="scale" use="optional" type="xs:string"/>
-                <xs:attribute name="not-null" use="optional" type="xs:string"/>
-            </xs:extension>
-        </xs:simpleContent>
+        <xs:sequence>
+            <xs:element name="constraints" type="con:constraintsType"
+                        maxOccurs="1" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+            <xs:attribute name="name" use="required"
+                          type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:attribute name="precision" use="optional" type="xs:string"/>
+            <xs:attribute name="scale" use="optional" type="xs:string"/>
+            <xs:attribute name="not-null" use="optional" type="xs:string"/>
     </xs:complexType>
 
     <xs:complexType name="stringType">
-        <xs:simpleContent>
-            <xs:extension base="xs:string">
-                <xs:attribute name="name" use="required"
-                              type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config"/>
-                <xs:attribute name="length" use="required" type="xs:string"/>
-                <xs:attribute name="not-null" use="optional" type="xs:string"/>
-                <xs:attribute name="encrypted" use="optional" type="xs:string"/>
-            </xs:extension>
-        </xs:simpleContent>
+        <xs:sequence>
+            <xs:element name="constraints" type="con:constraintsType"
+                        maxOccurs="1" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute name="name" use="required"
+                      type="con:nameType" xmlns:con="https://cm5.intertrust.ru/config"/>
+        <xs:attribute name="length" use="required" type="xs:string"/>
+        <xs:attribute name="not-null" use="optional" type="xs:string"/>
+        <xs:attribute name="encrypted" use="optional" type="xs:string"/>
     </xs:complexType>
 
     <xs:complexType name="textType">
@@ -1919,6 +1925,50 @@
             <xs:extension base="xs:string">
                 <xs:attribute type="xs:string" name="width" />
                 <xs:attribute type="xs:string" name="height" />
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="constraintsType">
+        <xs:choice maxOccurs="unbounded" minOccurs="0">
+            <xs:element type="con:simpleConstraintType" name="simple-constraint"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:lengthConstraintType" name="length"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:rangeConstraintType" name="range-start"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:rangeConstraintType" name="range-end"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="simpleConstraintType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="value" use="required"
+                              type="xs:string"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="lengthConstraintType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="value" use="optional"
+                              type="xs:integer"/>
+                <xs:attribute name="min-value" use="optional"
+                              type="xs:integer"/>
+                <xs:attribute name="max-value" use="optional"
+                              type="xs:integer"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="rangeConstraintType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="value" use="required"
+                              type="xs:string"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>

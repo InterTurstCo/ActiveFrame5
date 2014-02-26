@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.config;
 
 import org.simpleframework.xml.Attribute;
 
+import org.simpleframework.xml.Element;
 import ru.intertrust.cm.core.business.api.dto.FieldType;
 
 import java.io.Serializable;
@@ -12,6 +13,18 @@ import java.io.Serializable;
  *         Time: 10:55 AM
  */
 public abstract class FieldConfig implements Serializable {
+
+    @Element(name="constraints", required=false)
+    private ConstraintsConfig constraintsConfigConfig;
+
+    public ConstraintsConfig getConstraintsConfigConfig() {
+        return constraintsConfigConfig;
+    }
+
+    public void setConstraintsConfigConfig(ConstraintsConfig constraintsConfigConfig) {
+        this.constraintsConfigConfig = constraintsConfigConfig;
+    }
+
     @Attribute(name = "name")
     private String name;
 
@@ -50,10 +63,14 @@ public abstract class FieldConfig implements Serializable {
 
         FieldConfig that = (FieldConfig) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null) {
+        if (notNull != that.notNull) {
             return false;
         }
-        if (notNull != that.notNull) {
+        if (constraintsConfigConfig != null ? !constraintsConfigConfig.equals(that.constraintsConfigConfig) : that
+                .constraintsConfigConfig != null) {
+            return false;
+        }
+        if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
         }
 
@@ -62,6 +79,9 @@ public abstract class FieldConfig implements Serializable {
 
     @Override
     public int hashCode() {
-        return name != null ? name.hashCode() : 0;
+        int result = constraintsConfigConfig != null ? constraintsConfigConfig.hashCode() : 0;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (notNull ? 1 : 0);
+        return result;
     }
 }
