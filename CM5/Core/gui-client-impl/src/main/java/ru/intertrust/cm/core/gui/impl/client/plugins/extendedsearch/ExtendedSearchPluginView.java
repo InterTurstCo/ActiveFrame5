@@ -63,8 +63,9 @@ public class ExtendedSearchPluginView extends PluginView {
         searchAreass = new AbsolutePanel();
         searchAreass.setStyleName("checkBoxPanel");
         domainObjects = new AbsolutePanel();
+        domainObjects.setStyleName("radioBoxPanel");
         scrollSearchForm = new ScrollPanel();
-        scrollSearchForm.setHeight("410px");
+        scrollSearchForm.setHeight("435px");
         scrollSearchForm.setWidth("650px");
         search.add(new HTML("<span>" + "Найти" + "</span>"));
         closeSearch.add(new HTML("<span>" + "Закрыть" + "</span>"));
@@ -167,7 +168,7 @@ public class ExtendedSearchPluginView extends PluginView {
         container.add(scrollSearchForm);
         buttonsPanel = new AbsolutePanel();
         buttonsPanel.addStyleName("srch-buttons-panel");
-        applyButtonStyles(search);
+        searchButtonStyles(search);
         applyButtonStyles(closeSearch);
         buttonsPanel.add(search);
         buttonsPanel.add(closeSearch);
@@ -237,5 +238,9 @@ public class ExtendedSearchPluginView extends PluginView {
 
     private void applyButtonStyles(FocusPanel button) {
         button.addStyleName("auth_enter-button");
+    }
+
+    private void searchButtonStyles(FocusPanel button) {
+        button.addStyleName("auth_enter-button-search");
     }
 }

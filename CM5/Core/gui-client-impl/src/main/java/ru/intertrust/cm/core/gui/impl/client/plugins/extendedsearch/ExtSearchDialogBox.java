@@ -34,7 +34,7 @@ public class ExtSearchDialogBox extends DialogBox {
             }
         });
 
-        extendSearchPluginPanel.setSize("650px", "750px");
+        //extendSearchPluginPanel.setSize("650px", "750px");
     }
 
     public ExtSearchDialogBox() {
