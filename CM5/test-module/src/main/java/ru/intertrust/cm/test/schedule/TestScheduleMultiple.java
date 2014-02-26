@@ -1,5 +1,7 @@
 package ru.intertrust.cm.test.schedule;
 
+import javax.ejb.SessionContext;
+
 import org.springframework.jmx.access.InvocationFailureException;
 
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTask;
@@ -13,7 +15,7 @@ import ru.intertrust.cm.core.model.ScheduleException;
 public class TestScheduleMultiple implements ScheduleTaskHandle {
 
     @Override
-    public String execute(ScheduleTaskParameters parameters) {
+    public String execute(SessionContext sessionContext, ScheduleTaskParameters parameters) throws InterruptedException{
         try {
             TestScheduleParameters testScheduleParameters = (TestScheduleParameters) parameters;
             System.out.println("Run TestScheduleMultiple value = " + testScheduleParameters.toString());
@@ -27,7 +29,8 @@ public class TestScheduleMultiple implements ScheduleTaskHandle {
                 while(work < testScheduleParameters.getWorkTime()){
                     Thread.currentThread().sleep(1000);
                     work += 1;
-                    if (Thread.currentThread().isInterrupted()){
+                    if (sessionContext.wasCancelCalled()){
+                        System.out.println("ScheduleMultiple is Interrupted");
                         throw new InterruptedException();
                     }
                 }
@@ -37,7 +40,8 @@ public class TestScheduleMultiple implements ScheduleTaskHandle {
                 while(work < testScheduleParameters.getWorkTime()){
                     Thread.currentThread().sleep(1000);
                     work += 1;
-                    if (Thread.currentThread().isInterrupted()){
+                    if (sessionContext.wasCancelCalled()){
+                        System.out.println("ScheduleMultiple is Interrupted");
                         break;
                     }
                 }
@@ -48,6 +52,8 @@ public class TestScheduleMultiple implements ScheduleTaskHandle {
 
             System.out.println("End Run TestScheduleMultiple value = " + testScheduleParameters.toString());
             return testScheduleParameters.getResult();
+        }catch (InterruptedException ex){
+            throw ex;
         } catch (Exception ex) {
             throw new ScheduleException("Error exec TestScheduleMultiple", ex);
         } 

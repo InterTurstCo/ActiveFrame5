@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 
+import javax.annotation.PreDestroy;
+
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 import org.springframework.beans.BeansException;

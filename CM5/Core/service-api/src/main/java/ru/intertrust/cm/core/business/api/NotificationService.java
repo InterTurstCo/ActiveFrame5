@@ -16,6 +16,14 @@ import ru.intertrust.cm.core.business.api.dto.notification.NotificationPriority;
 public interface NotificationService {
 
     /**
+     * Remote интерфейс
+     * @author larin
+     *
+     */
+    public interface Remote extends NotificationService{
+    }
+    
+    /**
      * Отправка уведомления после успешного завершения транзакции. Метод вызывается бизнес методами во время открытой транзакции. Реальная отправка происходит после удачной завершенной транзакции
      * @param notificationType
      *            Тип уведомления

@@ -8,7 +8,14 @@ import ru.intertrust.cm.core.business.api.dto.Id;
  * 
  */
 public class NotificationAddresseeGroup implements NotificationAddressee {
+
+    private static final long serialVersionUID = 4161734555831220548L;
+
     private Id groupId;
+
+    public NotificationAddresseeGroup(Id groupId) {
+        this.groupId = groupId;
+    }
 
     public Id getGroupId() {
         return groupId;

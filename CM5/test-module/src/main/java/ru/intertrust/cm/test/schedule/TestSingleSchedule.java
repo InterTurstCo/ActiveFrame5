@@ -1,5 +1,6 @@
 package ru.intertrust.cm.test.schedule;
 
+import javax.ejb.SessionContext;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTask;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskHandle;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskParameters;
@@ -9,10 +10,11 @@ import ru.intertrust.cm.core.model.ScheduleException;
 public class TestSingleSchedule implements ScheduleTaskHandle {
 
     @Override
-    public String execute(ScheduleTaskParameters parameters) {
+    public String execute(SessionContext sessionContext, ScheduleTaskParameters parameters) {
         try {
             System.out.println("Run TestSingleSchedule");
-            Thread.currentThread().sleep(10000);
+            Thread.currentThread().sleep(5000);
+            System.out.println("End Run TestSingleSchedule");
             return "COMPLETE";
         } catch (Exception ex) {
             throw new ScheduleException("Error exec TestSingleSchedule", ex);

@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.Date;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Resource;
 import javax.ejb.AsyncResult;
@@ -11,6 +12,7 @@ import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.EJBContext;
 import javax.ejb.Local;
+import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
@@ -63,8 +65,14 @@ public class ScheduleProcessorImpl implements ScheduleProcessor {
     @Resource
     private EJBContext ejbContext;
     
+    @Resource 
+    SessionContext sessionContext;
+
     @Autowired
     private DomainObjectCacheService domainObjectCacheService;
+
+    @Resource
+    private AtomicBoolean cancalFlag;
 
     /**
      * Метод который непосредственно выполняет задачу
@@ -94,7 +102,7 @@ public class ScheduleProcessorImpl implements ScheduleProcessor {
                 //Получение задачи и запуск ее выполнения
                 ScheduleTaskHandle handle =
                         sheduleTaskLoader.getSheduleTaskHandle(task.getString(ScheduleService.SCHEDULE_TASK_CLASS));
-                result = handle.execute(scheduleService.getTaskParams(taskId));
+                result = handle.execute(sessionContext, scheduleService.getTaskParams(taskId));
             } catch (InterruptedException ex) {
                 logger.error("Task " + taskId + " abort by InterruptedException", ex);
                 ejbContext.getUserTransaction().rollback();
@@ -108,15 +116,15 @@ public class ScheduleProcessorImpl implements ScheduleProcessor {
             }
 
             //Запуск транзакции если транзакция запущенная перед выполнением задачи абортнулась
-            if (ejbContext.getUserTransaction().getStatus() == Status.STATUS_NO_TRANSACTION) {
+            if (ejbContext.getUserTransaction() != null && ejbContext.getUserTransaction().getStatus() == Status.STATUS_NO_TRANSACTION) {
                 ejbContext.getUserTransaction().begin();
             }
             //Сброс кэша для доменного объекта задача
             domainObjectCacheService.removeObjectFromCache(taskId);
-            
+
             //Сохранение результата
             //Проверяем был ли прерван процесс по таймауту
-            if (Thread.currentThread().isInterrupted()) {
+            if (sessionContext.wasCancelCalled()) {
                 task = domainObjectDao.setStatus(taskId,
                         statusDao.getStatusIdByName(ScheduleService.SCHEDULE_STATUS_SLEEP),
                         accessToken);

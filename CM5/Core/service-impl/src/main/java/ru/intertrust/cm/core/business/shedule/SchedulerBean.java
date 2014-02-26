@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Future;
 
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.EJBContext;
@@ -26,11 +27,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import ru.intertrust.cm.core.business.api.NotificationService;
 import ru.intertrust.cm.core.business.api.ScheduleService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.notification.NotificationAddressee;
+import ru.intertrust.cm.core.business.api.dto.notification.NotificationAddresseeGroup;
+import ru.intertrust.cm.core.business.api.dto.notification.NotificationContext;
+import ru.intertrust.cm.core.business.api.dto.notification.NotificationPriority;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleProcessor;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleResult;
 import ru.intertrust.cm.core.business.impl.ConfigurationLoader;
@@ -38,13 +44,18 @@ import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.dao.api.StatusDao;
+import ru.intertrust.cm.core.tools.DomainObjectAccessor;
 
 @Stateless(name = "SchedulerBean")
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 @TransactionManagement(TransactionManagementType.BEAN)
 public class SchedulerBean {
 
+    public static final String ADMIN_GROUP = "Administrators";
+    public static final String DISABLE_TASK_NOTIFICATION_TYPE = "DISABLE_TASK_NOTIFICATION_TYPE";
+    
     private static final Logger logger = LoggerFactory.getLogger(SchedulerBean.class);
 
     @EJB
@@ -65,13 +76,21 @@ public class SchedulerBean {
     @EJB
     private ScheduleService scheduleService;
 
+    @EJB
+    private NotificationService notificationService;
+    
     @Resource
     private EJBContext ejbContext;
 
     @Autowired
     private ConfigurationLoader configurationLoader;
 
+    @Autowired
+    private PersonManagementServiceDao personManagementService;
+    
     private static List<StartedTask> startedTasks = new ArrayList<StartedTask>();
+
+    private static boolean firstRun = true;
 
     /**
      * Входная функция сервиса периодических заданий. Вызывается контейнером раз в минуту
@@ -81,11 +100,24 @@ public class SchedulerBean {
     {
         try {
             if (configurationLoader.isConfigurationLoaded()) {
+                AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+
+                //При первом запуске сбрасываем статусы у всех задач в ScheduleService.SCHEDULE_STATUS_SLEEP 
+                //на случай если они не завершились по причине остановки сервера приложений
+                if (firstRun) {
+                    List<DomainObject> notSleepTasks = getNotSleepTasks();
+                    for (DomainObject notSleepTask : notSleepTasks) {
+                        domainObjectDao.setStatus(notSleepTask.getId(),
+                                statusDao.getStatusIdByName(ScheduleService.SCHEDULE_STATUS_SLEEP),
+                                accessToken);
+                    }
+                    //Пока сервер запущен не проверяем больше статусы
+                    firstRun = false;
+                }
 
                 if (logger.isDebugEnabled()) {
                     logger.debug("Start schedule task runner");
                 }
-                AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
 
                 //Получение всех периодических заданий находящихся в статусе SLEEP
                 List<DomainObject> tasks = getTasksByStatus(ScheduleService.SCHEDULE_STATUS_SLEEP, true);
@@ -139,6 +171,7 @@ public class SchedulerBean {
     private void checkTimeout() {
         try {
             AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+            ejbContext.getUserTransaction().begin();
             //Перебираем задачи в обратном порядке, чтоб можно было "на лету" удалять из списка
             for (int i = startedTasks.size() - 1; i >= 0; i--) {
                 StartedTask startedTask = startedTasks.get(i);
@@ -147,18 +180,30 @@ public class SchedulerBean {
                 if (startedTask.future.isDone()) {
                     //Удаляем из наблюдаемых задач
                     startedTasks.remove(i);
-                }else if(startedTask.isCancaled){
+                } else if (startedTask.isCancaled) {
                     //Задача была прервана, но тем не менее она не завершена до сих пор, значит флаг isInterrupted не уситывался при построение класса задачи
                     //Данную задачу делаем не активной и посылаем уведомление администратору.
                     DomainObject task = domainObjectDao.find(startedTask.taskId, accessToken);
-                    task.setBoolean("active", false);  
+                    task.setBoolean("active", false);
                     domainObjectDao.save(task, accessToken);
-                    //TODO Отправка уведомления администратору (Нужен сервис отправки уведомлений + нужна группа администраторов)
+                    
+                    //Отправка уведомления администратору (Нужен сервис отправки уведомлений + нужна группа администраторов)
+                    List<NotificationAddressee> addresseeList = new ArrayList<>();
+                    addresseeList.add(new NotificationAddresseeGroup(personManagementService.getGroupId(ADMIN_GROUP)));
+                    //Прикрепляем задачу
+                    NotificationContext context = new NotificationContext();
+                    context.addContextObject("task", new DomainObjectAccessor(task));
+                    //Отправляем уведомление
+                    notificationService.sendOnTransactionSuccess(DISABLE_TASK_NOTIFICATION_TYPE, 
+                            null, 
+                            addresseeList, 
+                            NotificationPriority.HIGH, 
+                            context);
                 } else {
                     //Проверка времени работы
                     if ((startedTask.startTime + startedTask.timeout * 60000) < System.currentTimeMillis()) {
                         //прерываем исполнение, в потоке взводится флаг Thread.isInterrupted() который должны проверять разработчики классов задач 
-                        boolean res = startedTask.future.cancel(true);
+                        startedTask.future.cancel(true);
                         startedTask.isCancaled = true;
 
                         DomainObject task =
@@ -166,7 +211,7 @@ public class SchedulerBean {
                                         .setStatus(startedTask.taskId,
                                                 statusDao.getStatusIdByName(ScheduleService.SCHEDULE_STATUS_SLEEP),
                                                 accessToken);
-                        
+
                         if (logger.isDebugEnabled()) {
                             logger.debug("Task " + task.getString("name") + " is cancaled by timeout of "
                                     + startedTask.timeout);
@@ -174,6 +219,7 @@ public class SchedulerBean {
                     }
                 }
             }
+            ejbContext.getUserTransaction().commit();
         } catch (Exception ex) {
             logger.error("Error on check Timeout of schedule task", ex);
             try {
@@ -287,12 +333,46 @@ public class SchedulerBean {
         return result;
     }
 
-    class StartedTask {
+    /**
+     * Получение всех задач у которых статус отличен от ScheduleService.SCHEDULE_STATUS_SLEEP
+     * @return
+     */
+    private List<DomainObject> getNotSleepTasks() {
+        List<DomainObject> result = new ArrayList<DomainObject>();
+        String query =
+                "select t.id from schedule t inner join status s on t.status = s.id where s.name != '"
+                        + ScheduleService.SCHEDULE_STATUS_SLEEP + "' ";
+
+        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, 0, 1000, accessToken);
+        for (IdentifiableObject identifiableObject : collection) {
+            DomainObject task = domainObjectDao.find(identifiableObject.getId(), accessToken);
+            result.add(task);
+        }
+        return result;
+    }
+
+    /**
+     * Завершение задач при выключение сервера
+     */
+    @PreDestroy
+    public void shutdown() {
+        logger.debug("Cancal all tasks by shutdown event");
+        for (int i = startedTasks.size() - 1; i >= 0; i--) {
+            StartedTask startedTask = startedTasks.get(i);
+            //Проверка завершена ли задача
+            if (!startedTask.future.isDone()) {
+                //Прерываем задачу
+                startedTask.future.cancel(true);
+            }
+        }
+    }
+    
+    private class StartedTask {
         private long startTime;
         private Future<String> future;
         private long timeout;
         private Id taskId;
         private boolean isCancaled;
     }
-
 }

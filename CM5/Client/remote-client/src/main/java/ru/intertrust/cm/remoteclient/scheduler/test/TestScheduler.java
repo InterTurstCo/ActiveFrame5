@@ -1,5 +1,6 @@
 package ru.intertrust.cm.remoteclient.scheduler.test;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
 
@@ -119,13 +120,14 @@ public class TestScheduler extends ClientBase {
             //Установка параметров задаче
             TestScheduleParameters testparam2 = new TestScheduleParameters();
             testparam2.setResult(String.valueOf(System.currentTimeMillis()));
+            testparam2.setWorkTime(5);
             schedulerService.setTaskParams(task2.getId(), testparam2);
 
             //Установка параметров множественным задачам
             //Задача должна выполнится без ошибок
             TestScheduleParameters testparam3 = new TestScheduleParameters();
             testparam3.setResult("Task OK");
-            testparam3.setWorkTime(10);
+            testparam3.setWorkTime(5);
             schedulerService.setTaskParams(task3.getId(), testparam3);
 
             //Должна вызвать ошибку при выполнение
@@ -150,18 +152,23 @@ public class TestScheduler extends ClientBase {
             TestScheduleParameters testparam7 = new TestScheduleParameters();
             testparam7.setResult("Test InterruptedException");
             testparam7.setThrowInterruptedOnTimeout(true);
-            testparam7.setWorkTime(100);
+            testparam7.setWorkTime(125);
             schedulerService.setTaskParams(task7.getId(), testparam7);
             schedulerService.setTimeout(task7.getId(), 1);            
 
             //Должна завершится по таймауту просто прекращением работы
             TestScheduleParameters testparam8 = new TestScheduleParameters();
             testparam8.setResult("Test end work by timeout");
-            testparam8.setWorkTime(100);
+            testparam8.setWorkTime(125);
             testparam8.setStopWorkOnTimeout(true);
             schedulerService.setTaskParams(task8.getId(), testparam8);
             schedulerService.setTimeout(task8.getId(), 1);            
 
+            //Ждем чтобы было без 5 секунд до начала запуска задач по расписанию, для синхронизации теста и заданий
+            while(Calendar.getInstance().get(Calendar.SECOND) != 55){
+                Thread.currentThread().sleep(500);
+            }
+            
             //Активация задач
             schedulerService.enableTask(task1.getId());
             schedulerService.enableTask(task2.getId());
@@ -173,8 +180,8 @@ public class TestScheduler extends ClientBase {
             schedulerService.enableTask(task7.getId());
             schedulerService.enableTask(task8.getId());
 
-            //Спим 2 минуты. За это время все задачи должны отработать а те которым положено отвалится по таймауту
-            Thread.currentThread().sleep(200000);
+            //Спим 85. За это время все задачи должны отработать а те которым положено отвалится по таймауту кроме задачи 5
+            Thread.currentThread().sleep(85000);
 
             //Получаем задачи после отработки
             DomainObject afterExecTask1 = crudService.find(task1.getId());
@@ -186,6 +193,34 @@ public class TestScheduler extends ClientBase {
             DomainObject afterExecTask7 = crudService.find(task7.getId());
             DomainObject afterExecTask8 = crudService.find(task8.getId());
 
+          //Проверка статуса и времени крайнего исполнения
+            if (task1.getTimestamp(ScheduleService.SCHEDULE_LAST_END) != null) {
+                assertTrue(
+                        "Change last end time",
+                        afterExecTask1.getTimestamp(ScheduleService.SCHEDULE_LAST_END).compareTo(
+                                task1.getTimestamp(ScheduleService.SCHEDULE_LAST_END)) > 0);
+                assertTrue(
+                        "Change last redy time",
+                        afterExecTask1.getTimestamp(ScheduleService.SCHEDULE_LAST_REDY).compareTo(
+                                task1.getTimestamp(ScheduleService.SCHEDULE_LAST_REDY)) > 0);
+                assertTrue(
+                        "Change last run time",
+                        afterExecTask1.getTimestamp(ScheduleService.SCHEDULE_LAST_RUN).compareTo(
+                                task1.getTimestamp(ScheduleService.SCHEDULE_LAST_RUN)) > 0);
+                assertTrue(
+                        "Change last wait time",
+                        afterExecTask1.getTimestamp(ScheduleService.SCHEDULE_LAST_WAIT).compareTo(
+                                task1.getTimestamp(ScheduleService.SCHEDULE_LAST_WAIT)) > 0);
+            } else {
+                //При первом запуске проверяем что поля с датами не нулевые
+                assertTrue(
+                        "Change last time",
+                        afterExecTask1.getTimestamp(ScheduleService.SCHEDULE_LAST_WAIT) != null &&
+                                afterExecTask1.getTimestamp(ScheduleService.SCHEDULE_LAST_REDY) != null &&
+                                afterExecTask1.getTimestamp(ScheduleService.SCHEDULE_LAST_RUN) != null &&
+                                afterExecTask1.getTimestamp(ScheduleService.SCHEDULE_LAST_END) != null);
+            }            
+            
             assertTrue("Check last run status desciption",
                     afterExecTask1.getString(ScheduleService.SCHEDULE_LAST_RESULT_DESCRIPTION).equals("COMPLETE"));
             assertTrue("Check last run status",
@@ -217,14 +252,12 @@ public class TestScheduler extends ClientBase {
             assertTrue("Check last run status task4",
                     afterExecTask4.getLong(ScheduleService.SCHEDULE_LAST_RESULT) == ScheduleResult.Error.toLong());
 
-            //Задача которая должна отвалится по таймауту
+            //Задача которая не должна  отваливается по таймауту так как игнорирует команду cancel
             assertTrue(
                     "Check last run status desciption task5",
-                    !afterExecTask5.getString(ScheduleService.SCHEDULE_LAST_RESULT_DESCRIPTION).equals(
-                            testparam5.getResult()));
+                    afterExecTask5.getString(ScheduleService.SCHEDULE_LAST_RESULT_DESCRIPTION) == null);
             assertTrue("Check last run status task5",
-                    afterExecTask5.getLong(ScheduleService.SCHEDULE_LAST_RESULT) == ScheduleResult.Complete.toLong());
-            assertTrue("Check active task5", !afterExecTask5.getBoolean(ScheduleService.SCHEDULE_ACTIVE));
+                    afterExecTask5.getLong(ScheduleService.SCHEDULE_LAST_RESULT) == ScheduleResult.NotRun.toLong());
 
             //Задача которая запустилась вручную
             assertTrue(
@@ -239,8 +272,8 @@ public class TestScheduler extends ClientBase {
                     "Check last run status desciption task7",
                     !afterExecTask7.getString(ScheduleService.SCHEDULE_LAST_RESULT_DESCRIPTION).equals(
                             testparam7.getResult()));
-            assertTrue("Check last run status task8",
-                    afterExecTask6.getLong(ScheduleService.SCHEDULE_LAST_RESULT) == ScheduleResult.Timeout.toLong());
+            assertTrue("Check last run status task7",
+                    afterExecTask7.getLong(ScheduleService.SCHEDULE_LAST_RESULT) == ScheduleResult.Timeout.toLong());
 
             //Задача которая завершилась по InterruptedException
             assertTrue(
@@ -250,6 +283,20 @@ public class TestScheduler extends ClientBase {
             assertTrue("Check last run status task8",
                     afterExecTask8.getLong(ScheduleService.SCHEDULE_LAST_RESULT) == ScheduleResult.Timeout.toLong());
 
+            //Спим еще 65. За это завершится игнорирующая таймаут задача
+            Thread.currentThread().sleep(70000);
+            
+            //Задача которая не отвалилась по таймауту должна завершится и стать не активной
+            afterExecTask5 = crudService.find(task5.getId());
+            assertTrue(
+                    "Check last run status desciption task5",
+                    !afterExecTask5.getString(ScheduleService.SCHEDULE_LAST_RESULT_DESCRIPTION).equals(
+                            testparam5.getResult()));
+            assertTrue("Check last run status task5",
+                    afterExecTask5.getLong(ScheduleService.SCHEDULE_LAST_RESULT) == ScheduleResult.Timeout.toLong());
+            assertTrue("Check active task5", !afterExecTask5.getBoolean(ScheduleService.SCHEDULE_ACTIVE));
+            
+            
             log("Test complete");
         } finally {
 

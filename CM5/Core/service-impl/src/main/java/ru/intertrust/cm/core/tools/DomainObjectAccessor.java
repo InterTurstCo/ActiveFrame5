@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.tools;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Iterator;
@@ -10,6 +9,7 @@ import org.springframework.context.ApplicationContext;
 
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Value;
@@ -32,7 +32,7 @@ import ru.intertrust.cm.core.util.SpringApplicationContext;
  * @author larin
  *
  */
-public class DomainObjectAccessor implements Serializable {
+public class DomainObjectAccessor implements Dto {
     /**
 	 *
 	 */

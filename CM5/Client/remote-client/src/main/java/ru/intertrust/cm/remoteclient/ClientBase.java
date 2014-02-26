@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -183,14 +184,14 @@ public abstract class ClientBase {
 
     protected void assertTrue(String message, boolean param) throws Exception {
         if (!param) {
-            throw new Exception(message);
+            throw new Exception("[" + new Date() + "] " + message);
         }
         log(message + ": OK");
     }
 
     protected void assertFalse(String message, boolean param) throws Exception {
         if (param) {
-            throw new Exception(message);
+            throw new Exception("[" + new Date() + "] " + message);
         }
         log(message + ": OK");
     }
