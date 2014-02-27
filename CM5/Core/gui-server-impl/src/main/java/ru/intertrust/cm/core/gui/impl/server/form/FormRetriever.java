@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.business.api.dto.Constraint;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
@@ -180,8 +181,8 @@ public class FormRetriever {
                 formConfig.getMinWidth(), formConfig.getDebug());
     }
 
-    private List<String> buildConstraints(WidgetContext context) {
-        List<String> constraints = new ArrayList<String>();
+    private List<Constraint> buildConstraints(WidgetContext context) {
+        List<Constraint> constraints = new ArrayList<Constraint>();
         // TODO: [validation] get needed configs and analyse them.
 
         String doTypeName = context.getFormObjects().getRootNode().getType();
@@ -193,7 +194,9 @@ public class FormRetriever {
         FieldConfig fieldConfig = configurationExplorer.getFieldConfig(doTypeName, fieldName);
 
         if (fieldConfig != null && fieldConfig.isNotNull()) {
-            constraints.add("validate.not-empty");
+            HashMap<String,Object> params = new HashMap<String,Object>();
+            params.put(Constraint.PARAM_PATTERN, Constraint.KEYWORD_NOT_EMPTY);
+            constraints.add(new Constraint(Constraint.CONSTRAINT_SIMPLE, params));
         }
         return constraints;
     }

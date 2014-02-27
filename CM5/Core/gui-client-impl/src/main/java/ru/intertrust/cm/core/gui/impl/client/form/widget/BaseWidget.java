@@ -4,6 +4,7 @@ import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.business.api.dto.Constraint;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.impl.client.util.StringUtil;
@@ -33,7 +34,7 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
     protected Widget impl;
 
     private Map<String, String> messages;
-    private List<String> constraints = new ArrayList<String>();
+    private List<Constraint> constraints = new ArrayList<Constraint>();
 
     public <T extends WidgetState> T getInitialData() {
         return (T) initialData;
@@ -120,7 +121,7 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
     @Override
     public List<Validator> getValidators() {
         List<Validator> validators = new ArrayList<Validator>();
-        for (String constraint : getConstraints()) { // TODO: [validation] support other types of validators
+        for (Constraint constraint : getConstraints()) { // TODO: [validation] support other types of validators
             validators.add(new SimpleValidator(constraint));
         }
         return validators;
@@ -136,7 +137,7 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
         return  validationResult;
     }
 
-    public List<String> getConstraints() {
+    public List<Constraint> getConstraints() {
         return constraints;
     }
 

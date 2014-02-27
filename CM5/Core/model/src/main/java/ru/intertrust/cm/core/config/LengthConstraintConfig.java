@@ -1,6 +1,9 @@
 package ru.intertrust.cm.core.config;
 
 import org.simpleframework.xml.Attribute;
+import ru.intertrust.cm.core.business.api.dto.Constraint;
+
+import java.util.HashMap;
 
 /**
  * @author Lesia Puhova
@@ -69,5 +72,14 @@ public class LengthConstraintConfig extends ConstraintConfig {
         result = 31 * result + (minValue != null ? minValue.hashCode() : 0);
         result = 31 * result + (maxValue != null ? maxValue.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public Constraint getConstraint() {
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put(Constraint.PARAM_LENGTH, value);
+        params.put(Constraint.PARAM_MIN_LENGTH, minValue);
+        params.put(Constraint.PARAM_MAX_LENGTH, maxValue);
+        return new Constraint(Constraint.CONSTRAINT_LENGTH, params);
     }
 }

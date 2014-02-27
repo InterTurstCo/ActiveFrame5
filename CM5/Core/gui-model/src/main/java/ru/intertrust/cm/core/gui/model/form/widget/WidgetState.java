@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Constraint;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,7 +17,7 @@ import java.util.List;
 public abstract class WidgetState implements Dto {
     protected boolean editable;
     private HashMap<String, Object> widgetProperties = new HashMap<String, Object>(); // declared as HashMap rather than Map because Map is not serializable
-    private List<String> constraints = new ArrayList<String>();
+    private List<Constraint> constraints = new ArrayList<Constraint>();
 
     public boolean isEditable() {
         return editable;
@@ -34,11 +35,11 @@ public abstract class WidgetState implements Dto {
         this.widgetProperties = widgetProperties;
     }
 
-    public List<String> getConstraints() {
+    public List<Constraint> getConstraints() {
         return constraints;
     }
 
-    public void setConstraints(List<String> constraints) {
+    public void setConstraints(List<Constraint> constraints) {
         this.constraints.addAll(constraints);
     }
 

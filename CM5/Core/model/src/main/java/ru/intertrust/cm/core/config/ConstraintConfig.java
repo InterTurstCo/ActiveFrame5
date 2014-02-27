@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.config;
 
+import ru.intertrust.cm.core.business.api.dto.Constraint;
+
 import java.io.Serializable;
 
 /**
@@ -8,4 +10,6 @@ import java.io.Serializable;
  *         Time: 18:15
  */
 public abstract class ConstraintConfig implements Serializable {
+
+    abstract public Constraint getConstraint();
 }

@@ -1,6 +1,9 @@
 package ru.intertrust.cm.core.gui.model.validation;
 
+import ru.intertrust.cm.core.business.api.dto.Constraint;
+
 /**
+ * Валидатор длины строкового представления значения.
  * @author Lesia Puhova
  *         Date: 25.02.14
  *         Time: 12:52
@@ -11,10 +14,10 @@ public class LengthValidator extends AbstractValidator {
     private final Integer minLength;
     private final Integer maxLength;
 
-    public LengthValidator(Integer length, Integer minLength, Integer maxLength) {
-        this.length = length;
-        this.minLength = minLength;
-        this.maxLength = maxLength;
+    public LengthValidator(Constraint constraint) {
+        this.length = (Integer) constraint.param(Constraint.PARAM_LENGTH);
+        this.minLength = (Integer) constraint.param(Constraint.PARAM_MIN_LENGTH);
+        this.maxLength = (Integer) constraint.param(Constraint.PARAM_MAX_LENGTH);
     }
 
     @Override

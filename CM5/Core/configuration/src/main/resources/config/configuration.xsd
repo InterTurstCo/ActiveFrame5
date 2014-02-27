@@ -1958,9 +1958,7 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:lengthConstraintType" name="length"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:rangeConstraintType" name="range-start"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:rangeConstraintType" name="range-end"
+            <xs:element type="con:rangeConstraintType" name="range"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:choice>
     </xs:complexType>
@@ -1990,7 +1988,9 @@
     <xs:complexType name="rangeConstraintType">
         <xs:simpleContent>
             <xs:extension base="xs:string">
-                <xs:attribute name="value" use="required"
+                <xs:attribute name="start" use="optional"
+                              type="xs:string"/>
+                <xs:attribute name="end" use="optional"
                               type="xs:string"/>
             </xs:extension>
         </xs:simpleContent>

@@ -1,6 +1,9 @@
 package ru.intertrust.cm.core.gui.model.validation;
 
+import ru.intertrust.cm.core.business.api.dto.Constraint;
+
 /**
+ * Валидатор масштаба и точности числа с плавающей запятой
  * @author Lesia Puhova
  *         Date: 25.02.14
  *         Time: 13:35
@@ -9,9 +12,9 @@ public class ScaleAndPrecisionValidator extends AbstractValidator {
     private final Integer precision; // total number of digits, for instance 12.34567 - precision is 7, scale is 5
     private final Integer scale;
 
-    public ScaleAndPrecisionValidator(Integer scale, Integer precision) {
-        this.scale = scale;
-        this.precision = precision;
+    public ScaleAndPrecisionValidator(Constraint constraint) {
+        this.scale = (Integer)constraint.param(Constraint.PARAM_SCALE);
+        this.precision = (Integer)constraint.param(Constraint.PARAM_PRECISION);
     }
 
     @Override

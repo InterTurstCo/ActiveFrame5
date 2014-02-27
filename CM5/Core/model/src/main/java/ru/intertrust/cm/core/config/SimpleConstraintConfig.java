@@ -1,8 +1,12 @@
 package ru.intertrust.cm.core.config;
 
 import org.simpleframework.xml.Attribute;
+import ru.intertrust.cm.core.business.api.dto.Constraint;
+
+import java.util.HashMap;
 
 /**
+ *
  * @author Lesia Puhova
  *         Date: 25.02.14
  *         Time: 18:17
@@ -38,5 +42,12 @@ public class SimpleConstraintConfig extends ConstraintConfig {
     @Override
     public int hashCode() {
         return value != null ? value.hashCode() : 0;
+    }
+
+    @Override
+    public Constraint getConstraint() {
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put(Constraint.PARAM_PATTERN, value);
+        return new Constraint(Constraint.CONSTRAINT_SIMPLE, params);
     }
 }
