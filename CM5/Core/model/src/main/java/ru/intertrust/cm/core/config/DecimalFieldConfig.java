@@ -1,8 +1,11 @@
 package ru.intertrust.cm.core.config;
 
 import org.simpleframework.xml.Attribute;
-
+import ru.intertrust.cm.core.business.api.dto.Constraint;
 import ru.intertrust.cm.core.business.api.dto.FieldType;
+
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author Denis Mitavskiy
@@ -70,5 +73,21 @@ public class DecimalFieldConfig extends FieldConfig {
     @Override
     public FieldType getFieldType() {
         return FieldType.DECIMAL;
+    }
+
+    @Override
+    public List<Constraint> getConstraints() {
+        List<Constraint> constraints = super.getConstraints();
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put(Constraint.PARAM_PATTERN, Constraint.KEYWORD_DECIMAL);
+        constraints.add(new Constraint(Constraint.TYPE.SIMPLE, params));
+
+        if (scale != null || precision != null) {
+            HashMap<String, Integer> params2 = new HashMap<String, Integer>();
+            params2.put(Constraint.PARAM_SCALE, scale);
+            params2.put(Constraint.PARAM_SCALE, precision);
+            constraints.add(new Constraint(Constraint.TYPE.SCALE_PRECISION, params2));
+        }
+        return constraints;
     }
 }

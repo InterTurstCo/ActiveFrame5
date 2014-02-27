@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.gui.impl.client.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.util.PlaceholderResolver;
 import ru.intertrust.cm.core.gui.model.validation.CanBeValidated;
+import ru.intertrust.cm.core.gui.model.validation.LengthValidator;
 import ru.intertrust.cm.core.gui.model.validation.SimpleValidator;
 import ru.intertrust.cm.core.gui.model.validation.ValidationMessage;
 import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
@@ -121,8 +122,18 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
     @Override
     public List<Validator> getValidators() {
         List<Validator> validators = new ArrayList<Validator>();
-        for (Constraint constraint : getConstraints()) { // TODO: [validation] support other types of validators
-            validators.add(new SimpleValidator(constraint));
+        for (Constraint constraint : constraints) {
+            switch (constraint.getType()) {
+                case SIMPLE:
+                    validators.add(new SimpleValidator(constraint));
+                    break;
+                case LENGTH:
+                    validators.add(new LengthValidator(constraint));
+                    break;
+                case RANGE:
+                   // validators.add(new RangeValidator(constraint)); //FIXME: [validation] need support for different types in range validator
+                    break;
+            }
         }
         return validators;
     }
@@ -135,10 +146,6 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
             validationResult.append(validator.validate(this, null));
         }
         return  validationResult;
-    }
-
-    public List<Constraint> getConstraints() {
-        return constraints;
     }
 
     // todo: setNonEditableState, getNonEditableState

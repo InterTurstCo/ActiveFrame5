@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.business.api.dto;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 /**
@@ -10,12 +11,13 @@ import java.util.HashMap;
  *         Time: 16:32
  */
 public class Constraint implements Dto {
-    //todo: make enums?
     // типы валидации
-    public static final String CONSTRAINT_SIMPLE = "validate-simple";
-    public static final String CONSTRAINT_LENGTH = "validate-length";
-    public static final String CONSTRAINT_RANGE_END = "validate-range-end";
-    public static final String CONSTRAINT_SCALE_PRECISION = "validate-scale-precision";
+    public static enum TYPE {
+        SIMPLE,
+        LENGTH,
+        RANGE,
+        SCALE_PRECISION;
+    }
 
     // названия параметров валидации
     public static final String PARAM_PATTERN = "pattern";
@@ -34,22 +36,22 @@ public class Constraint implements Dto {
     public static final String KEYWORD_DECIMAL = "validate.decimal";
     public static final String KEYWORD_POSITIVE_DEC = "validate.positive-dec";
 
-    private String type;
-    private HashMap<String, Object> params;
+    private TYPE type;
+    private HashMap<String, ? extends Serializable> params;
 
     public Constraint(){
     }
 
-    public Constraint(String type, HashMap<String, Object> params) {
+    public Constraint(TYPE type, HashMap<String, ? extends Serializable> params) {
         this.type = type;
         this.params = params;
     }
 
-    public String getType() {
+    public TYPE getType() {
         return type;
     }
 
-    public Object param(String paramName) {
+    public Serializable param(String paramName) {
         return params.get(paramName);
     }
 }

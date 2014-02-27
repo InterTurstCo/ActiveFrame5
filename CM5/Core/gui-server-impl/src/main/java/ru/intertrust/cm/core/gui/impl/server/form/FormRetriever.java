@@ -9,6 +9,8 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.business.api.dto.Constraint;
+import ru.intertrust.cm.core.config.ConstraintConfig;
+import ru.intertrust.cm.core.config.ConstraintsConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
@@ -183,20 +185,15 @@ public class FormRetriever {
 
     private List<Constraint> buildConstraints(WidgetContext context) {
         List<Constraint> constraints = new ArrayList<Constraint>();
-        // TODO: [validation] get needed configs and analyse them.
-
         String doTypeName = context.getFormObjects().getRootNode().getType();
-
         WidgetConfig widgetConfig = context.getWidgetConfig();
         FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
         String fieldName = fieldPath.getFieldName();
 
         FieldConfig fieldConfig = configurationExplorer.getFieldConfig(doTypeName, fieldName);
 
-        if (fieldConfig != null && fieldConfig.isNotNull()) {
-            HashMap<String,Object> params = new HashMap<String,Object>();
-            params.put(Constraint.PARAM_PATTERN, Constraint.KEYWORD_NOT_EMPTY);
-            constraints.add(new Constraint(Constraint.CONSTRAINT_SIMPLE, params));
+        if (fieldConfig != null) {
+           constraints.addAll(fieldConfig.getConstraints());
         }
         return constraints;
     }

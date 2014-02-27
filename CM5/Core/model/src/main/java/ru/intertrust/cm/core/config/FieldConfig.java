@@ -1,11 +1,14 @@
 package ru.intertrust.cm.core.config;
 
 import org.simpleframework.xml.Attribute;
-
 import org.simpleframework.xml.Element;
+import ru.intertrust.cm.core.business.api.dto.Constraint;
 import ru.intertrust.cm.core.business.api.dto.FieldType;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author Denis Mitavskiy
@@ -15,14 +18,14 @@ import java.io.Serializable;
 public abstract class FieldConfig implements Serializable {
 
     @Element(name="constraints", required=false)
-    private ConstraintsConfig constraintsConfigConfig;
+    private ConstraintsConfig constraintsConfig;
 
-    public ConstraintsConfig getConstraintsConfigConfig() {
-        return constraintsConfigConfig;
+    public ConstraintsConfig getConstraintsConfig() {
+        return constraintsConfig;
     }
 
-    public void setConstraintsConfigConfig(ConstraintsConfig constraintsConfigConfig) {
-        this.constraintsConfigConfig = constraintsConfigConfig;
+    public void setConstraintsConfig(ConstraintsConfig constraintsConfig) {
+        this.constraintsConfig = constraintsConfig;
     }
 
     @Attribute(name = "name")
@@ -66,8 +69,8 @@ public abstract class FieldConfig implements Serializable {
         if (notNull != that.notNull) {
             return false;
         }
-        if (constraintsConfigConfig != null ? !constraintsConfigConfig.equals(that.constraintsConfigConfig) : that
-                .constraintsConfigConfig != null) {
+        if (constraintsConfig != null ? !constraintsConfig.equals(that.constraintsConfig) : that
+                .constraintsConfig != null) {
             return false;
         }
         if (name != null ? !name.equals(that.name) : that.name != null) {
@@ -79,9 +82,27 @@ public abstract class FieldConfig implements Serializable {
 
     @Override
     public int hashCode() {
-        int result = constraintsConfigConfig != null ? constraintsConfigConfig.hashCode() : 0;
+        int result = constraintsConfig != null ? constraintsConfig.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (notNull ? 1 : 0);
         return result;
+    }
+
+    public List<Constraint> getConstraints() {
+        List<Constraint> constraints = new ArrayList<Constraint>();
+        if (isNotNull()) {
+            HashMap<String, String> params = new HashMap<String, String>();
+            params.put(Constraint.PARAM_PATTERN, Constraint.KEYWORD_NOT_EMPTY);
+            constraints.add(new Constraint(Constraint.TYPE.SIMPLE, params));
+        }
+        ConstraintsConfig constraintsConfig = getConstraintsConfig();
+        if (constraintsConfig != null) {
+            for (ConstraintConfig cnstrConfig : constraintsConfig.getConstraintConfigs()) {
+                if (cnstrConfig.getConstraint() != null) {//TODO: [validation] we need some kind of policy to deal with duplicate and conflicting constraints
+                    constraints.add(cnstrConfig.getConstraint());
+                }
+            }
+        }
+        return constraints;
     }
 }

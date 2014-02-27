@@ -1,16 +1,11 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
 import com.google.gwt.user.client.ui.HasText;
-import ru.intertrust.cm.core.business.api.dto.Constraint;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.widget.IntegerBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * @author Denis Mitavskiy
@@ -44,14 +39,5 @@ public class IntegerBoxWidget extends TextBoxWidget {
         } catch (NumberFormatException e) {
             throw new GuiException(getMessageText("validate.integer"));
         }
-    }
-
-    @Override
-    public List<Constraint> getConstraints() {
-        List<Constraint> constraints = new ArrayList(super.getConstraints());
-        HashMap<String, Object> params = new HashMap<String, Object>();
-        params.put(Constraint.PARAM_PATTERN, Constraint.KEYWORD_INTEGER);
-        constraints.add(new Constraint(Constraint.CONSTRAINT_SIMPLE, params));
-        return constraints;
     }
 }

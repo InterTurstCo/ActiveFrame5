@@ -44,7 +44,7 @@ public class SimpleValidator extends AbstractValidator {
             messageKey = "validate.pattern";
         }
         String value = (String) canBeValidated.getValue();
-        if (!value.matches(pattern)) {
+        if (value != null && pattern!= null && !value.matches(pattern)) {
             validationResult.addError(messageKey);
         }
     }

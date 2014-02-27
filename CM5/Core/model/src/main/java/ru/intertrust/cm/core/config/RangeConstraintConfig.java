@@ -26,7 +26,7 @@ public class RangeConstraintConfig extends ConstraintConfig {
         this.start = start;
     }
 
-    public String getEnd() {
+    public Comparable getEnd() {
         return end;
     }
 
@@ -64,9 +64,12 @@ public class RangeConstraintConfig extends ConstraintConfig {
 
     @Override
     public Constraint getConstraint() {
-        HashMap<String, Object> params = new HashMap<String, Object>();
+        if (start == null && end == null) {
+            return null;
+        }
+        HashMap<String, String> params = new HashMap<String, String>();
         params.put(Constraint.PARAM_RANGE_START, start);
         params.put(Constraint.PARAM_RANGE_END, end);
-        return new Constraint(Constraint.CONSTRAINT_RANGE_END, params);
+        return new Constraint(Constraint.TYPE.RANGE, params);
     }
 }

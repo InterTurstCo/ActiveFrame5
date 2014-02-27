@@ -46,8 +46,11 @@ public class SimpleConstraintConfig extends ConstraintConfig {
 
     @Override
     public Constraint getConstraint() {
-        HashMap<String, Object> params = new HashMap<String, Object>();
+        if (value == null) {
+            return  null;
+        }
+        HashMap<String, String> params = new HashMap<String, String>();
         params.put(Constraint.PARAM_PATTERN, value);
-        return new Constraint(Constraint.CONSTRAINT_SIMPLE, params);
+        return new Constraint(Constraint.TYPE.SIMPLE, params);
     }
 }

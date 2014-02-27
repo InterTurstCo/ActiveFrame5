@@ -76,10 +76,13 @@ public class LengthConstraintConfig extends ConstraintConfig {
 
     @Override
     public Constraint getConstraint() {
-        HashMap<String, Object> params = new HashMap<String, Object>();
+        if (value == null && minValue == null && maxValue == null) {
+            return null;
+        }
+        HashMap<String, Integer> params = new HashMap<String, Integer>();
         params.put(Constraint.PARAM_LENGTH, value);
         params.put(Constraint.PARAM_MIN_LENGTH, minValue);
         params.put(Constraint.PARAM_MAX_LENGTH, maxValue);
-        return new Constraint(Constraint.CONSTRAINT_LENGTH, params);
+        return new Constraint(Constraint.TYPE.LENGTH, params);
     }
 }
