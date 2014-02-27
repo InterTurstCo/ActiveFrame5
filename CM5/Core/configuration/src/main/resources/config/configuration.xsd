@@ -63,6 +63,75 @@
                       xmlns:con="https://cm5.intertrust.ru/config"/>
     </xs:complexType>
 
+    <xs:complexType name="namedTriggerType">
+        <xs:sequence>
+            <xs:element name="trigger" minOccurs="0" maxOccurs="1" type="con:triggerType">
+            </xs:element>
+        </xs:sequence>
+         <xs:attribute name="name" use="optional" type="con:domainObjectNameType"/>
+    </xs:complexType>
+
+    <xs:complexType name="triggerType">
+        <xs:choice>
+            <xs:element name="config" minOccurs="0" maxOccurs="1" type="con:triggerConfigType" />
+            <xs:element name="class-name" minOccurs="0" maxOccurs="1" type="con:triggerClassNameType">
+            </xs:element>
+            <xs:element name="conditions-script" minOccurs="0" maxOccurs="1" type="con:triggerClassNameType">
+            </xs:element>
+        </xs:choice>
+        <xs:attribute name="domain-object-type" use="optional" type="con:domainObjectNameType" />
+        <xs:attribute name="event" use="optional" type="con:triggerEventType" />
+        <xs:attribute name="refName" type="xs:string" use="optional" />
+    </xs:complexType>
+
+    <xs:complexType name="triggerConfigType">
+        <xs:sequence>
+            <xs:element name="fields" minOccurs="0" maxOccurs="1" type="con:triggerFieldsType">
+            </xs:element>
+            <xs:element name="statuses" minOccurs="0" maxOccurs="1" type="con:triggerStatusesType">
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+
+    <xs:simpleType name="triggerEventType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="CREATE" />
+            <xs:enumeration value="CHANGE" />
+            <xs:enumeration value="CHANGE_STATUS" />
+            <xs:enumeration value="DELETE" />
+        </xs:restriction>
+    </xs:simpleType>
+            
+    <xs:complexType name="triggerFieldsType">
+        <xs:choice maxOccurs="unbounded" minOccurs="0">
+            <xs:element name="field" type="con:fieldNameType"/>    
+        </xs:choice>
+    </xs:complexType>
+                                      
+    <xs:simpleType name="triggerClassNameType">
+        <xs:restriction base="xs:string">
+            <xs:whiteSpace value="collapse"/>
+            <xs:pattern value="[a-zA-Z0-9_]*">
+            </xs:pattern>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="triggerStatusesType">
+        <xs:choice maxOccurs="unbounded" minOccurs="0">
+            <xs:element name="status" type="con:triggerStatusType"/>    
+        </xs:choice>
+    </xs:complexType>
+                                      
+    <xs:simpleType name="triggerStatusType">
+        <xs:restriction base="xs:string">
+            <xs:whiteSpace value="collapse"/>
+            <xs:pattern
+                    value="[a-zA-Z0-9_]*">
+            </xs:pattern>
+        </xs:restriction>
+    </xs:simpleType>
+    
     <xs:simpleType name="domainObjectNameType">
         <xs:restriction base="xs:string">
             <xs:maxLength value="25"/>
@@ -218,7 +287,7 @@
             <xs:element name="action" type="con:actionType"
                         maxOccurs="unbounded" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element name="action-context" type="con:actionСontextType"
+            <xs:element name="action-context" type="con:actionContextType"
                         maxOccurs="unbounded" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
                 <xs:element name="search-area" type="con:searchAreaType"
@@ -227,6 +296,8 @@
             <xs:element name="business-universe" type="con:businessUniverseType"
                         maxOccurs="1" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="con:namedTriggerType" name="named-trigger"
+                        maxOccurs="unbounded" minOccurs="0"/>
         </xs:choice>
     </xs:complexType>
 
@@ -282,7 +353,7 @@
         <xs:attribute name="toggle" use="optional" type="xs:boolean" />
     </xs:complexType>
 
-    <xs:complexType name="actionСontextType">
+    <xs:complexType name="actionContextType">
         <xs:sequence>
             <xs:element name="domain-object-context">
                 <xs:complexType>
@@ -1885,8 +1956,8 @@
                 minOccurs="0" maxOccurs="unbounded"
                 xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:linkedDomainObjectType" name="linked-domain-object"
-	            minOccurs="0" maxOccurs="unbounded"
-	            xmlns:con="https://cm5.intertrust.ru/config"/>
+                minOccurs="0" maxOccurs="unbounded"
+                xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
         <xs:attribute type="xs:string" name="type" use="required" />
     </xs:complexType>
