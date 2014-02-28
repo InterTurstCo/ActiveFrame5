@@ -78,16 +78,33 @@ public class DecimalFieldConfig extends FieldConfig {
     @Override
     public List<Constraint> getConstraints() {
         List<Constraint> constraints = super.getConstraints();
+
         HashMap<String, String> params = new HashMap<String, String>();
         params.put(Constraint.PARAM_PATTERN, Constraint.KEYWORD_DECIMAL);
-        constraints.add(new Constraint(Constraint.TYPE.SIMPLE, params));
+        constraints.add(new Constraint(Constraint.Type.SIMPLE, params));
 
         if (scale != null || precision != null) {
             HashMap<String, String> params2 = new HashMap<String, String>();
             params2.put(Constraint.PARAM_SCALE, scale != null ? scale.toString() : null);
-            params2.put(Constraint.PARAM_SCALE, precision != null ? precision.toString() : null);
-            constraints.add(new Constraint(Constraint.TYPE.SCALE_PRECISION, params2));
+            params2.put(Constraint.PARAM_PRECISION, precision != null ? precision.toString() : null);
+            constraints.add(new Constraint(Constraint.Type.SCALE_PRECISION, params2));
         }
         return constraints;
+    }
+
+    @Override
+    void addConstraintsFromConfig(List<Constraint> constraints) {
+        ConstraintsConfig constraintsConfig = getConstraintsConfig();
+        if (constraintsConfig != null) {
+            for (ConstraintConfig cnstrConfig : constraintsConfig.getConstraintConfigs()) {
+                Constraint constraint = cnstrConfig.getConstraint();
+                if (constraint != null) {
+                    if (Constraint.Type.RANGE == constraint.getType()) {
+                        constraint.addParam(Constraint.PARAM_FIELD_TYPE, Constraint.TYPE_DECIMAL);
+                    }
+                    constraints.add(constraint);
+                }
+            }
+        }
     }
 }

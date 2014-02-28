@@ -90,11 +90,20 @@ public abstract class FieldConfig implements Serializable {
 
     public List<Constraint> getConstraints() {
         List<Constraint> constraints = new ArrayList<Constraint>();
+        addNotNullConstraint(constraints);
+        addConstraintsFromConfig(constraints);
+        return constraints;
+    }
+
+    private void addNotNullConstraint(List<Constraint> constraints) {
         if (isNotNull()) {
             HashMap<String, String> params = new HashMap<String, String>();
             params.put(Constraint.PARAM_PATTERN, Constraint.KEYWORD_NOT_EMPTY);
-            constraints.add(new Constraint(Constraint.TYPE.SIMPLE, params));
+            constraints.add(new Constraint(Constraint.Type.SIMPLE, params));
         }
+    }
+
+   void addConstraintsFromConfig(List<Constraint> constraints) {
         ConstraintsConfig constraintsConfig = getConstraintsConfig();
         if (constraintsConfig != null) {
             for (ConstraintConfig cnstrConfig : constraintsConfig.getConstraintConfigs()) {
@@ -103,6 +112,5 @@ public abstract class FieldConfig implements Serializable {
                 }
             }
         }
-        return constraints;
     }
 }

@@ -23,8 +23,24 @@ public class LongFieldConfig extends FieldConfig {
         List<Constraint> constraints = super.getConstraints();
         HashMap<String, String> params = new HashMap<String, String>();
         params.put(Constraint.PARAM_PATTERN, Constraint.KEYWORD_INTEGER);
-        constraints.add(new Constraint(Constraint.TYPE.SIMPLE, params));
+        constraints.add(new Constraint(Constraint.Type.SIMPLE, params));
 
         return constraints;
+    }
+
+    @Override
+    void addConstraintsFromConfig(List<Constraint> constraints) {
+        ConstraintsConfig constraintsConfig = getConstraintsConfig();
+        if (constraintsConfig != null) {
+            for (ConstraintConfig cnstrConfig : constraintsConfig.getConstraintConfigs()) {
+                Constraint constraint = cnstrConfig.getConstraint();
+                if (constraint != null) {
+                    if (Constraint.Type.RANGE == constraint.getType()) {
+                        constraint.addParam(Constraint.PARAM_FIELD_TYPE, Constraint.TYPE_LONG);
+                    }
+                    constraints.add(constraint);
+                }
+            }
+        }
     }
 }

@@ -51,6 +51,6 @@ public class SimpleConstraintConfig extends ConstraintConfig {
         }
         HashMap<String, String> params = new HashMap<String, String>();
         params.put(Constraint.PARAM_PATTERN, value);
-        return new Constraint(Constraint.TYPE.SIMPLE, params);
+        return new Constraint(Constraint.Type.SIMPLE, params);
     }
 }

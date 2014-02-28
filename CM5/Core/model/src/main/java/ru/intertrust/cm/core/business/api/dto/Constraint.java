@@ -11,7 +11,7 @@ import java.util.HashMap;
  */
 public class Constraint implements Dto {
     // типы валидации
-    public static enum TYPE {
+    public static enum Type {
         SIMPLE,
         LENGTH,
         RANGE,
@@ -27,6 +27,7 @@ public class Constraint implements Dto {
     public static final String PARAM_RANGE_END = "range-end";
     public static final String PARAM_SCALE = "scale";
     public static final String PARAM_PRECISION = "precision";
+    public static final String PARAM_FIELD_TYPE = "type";
 
     // ключевые слова, используемые при простой валидации (SimpleValidator)
     public static final String KEYWORD_NOT_EMPTY = "validate.not-empty";
@@ -35,22 +36,31 @@ public class Constraint implements Dto {
     public static final String KEYWORD_DECIMAL = "validate.decimal";
     public static final String KEYWORD_POSITIVE_DEC = "validate.positive-dec";
 
-    private TYPE type;
+    // for RangeValidator
+    public static final String TYPE_LONG = "long";
+    public static final String TYPE_DECIMAL = "decimal";
+    public static final String TYPE_DATE = "date"; // TODO: [validation] actually we need 3 types: date-time with timezoen, date-time, date
+
+    private Type type;
     private HashMap<String, String> params;
 
-    public Constraint(){
+    public Constraint(){ //default constructor added only to conform to serialization. Normally should not be used.
     }
 
-    public Constraint(TYPE type, HashMap<String, String> params) {
+    public Constraint(Type type, HashMap<String, String> params) {
         this.type = type;
         this.params = params;
     }
 
-    public TYPE getType() {
+    public Type getType() {
         return type;
     }
 
     public String param(String paramName) {
         return params.get(paramName);
+    }
+
+    public void addParam(String paramName, String paramValue) {
+        params.put(paramName, paramValue);
     }
 }

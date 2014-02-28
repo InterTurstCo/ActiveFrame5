@@ -83,6 +83,6 @@ public class LengthConstraintConfig extends ConstraintConfig {
         params.put(Constraint.PARAM_LENGTH, value != null ? value.toString() : null);
         params.put(Constraint.PARAM_MIN_LENGTH, minValue != null ? minValue.toString() : null);
         params.put(Constraint.PARAM_MAX_LENGTH, maxValue != null ? maxValue.toString() : null);
-        return new Constraint(Constraint.TYPE.LENGTH, params);
+        return new Constraint(Constraint.Type.LENGTH, params);
     }
 }

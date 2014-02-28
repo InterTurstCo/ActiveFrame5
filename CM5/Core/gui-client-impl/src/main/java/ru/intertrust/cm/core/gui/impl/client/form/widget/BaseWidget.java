@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.util.PlaceholderResolver;
 import ru.intertrust.cm.core.gui.model.validation.CanBeValidated;
 import ru.intertrust.cm.core.gui.model.validation.LengthValidator;
+import ru.intertrust.cm.core.gui.model.validation.RangeValidator;
 import ru.intertrust.cm.core.gui.model.validation.ScaleAndPrecisionValidator;
 import ru.intertrust.cm.core.gui.model.validation.SimpleValidator;
 import ru.intertrust.cm.core.gui.model.validation.ValidationMessage;
@@ -132,7 +133,7 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
                     validators.add(new LengthValidator(constraint));
                     break;
                 case RANGE:
-                   // validators.add(new RangeValidator(constraint)); //FIXME: [validation] need support for different types in range validator
+                    validators.add(new RangeValidator(constraint));
                     break;
                 case SCALE_PRECISION:
                     validators.add(new ScaleAndPrecisionValidator(constraint));

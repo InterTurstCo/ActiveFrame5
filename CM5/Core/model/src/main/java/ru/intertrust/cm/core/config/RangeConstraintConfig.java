@@ -70,6 +70,6 @@ public class RangeConstraintConfig extends ConstraintConfig {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put(Constraint.PARAM_RANGE_START, start);
         params.put(Constraint.PARAM_RANGE_END, end);
-        return new Constraint(Constraint.TYPE.RANGE, params);
+        return new Constraint(Constraint.Type.RANGE, params);
     }
 }
