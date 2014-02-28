@@ -20,16 +20,17 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
 @ComponentName("date-box")
 public class DateBoxWidget extends BaseWidget {
 
+    private int ordinalFieldType;
+
     @Override
     public Component createNew() {
-
         return new DateBoxWidget();
     }
 
     public void setCurrentState(WidgetState currentState) {
         DateBoxState dateBoxState = (DateBoxState)currentState;
+        ordinalFieldType = dateBoxState.getOrdinalFieldType();
         Date value = dateBoxState.getDate();
-       // RangeDateConfig rangeDateConfig = dateBoxState.getRangeDateValueConfig();
         if (isEditable) {
             DateBoxDecorate dateBox = (DateBoxDecorate) impl;
             dateBox.setValue(value);
@@ -40,11 +41,10 @@ public class DateBoxWidget extends BaseWidget {
 
     @Override
     public WidgetState getCurrentState() {
-        DateBoxState data = new DateBoxState();
+        DateBoxState data = new DateBoxState(ordinalFieldType);
         if (isEditable) {
             data.setDate(((DateBoxDecorate) impl).getValue());
         } else {
-            //data.setDate(DATE_TIME_FORMAT.parse(((DateBoxDecorate) impl).getTextField().getText()));
             data.setDate(DATE_TIME_FORMAT.parse(((DateBoxDecorate) impl).getValue().toString()));
         }
         validate();
