@@ -808,4 +808,32 @@
         </filter>
     </collection>
 
+    <collection name="NotificationText" idField="id">
+
+        <prototype>
+            <![CDATA[
+                select
+                    nt.id,
+                    nt.notification_part,
+                    nt.notification_text
+                from
+                    notification_text nt
+                     ::from-clause
+                where
+                     1=1 ::where-clause
+            ]]>
+        </prototype>
+
+        <filter name="byParams">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    nt.notification_type = {0}
+                    and nt.channel = {1}
+                    and nt.locale = {2}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
+
 </configuration>

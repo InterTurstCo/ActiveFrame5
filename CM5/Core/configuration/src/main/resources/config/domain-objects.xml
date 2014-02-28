@@ -332,4 +332,23 @@
         </uniqueKey>
     </domain-object-type>
 
+    <domain-object-type name="locale">
+        <fields>
+            <string name="name" length="256" not-null="true" />
+        </fields>
+        <uniqueKey>
+            <field name="name" />
+        </uniqueKey>
+    </domain-object-type>
+
+    <domain-object-type name="notification_text">
+        <fields>
+            <string name="notification_type" length="256" not-null="true" />
+            <string name="notification_part" length="256" not-null="true" />
+            <reference name="locale" type="locale" not-null="true"/>
+            <string name="channel" length="256" not-null="true" />
+            <string name="notification_text" length="32768" />
+        </fields>
+    </domain-object-type>
+
 </configuration>

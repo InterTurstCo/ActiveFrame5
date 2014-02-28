@@ -119,4 +119,9 @@
             </map>
         </property>
     </bean>
+
+    <bean id="notificationTextFormer"
+          class="ru.intertrust.cm.core.business.impl.NotificationTextFormerImpl"/>
+
+
 </beans>
