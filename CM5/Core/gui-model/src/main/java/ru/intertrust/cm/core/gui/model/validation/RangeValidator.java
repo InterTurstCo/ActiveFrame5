@@ -14,8 +14,8 @@ public class RangeValidator<T extends Comparable> extends AbstractValidator {
     private final Converter<T> converter;
 
     public RangeValidator(Constraint constraint, Converter<T> converter) {
-        this.rangeStartStr = (String)constraint.param(Constraint.PARAM_RANGE_START);
-        this.rangeEndStr = (String)constraint.param(Constraint.PARAM_RANGE_END);
+        this.rangeStartStr = constraint.param(Constraint.PARAM_RANGE_START);
+        this.rangeEndStr = constraint.param(Constraint.PARAM_RANGE_END);
         this.converter = converter;
     }
 

@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.business.api.dto;
 
-import java.io.Serializable;
 import java.util.HashMap;
 
 /**
@@ -37,12 +36,12 @@ public class Constraint implements Dto {
     public static final String KEYWORD_POSITIVE_DEC = "validate.positive-dec";
 
     private TYPE type;
-    private HashMap<String, ? extends Serializable> params;
+    private HashMap<String, String> params;
 
     public Constraint(){
     }
 
-    public Constraint(TYPE type, HashMap<String, ? extends Serializable> params) {
+    public Constraint(TYPE type, HashMap<String, String> params) {
         this.type = type;
         this.params = params;
     }
@@ -51,7 +50,7 @@ public class Constraint implements Dto {
         return type;
     }
 
-    public Serializable param(String paramName) {
+    public String param(String paramName) {
         return params.get(paramName);
     }
 }

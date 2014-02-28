@@ -17,7 +17,7 @@ public class SimpleValidator extends AbstractValidator {
     private final String pattern;
 
     public SimpleValidator(Constraint constraint) {
-        this.pattern = (String)constraint.param(Constraint.PARAM_PATTERN);
+        this.pattern = constraint.param(Constraint.PARAM_PATTERN);
     }
 
     private static final Map<String, String> wordsToPatterns = new HashMap<String, String>();

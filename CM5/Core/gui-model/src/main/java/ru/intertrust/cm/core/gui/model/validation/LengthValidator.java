@@ -15,9 +15,12 @@ public class LengthValidator extends AbstractValidator {
     private final Integer maxLength;
 
     public LengthValidator(Constraint constraint) {
-        this.length = (Integer) constraint.param(Constraint.PARAM_LENGTH);
-        this.minLength = (Integer) constraint.param(Constraint.PARAM_MIN_LENGTH);
-        this.maxLength = (Integer) constraint.param(Constraint.PARAM_MAX_LENGTH);
+        String lengthStr = constraint.param(Constraint.PARAM_LENGTH);
+        String minLengthStr = constraint.param(Constraint.PARAM_MIN_LENGTH);
+        String maxLengthStr = constraint.param(Constraint.PARAM_MAX_LENGTH);
+        this.length = lengthStr != null ? Integer.parseInt(lengthStr) : null;
+        this.minLength = minLengthStr != null ? Integer.parseInt(minLengthStr) : null;
+        this.maxLength = maxLengthStr != null ? Integer.parseInt(maxLengthStr) : null;
     }
 
     @Override

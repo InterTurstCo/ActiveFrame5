@@ -83,9 +83,9 @@ public class DecimalFieldConfig extends FieldConfig {
         constraints.add(new Constraint(Constraint.TYPE.SIMPLE, params));
 
         if (scale != null || precision != null) {
-            HashMap<String, Integer> params2 = new HashMap<String, Integer>();
-            params2.put(Constraint.PARAM_SCALE, scale);
-            params2.put(Constraint.PARAM_SCALE, precision);
+            HashMap<String, String> params2 = new HashMap<String, String>();
+            params2.put(Constraint.PARAM_SCALE, scale != null ? scale.toString() : null);
+            params2.put(Constraint.PARAM_SCALE, precision != null ? precision.toString() : null);
             constraints.add(new Constraint(Constraint.TYPE.SCALE_PRECISION, params2));
         }
         return constraints;

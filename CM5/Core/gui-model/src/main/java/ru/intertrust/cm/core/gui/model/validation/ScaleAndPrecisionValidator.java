@@ -13,8 +13,10 @@ public class ScaleAndPrecisionValidator extends AbstractValidator {
     private final Integer scale;
 
     public ScaleAndPrecisionValidator(Constraint constraint) {
-        this.scale = (Integer)constraint.param(Constraint.PARAM_SCALE);
-        this.precision = (Integer)constraint.param(Constraint.PARAM_PRECISION);
+        String scaleStr = constraint.param(Constraint.PARAM_SCALE);
+        String precisionStr = constraint.param(Constraint.PARAM_PRECISION);
+        this.scale = scaleStr != null ? Integer.parseInt(scaleStr) : null;
+        this.precision = precisionStr != null ? Integer.parseInt(precisionStr) : null;
     }
 
     @Override

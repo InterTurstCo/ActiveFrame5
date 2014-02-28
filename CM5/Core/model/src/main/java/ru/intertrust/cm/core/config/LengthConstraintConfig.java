@@ -79,10 +79,10 @@ public class LengthConstraintConfig extends ConstraintConfig {
         if (value == null && minValue == null && maxValue == null) {
             return null;
         }
-        HashMap<String, Integer> params = new HashMap<String, Integer>();
-        params.put(Constraint.PARAM_LENGTH, value);
-        params.put(Constraint.PARAM_MIN_LENGTH, minValue);
-        params.put(Constraint.PARAM_MAX_LENGTH, maxValue);
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put(Constraint.PARAM_LENGTH, value != null ? value.toString() : null);
+        params.put(Constraint.PARAM_MIN_LENGTH, minValue != null ? minValue.toString() : null);
+        params.put(Constraint.PARAM_MAX_LENGTH, maxValue != null ? maxValue.toString() : null);
         return new Constraint(Constraint.TYPE.LENGTH, params);
     }
 }
