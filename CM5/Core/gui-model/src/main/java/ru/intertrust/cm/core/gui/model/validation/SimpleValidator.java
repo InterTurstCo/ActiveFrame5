@@ -23,7 +23,7 @@ public class SimpleValidator extends AbstractValidator {
     private static final Map<String, String> wordsToPatterns = new HashMap<String, String>();
 
     static {
-        wordsToPatterns.put(Constraint.KEYWORD_NOT_EMPTY, "^[^\\s]+$");
+        wordsToPatterns.put(Constraint.KEYWORD_NOT_EMPTY, "^.*[^\\s]+.*$");
         wordsToPatterns.put(Constraint.KEYWORD_INTEGER, "^([-+]?\\d+)?$");
         wordsToPatterns.put(Constraint.KEYWORD_POSITIVE_INT, "^([+]?\\d+)?$");
         wordsToPatterns.put(Constraint.KEYWORD_DECIMAL, "^([-+]?[0-9]+(\\.[0-9]+)?)?$");

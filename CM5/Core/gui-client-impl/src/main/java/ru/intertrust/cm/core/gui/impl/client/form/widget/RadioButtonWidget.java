@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Component;
@@ -58,6 +60,12 @@ public class RadioButtonWidget extends BaseWidget {
             String text = listValues.get(id);
             String groupName = getDisplayConfig().getId();
             RadioButton rb = new RadioButton(groupName, text);
+            rb.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    validate();
+                }
+            });
             layoutPanel.add(rb);
             idMap.put(text, id);
             if (id.equals(selectedId)) {
@@ -107,5 +115,19 @@ public class RadioButtonWidget extends BaseWidget {
     @Override
     protected Widget asNonEditableWidget(WidgetState state) {
         return new Label();
+    }
+
+    @Override
+    public Object getValue() {
+        if (isEditable()) {
+            Panel panel = (Panel) impl;
+            List<RadioButton> radioButtons = getRadioButtons(panel);
+            for (RadioButton radioButton : radioButtons) {
+                if (radioButton.getValue()) { // is selected
+                   return radioButton.getText();
+                }
+            }
+        }
+        return null;
     }
 }

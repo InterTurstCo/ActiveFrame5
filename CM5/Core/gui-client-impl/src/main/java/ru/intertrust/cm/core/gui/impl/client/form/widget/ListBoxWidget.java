@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
+import com.google.gwt.event.dom.client.BlurEvent;
+import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Widget;
@@ -38,7 +40,14 @@ public class ListBoxWidget extends BaseWidget {
 
     @Override
     protected Widget asEditableWidget(WidgetState state) {
-        return new ListBox(true);
+        ListBox listBox = new ListBox(true);
+        listBox.addBlurHandler(new BlurHandler() {
+            @Override
+            public void onBlur(BlurEvent event) {
+                validate();
+            }
+        });
+        return listBox;
     }
 
     @Override
@@ -55,6 +64,18 @@ public class ListBoxWidget extends BaseWidget {
     private interface StateHandler<T extends Widget> {
         WidgetState getState(T widget, ListBoxState initialState, HashMap<String, Id> idMap);
         HashMap<String, Id> setState(T widget, ListBoxState state);
+    }
+
+    @Override
+    public Object getValue() {
+        if (isEditable()) {
+            ListBox listBox = (ListBox)impl;
+            int index = listBox.getSelectedIndex();
+            if (index != -1) {
+                return listBox.getValue(index);
+            }
+        }
+        return null;
     }
 
     private static class LabelStateHandler implements StateHandler<Label> {
@@ -125,4 +146,5 @@ public class ListBoxWidget extends BaseWidget {
             return idMap;
         }
     }
+
 }

@@ -12,7 +12,7 @@ public class StringUtil {
 
     public static String join(List<?> list, String delimiter) {
         StringBuilder sb = new StringBuilder();
-        if (list == null) {
+        if (list == null || list.isEmpty()) {
             return "";
         }
         for (Object obj : list) {
