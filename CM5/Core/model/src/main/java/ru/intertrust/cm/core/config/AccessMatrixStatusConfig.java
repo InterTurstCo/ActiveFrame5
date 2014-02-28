@@ -14,7 +14,6 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  * @author atsvetkov
  *
  */
-@Root(name="status")
 public class AccessMatrixStatusConfig implements Dto {
 
     @Attribute(required = true)

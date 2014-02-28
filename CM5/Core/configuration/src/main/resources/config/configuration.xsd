@@ -85,14 +85,13 @@
     </xs:complexType>
 
     <xs:complexType name="triggerConfigType">
-        <xs:sequence>
+        <xs:choice>
             <xs:element name="fields" minOccurs="0" maxOccurs="1" type="con:triggerFieldsType">
             </xs:element>
             <xs:element name="statuses" minOccurs="0" maxOccurs="1" type="con:triggerStatusesType">
             </xs:element>
-        </xs:sequence>
+        </xs:choice>
     </xs:complexType>
-
 
     <xs:simpleType name="triggerEventType">
         <xs:restriction base="xs:string">

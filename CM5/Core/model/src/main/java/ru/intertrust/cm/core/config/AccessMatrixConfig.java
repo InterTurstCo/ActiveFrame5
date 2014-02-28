@@ -20,7 +20,7 @@ public class AccessMatrixConfig implements TopLevelConfig {
     @Attribute(required = true)
     private String type;
 
-    @ElementList(inline = true)
+    @ElementList(inline = true, type = AccessMatrixStatusConfig.class, entry = "status", required = true)
     private List<AccessMatrixStatusConfig> status = new ArrayList<>();
 
     public String getType() {
