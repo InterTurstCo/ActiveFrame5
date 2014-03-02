@@ -2,6 +2,8 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.dom.client.BlurEvent;
+import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
@@ -161,6 +163,13 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
 //        SuggestBox.DefaultSuggestionDisplay display = (SuggestBox.DefaultSuggestionDisplay) suggestBox.getSuggestionDisplay();
 //        display.setPositionRelativeTo(presenter);
 
+        Event.sinkEvents(suggestBox.getElement(), Event.ONBLUR);
+        suggestBox.addHandler(new BlurHandler() {
+            @Override
+            public void onBlur(BlurEvent event) {
+                validate();
+            }
+        }, BlurEvent.getType());
 
         display = (CmjDefaultSuggestionDisplay) suggestBox.getSuggestionDisplay();
 

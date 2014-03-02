@@ -1,13 +1,18 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
+import com.google.gwt.event.dom.client.BlurEvent;
+import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.datepicker.client.DateBox;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
+import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 
 import java.util.Date;
 /**
@@ -34,6 +39,7 @@ public class DateBoxDecorate extends Composite {
         dateBox = new DateBox(picker, null, format);
         TextBox textDateBox = dateBox.getTextBox();
         dateBox.getTextBox().addStyleName("date-text-box");
+
         root.add(dateBox);
         root.add(dateBtn);
 
@@ -84,5 +90,9 @@ public class DateBoxDecorate extends Composite {
 
     public Date getValue() {
         return dateBox.getValue();
+    }
+
+    public DateBox getDateBox() {
+        return dateBox;
     }
 }
