@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.business.api.dto;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Класс описывает ограничения, которые проверяются при клиентской валидации.
@@ -54,6 +55,10 @@ public class Constraint implements Dto {
 
     public Type getType() {
         return type;
+    }
+
+    public Map<String, String> getParams() {
+        return params;
     }
 
     public String param(String paramName) {

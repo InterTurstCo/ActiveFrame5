@@ -9,8 +9,6 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.business.api.dto.Constraint;
-import ru.intertrust.cm.core.config.ConstraintConfig;
-import ru.intertrust.cm.core.config.ConstraintsConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
@@ -170,8 +168,9 @@ public class FormRetriever {
             WidgetContext widgetContext = new WidgetContext(config, formObjects, widgetConfigsById);
             WidgetHandler componentHandler = (WidgetHandler) applicationContext.getBean(config.getComponentName());
             WidgetState initialState = componentHandler.getInitialState(widgetContext);
-            initialState.setConstraints(buildConstraints(widgetContext));
-            initialState.setWidgetProperties(buildWidgetProps(widgetContext));
+            List<Constraint> constraints = buildConstraints(widgetContext);
+            initialState.setConstraints(constraints);
+            initialState.setWidgetProperties(buildWidgetProps(widgetContext, constraints));
 
             initialState.setEditable(true);
             widgetStateMap.put(widgetId, initialState);
@@ -248,7 +247,7 @@ public class FormRetriever {
         return widgetConfigsById;
     }
 
-    private HashMap<String, Object> buildWidgetProps(WidgetContext context) {
+    private HashMap<String, Object> buildWidgetProps(WidgetContext context, List<Constraint> constraints) {
         HashMap<String, Object> props = new HashMap<String, Object>();
         props.put("domain-object-type", context.getFormObjects().getRootNode().getType());
 
@@ -256,6 +255,9 @@ public class FormRetriever {
         FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
         props.put("field-name", fieldPath.getFieldName());
 
+        for (Constraint constraint : constraints) {
+            props.putAll(constraint.getParams());
+        }
         return props;
     }
 }
