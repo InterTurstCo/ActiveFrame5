@@ -16,6 +16,7 @@ import ru.intertrust.cm.core.gui.model.action.SaveActionData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
+import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 
 /**
  * @author Denis Mitavskiy
@@ -68,8 +69,12 @@ public class SaveAction extends SimpleServerAction {
             FormPlugin plugin = (FormPlugin)this.getPlugin();
             PluginView view = plugin.getView();
             FormPanel panel = (FormPanel)view.getViewWidget();
+            ValidationResult validationResult = new ValidationResult();
             for (BaseWidget widget : panel.getWidgets()) {
-               // System.out.println(widget.getConstraints()); // TODO: [validation] create validators  etc.
+                validationResult.append(widget.validate());
+            }
+            if (validationResult.hasErrors()) {
+                return false;
             }
         }
         return true;
