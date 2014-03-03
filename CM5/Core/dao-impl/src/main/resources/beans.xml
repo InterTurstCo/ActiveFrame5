@@ -122,4 +122,6 @@
         class="ru.intertrust.cm.core.dao.impl.FileSystemAttachmentContentDaoImpl"
         init-method="init" />
 
+    <bean id="domainObjectFinderService" class="ru.intertrust.cm.core.dao.impl.DomainObjectFinderServiceImpl" />
+
 </beans>
