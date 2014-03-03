@@ -60,5 +60,11 @@ public interface DynamicGroupService {
      * @return идентификатор группы
      */
     Id getUserGroupByGroupName(String groupName);
-    
+ 
+    /**
+     * Получение состава динамической группы с учетом вхождения группы в группу
+     * @param contextId
+     * @return
+     */
+    List<Id> getPersons(Id contextId, String groupName);
 }

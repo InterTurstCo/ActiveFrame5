@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
+import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.wrap;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -27,11 +29,11 @@ import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission.Permission;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
-import ru.intertrust.cm.core.config.ConfigurationException;
 import ru.intertrust.cm.core.config.AccessMatrixStatusConfig;
 import ru.intertrust.cm.core.config.BaseOperationPermitConfig;
 import ru.intertrust.cm.core.config.BasePermit;
 import ru.intertrust.cm.core.config.CollectorConfig;
+import ru.intertrust.cm.core.config.ConfigurationException;
 import ru.intertrust.cm.core.config.ContextRoleConfig;
 import ru.intertrust.cm.core.config.CreateChildConfig;
 import ru.intertrust.cm.core.config.DeleteConfig;
@@ -55,8 +57,6 @@ import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.dao.api.extension.OnLoadConfigurationExtensionHandler;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.model.PermissionException;
-
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.wrap;
 
 /**
  * Реализация сервиса обновления списков доступа.
@@ -149,7 +149,8 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         for (BaseOperationPermitConfig operationPermitConfig : accessMatrixConfig.getPermissions()) {
             AccessType accessType = getAccessType(operationPermitConfig);
             //Добавляем без дублирования
-            addAllWithoutDuplicate(newAclInfos, processOperationPermissions(invalidContextId, operationPermitConfig, accessType));
+            addAllWithoutDuplicate(newAclInfos,
+                    processOperationPermissions(invalidContextId, operationPermitConfig, accessType));
         }
 
         //Получение текущего состава acl из базы
@@ -159,7 +160,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         //Получаем новые элементы в acl
         List<AclInfo> addAclInfo = new ArrayList<AclInfo>();
         for (AclInfo aclInfo : newAclInfos) {
-            if (!oldAclInfos.contains(aclInfo)){
+            if (!oldAclInfos.contains(aclInfo)) {
                 addAclInfo.add(aclInfo);
             }
         }
@@ -167,7 +168,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         //Получаем те элементы acl которые надо удалить
         List<AclInfo> deleteAclInfo = new ArrayList<AclInfo>();
         for (AclInfo aclInfo : oldAclInfos) {
-            if (!newAclInfos.contains(aclInfo)){
+            if (!newAclInfos.contains(aclInfo)) {
                 deleteAclInfo.add(aclInfo);
             }
         }
@@ -226,7 +227,8 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
                     if (accessType != null) {
                         AclInfo info =
-                                new AclInfo(accessType, new RdbmsId(domainObjectTypeIdCache.getId("User_Group"), rs.getLong("group_id")));
+                                new AclInfo(accessType, new RdbmsId(domainObjectTypeIdCache.getId("User_Group"), rs
+                                        .getLong("group_id")));
                         result.add(info);
                     }
                 }
@@ -301,7 +303,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
                 DynamicGroupConfig dynamicGroupConfig =
                         configurationExplorer.getConfig(DynamicGroupConfig.class, dynamicGroupName);
-                                
+
                 if (dynamicGroupConfig != null && dynamicGroupConfig.getContext() != null
                         && dynamicGroupConfig.getContext().getDomainObject() != null) {
 
@@ -373,7 +375,6 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
     }
 
-
     private void deleteAclRecord(AccessType accessType, Id objectId, Id dynamicGroupId) {
         RdbmsId rdbmsObjectId = (RdbmsId) objectId;
         RdbmsId rdbmsDynamicGroupId = (RdbmsId) dynamicGroupId;
@@ -427,7 +428,6 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         return query.toString();
     }
-
 
     private String generateInsertAclRecordQuery(RdbmsId objectId) {
         String tableName = null;
@@ -582,7 +582,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
     }
 
     private void registerCollector(ContextRoleCollector collector, ContextRoleConfig contextRoleConfig,
-                                   Configuration configuration) {
+            Configuration configuration) {
         // Получение типов, которые отслеживает коллектор
         List<String> types = collector.getTrackTypeNames();
         // Регистрируем коллектор в реестре, для обработки
@@ -605,7 +605,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
     /**
      * Регистрация коллектора в реестре коллекторов
-     *
+     * 
      * @param type
      * @param collector
      */
@@ -620,7 +620,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
     /**
      * Получение всех дочерних типов переданного типа
-     *
+     * 
      * @param type
      * @return
      */
@@ -662,7 +662,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
     /**
      * Клаксс для описания элемента реестра контекстных ролей
      * @author larin
-     *
+     * 
      */
     private class ContextRoleRegisterItem {
         private ContextRoleCollector collector;
@@ -689,7 +689,6 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
     public List<DomainObjectPermission> getObjectPermissions(Id domainObjectId) {
         return getObjectPermissions(domainObjectId, null);
     }
-
 
     private List<DomainObjectPermission> getObjectPermissions(Id domainObjectId, Id personId) {
         RdbmsId rdbmsObjectId = (RdbmsId) domainObjectId;
@@ -875,5 +874,37 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             return true;
         }
 
+    }
+
+    @Override
+    public List<Id> getPersons(Id contextId, String roleName) {
+
+        List<ContextRoleRegisterItem> collectors = collectorsByContextRoleNames.get(roleName);
+
+        List<Id> result = new ArrayList<Id>();
+        if (collectors != null) {
+            for (ContextRoleRegisterItem collectorItem : collectors) {
+                List<Id> groups = collectorItem.getCollector().getMembers(contextId);
+                for (Id groupId : groups) {
+                    List<DomainObject> persons = personManagementService.getAllPersonsInGroup(groupId);
+                    addUniquePerson(result, persons);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Добавление уникальных записей в результат
+     * @param result
+     * @param persons
+     */
+    private void addUniquePerson(List<Id> result, List<DomainObject> persons) {
+        for (DomainObject domainObject : persons) {
+            if (!result.contains(domainObject.getId())) {
+                result.add(domainObject.getId());
+            }
+        }
     }
 }

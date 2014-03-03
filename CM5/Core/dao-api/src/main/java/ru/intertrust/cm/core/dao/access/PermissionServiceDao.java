@@ -66,4 +66,12 @@ public interface PermissionServiceDao {
      * @return
      */
     List<DomainObjectPermission> getObjectPermissions(Id domainObjectId);
+    
+    /**
+     * Получение состава контекстной роли
+     * @param contextId
+     * @return
+     */
+    List<Id> getPersons(Id contextId, String roleName);
+    
 }

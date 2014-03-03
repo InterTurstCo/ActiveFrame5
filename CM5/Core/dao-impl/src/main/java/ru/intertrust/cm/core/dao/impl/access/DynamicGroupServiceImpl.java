@@ -40,7 +40,6 @@ import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.dao.api.extension.OnLoadConfigurationExtensionHandler;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.model.PermissionException;
-
 import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.wrap;
 
 /**
@@ -716,6 +715,16 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
         @Override
         public void afterCompletion(int status) {
         }
+    }
+
+    @Override
+    public List<Id> getPersons(Id contextId, String groupName) {
+        List<DomainObject> persons = null;
+        DomainObject group = personManagementService.findDynamicGroup(groupName, contextId);
+        if (group != null){
+            persons = personManagementService.getAllPersonsInGroup(group.getId());
+        }
+        return getIdListFromDomainObjectList(persons);
     }
 
 }
