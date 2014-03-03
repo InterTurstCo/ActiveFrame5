@@ -40,7 +40,12 @@ public class Constraint implements Dto {
     // for RangeValidator
     public static final String TYPE_LONG = "long";
     public static final String TYPE_DECIMAL = "decimal";
-    public static final String TYPE_DATE = "date"; // TODO: [validation] actually we need 3 types: date-time with timezoen, date-time, date
+    public static final String TYPE_DATE = "date";
+    public static final String TYPE_DATE_TIME = "date-time";
+    public static final String TYPE_DATE_TIME_WITH_TIMEZONE = "date-time-with-timezone";
+
+    public static final String VAlUE = "value";
+    public static final String FIELD_NAME = "field-name";
 
     private Type type;
     private HashMap<String, String> params;

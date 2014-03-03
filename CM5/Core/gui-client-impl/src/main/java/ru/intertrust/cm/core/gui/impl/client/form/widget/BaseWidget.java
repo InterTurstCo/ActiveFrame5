@@ -81,7 +81,7 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
 
     protected String getMessageText(String messageKey) {
         Map<String, Object> props = getInitialData().getWidgetProperties();
-        props.put("value", getValue()); // TODO: [validation] use constants
+        props.put(Constraint.VAlUE, getValue());
         if (messages.get(messageKey) != null) {
             return PlaceholderResolver.substitute(messages.get(messageKey), props);
         } else {

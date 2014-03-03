@@ -253,7 +253,7 @@ public class FormRetriever {
 
         WidgetConfig widgetConfig = context.getWidgetConfig();
         FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
-        props.put("field-name", fieldPath.getFieldName());
+        props.put(Constraint.FIELD_NAME, fieldPath.getFieldName());
 
         for (Constraint constraint : constraints) {
             props.putAll(constraint.getParams());
