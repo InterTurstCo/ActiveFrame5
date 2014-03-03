@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.business.api;
+package ru.intertrust.cm.core.business.api.notification;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.notification.NotificationContext;
@@ -9,19 +9,7 @@ import ru.intertrust.cm.core.business.api.dto.notification.NotificationPriority;
  * @author larin
  * 
  */
-public interface NotificationChannel {
-    /**
-     * Получение имени канала
-     * @return
-     */
-    String getName();
-
-    /**
-     * Описание канала. Может использоваться в GUI для отображения информации о канале в профиле пользователя или
-     * системы.
-     * @return
-     */
-    String getDescription();
+public interface NotificationChannelHandle {
 
     /**
      * Отправка сообщения с помощью канала

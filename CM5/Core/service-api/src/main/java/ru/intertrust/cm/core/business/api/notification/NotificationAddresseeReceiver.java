@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.business.api;
+package ru.intertrust.cm.core.business.api.notification;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.business.api.impl;
+package ru.intertrust.cm.core.business.api.notification;
 
 import org.simpleframework.xml.Attribute;
 

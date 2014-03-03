@@ -123,5 +123,10 @@
     <bean id="notificationTextFormer"
           class="ru.intertrust.cm.core.business.impl.NotificationTextFormerImpl"/>
 
+    <bean id="notificationChannelLoader"
+          class="ru.intertrust.cm.core.business.impl.NotificationChannelLoaderImpl" init-method="init" />
+
+    <bean id="notificationChannelSelector"
+          class="ru.intertrust.cm.core.business.impl.NotificationChannelSelectorSimpleImpl"/>
 
 </beans>
