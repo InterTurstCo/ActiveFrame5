@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget;
 import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
@@ -54,7 +53,6 @@ public class DateBoxWidget extends BaseWidget {
             //data.setDate(DATE_TIME_FORMAT.parse(((DateBoxDecorate) impl).getTextField().getText()));
             data.setDate(DATE_TIME_FORMAT.parse(((DateBoxDecorate) impl).getValue().toString()));
         }
-        validate();
         return data;
     }
 
@@ -83,7 +81,8 @@ public class DateBoxWidget extends BaseWidget {
 
     @Override
     public Object getValue() {
-        return ((DateBoxDecorate) impl).getValue().toString();//TODO: [validation] get raw string value
+        Date value = ((DateBoxDecorate) impl).getValue();
+        return value != null ? value.getTime() + "" : null;
     }
 
 
@@ -97,4 +96,9 @@ public class DateBoxWidget extends BaseWidget {
         ((DateBoxDecorate)impl).getDateBox().addStyleName("validation-error");
     }
 
+    @Override
+    public void clearErrors() {
+        impl.setTitle(null);
+        ((DateBoxDecorate)impl).getDateBox().removeStyleName("validation-error");
+    }
 }

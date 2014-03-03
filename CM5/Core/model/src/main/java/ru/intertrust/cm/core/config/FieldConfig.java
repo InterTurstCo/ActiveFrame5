@@ -103,7 +103,7 @@ public abstract class FieldConfig implements Serializable {
         }
     }
 
-   void addConstraintsFromConfig(List<Constraint> constraints) {
+   private void addConstraintsFromConfig(List<Constraint> constraints) {
         ConstraintsConfig constraintsConfig = getConstraintsConfig();
         if (constraintsConfig != null) {
             for (ConstraintConfig cnstrConfig : constraintsConfig.getConstraintConfigs()) {

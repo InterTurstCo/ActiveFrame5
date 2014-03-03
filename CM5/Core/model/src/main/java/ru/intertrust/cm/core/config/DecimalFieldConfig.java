@@ -92,19 +92,4 @@ public class DecimalFieldConfig extends FieldConfig {
         return constraints;
     }
 
-    @Override
-    void addConstraintsFromConfig(List<Constraint> constraints) {
-        ConstraintsConfig constraintsConfig = getConstraintsConfig();
-        if (constraintsConfig != null) {
-            for (ConstraintConfig cnstrConfig : constraintsConfig.getConstraintConfigs()) {
-                Constraint constraint = cnstrConfig.getConstraint();
-                if (constraint != null) {
-                    if (Constraint.Type.RANGE == constraint.getType()) {
-                        constraint.addParam(Constraint.PARAM_FIELD_TYPE, Constraint.TYPE_DECIMAL);
-                    }
-                    constraints.add(constraint);
-                }
-            }
-        }
-    }
 }

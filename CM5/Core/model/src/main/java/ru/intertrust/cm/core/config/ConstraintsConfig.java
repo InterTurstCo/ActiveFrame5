@@ -17,7 +17,9 @@ public class ConstraintsConfig implements Serializable {
     @ElementListUnion({
             @ElementList(entry="simple-constraint", type=SimpleConstraintConfig.class, inline=true, required = false),
             @ElementList(entry="length", type=LengthConstraintConfig.class, inline=true, required = false),
-            @ElementList(entry="range", type=RangeConstraintConfig.class, inline=true, required = false),
+            @ElementList(entry="int-range", type=IntRangeConstraintConfig.class, inline=true, required = false),
+            @ElementList(entry="dec-range", type=DecimalRangeConstraintConfig.class, inline=true, required = false),
+            @ElementList(entry="date-range", type=DateRangeConstraintConfig.class, inline=true, required = false),
     })
     private List<ConstraintConfig> constraintConfigs = new ArrayList<ConstraintConfig>();
 

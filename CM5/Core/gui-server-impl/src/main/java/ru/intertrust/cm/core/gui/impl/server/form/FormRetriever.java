@@ -256,7 +256,17 @@ public class FormRetriever {
         props.put(Constraint.FIELD_NAME, fieldPath.getFieldName());
 
         for (Constraint constraint : constraints) {
-            props.putAll(constraint.getParams());
+            Map<String, String> params = constraint.getParams();
+            //need this, because in case of dates, representation for messages differs from representation for validation
+            String rangeStart = params.get(Constraint.PARAM_RANGE_START_FOR_MSG);
+            if (rangeStart != null) {
+                params.put(Constraint.PARAM_RANGE_START, rangeStart);
+            }
+            String rangeEnd = params.get(Constraint.PARAM_RANGE_END_FOR_MSG);
+            if (rangeEnd != null) {
+                params.put(Constraint.PARAM_RANGE_END, rangeEnd);
+            }
+            props.putAll(params);
         }
         return props;
     }

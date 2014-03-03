@@ -10,7 +10,7 @@ import java.util.HashMap;
  *         Date: 25.02.14
  *         Time: 18:22
  */
-public class RangeConstraintConfig extends ConstraintConfig {
+public abstract class RangeConstraintConfig extends ConstraintConfig {
 
     @Attribute(name="start", required = false)
     private String start;
@@ -26,7 +26,7 @@ public class RangeConstraintConfig extends ConstraintConfig {
         this.start = start;
     }
 
-    public Comparable getEnd() {
+    public String getEnd() {
         return end;
     }
 
@@ -70,6 +70,8 @@ public class RangeConstraintConfig extends ConstraintConfig {
         HashMap<String, String> params = new HashMap<String, String>();
         params.put(Constraint.PARAM_RANGE_START, start);
         params.put(Constraint.PARAM_RANGE_END, end);
-        return new Constraint(Constraint.Type.RANGE, params);
+        return new Constraint(getType(), params);
     }
+
+    abstract Constraint.Type getType();
 }

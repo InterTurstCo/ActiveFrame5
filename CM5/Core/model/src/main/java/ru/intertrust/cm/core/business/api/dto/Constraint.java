@@ -15,7 +15,9 @@ public class Constraint implements Dto {
     public static enum Type {
         SIMPLE,
         LENGTH,
-        RANGE,
+        INT_RANGE,
+        DECIMAL_RANGE,
+        DATE_RANGE,
         SCALE_PRECISION;
     }
 
@@ -28,7 +30,8 @@ public class Constraint implements Dto {
     public static final String PARAM_RANGE_END = "range-end";
     public static final String PARAM_SCALE = "scale";
     public static final String PARAM_PRECISION = "precision";
-    public static final String PARAM_FIELD_TYPE = "type";
+    public static final String PARAM_RANGE_START_FOR_MSG = "range-start-for-msg";
+    public static final String PARAM_RANGE_END_FOR_MSG = "range-end-for-msg";
 
     // ключевые слова, используемые при простой валидации (SimpleValidator)
     public static final String KEYWORD_NOT_EMPTY = "validate.not-empty";
@@ -36,13 +39,6 @@ public class Constraint implements Dto {
     public static final String KEYWORD_POSITIVE_INT = "validate.positive-int";
     public static final String KEYWORD_DECIMAL = "validate.decimal";
     public static final String KEYWORD_POSITIVE_DEC = "validate.positive-dec";
-
-    // for RangeValidator
-    public static final String TYPE_LONG = "long";
-    public static final String TYPE_DECIMAL = "decimal";
-    public static final String TYPE_DATE = "date";
-    public static final String TYPE_DATE_TIME = "date-time";
-    public static final String TYPE_DATE_TIME_WITH_TIMEZONE = "date-time-with-timezone";
 
     public static final String VAlUE = "value";
     public static final String FIELD_NAME = "field-name";
@@ -63,7 +59,7 @@ public class Constraint implements Dto {
     }
 
     public Map<String, String> getParams() {
-        return params;
+        return  new HashMap(params);
     }
 
     public String param(String paramName) {

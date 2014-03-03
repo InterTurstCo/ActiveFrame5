@@ -11,8 +11,10 @@ import ru.intertrust.cm.core.gui.impl.client.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.util.PlaceholderResolver;
 import ru.intertrust.cm.core.gui.model.validation.CanBeValidated;
+import ru.intertrust.cm.core.gui.model.validation.DateRangeValidator;
+import ru.intertrust.cm.core.gui.model.validation.DecimalRangeValidator;
+import ru.intertrust.cm.core.gui.model.validation.IntRangeValidator;
 import ru.intertrust.cm.core.gui.model.validation.LengthValidator;
-import ru.intertrust.cm.core.gui.model.validation.RangeValidator;
 import ru.intertrust.cm.core.gui.model.validation.ScaleAndPrecisionValidator;
 import ru.intertrust.cm.core.gui.model.validation.SimpleValidator;
 import ru.intertrust.cm.core.gui.model.validation.ValidationMessage;
@@ -132,8 +134,14 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
                 case LENGTH:
                     validators.add(new LengthValidator(constraint));
                     break;
-                case RANGE:
-                    validators.add(new RangeValidator(constraint));
+                case INT_RANGE:
+                    validators.add(new IntRangeValidator(constraint));
+                    break;
+                case DECIMAL_RANGE:
+                    validators.add(new DecimalRangeValidator(constraint));
+                    break;
+                case DATE_RANGE:
+                    validators.add(new DateRangeValidator(constraint));
                     break;
                 case SCALE_PRECISION:
                     validators.add(new ScaleAndPrecisionValidator(constraint));

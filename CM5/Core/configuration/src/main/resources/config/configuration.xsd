@@ -2028,7 +2028,11 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:lengthConstraintType" name="length"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:rangeConstraintType" name="range"
+            <xs:element type="con:intRangeConstraintType" name="int-range"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:decRangeConstraintType" name="dec-range"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:dateRangeConstraintType" name="date-range"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:choice>
     </xs:complexType>
@@ -2055,7 +2059,29 @@
         </xs:simpleContent>
     </xs:complexType>
 
-    <xs:complexType name="rangeConstraintType">
+    <xs:complexType name="intRangeConstraintType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="start" use="optional"
+                              type="xs:integer"/>
+                <xs:attribute name="end" use="optional"
+                              type="xs:integer"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="decRangeConstraintType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="start" use="optional"
+                              type="xs:decimal"/>
+                <xs:attribute name="end" use="optional"
+                              type="xs:decimal"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="dateRangeConstraintType">
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute name="start" use="optional"
@@ -2065,5 +2091,4 @@
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
-
 </xs:schema>
