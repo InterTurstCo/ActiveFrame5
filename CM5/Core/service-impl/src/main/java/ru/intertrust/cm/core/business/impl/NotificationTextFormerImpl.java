@@ -10,10 +10,10 @@ import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.notification.NotificationContext;
 import ru.intertrust.cm.core.business.api.dto.notification.NotificationText;
 import ru.intertrust.cm.core.model.NotificationException;
+import ru.intertrust.cm.core.tools.DomainObjectAccessor;
+import ru.intertrust.cm.core.tools.Session;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class NotificationTextFormerImpl implements NotificationTextFormer{
     private static final Logger logger = LoggerFactory.getLogger(NotificationTextFormerImpl.class);
@@ -79,6 +79,25 @@ public class NotificationTextFormerImpl implements NotificationTextFormer{
     }
 
     private String formatTemplate(String notificationTextTemplate, Id addressee, NotificationContext context) {
-        return null;
+
+        Set<String> contextNames = context.getContextNames();
+        if (contextNames == null) return null;
+
+        Map<String, Object> model = new HashMap<>();
+        model.put("session", new Session());
+
+        for (String contextName : contextNames) {
+            Dto contextObject = context.getContextObject(contextName);
+            if (contextObject instanceof DomainObject){
+                model.put(contextName, new DomainObjectAccessor((DomainObject)contextObject));
+            } else {
+                model.put(contextName, contextObject);
+            }
+        }
+
+        //todo добавить преобразование даты и времени в часовой пояс пользователя addressee
+
+        return FreeMarkerHelper.format(notificationTextTemplate, model);
+
     }
 }
