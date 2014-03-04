@@ -1,6 +1,9 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.stereotype.Service;
+
+import ru.intertrust.cm.core.dao.api.ActionListener;
+import ru.intertrust.cm.core.dao.api.UserTransactionService;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 
 import javax.annotation.Resource;
@@ -9,6 +12,7 @@ import javax.naming.NamingException;
 import javax.transaction.Status;
 import javax.transaction.Synchronization;
 import javax.transaction.TransactionSynchronizationRegistry;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,28 +25,10 @@ import java.util.List;
  * регистрация слушателей будет проигнорированна.
  */
 @Service
-public class UserTransactionServiceImpl {
+public class UserTransactionServiceImpl implements UserTransactionService{
 
     @Resource
     private TransactionSynchronizationRegistry txReg;
-
-    /**
-     * Абстракция слушателя, методы которого будут вызванны
-     * при выполнении commit или rollback контейнерной транзакции.
-     */
-    static abstract interface ActionListener {
-        /**
-         * метод вызывается до запуска двухфазного процесса фиксации транзакции.
-         * Этот вызов выполняется в контексте контейнерной транзакции, которая фиксируется.
-         */
-        void onCommit();
-
-        /**
-         * метод вызывается после того, как транзакция фиксируется или откатывается.
-         * Этот вызов выполняется вне контекста контейнерной транзакции.
-         */
-        void onRollback();
-    }
 
     private TransactionSynchronizationRegistry getTxReg() {
         if (txReg == null) {
@@ -59,6 +45,7 @@ public class UserTransactionServiceImpl {
      * Регистрируем событие для фиксации или отката "пользовательской" транзакции.
      * @param actionListener - событие, необходимо переопределить методы onCommit и onRollback.
      */
+    @Override
     public void addListener(ActionListener actionListener) {
         //не обрабатываем вне транзакции
         if (getTxReg().getTransactionKey() == null) {
@@ -79,6 +66,7 @@ public class UserTransactionServiceImpl {
      * если он уже был там создан.
      * @param filePath - полный путь к файлу.
      */
+    @Override
     public void addListenerForSaveFile(final String filePath) {
         addListener(new ActionListener() {
             @Override

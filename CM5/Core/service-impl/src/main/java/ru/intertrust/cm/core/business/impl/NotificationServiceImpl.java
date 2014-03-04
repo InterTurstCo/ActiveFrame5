@@ -1,42 +1,193 @@
 package ru.intertrust.cm.core.business.impl;
 
-
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 
+import javax.annotation.Resource;
 import javax.ejb.AsyncResult;
 import javax.ejb.Local;
 import javax.ejb.Remote;
+import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.NotificationService;
+import ru.intertrust.cm.core.business.api.PersonManagementService;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.notification.NotificationAddressee;
+import ru.intertrust.cm.core.business.api.dto.notification.NotificationAddresseeContextRole;
+import ru.intertrust.cm.core.business.api.dto.notification.NotificationAddresseeDynamicGroup;
+import ru.intertrust.cm.core.business.api.dto.notification.NotificationAddresseeGroup;
+import ru.intertrust.cm.core.business.api.dto.notification.NotificationAddresseePerson;
 import ru.intertrust.cm.core.business.api.dto.notification.NotificationContext;
 import ru.intertrust.cm.core.business.api.dto.notification.NotificationPriority;
+import ru.intertrust.cm.core.business.api.notification.NotificationChannelHandle;
+import ru.intertrust.cm.core.business.api.notification.NotificationChannelLoader;
+import ru.intertrust.cm.core.business.api.notification.NotificationChannelSelector;
+import ru.intertrust.cm.core.dao.access.DynamicGroupService;
+import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
+import ru.intertrust.cm.core.dao.api.ActionListener;
+import ru.intertrust.cm.core.dao.api.UserTransactionService;
 
 @Stateless(name = "NotificationService")
 @Local(NotificationService.class)
 @Remote(NotificationService.Remote.class)
-public class NotificationServiceImpl implements NotificationService{
+public class NotificationServiceImpl implements NotificationService {
     private static final Logger logger = LoggerFactory.getLogger(NotificationServiceImpl.class);
-    
+
+    @Autowired
+    private UserTransactionService userTransactionService;
+
+    @Autowired
+    private PersonManagementService personManagementService;
+
+    @Autowired
+    private NotificationChannelSelector notificationChannelSelector;
+
+    @Autowired
+    private NotificationChannelLoader notificationChannelLoader;
+
+    @Autowired
+    private DynamicGroupService dynamicGroupService;
+
+    @Autowired
+    private PermissionServiceDao permissionService;
+
+    @Resource
+    private SessionContext sessionContext;
+
     @Override
     public void sendOnTransactionSuccess(String notificationType, Id sender, List<NotificationAddressee> addresseeList,
             NotificationPriority priority, NotificationContext context) {
-        //TODO реализовать метод
-        logger.info("TODO sendOnTransactionSuccess " + notificationType + " " + addresseeList);
+        SendNotificationActionListener listener =
+                new SendNotificationActionListener(notificationType, sender, addresseeList, priority, context);
+        userTransactionService.addListener(listener);
+        logger.debug("Register to send notification " + notificationType + " " + addresseeList);
     }
 
     @Override
     public Future<Boolean> sendNow(String notificationType, Id sender, List<NotificationAddressee> addresseeList,
             NotificationPriority priority, NotificationContext context) {
-        //TODO реализовать метод
-        logger.info("TODO sendNow " + notificationType + " " + addresseeList);
+        logger.debug("Send notification " + notificationType + " " + addresseeList);
+        //Получаем список адресатов
+        List<Id> persons = getAddressee(addresseeList);
+
+        for (Id personId : persons) {
+            //Получаем список каналов для персоны
+            List<String> channelNames =
+                    notificationChannelSelector.getNotificationChannels(notificationType, personId, priority);
+            for (String channelName : channelNames) {
+                NotificationChannelHandle notificationChannelHandle =
+                        notificationChannelLoader.getNotificationChannel(channelName);
+                notificationChannelHandle.send(notificationType, sender, personId, priority, context);
+            }
+        }
+
         return new AsyncResult<Boolean>(true);
     }
 
+    /**
+     * Получение списка персон адресатов уведомления
+     * @param addresseeList
+     * @return
+     */
+    private List<Id> getAddressee(List<NotificationAddressee> addresseeList) {
+        List<Id> persons = new ArrayList<Id>();
+
+        for (NotificationAddressee notificationAddressee : addresseeList) {
+
+            if (addresseeList instanceof NotificationAddresseePerson) {
+                persons.add(((NotificationAddresseePerson) notificationAddressee).getPersonId());
+            } else if (addresseeList instanceof NotificationAddresseeGroup) {
+                Id groupId = ((NotificationAddresseeGroup) notificationAddressee).getGroupId();
+                List<DomainObject> personDomainObjects = personManagementService.getAllPersonsInGroup(groupId);
+                for (DomainObject personObject : personDomainObjects) {
+                    persons.add(personObject.getId());
+                }
+            } else if (addresseeList instanceof NotificationAddresseeDynamicGroup) {
+                NotificationAddresseeDynamicGroup addressee = (NotificationAddresseeDynamicGroup) notificationAddressee;
+                persons.addAll(dynamicGroupService.getPersons(addressee.getContextId(), addressee.getGroupName()));
+            } else if (addresseeList instanceof NotificationAddresseeContextRole) {
+                NotificationAddresseeContextRole addressee = (NotificationAddresseeContextRole) notificationAddressee;
+                persons.addAll(permissionService.getPersons(addressee.getContextId(), addressee.getRoleName()));
+            }
+        }
+        return persons;
+    }
+
+    public class SendNotificationActionListener implements ActionListener {
+        private String notificationType;
+        private Id sender;
+        private List<NotificationAddressee> addresseeList;
+        private NotificationPriority priority;
+        private NotificationContext context;
+
+        public SendNotificationActionListener(String notificationType, Id sender,
+                List<NotificationAddressee> addresseeList, NotificationPriority priority, NotificationContext context) {
+            super();
+            this.notificationType = notificationType;
+            this.sender = sender;
+            this.addresseeList = addresseeList;
+            this.priority = priority;
+            this.context = context;
+        }
+
+        public String getNotificationType() {
+            return notificationType;
+        }
+
+        public void setNotificationType(String notificationType) {
+            this.notificationType = notificationType;
+        }
+
+        public Id getSender() {
+            return sender;
+        }
+
+        public void setSender(Id sender) {
+            this.sender = sender;
+        }
+
+        public List<NotificationAddressee> getAddresseeList() {
+            return addresseeList;
+        }
+
+        public void setAddresseeList(List<NotificationAddressee> addresseeList) {
+            this.addresseeList = addresseeList;
+        }
+
+        public NotificationPriority getPriority() {
+            return priority;
+        }
+
+        public void setPriority(NotificationPriority priority) {
+            this.priority = priority;
+        }
+
+        public NotificationContext getContext() {
+            return context;
+        }
+
+        public void setContext(NotificationContext context) {
+            this.context = context;
+        }
+
+        @Override
+        public void onCommit() {
+            //Вызываем асинхронный метод отправки уведомлений
+            NotificationService notificationService = sessionContext.getBusinessObject(NotificationService.class);
+            notificationService.sendNow(notificationType, sender, addresseeList, priority, context);
+        }
+
+        @Override
+        public void onRollback() {
+            // Ничего не делаем при откате транзакции
+        }
+
+    }
 }
