@@ -26,6 +26,9 @@
         <configuration-path>modules-configuration/test-module/extendedsearch.xml</configuration-path>
         <configuration-path>modules-configuration/test-module/extendedsearch-int-docs.xml</configuration-path>
         <configuration-path>modules-configuration/test-module/extendedsearch-countries.xml</configuration-path>
+        <configuration-path>modules-configuration/test-module/domain-objects-test.xml</configuration-path>
+        <configuration-path>modules-configuration/test-module/trigger-events.xml</configuration-path>
+        
     </configuration-paths>
     <import-files>
         <import-file>importdata/import-organization.csv</import-file>

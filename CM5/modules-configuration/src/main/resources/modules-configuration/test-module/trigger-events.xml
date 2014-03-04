@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration xmlns="https://cm5.intertrust.ru/config"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="https://cm5.intertrust.ru/config configuration.xsd">
+
+    <named-trigger name="Trigger1">
+        <trigger domain-object-type="department_test" event="CHANGE">
+            <config>
+                <fields>
+                    <field>Name</field>
+                    <field>Organization</field>
+                </fields>
+                <statuses>
+                    <status>status1</status>
+                    <status>status2</status>
+                </statuses>
+            </config>
+        </trigger>
+    </named-trigger>
+
+    <named-trigger name="Trigger2">
+        <trigger domain-object-type="DomainObject" event="CREATE">
+            <class-name>ru.intertrust.cm.core.service.it.MyTestTrigger</class-name>
+        </trigger>
+    </named-trigger>
+
+    <named-trigger name="Trigger3">
+        <trigger domain-object-type="department_test" event="CHANGE">
+            <conditions-script>
+            var result = ctx.get('name') + ' result';
+            ctx.setResult(true);
+            </conditions-script>
+        </trigger>
+    </named-trigger>        
+
+</configuration>

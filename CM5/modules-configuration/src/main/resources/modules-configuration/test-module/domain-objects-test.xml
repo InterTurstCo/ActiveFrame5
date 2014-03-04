@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+     <domain-object-type name="organization_test" audit-log="true">
+        <fields>
+            <string name="Name" length="128" not-null="true" />
+            <reference name="Boss" type="employee_test"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="department_test" audit-log="true" initial-status="Active">
+        <fields>
+            <string name="Name" length="128" not-null="true" />
+            <reference name="Organization" type="organization_test" not-null="true"/>
+            <reference name="Boss" type="employee_test"/>
+            <reference name="ParentDepartment" type="department_test" not-null="false"/>
+        </fields>
+    </domain-object-type>
+    
+    <domain-object-type name="person_test" initial-status="Active3">
+        <fields>
+            <string name="Login" length="128" />
+            <string name="FirstName" length="128" />
+            <string name="LastName" length="128" />
+            <string name="EMail" length="128" />
+        </fields>
+        <uniqueKey> <!-- This key means automatic key + index creation -->
+            <field name="Login"/>
+        </uniqueKey>
+        <uniqueKey> <!-- This key means automatic key + index creation -->
+            <field name="EMail"/>
+        </uniqueKey>
+        <attachment-types>
+            <attachment-type name="person_attachment_test"></attachment-type>
+        </attachment-types>
+    </domain-object-type>
+    
+    <domain-object-type name="employee_test" extends="person_test" audit-log="true" initial-status="Active">
+        <fields>
+            <reference name="Department" type="department_test" not-null="true"/>
+            <string name="Name" length="64" not-null="true" />
+            <string name="Position" length="64" not-null="true" />
+            <string name="Phone" length="32" />
+            <string name="Certificate" length="4096" />
+            <string name="Fingerprint" length="128" />
+        </fields>
+        <uniqueKey> <!-- This key means automatic key + index creation -->
+            <field name="Phone" />
+        </uniqueKey>
+    </domain-object-type>
+    
+    <domain-object-type name="country_test" initial-status="Active">
+        <fields>
+            <string name="name" length="128"/>
+            <date-time name="independence_day"/>
+            <long name="population"/>
+            <boolean name="is_country_rich"/>
+            <decimal name="square" precision="15" scale="2"/>
+            <reference name="capital" type="city_test"/>
+            <reference name="most_famous_city" type="city_test"/>
+            <string name="description" length="1024"/>
+        </fields>
+        <uniqueKey>
+            <field name="name"/>
+        </uniqueKey>
+        <attachment-types>
+            <attachment-type name="country_attachment_test"/>
+        </attachment-types>
+    </domain-object-type>
+    
+     <domain-object-type name="city_test" initial-status="Active">
+        <fields>
+            <reference name="country" type="country_test"/>
+            <string name="name" length="128"/>
+            <long name="population"/>
+            <long name="year_of_foundation"/>
+            <decimal name="latitude" precision="9" scale="2"/>
+            <decimal name="longitude" precision="9" scale="2"/>
+            <decimal name="square" precision="9" scale="2"/>
+        </fields> 
+    </domain-object-type>  
+</configuration>

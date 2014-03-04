@@ -129,4 +129,8 @@
     <bean id="notificationChannelSelector"
           class="ru.intertrust.cm.core.business.impl.NotificationChannelSelectorSimpleImpl"/>
 
+    <bean id="eventTrigger" class="ru.intertrust.cm.core.business.impl.EventTriggerImpl"/>
+
+    <bean id="scriptService" class="ru.intertrust.cm.core.business.impl.JavaScriptServiceImpl"/>
+
 </beans>

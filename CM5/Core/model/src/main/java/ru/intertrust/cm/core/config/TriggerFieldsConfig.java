@@ -17,11 +17,11 @@ public class TriggerFieldsConfig implements Dto {
     @ElementList(entry="field", type=TriggerFieldConfig.class, inline=true, required = false)
     private List<TriggerFieldConfig> triggerFieldsConfig = new ArrayList<TriggerFieldConfig>();
 
-    public List<TriggerFieldConfig> getTriggerFieldsConfig() {
+    public List<TriggerFieldConfig> getFields() {
         return triggerFieldsConfig;
     }
 
-    public void setTriggerFieldsConfig(List<TriggerFieldConfig> triggerFieldsConfig) {
+    public void setFields(List<TriggerFieldConfig> triggerFieldsConfig) {
 
         if (triggerFieldsConfig != null) {
             this.triggerFieldsConfig = triggerFieldsConfig;
