@@ -1,5 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -15,6 +18,7 @@ import ru.intertrust.cm.core.gui.api.server.widget.ValueEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.impl.server.GuiContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.DateTimeContext;
 import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
@@ -31,21 +35,21 @@ public class DateBoxHandler extends ValueEditingWidgetHandler {
     private static final String ORIGINAL_TIME_ZONE_ID = "original";
 
     @Override
-    public DateBoxState getInitialState(WidgetContext context) {
-        final Value value = context.getValue();
-        final DateBoxConfig config = context.getWidgetConfig();
+    public DateBoxState getInitialState(WidgetContext widgetContext) {
+        final Value value = widgetContext.getValue();
+        final DateBoxConfig config = widgetContext.getWidgetConfig();
+        final DateBoxState state = new DateBoxState();
         final DateValueConverter converter = getConverter(value.getFieldType());
-        final DateBoxState dateBoxState = converter.valueToState(value, config);
-        dateBoxState.setDate(context.<Date>getFieldPlainValue());
-        return dateBoxState;
+        state.setDateTimeContext(converter.valueToContext(value, config));
+        return state;
     }
 
     @Override
     public Value getValue(WidgetState state) {
         final DateBoxState dateBoxState = (DateBoxState) state;
-        final FieldType fieldType = FieldType.values()[dateBoxState.getOrdinalFieldType()];
+        final FieldType fieldType = FieldType.values()[dateBoxState.getDateTimeContext().getOrdinalFieldType()];
         final DateValueConverter converter = getConverter(fieldType);
-        final Value value = converter.dateToValue(dateBoxState);
+        final Value value = converter.contextToValue(dateBoxState.getDateTimeContext());
         return value;
     }
 
@@ -64,75 +68,99 @@ public class DateBoxHandler extends ValueEditingWidgetHandler {
 
     private static abstract class DateValueConverter<T extends Value> {
 
-        public abstract DateBoxState valueToState(T value, DateBoxConfig config);
+        public DateTimeContext valueToContext(T value, DateBoxConfig config) {
+            final DateTimeContext result = new DateTimeContext();
+            result.setPattern(config.getPattern());
+            result.setTimeZoneId(config.getTimeZoneId());
+            setContextValue(value, result);
+            return result;
+        }
 
-        public abstract T dateToValue(DateBoxState state);
+        public abstract T contextToValue(DateTimeContext context);
 
-        protected int getTimeZoneOffset(final DateBoxConfig config, final Date date) {
-            final Calendar calendar = GregorianCalendar.getInstance();
-            calendar.setTime(date);
-            String timeZoneId = config.getTimeZoneId() == null ? DEFAULT_TIME_ZONE_ID : config.getTimeZoneId();
-            switch (timeZoneId) {
-                case DEFAULT_TIME_ZONE_ID:
-                case LOCAL_TIME_ZONE_ID:
-                    timeZoneId = GuiContext.get().getUserInfo().getTimeZone();
-                    break;
-                case ORIGINAL_TIME_ZONE_ID:
-                default:
-                    timeZoneId = calendar.getTimeZone().getID();
-            }
-            final TimeZone timeZone = TimeZone.getTimeZone(timeZoneId);
-            calendar.setTimeZone(timeZone);
-            final int timeZoneOffset =
-                    (calendar.get(Calendar.ZONE_OFFSET) + calendar.get(Calendar.DST_OFFSET))/(60 * 1000);
-            return timeZoneOffset;
+        protected abstract void setContextValue(T value, DateTimeContext context);
+
+        protected String getTimeZoneId(final DateTimeContext context) {
+            return context.getTimeZoneId();
+//            String timeZoneId = context.getTimeZoneId();
+//            switch (timeZoneId) {
+//                case DEFAULT_TIME_ZONE_ID:
+//                case LOCAL_TIME_ZONE_ID:
+//                    timeZoneId = GuiContext.get().getUserInfo().getTimeZone();
+//                    break;
+//                case ORIGINAL_TIME_ZONE_ID:
+//                default:
+//                    timeZoneId = calendar.getTimeZone().getID();
+//            }
+//            final TimeZone timeZone = TimeZone.getTimeZone(timeZoneId);
+//            calendar.setTimeZone(timeZone);
+//            final int timeZoneOffset =
+//                    (calendar.get(Calendar.ZONE_OFFSET) + calendar.get(Calendar.DST_OFFSET))/(60 * 1000);
+//            return timeZoneOffset;
         }
     }
 
     private static class TimelessDateValueConverter extends DateValueConverter<TimelessDateValue> {
 
         @Override
-        public DateBoxState valueToState(TimelessDateValue value, final DateBoxConfig config) {
-            final DateBoxState state = new DateBoxState(FieldType.TIMELESSDATE.ordinal());
-            // FIXME not implements
-            state.setDate(new Date());
-            return state;
+        public TimelessDateValue contextToValue(final DateTimeContext context) {
+            return null;
         }
 
         @Override
-        public TimelessDateValue dateToValue(final DateBoxState state) {
-            return null;
+        protected void setContextValue(final TimelessDateValue value, final DateTimeContext context) {
+            context.setOrdinalFieldType(FieldType.TIMELESSDATE.ordinal());
         }
     }
 
     private static class DateTimeValueConverter extends DateValueConverter<DateTimeValue> {
 
-        public DateBoxState valueToState(DateTimeValue value, final DateBoxConfig config) {
-            final DateBoxState state = new DateBoxState(FieldType.DATETIME.ordinal());
-            state.setDate(value.get());
-            state.setTimeZoneOffset(getTimeZoneOffset(config, value.get()));
-            return state;
+        @Override
+        public DateTimeValue contextToValue(final DateTimeContext context) {
+            final DateTimeValue result = new DateTimeValue();
+            final String timeZoneId = getTimeZoneId(context);
+            final DateFormat dateFormat = new SimpleDateFormat(context.getPattern());
+            dateFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
+            try {
+                final Date date = context.getDateTime() == null ? null : dateFormat.parse(context.getDateTime());
+                result.setValue(date);
+            } catch (ParseException ignored) {
+                ignored.printStackTrace(); // for developers only
+            }
+            return result;
         }
 
         @Override
-        public DateTimeValue dateToValue(final DateBoxState state) {
-            return null;
+        protected void setContextValue(final DateTimeValue value, final DateTimeContext context) {
+            context.setOrdinalFieldType(FieldType.DATETIME.ordinal());
+            final String timeZoneId = getTimeZoneId(context);
+            final DateFormat dateFormat = new SimpleDateFormat(context.getPattern());
+            dateFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
+            context.setDateTime(value.get() == null ? null : dateFormat.format(value.get()));
+        }
+
+        @Override
+        protected String getTimeZoneId(final DateTimeContext context) {
+            switch (context.getTimeZoneId()) {
+                case DEFAULT_TIME_ZONE_ID:
+                case LOCAL_TIME_ZONE_ID:
+                case ORIGINAL_TIME_ZONE_ID:
+                    return GuiContext.get().getUserInfo().getTimeZone();
+            }
+            return context.getTimeZoneId();
         }
     }
 
     private static class DateTimeWithTimezoneValueConverter extends DateValueConverter<DateTimeWithTimeZoneValue> {
 
         @Override
-        public DateBoxState valueToState(DateTimeWithTimeZoneValue value, final DateBoxConfig config) {
-            final DateBoxState state = new DateBoxState(FieldType.DATETIMEWITHTIMEZONE.ordinal());
-            // FIXME not implements
-            state.setDate(new Date());
-            return state;
+        public DateTimeWithTimeZoneValue contextToValue(final DateTimeContext context) {
+            return null;
         }
 
         @Override
-        public DateTimeWithTimeZoneValue dateToValue(final DateBoxState state) {
-            return null;
+        protected void setContextValue(final DateTimeWithTimeZoneValue value, final DateTimeContext context) {
+            context.setOrdinalFieldType(FieldType.DATETIMEWITHTIMEZONE.ordinal());
         }
     }
 }

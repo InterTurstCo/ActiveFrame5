@@ -3,14 +3,11 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
+
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
-
-import java.util.Date;
-
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.DATE_TIME_FORMAT;
 
 /**
  * @author Denis Mitavskiy
@@ -20,33 +17,30 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
 @ComponentName("date-box")
 public class DateBoxWidget extends BaseWidget {
 
-    private int ordinalFieldType;
-
     @Override
     public Component createNew() {
         return new DateBoxWidget();
     }
 
     public void setCurrentState(WidgetState currentState) {
-        DateBoxState dateBoxState = (DateBoxState)currentState;
-        ordinalFieldType = dateBoxState.getOrdinalFieldType();
-        Date value = dateBoxState.getDate();
+        final DateBoxState dbState = (DateBoxState)currentState;
+        dbState.getDateTimeContext().setChanged(false);
         if (isEditable) {
             DateBoxDecorate dateBox = (DateBoxDecorate) impl;
-            dateBox.setValue(value);
+            dateBox.setValue(dbState.getDateTimeContext());
         } else {
-            setTrimmedText((HasText) impl, value == null ? "" : DATE_TIME_FORMAT.format(value));
+            setTrimmedText((HasText) impl, dbState.getDateTimeContext().getDateTime());
         }
     }
 
     @Override
     public WidgetState getCurrentState() {
-        DateBoxState data = new DateBoxState(ordinalFieldType);
+        final DateBoxState initial = getInitialData();
         if (isEditable) {
-            data.setDate(((DateBoxDecorate) impl).getValue());
-        } else {
-            data.setDate(DATE_TIME_FORMAT.parse(((DateBoxDecorate) impl).getValue().toString()));
+            initial.getDateTimeContext().setDateTime(((DateBoxDecorate) impl).getText());
         }
+        DateBoxState data = new DateBoxState();
+        data.setDateTimeContext(initial.getDateTimeContext());
         validate();
         return data;
     }
@@ -54,9 +48,7 @@ public class DateBoxWidget extends BaseWidget {
     @Override
     protected Widget asEditableWidget(WidgetState state) {
         DateBoxDecorate dateBoxDecorate = new DateBoxDecorate();
-
         return dateBoxDecorate;
-        //return new DateBox();
     }
 
     @Override
@@ -66,9 +58,12 @@ public class DateBoxWidget extends BaseWidget {
         return noneEditableWidget;
     }
 
+    /**
+     * todo will be used {@link DateBoxDecorate#getText()} method.
+     * @return
+     */
     @Override
     public Object getValue() {
         return ((DateBoxDecorate) impl).getValue().toString();//TODO: [validation] get raw string value
     }
-
 }

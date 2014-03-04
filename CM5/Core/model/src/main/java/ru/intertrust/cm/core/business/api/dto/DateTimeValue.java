@@ -25,9 +25,12 @@ public class DateTimeValue extends Value {
         this.value = value;
     }
 
+    public void setValue(Date value) {
+        this.value = value;
+    }
+
     @Override
     public Date get() {
         return value;
     }
-
 }

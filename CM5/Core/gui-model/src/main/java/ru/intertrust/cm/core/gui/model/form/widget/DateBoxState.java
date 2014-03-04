@@ -1,8 +1,6 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
-import java.util.Date;
-
-import ru.intertrust.cm.core.business.api.dto.FieldType;
+import ru.intertrust.cm.core.gui.model.DateTimeContext;
 
 /**
  * @author Denis Mitavskiy
@@ -13,46 +11,19 @@ public class DateBoxState extends ValueEditingWidgetState {
     // @default UID
     private static final long serialVersionUID = 1L;
 
-    private Date date;
-    private long timeZoneOffset;
-    /**
-     * Used ordinal value of {@link FieldType} to optimize traffic. Is readonly always.
-     */
-    private int ordinalFieldType;
+    private DateTimeContext dateTimeContext;
 
-    /**
-     * Default constructor for serialization.
-     */
-    protected DateBoxState() {
+    public DateTimeContext getDateTimeContext() {
+        return dateTimeContext;
     }
 
-    public DateBoxState(final int ordinalFieldType) {
-        this.ordinalFieldType = ordinalFieldType;
+    public void setDateTimeContext(DateTimeContext dateTimeContext) {
+        this.dateTimeContext = dateTimeContext;
     }
 
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public long getTimeZoneOffset() {
-        return timeZoneOffset;
-    }
-
-    public void setTimeZoneOffset(long timeZoneOffset) {
-        this.timeZoneOffset = timeZoneOffset;
-    }
-
-    public int getOrdinalFieldType() {
-        return ordinalFieldType;
-    }
-// FIXME will be updated
     @Override
     public int hashCode() {
-        return date == null ? 17 : date.hashCode();
+        return dateTimeContext == null ? 17 : dateTimeContext.hashCode();
     }
 
     @Override
@@ -63,8 +34,10 @@ public class DateBoxState extends ValueEditingWidgetState {
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        final Date other = (Date) obj;
-        final boolean result = date == null ? other == null : date.equals(other);
+        final DateBoxState other = (DateBoxState) obj;
+        final boolean result = dateTimeContext == null
+                ? other.dateTimeContext == null
+                : dateTimeContext.equals(other.dateTimeContext);
         return result;
     }
 }
