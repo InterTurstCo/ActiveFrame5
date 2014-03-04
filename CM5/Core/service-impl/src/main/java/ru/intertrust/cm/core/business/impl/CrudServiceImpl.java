@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.business.impl;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
@@ -20,15 +19,14 @@ import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.dao.api.extension.AfterCreateExtentionHandler;
 import ru.intertrust.cm.core.dao.exception.DaoException;
-import ru.intertrust.cm.core.model.ObjectNotFoundException;
 import ru.intertrust.cm.core.model.CrudException;
+import ru.intertrust.cm.core.model.ObjectNotFoundException;
 import ru.intertrust.cm.core.model.UnexpectedException;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -265,7 +263,6 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         String user = currentUserAccessor.getCurrentUser();
         AccessToken accessToken = null;
         accessToken = accessControlService.createAccessToken(user, id, DomainObjectAccessType.DELETE);
-        domainObjectDao.delete(id, accessToken);
         try {
             domainObjectDao.delete(id, accessToken);
         } catch (DaoException ex) {
