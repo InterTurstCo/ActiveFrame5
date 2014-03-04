@@ -29,5 +29,36 @@ public class TriggerFieldsConfig implements Dto {
             this.triggerFieldsConfig.clear();
         }
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((triggerFieldsConfig == null) ? 0 : triggerFieldsConfig.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        TriggerFieldsConfig other = (TriggerFieldsConfig) obj;
+        if (triggerFieldsConfig == null) {
+            if (other.triggerFieldsConfig != null) {
+                return false;
+            }
+        } else if (!triggerFieldsConfig.equals(other.triggerFieldsConfig)) {
+            return false;
+        }
+        return true;
+    }
+    
     
 }

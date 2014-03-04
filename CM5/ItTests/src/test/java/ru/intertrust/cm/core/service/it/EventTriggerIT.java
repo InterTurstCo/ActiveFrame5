@@ -24,12 +24,20 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.FieldModificationImpl;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.dao.api.StatusDao;
 import ru.intertrust.cm.webcontext.ApplicationContextProvider;
 
+/**
+ * 
+ * @author atsvetkov
+ *
+ */
 @RunWith(Arquillian.class)
 public class EventTriggerIT extends IntegrationTestBase {
 
     private EventTrigger eventTrigger;
+    
+    private StatusDao statusDao;
     
     @EJB
     private CrudService.Remote crudService;
@@ -51,6 +59,7 @@ public class EventTriggerIT extends IntegrationTestBase {
     private void initializeSpringBeans() {
         ApplicationContext applicationContext = ApplicationContextProvider.getApplicationContext();
         eventTrigger = applicationContext.getBean(EventTrigger.class);
+        statusDao = applicationContext.getBean(StatusDao.class);
     }
     
     @Test
@@ -77,7 +86,20 @@ public class EventTriggerIT extends IntegrationTestBase {
         assertTrue(!isTriggered);        
         
     }
-    
+
+    @Test
+    public void testTriggerChangeStatus() {
+        DomainObject organizationDomainObject = createOrganizationDomainObject();
+        organizationDomainObject = crudService.save(organizationDomainObject);
+        
+        DomainObject domainObject = createDepartmentDomainObject(organizationDomainObject);
+        domainObject = crudService.save(domainObject);
+        List<FieldModification> changedFileds = new ArrayList<FieldModification>();
+        changedFileds.add(new FieldModificationImpl("Name", new StringValue("Department1"), new StringValue("Department2")));        
+        boolean isTriggered = eventTrigger.isTriggered("TriggerChangeStatus", "CHANGE_STATUS", domainObject, changedFileds);
+        assertTrue(isTriggered);
+    }
+
     @Test
     public void testExecuteScript() {
         DomainObject organizationDomainObject = createOrganizationDomainObject();
@@ -89,7 +111,8 @@ public class EventTriggerIT extends IntegrationTestBase {
         boolean isTriggered = eventTrigger.isTriggered("Trigger3", "CHANGE", domainObject, changedFileds);
         assertTrue(isTriggered);
     }
-    
+
+    @Test
     public void testExecuteJavaClass() {
         DomainObject organizationDomainObject = createOrganizationDomainObject();
         organizationDomainObject = crudService.save(organizationDomainObject);

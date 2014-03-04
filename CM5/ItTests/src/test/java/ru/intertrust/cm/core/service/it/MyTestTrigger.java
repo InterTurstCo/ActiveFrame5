@@ -17,7 +17,7 @@ public class MyTestTrigger implements TriggerService {
 
     @Override
     public boolean isTriggered(String eventType, DomainObject domainObject, List<FieldModification> changedFields) {
-        if (EventType.CHANGE.equals(eventType)) {
+        if (EventType.CHANGE.toString().equals(eventType)) {
             return true;
         }
         return false;
