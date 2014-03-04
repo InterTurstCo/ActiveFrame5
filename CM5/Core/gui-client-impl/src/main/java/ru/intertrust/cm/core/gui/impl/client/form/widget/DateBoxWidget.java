@@ -75,7 +75,7 @@ public class DateBoxWidget extends BaseWidget {
     @Override
     protected Widget asNonEditableWidget(WidgetState state) {
         Label noneEditableWidget = new Label();
-        noneEditableWidget.removeStyleName("gwt-Label");
+        noneEditableWidget.setStyleName("not-edit-date-text-label");
         return noneEditableWidget;
     }
 

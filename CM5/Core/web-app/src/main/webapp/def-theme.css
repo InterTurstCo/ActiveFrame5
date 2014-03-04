@@ -1799,6 +1799,10 @@ div.gwt-Good-Label {
     padding-left: 20px !important;
 }
 
+.not-edit-date-text-label {
+    margin: 5px 5px 5px 5px;
+}
+
 .frm-pnl{
     display: block;
     height: 100%;
