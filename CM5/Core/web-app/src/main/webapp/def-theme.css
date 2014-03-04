@@ -171,7 +171,6 @@ h1 {
 
 /*оформление поиска коллекшен плагин вю начало*/
 .search-container {
-    /*background: none repeat scroll 0 0 #ffffff;*/
     border: 1px solid #8D97A5;
     background: rgba(255, 255, 255, 0.5);
     border-radius: 5px;
@@ -186,31 +185,43 @@ h1 {
     vertical-align: top;
     white-space: nowrap;
     padding: 0 0 2px 0;
-    width: 117px;
+    width: 125px;
 }
 
-.search-box:focus {
+.search-container .search-data-box:focus {
     border-color: #5e94ff;
     border-right: none;
-    -moz-box-shadow: inset 0 1px 2px rgba(0, 0, 0, .2);
-    -webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, .2);
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, .2) !important;
+    -moz-box-shadow: inset 1px 1px 2px rgba(94, 148, 255, .7);
+    -webkit-box-shadow: inset 1px 1px 2px rgba(94, 148, 255, .7);
+    box-shadow: inset 1px 1px 2px rgba(94, 148, 255, .7) !important;
     color: #1f2b5d;
     outline: 0;
 }
 
+
 .search-box, .search-data-box {
     border: 0 none;
     font-size: 11px;
-    width: 117px;
+    width: 75px;
     outline: medium none;
     margin: 0;
     color: #1f2b5d;
     padding: 3px;
     vertical-align: middle;
     background: none;
+    display: inline-block;
+    float: left;
 }
 
+.search-container .search-box:focus{
+    border-color: #5e94ff;
+    border-right: none;
+    -moz-box-shadow: inset 1px 1px 2px rgba(94, 148, 255, .7);
+    -webkit-box-shadow: inset 1px 1px 2px rgba(94, 148, 255, .7);
+    box-shadow: inset 1px 1px 2px rgba(94, 148, 255, .7) !important;
+    color: #1f2b5d;
+    outline: 0;
+}
 
 .dummy {
 }
@@ -679,10 +690,8 @@ td.datePickerMonth {
 .decorated-action-link img {
     border: none !important;
     position: relative;
-    top: 2px;
     float: left;
-    margin-top: 7px;
-    margin-left: 10px;
+    margin: 6px 0 0 10px;
     cursor: pointer;
 }
 
@@ -807,10 +816,6 @@ td.datePickerMonth {
 
 .gwt-ListBox {
     width: 165px;
-}
-
-.gwt-Label {
-    font-weight: bold;
 }
 
 .action-section {
@@ -1160,12 +1165,13 @@ td .gwt-SuggestBox {
 
 /* ATTACHMENTS */
 .facebook-main-box {
-    margin: 10px 0 0 0;
     color: #000;
     border: 1px solid #ccc;
     overflow: auto;
-    background-color: #ffffff;
+    background: rgba(255, 255, 255, 0.70);
     min-height: 30px;
+    padding: 1px 2px !important;
+    margin: 5px 5px 5px 5px;
 }
 
 .facebook-element {
@@ -1405,6 +1411,17 @@ td .gwt-SuggestBox {
 .gggg {
     padding-bottom: -15px !important;
 }
+
+.gggg table tr td {
+    vertical-align: middle !important;
+}
+/*.collection-table-td {*/
+    /*padding-bottom: -15px !important;*/
+/*}*/
+
+/*.collection-table-td table tr td {*/
+    /*vertical-align: middle !important;*/
+/*}*/
 
 .ext-serch-form-div {
     clear: left;
@@ -1786,6 +1803,11 @@ div.gwt-Label {
 
 div.gwt-Good-Label {
     font-weight: bold;
+    margin: 5px;
+}
+
+.not-edit-date-text-label {
+    margin: 5px 5px 5px 5px;
 }
 
 .gwt-Red-Label {
@@ -1853,7 +1875,7 @@ div.gwt-Good-Label {
     text-align: center;
     -moz-border-radius: 3px 3px 0px 0px;
     border-radius: 3px 3px 0px 0px;
-    text-decoration: underline;
+    /*text-decoration: underline;*/
 }
 
 .gwt-TabLayoutPanel .gwt-TabLayoutPanelTab-selected {
@@ -2431,6 +2453,22 @@ a:active .icon.back {
     width: 16px;
 }
 
+.search-container .date-select {
+    background: url("css/icon-datepicker.png") no-repeat;
+    cursor: pointer;
+    border: 0 none;
+    box-shadow: none;
+    font-size: 12px;
+    margin: 2px;
+    vertical-align: middle;
+    display: inline-block;
+    float: right;
+    height: 16px;
+    left: auto;
+    position: relative;
+    width: 16px;
+}
+
 .flush-serch:hover {
     background: url("css/icons1.png") no-repeat scroll -48px top transparent;
 }
@@ -2549,4 +2587,24 @@ td.datePickerMonth {
 .validation-error{
     background-color: #ffc0c8;
     border: 1px solid red !important;
+}
+
+.search-box-clear-button {
+    display: inline-block;
+    float: right;
+    cursor: pointer;
+    background: url("css/icons1.png") no-repeat -32px 0;
+    width: 16px;
+    height: 16px;
+    border: 0;
+    margin: 2px;
+    display: none;
+}
+
+.search-box-clear-button:hover {
+    background: url("css/icons1.png") no-repeat 0 0;
+}
+
+.search-box-clear-button:active {
+    background: url("css/icons1.png") no-repeat -16px 0;
 }

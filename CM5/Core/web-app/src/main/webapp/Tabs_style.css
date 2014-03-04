@@ -71,9 +71,22 @@
 }
 
 .gwt-TabLayoutPanel .gwt-Label {
-
     height: 28px;
     line-height: 28px;
+}
+
+div.gwt-Label {
+    margin-left: 10px;
+    font-size: 100%;
+}
+
+.gwt-Label {
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.gwt-Label:hover {
+    text-decoration: none;
 }
 
 .gwt-TabLayoutPanel {

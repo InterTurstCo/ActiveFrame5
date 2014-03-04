@@ -82,13 +82,23 @@
     position: absolute;
     top: 20px;
     right: 15px;
-    background: url(images/tab-close-block.png) no-repeat;
+    background: url(images/tab-close-block.png) no-repeat #ffffff;
     width: 21px;
-    height: 40px;
+    height: 37px;
     display: block;
     outline: none;
     cursor: pointer;
     float: left;
+    border-radius: 13px 0 0 13px;
+    border: 1px solid #000000;
+}
+.left-button:hover {
+    background: url(images/tab-close-block.png) no-repeat #F4F7F9;
+    border: 1px solid #757575;
+}
+.left-button:active {
+    background: url(images/tab-close-block.png) no-repeat #DAE5EC;
+    border: 1px solid #024186;
 }
 
 ins {
@@ -140,7 +150,6 @@ ins {
     margin-left: -0px;
     padding: 10px 20px 0 20px;
     border-width: 0;
-    border-radius: 5px 0 0 5px;
     background: #fff;
     background: -moz-linear-gradient(left, #ffffff 0%, #d4e1e9 100%);
     background: -webkit-gradient(linear, left top, right top, color-stop(0%, #ffffff), color-stop(100%, #d4e1e9));
@@ -162,7 +171,7 @@ ins {
     position: relative;
     background: #fff;
     border: none;
-    border-radius: 5px 5px 5px 5px;
+    border-radius: 5px 0 5px 5px;
     box-shadow: -2px 0 2px #ccc;
     padding-top: 17px;
 }
@@ -196,7 +205,7 @@ ins {
 /* левая панель кнопки */
 .bookmarks-link-non-active a,
 .bookmarks-link-active a {
-    padding: 3px 15px;
+    padding: 3px 0;
     text-decoration: underline;
     color: black !important;
     cursor: pointer;
@@ -220,11 +229,11 @@ ins {
 }
 
 .bookmarks-link-active a {
-    padding-left: 19px;
-    padding-right: 9px;
-    border: 3px solid #024186;
+    padding: 3px 9px;
+    border: 2px solid #024186;
     border-radius: 14px;
     text-decoration: none;
+    text-shadow: 1px 1px 1px rgba(2, 65, 134, .2);
 }
 
 /* левая панель кнопки END */
