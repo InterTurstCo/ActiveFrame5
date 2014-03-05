@@ -3,7 +3,7 @@
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="https://cm5.intertrust.ru/config configuration.xsd">
 
-    <named-trigger name="Trigger1">
+    <named-trigger name="TriggerReadConfig">
         <trigger domain-object-type="department_test" event="CHANGE">
             <config>
                 <fields>
@@ -39,7 +39,7 @@
         </trigger>
     </named-trigger>
 
-    <named-trigger name="Trigger3">
+    <named-trigger name="TriggerScript">
         <trigger domain-object-type="department_test" event="CHANGE">
             <conditions-script>
             var result = ctx.get('name') + ' result';
@@ -48,4 +48,18 @@
         </trigger>
     </named-trigger>        
 
+    <named-trigger name="TriggerTestScript">
+        <trigger domain-object-type="department_test" event="CHANGE">
+            <conditions-script>
+            var name = ctx.get('name');
+            var findDo = session.find(ctx.get('Organization'));
+            if(name == 'Department' || findDo.get('Name') == 'Organization') {
+                ctx.setResult(true);
+            } else {
+                ctx.setResult(false);
+            }          
+            </conditions-script>
+        </trigger>
+    </named-trigger>
+    
 </configuration>

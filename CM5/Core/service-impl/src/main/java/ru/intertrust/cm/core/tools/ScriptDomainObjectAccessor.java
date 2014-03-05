@@ -46,5 +46,8 @@ public class ScriptDomainObjectAccessor extends DomainObjectAccessor implements 
     public void setResult(Object result) {
         this.result = result;
     }
-    
+
+    public List<FieldModification> getChangedFields() {
+        return changedFields;
+    }        
 }

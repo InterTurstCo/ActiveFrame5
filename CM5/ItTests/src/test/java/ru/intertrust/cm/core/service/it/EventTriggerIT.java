@@ -72,17 +72,17 @@ public class EventTriggerIT extends IntegrationTestBase {
 
         List<FieldModification> changedFileds = new ArrayList<FieldModification>();
         changedFileds.add(new FieldModificationImpl("Name", new StringValue("Department1"), new StringValue("Department2")));        
-        boolean isTriggered = eventTrigger.isTriggered("Trigger1", "CHANGE", domainObject, changedFileds);
+        boolean isTriggered = eventTrigger.isTriggered("TriggerReadConfig", "CHANGE", domainObject, changedFileds);
         assertTrue(isTriggered);
         
         changedFileds = new ArrayList<FieldModification>();
         changedFileds.add(new FieldModificationImpl("Boss", new StringValue("Boss1"), new StringValue("Boss2")));        
-        isTriggered = eventTrigger.isTriggered("Trigger1", "CHANGE", domainObject, changedFileds);
+        isTriggered = eventTrigger.isTriggered("TriggerReadConfig", "CHANGE", domainObject, changedFileds);
         assertTrue(!isTriggered);
         
         changedFileds = new ArrayList<FieldModification>();
         changedFileds.add(new FieldModificationImpl("Name", new StringValue("Department1"), new StringValue("Department2")));        
-        isTriggered = eventTrigger.isTriggered("Trigger1", "CREATE", domainObject, changedFileds);
+        isTriggered = eventTrigger.isTriggered("TriggerReadConfig", "CREATE", domainObject, changedFileds);
         assertTrue(!isTriggered);        
         
     }
@@ -108,10 +108,32 @@ public class EventTriggerIT extends IntegrationTestBase {
         domainObject = crudService.save(domainObject);
 
         List<FieldModification> changedFileds = new ArrayList<FieldModification>();        
-        boolean isTriggered = eventTrigger.isTriggered("Trigger3", "CHANGE", domainObject, changedFileds);
+        boolean isTriggered = eventTrigger.isTriggered("TriggerScript", "CHANGE", domainObject, changedFileds);
         assertTrue(isTriggered);
     }
 
+    @Test
+    public void testExecuteComplexScript() {
+        DomainObject organizationDomainObject = createOrganizationDomainObject();
+        organizationDomainObject = crudService.save(organizationDomainObject);
+        DomainObject domainObject = createDepartmentDomainObject(organizationDomainObject);
+        domainObject = crudService.save(domainObject);
+
+        List<FieldModification> changedFileds = new ArrayList<FieldModification>();        
+        boolean isTriggered = eventTrigger.isTriggered("TriggerTestScript", "CHANGE", domainObject, changedFileds);
+        assertTrue(isTriggered);
+        
+        organizationDomainObject.setValue("Name", new StringValue("Organization2"));
+        organizationDomainObject = crudService.save(organizationDomainObject);
+        domainObject = createDepartmentDomainObject(organizationDomainObject);
+        domainObject.setValue("Name", new StringValue("Department2"));
+        domainObject = crudService.save(domainObject);
+
+        changedFileds = new ArrayList<FieldModification>();        
+        isTriggered = eventTrigger.isTriggered("TriggerTestScript", "CHANGE", domainObject, changedFileds);
+        assertTrue(!isTriggered);
+    }
+    
     @Test
     public void testExecuteJavaClass() {
         DomainObject organizationDomainObject = createOrganizationDomainObject();
@@ -131,14 +153,14 @@ public class EventTriggerIT extends IntegrationTestBase {
     private DomainObject createDepartmentDomainObject(DomainObject organizationDomainObject) {
         
         DomainObject departmentDomainObject = crudService.createDomainObject("department_test");
-        departmentDomainObject.setString("Name", "Departmment " + new Date());
+        departmentDomainObject.setString("Name", "Departmment");
         departmentDomainObject.setReference("Organization", organizationDomainObject.getId());
         return departmentDomainObject;
     }
 
     private DomainObject createOrganizationDomainObject() {
         DomainObject organizationDomainObject = crudService.createDomainObject("organization_test");
-        organizationDomainObject.setString("Name", "Organization" + new Date());
+        organizationDomainObject.setString("Name", "Organization");
         return organizationDomainObject;
     }
 
