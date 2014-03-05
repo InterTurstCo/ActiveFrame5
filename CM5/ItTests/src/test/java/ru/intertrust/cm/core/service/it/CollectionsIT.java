@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -223,5 +224,27 @@ public class CollectionsIT extends IntegrationTestBase {
         collectionCount = collectionService.findCollectionCount("Employees", filterValues);
         assertTrue(collectionCount >= 1);
 
+    }
+    
+    @Test
+    public void testIsCollectionEmpty() {
+        List<Filter> filterValues = new ArrayList<Filter>();
+        Filter filter = new Filter();
+        filter.setFilter("byDepartment");
+        filter.addCriterion(0, new LongValue(1));
+        filterValues.add(filter);
+
+        boolean isEmpty = collectionService.isCollectionEmpty("Employees", filterValues);
+        assertTrue(!isEmpty);
+        
+        filterValues = new ArrayList<Filter>();
+        filter = new Filter();
+        filter.setFilter("byName");
+        filter.addCriterion(0, new StringValue(System.currentTimeMillis() + ""));
+        filterValues.add(filter);        
+        isEmpty = collectionService.isCollectionEmpty("Employees", filterValues);
+
+        assertTrue(isEmpty);
+        
     }
 }

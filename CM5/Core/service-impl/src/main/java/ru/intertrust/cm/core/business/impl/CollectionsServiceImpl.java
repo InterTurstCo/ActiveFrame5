@@ -112,4 +112,9 @@ public class CollectionsServiceImpl implements CollectionsService {
         return findCollectionByQuery(query, params, 0, 0);
     }
 
+    @Override
+    public boolean isCollectionEmpty(String collectionName, List<? extends Filter> filters) {
+        IdentifiableObjectCollection objectCollection = findCollection(collectionName, null, filters, 0, 1);
+        return objectCollection.size() == 0;
+    }
 }

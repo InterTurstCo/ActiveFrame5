@@ -49,6 +49,14 @@ public interface CollectionsService {
     IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder);
 
     /**
+     * Проверяет, пуста ли коллекция.
+     * @param collectionName название коллекции
+     * @param filters список фильтров {@link ru.intertrust.cm.core.business.api.dto.Filter}
+     * @return пустая ли коллекция.
+     */
+    boolean isCollectionEmpty(String collectionName, List<? extends Filter> filters);
+    
+    /**
      * Возвращает заданную коллекцию
      *
      * @param collectionName название коллекции
