@@ -2,3 +2,30 @@ TYPE_NAME=country;KEYS=name;;
 name;population;description;independence_day;_ATTACHMENT_
 Россия;143548980;Российская Федерация;12.06.1990 00:00:00;importdata/contents/russia-map.png,importdata/contents/HierarchicalBrowser.png
 Украина;45469800;Украина;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
+Бельгия;45469800;Бельгия;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
+Эстония;45469800;Эстония;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
+Латвия;45469800;Латвия;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
+Литва;45469800;Литва;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
+Болгария;45469800;Болгария;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
+Норвегия;45469800;Норвегия;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
+Ватикан;45469800;Ватикан;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
+Швеция;45469800;Швеция;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
+Корея;45469800;Корея;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
+Египет;45469800;Египет;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
+Кипр;45469800;Кипр;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
+Ангола;45469800;Ангола;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
+Италия;45469800;Италия;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
+Япония;45469800;Япония;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
+Китай;45469800;Китай;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
+Парагвай;45469800;Парагвай;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
+Испания;45469800;Испания;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
+Греция;45469800;Греция;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
+Франция;45469800;Франция;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
+Румыния;45469800;Румыния;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
+Уганда;45469800;Уганда;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
+Пакистан;45469800;Пакистан;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
+Албания;45469800;Албания;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
+Турция;45469800;Турция;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
+Польша;45469800;Польша;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
+Чехия;45469800;Чехия;24.08.1990 00:00:00;importdata/contents/ukraine-map.png
+

@@ -4,12 +4,12 @@ import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.dom.client.*;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.safehtml.shared.SafeHtmlUtils;
-import com.google.gwt.user.cellview.client.AbstractCellTable;
-import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.Header;
 import com.google.gwt.user.client.Event;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionDataGrid;
 
 import static com.google.gwt.dom.client.Style.Unit.PX;
 
@@ -18,58 +18,54 @@ import static com.google.gwt.dom.client.Style.Unit.PX;
  *         Date: 30/9/13
  *         Time: 12:05 PM
  */
-public abstract class ResizableHeader<T> extends Header<String> {
+public class CollectionColumnHeaderDeprecated extends Header<HeaderWidget> {
     //TODO Have following strings localized from separate properties file
 
     private static final String MOVE_tt = "Click and drag to move column";
     private static final String RESIZE_tt = "Подсказка для расширения границ колонки ";
-    private static final Style.Cursor moveCursor = Style.Cursor.MOVE;
+    private static final Style.Cursor MOVE_CURSOR = Style.Cursor.MOVE;
     private static final Style.Cursor resizeCursor = Style.Cursor.COL_RESIZE;
-    private static final String RESIZE_COLOR = "#A49AED";
-    private static final String MOVE_COLOR = "gray";
-    private static final int MINIMUM_COLUMN_WIDTH = 80;
+    private static final String RESIZE_COLOR = "#ff0000";
+    private static final String MOVE_COLOR = "#ff0000";
+
     private String title;
     private final Document document = Document.get();
-    private final AbstractCellTable<T> tableHeader;
-    private final AbstractCellTable<T> tableBody;
+    private static final int RESIZE_HANDLE_WIDTH = 10;
+    private final CollectionDataGrid tableBody;
     private HeaderHelper current;
-    protected final Column<T, ?> column;
-    private final String resizeStyle;
+    protected final CollectionColumn column;
 
-    public ResizableHeader(String title, AbstractCellTable<T> tableHeader, AbstractCellTable<T> tableBody, Column<T, ?> column) {
-        this(title, tableHeader,tableBody, column, null);
-    }
+    private HeaderWidget widget;
 
 
-    public ResizableHeader(String title, AbstractCellTable<T> tableHeader, AbstractCellTable<T> tableBody, Column<T, ?> column,
-                           String resizeStyle) {
+    public CollectionColumnHeaderDeprecated(CollectionDataGrid tableBody, CollectionColumn column, HeaderWidget widget) {
+
         super(new HeaderCell());
-        if (title == null || tableHeader == null || column == null)
+        if (tableBody == null || column == null)
             throw new NullPointerException();
-        this.title = title;
-        this.column = column;
-        this.tableHeader = tableHeader;
-        this.tableBody = tableBody;
-        this.resizeStyle = resizeStyle;
 
+        this.column = column;
+        this.title = column.getDataStoreName();
+        this.tableBody = tableBody;
+        this.widget = widget;
     }
 
     @Override
-    public String getValue() {
-        return title;
+    public HeaderWidget getValue() {
+        return widget;
     }
 
     @Override
     public void onBrowserEvent(Cell.Context context, Element target, NativeEvent event) {
-        if (current == null)
+        if (current == null) {
             current = new HeaderHelper(target, event);
+
+        }
     }
 
     interface IDragCallback {
         void dragFinished();
     }
-
-    private static final int RESIZE_HANDLE_WIDTH = 10;
 
     private static NativeEvent getEventAndPreventPropagation(Event.NativePreviewEvent event) {
         final NativeEvent nativeEvent = event.getNativeEvent();
@@ -79,9 +75,10 @@ public abstract class ResizableHeader<T> extends Header<String> {
     }
 
     private static void setLine(Style style, int width, int top, int height, String color) {
+
         style.setPosition(Style.Position.ABSOLUTE);
         style.setTop(top, PX);
-        style.setHeight(height, PX);
+        style.setHeight(26, PX);
         style.setWidth(width, PX);
         style.setBackgroundColor(color);
     }
@@ -99,18 +96,16 @@ public abstract class ResizableHeader<T> extends Header<String> {
             event.stopPropagation();
             mover = document.createDivElement();
             final int leftBound = target.getOffsetLeft() + target.getOffsetWidth();
-            left = createSpanElement( MOVE_tt, MOVE_COLOR, moveCursor, leftBound - 2 * RESIZE_HANDLE_WIDTH);
-            if (resizeStyle != null) {
-                right = createSpanElement(resizeStyle, /*resizeToolTip*/"", leftBound - RESIZE_HANDLE_WIDTH);
-            }else {
-                right = createSpanElement( RESIZE_tt, RESIZE_COLOR, resizeCursor, leftBound - RESIZE_HANDLE_WIDTH);
-            }
+            left = createSpanElement(MOVE_tt, MOVE_COLOR, MOVE_CURSOR, leftBound - 3 * RESIZE_HANDLE_WIDTH);
+
+            right = createSpanElement(RESIZE_tt, RESIZE_COLOR, resizeCursor, leftBound - RESIZE_HANDLE_WIDTH);
+
             mover.appendChild(left);
             mover.appendChild(right);
             source.appendChild(mover);
         }
 
-        private SpanElement createSpanElement(String styleClassName, String title, double left){
+        private SpanElement createSpanElement(String styleClassName, String title, double left) {
             final SpanElement span = document.createSpanElement();
             span.setClassName(styleClassName);
             if (title != null) {
@@ -126,7 +121,7 @@ public abstract class ResizableHeader<T> extends Header<String> {
             return span;
         }
 
-        private SpanElement createSpanElement( String title, String backgroundColor, Style.Cursor cursor, double left){
+        private SpanElement createSpanElement(String title, String backgroundColor, Style.Cursor cursor, double left) {
             final SpanElement span = document.createSpanElement();
             span.setAttribute("title", title);
             final Style style = span.getStyle();
@@ -145,10 +140,12 @@ public abstract class ResizableHeader<T> extends Header<String> {
         public void onPreviewNativeEvent(Event.NativePreviewEvent event) {
             final NativeEvent natEvent = event.getNativeEvent();
             final Element element = natEvent.getEventTarget().cast();
+
             final String eventType = natEvent.getType();
             if (!(element == left || element == right)) {
                 if ("mousedown".equals(eventType)) {
                     //No need to do anything, the event will be passed on to the column sort handler
+
                 } else if (!dragging && "mouseover".equals(eventType)) {
                     cleanUp();
                 }
@@ -160,7 +157,7 @@ public abstract class ResizableHeader<T> extends Header<String> {
                     left.removeFromParent();
                     new ColumnResizeHelper(this, source, right, nativeEvent);
                 } else
-                    new ColumnMoverHelper(this, source, nativeEvent);
+                    new ColumnMoverHelper(this, source, left, nativeEvent);
                 dragging = true;
             }
         }
@@ -190,6 +187,7 @@ public abstract class ResizableHeader<T> extends Header<String> {
             this.dragCallback = dragCallback;
             this.header = header;
             this.caret = caret;
+            tableBody.getElement().appendChild(resizeLine);
             setLine(resizeLineStyle, 2, header.getAbsoluteTop() + header.getOffsetHeight(), getTableBodyHeight(), RESIZE_COLOR);
             moveLine(event.getClientX());
 
@@ -206,18 +204,19 @@ public abstract class ResizableHeader<T> extends Header<String> {
                 handler.removeHandler();
                 resizeLine.removeFromParent();
                 dragCallback.dragFinished();
-                columnResized(Math.max(clientX - header.getAbsoluteLeft(), MINIMUM_COLUMN_WIDTH)+"");
+
+                columnResized(Math.max(clientX - header.getAbsoluteLeft(), column.getMinWidth()));
             }
         }
 
         private void moveLine(final int clientX) {
-            final int xPos = clientX - tableHeader.getAbsoluteLeft();
-            final int xPos2 = clientX - tableBody.getAbsoluteLeft();
-            caret.getStyle().setLeft(xPos - caret.getOffsetWidth() / 2, PX);
-            resizeLineStyle.setLeft(xPos, PX);
-            caret.getStyle().setLeft(xPos2 - caret.getOffsetWidth() / 2, PX);
-            resizeLineStyle.setLeft(xPos2, PX);
+
+            final int xPos = clientX - tableBody.getAbsoluteLeft();
+            //   caret.getStyle().setLeft(xPos - caret.getOffsetWidth() / 2, PX);
+            resizeLineStyle.setLeft(xPos + 5, PX);
+
             resizeLineStyle.setTop(header.getOffsetHeight(), PX);
+
         }
     }
 
@@ -227,54 +226,113 @@ public abstract class ResizableHeader<T> extends Header<String> {
         private final DivElement ghostLine = document.createDivElement();
         private final Style ghostLineStyle = ghostLine.getStyle();
         private final DivElement ghostColumn = document.createDivElement();
-        private final int columnWidth;
-        private final int[] columnXPositions;
         private final IDragCallback dragCallback;
-        private int fromIndex = -1;
-        private int toIndex;
 
-        private ColumnMoverHelper(IDragCallback dragCallback, Element target, NativeEvent event) {
+        private int toIndex;
+        private Element table;
+
+        private ColumnMoverHelper(IDragCallback dragCallback, Element target, Element caret, NativeEvent event) {
             this.dragCallback = dragCallback;
-            final int clientX = event.getClientX();
-            columnWidth = target.getOffsetWidth();
+
+
             final Element tr = target.getParentElement();
-            final int columns = tr.getChildCount();
-            columnXPositions = new int[columns + 1];
-            columnXPositions[0] = tr.getAbsoluteLeft();
-            for (int i = 0; i < columns; ++i) {
-                final int xPos = columnXPositions[i] + ((Element) tr.getChild(i)).getOffsetWidth();
-                if (xPos > clientX && fromIndex == -1)
-                    fromIndex = i;
-                columnXPositions[i + 1] = xPos;
-            }
-            toIndex = fromIndex;
+            table = tr;
+
             final int top = target.getOffsetHeight();
             final int bodyHeight = getTableBodyHeight();
-            setLine(ghostLineStyle, ghostLineWidth, top, bodyHeight, RESIZE_COLOR);
+            setLine(ghostLineStyle, ghostLineWidth, top, bodyHeight, MOVE_COLOR);
 
         }
 
         @Override
         public void onPreviewNativeEvent(Event.NativePreviewEvent event) {
 
+            final NativeEvent nativeEvent = getEventAndPreventPropagation(event);
+            final int clientX = nativeEvent.getClientX();
+            final String eventType = nativeEvent.getType();
+            if ("mousemove".equals(eventType)) {
+                //  moveLine(clientX);
+            } else if ("mouseup".equals(eventType)) {
+                handler.removeHandler();
+                dragCallback.dragFinished();
+                int toIndex = getIndexOfColumn(clientX);
+                if (toIndex == -1) {
+                    return;
+                }
+                CollectionColumn columnToReplace = (CollectionColumn) tableBody.getColumn(toIndex);
+                if (columnToReplace.getDataStoreName().equalsIgnoreCase("")) {
+                    return;
+                }
+
+                if (column.getDataStoreName().equalsIgnoreCase("")) {
+                    return;
+                }
+                tableBody.removeColumn(column);
+                tableBody.insertColumn(toIndex, column, CollectionColumnHeaderDeprecated.this);
+                tableBody.redrawHeaders();
+
+                //     ghostLine.removeFromParent();
+                /*handler.removeHandler();
+                dragCallback.dragFinished();*/
+            }
         }
+
+        private void moveLine(final int clientX) {
+
+            final int xPos = clientX - tableBody.getAbsoluteLeft();
+            //   caret.getStyle().setLeft(xPos - caret.getOffsetWidth() / 2, PX);
+            ghostLineStyle.setLeft(xPos + 5, PX);
+
+            ghostLineStyle.setTop(tableBody.getOffsetHeight(), PX);
+
+        }
+
+        private int getIndexOfColumn(int clientX) {
+            final int columnsNumber = table.getChildCount();
+
+            int width = table.getAbsoluteLeft();
+            for (int i = 0; i < columnsNumber; ++i) {
+
+                int columnWidth = ((Element) table.getChild(i)).getOffsetWidth();
+                if (width < clientX && clientX < width + columnWidth) {
+                    return i;
+                }
+                width += columnWidth;
+            }
+            return -1;
+        }
+
+
     }
 
-    private static class HeaderCell extends AbstractCell<String> {
+    private static class HeaderCell extends AbstractCell<HeaderWidget> {
         public HeaderCell() {
             super("mousemove");
         }
 
-        @Override
+     /*   @Override
         public void render(Context context, String value, SafeHtmlBuilder sb) {
             sb.append(SafeHtmlUtils.fromString(value));
+        }*/
+
+        @Override
+        public void render(Context context, final HeaderWidget value, SafeHtmlBuilder sb) {
+            sb.append(new SafeHtml() {
+                @Override
+                public String asString() {
+                    return value.toString();
+                }
+            });
         }
     }
 
-    protected void columnResized(String newWidth) {
-        tableHeader.setColumnWidth(column, newWidth + "px");
+    protected void columnResized(int newWidth) {
+
         tableBody.setColumnWidth(column, newWidth + "px");
     }
 
-    protected abstract int getTableBodyHeight();
-};
+    protected int getTableBodyHeight() {
+        return tableBody.getOffsetHeight();
+    }
+
+}

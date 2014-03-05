@@ -8,10 +8,10 @@ import com.google.gwt.user.cellview.client.Column;
  *         Date: 21.01.14
  *         Time: 22:59
  */
-public abstract class CollectionColumn <CollectionRowItem, T>extends Column<CollectionRowItem, T> {
+public abstract class CollectionColumn <CollectionRowItem, T> extends Column<CollectionRowItem, T> {
     protected String fieldName;
     protected Boolean resizable = true;
-    protected int minWidth = 120;
+    protected int minWidth = 200;
     protected int maxWidth = 999999;
     public CollectionColumn(AbstractCell cell) {
         super(cell);
@@ -81,4 +81,6 @@ public abstract class CollectionColumn <CollectionRowItem, T>extends Column<Coll
         result = 31 * result + maxWidth;
         return result;
     }
+
+
 }

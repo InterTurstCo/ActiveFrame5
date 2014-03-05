@@ -91,7 +91,7 @@ class NavigationTreeBuilder {
         }
         label.addStyleName("tree-label");
         TreeItem treeItem = new TreeItem(label);
-        treeItem.removeStyleName("gwt-Label");
+        label.removeStyleName("gwt-Label");
         return treeItem;
     }
 
@@ -109,7 +109,7 @@ class NavigationTreeBuilder {
         }
         label.addStyleName("tree-label");
         TreeItem treeItem = new TreeItem(label);
-        treeItem.removeStyleName("gwt-Label");
+        label.removeStyleName("gwt-Label");
         Map<String, Object> treeUserObjects = new HashMap<String, Object>();
         treeUserObjects.put("name", treeItemName);
         if (pluginDefinition != null) {
@@ -149,7 +149,6 @@ class NavigationTreeBuilder {
             List<LinkConfig> linkConfigList = childLinksConfig.getLinkConfigList();
             for (LinkConfig linkConfig : linkConfigList) {
                 TreeItem item = composeTreeItem(linkConfig.getName(), linkConfig.getDisplayText(), linkConfig.getPluginDefinition());
-                item.removeStyleName("gwt-Label");
                 parentTreeItem.addItem(item);
                 addChildrenTreeItems(item, linkConfig);
 

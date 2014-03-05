@@ -49,7 +49,7 @@ body {
 }
 
 .auth-Label {
-	width: 120px;
+	width: 130px;
 	float: left;
 	margin: 5px 10px 0 0;
 }
@@ -63,7 +63,7 @@ body {
 
 .auth_remember{
 	width: 144px;
-	margin: 5px 0 5px 126px;
+	margin: 5px 0 5px 136px;
 }
 .auth-CheckBox {
 	float: left;
@@ -83,7 +83,7 @@ body {
 }
 
 .auth_enter-button {
-	margin: 10px 0 10px 130px;
+	margin: 10px 0 10px 150px;
 	-moz-box-shadow: inset 0px 0px 0px 0px #ffffff;
 	-webkit-box-shadow: inset 0px 0px 0px 0px #ffffff;
 	box-shadow: inset 0px 0px 0px 0px #ffffff;

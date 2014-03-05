@@ -1,8 +1,8 @@
 .table-browser-dialog-box-button-panel{
     padding-left: 10px;
-    position: absolute;
+    position: absolute !important;
     display: inline-block;
-    margin-bottom: 35px;
+    bottom: 45px;
 }
 .buttons-fixed {
     position: fixed;

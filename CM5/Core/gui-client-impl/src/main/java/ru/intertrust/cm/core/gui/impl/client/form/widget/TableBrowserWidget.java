@@ -263,6 +263,7 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
 
         dialogBoxContent.setWidth(dialogWidth + "px");
         dialogBoxContent.addStyleName("table-browser-dialog-box-content");
+
         dialogBoxContent.add(pluginPanel);
         dialogBoxContent.add(buttonsContainer);
         dialogBox.add(dialogBoxContent);

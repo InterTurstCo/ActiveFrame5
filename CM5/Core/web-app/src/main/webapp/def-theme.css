@@ -150,6 +150,13 @@ h1 {
 .dataGridHeaderRow {
 
 }
+.header-cell-move-resize-border{
+border-top: 1px solid #4177B3;
+border-bottom: 1px solid #4073AD !important;
+}
+.collection-plugin-width {
+    width: 100% !important;
+}
 
 .dataGridHeaderRow:hover th {
     border-right: 1px dashed #ffffff;
@@ -162,7 +169,11 @@ h1 {
     right: 0;
     left: 0;
     display: block;
+    width: 100%;
     height: 100%;
+}
+.collection-plugin-view-container table {
+    width: 100% !important;
 }
 
 .collection-plugin-view {
@@ -188,15 +199,15 @@ h1 {
     width: 125px;
 }
 
-.search-container .search-data-box:focus {
-    border-color: #5e94ff;
-    border-right: none;
-    -moz-box-shadow: inset 1px 1px 2px rgba(94, 148, 255, .7);
-    -webkit-box-shadow: inset 1px 1px 2px rgba(94, 148, 255, .7);
-    box-shadow: inset 1px 1px 2px rgba(94, 148, 255, .7) !important;
-    color: #1f2b5d;
-    outline: 0;
-}
+/*.search-container .search-data-box:focus {*/
+    /*border-color: #5e94ff;*/
+    /*border-right: none;*/
+    /*-moz-box-shadow: inset 1px 1px 2px rgba(94, 148, 255, .7);*/
+    /*-webkit-box-shadow: inset 1px 1px 2px rgba(94, 148, 255, .7);*/
+    /*box-shadow: inset 1px 1px 2px rgba(94, 148, 255, .7) !important;*/
+    /*color: #1f2b5d;*/
+    /*outline: 0;*/
+/*}*/
 
 
 .search-box, .search-data-box {
@@ -532,11 +543,11 @@ td.datePickerMonth {
 
 .table-browser-dialog {
     background: #ffffff;
-    padding: 2px, 2px, 2px, 2px;
-    -moz-border-radius: 20px;
-    -webkit-border-radius: 20px;
-    -khtml-border-radius: 20px;
-    border-radius: 20px;
+    padding: 2px;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -khtml-border-radius: 10px;
+    border-radius: 10px;
     border: 4px solid silver;
     z-index: 10;
 }
@@ -2589,7 +2600,14 @@ td.datePickerMonth {
     border: 1px solid red !important;
 }
 
-.search-box-clear-button {
+.search-box-clear-button-off {
+    display: none;
+
+}
+
+.search-box-clear-button-on {
+    width: 16px;
+    height: 16px;
     display: inline-block;
     float: right;
     cursor: pointer;

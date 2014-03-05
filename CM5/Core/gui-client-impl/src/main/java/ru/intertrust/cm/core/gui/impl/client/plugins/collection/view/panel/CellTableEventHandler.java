@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel;
 
 import com.google.gwt.dom.client.NativeEvent;
-import com.google.gwt.user.cellview.client.CellTable;
+import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
@@ -14,12 +14,12 @@ import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
  *         Time: 12:05 PM
  */
 public class CellTableEventHandler<T1> implements CellPreviewEvent.Handler<T1> {
-    public CellTable cellTableEx;
+    public DataGrid dataGrid;
     protected Plugin plugin;
     private EventBus eventBus;
 
-    public CellTableEventHandler(CellTable cellTableEx, Plugin plugin, EventBus eventBus) {
-        this.cellTableEx = cellTableEx;
+    public CellTableEventHandler(DataGrid dataGrid, Plugin plugin, EventBus eventBus) {
+        this.dataGrid = dataGrid;
         this.plugin = plugin;
         this.eventBus = eventBus;
     }

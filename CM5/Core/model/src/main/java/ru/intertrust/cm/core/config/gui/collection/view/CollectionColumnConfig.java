@@ -40,7 +40,7 @@ public class CollectionColumnConfig implements Dto {
     private String searchFilter;
 
     @Attribute(name = "min-width", required = false)
-    private String minWidth = "120px";
+    private String minWidth;
 
     @Attribute(name = "max-width", required = false)
     private String maxWidth;

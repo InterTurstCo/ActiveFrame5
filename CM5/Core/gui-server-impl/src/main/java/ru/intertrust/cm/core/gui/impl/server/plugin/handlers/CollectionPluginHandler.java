@@ -35,7 +35,7 @@ import java.util.*;
  */
 @ComponentName("collection.plugin")
 public class CollectionPluginHandler extends ActivePluginHandler {
-
+    private static final int INIT_ROWS_NUMBER = 25;
     @Autowired
     CollectionsService collectionsService;
 
@@ -75,7 +75,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
             filters = addFilterByText(collectionViewerConfig, filters);
             filters = addFilterExcludeIds(collectionViewerConfig, filters);
             ArrayList<CollectionRowItem> items = getRows(collectionName,
-                    0, 70, filters, order, map);
+                    0, INIT_ROWS_NUMBER, filters, order, map);
             pluginData.setItems(items);
         }
 
@@ -83,7 +83,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
 
             filters = addFilterByText(collectionViewerConfig, filters);
             ArrayList<CollectionRowItem> items = getRows(collectionName,
-                    0, 70, filters, order, map);
+                    0, INIT_ROWS_NUMBER, filters, order, map);
             List<Id> chosenIds = collectionViewerConfig.getExcludedIds();
             pluginData.setIndexesOfSelectedItems(getListOfAlreadyChosenItems(chosenIds, items));
             pluginData.setItems(items);

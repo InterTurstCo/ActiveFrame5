@@ -12,15 +12,15 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.resources;
  *         Date: 30/9/13
  *         Time: 12:05 PM
  */
-public class DGCellTableResourceAdapter {
+public class DataGridResourceAdapter {
 
-  private CellTableResourcesEx resources;
+  private DataGridResources resources;
 
-  public DGCellTableResourceAdapter(CellTableResourcesEx resources) {
+  public DataGridResourceAdapter(DataGridResources resources) {
     this.resources = resources;
   }
 
-  public CellTableResourcesEx getResources() {
+  public DataGridResources getResources() {
     return resources;
   }
 
