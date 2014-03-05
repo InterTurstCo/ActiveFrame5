@@ -112,7 +112,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         final UserInfo userInfo = new UserInfo();
         final UserUidWithPassword userUidWithPassword = (UserUidWithPassword) this.getThreadLocalRequest()
                 .getSession().getAttribute(LoginServiceImpl.USER_CREDENTIALS_SESSION_ATTRIBUTE);
-        userInfo.setTimeZone(userUidWithPassword.getClientTimeZone());
+        userInfo.setTimeZoneId(userUidWithPassword.getClientTimeZone());
         return userInfo;
     }
 }

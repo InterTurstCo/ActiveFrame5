@@ -102,13 +102,13 @@
             <xs:enumeration value="DELETE" />
         </xs:restriction>
     </xs:simpleType>
-            
+
     <xs:complexType name="triggerFieldsType">
         <xs:choice maxOccurs="unbounded" minOccurs="0">
-            <xs:element name="field" type="con:fieldNameType"/>    
+            <xs:element name="field" type="con:fieldNameType"/>
         </xs:choice>
     </xs:complexType>
-                                      
+
     <xs:simpleType name="triggerClassNameType">
         <xs:restriction base="xs:string">
             <xs:whiteSpace value="collapse"/>
@@ -119,10 +119,10 @@
 
     <xs:complexType name="triggerStatusesType">
         <xs:choice maxOccurs="unbounded" minOccurs="0">
-            <xs:element name="status" type="con:triggerStatusType"/>    
+            <xs:element name="status" type="con:triggerStatusType"/>
         </xs:choice>
     </xs:complexType>
-                                      
+
     <xs:simpleType name="triggerStatusType">
         <xs:restriction base="xs:string">
             <xs:whiteSpace value="collapse"/>
@@ -131,7 +131,7 @@
             </xs:pattern>
         </xs:restriction>
     </xs:simpleType>
-    
+
     <xs:simpleType name="domainObjectNameType">
         <xs:restriction base="xs:string">
             <xs:maxLength value="25"/>
@@ -966,7 +966,7 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-    
+
     <xs:complexType name="permissionRoleType">
         <xs:complexContent>
             <xs:extension base="con:permissionBaseType"
@@ -1294,6 +1294,8 @@
                 <xs:sequence>
                     <xs:element type="con:fieldPathType" name="field-path"
                                 minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="xs:string" name="time-zone-id" minOccurs="0" maxOccurs="1"/>
+                    <xs:element type="xs:string" name="pattern" minOccurs="0" maxOccurs="1"/>
                     <xs:choice maxOccurs="1" minOccurs="0">
                         <xs:element type="con:rangeType" name="range-start"
                                 minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>

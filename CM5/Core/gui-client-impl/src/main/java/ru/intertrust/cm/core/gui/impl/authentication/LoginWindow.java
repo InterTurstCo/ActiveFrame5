@@ -197,7 +197,7 @@ public class LoginWindow implements Component{
             }
         };
         final Date date = new Date();
-        final String timezone = DateTimeFormat.getFormat("v").format(date);
+        final String timezone = DateTimeFormat.getFormat("vvvv").format(date);
         final UserUidWithPassword credentials =
                 new UserUidWithPassword(loginField.getText(), passwordField.getText(), timezone);
         BusinessUniverseAuthenticationServiceAsync.Impl.getInstance().login(credentials, callback);

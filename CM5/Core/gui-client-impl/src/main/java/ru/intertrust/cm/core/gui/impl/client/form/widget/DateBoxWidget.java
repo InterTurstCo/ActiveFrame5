@@ -1,11 +1,14 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
+import java.util.Date;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.DateTimeContext;
 import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
@@ -24,12 +27,14 @@ public class DateBoxWidget extends BaseWidget {
 
     public void setCurrentState(WidgetState currentState) {
         final DateBoxState dbState = (DateBoxState)currentState;
-        dbState.getDateTimeContext().setChanged(false);
         if (isEditable) {
             DateBoxDecorate dateBox = (DateBoxDecorate) impl;
             dateBox.setValue(dbState.getDateTimeContext());
         } else {
-            setTrimmedText((HasText) impl, dbState.getDateTimeContext().getDateTime());
+            final Date date = DateTimeFormat.getFormat(DateTimeContext.DTO_PATTERN)
+                    .parse(dbState.getDateTimeContext().getDateTime());
+            final DateTimeFormat format = DateTimeFormat.getFormat(dbState.getDateTimeContext().getPattern());
+            ((HasText) impl).setText(format.format(date));
         }
     }
 

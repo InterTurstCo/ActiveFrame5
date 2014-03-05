@@ -8,20 +8,20 @@ import java.io.Serializable;
  */
 public class UserInfo implements Serializable{
 
-    private String timeZone;
+    private String timeZoneId;
 
-    public String getTimeZone() {
-        return timeZone;
+    public String getTimeZoneId() {
+        return timeZoneId;
     }
 
-    public void setTimeZone(String timeZone) {
-        this.timeZone = timeZone;
+    public void setTimeZoneId(String timeZoneId) {
+        this.timeZoneId = timeZoneId;
     }
 
     @Override
     public String toString() {
         return new StringBuilder(UserInfo.class.getSimpleName())
-                .append(": timeZone=").append(timeZone)
+                .append(": timeZoneId=").append(timeZoneId)
                 .toString();
     }
 }

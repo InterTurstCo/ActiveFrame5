@@ -11,6 +11,8 @@ public class DateTimeContext implements Dto {
      * @defaultUID
      */
     private static final long serialVersionUID = 1L;
+
+    public static final String DTO_PATTERN = "dd.MM.yyyy HH:mm:ss:SSS";
     private static final String DEFAULT_PATTERN = "dd.MM.yyyy";
     private static final String DEFAULT_TIME_ZONE_ID = "default";
 
@@ -22,7 +24,6 @@ public class DateTimeContext implements Dto {
      * Is readonly always.
      */
     private int ordinalFieldType;
-    private boolean changed;
 
     public String getDateTime() {
         if (dateTime == null || dateTime.isEmpty()) {
@@ -33,7 +34,6 @@ public class DateTimeContext implements Dto {
     }
 
     public void setDateTime(final String dateTime) {
-        changed = dateTime == null ? this.dateTime != null : !dateTime.equals(this.dateTime);
         this.dateTime = dateTime;
     }
 
@@ -59,13 +59,5 @@ public class DateTimeContext implements Dto {
 
     public void setTimeZoneId(String timeZoneId) {
         this.timeZoneId = timeZoneId;
-    }
-
-    public void setChanged(final boolean changed) {
-        this.changed = changed;
-    }
-
-    public boolean isChanged() {
-        return changed;
     }
 }

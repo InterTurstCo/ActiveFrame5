@@ -1,17 +1,15 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
+import java.util.Date;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FocusPanel;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.datepicker.client.DateBox;
-import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
-import ru.intertrust.cm.core.gui.model.DateTimeContext;
 
-import java.util.Date;
+import ru.intertrust.cm.core.gui.model.DateTimeContext;
 
 /**
  * @author Timofiy Bilyi
@@ -35,12 +33,16 @@ public class DateBoxDecorate extends Composite {
         if (dateBox == null) {
             initRoot(context);
         } else {
-            dateBox.setValue(dateBox.getFormat().parse(dateBox, context.getDateTime(), false));
+            final Date date = getDate(context);
+            dateBox.setValue(date, false);
         }
     }
 
     public String getText() {
-        return dateBox.getFormat().format(dateBox, dateBox.getValue());
+        final String result = dateBox.getValue() == null
+                ? null
+                : DateTimeFormat.getFormat(DateTimeContext.DTO_PATTERN).format(dateBox.getValue());
+        return result;
     }
 
     /**
@@ -56,8 +58,8 @@ public class DateBoxDecorate extends Composite {
         picker = new CMJDatePicker();
         dateBtn = new FocusPanel();
         dateBtn.setStyleName("date-box-button");
+        final Date date = getDate(context);
         final DateTimeFormat dtFormat = DateTimeFormat.getFormat(context.getPattern());
-        final Date date = dtFormat.parse(context.getDateTime());
         DateBox.Format format = new DateBox.DefaultFormat(dtFormat);
         dateBox = new DateBox(picker, date, format);
         dateBox.getTextBox().addStyleName("date-text-box");
@@ -65,6 +67,13 @@ public class DateBoxDecorate extends Composite {
         dateBtn.addClickHandler(showDatePickerHandler);
         root.add(dateBox);
         root.add(dateBtn);
+    }
+
+    private Date getDate(DateTimeContext context) {
+        final Date result = context.getDateTime() == null
+                ? null
+                : DateTimeFormat.getFormat(DateTimeContext.DTO_PATTERN).parse(context.getDateTime());
+        return result;
     }
 
     private class ShowDatePickerHandler implements ClickHandler {
