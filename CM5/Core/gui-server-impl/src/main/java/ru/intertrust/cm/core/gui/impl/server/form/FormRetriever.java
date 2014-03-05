@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.business.api.dto.Constraint;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
@@ -184,13 +185,24 @@ public class FormRetriever {
 
     private List<Constraint> buildConstraints(WidgetContext context) {
         List<Constraint> constraints = new ArrayList<Constraint>();
-        String doTypeName = context.getFormObjects().getRootNode().getType();
+
+        String doTypeName = null;
+        String fieldName = null;
+
         WidgetConfig widgetConfig = context.getWidgetConfig();
         FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
-        String fieldName = fieldPath.getFieldName();
 
+        if (fieldPath.isField() || fieldPath.isOneToOneReference()) {
+            fieldName = fieldPath.getFieldName();
+            doTypeName = context.getFormObjects().getRootNode().getType();
+        } else if (fieldPath.isOneToManyReference()) {
+            fieldName = fieldPath.getReferenceName();
+            doTypeName = fieldPath.getLinkedObjectType();
+        } else /* ManyToMany */ {
+            fieldName = fieldPath.getReferenceName();
+            doTypeName = fieldPath.getLinkingObjectType();
+        }
         FieldConfig fieldConfig = configurationExplorer.getFieldConfig(doTypeName, fieldName);
-
         if (fieldConfig != null) {
            constraints.addAll(fieldConfig.getConstraints());
         }
@@ -249,7 +261,7 @@ public class FormRetriever {
 
     private HashMap<String, Object> buildWidgetProps(WidgetContext context, List<Constraint> constraints) {
         HashMap<String, Object> props = new HashMap<String, Object>();
-        props.put("domain-object-type", context.getFormObjects().getRootNode().getType());
+        props.put(Constraint.DOMAIN_OBJECT_TYPE, context.getFormObjects().getRootNode().getType());
 
         WidgetConfig widgetConfig = context.getWidgetConfig();
         FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());

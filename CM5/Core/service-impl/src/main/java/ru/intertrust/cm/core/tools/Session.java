@@ -230,4 +230,8 @@ public class Session implements Serializable {
         return list;
     }
     
+    public NotificationAddresseeConverter getNotificationAddressee(){
+        return new NotificationAddresseeConverter();
+    }
+    
 }

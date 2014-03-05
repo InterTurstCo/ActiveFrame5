@@ -3,14 +3,14 @@
   <process id="simpleProcess" name="Simple Process" isExecutable="true">
     <startEvent id="startevent1" name="Start"></startEvent>
     <endEvent id="endevent1" name="End"></endEvent>
-    <userTask id="usertask1" name="Пользовательская задача 1" activiti:assignee="#{personManagement.getPersonId(&quot;admin&quot;).toStringRepresentation()}" activiti:priority="1">
+    <userTask id="usertask1" name="Пользовательская задача 1" activiti:assignee="#{personServiceDao.findPersonByLogin(&quot;admin&quot;).getId().toStringRepresentation()}" activiti:priority="1">
       <documentation>Выполните первую задачу. Тестирую пользовательские задачи.</documentation>
       <extensionElements>
         <activiti:formProperty id="MAIN_ATTACHMENT_ID" type="string" expression="${MAIN_ATTACHMENT_ID.toStringRepresentation()}"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="usertask1"></sequenceFlow>
-    <userTask id="usertask2" name="Пользовательская задача 2" activiti:assignee="#{personManagement.getPersonId(&quot;admin&quot;).toStringRepresentation()}">
+    <userTask id="usertask2" name="Пользовательская задача 2" activiti:assignee="#{personServiceDao.findPersonByLogin(&quot;admin&quot;).getId().toStringRepresentation()}">
       <documentation>Выполните вторую задачу. Тестирую задачи по документу</documentation>
       <extensionElements>
         <activiti:formProperty id="MAIN_ATTACHMENT_ID" type="string" expression="${MAIN_ATTACHMENT_ID.toStringRepresentation()}"></activiti:formProperty>
@@ -35,7 +35,7 @@ newObject.set("test_date", MAIN_ATTACHMENT.get("test_date"));
 newObject.save();</script>
     </scriptTask>
     <sequenceFlow id="flow4" sourceRef="scripttask1" targetRef="usertask3"></sequenceFlow>
-    <userTask id="usertask3" name="Проверка возможности маршрутизации с помошью акшенов" activiti:assignee="#{personManagement.getPersonId(&quot;admin&quot;).toStringRepresentation()}">
+    <userTask id="usertask3" name="Проверка возможности маршрутизации с помошью акшенов" activiti:assignee="#{personServiceDao.findPersonByLogin(&quot;admin&quot;).getId().toStringRepresentation()}">
       <documentation>Получить список действий и выполнить одно из них.</documentation>
       <extensionElements>
         <activiti:formProperty id="ACTIONS" name="Действие" type="enum" variable="RESULT">
@@ -81,7 +81,7 @@ MAIN_ATTACHMENT.save();</script>
     <subProcess id="subprocess1" name="Sub Process">
       <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="${col}" activiti:elementVariable="item"></multiInstanceLoopCharacteristics>
       <startEvent id="startevent2" name="Start"></startEvent>
-      <userTask id="usertask4" name="Проверка завершения всех задач в подпроцессах в случае прерывания подпроцесса" activiti:assignee="#{personManagement.getPersonId(&quot;admin&quot;).toStringRepresentation()}">
+      <userTask id="usertask4" name="Проверка завершения всех задач в подпроцессах в случае прерывания подпроцесса" activiti:assignee="#{personServiceDao.findPersonByLogin(&quot;admin&quot;).getId().toStringRepresentation()}">
         <extensionElements>
           <activiti:formProperty id="MAIN_ATTACHMENT_ID" type="string" expression="${MAIN_ATTACHMENT_ID.toStringRepresentation()}"></activiti:formProperty>
         </extensionElements>
@@ -100,18 +100,35 @@ col.add("SECOND");
 execution.setVariable("col", col);</script>
     </scriptTask>
     <sequenceFlow id="flow15" sourceRef="exclusivegateway2" targetRef="scripttask5"></sequenceFlow>
-    <userTask id="usertask5" name="Прверка когда выйходим из подпроцесса. После завершения всех задач или нет" activiti:assignee="#{personManagement.getPersonId(&quot;admin&quot;).toStringRepresentation()}">
+    <userTask id="usertask5" name="Прверка когда выходим из подпроцесса. После завершения всех задач или нет" activiti:assignee="#{personServiceDao.findPersonByLogin(&quot;admin&quot;).getId().toStringRepresentation()}">
       <extensionElements>
         <activiti:formProperty id="MAIN_ATTACHMENT_ID" type="string" expression="${MAIN_ATTACHMENT_ID.toStringRepresentation()}"></activiti:formProperty>
       </extensionElements>
     </userTask>
-    <sequenceFlow id="flow16" sourceRef="usertask5" targetRef="endevent1"></sequenceFlow>
+    <sequenceFlow id="flow16" sourceRef="usertask5" targetRef="send-notification"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway3" name="Exclusive Gateway"></exclusiveGateway>
     <boundaryEvent id="boundaryerror1" name="ErrorEnd2" attachedToRef="subprocess1">
       <errorEventDefinition errorRef="error1"></errorEventDefinition>
     </boundaryEvent>
     <sequenceFlow id="flow17" sourceRef="boundaryerror1" targetRef="exclusivegateway3"></sequenceFlow>
     <sequenceFlow id="flow18" sourceRef="exclusivegateway3" targetRef="usertask5"></sequenceFlow>
+    <serviceTask id="send-notification" name="Отправка уведомлений" activiti:class="ru.intertrust.cm.core.process.SendNotification">
+      <extensionElements>
+        <activiti:field name="addressee">
+          <activiti:expression>${SESSION.getNotificationAddressee().addPerson(personServiceDao.findPersonByLogin("admin").getId())}</activiti:expression>
+        </activiti:field>
+        <activiti:field name="context">
+          <activiti:expression>#{MAIN_ATTACHMENT_ID}</activiti:expression>
+        </activiti:field>
+        <activiti:field name="notificationType">
+          <activiti:string>WORKFLOW_MESSAGE</activiti:string>
+        </activiti:field>
+        <activiti:field name="notificationPriority">
+          <activiti:string>NORMAL</activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow19" sourceRef="send-notification" targetRef="endevent1"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_simpleProcess">
     <bpmndi:BPMNPlane bpmnElement="simpleProcess" id="BPMNPlane_simpleProcess">
@@ -119,7 +136,7 @@ execution.setVariable("col", col);</script>
         <omgdc:Bounds height="35.0" width="35.0" x="130.0" y="40.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
-        <omgdc:Bounds height="35.0" width="35.0" x="970.0" y="534.0"></omgdc:Bounds>
+        <omgdc:Bounds height="35.0" width="35.0" x="1060.0" y="500.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="usertask1" id="BPMNShape_usertask1">
         <omgdc:Bounds height="55.0" width="105.0" x="95.0" y="96.0"></omgdc:Bounds>
@@ -171,6 +188,9 @@ execution.setVariable("col", col);</script>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway3" id="BPMNShape_exclusivegateway3">
         <omgdc:Bounds height="40.0" width="40.0" x="749.0" y="408.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="send-notification" id="BPMNShape_send-notification">
+        <omgdc:Bounds height="55.0" width="105.0" x="1020.0" y="100.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
         <omgdi:waypoint x="147.0" y="75.0"></omgdi:waypoint>
@@ -246,9 +266,10 @@ execution.setVariable("col", col);</script>
         <omgdi:waypoint x="490.0" y="388.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow16" id="BPMNEdge_flow16">
-        <omgdi:waypoint x="805.0" y="508.0"></omgdi:waypoint>
-        <omgdi:waypoint x="805.0" y="551.0"></omgdi:waypoint>
-        <omgdi:waypoint x="970.0" y="551.0"></omgdi:waypoint>
+        <omgdi:waypoint x="946.0" y="480.0"></omgdi:waypoint>
+        <omgdi:waypoint x="979.0" y="466.0"></omgdi:waypoint>
+        <omgdi:waypoint x="979.0" y="128.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1020.0" y="127.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow17" id="BPMNEdge_flow17">
         <omgdi:waypoint x="695.0" y="365.0"></omgdi:waypoint>
@@ -259,6 +280,10 @@ execution.setVariable("col", col);</script>
       <bpmndi:BPMNEdge bpmnElement="flow18" id="BPMNEdge_flow18">
         <omgdi:waypoint x="749.0" y="428.0"></omgdi:waypoint>
         <omgdi:waypoint x="805.0" y="453.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow19" id="BPMNEdge_flow19">
+        <omgdi:waypoint x="1072.0" y="155.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1077.0" y="500.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

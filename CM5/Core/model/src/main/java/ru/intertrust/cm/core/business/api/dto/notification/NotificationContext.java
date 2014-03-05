@@ -39,5 +39,10 @@ public class NotificationContext implements Dto{
     public Set<String> getContextNames() {
         return contextObjects.keySet();
     }
+
+    @Override
+    public String toString() {
+        return "NotificationContext [contextObjects=" + contextObjects + "]";
+    }
     
 }

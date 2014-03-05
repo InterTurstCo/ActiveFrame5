@@ -11,12 +11,12 @@ import ru.intertrust.cm.core.business.api.notification.NotificationChannelHandle
 @NotificationChannel(name = "InboxNotificationChannel",
         description = "Канал отправки уведомлений в папку \"Входящие уведомления\"")
 public class InboxNotificationChannel implements NotificationChannelHandle {
-    private static final Logger logger = Logger.getLogger(MailNotificationChannel.class);
+    private static final Logger logger = Logger.getLogger(InboxNotificationChannel.class);
 
     @Override
     public void send(String notificationType, Id senderId, Id addresseeId, NotificationPriority priority,
             NotificationContext context) {
-        logger.info("Send notification by ImboxNotificationChannel notificationType=" + notificationType
+        logger.info("Send notification by InboxNotificationChannel notificationType=" + notificationType
                 + "; senderId="
                 + senderId + "; addresseeId=" + addresseeId + "; priority=" + priority + "; context=" + context);
 

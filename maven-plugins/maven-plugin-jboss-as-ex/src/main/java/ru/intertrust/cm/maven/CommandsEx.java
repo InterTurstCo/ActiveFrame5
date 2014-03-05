@@ -1,16 +1,22 @@
 package ru.intertrust.cm.maven;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.maven.plugins.annotations.Parameter;
 import org.jboss.as.cli.CommandContext;
 import org.jboss.as.cli.CommandFormatException;
+import org.jboss.as.cli.CommandLineException;
 import org.jboss.as.controller.client.ModelControllerClient;
 import org.jboss.as.plugin.cli.Commands;
-import org.jboss.as.plugin.common.Operations;
-import org.jboss.dmr.ModelNode;
 
 public class CommandsEx extends Commands {
+    /**
+     * The CLI commands to execute.
+     */
+    @Parameter
+    private List<String> commands = new ArrayList<String>();
 
     @Parameter(defaultValue = "false")
     private boolean ignoreException;
@@ -34,14 +40,12 @@ public class CommandsEx extends Commands {
     }
 
     private void executeCommandsEx(final ModelControllerClient client, final CommandContext ctx) throws IOException {
-        for (String cmd : getCommands()) {
-            final ModelNode result;
+        for (String cmd : commands) {
             try {
-                result = client.execute(ctx.buildRequest(cmd));
+                client.execute(ctx.buildRequest(cmd));
             } catch (CommandFormatException e) {
                 throw new IllegalArgumentException(String.format("Command '%s' is invalid", cmd), e);
-            }
-            if (!Operations.successful(result)) {
+            } catch (CommandLineException e) {
                 //Игнорируем ошибку
             }
         }
