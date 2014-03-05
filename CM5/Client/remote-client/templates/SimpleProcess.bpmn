@@ -3,14 +3,14 @@
   <process id="simpleProcess" name="Simple Process" isExecutable="true">
     <startEvent id="startevent1" name="Start"></startEvent>
     <endEvent id="endevent1" name="End"></endEvent>
-    <userTask id="usertask1" name="Пользовательская задача 1" activiti:assignee="#{personManagement.getPersonId(&quot;admin&quot;).toStringRepresentation()}" activiti:priority="1">
+    <userTask id="usertask1" name="Пользовательская задача 1" activiti:assignee="#{personServiceDao.findPersonByLogin(&quot;admin&quot;).getId().toStringRepresentation()}" activiti:priority="1">
       <documentation>Выполните первую задачу. Тестирую пользовательские задачи.</documentation>
       <extensionElements>
         <activiti:formProperty id="MAIN_ATTACHMENT_ID" type="string" expression="${MAIN_ATTACHMENT_ID.toStringRepresentation()}"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="usertask1"></sequenceFlow>
-    <userTask id="usertask2" name="Пользовательская задача 2" activiti:assignee="#{personManagement.getPersonId(&quot;admin&quot;).toStringRepresentation()}">
+    <userTask id="usertask2" name="Пользовательская задача 2" activiti:assignee="#{personServiceDao.findPersonByLogin(&quot;admin&quot;).getId().toStringRepresentation()}">
       <documentation>Выполните вторую задачу. Тестирую задачи по документу</documentation>
       <extensionElements>
         <activiti:formProperty id="MAIN_ATTACHMENT_ID" type="string" expression="${MAIN_ATTACHMENT_ID.toStringRepresentation()}"></activiti:formProperty>
@@ -35,7 +35,7 @@ newObject.set("test_date", MAIN_ATTACHMENT.get("test_date"));
 newObject.save();</script>
     </scriptTask>
     <sequenceFlow id="flow4" sourceRef="scripttask1" targetRef="usertask3"></sequenceFlow>
-    <userTask id="usertask3" name="Проверка возможности маршрутизации с помошью акшенов" activiti:assignee="#{personManagement.getPersonId(&quot;admin&quot;).toStringRepresentation()}">
+    <userTask id="usertask3" name="Проверка возможности маршрутизации с помошью акшенов" activiti:assignee="#{personServiceDao.findPersonByLogin(&quot;admin&quot;).getId().toStringRepresentation()}">
       <documentation>Получить список действий и выполнить одно из них.</documentation>
       <extensionElements>
         <activiti:formProperty id="ACTIONS" name="Действие" type="enum" variable="RESULT">
@@ -81,7 +81,7 @@ MAIN_ATTACHMENT.save();</script>
     <subProcess id="subprocess1" name="Sub Process">
       <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="${col}" activiti:elementVariable="item"></multiInstanceLoopCharacteristics>
       <startEvent id="startevent2" name="Start"></startEvent>
-      <userTask id="usertask4" name="Проверка завершения всех задач в подпроцессах в случае прерывания подпроцесса" activiti:assignee="#{personManagement.getPersonId(&quot;admin&quot;).toStringRepresentation()}">
+      <userTask id="usertask4" name="Проверка завершения всех задач в подпроцессах в случае прерывания подпроцесса" activiti:assignee="#{personServiceDao.findPersonByLogin(&quot;admin&quot;).getId().toStringRepresentation()}">
         <extensionElements>
           <activiti:formProperty id="MAIN_ATTACHMENT_ID" type="string" expression="${MAIN_ATTACHMENT_ID.toStringRepresentation()}"></activiti:formProperty>
         </extensionElements>
@@ -100,7 +100,7 @@ col.add("SECOND");
 execution.setVariable("col", col);</script>
     </scriptTask>
     <sequenceFlow id="flow15" sourceRef="exclusivegateway2" targetRef="scripttask5"></sequenceFlow>
-    <userTask id="usertask5" name="Прверка когда выходим из подпроцесса. После завершения всех задач или нет" activiti:assignee="#{personManagement.getPersonId(&quot;admin&quot;).toStringRepresentation()}">
+    <userTask id="usertask5" name="Прверка когда выходим из подпроцесса. После завершения всех задач или нет" activiti:assignee="#{personServiceDao.findPersonByLogin(&quot;admin&quot;).getId().toStringRepresentation()}">
       <extensionElements>
         <activiti:formProperty id="MAIN_ATTACHMENT_ID" type="string" expression="${MAIN_ATTACHMENT_ID.toStringRepresentation()}"></activiti:formProperty>
       </extensionElements>
@@ -112,10 +112,10 @@ execution.setVariable("col", col);</script>
     </boundaryEvent>
     <sequenceFlow id="flow17" sourceRef="boundaryerror1" targetRef="exclusivegateway3"></sequenceFlow>
     <sequenceFlow id="flow18" sourceRef="exclusivegateway3" targetRef="usertask5"></sequenceFlow>
-    <serviceTask id="send-notification" name="Отправка уведомлений" activiti:class="ru.intertrust.cm.core.workflow.task.SendNotification">
+    <serviceTask id="send-notification" name="Отправка уведомлений" activiti:class="ru.intertrust.cm.core.process.SendNotification">
       <extensionElements>
         <activiti:field name="addressee">
-          <activiti:expression>#{session.getNotificationAddressee().addPerson(personManagement.getPersonId("admin"))}</activiti:expression>
+          <activiti:expression>${SESSION.getNotificationAddressee().addPerson(personServiceDao.findPersonByLogin("admin").getId())}</activiti:expression>
         </activiti:field>
         <activiti:field name="context">
           <activiti:expression>#{MAIN_ATTACHMENT_ID}</activiti:expression>
@@ -188,9 +188,6 @@ execution.setVariable("col", col);</script>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway3" id="BPMNShape_exclusivegateway3">
         <omgdc:Bounds height="40.0" width="40.0" x="749.0" y="408.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="servicetask1" id="BPMNShape_servicetask1">
-        <omgdc:Bounds height="55.0" width="105.0" x="1020.0" y="100.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="send-notification" id="BPMNShape_send-notification">
         <omgdc:Bounds height="55.0" width="105.0" x="1020.0" y="100.0"></omgdc:Bounds>

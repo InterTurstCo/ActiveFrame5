@@ -10,10 +10,12 @@ import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.NotificationService;
 import ru.intertrust.cm.core.business.api.PersonManagementService;
@@ -37,6 +39,7 @@ import ru.intertrust.cm.core.dao.api.UserTransactionService;
 @Stateless(name = "NotificationService")
 @Local(NotificationService.class)
 @Remote(NotificationService.Remote.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class NotificationServiceImpl implements NotificationService {
     private static final Logger logger = LoggerFactory.getLogger(NotificationServiceImpl.class);
 
@@ -101,18 +104,18 @@ public class NotificationServiceImpl implements NotificationService {
 
         for (NotificationAddressee notificationAddressee : addresseeList) {
 
-            if (addresseeList instanceof NotificationAddresseePerson) {
+            if (notificationAddressee instanceof NotificationAddresseePerson) {
                 persons.add(((NotificationAddresseePerson) notificationAddressee).getPersonId());
-            } else if (addresseeList instanceof NotificationAddresseeGroup) {
+            } else if (notificationAddressee instanceof NotificationAddresseeGroup) {
                 Id groupId = ((NotificationAddresseeGroup) notificationAddressee).getGroupId();
                 List<DomainObject> personDomainObjects = personManagementService.getAllPersonsInGroup(groupId);
                 for (DomainObject personObject : personDomainObjects) {
                     persons.add(personObject.getId());
                 }
-            } else if (addresseeList instanceof NotificationAddresseeDynamicGroup) {
+            } else if (notificationAddressee instanceof NotificationAddresseeDynamicGroup) {
                 NotificationAddresseeDynamicGroup addressee = (NotificationAddresseeDynamicGroup) notificationAddressee;
                 persons.addAll(dynamicGroupService.getPersons(addressee.getContextId(), addressee.getGroupName()));
-            } else if (addresseeList instanceof NotificationAddresseeContextRole) {
+            } else if (notificationAddressee instanceof NotificationAddresseeContextRole) {
                 NotificationAddresseeContextRole addressee = (NotificationAddresseeContextRole) notificationAddressee;
                 persons.addAll(permissionService.getPersons(addressee.getContextId(), addressee.getRoleName()));
             }

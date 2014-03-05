@@ -50,6 +50,9 @@
     <jee:local-slsb id="personService"
                     jndi-name="java:module/PersonService!ru.intertrust.cm.core.business.api.PersonService"
                     business-interface="ru.intertrust.cm.core.business.api.PersonService"/>
+    <jee:local-slsb id="notificationService"
+                    jndi-name="java:module/NotificationService!ru.intertrust.cm.core.business.api.NotificationService"
+                    business-interface="ru.intertrust.cm.core.business.api.NotificationService"/>
 
     <bean id="authenticationService"
           class="ru.intertrust.cm.core.business.impl.AuthenticationServiceImpl"
@@ -132,5 +135,5 @@
     <bean id="eventTrigger" class="ru.intertrust.cm.core.business.impl.EventTriggerImpl"/>
 
     <bean id="scriptService" class="ru.intertrust.cm.core.business.impl.JavaScriptServiceImpl"/>
-
+    
 </beans>
