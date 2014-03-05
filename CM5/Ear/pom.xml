@@ -230,7 +230,7 @@
                     <plugin>
                         <groupId>ru.intertrust.dev</groupId>
                         <artifactId>maven-plugin-jboss-as-ex</artifactId>
-                        <version>0.0.2</version>
+                        <version>0.0.3</version>
                         <configuration>
                             <hostname>localhost</hostname>
                             <port>9999</port>
@@ -380,7 +380,7 @@
                     <plugin>
                         <groupId>ru.intertrust.dev</groupId>
                         <artifactId>maven-plugin-jboss-as-ex</artifactId>
-                        <version>0.0.2</version>
+                        <version>0.0.3</version>
                         <configuration>
                             <hostname>localhost</hostname>
                             <port>9999</port>

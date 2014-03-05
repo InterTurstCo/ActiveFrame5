@@ -8,14 +8,14 @@
     <parent>
         <groupId>ru.intertrust.dev</groupId>
         <artifactId>maven-plugins</artifactId>
-        <version>0.0.2</version>
+        <version>0.0.3</version>
     </parent>
 
     <dependencies>
         <dependency>
             <groupId>org.jboss.as.plugins</groupId>
             <artifactId>jboss-as-maven-plugin</artifactId>
-            <version>7.4.Final</version>
+            <version>7.5.Final</version>
         </dependency>
     </dependencies>
 
