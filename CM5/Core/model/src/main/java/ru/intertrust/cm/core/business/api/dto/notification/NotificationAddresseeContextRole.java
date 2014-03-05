@@ -8,8 +8,17 @@ import ru.intertrust.cm.core.business.api.dto.Id;
  * 
  */
 public class NotificationAddresseeContextRole implements NotificationAddressee {
+    private static final long serialVersionUID = -196530772745386049L;
     private Id contextId;
     private String roleName;
+
+    public NotificationAddresseeContextRole() {
+    }
+    
+    public NotificationAddresseeContextRole(String roleName, Id contextId) {
+        this.contextId = contextId;
+        this.roleName = roleName;
+    }
 
     public Id getContextId() {
         return contextId;

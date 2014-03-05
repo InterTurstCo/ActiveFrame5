@@ -13,6 +13,9 @@ public class NotificationAddresseeGroup implements NotificationAddressee {
 
     private Id groupId;
 
+    public NotificationAddresseeGroup() {
+    }
+
     public NotificationAddresseeGroup(Id groupId) {
         this.groupId = groupId;
     }
