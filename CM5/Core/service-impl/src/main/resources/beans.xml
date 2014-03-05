@@ -24,10 +24,10 @@
           class="ru.intertrust.cm.core.business.impl.ConfigurationControlServiceImpl"/>
 
     <jee:local-slsb id="crudService"
-                    jndi-name="java:module/CrudServiceImpl!ru.intertrust.cm.core.business.api.CrudService$Remote"
+                    jndi-name="java:module/CrudServiceImpl!ru.intertrust.cm.core.business.api.CrudService"
                     business-interface="ru.intertrust.cm.core.business.api.CrudService"/>
     <jee:local-slsb id="auditService"
-                    jndi-name="java:module/AuditService!ru.intertrust.cm.core.business.api.AuditService$Remote"
+                    jndi-name="java:module/AuditService!ru.intertrust.cm.core.business.api.AuditService"
                     business-interface="ru.intertrust.cm.core.business.api.AuditService"/>
     <jee:local-slsb id="personManagementService"
                     jndi-name="java:module/PersonManagementService!ru.intertrust.cm.core.business.api.PersonManagementService"
