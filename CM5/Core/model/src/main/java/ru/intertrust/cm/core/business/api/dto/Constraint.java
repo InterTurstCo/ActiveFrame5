@@ -44,6 +44,10 @@ public class Constraint implements Dto {
     public static final String FIELD_NAME = "field-name";
     public static final String DOMAIN_OBJECT_TYPE = "domain-object-type";
 
+    // params for Server-Side validation
+    public static final String PARAM_WIDGET_ID = "widget-id";
+    public static final String PARAM_DOMAIN_OBJECT_TYPE = "domain-object-type";
+
     private Type type;
     private HashMap<String, String> params;
 

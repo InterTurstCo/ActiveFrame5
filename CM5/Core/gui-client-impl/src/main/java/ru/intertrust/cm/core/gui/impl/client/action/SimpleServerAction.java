@@ -1,13 +1,22 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.gui.impl.client.event.ActionSuccessListener;
+import ru.intertrust.cm.core.gui.impl.client.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
+import ru.intertrust.cm.core.gui.model.validation.ValidationException;
+import ru.intertrust.cm.core.gui.model.validation.ValidationMessage;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.ArrayList;
@@ -33,7 +42,10 @@ public abstract class SimpleServerAction extends Action {
 
             @Override
             public void onFailure(Throwable caught) {
-                if (caught instanceof GuiException) {
+                if (caught instanceof ValidationException) {
+                    onValidationFailure((ValidationException) caught);
+                }
+                else if (caught instanceof GuiException) {
                     SimpleServerAction.this.onFailure((GuiException) caught);
                 } else {
                     Window.alert("System exception");
@@ -63,5 +75,25 @@ public abstract class SimpleServerAction extends Action {
 
     public void addActionSuccessListener(ActionSuccessListener listener) {
         successListeners.add(listener);
+    }
+
+    // TODO: [validation] move it to some better place
+    private void onValidationFailure(ValidationException validationException) {
+        List<ValidationMessage> messages = validationException.getValidationResult().getErrors();
+        final DialogBox dialogBox = new DialogBox(false, true);
+        dialogBox.setText("Validation errors");
+        VerticalPanel content = new VerticalPanel();
+        content.getElement().setAttribute("cellpadding", "8px"); //TODO: [validation] use CSS style instead
+        content.add(new HTML(StringUtil.join(messages, "<br/>")));
+        Button closeButton = new Button("Close");
+        closeButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                dialogBox.hide();
+            }
+        });
+        content.add(closeButton);
+        dialogBox.add(content);
+        dialogBox.center();
     }
 }
