@@ -30,6 +30,7 @@ public class DecimalBoxWidget extends TextBoxWidget {
     public WidgetState getCurrentState() {
         DecimalBoxState data = new DecimalBoxState();
         String text = getTrimmedText((HasText) impl);
+        data.setConstraints(getConstraints());
         if (text == null) {
             return data;
         }

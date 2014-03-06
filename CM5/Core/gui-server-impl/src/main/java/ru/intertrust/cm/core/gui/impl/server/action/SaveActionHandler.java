@@ -9,8 +9,13 @@ import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.impl.server.GuiContext;
 import ru.intertrust.cm.core.gui.impl.server.plugin.handlers.FormPluginHandler;
-import ru.intertrust.cm.core.gui.impl.server.validation.validators.NotEmptyValidator;
+import ru.intertrust.cm.core.gui.impl.server.validation.validators.DateRangeValidator;
+import ru.intertrust.cm.core.gui.impl.server.validation.validators.DecimalRangeValidator;
+import ru.intertrust.cm.core.gui.impl.server.validation.validators.IntRangeValidator;
+import ru.intertrust.cm.core.gui.impl.server.validation.validators.LengthValidator;
+import ru.intertrust.cm.core.gui.impl.server.validation.validators.ScaleAndPrecisionValidator;
 import ru.intertrust.cm.core.gui.impl.server.validation.validators.ServerValidator;
+import ru.intertrust.cm.core.gui.impl.server.validation.validators.SimpleValidator;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
@@ -73,32 +78,28 @@ public class SaveActionHandler extends ActionHandler {
     }
 
     private String getComponentNameByWidgetId(String widgetId, String domainObjectType) {
+        if (widgetId == null || domainObjectType == null) {
+            return null;
+        }
         return guiService.getForm(domainObjectType, GuiContext.get().getUserInfo()).getWidgetComponent(widgetId);
     }
 
     private ServerValidator createValidator(Constraint constraint) {
-        // TODO: [validation] instantiate server validator based on the constraints type.
         switch (constraint.getType()) {
             case SIMPLE:
-                //TODO: [validation]
-                break;
+                return new SimpleValidator(constraint);
             case LENGTH:
-                //TODO: [validation]
-                break;
+                return new LengthValidator(constraint);
             case INT_RANGE:
-                //TODO: [validation]
-                break;
+                return new IntRangeValidator(constraint);
             case DECIMAL_RANGE:
-                //TODO: [validation]
-                break;
+                return new DecimalRangeValidator(constraint);
             case DATE_RANGE:
-                //TODO: [validation]
-                break;
+                return new DateRangeValidator(constraint);
             case SCALE_PRECISION:
-                //TODO: [validation]
-                break;
+                return new ScaleAndPrecisionValidator(constraint);
         }
-        return new NotEmptyValidator(); //FIXME: [validation] return null here
+        return null;
     }
 
     private WidgetHandler getWidgetHandler(String componentName) {
@@ -111,7 +112,7 @@ public class SaveActionHandler extends ActionHandler {
         String componentName = getComponentNameByWidgetId(widgetId, domainObjectType);
 
         WidgetState state = formState.getWidgetState(widgetId);
-        if (state != null) {
+        if (state != null && componentName != null) {
             WidgetHandler handler = getWidgetHandler(componentName);
             return handler.getValue(state);
         }

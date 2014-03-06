@@ -28,6 +28,7 @@ public class IntegerBoxWidget extends TextBoxWidget {
     public WidgetState getCurrentState() {
         IntegerBoxState data = new IntegerBoxState();
         String text = getTrimmedText((HasText) impl);
+        data.setConstraints(getConstraints());
         if (text == null) {
             return data;
         }

@@ -206,11 +206,13 @@ public class FormRetriever {
 
         String widgetId = widgetConfig.getId();
         if (fieldConfig != null) {
-            for (Constraint constraint : fieldConfig.getConstraints()) {
+            List<Constraint> fieldConfigConstraints = fieldConfig.getConstraints();
+            for (Constraint constraint : fieldConfigConstraints) {
                 constraint.addParam(Constraint.PARAM_WIDGET_ID, widgetId);
                 constraint.addParam(Constraint.PARAM_DOMAIN_OBJECT_TYPE, doTypeName);
+                constraint.addParam(Constraint.PARAM_FIELD_NAME, fieldName);
             }
-            constraints.addAll(fieldConfig.getConstraints());
+            constraints.addAll(fieldConfigConstraints);
         }
         return constraints;
     }
@@ -266,25 +268,9 @@ public class FormRetriever {
     }
 
     private HashMap<String, Object> buildWidgetProps(WidgetContext context, List<Constraint> constraints) {
-        HashMap<String, Object> props = new HashMap<String, Object>();
-        props.put(Constraint.DOMAIN_OBJECT_TYPE, context.getFormObjects().getRootNode().getType());
-
-        WidgetConfig widgetConfig = context.getWidgetConfig();
-        FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
-        props.put(Constraint.FIELD_NAME, fieldPath.getFieldName());
-
+       HashMap<String, Object> props = new HashMap<String, Object>();
         for (Constraint constraint : constraints) {
-            Map<String, String> params = constraint.getParams();
-            //need this, because in case of dates, representation for messages differs from representation for validation
-            String rangeStart = params.get(Constraint.PARAM_RANGE_START_FOR_MSG);
-            if (rangeStart != null) {
-                params.put(Constraint.PARAM_RANGE_START, rangeStart);
-            }
-            String rangeEnd = params.get(Constraint.PARAM_RANGE_END_FOR_MSG);
-            if (rangeEnd != null) {
-                params.put(Constraint.PARAM_RANGE_END, rangeEnd);
-            }
-            props.putAll(params);
+            props.putAll(constraint.getParams());
         }
         return props;
     }

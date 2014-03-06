@@ -27,11 +27,11 @@ public class DateRangeConstraintConfig extends RangeConstraintConfig {
             Date dateStart = new SimpleDateFormat(DEFAULT_FORMAT).parse(start);
             Date dateEnd = new SimpleDateFormat(DEFAULT_FORMAT).parse(end);
             HashMap<String, String> params = new HashMap<String, String>();
-            params.put(Constraint.PARAM_RANGE_START, dateStart.getTime() + ""); //number of milliseconds as a string
-            params.put(Constraint.PARAM_RANGE_END, dateEnd.getTime() + "");
+            params.put(Constraint.PARAM_RANGE_START_DATE_MS, dateStart.getTime() + ""); //number of milliseconds as a string
+            params.put(Constraint.PARAM_RANGE_END_DATE_MS, dateEnd.getTime() + "");
 
-            params.put(Constraint.PARAM_RANGE_START_FOR_MSG, start);
-            params.put(Constraint.PARAM_RANGE_END_FOR_MSG, end);
+            params.put(Constraint.PARAM_RANGE_START, start);
+            params.put(Constraint.PARAM_RANGE_END, end);
 
             return new Constraint(getType(), params);
         } catch (ParseException e) {

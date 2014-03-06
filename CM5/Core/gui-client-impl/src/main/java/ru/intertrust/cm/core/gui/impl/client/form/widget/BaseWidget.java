@@ -215,4 +215,8 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
         impl.setTitle(null);
         impl.removeStyleName("validation-error");
     }
+
+    public List<Constraint> getConstraints() {
+        return constraints;
+    }
 }

@@ -13,9 +13,12 @@ public abstract class RangeValidator<T extends Comparable> extends AbstractValid
     private final T rangeEnd;
 
     public RangeValidator(Constraint constraint) {
-        this.rangeStart = convert(constraint.param(Constraint.PARAM_RANGE_START));
-        this.rangeEnd = convert(constraint.param(Constraint.PARAM_RANGE_END));
+        this(constraint, Constraint.PARAM_RANGE_START, Constraint.PARAM_RANGE_END);
+    }
 
+    public RangeValidator(Constraint constraint, String paramNameStart, String paramNameEnd) {
+        this.rangeStart = convert(constraint.param(paramNameStart));
+        this.rangeEnd = convert(constraint.param(paramNameEnd));
     }
 
     @Override

@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
-import java.util.Date;
 import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
@@ -9,7 +8,6 @@ import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.DateBox;
-
 import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.util.StringUtil;
@@ -18,6 +16,8 @@ import ru.intertrust.cm.core.gui.model.DateTimeContext;
 import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
+
+import java.util.Date;
 
 /**
  * @author Denis Mitavskiy
@@ -63,7 +63,7 @@ public class DateBoxWidget extends BaseWidget {
         }
         DateBoxState data = new DateBoxState();
         data.setDateTimeContext(initial.getDateTimeContext());
-        validate();
+        data.setConstraints(getConstraints());
         return data;
     }
 

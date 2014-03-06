@@ -31,6 +31,7 @@ public class TextBoxWidget extends BaseWidget {
     public WidgetState getCurrentState() {
         TextState data = new TextState();
         data.setText(getTrimmedText((HasText) impl));
+        data.setConstraints(getConstraints());
         return data;
     }
 

@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.gui.model.validation;
+package ru.intertrust.cm.core.gui.impl.server.validation.validators;
 
 import ru.intertrust.cm.core.business.api.dto.Constraint;
 
@@ -7,11 +7,10 @@ import ru.intertrust.cm.core.business.api.dto.Constraint;
  *         Date: 03.03.14
  *         Time: 14:56
  */
-// TODO: [validation] actually compares number of milliseconds - do we have a better way to do this?
-public class DateRangeValidator extends  RangeValidator<Long> {
+public class IntRangeValidator extends RangeValidator<Long> {
 
-    public DateRangeValidator(Constraint constraint) {
-        super(constraint, Constraint.PARAM_RANGE_START_DATE_MS, Constraint.PARAM_RANGE_END_DATE_MS);
+    public IntRangeValidator(Constraint constraint) {
+        super(constraint);
     }
 
     @Override

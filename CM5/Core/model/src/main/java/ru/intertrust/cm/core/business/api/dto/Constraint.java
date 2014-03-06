@@ -28,10 +28,11 @@ public class Constraint implements Dto {
     public static final String PARAM_MAX_LENGTH = "max-length";
     public static final String PARAM_RANGE_START = "range-start";
     public static final String PARAM_RANGE_END = "range-end";
+    public static final String PARAM_RANGE_START_DATE_MS = "range-start-date-ms";
+    public static final String PARAM_RANGE_END_DATE_MS = "range-end-date-ms";
     public static final String PARAM_SCALE = "scale";
     public static final String PARAM_PRECISION = "precision";
-    public static final String PARAM_RANGE_START_FOR_MSG = "range-start-for-msg";
-    public static final String PARAM_RANGE_END_FOR_MSG = "range-end-for-msg";
+    public static final String PARAM_FIELD_NAME = "field-name";
 
     // ключевые слова, используемые при простой валидации (SimpleValidator)
     public static final String KEYWORD_NOT_EMPTY = "validate.not-empty";
@@ -41,8 +42,6 @@ public class Constraint implements Dto {
     public static final String KEYWORD_POSITIVE_DEC = "validate.positive-dec";
 
     public static final String VAlUE = "value";
-    public static final String FIELD_NAME = "field-name";
-    public static final String DOMAIN_OBJECT_TYPE = "domain-object-type";
 
     // params for Server-Side validation
     public static final String PARAM_WIDGET_ID = "widget-id";
@@ -73,5 +72,10 @@ public class Constraint implements Dto {
 
     public void addParam(String paramName, String paramValue) {
         params.put(paramName, paramValue);
+    }
+
+    @Override
+    public String toString() {
+        return this.type + " " + params;
     }
 }
