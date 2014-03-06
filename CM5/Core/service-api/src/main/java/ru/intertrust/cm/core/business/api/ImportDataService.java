@@ -29,4 +29,11 @@ public interface ImportDataService {
      * @param encoding
      */
     void importData(byte[] importFileAsByteArray, String encoding);
+    
+    /**
+     * Метод загрузки данных при отличие кодировки в CSV от дефалтовой ANSI-1251 и флагом который позволяет\запрещает перезаписывать данные
+     * @param importFileAsByteArray
+     * @param encoding
+     */
+    void importData(byte[] importFileAsByteArray, String encoding, boolean owerwrite);
 }

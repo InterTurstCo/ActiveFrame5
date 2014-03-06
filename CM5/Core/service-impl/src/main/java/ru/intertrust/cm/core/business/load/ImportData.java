@@ -86,7 +86,7 @@ public class ImportData {
      * Загрузка одного файла с данными
      * @param loadFileAsByteArray
      */
-    public void importData(byte[] loadFileAsByteArray, String encoding) {
+    public void importData(byte[] loadFileAsByteArray, String encoding, Boolean rewrite) {
         try {
             ByteArrayInputStream input = new ByteArrayInputStream(loadFileAsByteArray);
             BufferedReader reader =
@@ -130,7 +130,7 @@ public class ImportData {
                     }
                 } else {
                     //Импорт одной строки
-                    importLine(line);
+                    importLine(line, rewrite);
                 }
 
                 lineNum++;
@@ -166,7 +166,7 @@ public class ImportData {
      * @throws ParseException
      * @throws IOException
      */
-    private void importLine(String line) throws ParseException, IOException {
+    private void importLine(String line, Boolean rewrite) throws ParseException, IOException {
         AccessToken accessToken = null;
         //Разделяем строку на значения
         String[] fieldValues = line.split(";");
@@ -184,104 +184,106 @@ public class ImportData {
 
         //Получение доменного объекта по ключевым полям
         DomainObject domainObject = findDomainObject(fieldValues);
-        if (domainObject == null) {
-            //Создание доменного объекта
-            domainObject = createDomainObject(typeName);
-        }
+        if (rewrite){
+        	if (domainObject == null) {
+                //Создание доменного объекта
+                domainObject = createDomainObject(typeName);
+            }
 
-        String attachments = null;
-        //Установка полей
-        for (int i = 0; i < fields.length; i++) {
-            String fieldName = fields[i];
-            //Обрабатываем ключевое поле вложения
-            if (ATTACHMENT_FIELD_NAME.equals(fieldName)) {
-                if (!fieldValues[i].isEmpty()) {
-                    attachments = fieldValues[i];
-                }
-            } else {
-
-                FieldConfig fieldConfig = configurationExplorer.getFieldConfig(typeName, fieldName);
-                if (fieldConfig != null) {
-                    if (fieldConfig.getFieldType() == FieldType.BOOLEAN) {
-                        if (fieldValues[i].length() == 0) {
-                            domainObject.setBoolean(fieldName, null);
-                        } else {
-                            domainObject.setBoolean(fieldName, Boolean.valueOf(fieldValues[i]));
-                        }
-                    } else if (fieldConfig.getFieldType() == FieldType.DATETIME) {
-                        if (fieldValues[i].length() == 0) {
-                            domainObject.setTimestamp(fieldName, null);
-                        } else {
-                            domainObject.setTimestamp(fieldName, timeFofmat.parse(fieldValues[i]));
-                        }
-                    } else if (fieldConfig.getFieldType() == FieldType.DATETIMEWITHTIMEZONE) {
-                        if (fieldValues[i].length() == 0) {
-                            domainObject.setDateTimeWithTimeZone(fieldName, null);
-                        } else {
-                            Date date = timeFofmat.parse(fieldValues[i]);
-                            Calendar calendar = Calendar.getInstance();
-                            calendar.setTime(date);
-                            DateTimeWithTimeZone dateTimeWithTimeZone = new DateTimeWithTimeZone(
-                                    calendar.get(Calendar.YEAR),
-                                    calendar.get(Calendar.MONTH),
-                                    calendar.get(Calendar.DAY_OF_MONTH),
-                                    calendar.get(Calendar.HOUR),
-                                    calendar.get(Calendar.MINUTE),
-                                    calendar.get(Calendar.SECOND)
-                                    );
-                            domainObject.setDateTimeWithTimeZone(fieldName, dateTimeWithTimeZone);
-                        }
-                    } else if (fieldConfig.getFieldType() == FieldType.DECIMAL) {
-                        if (fieldValues[i].length() == 0) {
-                            domainObject.setDecimal(fieldName, null);
-                        } else {
-                            domainObject.setDecimal(fieldName, new BigDecimal(fieldValues[i]));
-                        }
-                    } else if (fieldConfig.getFieldType() == FieldType.LONG) {
-                        if (fieldValues[i].length() == 0) {
-                            domainObject.setLong(fieldName, null);
-                        } else {
-                            domainObject.setLong(fieldName, Long.parseLong(fieldValues[i]));
-                        }
-                    } else if (fieldConfig.getFieldType() == FieldType.REFERENCE) {
-                        //Здесь будут выражения в формате type.field="Значение поля" или field="Значение поля" или запрос
-                        domainObject.setReference(fieldName, getReference(fieldName, fieldValues[i]));
-                    } else if (fieldConfig.getFieldType() == FieldType.TIMELESSDATE) {
-                        if (fieldValues[i].length() == 0) {
-                            domainObject.setTimestamp(fieldName, null);
-                        } else {
-                            domainObject.setTimestamp(fieldName, dateFofmat.parse(fieldValues[i]));
-                        }
-                    } else {
-                        //В остальных случаях считаем строкой
-                        if (fieldValues[i].length() == 0) {
-                            domainObject.setString(fieldName, null);
-                        } else if ((emptyStringSymbol == null && fieldValues[i].equals("_"))
-                                || (emptyStringSymbol != null && fieldValues[i].equals(emptyStringSymbol))) {
-                            //Символ "_" строки означает у нас пустую строку если не указано конкретное значение символа пустой строки в метаинформации файла в ключе EMPTY_STRING_SYMBOL
-                            domainObject.setString(fieldName, "");
-                        } else {
-                            domainObject.setString(fieldName, fieldValues[i]);
-                        }
+            String attachments = null;
+            //Установка полей
+            for (int i = 0; i < fields.length; i++) {
+                String fieldName = fields[i];
+                //Обрабатываем ключевое поле вложения
+                if (ATTACHMENT_FIELD_NAME.equals(fieldName)) {
+                    if (!fieldValues[i].isEmpty()) {
+                        attachments = fieldValues[i];
                     }
                 } else {
-                    throw new FatalException("Fileld " + fieldName + " not found in type " + typeName);
+
+                    FieldConfig fieldConfig = configurationExplorer.getFieldConfig(typeName, fieldName);
+                    if (fieldConfig != null) {
+                        if (fieldConfig.getFieldType() == FieldType.BOOLEAN) {
+                            if (fieldValues[i].length() == 0) {
+                                domainObject.setBoolean(fieldName, null);
+                            } else {
+                                domainObject.setBoolean(fieldName, Boolean.valueOf(fieldValues[i]));
+                            }
+                        } else if (fieldConfig.getFieldType() == FieldType.DATETIME) {
+                            if (fieldValues[i].length() == 0) {
+                                domainObject.setTimestamp(fieldName, null);
+                            } else {
+                                domainObject.setTimestamp(fieldName, timeFofmat.parse(fieldValues[i]));
+                            }
+                        } else if (fieldConfig.getFieldType() == FieldType.DATETIMEWITHTIMEZONE) {
+                            if (fieldValues[i].length() == 0) {
+                                domainObject.setDateTimeWithTimeZone(fieldName, null);
+                            } else {
+                                Date date = timeFofmat.parse(fieldValues[i]);
+                                Calendar calendar = Calendar.getInstance();
+                                calendar.setTime(date);
+                                DateTimeWithTimeZone dateTimeWithTimeZone = new DateTimeWithTimeZone(
+                                        calendar.get(Calendar.YEAR),
+                                        calendar.get(Calendar.MONTH),
+                                        calendar.get(Calendar.DAY_OF_MONTH),
+                                        calendar.get(Calendar.HOUR),
+                                        calendar.get(Calendar.MINUTE),
+                                        calendar.get(Calendar.SECOND)
+                                        );
+                                domainObject.setDateTimeWithTimeZone(fieldName, dateTimeWithTimeZone);
+                            }
+                        } else if (fieldConfig.getFieldType() == FieldType.DECIMAL) {
+                            if (fieldValues[i].length() == 0) {
+                                domainObject.setDecimal(fieldName, null);
+                            } else {
+                                domainObject.setDecimal(fieldName, new BigDecimal(fieldValues[i]));
+                            }
+                        } else if (fieldConfig.getFieldType() == FieldType.LONG) {
+                            if (fieldValues[i].length() == 0) {
+                                domainObject.setLong(fieldName, null);
+                            } else {
+                                domainObject.setLong(fieldName, Long.parseLong(fieldValues[i]));
+                            }
+                        } else if (fieldConfig.getFieldType() == FieldType.REFERENCE) {
+                            //Здесь будут выражения в формате type.field="Значение поля" или field="Значение поля" или запрос
+                            domainObject.setReference(fieldName, getReference(fieldName, fieldValues[i]));
+                        } else if (fieldConfig.getFieldType() == FieldType.TIMELESSDATE) {
+                            if (fieldValues[i].length() == 0) {
+                                domainObject.setTimestamp(fieldName, null);
+                            } else {
+                                domainObject.setTimestamp(fieldName, dateFofmat.parse(fieldValues[i]));
+                            }
+                        } else {
+                            //В остальных случаях считаем строкой
+                            if (fieldValues[i].length() == 0) {
+                                domainObject.setString(fieldName, null);
+                            } else if ((emptyStringSymbol == null && fieldValues[i].equals("_"))
+                                    || (emptyStringSymbol != null && fieldValues[i].equals(emptyStringSymbol))) {
+                                //Символ "_" строки означает у нас пустую строку если не указано конкретное значение символа пустой строки в метаинформации файла в ключе EMPTY_STRING_SYMBOL
+                                domainObject.setString(fieldName, "");
+                            } else {
+                                domainObject.setString(fieldName, fieldValues[i]);
+                            }
+                        }
+                    } else {
+                        throw new FatalException("Fileld " + fieldName + " not found in type " + typeName);
+                    }
                 }
             }
-        }
-        if (login == null || domainObject.isNew()) {
-            accessToken = accessService.createSystemAccessToken(this.getClass().getName());
-        } else {
-            accessToken = accessService.createAccessToken(login, domainObject.getId(), DomainObjectAccessType.WRITE);
-        }
+            if (login == null || domainObject.isNew()) {
+                accessToken = accessService.createSystemAccessToken(this.getClass().getName());
+            } else {
+                accessToken = accessService.createAccessToken(login, domainObject.getId(), DomainObjectAccessType.WRITE);
+            }
 
-        domainObject = domainObjectDao.save(domainObject, accessToken);
+            domainObject = domainObjectDao.save(domainObject, accessToken);
 
-        //Создаем вложения если необходимо
-        if (attachments != null) {
-            String[] attachementsList = attachments.split(",");
-            for (int j = 0; j < attachementsList.length; j++) {
-                createAttachment(domainObject, attachementsList[j]);
+            //Создаем вложения если необходимо
+            if (attachments != null) {
+                String[] attachementsList = attachments.split(",");
+                for (int j = 0; j < attachementsList.length; j++) {
+                    createAttachment(domainObject, attachementsList[j]);
+                }
             }
         }
     }

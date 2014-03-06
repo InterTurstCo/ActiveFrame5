@@ -9,8 +9,11 @@ public class ImportFilesConfiguration {
     @Attribute(name="csv-encoding", required=false)
     private String csvEncoding;
 
+    @Attribute(name="rewrite", required=false)
+    private Boolean rewrite;
+    
     @ElementList(inline=true, required=false, entry="import-file")
-    private List<String> importFiles;
+    private List<ImportFileConfiguration> importFiles;
     
     public String getCsvEncoding() {
         return csvEncoding;
@@ -20,13 +23,20 @@ public class ImportFilesConfiguration {
         this.csvEncoding = csvEncoding;
     }
 
-    public List<String> getImportFiles() {
+    public List<ImportFileConfiguration> getImportFiles() {
         return importFiles;
     }
 
-    public void setImportFiles(List<String> importFiles) {
+    public void setImportFiles(List<ImportFileConfiguration> importFiles) {
         this.importFiles = importFiles;
     }
+    
+    public Boolean getRewrite() {
+        return rewrite;
+    }
 
+    public void setRewrite(Boolean rewrite) {
+        this.rewrite = rewrite;
+    }
 
 }

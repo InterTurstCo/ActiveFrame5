@@ -45,13 +45,20 @@ public class ImportDataServiceImpl implements ImportDataService {
 
     @Override
     public void importData(byte[] importFileAsByteArray, String encoding) {
-        try {
-            ImportData ImportData =
-                    new ImportData(collectionsDao, configurationExplorer, domainObjectDao, accessControlService,
-                            attachmentContentDao, context.getCallerPrincipal().getName());
-            ImportData.importData(importFileAsByteArray, encoding);
-        } catch (Exception ex) {
-            throw new FatalException("Error load data", ex);
-        }
+       importData(importFileAsByteArray, encoding, false);
     }
+
+	@Override
+	public void importData(byte[] importFileAsByteArray, String encoding,
+			boolean rewrite) {
+		 try {
+	            ImportData ImportData =
+	                    new ImportData(collectionsDao, configurationExplorer, domainObjectDao, accessControlService,
+	                            attachmentContentDao, context.getCallerPrincipal().getName());
+	            ImportData.importData(importFileAsByteArray, encoding, rewrite);
+	        } catch (Exception ex) {
+	            throw new FatalException("Error load data", ex);
+	        }
+		
+	}
 }

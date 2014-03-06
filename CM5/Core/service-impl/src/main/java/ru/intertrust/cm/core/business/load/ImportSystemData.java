@@ -4,12 +4,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Enumeration;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.module.ImportFileConfiguration;
 import ru.intertrust.cm.core.config.module.ImportFilesConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
@@ -43,17 +43,34 @@ public class ImportSystemData {
 
     public void onLoad() {
         try {
-
+        	//перезаписывать ли данные(по умолчанию false)
+        	Boolean rewriteGroup;
+        	Boolean rewriteFile;
+        	Boolean rewrite = false;
             for (ModuleConfiguration moduleConfiguration : moduleService.getModuleList()) {
                 ImportFilesConfiguration importFiles = moduleConfiguration.getImportFiles();
-                for (String importFile : importFiles.getImportFiles()) {
-
-
+                //Получаем значение перезаписи для группы файлов
+                rewriteGroup = importFiles.getRewrite();
+                for (ImportFileConfiguration importFile : importFiles.getImportFiles()) {
+                	//Получаем значение перезаписи для файла
+                	rewriteFile = importFile.getRewrite();
+                	//Если у файла установлен флаг - используем его
+                	if (rewriteFile != null){
+                		rewrite = rewriteFile;
+                	}
+                	//Если у файла нет флага, а у группы есть - используем его
+                	else if (rewriteGroup != null){
+                		rewrite = rewriteGroup;
+                	}
+                	//Если флаг ни у файла ни у группы не установлен используем false
+                	else{
+                		rewrite = false;
+                	}
                     ImportData importData = new ImportData(collectionsDao, 
                             configurationExplorer, domainObjectDao, accessControlService, attachmentContentDao, null);
 
-                    importData.importData(readFile(new URL(moduleConfiguration.getModuleUrl().toString() + importFile)), importFiles.getCsvEncoding());
-                    logger.info("Import system data from file " + importFile);
+                    importData.importData(readFile(new URL(moduleConfiguration.getModuleUrl().toString() + importFile.getFileName())), importFiles.getCsvEncoding(),rewrite);
+                    logger.info("Import system data from file " + importFile.getFileName());
                 }
             }
 
