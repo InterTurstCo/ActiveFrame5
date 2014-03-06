@@ -29,16 +29,26 @@ public class LengthValidator extends AbstractValidator {
 
     @Override
     void doValidation(CanBeValidated canBeValidated, ValidationResult validationResult) {
-        String value = canBeValidated.getValue().toString();
-        if (length != null && value.length() != length) {
-            validationResult.addError("validate.length.not-equal");
-        } else {
-            if (minLength != null && value.length() < minLength) {
-                validationResult.addError("validate.length.too-small");
-            }
-            if (maxLength != null && value.length() > maxLength) {
-                validationResult.addError("validate.length.too-big");
+        if (canBeValidated.getValue() != null) {
+            int valueLength = canBeValidated.getValue().toString().length();
+            if (length != null && valueLength != length) {
+                validationResult.addError("validate.length.not-equal");
+            } else {
+                if (minLength != null && valueLength < minLength) {
+                    validationResult.addError("validate.length.too-small");
+                }
+                if (maxLength != null && valueLength > maxLength) {
+                    validationResult.addError("validate.length.too-big");
+                }
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Client length validator: "
+                + length != null ? "length = " + length : ""
+                + minLength != null ? "minLength = " + minLength : ""
+                + maxLength != null ? "maxLength = " + maxLength : "";
     }
 }

@@ -33,4 +33,10 @@ public abstract class RangeValidator<T extends Comparable> extends AbstractValid
 
      abstract T convert(String s);
 
+    @Override
+    public String toString() {
+        return "Client range validator: "
+                + rangeStart != null ? "rangeStart = " + rangeStart : ""
+                + rangeEnd != null ? "rangeEnd = " + rangeEnd : "";
+    }
 }

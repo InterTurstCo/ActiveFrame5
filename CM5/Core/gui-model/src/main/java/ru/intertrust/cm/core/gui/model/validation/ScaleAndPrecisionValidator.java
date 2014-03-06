@@ -16,8 +16,8 @@ public class ScaleAndPrecisionValidator extends AbstractValidator {
     public ScaleAndPrecisionValidator(Constraint constraint) {
         String scaleStr = constraint.param(Constraint.PARAM_SCALE);
         String precisionStr = constraint.param(Constraint.PARAM_PRECISION);
-        this.scale = scaleStr != null ? Integer.parseInt(scaleStr) : null;
-        this.precision = precisionStr != null ? Integer.parseInt(precisionStr) : null;
+        this.scale = parseInt(scaleStr);
+        this.precision = parseInt(precisionStr);
     }
 
     @Override
@@ -35,6 +35,17 @@ public class ScaleAndPrecisionValidator extends AbstractValidator {
                 validationResult.addError("validate.scale");
             }
         }
+    }
+
+    private static Integer parseInt(String str) {
+        return str != null ? Integer.parseInt(str) : null;
+    }
+
+    @Override
+    public String toString() {
+        return "Client scale & precision validator: "
+                + precision != null ? "precision = " + precision : ""
+                + scale != null ? "scale = " + scale : "";
     }
 }
 

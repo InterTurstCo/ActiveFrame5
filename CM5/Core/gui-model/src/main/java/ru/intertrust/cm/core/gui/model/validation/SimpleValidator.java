@@ -15,9 +15,18 @@ import java.util.Map;
 public class SimpleValidator extends AbstractValidator {
 
     private final String pattern;
+    private final String messageKey;
 
     public SimpleValidator(Constraint constraint) {
-        this.pattern = constraint.param(Constraint.PARAM_PATTERN);
+        String wordOrPattern = constraint.param(Constraint.PARAM_PATTERN);
+        String pattern = wordsToPatterns.get(wordOrPattern);
+        String messageKey = wordOrPattern;
+        if (pattern == null) {
+            pattern = wordOrPattern;
+            messageKey = "validate.pattern";
+        }
+        this.pattern = pattern;
+        this.messageKey = messageKey;
     }
 
     private static final Map<String, String> wordsToPatterns = new HashMap<String, String>();
@@ -31,21 +40,15 @@ public class SimpleValidator extends AbstractValidator {
     }
 
     @Override
-    public String toString() {
-        return pattern;
-    }
-
-    @Override
     void doValidation(CanBeValidated canBeValidated, ValidationResult validationResult) {
-        String pattern = wordsToPatterns.get(this.pattern);
-        String messageKey = this.pattern;
-        if (pattern == null) {
-            pattern = this.pattern;
-            messageKey = "validate.pattern";
-        }
         String value = (String) canBeValidated.getValue();
         if (value != null && pattern!= null && !value.matches(pattern)) {
             validationResult.addError(messageKey);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Client simple validator: " + pattern;
     }
 }
