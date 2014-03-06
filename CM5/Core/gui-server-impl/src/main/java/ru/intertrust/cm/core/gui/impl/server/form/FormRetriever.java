@@ -203,8 +203,14 @@ public class FormRetriever {
             doTypeName = fieldPath.getLinkingObjectType();
         }
         FieldConfig fieldConfig = configurationExplorer.getFieldConfig(doTypeName, fieldName);
+
+        String widgetId = widgetConfig.getId();
         if (fieldConfig != null) {
-           constraints.addAll(fieldConfig.getConstraints());
+            for (Constraint constraint : fieldConfig.getConstraints()) {
+                constraint.addParam(Constraint.PARAM_WIDGET_ID, widgetId);
+                constraint.addParam(Constraint.PARAM_DOMAIN_OBJECT_TYPE, doTypeName);
+            }
+            constraints.addAll(fieldConfig.getConstraints());
         }
         return constraints;
     }
