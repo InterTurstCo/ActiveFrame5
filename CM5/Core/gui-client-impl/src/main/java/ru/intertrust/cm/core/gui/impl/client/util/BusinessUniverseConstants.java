@@ -13,6 +13,7 @@ public class BusinessUniverseConstants {
     public static final String DESCEND_ARROW = "↓";
     public static final String ASCEND_ARROW = "↑";
     public static final String DISPLAY_STYLE_BlOCK = "table";
+    // @FIXME will be removed
     public static final DateTimeFormat DATE_TIME_FORMAT = DateTimeFormat.getFormat("dd.MM.yyyy");
 
     public static final int COLLECTION_VIEW_SIZE_SCROLL_WIDTH = 20;

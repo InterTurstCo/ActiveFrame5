@@ -1,5 +1,12 @@
 package ru.intertrust.cm.core.gui.rpc.server;
 
+import java.lang.ref.SoftReference;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.TimeZone;
 import javax.ejb.EJB;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpSession;
@@ -14,6 +21,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
+import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.BusinessUniverseConfig;
 import ru.intertrust.cm.core.config.LogoConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
@@ -44,6 +52,8 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     @EJB
     private ConfigurationService configurationService;
 
+    private SoftReference<List<String>> refTimeZoneIds;
+
     @Override
     public BusinessUniverseInitialization getBusinessUniverseInitialization() {
         BusinessUniverseInitialization initialization = new BusinessUniverseInitialization();
@@ -59,6 +69,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         businessUniverseInitialization.setFirstName(person.getString("FirstName"));
         businessUniverseInitialization.setLastName(person.getString("LastName"));
         businessUniverseInitialization.seteMail(person.getString("EMail"));
+        businessUniverseInitialization.setTimeZoneIds(getTimeZoneIds());
         return businessUniverseInitialization;
     }
 
@@ -112,7 +123,23 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         final UserInfo userInfo = new UserInfo();
         final UserUidWithPassword userUidWithPassword = (UserUidWithPassword) this.getThreadLocalRequest()
                 .getSession().getAttribute(LoginServiceImpl.USER_CREDENTIALS_SESSION_ATTRIBUTE);
-        userInfo.setTimeZone(userUidWithPassword.getClientTimeZone());
+        userInfo.setTimeZoneId(userUidWithPassword.getClientTimeZone());
         return userInfo;
+    }
+
+    private List<String> getTimeZoneIds() {
+        List<String> result = refTimeZoneIds == null ? null : refTimeZoneIds.get();
+        if (result == null) {
+            final Set<String> timeZoneIdSet = new LinkedHashSet<>(40);
+            timeZoneIdSet.addAll(Arrays.asList("По умолчанию", "Локальная", "Оригинальная"));
+            final String[] timeZoneIds = TimeZone.getAvailableIDs();
+            for (String timeZoneId : timeZoneIds) {
+                final TimeZone timeZone = TimeZone.getTimeZone(timeZoneId);
+                timeZoneIdSet.add(ModelUtil.getUTCTimeZoneId(timeZone.getRawOffset()));
+            }
+            result = new ArrayList<>(timeZoneIdSet);
+            refTimeZoneIds = new SoftReference<>(result);
+        }
+        return result;
     }
 }
