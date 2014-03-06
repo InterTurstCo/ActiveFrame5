@@ -2,6 +2,8 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
@@ -28,6 +30,7 @@ public class DateBoxDecorate extends Composite {
     private CMJDatePicker picker;
     private FocusPanel dateBtn;
     private AbsolutePanel root;
+    private ListBox timeZoneChooser;
 
     public DateBoxDecorate() {
         root = new AbsolutePanel();
@@ -51,6 +54,10 @@ public class DateBoxDecorate extends Composite {
         return result;
     }
 
+    public String getSelectedTimeZoneId() {
+        return timeZoneChooser == null ? null : timeZoneChooser.getItemText(timeZoneChooser.getSelectedIndex());
+    }
+
     /**
      * todo investigate usages.
      * @return
@@ -59,7 +66,7 @@ public class DateBoxDecorate extends Composite {
         return dateBox.getValue();
     }
 
-    private void initRoot(DateBoxState state) {
+    private void initRoot(final DateBoxState state) {
         final ClickHandler showDatePickerHandler = new ShowDatePickerHandler();
         picker = new CMJDatePicker();
         dateBtn = new FocusPanel();
@@ -74,9 +81,10 @@ public class DateBoxDecorate extends Composite {
         root.add(dateBox);
         root.add(dateBtn);
         if (state.isDisplayTimeZoneChoice()
-            && state.getDateTimeContext().getOrdinalFieldType() == FieldType.DATETIMEWITHTIMEZONE.ordinal()) {
+                && state.getDateTimeContext().getOrdinalFieldType() == FieldType.DATETIMEWITHTIMEZONE.ordinal()) {
             // show time zone chooser.
-            root.add(getTimeZoneBox());
+            timeZoneChooser = getTimeZoneBox(state.getDateTimeContext().getTimeZoneId());
+            root.add(timeZoneChooser);
         }
     }
 
@@ -87,12 +95,14 @@ public class DateBoxDecorate extends Composite {
         return result;
     }
 
-    private Widget getTimeZoneBox() {
+    private ListBox getTimeZoneBox(final String selectedId) {
         final ListBox result = new ListBox();
-        final Collection<String> timeZoneIds = Application.getInstance().getTimeZoneIds();
+        final List<String> timeZoneIds = Application.getInstance().getTimeZoneIds();
         for (String timeZoneId : timeZoneIds) {
             result.addItem(timeZoneId);
         }
+        final int index = timeZoneIds.indexOf(selectedId);
+        result.setSelectedIndex(index < 0 ? 0 : index);
         return result;
     }
 
@@ -108,7 +118,6 @@ public class DateBoxDecorate extends Composite {
                 baloonDown = "date-picker-baloon";
                 baloonUp =  "!!!";
             }
-
             picker.toggle(baloonDown, baloonUp);
             dateBox.showDatePicker();
         }

@@ -1,9 +1,11 @@
 package ru.intertrust.cm.core.gui.rpc.server;
 
 import java.lang.ref.SoftReference;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.TimeZone;
 import javax.ejb.EJB;
 import javax.servlet.annotation.WebServlet;
@@ -50,7 +52,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     @EJB
     private ConfigurationService configurationService;
 
-    private SoftReference<Collection<String>> refTimeZoneIds;
+    private SoftReference<List<String>> refTimeZoneIds;
 
     @Override
     public BusinessUniverseInitialization getBusinessUniverseInitialization() {
@@ -125,16 +127,17 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         return userInfo;
     }
 
-    private Collection<String> getTimeZoneIds() {
-        Collection<String> result = refTimeZoneIds == null ? null : refTimeZoneIds.get();
+    private List<String> getTimeZoneIds() {
+        List<String> result = refTimeZoneIds == null ? null : refTimeZoneIds.get();
         if (result == null) {
-            result = new LinkedHashSet<>(40);
-            result.addAll(Arrays.asList("По умолчанию", "Локальная", "Оригинальная"));
+            final Set<String> timeZoneIdSet = new LinkedHashSet<>(40);
+            timeZoneIdSet.addAll(Arrays.asList("По умолчанию", "Локальная", "Оригинальная"));
             final String[] timeZoneIds = TimeZone.getAvailableIDs();
             for (String timeZoneId : timeZoneIds) {
                 final TimeZone timeZone = TimeZone.getTimeZone(timeZoneId);
-                result.add(ModelUtil.getUTCTimeZoneId(timeZone.getRawOffset()));
+                timeZoneIdSet.add(ModelUtil.getUTCTimeZoneId(timeZone.getRawOffset()));
             }
+            result = new ArrayList<>(timeZoneIdSet);
             refTimeZoneIds = new SoftReference<>(result);
         }
         return result;

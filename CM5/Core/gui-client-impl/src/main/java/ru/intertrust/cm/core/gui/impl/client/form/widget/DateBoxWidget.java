@@ -27,7 +27,7 @@ public class DateBoxWidget extends BaseWidget {
     }
 
     public void setCurrentState(WidgetState currentState) {
-        final DateBoxState dbState = (DateBoxState)currentState;
+        final DateBoxState dbState = (DateBoxState) currentState;
         if (isEditable) {
             DateBoxDecorate dateBox = (DateBoxDecorate) impl;
             dateBox.setValue(dbState);
@@ -48,7 +48,12 @@ public class DateBoxWidget extends BaseWidget {
     public WidgetState getCurrentState() {
         final DateBoxState initial = getInitialData();
         if (isEditable) {
-            initial.getDateTimeContext().setDateTime(((DateBoxDecorate) impl).getText());
+            final DateBoxDecorate decorate = (DateBoxDecorate) impl;
+            initial.getDateTimeContext().setDateTime(decorate.getText());
+            final String selectedTimezoneId = decorate.getSelectedTimeZoneId();
+            if (selectedTimezoneId != null) {
+                initial.getDateTimeContext().setTimeZoneId(selectedTimezoneId);
+            }
         }
         DateBoxState data = new DateBoxState();
         data.setDateTimeContext(initial.getDateTimeContext());

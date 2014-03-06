@@ -455,7 +455,7 @@
             </label>
             <date-box id="10">
                 <field-path value="independence_day"/>
-                <time-zone-id>America/Los_Angeles</time-zone-id>
+                <time-zone-id>GMT-4</time-zone-id>
                 <pattern>dd.MMM.yyyy</pattern>
                 <display-time-zone-choice>true</display-time-zone-choice>
             </date-box>
