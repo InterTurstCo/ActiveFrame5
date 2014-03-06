@@ -1202,13 +1202,14 @@
                 <xs:sequence>
                     <xs:element type="con:fieldPathType" name="field-path"
                                 minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="xs:string" name="time-zone-id" minOccurs="0" maxOccurs="1"/>
+                    <xs:element type="xs:string" name="pattern" minOccurs="0" maxOccurs="1"/>
+                    <xs:element type="xs:boolean" name="display-time-zone-choice" minOccurs="0" maxOccurs="1"/>
                     <xs:choice maxOccurs="1" minOccurs="0">
                         <xs:element type="con:rangeType" name="range-start"
                                     minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
                         <xs:element type="con:rangeType" name="range-end"
                                     minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
-                        <xs:element type="xs:string" name="time-zone-id"/>
-                        <xs:element type="xs:string" name="pattern"/>
                     </xs:choice>
                 </xs:sequence>
                 <xs:attribute type="xs:string" name="id" use="optional"/>

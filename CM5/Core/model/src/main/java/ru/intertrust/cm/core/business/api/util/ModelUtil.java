@@ -3,13 +3,20 @@ package ru.intertrust.cm.core.business.api.util;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 
 import java.util.ArrayList;
+import java.util.TimeZone;
 
 /**
  * Author: Denis Mitavskiy
  * Date: 23.05.13
  * Time: 17:42
  */
-public class ModelUtil {
+public final class ModelUtil {
+
+    /**
+     * Don't create instance of helper class.
+     */
+    private ModelUtil() {}
+
     public static String getDetailedDescription(IdentifiableObject obj) {
         final String TABULATOR = "    ";
         ArrayList<String> fields = obj.getFields();
@@ -31,5 +38,27 @@ public class ModelUtil {
             result.append(obj.getValue(field)).append('\t');
         }
         return result.toString();
+    }
+
+    /**
+     * Returns time zone id in GMT format.
+     * <b>GWT don't support {@link String#format(String, Object...)} method</b>
+     * @param rawOffset timezone offset.
+     * @return time zone id in GMT format.
+     */
+    public static String getUTCTimeZoneId(final int rawOffset) {
+        final StringBuilder builder = new StringBuilder("GMT");
+        if (rawOffset != 0) {
+            if (rawOffset > 0) {
+                builder.append('+');
+            }
+            final int offset = rawOffset / (60 * 1000);
+            builder.append(offset / 60);
+            final int minutes = Math.abs(offset % 60);
+            if (minutes != 0) {
+                builder.append(minutes < 10 ? ":0" : ':' ).append(minutes);
+            }
+        }
+        return builder.toString();
     }
 }

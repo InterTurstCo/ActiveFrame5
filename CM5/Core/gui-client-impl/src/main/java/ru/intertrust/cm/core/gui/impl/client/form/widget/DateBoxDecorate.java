@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
+import java.util.Collection;
 import java.util.Date;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -7,9 +8,14 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FocusPanel;
+import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.DateBox;
 
+import ru.intertrust.cm.core.business.api.dto.FieldType;
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.model.DateTimeContext;
+import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
 
 /**
  * @author Timofiy Bilyi
@@ -29,11 +35,11 @@ public class DateBoxDecorate extends Composite {
         initWidget(root);
     }
 
-    public void setValue(final DateTimeContext context) {
+    public void setValue(final DateBoxState state) {
         if (dateBox == null) {
-            initRoot(context);
+            initRoot(state);
         } else {
-            final Date date = getDate(context);
+            final Date date = getDate(state.getDateTimeContext());
             dateBox.setValue(date, false);
         }
     }
@@ -53,13 +59,13 @@ public class DateBoxDecorate extends Composite {
         return dateBox.getValue();
     }
 
-    private void initRoot(DateTimeContext context) {
+    private void initRoot(DateBoxState state) {
         final ClickHandler showDatePickerHandler = new ShowDatePickerHandler();
         picker = new CMJDatePicker();
         dateBtn = new FocusPanel();
         dateBtn.setStyleName("date-box-button");
-        final Date date = getDate(context);
-        final DateTimeFormat dtFormat = DateTimeFormat.getFormat(context.getPattern());
+        final Date date = getDate(state.getDateTimeContext());
+        final DateTimeFormat dtFormat = DateTimeFormat.getFormat(state.getPattern());
         DateBox.Format format = new DateBox.DefaultFormat(dtFormat);
         dateBox = new DateBox(picker, date, format);
         dateBox.getTextBox().addStyleName("date-text-box");
@@ -67,12 +73,26 @@ public class DateBoxDecorate extends Composite {
         dateBtn.addClickHandler(showDatePickerHandler);
         root.add(dateBox);
         root.add(dateBtn);
+        if (state.isDisplayTimeZoneChoice()
+            && state.getDateTimeContext().getOrdinalFieldType() == FieldType.DATETIMEWITHTIMEZONE.ordinal()) {
+            // show time zone chooser.
+            root.add(getTimeZoneBox());
+        }
     }
 
     private Date getDate(DateTimeContext context) {
         final Date result = context.getDateTime() == null
                 ? null
                 : DateTimeFormat.getFormat(DateTimeContext.DTO_PATTERN).parse(context.getDateTime());
+        return result;
+    }
+
+    private Widget getTimeZoneBox() {
+        final ListBox result = new ListBox();
+        final Collection<String> timeZoneIds = Application.getInstance().getTimeZoneIds();
+        for (String timeZoneId : timeZoneIds) {
+            result.addItem(timeZoneId);
+        }
         return result;
     }
 

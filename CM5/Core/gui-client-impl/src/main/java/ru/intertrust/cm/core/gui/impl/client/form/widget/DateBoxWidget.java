@@ -6,6 +6,7 @@ import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 
+import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.DateTimeContext;
@@ -29,12 +30,17 @@ public class DateBoxWidget extends BaseWidget {
         final DateBoxState dbState = (DateBoxState)currentState;
         if (isEditable) {
             DateBoxDecorate dateBox = (DateBoxDecorate) impl;
-            dateBox.setValue(dbState.getDateTimeContext());
+            dateBox.setValue(dbState);
         } else {
             final Date date = DateTimeFormat.getFormat(DateTimeContext.DTO_PATTERN)
                     .parse(dbState.getDateTimeContext().getDateTime());
-            final DateTimeFormat format = DateTimeFormat.getFormat(dbState.getDateTimeContext().getPattern());
-            ((HasText) impl).setText(format.format(date));
+            final DateTimeFormat formatter = DateTimeFormat.getFormat(dbState.getPattern());
+            final StringBuilder textBuilder = new StringBuilder(formatter.format(date));
+            if (dbState.isDisplayTimeZoneChoice()
+                    && dbState.getDateTimeContext().getOrdinalFieldType() == FieldType.DATETIMEWITHTIMEZONE.ordinal()) {
+                textBuilder.append(" ").append(dbState.getDateTimeContext().getTimeZoneId());
+            }
+            ((HasText) impl).setText(textBuilder.toString());
         }
     }
 

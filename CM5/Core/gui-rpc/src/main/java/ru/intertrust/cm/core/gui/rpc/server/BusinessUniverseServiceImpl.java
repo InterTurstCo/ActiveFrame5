@@ -1,5 +1,10 @@
 package ru.intertrust.cm.core.gui.rpc.server;
 
+import java.lang.ref.SoftReference;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.TimeZone;
 import javax.ejb.EJB;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpSession;
@@ -14,6 +19,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
+import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.BusinessUniverseConfig;
 import ru.intertrust.cm.core.config.LogoConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
@@ -44,6 +50,8 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     @EJB
     private ConfigurationService configurationService;
 
+    private SoftReference<Collection<String>> refTimeZoneIds;
+
     @Override
     public BusinessUniverseInitialization getBusinessUniverseInitialization() {
         BusinessUniverseInitialization initialization = new BusinessUniverseInitialization();
@@ -59,6 +67,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         businessUniverseInitialization.setFirstName(person.getString("FirstName"));
         businessUniverseInitialization.setLastName(person.getString("LastName"));
         businessUniverseInitialization.seteMail(person.getString("EMail"));
+        businessUniverseInitialization.setTimeZoneIds(getTimeZoneIds());
         return businessUniverseInitialization;
     }
 
@@ -114,5 +123,20 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
                 .getSession().getAttribute(LoginServiceImpl.USER_CREDENTIALS_SESSION_ATTRIBUTE);
         userInfo.setTimeZoneId(userUidWithPassword.getClientTimeZone());
         return userInfo;
+    }
+
+    private Collection<String> getTimeZoneIds() {
+        Collection<String> result = refTimeZoneIds == null ? null : refTimeZoneIds.get();
+        if (result == null) {
+            result = new LinkedHashSet<>(40);
+            result.addAll(Arrays.asList("По умолчанию", "Локальная", "Оригинальная"));
+            final String[] timeZoneIds = TimeZone.getAvailableIDs();
+            for (String timeZoneId : timeZoneIds) {
+                final TimeZone timeZone = TimeZone.getTimeZone(timeZoneId);
+                result.add(ModelUtil.getUTCTimeZoneId(timeZone.getRawOffset()));
+            }
+            refTimeZoneIds = new SoftReference<>(result);
+        }
+        return result;
     }
 }

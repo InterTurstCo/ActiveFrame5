@@ -1,4 +1,7 @@
 package ru.intertrust.cm.core.gui.model;
+import java.util.Collection;
+import java.util.List;
+
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
@@ -13,6 +16,7 @@ public class BusinessUniverseInitialization implements Dto {
     private String lastName;
     private String eMail;
     private String logoImagePath;
+    private Collection<String> timeZoneIds;
 
     public String getCurrentLogin() {
         return currentLogin;
@@ -23,6 +27,14 @@ public class BusinessUniverseInitialization implements Dto {
             this.currentLogin = "";
         }
         this.currentLogin = currentLogin;
+    }
+
+    public Collection<String> getTimeZoneIds() {
+        return timeZoneIds;
+    }
+
+    public void setTimeZoneIds(Collection<String> timeZoneIds) {
+        this.timeZoneIds = timeZoneIds;
     }
 
     public String geteMail() {

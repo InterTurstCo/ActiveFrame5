@@ -13,11 +13,9 @@ public class DateTimeContext implements Dto {
     private static final long serialVersionUID = 1L;
 
     public static final String DTO_PATTERN = "dd.MM.yyyy HH:mm:ss:SSS";
-    private static final String DEFAULT_PATTERN = "dd.MM.yyyy";
     private static final String DEFAULT_TIME_ZONE_ID = "default";
 
     private String dateTime;
-    private String pattern;
     private String timeZoneId;
     /**
      * Used ordinal value of {@link ru.intertrust.cm.core.business.api.dto.FieldType} to optimize traffic.
@@ -43,14 +41,6 @@ public class DateTimeContext implements Dto {
 
     public void setOrdinalFieldType(int ordinalFieldType) {
         this.ordinalFieldType = ordinalFieldType;
-    }
-
-    public String getPattern() {
-        return pattern == null ? DEFAULT_PATTERN : pattern;
-    }
-
-    public void setPattern(String pattern) {
-        this.pattern = pattern;
     }
 
     public String getTimeZoneId() {
