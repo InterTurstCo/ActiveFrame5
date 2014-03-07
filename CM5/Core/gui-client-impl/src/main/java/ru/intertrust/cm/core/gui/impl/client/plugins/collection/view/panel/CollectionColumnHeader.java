@@ -2,11 +2,12 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel;
 
 /**
  * @author Yaroslav Bondacrhuk
- *         Date: 05/03/15
+ *         Date: 05/03/14
  *         Time: 12:05 PM
  */
 
 import com.google.gwt.cell.client.Cell.Context;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.*;
 import com.google.gwt.dom.client.Style.Cursor;
 import com.google.gwt.dom.client.Style.Position;
@@ -77,7 +78,17 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
 
     public void setFocus() {
         if (focused) {
-            DOM.getElementById(searchAreaId + HEADER_INPUT_ID_PART).focus();
+            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                @Override
+                public void execute() {
+                    Element input = DOM.getElementById(searchAreaId + HEADER_INPUT_ID_PART);
+                    input.focus();
+                    inputFilter = InputElement.as(input);
+                    inputFilter.setValue(widget.getFilterValue());
+
+                }
+            });
+
             focused = false;
 
         }
@@ -171,7 +182,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
 
     }
 
-    private Element childClicked(NativeEvent event, String id) {
+    private Element getClickedChild(NativeEvent event, String id) {
         Element target = Element.as(event.getEventTarget());
         NodeList<Element> buttons = Document.get().getElementById(id).getElementsByTagName("button");
         for (int i = 0; i < buttons.getLength(); i++) {
@@ -201,9 +212,10 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
             event.stopPropagation();
             mover = document.createDivElement();
             final int leftBound = target.getOffsetLeft() + target.getOffsetWidth();
-
+            if (column.isMoveable()) {
             left = createSpanElement(MOVE, MOVE_tt, MOVE_COLOR, moveCursor, leftBound - 2 * RESIZE_HANDLE_WIDTH);
             mover.appendChild(left);
+            }
             if (column.isResizable()) {
                 right = createSpanElement(RESIZE, RESIZE_tt, null, resizeCursor, leftBound - RESIZE_HANDLE_WIDTH);
                 mover.appendChild(right);
@@ -238,7 +250,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
             final Element element = natEvent.getEventTarget().cast();
             final String eventType = natEvent.getType();
 
-            Element clickedElement = childClicked(natEvent, searchAreaId);
+            Element clickedElement = getClickedChild(natEvent, searchAreaId);
             if (eventType.equalsIgnoreCase("click")) {
                 if (clickedElement != null) {
                     onHeaderElementClick(clickedElement);
@@ -343,7 +355,6 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
             }
         }
 
-
         private void moveLine(final int clientX) {
             final int xPos = clientX - table.getAbsoluteLeft();
             caret.getStyle().setLeft(xPos - caret.getOffsetWidth() / 2, PX);
@@ -407,7 +418,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
         }
 
         private void moveColumn(final int clientX) {
-            final int pointer = clientX - columnWidth;
+            final int pointer = (int) (clientX - columnWidth + 1.5 * RESIZE_HANDLE_WIDTH);
             ghostColumnStyle.setLeft(pointer - table.getAbsoluteLeft(), PX);
             for (int i = 0; i < columnXPositions.length - 1; ++i) {
                 if (clientX < columnXPositions[i + 1]) {
@@ -428,6 +439,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
 
     protected void changeColumnWidth(int newWidth) {
         table.setColumnWidth(column, newWidth + "px");
+        table.redraw();
     }
 
     protected void columnMoved(int fromIndex, int toIndex) {

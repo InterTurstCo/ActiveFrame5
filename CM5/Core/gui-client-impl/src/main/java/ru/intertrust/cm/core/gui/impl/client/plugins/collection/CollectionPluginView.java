@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ScrollEvent;
@@ -36,6 +37,8 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.*;
 
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
+
 /**
  * @author Yaroslav Bondacrhuk
  *         Date: 17/9/13
@@ -59,7 +62,7 @@ public class CollectionPluginView extends PluginView {
     private boolean singleChoice = true;
     private SortCollectionState sortCollectionState;
     private ToggleButton filterButton = new ToggleButton();
-    private boolean sortIsFake;
+
     private ArrayList<Filter> filterList;
 
     private AbsolutePanel treeLinkWidget = new AbsolutePanel();
@@ -68,7 +71,7 @@ public class CollectionPluginView extends PluginView {
     private List<CollectionColumnHeader> headers = new ArrayList<CollectionColumnHeader>();
     private FlowPanel simpleSearch = new FlowPanel();
     private int lastScrollPos;
-    private int oldScrollPos;
+
     private SplitterBehavior splitterBehavior;
 
     // локальная шина событий
@@ -112,9 +115,7 @@ public class CollectionPluginView extends PluginView {
         items = collectionPluginData.getItems();
         singleChoice = collectionPluginData.isSingleChoice();
         searchArea = collectionPluginData.getSearchArea();
-
         init();
-
         final List<Integer> selectedIndexes = collectionPluginData.getIndexesOfSelectedItems();
         for (int index : selectedIndexes) {
             selectionModel.setSelected(items.get(index), true);
@@ -130,7 +131,7 @@ public class CollectionPluginView extends PluginView {
         insertRows(items);
         applyStyles();
         addHandlers();
-        //   splitterBehavior.basePanelHeightSize();
+
     }
 
     public List<Id> getSelectedIds() {
@@ -152,7 +153,7 @@ public class CollectionPluginView extends PluginView {
     public void onPluginPanelResize() {
         updateSizes();
         //    tableController.columnWindowResize(tableWidth / tableBody.getColumnCount());
-        //    splitterBehavior.widgetSizeBySplitterPosition();
+ //         splitterBehavior.widgetSizeBySplitterPosition();
 
     }
 
@@ -180,10 +181,6 @@ public class CollectionPluginView extends PluginView {
         tableBody.addColumnSortHandler(new ColumnSortEvent.Handler() {
             @Override
             public void onColumnSort(ColumnSortEvent event) {
-                if (sortIsFake) {
-                    sortIsFake = false;
-                    return;
-                }
 
                 CollectionColumn column = (CollectionColumn) event.getColumn();
                 String dataStoreName = column.getDataStoreName();
@@ -200,20 +197,27 @@ public class CollectionPluginView extends PluginView {
             @Override
             public void onScroll(ScrollEvent event) {
 
-                oldScrollPos = lastScrollPos;
+                int oldScrollPos = lastScrollPos;
                 lastScrollPos = scroll.getVerticalScrollPosition();
                 if (oldScrollPos == 0) {
 
                     return;
                 }
                 // If scrolling up, ignore the event.
+                if (oldScrollPos == scroll.getMaximumVerticalScrollPosition()) {
+
+
+                }
                 if (oldScrollPos >= lastScrollPos) {
                     return;
                 }
                 //Height of grid contents (including outside the viewable area) - height of the scroll panel
                 int maxScrollTop = scroll.getWidget().getOffsetHeight() - scroll.getOffsetHeight();
                 if (lastScrollPos >= maxScrollTop) {
-                    //  tableBody.setVisibleRange(0,tableBody.getVisibleRange().getLength()+FETCHED_ROW_COUNT);
+                    if (sortCollectionState != null) {
+                        sortCollectionState.setResetCollection(false);
+                    }
+              //      tableBody.setVisibleRange(0,tableBody.getVisibleRange().getLength());
                     collectionData();
                 }
             }
@@ -321,9 +325,7 @@ public class CollectionPluginView extends PluginView {
     }
 
     private void onKeyEnterPressed() {
-        sortIsFake = true;
         filterList.clear();
-        lastScrollPos = 0;
         boolean isRequestRequired = false;
         for (CollectionColumnHeader header : headers) {
             String filterValue = header.getFilterValue();
@@ -334,13 +336,13 @@ public class CollectionPluginView extends PluginView {
                 filter.setFilter(filterName);
                 Value value;
                 String fieldType = header.getFieldType();
-                if (BusinessUniverseConstants.DATE_TIME_TYPE.equalsIgnoreCase(fieldType)) {
+                if (DATE_TIME_TYPE.equalsIgnoreCase(fieldType)) {
                     Date date = header.getDate();
                     if (date != null) {
                         value = new DateTimeValue(date);
                     } else {
                         try {
-                            date = BusinessUniverseConstants.DATE_TIME_FORMAT.parse(filterValue);
+                            date = DATE_TIME_FORMAT.parse(filterValue);
                         } catch (IllegalArgumentException e) {
                             Window.alert("Wrong date!");
                             return;
@@ -364,6 +366,7 @@ public class CollectionPluginView extends PluginView {
         for (CollectionColumnHeader header : headers) {
             header.resetFilterValue();
         }
+
         filterList.clear();
         filterButton.setValue(false);
         changeFiltersInputsVisibility();
@@ -452,7 +455,7 @@ public class CollectionPluginView extends PluginView {
             treeLinkWidget.add(simpleSearchPanel);
 
         }
-        startHeight = BusinessUniverseConstants.COLLECTION_WIDGET_HEADER_ROW_WITH_SIMPLE_SEARCH;
+        startHeight = COLLECTION_WIDGET_HEADER_ROW_WITH_SIMPLE_SEARCH;
 
         filterButton.removeStyleName("gwt-Button");
         filterButton.removeStyleName("gwt-ToggleButton");
@@ -465,7 +468,7 @@ public class CollectionPluginView extends PluginView {
 
     private void createTableColumnsWithCheckBoxes(
             final LinkedHashMap<String, CollectionColumnProperties> domainObjectFieldsOnColumnNamesMap) {
-        checkColumn = new CollectionColumn<CollectionRowItem, Boolean>(
+            checkColumn = new CollectionColumn<CollectionRowItem, Boolean>(
                 new CheckboxCell(true, true)) {
             @Override
             public Boolean getValue(CollectionRowItem object) {
@@ -479,14 +482,14 @@ public class CollectionPluginView extends PluginView {
                 eventBus.fireEvent(new CheckBoxFieldUpdateEvent(object.getId(), !value));
             }
         });
-
+        checkColumn.setMaxWidth(CHECK_BOX_MAX_WIDTH);
+        checkColumn.setMinWidth(CHECK_BOX_MIN_WIDTH);
+        checkColumn.setResizable(false);
+        checkColumn.setMoveable(false);
         tableBody.addColumn(checkColumn);
-
-        int columnWidth = 35;
-
-        checkColumn.setDataStoreName(BusinessUniverseConstants.CHECK_BOX_COLUMN_NAME);
-        tableBody.setColumnWidth(checkColumn, columnWidth + "px");
-        createTableColumnsWithoutCheckBoxes(domainObjectFieldsOnColumnNamesMap, columnWidth);
+        checkColumn.setDataStoreName(CHECK_BOX_COLUMN_NAME);
+        tableBody.setColumnWidth(checkColumn, CHECK_BOX_MAX_WIDTH + "px");
+        createTableColumnsWithoutCheckBoxes(domainObjectFieldsOnColumnNamesMap, CHECK_BOX_MAX_WIDTH);
     }
 
     private void createTableColumnsWithoutCheckBoxes(
@@ -506,7 +509,6 @@ public class CollectionPluginView extends PluginView {
             HeaderWidget headerWidget = new HeaderWidget(column.getDataStoreName(), fieldType, searchFilterName, searchAreaId.replaceAll(" ", ""));
             CollectionColumnHeader collectionColumnHeader = new CollectionColumnHeader(tableBody, column, headerWidget, eventBus);
             headers.add(collectionColumnHeader);
-
             tableBody.addColumn(column, collectionColumnHeader);
             tableBody.setColumnWidth(column, columnWidth + "px");
             SortedMarker sortedMarker = (SortedMarker) columnProperties.getProperty(CollectionColumnProperties.SORTED_MARKER);
@@ -515,9 +517,8 @@ public class CollectionPluginView extends PluginView {
                 column.setDefaultSortAscending(ascending);
                 tableBody.getColumnSortList().push(new ColumnSortList.ColumnSortInfo(column, ascending));
 
-                sortCollectionState = new SortCollectionState(0, FETCHED_ROW_COUNT, column.getDataStoreName(), ascending, false, field);
+                sortCollectionState = new SortCollectionState(0, FETCHED_ROW_COUNT, column.getDataStoreName(), ascending, true, field);
             }
-
 
         }
     }
@@ -531,9 +532,8 @@ public class CollectionPluginView extends PluginView {
     private void insertMoreRows(List<CollectionRowItem> list) {
         listCount += list.size();
         items.addAll(list);
-
         tableBody.setRowData(items);
-
+        tableBody.flush();
     }
 
     private void applyStyles() {
@@ -554,20 +554,14 @@ public class CollectionPluginView extends PluginView {
         selectionModel = new CheckedSelectionModel<CollectionRowItem>();
         String emptyTableText = "Результаты отсутствуют";
         HTML emptyTableWidget = new HTML("<br/><div align='center'> <h1> " + emptyTableText + " </h1> </div>");
-
-        tableBody.setHeight(tableHeight + "px");
-        tableBody.addStyleName("collection-plugin-width");
         tableBody.setEmptyTableWidget(emptyTableWidget);
-        //   emptyTableWidget.getElement().getParentElement().getParentElement().getParentElement().getParentElement().getStyle().setWidth(100, Style.Unit.PX);
         tableBody.setSelectionModel(selectionModel);
 
     }
 
-
     public void setEventBus(EventBus eventBus) {
         this.eventBus = eventBus;
     }
-
 
     private void createCollectionData() {
         CollectionRowsRequest collectionRowsRequest = new CollectionRowsRequest(listCount, FETCHED_ROW_COUNT, collectionName,
@@ -583,7 +577,7 @@ public class CollectionPluginView extends PluginView {
         if (sortCollectionState.isResetCollection()) {
             items.clear();
             collectionRowsRequest = new CollectionRowsRequest(sortCollectionState.getOffset(),
-                    sortCollectionState.getCount(), collectionName, fieldPropertiesMap,
+                    FETCHED_ROW_COUNT, collectionName, fieldPropertiesMap,
                     sortCollectionState.isAscend(), sortCollectionState.getColumnName(),
                     field, filterList);
             sortCollectionState.setResetCollection(false);
@@ -617,12 +611,12 @@ public class CollectionPluginView extends PluginView {
             public void onSuccess(Dto result) {
                 CollectionRowItemList collectionRowItemList = (CollectionRowItemList) result;
                 List<CollectionRowItem> collectionRowItems = collectionRowItemList.getCollectionRows();
-                tableBody.getScrollPanel().setVerticalScrollPosition(oldScrollPos);
-
+                int tempScrollPosition = tableBody.getScrollPanel().getVerticalScrollPosition();
                 insertMoreRows(collectionRowItems);
                 for (CollectionColumnHeader header : headers) {
                     header.setFocus();
                 }
+                tableBody.getScrollPanel().setVerticalScrollPosition(tempScrollPosition);
 
             }
         });
@@ -710,28 +704,20 @@ public class CollectionPluginView extends PluginView {
 
             horizontalWidth = tableWidth;
             horizontalHeight = tableHeight;
-            //   addSplitterHendler();
+            addSplitterHandler();
         }
 
-        void addSplitterHendler() {
-            eventBus.addHandler(SplitterInnerScrollEvent.TYPE, new SplitterInnerScrollEventHandler() {
-                @Override
-                public void setScrollPanelHeight(SplitterInnerScrollEvent event) {
-                    splitterHorizontalPosition = event.isScrollState();
+        void addSplitterHandler() {
 
-                    widgetSize(event.getUpperPanelHeight(), event.getUpperPanelWidth() - BusinessUniverseConstants.COLLECTION_VIEW_SIZE_SCROLL_WIDTH);
-                    if (splitterHorizontalPosition) {
-                        tableController.columnWindowResize((event.getUpperPanelWidth() - BusinessUniverseConstants.COLLECTION_VIEW_SIZE_SCROLL_WIDTH) / tableBody.getColumnCount());
-                    }
-                    if (event.isScrollState()) {
-                        setVerticalSize(event.getUpperPanelHeight(), event.getUpperPanelWidth() - BusinessUniverseConstants.COLLECTION_VIEW_SIZE_SCROLL_WIDTH);
-                    } else {
-                        setHorizontalSize(event.getUpperPanelHeight(), event.getUpperPanelWidth() - BusinessUniverseConstants.COLLECTION_VIEW_SIZE_SCROLL_WIDTH);
-                    }
-                }
-            });
+              eventBus.addHandler(SplitterInnerScrollEvent.TYPE,new SplitterInnerScrollEventHandler() {
+                  @Override
+                  public void setScrollPanelHeight(SplitterInnerScrollEvent event) {
+                        tableBody.setHeight(event.getUpperPanelHeight() - 35 + "px");
+                        tableBody.redraw();
 
-            eventBus.addHandler(SplitterWidgetResizerEvent.TYPE, new SplitterWidgetResizerEventHandler() {
+                  }
+              });
+           /* eventBus.addHandler(SplitterWidgetResizerEvent.TYPE, new SplitterWidgetResizerEventHandler() {
 
                 @Override
                 public void setWidgetSize(SplitterWidgetResizerEvent event) {
@@ -785,7 +771,7 @@ public class CollectionPluginView extends PluginView {
                     }
                 }
 
-            });
+            });*/
 
         }
 

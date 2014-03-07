@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -142,6 +143,7 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
     private void initCollectionPluginPanel() {
         pluginPanel = new PluginPanel();
         pluginPanel.setVisibleWidth(dialogWidth);
+        pluginPanel.asWidget().getElement().getFirstChildElement().getStyle().setMarginBottom(50, Style.Unit.PX);
         pluginPanel.setVisibleHeight(dialogHeight - 100);//it's height of table body only. TODO: eliminate hardcoded value
 
     }
@@ -269,6 +271,8 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
         dialogBox.add(dialogBoxContent);
         dialogBox.setWidth(dialogWidth + "px");
         dialogBox.setHeight(dialogHeight + "px");
+         /*dialogBoxContent.getElement().getStyle().setMarginBottom(50 , Style.Unit.PX);
+       dialogBoxContent.getElement().getStyle().setPadding(10, Style.Unit.PX);*/
     }
 
     private boolean isSingleChoice() {

@@ -585,7 +585,7 @@
     border: none;
     border-collapse: collapse;
     background: rgba(200, 200, 200, 0.3);
-    box-shadow: 0 3px 6px #ddd;
+    /*box-shadow: 0 3px 6px #ddd;*/
     -moz-box-shadow: 0 3px 6px #ddd;
     -webkit-box-shadow: 0 3px 6px #ddd;
     z-index: 1;
