@@ -32,14 +32,16 @@ public class LengthValidator implements ServerValidator {
             Value value = (Value)dtoToValidate;
             if (value.get() != null) {
                 int valueLength = value.toString().length();
-                if (length != null && valueLength != length) {
-                    validationResult.addError("validate.length.not-equal");
-                } else {
-                    if (minLength != null && valueLength < minLength) {
-                        validationResult.addError("validate.length.too-small");
-                    }
-                    if (maxLength != null && valueLength > maxLength) {
-                        validationResult.addError("validate.length.too-big");
+                if (valueLength != 0) {
+                    if (length != null && valueLength != length) {
+                        validationResult.addError("validate.length.not-equal");
+                    } else {
+                        if (minLength != null && valueLength < minLength) {
+                            validationResult.addError("validate.length.too-small");
+                        }
+                        if (maxLength != null && valueLength > maxLength) {
+                            validationResult.addError("validate.length.too-big");
+                        }
                     }
                 }
             }

@@ -2,7 +2,11 @@ package ru.intertrust.cm.core.config;
 
 import org.simpleframework.xml.Attribute;
 
+import ru.intertrust.cm.core.business.api.dto.Constraint;
 import ru.intertrust.cm.core.business.api.dto.FieldType;
+
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author Denis Mitavskiy
@@ -70,5 +74,16 @@ public class StringFieldConfig extends FieldConfig {
     @Override
     public FieldType getFieldType() {
         return FieldType.STRING;
+    }
+
+    @Override
+    public List<Constraint> getConstraints() {
+        List<Constraint> constraints = super.getConstraints();
+
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put(Constraint.PARAM_MAX_LENGTH, length + "");
+        constraints.add(new Constraint(Constraint.Type.LENGTH, params));
+
+        return constraints;
     }
 }

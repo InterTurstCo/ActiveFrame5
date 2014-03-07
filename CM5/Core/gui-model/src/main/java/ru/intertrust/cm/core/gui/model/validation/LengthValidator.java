@@ -31,6 +31,9 @@ public class LengthValidator extends AbstractValidator {
     void doValidation(CanBeValidated canBeValidated, ValidationResult validationResult) {
         if (canBeValidated.getValue() != null) {
             int valueLength = canBeValidated.getValue().toString().length();
+            if (valueLength == 0) {
+                return; //considering we use "not-empty" validator
+            }
             if (length != null && valueLength != length) {
                 validationResult.addError("validate.length.not-equal");
             } else {
