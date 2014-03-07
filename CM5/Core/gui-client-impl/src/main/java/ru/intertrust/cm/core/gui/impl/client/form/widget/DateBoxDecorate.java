@@ -11,7 +11,6 @@ import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.datepicker.client.DateBox;
 
-import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.model.DateTimeContext;
 import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
@@ -70,8 +69,7 @@ public class DateBoxDecorate extends Composite {
         dateBtn.addClickHandler(showDatePickerHandler);
         root.add(dateBox);
         root.add(dateBtn);
-        if (state.isDisplayTimeZoneChoice()
-                && state.getDateTimeContext().getOrdinalFieldType() == FieldType.DATETIMEWITHTIMEZONE.ordinal()) {
+        if (state.isDisplayTimeZoneChoice()) {
             // show time zone chooser.
             timeZoneChooser = getTimeZoneBox(state.getDateTimeContext().getTimeZoneId());
             root.add(timeZoneChooser);

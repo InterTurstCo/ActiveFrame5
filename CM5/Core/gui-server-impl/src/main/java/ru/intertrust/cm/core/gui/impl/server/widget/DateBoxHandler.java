@@ -16,6 +16,7 @@ import ru.intertrust.cm.core.business.api.dto.TimelessDate;
 import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
 import ru.intertrust.cm.core.business.api.dto.UTCOffsetTimeZoneContext;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.DateBoxConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.ValueEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
@@ -40,13 +41,15 @@ public class DateBoxHandler extends ValueEditingWidgetHandler {
 
     @Override
     public DateBoxState getInitialState(WidgetContext widgetContext) {
-        final Value value = widgetContext.getValue();
         final DateBoxConfig config = widgetContext.getWidgetConfig();
         final DateBoxState state = new DateBoxState();
         state.setPattern(config.getPattern());
-        state.setDisplayTimeZoneChoice(config.isDisplayTimeZoneChoice());
-        final DateValueConverter converter = getConverter(value.getFieldType());
-        final DateTimeContext context = converter.valueToContext(value, config);
+        final FieldType fieldType = getFieldType(widgetContext);
+        final boolean displayTimeZoneChoice = config.isDisplayTimeZoneChoice()
+                && fieldType == FieldType.DATETIMEWITHTIMEZONE;
+        state.setDisplayTimeZoneChoice(displayTimeZoneChoice);
+        final DateValueConverter converter = getConverter(fieldType);
+        final DateTimeContext context = converter.valueToContext(widgetContext.getValue(), config);
         context.setTimeZoneId(config.getTimeZoneId());
         state.setDateTimeContext(context);
         return state;
@@ -59,6 +62,20 @@ public class DateBoxHandler extends ValueEditingWidgetHandler {
         final DateValueConverter converter = getConverter(fieldType);
         final Value value = converter.contextToValue(dateBoxState.getDateTimeContext());
         return value;
+    }
+
+    private FieldType getFieldType(final WidgetContext context) {
+        final Value value = context.getValue();
+        final FieldType fieldType;
+        if (value == null) {
+            final String domainObjectName = context.getFormObjects().getDomainObjectType(context.getFieldPaths()[0]);
+            final FieldConfig fieldConfig = configurationService.getFieldConfig(
+                    domainObjectName, context.getWidgetConfig().getFieldPathConfig().getValue());
+            fieldType = fieldConfig.getFieldType();
+        } else {
+            fieldType = value.getFieldType();
+        }
+        return fieldType;
     }
 
     private static DateValueConverter getConverter(final FieldType fieldType) {
@@ -85,7 +102,7 @@ public class DateBoxHandler extends ValueEditingWidgetHandler {
         @Override
         public DateTimeContext valueToContext(TimelessDateValue value, DateBoxConfig config) {
             final DateTimeContext result = new DateTimeContext();
-            if (value.get() != null) {
+            if (value != null && value.get() != null) {
                 result.setOrdinalFieldType(FieldType.TIMELESSDATE.ordinal());
                 final Calendar calendar = Calendar.getInstance(GMT_TIME_ZONE);
                 calendar.set(Calendar.YEAR, value.get().getYear());
@@ -132,7 +149,7 @@ public class DateBoxHandler extends ValueEditingWidgetHandler {
         public DateTimeContext valueToContext(DateTimeValue value, DateBoxConfig config) {
             final DateTimeContext result = new DateTimeContext();
             result.setOrdinalFieldType(FieldType.DATETIME.ordinal());
-            if (value.get() != null) {
+            if (value != null && value.get() != null) {
                 final String timeZoneId = getTimeZoneId(result, config.getTimeZoneId());
                 final DateFormat dateFormat = new SimpleDateFormat(DateTimeContext.DTO_PATTERN);
                 dateFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
@@ -175,7 +192,7 @@ public class DateBoxHandler extends ValueEditingWidgetHandler {
         public DateTimeContext valueToContext(DateTimeWithTimeZoneValue value, DateBoxConfig config) {
             final DateTimeContext result = new DateTimeContext();
             result.setOrdinalFieldType(FieldType.DATETIMEWITHTIMEZONE.ordinal());
-            if (value.get() != null) {
+            if (value != null && value.get() != null) {
                 final Calendar calendar =
                         Calendar.getInstance(TimeZone.getTimeZone(value.get().getTimeZoneContext().getTimeZoneId()));
                 calendar.set(Calendar.YEAR, value.get().getYear());

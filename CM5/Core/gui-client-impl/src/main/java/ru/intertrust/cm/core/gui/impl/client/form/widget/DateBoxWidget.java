@@ -1,13 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
-import com.google.gwt.event.dom.client.BlurEvent;
-import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.user.datepicker.client.DateBox;
 import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.util.StringUtil;
@@ -35,18 +31,21 @@ public class DateBoxWidget extends BaseWidget {
     public void setCurrentState(WidgetState currentState) {
         final DateBoxState dbState = (DateBoxState) currentState;
         if (isEditable) {
-            DateBoxDecorate dateBox = (DateBoxDecorate) impl;
-            dateBox.setValue(dbState);
+            DateBoxDecorate dateBoxDecorate = (DateBoxDecorate) impl;
+            dateBoxDecorate.setValue(dbState);
         } else {
-            final Date date = DateTimeFormat.getFormat(DateTimeContext.DTO_PATTERN)
-                    .parse(dbState.getDateTimeContext().getDateTime());
-            final DateTimeFormat formatter = DateTimeFormat.getFormat(dbState.getPattern());
-            final StringBuilder textBuilder = new StringBuilder(formatter.format(date));
-            if (dbState.isDisplayTimeZoneChoice()
-                    && dbState.getDateTimeContext().getOrdinalFieldType() == FieldType.DATETIMEWITHTIMEZONE.ordinal()) {
-                textBuilder.append(" ").append(dbState.getDateTimeContext().getTimeZoneId());
+            if (dbState.getDateTimeContext().getDateTime() != null) {
+                final Date date = DateTimeFormat.getFormat(DateTimeContext.DTO_PATTERN)
+                        .parse(dbState.getDateTimeContext().getDateTime());
+                final DateTimeFormat formatter = DateTimeFormat.getFormat(dbState.getPattern());
+                final StringBuilder textBuilder = new StringBuilder(formatter.format(date));
+                if (dbState.isDisplayTimeZoneChoice()
+                        && dbState.getDateTimeContext().getOrdinalFieldType() == FieldType.DATETIMEWITHTIMEZONE
+                        .ordinal()) {
+                    textBuilder.append(" ").append(dbState.getDateTimeContext().getTimeZoneId());
+                }
+                ((HasText) impl).setText(textBuilder.toString());
             }
-            ((HasText) impl).setText(textBuilder.toString());
         }
     }
 
@@ -70,14 +69,14 @@ public class DateBoxWidget extends BaseWidget {
     @Override
     protected Widget asEditableWidget(WidgetState state) {
         DateBoxDecorate dateBoxDecorate = new DateBoxDecorate();
-        DateBox dateBox = dateBoxDecorate.getDateBox();
-        Event.sinkEvents(dateBox.getElement(), Event.ONBLUR);
-        dateBox.addHandler(new BlurHandler() {
-            @Override
-            public void onBlur(BlurEvent event) {
-                validate();
-            }
-        }, BlurEvent.getType());
+//        DateBox dateBox = dateBoxDecorate.getDateBox();
+//        Event.sinkEvents(dateBox.getElement(), Event.ONBLUR);
+//        dateBox.addHandler(new BlurHandler() {
+//            @Override
+//            public void onBlur(BlurEvent event) {
+//                validate();
+//            }
+//        }, BlurEvent.getType());
 
         return dateBoxDecorate;
     }

@@ -1,16 +1,23 @@
 package ru.intertrust.cm.core.gui.api.server.widget;
 
-import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
-import ru.intertrust.cm.core.gui.model.GuiException;
-import ru.intertrust.cm.core.gui.model.form.FieldPath;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.inject.Inject;
+
+import ru.intertrust.cm.core.business.api.ConfigurationService;
+import ru.intertrust.cm.core.business.api.dto.DecimalValue;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.LongValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
+import ru.intertrust.cm.core.gui.model.GuiException;
+import ru.intertrust.cm.core.gui.model.form.FieldPath;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 /**
  * @author Denis Mitavskiy
@@ -18,6 +25,10 @@ import java.util.regex.Pattern;
  *         Time: 16:58
  */
 public abstract class WidgetHandler implements ComponentHandler {
+
+    @Inject
+    protected ConfigurationService configurationService;
+
     public abstract <T extends WidgetState> T getInitialState(WidgetContext context);
 
     public abstract Value getValue(WidgetState state);
@@ -77,11 +88,9 @@ public abstract class WidgetHandler implements ComponentHandler {
               if (singleChoiceAnalyzed != (fieldPath.isOneToOneReference() || fieldPath.isField())){
                   throw new GuiException("Multiply fieldPaths should be all reference type or all backreference type");
               }
-
            }
             singleChoiceAnalyzed = fieldPath.isOneToOneReference() || fieldPath.isField();
        }
        return singleChoiceAnalyzed || singleChoiceFromConfig;
-
     }
 }
