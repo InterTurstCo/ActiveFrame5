@@ -36,4 +36,6 @@
 
     <bean id="defaultImageMapper" class="ru.intertrust.cm.core.gui.impl.server.plugin.DefaultImageMapperImpl"/>
 
+    <bean id="navigationTreeResolver" class="ru.intertrust.cm.core.gui.impl.server.plugin.handlers.NavigationTreeResolver"
+          scope="singleton" lazy-init="true"/>
 </beans>

@@ -15,7 +15,7 @@ import java.util.List;
  *         Time: 12:05 PM
  */
 @Root(name = "link")
-public class LinkConfig implements Dto {
+public class  LinkConfig implements Dto {
 
     @Attribute(name = "name")
     private String name;

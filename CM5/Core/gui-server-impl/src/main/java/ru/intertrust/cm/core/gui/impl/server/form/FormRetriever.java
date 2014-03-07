@@ -5,11 +5,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.dto.Constraint;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.business.api.dto.Constraint;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
@@ -79,16 +78,12 @@ public class FormRetriever {
         HashMap<String, String> widgetComponents = new HashMap<>(widgetConfigs.size());
 
         FormObjects formObjects = new FormObjects();
-        //Iterator it = widgetConfigs.iterator();
         DomainObject root = crudService.createDomainObject(domainObjectType);
         final ObjectsNode ROOT_NODE = new SingleObjectNode(root);
         formObjects.setRootNode(ROOT_NODE);
 
-        //try {
         for (WidgetConfig config : widgetConfigs) {
-        //while(it.hasNext()) {
             try {
-                //config = (WidgetConfig) it.next();
                 String widgetId = config.getId();
 
                 WidgetContext widgetContext = new WidgetContext(config, formObjects);
@@ -100,8 +95,6 @@ public class FormRetriever {
                 widgetComponents.put(widgetId, config.getComponentName());
             } catch (NullPointerException npe) {continue;}
         }
-
-        //} catch (ConcurrentModificationException cme) {}
 
         FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects,
                 MessageResourceProvider.getMessages());

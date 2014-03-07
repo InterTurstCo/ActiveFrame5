@@ -63,13 +63,13 @@ class NavigationTreeBuilder {
         }
     }
 
-    public NavigationTreeBuilder addSelectionHandler(SelectionHandler<TreeItem> handler) {
-        handlers.add(handler);
+    public NavigationTreeBuilder setChildToOpenName(String childToOpenName) {
+        this.childToOpenName = childToOpenName;
         return this;
     }
 
-    public NavigationTreeBuilder setChildToOpenName(String childToOpenName) {
-        this.childToOpenName = childToOpenName;
+    public NavigationTreeBuilder addSelectionHandler(SelectionHandler<TreeItem> handler) {
+        handlers.add(handler);
         return this;
     }
 
