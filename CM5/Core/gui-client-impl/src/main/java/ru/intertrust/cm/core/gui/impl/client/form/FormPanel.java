@@ -92,11 +92,7 @@ public class FormPanel implements IsWidget {
         if (formWidth > 0) {
             panel.getElement().getStyle().setWidth(formWidth, Style.Unit.PX);
         }
-        setFormMinWidth();
-        if (formHeight > 0) {
-            //panel.getElement().getStyle().setHeight(formHeight, Style.Unit.PX);
 
-        }
         bodyTabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
             @Override
             public void onSelection(SelectionEvent<Integer> event) {
@@ -320,13 +316,5 @@ public class FormPanel implements IsWidget {
         return Integer.parseInt(sizeString.substring(0, sizeString.length() - UnitPx));
     }
 
-    private void setFormMinWidth() {
-        String minimalWidth = formDisplayData.getMinWidth();
-        if (minimalWidth != null) {
-            bodyTabPanel.getElement().getStyle().setProperty("minWidth", minimalWidth);
-        } else {
-            bodyTabPanel.getElement().getStyle().setProperty("minWidth", formWidth + "px");
-        }
-    }
 
 }
