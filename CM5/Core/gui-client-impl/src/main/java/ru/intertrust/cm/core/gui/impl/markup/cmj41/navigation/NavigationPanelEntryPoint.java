@@ -12,9 +12,9 @@ import ru.intertrust.cm.core.gui.impl.markup.cmj41.navigation.client.TreeTest;
 public class NavigationPanelEntryPoint implements EntryPoint {
     @Override
     public void onModuleLoad() {
-        TreeTest tt = new TreeTest();
+        /*TreeTest tt = new TreeTest();
         tt.initComponent();
-        RootPanel.get().add(tt.getHorizontalPanel());
+        RootPanel.get().add(tt.getHorizontalPanel());*/
 
     }
 }

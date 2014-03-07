@@ -27,6 +27,7 @@
         <maven.compiler.target>1.7</maven.compiler.target>
 
         <spring.version>3.2.3.RELEASE</spring.version>
+        <gwt.version>2.5.1</gwt.version>
         <slf4j.version>1.7.2</slf4j.version>
         <solr.version>4.5.1</solr.version>
 

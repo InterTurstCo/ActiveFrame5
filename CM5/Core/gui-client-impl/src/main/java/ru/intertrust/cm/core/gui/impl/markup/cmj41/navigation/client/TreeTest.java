@@ -18,7 +18,7 @@ import com.google.gwt.user.client.ui.TreeItem;
 
 
 public class TreeTest {//implements EntryPoint {
-    
+/*
     
     interface MyTreeImages extends TreeImages {
         
@@ -193,5 +193,5 @@ public class TreeTest {//implements EntryPoint {
 
     public void setHorizontalPanel(HorizontalPanel horizontalPanel) {
         this.horizontalPanel = horizontalPanel;
-    }
+    }*/
 }
