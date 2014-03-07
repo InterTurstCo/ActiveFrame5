@@ -126,6 +126,9 @@
     <bean id="notificationTextFormer"
           class="ru.intertrust.cm.core.business.impl.NotificationTextFormerImpl"/>
 
+    <bean id="urlFormer"
+          class="ru.intertrust.cm.core.business.impl.UrlFormerImpl"/>
+
     <bean id="notificationChannelLoader"
           class="ru.intertrust.cm.core.business.impl.NotificationChannelLoaderImpl" init-method="init" />
 

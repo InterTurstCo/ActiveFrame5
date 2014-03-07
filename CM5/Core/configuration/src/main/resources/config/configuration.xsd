@@ -297,6 +297,8 @@
                         xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:namedTriggerType" name="named-trigger"
                         maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="url-config" type="con:urlConfigType"
+                        minOccurs="0" maxOccurs="unbounded"/>
         </xs:choice>
     </xs:complexType>
 
@@ -370,6 +372,13 @@
             </xs:element>
         </xs:sequence>
         <xs:attribute name="name" use="required" type="xs:string"/>
+    </xs:complexType>
+    <xs:complexType name="urlConfigType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="name" use="required" type="xs:string"/>
+            </xs:extension>
+        </xs:simpleContent>
     </xs:complexType>
     <!-- Global Config-->
     <xs:complexType name="globalConfigType">

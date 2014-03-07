@@ -13,6 +13,7 @@
         <configuration-path>config/collection-views.xml</configuration-path>
         <configuration-path>config/access.xml</configuration-path>
         <configuration-path>config/navigation-panel.xml</configuration-path>
+        <configuration-path>config/url-config.xml</configuration-path>
     </configuration-paths>
     <import-files>
         <import-file>importdata/status.csv</import-file>

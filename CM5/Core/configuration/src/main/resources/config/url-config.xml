@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+    <url-config name="GWT-CLIENT">
+        <![CDATA[test]]>
+    </url-config>
+    <url-config name="CLIENT2">
+        <![CDATA[test2]]>
+    </url-config>
+</configuration>
