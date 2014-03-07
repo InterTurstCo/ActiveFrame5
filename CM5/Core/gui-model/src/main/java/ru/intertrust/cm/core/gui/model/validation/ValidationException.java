@@ -2,6 +2,8 @@ package ru.intertrust.cm.core.gui.model.validation;
 
 import ru.intertrust.cm.core.gui.model.GuiException;
 
+import java.util.List;
+
 /**
  * @author Lesia Puhova
  *         Date: 05.03.14
@@ -9,7 +11,7 @@ import ru.intertrust.cm.core.gui.model.GuiException;
  */
 public class ValidationException extends GuiException {
 
-    private ValidationResult validationResult;
+    private List<String> validationErrors;
 
     public ValidationException(){}
 
@@ -25,30 +27,30 @@ public class ValidationException extends GuiException {
         super(cause);
     }
 
-    public ValidationException(ValidationResult validationResult){
-        this.validationResult = validationResult;
+    public ValidationException(List<String> validationErrors){
+        this.validationErrors = validationErrors;
     }
 
-    public ValidationException(String message, ValidationResult validationResult) {
+    public ValidationException(String message, List<String> validationErrors) {
         super(message);
-        this.validationResult = validationResult;
+        this.validationErrors = validationErrors;
     }
 
-    public ValidationException(String message, Throwable cause, ValidationResult validationResult) {
+    public ValidationException(String message, Throwable cause, List<String> validationErrors) {
         super(message, cause);
-        this.validationResult = validationResult;
+        this.validationErrors = validationErrors;
     }
 
-    public ValidationException(Throwable cause, ValidationResult validationResult) {
+    public ValidationException(Throwable cause, List<String> validationErrors) {
         super(cause);
-        this.validationResult = validationResult;
+        this.validationErrors = validationErrors;
     }
 
-    public ValidationResult getValidationResult() {
-        return validationResult;
+    public List<String> getValidationErrors() {
+        return validationErrors;
     }
 
-    public void setValidationResult(ValidationResult validationResult) {
-        this.validationResult = validationResult;
+    public void setValidationErrors(List<String> validationErrors) {
+        this.validationErrors = validationErrors;
     }
 }

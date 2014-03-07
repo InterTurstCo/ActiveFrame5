@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.business.api.dto.Constraint;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.gui.ActionConfig;
+import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.impl.server.GuiContext;
@@ -24,10 +25,14 @@ import ru.intertrust.cm.core.gui.model.action.SaveActionData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
+import ru.intertrust.cm.core.gui.model.util.PlaceholderResolver;
 import ru.intertrust.cm.core.gui.model.validation.ValidationException;
+import ru.intertrust.cm.core.gui.model.validation.ValidationMessage;
 import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Denis Mitavskiy
@@ -39,8 +44,8 @@ public class SaveActionHandler extends ActionHandler {
 
     @Override
     public <T extends ActionData> T executeAction(ActionContext context) {
-        ValidationResult validationResult = validate(context);
-        if (validationResult.hasErrors()) {
+        List<String> validationResult = validate(context);
+        if (!validationResult.isEmpty()) {
             throw new ValidationException("Server validation failed", validationResult);
         }
 
@@ -54,8 +59,7 @@ public class SaveActionHandler extends ActionHandler {
         return (T) result;
     }
 
-    private ValidationResult validate(ActionContext context) {
-        ValidationResult validationResult = new ValidationResult();
+    private List<String> validate(ActionContext context) {
         ActionConfig actionConfig = context.getActionConfig();
         List<Constraint> constraints = actionConfig.getConstratints();
         FormState formState = ((SaveActionContext) context).getFormState();
@@ -63,18 +67,19 @@ public class SaveActionHandler extends ActionHandler {
         for (WidgetState state : formState.getFullWidgetsState().values()) {
             constraints.addAll(state.getConstraints());
         }
-
+        List<String> errorMessages = new ArrayList<String>();
         for (Constraint constraint : constraints) {
             Value valueToValidate = getValueToValidate(constraint, formState);
-            //if (valueToValidate != null) {
-                ServerValidator validator = createValidator(constraint);
-                if (validator != null) {
-                    validationResult.append(validator.validate(valueToValidate));
+            ServerValidator validator = createValidator(constraint);
+            if (validator != null) {
+                ValidationResult validationResult = validator.validate(valueToValidate);
+                if (validationResult.hasErrors()) {
+                    errorMessages.addAll(getMessages(validationResult, constraint));
                 }
-            //}
+            }
         }
 
-        return validationResult;
+        return errorMessages;
     }
 
     private String getComponentNameByWidgetId(String widgetId, String domainObjectType) {
@@ -117,5 +122,21 @@ public class SaveActionHandler extends ActionHandler {
             return handler.getValue(state);
         }
         return null;
+    }
+
+    private List<String> getMessages(ValidationResult validationResult, Constraint constraint) {
+        List<String> messages = new ArrayList<String>();
+        for (ValidationMessage msg : validationResult.getMessages()) {
+            messages.add(getMessageText(msg.getMessage(), constraint.getParams()));
+        }
+        return messages;
+    }
+
+    private String getMessageText(String messageKey, Map<String, String> props) {
+        if ( MessageResourceProvider.getMessages().get(messageKey) != null) {
+            return PlaceholderResolver.substitute(MessageResourceProvider.getMessages().get(messageKey), props);
+        } else {
+            return messageKey;//let's return at least messageKey if the message is not found
+        }
     }
 }

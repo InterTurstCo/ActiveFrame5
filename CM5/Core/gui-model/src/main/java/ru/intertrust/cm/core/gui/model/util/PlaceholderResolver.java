@@ -8,9 +8,9 @@ import java.util.Map;
  */
 public class PlaceholderResolver {
 
-    public static String substitute(String string, Map<String, Object> properties) {
+    public static String substitute(String string, Map<String, ? extends Object> properties) {
         StringBuilder sb = new StringBuilder(string);
-        for (Map.Entry<String, Object> entry : properties.entrySet()) {
+        for (Map.Entry<String, ? extends Object> entry : properties.entrySet()) {
             String key = parenthesize(entry.getKey());
             String value = entry.getValue() != null ? entry.getValue().toString() : "";
             replaceAll(sb, key, value);

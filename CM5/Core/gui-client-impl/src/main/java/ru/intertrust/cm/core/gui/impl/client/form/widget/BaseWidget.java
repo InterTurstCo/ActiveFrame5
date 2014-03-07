@@ -87,7 +87,7 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
         if (messages.get(messageKey) != null) {
             return PlaceholderResolver.substitute(messages.get(messageKey), props);
         } else {
-            return messageKey;//let's return at list messageKey if the message is not found
+            return messageKey;//let's return at least messageKey if the message is not found
         }
     }
 

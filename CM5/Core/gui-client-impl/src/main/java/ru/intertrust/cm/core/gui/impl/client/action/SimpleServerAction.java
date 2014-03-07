@@ -16,7 +16,6 @@ import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
 import ru.intertrust.cm.core.gui.model.validation.ValidationException;
-import ru.intertrust.cm.core.gui.model.validation.ValidationMessage;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.ArrayList;
@@ -79,12 +78,11 @@ public abstract class SimpleServerAction extends Action {
 
     // TODO: [validation] move it to some better place
     private void onValidationFailure(ValidationException validationException) {
-        List<ValidationMessage> messages = validationException.getValidationResult().getErrors();
         final DialogBox dialogBox = new DialogBox(false, true);
         dialogBox.setText("Validation errors");
         VerticalPanel content = new VerticalPanel();
         content.getElement().setAttribute("cellpadding", "8px"); //TODO: [validation] use CSS style instead
-        content.add(new HTML(StringUtil.join(messages, "<br/>")));
+        content.add(new HTML(StringUtil.join(validationException.getValidationErrors(), "<br/>")));
         Button closeButton = new Button("Close");
         closeButton.addClickHandler(new ClickHandler() {
             @Override
@@ -96,4 +94,5 @@ public abstract class SimpleServerAction extends Action {
         dialogBox.add(content);
         dialogBox.center();
     }
+
 }
