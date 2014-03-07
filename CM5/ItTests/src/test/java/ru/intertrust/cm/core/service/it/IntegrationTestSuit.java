@@ -26,6 +26,7 @@ public class IntegrationTestSuit {
     @Deployment
     public static Archive<EnterpriseArchive> createDeployment() {
         return createDeployment(new Class[] { }, new String[] {
+                "test-data/status.csv",
                 "test-data/import-department.csv",
                 "test-data/import-organization.csv",
                 "test-data/import-employee.csv",

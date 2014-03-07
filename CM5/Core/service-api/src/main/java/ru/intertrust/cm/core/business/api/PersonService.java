@@ -7,7 +7,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
  */
 public interface PersonService {
 
-    public interface Remote extends PersonManagementService {
+    public interface Remote extends PersonService {
     }
 
     /**

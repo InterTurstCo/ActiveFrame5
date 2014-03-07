@@ -10,9 +10,12 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
 import org.jboss.arquillian.core.api.annotation.Inject;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
 
 import ru.intertrust.cm.core.business.api.ImportDataService;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.webcontext.ApplicationContextProvider;
 
 /**
  * Базовый класс для интеграционных тестов
@@ -20,12 +23,15 @@ import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
  * 
  */
 public class IntegrationTestBase extends IntegrationTestSuit {
+    private ApplicationContext applicationContext;
 
     @EJB
     protected ImportDataService.Remote importService;
 
     @Inject
     protected DomainObjectTypeIdCache domainObjectTypeIdCache;
+
+    private static boolean isInit;
 
     /**
      * Подключение под именем пользователя и пароля
@@ -69,4 +75,25 @@ public class IntegrationTestBase extends IntegrationTestSuit {
         }
     }
 
+    /**
+     * Инициализация всех тестов. Импорт данных из CSV файлов, Подготовка spring контекста. Необходимо вызвать в методе @Before
+     * дочерних классов
+     * @throws IOException
+     */
+    protected void initBase() throws IOException {
+        if (!isInit) {
+            applicationContext = ApplicationContextProvider.getApplicationContext();
+
+            importTestData("test-data/status.csv");
+            importTestData("test-data/import-organization.csv");
+            importTestData("test-data/import-department.csv");
+            importTestData("test-data/import-employee.csv");
+            importTestData("test-data/set-organization-boss.csv");
+            importTestData("test-data/set-department-boss.csv");
+        }
+    }
+
+    protected <T> T getBean(Class<T> requiredType) throws BeansException {
+        return applicationContext.getBean(requiredType);
+    }
 }

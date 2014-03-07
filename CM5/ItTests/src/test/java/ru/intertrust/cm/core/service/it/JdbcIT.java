@@ -42,12 +42,9 @@ public class JdbcIT extends IntegrationTestBase {
     public void init() throws IOException, LoginException {
         LoginContext lc = login("admin", "admin");
         lc.login();
+
         try {
-            importTestData("test-data/import-department.csv");
-            importTestData("test-data/import-employee.csv");
-            importTestData("test-data/import-organization.csv");
-            importTestData("test-data/set-department-boss.csv");
-            importTestData("test-data/set-organization-boss.csv");
+            initBase();
         } finally {
             lc.logout();
         }

@@ -44,5 +44,32 @@ public class NotificationContext implements Dto{
     public String toString() {
         return "NotificationContext [contextObjects=" + contextObjects + "]";
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((contextObjects == null) ? 0 : contextObjects.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        NotificationContext other = (NotificationContext) obj;
+        if (contextObjects == null) {
+            if (other.contextObjects != null)
+                return false;
+        } else if (!contextObjects.equals(other.contextObjects))
+            return false;
+        return true;
+    }
+    
+    
     
 }
