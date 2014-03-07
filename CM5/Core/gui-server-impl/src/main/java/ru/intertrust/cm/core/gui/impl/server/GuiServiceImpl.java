@@ -14,7 +14,6 @@ import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.impl.server.form.FormResolver;
 import ru.intertrust.cm.core.gui.impl.server.form.FormRetriever;
 import ru.intertrust.cm.core.gui.impl.server.form.FormSaver;
-import ru.intertrust.cm.core.gui.impl.server.plugin.handlers.NavigationTreeResolver;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
@@ -44,12 +43,15 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
 
     @Override
     public NavigationConfig getNavigationConfiguration() {
-        //String navigationPanelName = "panel";
-        //NavigationConfig navigationConfig = configurationExplorer.getConfig(NavigationConfig.class, navigationPanelName);
+/*
         NavigationTreeResolver navigationTreeResolver = (NavigationTreeResolver)
                                                                   applicationContext.getBean("navigationTreeResolver");
-        // navigationTreeResolver.getNavigationPanelByUser(sessionContext.getCallerPrincipal().getName())
         return navigationTreeResolver.getNavigationPanel(sessionContext.getCallerPrincipal().getName());
+*/
+        String navigationPanelName = "panel";
+        NavigationConfig navigationConfig = configurationExplorer.getConfig(NavigationConfig.class, navigationPanelName);
+        return navigationConfig;
+
     }
 
     @Override
