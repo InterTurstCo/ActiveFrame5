@@ -2,7 +2,9 @@ package ru.intertrust.cm.core.config.gui.collection.view;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
+
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.gui.form.widget.RendererConfig;
 
 /**
@@ -111,11 +113,11 @@ public class CollectionColumnConfig implements Dto {
     }
 
     public String getPattern() {
-        return pattern;
+        return pattern == null ? ModelUtil.DEFAULT_DATE_PATTERN : pattern;
     }
 
     public String getTimeZoneId() {
-        return timeZoneId;
+        return timeZoneId == null ? ModelUtil.DEFAULT_TIME_ZONE_ID : timeZoneId;
     }
 
     public String getSearchFilter() {

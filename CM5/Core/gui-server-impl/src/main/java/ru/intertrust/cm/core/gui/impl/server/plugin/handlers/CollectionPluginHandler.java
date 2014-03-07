@@ -1,16 +1,47 @@
 package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.SearchService;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
+import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
+import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.ImagePathValue;
+import ru.intertrust.cm.core.business.api.dto.SortCriterion;
+import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.TimelessDate;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionDisplayConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SearchAreaRefConfig;
-import ru.intertrust.cm.core.config.gui.navigation.*;
+import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
+import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
+import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
+import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
+import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
+import ru.intertrust.cm.core.gui.impl.server.GuiContext;
+import ru.intertrust.cm.core.gui.impl.server.GuiServerHelper;
 import ru.intertrust.cm.core.gui.impl.server.plugin.DefaultImageMapperImpl;
 import ru.intertrust.cm.core.gui.impl.server.util.ActionConfigBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilder;
@@ -26,8 +57,6 @@ import ru.intertrust.cm.core.gui.model.plugin.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.CollectionRowsRequest;
 
-import java.util.*;
-
 /**
  * @author Yaroslav Bondacrhuk
  *         Date: 13/9/13
@@ -35,7 +64,9 @@ import java.util.*;
  */
 @ComponentName("collection.plugin")
 public class CollectionPluginHandler extends ActivePluginHandler {
+
     private static final int INIT_ROWS_NUMBER = 25;
+
     @Autowired
     CollectionsService collectionsService;
 
@@ -61,9 +92,9 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         pluginData.setCollectionViewConfigName(collectionViewConfig.getName());
         collectionViewerConfig.getSearchAreaRefConfig();
         DefaultSortCriteriaConfig sortCriteriaConfig = collectionViewerConfig.getDefaultSortCriteriaConfig();
-        LinkedHashMap<String, CollectionColumnProperties> map =
+        LinkedHashMap<String, CollectionColumnProperties> columnPropertyMap =
                 getDomainObjectFieldPropertiesMap(collectionViewConfig, sortCriteriaConfig);
-        pluginData.setDomainObjectFieldPropertiesMap(map);
+        pluginData.setDomainObjectFieldPropertiesMap(columnPropertyMap);
         List<Filter> filters = new ArrayList<Filter>();
         pluginData.setDefaultSortCriteriaConfig(sortCriteriaConfig);
         CollectionDisplayConfig collectionDisplayConfig = collectionViewConfig.getCollectionDisplayConfig();
@@ -74,8 +105,8 @@ public class CollectionPluginHandler extends ActivePluginHandler {
 
             filters = addFilterByText(collectionViewerConfig, filters);
             filters = addFilterExcludeIds(collectionViewerConfig, filters);
-            ArrayList<CollectionRowItem> items = getRows(collectionName,
-                    0, INIT_ROWS_NUMBER, filters, order, map);
+            ArrayList<CollectionRowItem> items =
+                    getRows(collectionName, 0, INIT_ROWS_NUMBER, filters, order, columnPropertyMap);
             pluginData.setItems(items);
         }
 
@@ -83,7 +114,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
 
             filters = addFilterByText(collectionViewerConfig, filters);
             ArrayList<CollectionRowItem> items = getRows(collectionName,
-                    0, INIT_ROWS_NUMBER, filters, order, map);
+                    0, INIT_ROWS_NUMBER, filters, order, columnPropertyMap);
             List<Id> chosenIds = collectionViewerConfig.getExcludedIds();
             pluginData.setIndexesOfSelectedItems(getListOfAlreadyChosenItems(chosenIds, items));
             pluginData.setItems(items);
@@ -96,12 +127,14 @@ public class CollectionPluginHandler extends ActivePluginHandler {
             pluginData.setSearchArea("");
         }
         List<ActionContext> activeContexts = new ArrayList<ActionContext>();
-        activeContexts.add(new SaveToCSVContext(ActionConfigBuilder.createActionConfig("save-csv.action", "save-csv.action", "Выгрузить в CSV", "icons/icon-csv_download.png")));
+        activeContexts.add(new SaveToCSVContext(ActionConfigBuilder.createActionConfig(
+                "save-csv.action", "save-csv.action", "Выгрузить в CSV", "icons/icon-csv_download.png")));
         pluginData.setActionContexts(activeContexts);
         return pluginData;
     }
 
-    public CollectionPluginData getExtendedCollectionPluginData(String collectionName, ArrayList<CollectionRowItem> items) {
+    public CollectionPluginData getExtendedCollectionPluginData(String collectionName,
+                                                                ArrayList<CollectionRowItem> items) {
         CollectionRefConfig refConfig = new CollectionRefConfig();
         refConfig.setName(collectionName);
 
@@ -115,21 +148,20 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         pluginData.setDisplayChosenValues(displayChosenValues);
         CollectionViewConfig collectionViewConfig = getViewForCurrentCollection(collectionViewerConfig, collectionName);
 
-        LinkedHashMap<String, CollectionColumnProperties> map = getDomainObjectFieldPropertiesMap(collectionViewConfig, null);
+        final LinkedHashMap<String, CollectionColumnProperties> map =
+                getDomainObjectFieldPropertiesMap(collectionViewConfig, null);
         pluginData.setDomainObjectFieldPropertiesMap(map);
         pluginData.setItems(items);
         pluginData.setCollectionName(collectionName);
         List<ActionContext> activeContexts = new ArrayList<ActionContext>();
-        activeContexts.add(new SaveToCSVContext(ActionConfigBuilder.createActionConfig("save-csv.action", "save-csv.action",
-                "Выгрузить в CSV", "icons/icon-csv_download.png")));
+        activeContexts.add(new SaveToCSVContext(ActionConfigBuilder.createActionConfig(
+                "save-csv.action", "save-csv.action", "Выгрузить в CSV", "icons/icon-csv_download.png")));
         pluginData.setActionContexts(activeContexts);
         return pluginData;
     }
 
     private Collection<CollectionViewConfig> getCollectionOfViewConfigs() {
-        Collection<CollectionViewConfig> viewConfigs = configurationService.
-                getConfigs(CollectionViewConfig.class);
-
+        Collection<CollectionViewConfig> viewConfigs = configurationService.getConfigs(CollectionViewConfig.class);
         return viewConfigs;
 
     }
@@ -194,7 +226,9 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         throw new GuiException("Couldn't find collection view with name '" + viewName + "'");
     }
 
-    private LinkedHashMap<String, Value> getRowValues(IdentifiableObject identifiableObject, Map<String, Map<Value, ImagePathValue>> fieldMappings) {
+    private LinkedHashMap<String, Value> getRowValues(final IdentifiableObject identifiableObject,
+                                                      final Map<String, CollectionColumnProperties> columnPropertiesMap,
+                                                      final Map<String, Map<Value, ImagePathValue>> fieldMappings) {
         LinkedHashMap<String, Value> values = new LinkedHashMap<String, Value>();
         Set<String> fields = fieldMappings.keySet();
         for (String field : fields) {
@@ -203,9 +237,38 @@ public class CollectionPluginHandler extends ActivePluginHandler {
                 value = new StringValue(identifiableObject.getId().toStringRepresentation());
             } else {
                 value = identifiableObject.getValue(field.toLowerCase());
-
             }
-
+            if (value != null && value.get() != null) {
+                DateFormat dateFormat;
+                Calendar calendar;
+                String timeZoneId;
+                final String pattern =
+                        (String) columnPropertiesMap.get(field).getProperty(CollectionColumnProperties.PATTERN_KEY);
+                switch (value.getFieldType()) {
+                    case DATETIMEWITHTIMEZONE:
+                        final DateTimeWithTimeZone dateTimeWithTimeZone = (DateTimeWithTimeZone) value.get();
+                        calendar = GuiServerHelper.dateTimeWithTimezoneToCalendar(dateTimeWithTimeZone);
+                        dateFormat = new SimpleDateFormat(pattern);
+                        dateFormat.setTimeZone(TimeZone.getTimeZone(
+                                dateTimeWithTimeZone.getTimeZoneContext().getTimeZoneId()));
+                        value = new StringValue(dateFormat.format(calendar.getTime()));
+                        break;
+                    case DATETIME:
+                        timeZoneId = GuiContext.get().getUserInfo().getTimeZoneId();
+                        final DateTimeValue dateTimeValue = (DateTimeValue) value;
+                        dateFormat = new SimpleDateFormat(pattern);
+                        dateFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
+                        value = new StringValue(dateFormat.format(dateTimeValue.get()));
+                        break;
+                    case TIMELESSDATE:
+                        final TimelessDate timelessDate = (TimelessDate) value.get();
+                        timeZoneId = GuiContext.get().getUserInfo().getTimeZoneId();
+                        calendar = GuiServerHelper.timelessDateToCalendar(timelessDate, GuiServerHelper.GMT_TIME_ZONE);
+                        dateFormat = new SimpleDateFormat(pattern);
+                        dateFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
+                        value = new StringValue(dateFormat.format(dateFormat.format(calendar.getTime())));
+                }
+            }
             Map<Value, ImagePathValue>  imagePathValueMap = fieldMappings.get(field);
             if (imagePathValueMap != null && !imagePathValueMap.isEmpty()) {
                 value = imagePathValueMap.get(value);
@@ -235,13 +298,15 @@ public class CollectionPluginHandler extends ActivePluginHandler {
                             .addProperty(CollectionColumnProperties.TYPE_KEY, columnConfig.getType())
                             .addProperty(CollectionColumnProperties.SEARCH_FILTER_KEY, columnConfig.getSearchFilter())
                             .addProperty(CollectionColumnProperties.PATTERN_KEY, columnConfig.getPattern())
+                            .addProperty(CollectionColumnProperties.TIME_ZONE_ID, columnConfig.getTimeZoneId())
                             .addProperty(CollectionColumnProperties.MIN_WIDTH, columnConfig.getMinWidth())
                             .addProperty(CollectionColumnProperties.MAX_WIDTH, columnConfig.getMaxWidth())
                             .addProperty(CollectionColumnProperties.RESIZABLE, columnConfig.isResizable())
                             .addProperty(CollectionColumnProperties.TEXT_BREAK_STYLE, columnConfig.getTextBreakStyle())
                             .addProperty(CollectionColumnProperties.SORTABLE, columnConfig.isSortable());
                     if (field.equalsIgnoreCase(sortedField)) {
-                        properties.addProperty(CollectionColumnProperties.SORTED_MARKER, getSortedMarker(sortCriteriaConfig));
+                        properties.addProperty(
+                                CollectionColumnProperties.SORTED_MARKER, getSortedMarker(sortCriteriaConfig));
                     }
                     properties.setAscSortCriteriaConfig(columnConfig.getAscSortCriteriaConfig());
                     properties.setDescSortCriteriaConfig(columnConfig.getDescSortCriteriaConfig());
@@ -277,38 +342,42 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         return columnField;
     }
 
-    public CollectionRowItem generateCollectionRowItem(IdentifiableObject identifiableObject, Map<String, Map<Value, ImagePathValue>> fieldMappings) {
+    public CollectionRowItem generateCollectionRowItem(final IdentifiableObject identifiableObject,
+                                                   final Map<String, CollectionColumnProperties> columnPropertiesMap,
+                                                   final Map<String, Map<Value, ImagePathValue>> fieldMappings) {
         CollectionRowItem item = new CollectionRowItem();
-        LinkedHashMap<String, Value> row = getRowValues(identifiableObject, fieldMappings);
+        LinkedHashMap<String, Value> row = getRowValues(identifiableObject, columnPropertiesMap, fieldMappings);
         item.setId(identifiableObject.getId());
         item.setRow(row);
         return item;
 
     }
 
-    public ArrayList<CollectionRowItem> getRows(
-            String collectionName, int offset, int count, List<Filter> filters, SortOrder sortOrder, LinkedHashMap<String, CollectionColumnProperties> properties) {
+    public ArrayList<CollectionRowItem> getRows(String collectionName, int offset, int count, List<Filter> filters,
+            SortOrder sortOrder, LinkedHashMap<String, CollectionColumnProperties> columnPropertiesMap) {
 
         ArrayList<CollectionRowItem> items = new ArrayList<CollectionRowItem>();
         IdentifiableObjectCollection collection = collectionsService.
                 findCollection(collectionName, sortOrder, filters, offset, count);
-        Map<String, Map<Value, ImagePathValue>> fieldMappings = defaultImageMapper.getImageMaps(properties);
+        Map<String, Map<Value, ImagePathValue>> fieldMappings = defaultImageMapper.getImageMaps(columnPropertiesMap);
         for (IdentifiableObject identifiableObject : collection) {
-            items.add(generateCollectionRowItem(identifiableObject, fieldMappings));
+            items.add(generateCollectionRowItem(identifiableObject, columnPropertiesMap, fieldMappings));
 
         }
         return items;
     }
 
-    public ArrayList<CollectionRowItem> getSimpleSearchRows(String collectionName,
-                                                            int offset, int count, List<Filter> filters, String simpleSearchQuery, String searchArea, LinkedHashMap<String, CollectionColumnProperties> properties) {
+    public ArrayList<CollectionRowItem> getSimpleSearchRows(String collectionName, int offset, int count,
+            List<Filter> filters, String simpleSearchQuery, String searchArea,
+            LinkedHashMap<String, CollectionColumnProperties> properties) {
+
         ArrayList<CollectionRowItem> items = new ArrayList<CollectionRowItem>();
-        IdentifiableObjectCollection collection = searchService.search(simpleSearchQuery, searchArea, collectionName, 1000);
+        IdentifiableObjectCollection collection =
+                searchService.search(simpleSearchQuery, searchArea, collectionName, 1000);
         Map<String, Map<Value, ImagePathValue>> fieldMappings = defaultImageMapper.getImageMaps(properties);
         for (IdentifiableObject identifiableObject : collection) {
-            items.add(generateCollectionRowItem(identifiableObject,fieldMappings));
+            items.add(generateCollectionRowItem(identifiableObject,properties, fieldMappings));
         }
-
         return items;
     }
 
@@ -332,7 +401,8 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         } else {
             if (collectionRowsRequest.getSimpleSearchQuery().length() > 0) {
                 list = getSimpleSearchRows(collectionName, offset, limit, filters,
-                        collectionRowsRequest.getSimpleSearchQuery(), collectionRowsRequest.getSearchArea(), properties);
+                        collectionRowsRequest.getSimpleSearchQuery(), collectionRowsRequest.getSearchArea(),
+                        properties);
             } else {
                 list = getRows(collectionName, offset, limit, filters, null, properties);
                 CollectionRowItemList collectionRowItemList = new CollectionRowItemList();

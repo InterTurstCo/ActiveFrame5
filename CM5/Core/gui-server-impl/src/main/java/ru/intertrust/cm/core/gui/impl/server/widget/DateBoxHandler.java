@@ -16,11 +16,13 @@ import ru.intertrust.cm.core.business.api.dto.TimelessDate;
 import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
 import ru.intertrust.cm.core.business.api.dto.UTCOffsetTimeZoneContext;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.DateBoxConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.ValueEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.impl.server.GuiContext;
+import ru.intertrust.cm.core.gui.impl.server.GuiServerHelper;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.DateTimeContext;
 import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
@@ -33,11 +35,6 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
  */
 @ComponentName("date-box")
 public class DateBoxHandler extends ValueEditingWidgetHandler {
-
-    private static final String DEFAULT_TIME_ZONE_ID = "default";
-    private static final String LOCAL_TIME_ZONE_ID = "local";
-    private static final String ORIGINAL_TIME_ZONE_ID = "original";
-    private static final TimeZone GMT_TIME_ZONE = TimeZone.getTimeZone("GMT");
 
     @Override
     public DateBoxState getInitialState(WidgetContext widgetContext) {
@@ -104,15 +101,9 @@ public class DateBoxHandler extends ValueEditingWidgetHandler {
             final DateTimeContext result = new DateTimeContext();
             if (value != null && value.get() != null) {
                 result.setOrdinalFieldType(FieldType.TIMELESSDATE.ordinal());
-                final Calendar calendar = Calendar.getInstance(GMT_TIME_ZONE);
-                calendar.set(Calendar.YEAR, value.get().getYear());
-                calendar.set(Calendar.MONTH, value.get().getMonth());
-                calendar.set(Calendar.DAY_OF_MONTH, value.get().getDayOfMonth());
-                calendar.set(Calendar.HOUR, 0);
-                calendar.set(Calendar.MINUTE, 0);
-                calendar.set(Calendar.SECOND, 0);
-                calendar.set(Calendar.MILLISECOND, 0);
-                final DateFormat dateFormat = new SimpleDateFormat(DateTimeContext.DTO_PATTERN);
+                final Calendar calendar =
+                        GuiServerHelper.timelessDateToCalendar(value.get(), GuiServerHelper.GMT_TIME_ZONE);
+                final DateFormat dateFormat = new SimpleDateFormat(ModelUtil.DTO_PATTERN);
                 final String timeZoneId = GuiContext.get().getUserInfo().getTimeZoneId();
                 dateFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
                 final String dateTime = dateFormat.format(calendar.getTime());
@@ -126,11 +117,11 @@ public class DateBoxHandler extends ValueEditingWidgetHandler {
             if (context.getDateTime() != null) {
                 final TimelessDate result = new TimelessDate();
                 final String timeZoneId = GuiContext.get().getUserInfo().getTimeZoneId();
-                final DateFormat dateFormat = new SimpleDateFormat(DateTimeContext.DTO_PATTERN);
+                final DateFormat dateFormat = new SimpleDateFormat(ModelUtil.DTO_PATTERN);
                 dateFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
                 try {
                     final Date date = dateFormat.parse(context.getDateTime());
-                    final Calendar calendar = Calendar.getInstance(GMT_TIME_ZONE);
+                    final Calendar calendar = Calendar.getInstance(GuiServerHelper.GMT_TIME_ZONE);
                     calendar.setTime(date);
                     result.setYear(calendar.get(Calendar.YEAR));
                     result.setMonth(calendar.get(Calendar.MONTH));
@@ -151,7 +142,7 @@ public class DateBoxHandler extends ValueEditingWidgetHandler {
             result.setOrdinalFieldType(FieldType.DATETIME.ordinal());
             if (value != null && value.get() != null) {
                 final String timeZoneId = getTimeZoneId(result, config.getTimeZoneId());
-                final DateFormat dateFormat = new SimpleDateFormat(DateTimeContext.DTO_PATTERN);
+                final DateFormat dateFormat = new SimpleDateFormat(ModelUtil.DTO_PATTERN);
                 dateFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
                 result.setDateTime(dateFormat.format(value.get()));
             }
@@ -164,7 +155,7 @@ public class DateBoxHandler extends ValueEditingWidgetHandler {
             final DateTimeValue result = new DateTimeValue();
             if (context.getDateTime() != null) {
                 final String timeZoneId = getTimeZoneId(context, context.getTimeZoneId());
-                final DateFormat dateFormat = new SimpleDateFormat(DateTimeContext.DTO_PATTERN);
+                final DateFormat dateFormat = new SimpleDateFormat(ModelUtil.DTO_PATTERN);
                 dateFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
                 try {
                     final Date date = dateFormat.parse(context.getDateTime());
@@ -178,9 +169,9 @@ public class DateBoxHandler extends ValueEditingWidgetHandler {
 
         protected String getTimeZoneId(final DateTimeContext context, final String timeZoneId) {
             switch (timeZoneId) {
-                case DEFAULT_TIME_ZONE_ID:
-                case LOCAL_TIME_ZONE_ID:
-                case ORIGINAL_TIME_ZONE_ID:
+                case ModelUtil.DEFAULT_TIME_ZONE_ID:
+                case ModelUtil.LOCAL_TIME_ZONE_ID:
+                case ModelUtil.ORIGINAL_TIME_ZONE_ID:
                     return GuiContext.get().getUserInfo().getTimeZoneId();
             }
             return context.getTimeZoneId();
@@ -193,16 +184,8 @@ public class DateBoxHandler extends ValueEditingWidgetHandler {
             final DateTimeContext result = new DateTimeContext();
             result.setOrdinalFieldType(FieldType.DATETIMEWITHTIMEZONE.ordinal());
             if (value != null && value.get() != null) {
-                final Calendar calendar =
-                        Calendar.getInstance(TimeZone.getTimeZone(value.get().getTimeZoneContext().getTimeZoneId()));
-                calendar.set(Calendar.YEAR, value.get().getYear());
-                calendar.set(Calendar.MONTH, value.get().getMonth());
-                calendar.set(Calendar.DAY_OF_MONTH, value.get().getDayOfMonth());
-                calendar.set(Calendar.HOUR, value.get().getHours());
-                calendar.set(Calendar.MINUTE, value.get().getMinutes());
-                calendar.set(Calendar.SECOND, value.get().getSeconds());
-                calendar.set(Calendar.MILLISECOND, value.get().getMilliseconds());
-                final DateFormat dateFormat = new SimpleDateFormat(DateTimeContext.DTO_PATTERN);
+                final Calendar calendar = GuiServerHelper.dateTimeWithTimezoneToCalendar(value.get());
+                final DateFormat dateFormat = new SimpleDateFormat(ModelUtil.DTO_PATTERN);
                 final String userTimeZoneId = GuiContext.get().getUserInfo().getTimeZoneId();
                 dateFormat.setTimeZone(TimeZone.getTimeZone(userTimeZoneId));
                 result.setDateTime(dateFormat.format(calendar.getTime()));
@@ -215,7 +198,7 @@ public class DateBoxHandler extends ValueEditingWidgetHandler {
         public DateTimeWithTimeZoneValue contextToValue(final DateTimeContext context) {
             if (context.getDateTime() != null) {
                 final String userTimeZoneId = GuiContext.get().getUserInfo().getTimeZoneId();
-                final DateFormat dateFormat = new SimpleDateFormat(DateTimeContext.DTO_PATTERN);
+                final DateFormat dateFormat = new SimpleDateFormat(ModelUtil.DTO_PATTERN);
                 dateFormat.setTimeZone(TimeZone.getTimeZone(userTimeZoneId));
                 try {
                     final Date date = dateFormat.parse(context.getDateTime());
@@ -252,9 +235,9 @@ public class DateBoxHandler extends ValueEditingWidgetHandler {
          */
         private String getTimeZoneId(final DateTimeContext context) {
             switch (context.getTimeZoneId()) {
-                case LOCAL_TIME_ZONE_ID:
-                case DEFAULT_TIME_ZONE_ID:
-                case ORIGINAL_TIME_ZONE_ID:
+                case ModelUtil.LOCAL_TIME_ZONE_ID:
+                case ModelUtil.DEFAULT_TIME_ZONE_ID:
+                case ModelUtil.ORIGINAL_TIME_ZONE_ID:
                     return GuiContext.get().getUserInfo().getTimeZoneId();
             }
             return context.getTimeZoneId();

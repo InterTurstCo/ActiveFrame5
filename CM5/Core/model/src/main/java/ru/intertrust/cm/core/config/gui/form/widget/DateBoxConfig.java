@@ -1,9 +1,10 @@
 package ru.intertrust.cm.core.config.gui.form.widget;
 
-import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
+
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.util.ModelUtil;
 
 /**
  * @author Denis Mitavskiy
@@ -29,11 +30,11 @@ public class DateBoxConfig extends WidgetConfig implements Dto {
     private RangeEndConfig rangeEndConfig;
 
     public String getTimeZoneId() {
-        return timeZoneId;
+        return timeZoneId == null ? ModelUtil.DEFAULT_TIME_ZONE_ID : timeZoneId;
     }
 
     public String getPattern() {
-        return pattern;
+        return pattern == null ? ModelUtil.DEFAULT_DATE_PATTERN : pattern;
     }
 
     public boolean isDisplayTimeZoneChoice() {

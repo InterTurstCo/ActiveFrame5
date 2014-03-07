@@ -1,19 +1,19 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
+import java.util.Date;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
+
 import ru.intertrust.cm.core.business.api.dto.FieldType;
+import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.DateTimeContext;
 import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
-
-import java.util.Date;
 
 /**
  * @author Denis Mitavskiy
@@ -35,7 +35,7 @@ public class DateBoxWidget extends BaseWidget {
             dateBoxDecorate.setValue(dbState);
         } else {
             if (dbState.getDateTimeContext().getDateTime() != null) {
-                final Date date = DateTimeFormat.getFormat(DateTimeContext.DTO_PATTERN)
+                final Date date = DateTimeFormat.getFormat(ModelUtil.DTO_PATTERN)
                         .parse(dbState.getDateTimeContext().getDateTime());
                 final DateTimeFormat formatter = DateTimeFormat.getFormat(dbState.getPattern());
                 final StringBuilder textBuilder = new StringBuilder(formatter.format(date));

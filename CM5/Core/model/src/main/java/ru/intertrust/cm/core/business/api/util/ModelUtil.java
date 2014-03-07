@@ -1,9 +1,8 @@
 package ru.intertrust.cm.core.business.api.util;
 
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-
 import java.util.ArrayList;
-import java.util.TimeZone;
+
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 
 /**
  * Author: Denis Mitavskiy
@@ -11,6 +10,11 @@ import java.util.TimeZone;
  * Time: 17:42
  */
 public final class ModelUtil {
+    public static final String DTO_PATTERN = "dd.MM.yyyy HH:mm:ss:SSS";
+    public static final String DEFAULT_DATE_PATTERN = "dd.MM.yyyy";
+    public static final String DEFAULT_TIME_ZONE_ID = "default";
+    public static final String LOCAL_TIME_ZONE_ID = "local";
+    public static final String ORIGINAL_TIME_ZONE_ID = "original";
 
     /**
      * Don't create instance of helper class.

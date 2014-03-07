@@ -1,12 +1,12 @@
 package ru.intertrust.cm.core.gui.model;
 
+import java.util.HashMap;
+
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.collection.view.AscSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.DescSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.ImageMappingsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.RendererConfig;
-
-import java.util.HashMap;
 
 /**
  * @author Sergey.Okolot
@@ -20,6 +20,7 @@ public class CollectionColumnProperties implements Dto {
     public static final String TYPE_KEY = "type";
     public static final String SEARCH_FILTER_KEY = "searchFilter";
     public static final String PATTERN_KEY = "pattern";
+    public static final String TIME_ZONE_ID = "timeZoneId";
     public static final String NAME_KEY = "name";
     public static final String MIN_WIDTH = "min-width";
     public static final String MAX_WIDTH = "max-width";

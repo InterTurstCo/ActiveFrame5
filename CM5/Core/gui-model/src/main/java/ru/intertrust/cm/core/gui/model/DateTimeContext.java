@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.model;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.util.ModelUtil;
 
 /**
  * @author Sergey.Okolot
@@ -11,9 +12,6 @@ public class DateTimeContext implements Dto {
      * @defaultUID
      */
     private static final long serialVersionUID = 1L;
-
-    public static final String DTO_PATTERN = "dd.MM.yyyy HH:mm:ss:SSS";
-    private static final String DEFAULT_TIME_ZONE_ID = "default";
 
     private String dateTime;
     private String timeZoneId;
@@ -44,7 +42,7 @@ public class DateTimeContext implements Dto {
     }
 
     public String getTimeZoneId() {
-        return timeZoneId == null ? DEFAULT_TIME_ZONE_ID : timeZoneId;
+        return timeZoneId == null ? ModelUtil.DEFAULT_TIME_ZONE_ID : timeZoneId;
     }
 
     public void setTimeZoneId(String timeZoneId) {

@@ -11,6 +11,7 @@ import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.datepicker.client.DateBox;
 
+import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.model.DateTimeContext;
 import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
@@ -46,7 +47,7 @@ public class DateBoxDecorate extends Composite {
     public String getText() {
         final String result = dateBox.getValue() == null
                 ? null
-                : DateTimeFormat.getFormat(DateTimeContext.DTO_PATTERN).format(dateBox.getValue());
+                : DateTimeFormat.getFormat(ModelUtil.DTO_PATTERN).format(dateBox.getValue());
         return result;
     }
 
@@ -79,7 +80,7 @@ public class DateBoxDecorate extends Composite {
     private Date getDate(DateTimeContext context) {
         final Date result = context.getDateTime() == null
                 ? null
-                : DateTimeFormat.getFormat(DateTimeContext.DTO_PATTERN).parse(context.getDateTime());
+                : DateTimeFormat.getFormat(ModelUtil.DTO_PATTERN).parse(context.getDateTime());
         return result;
     }
 
