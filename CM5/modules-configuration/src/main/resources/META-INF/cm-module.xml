@@ -30,12 +30,12 @@
         <configuration-path>modules-configuration/test-module/trigger-events.xml</configuration-path>
         
     </configuration-paths>
-    <import-files>
+    <import-files rewrite="true">
         <import-file>importdata/import-organization.csv</import-file>
         <import-file>importdata/import-department.csv</import-file>
         <import-file>importdata/import-employee.csv</import-file>
         <import-file>importdata/set-organization-boss.csv</import-file>
         <import-file>importdata/set-department-boss.csv</import-file>
-        <import-file>importdata/import-country.csv</import-file>
+        <import-file rewrite="false">importdata/import-country.csv</import-file>
     </import-files>    
 </module>

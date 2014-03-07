@@ -22,11 +22,11 @@ public class TestImportData extends ClientBase {
             super.execute(args);
             importDataService = (ImportDataService.Remote) getService("ImportDataService", ImportDataService.Remote.class);
 
-            importDataService.importData(readFile(new File("import-organization.csv")));
-            importDataService.importData(readFile(new File("import-department.csv")));
-            importDataService.importData(readFile(new File("import-employee.csv")));
-            importDataService.importData(readFile(new File("set-organization-boss.csv")));
-            importDataService.importData(readFile(new File("set-department-boss.csv")));            
+            importDataService.importData(readFile(new File("import-organization.csv")), null, true);
+            importDataService.importData(readFile(new File("import-department.csv")), null, true);
+            importDataService.importData(readFile(new File("import-employee.csv")), null, true);
+            importDataService.importData(readFile(new File("set-organization-boss.csv")), null, true);
+            importDataService.importData(readFile(new File("set-department-boss.csv")), null, true);            
 
         } finally {
             writeLog();
