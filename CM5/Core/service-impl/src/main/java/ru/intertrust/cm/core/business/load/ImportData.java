@@ -3,27 +3,39 @@ package ru.intertrust.cm.core.business.load;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 
 import ru.intertrust.cm.core.business.api.ImportDataService;
+import ru.intertrust.cm.core.business.api.dto.BooleanValue;
+import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
 import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
+import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
+import ru.intertrust.cm.core.business.api.dto.DecimalValue;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.LongValue;
 import ru.intertrust.cm.core.business.api.dto.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.impl.AttachmentServiceImpl;
 import ru.intertrust.cm.core.config.AttachmentTypeConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
@@ -165,8 +177,9 @@ public class ImportData {
      * @param fields
      * @throws ParseException
      * @throws IOException
+     * @throws NoSuchAlgorithmException
      */
-    private void importLine(String line, Boolean rewrite) throws ParseException, IOException {
+    private void importLine(String line, Boolean rewrite) throws ParseException, IOException, NoSuchAlgorithmException {
         AccessToken accessToken = null;
         //Разделяем строку на значения
         String[] fieldValues = line.split(";");
@@ -184,16 +197,23 @@ public class ImportData {
 
         //Получение доменного объекта по ключевым полям
         DomainObject domainObject = findDomainObject(fieldValues);
-        if (rewrite){
-        	if (domainObject == null) {
-                //Создание доменного объекта
-                domainObject = createDomainObject(typeName);
-            }
+        if (domainObject == null) {
+            //Создание доменного объекта
+            domainObject = createDomainObject(typeName);
+        }
+
+        //Если доменный объект новый или стоит флаг перезаписывать атрибуты то устанавливаем атрибуты
+        if (rewrite || domainObject.isNew()) {
 
             String attachments = null;
             //Установка полей
             for (int i = 0; i < fields.length; i++) {
                 String fieldName = fields[i];
+
+                //Запоминаем старое значение
+                Value oldValue = domainObject.getValue(fieldName);
+                Value newValue = null;
+
                 //Обрабатываем ключевое поле вложения
                 if (ATTACHMENT_FIELD_NAME.equals(fieldName)) {
                     if (!fieldValues[i].isEmpty()) {
@@ -204,21 +224,15 @@ public class ImportData {
                     FieldConfig fieldConfig = configurationExplorer.getFieldConfig(typeName, fieldName);
                     if (fieldConfig != null) {
                         if (fieldConfig.getFieldType() == FieldType.BOOLEAN) {
-                            if (fieldValues[i].length() == 0) {
-                                domainObject.setBoolean(fieldName, null);
-                            } else {
-                                domainObject.setBoolean(fieldName, Boolean.valueOf(fieldValues[i]));
+                            if (fieldValues[i].length() != 0) {
+                                newValue = new BooleanValue(Boolean.valueOf(fieldValues[i]));
                             }
                         } else if (fieldConfig.getFieldType() == FieldType.DATETIME) {
-                            if (fieldValues[i].length() == 0) {
-                                domainObject.setTimestamp(fieldName, null);
-                            } else {
-                                domainObject.setTimestamp(fieldName, timeFofmat.parse(fieldValues[i]));
+                            if (fieldValues[i].length() != 0) {
+                                newValue = new DateTimeValue(timeFofmat.parse(fieldValues[i]));
                             }
                         } else if (fieldConfig.getFieldType() == FieldType.DATETIMEWITHTIMEZONE) {
-                            if (fieldValues[i].length() == 0) {
-                                domainObject.setDateTimeWithTimeZone(fieldName, null);
-                            } else {
+                            if (fieldValues[i].length() != 0) {
                                 Date date = timeFofmat.parse(fieldValues[i]);
                                 Calendar calendar = Calendar.getInstance();
                                 calendar.setTime(date);
@@ -230,53 +244,56 @@ public class ImportData {
                                         calendar.get(Calendar.MINUTE),
                                         calendar.get(Calendar.SECOND)
                                         );
-                                domainObject.setDateTimeWithTimeZone(fieldName, dateTimeWithTimeZone);
+                                newValue = new DateTimeWithTimeZoneValue(dateTimeWithTimeZone);
                             }
                         } else if (fieldConfig.getFieldType() == FieldType.DECIMAL) {
-                            if (fieldValues[i].length() == 0) {
-                                domainObject.setDecimal(fieldName, null);
-                            } else {
-                                domainObject.setDecimal(fieldName, new BigDecimal(fieldValues[i]));
+                            if (fieldValues[i].length() != 0) {
+                                newValue = new DecimalValue(new BigDecimal(fieldValues[i]));
                             }
                         } else if (fieldConfig.getFieldType() == FieldType.LONG) {
-                            if (fieldValues[i].length() == 0) {
-                                domainObject.setLong(fieldName, null);
-                            } else {
-                                domainObject.setLong(fieldName, Long.parseLong(fieldValues[i]));
+                            if (fieldValues[i].length() != 0) {
+                                newValue = new LongValue(Long.parseLong(fieldValues[i]));
                             }
                         } else if (fieldConfig.getFieldType() == FieldType.REFERENCE) {
                             //Здесь будут выражения в формате type.field="Значение поля" или field="Значение поля" или запрос
-                            domainObject.setReference(fieldName, getReference(fieldName, fieldValues[i]));
+                            newValue = new ReferenceValue(getReference(fieldName, fieldValues[i]));
                         } else if (fieldConfig.getFieldType() == FieldType.TIMELESSDATE) {
-                            if (fieldValues[i].length() == 0) {
-                                domainObject.setTimestamp(fieldName, null);
-                            } else {
-                                domainObject.setTimestamp(fieldName, dateFofmat.parse(fieldValues[i]));
+                            if (fieldValues[i].length() != 0) {
+                                newValue = new DateTimeValue(dateFofmat.parse(fieldValues[i]));
                             }
                         } else {
                             //В остальных случаях считаем строкой
                             if (fieldValues[i].length() == 0) {
-                                domainObject.setString(fieldName, null);
+                                newValue = null;
                             } else if ((emptyStringSymbol == null && fieldValues[i].equals("_"))
                                     || (emptyStringSymbol != null && fieldValues[i].equals(emptyStringSymbol))) {
                                 //Символ "_" строки означает у нас пустую строку если не указано конкретное значение символа пустой строки в метаинформации файла в ключе EMPTY_STRING_SYMBOL
-                                domainObject.setString(fieldName, "");
+                                newValue = new StringValue("");
                             } else {
-                                domainObject.setString(fieldName, fieldValues[i]);
+                                newValue = new StringValue(fieldValues[i]);
                             }
                         }
                     } else {
                         throw new FatalException("Fileld " + fieldName + " not found in type " + typeName);
+                    }
+
+                    //Сравниваем изменения. Если значение поменялось, тогда пишем в доменный объект
+                    if ((oldValue != null && !oldValue.equals(newValue)) || (oldValue == null && newValue != null)) {
+                        domainObject.setValue(fieldName, newValue);
                     }
                 }
             }
             if (login == null || domainObject.isNew()) {
                 accessToken = accessService.createSystemAccessToken(this.getClass().getName());
             } else {
-                accessToken = accessService.createAccessToken(login, domainObject.getId(), DomainObjectAccessType.WRITE);
+                accessToken =
+                        accessService.createAccessToken(login, domainObject.getId(), DomainObjectAccessType.WRITE);
             }
 
-            domainObject = domainObjectDao.save(domainObject, accessToken);
+            //Доменный объект сохраняем только если он изменился
+            if (domainObject.isNew() || domainObject.isDirty()) {
+                domainObject = domainObjectDao.save(domainObject, accessToken);
+            }
 
             //Создаем вложения если необходимо
             if (attachments != null) {
@@ -293,8 +310,10 @@ public class ImportData {
      * @param domainObject
      * @param string
      * @throws IOException
+     * @throws NoSuchAlgorithmException
      */
-    private DomainObject createAttachment(DomainObject domainObject, String filePath) throws IOException {
+    private DomainObject createAttachment(DomainObject domainObject, String filePath) throws IOException,
+            NoSuchAlgorithmException {
         DomainObject result = null;
         AccessToken accessToken = accessService.createSystemAccessToken(this.getClass().getName());
         //Получение типа доменного объекта вложения
@@ -322,12 +341,54 @@ public class ImportData {
                 attachment.setString("Name", attachmentFile.getName());
             }
 
-            //Установка контента вложения
-            InputStream stream = this.getClass().getClassLoader().getResourceAsStream(filePath);
-            long contentLength = getContentLength(filePath);
-            result = saveAttachment(stream, attachment, contentLength);
+            //Сравниваем вложения и в базу вложения записываем только если оно изменилось
+            if (attachment.isNew() || !contentEquals(filePath, attachment)) {
+
+                //Установка контента вложения
+                InputStream stream = this.getClass().getClassLoader().getResourceAsStream(filePath);
+                long contentLength = getContentLength(filePath);
+
+                result = saveAttachment(stream, attachment, contentLength);
+            }
         }
         return result;
+    }
+
+    /**
+     * Проверка существующего вложения на идентичность сохраняемому файлу
+     * @param filePath
+     * @param attachment
+     * @return
+     * @throws NoSuchAlgorithmException
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
+    private boolean contentEquals(String filePath, DomainObject attachment) throws NoSuchAlgorithmException,
+            FileNotFoundException, IOException {
+        //Используем HASH MD5 для проверки идентичности вложений
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        byte[] buffer = new byte[1024];
+        //Получаем HASH сохраняемого файла
+        try (InputStream is = this.getClass().getClassLoader().getResourceAsStream(filePath)) {
+            DigestInputStream dis = new DigestInputStream(is, md);
+            while (dis.read(buffer) != -1)
+                ;
+            dis.close();
+        }
+        byte[] fileDigest = md.digest();
+
+        //Получаем HASH существующего вложения
+        md.reset();
+        try (InputStream is = attachmentContentDao.loadContent(attachment)) {
+            DigestInputStream dis = new DigestInputStream(is, md);
+            while (dis.read(buffer) != -1)
+                ;
+            dis.close();
+        }
+        byte[] attachmentDigest = md.digest();
+
+        //Сравниваем HASH-и
+        return Arrays.equals(fileDigest, attachmentDigest);
     }
 
     private AttachmentTypeInfo getAttachmentTypeInfo(String type) {
