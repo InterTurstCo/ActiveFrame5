@@ -131,6 +131,54 @@
         </xs:restriction>
     </xs:simpleType>
 
+    <xs:complexType name="notificationType">
+        <xs:sequence>
+            <xs:element name="notification-type" minOccurs="0" maxOccurs="1" type="con:notificationTypeType">
+            </xs:element>
+        </xs:sequence>
+         <xs:attribute name="name" use="required" type="con:notificationNameType"/>
+    </xs:complexType>
+    
+    <xs:complexType name="notificationTypeType">
+        <xs:sequence>
+            <xs:element name="addressee" minOccurs="0" maxOccurs="1" type="con:notificationAddresseType" />
+            <xs:element name="triggers" minOccurs="0" maxOccurs="1" type="con:notificationTriggersType" />            
+         </xs:sequence>
+         <xs:attribute name="name" use="required" type="xs:string"/>         
+    </xs:complexType>
+
+    <xs:complexType name="notificationAddresseType">
+        <xs:choice>
+            <xs:element name="find-person" minOccurs="0" maxOccurs="1" type="con:notificationAddresseFindPersonType">
+            </xs:element>
+            <xs:element name="by-context-role" minOccurs="0" maxOccurs="1" type="xs:string" />
+            <xs:element name="by-dynamic-group" minOccurs="0" maxOccurs="1" type="xs:string" />
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="notificationAddresseFindPersonType">
+        <xs:choice>
+            <xs:element name="find-query" minOccurs="0" maxOccurs="1" type="xs:string" />
+            <xs:element name="class-name" minOccurs="0" maxOccurs="1" type="con:triggerClassNameType"/>            
+            <xs:element name="doel" minOccurs="0" maxOccurs="1" type="xs:string"/>            
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="notificationTriggersType">
+        <xs:sequence>
+            <xs:element name="trigger" minOccurs="1" maxOccurs="unbounded" type="con:triggerType">
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:simpleType name="notificationNameType">
+        <xs:restriction base="xs:string">
+            <xs:pattern
+                    value="[a-zA-Z0-9_]*">
+            </xs:pattern>
+        </xs:restriction>
+    </xs:simpleType>
+    
     <xs:simpleType name="domainObjectNameType">
         <xs:restriction base="xs:string">
             <xs:maxLength value="25"/>
@@ -299,6 +347,9 @@
                         maxOccurs="unbounded" minOccurs="0"/>
             <xs:element name="url-config" type="con:urlConfigType"
                         minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element type="con:notificationType" name="notification" 
+                        maxOccurs="unbounded" minOccurs="0" />
+                        
         </xs:choice>
     </xs:complexType>
 
