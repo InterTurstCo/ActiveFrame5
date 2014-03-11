@@ -38,6 +38,7 @@
             <artifactId>solr</artifactId>
             <type>war</type>
             <scope>provided</scope>
+            <version>${solr.version}</version>
         </dependency>
             
     </dependencies>
@@ -542,6 +543,7 @@
                                     <groupId>org.apache.solr</groupId>
                                     <artifactId>solr</artifactId>
                                     <name>solr.war</name>
+                                    <version>${solr.version}</version>
                                 </configuration>
                             </execution>
                         </executions>
