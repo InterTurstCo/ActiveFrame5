@@ -7,17 +7,17 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 /**
  * Created by IPetrov on 06.03.14.
  */
-@Root(name = "group")
+@Root(name = "group-name")
 public class GroupConfig implements Dto {
-    @Attribute(name = "name")
-    private String name;
+    @Attribute(name = "value")
+    private String value;
 
     public String getName() {
-        return name;
+        return value;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setName(String value) {
+        this.value = value;
     }
 
     @Override
@@ -27,13 +27,13 @@ public class GroupConfig implements Dto {
 
         GroupConfig that = (GroupConfig) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (value != null ? !value.equals(that.value) : that.value != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return name != null ? name.hashCode() : 0;
+        return value != null ? value.hashCode() : 0;
     }
 }
