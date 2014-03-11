@@ -2591,8 +2591,60 @@ td.datePickerMonth {
 }
 
 .validation-error{
-    background-color: #ffc0c8;
+    background-color: #FFBEA0;
     border: 1px solid red !important;
+}
+
+
+.validation-error-box .dialogContent {
+    background-color: #FFBEA0;
+}
+
+.validation-error-box .Caption {
+    background: #DC143C;
+    padding: 4px 4px 4px 8px;
+    cursor: default;
+    border-bottom: 1px solid #800000;
+    border-top: 4px solid #A62A2A;
+}
+
+.validation-error-box .dialogTopLeft{
+    background: #A62A2A;
+    border-top-left-radius: 6px;
+}
+
+.validation-error-box .dialogTopRight {
+    background: #A62A2A;
+    border-top-right-radius: 6px;
+}
+
+.validation-error-box .dialogMiddleLeft {
+    background: #A62A2A;
+    width: 4px;
+}
+
+.validation-error-box .dialogMiddleRight {
+    background: #A62A2A;
+    width: 4px;
+}
+
+.validation-error-box .dialogBottomLeft {
+    background: #A62A2A;
+    border-bottom-left-radius: 6px;
+}
+
+.validation-error-box .dialogBottomCenter {
+    background: #A62A2A;
+    height: 4px;
+}
+
+.validation-error-box .dialogBottomRight {
+    background: #A62A2A;
+    border-bottom-right-radius: 6px;
+}
+
+.validation-error-box .dialogContent td {
+    padding: 6px;
 }
 
 .search-box-clear-button-off {

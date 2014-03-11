@@ -7,6 +7,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.gui.impl.client.event.ActionSuccessListener;
@@ -80,8 +82,9 @@ public abstract class SimpleServerAction extends Action {
     private void onValidationFailure(ValidationException validationException) {
         final DialogBox dialogBox = new DialogBox(false, true);
         dialogBox.setText("Validation errors");
+        dialogBox.addStyleName("validation-error-box");
+        dialogBox.setStylePrimaryName("validation-error-box");
         VerticalPanel content = new VerticalPanel();
-        content.getElement().setAttribute("cellpadding", "8px"); //TODO: [validation] use CSS style instead
         content.add(new HTML(StringUtil.join(validationException.getValidationErrors(), "<br/>")));
         Button closeButton = new Button("Close");
         closeButton.addClickHandler(new ClickHandler() {
@@ -90,7 +93,11 @@ public abstract class SimpleServerAction extends Action {
                 dialogBox.hide();
             }
         });
-        content.add(closeButton);
+        HorizontalPanel buttonPanel = new HorizontalPanel();
+        buttonPanel.setHorizontalAlignment(HasAlignment.ALIGN_CENTER);
+        buttonPanel.setWidth("100%");
+        buttonPanel.add(closeButton);
+        content.add(buttonPanel);
         dialogBox.add(content);
         dialogBox.center();
     }
