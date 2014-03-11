@@ -2,8 +2,7 @@ package ru.intertrust.cm.core.dao.impl.sqlparser;
 
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.*;
-
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.wrap;
+import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
 /**
  * Реализация FromItemVisitor для транформации sql-запросов: приведение к нижнему регистру и заключение в кавычки
@@ -17,7 +16,7 @@ public class WrapAndLowerCaseFromItemVisitor implements FromItemVisitor {
     @Override
     public void visit(Table table) {
         if (table.getName() != null) {
-            table.setName(wrap(table.getName().toLowerCase()));
+            table.setName(DaoUtils.wrap(table.getName().toLowerCase()));
         }
 
         if (table.getPivot() != null) {

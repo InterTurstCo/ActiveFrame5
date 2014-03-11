@@ -23,6 +23,8 @@ import static ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao.DOMAIN_OBJECT_
 public class PostgreSqlQueryHelperTest {
 
     private DomainObjectTypeConfig domainObjectTypeConfig;
+    private ReferenceFieldConfig referenceFieldConfig;
+    private PostgreSqlQueryHelper queryHelper = new PostgreSqlQueryHelper();
 
     @Before
     public void setUp() throws Exception {
@@ -32,27 +34,27 @@ public class PostgreSqlQueryHelperTest {
     @Test
     public void testGenerateCountTablesQuery() {
         String query = "select count(table_name) FROM information_schema.tables WHERE table_schema = 'public'";
-        String testQuery = PostgreSqlQueryHelper.generateCountTablesQuery();
+        String testQuery = queryHelper.generateCountTablesQuery();
         assertEquals(testQuery, query);
     }
 
     @Test
     public void testGenerateCreateDomainObjectTableQuery() {
         String query = "create table \"" + DOMAIN_OBJECT_TYPE_ID_TABLE + "\" (" +
-                "\"id\" bigint not null default nextval('\"" + DOMAIN_OBJECT_TYPE_ID_TABLE + "_seq" + "\"'), " +
+                "\"id\" bigint not null, " +
                 "\"name\" varchar(256) not null, " +
                 "constraint \"pk_" + DOMAIN_OBJECT_TYPE_ID_TABLE + "\" primary key (\"id\"), " +
                 "constraint \"u_" + DOMAIN_OBJECT_TYPE_ID_TABLE + "\" unique (\"name\"))";
-        String testQuery = PostgreSqlQueryHelper.generateCreateDomainObjectTypeIdTableQuery();
+        String testQuery = queryHelper.generateCreateDomainObjectTypeIdTableQuery();
         assertEquals(query, testQuery);
     }
 
     @Test
     public void testGenerateCreateConfigurationTableQuery() {
-        String query = "create table \"" + CONFIGURATION_TABLE + "\" (\"id\" bigserial not null, " +
+        String query = "create table \"" + CONFIGURATION_TABLE + "\" (\"id\" bigint not null, " +
                 "\"content\" text not null, \"loaded_date\" timestamp not null, " +
                 "constraint \"pk_" + CONFIGURATION_TABLE + "\" primary key (\"id\"))";
-        String testQuery = PostgreSqlQueryHelper.generateCreateConfigurationTableQuery();
+        String testQuery = queryHelper.generateCreateConfigurationTableQuery();
         assertEquals(query, testQuery);
     }
 
@@ -62,20 +64,20 @@ public class PostgreSqlQueryHelperTest {
                 "\"user_uid\" character varying(64) NOT NULL, \"password\" character varying(128), " +
                 "constraint \"pk_" + AUTHENTICATION_INFO_TABLE + "_id\" primary key (\"id\"), " +
                 "constraint \"u_" + AUTHENTICATION_INFO_TABLE + "_user_uid\" unique(\"user_uid\"))";
-        String testQuery = PostgreSqlQueryHelper.generateCreateAuthenticationInfoTableQuery();
+        String testQuery = queryHelper.generateCreateAuthenticationInfoTableQuery();
         assertEquals(query, testQuery);
     }
 
     @Test
     public void testGenerateSequenceQuery() {
         String query = "create sequence \"outgoing_document_seq\"";
-        String testQuery = PostgreSqlQueryHelper.generateSequenceQuery(domainObjectTypeConfig);
+        String testQuery = queryHelper.generateSequenceQuery(domainObjectTypeConfig);
         assertEquals(query, testQuery);
     }
 
     @Test
      public void testGenerateCreateTableQuery() throws Exception {
-        String query = PostgreSqlQueryHelper.generateCreateTableQuery(domainObjectTypeConfig);
+        String query = queryHelper.generateCreateTableQuery(domainObjectTypeConfig);
         String checkQuery = "create table \"outgoing_document\" ( \"id\" bigint not null, \"" + TYPE_COLUMN +
                 "\" integer, \"registration_number\" varchar(128), " +
                 "\"registration_date\" timestamp, \"author\" bigint, \"author_type\" integer, " +
@@ -101,13 +103,13 @@ public class PostgreSqlQueryHelperTest {
                 "constraint \"fk_outgoing_document_" + TYPE_COLUMN + "\" foreign key (\"" + TYPE_COLUMN + "\") " +
                 "references \"domain_object_type_id\" (\"id\"))";
         domainObjectTypeConfig.setExtendsAttribute(null);
-        String query = PostgreSqlQueryHelper.generateCreateTableQuery(domainObjectTypeConfig);
+        String query = queryHelper.generateCreateTableQuery(domainObjectTypeConfig);
         assertEquals(checkQuery, query);
     }
 
     @Test
     public void testGenerateCreateAclTableQuery() throws Exception {
-        String query = PostgreSqlQueryHelper.generateCreateAclTableQuery(domainObjectTypeConfig);
+        String query = queryHelper.generateCreateAclTableQuery(domainObjectTypeConfig);
 
         String checkQuery = "create table \"outgoing_document_acl\" (\"object_id\" bigint not null, " +
                 "\"group_id\" bigint not null, \"operation\" varchar(256) not null, " +
@@ -121,7 +123,7 @@ public class PostgreSqlQueryHelperTest {
 
     @Test
     public void testGenerateCreateAclReadTableQuery() throws Exception {
-        String query = PostgreSqlQueryHelper.generateCreateAclReadTableQuery(domainObjectTypeConfig);
+        String query = queryHelper.generateCreateAclReadTableQuery(domainObjectTypeConfig);
 
         String checkQuery = "create table \"outgoing_document_read\" (\"object_id\" bigint not null, " +
                 "\"group_id\" bigint not null, constraint \"pk_outgoing_document_read\" " +
@@ -154,7 +156,7 @@ public class PostgreSqlQueryHelperTest {
         newColumns.add(executorFieldConfig);
 
 
-        String testQuery = PostgreSqlQueryHelper.generateAddColumnsQuery(domainObjectTypeConfig.getName(), newColumns);
+        String testQuery = queryHelper.generateAddColumnsQuery(domainObjectTypeConfig.getName(), newColumns);
 
         assertEquals(expectedQuery, testQuery);
     }
@@ -181,17 +183,16 @@ public class PostgreSqlQueryHelperTest {
         UniqueKeyConfig uniqueKeyConfig = new UniqueKeyConfig();
         uniqueKeyConfig.getUniqueKeyFieldConfigs().add(uniqueKeyFieldConfig);
 
-        String testQuery = PostgreSqlQueryHelper.generateCreateForeignKeyAndUniqueConstraintsQuery
+        String testQuery = queryHelper.generateCreateForeignKeyAndUniqueConstraintsQuery
                 (domainObjectTypeConfig.getName(), newColumns, Collections.singletonList(uniqueKeyConfig));
 
         assertEquals(expectedQuery, testQuery);
     }
 
     @Test
-    public void testGenerateCreateIndexesQuery() throws Exception {
-        String query = PostgreSqlQueryHelper.generateCreateIndexesQuery(domainObjectTypeConfig.getName(),
-                domainObjectTypeConfig.getFieldConfigs());
-        String checkQuery = "create index \"i_outgoing_document_author\" on \"outgoing_document\" (\"author\");\n";
+    public void testGenerateCreateIndexQuery() throws Exception {
+        String query = queryHelper.generateCreateIndexQuery(domainObjectTypeConfig, referenceFieldConfig);
+        String checkQuery = "create index \"i_outgoing_document_author\" on \"outgoing_document\" (\"author\")";
         assertEquals(query, checkQuery);
     }
 
@@ -211,7 +212,7 @@ public class PostgreSqlQueryHelperTest {
         registrationDate.setName("Registration_Date");
         domainObjectTypeConfig.getFieldConfigs().add(registrationDate);
 
-        ReferenceFieldConfig referenceFieldConfig = new ReferenceFieldConfig();
+        referenceFieldConfig = new ReferenceFieldConfig();
         referenceFieldConfig.setName("Author");
         referenceFieldConfig.setType("Employee");
         domainObjectTypeConfig.getFieldConfigs().add(referenceFieldConfig);

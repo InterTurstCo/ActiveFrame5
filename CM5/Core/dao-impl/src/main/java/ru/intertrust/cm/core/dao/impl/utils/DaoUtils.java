@@ -8,7 +8,6 @@ import java.util.Map;
 
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getTimeZoneIdColumnName;
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.wrap;
 import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getGMTDate;
 import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getTimeZoneId;
 
@@ -108,4 +107,25 @@ public class DaoUtils {
         }
     }
 
+    public static String wrap(String string) {
+        if (string == null || string.startsWith("\"")) {
+            return string;
+        } else {
+            return "\"" + string + "\"";
+        }
+    }
+
+    public static String unwrap(String string) {
+        if (string == null || !string.startsWith("\"")) {
+            return string;
+        } else {
+            return string.substring(1, string.length() - 1);
+        }
+    }
+
+    public static void applyOffsetAndLimit(StringBuilder query, int offset, int limit) {
+        if (limit != 0) {
+            query.append(" limit ").append(limit).append(" OFFSET ").append(offset);
+        }
+    }
 }

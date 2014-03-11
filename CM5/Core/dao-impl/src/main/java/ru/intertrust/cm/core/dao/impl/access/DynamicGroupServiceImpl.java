@@ -40,6 +40,7 @@ import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.dao.api.extension.OnLoadConfigurationExtensionHandler;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.model.PermissionException;
+
 import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.wrap;
 
 /**

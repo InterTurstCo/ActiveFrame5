@@ -1,11 +1,11 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.wrap;
 import net.sf.jsqlparser.expression.ExpressionVisitor;
 import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.expression.operators.relational.InExpression;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.SubSelect;
+import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
 /**
  * Реализация ExpressionVisitor для транформации sql-запросов: приведение к нижнему регистру и заключение в кавычки
@@ -41,7 +41,7 @@ public class WrapAndLowerCaseExpressionVisitor extends BaseExpressionVisitor imp
     @Override
     public void visit(Column column) {
         if (column.getColumnName() != null) {
-            column.setColumnName(wrap(column.getColumnName().toLowerCase()));
+            column.setColumnName(DaoUtils.wrap(column.getColumnName().toLowerCase()));
         }
     }
 

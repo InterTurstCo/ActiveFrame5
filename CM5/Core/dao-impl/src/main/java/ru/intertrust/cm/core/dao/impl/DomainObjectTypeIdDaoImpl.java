@@ -6,13 +6,13 @@ import org.springframework.jdbc.core.RowMapper;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectTypeId;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
+import ru.intertrust.cm.core.dao.api.IdGenerator;
+import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 import ru.intertrust.cm.core.model.FatalException;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.wrap;
 
 /**
  * Реализация {@link DomainObjectTypeIdDao}
@@ -22,23 +22,23 @@ import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.wrap;
  */
 public class DomainObjectTypeIdDaoImpl implements DomainObjectTypeIdDao {
 
-    protected static final String INSERT_BY_NAME_QUERY =
-            "insert into " + wrap(DOMAIN_OBJECT_TYPE_ID_TABLE) + "(" + wrap(NAME_COLUMN) + ") values (?)";
-
-    protected static final String INSERT_BY_ID_AND_NAME_QUERY =
-            "insert into " + wrap(DOMAIN_OBJECT_TYPE_ID_TABLE) + "(" + wrap(ID_COLUMN) + ", " +
-                    wrap(NAME_COLUMN) + ") values (?, ?)";
+    protected static final String INSERT_QUERY =
+            "insert into " + DaoUtils.wrap(DOMAIN_OBJECT_TYPE_ID_TABLE) + "(" + DaoUtils.wrap(ID_COLUMN) + ", " +
+                    DaoUtils.wrap(NAME_COLUMN) + ") values (?, ?)";
 
     protected static final String SELECT_ID_BY_NAME_QUERY =
-            "select " + wrap(ID_COLUMN) + " from " + wrap(DOMAIN_OBJECT_TYPE_ID_TABLE) + " where " +
-                    wrap(NAME_COLUMN) + " = ?";
+            "select " + DaoUtils.wrap(ID_COLUMN) + " from " + DaoUtils.wrap(DOMAIN_OBJECT_TYPE_ID_TABLE) + " where " +
+                    DaoUtils.wrap(NAME_COLUMN) + " = ?";
 
     protected static final String SELECT_NAME_BY_ID_QUERY =
-            "select " + wrap(NAME_COLUMN) + " from " + wrap(DOMAIN_OBJECT_TYPE_ID_TABLE) + " where " +
-                    wrap(ID_COLUMN) + " = ?";
+            "select " + DaoUtils.wrap(NAME_COLUMN) + " from " + DaoUtils.wrap(DOMAIN_OBJECT_TYPE_ID_TABLE) + " where " +
+                    DaoUtils.wrap(ID_COLUMN) + " = ?";
 
     @Autowired
     private JdbcOperations jdbcTemplate;
+
+    @Autowired
+    private IdGenerator idGenerator;
 
     public void setJdbcTemplate(JdbcOperations jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -67,9 +67,9 @@ public class DomainObjectTypeIdDaoImpl implements DomainObjectTypeIdDao {
     @Override
     public Integer insert(DomainObjectTypeConfig config) {
         if (config.getDbId() == null) {
-            jdbcTemplate.update(INSERT_BY_NAME_QUERY, config.getName());
-            return jdbcTemplate.queryForObject(SELECT_ID_BY_NAME_QUERY, Integer.class,
-                    config.getName());
+            Object domainObjectTypeId = idGenerator.generateId(DOMAIN_OBJECT_TYPE_ID_TABLE);
+            jdbcTemplate.update(INSERT_QUERY, domainObjectTypeId, config.getName());
+            return ((Long) domainObjectTypeId).intValue();
         } else {
             List<String> names =
                     jdbcTemplate.queryForList(SELECT_NAME_BY_ID_QUERY, new Object[] {config.getDbId()}, String.class);
@@ -79,7 +79,7 @@ public class DomainObjectTypeIdDaoImpl implements DomainObjectTypeIdDao {
                 " because it's already in use by domain object type with name " + config.getName());
             }
 
-            int rowsInserted = jdbcTemplate.update(INSERT_BY_ID_AND_NAME_QUERY, config.getDbId(), config.getName());
+            int rowsInserted = jdbcTemplate.update(INSERT_QUERY, config.getDbId(), config.getName());
             if (rowsInserted > 0) {
                 return config.getDbId();
             } else {

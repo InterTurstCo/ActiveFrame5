@@ -4,8 +4,7 @@ import net.sf.jsqlparser.statement.select.AllColumns;
 import net.sf.jsqlparser.statement.select.AllTableColumns;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import net.sf.jsqlparser.statement.select.SelectItemVisitor;
-
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.wrap;
+import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
 /**
 * Реализация SelectItemVisitor для транформации sql-запросов: приведение к нижнему регистру и заключение в кавычки
@@ -23,7 +22,7 @@ class WrapAndLowerCaseSelectItemVisitor implements SelectItemVisitor {
     @Override
     public void visit(AllTableColumns allTableColumns) {
         if (allTableColumns.getTable() != null && allTableColumns.getTable().getName() != null) {
-            allTableColumns.getTable().setName(wrap(allTableColumns.getTable().getName().toLowerCase()));
+            allTableColumns.getTable().setName(DaoUtils.wrap(allTableColumns.getTable().getName().toLowerCase()));
         }
     }
 

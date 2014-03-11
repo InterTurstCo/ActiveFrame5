@@ -1,7 +1,5 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.wrap;
-
 import java.util.Iterator;
 
 import net.sf.jsqlparser.expression.AllComparisonExpression;
@@ -74,6 +72,7 @@ import net.sf.jsqlparser.statement.select.WithItem;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
+import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
 /**
  * Добавляет проверки прав доступа (ACL проверки) в SQL запросы коллекций. Заменяет названия таблиц (доменных объектов)
@@ -169,14 +168,14 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
         SubSelect subSelectWithAcl = new SubSelect();
         StringBuilder aclQuery = new StringBuilder();
         String aclReadTable = AccessControlUtility.getAclReadTableNameFor(domainObjectType);
-        aclQuery.append("Select * from ").append(wrap(domainObjectType))
-                .append(" as " + domainObjectType + " where exists (select r.").append(wrap("object_id"))
+        aclQuery.append("Select * from ").append(DaoUtils.wrap(domainObjectType))
+                .append(" as " + domainObjectType + " where exists (select r.").append(DaoUtils.wrap("object_id"))
                 .append("from ")
-                .append(wrap(aclReadTable)).append(" r ");
-        aclQuery.append("inner join ").append(wrap("group_group")).append(" gg on r.")
-                .append(wrap("group_id") + " = gg.").append(wrap("parent_group_id"));
-        aclQuery.append("inner join ").append(wrap("group_member")).append(" gm on gg.").append(wrap("child_group_id"))
-                .append(" = gm.").append(wrap("usergroup"));
+                .append(DaoUtils.wrap(aclReadTable)).append(" r ");
+        aclQuery.append("inner join ").append(DaoUtils.wrap("group_group")).append(" gg on r.")
+                .append(DaoUtils.wrap("group_id") + " = gg.").append(DaoUtils.wrap("parent_group_id"));
+        aclQuery.append("inner join ").append(DaoUtils.wrap("group_member")).append(" gm on gg.").append(DaoUtils.wrap("child_group_id"))
+                .append(" = gm.").append(DaoUtils.wrap("usergroup"));
         aclQuery.append(" where gm.person_id = ").append(SqlQueryModifier.USER_ID_PARAM)
                 .append(" and r.object_id = " + domainObjectType + ".id )");
 

@@ -6,8 +6,6 @@ import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TIME_ID_ZONE_POSTFIX
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_POSTFIX;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getServiceColumnName;
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.unwrap;
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.wrap;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,6 +31,7 @@ import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.exception.CollectionQueryException;
 import ru.intertrust.cm.core.dao.exception.DaoException;
+import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 import ru.intertrust.cm.core.util.KryoCloner;
 
 
@@ -223,7 +222,7 @@ public class SqlQueryModifier {
                         if (whenClause.getThenExpression() instanceof Column) {
                             Column column = (Column) whenClause.getThenExpression();
                             FieldConfig fieldConfig = configurationExplorer.getFieldConfig(
-                                    getDOTypeName(plainSelect, column, false), unwrap(column.getColumnName()));
+                                    getDOTypeName(plainSelect, column, false), DaoUtils.unwrap(column.getColumnName()));
 
                             if (fieldConfig instanceof ReferenceFieldConfig) {
                                 column.setColumnName(getReferenceTypeColumnName(column.getColumnName()));
@@ -234,7 +233,7 @@ public class SqlQueryModifier {
                     if (idTypeExpression.getElseExpression() instanceof Column) {
                         Column column = (Column) idTypeExpression.getElseExpression();
                         FieldConfig fieldConfig = configurationExplorer.getFieldConfig(
-                                getDOTypeName(plainSelect, column, false), unwrap(column.getColumnName()));
+                                getDOTypeName(plainSelect, column, false), DaoUtils.unwrap(column.getColumnName()));
 
                         if (fieldConfig instanceof ReferenceFieldConfig) {
                             column.setColumnName(getReferenceTypeColumnName(column.getColumnName()));
@@ -244,7 +243,7 @@ public class SqlQueryModifier {
                     SelectExpressionItem idTypeSelectExpressionItem = new SelectExpressionItem();
                     idTypeSelectExpressionItem.setExpression(idTypeExpression);
                     if (selectExpressionItem.getAlias() != null) {
-                        idTypeSelectExpressionItem.setAlias(getReferenceTypeColumnName(unwrap(selectExpressionItem.getAlias())));
+                        idTypeSelectExpressionItem.setAlias(getReferenceTypeColumnName(DaoUtils.unwrap(selectExpressionItem.getAlias())));
                     }
 
                     selectItems.add(idTypeSelectExpressionItem);
@@ -253,7 +252,7 @@ public class SqlQueryModifier {
                 String alias = selectExpressionItem.getAlias();
                 if (selectExpressionItem.getExpression() instanceof NullValue) {
                     SelectExpressionItem referenceFieldTypeItem = new SelectExpressionItem();
-                    referenceFieldTypeItem.setAlias(getServiceColumnName(unwrap(alias), REFERENCE_TYPE_POSTFIX));
+                    referenceFieldTypeItem.setAlias(getServiceColumnName(DaoUtils.unwrap(alias), REFERENCE_TYPE_POSTFIX));
                     referenceFieldTypeItem.setExpression(new NullValue());
                     selectItems.add(referenceFieldTypeItem);
                 } else if (selectExpressionItem.getExpression() instanceof StringValue) {
@@ -266,7 +265,7 @@ public class SqlQueryModifier {
                     selectItems.set(selectItems.size() - 1, referenceFieldIdItem);
 
                     SelectExpressionItem referenceFieldTypeItem = new SelectExpressionItem();
-                    referenceFieldTypeItem.setAlias(getServiceColumnName(unwrap(alias), REFERENCE_TYPE_POSTFIX));
+                    referenceFieldTypeItem.setAlias(getServiceColumnName(DaoUtils.unwrap(alias), REFERENCE_TYPE_POSTFIX));
                     referenceFieldTypeItem.setExpression(new LongValue(String.valueOf(id.getTypeId())));
                     selectItems.add(referenceFieldTypeItem);
                 } else {
@@ -287,7 +286,7 @@ public class SqlQueryModifier {
             if (whenClause.getThenExpression() instanceof Column) {
                 Column column = (Column) whenClause.getThenExpression();
                 FieldConfig fieldConfig = configurationExplorer.getFieldConfig(
-                        getDOTypeName(plainSelect, column, false), unwrap(column.getColumnName()));
+                        getDOTypeName(plainSelect, column, false), DaoUtils.unwrap(column.getColumnName()));
 
                 if (fieldConfig instanceof ReferenceFieldConfig) {
                     return true;
@@ -298,7 +297,7 @@ public class SqlQueryModifier {
         if (!returnsId && caseExpression.getElseExpression() instanceof Column) {
             Column column = (Column) caseExpression.getElseExpression();
             FieldConfig fieldConfig = configurationExplorer.getFieldConfig(
-                    getDOTypeName(plainSelect, column, false), unwrap(column.getColumnName()));
+                    getDOTypeName(plainSelect, column, false), DaoUtils.unwrap(column.getColumnName()));
 
             if (fieldConfig instanceof ReferenceFieldConfig) {
                 return true;
@@ -320,9 +319,9 @@ public class SqlQueryModifier {
             if (selectExpressionItem.getExpression() instanceof Column) {
                 Column column = (Column) selectExpressionItem.getExpression();
 
-                String fieldName = unwrap(column.getColumnName().toLowerCase());
+                String fieldName = DaoUtils.unwrap(column.getColumnName().toLowerCase());
                 String columnName = selectExpressionItem.getAlias() != null ?
-                        unwrap(selectExpressionItem.getAlias().toLowerCase()) : fieldName;
+                        DaoUtils.unwrap(selectExpressionItem.getAlias().toLowerCase()) : fieldName;
 
                 if (columnToConfigMap.get(columnName) == null) {
                     FieldConfig fieldConfig = getFieldConfig(plainSelect, selectExpressionItem);
@@ -344,7 +343,7 @@ public class SqlQueryModifier {
     }
 
     private void addReferenceFieldConfig(SelectExpressionItem selectExpressionItem, Map<String, FieldConfig> columnToConfigMap) {
-        String name = unwrap(selectExpressionItem.getAlias().toLowerCase());
+        String name = DaoUtils.unwrap(selectExpressionItem.getAlias().toLowerCase());
         if (columnToConfigMap.get(name) == null) {
             FieldConfig fieldConfig = new ReferenceFieldConfig();
             fieldConfig.setName(name);
@@ -464,12 +463,12 @@ public class SqlQueryModifier {
             Table fromItem = (Table) plainSelect.getFromItem();
 
             if (forSubSelect || column.getTable() == null || column.getTable().getName() == null) {
-                return unwrap(fromItem.getName());
+                return DaoUtils.unwrap(fromItem.getName());
             }
 
             if (column.getTable().getName().equals(fromItem.getAlias()) ||
                     column.getTable().getName().equals(fromItem.getName()) ) {
-                return unwrap(fromItem.getName());
+                return DaoUtils.unwrap(fromItem.getName());
             }
 
             List joinList = plainSelect.getJoins();
@@ -489,7 +488,7 @@ public class SqlQueryModifier {
 
                 if (column.getTable().getName().equals(joinTable.getAlias()) ||
                         column.getTable().getName().equals(joinTable.getName())) {
-                    return unwrap(joinTable.getName());
+                    return DaoUtils.unwrap(joinTable.getName());
                 }
             }
         }
@@ -510,7 +509,7 @@ public class SqlQueryModifier {
             PlainSelect plainSubSelect = getPlainSelect(subSelect.getSelectBody());
             return getFieldConfigFromSubSelect(plainSubSelect, column);
         } else if (plainSelect.getFromItem() instanceof Table) {
-            String fieldName = unwrap(column.getColumnName().toLowerCase());
+            String fieldName = DaoUtils.unwrap(column.getColumnName().toLowerCase());
             return configurationExplorer.getFieldConfig(getDOTypeName(plainSelect, column, false), fieldName);
         }
 
@@ -520,7 +519,7 @@ public class SqlQueryModifier {
     private FieldConfig getFieldConfigFromSubSelect(PlainSelect plainSelect, Column upperLevelColumn) {
         for (Object selectItem : plainSelect.getSelectItems()) {
             if (selectItem instanceof AllColumns) {
-                String fieldName = unwrap(upperLevelColumn.getColumnName().toLowerCase());
+                String fieldName = DaoUtils.unwrap(upperLevelColumn.getColumnName().toLowerCase());
                 return configurationExplorer.getFieldConfig(getDOTypeName(plainSelect, upperLevelColumn, true), fieldName);
             } else if (!(selectItem instanceof SelectExpressionItem)) {
                 continue;
@@ -583,7 +582,7 @@ public class SqlQueryModifier {
         if (column.getTable() != null && column.getTable().getName() != null) {
             referenceColumnExpression.append(column.getTable().getName()).append(".");
         }
-        referenceColumnExpression.append(getServiceColumnName(unwrap(column.getColumnName()), postfix));
+        referenceColumnExpression.append(getServiceColumnName(DaoUtils.unwrap(column.getColumnName()), postfix));
 
         if (selectExpressionItem.getAlias() != null) {
             referenceColumnExpression.append(" as ")

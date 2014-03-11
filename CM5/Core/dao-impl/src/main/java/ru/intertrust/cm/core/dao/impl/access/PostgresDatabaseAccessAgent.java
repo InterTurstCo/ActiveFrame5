@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.access.ExecuteActionAccessType;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper;
+import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 import ru.intertrust.cm.core.dao.impl.utils.IdSorterByType;
 
 import javax.sql.DataSource;
@@ -20,7 +21,6 @@ import java.sql.SQLException;
 import java.util.*;
 
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.wrap;
 
 /**
  * Реализация агента БД по запросам прав доступа для PostgreSQL.
@@ -71,14 +71,14 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         
         StringBuilder query = new StringBuilder();
         
-        query.append("select count(*) from ").append(wrap(domainObjectAclTable)).append(" a ");
-        query.append(" inner join ").append(wrap("group_group")).append(" gg on a.").append(wrap("group_id"))
-                .append(" = gg.").append(wrap("parent_group_id"));
-        query.append(" inner join ").append(wrap("group_member")).append(" gm on gg.")
-                .append(wrap("child_group_id")).append(" = gm.").append(wrap("usergroup"));
-        query.append(" where gm.").append(wrap("person_id")).append(" = :user_id and a.")
-                .append(wrap("object_id")).append(" = :object_id and a.")
-                .append(wrap("operation")).append(" = :operation");
+        query.append("select count(*) from ").append(DaoUtils.wrap(domainObjectAclTable)).append(" a ");
+        query.append(" inner join ").append(DaoUtils.wrap("group_group")).append(" gg on a.").append(DaoUtils.wrap("group_id"))
+                .append(" = gg.").append(DaoUtils.wrap("parent_group_id"));
+        query.append(" inner join ").append(DaoUtils.wrap("group_member")).append(" gm on gg.")
+                .append(DaoUtils.wrap("child_group_id")).append(" = gm.").append(DaoUtils.wrap("usergroup"));
+        query.append(" where gm.").append(DaoUtils.wrap("person_id")).append(" = :user_id and a.")
+                .append(DaoUtils.wrap("object_id")).append(" = :object_id and a.")
+                .append(DaoUtils.wrap("operation")).append(" = :operation");
         return query.toString();
     }
 
@@ -147,15 +147,15 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
         StringBuilder query = new StringBuilder();
         
-        query.append("select a.").append(wrap("object_id")).append(" object_id from ")
-                .append(wrap(domainObjectAclTable)).append(" a ");
-        query.append(" inner join ").append(wrap("group_group")).append(" gg on a.").append(wrap("group_id"))
-                .append(" = gg.").append(wrap("parent_group_id"));
-        query.append(" inner join ").append(wrap("group_member")).append(" gm on gg.").append(wrap("child_group_id"))
-                .append(" = gm.").append(wrap("usergroup"));
-        query.append(" where gm.").append(wrap("person_id")).append(" = :user_id and a.").append(wrap("object_id"))
+        query.append("select a.").append(DaoUtils.wrap("object_id")).append(" object_id from ")
+                .append(DaoUtils.wrap(domainObjectAclTable)).append(" a ");
+        query.append(" inner join ").append(DaoUtils.wrap("group_group")).append(" gg on a.").append(DaoUtils.wrap("group_id"))
+                .append(" = gg.").append(DaoUtils.wrap("parent_group_id"));
+        query.append(" inner join ").append(DaoUtils.wrap("group_member")).append(" gm on gg.").append(DaoUtils.wrap("child_group_id"))
+                .append(" = gm.").append(DaoUtils.wrap("usergroup"));
+        query.append(" where gm.").append(DaoUtils.wrap("person_id")).append(" = :user_id and a.").append(DaoUtils.wrap("object_id"))
                 .append(" in (:object_ids) and ")
-                .append("a.").append(wrap("operation")).append(" = :operation");
+                .append("a.").append(DaoUtils.wrap("operation")).append(" = :operation");
         return query.toString();
     }
 
@@ -185,15 +185,15 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
         StringBuilder query = new StringBuilder();
         
-        query.append("select a.").append(wrap("operation")).append(" operation from ")
-                .append(wrap(domainObjectAclTable)).append(" a ");
-        query.append(" inner join ").append(wrap("group_group")).append(" gg on a.").append(wrap("group_id"))
-                .append(" = gg.").append(wrap("parent_group_id"));
-        query.append(" inner join ").append(wrap("group_member")).append(" gm on gg.").append(wrap("child_group_id"))
-                .append(" = gm.").append(wrap("usergroup"));
-        query.append(" where gm.").append(wrap("person_id")).append(" = :user_id and a.").append(wrap("object_id"))
+        query.append("select a.").append(DaoUtils.wrap("operation")).append(" operation from ")
+                .append(DaoUtils.wrap(domainObjectAclTable)).append(" a ");
+        query.append(" inner join ").append(DaoUtils.wrap("group_group")).append(" gg on a.").append(DaoUtils.wrap("group_id"))
+                .append(" = gg.").append(DaoUtils.wrap("parent_group_id"));
+        query.append(" inner join ").append(DaoUtils.wrap("group_member")).append(" gm on gg.").append(DaoUtils.wrap("child_group_id"))
+                .append(" = gm.").append(DaoUtils.wrap("usergroup"));
+        query.append(" where gm.").append(DaoUtils.wrap("person_id")).append(" = :user_id and a.").append(DaoUtils.wrap("object_id"))
                 .append(" = :object_id and a.")
-                .append(wrap("operation")).append(" in (:operations)");
+                .append(DaoUtils.wrap("operation")).append(" in (:operations)");
 
         return query.toString();
     }
@@ -266,12 +266,12 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
     private String getQueryForCheckUserGroup() {
         StringBuilder query = new StringBuilder();
         
-        query.append("select count(*) from ").append(wrap("user_group")).append(" ug ");
-        query.append("inner join ").append(wrap("group_group")).append(" gg on ug.").append(wrap("id"))
-                .append(" = gg.").append(wrap("parent_group_id"));
-        query.append("inner join ").append(wrap("group_member")).append(" gm on gg.").append(wrap("child_group_id"))
-                .append(" = gm.").append(wrap("usergroup"));
-        query.append("where gm.").append(wrap("person_id")).append(" = :user_id and ug.").append(wrap("group_name"))
+        query.append("select count(*) from ").append(DaoUtils.wrap("user_group")).append(" ug ");
+        query.append("inner join ").append(DaoUtils.wrap("group_group")).append(" gg on ug.").append(DaoUtils.wrap("id"))
+                .append(" = gg.").append(DaoUtils.wrap("parent_group_id"));
+        query.append("inner join ").append(DaoUtils.wrap("group_member")).append(" gm on gg.").append(DaoUtils.wrap("child_group_id"))
+                .append(" = gm.").append(DaoUtils.wrap("usergroup"));
+        query.append("where gm.").append(DaoUtils.wrap("person_id")).append(" = :user_id and ug.").append(DaoUtils.wrap("group_name"))
                 .append(" = :group_name");
         return query.toString();
     }

@@ -56,6 +56,7 @@ import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.dao.api.extension.OnLoadConfigurationExtensionHandler;
 import ru.intertrust.cm.core.dao.exception.DaoException;
+import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 import ru.intertrust.cm.core.model.PermissionException;
 
 /**
@@ -197,12 +198,12 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                 AccessControlUtility.getAclTableName(domainObjectTypeIdCache.getName(rdbmsObjectId.getTypeId()));
 
         StringBuilder query = new StringBuilder();
-        query.append("select 'R' as operation, r.").append(wrap("group_id")).append(" from ").
-                append(wrap(tableNameRead)).append(" r ").append("where r.").append(wrap("object_id")).
+        query.append("select 'R' as operation, r.").append(DaoUtils.wrap("group_id")).append(" from ").
+                append(DaoUtils.wrap(tableNameRead)).append(" r ").append("where r.").append(DaoUtils.wrap("object_id")).
                 append(" = :object_id ");
         query.append("union ");
-        query.append("select a.").append(wrap("operation")).append(", a.").append(wrap("group_id")).append(" from ").
-                append(wrap(tableNameAcl)).append(" a where a.").append(wrap("object_id")).append(" = :object_id ");
+        query.append("select a.").append(DaoUtils.wrap("operation")).append(", a.").append(DaoUtils.wrap("group_id")).append(" from ").
+                append(DaoUtils.wrap(tableNameAcl)).append(" a where a.").append(DaoUtils.wrap("object_id")).append(" = :object_id ");
 
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("object_id", rdbmsObjectId.getId());
@@ -399,8 +400,8 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         StringBuilder query = new StringBuilder();
         query.append("delete from ");
-        query.append(wrap(tableName)).append(" where ").append(wrap("object_id")).append(" = :object_id ");
-        query.append("and ").append(wrap("group_id")).append(" = :group_id");
+        query.append(DaoUtils.wrap(tableName)).append(" where ").append(DaoUtils.wrap("object_id")).append(" = :object_id ");
+        query.append("and ").append(DaoUtils.wrap("group_id")).append(" = :group_id");
 
         return query.toString();
     }
@@ -411,7 +412,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         StringBuilder query = new StringBuilder();
         query.append("insert  into ");
-        query.append(wrap(tableName)).append(" (").append(wrap("object_id")).append(", ").append(wrap("group_id")).
+        query.append(DaoUtils.wrap(tableName)).append(" (").append(DaoUtils.wrap("object_id")).append(", ").append(DaoUtils.wrap("group_id")).
                 append(") values (:object_id, :group_id)");
 
         return query.toString();
@@ -423,8 +424,8 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         StringBuilder query = new StringBuilder();
         query.append("delete from ");
-        query.append(wrap(tableName)).append(" where ").append(wrap("operation")).append("=:operation and ").
-                append(wrap("object_id")).append("=:object_id and ").append(wrap("group_id")).append("=:group_id");
+        query.append(DaoUtils.wrap(tableName)).append(" where ").append(DaoUtils.wrap("operation")).append("=:operation and ").
+                append(DaoUtils.wrap("object_id")).append("=:object_id and ").append(DaoUtils.wrap("group_id")).append("=:group_id");
 
         return query.toString();
     }
@@ -435,8 +436,8 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         StringBuilder query = new StringBuilder();
         query.append("insert  into ");
-        query.append(wrap(tableName)).append(" (").append(wrap("operation")).append(", ").
-                append(wrap("object_id")).append(", ").append(wrap("group_id")).append(")").
+        query.append(DaoUtils.wrap(tableName)).append(" (").append(DaoUtils.wrap("operation")).append(", ").
+                append(DaoUtils.wrap("object_id")).append(", ").append(DaoUtils.wrap("group_id")).append(")").
                 append(" values (:operation, :object_id, :group_id)");
 
         return query.toString();
@@ -518,8 +519,8 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         StringBuilder query = new StringBuilder();
         query.append("delete from ");
-        query.append(wrap(tableName)).append(" o ");
-        query.append("where o.").append(wrap("object_id")).append(" = :object_id");
+        query.append(DaoUtils.wrap(tableName)).append(" o ");
+        query.append("where o.").append(DaoUtils.wrap("object_id")).append(" = :object_id");
 
         return query.toString();
     }
@@ -699,24 +700,24 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                 AccessControlUtility.getAclTableName(domainObjectTypeIdCache.getName(rdbmsObjectId.getTypeId()));
 
         StringBuilder query = new StringBuilder();
-        query.append("select 'R' as operation, gm.").append(wrap("person_id")).append(", gm.").
-                append(wrap("person_id_type")).append(" from ").append(wrap(tableNameRead)).append(" r ").
-                append("inner join ").append(wrap("group_group")).append(" gg on (r.").append(wrap("group_id")).
-                append(" = gg.").append(wrap("child_group_id")).append(") inner join ").append(wrap("group_member")).
-                append(" gm on gg.").append(wrap("parent_group_id")).append(" = gm.").append(wrap("usergroup")).
-                append(" where r.").append(wrap("object_id")).append(" = :object_id ");
+        query.append("select 'R' as operation, gm.").append(DaoUtils.wrap("person_id")).append(", gm.").
+                append(DaoUtils.wrap("person_id_type")).append(" from ").append(DaoUtils.wrap(tableNameRead)).append(" r ").
+                append("inner join ").append(DaoUtils.wrap("group_group")).append(" gg on (r.").append(DaoUtils.wrap("group_id")).
+                append(" = gg.").append(DaoUtils.wrap("child_group_id")).append(") inner join ").append(DaoUtils.wrap("group_member")).
+                append(" gm on gg.").append(DaoUtils.wrap("parent_group_id")).append(" = gm.").append(DaoUtils.wrap("usergroup")).
+                append(" where r.").append(DaoUtils.wrap("object_id")).append(" = :object_id ");
         if (personId != null) {
-            query.append("and gm.").append(wrap("person_id")).append(" = :person_id");
+            query.append("and gm.").append(DaoUtils.wrap("person_id")).append(" = :person_id");
         }
         query.append("union ");
-        query.append("select a.").append(wrap("operation")).append(", gm.").append(wrap("person_id")).append(", ").
-                append("gm.").append(wrap("person_id_type")).append(" from ").append(wrap(tableNameAcl)).append(" a ").
-                append("inner join ").append(wrap("group_group")).append(" gg on (a.").append(wrap("group_id")).
-                append(" = gg.").append(wrap("child_group_id")).append(") inner join ").append(wrap("group_member")).
-                append(" gm on gg.").append(wrap("parent_group_id")).append(" = gm.").append(wrap("usergroup")).
-                append(" where a.").append(wrap("object_id")).append(" = :object_id ");
+        query.append("select a.").append(DaoUtils.wrap("operation")).append(", gm.").append(DaoUtils.wrap("person_id")).append(", ").
+                append("gm.").append(DaoUtils.wrap("person_id_type")).append(" from ").append(DaoUtils.wrap(tableNameAcl)).append(" a ").
+                append("inner join ").append(DaoUtils.wrap("group_group")).append(" gg on (a.").append(DaoUtils.wrap("group_id")).
+                append(" = gg.").append(DaoUtils.wrap("child_group_id")).append(") inner join ").append(DaoUtils.wrap("group_member")).
+                append(" gm on gg.").append(DaoUtils.wrap("parent_group_id")).append(" = gm.").append(DaoUtils.wrap("usergroup")).
+                append(" where a.").append(DaoUtils.wrap("object_id")).append(" = :object_id ");
         if (personId != null) {
-            query.append("and gm.").append(wrap("person_id")).append(" = :person_id");
+            query.append("and gm.").append(DaoUtils.wrap("person_id")).append(" = :person_id");
         }
 
         Map<String, Object> parameters = new HashMap<String, Object>();

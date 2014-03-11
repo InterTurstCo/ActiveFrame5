@@ -18,7 +18,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlDataStructureDaoImpl.DOES_TABLE_EXISTS_QUERY;
 import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.*;
 
 /**
@@ -30,6 +29,7 @@ import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.*;
 public class PostgreSqlDataStructureDaoImplTest {
     @InjectMocks
     private final PostgreSqlDataStructureDaoImpl dataStructureDao = new PostgreSqlDataStructureDaoImpl();
+    private PostgreSqlQueryHelper queryHelper = new PostgreSqlQueryHelper();
 
     @Mock
     private DomainObjectTypeIdDao domainObjectTypeIdDao;
@@ -50,9 +50,13 @@ public class PostgreSqlDataStructureDaoImplTest {
         // конфигурации доменного объекта
         dataStructureDao.createTable(domainObjectTypeConfig);
 
-        verify(jdbcTemplate).update(generateCreateTableQuery(domainObjectTypeConfig));
-        verify(jdbcTemplate).update(generateCreateIndexesQuery(domainObjectTypeConfig.getName(),
-                domainObjectTypeConfig.getFieldConfigs()));
+        verify(jdbcTemplate).update(queryHelper.generateCreateTableQuery(domainObjectTypeConfig));
+        for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
+            if (fieldConfig instanceof ReferenceFieldConfig) {
+                verify(jdbcTemplate).update(queryHelper.generateCreateIndexQuery(domainObjectTypeConfig,
+                        (ReferenceFieldConfig) fieldConfig));
+            }
+        }
 
         verify(domainObjectTypeIdDao).insert(domainObjectTypeConfig);
 
@@ -62,8 +66,8 @@ public class PostgreSqlDataStructureDaoImplTest {
     @Test
     public void testCreateAclTables() {
         dataStructureDao.createAclTables(domainObjectTypeConfig);
-        verify(jdbcTemplate).update(generateCreateAclTableQuery(domainObjectTypeConfig));
-        verify(jdbcTemplate).update(generateCreateAclReadTableQuery(domainObjectTypeConfig));
+        verify(jdbcTemplate).update(queryHelper.generateCreateAclTableQuery(domainObjectTypeConfig));
+        verify(jdbcTemplate).update(queryHelper.generateCreateAclReadTableQuery(domainObjectTypeConfig));
 
     }
 
@@ -90,21 +94,27 @@ public class PostgreSqlDataStructureDaoImplTest {
 
         dataStructureDao.updateTableStructure(domainObjectTypeConfig.getName(), newColumns);
 
-        verify(jdbcTemplate).update(generateAddColumnsQuery(domainObjectTypeConfig.getName(), newColumns));
-        verify(jdbcTemplate).update(generateCreateIndexesQuery(domainObjectTypeConfig.getName(), newColumns));
+        verify(jdbcTemplate).update(queryHelper.generateAddColumnsQuery(domainObjectTypeConfig.getName(), newColumns));
+
+        for (FieldConfig fieldConfig : newColumns) {
+            if (fieldConfig instanceof ReferenceFieldConfig) {
+                verify(jdbcTemplate).update(queryHelper.generateCreateIndexQuery(domainObjectTypeConfig,
+                        (ReferenceFieldConfig) fieldConfig));
+            }
+        }
     }
 
     @Test
     public void testCountTables() throws Exception {
         dataStructureDao.countTables();
-        verify(jdbcTemplate).queryForObject(generateCountTablesQuery(), Integer.class);
+        verify(jdbcTemplate).queryForObject(queryHelper.generateCountTablesQuery(), Integer.class);
     }
 
     @Test
     public void testCreateServiceTables() throws Exception {
         dataStructureDao.createServiceTables();
-        verify(jdbcTemplate).update(generateCreateDomainObjectTypeIdTableQuery());
-        verify(jdbcTemplate).update(generateCreateConfigurationTableQuery());
+        verify(jdbcTemplate).update(queryHelper.generateCreateDomainObjectTypeIdTableQuery());
+        verify(jdbcTemplate).update(queryHelper.generateCreateConfigurationTableQuery());
     }
 
     @Test
@@ -115,7 +125,7 @@ public class PostgreSqlDataStructureDaoImplTest {
         boolean tableExists = dataStructureDao.doesTableExists(tableName);
 
         assertFalse(tableExists);
-        verify(jdbcTemplate).queryForObject(DOES_TABLE_EXISTS_QUERY, Integer.class, tableName);
+        verify(jdbcTemplate).queryForObject(new PostgreSqlDataStructureDaoImpl().generateDoesTableExistQuery(), Integer.class, tableName);
     }
 
     @Test
@@ -126,7 +136,7 @@ public class PostgreSqlDataStructureDaoImplTest {
         boolean tableExists = dataStructureDao.doesTableExists(tableName);
 
         assertTrue(tableExists);
-        verify(jdbcTemplate).queryForObject(DOES_TABLE_EXISTS_QUERY, Integer.class, tableName);
+        verify(jdbcTemplate).queryForObject(new PostgreSqlDataStructureDaoImpl().generateDoesTableExistQuery(), Integer.class, tableName);
     }
 
     private void initDomainObjectConfig() {

@@ -26,5 +26,5 @@ public interface IdGenerator {
      */
     Object generatetLogId(DomainObjectTypeConfig domainObjectTypeConfig);
 
-
+    Object generateId(String name);
 }

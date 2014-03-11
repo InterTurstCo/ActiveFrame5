@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.wrap;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -31,6 +30,7 @@ import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.dao.impl.doel.DoelResolver;
+import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 import ru.intertrust.cm.core.dao.impl.utils.ObjectIdRowMapper;
 
 /**
@@ -115,9 +115,9 @@ public class BaseDynamicGroupServiceImpl {
         String tableName = getSqlName(GenericDomainObject.USER_GROUP_DOMAIN_OBJECT);
         StringBuilder query = new StringBuilder();
         query.append("delete from ");
-        query.append(wrap(tableName)).append(" ug");
-        query.append(" where ug.").append(wrap("group_name")).append(" = :group_name and ").
-                append("ug.").append(wrap("object_id")).append(" = :object_id");
+        query.append(DaoUtils.wrap(tableName)).append(" ug");
+        query.append(" where ug.").append(DaoUtils.wrap("group_name")).append(" = :group_name and ").
+                append("ug.").append(DaoUtils.wrap("object_id")).append(" = :object_id");
 
         return query.toString();
     }
@@ -148,10 +148,10 @@ public class BaseDynamicGroupServiceImpl {
     private String generateGetUserGroupWithContextQuery() {
         String tableName = getSqlName(GenericDomainObject.USER_GROUP_DOMAIN_OBJECT);
         StringBuilder query = new StringBuilder();
-        query.append("select ug.").append(wrap("id")).append(" from ");
-        query.append(wrap(tableName)).append(" ug");
-        query.append(" where ug.").append(wrap("group_name")).append(" = :group_name and ug.").
-                append(wrap("object_id")).append(" = :object_id");
+        query.append("select ug.").append(DaoUtils.wrap("id")).append(" from ");
+        query.append(DaoUtils.wrap(tableName)).append(" ug");
+        query.append(" where ug.").append(DaoUtils.wrap("group_name")).append(" = :group_name and ug.").
+                append(DaoUtils.wrap("object_id")).append(" = :object_id");
 
         return query.toString();
     }
@@ -173,9 +173,9 @@ public class BaseDynamicGroupServiceImpl {
     private String generateGetUserGroupQuery() {
         String tableName = getSqlName(GenericDomainObject.USER_GROUP_DOMAIN_OBJECT);
         StringBuilder query = new StringBuilder();
-        query.append("select ug.").append(wrap("id")).append(" from ");
-        query.append(wrap(tableName)).append(" ug");
-        query.append(" where ug.").append(wrap("group_name")).append(" = :group_name");
+        query.append("select ug.").append(DaoUtils.wrap("id")).append(" from ");
+        query.append(DaoUtils.wrap(tableName)).append(" ug");
+        query.append(" where ug.").append(DaoUtils.wrap("group_name")).append(" = :group_name");
         return query.toString();
     }
 
@@ -226,10 +226,10 @@ public class BaseDynamicGroupServiceImpl {
 
         String tableName = getSqlName(typeConfig.getName());
         StringBuilder query = new StringBuilder();
-        query.append("select s.").append(wrap("name")).append(" from ").append(wrap(tableName)).
-                append(" o inner join ").append(wrap(GenericDomainObject.STATUS_DO)).append(" s on ").
-                append("s.").append(wrap("id")).append(" = o.").append(wrap(GenericDomainObject.STATUS_FIELD_NAME));
-        query.append(" where o.").append(wrap("id")).append(" = :object_id");
+        query.append("select s.").append(DaoUtils.wrap("name")).append(" from ").append(DaoUtils.wrap(tableName)).
+                append(" o inner join ").append(DaoUtils.wrap(GenericDomainObject.STATUS_DO)).append(" s on ").
+                append("s.").append(DaoUtils.wrap("id")).append(" = o.").append(DaoUtils.wrap(GenericDomainObject.STATUS_FIELD_NAME));
+        query.append(" where o.").append(DaoUtils.wrap("id")).append(" = :object_id");
 
         return query.toString();
     }

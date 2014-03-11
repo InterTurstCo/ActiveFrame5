@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
+import ru.intertrust.cm.core.dao.api.IdGenerator;
 
 import java.util.Collections;
 import java.util.Date;
@@ -19,7 +20,7 @@ import java.util.Map;
 public class ConfigurationDaoImpl implements ConfigurationDao {
 
     protected static final String SAVE_QUERY =
-            "insert into " + CONFIGURATION_TABLE + "(CONTENT, LOADED_DATE) values (:content, :loadedDate)";
+            "insert into " + CONFIGURATION_TABLE + "(ID, CONTENT, LOADED_DATE) values (:id, :content, :loadedDate)";
 
     protected static final String READ_LAST_SAVED_CONFIGURATION_QUERY =
             "select CONTENT from " + CONFIGURATION_TABLE +
@@ -27,6 +28,8 @@ public class ConfigurationDaoImpl implements ConfigurationDao {
 
     @Autowired
     private NamedParameterJdbcOperations jdbcTemplate;
+    @Autowired
+    private IdGenerator idGenerator;
 
     /**
      * Смотри {@link ru.intertrust.cm.core.dao.api.ConfigurationDao#save(String)}
@@ -37,6 +40,7 @@ public class ConfigurationDaoImpl implements ConfigurationDao {
         Map<String, Object> parametersMap = new HashMap();
         parametersMap.put("content", configuration);
         parametersMap.put("loadedDate", new Date());
+        parametersMap.put("id", idGenerator.generateId(CONFIGURATION_TABLE));
 
         jdbcTemplate.update(generateSaveQuery(), parametersMap);
     }
@@ -48,7 +52,7 @@ public class ConfigurationDaoImpl implements ConfigurationDao {
     @Override
     public String readLastSavedConfiguration() {
         try {
-            return jdbcTemplate.queryForObject(generateReadLastLoadedConfiguration(),
+                return jdbcTemplate.queryForObject(generateReadLastLoadedConfiguration(),
                     Collections.<String, Object>emptyMap(), String.class);
         } catch (EmptyResultDataAccessException e) {
             return null;

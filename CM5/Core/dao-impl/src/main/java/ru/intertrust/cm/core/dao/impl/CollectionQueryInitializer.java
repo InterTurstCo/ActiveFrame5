@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.config.base.CollectionFilterCriteriaConfig;
 import ru.intertrust.cm.core.config.base.CollectionFilterReferenceConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
+import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 import ru.intertrust.cm.core.model.FatalException;
 
 import java.util.ArrayList;
@@ -20,8 +21,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.applyOffsetAndLimit;
 
 /**
  * Инициализирует запрос для извлечения коллекций, заполняет параметры в конфигурации фильтров, устанавливает порядок сортировки
@@ -159,7 +158,7 @@ public class CollectionQueryInitializer {
 
     public String initializeQuery(String query, int offset, int limit, AccessToken accessToken) {
         StringBuilder collectionQuery = new StringBuilder(query);
-        applyOffsetAndLimit(collectionQuery, offset, limit);
+        DaoUtils.applyOffsetAndLimit(collectionQuery, offset, limit);
         return postProcessQuery(accessToken, collectionQuery.toString());
     }
 
@@ -215,7 +214,7 @@ public class CollectionQueryInitializer {
 
 
         applySortOrder(sortOrder, collectionQuery);
-        applyOffsetAndLimit(collectionQuery, offset, limit);
+        DaoUtils.applyOffsetAndLimit(collectionQuery, offset, limit);
         return collectionQuery.toString();
     }
 

@@ -54,8 +54,11 @@
     <bean id="namedParameterJdbcTemplate"  class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate"
           c:dataSource-ref="dataSource"/>
 
-    <bean id="dataStructureDao"
-          class="ru.intertrust.cm.core.dao.impl.PostgreSqlDataStructureDaoImpl"/>
+    <bean id="daoFactoryProducer" class="ru.intertrust.cm.core.dao.impl.DaoFactoryProducer"/>
+
+    <bean id="daoFactory" factory-bean="daoFactoryProducer" factory-method="createDaoFactory"/>
+
+    <bean id="dataStructureDao" factory-bean="daoFactory" factory-method="createDataStructureDao" />
 
     <bean id="configurationDao" class="ru.intertrust.cm.core.dao.impl.ConfigurationDaoImpl"/>
 

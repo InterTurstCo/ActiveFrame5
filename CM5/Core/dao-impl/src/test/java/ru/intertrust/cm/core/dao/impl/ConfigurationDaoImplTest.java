@@ -22,6 +22,8 @@ public class ConfigurationDaoImplTest {
     private final ConfigurationDaoImpl configurationDao = new ConfigurationDaoImpl();
     @Mock
     private NamedParameterJdbcTemplate jdbcTemplate;
+    @Mock
+    private SequenceIdGenerator idGenerator;
 
     @Test
     public void testSave() throws Exception {
