@@ -4,7 +4,6 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.convert.Convert;
-import ru.intertrust.cm.core.business.api.dto.Constraint;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 
 import java.util.ArrayList;
@@ -159,10 +158,15 @@ public class ActionConfig implements TopLevelConfig {
         this.afterExecution = afterExecution;
     }
 
-    public List<Constraint> getConstratints() {
-        List<Constraint> constraints = new ArrayList<Constraint>();
-        //TODO: [validation] gather server-side constraints
-
-        return constraints;
+    public List<ValidatorConfig> getValidatorConfigs() {
+        List<ValidatorConfig> validatorConfigs = new ArrayList<ValidatorConfig>();
+        BeforeExecutionConfig beforeExecution = getBeforeExecution();
+        if (beforeExecution != null) {
+            ValidatorsConfig validatorsConfig = beforeExecution.getValidatorsConfig();
+            if (validatorsConfig != null) {
+                validatorConfigs.addAll(validatorsConfig.getValidators());
+            }
+        }
+        return validatorConfigs;
     }
 }

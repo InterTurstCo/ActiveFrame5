@@ -54,4 +54,7 @@ public class MessageResourceProvider {
         return messages;
     }
 
+    public static String getMessage(String messageKey) {
+        return getMessages().get(messageKey);
+    }
 }
