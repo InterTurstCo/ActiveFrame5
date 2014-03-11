@@ -1,11 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
-import java.util.Date;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
-
 import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.gui.api.client.Component;
@@ -14,6 +12,8 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
+
+import java.util.Date;
 
 /**
  * @author Denis Mitavskiy
@@ -68,16 +68,7 @@ public class DateBoxWidget extends BaseWidget {
 
     @Override
     protected Widget asEditableWidget(WidgetState state) {
-        DateBoxDecorate dateBoxDecorate = new DateBoxDecorate();
-//        DateBox dateBox = dateBoxDecorate.getDateBox();
-//        Event.sinkEvents(dateBox.getElement(), Event.ONBLUR);
-//        dateBox.addHandler(new BlurHandler() {
-//            @Override
-//            public void onBlur(BlurEvent event) {
-//                validate();
-//            }
-//        }, BlurEvent.getType());
-
+        DateBoxDecorate dateBoxDecorate = new DateBoxDecorate(this);
         return dateBoxDecorate;
     }
 

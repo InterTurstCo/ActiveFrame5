@@ -1,20 +1,23 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
-import java.util.Date;
-import java.util.List;
+import com.google.gwt.event.dom.client.BlurEvent;
+import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.datepicker.client.DateBox;
-
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.model.DateTimeContext;
 import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author Timofiy Bilyi
@@ -28,10 +31,12 @@ public class DateBoxDecorate extends Composite {
     private FocusPanel dateBtn;
     private AbsolutePanel root;
     private ListBox timeZoneChooser;
+    private DateBoxWidget parentWidget;
 
-    public DateBoxDecorate() {
+    public DateBoxDecorate(DateBoxWidget parentWidget) {
         root = new AbsolutePanel();
         root.setStyleName("wrap-date");
+        this.parentWidget = parentWidget;
         initWidget(root);
     }
 
@@ -67,6 +72,16 @@ public class DateBoxDecorate extends Composite {
         dateBox.getTextBox().addStyleName("date-text-box");
 
         dateBox.getTextBox().addClickHandler(showDatePickerHandler);
+
+
+        Event.sinkEvents(dateBox.getElement(), Event.ONBLUR);
+        dateBox.addHandler(new BlurHandler() {
+            @Override
+            public void onBlur(BlurEvent event) {
+                parentWidget.validate();
+            }
+        }, BlurEvent.getType());
+
         dateBtn.addClickHandler(showDatePickerHandler);
         root.add(dateBox);
         root.add(dateBtn);
