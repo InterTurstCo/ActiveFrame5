@@ -163,6 +163,33 @@
         <xs:attribute name="not-null" use="optional" type="xs:string"/>
     </xs:complexType>
 
+    <!--<xs:complexType name="navigationPanelMappingsType">
+        <xs:sequence>
+            <xs:element type="con:navigationPanelMappingType" name="name"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>-->
+
+    <xs:complexType name="navigationPanelMappingType">
+        <xs:sequence>
+            <xs:element type="con:usersType" name="users"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:groupsNavType" name="groups"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="name"
+                      xmlns:con="https://cm5.intertrust.ru/config"/>
+    </xs:complexType>
+
+    <xs:complexType name="navigationPanelMappingsType">
+        <xs:sequence>
+            <xs:element type="con:navigationPanelMappingType" name="navigation-panel-mapping"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="name" use="optional"
+                      xmlns:con="https://cm5.intertrust.ru/config"/>
+    </xs:complexType>
+
     <xs:complexType name="configurationType">
         <xs:choice minOccurs="0" maxOccurs="unbounded">
             <xs:element type="con:globalConfigType"
@@ -216,6 +243,19 @@
             <xs:element name="business-universe" type="con:businessUniverseType"
                         maxOccurs="1" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element name="navigation-panel-mappings" type="con:navigationPanelMappingsType"
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+           <!-- <xs:element name="navigation-panel-mapping" type="con:navigationPanelMappingType"
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>-->
+            <!--<xs:element name="groups" type="con:groupsNavType"
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>-->
+            <xs:element name="group-name" type="con:groupNavType"
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+
         </xs:choice>
     </xs:complexType>
 
@@ -1013,6 +1053,22 @@
     <xs:complexType name="usersType">
         <xs:sequence>
             <xs:element type="con:userType" name="user"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+    <!--Navigation-->
+
+    <xs:complexType name="groupNavType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="value"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="groupsNavType">
+        <xs:sequence>
+            <xs:element type="con:groupNavType" name="group-name"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
     </xs:complexType>
@@ -2022,5 +2078,9 @@
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
+
+    <!--<xs:complexType name="navigationPanelMappingType">
+
+    </xs:complexType>-->
 
 </xs:schema>

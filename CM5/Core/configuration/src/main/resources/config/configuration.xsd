@@ -322,6 +322,20 @@
             <xs:element name="form-mappings" type="con:formMappingsType"
                         maxOccurs="unbounded" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element name="navigation-panel-mappings" type="con:navigationPanelMappingsType"
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element name="navigation-panel-mapping" type="con:navigationPanelMappingType"
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+<!--
+            <xs:element name="groups" type="con:groupsNavType"
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+-->
+           <!-- <xs:element name="group-name" type="con:groupNavType"
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>-->
             <xs:element name="widget-template" type="con:widgetTemplateType"
                         maxOccurs="unbounded" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
@@ -347,9 +361,9 @@
                         maxOccurs="unbounded" minOccurs="0"/>
             <xs:element name="url-config" type="con:urlConfigType"
                         minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element type="con:notificationType" name="notification" 
+            <xs:element type="con:notificationType" name="notification"
                         maxOccurs="unbounded" minOccurs="0" />
-                        
+
         </xs:choice>
     </xs:complexType>
 
@@ -751,6 +765,14 @@
         </xs:choice>
     </xs:complexType>
 
+   <!-- <xs:complexType name="groupNavType">
+        <xs:attribute name="value" type="xs:string" use="required"/>
+    </xs:complexType>-->
+
+  <!--  <xs:complexType name="groupsNavType">
+        <xs:attribute name="name" type="xs:string" use="optional"/>
+    </xs:complexType>-->
+
     <xs:complexType name="accessMatrixType">
         <xs:sequence>
             <xs:element name="status" type="con:accessMatrixSectionType"
@@ -1137,6 +1159,23 @@
         <xs:attribute type="xs:string" name="form"/>
     </xs:complexType>
 
+    <!--<xs:complexType name="navigationPanelMappingsType">
+        <xs:sequence>
+            <xs:element type="con:navigationPanelMappingType" name="name"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>-->
+
+    <xs:complexType name="navigationPanelMappingType">
+        <xs:sequence>
+            <xs:element type="con:usersType" name="users"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:groupsNavType" name="groups"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="name"/>
+    </xs:complexType>
+
     <xs:element type="con:richTextAreaType" name="rich-text-area" substitutionGroup="con:widget"/>
     <xs:complexType name="richTextAreaType">
         <xs:complexContent>
@@ -1174,6 +1213,7 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
+
     <xs:complexType name="usersType">
         <xs:sequence>
             <xs:element type="con:userType" name="user"
@@ -1187,6 +1227,26 @@
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
+
+    <!--Navigation-->
+
+    <xs:complexType name="groupNavType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="value"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="groupsNavType">
+        <xs:sequence>
+            <xs:element type="con:groupNavType" name="group-name"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!--End-->
+
     <xs:complexType name="bodyType">
         <xs:sequence>
             <xs:element type="con:tabType" name="tab"
@@ -1268,6 +1328,7 @@
             </xs:element>
         </xs:sequence>
     </xs:complexType>
+
     <xs:complexType name="formMappingsType">
         <xs:sequence>
             <xs:element type="con:formMappingType" name="form-mapping"
@@ -1275,6 +1336,15 @@
         </xs:sequence>
         <xs:attribute type="xs:string" name="name" use="optional"/>
     </xs:complexType>
+
+    <xs:complexType name="navigationPanelMappingsType">
+        <xs:sequence>
+            <xs:element type="con:navigationPanelMappingType" name="navigation-panel-mapping"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="name" use="optional"/>
+    </xs:complexType>
+
     <xs:complexType name="roleType">
         <xs:simpleContent>
             <xs:extension base="xs:string">
@@ -1618,6 +1688,7 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
     </xs:complexType>
+
     <xs:simpleType name="initialStateType">
         <xs:restriction base="xs:string">
             <xs:enumeration value="expanded" />

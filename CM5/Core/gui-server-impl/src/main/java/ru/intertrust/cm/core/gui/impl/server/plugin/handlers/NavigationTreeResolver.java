@@ -48,9 +48,6 @@ public class NavigationTreeResolver {
 
             Collection<NavigationPanelMappingConfig> navigationPanelMappingConfigs = getNavigationPanelMappingConfigs(configurationExplorer);
             for (NavigationPanelMappingConfig navigationPanelMapping : navigationPanelMappingConfigs) {
-                //String navigationPanelMappingName = navigationPanelMapping.getName();
-                //NavigationConfig navigationConfig = configurationExplorer.getConfig(NavigationConfig.class, navigationPanelMapping.getName());
-
                 fillUserNavigationPanelMappings(navigationPanelMapping, navigationPanelMapping.getName());
                 fillGroupNavigationPanelMappings(navigationPanelMapping, navigationPanelMapping.getName());
             }
