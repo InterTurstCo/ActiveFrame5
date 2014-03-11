@@ -493,9 +493,11 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
         private SelectedItemComposite(final Id itemId, final String itemName) {
             this.itemId = itemId;
             wrapper = new SimplePanel();
-            wrapper.setStyleName("suggest-choose");
+            wrapper.setStyleName("facebook-element");
             label = DOM.createSpan();
             label.setInnerText(itemName);
+            label.addClassName("facebook-label");
+            label.addClassName("facebook-none-clickable-label") ;
             DOM.appendChild(wrapper.getElement(), label);
             closeBtn = DOM.createSpan();
             closeBtn.setClassName("suggest-choose-close");

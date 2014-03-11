@@ -16,16 +16,20 @@ public class LinkedDomainObjectHyperlinkItem extends Composite {
 
     private Label label;
 
-    public LinkedDomainObjectHyperlinkItem() {
-        createWidget();
+    public LinkedDomainObjectHyperlinkItem(boolean editable) {
+     if (editable)  {
+         createWidgetEditable();
+     }  else {
+         createWidgetNoneEditable();
+     }
     }
 
-    public void createWidget() {
+    public void createWidgetEditable() {
         final AbsolutePanel element = new AbsolutePanel();
         element.setStyleName("facebook-element");
         label = new Label();
-        label.setStyleName("hyperlink-editable");
-
+        label.setStyleName("facebook-clickable-label");
+        label.addStyleName("facebook-label");
         FocusPanel delBtn = new FocusPanel();
         delBtn.addStyleName("facebook-btn");
         delBtn.addClickHandler(new ClickHandler() {
@@ -49,5 +53,15 @@ public class LinkedDomainObjectHyperlinkItem extends Composite {
         label.setText(text);
     }
 
+    public void createWidgetNoneEditable() {
+        final AbsolutePanel element = new AbsolutePanel();
+        element.setStyleName("facebook-element");
+        label = new Label();
+        label.setStyleName("facebook-clickable-label");
+        label.addStyleName("facebook-label");
+        element.add(label);
+        initWidget(element);
+
+    }
 
 }

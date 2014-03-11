@@ -54,7 +54,7 @@ public class HierarchyBrowserFacebookStyleView implements IsWidget {
         Label label = new Label(item.getStringRepresentation());
         label.setStyleName("facebook-label");
         if (displayAsHyperlinks) {
-            label.getElement().getStyle().setCursor(Style.Cursor.POINTER);
+            label.addStyleName("facebook-clickable-label");
             label.addClickHandler(new HierarchyBrowserHyperlinkClickHandler("Collection item", item.getId(), item.getNodeCollectionName(), eventBus));
         }
         FocusPanel delBtn = new FocusPanel();

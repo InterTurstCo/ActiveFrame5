@@ -122,16 +122,18 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
     @Override
     public void onBrowserEvent(Context context, Element target, NativeEvent event) {
         initElements();
-        if (event.getKeyCode() == KeyCodes.KEY_ENTER) {
+        String eventType = event.getType();
+        if (event.getKeyCode() == KeyCodes.KEY_ENTER && eventType.equalsIgnoreCase("keydown")) {
             widget.setFilterValue(inputFilter.getValue());
             focused = true;
             eventBus.fireEvent(new FilterEvent(false));
             fakeSorting = true;
             event.stopPropagation();
             event.preventDefault();
+
             return;
         }
-        if (event.getKeyCode() == KeyCodes.KEY_ESCAPE) {
+        if (event.getKeyCode() == KeyCodes.KEY_ESCAPE && eventType.equalsIgnoreCase("keydown")) {
             widget.setFilterValue(EMPTY_VALUE);
             eventBus.fireEvent(new FilterEvent(true));
             focused = false;

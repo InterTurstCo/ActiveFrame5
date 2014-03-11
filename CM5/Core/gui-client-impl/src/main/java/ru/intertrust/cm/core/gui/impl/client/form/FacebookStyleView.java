@@ -85,6 +85,7 @@ public class FacebookStyleView implements IsWidget {
         element.setStyleName("facebook-element");
         Label label = new Label(rowItem.getStringRepresentation());
         label.setStyleName("facebook-label");
+        label.addStyleName("facebook-clickable-label");
         FocusPanel delBtn = new FocusPanel();
         delBtn.addStyleName("facebook-btn");
         delBtn.addClickHandler(new ClickHandler() {

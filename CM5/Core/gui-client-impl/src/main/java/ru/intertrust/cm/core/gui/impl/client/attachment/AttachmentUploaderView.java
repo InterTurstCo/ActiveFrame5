@@ -23,8 +23,7 @@ import java.util.List;
  *         Time: 13:15
  */
 public class AttachmentUploaderView extends Composite {
-    private static final String DISPLAY_STYLE_INLINE = "inline";
-    private static final String DISPLAY_STYLE_TABLE = "table";
+
     private AbsolutePanel mainBoxPanel;
     private AbsolutePanel root;
     private Style.Display displayStyle;
@@ -101,6 +100,7 @@ public class AttachmentUploaderView extends Composite {
         element.setStyleName("facebook-element");
         Label label = new Label(item.getName());
         label.setStyleName("facebook-label");
+        label.addStyleName("facebook-clickable-label");
         progressbar = new Image();
         progressbar.setUrl("CMJSpinner.gif");
         percentage = new Label("0%");

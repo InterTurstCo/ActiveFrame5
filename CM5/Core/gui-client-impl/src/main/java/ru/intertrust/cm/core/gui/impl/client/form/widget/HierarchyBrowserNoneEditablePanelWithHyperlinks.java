@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
+import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -20,13 +21,17 @@ public class HierarchyBrowserNoneEditablePanelWithHyperlinks extends NoneEditabl
     }
 
     public void displayHyperlink(HierarchyBrowserItem item) {
+        AbsolutePanel element = new AbsolutePanel();
+        element.addStyleName("facebook-element");
         Id id = item.getId();
         String collectionName = item.getNodeCollectionName();
         String itemRepresentation = item.getStringRepresentation();
         Label label = new Label(itemRepresentation);
-        label.setStyleName("facebook-label-none-editable");
+        label.setStyleName("facebook-label");
+        label.addStyleName("facebook-clickable-label");
         label.addClickHandler(new HierarchyBrowserHyperlinkClickHandler("Collection item", id, collectionName, eventBus));
-        label.getElement().getStyle().setDisplay(displayStyle);
-        mainBoxPanel.add(label);
+        element.getElement().getStyle().setDisplay(displayStyle);
+        element.add(label);
+        mainBoxPanel.add(element);
     }
 }

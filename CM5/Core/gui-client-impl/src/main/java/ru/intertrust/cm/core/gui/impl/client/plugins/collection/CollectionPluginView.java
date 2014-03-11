@@ -533,7 +533,7 @@ public class CollectionPluginView extends PluginView {
         listCount += list.size();
         items.addAll(list);
         tableBody.setRowData(items);
-        tableBody.flush();
+
     }
 
     private void applyStyles() {
@@ -616,7 +616,7 @@ public class CollectionPluginView extends PluginView {
                 for (CollectionColumnHeader header : headers) {
                     header.setFocus();
                 }
-                tableBody.getScrollPanel().setVerticalScrollPosition(tempScrollPosition);
+               tableBody.getScrollPanel().setVerticalScrollPosition(tempScrollPosition);
 
             }
         });
