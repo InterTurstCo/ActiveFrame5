@@ -41,16 +41,28 @@ public class NavigationTreeResolver {
         private HashMap<String, String> navigationsByUser;
         // Имя группы пользователя - имя панели навигации
         private HashMap<String, String> navigationsByUserGroup;
+        private NavigationConfig defaultNavigationPanel;
 
         private NavigationPanelsCache() {
             navigationsByUser = new HashMap<>();
             navigationsByUserGroup = new HashMap<>();
+
+            final Collection<NavigationConfig> navigationPanels = configurationExplorer.getConfigs(NavigationConfig.class);
+            for (NavigationConfig config : navigationPanels) {
+                if (config.isDefault()) {
+                    defaultNavigationPanel = config;
+                }
+            }
 
             Collection<NavigationPanelMappingConfig> navigationPanelMappingConfigs = getNavigationPanelMappingConfigs(configurationExplorer);
             for (NavigationPanelMappingConfig navigationPanelMapping : navigationPanelMappingConfigs) {
                 fillUserNavigationPanelMappings(navigationPanelMapping, navigationPanelMapping.getName());
                 fillGroupNavigationPanelMappings(navigationPanelMapping, navigationPanelMapping.getName());
             }
+        }
+
+        public NavigationConfig getDefaultNavigationPanel() {
+            return defaultNavigationPanel;
         }
 
         /*public NavigationConfig getNavigationPanelByUser(String userUid) {
@@ -118,6 +130,9 @@ public class NavigationTreeResolver {
     public NavigationConfig getNavigationPanelByUser(String userUid) {
         NavigationConfig navigationConfig = configurationExplorer.getConfig(NavigationConfig.class,
                 navigationPanelsCache.navigationsByUser.get(userUid));
+        if (navigationConfig == null) {
+            return navigationPanelsCache.getDefaultNavigationPanel();
+        }
         return navigationConfig;
     }
 
