@@ -73,6 +73,7 @@ public class SaveActionHandler extends ActionHandler {
             Value valueToValidate = getValueToValidate(constraint, formState);
             ServerValidator validator = createValidator(constraint);
             if (validator != null) {
+                validator.init(context);
                 ValidationResult validationResult = validator.validate(valueToValidate);
                 if (validationResult.hasErrors()) {
                     errorMessages.addAll(getMessages(validationResult, constraint.getParams()));
@@ -85,6 +86,7 @@ public class SaveActionHandler extends ActionHandler {
             ServerValidator customValidator = CustomValidatorFactory.createInstance(config.getClassName(), widgetId);
             if (customValidator != null) {
                 WidgetState state = formState.getWidgetState(widgetId);
+                customValidator.init(context);
                 ValidationResult validationResult = customValidator.validate(state);
                 if (validationResult.hasErrors()) {
                     errorMessages.addAll(getMessages(validationResult, null));
