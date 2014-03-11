@@ -41,8 +41,6 @@ import ru.intertrust.cm.core.dao.api.extension.OnLoadConfigurationExtensionHandl
 import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.model.PermissionException;
 
-import static ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper.wrap;
-
 /**
  * Реализация сервиса по работе с динамическими группами пользователей
  *
