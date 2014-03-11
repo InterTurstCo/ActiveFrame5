@@ -12,11 +12,14 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  */
 public class TriggerConfig implements Dto {
 
-    @Attribute(name = "domain-object-type", required = true)
+    @Attribute(name = "domain-object-type", required = false)
     private String domainObjectType;
 
-    @Attribute(name = "event", required = true)
+    @Attribute(name = "event", required = false)
     private String event;
+
+    @Attribute(name = "refName", required = false)
+    private String refName;
 
     @Element(name = "config", required = false)
     private TriggerConfigConfig triggerConfig;
@@ -66,6 +69,14 @@ public class TriggerConfig implements Dto {
     public void setEvent(String event) {
         this.event = event;
     }
+    
+    public String getRefName() {
+        return refName;
+    }
+
+    public void setRefName(String refName) {
+        this.refName = refName;
+    }
 
     @Override
     public int hashCode() {
@@ -92,8 +103,9 @@ public class TriggerConfig implements Dto {
             if (other.domainObjectType != null) {
                 return false;
             }
-        } else if (!domainObjectType.equals(other.domainObjectType))
+        } else if (!domainObjectType.equals(other.domainObjectType)) {
             return false;
+        }
         if (event == null) {
             if (other.event != null) {
                 return false;
@@ -101,6 +113,15 @@ public class TriggerConfig implements Dto {
         } else if (!event.equals(other.event)) {
             return false;
         }
+        
+        if (refName == null) {
+            if (other.refName != null) {
+                return false;
+            }
+        } else if (!refName.equals(other.refName)) {
+            return false;
+        }
+        
         if (triggerClassNameConfig == null) {
             if (other.triggerClassNameConfig != null) {
                 return false;

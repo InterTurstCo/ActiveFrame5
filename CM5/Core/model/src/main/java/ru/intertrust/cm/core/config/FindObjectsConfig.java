@@ -21,4 +21,34 @@ public class FindObjectsConfig implements Dto{
     public void setFindObjectType(FindObjectsType findObjectType) {
         this.findObjectType = findObjectType;
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((findObjectType == null) ? 0 : findObjectType.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        FindObjectsConfig other = (FindObjectsConfig) obj;
+        if (findObjectType == null) {
+            if (other.findObjectType != null) {
+                return false;
+            }
+        } else if (!findObjectType.equals(other.findObjectType)) {
+            return false;
+        }
+        return true;
+    }        
 }

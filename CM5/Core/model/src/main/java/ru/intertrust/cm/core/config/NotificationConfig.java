@@ -1,0 +1,76 @@
+package ru.intertrust.cm.core.config;
+
+import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
+
+import ru.intertrust.cm.core.business.api.dto.Dto;
+
+/**
+ * 
+ * @author atsvetkov
+ *
+ */
+public class NotificationConfig implements Dto {
+
+    @Attribute(name = "name", required = true)
+    private String name;
+
+  
+    @Element(name = "notification-type", required = true)
+    private NotificationTypeConfig notificationTypeConfig;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public NotificationTypeConfig getNotificationTypeConfig() {
+        return notificationTypeConfig;
+    }
+
+    public void setNotificationTypeConfig(NotificationTypeConfig notificationTypeConfig) {
+        this.notificationTypeConfig = notificationTypeConfig;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + ((notificationTypeConfig == null) ? 0 : notificationTypeConfig.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        NotificationConfig other = (NotificationConfig) obj;
+        if (name == null) {
+            if (other.name != null) {
+                return false;
+            }
+        } else if (!name.equals(other.name)) {
+            return false;
+        }
+        if (notificationTypeConfig == null) {
+            if (other.notificationTypeConfig != null) {
+                return false;
+            }
+        } else if (!notificationTypeConfig.equals(other.notificationTypeConfig)) {
+            return false;
+        }
+        return true;
+    }
+
+}

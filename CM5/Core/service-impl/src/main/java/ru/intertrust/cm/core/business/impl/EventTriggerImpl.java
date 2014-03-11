@@ -30,6 +30,7 @@ import ru.intertrust.cm.core.tools.ScriptDomainObjectAccessor;
  * @author atsvetkov
  *
  */
+
 public class EventTriggerImpl implements EventTrigger, ApplicationContextAware {
 
     /**
@@ -161,6 +162,10 @@ public class EventTriggerImpl implements EventTrigger, ApplicationContextAware {
         return (Boolean) scriptService.eval(script, context);
     }
 
+    
+    /* (non-Javadoc)
+     * @see ru.intertrust.cm.core.business.api.EventTrigger#getTriggeredEvents(java.lang.String, ru.intertrust.cm.core.business.api.dto.DomainObject, java.util.List)
+     */
     @Override
     public List<String> getTriggeredEvents(String eventType, DomainObject domainObject,
             List<FieldModification> changedFields) {

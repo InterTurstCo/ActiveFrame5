@@ -6,6 +6,11 @@ import org.simpleframework.xml.Root;
 
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 
+/**
+ * 
+ * @author atsvetkov
+ *
+ */
 @Root(name = "named-trigger")
 public class NamedTriggerConfig  implements TopLevelConfig {
 
