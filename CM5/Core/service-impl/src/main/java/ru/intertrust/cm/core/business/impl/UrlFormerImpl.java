@@ -4,6 +4,7 @@ package ru.intertrust.cm.core.business.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.NotificationTextFormer;
 import ru.intertrust.cm.core.business.api.UrlFormer;
@@ -27,6 +28,9 @@ public class UrlFormerImpl implements UrlFormer{
     @Autowired
     private ConfigurationExplorer configurationExplorer;
 
+    @Autowired
+    private ApplicationContext applicationContext;
+
     @Override
     public URL getUrl(String clientName, Id addressee, Id objectId) {
 
@@ -39,6 +43,7 @@ public class UrlFormerImpl implements UrlFormer{
 
         Map<String, Object> model = new HashMap<>();
         model.put("session", new Session());
+        injectBeans(model);
         model.put("domainObject", new DomainObjectAccessor(objectId));
         model.put("addressee", new DomainObjectAccessor(addressee));
 
@@ -49,6 +54,14 @@ public class UrlFormerImpl implements UrlFormer{
         } catch (MalformedURLException e) {
             logger.error(e.getMessage());
             throw new NotificationException(e);
+        }
+    }
+
+    private void injectBeans(Map<String, Object> model){
+        String[] beanDefinitionNames = applicationContext.getBeanDefinitionNames();
+        for (String beanDefinitionName : beanDefinitionNames) {
+            Object bean = applicationContext.getBean(beanDefinitionName);
+            model.put(beanDefinitionName, bean);
         }
     }
 }

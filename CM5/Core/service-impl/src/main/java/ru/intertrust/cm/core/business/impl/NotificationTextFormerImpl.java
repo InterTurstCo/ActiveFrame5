@@ -4,6 +4,7 @@ package ru.intertrust.cm.core.business.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.NotificationTextFormer;
 import ru.intertrust.cm.core.business.api.dto.*;
@@ -20,6 +21,9 @@ public class NotificationTextFormerImpl implements NotificationTextFormer{
 
     @Autowired
     private CollectionsService collectionsService;
+
+    @Autowired
+    private ApplicationContext applicationContext;
 
     @Override
     public String format(String notificationType, String notificationPart, Id addressee, Id locale, String channel, NotificationContext context) {
@@ -85,11 +89,14 @@ public class NotificationTextFormerImpl implements NotificationTextFormer{
 
         Map<String, Object> model = new HashMap<>();
         model.put("session", new Session());
+        injectBeans(model);
 
         for (String contextName : contextNames) {
             Dto contextObject = context.getContextObject(contextName);
             if (contextObject instanceof DomainObject){
                 model.put(contextName, new DomainObjectAccessor((DomainObject)contextObject));
+            } else if (contextObject instanceof Id){
+                model.put(contextName, new DomainObjectAccessor((Id)contextObject));
             } else {
                 model.put(contextName, contextObject);
             }
@@ -100,4 +107,13 @@ public class NotificationTextFormerImpl implements NotificationTextFormer{
         return FreeMarkerHelper.format(notificationTextTemplate, model);
 
     }
+
+    private void injectBeans(Map<String, Object> model){
+        String[] beanDefinitionNames = applicationContext.getBeanDefinitionNames();
+        for (String beanDefinitionName : beanDefinitionNames) {
+            Object bean = applicationContext.getBean(beanDefinitionName);
+            model.put(beanDefinitionName, bean);
+        }
+    }
+
 }
