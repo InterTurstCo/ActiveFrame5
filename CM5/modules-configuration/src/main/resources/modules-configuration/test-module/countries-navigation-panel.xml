@@ -32,7 +32,16 @@
                         <collection-counter/>
                     </decorations>
                 </link>
-
+                <link name="CountryUnions" display-text="Союзы">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="country_union">
+                            <collection-viewer>
+                                <collection-ref name="CountryUnions"/>
+                                <default-sort-criteria column-field="name" order="ask"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
             </child-links>
         </link>
 

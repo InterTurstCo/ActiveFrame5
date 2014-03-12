@@ -54,8 +54,11 @@ body {
 	margin: 5px 10px 0 0;
 }
 
-.auth-error-label{
- width: 270px;
+.auth-error-label {
+    width: 270px;
+    color: red;
+    padding: 10px 5px;
+    text-align: center;
 }
 
 .auth_pass{

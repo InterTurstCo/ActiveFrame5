@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.business.api.dto.UserCredentials;
 import ru.intertrust.cm.core.gui.api.server.LoginService;
 import ru.intertrust.cm.core.gui.impl.server.LoginServiceImpl;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationService;
+import ru.intertrust.cm.core.model.AuthenticationException;
 
 import javax.servlet.annotation.WebServlet;
 
@@ -17,7 +18,7 @@ import javax.servlet.annotation.WebServlet;
 public class BusinessUniverseAuthenticationServiceImpl extends BaseService
         implements BusinessUniverseAuthenticationService {
     @Override
-    public void login(UserCredentials userCredentials) {
+    public void login(UserCredentials userCredentials) throws AuthenticationException {
         LoginService guiService = new ru.intertrust.cm.core.gui.impl.server.LoginServiceImpl(); // todo - get rid
         guiService.login(getThreadLocalRequest(), userCredentials);
     }

@@ -9,6 +9,7 @@
             <decimal name="square" precision="15" scale="2"/>
             <reference name="capital" type="city"/>
             <reference name="most_famous_city" type="city"/>
+            <reference name="country_union" type="country_union"/>
             <string name="description" length="1024"/>
         </fields>
         <uniqueKey>
@@ -137,6 +138,14 @@
                                         <widget id="6"/>
                                     </td>
                                     <!-- integer-box (Площадь) -->
+                                </tr>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="100"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="101"/>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td h-align="right">
@@ -277,56 +286,6 @@
             </body>
         </markup>
         <widget-config>
-            <label id="001">
-                <field-path/>
-                <text>Название:</text>
-            </label>
-            <label id="002">
-                <field-path/>
-                <text>Название:</text>
-            </label>
-            <label id="003">
-                <field-path/>
-                <text>Название:</text>
-            </label>
-            <label id="004">
-                <field-path/>
-                <text>Название:</text>
-            </label>
-            <label id="005">
-                <field-path/>
-                <text>Название:</text>
-            </label>
-            <label id="006">
-                <field-path/>
-                <text>Название:</text>
-            </label>
-            <label id="101">
-                <field-path/>
-                <text>Название:</text>
-            </label>
-            <label id="102">
-                <field-path/>
-                <text>Название:</text>
-            </label>
-            <label id="103">
-                <field-path/>
-                <text>Название:</text>
-            </label>
-            <label id="104">
-                <field-path/>
-                <text>Название:</text>
-            </label>
-            <label id="105">
-                <field-path/>
-                <text>Название:</text>
-            </label>
-            <label id="106">
-                <field-path/>
-                <text>Название:</text>
-            </label>
-
-
             <label id="1">
                 <field-path/>
                 <text>Название:</text>
@@ -349,6 +308,16 @@
             <decimal-box id="6">
                 <field-path value="square"/>
             </decimal-box>
+
+            <label id="100">
+                <field-path/>
+                <text>Состоит:</text>
+            </label>
+            <radio-button id="101">
+                <field-path value="country_union"/>
+                <pattern value="{name}"/>
+                <layout name="horizontal"/>
+            </radio-button>
 
             <label id="7">
                 <text>Столица:</text>
@@ -670,10 +639,11 @@
         <prototype>
             <![CDATA[
                 select
-                 co.id, co.name, co.independence_day, co.population, co.description, co.capital, co.square
-                from
-                    country co
-                     ::from-clause
+                    co.id, co.name, co.independence_day, co.population, co.description, co.capital, co.square,
+                    cou.name as country_union_name
+                from country co
+                left join country_union cou on cou.id=co.country_union
+
                 where
                     1=1 ::where-clause
             ]]>
@@ -731,14 +701,15 @@
                     sortable="true" search-filter="byIndependenceDay" pattern="dd.MMM.yyyy" time-zone-id="GMT+12:00"/>
             <column field="population" name="Популяция" type="long" editable="false" sortable="true"
                     search-filter="byPopulation">
-            <renderer component-name="default.image.renderer"/>
-            <image-mappings>
-                <mapping value="" image="cancel.png"/>
-                <mapping value="0" image="addButton.png"/>
-                <mapping value="45469800" image="sign.png"/>
-                <mapping value="143548980" image="CMJSpinner.gif"/>
-            </image-mappings>
+                <renderer component-name="default.image.renderer" />
+                <image-mappings>
+                    <mapping value="" image="cancel.png" />
+                    <mapping value="0" image="addButton.png" />
+                    <mapping value="45469800" image="sign.png" />
+                    <mapping value="143548980" image="CMJSpinner.gif" />
+                </image-mappings>
             </column>
+            <column field="country_union_name" name="Состоит" type="string" editable="false" sortable="false"/>
             <column field="description" name="Описание" type="string" editable="false" sortable="true"
                     search-filter="byDescription"/>
             <column field="square" name="Площадь" type="string" editable="false" sortable="true"

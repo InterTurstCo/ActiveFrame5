@@ -18,6 +18,7 @@
         <configuration-path>modules-configuration/test-module/domain-objects.xml</configuration-path>
         <configuration-path>modules-configuration/test-module/countries.xml</configuration-path>
         <configuration-path>modules-configuration/test-module/letters.xml</configuration-path>
+        <configuration-path>modules-configuration/test-module/unions.xml</configuration-path>
         <configuration-path>modules-configuration/test-module/countries-navigation-panel.xml</configuration-path>
         <configuration-path>modules-configuration/test-module/access.xml</configuration-path>
         <configuration-path>modules-configuration/test-module/workflow.xml</configuration-path>
@@ -28,7 +29,6 @@
         <configuration-path>modules-configuration/test-module/extendedsearch-countries.xml</configuration-path>
         <configuration-path>modules-configuration/test-module/domain-objects-test.xml</configuration-path>
         <configuration-path>modules-configuration/test-module/trigger-events.xml</configuration-path>
-        
     </configuration-paths>
     <import-files rewrite="true">
         <import-file>importdata/import-organization.csv</import-file>
@@ -36,6 +36,7 @@
         <import-file>importdata/import-employee.csv</import-file>
         <import-file>importdata/set-organization-boss.csv</import-file>
         <import-file>importdata/set-department-boss.csv</import-file>
+        <import-file rewrite="false">importdata/import-union.csv</import-file>
         <import-file rewrite="false">importdata/import-country.csv</import-file>
-    </import-files>    
+    </import-files>
 </module>

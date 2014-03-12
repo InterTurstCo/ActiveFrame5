@@ -99,8 +99,8 @@ public class DateBoxHandler extends ValueEditingWidgetHandler {
         @Override
         public DateTimeContext valueToContext(TimelessDateValue value, DateBoxConfig config) {
             final DateTimeContext result = new DateTimeContext();
+            result.setOrdinalFieldType(FieldType.TIMELESSDATE.ordinal());
             if (value != null && value.get() != null) {
-                result.setOrdinalFieldType(FieldType.TIMELESSDATE.ordinal());
                 final Calendar calendar =
                         GuiServerHelper.timelessDateToCalendar(value.get(), GuiServerHelper.GMT_TIME_ZONE);
                 final DateFormat dateFormat = new SimpleDateFormat(ModelUtil.DTO_PATTERN);

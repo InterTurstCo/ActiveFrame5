@@ -13,6 +13,7 @@ import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationServiceAsync;
+import ru.intertrust.cm.core.model.AuthenticationException;
 
 /**
  * @author Denis Mitavskiy
@@ -193,7 +194,11 @@ public class LoginWindow implements Component{
 
             @Override
             public void onFailure(Throwable caught) {
-                message.setText("No way. " + caught.getMessage());
+                if (caught instanceof AuthenticationException) {
+                    message.setText("Ошибка авторизации. Проверте правильность введенных данных.");
+                } else {
+                    message.setText("No way. " + caught.getMessage());
+                }
             }
         };
         final Date date = new Date();
