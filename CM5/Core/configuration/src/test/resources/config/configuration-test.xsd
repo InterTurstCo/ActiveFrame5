@@ -311,6 +311,7 @@
         <xs:attribute name="image" use="required" type="xs:string"/>
         <xs:attribute name="short-desc" use="optional" type="xs:string"/>
         <xs:attribute name="toggle" use="optional" type="xs:boolean" />
+        <xs:attribute name="validate" use="optional" type="xs:boolean"/>
     </xs:complexType>
 
     <xs:complexType name="actionСontextType">

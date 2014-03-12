@@ -35,6 +35,9 @@ public class ActionConfig implements TopLevelConfig {
     @Attribute(name = "toggle", required = false)
     private boolean toggle;
 
+    @Attribute(name = "validate", required = false)
+    private boolean validate = false;
+
     private int order;
 
     private boolean rightSide;
@@ -168,5 +171,13 @@ public class ActionConfig implements TopLevelConfig {
             }
         }
         return validatorConfigs;
+    }
+
+    public boolean isValidate() {
+        return validate;
+    }
+
+    public void setValidate(boolean validate) {
+        this.validate = validate;
     }
 }

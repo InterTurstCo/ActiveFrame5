@@ -75,7 +75,7 @@ public class FormPluginHandler extends ActivePluginHandler {
                         "save.action", "save.action", "Сохранить", "icons/icon-save.png",
                         Collections.singletonList(new ValidatorConfig(
                                 "ru.intertrust.cm.core.gui.impl.server.validation.validators.custom.CapitalValidator",
-                                "suggest_capital")))));
+                                "suggest_capital")), true)));
             } else {
                 contexts.add(new ActionContext(ActionConfigBuilder.createActionConfig(
                         "create.new.object.action", "create.new.object.action",
@@ -93,7 +93,7 @@ public class FormPluginHandler extends ActivePluginHandler {
                     "save.action", "save.action", "Сохранить", "icons/icon-save.png",
                     Collections.singletonList(new ValidatorConfig(
                             "ru.intertrust.cm.core.gui.impl.server.validation.validators.custom.CapitalValidator",
-                            "suggest_capital")))));
+                            "suggest_capital")), true)));
             contexts.add(new SaveActionContext(ActionConfigBuilder.createActionConfig(
                     "delete.action", "delete.action", "Удалить", "icons/icon-delete.png")));
 

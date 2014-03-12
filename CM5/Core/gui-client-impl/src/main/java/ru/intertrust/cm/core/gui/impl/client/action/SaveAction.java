@@ -27,13 +27,6 @@ import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 public class SaveAction extends SimpleServerAction {
 
     @Override
-    public void execute() {
-        if (isValid()) {
-            super.execute();
-        }
-    }
-
-    @Override
     public Component createNew() {
         return new SaveAction();
     }
@@ -64,6 +57,7 @@ public class SaveAction extends SimpleServerAction {
         Window.alert("Saved!!!");
     }
 
+    @Override
     public boolean isValid() {
         if (this.getPlugin() instanceof  FormPlugin) {
             FormPlugin plugin = (FormPlugin)this.getPlugin();

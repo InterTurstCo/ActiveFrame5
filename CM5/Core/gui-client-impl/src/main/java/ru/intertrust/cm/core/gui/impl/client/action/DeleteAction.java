@@ -25,11 +25,6 @@ import java.util.List;
 public class DeleteAction extends SimpleServerAction {
 
     @Override
-    public void execute() {
-        super.execute();
-    }
-
-    @Override
     public Component createNew() {
         return new DeleteAction();
     }
