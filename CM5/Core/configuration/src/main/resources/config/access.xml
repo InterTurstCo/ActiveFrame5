@@ -190,7 +190,7 @@
         </groups>
     </context-role>
 
-    <context-role name="Admins_Internal">
+    <context-role name="Admins_Internal_Document">
         <context>
             <domain-object type="Internal_Document" />
         </context>
@@ -198,7 +198,6 @@
             <group name="Administrators"/>
         </groups>
     </context-role>
-
 
     <context-role name="Author">
         <context>
@@ -213,6 +212,15 @@
         </groups>
     </context-role>
 
+    <context-role name="Admins_Letter">
+        <context>
+            <domain-object type="letter" />
+        </context>
+        <groups>
+            <group name="Administrators"/>
+        </groups>
+    </context-role>
+    
     <context-role name="AuthorBosses">
         <context>
             <domain-object type="Internal_Document" />
@@ -306,16 +314,16 @@
     <access-matrix type="letter">
         <status name="Active">
             <read>
-                <permit-group name="Administrators" />
+                <permit-role name="Admins_Letter" />
             </read>
             <write>
-                <permit-group name="Administrators" />
+                <permit-role name="Admins_Letter" />
             </write>
             <delete>
-                <permit-group name="Administrators" />
+                <permit-role name="Admins_Letter" />
             </delete>
             <execute-action name="action1">
-                <permit-group name="Administrators" />
+                <permit-role name="Admins_Letter" />
             </execute-action>
         </status>
     </access-matrix>
@@ -390,7 +398,7 @@
             </write>
             <delete>
                 <permit-role name="Author" />
-                <permit-role name="Admins_Internal"/>
+                <permit-role name="Admins_Internal_Document"/>
             </delete>
             <execute-action name="StartProcessAction">
                 <permit-role name="Author" />
