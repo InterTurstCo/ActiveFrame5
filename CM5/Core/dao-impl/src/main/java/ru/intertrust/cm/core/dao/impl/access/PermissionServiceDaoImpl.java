@@ -41,6 +41,7 @@ import ru.intertrust.cm.core.config.ExecuteActionConfig;
 import ru.intertrust.cm.core.config.PermitGroup;
 import ru.intertrust.cm.core.config.PermitRole;
 import ru.intertrust.cm.core.config.ReadConfig;
+import ru.intertrust.cm.core.config.StaticGroupCollectorConfig;
 import ru.intertrust.cm.core.config.TrackDomainObjectsConfig;
 import ru.intertrust.cm.core.config.WriteConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
@@ -569,6 +570,17 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                                                 AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE,
                                                 false);
                                 collector.init(contextRoleConfig, trackDomainObjectsConfig);
+                                registerCollector(collector, contextRoleConfig, configuration);
+                            } else if (collectorConfig instanceof StaticGroupCollectorConfig) {
+                                StaticGroupCollectorConfig staticGroupCollectorConfig =
+                                        (StaticGroupCollectorConfig) collectorConfig;
+                                ContextRoleCollector collector = (ContextRoleCollector) applicationContext
+                                        .getAutowireCapableBeanFactory()
+                                        .createBean(
+                                                ContextRoleStaticGroupCollector.class,
+                                                AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE,
+                                                false);
+                                collector.init(contextRoleConfig, staticGroupCollectorConfig);
                                 registerCollector(collector, contextRoleConfig, configuration);
                             }
                         }

@@ -181,6 +181,25 @@
         </groups>
     </context-role>
 
+    <context-role name="Admins">
+        <context>
+            <domain-object type="Outgoing_Document" />
+        </context>
+        <groups>
+            <group name="Administrators"/>
+        </groups>
+    </context-role>
+
+    <context-role name="Admins_Internal">
+        <context>
+            <domain-object type="Internal_Document" />
+        </context>
+        <groups>
+            <group name="Administrators"/>
+        </groups>
+    </context-role>
+
+
     <context-role name="Author">
         <context>
             <domain-object type="Internal_Document" />
@@ -371,6 +390,7 @@
             </write>
             <delete>
                 <permit-role name="Author" />
+                <permit-role name="Admins_Internal"/>
             </delete>
             <execute-action name="StartProcessAction">
                 <permit-role name="Author" />

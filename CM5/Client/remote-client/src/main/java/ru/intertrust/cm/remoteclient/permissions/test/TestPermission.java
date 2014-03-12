@@ -59,6 +59,7 @@ public class TestPermission extends ClientBase {
             //Проверка прав
             EtalonPermissions etalon = new EtalonPermissions();
             etalon.addPermission(getEmployeeId("Employee-1"), Permission.Delete);
+            etalon.addPermission(getPersonId("admin"), Permission.Delete);
             etalon.addActionPermission(getEmployeeId("Employee-1"), "StartProcessAction");
             etalon.addActionPermission(getEmployeeId("Employee-1"), "ChangeStatusAction");
             checkPermissions(internalDocument.getId(), etalon, "Status Draft");
@@ -129,6 +130,18 @@ public class TestPermission extends ClientBase {
         return result;
     }
 
+    private Id getPersonId(String personLogin) {
+        IdentifiableObjectCollection collection =
+                collectionService.findCollectionByQuery("select t.id from person t where t.login = '" + personLogin
+                        + "'");
+        Id result = null;
+        if (collection.size() > 0) {
+            result = collection.getId(0);
+        }
+        return result;
+    }
+    
+    
     private void createNegotiationCard(Id documentId, String employeeName) {
         DomainObject negotiationCard = crudService.createDomainObject("Negotiation_Card");
         negotiationCard.setString("Name", "карточка согласующего");

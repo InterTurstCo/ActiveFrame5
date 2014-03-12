@@ -762,6 +762,11 @@
             <xs:element name="collector" type="con:algorithmType"
                         maxOccurs="1" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element name="group" maxOccurs="1" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config">
+                <xs:complexType>
+                    <xs:attribute name="name" type="xs:string" use="required"/>
+                </xs:complexType>
+            </xs:element>
         </xs:choice>
     </xs:complexType>
 

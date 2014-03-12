@@ -16,7 +16,8 @@ public class ContextRoleGroupsConfig implements Dto {
 
     @ElementListUnion({
             @ElementList(entry = "track-domain-objects", type = TrackDomainObjectsConfig.class, inline = true),
-            @ElementList(entry = "collector", type = CollectorConfig.class, inline = true)
+            @ElementList(entry = "collector", type = CollectorConfig.class, inline = true),
+            @ElementList(entry = "group", type = StaticGroupCollectorConfig.class, inline = true)
     })
     private List<Object> groups = new ArrayList<>();
 
