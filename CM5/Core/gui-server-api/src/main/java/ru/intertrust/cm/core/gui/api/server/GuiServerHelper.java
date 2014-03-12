@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.gui.impl.server;
+package ru.intertrust.cm.core.gui.api.server;
 
 import java.util.Calendar;
 import java.util.TimeZone;

@@ -1,25 +1,39 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.TimeZone;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
+import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
+import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
 import ru.intertrust.cm.core.business.api.dto.DecimalValue;
 import ru.intertrust.cm.core.business.api.dto.LongValue;
+import ru.intertrust.cm.core.business.api.dto.TimelessDate;
+import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.*;
+import ru.intertrust.cm.core.config.gui.form.widget.AllValuesEmptyMessageConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.FontSizeConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.FontStyleConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.FontWeightConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.LabelConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.RendererConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.LabelRenderer;
 import ru.intertrust.cm.core.gui.api.server.widget.ValueEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
+import ru.intertrust.cm.core.gui.api.server.GuiContext;
+import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.widget.LabelState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
-
-import java.text.SimpleDateFormat;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author Denis Mitavskiy
@@ -70,7 +84,7 @@ public class LabelHandler extends ValueEditingWidgetHandler {
     }
 
     private String format(String configPattern, FieldPath[] fieldPaths, WidgetContext context, String allValuesEmpty ) {
-        final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("dd.MM.yyyy");
+        final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy");
         String displayPattern = configPattern == null ? buildDefaultPattern(fieldPaths) : configPattern;
         Pattern pattern = Pattern.compile("\\{[\\w.]+\\}");
         Matcher matcher = pattern.matcher(displayPattern);
@@ -90,7 +104,16 @@ public class LabelHandler extends ValueEditingWidgetHandler {
                 } else {
                     allEmpty = false;
                     if (value instanceof DateTimeValue) {
-                        displayValueUnescaped = DATE_FORMATTER.format(primitiveValue);
+                        displayValueUnescaped = dateFormatter.format(primitiveValue);
+                    } else if (value instanceof TimelessDateValue) {
+                        final TimelessDate timelessDate = ((TimelessDateValue) value).get();
+                        final TimeZone timeZone = TimeZone.getTimeZone(GuiContext.get().getUserInfo().getTimeZoneId());
+                        final Calendar calendar = GuiServerHelper.timelessDateToCalendar(timelessDate, timeZone);
+                        displayValueUnescaped = dateFormatter.format(calendar.getTime());
+                    } else if (value instanceof DateTimeWithTimeZoneValue) {
+                        final DateTimeWithTimeZone withTimeZone = ((DateTimeWithTimeZoneValue) value).get();
+                        final Calendar calendar = GuiServerHelper.dateTimeWithTimezoneToCalendar(withTimeZone);
+                        displayValueUnescaped = dateFormatter.format(calendar.getTime());
                     } else {
                         displayValueUnescaped = primitiveValue.toString();
                     }

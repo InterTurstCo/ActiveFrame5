@@ -40,8 +40,8 @@ import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
-import ru.intertrust.cm.core.gui.impl.server.GuiContext;
-import ru.intertrust.cm.core.gui.impl.server.GuiServerHelper;
+import ru.intertrust.cm.core.gui.api.server.GuiContext;
+import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
 import ru.intertrust.cm.core.gui.impl.server.plugin.DefaultImageMapperImpl;
 import ru.intertrust.cm.core.gui.impl.server.util.ActionConfigBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilder;
@@ -266,7 +266,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
                         calendar = GuiServerHelper.timelessDateToCalendar(timelessDate, GuiServerHelper.GMT_TIME_ZONE);
                         dateFormat = new SimpleDateFormat(pattern);
                         dateFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
-                        value = new StringValue(dateFormat.format(dateFormat.format(calendar.getTime())));
+                        value = new StringValue(dateFormat.format(calendar.getTime()));
                 }
             }
             Map<Value, ImagePathValue>  imagePathValueMap = fieldMappings.get(field);
