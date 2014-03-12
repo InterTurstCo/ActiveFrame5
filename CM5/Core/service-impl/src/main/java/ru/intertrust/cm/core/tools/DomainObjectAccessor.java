@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.tools;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -19,8 +20,10 @@ import ru.intertrust.cm.core.config.DecimalFieldConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.LongFieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.doel.DoelExpression;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.api.DoelEvaluator;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
@@ -80,18 +83,40 @@ public class DomainObjectAccessor implements Dto {
         //Если fieldName - составное (пример: Negotiator.Employee.Name)
     	}else{
     		//Получаем имя поля (пример: Negotiator)
-    		String value = fieldName.substring(0,fieldName.indexOf("."));
+    		//String value = fieldName.substring(0,fieldName.indexOf("."));
     		//Получаем остальную часть строки (пример: Employee.Name)
-    		String other = fieldName.substring(fieldName.indexOf(".")+1);
+    		//String other = fieldName.substring(fieldName.indexOf(".")+1);
     		//Получаем дочерний объект по имени поля (пример: Negotiator)
-    		DomainObjectAccessor doa = new DomainObjectAccessor(domainObject.getReference(value));
+    		//DomainObjectAccessor doa = new DomainObjectAccessor(domainObject.getReference(value));
     		//Получаем у дочернего объекта значение поля (пример: Employee.Name)
-    		result = doa.get(other);
+    		//result = doa.get(other);
+    	    DoelEvaluator doelEvaluator = getDoelEvaluator();
+    	    List<Value> values = doelEvaluator.evaluate(DoelExpression.parse(fieldName), domainObject.getId(), getAccessToken());
+    	    if (values.size() > 0){
+    	        result = values.get(0).get(); 
+    	    }    	    
     	}
 
         return result;
     }
 
+    /**
+     * Выполнение DOEL выражения и возвращение массива значений
+     * @param doel
+     * @return
+     */
+    public List<Object> evaluate(String doel){
+        DoelEvaluator doelEvaluator = getDoelEvaluator();
+        List<Value> values = doelEvaluator.evaluate(DoelExpression.parse(doel), domainObject.getId(), getAccessToken());
+        List<Object> result = new ArrayList<Object>();
+        for (Value value : values) {
+            if (value != null){
+                result.add(value.get());
+            }
+        }
+        return result;
+    }
+    
     /**
      * Устанавливает поле объекта
      *
@@ -138,8 +163,12 @@ public class DomainObjectAccessor implements Dto {
      * Сохраняет обьект
      */
     public void save() {
-        AccessToken accessToken = getAccessControlService().createSystemAccessToken("DomainObjectAccessor");
-        domainObject = getDomainObjectDao().save(domainObject, accessToken);
+        domainObject = getDomainObjectDao().save(domainObject, getAccessToken());
+    }
+    
+    private AccessToken getAccessToken(){
+        AccessToken accessToken = getAccessControlService().createSystemAccessToken(this.getClass().getName());
+        return accessToken;
     }
 
 
@@ -161,6 +190,15 @@ public class DomainObjectAccessor implements Dto {
     private AccessControlService getAccessControlService() {
         ApplicationContext ctx = SpringApplicationContext.getContext();
         return ctx.getBean(AccessControlService.class);
+    }
+
+    /**
+     * 
+     * @return
+     */
+    private DoelEvaluator getDoelEvaluator() {
+        ApplicationContext ctx = SpringApplicationContext.getContext();
+        return ctx.getBean(DoelEvaluator.class);
     }
 
     /**
