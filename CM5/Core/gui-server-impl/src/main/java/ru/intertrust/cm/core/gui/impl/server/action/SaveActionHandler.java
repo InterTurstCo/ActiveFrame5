@@ -45,9 +45,9 @@ public class SaveActionHandler extends ActionHandler {
 
     @Override
     public <T extends ActionData> T executeAction(ActionContext context) {
-        List<String> errorMessages = validate(context);
+        List<String> errorMessages = doServerSideValidation(context);
         if (!errorMessages.isEmpty()) {
-            throw new ValidationException("Server validation failed", errorMessages);
+            throw new ValidationException("Server-side validation failed", errorMessages);
         }
 
         final UserInfo userInfo = GuiContext.get().getUserInfo();
@@ -60,9 +60,9 @@ public class SaveActionHandler extends ActionHandler {
         return (T) result;
     }
 
-    private List<String> validate(ActionContext context) {
+    private List<String> doServerSideValidation(ActionContext context) {
         //Simple Server Validation
-        List<Constraint> constraints = new ArrayList<Constraint>(); //actionConfig.getConstratints();
+        List<Constraint> constraints = new ArrayList<Constraint>();
         FormState formState = ((SaveActionContext) context).getFormState();
 
         for (WidgetState state : formState.getFullWidgetsState().values()) {

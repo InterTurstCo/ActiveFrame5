@@ -16,11 +16,12 @@ public class SimpleValidator extends AbstractValidator {
 
     private final String pattern;
     private final String messageKey;
+    private final String wordOrPattern;
 
     public SimpleValidator(Constraint constraint) {
-        String wordOrPattern = constraint.param(Constraint.PARAM_PATTERN);
+        wordOrPattern = constraint.param(Constraint.PARAM_PATTERN);
         String pattern = wordsToPatterns.get(wordOrPattern);
-        String messageKey = wordOrPattern;
+        String messageKey = "validate." + wordOrPattern;
         if (pattern == null) {
             pattern = wordOrPattern;
             messageKey = "validate.pattern";
@@ -49,6 +50,6 @@ public class SimpleValidator extends AbstractValidator {
 
     @Override
     public String toString() {
-        return "Client simple validator: " + pattern;
+        return "Client simple validator: " + wordOrPattern;
     }
 }

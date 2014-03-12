@@ -35,11 +35,11 @@ public class Constraint implements Dto {
     public static final String PARAM_FIELD_NAME = "field-name";
 
     // ключевые слова, используемые при простой валидации (SimpleValidator)
-    public static final String KEYWORD_NOT_EMPTY = "validate.not-empty";
-    public static final String KEYWORD_INTEGER = "validate.integer";
-    public static final String KEYWORD_POSITIVE_INT = "validate.positive-int";
-    public static final String KEYWORD_DECIMAL = "validate.decimal";
-    public static final String KEYWORD_POSITIVE_DEC = "validate.positive-dec";
+    public static final String KEYWORD_NOT_EMPTY = "not-empty";
+    public static final String KEYWORD_INTEGER = "integer";
+    public static final String KEYWORD_POSITIVE_INT = "positive-int";
+    public static final String KEYWORD_DECIMAL = "decimal";
+    public static final String KEYWORD_POSITIVE_DEC = "positive-dec";
 
     public static final String VAlUE = "value";
 
