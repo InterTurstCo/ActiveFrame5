@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEvent;
 import ru.intertrust.cm.core.gui.impl.client.form.FormPanel;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
+import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
@@ -59,8 +60,14 @@ public class SaveAction extends SimpleServerAction {
 
     @Override
     public boolean isValid() {
-        if (this.getPlugin() instanceof  FormPlugin) {
-            FormPlugin plugin = (FormPlugin)this.getPlugin();
+        Plugin plugin = null;
+        if (getPlugin() instanceof FormPlugin) {
+            plugin = this.getPlugin();
+        }
+        else if (getPlugin() instanceof DomainObjectSurferPlugin) {
+            plugin = ((DomainObjectSurferPlugin) getPlugin()).getFormPlugin();
+        }
+        if (plugin != null) {
             PluginView view = plugin.getView();
             FormPanel panel = (FormPanel)view.getViewWidget();
             ValidationResult validationResult = new ValidationResult();
