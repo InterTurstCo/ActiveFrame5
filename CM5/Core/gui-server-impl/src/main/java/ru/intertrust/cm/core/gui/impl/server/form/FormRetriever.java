@@ -183,10 +183,13 @@ public class FormRetriever {
         String fieldName = null;
 
         WidgetConfig widgetConfig = context.getWidgetConfig();
+        if (widgetConfig instanceof LabelConfig) {
+            return constraints;
+        }
         FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
 
         if (fieldPath.isField() || fieldPath.isOneToOneReference()) {
-            fieldName = fieldPath.getFieldName();
+            fieldName = fieldPath.getPath(); // fieldPath.getFieldName(); //TODO: looks like fieldPath.isOneToOneReference() works incorrectly
             doTypeName = context.getFormObjects().getRootNode().getType();
         } else if (fieldPath.isOneToManyReference()) {
             fieldName = fieldPath.getReferenceName();

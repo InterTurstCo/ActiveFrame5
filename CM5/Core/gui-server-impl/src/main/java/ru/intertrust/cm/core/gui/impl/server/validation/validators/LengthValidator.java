@@ -6,12 +6,16 @@ import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 
+import java.util.logging.Logger;
+
 /**
  * @author Lesia Puhova
  *         Date: 06.03.14
  *         Time: 14:05
  */
 public class LengthValidator implements ServerValidator {
+
+    private static Logger log = Logger.getLogger(LengthValidator.class.getName());
 
     private final Integer length;
     private final Integer minLength;
@@ -36,12 +40,15 @@ public class LengthValidator implements ServerValidator {
                 if (valueLength != 0) {
                     if (length != null && valueLength != length) {
                         validationResult.addError("validate.length.not-equal");
+                        log.info("Server validator '" + this + "' found an error while validation DTO: " + dtoToValidate);
                     } else {
                         if (minLength != null && valueLength < minLength) {
                             validationResult.addError("validate.length.too-small");
+                            log.info("Server validator '" + this + "' found an error while validation DTO: " + dtoToValidate);
                         }
                         if (maxLength != null && valueLength > maxLength) {
                             validationResult.addError("validate.length.too-big");
+                            log.info("Server validator '" + this + "' found an error while validation DTO: " + dtoToValidate);
                         }
                     }
                 }

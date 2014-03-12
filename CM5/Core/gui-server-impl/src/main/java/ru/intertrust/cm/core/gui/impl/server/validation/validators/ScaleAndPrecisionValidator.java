@@ -7,6 +7,7 @@ import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 
 import java.math.BigDecimal;
+import java.util.logging.Logger;
 
 /**
  * @author Lesia Puhova
@@ -15,7 +16,8 @@ import java.math.BigDecimal;
  */
 public class ScaleAndPrecisionValidator implements ServerValidator {
 
-    private static final String DECIMAL_POINT = ".";
+    private static Logger log = Logger.getLogger(ScaleAndPrecisionValidator.class.getName());
+
     private final Integer precision; // total number of digits, for instance 12.34567 - precision is 7, scale is 5
     private final Integer scale;
 
@@ -36,12 +38,14 @@ public class ScaleAndPrecisionValidator implements ServerValidator {
                     int actualPrecision = decimalValue.precision();
                     if (actualPrecision > precision) {
                         validationResult.addError("validate.precision");
+                        log.info("Server validator '" + this + "' found an error while validation DTO: " + dtoToValidate);
                     }
                 }
                 if (scale != null) {
                     int actualScale = decimalValue.scale();
                     if (actualScale > scale) {
                         validationResult.addError("validate.scale");
+                        log.info("Server validator '" + this + "' found an error while validation DTO: " + dtoToValidate);
                     }
                 }
             }

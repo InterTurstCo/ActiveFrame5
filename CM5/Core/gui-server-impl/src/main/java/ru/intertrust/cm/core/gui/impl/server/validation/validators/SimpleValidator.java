@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * @author Lesia Puhova
@@ -18,6 +19,8 @@ public class SimpleValidator implements ServerValidator {
 
     private final String pattern;
     private final String messageKey;
+
+    private static Logger log = Logger.getLogger(SimpleValidator.class.getName());
 
     public SimpleValidator(Constraint constraint) {
         String wordOrPattern = constraint.param(Constraint.PARAM_PATTERN);
@@ -49,6 +52,7 @@ public class SimpleValidator implements ServerValidator {
             if (value.get() != null) {
                 if (pattern!= null && !value.get().toString().matches(pattern)) {
                     validationResult.addError(messageKey);
+                    log.info("Server validator '" + this + "' found an error while validation DTO: " + dtoToValidate);
                 }
             }
         }

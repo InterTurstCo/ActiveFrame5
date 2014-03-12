@@ -74,6 +74,7 @@ public class SaveAction extends SimpleServerAction {
                 validationResult.append(widget.validate());
             }
             if (validationResult.hasErrors()) {
+                Window.alert("Please correct validation errors before saving");
                 return false;
             }
         }

@@ -6,12 +6,16 @@ import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 
+import java.util.logging.Logger;
+
 /**
  * @author Lesia Puhova
  *         Date: 06.03.14
  *         Time: 15:30
  */
 public abstract class RangeValidator<T extends Comparable> implements ServerValidator{
+
+    private static Logger log = Logger.getLogger(RangeValidator.class.getName());
 
     private final T rangeStart;
     private final T rangeEnd;
@@ -30,9 +34,11 @@ public abstract class RangeValidator<T extends Comparable> implements ServerVali
                 T valueToValidate = (T)value.get();
                 if (rangeStart != null && rangeStart.compareTo(valueToValidate) > 0) {
                     validationResult.addError("validate.range.too-small");
+                    log.info("Server validator '" + this + "' found an error while validation DTO: " + dtoToValidate);
                 }
                 if (rangeEnd != null && rangeEnd.compareTo(valueToValidate) < 0) {
                     validationResult.addError("validate.range.too-big");
+                    log.info("Server validator '" + this + "' found an error while validation DTO: " + dtoToValidate);
                 }
             }
         }
