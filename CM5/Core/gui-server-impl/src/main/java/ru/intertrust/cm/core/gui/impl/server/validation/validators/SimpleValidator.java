@@ -19,13 +19,14 @@ public class SimpleValidator implements ServerValidator {
 
     private final String pattern;
     private final String messageKey;
+    private final String wordOrPattern;
 
     private static Logger log = Logger.getLogger(SimpleValidator.class.getName());
 
     public SimpleValidator(Constraint constraint) {
-        String wordOrPattern = constraint.param(Constraint.PARAM_PATTERN);
+        wordOrPattern = constraint.param(Constraint.PARAM_PATTERN);
         String pattern = wordsToPatterns.get(wordOrPattern);
-        String messageKey = wordOrPattern;
+        String messageKey = "validate." + wordOrPattern;
         if (pattern == null) {
             pattern = wordOrPattern;
             messageKey = "validate.pattern";
@@ -54,6 +55,9 @@ public class SimpleValidator implements ServerValidator {
                     validationResult.addError(messageKey);
                     log.info("Server validator '" + this + "' found an error while validation DTO: " + dtoToValidate);
                 }
+            } else if (Constraint.KEYWORD_NOT_EMPTY.equals(wordOrPattern)){
+                validationResult.addError(messageKey);
+                log.info("Server validator '" + this + "' found an error while validation DTO: " + dtoToValidate);
             }
         }
         return validationResult;
@@ -66,6 +70,6 @@ public class SimpleValidator implements ServerValidator {
 
     @Override
     public String toString() {
-        return "Server simple validator: " + pattern;
+        return "Server simple validator: " + wordOrPattern;
     }
 }
