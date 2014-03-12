@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.server.validation.validators;
 import ru.intertrust.cm.core.business.api.dto.Constraint;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 
 import java.util.HashMap;
@@ -52,6 +53,11 @@ public class SimpleValidator implements ServerValidator {
             }
         }
         return validationResult;
+    }
+
+    @Override
+    public void init(ActionContext context) {
+        // do nothing
     }
 
     @Override

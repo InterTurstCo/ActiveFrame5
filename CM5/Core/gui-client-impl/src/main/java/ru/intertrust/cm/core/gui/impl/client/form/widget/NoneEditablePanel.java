@@ -16,9 +16,11 @@ public  class NoneEditablePanel extends AbstractNoneEditablePanel {
 
     public void displayItem(final String itemRepresentation) {
         AbsolutePanel element = new AbsolutePanel();
+        element.addStyleName("facebook-element");
         element.getElement().getStyle().setDisplay(displayStyle);
         Label label = new Label(itemRepresentation);
-        label.setStyleName("facebook-label-none-editable");
+        label.setStyleName("facebook-label");
+        label.addStyleName("facebook-none-clickable-label");
         element.add(label);
         mainBoxPanel.add(element);
     }

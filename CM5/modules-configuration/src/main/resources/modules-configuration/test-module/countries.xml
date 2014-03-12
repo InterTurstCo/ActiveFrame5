@@ -3,7 +3,7 @@
     <domain-object-type name="country" initial-status="Active">
         <fields>
             <string name="name" length="128"/>
-            <date-time name="independence_day"/>
+            <timelessDate name="independence_day"/>
             <long name="population"/>
             <boolean name="is_country_rich"/>
             <decimal name="square" precision="15" scale="2"/>
@@ -456,7 +456,7 @@
             <date-box id="10">
                 <field-path value="independence_day"/>
                 <time-zone-id>GMT-4</time-zone-id>
-                <pattern>dd.MMM.yyyy</pattern>
+                <pattern>dd.MM.yyyy</pattern>
                 <display-time-zone-choice>true</display-time-zone-choice>
             </date-box>
 

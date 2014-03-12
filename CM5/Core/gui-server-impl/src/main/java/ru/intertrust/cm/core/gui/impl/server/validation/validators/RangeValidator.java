@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.server.validation.validators;
 import ru.intertrust.cm.core.business.api.dto.Constraint;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 
 /**
@@ -39,6 +40,11 @@ public abstract class RangeValidator<T extends Comparable> implements ServerVali
     }
 
     abstract T convert(String s);
+
+    @Override
+    public void init(ActionContext context) {
+        // do nothing
+    }
 
     @Override
     public String toString() {

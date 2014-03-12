@@ -558,11 +558,11 @@
 }
 
 .dataGridEvenRowCell {
-   /* border: selectionBorderWidth solid #ffffff;*/
+    padding: 5px 0 5px 5px;
 }
 
 .dataGridOddRow {
- /*   background: #f3f7fb;*/
+    padding: 5px 0 5px 5px;
 }
 
 .dataGridOddRowCell {

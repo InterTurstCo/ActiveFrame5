@@ -4,9 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.gui.ValidatorConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
-import ru.intertrust.cm.core.gui.impl.server.GuiContext;
+import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.impl.server.util.ActionConfigBuilder;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
@@ -17,6 +18,7 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -70,7 +72,10 @@ public class FormPluginHandler extends ActivePluginHandler {
         if (toggleEdit) {
             if (editable) {
                 contexts.add(new SaveActionContext(ActionConfigBuilder.createActionConfig(
-                        "save.action", "save.action", "Сохранить", "icons/icon-save.png")));
+                        "save.action", "save.action", "Сохранить", "icons/icon-save.png",
+                        Collections.singletonList(new ValidatorConfig(
+                                "ru.intertrust.cm.core.gui.impl.server.validation.validators.custom.CapitalValidator",
+                                "suggest_capital")))));
             } else {
                 contexts.add(new ActionContext(ActionConfigBuilder.createActionConfig(
                         "create.new.object.action", "create.new.object.action",
@@ -85,7 +90,10 @@ public class FormPluginHandler extends ActivePluginHandler {
             contexts.add(new ActionContext(ActionConfigBuilder.createActionConfig("create.new.object.action",
                     "create.new.object.action", "Создать новый", "icons/icon-create.png")));
             contexts.add(new SaveActionContext(ActionConfigBuilder.createActionConfig(
-                    "save.action", "save.action", "Сохранить", "icons/icon-save.png")));
+                    "save.action", "save.action", "Сохранить", "icons/icon-save.png",
+                    Collections.singletonList(new ValidatorConfig(
+                            "ru.intertrust.cm.core.gui.impl.server.validation.validators.custom.CapitalValidator",
+                            "suggest_capital")))));
             contexts.add(new SaveActionContext(ActionConfigBuilder.createActionConfig(
                     "delete.action", "delete.action", "Удалить", "icons/icon-delete.png")));
 

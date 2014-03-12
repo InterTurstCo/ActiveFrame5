@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
@@ -40,16 +41,11 @@ public class LinkedDomainObjectHyperlinkWidget extends BaseWidget implements Hyp
         selectionPattern = state.getSelectionPattern();
         String title = state.getDomainObjectType();
         Id id = state.getId();
-        if (isEditable()) {
+
             LinkedDomainObjectHyperlinkItem hyperlinkItem = (LinkedDomainObjectHyperlinkItem) impl;
             hyperlinkItem.setText(state.getStringRepresentation());
             hyperlinkItem.addItemClickHandler(new HyperlinkClickHandler(title, id, localEventBus));
-        } else {
-            Label noneEditableWidget = (Label) impl;
-            noneEditableWidget.setText(state.getStringRepresentation());
-            noneEditableWidget.addClickHandler(new HyperlinkClickHandler(title, id, localEventBus));
 
-        }
     }
 
     @Override
@@ -61,16 +57,13 @@ public class LinkedDomainObjectHyperlinkWidget extends BaseWidget implements Hyp
     @Override
     protected Widget asEditableWidget(WidgetState state) {
         localEventBus.addHandler(HyperlinkStateChangedEvent.TYPE, this);
-        return new LinkedDomainObjectHyperlinkItem();
+        return new LinkedDomainObjectHyperlinkItem(true);
     }
 
     @Override
     protected Widget asNonEditableWidget(WidgetState state) {
         localEventBus.addHandler(HyperlinkStateChangedEvent.TYPE, this);
-        Label noneEditableWidget = new Label();
-        noneEditableWidget.addStyleName("hyperlink-label-none-editable");
-        noneEditableWidget.removeStyleName("gwt-Label");
-        return noneEditableWidget;
+        return new LinkedDomainObjectHyperlinkItem(false);
     }
 
     @Override
@@ -87,13 +80,9 @@ public class LinkedDomainObjectHyperlinkWidget extends BaseWidget implements Hyp
             public void onSuccess(Dto result) {
                 HyperlinkUpdateResponse response = (HyperlinkUpdateResponse) result;
                 String representation = response.getRepresentation();
-                if (isEditable()) {
+
                     LinkedDomainObjectHyperlinkItem item = (LinkedDomainObjectHyperlinkItem) impl;
                     item.setText(representation);
-                } else {
-                    Label label = (Label) impl;
-                    label.setText(representation);
-                }
 
             }
 

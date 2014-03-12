@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.server.validation.validators;
 import ru.intertrust.cm.core.business.api.dto.Constraint;
 import ru.intertrust.cm.core.business.api.dto.DecimalValue;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 
 import java.math.BigDecimal;
@@ -50,6 +51,11 @@ public class ScaleAndPrecisionValidator implements ServerValidator {
 
     private static Integer parseInt(String str) {
         return str != null ? Integer.parseInt(str) : null;
+    }
+
+    @Override
+    public void init(ActionContext context) {
+        // do nothing
     }
 
     @Override

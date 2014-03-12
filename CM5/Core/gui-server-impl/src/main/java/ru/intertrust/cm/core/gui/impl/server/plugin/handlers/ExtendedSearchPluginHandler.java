@@ -35,7 +35,7 @@ import ru.intertrust.cm.core.config.search.TargetDomainObjectConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
-import ru.intertrust.cm.core.gui.impl.server.GuiContext;
+import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.impl.server.form.FormResolver;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;

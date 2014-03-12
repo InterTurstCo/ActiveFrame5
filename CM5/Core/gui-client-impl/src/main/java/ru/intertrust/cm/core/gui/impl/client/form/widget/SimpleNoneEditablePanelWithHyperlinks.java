@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
-import com.google.gwt.dom.client.Style;
+import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -20,12 +20,15 @@ public class SimpleNoneEditablePanelWithHyperlinks extends NoneEditablePanel {
     }
 
     public void displayHyperlink(Id id, String itemRepresentation) {
+        AbsolutePanel element = new AbsolutePanel();
+        element.addStyleName("facebook-element");
         Label label = new Label(itemRepresentation);
-        label.setStyleName("facebook-label-none-editable");
-        label.getElement().getStyle().setCursor(Style.Cursor.POINTER);
+        label.setStyleName("facebook-label");
+        label.addStyleName("facebook-clickable-label");
         label.addClickHandler(new HyperlinkClickHandler("Collection item", id, eventBus));
-        label.getElement().getStyle().setDisplay(displayStyle);
-        mainBoxPanel.add(label);
+        element.getElement().getStyle().setDisplay(displayStyle);
+        element.add(label);
+        mainBoxPanel.add(element);
     }
 
 }
