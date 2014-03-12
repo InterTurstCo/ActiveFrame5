@@ -50,7 +50,7 @@ public class DateBoxWidget extends BaseWidget {
     }
 
     @Override
-    public WidgetState getCurrentState() {
+    protected WidgetState createNewState() {
         final DateBoxState initial = getInitialData();
         if (isEditable) {
             final DateBoxDecorate decorate = (DateBoxDecorate) impl;
@@ -62,7 +62,6 @@ public class DateBoxWidget extends BaseWidget {
         }
         DateBoxState data = new DateBoxState();
         data.setDateTimeContext(initial.getDateTimeContext());
-        data.setConstraints(getConstraints());
         return data;
     }
 

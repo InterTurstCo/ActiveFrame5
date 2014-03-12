@@ -2,8 +2,6 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.SimpleEventBus;
@@ -49,7 +47,7 @@ public class LinkedDomainObjectHyperlinkWidget extends BaseWidget implements Hyp
     }
 
     @Override
-    public WidgetState getCurrentState() {
+    public WidgetState createNewState() {
         LinkedDomainObjectHyperlinkState state = new LinkedDomainObjectHyperlinkState();
         return state;
     }

@@ -57,7 +57,7 @@ public class ComboBoxWidget extends BaseWidget {
     }
 
     @Override
-    public WidgetState getCurrentState() {
+    protected WidgetState createNewState() {
         ComboBoxState state = new ComboBoxState();
         if (!isEditable()) {
             state.setSelectedId(nonEditableId);

@@ -42,7 +42,7 @@ public class LabelWidget extends BaseWidget {
     }
 
     @Override
-    public WidgetState getCurrentState() {
+    protected WidgetState createNewState() {
         final LabelState initialState = getInitialData();
         LabelState state = new LabelState();
         Panel panel = (Panel)impl;

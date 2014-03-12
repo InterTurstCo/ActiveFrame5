@@ -97,7 +97,7 @@ public class TableBrowserWidget extends BaseWidget implements HyperlinkStateChan
     }
 
     @Override
-    public TableBrowserState getCurrentState() {
+    protected TableBrowserState createNewState() {
         if (isEditable()) {
             TableBrowserState state = new TableBrowserState();
             state.setTableBrowserItems(facebookStyleView.getChosenItems());

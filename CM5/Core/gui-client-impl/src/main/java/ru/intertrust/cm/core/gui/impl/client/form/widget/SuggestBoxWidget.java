@@ -73,7 +73,7 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
     }
 
     @Override
-    public SuggestBoxState getCurrentState() {
+    protected SuggestBoxState createNewState() {
         SuggestBoxState state = getInitialData();
         if (isEditable()) {
             final SuggestPresenter presenter = (SuggestPresenter) impl;
@@ -113,7 +113,7 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
                 HyperlinkUpdateResponse response = (HyperlinkUpdateResponse) result;
                 Id id = response.getId();
                 String representation = response.getRepresentation();
-                SuggestBoxState state = getCurrentState();
+                SuggestBoxState state = createNewState();
                 state.getListValues().put(id, representation);
                 setCurrentState(state);
             }

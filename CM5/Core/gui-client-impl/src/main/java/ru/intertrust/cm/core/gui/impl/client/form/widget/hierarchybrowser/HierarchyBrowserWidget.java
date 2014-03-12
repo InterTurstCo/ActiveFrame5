@@ -102,7 +102,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
                     }
                 });
                 final NodeContentManager nodeContentManager = new FirstNodeContentManager(hierarchyBrowserConfig,
-                        mainPopup, getCurrentState().getIds());
+                        mainPopup, createNewState().getIds());
                 mainPopup.addLinkClickHandler(new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
@@ -134,11 +134,12 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
     }
 
     @Override
-    public HierarchyBrowserWidgetState getCurrentState() {
+    protected HierarchyBrowserWidgetState createNewState() {
         if (isEditable()) {
             HierarchyBrowserWidgetState state = new HierarchyBrowserWidgetState();
             HierarchyBrowserView view = (HierarchyBrowserView) impl;
             state.setChosenItems(view.getChosenItems());
+            state.setConstraints(getInitialData().getConstraints());
             return state;
         } else {
             return getInitialData();
@@ -273,7 +274,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
     public void onHierarchyBrowserNodeClick(HierarchyBrowserNodeClickEvent event) {
         String collectionName = event.getCollectionName();
         Id parentId = event.getParentId();
-        HierarchyBrowserWidgetState state = getCurrentState();
+        HierarchyBrowserWidgetState state = createNewState();
         ArrayList<Id> chosenIds = state.getIds();
         NodeContentManager nodeContentManager = new NewNodeContentManager(hierarchyBrowserConfig,
                 mainPopup, chosenIds, collectionName, parentId);
@@ -285,7 +286,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         NodeMetadata nodeMetadata = event.getNodeMetadata();
         String collectionName = nodeMetadata.getCollectionName();
         Id parentId = nodeMetadata.getParentId();
-        HierarchyBrowserWidgetState state = getCurrentState();
+        HierarchyBrowserWidgetState state = createNewState();
         ArrayList<Id> chosenIds = state.getIds();
         NodeContentManager nodeContentManager = new RedrawNodeContentWithNewItemContentManager(hierarchyBrowserConfig,
                 mainPopup, chosenIds, collectionName, parentId, "");
@@ -298,7 +299,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         String collectionName = nodeMetadata.getCollectionName();
         Id parentId = nodeMetadata.getParentId();
         String inputText = event.getInputText();
-        HierarchyBrowserWidgetState state = getCurrentState();
+        HierarchyBrowserWidgetState state = createNewState();
         ArrayList<Id> chosenIds = state.getIds();
         NodeContentManager nodeContentManager = new RedrawNodeContentWithNewItemContentManager(hierarchyBrowserConfig, mainPopup, chosenIds,
                 collectionName, parentId, inputText);
@@ -313,7 +314,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         int factor = event.getFactor();
         int offset = factor * hierarchyBrowserConfig.getPageSize();
         String inputText = event.getInputText();
-        HierarchyBrowserWidgetState state = getCurrentState();
+        HierarchyBrowserWidgetState state = createNewState();
         ArrayList<Id> chosenIds = state.getIds();
         NodeContentManager nodeContentManager = new RedrawNodeContentWithMoreItemsContentManager(hierarchyBrowserConfig, mainPopup,
                 chosenIds, collectionName, parentId, inputText, offset);
@@ -367,7 +368,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
             HierarchyBrowserHyperlinkContentManager hyperlinkContentManager = new EditableHierarchyBrowserHyperlinkContentManager(id, collectionName, hierarchyBrowserConfig, view, mainPopup);
             hyperlinkContentManager.updateHyperlink();
         } else {
-            HierarchyBrowserWidgetState state = getCurrentState();
+            HierarchyBrowserWidgetState state = createNewState();
             List<HierarchyBrowserItem> items = state.getChosenItems();
             HierarchyBrowserNoneEditablePanelWithHyperlinks noneEditablePanel = (HierarchyBrowserNoneEditablePanelWithHyperlinks) impl;
             HierarchyBrowserHyperlinkContentManager hyperlinkContentManager = new NoneEditableHierarchyBrowserHyperlinkContentManager(id, collectionName,

@@ -39,7 +39,6 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
     protected Widget impl;
 
     private Map<String, String> messages;
-    private List<Constraint> constraints = new ArrayList<Constraint>();
 
     public <T extends WidgetState> T getInitialData() {
         return (T) initialData;
@@ -107,7 +106,6 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
         }
         setCurrentState(state);
         this.initialData = state;
-        constraints = state.getConstraints();
     }
 
     public abstract void setCurrentState(WidgetState currentState);
@@ -126,7 +124,7 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
     @Override
     public List<Validator> getValidators() {
         List<Validator> validators = new ArrayList<Validator>();
-        for (Constraint constraint : constraints) {
+        for (Constraint constraint : getInitialData().getConstraints()) {
             switch (constraint.getType()) {
                 case SIMPLE:
                     validators.add(new SimpleValidator(constraint));
@@ -167,7 +165,13 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
      * Возвращает текущее состояние виджета. Если виджет в режиме "только чтение", возвращает null
      * @return текущее состояние виджета или null, если виджет в режиме "только чтение"
      */
-    public abstract WidgetState getCurrentState();
+    public final WidgetState getCurrentState() {
+        WidgetState state = createNewState();
+        state.setConstraints(getInitialData().getConstraints());
+        return state;
+    }
+
+    protected abstract WidgetState createNewState();
 
     protected abstract Widget asEditableWidget(WidgetState state);
 
@@ -216,7 +220,4 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
         impl.removeStyleName("validation-error");
     }
 
-    public List<Constraint> getConstraints() {
-        return constraints;
-    }
 }

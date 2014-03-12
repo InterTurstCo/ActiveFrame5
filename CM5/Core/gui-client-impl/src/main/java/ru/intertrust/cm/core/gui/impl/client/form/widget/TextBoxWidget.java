@@ -28,10 +28,9 @@ public class TextBoxWidget extends BaseWidget {
     }
 
     @Override
-    public WidgetState getCurrentState() {
+    protected WidgetState createNewState() {
         TextState data = new TextState();
         data.setText(getTrimmedText((HasText) impl));
-        data.setConstraints(getConstraints());
         return data;
     }
 

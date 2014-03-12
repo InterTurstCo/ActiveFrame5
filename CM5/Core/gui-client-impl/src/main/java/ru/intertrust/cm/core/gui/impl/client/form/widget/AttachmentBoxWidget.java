@@ -67,7 +67,7 @@ public class AttachmentBoxWidget extends BaseWidget {
     }
 
     @Override
-    public WidgetState getCurrentState() {
+    protected WidgetState createNewState() {
         if (isEditable()) {
             AttachmentBoxState currentState = new AttachmentBoxState();
             AttachmentUploaderView attachmentUploaderView = (AttachmentUploaderView) impl;

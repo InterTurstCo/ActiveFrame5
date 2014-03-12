@@ -33,9 +33,9 @@ public class ListBoxWidget extends BaseWidget {
     }
 
     @Override
-    public WidgetState getCurrentState() {
-        final WidgetState result = getStateHandler().getState(impl, (ListBoxState) getInitialData(), idMap);
-        return result;
+    protected WidgetState createNewState() {
+        final WidgetState state = getStateHandler().getState(impl, (ListBoxState) getInitialData(), idMap);
+        return state;
     }
 
     @Override

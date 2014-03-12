@@ -75,7 +75,7 @@ public class RadioButtonWidget extends BaseWidget {
     }
 
     @Override
-    public WidgetState getCurrentState() {
+    protected WidgetState createNewState() {
         RadioButtonState state = new RadioButtonState();
         state.setLayout(layout);
         if (!isEditable()) {
