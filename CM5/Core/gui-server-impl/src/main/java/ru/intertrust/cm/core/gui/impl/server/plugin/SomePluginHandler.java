@@ -1,9 +1,14 @@
 package ru.intertrust.cm.core.gui.impl.server.plugin;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.gui.navigation.AttributeConfig;
+import ru.intertrust.cm.core.config.gui.navigation.CustomPluginConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.PluginData;
+import ru.intertrust.cm.core.gui.model.plugin.SomePluginData;
+
+import java.util.List;
 
 /**
  * @author Denis Mitavskiy
@@ -14,8 +19,16 @@ import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 public class SomePluginHandler extends PluginHandler {
     @Override
     public PluginData initialize(Dto param) {
+        CustomPluginConfig customPluginConfig = (CustomPluginConfig)param;
         System.out.println("SomePluginHandler initialized");
-        return null;
+        SomePluginData somePluginData = new SomePluginData();
+        List<AttributeConfig> attributeConfigList = customPluginConfig.getAttributeConfigList();
+        if (!attributeConfigList.isEmpty()) {
+        somePluginData.setText(attributeConfigList.get(0).getValue());
+        } else{
+            somePluginData.setText("default");
+        }
+        return somePluginData;
     }
 
     public PluginData doSomethingGood(Dto dto) {

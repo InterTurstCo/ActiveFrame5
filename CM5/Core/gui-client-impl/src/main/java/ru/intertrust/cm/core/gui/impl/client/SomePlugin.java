@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client;
 
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 
 /**
  * @author Denis Mitavskiy

@@ -110,6 +110,14 @@
                         </domain-object-surfer>
                     </plugin>
                 </link>
+                <link name="Custom_Plugin" display-text="Пример кастомного плагина">
+                    <plugin>
+                <custom name="some.plugin">
+                    <attribute name="label_value" value="Кастомный плагин"/>
+
+                </custom>
+                    </plugin>
+                </link>
             </child-links>
         </link>
 

@@ -9,6 +9,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.client.Component;
@@ -70,7 +71,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
 
                 header.setStyleName("header-section");
-               header.getElement().setId(ComponentHelper.HEADER_ID);
+                header.getElement().setId(ComponentHelper.HEADER_ID);
 
                 action.setStyleName("action-section");
 
@@ -217,18 +218,14 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         BusinessUniverseServiceAsync.Impl.getInstance().getBusinessUniverseInitialization(callback);
     }
 
-
-
-
-
-
-
     @Override
     public void onNavigationTreeItemSelected(NavigationTreeItemSelectedEvent event) {
-        final DomainObjectSurferPlugin domainObjectSurfer = ComponentRegistry.instance.get("domain.object.surfer.plugin");
-        domainObjectSurfer.setConfig(event.getPluginConfig());
-        domainObjectSurfer.setDisplayActionToolBar(true);
-        centralPluginPanel.open(domainObjectSurfer);
+        PluginConfig pluginConfig = event.getPluginConfig();
+        String pluginName = pluginConfig.getComponentName();
+        Plugin plugin = ComponentRegistry.instance.get(pluginName);
+        plugin.setConfig(pluginConfig);
+        plugin.setDisplayActionToolBar(true);
+        centralPluginPanel.open(plugin);
 
     }
 

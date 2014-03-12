@@ -1,7 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.Label;
+
+import ru.intertrust.cm.core.gui.model.plugin.SomePluginData;
 
 /**
  * @author Denis Mitavskiy
@@ -15,6 +17,7 @@ public class SomePluginView extends PluginView {
 
     @Override
     public IsWidget getViewWidget() {
-        return new Button("This is a button");
+       SomePluginData somePluginData = plugin.getInitialData();
+        return new Label(somePluginData.getText());
     }
 }
