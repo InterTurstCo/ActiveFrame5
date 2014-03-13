@@ -352,7 +352,7 @@
                 <!--name может принимать 2 значения inline (стиль Студии Лебедева) и table (текущая реализация).
                     Если тэг отсутствует, то используется "inline"-вариант. -->
                 <selection-style name="inline"/>
-                <clear-all-button image="css/images/clear.png" text="Очистить"/>
+                <clear-all-button  text="Очистить"/>
                 <display-values-as-links value="true"/>
             </suggest-box>
             <suggest-box id="suggest_capital">
@@ -376,7 +376,7 @@
                     Если тэг отсутствует, то используется "inline"-вариант. -->
                 <selection-style name="inline"/>
                 <single-choice value="true"/>
-                <clear-all-button image="css/images/clear.png" text="Очистить"/>
+                <clear-all-button  text="Очистить"/>
                 <default-sort-criteria column-field="name" order="asc"/>
             </suggest-box>
 
@@ -492,7 +492,7 @@
                 <display-chosen-values value="false"/>
                 <selection-style name="inline"/>
                 <single-choice value="false"/>
-                <clear-all-button image="css/images/clear.png" text="Очистить"/>
+                <clear-all-button  text="Очистить"/>
                 <add-button image="..." text="..."/>
                 <default-sort-criteria column-field="name" order="desc"/>
                 <display-values-as-links value="true"/>

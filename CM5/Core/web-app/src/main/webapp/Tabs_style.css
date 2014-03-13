@@ -68,6 +68,7 @@
 
 .gwt-TabLayoutPanel .gwt-TabLayoutPanelTab-selected .gwt-Label {
     margin-left: 0px !important;
+    text-decoration: none;
 }
 
 .gwt-TabLayoutPanel .gwt-Label {

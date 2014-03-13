@@ -202,3 +202,22 @@ html>body .gwt-SuggestBoxPopup {
 /*border-color: black;*/
 /*border: 1px;*/
 /*}*/
+
+.suggest-container {
+    color: #000;
+    border: 1px solid #ccc;
+    background-color: #ffffff;
+    min-height: 24px;
+    display: inline-block;
+    vertical-align: middle;
+    width: 100%;
+    margin: 5px 0;
+}
+
+td .gwt-SuggestBox {
+    display: inline-block;
+    padding: 7px !important;
+    border: none;
+    margin: 0;
+    font-family: Arial;
+}

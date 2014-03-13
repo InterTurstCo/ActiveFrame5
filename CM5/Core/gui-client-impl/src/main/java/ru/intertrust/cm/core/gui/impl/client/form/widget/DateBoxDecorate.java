@@ -4,6 +4,7 @@ import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.AbsolutePanel;
@@ -72,8 +73,7 @@ public class DateBoxDecorate extends Composite {
         dateBox.getTextBox().addStyleName("date-text-box");
 
         dateBox.getTextBox().addClickHandler(showDatePickerHandler);
-
-
+        dateBtn.addClickHandler(showDatePickerHandler);
         Event.sinkEvents(dateBox.getElement(), Event.ONBLUR);
         dateBox.addHandler(new BlurHandler() {
             @Override
