@@ -4,7 +4,7 @@ import org.simpleframework.xml.Element;
 
 public class TargetDomainObjectConfig extends IndexedDomainObjectConfig {
 
-    @Element(name = "target-collection", required = true)
+    @Element(name = "target-collection", required = false)
     private TargetCollectionConfig collectionConfig;
 
     public TargetCollectionConfig getCollectionConfig() {

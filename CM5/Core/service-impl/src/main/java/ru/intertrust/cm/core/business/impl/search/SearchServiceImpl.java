@@ -2,7 +2,9 @@ package ru.intertrust.cm.core.business.impl.search;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -58,14 +60,13 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
     @Override
     public IdentifiableObjectCollection search(String query, String areaName, String targetCollectionName,
             int maxResults) {
-        StringBuilder queryString = new StringBuilder()
-                .append(SolrFields.EVERYTHING)
-                .append(":")
-                .append(protectQueryString(query))
-                .append(" OR ")
-                .append(SolrFields.CONTENT)
-                .append(":")
-                .append(protectQueryString(query));
+        StringBuilder queryString = new StringBuilder();
+        for (String field : listCommonSolrFields()) {
+            queryString.append(queryString.length() == 0 ? "" : " OR ")
+                    .append(field)
+                    .append(":")
+                    .append(protectQueryString(query));
+        }
         SolrQuery solrQuery = new SolrQuery()
                 .setQuery(queryString.toString())
                 .addFilterQuery(SolrFields.AREA + ":\"" + areaName + "\"")
@@ -75,14 +76,34 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             solrQuery.setRows(maxResults);
         }
 
-        QueryResponse response = null;
-        try {
-            response = solrServer.query(solrQuery);
-        } catch (Exception e) {
-            log.error("Search error", e);
-            throw new SearchException("Search error: " + e.getMessage());
+        int fetchLimit = maxResults;
+        while (true) {
+            QueryResponse response = null;
+            try {
+                response = solrServer.query(solrQuery);
+            } catch (Exception e) {
+                log.error("Search error", e);
+                throw new SearchException("Search error: " + e.getMessage());
+            }
+            if (fetchLimit <= 0) {
+                fetchLimit = response.getResults().size();
+            }
+            IdentifiableObjectCollection result =
+                    queryCollection(targetCollectionName, response.getResults(), maxResults);
+            if (response.getResults().size() == fetchLimit && result.size() < maxResults) {
+                // Увеличиваем размер выборки в Solr
+                int factor = 10;
+                if (result.size() > 0) {
+                    // Пытаемся оценить процент отсева 
+                    factor = 1 + response.getResults().size() / result.size();
+                }
+                fetchLimit *= factor;
+                solrQuery.setRows(fetchLimit);
+                continue;
+            }
+            return result;
         }
-        return queryCollection(targetCollectionName, response);
+        //return result;
     }
 
     @Override
@@ -92,22 +113,15 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         for (SearchFilter filter : query.getFilters()) {
             @SuppressWarnings("rawtypes")
             FilterAdapter adapter = searchFilterImplementorFactory.createImplementorFor(filter.getClass());
-            String filterValue = adapter.getFilterValue(filter);
-            if (filterValue == null || filterValue.trim().isEmpty()) {
+            String filterValue = adapter.getFilterString(filter, query);
+            if (filterValue == null || filterValue.isEmpty()) {
                 continue;
             }
 
             if (queryString.length() > 0) {
                 queryString.append(" AND ");
             }
-            if (SearchFilter.EVERYWHERE.equalsIgnoreCase(filter.getFieldName())) {
-                queryString.append(SolrFields.EVERYTHING);
-            } else {
-                queryString.append(SolrFields.FIELD_PREFIX)
-                           .append(filter.getFieldName().toLowerCase())
-                           .append(adapter.getFieldTypeSuffix(filter));
-            }
-            queryString.append(":").append(filterValue);
+            queryString.append(filterValue);
         }
         StringBuilder areas = new StringBuilder();
         for (String areaName : query.getAreas()) {
@@ -120,43 +134,81 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         SolrQuery solrQuery = new SolrQuery()
                 .setQuery(queryString.toString())
                 .addFilterQuery(SolrFields.AREA + ":" + areas)
-                //.addFilterQuery(SolrFields.TARGET_TYPE + ":" + configHelper.getTargetObjectType(targetCollectionName))
-                .addField(SolrFields.FIELD_PREFIX + "*")
+                .addFilterQuery(SolrFields.TARGET_TYPE + ":\"" + query.getTargetObjectType() + "\"")
+                //.addField(SolrFields.FIELD_PREFIX + "*")
                 .addField(SolrFields.MAIN_OBJECT_ID);
         if (maxResults > 0) {
             solrQuery.setRows(maxResults);
         }
 
-        QueryResponse response = null;
-        try {
-            response = solrServer.query(solrQuery);
-            if (log.isDebugEnabled()) {
-                log.debug("Response: " + response);
+        int fetchLimit = maxResults;
+        while(true) {
+            QueryResponse response = null;
+            try {
+                response = solrServer.query(solrQuery);
+                if (log.isDebugEnabled()) {
+                    log.debug("Response: " + response);
+                }
+            } catch (Exception e) {
+                log.error("Search error", e);
+                throw new SearchException("Search error: " + e.getMessage());
             }
-        } catch (Exception e) {
-            log.error("Search error", e);
-            throw new SearchException("Search error: " + e.getMessage());
+            if (fetchLimit <= 0) {
+                fetchLimit = response.getResults().size();
+            }
+            IdentifiableObjectCollection result =
+                    queryCollection(targetCollectionName, response.getResults(), maxResults);
+            if (response.getResults().size() == fetchLimit && result.size() < maxResults) {
+                // Увеличиваем размер выборки в Solr
+                int factor = 10;
+                if (result.size() > 0) {
+                    // Пытаемся оценить процент отсева 
+                    factor = 1 + response.getResults().size() / result.size();
+                }
+                fetchLimit *= factor;
+                solrQuery.setRows(fetchLimit);
+                continue;
+            }
+            return result;
         }
-        return queryCollection(targetCollectionName, response);
     }
 
-    private IdentifiableObjectCollection queryCollection(String collectionName, QueryResponse response) {
+    private List<String> listCommonSolrFields() {
+        List<String> langs = configHelper.getSupportedLanguages();
+        if (langs.size() == 0) {
+            return Arrays.asList(SolrFields.EVERYTHING, SolrFields.CONTENT);
+        }
+        ArrayList<String> fields = new ArrayList<>(2 * langs.size());
+        for (String langId : langs) {
+            StringBuilder everything = new StringBuilder()
+                    .append(SolrFields.EVERYTHING)
+                    .append(langId.isEmpty() ? "" : "_")
+                    .append(langId);
+            fields.add(everything.toString());
+            StringBuilder content = new StringBuilder()
+                    .append(SolrFields.CONTENT)
+                    .append(langId.isEmpty() ? "" : "_")
+                    .append(langId);
+            fields.add(content.toString());
+        }
+        return fields;
+    }
+
+    private IdentifiableObjectCollection queryCollection(String collectionName, SolrDocumentList found,
+            int maxResults) {
         ArrayList<ReferenceValue> ids = new ArrayList<>();
-        SolrDocumentList found = response.getResults();
-        /*if (found.size() == 0) {
-            return new GenericIdentifiableObjectCollection();   //*****
-        }*/
         for (SolrDocument doc : found) {
             Id id = idService.createId((String) doc.getFieldValue(SolrFields.MAIN_OBJECT_ID));
             ids.add(new ReferenceValue(id));
         }
         Filter idFilter = new IdsIncludedFilter(ids);
-        return collectionsService.findCollection(collectionName, new SortOrder(), Collections.singletonList(idFilter));
+        return collectionsService.findCollection(collectionName, new SortOrder(), Collections.singletonList(idFilter),
+                0, maxResults);
     }
 
     private String protectQueryString(String query) {
         //TODO Экранировать символы, нарушающие структуру запроса
-        return "(" + query + ")";
+        return "(" + query.replaceAll("[()\"]", "\\$0") + ")";
     }
 
     @Override

@@ -30,10 +30,13 @@ public interface SearchService {
     /**
      * Выполняет многокритериальный по полям доменных объектов и вложениям в одной или нескольких областях поиска.
      * 
+     * 
      * @param query Критерии поиска
      * @param targetCollectionName Имя сконфигурированной коллекции для возвращаемых объектов
      * @param maxResults Ограничение количества найденных объектов
      * @return Коллекция найденных доменных объектов
+     * @throws IllegalArgumentException если критерии поиска содержат области поиска или типы искомых объектов,
+     *      не объявленные в конфигурации, либо если коллекция-получатель не определена в конфигурации
      */
     IdentifiableObjectCollection search(SearchQuery query, String targetCollectionName, int maxResults);
 

@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ru.intertrust.cm.core.model.FatalException;
+import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 public class ImplementorFactory<S, T> {
 
@@ -41,7 +42,9 @@ public class ImplementorFactory<S, T> {
         Class<? extends T> implClass = implementors.get(sourceClass);
         try {
             if (parameters == null) {
-                return implClass.newInstance();
+                T implementor = implClass.newInstance();
+                SpringApplicationContext.getContext().getAutowireCapableBeanFactory().autowireBean(implementor);
+                return implementor;
             }
             Class<?>[] types = new Class[parameters.length];
             for (int i = 0; i < parameters.length; i++) {
@@ -53,7 +56,9 @@ public class ImplementorFactory<S, T> {
                 }
             }
             Constructor<? extends T> constructor = implClass.getConstructor(types);
-            return constructor.newInstance(parameters);
+            T implementor = constructor.newInstance(parameters);
+            SpringApplicationContext.getContext().getAutowireCapableBeanFactory().autowireBean(implementor);
+            return implementor;
         } catch (Exception e) {
             throw new FatalException("Error instantiating implementor for " + sourceClass, e);
         }

@@ -5,6 +5,8 @@ import javax.ejb.ConcurrencyManagement;
 import javax.ejb.ConcurrencyManagementType;
 import javax.ejb.Schedule;
 import javax.ejb.Singleton;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.interceptor.Interceptors;
 
 import org.apache.solr.client.solrj.SolrServer;
@@ -33,6 +35,7 @@ public class SolrIndexingBean {
     private SolrServer solrServer;
 
     @Schedule(hour = "*", minute = "*", second = "*/20", persistent = false)
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public void processTimer() {
         if (active) {
             return;

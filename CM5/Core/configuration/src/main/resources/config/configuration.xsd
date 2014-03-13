@@ -470,6 +470,19 @@
                                   type="xs:integer"/>
                 </xs:complexType>
             </xs:element>
+
+            <xs:element name="search-languages" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="language" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                                <xs:attribute name="id" use="required" type="xs:string"/>
+                                <xs:attribute name="weight" use="optional" type="xs:positiveInteger"/>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
         </xs:sequence>
     </xs:complexType>
 
@@ -2108,6 +2121,7 @@
             <xs:extension base="con:optionalDomainObjectAlgorithmType"
                     xmlns:con="https://cm5.intertrust.ru/config">
                 <xs:attribute type="xs:string" name="name" use="required" />
+                <xs:attribute type="xs:string" name="language" use="optional"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -2133,7 +2147,7 @@
             <xs:extension base="con:indexedDomainObjectType">
                 <xs:sequence>
                     <xs:element type="con:targetCollectionType" name="target-collection"
-                        minOccurs="1" maxOccurs="1"
+                        minOccurs="0" maxOccurs="1"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
                 </xs:sequence>
             </xs:extension>

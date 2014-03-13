@@ -3,6 +3,10 @@
     <global-settings>
         <audit-log enable="false" />
         <sql-trace enable="false" resolveParameters="true" minRows="1" minTime="1000"/>
+        <search-languages>
+            <language id="ru"/>
+            <language id="en"/>
+        </search-languages>
     </global-settings>
     <business-universe>
         <logo image="logo.gif"/>

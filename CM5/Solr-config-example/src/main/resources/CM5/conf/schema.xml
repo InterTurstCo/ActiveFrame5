@@ -116,12 +116,37 @@
 
     <field name="cm_id" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
     <field name="cm_main" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
-    <field name="cm_area" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
-    <field name="cm_type" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
+    <field name="cm_area" type="string" indexed="true" stored="true" docValues="true" required="true" multiValued="false"/>
+    <field name="cm_type" type="string" indexed="true" stored="true" docValues="true" required="true" multiValued="false"/>
+    <field name="cm_modified" type="date" indexed="true" stored="true" required="true" multiValued="false"/>
+
     <field name="cm_text" type="text_general" indexed="true" stored="false" multiValued="true"/>
     <field name="cm_content" type="text_general" indexed="true" stored="false" multiValued="true"/>
 
-    <dynamicField name="cm_c_*" type="text_general" indexed="true" stored="false" multiValued="true"/>
+    <field name="cm_text_ru" type="text_ru" indexed="true" stored="false" multiValued="true"/>
+    <field name="cm_content_ru" type="text_ru" indexed="true" stored="false" multiValued="true"/>
+    <field name="cm_text_en" type="text_en" indexed="true" stored="false" multiValued="true"/>
+    <field name="cm_content_en" type="text_en" indexed="true" stored="false" multiValued="true"/>
+
+    <dynamicField name="cm_t_*" type="text_general" indexed="true" stored="true"/>
+    <dynamicField name="cm_ts_*" type="text_general" indexed="true" stored="true" multiValued="true"/>
+    <dynamicField name="cm_r_*" type="string" indexed="true" stored="true"/>
+    <dynamicField name="cm_rs_*" type="string" indexed="true" stored="true" multiValued="true"/>
+    <dynamicField name="cm_l_*" type="tlong" indexed="true" stored="true"/>
+    <dynamicField name="cm_ls_*" type="tlong" indexed="true" stored="true" multiValued="true"/>
+    <dynamicField name="cm_dt_*" type="tdate" indexed="true" stored="true"/>
+    <dynamicField name="cm_dts_*" type="tdate" indexed="true" stored="true" multiValued="true"/>
+    <dynamicField name="cm_d_*" type="tdouble" indexed="true" stored="true"/>
+    <dynamicField name="cm_ds_*" type="tdouble" indexed="true" stored="true" multiValued="true"/>
+    <dynamicField name="cm_b_*" type="boolean" indexed="true" stored="true"/>
+    <dynamicField name="cm_bs_*" type="boolean" indexed="true" stored="true" multiValued="true"/>
+
+    <dynamicField name="cm_ru_*" type="text_ru" indexed="true" stored="true"/>
+    <dynamicField name="cm_rus_*" type="text_ru" indexed="true" stored="true" multiValued="true"/>
+    <dynamicField name="cm_en_*" type="text_en" indexed="true" stored="true"/>
+    <dynamicField name="cm_ens_*" type="text_en" indexed="true" stored="true" multiValued="true"/>
+
+    <dynamicField name="cm_c_*" type="ignored" multiValued="true"/>
 
     <!-- Dynamic field definitions allow using convention over configuration
        for fields via the specification of patterns to match field names. 
@@ -137,7 +162,7 @@
     <dynamicField name="*_ls" type="long"   indexed="true"  stored="true"  multiValued="true"/>
     <dynamicField name="*_t"  type="text_general"    indexed="true"  stored="true"/>
     <dynamicField name="*_txt" type="text_general"   indexed="true"  stored="true" multiValued="true"/>
-    <dynamicField name="*_en"  type="text_en"    indexed="true"  stored="true" multiValued="true"/>
+    <!-- <dynamicField name="*_en"  type="text_en"    indexed="true"  stored="true" multiValued="true"/> -->
     <dynamicField name="*_b"  type="boolean" indexed="true" stored="true"/>
     <dynamicField name="*_bs" type="boolean" indexed="true" stored="true"  multiValued="true"/>
     <dynamicField name="*_f"  type="float"  indexed="true"  stored="true"/>
@@ -211,7 +236,16 @@
    <copyField source="manu" dest="manu_exact"/>
    -->
 
-  <copyField source="cm_f_*" dest="cm_text"/>
+  <copyField source="cm_t_*" dest="cm_text"/>
+  <copyField source="cm_ts_*" dest="cm_text"/>
+  <copyField source="cm_ru_*" dest="cm_text_ru"/>
+  <copyField source="cm_rus_*" dest="cm_text_ru"/>
+  <copyField source="cm_en_*" dest="cm_text_en"/>
+  <copyField source="cm_ens_*" dest="cm_text_en"/>
+
+  <copyField source="cm_content" dest="cm_content_en"/>
+  <copyField source="cm_content" dest="cm_content_ru"/>
+
   <!-- copyField source="cm_content" dest="cm_text"/ -->
 
   <!-- Copy the price into a currency enabled field (default USD)

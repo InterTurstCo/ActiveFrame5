@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
+import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
@@ -32,6 +35,17 @@ import ru.intertrust.cm.core.dao.api.DoelEvaluator;
 import ru.intertrust.cm.core.dao.api.extension.AfterSaveExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 
+/**
+ * Компонент, осуществляющий индексацию доменных объектов при их изменении.
+ * Устанавливается как обработчик точки расширения после сохранения доменного объекта
+ * ({@link AfterSaveExtensionHandler}).
+ * <p>Компонент определяет все области поиска, в которых должен проиндексироваться изменённый объект,
+ * формирует поисковые запросы с использованием Solrj, но не выполняет обращение к серверу Solr.
+ * Вместо этого запросы добавляются в очередь, обслуживаемую экземпляром класса {@link SolrUpdateRequestQueue},
+ * из которой извлекаются в асинхронном режиме задачей, работающей по расписанию - см. {@link SolrIndexingBean}.
+ * 
+ * @author apirozhkov
+ */
 @ExtensionPoint
 public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
 
@@ -51,6 +65,8 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
 
     @Autowired
     private AttachmentContentDao attachmentContentDao;
+
+    private static final DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss:SSS'Z'");
 
     @Override
     public void onAfterSave(DomainObject domainObject, List<FieldModification> changedFields) {
@@ -74,14 +90,27 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
             doc.addField(SolrFields.AREA, config.getAreaName());
             doc.addField(SolrFields.TARGET_TYPE, config.getTargetObjectType());
             doc.addField(SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
+            doc.addField(SolrFields.MODIFIED, domainObject.getModifiedDate());
             for (IndexedFieldConfig fieldConfig : config.getObjectConfig().getFields()) {
-                SearchFieldType type = configHelper.getFieldType(fieldConfig, config.getObjectConfig().getType());
+                SearchConfigHelper.FieldDataType type =
+                        configHelper.getFieldType(fieldConfig, config.getObjectConfig().getType());
                 Object value = calculateField(domainObject, fieldConfig);
-                StringBuilder fieldName = new StringBuilder()
-                        .append(SolrFields.FIELD_PREFIX)
-                        .append(fieldConfig.getName().toLowerCase())
-                        .append(type.getSuffix());
-                doc.addField(fieldName.toString(), value);
+                if (isTextField(type.getDataType())) {
+                    List<String> languages =
+                            configHelper.getSupportedLanguages(fieldConfig.getName(), config.getAreaName());
+                    /*for (String name : getSolrTextFieldNames(fieldConfig.getName(), type.isMultivalued(), languages)) {
+                        doc.addField(name, value);
+                    }*/
+                    for (String name : new TextFieldNameDecorator(languages, fieldConfig.getName(), type.isMultivalued())) {
+                        doc.addField(name, value);
+                    }
+                } else {
+                    StringBuilder fieldName = new StringBuilder()
+                            .append(SolrFields.FIELD_PREFIX)
+                            .append(SearchFieldType.getFieldType(type.getDataType(), type.isMultivalued()).getInfix())
+                            .append(fieldConfig.getName().toLowerCase());
+                    doc.addField(fieldName.toString(), value);
+                }
             }
             doc.addField("id", createUniqueId(domainObject, config));
             solrDocs.add(doc);
@@ -96,8 +125,9 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
     }
 
     private void sendAttachment(DomainObject object, SearchConfigHelper.SearchAreaDetailsConfig config) {
-        Id mainId = calculateMainObject(object.getReference(configHelper.getAttachmentParentLinkName(
-                config.getObjectConfig().getType())), config.getObjectConfig());
+        String linkName = configHelper.getAttachmentParentLinkName(object.getTypeName(),
+                config.getObjectConfig().getType());
+        Id mainId = calculateMainObject(object.getReference(linkName), config.getObjectConfig());
         if (mainId == null) {
             // Объект не имеет главного; индексация в данной области не нужна
             return;
@@ -108,6 +138,7 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
         request.setParam("literal." + SolrFields.AREA, config.getAreaName());
         request.setParam("literal." + SolrFields.TARGET_TYPE, config.getTargetObjectType());
         request.setParam("literal." + SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
+        request.setParam("literal." + SolrFields.MODIFIED, dateFormatter.format(object.getModifiedDate()));
         addFieldToContentRequest(request, object, AttachmentService.NAME, SearchFieldType.TEXT);
         addFieldToContentRequest(request, object, AttachmentService.DESCRIPTION, SearchFieldType.TEXT);
         addFieldToContentRequest(request, object, AttachmentService.CONTENT_LENGTH, SearchFieldType.LONG);
@@ -129,8 +160,8 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
             StringBuilder paramName = new StringBuilder()
                     .append("literal.")
                     .append(SolrFields.FIELD_PREFIX)
-                    .append(fieldName)
-                    .append(fieldType.getSuffix());
+                    .append(fieldType.getInfix())
+                    .append(fieldName.toLowerCase());
             request.setParam(paramName.toString(), value.toString());
         }
     }
@@ -201,7 +232,34 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
            .append(":").append(config.getTargetObjectType());
         return buf.toString();
     }
+/*
+    private Iterable<String> getSolrTextFieldNames(final String fieldName, final boolean multivalued,
+            final List<String> languages) {
+        return new Iterable<String>() {
+            @Override
+            public Iterator<String> iterator() {
+                return new DelegatingIterator<String>(languages) {
 
+                    @Override
+                    public String next() {
+                        String lang = super.next();
+                        return new StringBuilder()
+                                .append(SolrFields.FIELD_PREFIX)
+                                .append(lang.isEmpty()
+                                        ? SearchFieldType.getFieldType(FieldType.STRING, multivalued).getInfix()
+                                        : "_" + lang)
+                                .append(fieldName.toLowerCase())
+                                .toString();
+                    }
+                };
+            }
+        };
+    }
+*/
+    private boolean isTextField(FieldType type) {
+        return type == FieldType.STRING || type == FieldType.TEXT;
+    }
+    
     public class SolrAttachmentFeeder implements ContentStream {
 
         private DomainObject attachment;

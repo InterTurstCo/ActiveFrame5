@@ -10,11 +10,18 @@ public class IndexedFieldConfig implements Serializable {
     @Attribute(required = true)
     private String name;
 
+    @Attribute(required = false)
+    private String language;
+
     @Element(required = false)
     private String doel;
 
     public String getName() {
         return name;
+    }
+
+    public String getLanguage() {
+        return language;
     }
 
     public String getDoel() {
@@ -24,9 +31,8 @@ public class IndexedFieldConfig implements Serializable {
     @Override
     public int hashCode() {
         int hash = name.hashCode();
-        if (doel != null) {
-            hash = hash * 31 ^ doel.hashCode();
-        }
+        hash = hash * 31 ^ (language != null ? language.hashCode() : 0);
+        hash = hash * 31 ^ (doel != null ? doel.hashCode() : 0);
         return hash;
     }
 
@@ -40,6 +46,7 @@ public class IndexedFieldConfig implements Serializable {
         }
         IndexedFieldConfig other = (IndexedFieldConfig) obj;
         return name.equals(other.name)
+            && (language == null ? other.language == null : other.language.equals(language))
             && (doel == null ? other.doel == null : doel.equals(other.doel));
     }
 }
