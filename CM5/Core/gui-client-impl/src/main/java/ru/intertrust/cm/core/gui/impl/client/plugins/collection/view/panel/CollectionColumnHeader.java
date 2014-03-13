@@ -441,6 +441,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
 
     protected void changeColumnWidth(int newWidth) {
         table.setColumnWidth(column, newWidth + "px");
+      //  widget.setMinWidth(newWidth + "px");
         table.redraw();
     }
 

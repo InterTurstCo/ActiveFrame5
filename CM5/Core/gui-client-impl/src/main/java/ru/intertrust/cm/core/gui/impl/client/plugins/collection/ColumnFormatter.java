@@ -36,6 +36,7 @@ public class ColumnFormatter {
         collectionColumn.setDataStoreName(columnName);
         boolean sortable = (Boolean) columnProperties.getProperty(CollectionColumnProperties.SORTABLE);
         collectionColumn.setSortable(sortable);
+
         return collectionColumn;
     }
 

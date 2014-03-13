@@ -57,7 +57,7 @@ public class FormPanel implements IsWidget {
     }
 
     public void updateSizes(int width, int height) {
-        panel.setSize(width + "px", "100%");
+     //   panel.setSize(width + "px", "100%");
     }
 
     @Override

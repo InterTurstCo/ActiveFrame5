@@ -162,7 +162,9 @@ h1 {
 .collection-plugin-view {
     margin: 30px auto 2px;
 }
+.collection-table-content{
 
+}
 .collection-plugin-view-container {
     position: absolute !important;
     top: 0;
@@ -171,13 +173,16 @@ h1 {
     left: 0;
     display: block;
     width: 100%;
-
+    height: auto !important;
 }
 
 .collection-plugin-view-container table {
     width: 100% !important;
 }
 
+.collection-plugin-view-container table tr th{
+    display: table-cell;
+}
 
 /*оформление поиска коллекшен плагин вю начало*/
 .search-container {

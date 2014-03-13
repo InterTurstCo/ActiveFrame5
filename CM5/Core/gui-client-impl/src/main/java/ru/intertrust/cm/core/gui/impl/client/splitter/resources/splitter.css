@@ -125,7 +125,7 @@
     width: 89px;
     height: 22px;
     position: absolute;
-    left: 50%;
+    left: 47.5%;
     top:-7px;
     background:  url("css/splitter/horizontal-middle-thick.png") no-repeat;
 }
@@ -311,6 +311,6 @@
 .touch-dummy-splitter {
     position: absolute;
     width: 100%;
-    height: 40px;
+    height: 8px;
     left: -15px;
 }

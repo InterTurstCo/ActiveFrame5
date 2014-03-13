@@ -85,11 +85,14 @@ public class HeaderBuilder<T> extends AbstractHeaderOrFooterBuilder<T> {
 
         // Setup the first column.
         CollectionColumnHeader prevHeader = (CollectionColumnHeader) getHeader(0);
-        Column<T, ?> column = getTable().getColumn(0);
+        CollectionColumn column = (CollectionColumn) getTable().getColumn(0);
         int prevColspan = 1;
         boolean isSortable = false;
         boolean isSorted = false;
         StringBuilder classesBuilder = new StringBuilder(className);
+      /*  classesBuilder.append(" width = \"") ;
+        classesBuilder.append(column.getMaxWidth());
+        classesBuilder.append("px\"; ");*/
         classesBuilder.append(" " + (isFooter ? style.firstColumnFooter() : style.firstColumnHeader()));
         if (!isFooter && column.isSortable()) {
             isSortable = true;
@@ -115,12 +118,15 @@ public class HeaderBuilder<T> extends AbstractHeaderOrFooterBuilder<T> {
                 // Render the header.
                 TableCellBuilder th =
                         tr.startTH().colSpan(prevColspan).className(classesBuilder.toString());
+
+             //   th.style().width(column.getMaxWidth(), com.google.gwt.dom.client.Style.Unit.PX);
                 enableColumnHandlers(th, column);
                 if (prevHeader != null) {
                     // Build the header.
                     Context context = new Context(0, curColumn - prevColspan, prevHeader.getKey());
                     renderCustomSortableHeader(th, context, prevHeader, isSorted, isSortAscending);
                 }
+
                 th.endTH();
 
                 // Reset the previous header.
@@ -136,7 +142,7 @@ public class HeaderBuilder<T> extends AbstractHeaderOrFooterBuilder<T> {
             }
 
             // Update the sorted state.
-            column = table.getColumn(curColumn);
+            column = (CollectionColumn) table.getColumn(curColumn);
             if (!isFooter && column.isSortable()) {
                 isSortable = true;
                 isSorted = (column == sortedColumn);
@@ -190,16 +196,7 @@ public class HeaderBuilder<T> extends AbstractHeaderOrFooterBuilder<T> {
                                              CollectionColumnHeader header, boolean isSorted, boolean isSortAscending) {
         ElementBuilderBase<?> headerContainer = out;
 
-        // Wrap the header in a sort icon if sorted.
-
-
-        // Build the header.
         renderHeader(headerContainer, context, header);
-    //    header.setSearchAreaVisibility(true);
-        // Close the elements used for the sort icon.
-     /*   if (isSorted) {
-            headerContainer.endDiv(); // headerContainer.
-          //  headerContainer.endDiv(); // outerDiv
-        }*/
+
     }
 }

@@ -13,6 +13,8 @@ import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.gui.impl.client.event.CollectionPluginResizeBySplitterEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.SplitterInnerScrollEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEvent;
 import ru.intertrust.cm.core.gui.impl.client.splitter.resources.SplitterResources;
 import ru.intertrust.cm.core.gui.impl.client.splitter.resources.SplitterStyles;
@@ -173,7 +175,8 @@ public class SplitterEx extends DockLayoutPanel {
             leftArrow.addDomHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-
+                    eventBus.fireEvent(new CollectionPluginResizeBySplitterEvent());
+                    //TODO DELETE FOREIGN CODE
                     eventBus.fireEvent(new SplitterWidgetResizerEvent(splitterSize,
                             0,  target.getParent().getOffsetHeight(), 0, splitType, true ));
                 }
@@ -184,7 +187,7 @@ public class SplitterEx extends DockLayoutPanel {
 
                 @Override
                 public void onClick(ClickEvent event) {
-System.out.println("right?");
+                    eventBus.fireEvent(new CollectionPluginResizeBySplitterEvent());
                     eventBus.fireEvent(new SplitterWidgetResizerEvent(0, 0/*target.getParent().getOffsetWidth()*/,
                            /*верхняя точка сплитер панели*/ splitterSize, target.getParent().getOffsetHeight() - splitterSize, splitType, true ));
                 }
@@ -193,6 +196,7 @@ System.out.println("right?");
             changeModeButton.addDomHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
+                    eventBus.fireEvent(new CollectionPluginResizeBySplitterEvent());
                     int firstWidgetWidth = target.getParent().getParent().getOffsetWidth()/2 -DEFAULT_SPLITTER_SIZE;
                     if (splitType){
                         splitType = false;
@@ -248,7 +252,7 @@ System.out.println("right?");
                     mouseDown = false;
 
                     glassElem.removeFromParent();
-
+                    eventBus.fireEvent(new CollectionPluginResizeBySplitterEvent());
 
                     if (this.toggleDisplayAllowed) {
                         double now = Duration.currentTimeMillis();

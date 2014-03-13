@@ -1,6 +1,6 @@
 .hierarh-browser-inline {
     margin-left: 10px;
-    overflow-y: auto !important;
+   display: block;
     position: relative;
     vertical-align: top;
 }

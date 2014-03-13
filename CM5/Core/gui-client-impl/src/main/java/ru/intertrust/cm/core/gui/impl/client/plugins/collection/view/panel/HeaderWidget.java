@@ -26,22 +26,23 @@ public class HeaderWidget {
     private String fieldType;
     private String title;
     private boolean showFilter;
-
+    private String minWidth;
     private String filterValue = EMPTY_VALUE;
 
     public static final DateTimeFormat DATE_TIME_FORMAT = DateTimeFormat.getFormat("dd.MM.yyyy");
 
-    public HeaderWidget(String title, String fieldType, String searchFilterName, String id) {
+    public HeaderWidget(String title, String fieldType, String searchFilterName, String id, String minWidth) {
         this.id = id;
         this.fieldType = fieldType;
         this.searchFilterName = searchFilterName;
         this.title = title;
-
+        this.minWidth = minWidth;
     }
 
     public void init() {
         String styleDisplayingFilter = showFilter ? "" : " style=\"display:none\" ";
-        String start = "<div class=\"header-label\"><p>" + title
+         String minWidthStyle = "" /*"style = \"width:" + minWidth +"px\" "*/;
+        String start = "<div  "+ minWidthStyle +" class=\"header-label\"><p>" + title
                 + "</p><p style=\"display:none\">" + title + ASCEND_ARROW
                 + "</p><p style=\"display:none\">" + title + DESCEND_ARROW
                 + " </p></div> <div class=\"search-container\"" + styleDisplayingFilter + "id = ";
@@ -104,5 +105,13 @@ public class HeaderWidget {
 
     public String getFilterValue() {
         return filterValue;
+    }
+
+    public String getMinWidth() {
+        return minWidth;
+    }
+
+    public void setMinWidth(String minWidth) {
+        this.minWidth = minWidth;
     }
 }

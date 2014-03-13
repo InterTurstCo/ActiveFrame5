@@ -92,7 +92,7 @@ public class CollectionPluginView extends PluginView {
         tableBody.setHeaderBuilder(new HeaderBuilder<CollectionRowItem>(tableBody, false));
         tableBody.addStyleName("collection-plugin-view collection-plugin-view-container");
         filterList = new ArrayList<Filter>();
-        tableController = new TableController(tableBody, eventBus);
+      //  tableController = new TableController(tableBody, eventBus);
 
         updateSizes();
         splitterBehavior = new SplitterBehavior(eventBus, plugin);
@@ -121,6 +121,7 @@ public class CollectionPluginView extends PluginView {
             selectionModel.setSelected(items.get(index), true);
         }
         root.addStyleName("collection-plugin-view-container");
+
         return root;
     }
 
@@ -129,6 +130,7 @@ public class CollectionPluginView extends PluginView {
         createTableColumns();
         applySelectionModel();
         insertRows(items);
+
         applyStyles();
         addHandlers();
 
@@ -506,7 +508,7 @@ public class CollectionPluginView extends PluginView {
             String searchFilterName = (String) columnProperties.getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
             String fieldType = (String) columnProperties.getProperty(CollectionColumnProperties.TYPE_KEY);
             String searchAreaId = column.hashCode() + column.getDataStoreName();
-            HeaderWidget headerWidget = new HeaderWidget(column.getDataStoreName(), fieldType, searchFilterName, searchAreaId.replaceAll(" ", ""));
+            HeaderWidget headerWidget = new HeaderWidget(column.getDataStoreName(), fieldType, searchFilterName, searchAreaId.replaceAll(" ", ""), String.valueOf(column.getMinWidth()));
             CollectionColumnHeader collectionColumnHeader = new CollectionColumnHeader(tableBody, column, headerWidget, eventBus);
             headers.add(collectionColumnHeader);
             tableBody.addColumn(column, collectionColumnHeader);
@@ -709,12 +711,15 @@ public class CollectionPluginView extends PluginView {
 
         void addSplitterHandler() {
 
-              eventBus.addHandler(SplitterInnerScrollEvent.TYPE,new SplitterInnerScrollEventHandler() {
+              eventBus.addHandler(CollectionPluginResizeBySplitterEvent.TYPE,new CollectionPluginResizeBySplitterEventHandler() {
                   @Override
-                  public void setScrollPanelHeight(SplitterInnerScrollEvent event) {
-                        tableBody.setHeight(event.getUpperPanelHeight() - 35 + "px");
-                        tableBody.redraw();
-
+                  public void onCollectionPluginResizeBySplitter(CollectionPluginResizeBySplitterEvent event) {
+                     tableBody.redraw();
+                   /*   int height = event.getUpperPanelHeight() - 35;
+                       if (height > 0) {
+                       tableBody.setHeight(height + "px");
+                       tableBody.redraw();
+                       }*/
                   }
               });
            /* eventBus.addHandler(SplitterWidgetResizerEvent.TYPE, new SplitterWidgetResizerEventHandler() {
