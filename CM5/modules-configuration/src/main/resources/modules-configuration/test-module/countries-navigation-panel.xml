@@ -236,12 +236,11 @@
     </navigation>
     <navigation name="panel_1"
                 is-default="false">
-        <!--
         <link name="Geography" display-text="География" image="images/analitika.png" child-to-open="Countries">
             <child-links>
                 <link name="Countries" display-text="Страны">
                     <plugin>
-                        &lt;!&ndash;domain-object-type-to-create="country" - temp solution - remove later&ndash;&gt;
+                        <!--domain-object-type-to-create="country" - temp solution - remove later-->
                         <domain-object-surfer domain-object-type-to-create="country">
                             <collection-viewer>
                                 <collection-ref name="Countries"/>
@@ -269,111 +268,42 @@
 
             </child-links>
         </link>
--->
-
-        <link name="Administration" display-text="Состав" image="images/cases.png" child-to-open="Employee">
-            <!-- в администрировании не задан плагин, значит по клику ничего открываться не должно, либо должна открываться дочерняя ссылка. дочерняя ссылка должна быть одной из вложенных (1й уровень вложенности). если не задан ни плагин, ни дочерняя ссылка, то данная ссылка является простой группировкой дочерних -->
-            <child-links> <!-- group-name параметр не обязательный. Если он задан, то на экране появляется элемент-название группы (см. "Руководство разработчика", раздел Строение системы, Навигационное дерево -> "Стадии и задачи"-->
-                <link name="Employee" display-text="Сотрудники" image="images/inbox.png">
-                    <plugin>
-                        <!-- DomainObjectSurferConfig и CustomPluginConfig должны наследоваться от PluginConfig -->
-                        <!-- если используется collection-view, то collection нельзя использовать -->
-                        <domain-object-surfer domain-object-type-to-create="Employee">
-                            <collection-viewer>
-                                <collection-ref name="Employees" use-default="true"/>
-                                <default-sort-criteria column-field="name" order="desc"/>
-                            </collection-viewer>
-                            <toggle-edit>true</toggle-edit>
-                        </domain-object-surfer>
-                    </plugin>
-                    <decorations>
-                        <collection-counter/>
-                    </decorations>
-                </link>
-
-                <link name="Department" display-text="Отдел" image="images/docs.png">
-                    <plugin>
-                        <!-- DomainObjectSurferConfig и CustomPluginConfig должны наследоваться от PluginConfig -->
-                        <!-- если используется collection-view, то collection нельзя использовать -->
-                        <domain-object-surfer domain-object-type-to-create="Department">
-                            <collection-viewer>
-                                <collection-ref name="Departments" use-default="true"/>
-                                <default-sort-criteria column-field="name" order="desc"/>
-                            </collection-viewer>
-                        </domain-object-surfer>
-                    </plugin>
-                    <decorations>
-                        <collection-counter/>
-                    </decorations>
-                </link>
-
-                <link name="Organization" display-text="Организация" image="images/inbox.png">
-                    <plugin>
-                        <!-- DomainObjectSurferConfig и CustomPluginConfig должны наследоваться от PluginConfig -->
-                        <!-- если используется collection-view, то collection нельзя использовать -->
-                        <domain-object-surfer domain-object-type-to-create="Organization">
-                            <collection-viewer>
-                                <collection-ref name="Organizations" use-default="true"/>
-                                <default-sort-criteria column-field="name" order="desc"/>
-                            </collection-viewer>
-                        </domain-object-surfer>
-                    </plugin>
-                    <decorations>
-                        <collection-counter/>
-                    </decorations>
-                </link>
-            </child-links>
-        </link>
-
-        <link name="Documents" display-text="Документы" image="images/docs.png" child-to-open="Internal_Document">
+    </navigation>
+    <navigation name="panel_2"
+                is-default="false">
+        <link name="Geography" display-text="География" image="images/analitika.png" child-to-open="Countries">
             <child-links>
-<!--
-                <link name="Letters" display-text="Письма">
+                <link name="Countries" display-text="Страны">
                     <plugin>
-                        <domain-object-surfer domain-object-type-to-create="letter">
+                        <!--domain-object-type-to-create="country" - temp solution - remove later-->
+                        <domain-object-surfer domain-object-type-to-create="country">
                             <collection-viewer>
-                                <collection-ref name="letters"/>
-                            </collection-viewer>
-                        </domain-object-surfer>
-                    </plugin>
-                </link>
--->
-                <link name="Internal_Document" display-text="Внутренние документы">
-                    <plugin>
-                        <domain-object-surfer domain-object-type-to-create="Internal_Document">
-                            <collection-viewer>
-                                <collection-ref name="Internal_Document"/>
-                            </collection-viewer>
-                        </domain-object-surfer>
-                    </plugin>
-                </link>
-            </child-links>
-        </link>
-
-        <link name="Inbox" display-text="Входящие" image="images/helpers.png" child-to-open="Tasks">
-            <child-links>
-                <link name="Tasks" display-text="Задачи">
-                    <plugin>
-                        <domain-object-surfer domain-object-type-to-create="Internal_Document">
-                            <collection-viewer>
-                                <collection-ref name="Tasks"/>
-                            </collection-viewer>
-                        </domain-object-surfer>
-                    </plugin>
-                </link>
-
-                <link name="Letters" display-text="Письма">
-                    <plugin>
-                        <domain-object-surfer domain-object-type-to-create="Letter">
-                            <collection-viewer>
-                                <collection-ref name="Letters"/>
+                                <collection-ref name="Countries"/>
+                                <default-sort-criteria column-field="name" order="desc"/>
+                                <search-area-ref name="Countries-Search-Area"/>
+                                <search-collection-ref name="Countries"/>
                             </collection-viewer>
                             <toggle-edit>true</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                 </link>
+                <link name="Cities" display-text="Города">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="city">
+                            <collection-viewer>
+                                <collection-ref name="Cities"/>
+                                <default-sort-criteria column-field="population" order="desc"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                    <decorations>
+                        <collection-counter/>
+                    </decorations>
+                </link>
+
             </child-links>
         </link>
+
     </navigation>
     <!--Test Navigation config-->
     <navigation-panel-mappings>
@@ -393,9 +323,19 @@
             <user uid="person1"/>
         </users>
         <groups>
-            <group-name value="Группа"/>
+            <group-name value="Administrators"/>
         </groups>
     </navigation-panel-mapping>
-</navigation-panel-mappings>
+    </navigation-panel-mappings>
+    <navigation-panel-mappings>
+        <navigation-panel-mapping name="panel_2">
+            <users>
+                <user uid="person2"/>
+            </users>
+            <groups>
+                <group-name value="Группа"/>
+            </groups>
+        </navigation-panel-mapping>
+    </navigation-panel-mappings>
 
 </configuration>
