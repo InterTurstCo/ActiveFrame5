@@ -1810,6 +1810,7 @@ div.gwt-Good-Label {
     color: red;
     vertical-align: super;
     font-weight: bold;
+    padding-top: 5px;
 }
 
 .tree-label {

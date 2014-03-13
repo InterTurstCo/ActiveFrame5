@@ -143,3 +143,8 @@ div.gwt-Label {
     position: absolute !important;
     width: 100%;
 }
+
+.form-panel-header {
+    padding: 10px 0 10px 10px;
+    display: table-cell;
+}
