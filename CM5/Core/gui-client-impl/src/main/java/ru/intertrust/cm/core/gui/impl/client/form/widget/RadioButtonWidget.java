@@ -109,7 +109,9 @@ public class RadioButtonWidget extends BaseWidget {
 
     @Override
     protected Widget asEditableWidget(WidgetState state) {
-        return new ScrollPanel();
+        Panel panel = new ScrollPanel();
+        panel.addStyleName("radio-button-widget");
+        return panel;
     }
 
     @Override
