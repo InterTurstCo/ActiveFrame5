@@ -31,7 +31,9 @@ public class ContextRoleStaticGroupCollector extends BaseDynamicGroupServiceImpl
 
     @Override
     public List<Id> getInvalidContexts(DomainObject domainObject, List<FieldModification> modifiedFields) {
-        return null;
+        List<Id> result = new ArrayList<Id>();
+        result.add(domainObject.getId());
+        return result;
     }
 
     @Override

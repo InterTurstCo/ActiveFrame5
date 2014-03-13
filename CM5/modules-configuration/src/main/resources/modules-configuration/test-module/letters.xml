@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration xmlns="https://cm5.intertrust.ru/config">
-    <domain-object-type name="letter">
+    <domain-object-type name="letter" initial-status="Active">
         <fields>
             <string name="subject" length="128"/>
         </fields>
