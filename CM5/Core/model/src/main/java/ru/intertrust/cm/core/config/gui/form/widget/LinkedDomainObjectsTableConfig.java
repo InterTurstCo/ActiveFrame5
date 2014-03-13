@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.config.gui.form.widget;
 
+import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
@@ -10,6 +11,11 @@ import org.simpleframework.xml.Root;
  */
 @Root(name = "linked-domain-objects-table")
 public class LinkedDomainObjectsTableConfig extends WidgetConfig {
+
+    @Attribute(name = "modal-width",required = false)
+    private String modalWidth;
+    @Attribute(name = "modal-height",required = false)
+    private String modalHeight;
 
     @Element(name = "linked-form")
     private LinkedFormConfig linkedFormConfig;
@@ -83,7 +89,23 @@ public class LinkedDomainObjectsTableConfig extends WidgetConfig {
 
     @Override
     public String getComponentName() {
-        return "";  //To change body of implemented methods use File | Settings | File Templates.
+        return "linked-domain-objects-table";  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public String getModalWidth() {
+        return modalWidth;
+    }
+
+    public void setModalWidth(String modalWidth) {
+        this.modalWidth = modalWidth;
+    }
+
+    public String getModalHeight() {
+        return modalHeight;
+    }
+
+    public void setModalHeight(String modalHeight) {
+        this.modalHeight = modalHeight;
     }
 }
 

@@ -29,12 +29,15 @@ public abstract class WidgetHandler implements ComponentHandler {
     @Inject
     protected ConfigurationService configurationService;
 
+
+    public static final String FIELD_PLACEHOLDER_PATTERN = "\\{\\w+\\}";
+
     public abstract <T extends WidgetState> T getInitialState(WidgetContext context);
 
     public abstract Value getValue(WidgetState state);
 
     protected ArrayList<String> format(List<DomainObject> listToDisplay, String displayPattern) {
-        Pattern pattern = Pattern.compile("\\{\\w+\\}");
+        Pattern pattern = Pattern.compile(FIELD_PLACEHOLDER_PATTERN);
         Matcher matcher = pattern.matcher(displayPattern);
         ArrayList<String> displayValues = new ArrayList<>(listToDisplay.size());
         for (DomainObject domainObject : listToDisplay) {
@@ -48,10 +51,13 @@ public abstract class WidgetHandler implements ComponentHandler {
     }
 
     protected String format(IdentifiableObject identifiableObject, Matcher matcher) {
+
         StringBuffer replacement = new StringBuffer();
+
         while (matcher.find()) {
             String group = matcher.group();
             String fieldName = group.substring(1, group.length() - 1);
+
             Value value = identifiableObject.getValue(fieldName);
             String displayValue = "";
             if (value != null) {
@@ -66,6 +72,8 @@ public abstract class WidgetHandler implements ComponentHandler {
             }
             matcher.appendReplacement(replacement, displayValue);
         }
+
+
         matcher.appendTail(replacement);
         matcher.reset();
         return replacement.toString();

@@ -18,6 +18,7 @@ import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.form.*;
 import ru.intertrust.cm.core.gui.model.form.widget.LinkEditingWidgetState;
+import ru.intertrust.cm.core.gui.model.form.widget.LinkedDomainObjectsTableState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import javax.annotation.PostConstruct;
@@ -67,6 +68,18 @@ public class FormSaver {
             if (widgetState == null) { // ignore - such data shouldn't be saved
                 continue;
             }
+            if (widgetState instanceof LinkedDomainObjectsTableState) {
+                //process nested form states
+                LinkedDomainObjectsTableState linkedDomainObjectsTableState = (LinkedDomainObjectsTableState) widgetState;
+                LinkedHashMap<String, FormState> nestedFormStates = linkedDomainObjectsTableState.getNewFormStates();
+                Set<Map.Entry<String, FormState>> entries = nestedFormStates.entrySet();
+                for (Map.Entry<String, FormState> entry : entries) {
+                    FormState nestedFormState = entry.getValue();
+                    FormSaver formSaver = (FormSaver) applicationContext.getBean("formSaver", nestedFormState);
+                    formSaver.saveForm();
+                }
+            }
+
             FieldPath[] fieldPaths = FieldPath.createPaths(widgetConfig.getFieldPathConfig().getValue());
             FieldPath firstFieldPath = fieldPaths[0];
             WidgetHandler handler = getWidgetHandler(widgetConfig);

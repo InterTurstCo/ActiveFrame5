@@ -68,20 +68,20 @@
             <xs:element name="trigger" minOccurs="0" maxOccurs="1" type="con:triggerType">
             </xs:element>
         </xs:sequence>
-         <xs:attribute name="name" use="optional" type="con:domainObjectNameType"/>
+        <xs:attribute name="name" use="optional" type="con:domainObjectNameType"/>
     </xs:complexType>
 
     <xs:complexType name="triggerType">
         <xs:choice>
-            <xs:element name="config" minOccurs="0" maxOccurs="1" type="con:triggerConfigType" />
+            <xs:element name="config" minOccurs="0" maxOccurs="1" type="con:triggerConfigType"/>
             <xs:element name="class-name" minOccurs="0" maxOccurs="1" type="con:triggerClassNameType">
             </xs:element>
             <xs:element name="conditions-script" minOccurs="0" maxOccurs="1" type="xs:string">
             </xs:element>
         </xs:choice>
-        <xs:attribute name="domain-object-type" use="optional" type="con:domainObjectNameType" />
-        <xs:attribute name="event" use="optional" type="con:triggerEventType" />
-        <xs:attribute name="refName" type="xs:string" use="optional" />
+        <xs:attribute name="domain-object-type" use="optional" type="con:domainObjectNameType"/>
+        <xs:attribute name="event" use="optional" type="con:triggerEventType"/>
+        <xs:attribute name="refName" type="xs:string" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="triggerConfigType">
@@ -95,10 +95,10 @@
 
     <xs:simpleType name="triggerEventType">
         <xs:restriction base="xs:string">
-            <xs:enumeration value="CREATE" />
-            <xs:enumeration value="CHANGE" />
-            <xs:enumeration value="CHANGE_STATUS" />
-            <xs:enumeration value="DELETE" />
+            <xs:enumeration value="CREATE"/>
+            <xs:enumeration value="CHANGE"/>
+            <xs:enumeration value="CHANGE_STATUS"/>
+            <xs:enumeration value="DELETE"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -136,31 +136,31 @@
             <xs:element name="notification-type" minOccurs="0" maxOccurs="1" type="con:notificationTypeType">
             </xs:element>
         </xs:sequence>
-         <xs:attribute name="name" use="required" type="con:notificationNameType"/>
+        <xs:attribute name="name" use="required" type="con:notificationNameType"/>
     </xs:complexType>
-    
+
     <xs:complexType name="notificationTypeType">
         <xs:sequence>
-            <xs:element name="addressee" minOccurs="0" maxOccurs="1" type="con:notificationAddresseType" />
-            <xs:element name="triggers" minOccurs="0" maxOccurs="1" type="con:notificationTriggersType" />            
-         </xs:sequence>
-         <xs:attribute name="name" use="required" type="xs:string"/>         
+            <xs:element name="addressee" minOccurs="0" maxOccurs="1" type="con:notificationAddresseType"/>
+            <xs:element name="triggers" minOccurs="0" maxOccurs="1" type="con:notificationTriggersType"/>
+        </xs:sequence>
+        <xs:attribute name="name" use="required" type="xs:string"/>
     </xs:complexType>
 
     <xs:complexType name="notificationAddresseType">
         <xs:choice>
             <xs:element name="find-person" minOccurs="0" maxOccurs="1" type="con:notificationAddresseFindPersonType">
             </xs:element>
-            <xs:element name="by-context-role" minOccurs="0" maxOccurs="1" type="xs:string" />
-            <xs:element name="by-dynamic-group" minOccurs="0" maxOccurs="1" type="xs:string" />
+            <xs:element name="by-context-role" minOccurs="0" maxOccurs="1" type="xs:string"/>
+            <xs:element name="by-dynamic-group" minOccurs="0" maxOccurs="1" type="xs:string"/>
         </xs:choice>
     </xs:complexType>
 
     <xs:complexType name="notificationAddresseFindPersonType">
         <xs:choice>
-            <xs:element name="find-query" minOccurs="0" maxOccurs="1" type="xs:string" />
-            <xs:element name="class-name" minOccurs="0" maxOccurs="1" type="con:triggerClassNameType"/>            
-            <xs:element name="doel" minOccurs="0" maxOccurs="1" type="xs:string"/>            
+            <xs:element name="find-query" minOccurs="0" maxOccurs="1" type="xs:string"/>
+            <xs:element name="class-name" minOccurs="0" maxOccurs="1" type="con:triggerClassNameType"/>
+            <xs:element name="doel" minOccurs="0" maxOccurs="1" type="xs:string"/>
         </xs:choice>
     </xs:complexType>
 
@@ -178,7 +178,7 @@
             </xs:pattern>
         </xs:restriction>
     </xs:simpleType>
-    
+
     <xs:simpleType name="domainObjectNameType">
         <xs:restriction base="xs:string">
             <xs:maxLength value="25"/>
@@ -328,14 +328,14 @@
             <xs:element name="navigation-panel-mapping" type="con:navigationPanelMappingType"
                         maxOccurs="unbounded" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
-<!--
-            <xs:element name="groups" type="con:groupsNavType"
-                        maxOccurs="unbounded" minOccurs="0"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
--->
-           <!-- <xs:element name="group-name" type="con:groupNavType"
-                        maxOccurs="unbounded" minOccurs="0"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>-->
+            <!--
+                        <xs:element name="groups" type="con:groupsNavType"
+                                    maxOccurs="unbounded" minOccurs="0"
+                                    xmlns:con="https://cm5.intertrust.ru/config"/>
+            -->
+            <!-- <xs:element name="group-name" type="con:groupNavType"
+                         maxOccurs="unbounded" minOccurs="0"
+                         xmlns:con="https://cm5.intertrust.ru/config"/>-->
             <xs:element name="widget-template" type="con:widgetTemplateType"
                         maxOccurs="unbounded" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
@@ -351,18 +351,18 @@
             <xs:element name="action-context" type="con:actionContextType"
                         maxOccurs="unbounded" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
-                <xs:element name="search-area" type="con:searchAreaType"
-                    maxOccurs="unbounded" minOccurs="0"
-                    xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element name="search-area" type="con:searchAreaType"
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="business-universe" type="con:businessUniverseType"
                         maxOccurs="1" minOccurs="0"
-                        xmlns:con="https://cm5.intertrust.ru/config" />
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:namedTriggerType" name="named-trigger"
                         maxOccurs="unbounded" minOccurs="0"/>
             <xs:element name="url-config" type="con:urlConfigType"
                         minOccurs="0" maxOccurs="unbounded"/>
             <xs:element type="con:notificationType" name="notification"
-                        maxOccurs="unbounded" minOccurs="0" />
+                        maxOccurs="unbounded" minOccurs="0"/>
 
         </xs:choice>
     </xs:complexType>
@@ -371,7 +371,7 @@
         <xs:choice>
             <xs:element name="logo" type="con:logoType"
                         maxOccurs="1" minOccurs="0"
-                        xmlns:con="https://cm5.intertrust.ru/config" />
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:choice>
     </xs:complexType>
     <xs:complexType name="logoType">
@@ -418,7 +418,7 @@
         <xs:attribute name="text" use="required" type="xs:string"/>
         <xs:attribute name="image" use="required" type="xs:string"/>
         <xs:attribute name="short-desc" use="optional" type="xs:string"/>
-        <xs:attribute name="toggle" use="optional" type="xs:boolean" />
+        <xs:attribute name="toggle" use="optional" type="xs:boolean"/>
         <xs:attribute name="validate" use="optional" type="xs:boolean"/>
     </xs:complexType>
 
@@ -784,13 +784,13 @@
         </xs:choice>
     </xs:complexType>
 
-   <!-- <xs:complexType name="groupNavType">
-        <xs:attribute name="value" type="xs:string" use="required"/>
-    </xs:complexType>-->
+    <!-- <xs:complexType name="groupNavType">
+         <xs:attribute name="value" type="xs:string" use="required"/>
+     </xs:complexType>-->
 
-  <!--  <xs:complexType name="groupsNavType">
-        <xs:attribute name="name" type="xs:string" use="optional"/>
-    </xs:complexType>-->
+    <!--  <xs:complexType name="groupsNavType">
+          <xs:attribute name="name" type="xs:string" use="optional"/>
+      </xs:complexType>-->
 
     <xs:complexType name="accessMatrixType">
         <xs:sequence>
@@ -948,7 +948,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute type="xs:boolean" name="value"
-                               default="false"/>
+                              default="false"/>
 
             </xs:extension>
         </xs:simpleContent>
@@ -1030,10 +1030,10 @@
     </xs:complexType>
     <xs:complexType name="sortCriteriaType">
         <xs:sequence>
-        <xs:element type="con:sortCriterionType" name="sort-criterion"
-                    maxOccurs="unbounded" minOccurs="0"
-                    xmlns:con="https://cm5.intertrust.ru/config">
-        </xs:element>
+            <xs:element type="con:sortCriterionType" name="sort-criterion"
+                        maxOccurs="unbounded" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config">
+            </xs:element>
         </xs:sequence>
     </xs:complexType>
 
@@ -1057,7 +1057,7 @@
                 <xs:element name="permit-group" type="con:permissionGroupType"
                             maxOccurs="unbounded" minOccurs="0"
                             xmlns:con="https://cm5.intertrust.ru/config"/>
-            </xs:choice>                       
+            </xs:choice>
         </xs:sequence>
     </xs:complexType>
 
@@ -1338,8 +1338,8 @@
     </xs:complexType>
     <xs:simpleType name="layoutAttr">
         <xs:restriction base="xs:string">
-            <xs:enumeration value="vertical" />
-            <xs:enumeration value="horizontal" />
+            <xs:enumeration value="vertical"/>
+            <xs:enumeration value="horizontal"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:complexType name="singleEntryGroupType">
@@ -1388,6 +1388,8 @@
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                 </xs:sequence>
                 <xs:attribute type="xs:string" name="id" use="required"/>
+                <xs:attribute type="xs:string" name="modal-width"/>
+                <xs:attribute type="xs:string" name="modal-height"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -1398,6 +1400,7 @@
                         minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
         <xs:attribute type="xs:string" name="form-name"/>
+
     </xs:complexType>
 
     <xs:element type="con:textBoxType" name="text-box" substitutionGroup="con:widget"/>
@@ -1451,9 +1454,9 @@
                     <xs:element type="xs:boolean" name="display-time-zone-choice" minOccurs="0" maxOccurs="1"/>
                     <xs:choice maxOccurs="1" minOccurs="0">
                         <xs:element type="con:rangeType" name="range-start"
-                                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                                    minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
                         <xs:element type="con:rangeType" name="range-end"
-                                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                                    minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
                     </xs:choice>
                 </xs:sequence>
                 <xs:attribute type="xs:string" name="id" use="optional"/>
@@ -1570,12 +1573,12 @@
     </xs:complexType>
 
     <xs:complexType name="selectionFilterReferenceType">
-    <xs:simpleContent>
-        <xs:extension base="xs:string">
-            <xs:attribute type="xs:string" name="name"/>
-        </xs:extension>
-    </xs:simpleContent>
-</xs:complexType>
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="name"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
     <xs:complexType name="searchAreaRefType">
         <xs:simpleContent>
             <xs:extension base="xs:string">
@@ -1600,16 +1603,16 @@
     <xs:complexType name="clearAllButtonType">
         <xs:simpleContent>
             <xs:extension base="xs:string">
-                <xs:attribute type="xs:string" name="image" />
-                <xs:attribute type="xs:string" name="text" />
+                <xs:attribute type="xs:string" name="image"/>
+                <xs:attribute type="xs:string" name="text"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
     <xs:complexType name="addButtonType">
         <xs:simpleContent>
             <xs:extension base="xs:string">
-                <xs:attribute type="xs:string" name="image" />
-                <xs:attribute type="xs:string" name="text" />
+                <xs:attribute type="xs:string" name="image"/>
+                <xs:attribute type="xs:string" name="text"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -1701,7 +1704,7 @@
             </xs:element>
         </xs:sequence>
         <xs:attribute type="xs:string" name="name" use="optional"/>
-        <xs:attribute type="con:initialStateType" name="initial-state" use="optional" default="expanded" />
+        <xs:attribute type="con:initialStateType" name="initial-state" use="optional" default="expanded"/>
     </xs:complexType>
     <xs:complexType name="rolesType">
         <xs:sequence>
@@ -1712,8 +1715,8 @@
 
     <xs:simpleType name="initialStateType">
         <xs:restriction base="xs:string">
-            <xs:enumeration value="expanded" />
-            <xs:enumeration value="closed" />
+            <xs:enumeration value="expanded"/>
+            <xs:enumeration value="closed"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -1778,7 +1781,8 @@
         <xs:complexContent>
             <xs:extension base="con:abstractWidgetType">
                 <xs:choice maxOccurs="unbounded">
-                    <xs:element type="con:fieldPathType" name="field-path" xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:fieldPathType" name="field-path"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
 
                     <xs:element type="con:nodeCollectionDefType" name="node-collection-def"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
@@ -1814,12 +1818,12 @@
         </xs:choice>
         <xs:attribute type="xs:string" name="collection" use="optional"/>
         <xs:attribute type="xs:string" name="parent-filter" use="optional"/>
-        <xs:attribute type="xs:boolean" name="selective"  default="true"/>
+        <xs:attribute type="xs:boolean" name="selective" default="true"/>
         <xs:attribute type="xs:string" name="domain-object-type"/>
     </xs:complexType>
 
     <xs:complexType name="displayValuesAsLinksType">
-                <xs:attribute type="xs:boolean" name="value"/>
+        <xs:attribute type="xs:boolean" name="value"/>
     </xs:complexType>
 
     <xs:element type="con:attachmentBoxType" name="attachment-box" substitutionGroup="con:widget"/>
@@ -1910,27 +1914,27 @@
         <xs:attribute type="xs:string" name="value"/>
     </xs:complexType>
     <xs:complexType name="fontWeightType">
-        <xs:attribute type="con:fontWeightValueType" name="value" />
+        <xs:attribute type="con:fontWeightValueType" name="value"/>
     </xs:complexType>
     <xs:complexType name="fontSizeType">
-        <xs:attribute type="xs:string" name="value" />
+        <xs:attribute type="xs:string" name="value"/>
     </xs:complexType>
     <xs:complexType name="fontStyleType">
-        <xs:attribute type="con:fontStyleValueType" name="value" />
+        <xs:attribute type="con:fontStyleValueType" name="value"/>
     </xs:complexType>
     <xs:simpleType name="fontWeightValueType">
         <xs:restriction base="xs:string">
-            <xs:enumeration value="normal" />
-            <xs:enumeration value="bold" />
-            <xs:enumeration value="bolder" />
-            <xs:enumeration value="lighter" />
+            <xs:enumeration value="normal"/>
+            <xs:enumeration value="bold"/>
+            <xs:enumeration value="bolder"/>
+            <xs:enumeration value="lighter"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="fontStyleValueType">
         <xs:restriction base="xs:string">
-            <xs:enumeration value="normal" />
-            <xs:enumeration value="italic" />
-            <xs:enumeration value="oblique" />
+            <xs:enumeration value="normal"/>
+            <xs:enumeration value="italic"/>
+            <xs:enumeration value="oblique"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:complexType name="tableType">
@@ -1983,6 +1987,7 @@
             </xs:element>
         </xs:sequence>
         <xs:attribute type="xs:string" name="header" use="optional"/>
+        <xs:attribute type="xs:string" name="widget-id" use="optional"/>
     </xs:complexType>
     <xs:complexType name="formTableColumnType">
         <xs:simpleContent>
@@ -2004,50 +2009,50 @@
 
     <xs:complexType name="columnType">
 
-            <xs:choice maxOccurs="unbounded" minOccurs="0">
-                <xs:element type="con:ascSortCriteriaType" name="asc-sort-criteria"
-                             xmlns:con="https://cm5.intertrust.ru/config"/>
-                <xs:element type="con:descSortCriteriaType" name="desc-sort-criteria"
-                            xmlns:con="https://cm5.intertrust.ru/config"/>
-                <xs:element type="con:imageMappingsType" name="image-mappings"
-                            xmlns:con="https://cm5.intertrust.ru/config"/>
-                <xs:element type="con:uiRendererType" name="renderer"
-                            xmlns:con="https://cm5.intertrust.ru/config"/>
-             </xs:choice>
-                <xs:attribute type="xs:string" name="field"
-                              use="required"/>
-                <xs:attribute type="xs:string" name="name"
-                              use="required"/>
-                <xs:attribute type="xs:boolean" name="hidden"
-                              use="optional"/>
-                <xs:attribute type="xs:boolean" name="sortable"
-                              use="optional"/>
-                <xs:attribute type="xs:boolean" name="editable"
-                              use="optional"/>
-                <xs:attribute name="type" use="required">
-                    <xs:simpleType>
-                        <xs:restriction base="xs:string">
-                            <xs:enumeration value="integer"/>
-                            <xs:enumeration value="string"/>
-                            <xs:enumeration value="boolean"/>
-                            <xs:enumeration value="text"/>
-                            <xs:enumeration value="datetime"/>
-                            <xs:enumeration value="dateTimeWithTimeZone"/>
-                            <xs:enumeration value="timelessDate"/>
-                            <xs:enumeration value="reference"/>
-                            <xs:enumeration value="long"/>
-                            <xs:enumeration value="decimal"/>
-                        </xs:restriction>
-                    </xs:simpleType>
-                </xs:attribute>
-                <xs:attribute type="xs:string" name="search-filter"
-                              use="optional"/>
-                <xs:attribute type="xs:string" name="pattern" use="optional"/>
-                <xs:attribute type="xs:string" name="time-zone-id" use="optional"/>
-                <xs:attribute type="xs:string" name="min-width" default="200px"/>
-                <xs:attribute type="xs:string" name="max-width"/>
-                <xs:attribute type="xs:boolean" name="resizable" default="true"/>
-                <xs:attribute type="con:textBreakStyleType" name="text-break-style"/>
+        <xs:choice maxOccurs="unbounded" minOccurs="0">
+            <xs:element type="con:ascSortCriteriaType" name="asc-sort-criteria"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:descSortCriteriaType" name="desc-sort-criteria"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:imageMappingsType" name="image-mappings"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:uiRendererType" name="renderer"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:choice>
+        <xs:attribute type="xs:string" name="field"
+                      use="required"/>
+        <xs:attribute type="xs:string" name="name"
+                      use="required"/>
+        <xs:attribute type="xs:boolean" name="hidden"
+                      use="optional"/>
+        <xs:attribute type="xs:boolean" name="sortable"
+                      use="optional"/>
+        <xs:attribute type="xs:boolean" name="editable"
+                      use="optional"/>
+        <xs:attribute name="type" use="required">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="integer"/>
+                    <xs:enumeration value="string"/>
+                    <xs:enumeration value="boolean"/>
+                    <xs:enumeration value="text"/>
+                    <xs:enumeration value="datetime"/>
+                    <xs:enumeration value="dateTimeWithTimeZone"/>
+                    <xs:enumeration value="timelessDate"/>
+                    <xs:enumeration value="reference"/>
+                    <xs:enumeration value="long"/>
+                    <xs:enumeration value="decimal"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute type="xs:string" name="search-filter"
+                      use="optional"/>
+        <xs:attribute type="xs:string" name="pattern" use="optional"/>
+        <xs:attribute type="xs:string" name="time-zone-id" use="optional"/>
+        <xs:attribute type="xs:string" name="min-width" default="200px"/>
+        <xs:attribute type="xs:string" name="max-width"/>
+        <xs:attribute type="xs:boolean" name="resizable" default="true"/>
+        <xs:attribute type="con:textBreakStyleType" name="text-break-style"/>
     </xs:complexType>
 
     <xs:complexType name="mappingType">
@@ -2058,28 +2063,28 @@
     <xs:complexType name="imageMappingsType">
         <xs:sequence>
             <xs:element type="con:mappingType" name="mapping"
-                        maxOccurs="unbounded" minOccurs="0" />
+                        maxOccurs="unbounded" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
 
     <xs:simpleType name="textBreakStyleType">
         <xs:restriction base="xs:string">
-            <xs:enumeration value="wrap" />
-            <xs:enumeration value="cut" />
+            <xs:enumeration value="wrap"/>
+            <xs:enumeration value="cut"/>
         </xs:restriction>
     </xs:simpleType>
 
     <xs:complexType name="displayType">
         <xs:sequence>
             <xs:element type="con:columnType" name="column"
-                        maxOccurs="unbounded" minOccurs="0" />
+                        maxOccurs="unbounded" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
 
     <xs:complexType name="collectionMappingType">
         <xs:sequence>
-            <xs:element type="con:usersType" name="users" />
-            <xs:element type="con:rolesType" name="roles" />
+            <xs:element type="con:usersType" name="users"/>
+            <xs:element type="con:rolesType" name="roles"/>
         </xs:sequence>
         <xs:attribute type="xs:string" name="collection"/>
         <xs:attribute type="xs:string" name="view"/>
@@ -2097,39 +2102,39 @@
     <xs:complexType name="searchAreaType">
         <xs:sequence>
             <xs:element type="con:targetDomainObjectType" name="target-domain-object"
-                minOccurs="1" maxOccurs="unbounded"
-                xmlns:con="https://cm5.intertrust.ru/config"/>
+                        minOccurs="1" maxOccurs="unbounded"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
-        <xs:attribute type="xs:string" name="name" use="required" />
+        <xs:attribute type="xs:string" name="name" use="required"/>
     </xs:complexType>
 
     <xs:complexType name="indexedDomainObjectType" abstract="true">
         <xs:sequence>
             <xs:element type="con:indexedFieldType" name="indexed-field"
-                minOccurs="0" maxOccurs="unbounded"
-                xmlns:con="https://cm5.intertrust.ru/config"/>
+                        minOccurs="0" maxOccurs="unbounded"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:indexedContentType" name="indexed-content"
-                minOccurs="0" maxOccurs="unbounded"
-                xmlns:con="https://cm5.intertrust.ru/config"/>
+                        minOccurs="0" maxOccurs="unbounded"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:linkedDomainObjectType" name="linked-domain-object"
-                minOccurs="0" maxOccurs="unbounded"
-                xmlns:con="https://cm5.intertrust.ru/config"/>
+                        minOccurs="0" maxOccurs="unbounded"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
-        <xs:attribute type="xs:string" name="type" use="required" />
+        <xs:attribute type="xs:string" name="type" use="required"/>
     </xs:complexType>
 
     <xs:complexType name="indexedFieldType">
         <xs:complexContent>
             <xs:extension base="con:optionalDomainObjectAlgorithmType"
-                    xmlns:con="https://cm5.intertrust.ru/config">
-                <xs:attribute type="xs:string" name="name" use="required" />
+                          xmlns:con="https://cm5.intertrust.ru/config">
+                <xs:attribute type="xs:string" name="name" use="required"/>
                 <xs:attribute type="xs:string" name="language" use="optional"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
 
     <xs:complexType name="indexedContentType">
-        <xs:attribute type="xs:string" name="type" use="required" />
+        <xs:attribute type="xs:string" name="type" use="required"/>
     </xs:complexType>
 
     <xs:complexType name="linkedDomainObjectType">
@@ -2137,20 +2142,20 @@
             <xs:extension base="con:indexedDomainObjectType">
                 <xs:sequence>
                     <xs:element type="con:optionalDomainObjectAlgorithmType" name="parent-link"
-                        minOccurs="1" maxOccurs="1"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
+                                minOccurs="1" maxOccurs="1"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
                 </xs:sequence>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
 
-    <xs:complexType name="targetDomainObjectType" >
+    <xs:complexType name="targetDomainObjectType">
         <xs:complexContent>
             <xs:extension base="con:indexedDomainObjectType">
                 <xs:sequence>
                     <xs:element type="con:targetCollectionType" name="target-collection"
-                        minOccurs="0" maxOccurs="1"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
+                                minOccurs="0" maxOccurs="1"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
                 </xs:sequence>
             </xs:extension>
         </xs:complexContent>
@@ -2163,19 +2168,19 @@
     <xs:complexType name="optionalDomainObjectAlgorithmType">
         <xs:choice minOccurs="0" maxOccurs="1">
             <xs:element name="java-class" type="con:javaClassType"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="spring-bean" type="con:springBeanType"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="doel" type="con:doelType"
-                xmlns:con="https://cm5.intertrust.ru/config" />
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:choice>
     </xs:complexType>
 
     <xs:complexType name="dialogWindowType">
         <xs:simpleContent>
             <xs:extension base="xs:string">
-                <xs:attribute type="xs:string" name="width" />
-                <xs:attribute type="xs:string" name="height" />
+                <xs:attribute type="xs:string" name="width"/>
+                <xs:attribute type="xs:string" name="height"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
