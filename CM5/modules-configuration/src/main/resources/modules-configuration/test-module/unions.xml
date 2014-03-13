@@ -15,7 +15,8 @@
             <attachment-type name="country_union_attachment" />
         </attachment-types>
     </domain-object-type>
-    <form name="country_union_form" domain-object-type="country_union" is-default="true" debug="false" min-width="900px">
+    <form name="country_union_form" domain-object-type="country_union" is-default="true"
+          debug="false" min-width="900px">
         <markup>
             <header>
                 <!--width="800px" height="200px"-->
@@ -28,6 +29,11 @@
                         <!-- text-box (Название) -->
                         <td width="100%" h-align="left">
                             <widget id="name" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <widget id="search-descriptor"/>
                         </td>
                     </tr>
                 </table>
@@ -43,6 +49,10 @@
             <text-box id="name">
                 <field-path value="name" />
             </text-box>
+            <label id="search-descriptor">
+                <field-path/>
+                <text>На этой странице реализован регистронезависимый поиск в таблице</text>
+            </label>
         </widget-config>
     </form>
     <collection name="CountryUnions" idField="id">
@@ -65,7 +75,7 @@
         <filter name="byName">
             <criteria placeholder="where-clause">
                 <![CDATA[
-                    cun.name like {0}
+                    lower(cun.name) like lower({0})
                 ]]>
             </criteria>
         </filter>

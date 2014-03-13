@@ -39,9 +39,9 @@ import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
-import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
+import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
 import ru.intertrust.cm.core.gui.impl.server.plugin.DefaultImageMapperImpl;
 import ru.intertrust.cm.core.gui.impl.server.util.ActionConfigBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilder;
@@ -49,7 +49,6 @@ import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
-import ru.intertrust.cm.core.gui.model.SortedMarker;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.SaveToCSVContext;
 import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowItemList;
@@ -285,61 +284,19 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         LinkedHashMap<String, CollectionColumnProperties> columnPropertiesMap =
                 new LinkedHashMap<String, CollectionColumnProperties>();
         CollectionDisplayConfig collectionDisplay = collectionViewConfig.getCollectionDisplayConfig();
-        String sortedField = getSortedField(sortCriteriaConfig);
         if (collectionDisplay != null) {
             List<CollectionColumnConfig> columnConfigs = collectionDisplay.getColumnConfig();
             for (CollectionColumnConfig columnConfig : columnConfigs) {
                 if (!columnConfig.isHidden()) {
                     final String field = columnConfig.getField();
-                    final CollectionColumnProperties properties = new CollectionColumnProperties();
-                    String columnName = columnConfig.getName();
-                    properties.addProperty(CollectionColumnProperties.FIELD_NAME, field)
-                            .addProperty(CollectionColumnProperties.NAME_KEY, columnName)
-                            .addProperty(CollectionColumnProperties.TYPE_KEY, columnConfig.getType())
-                            .addProperty(CollectionColumnProperties.SEARCH_FILTER_KEY, columnConfig.getSearchFilter())
-                            .addProperty(CollectionColumnProperties.PATTERN_KEY, columnConfig.getPattern())
-                            .addProperty(CollectionColumnProperties.TIME_ZONE_ID, columnConfig.getTimeZoneId())
-                            .addProperty(CollectionColumnProperties.MIN_WIDTH, columnConfig.getMinWidth())
-                            .addProperty(CollectionColumnProperties.MAX_WIDTH, columnConfig.getMaxWidth())
-                            .addProperty(CollectionColumnProperties.RESIZABLE, columnConfig.isResizable())
-                            .addProperty(CollectionColumnProperties.TEXT_BREAK_STYLE, columnConfig.getTextBreakStyle())
-                            .addProperty(CollectionColumnProperties.SORTABLE, columnConfig.isSortable());
-                    if (field.equalsIgnoreCase(sortedField)) {
-                        properties.addProperty(
-                                CollectionColumnProperties.SORTED_MARKER, getSortedMarker(sortCriteriaConfig));
-                    }
-                    properties.setAscSortCriteriaConfig(columnConfig.getAscSortCriteriaConfig());
-                    properties.setDescSortCriteriaConfig(columnConfig.getDescSortCriteriaConfig());
-                    properties.setImageMappingsConfig(columnConfig.getImageMappingsConfig());
-                    properties.setRendererConfig(columnConfig.getRendererConfig());
+                    final CollectionColumnProperties properties =
+                            GuiServerHelper.collectionColumnConfigToProperties(columnConfig, sortCriteriaConfig);
                     columnPropertiesMap.put(field, properties);
-
                 }
             }
             return columnPropertiesMap;
 
         } else throw new GuiException("Collection view config has no display tags configured ");
-    }
-
-    private SortedMarker getSortedMarker(DefaultSortCriteriaConfig sortCriteriaConfig) {
-        SortCriterion.Order sortOrder = sortCriteriaConfig.getOrder();
-        boolean sortedAscending = isSortedAscending(sortOrder);
-        SortedMarker sortedMarker = new SortedMarker();
-        sortedMarker.setAscending(sortedAscending);
-        return sortedMarker;
-    }
-
-    private boolean isSortedAscending(SortCriterion.Order order) {
-        return (order.equals(SortCriterion.Order.ASCENDING));
-
-    }
-
-    private String getSortedField(DefaultSortCriteriaConfig sortCriteriaConfig) {
-        if (sortCriteriaConfig == null) {
-            return null;
-        }
-        String columnField = sortCriteriaConfig.getColumnField();
-        return columnField;
     }
 
     public CollectionRowItem generateCollectionRowItem(final IdentifiableObject identifiableObject,

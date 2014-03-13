@@ -24,6 +24,8 @@ import ru.intertrust.cm.core.business.api.dto.ImagePathValue;
 import ru.intertrust.cm.core.business.api.dto.OneOfListFilter;
 import ru.intertrust.cm.core.business.api.dto.TextSearchFilter;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
+import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
@@ -32,11 +34,14 @@ import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
 import ru.intertrust.cm.core.config.search.SearchAreaConfig;
 import ru.intertrust.cm.core.config.search.TargetDomainObjectConfig;
+import ru.intertrust.cm.core.gui.api.server.GuiContext;
+import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
-import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.impl.server.form.FormResolver;
+import ru.intertrust.cm.core.gui.impl.server.plugin.DefaultImageMapperImpl;
+import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
@@ -56,6 +61,7 @@ import ru.intertrust.cm.core.gui.model.plugin.ExtendedSearchData;
 import ru.intertrust.cm.core.gui.model.plugin.ExtendedSearchPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 
 /**
  * User: IPetrov
@@ -73,6 +79,10 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
     protected ApplicationContext applicationContext;
     @Autowired
     SearchService searchService;
+
+    @Autowired
+    DefaultImageMapperImpl defaultImageMapper;
+
     //@Autowired
     //private CrudService crudService;
     @Autowired
@@ -287,30 +297,34 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
 
         ArrayList<CollectionRowItem> searchResultRowItems = new ArrayList<CollectionRowItem>();
 
-        IdentifiableObjectCollection collection = extendedSearch(extendedSearchData);
-
-            for (IdentifiableObject identifiableObject : collection) {
-                ArrayList<String> fieldsInCollection = new ArrayList<String>();
-                fieldsInCollection = identifiableObject.getFields();
-                LinkedHashMap<String, Map<Value, ImagePathValue>> fieldMaps = new LinkedHashMap<String, Map<Value, ImagePathValue>>();
-                for (String field : fieldsInCollection) {
-                    fieldMaps.put(field, null);
-                }
-                searchResultRowItems.add(
-                        collectionPluginHandler.generateCollectionRowItem(identifiableObject,null, fieldMaps ));
-
+        final String targetCollectionName = extendedSearchData.getTargetCollectionNames()
+                .get(extendedSearchData.getSearchQuery().getTargetObjectType());
+        final Collection<CollectionViewConfig> viewConfigs = configurationService.getConfigs(CollectionViewConfig.class);
+        CollectionViewConfig targetViewConfig = null;
+        for (CollectionViewConfig viewConfig : viewConfigs) {
+            if (viewConfig.getCollection().equals(targetCollectionName) && viewConfig.isDefault()) {
+                targetViewConfig = viewConfig;
+                break;
             }
-
-        CollectionPluginData collectionPluginData = collectionPluginHandler.getExtendedCollectionPluginData(
-                extendedSearchData.getTargetCollectionNames().get(extendedSearchData.getSearchQuery().getTargetObjectType()),
-                                                                  searchResultRowItems);
-
-        // устанавливаем имя результирующей коллекции
-        collectionPluginData.setCollectionName(extendedSearchData.getTargetCollectionNames().
-                get(extendedSearchData.getSearchQuery().getTargetObjectType()));
-
+        }
+        final LinkedHashMap<String, CollectionColumnProperties> columnPropertiesMap = new LinkedHashMap<>();
+        for (CollectionColumnConfig ccConfig : targetViewConfig.getCollectionDisplayConfig().getColumnConfig()) {
+            final CollectionColumnProperties properties =
+                    GuiServerHelper.collectionColumnConfigToProperties(ccConfig, null);
+            columnPropertiesMap.put(ccConfig.getField(), properties);
+        }
+        IdentifiableObjectCollection collection = extendedSearch(extendedSearchData);
+        for (IdentifiableObject identifiableObject : collection) {
+            final Map<String, Map<Value, ImagePathValue>> fieldMaps = defaultImageMapper.getImageMaps(columnPropertiesMap);
+            searchResultRowItems.add(collectionPluginHandler.generateCollectionRowItem(
+                            identifiableObject, columnPropertiesMap, fieldMaps));
+        }
+        final CollectionPluginData collectionPluginData =
+                collectionPluginHandler.getExtendedCollectionPluginData(targetCollectionName, searchResultRowItems);
+        collectionPluginData.setCollectionViewConfigName(targetViewConfig.getName());
+        collectionPluginData.setDomainObjectFieldPropertiesMap(columnPropertiesMap);
+        collectionPluginData.setCollectionName(targetCollectionName);
         ArrayList<CollectionRowItem> items = collectionPluginData.getItems();
-
         final FormPluginConfig formPluginConfig;
         if (items == null || items.isEmpty()) {
             formPluginConfig = new FormPluginConfig(extendedSearchData.getSearchQuery().getTargetObjectType());
@@ -320,8 +334,11 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
             selectedIndexes.add(Integer.valueOf(0));
             collectionPluginData.setIndexesOfSelectedItems(selectedIndexes);
         }
-
-        formPluginConfig.setDomainObjectTypeToCreate(extendedSearchData.getSearchQuery().getTargetObjectType());
+        final FormPluginState fpState = new FormPluginState();
+        fpState.setInCentralPanel(false);
+        fpState.setEditable(false);
+        fpState.setToggleEdit(true);
+        formPluginConfig.setPluginState(fpState);
 
         FormPluginHandler formPluginHandler = (FormPluginHandler) applicationContext.getBean("form.plugin");
         List<ActionContext> actionContexts = formPluginHandler.initialize(formPluginConfig).getActionContexts();

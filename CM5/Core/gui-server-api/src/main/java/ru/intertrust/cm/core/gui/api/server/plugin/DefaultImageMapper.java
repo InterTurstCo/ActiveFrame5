@@ -1,11 +1,10 @@
 package ru.intertrust.cm.core.gui.api.server.plugin;
 
+import java.util.Map;
+
 import ru.intertrust.cm.core.business.api.dto.ImagePathValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -13,5 +12,6 @@ import java.util.Map;
  *         Time: 12:05 PM
  */
 public interface DefaultImageMapper {
-    public Map<String, Map<Value, ImagePathValue>> getImageMaps(LinkedHashMap<String, CollectionColumnProperties> columnsProperties);
+    public Map<String, Map<Value, ImagePathValue>> getImageMaps(
+            Map<String, CollectionColumnProperties> columnsProperties);
 }

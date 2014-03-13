@@ -1,12 +1,19 @@
 package ru.intertrust.cm.core.gui.impl.server.plugin;
 
-import ru.intertrust.cm.core.business.api.dto.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import ru.intertrust.cm.core.business.api.dto.BooleanValue;
+import ru.intertrust.cm.core.business.api.dto.ImagePathValue;
+import ru.intertrust.cm.core.business.api.dto.LongValue;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.gui.collection.view.ImageMappingsConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.MappingConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.DefaultImageMapper;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
-
-import java.util.*;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -19,7 +26,8 @@ public class DefaultImageMapperImpl implements DefaultImageMapper {
 
     }
 
-    public Map<String, Map<Value, ImagePathValue>> getImageMaps(LinkedHashMap<String, CollectionColumnProperties> columnsProperties) {
+    public Map<String, Map<Value, ImagePathValue>> getImageMaps(
+            final Map<String, CollectionColumnProperties> columnsProperties) {
         Map<String, Map<Value, ImagePathValue>> imagePathsMappings = new HashMap<String, Map<Value, ImagePathValue>>();
         Set<String> fields = columnsProperties.keySet();
         for (String field : fields) {
@@ -38,7 +46,8 @@ public class DefaultImageMapperImpl implements DefaultImageMapper {
         return imagePathsMappings;
     }
 
-    private Map<Value, ImagePathValue> initMapDependingOnType(List<MappingConfig> mappingConfigs, String fieldType) {
+    private Map<Value, ImagePathValue> initMapDependingOnType(final List<MappingConfig> mappingConfigs,
+                                                              final String fieldType) {
         if (fieldType.equalsIgnoreCase("string")) {
             return initStringValues(mappingConfigs);
         } else if (fieldType.equalsIgnoreCase("boolean")) {
@@ -47,10 +56,9 @@ public class DefaultImageMapperImpl implements DefaultImageMapper {
             return initLongValues(mappingConfigs);
         }
         return null;
-
     }
 
-    private Map<Value, ImagePathValue> initStringValues(List<MappingConfig> mappings) {
+    private Map<Value, ImagePathValue> initStringValues(final List<MappingConfig> mappings) {
         Map<Value, ImagePathValue> valueMap = new HashMap<Value, ImagePathValue>();
         for (MappingConfig config : mappings) {
             String value = config.getValue();
@@ -68,7 +76,7 @@ public class DefaultImageMapperImpl implements DefaultImageMapper {
         return valueMap;
     }
 
-    private Map<Value, ImagePathValue> initBooleanValues(List<MappingConfig> mappings) {
+    private Map<Value, ImagePathValue> initBooleanValues(final List<MappingConfig> mappings) {
         Map<Value, ImagePathValue> valueMap = new HashMap<Value, ImagePathValue>();
         for (MappingConfig config : mappings) {
             String value = config.getValue();

@@ -4,7 +4,12 @@ import java.util.Calendar;
 import java.util.TimeZone;
 
 import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
+import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.TimelessDate;
+import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
+import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
+import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
+import ru.intertrust.cm.core.gui.model.SortedMarker;
 
 /**
  * @author Sergey.Okolot
@@ -42,5 +47,49 @@ public final class GuiServerHelper {
         calendar.set(Calendar.SECOND, dateTime.getSeconds());
         calendar.set(Calendar.MILLISECOND, dateTime.getMilliseconds());
         return calendar;
+    }
+
+    public static CollectionColumnProperties collectionColumnConfigToProperties(final CollectionColumnConfig config,
+                final DefaultSortCriteriaConfig sortCriteriaConfig) {
+        final CollectionColumnProperties properties = new CollectionColumnProperties();
+        final String sortedField = getSortedField(sortCriteriaConfig);
+        final String field = config.getField();
+        final String columnName = config.getName();
+        properties.addProperty(CollectionColumnProperties.FIELD_NAME, field)
+                .addProperty(CollectionColumnProperties.NAME_KEY, columnName)
+                .addProperty(CollectionColumnProperties.TYPE_KEY, config.getType())
+                .addProperty(CollectionColumnProperties.SEARCH_FILTER_KEY, config.getSearchFilter())
+                .addProperty(CollectionColumnProperties.PATTERN_KEY, config.getPattern())
+                .addProperty(CollectionColumnProperties.TIME_ZONE_ID, config.getTimeZoneId())
+                .addProperty(CollectionColumnProperties.MIN_WIDTH, config.getMinWidth())
+                .addProperty(CollectionColumnProperties.MAX_WIDTH, config.getMaxWidth())
+                .addProperty(CollectionColumnProperties.RESIZABLE, config.isResizable())
+                .addProperty(CollectionColumnProperties.TEXT_BREAK_STYLE, config.getTextBreakStyle())
+                .addProperty(CollectionColumnProperties.SORTABLE, config.isSortable());
+        if (field.equalsIgnoreCase(sortedField)) {
+            properties.addProperty(
+                    CollectionColumnProperties.SORTED_MARKER, getSortedMarker(sortCriteriaConfig));
+        }
+        properties.setAscSortCriteriaConfig(config.getAscSortCriteriaConfig());
+        properties.setDescSortCriteriaConfig(config.getDescSortCriteriaConfig());
+        properties.setImageMappingsConfig(config.getImageMappingsConfig());
+        properties.setRendererConfig(config.getRendererConfig());
+        return properties;
+    }
+
+    private static String getSortedField(DefaultSortCriteriaConfig sortCriteriaConfig) {
+        if (sortCriteriaConfig == null) {
+            return null;
+        }
+        String columnField = sortCriteriaConfig.getColumnField();
+        return columnField;
+    }
+
+    private static SortedMarker getSortedMarker(DefaultSortCriteriaConfig sortCriteriaConfig) {
+        SortCriterion.Order sortOrder = sortCriteriaConfig.getOrder();
+        boolean sortedAscending = sortOrder.equals(SortCriterion.Order.ASCENDING);
+        SortedMarker sortedMarker = new SortedMarker();
+        sortedMarker.setAscending(sortedAscending);
+        return sortedMarker;
     }
 }
