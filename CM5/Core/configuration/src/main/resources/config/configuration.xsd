@@ -1049,13 +1049,15 @@
 
 
     <xs:complexType name="permissionsType">
-        <xs:sequence>
-            <xs:element name="permit-role" type="con:permissionRoleType"
-                        maxOccurs="unbounded" minOccurs="0"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element name="permit-group" type="con:permissionGroupType"
-                        maxOccurs="unbounded" minOccurs="0"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+            <xs:choice>
+                <xs:element name="permit-role" type="con:permissionRoleType"
+                            maxOccurs="unbounded" minOccurs="0"
+                            xmlns:con="https://cm5.intertrust.ru/config"/>
+                <xs:element name="permit-group" type="con:permissionGroupType"
+                            maxOccurs="unbounded" minOccurs="0"
+                            xmlns:con="https://cm5.intertrust.ru/config"/>
+            </xs:choice>                       
         </xs:sequence>
     </xs:complexType>
 

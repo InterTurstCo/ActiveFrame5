@@ -5,6 +5,8 @@
         т.к. они используются в матрицах доступа -->
     <static-group name="Administrators" />
 
+    <static-group name="Administrators_Read_Only" />
+
     <static-group name="Superusers" />
 
     <!-- Динамические группы пользователей - вычисляются системой -->
@@ -222,6 +224,15 @@
         </groups>
     </context-role>
 
+    <context-role name="Read_Only_Letter">
+        <context>
+            <domain-object type="letter" />
+        </context>
+        <groups>
+            <group name="Administrators_Read_Only"/>
+        </groups>
+    </context-role>
+
     <!--Администраторы стран -->
     <context-role name="Admins_Country">
         <context>
@@ -229,6 +240,15 @@
         </context>
         <groups>
             <group name="Administrators"/>
+        </groups>
+    </context-role>
+
+    <context-role name="Read_Only_Country">
+        <context>
+            <domain-object type="country" />
+        </context>
+        <groups>
+            <group name="Administrators_Read_Only"/>
         </groups>
     </context-role>
     
@@ -326,6 +346,7 @@
         <status name="Active">
             <read>
                 <permit-role name="Admins_Letter" />
+                <permit-role name="Read_Only_Letter" />
             </read>
             <write>
                 <permit-role name="Admins_Letter" />
@@ -343,6 +364,7 @@
         <status name="Active">
             <read>
                 <permit-role name="Admins_Country" />                
+                <permit-role name="Read_Only_Country" />
             </read>
             <write>
                 <permit-role name="Admins_Country" />
