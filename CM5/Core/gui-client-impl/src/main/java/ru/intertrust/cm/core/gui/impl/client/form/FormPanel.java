@@ -116,6 +116,7 @@ public class FormPanel implements IsWidget {
         if (isWidthDeclaredInConfig(configWidth)) {
             headerTable.asWidget().setWidth(configWidth);
         }
+        headerTable.asWidget().addStyleName("form-panel-header");
         return headerTable;
     }
 

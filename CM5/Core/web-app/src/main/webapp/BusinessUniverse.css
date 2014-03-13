@@ -1,7 +1,8 @@
+/* ------------>>> reset CSS <<<------------ */
+
 /* http://meyerweb.com/eric/tools/css/reset/
-   v2.0 | 20110126
-   License: none (public domain)
-*/
+   v2.0 | 2011-01-26
+   License: none (public domain) */
 
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
@@ -11,7 +12,7 @@ small, strike, strong, sub, sup, tt, var,
 b, u, i, center,
 dl, dt, dd, ol, ul, li,
 fieldset, form, label, legend,
-table, caption, tbody, tfoot, thead, tr,/* th, td,*/
+table, caption, tbody, tfoot, thead, tr, th, td,
 article, aside, canvas, details, embed,
 figure, figcaption, footer, header, hgroup,
 menu, nav, output, ruby, section, summary,
@@ -24,57 +25,57 @@ time, mark, audio, video {
     vertical-align: baseline;
 }
 
-th, td {vertical-align: middle;}
+*:focus {
+    outline: 0;
+}
+
+/* don't show the x for text inputs */
+::-ms-clear {
+    height: 0;
+    width: 0;
+}
+
+/* don't show the eye for password inputs */
+::-ms-reveal {
+    height: 0;
+    width: 0;
+}
 
 /* HTML5 display-role reset for older browsers */
 article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section {
     display: block;
 }
+
 body {
+    color: #000000;
+    background-color: white;
+    font-family: Arial, sans-serif;
+    font-size: small;
     line-height: 1;
+    margin: 8px;
 }
+
 ol, ul {
     list-style: none;
 }
+
 blockquote, q {
     quotes: none;
 }
+
 blockquote:before, blockquote:after,
 q:before, q:after {
     content: '';
     content: none;
 }
+
 table {
-    border-collapse: separate;
-    border-spacing: 0px;
-}
-
-
-body {
-    background-color: white;
-    color: black;
-    font-family: Arial, sans-serif;
-    font-size: small;
-    margin: 8px;
-}
-.test {
-    background-color: red;
-}
-
-#debug{
-    background-color: red;
     border-collapse: collapse;
+    border-spacing: 0;
 }
 
-#align-left{
-   text-align: left;
+th, td {
+    display: table-cell;
+    vertical-align: middle;
 }
-
-#align-right{
-    text-align: right;
-}
-
-
-
-

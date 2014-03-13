@@ -68,6 +68,7 @@
 
 .gwt-TabLayoutPanel .gwt-TabLayoutPanelTab-selected .gwt-Label {
     margin-left: 0px !important;
+    text-decoration: none;
 }
 
 .gwt-TabLayoutPanel .gwt-Label {
@@ -141,4 +142,9 @@ div.gwt-Label {
     height: 100%;
     position: absolute !important;
     width: 100%;
+}
+
+.form-panel-header {
+    padding: 10px 0 10px 10px;
+    display: table-cell;
 }

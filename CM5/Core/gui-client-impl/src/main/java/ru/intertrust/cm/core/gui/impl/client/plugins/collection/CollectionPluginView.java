@@ -618,7 +618,9 @@ public class CollectionPluginView extends PluginView {
                 for (CollectionColumnHeader header : headers) {
                     header.setFocus();
                 }
-               tableBody.getScrollPanel().setVerticalScrollPosition(tempScrollPosition);
+            if(collectionRowItems.size() >= 0  )   {
+                tableBody.getScrollPanel().setVerticalScrollPosition(tempScrollPosition);
+            }
 
             }
         });

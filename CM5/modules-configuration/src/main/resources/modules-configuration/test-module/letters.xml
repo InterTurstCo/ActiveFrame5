@@ -146,7 +146,7 @@
                 <!-- количество элементов, показываемых в данном узле дерева изначально -->
                 <page-size>10</page-size>
                 <single-choice value="false"/>
-                <clear-all-button image="css/images/clear.png" text="Очистить"/>
+                <clear-all-button  text="Очистить"/>
                 <add-button image="..." text="..."/>
                 <display-values-as-links value="true"/>
             </hierarchy-browser>

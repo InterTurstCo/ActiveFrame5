@@ -14,7 +14,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 @Root(name="clear-all-button")
 public class ClearAllButtonConfig implements Dto {
 
-    @Attribute (name = "image")
+    @Attribute (name = "image",required = false)
     String image;
 
     @Attribute(name = "text")

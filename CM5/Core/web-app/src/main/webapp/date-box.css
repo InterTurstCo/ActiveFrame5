@@ -1,142 +1,156 @@
 
-.wrap-date{
-width: 148px;
-float:left;
-position: relative;
-}
-.date-box-button{
-background: url(images/icon-datepicker.png) no-repeat;
-width: 16px;
-height: 16px;
-float: right;
-position: absolute;
-top: 6px;
-right: 11px;
-z-index: 5;
-cursor:pointer;
-cursor: pointer;
+.wrap-date {
+    width: 148px;
+    float: left;
+    position: relative;
 }
 
-.gwt-DateBox.date-text-box{
+.date-box-button {
+    width: 16px;
+    height: 16px;
+    background: url(images/icon-datepicker.png) no-repeat;
+    position: absolute;
+    top: 8px;
+    right: 11px;
+    z-index: 5;
+    cursor: pointer;
+}
 
-padding-top: 3px;
-padding-bottom: 3px;
-padding-left: 4px;
-width: 95%;
-border: 1px solid #bbb;
-font-family: Arial, Helvetica, sans-serif;
+.gwt-DateBox.date-text-box {
+    padding: 3px 0 3px 8px;
+    width: 90%;
+    border: 1px solid #bbb;
+    font-family: Arial, Helvetica, sans-serif;
+    min-height: 24px;
 }
-.date-picker-decorate > table{
-z-index: 99;
-border: 3px solid #54b5df;
-border-radius: 3px 3px 3px 3px;
-width: 195px;
+
+.date-picker-decorate > table {
+    z-index: 99;
+    border: 3px solid #54b5df;
+    border-radius: 3px 3px 3px 3px;
+    width: 195px;
 }
-.date-picker-baloon{
-width: 32px;
-height: 17px;
-position: absolute !important;
-left: 115px;
-top: 6px;
-background-image: url(css/images/blue-arrow.png);
-background-repeat: no-repeat;
+
+.date-picker-baloon {
+    width: 32px;
+    height: 17px;
+    position: absolute !important;
+    left: 115px;
+    top: 6px;
+    background-image: url(css/images/blue-arrow.png);
+    background-repeat: no-repeat;
 }
 
 .date-picker-baloon-up {
-width: 29px;
-height: 17px;
-left: 115px;
-top: -3px;
-background: url(images/blue-arrow-down.png) no-repeat -2px 0px;
+    width: 29px;
+    height: 17px;
+    left: 115px;
+    top: -3px;
+    background: url(images/blue-arrow-down.png) no-repeat -2px 0px;
 }
 
-.date-picker-decorate{
-padding-top: 20px;
+.date-picker-decorate {
+    padding-top: 20px;
 }
-.dateBoxPopup{
-z-index: 999;
+
+.dateBoxPopup {
+    z-index: 999;
 }
+
 /* top date picker */
-.datePickerPreviousButton{
-cursor: pointer;
-background-image: url(css/i/arr_left.png);
-background-repeat: no-repeat;
-height: 12px;
-width: 16px;
-margin-top: 4px;
-padding: 0px !important;
+.datePickerPreviousButton {
+    cursor: pointer;
+    background-image: url(css/i/arr_left.png);
+    background-repeat: no-repeat;
+    height: 12px;
+    width: 16px;
+    margin-top: 4px;
+    padding: 0px !important;
 }
-.datePickerNextButton{
-padding: 0px !important;
-cursor: pointer;
-background-image: url(css/i/arr_left.png);
-background-repeat: no-repeat;
-height: 12px;
-width: 16px;
-margin-top: 4px;
-background-image: url(css/i/arr_right.png);
+
+.datePickerNextButton {
+    padding: 0px !important;
+    cursor: pointer;
+    background-image: url(css/i/arr_left.png);
+    background-repeat: no-repeat;
+    height: 12px;
+    width: 16px;
+    margin-top: 4px;
+    background-image: url(css/i/arr_right.png);
 }
-.dateBoxPopup .html-face{
-display: none;
+
+.dateBoxPopup .html-face {
+    display: none;
 }
-.datePickerMonth{
-text-align: center !important;
-vertical-align: middle;
-white-space: nowrap !important;
-font-size: 100% !important;
-font-weight: bold !important;
-color: #333 !important;
+
+.datePickerMonth {
+    text-align: center !important;
+    vertical-align: middle;
+    white-space: nowrap !important;
+    font-size: 100% !important;
+    font-weight: bold !important;
+    color: #333 !important;
 }
+
 .datePickerMonthSelector {
-background: white !important;
-width: 100%;
+    background: white !important;
+    width: 100%;
 }
+
 .datePickerWeekdayLabel, .datePickerWeekendLabel {
-background: none !important;
-padding: 0px 4px 2px;
-cursor: default;
+    background: none !important;
+    padding: 0px 4px 2px;
+    cursor: default;
 }
-.datePickerDayIsWeekend  {
-background: #f7f7f7 !important;
-color: #f00 !important;
+
+.datePickerDayIsWeekend {
+    background: #f7f7f7 !important;
+    color: #f00 !important;
 }
+
 .datePickerDayIsWeekend :hover {
-color: #f00 !important;
-background: #f0e68c !important;
+    color: #f00 !important;
+    background: #f0e68c !important;
 }
+
 .datePickerDay, .datePickerWeekdayLabel, .datePickerWeekendLabel {
-font-size: 85%;
-text-align: center;
-padding: 4px;
-outline: none;
-font-weight: bold !important; 
-color: #333;
-border-right: 1px solid #ededed;
-border-bottom: 1px solid #ededed;
-font-family: Arial, sans-serif;
-text-decoration: inderline !important;
+    font-size: 85%;
+    text-align: center;
+    padding: 4px;
+    outline: none;
+    font-weight: bold !important;
+    color: #333;
+    border-right: 1px solid #ededed;
+    border-bottom: 1px solid #ededed;
+    font-family: Arial, sans-serif;
+    text-decoration: inderline !important;
 }
-.datePickerDayIsHighlighted:hover{
-background: #f0e68c;
+
+.datePickerDayIsHighlighted:hover {
+    background: #f0e68c;
 }
-.datePickerDayIsValue{
-background: #d7dfe8 !important;
+
+.datePickerDayIsValue {
+    background: #d7dfe8 !important;
 }
-.datePickerDayIsToday  {
-padding: 3px;
-color: #fff;
-background: url(css/images/hborder.png) repeat-x 0 -2607px;
-border:none !important
+
+.datePickerDayIsToday {
+    padding: 3px;
+    color: #fff;
+    background: url(css/images/hborder.png) repeat-x 0 -2607px;
+    border: none !important
 }
-.datePickerDay, .datePickerWeekdayLabel, .datePickerWeekendLabel{
-height: 16px;
+
+.datePickerDay, .datePickerWeekdayLabel, .datePickerWeekendLabel {
+    height: 16px;
 }
-.date-picker-decorate{
+
+.date-picker-decorate {
     border: 1px;
     border-color: red;
 
 }
 
-div, input, textarea, select{
-outline: none;
+div, input, textarea, select {
+    outline: none;
 }

@@ -322,7 +322,7 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
 
             DOM.appendChild(row, arrowBtn);
             clearAllButton = DOM.createTD();
-            clearAllButton.getStyle().setMarginRight(-69, Style.Unit.PX);
+            clearAllButton.getStyle().setMarginRight(-80, Style.Unit.PX);
             clearAllButton.getStyle().setDisplay(Style.Display.BLOCK);
             DOM.appendChild(row, clearAllButton);
             DOM.sinkEvents(arrowBtn, Event.ONCLICK);
@@ -387,7 +387,7 @@ public class SuggestBoxWidget extends BaseWidget implements HyperlinkStateChange
             if (getElement().getStyle().getProperty("maxWidth").isEmpty()) {
                 preferableWidth = getElement().getClientWidth();
                 if (state.getSuggestBoxConfig().getClearAllButtonConfig() != null) {
-                    int clearButtonWidth = 48; // using hardcode as clearAllButton.getClientWidth() returns wrong value (because of rightMargin = -69)
+                    int clearButtonWidth = 48; // using hardcode as clearAllButton.getClientWidth() returns wrong value (because of rightMargin = -80)
                     preferableWidth = preferableWidth - clearButtonWidth;
                 }
                 container.getStyle().setWidth(100, Style.Unit.PCT);
